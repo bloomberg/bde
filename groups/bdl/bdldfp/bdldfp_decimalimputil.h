@@ -297,8 +297,8 @@ class DecimalImpUtil {
 
                           // normalize
 
-    static ValueType32 normalize(ValueType32 original);
-    static ValueType64 normalize(ValueType64 original);
+    static ValueType32  normalize(ValueType32  original);
+    static ValueType64  normalize(ValueType64  original);
     static ValueType128 normalize(ValueType128 original);
         // Return a 'ValueTypeXX' number having the value as the specified
         // 'original, but with the significand, that can not be divided by ten,
@@ -574,6 +574,176 @@ class DecimalImpUtil {
         //:
         //: o Otherwise return the result of dividing the value of 'lhs' with
         //:   the value of 'rhs'.
+
+
+                        // Math functions
+
+    static ValueType32  copySign(ValueType32  x, ValueType32  y);
+    static ValueType64  copySign(ValueType64  x, ValueType64  y);
+    static ValueType128 copySign(ValueType128 x, ValueType128 y);
+        // Return a decimal value with the magnitude of the specifed 'x' and
+        // the sign of the specified 'y'.  If 'x' is NaN, then NaN with the
+        // sign of 'y' is returned.
+        // Examples: 'copysign(5.0, -2.0)' ==> -5.0; 'ceil(-5.0, -2.0)' ==> 5.0
+
+    static ValueType32  exp(ValueType32  x);
+    static ValueType64  exp(ValueType64  x);
+    static ValueType128 exp(ValueType128 x);
+        // Return 'e' (Euler's number, 2.7182818) raised to the specified power
+        // 'x'.
+        //
+        // Error handling:
+        //: o If 'x' is +/-0, 1 is returned.
+        //: o If 'x' is negative infinity, +0 is returned.
+        //: o If 'x' is infinity, infinity is returned.
+        //: o If 'x' is NaN, NaN is returned.
+
+    static ValueType32  log(ValueType32  x);
+    static ValueType64  log(ValueType64  x);
+    static ValueType128 log(ValueType128 x);
+        // Return the natural (base 'e') logarithm of the specified 'x'.
+        //
+        // Error handling:
+        //: o If 'x' is +/-0, -infinity is returned.
+        //: o If 'x' is 1, +0 is returned.
+        //: o If 'x' is negative, NaN is returned.
+        //: o If 'x' is infinity, infinity is returned.
+        //: o If 'x' is NaN, NaN is returned.
+
+    static ValueType32  logB(ValueType32  x);
+    static ValueType64  logB(ValueType64  x);
+    static ValueType128 logB(ValueType128 x);
+        // Return the value of the unbiased radix-independent exponent
+        // extracted from the specified 'x'.
+        //
+        // Error handling:
+        //: o If 'x' is +/-0, -infinity is returned.
+        //: o If 'x' is +/-infinity, +infinity is returned.
+        //: o If 'x' is NaN, NaN is returned.
+
+    static ValueType32  log10(ValueType32  x);
+    static ValueType64  log10(ValueType64  x);
+    static ValueType128 log10(ValueType128 x);
+        // Return the common (base-10) logarithm of the specified 'x'.
+        //
+        // Error handling:
+        //: o If 'x' is +/-0, -infinity is returned.
+        //: o If 'x' is 1, +0 is returned.
+        //: o If 'x' is negative, NaN is returned.
+        //: o If 'x' is infinity, infinity is returned.
+        //: o If 'x' is NaN, NaN is returned.
+
+    static ValueType32  fmod(ValueType32  x, ValueType32  y);
+    static ValueType64  fmod(ValueType64  x, ValueType64  y);
+    static ValueType128 fmod(ValueType128 x, ValueType128 y);
+        // Return the remainder of the division the specified 'x' by the
+        // specified 'y'.
+        //
+        // Error handling:
+        //: o If 'x' is +/-0 and 'y' is not zero, +/-0 is returned.
+        //: o If 'x' is +/-infnity and 'y' is not NaN, NaN is returned.
+        //: o If 'y' is +/-0 and 'x' is not NaN, NaN is returned.
+        //: o If 'y' is +/-infnity and 'x' is finite, 'x' is returned.
+        //: o If either argument is NaN, NaN is returned.
+
+    static ValueType32  remainder(ValueType32  x, ValueType32  y);
+    static ValueType64  remainder(ValueType64  x, ValueType64  y);
+    static ValueType128 remainder(ValueType128 x, ValueType128 y);
+        // Return the remainder of the division the specified 'x' by the
+        // specified 'y'.  Note that in contrast to 'DecimalImpUtil::fmod()',
+        // the returned value is not guaranteed to have the same sign as 'x'.
+        //
+        // Error handling:
+        //: o The current rounding mode has no effect.
+        //: o If 'y' is +/-0 and 'y' is not NaN, NaN is returned.
+        //: o If 'x' is +/-infnity and 'y' is not NaN, NaN is returned.
+        //: o If either argument is NaN, NaN is returned.
+
+    static long int        lrint(ValueType32  x);
+    static long int        lrint(ValueType64  x);
+    static long int        lrint(ValueType128 x);
+    static long long int  llrint(ValueType32  x);
+    static long long int  llrint(ValueType64  x);
+    static long long int  llrint(ValueType128 x);
+        // Return an integer value nearest to the specified 'x'.  Round 'x'
+        // using the current rounding mode.
+        //
+        // Error handling:
+        //: o If 'x' is +/-infnity, NaN is returned.
+        //: o If 'x' is NaN, NaN is returned.
+
+    static ValueType32  nextafter( ValueType32  from, ValueType32  to);
+    static ValueType64  nextafter( ValueType64  from, ValueType64  to);
+    static ValueType128 nextafter( ValueType128 from, ValueType128 to);
+    static ValueType32  nexttoward(ValueType32  from, ValueType128 to);
+    static ValueType64  nexttoward(ValueType64  from, ValueType128 to);
+    static ValueType128 nexttoward(ValueType128 from, ValueType128 to);
+        // Return the next representable value of the specified 'from' in the
+        // direction of the specified 'to'.
+        //
+        // Error handling:
+        //: o If either argument is NaN, NaN is returned.
+
+    static ValueType32  pow(ValueType32  base, ValueType32  exp);
+    static ValueType64  pow(ValueType64  base, ValueType64  exp);
+    static ValueType128 pow(ValueType128 base, ValueType128 exp);
+        // Return the value of the specified 'base' raised to the power the
+        // specified 'exp'.
+
+    static ValueType32  ceil(ValueType32  x);
+    static ValueType64  ceil(ValueType64  x);
+    static ValueType128 ceil(ValueType128 x);
+        // Return the smallest integral value that is not less than the
+        // specified 'x'.  If 'x' is integral, plus zero, minus zero, NaN, or
+        // infinity 'x' return 'x' itself.
+        // Examples: 'ceil(0.5)' ==> 1.0; 'ceil(-0.5)' ==> 0.0
+
+    static ValueType32  floor(ValueType32  x);
+    static ValueType64  floor(ValueType64  x);
+    static ValueType128 floor(ValueType128 x);
+        // Return the largest integral value that is not greater than the
+        // specified 'x'.  If 'x' is integral, positive zero, negative zero,
+        // NaN, or infinity 'x' return 'x' itself.
+        // Examples: 'floor(0.5)' ==> 0.0; 'floor(-0.5)' ==> -1.0
+
+    static ValueType32     round(ValueType32  x);
+    static ValueType64     round(ValueType64  x);
+    static ValueType128    round(ValueType128 x);
+    static long int       lround(ValueType32  x);
+    static long int       lround(ValueType64  x);
+    static long int       lround(ValueType128 x);
+        // Return the integal value nearest to the specified 'x'.  Round
+        // halfway cases away from zero, regardless of the current decimal
+        // floating point rounding mode.  If 'x' is integral, positive zero,
+        // negative zero, NaN, or infinity then return 'x' itself.
+        // Examples: 'round(0.5)' ==> 1.0; 'round(-0.5)' ==> -1.0
+
+    static ValueType32  trunc(ValueType32  x);
+    static ValueType64  trunc(ValueType64  x);
+    static ValueType128 trunc(ValueType128 x);
+        // Return the nearest integal value that is not greater in absolute
+        // value than the specified 'x'.  If 'x' is integral, NaN, or infinity
+        // then return 'x' itself.
+        // Examples: 'trunc(0.5)' ==> 0.0; 'trunc(-0.5)' ==> 0.0
+
+    static ValueType32  fma(ValueType32  x, ValueType32  y, ValueType32  z);
+    static ValueType64  fma(ValueType64  x, ValueType64  y, ValueType64  z);
+    static ValueType128 fma(ValueType128 x, ValueType128 y, ValueType128 z);
+        // Return, using the specified 'x', 'y', and 'z', the value of the
+        // expression 'x * y + z', rounded as one ternary operation according
+        // to the current decimal floating point rounding mode.
+
+    static ValueType32  fabs(ValueType32  x);
+    static ValueType64  fabs(ValueType64  x);
+    static ValueType128 fabs(ValueType128 x);
+        // Return the absolute value of the specified 'x'.  Note that the
+        // absolute value of NaN is NaN.  The absolute values of zero
+        // or infinity are zero and infinity respectively.
+
+    static ValueType32  sqrt(ValueType32  x);
+    static ValueType64  sqrt(ValueType64  x);
+    static ValueType128 sqrt(ValueType128 x);
+        // Return the square root of the specified 'x'.
 
                         // Negation functions
 
@@ -1316,12 +1486,552 @@ DecimalImpUtil::divide(DecimalImpUtil::ValueType128 lhs,
     return Imp::divide(lhs, rhs);
 }
 
+                        // Math functions
+
+inline
+long int DecimalImpUtil::lrint(ValueType32  x)
+{
+    _IDEC_flags flags;
+    return __bid32_lrint(x.d_raw, &flags);
+}
+
+inline
+long int DecimalImpUtil::lrint(ValueType64  x)
+{
+    _IDEC_flags flags;
+    return __bid64_lrint(x.d_raw, &flags);
+}
+
+inline
+long int DecimalImpUtil::lrint(ValueType128 x)
+{
+    _IDEC_flags flags;
+    return __bid128_lrint(x.d_raw, &flags);
+}
+
+inline
+long long int DecimalImpUtil::llrint(ValueType32  x)
+{
+    _IDEC_flags flags;
+    return __bid32_llrint(x.d_raw, &flags);
+}
+
+inline
+long long int DecimalImpUtil::llrint(ValueType64  x)
+{
+    _IDEC_flags flags;
+    return __bid64_llrint(x.d_raw, &flags);
+}
+
+inline
+long long int DecimalImpUtil::llrint(ValueType128 x)
+{
+    _IDEC_flags flags;
+    return __bid128_llrint(x.d_raw, &flags);
+}
+
+inline
+DecimalImpUtil::ValueType32
+DecimalImpUtil::nextafter(ValueType32  x, ValueType32  y)
+{
+    DecimalImpUtil::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid32_nextafter(x.d_raw, y.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType64
+DecimalImpUtil::nextafter(ValueType64  x, ValueType64  y)
+{
+    DecimalImpUtil::ValueType64 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid64_nextafter(x.d_raw, y.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType128
+DecimalImpUtil::nextafter(ValueType128 x, ValueType128 y)
+{
+    DecimalImpUtil::ValueType128 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid128_nextafter(x.d_raw, y.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType32
+DecimalImpUtil::nexttoward(ValueType32  x, ValueType128 y)
+{
+    DecimalImpUtil::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid32_nexttoward(x.d_raw, y.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType64
+DecimalImpUtil::nexttoward(ValueType64  x, ValueType128 y)
+{
+    DecimalImpUtil::ValueType64 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid64_nexttoward(x.d_raw, y.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType128
+DecimalImpUtil::nexttoward(ValueType128 x, ValueType128 y)
+{
+    DecimalImpUtil::ValueType128 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid128_nexttoward(x.d_raw, y.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType32
+DecimalImpUtil::pow(ValueType32  base, ValueType32  exp)
+{
+    DecimalImpUtil::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid32_pow(base.d_raw, exp.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType64
+DecimalImpUtil::pow(ValueType64  base, ValueType64  exp)
+{
+    DecimalImpUtil::ValueType64 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid64_pow(base.d_raw, exp.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType128
+DecimalImpUtil::pow(ValueType128 base, ValueType128 exp)
+{
+    DecimalImpUtil::ValueType128 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid128_pow(base.d_raw, exp.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType32 DecimalImpUtil::ceil(ValueType32  x)
+{
+    DecimalImpUtil::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid32_round_integral_positive(x.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType64 DecimalImpUtil::ceil(ValueType64  x)
+{
+    DecimalImpUtil::ValueType64 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid64_round_integral_positive(x.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::ceil(ValueType128 x)
+{
+    DecimalImpUtil::ValueType128 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid128_round_integral_positive(x.d_raw, &flags);
+    return retval;
+
+}
+
+inline
+DecimalImpUtil::ValueType32 DecimalImpUtil::floor(ValueType32 x)
+{
+    DecimalImpUtil::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid32_round_integral_negative(x.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType64 DecimalImpUtil::floor(ValueType64 x)
+{
+    DecimalImpUtil::ValueType64 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid64_round_integral_negative(x.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::floor(ValueType128 x)
+{
+    DecimalImpUtil::ValueType128 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid128_round_integral_negative(x.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType32 DecimalImpUtil::round(ValueType32 x)
+{
+    DecimalImpUtil::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid32_round_integral_nearest_away(x.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::round(ValueType128 x)
+{
+    DecimalImpUtil::ValueType128 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid128_round_integral_nearest_away(x.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType64 DecimalImpUtil::round(ValueType64 x)
+{
+    DecimalImpUtil::ValueType64 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid64_round_integral_nearest_away(x.d_raw, &flags);
+    return retval;
+}
+
+inline
+long int DecimalImpUtil::lround(ValueType32 x)
+{
+    _IDEC_flags flags;
+    return __bid32_lround(x.d_raw, &flags);
+}
+
+inline
+long int DecimalImpUtil::lround(ValueType64 x)
+{
+    _IDEC_flags flags;
+    return __bid64_lround(x.d_raw, &flags);
+}
+
+inline
+long int DecimalImpUtil::lround(ValueType128 x)
+{
+    _IDEC_flags flags;
+    return __bid128_lround(x.d_raw, &flags);
+}
+
+inline
+DecimalImpUtil::ValueType32 DecimalImpUtil::trunc(ValueType32 x)
+{
+    DecimalImpUtil::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid32_round_integral_zero(x.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType64 DecimalImpUtil::trunc(ValueType64 x)
+{
+    DecimalImpUtil::ValueType64 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid64_round_integral_zero(x.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::trunc(ValueType128 x)
+{
+    DecimalImpUtil::ValueType128 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid128_round_integral_zero(x.d_raw, &flags);
+    return retval;
+}
+
+
+inline
+DecimalImpUtil::ValueType32 DecimalImpUtil::fma(ValueType32 x, ValueType32 y, ValueType32 z)
+{
+    ValueType32 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid32_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType64 DecimalImpUtil::fma(ValueType64 x, ValueType64 y, ValueType64 z)
+{
+    ValueType64 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid64_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::fma(ValueType128 x, ValueType128 y, ValueType128 z)
+{
+    ValueType128 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid128_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
+    return rv;
+}
+                       // Selecting, converting functions
+
+inline
+DecimalImpUtil::ValueType32 DecimalImpUtil::fabs(ValueType32 value)
+{
+    ValueType32 rv;
+    rv.d_raw = __bid32_abs(value.d_raw);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType64 DecimalImpUtil::fabs(ValueType64 value)
+{
+    ValueType64 rv;
+    rv.d_raw = __bid64_abs(value.d_raw);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::fabs(ValueType128 value)
+{
+    ValueType128 rv;
+    rv.d_raw = __bid128_abs(value.d_raw);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType32 DecimalImpUtil::sqrt(ValueType32 value)
+{
+    ValueType32 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid32_sqrt(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType64 DecimalImpUtil::sqrt(ValueType64 value)
+{
+    ValueType64 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid64_sqrt(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::sqrt(ValueType128 value)
+{
+    ValueType128 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid128_sqrt(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType32  DecimalImpUtil::copySign(ValueType32  x,
+                                                      ValueType32  y)
+{
+    ValueType32 rv;
+    rv.d_raw = __bid32_copySign(x.d_raw, y.d_raw);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType64  DecimalImpUtil::copySign(ValueType64  x,
+                                                      ValueType64  y)
+{
+    ValueType64 rv;
+    rv.d_raw = __bid64_copySign(x.d_raw, y.d_raw);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::copySign(ValueType128 x,
+                                                      ValueType128 y)
+{
+    ValueType128 rv;
+    rv.d_raw = __bid128_copySign(x.d_raw, y.d_raw);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType32 DecimalImpUtil::exp(ValueType32 value)
+{
+    ValueType32 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid32_exp(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType64 DecimalImpUtil::exp(ValueType64 value)
+{
+    ValueType64 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid64_exp(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::exp(ValueType128 value)
+{
+    ValueType128 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid128_exp(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType32 DecimalImpUtil::log(ValueType32 value)
+{
+    ValueType32 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid32_log(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType64 DecimalImpUtil::log(ValueType64 value)
+{
+    ValueType64 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid64_log(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::log(ValueType128 value)
+{
+    ValueType128 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid128_log(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType32 DecimalImpUtil::logB(ValueType32 value)
+{
+    ValueType32 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid32_logb(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType64 DecimalImpUtil::logB(ValueType64 value)
+{
+    ValueType64 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid64_logb(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::logB(ValueType128 value)
+{
+    ValueType128 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid128_logb(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType32 DecimalImpUtil::log10(ValueType32 value)
+{
+    ValueType32 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid32_log10(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType64 DecimalImpUtil::log10(ValueType64 value)
+{
+    ValueType64 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid64_log10(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::log10(ValueType128 value)
+{
+    ValueType128 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid128_log10(value.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType32  DecimalImpUtil::fmod(ValueType32  x,
+                                                  ValueType32  y)
+{
+    ValueType32 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid32_fmod(x.d_raw, y.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType64  DecimalImpUtil::fmod(ValueType64  x,
+                                                  ValueType64  y)
+{
+    ValueType64 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid64_fmod(x.d_raw, y.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::fmod(ValueType128 x,
+                                                  ValueType128 y)
+{
+    ValueType128 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid128_fmod(x.d_raw, y.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType32  DecimalImpUtil::remainder(ValueType32  x,
+                                                       ValueType32  y)
+{
+    ValueType32 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid32_rem(x.d_raw, y.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType64  DecimalImpUtil::remainder(ValueType64  x,
+                                                       ValueType64  y)
+{
+    ValueType64 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid64_rem(x.d_raw, y.d_raw, &flags);
+    return rv;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::remainder(ValueType128 x,
+                                                       ValueType128 y)
+{
+    ValueType128 rv;
+    _IDEC_flags flags;
+    rv.d_raw = __bid128_rem(x.d_raw, y.d_raw, &flags);
+    return rv;
+}
+
                         // Negation Functions
 
 inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::negate(DecimalImpUtil::ValueType32 value)
 {
+
     return Imp::negate(value);
 }
 
@@ -1686,21 +2396,30 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType32 value, int exponent)
 {
-    return Imp::scaleB(value, exponent);
+    ValueType32 result;
+    _IDEC_flags flags;
+    result.d_raw = __bid32_scalbn(value.d_raw, exponent, &flags);
+    return result;
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType64 value, int exponent)
 {
-    return Imp::scaleB(value, exponent);
+    ValueType64 result;
+    _IDEC_flags flags;
+    result.d_raw = __bid64_scalbn(value.d_raw, exponent, &flags);
+    return result;
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType128 value, int exponent)
 {
-    return Imp::scaleB(value, exponent);
+    ValueType128 result;
+    _IDEC_flags  flags;
+    result.d_raw = __bid128_scalbn(value.d_raw, exponent, &flags);
+    return result;
 }
 
                         // Parsing functions

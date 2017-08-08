@@ -11,6 +11,7 @@
 #include <bsls_stopwatch.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cfenv.h>
 #include <bsl_climits.h>
 #include <bsl_cmath.h>
 #include <bsl_cstdlib.h>
@@ -165,10 +166,73 @@ using bsl::atoi;
 // [23] ValueType128 infinity128();
 // [23] ValueType128 quietNaN128();
 // [23] ValueType128 signalingNaN128();
+// [27] ValueType32  copysign(ValueType32);
+// [27] ValueType64  copysign(ValueType64);
+// [27] ValueType128 copysign(ValueType128);
+// [27] ValueType32  exp(ValueType32);
+// [27] ValueType64  exp(ValueType64);
+// [27] ValueType128 exp(ValueType128);
+// [27] ValueType32  log(ValueType32);
+// [27] ValueType64  log(ValueType64);
+// [27] ValueType128 log(ValueType128);
+// [27] ValueType32  logB(ValueType32);
+// [27] ValueType64  logB(ValueType64);
+// [27] ValueType128 logB(ValueType128);
+// [27] ValueType32  log10(ValueType32);
+// [27] ValueType64  log10(ValueType64);
+// [27] ValueType128 log10(ValueType128);
+// [27] ValueType32  ceil(ValueType32);
+// [27] ValueType64  ceil(ValueType64);
+// [27] ValueType128 ceil(ValueType128);
+// [27] ValueType32  fmod(ValueType32,  ValueType32);
+// [27] ValueType64  fmod(ValueType64,  ValueType64);
+// [27] ValueType128 fmod(ValueType128, ValueType128);
+// [27] ValueType32  remainder(ValueType32,  ValueType32);
+// [27] ValueType64  remainder(ValueType64,  ValueType64);
+// [27] ValueType128 remainder(ValueType128, ValueType128);
+// [27] long int lrint(ValueType32);
+// [27] long int lrint(ValueType64);
+// [27] long int lrint(ValueType128);
+// [27] long long int llrint(ValueType32);
+// [27] long long int llrint(ValueType64);
+// [27] long long int llrint(ValueType128);
+// [27] ValueType32  nextafter(ValueType32,  ValueType32);
+// [27] ValueType64  nextafter(ValueType64,  ValueType64);
+// [27] ValueType128 nextafter(ValueType128, ValueType128);
+// [27] ValueType32  nexttoward(ValueType32 , ValueType32);
+// [27] ValueType64  nexttoward(ValueType64,  ValueType64);
+// [27] ValueType128 nexttoward(ValueType128, ValueType128);
+// [27] ValueType32  pow(ValueType32);
+// [27] ValueType64  pow(ValueType64);
+// [27] ValueType128 pow(ValueType128);
+// [27] long int lround(ValueType32);
+// [27] long int lround(ValueType64);
+// [27] long int lround(ValueType128);
+// [27] ValueType32  sqrt(ValueType32);
+// [27] ValueType64  sqrt(ValueType64);
+// [27] ValueType128 sqrt(ValueType128);
+// [27] ceil(ValueType32)
+// [27] ceil(ValueType64)
+// [27] ceil(ValueType128)
+// [27] floor(ValueType32)
+// [27] floor(ValueType64)
+// [27] floor(ValueType128)
+// [27] trunc(ValueType32)
+// [27] trunc(ValueType64)
+// [27] trunc(ValueType128)
+// [27] round(ValueType32)
+// [27] round(ValueType64)
+// [27] round(ValueType128)
+// [27] fabs(ValueType32)
+// [27] fabs(ValueType64)
+// [27] fabs(ValueType128)
+// [28] fma(ValueType32,  ValueType32,  ValueType32);
+// [28] fma(ValueType64,  ValueType64,  ValueType64);
+// [28] fma(ValueType128, ValueType128, ValueType128);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] TEST 'notEqual' FOR 'NaN' CORRECTNESS
-// [27] USAGE EXAMPLE
+// [29] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 //=============================================================================
@@ -305,7 +369,8 @@ const long long mantissas[] = {
                                -1234567890123456LL,
                                -9876543210987654LL
                               };
-const int numMantissas = sizeof(mantissas) / sizeof(*mantissas);
+const int numMantissas = static_cast<int>(
+                                       sizeof(mantissas) / sizeof(*mantissas));
 
 const int exponents[] = {
                             0,
@@ -323,7 +388,8 @@ const int exponents[] = {
                          -123,
                          -321
                         };
-const int numExponents = sizeof(exponents) / sizeof(*exponents);
+const int numExponents = static_cast<int>(
+                                       sizeof(exponents) / sizeof(*exponents));
 
 
 static const long long TEST_NONZERO_MANTISSAS[] = {
@@ -469,8 +535,8 @@ static const long long TEST_NONZERO_MANTISSAS[] = {
 
 };
 
-const int NUM_TEST_NONZERO_MANTISSAS =
-            sizeof TEST_NONZERO_MANTISSAS / sizeof *TEST_NONZERO_MANTISSAS;
+const int NUM_TEST_NONZERO_MANTISSAS = static_cast<int>(
+               sizeof TEST_NONZERO_MANTISSAS / sizeof *TEST_NONZERO_MANTISSAS);
 
 static const int TEST_EXPONENTS[] = {
     -4064,
@@ -516,7 +582,8 @@ static const int TEST_EXPONENTS[] = {
     4064
 };
 
-const int NUM_TEST_EXPONENTS = sizeof TEST_EXPONENTS / sizeof *TEST_EXPONENTS;
+const int NUM_TEST_EXPONENTS = static_cast<int>(
+                               sizeof TEST_EXPONENTS / sizeof *TEST_EXPONENTS);
 
 // ============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
@@ -808,6 +875,265 @@ bool checkBitsEquality(TYPE lhs, TYPE rhs)
     return 0 == bsl::memcmp(&lhs, &rhs, sizeof(TYPE));
 }
 
+template <class DECIMAL>
+struct DecimalFactory;
+    // This 'struct' template provides a mechanism to create an object of the
+    // template parameter type 'DECIMAL' through a consistent interface.
+
+template <>
+struct DecimalFactory<Util::ValueType32>
+    // This template specialization of 'DecimalFactory' provides functions to
+    // create 'ValueType32' values.
+{
+    typedef int Significand;
+    typedef int Exponent;
+
+    static Util::ValueType32 makeDecimalRaw(Significand significand,
+                                            Exponent    exponent)
+        // Create a 'ValueType32' object representing a decimal floating point
+        // number consisting of the specified 'significand' and 'exponent',
+        // with the sign given by 'significand'.
+    {
+        return Util::makeDecimalRaw32(significand, exponent);
+    }
+
+    static Util::ValueType32 infinity()
+        // Return the value that represents positive infinity for the
+        // 'ValueType32' type.
+    {
+        return Util::infinity32();
+    }
+
+    static Util::ValueType32 quietNaN()
+        // Return a value that represents non-signaling NaN for the
+        // 'ValueType32' type.
+    {
+        return Util::quietNaN32();
+    }
+};
+
+template <>
+struct DecimalFactory<Util::ValueType64>
+    // This template specialization of 'DecimalFactory' provides functions to
+    // create 'ValueType64' values.
+{
+    typedef long long Significand;
+    typedef int Exponent;
+
+    static Util::ValueType64 makeDecimalRaw(Significand significand,
+                                            Exponent    exponent)
+        // Create a 'ValueType64' object representing a decimal floating point
+        // number consisting of the specified 'significand' and 'exponent',
+        // with the sign given by 'significand'.
+    {
+        return Util::makeDecimalRaw64(significand, exponent);
+    }
+
+    static Util::ValueType64 infinity()
+        // Return the value that represents positive infinity for the
+        // 'ValueType64' type.
+    {
+        return Util::infinity64();
+    }
+
+    static Util::ValueType64 quietNaN()
+        // Return a value that represents non-signaling NaN for the
+        // 'ValueType64' type.
+    {
+        return Util::quietNaN64();
+    }
+};
+
+template <>
+struct DecimalFactory<Util::ValueType128>
+    // This template specialization of 'DecimalFactory' provides functions to
+    // create 'ValueType128' values.
+{
+    typedef long long Significand;
+    typedef int Exponent;
+
+    static Util::ValueType128 makeDecimalRaw(Significand significand,
+                                             Exponent    exponent)
+        // Create a 'ValueType128' object representing a decimal floating point
+        // number consisting of the specified 'significand' and 'exponent',
+        // with the sign given by 'significand'.
+    {
+        return Util::makeDecimalRaw128(significand, exponent);
+    }
+
+    static Util::ValueType128 infinity()
+        // Return the value that represents positive infinity for the
+        // 'ValueType128' type.
+    {
+        return Util::infinity128();
+    }
+
+    static Util::ValueType128 quietNaN()
+        // Return a value that represents non-signaling NaN for the
+        // 'ValueType128' type.
+    {
+        return Util::quietNaN128();
+    }
+};
+
+
+template <class DECIMAL>
+void testFma()
+    // ------------------------------------------------------------------------
+    // TESTING FMA
+    //
+    // Concerns:
+    //:  1 That 'fma(x, y, z)' to 'NaN' or 'Inf' should follow the IEEE rules
+    //:    for the cases listed in the following charts:
+    //:
+    //:                   x * y|-Inf|Normal|+Inf|NaN|
+    //:                  ------+----+------+----+---+
+    //:                   -Inf |+Inf|+/-Inf|-Inf|NaN|
+    //:                  ------+----+------+----+---+
+    //:                  Normal| Inf|Normal| Inf|NaN|
+    //:                  ------+----+------+----+---+
+    //:                   +Inf |-Inf|+/-Inf|+Inf|NaN|
+    //:                  ------+----+------+----+---+
+    //:                    NaN | NaN|  NaN | NaN|NaN|
+    //:
+    //:             (x * y) + z|-Inf|Normal|+Inf|NaN|
+    //:            ------------+----+------+----+---+
+    //:                -Inf    |-Inf| -Inf | NaN|NaN|
+    //:            ------------+----+------+----+---+
+    //:               Normal   |-Inf|Normal|+Inf|NaN|
+    //:            ------------+----+------+----+---+
+    //:                +Inf    | NaN| +Inf |+Inf|NaN|
+    //:            ------------+----+------+----+---+
+    //:                 NaN    | NaN|  NaN | NaN|NaN|
+    //
+    // Plan:
+    //:  1 Test all 64 special cases in the charts, which covers all
+    //:    combination of input decimal value types (C-1)
+    //
+    // Testing
+    //   fabs(ValueType32,  ValueType32,  ValueType32);
+    //   fabs(ValueType64,  ValueType64,  ValueType64);
+    //   fabs(ValueType128, ValueType128, ValueType128);
+    // ------------------------------------------------------------------------
+{
+    typedef DecimalFactory<DECIMAL> Factory;
+
+    const DECIMAL  INF_P  = Factory::infinity();
+    const DECIMAL  INF_N  = Util::negate(INF_P);
+    const DECIMAL  NaN    = Factory::quietNaN();
+    const DECIMAL  NORMAL = Factory::makeDecimalRaw(42, 0);
+
+    ASSERT( Util::equal(INF_P, INF_P));
+    ASSERT( Util::equal(INF_N, INF_N));
+    ASSERT( Util::notEqual(INF_P, INF_N));
+    ASSERT(!Util::equal(NaN, NaN));
+    ASSERT( Util::notEqual(NaN, NaN));
+
+    struct {
+        int     d_line;
+        DECIMAL  d_x;
+        DECIMAL  d_y;
+        DECIMAL  d_z;
+        DECIMAL  d_expected;
+    } DATA[] = {
+
+        //    A        B        C,      EXPECTED
+        { L_, INF_N,  INF_N,  INF_N,  NaN    },
+        { L_, INF_N,  INF_N,  NORMAL, INF_P  },
+        { L_, INF_N,  INF_N,  INF_P,  INF_P  },
+        { L_, INF_N,  INF_N,  NaN,    NaN    },
+
+        { L_, INF_N,  NORMAL, INF_N,  INF_N  },
+        { L_, INF_N,  NORMAL, NORMAL, INF_N  },
+        { L_, INF_N,  NORMAL, INF_P,  NaN    },
+        { L_, INF_N,  NORMAL, NaN,    NaN    },
+
+        { L_, INF_N,  INF_P,  INF_N,  INF_N  },
+        { L_, INF_N,  INF_P,  NORMAL, INF_N  },
+        { L_, INF_N,  INF_P,  INF_P,  NaN    },
+        { L_, INF_N,  INF_P,  NaN,    NaN    },
+
+        { L_, INF_N,  NaN,    INF_N,  NaN    },
+        { L_, INF_N,  NaN,    NORMAL, NaN    },
+        { L_, INF_N,  NaN,    INF_P,  NaN    },
+        { L_, INF_N,  NaN,    NaN,    NaN    },
+
+        { L_, NORMAL, INF_N,  INF_N,  INF_N  },
+        { L_, NORMAL, INF_N,  NORMAL, INF_N  },
+        { L_, NORMAL, INF_N,  INF_P,  NaN    },
+        { L_, NORMAL, INF_N,  NaN,    NaN    },
+
+        { L_, NORMAL, NORMAL, INF_N,  INF_N  },
+        { L_, NORMAL, NORMAL, NORMAL, Factory::makeDecimalRaw(42*42+42, 0) },
+        { L_, NORMAL, NORMAL, INF_P,  INF_P  },
+        { L_, NORMAL, NORMAL, NaN,    NaN    },
+
+        { L_, NORMAL, INF_P,  INF_N,  NaN    },
+        { L_, NORMAL, INF_P,  NORMAL, INF_P  },
+        { L_, NORMAL, INF_P,  INF_P,  INF_P  },
+        { L_, NORMAL, INF_P,  NaN,    NaN    },
+
+        { L_, NORMAL, NaN,    INF_N,  NaN    },
+        { L_, NORMAL, NaN,    NORMAL, NaN    },
+        { L_, NORMAL, NaN,    INF_P,  NaN    },
+        { L_, NORMAL, NaN,    NaN,    NaN    },
+
+        { L_, INF_P,  INF_N,  INF_N,  INF_N  },
+        { L_, INF_P,  INF_N,  NORMAL, INF_N  },
+        { L_, INF_P,  INF_N,  INF_P,  NaN    },
+        { L_, INF_P,  INF_N,  NaN,    NaN    },
+
+        { L_, INF_P,  NORMAL, INF_N,  NaN    },
+        { L_, INF_P,  NORMAL, NORMAL, INF_P  },
+        { L_, INF_P,  NORMAL, INF_P,  INF_P  },
+        { L_, INF_P,  NORMAL, NaN,    NaN    },
+
+        { L_, INF_P,  INF_P,  INF_N,  NaN    },
+        { L_, INF_P,  INF_P,  NORMAL, INF_P  },
+        { L_, INF_P,  INF_P,  INF_P,  INF_P  },
+        { L_, INF_P,  INF_P,  NaN,    NaN    },
+
+        { L_, INF_P,  NaN,    INF_N,  NaN    },
+        { L_, INF_P,  NaN,    NORMAL, NaN    },
+        { L_, INF_P,  NaN,    INF_P,  NaN    },
+        { L_, INF_P,  NaN,    NaN,    NaN    },
+
+        { L_, NaN,    INF_N,  INF_N,  NaN    },
+        { L_, NaN,    INF_N,  NORMAL, NaN    },
+        { L_, NaN,    INF_N,  INF_P,  NaN    },
+        { L_, NaN,    INF_N,  NaN,    NaN    },
+
+        { L_, NaN,    NORMAL, INF_N,  NaN    },
+        { L_, NaN,    NORMAL, NORMAL, NaN    },
+        { L_, NaN,    NORMAL, INF_P,  NaN    },
+        { L_, NaN,    NORMAL, NaN,    NaN    },
+
+        { L_, NaN,    INF_P,  INF_N,  NaN    },
+        { L_, NaN,    INF_P,  NORMAL, NaN    },
+        { L_, NaN,    INF_P,  INF_P,  NaN    },
+        { L_, NaN,    INF_P,  NaN,    NaN    },
+
+        { L_, NaN,    NaN,    INF_N,  NaN    },
+        { L_, NaN,    NaN,    NORMAL, NaN    },
+        { L_, NaN,    NaN,    INF_P,  NaN    },
+        { L_, NaN,    NaN,    NaN,    NaN    },
+    };
+
+
+    const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int     LINE     = DATA[ti].d_line;
+        const DECIMAL  X        = DATA[ti].d_x;
+        const DECIMAL  Y        = DATA[ti].d_y;
+        const DECIMAL  Z        = DATA[ti].d_z;
+        const DECIMAL  EXPECTED = DATA[ti].d_expected;
+
+        DECIMAL RESULT = Util::fma(X, Y, Z);
+        LOOP1_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+    }
+}
+
 // ============================================================================
 //                              USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -855,6 +1181,8 @@ static int veryVeryVeryVerbose;
 
 struct TestDriver {
     typedef bsls::AssertFailureHandlerGuard AssertFailureHandlerGuard;
+    static void testCase29();
+    static void testCase28();
     static void testCase27();
     static void testCase26();
     static void testCase25();
@@ -884,7 +1212,7 @@ struct TestDriver {
     static void testCase1();
 };
 
-void TestDriver::testCase27()
+void TestDriver::testCase29()
 {
     // ------------------------------------------------------------------------
     // TESTING USAGE EXAMPLE
@@ -985,6 +1313,2187 @@ void TestDriver::testCase27()
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
 }
+
+void TestDriver::testCase28()
+{
+    if (verbose) bsl::cout << "\nTESTING 'fma' METHOD"
+                           << "\n===================="
+                           << bsl::endl;
+
+    if (veryVeryVerbose) T_ bsl::cout << "ValueType32" << bsl::endl;
+    testFma<Util::ValueType32>();
+
+    if (veryVeryVerbose) T_ bsl::cout << "ValueType64" << bsl::endl;
+    testFma<Util::ValueType64>();
+
+    if (veryVeryVerbose) T_ bsl::cout << "ValueType128" << bsl::endl;
+    testFma<Util::ValueType128>();
+}
+
+void testException(int LINE)
+{
+    if (bsl::fetestexcept(FE_INEXACT))
+    {
+        T_ T_ P_(LINE) bsl::cout << "FE_INEXACT" << bsl::endl;
+    }
+
+    if (bsl::fetestexcept(FE_INVALID))
+    {
+        T_ T_ P_(LINE) bsl::cout << "FE_INVALID" << bsl::endl;
+    }
+
+    if (bsl::fetestexcept(FE_DIVBYZERO))
+    {
+        T_ T_ P_(LINE) bsl::cout << "FE_DIVBYZERO" << bsl::endl;
+    }
+
+    if (bsl::fetestexcept(FE_OVERFLOW))
+    {
+        T_ T_ P_(LINE) bsl::cout << "FE_OVERFLOW" << bsl::endl;
+    }
+
+    if (bsl::fetestexcept(FE_UNDERFLOW))
+    {
+        T_ T_ P_(LINE) bsl::cout << "FE_UNDERFLOW" << bsl::endl;
+    }
+}
+
+void TestDriver::testCase27()
+{
+    // ------------------------------------------------------------------------
+    // TESTING MATH FUNCTIONS
+    //
+    // Concerns:
+    //:  1 Since each math function provided by 'IntelDfp' library have been
+    //:    thoroughly tested, we only need to make sure that math functions are
+    //:    used correctly and that math methods forward arguments to the
+    //:    appropriate math implementation function.
+    //
+    // Plan:
+    //:  1 Using table-driven technique:
+    //:
+    //:    1 Specify a set of arguments representing distinct decimal type
+    //:      values and expected result of math method execution.
+    //:
+    //:    2 Exercise math method using the arguments from (P-1.1) and ensure
+    //:      that the result of execution equals the expected value.
+    //
+    // Testing:
+    //   ValueType32   copySign  (ValueType32);
+    //   ValueType64   copySign  (ValueType64);
+    //   ValueType128  copySign  (ValueType128);
+    //   ValueType32   exp       (ValueType32);
+    //   ValueType64   exp       (ValueType64);
+    //   ValueType128  exp       (ValueType128);
+    //   ValueType32   log       (ValueType32);
+    //   ValueType64   log       (ValueType64);
+    //   ValueType128  log       (ValueType128);
+    //   ValueType32   logB      (ValueType32);
+    //   ValueType64   logB      (ValueType64);
+    //   ValueType128  logB      (ValueType128);
+    //   ValueType32   log10     (ValueType32);
+    //   ValueType64   log10     (ValueType64);
+    //   ValueType128  log10     (ValueType128);
+    //   ValueType32   ceil      (ValueType32);
+    //   ValueType64   ceil      (ValueType64);
+    //   ValueType128  ceil      (ValueType128);
+    //   ValueType32   fmod      (ValueType32,  ValueType32);
+    //   ValueType64   fmod      (ValueType64,  ValueType64);
+    //   ValueType128  fmod      (ValueType128, ValueType128);
+    //   ValueType32   remainder (ValueType32,  ValueType32);
+    //   ValueType64   remainder (ValueType64,  ValueType64);
+    //   ValueType128  remainder (ValueType128, ValueType128);
+    //   long int      lrint     (ValueType32);
+    //   long int      lrint     (ValueType64);
+    //   long int      lrint     (ValueType128);
+    //   long long int llrint    (ValueType32);
+    //   long long int llrint    (ValueType64);
+    //   long long int llrint    (ValueType128);
+    //   ValueType32   nextafter (ValueType32,  ValueType32);
+    //   ValueType64   nextafter (ValueType64,  ValueType64);
+    //   ValueType128  nextafter (ValueType128, ValueType128);
+    //   ValueType32   nexttoward(ValueType32,  ValueType32);
+    //   ValueType64   nexttoward(ValueType64,  ValueType64);
+    //   ValueType128  nexttoward(ValueType128, ValueType128);
+    //   ValueType32   pow       (ValueType32);
+    //   ValueType64   pow       (ValueType64);
+    //   ValueType128  pow       (ValueType128);
+    //   long int      lround    (ValueType32);
+    //   long int      lround    (ValueType64);
+    //   long int      lround    (ValueType128);
+    //   ValueType32   sqrt      (ValueType32);
+    //   ValueType64   sqrt      (ValueType64);
+    //   ValueType128  sqrt      (ValueType128);
+    //   ValueType32   ceil      (ValueType32);
+    //   ValueType64   ceil      (ValueType64);
+    //   ValueType128  ceil      (ValueType128);
+    //   ValueType32   floor     (ValueType32);
+    //   ValueType64   floor     (ValueType64);
+    //   ValueType128  floor     (ValueType128);
+    //   ValueType32   trunc     (ValueType32);
+    //   ValueType64   trunc     (ValueType64);
+    //   ValueType128  trunc     (ValueType128);
+    //   ValueType32   round     (ValueType32);
+    //   ValueType64   round     (ValueType64);
+    //   ValueType128  round     (ValueType128);
+    //   ValueType32   fabs      (ValueType32);
+    //   ValueType64   fabs      (ValueType64);
+    //   ValueType128  fabs      (ValueType128);
+    // ------------------------------------------------------------------------
+    if (verbose) bsl::cout << "\nTESTING MATH METHODS"
+                           << "\n===================="
+                           << bsl::endl;
+
+    if (veryVeryVerbose) T_ bsl::cout << "ValueType32" << bsl::endl;
+    {
+        typedef Util::ValueType32 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
+
+        const Obj DECIMAL = DEC(1234567.0);
+        const Obj NAN_P   =              Util::quietNaN32();
+        const Obj NAN_N   = Util::negate(Util::quietNaN32());
+        const Obj INF_P   =              Util::infinity32();
+        const Obj INF_N   = Util::negate(Util::infinity32());
+        const Obj ZERO_P  =              DEC(0.0);
+        const Obj ZERO_N  = Util::negate(ZERO_P);
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "copySign()" << bsl::endl;
+        {
+            const Obj DEC_P  = DEC(+1234567.0);
+            const Obj DEC_N  = DEC(-1234567.0);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+            } DATA[] = {
+            //---------------------------------
+            // LINE |  X    |    Y   | EXPECTED
+            //---------------------------------
+                { L_, DEC_P,   DEC_P,  DEC_P },
+                { L_, DEC_P,   DEC_N,  DEC_N },
+                { L_, DEC_P,   NAN_P,  DEC_P },
+                { L_, DEC_P,   NAN_N,  DEC_N },
+                { L_, DEC_P,   INF_P,  DEC_P },
+                { L_, DEC_P,   INF_N,  DEC_N },
+                { L_, DEC_P,   ZERO_P, DEC_P },
+                { L_, DEC_P,   ZERO_N, DEC_N },
+
+                { L_, DEC_N,   DEC_P,  DEC_P },
+                { L_, DEC_N,   DEC_N,  DEC_N },
+                { L_, DEC_N,   NAN_P,  DEC_P },
+                { L_, DEC_N,   NAN_N,  DEC_N },
+                { L_, DEC_N,   INF_P,  DEC_P },
+                { L_, DEC_N,   INF_N,  DEC_N },
+                { L_, DEC_N,   ZERO_P, DEC_P },
+                { L_, DEC_N,   ZERO_N, DEC_N },
+
+                { L_, NAN_P,   DEC_P,  NAN_P },
+                { L_, NAN_P,   DEC_N,  NAN_N },
+                { L_, NAN_P,   NAN_P,  NAN_P },
+                { L_, NAN_P,   NAN_N,  NAN_N },
+                { L_, NAN_P,   INF_P,  NAN_P },
+                { L_, NAN_P,   INF_N,  NAN_N },
+                { L_, NAN_P,   ZERO_P, NAN_P },
+                { L_, NAN_P,   ZERO_N, NAN_N },
+
+                { L_, NAN_N,   DEC_P,  NAN_P },
+                { L_, NAN_N,   DEC_N,  NAN_N },
+                { L_, NAN_N,   NAN_P,  NAN_P },
+                { L_, NAN_N,   NAN_N,  NAN_N },
+                { L_, NAN_N,   INF_P,  NAN_P },
+                { L_, NAN_N,   INF_N,  NAN_N },
+                { L_, NAN_N,   ZERO_P, NAN_P },
+                { L_, NAN_N,   ZERO_N, NAN_N },
+
+                { L_, INF_P,   DEC_P,  INF_P },
+                { L_, INF_P,   DEC_N,  INF_N },
+                { L_, INF_P,   NAN_P,  INF_P },
+                { L_, INF_P,   NAN_N,  INF_N },
+                { L_, INF_P,   INF_P,  INF_P },
+                { L_, INF_P,   INF_N,  INF_N },
+                { L_, INF_P,   ZERO_P, INF_P },
+                { L_, INF_P,   ZERO_N, INF_N },
+
+                { L_, INF_N,   DEC_P,  INF_P },
+                { L_, INF_N,   DEC_N,  INF_N },
+                { L_, INF_N,   NAN_P,  INF_P },
+                { L_, INF_N,   NAN_N,  INF_N },
+                { L_, INF_N,   INF_P,  INF_P },
+                { L_, INF_N,   INF_N,  INF_N },
+                { L_, INF_N,   ZERO_P, INF_P },
+                { L_, INF_N,   ZERO_N, INF_N },
+
+                { L_, ZERO_P,   DEC_P,  ZERO_P },
+                { L_, ZERO_P,   DEC_N,  ZERO_N },
+                { L_, ZERO_P,   NAN_P,  ZERO_P },
+                { L_, ZERO_P,   NAN_N,  ZERO_N },
+                { L_, ZERO_P,   INF_P,  ZERO_P },
+                { L_, ZERO_P,   INF_N,  ZERO_N },
+                { L_, ZERO_P,   ZERO_P, ZERO_P },
+                { L_, ZERO_P,   ZERO_N, ZERO_N },
+
+                { L_, ZERO_N,   DEC_P,  ZERO_P },
+                { L_, ZERO_N,   DEC_N,  ZERO_N },
+                { L_, ZERO_N,   NAN_P,  ZERO_P },
+                { L_, ZERO_N,   NAN_N,  ZERO_N },
+                { L_, ZERO_N,   INF_P,  ZERO_P },
+                { L_, ZERO_N,   INF_N,  ZERO_N },
+                { L_, ZERO_N,   ZERO_P, ZERO_P },
+                { L_, ZERO_N,   ZERO_N, ZERO_N },
+
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::copySign(X, Y);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "exp()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //--------------------------------------
+            // LINE |     X     | EXPECTED
+            //--------------------------------------
+                { L_, DEC( 12.0), DEC(1.627548e+5) },
+                { L_, DEC(-11.0), DEC(1.670170e-5) },
+                { L_, DEC(9999999.0), INF_P },
+                { L_, NAN_P,      NAN_P            },
+                { L_, NAN_N,      NAN_N            },
+                { L_, INF_P,      INF_P            },
+                { L_, INF_N,      ZERO_P           },
+                { L_, ZERO_P,     DEC(1.0)         },
+                { L_, ZERO_N,     DEC(1.0)         },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+
+                const Obj  RESULT   = Util::exp(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "log()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------
+            // LINE |     X     | EXPECTED
+            //-----------------------------------
+                { L_, DEC(  1.0), ZERO_P        },
+                { L_, DEC( 12.0), DEC(2.484907) },
+                { L_, DEC(-11.0), NAN_N         },
+                { L_, NAN_P,      NAN_P         },
+                { L_, NAN_N,      NAN_N         },
+                { L_, INF_P,      INF_P         },
+                { L_, INF_N,      NAN_N         },
+                { L_, ZERO_P,     INF_N         },
+                { L_, ZERO_N,     INF_N         },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::log(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "logB()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //------------------------------
+            // LINE |     X     | EXPECTED
+            //------------------------------
+                { L_, DEC(  1.0), ZERO_P   },
+                { L_, DEC( 12.0), DEC(1.0) },
+                { L_, DEC(-11.0), DEC(1.0) },
+                { L_, NAN_P,      NAN_P    },
+                { L_, NAN_N,      NAN_N    },
+                { L_, INF_P,      INF_P    },
+                { L_, INF_N,      INF_P    },
+                { L_, ZERO_P,     INF_N    },
+                { L_, ZERO_N,     INF_N    },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::logB(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "log10()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------
+            // LINE |     X     | EXPECTED
+            //-----------------------------------
+                { L_, DEC(  1.0), ZERO_P        },
+                { L_, DEC( 12.0), DEC(1.079181) },
+                { L_, DEC(-11.0), NAN_N         },
+                { L_, NAN_P,      NAN_P         },
+                { L_, NAN_N,      NAN_N         },
+                { L_, INF_P,      INF_P         },
+                { L_, INF_N,      NAN_N         },
+                { L_, ZERO_P,     INF_N         },
+                { L_, ZERO_N,     INF_N         },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::log10(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "fmod()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------------
+            // LINE |     X    |     Y   | EXPECTED
+            //-----------------------------------------
+                { L_, DEC( 5.1), DEC(3.0), DEC( 2.1)  },
+                { L_, DEC( 5.1), DEC(3.0), DEC( 2.1)  },
+                { L_, DEC(-5.1), DEC(3.0), DEC(-2.1)  },
+                { L_, DEC( 5.1), NAN_P,    NAN_P      },
+                { L_, DEC( 5.1), NAN_N,    NAN_P      },
+                { L_, DEC( 5.1), INF_P,    DEC( 5.1)  },
+                { L_, DEC(-5.1), INF_N,    DEC(-5.1)  },
+                { L_, DEC( 5.1), ZERO_P,   NAN_P      },
+                { L_, DEC( 5.1), ZERO_N,   NAN_P      },
+                { L_, NAN_P,     DEC(3.0), NAN_P      },
+                { L_, INF_P,     DEC(3.0), NAN_P      },
+                { L_, ZERO_P,    DEC(3.0), ZERO_P     },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::fmod(X, Y);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "remainder()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------------
+            // LINE |     X    |     Y   | EXPECTED
+            //-----------------------------------------
+                { L_, DEC( 5.1), DEC(3.0), DEC(-0.9)  },
+                { L_, DEC( 5.1), DEC(3.0), DEC(-0.9)  },
+                { L_, DEC(-5.1), DEC(3.0), DEC( 0.9)  },
+                { L_, DEC( 5.1), NAN_P,    NAN_P      },
+                { L_, DEC( 5.1), NAN_N,    NAN_P      },
+                { L_, DEC( 5.1), INF_P,    DEC( 5.1)  },
+                { L_, DEC(-5.1), INF_N,    DEC(-5.1)  },
+                { L_, DEC( 5.1), ZERO_P,   NAN_P      },
+                { L_, DEC( 5.1), ZERO_N,   NAN_P      },
+                { L_, NAN_P,     DEC(3.0), NAN_P      },
+                { L_, INF_P,     DEC(3.0), NAN_P      },
+                { L_, ZERO_P,    DEC(3.0), ZERO_P     },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::remainder(X, Y);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "lrint()" << bsl::endl;
+        {
+            const long int NaN = 0x8000000000000000l;
+            struct {
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+            } DATA[] = {
+            //---------------------------
+            // LINE |     X    | EXPECTED
+            //---------------------------
+                { L_, DEC( 2.3),  2  },
+                { L_, DEC( 2.5),  2  },
+                { L_, DEC( 3.5),  4  },
+                { L_, DEC(-2.3), -2  },
+                { L_, DEC(-2.5), -2  },
+                { L_, DEC(-3.5), -4  },
+                { L_, NAN_P,     NaN },
+                { L_, NAN_N,     NaN },
+                { L_, INF_P,     NaN },
+                { L_, INF_N,     NaN },
+                { L_, ZERO_P,     0  },
+                { L_, ZERO_N,     0  },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const long int  RESULT   = Util::lrint(X);
+
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "llrint()" << bsl::endl;
+        {
+            const long long int NaN = 0x8000000000000000ll;
+            struct {
+                int           d_line;
+                Obj           d_x;
+                long long int d_expected;
+            } DATA[] = {
+            //---------------------------
+            // LINE |     X    | EXPECTED
+            //---------------------------
+                { L_, DEC( 2.3),  2  },
+                { L_, DEC( 2.5),  2  },
+                { L_, DEC( 3.5),  4  },
+                { L_, DEC(-2.3), -2  },
+                { L_, DEC(-2.5), -2  },
+                { L_, DEC(-3.5), -4  },
+                { L_, NAN_P,     NaN },
+                { L_, NAN_N,     NaN },
+                { L_, INF_P,     NaN },
+                { L_, INF_N,     NaN },
+                { L_, ZERO_P,     0  },
+                { L_, ZERO_N,     0  },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const long int  RESULT   = Util::llrint(X);
+
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "nextafter()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_from;
+                Obj d_to;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------------------
+            // LINE |   FROM  |     TO   | EXPECTED
+            //-----------------------------------------------
+                { L_, DEC(0.0),  DEC(1.0), DEC(1.0e-101)    },
+                { L_, DEC(1.0),  DEC(2.0), DEC(1.000001)    },
+                { L_, DEC(1.0),  DEC(0.0), DEC(9.999999e-1) },
+                { L_, DEC(0.0),  DEC(0.0), DEC(0.0)         },
+                { L_, NAN_P,     NAN_P,    NAN_P            },
+                { L_, NAN_N,     NAN_N,    NAN_N            },
+                { L_, INF_P,     INF_P,    INF_P            },
+                { L_, INF_N,     INF_N,    INF_N            },
+                // { L_, INF_P,     DEC(2.0), NAN_P            },
+                // { L_, INF_N,     DEC(2.0), NAN_N            },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& FROM     = DATA[ti].d_from;
+                const Obj& TO       = DATA[ti].d_to;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::nextafter(FROM, TO);
+
+                LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "nexttoward()" << bsl::endl;
+        {
+            struct {
+                int                d_line;
+                Obj                d_from;
+                Util::ValueType128 d_to;
+                Obj                d_expected;
+            } DATA[] = {
+//-----------------------------------------------------------------------------
+//LINE |        FROM          |          TO            | EXPECTED
+//-----------------------------------------------------------------------------
+ { L_,  DEC(0.0),               Util::denormMin128(),    Util::denormMin32()  },
+ { L_,  DEC(0.0),               Util::negate(
+                                Util::denormMin128()),   Util::negate(
+                                                         Util::denormMin32()) },
+ { L_,  Util::quietNaN32(),     Util::quietNaN128(),     Util::quietNaN32()   },
+ { L_,  Util::signalingNaN32(), Util::signalingNaN128(), Util::quietNaN32()   },
+ { L_,  Util::infinity32(),     Util::infinity128(),     Util::infinity32()   },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int                 LINE     = DATA[ti].d_line;
+                const Obj&                FROM     = DATA[ti].d_from;
+                const Util::ValueType128& TO       = DATA[ti].d_to;
+                const Obj&                EXPECTED = DATA[ti].d_expected;
+                const Obj                 RESULT   = Util::nexttoward(FROM, TO);
+
+                LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "pow()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_base;
+                Obj d_exponent;
+                Obj d_expected;
+            } DATA[] = {
+
+            //-------------------------------------------------
+            // LINE |   BASE   |  EXPONENT |     EXPECTED
+            //-------------------------------------------------
+                { L_, DEC( 2.0),  DEC(10.0), DEC(1024.0     ) },
+                { L_, DEC( 2.0),  DEC( 0.5), DEC(   1.414214) },
+                { L_, DEC(-2.0),  DEC(-3.0), DEC(  -0.125   ) },
+                { L_, DEC(-1.0),  NAN_P,            NAN_P     },
+                { L_, DEC( 1.0),  NAN_P,     DEC(   1.0     ) },
+                { L_, INF_P,      DEC( 2.0),        INF_P     },
+                { L_, INF_P,      DEC(-1.0), DEC(   0.0     ) },
+                { L_, DEC(-1.0),  DEC(0.3333333),   NAN_N     },
+                { L_, ZERO_N,     DEC(-3.0),        INF_N     },
+                { L_, NAN_P,      DEC( 2.0),        NAN_P     },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& BASE     = DATA[ti].d_base;
+                const Obj& EXPONENT = DATA[ti].d_exponent;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::pow(BASE, EXPONENT);
+
+                LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "lround()" << bsl::endl;
+        {
+            const long int NaN = 0x8000000000000000l;
+            struct {
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+            } DATA[] = {
+            //---------------------------
+            // LINE |     X    | EXPECTED
+            //---------------------------
+                { L_, DEC( 2.3),  2  },
+                { L_, DEC( 2.5),  3  },
+                { L_, DEC(-2.3), -2  },
+                { L_, DEC(-2.5), -3  },
+                { L_, NAN_P,     NaN },
+                { L_, NAN_N,     NaN },
+                { L_, INF_P,     NaN },
+                { L_, INF_N,     NaN },
+                { L_, ZERO_P,     0  },
+                { L_, ZERO_N,     0  },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const long int  RESULT   = Util::lround(X);
+
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "sqrt()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------
+            // LINE |     X     |   EXPECTED
+            //-----------------------------------
+                { L_, DEC(100.0), DEC(10.0)     },
+                { L_, DEC(  2.0), DEC(1.414214) },
+                { L_, DEC(-1.0),  NAN_P         },
+                { L_, INF_P,      INF_P         },
+                { L_, INF_N,      NAN_P         },
+                { L_, NAN_P,      NAN_P         },
+                { L_, NAN_N,      NAN_N         },
+                { L_, ZERO_P,     ZERO_P        },
+                { L_, ZERO_N,     ZERO_N        },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::sqrt(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "ceil()" << bsl::endl;
+        {
+            const Obj DECIMAL  = DEC(1234567.0);
+                  Obj RESULT   = Util::ceil(DEC(0.5));
+                  Obj EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::ceil(DEC(-0.5));
+            EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::ceil(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::ceil(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::ceil(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::ceil(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::ceil(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::ceil(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::ceil(NAN_N),   NAN_N));
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "floor()" << bsl::endl;
+        {
+            Obj RESULT   = Util::floor(DEC(0.5));
+            Obj EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::floor(DEC(-0.5));
+            EXPECTED = DEC(-1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::floor(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::floor(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::floor(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::floor(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::floor(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::floor(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::floor(NAN_N),   NAN_N));
+        }
+        if (veryVeryVerbose) T_ T_ bsl::cout << "trunc()" << bsl::endl;
+        {
+            Obj RESULT   = Util::trunc(DEC(0.5));
+            Obj EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::trunc(DEC(-0.5));
+            EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::trunc(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::trunc(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::trunc(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::trunc(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::trunc(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::trunc(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::trunc(NAN_N),   NAN_N));
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "round()" << bsl::endl;
+        {
+            Obj RESULT   = Util::round(DEC(0.5));
+            Obj EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::round(DEC(-0.5));
+            EXPECTED = DEC(-1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::round(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::round(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::round(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::round(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::round(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::round(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::round(NAN_N),   NAN_N));
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "fabs()" << bsl::endl;
+        {
+            Obj RESULT   = Util::fabs(DEC(1.0));
+            Obj EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::fabs(DEC(-1.0));
+            EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::fabs(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::fabs(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::fabs(INF_N),   INF_P));
+            ASSERT(Util::equal(Util::fabs(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::fabs(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::fabs(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::fabs(NAN_N),   NAN_N));
+        }
+#undef DEC
+    }
+
+    if (veryVeryVerbose) T_ bsl::cout << "ValueType64" << bsl::endl;
+    {
+        typedef Util::ValueType64 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DD(X)
+
+        const Obj DECIMAL = DEC(1234567890123456.0);
+        const Obj NAN_P   =              Util::quietNaN64();
+        const Obj NAN_N   = Util::negate(Util::quietNaN64());
+        const Obj INF_P   =              Util::infinity64();
+        const Obj INF_N   = Util::negate(Util::infinity64());
+        const Obj ZERO_P  =              DEC(0.0);
+        const Obj ZERO_N  = Util::negate(ZERO_P);
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "copySign()" << bsl::endl;
+        {
+            const Obj DEC_P  = DEC(+1234567.0);
+            const Obj DEC_N  = DEC(-1234567.0);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+            } DATA[] = {
+            //---------------------------------
+            // LINE |  X    |    Y   | EXPECTED
+            //---------------------------------
+                { L_, DEC_P,   DEC_P,  DEC_P },
+                { L_, DEC_P,   DEC_N,  DEC_N },
+                { L_, DEC_P,   NAN_P,  DEC_P },
+                { L_, DEC_P,   NAN_N,  DEC_N },
+                { L_, DEC_P,   INF_P,  DEC_P },
+                { L_, DEC_P,   INF_N,  DEC_N },
+                { L_, DEC_P,   ZERO_P, DEC_P },
+                { L_, DEC_P,   ZERO_N, DEC_N },
+
+                { L_, DEC_N,   DEC_P,  DEC_P },
+                { L_, DEC_N,   DEC_N,  DEC_N },
+                { L_, DEC_N,   NAN_P,  DEC_P },
+                { L_, DEC_N,   NAN_N,  DEC_N },
+                { L_, DEC_N,   INF_P,  DEC_P },
+                { L_, DEC_N,   INF_N,  DEC_N },
+                { L_, DEC_N,   ZERO_P, DEC_P },
+                { L_, DEC_N,   ZERO_N, DEC_N },
+
+                { L_, NAN_P,   DEC_P,  NAN_P },
+                { L_, NAN_P,   DEC_N,  NAN_N },
+                { L_, NAN_P,   NAN_P,  NAN_P },
+                { L_, NAN_P,   NAN_N,  NAN_N },
+                { L_, NAN_P,   INF_P,  NAN_P },
+                { L_, NAN_P,   INF_N,  NAN_N },
+                { L_, NAN_P,   ZERO_P, NAN_P },
+                { L_, NAN_P,   ZERO_N, NAN_N },
+
+                { L_, NAN_N,   DEC_P,  NAN_P },
+                { L_, NAN_N,   DEC_N,  NAN_N },
+                { L_, NAN_N,   NAN_P,  NAN_P },
+                { L_, NAN_N,   NAN_N,  NAN_N },
+                { L_, NAN_N,   INF_P,  NAN_P },
+                { L_, NAN_N,   INF_N,  NAN_N },
+                { L_, NAN_N,   ZERO_P, NAN_P },
+                { L_, NAN_N,   ZERO_N, NAN_N },
+
+                { L_, INF_P,   DEC_P,  INF_P },
+                { L_, INF_P,   DEC_N,  INF_N },
+                { L_, INF_P,   NAN_P,  INF_P },
+                { L_, INF_P,   NAN_N,  INF_N },
+                { L_, INF_P,   INF_P,  INF_P },
+                { L_, INF_P,   INF_N,  INF_N },
+                { L_, INF_P,   ZERO_P, INF_P },
+                { L_, INF_P,   ZERO_N, INF_N },
+
+                { L_, INF_N,   DEC_P,  INF_P },
+                { L_, INF_N,   DEC_N,  INF_N },
+                { L_, INF_N,   NAN_P,  INF_P },
+                { L_, INF_N,   NAN_N,  INF_N },
+                { L_, INF_N,   INF_P,  INF_P },
+                { L_, INF_N,   INF_N,  INF_N },
+                { L_, INF_N,   ZERO_P, INF_P },
+                { L_, INF_N,   ZERO_N, INF_N },
+
+                { L_, ZERO_P,   DEC_P,  ZERO_P },
+                { L_, ZERO_P,   DEC_N,  ZERO_N },
+                { L_, ZERO_P,   NAN_P,  ZERO_P },
+                { L_, ZERO_P,   NAN_N,  ZERO_N },
+                { L_, ZERO_P,   INF_P,  ZERO_P },
+                { L_, ZERO_P,   INF_N,  ZERO_N },
+                { L_, ZERO_P,   ZERO_P, ZERO_P },
+                { L_, ZERO_P,   ZERO_N, ZERO_N },
+
+                { L_, ZERO_N,   DEC_P,  ZERO_P },
+                { L_, ZERO_N,   DEC_N,  ZERO_N },
+                { L_, ZERO_N,   NAN_P,  ZERO_P },
+                { L_, ZERO_N,   NAN_N,  ZERO_N },
+                { L_, ZERO_N,   INF_P,  ZERO_P },
+                { L_, ZERO_N,   INF_N,  ZERO_N },
+                { L_, ZERO_N,   ZERO_P, ZERO_P },
+                { L_, ZERO_N,   ZERO_N, ZERO_N },
+
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::copySign(X, Y);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "exp()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------------------
+            // LINE |     X     |      EXPECTED
+            //-----------------------------------------------
+                { L_, DEC( 12.0), DEC(1.627547914190039e+5) },
+                { L_, DEC(-11.0), DEC(1.670170079024566e-5) },
+                { L_, NAN_P,      NAN_P                     },
+                { L_, NAN_N,      NAN_N                     },
+                { L_, INF_P,      INF_P                     },
+                { L_, INF_N,      ZERO_P                    },
+                { L_, ZERO_P,     DEC(1.0)                  },
+                { L_, ZERO_N,     DEC(1.0)                  },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::exp(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "log()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //--------------------------------------------
+            // LINE |     X     | EXPECTED
+            //--------------------------------------------
+                { L_, DEC(  1.0), ZERO_P                 },
+                { L_, DEC( 12.0), DEC(2.484906649788000) },
+                { L_, DEC(-11.0), NAN_N                  },
+                { L_, NAN_P,      NAN_P                  },
+                { L_, NAN_N,      NAN_N                  },
+                { L_, INF_P,      INF_P                  },
+                { L_, INF_N,      NAN_N                  },
+                { L_, ZERO_P,     INF_N                  },
+                { L_, ZERO_N,     INF_N                  },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::log(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "logB()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------
+            // LINE |       X        | EXPECTED
+            //-----------------------------------
+                { L_, DEC(  1.0),      ZERO_P   },
+                { L_, DEC( 99.999999), DEC(1.0) },
+                { L_, DEC(-11.0),      DEC(1.0) },
+                { L_, NAN_P,           NAN_P    },
+                { L_, NAN_N,           NAN_N    },
+                { L_, INF_P,           INF_P    },
+                { L_, INF_N,           INF_P    },
+                { L_, ZERO_P,          INF_N    },
+                { L_, ZERO_N,          INF_N    },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj RESULT    = Util::logB(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "log10()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //--------------------------------------------
+            // LINE |     X     |       EXPECTED
+            //--------------------------------------------
+                { L_, DEC(  1.0), ZERO_P                 },
+                { L_, DEC( 12.0), DEC(1.079181246047625) },
+                { L_, DEC(-11.0), NAN_N                  },
+                { L_, NAN_P,      NAN_P                  },
+                { L_, NAN_N,      NAN_N                  },
+                { L_, INF_P,      INF_P                  },
+                { L_, INF_N,      NAN_N                  },
+                { L_, ZERO_P,     INF_N                  },
+                { L_, ZERO_N,     INF_N                  },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::log10(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "fmod()" << bsl::endl;
+        {
+            const Obj DEC_X   = DEC( 5.0000002);
+            const Obj DEC_Y   = DEC( 3.0000001);
+            const Obj DEC_R   = DEC( 2.0000001);
+            const Obj DEC_X_N = DEC(-5.0000002);
+            const Obj DEC_Y_N = DEC(-3.0000001);
+            const Obj DEC_R_N = DEC(-2.0000001);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------
+            // LINE |    X   |    Y   | EXPECTED
+            //-----------------------------------
+                { L_, DEC_X,   DEC_Y,   DEC_R   },
+                { L_, DEC_X_N, DEC_Y,   DEC_R_N },
+                { L_, DEC_X,   DEC_Y_N, DEC_R   },
+                { L_, DEC_X_N, DEC_Y_N, DEC_R_N },
+                { L_, DEC_X,   NAN_P,   NAN_P   },
+                { L_, DEC_X,   NAN_N,   NAN_P   },
+                { L_, DEC_X,   INF_P,   DEC_X   },
+                { L_, DEC_X,   INF_N,   DEC_X   },
+                { L_, DEC_X,   ZERO_P,  NAN_P   },
+                { L_, DEC_X,   ZERO_N,  NAN_P   },
+                { L_, NAN_P,   DEC_Y,   NAN_P   },
+                { L_, INF_P,   DEC_Y,   NAN_P   },
+                { L_, ZERO_P,  DEC_Y,   ZERO_P  },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::fmod(X, Y);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "remainder()" << bsl::endl;
+        {
+            const Obj DEC_X   = DEC( 5.0000003);
+            const Obj DEC_Y   = DEC( 3.0000001);
+            const Obj DEC_R   = DEC( 0.9999999);
+            const Obj DEC_X_N = DEC(-5.0000003);
+            const Obj DEC_Y_N = DEC(-3.0000001);
+            const Obj DEC_R_N = DEC(-0.9999999);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------
+            // LINE |    X   |    Y   | EXPECTED
+            //-----------------------------------
+                { L_, DEC_X,   DEC_Y,   DEC_R_N },
+                { L_, DEC_X_N, DEC_Y,   DEC_R   },
+                { L_, DEC_X,   DEC_Y_N, DEC_R_N },
+                { L_, DEC_X_N, DEC_Y_N, DEC_R   },
+                { L_, DEC_X,   NAN_P,   NAN_P   },
+                { L_, DEC_X,   NAN_N,   NAN_P   },
+                { L_, DEC_X,   INF_P,   DEC_X   },
+                { L_, DEC_X_N, INF_N,   DEC_X_N },
+                { L_, DEC_X,   ZERO_P,  NAN_P   },
+                { L_, DEC_X,   ZERO_N,  NAN_P   },
+                { L_, NAN_P,   DEC_Y,   NAN_P   },
+                { L_, INF_P,   DEC_Y,   NAN_P   },
+                { L_, ZERO_P,  DEC_Y,   ZERO_P  },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::remainder(X, Y);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "lrint()" << bsl::endl;
+        {
+            const long long int NaN = 0x8000000000000000ll;
+
+            struct {
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+            } DATA[] = {
+            //---------------------------------
+            // LINE |       X        | EXPECTED
+            //---------------------------------
+                { L_, DEC( 2.3),        2    },
+                { L_, DEC( 2.5),        2    },
+                { L_, DEC( 3.5),        4    },
+                { L_, DEC(-2.3),       -2    },
+                { L_, DEC(-2.5),       -2    },
+                { L_, DEC(-3.4999999), -3    },
+                { L_, DEC(-3.5),       -4    },
+                { L_, NAN_P,           NaN   },
+                { L_, NAN_N,           NaN   },
+                { L_, INF_P,           NaN   },
+                { L_, INF_N,           NaN   },
+                { L_, ZERO_P,           0    },
+                { L_, ZERO_N,           0    },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const long int  RESULT   = Util::lrint(X);
+
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "llrint()" << bsl::endl;
+        {
+            const long long int NaN = 0x8000000000000000ll;
+
+            struct {
+                int           d_line;
+                Obj           d_x;
+                long long int d_expected;
+            } DATA[] = {
+            //---------------------------------
+            // LINE |       X        | EXPECTED
+            //---------------------------------
+                { L_, DEC( 2.3),        2    },
+                { L_, DEC( 2.5),        2    },
+                { L_, DEC( 3.5),        4    },
+                { L_, DEC(-2.3),       -2    },
+                { L_, DEC(-2.5),       -2    },
+                { L_, DEC(-3.4999999), -3    },
+                { L_, DEC(-3.5),       -4    },
+                { L_, NAN_P,           NaN   },
+                { L_, NAN_N,           NaN   },
+                { L_, INF_P,           NaN   },
+                { L_, INF_N,           NaN   },
+                { L_, ZERO_P,           0    },
+                { L_, ZERO_N,           0    },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const long int  RESULT   = Util::llrint(X);
+
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "nextafter()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_from;
+                Obj d_to;
+                Obj d_expected;
+            } DATA[] = {
+            //--------------------------------------------------------
+            // LINE |   FROM  |     TO   |       EXPECTED
+            //--------------------------------------------------------
+                { L_, DEC(0.0),  DEC(1.0), Util::denormMin64()       },
+                { L_, DEC(1.0),  DEC(2.0), DEC(1.000000000000001)    },
+                { L_, DEC(1.0),  DEC(0.0), DEC(9.999999999999999e-1) },
+                { L_, DEC(0.0),  DEC(0.0), DEC(0.0)                  },
+                { L_, NAN_P,     NAN_P,    NAN_P                     },
+                { L_, NAN_N,     NAN_N,    NAN_N                     },
+                { L_, INF_P,     INF_P,    INF_P                     },
+                { L_, INF_N,     INF_N,    INF_N                     },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& FROM     = DATA[ti].d_from;
+                const Obj& TO       = DATA[ti].d_to;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::nextafter(FROM, TO);
+
+                LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "nexttoward()" << bsl::endl;
+        {
+            struct {
+                int                d_line;
+                Obj                d_from;
+                Util::ValueType128 d_to;
+                Obj                d_expected;
+            } DATA[] = {
+//-----------------------------------------------------------------------------
+//LINE |        FROM          |          TO            | EXPECTED
+//-----------------------------------------------------------------------------
+ { L_, DEC(0.0),               Util::denormMin128(),    Util::denormMin64()  },
+ { L_, DEC(0.0),               Util::negate(
+                               Util::denormMin128()),   Util::negate(
+                                                        Util::denormMin64()) },
+ { L_, Util::quietNaN64(),     Util::quietNaN128(),     Util::quietNaN64()   },
+ { L_, Util::signalingNaN64(), Util::signalingNaN128(), Util::quietNaN64()   },
+ { L_, Util::infinity64(),     Util::infinity128(),     Util::infinity64()   },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int                 LINE     = DATA[ti].d_line;
+                const Obj&                FROM     = DATA[ti].d_from;
+                const Util::ValueType128& TO       = DATA[ti].d_to;
+                const Obj&                EXPECTED = DATA[ti].d_expected;
+                const Obj                 RESULT   = Util::nexttoward(FROM, TO);
+
+                LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "pow()" << bsl::endl;
+        {
+            const Obj SQRT_2 = DEC(1.414213562373095);
+            const Obj DEC_Y  = DEC(0.333333333333333);
+
+            struct {
+                int d_line;
+                Obj d_base;
+                Obj d_exponent;
+                Obj d_expected;
+            } DATA[] = {
+            //----------------------------------------------
+            // LINE |   BASE   |  EXPONENT |   EXPECTED
+            //----------------------------------------------
+                { L_, DEC( 2.0),  DEC(10.0), DEC(1024.0)   },
+                { L_, DEC( 2.0),  DEC( 0.5), SQRT_2        },
+                { L_, DEC(-2.0),  DEC(-3.0), DEC(  -0.125) },
+                { L_, DEC(-1.0),  NAN_P,     NAN_P         },
+                { L_, DEC( 1.0),  NAN_P,     DEC(   1.0)   },
+                { L_, INF_P,      DEC( 2.0), INF_P         },
+                { L_, INF_P,      DEC(-1.0), DEC(   0.0)   },
+                { L_, DEC(-1.0),  DEC_Y,     NAN_N         },
+                { L_, ZERO_N,     DEC(-3.0), INF_N         },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& BASE     = DATA[ti].d_base;
+                const Obj& EXPONENT = DATA[ti].d_exponent;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::pow(BASE, EXPONENT);
+
+                LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "lround()" << bsl::endl;
+        {
+            const long int NaN = 0x8000000000000000l;
+            struct {
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+            } DATA[] = {
+            //---------------------------------
+            // LINE |     X          | EXPECTED
+            //---------------------------------
+                { L_, DEC( 2.3),        2  },
+                { L_, DEC( 2.4999999),  2  },
+                { L_, DEC( 2.5),        3  },
+                { L_, DEC(-2.3),       -2  },
+                { L_, DEC(-2.5),       -3  },
+                { L_, NAN_P,           NaN },
+                { L_, NAN_N,           NaN },
+                { L_, INF_P,           NaN },
+                { L_, INF_N,           NaN },
+                { L_, ZERO_P,           0  },
+                { L_, ZERO_N,           0  },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const long int  RESULT   = Util::lround(X);
+
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "sqrt()" << bsl::endl;
+        {
+            const Obj SQRT_2 = DEC(1.414213562373095);
+            const Obj DEC_1  = DEC(8.999999999999996);
+            const Obj RES_1  = DEC(2.999999999999999);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------
+            // LINE |     X     |   EXPECTED
+            //-----------------------------------
+                { L_, DEC(100.0),  DEC(10.0) },
+                { L_, DEC_1,       RES_1     },
+                { L_, DEC(  2.0),  SQRT_2    },
+                { L_, DEC( -1.0),  NAN_P     },
+                { L_, INF_P,       INF_P     },
+                { L_, INF_N,       NAN_P     },
+                { L_, NAN_P,       NAN_P     },
+                { L_, NAN_N,       NAN_N     },
+                { L_, ZERO_P,      ZERO_P    },
+                { L_, ZERO_N,      ZERO_N    },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::sqrt(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "ceil()" << bsl::endl;
+        {
+            Obj RESULT   = Util::ceil(DEC(0.5));
+            Obj EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::ceil(DEC(-0.5));
+            EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::ceil(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::ceil(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::ceil(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::ceil(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::ceil(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::ceil(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::ceil(NAN_N),   NAN_N));
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "floor()" << bsl::endl;
+        {
+            Obj RESULT   = Util::floor(DEC(0.5));
+            Obj EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::floor(DEC(-0.5));
+            EXPECTED = DEC(-1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::floor(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::floor(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::floor(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::floor(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::floor(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::floor(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::floor(NAN_N),   NAN_N));
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "trunc()" << bsl::endl;
+        {
+            Obj RESULT   = Util::trunc(DEC(0.5));
+            Obj EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::trunc(DEC(-0.5));
+            EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::trunc(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::trunc(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::trunc(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::trunc(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::trunc(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::trunc(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::trunc(NAN_N),   NAN_N));
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "round()" << bsl::endl;
+        {
+            Obj RESULT   = Util::round(DEC(0.5));
+            Obj EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::round(DEC(-0.5));
+            EXPECTED = DEC(-1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::round(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::round(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::round(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::round(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::round(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::round(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::round(NAN_N),   NAN_N));
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "fabs()" << bsl::endl;
+        {
+            Obj RESULT   = Util::fabs(DEC(1.0));
+            Obj EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::fabs(DEC(-1.0));
+            EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::fabs(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::fabs(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::fabs(INF_N),   INF_P));
+            ASSERT(Util::equal(Util::fabs(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::fabs(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::fabs(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::fabs(NAN_N),   NAN_N));
+        }
+
+#undef DEC
+    }
+
+    if (veryVeryVerbose) T_ bsl::cout << "ValueType128" << bsl::endl;
+    {
+        typedef Util::ValueType128 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DL(X)
+
+        const Obj NAN_P   =              Util::quietNaN128();
+        const Obj NAN_N   = Util::negate(Util::quietNaN128());
+        const Obj INF_P   =              Util::infinity128();
+        const Obj INF_N   = Util::negate(Util::infinity128());
+        const Obj ZERO_P  =              DEC(0.0);
+        const Obj ZERO_N  = Util::negate(ZERO_P);
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "copySign()" << bsl::endl;
+        {
+            const Obj DEC_P  = DEC(+1234567890123456789012345678901234.0);
+            const Obj DEC_N  = DEC(-1234567890123456789012345678901234.0);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+            } DATA[] = {
+            //---------------------------------
+            // LINE |  X    |    Y   | EXPECTED
+            //---------------------------------
+                { L_, DEC_P,   DEC_P,  DEC_P },
+                { L_, DEC_P,   DEC_N,  DEC_N },
+                { L_, DEC_P,   NAN_P,  DEC_P },
+                { L_, DEC_P,   NAN_N,  DEC_N },
+                { L_, DEC_P,   INF_P,  DEC_P },
+                { L_, DEC_P,   INF_N,  DEC_N },
+                { L_, DEC_P,   ZERO_P, DEC_P },
+                { L_, DEC_P,   ZERO_N, DEC_N },
+
+                { L_, DEC_N,   DEC_P,  DEC_P },
+                { L_, DEC_N,   DEC_N,  DEC_N },
+                { L_, DEC_N,   NAN_P,  DEC_P },
+                { L_, DEC_N,   NAN_N,  DEC_N },
+                { L_, DEC_N,   INF_P,  DEC_P },
+                { L_, DEC_N,   INF_N,  DEC_N },
+                { L_, DEC_N,   ZERO_P, DEC_P },
+                { L_, DEC_N,   ZERO_N, DEC_N },
+
+                { L_, NAN_P,   DEC_P,  NAN_P },
+                { L_, NAN_P,   DEC_N,  NAN_N },
+                { L_, NAN_P,   NAN_P,  NAN_P },
+                { L_, NAN_P,   NAN_N,  NAN_N },
+                { L_, NAN_P,   INF_P,  NAN_P },
+                { L_, NAN_P,   INF_N,  NAN_N },
+                { L_, NAN_P,   ZERO_P, NAN_P },
+                { L_, NAN_P,   ZERO_N, NAN_N },
+
+                { L_, NAN_N,   DEC_P,  NAN_P },
+                { L_, NAN_N,   DEC_N,  NAN_N },
+                { L_, NAN_N,   NAN_P,  NAN_P },
+                { L_, NAN_N,   NAN_N,  NAN_N },
+                { L_, NAN_N,   INF_P,  NAN_P },
+                { L_, NAN_N,   INF_N,  NAN_N },
+                { L_, NAN_N,   ZERO_P, NAN_P },
+                { L_, NAN_N,   ZERO_N, NAN_N },
+
+                { L_, INF_P,   DEC_P,  INF_P },
+                { L_, INF_P,   DEC_N,  INF_N },
+                { L_, INF_P,   NAN_P,  INF_P },
+                { L_, INF_P,   NAN_N,  INF_N },
+                { L_, INF_P,   INF_P,  INF_P },
+                { L_, INF_P,   INF_N,  INF_N },
+                { L_, INF_P,   ZERO_P, INF_P },
+                { L_, INF_P,   ZERO_N, INF_N },
+
+                { L_, INF_N,   DEC_P,  INF_P },
+                { L_, INF_N,   DEC_N,  INF_N },
+                { L_, INF_N,   NAN_P,  INF_P },
+                { L_, INF_N,   NAN_N,  INF_N },
+                { L_, INF_N,   INF_P,  INF_P },
+                { L_, INF_N,   INF_N,  INF_N },
+                { L_, INF_N,   ZERO_P, INF_P },
+                { L_, INF_N,   ZERO_N, INF_N },
+
+                { L_, ZERO_P,   DEC_P,  ZERO_P },
+                { L_, ZERO_P,   DEC_N,  ZERO_N },
+                { L_, ZERO_P,   NAN_P,  ZERO_P },
+                { L_, ZERO_P,   NAN_N,  ZERO_N },
+                { L_, ZERO_P,   INF_P,  ZERO_P },
+                { L_, ZERO_P,   INF_N,  ZERO_N },
+                { L_, ZERO_P,   ZERO_P, ZERO_P },
+                { L_, ZERO_P,   ZERO_N, ZERO_N },
+
+                { L_, ZERO_N,   DEC_P,  ZERO_P },
+                { L_, ZERO_N,   DEC_N,  ZERO_N },
+                { L_, ZERO_N,   NAN_P,  ZERO_P },
+                { L_, ZERO_N,   NAN_N,  ZERO_N },
+                { L_, ZERO_N,   INF_P,  ZERO_P },
+                { L_, ZERO_N,   INF_N,  ZERO_N },
+                { L_, ZERO_N,   ZERO_P, ZERO_P },
+                { L_, ZERO_N,   ZERO_N, ZERO_N },
+
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::copySign(X, Y);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "exp()" << bsl::endl;
+        {
+            const Obj RES_1 = DEC(1.627547914190039208080052048984868e+5);
+            const Obj RES_2 = DEC(1.670170079024565931263551736058088e-5);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //------------------------------
+            // LINE |     X     | EXPECTED
+            //------------------------------
+                { L_, DEC( 12.0), RES_1    },
+                { L_, DEC(-11.0), RES_2    },
+                { L_, DEC(9999999.0), INF_P },
+                { L_, NAN_P,      NAN_P    },
+                { L_, NAN_N,      NAN_N    },
+                { L_, INF_P,      INF_P    },
+                { L_, INF_N,      ZERO_P   },
+                { L_, ZERO_P,     DEC(1.0) },
+                { L_, ZERO_N,     DEC(1.0) },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::exp(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "log()" << bsl::endl;
+        {
+            const Obj RES_1 = DEC(2.484906649788000310229709479838879);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //----------------------------
+            // LINE |     X     | EXPECTED
+            //----------------------------
+                { L_, DEC(  1.0), ZERO_P },
+                { L_, DEC( 12.0), RES_1  },
+                { L_, DEC(-11.0), NAN_N  },
+                { L_, NAN_P,      NAN_P  },
+                { L_, NAN_N,      NAN_N  },
+                { L_, INF_P,      INF_P  },
+                { L_, INF_N,      NAN_N  },
+                { L_, ZERO_P,     INF_N  },
+                { L_, ZERO_N,     INF_N  },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::log(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "logB()" << bsl::endl;
+        {
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //---------------------------------------------
+            // LINE |       X                  | EXPECTED
+            //---------------------------------------------
+                { L_, DEC(  1.0),                ZERO_P   },
+                { L_, DEC( 99.9999999999999999), DEC(1.0) },
+                { L_, DEC(-11.0),                DEC(1.0) },
+                { L_, NAN_P,                     NAN_P    },
+                { L_, NAN_N,                     NAN_N    },
+                { L_, INF_P,                     INF_P    },
+                { L_, INF_N,                     INF_P    },
+                { L_, ZERO_P,                    INF_N    },
+                { L_, ZERO_N,                    INF_N    },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::logB(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "log10()" << bsl::endl;
+        {
+            const Obj RES_1 = DEC(1.079181246047624827722505692704101);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------
+            // LINE |     X     | EXPECTED
+            //-----------------------------
+                { L_, DEC(  1.0), ZERO_P },
+                { L_, DEC( 12.0), RES_1  },
+                { L_, DEC(-11.0), NAN_N  },
+                { L_, NAN_P,      NAN_P  },
+                { L_, NAN_N,      NAN_N  },
+                { L_, INF_P,      INF_P  },
+                { L_, INF_N,      NAN_N  },
+                { L_, ZERO_P,     INF_N  },
+                { L_, ZERO_N,     INF_N  },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::log10(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "fmod()" << bsl::endl;
+        {
+            const Obj DEC_X   = DEC( 5.0000000000000002);
+            const Obj DEC_Y   = DEC( 3.0000000000000001);
+            const Obj DEC_R   = DEC( 2.0000000000000001);
+            const Obj DEC_X_N = DEC(-5.0000000000000002);
+            const Obj DEC_Y_N = DEC(-3.0000000000000001);
+            const Obj DEC_R_N = DEC(-2.0000000000000001);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------
+            // LINE |    X   |    Y   | EXPECTED
+            //-----------------------------------
+                { L_, DEC_X,   DEC_Y,   DEC_R   },
+                { L_, DEC_X_N, DEC_Y,   DEC_R_N },
+                { L_, DEC_X,   DEC_Y_N, DEC_R   },
+                { L_, DEC_X_N, DEC_Y_N, DEC_R_N },
+                { L_, DEC_X,   NAN_P,   NAN_P   },
+                { L_, DEC_X,   NAN_N,   NAN_P   },
+                { L_, DEC_X,   INF_P,   DEC_X   },
+                { L_, DEC_X,   INF_N,   DEC_X   },
+                { L_, DEC_X,   ZERO_P,  NAN_P   },
+                { L_, DEC_X,   ZERO_N,  NAN_P   },
+                { L_, NAN_P,   DEC_Y,   NAN_P   },
+                { L_, INF_P,   DEC_Y,   NAN_P   },
+                { L_, ZERO_P,  DEC_Y,   ZERO_P  },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::fmod(X, Y);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "remainder()" << bsl::endl;
+        {
+            const Obj DEC_X   = DEC( 5.0000000000000003);
+            const Obj DEC_Y   = DEC( 3.0000000000000001);
+            const Obj DEC_R   = DEC( 0.9999999999999999);
+            const Obj DEC_X_N = DEC(-5.0000000000000003);
+            const Obj DEC_Y_N = DEC(-3.0000000000000001);
+            const Obj DEC_R_N = DEC(-0.9999999999999999);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+            } DATA[] = {
+            //-----------------------------------
+            // LINE |    X   |    Y   | EXPECTED
+            //-----------------------------------
+                { L_, DEC_X,   DEC_Y,   DEC_R_N },
+                { L_, DEC_X_N, DEC_Y,   DEC_R   },
+                { L_, DEC_X,   DEC_Y_N, DEC_R_N },
+                { L_, DEC_X_N, DEC_Y_N, DEC_R   },
+                { L_, DEC_X,   NAN_P,   NAN_P   },
+                { L_, DEC_X,   NAN_N,   NAN_P   },
+                { L_, DEC_X,   INF_P,   DEC_X   },
+                { L_, DEC_X_N, INF_N,   DEC_X_N },
+                { L_, DEC_X,   ZERO_P,  NAN_P   },
+                { L_, DEC_X,   ZERO_N,  NAN_P   },
+                { L_, NAN_P,   DEC_Y,   NAN_P   },
+                { L_, INF_P,   DEC_Y,   NAN_P   },
+                { L_, ZERO_P,  DEC_Y,   ZERO_P  },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::remainder(X, Y);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "lrint()" << bsl::endl;
+        {
+            const long int NaN = 0x8000000000000000l;
+            struct {
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+            } DATA[] = {
+            //------------------------------------------
+            // LINE |     X                   | EXPECTED
+            //------------------------------------------
+                { L_, DEC( 2.3),                 2  },
+                { L_, DEC( 2.5),                 2  },
+                { L_, DEC( 3.5),                 4  },
+                { L_, DEC(-2.3),                -2  },
+                { L_, DEC(-2.5),                -2  },
+                { L_, DEC(-3.4999999999999999), -3  },
+                { L_, DEC(-3.5),                -4  },
+                { L_, NAN_P,                    NaN },
+                { L_, NAN_N,                    NaN },
+                { L_, INF_P,                    NaN },
+                { L_, INF_N,                    NaN },
+                { L_, ZERO_P,                    0  },
+                { L_, ZERO_N,                    0  },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const long int  RESULT   = Util::lrint(X);
+
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "llrint()" << bsl::endl;
+        {
+            const long long int NaN = 0x8000000000000000ll;
+            struct {
+                int           d_line;
+                Obj           d_x;
+                long long int d_expected;
+            } DATA[] = {
+            //------------------------------------------
+            // LINE |       X                 | EXPECTED
+            //------------------------------------------
+                { L_, DEC( 2.3),                 2  },
+                { L_, DEC( 2.5),                 2  },
+                { L_, DEC( 3.5),                 4  },
+                { L_, DEC(-2.3),                -2  },
+                { L_, DEC(-2.5),                -2  },
+                { L_, DEC(-3.4999999999999999), -3  },
+                { L_, DEC(-3.5),                -4  },
+                { L_, NAN_P,                    NaN },
+                { L_, NAN_N,                    NaN },
+                { L_, INF_P,                    NaN },
+                { L_, INF_N,                    NaN },
+                { L_, ZERO_P,                    0  },
+                { L_, ZERO_N,                    0  },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const long int  RESULT   = Util::llrint(X);
+
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "nextafter()" << bsl::endl;
+        {
+            const Obj DEC_1 = DEC(1.000000000000000000000000000000001);
+            const Obj DEC_9 = DEC(9.999999999999999999999999999999999e-1);
+
+            struct {
+                int d_line;
+                Obj d_from;
+                Obj d_to;
+                Obj d_expected;
+            } DATA[] = {
+            //---------------------------------------------------
+            // LINE |   FROM  |     TO   |       EXPECTED
+            //---------------------------------------------------
+                { L_, DEC(0.0),  DEC(1.0), Util::denormMin128() },
+                { L_, DEC(1.0),  DEC(2.0), DEC_1                },
+                { L_, DEC(1.0),  DEC(0.0), DEC_9                },
+                { L_, DEC(0.0),  DEC(0.0), DEC(0.0)             },
+                { L_, NAN_P,     NAN_P,    NAN_P                },
+                { L_, NAN_N,     NAN_N,    NAN_N                },
+                { L_, INF_P,     INF_P,    INF_P                },
+                { L_, INF_N,     INF_N,    INF_N                },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& FROM     = DATA[ti].d_from;
+                const Obj& TO       = DATA[ti].d_to;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::nextafter(FROM, TO);
+
+                LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "nexttoward()" << bsl::endl;
+        {
+            struct {
+                int                d_line;
+                Obj                d_from;
+                Util::ValueType128 d_to;
+                Obj                d_expected;
+            } DATA[] = {
+//-----------------------------------------------------------------------------
+//LINE |        FROM         |          TO            | EXPECTED
+//-----------------------------------------------------------------------------
+{ L_, DEC(0.0),                Util::denormMin128(),    Util::denormMin128() },
+{ L_, DEC(0.0),                Util::negate(
+                               Util::denormMin128()),   Util::negate(
+                                                        Util::denormMin128())},
+{ L_, Util::quietNaN128(),     Util::quietNaN128(),     Util::quietNaN128()  },
+{ L_, Util::signalingNaN128(), Util::signalingNaN128(), Util::quietNaN128()  },
+{ L_, Util::infinity128(),     Util::infinity128(),     Util::infinity128()  },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& FROM     = DATA[ti].d_from;
+                const Obj& TO       = DATA[ti].d_to;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::nexttoward(FROM, TO);
+
+                LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "pow()" << bsl::endl;
+        {
+            const Obj SQRT_2 = DEC(1.414213562373095048801688724209698);
+            const Obj DEC_Y1 = DEC(2.9999999999999999);
+            const Obj DEC_Y2 = DEC(0.3333333333333333);
+            const Obj DEC_R1 = DEC(7.999999999999999445482255552043771);
+
+            struct {
+                int d_line;
+                Obj d_base;
+                Obj d_exponent;
+                Obj d_expected;
+            } DATA[] = {
+            //----------------------------------------------
+            // LINE |   BASE   |  EXPONENT |   EXPECTED
+            //----------------------------------------------
+                { L_, DEC( 2.0),  DEC(10.0),  DEC( 1024.0) },
+                { L_, DEC( 2.0),  DEC_Y1,     DEC_R1       },
+                { L_, DEC( 2.0),  DEC( 0.5),  SQRT_2       },
+                { L_, DEC(-2.0),  DEC(-3.0),  DEC(-0.125)  },
+                { L_, DEC(-1.0),  NAN_P,      NAN_P        },
+                { L_, DEC( 1.0),  NAN_P,      DEC( 1.0)    },
+                { L_, INF_P,      DEC( 2.0),  INF_P        },
+                { L_, INF_P,      DEC(-1.0),  DEC( 0.0)    },
+                { L_, DEC(-1.0),  DEC_Y2,     NAN_N        },
+                { L_, ZERO_N,     DEC(-3.0),  INF_N        },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& BASE     = DATA[ti].d_base;
+                const Obj& EXPONENT = DATA[ti].d_exponent;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::pow(BASE, EXPONENT);
+
+                LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "lround()" << bsl::endl;
+        {
+            const long int NaN   = 0x8000000000000000l;
+            const Obj      DEC_1 = DEC(2.4999999999999999);
+
+            struct {
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+            } DATA[] = {
+            //---------------------------
+            // LINE |    X     | EXPECTED
+            //---------------------------
+                { L_, DEC( 2.3),  2  },
+                { L_, DEC_1,      2  },
+                { L_, DEC( 2.5),  3  },
+                { L_, DEC(-2.3), -2  },
+                { L_, DEC(-2.5), -3  },
+                { L_, NAN_P,     NaN },
+                { L_, NAN_N,     NaN },
+                { L_, INF_P,     NaN },
+                { L_, INF_N,     NaN },
+                { L_, ZERO_P,     0  },
+                { L_, ZERO_N,     0  },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const long int  RESULT   = Util::lround(X);
+
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+            }
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "sqrt()" << bsl::endl;
+        {
+            const Obj SQRT_2 = DEC(1.414213562373095048801688724209698);
+            const Obj DEC_1  = DEC(8.999999999999999999999999999999996);
+            const Obj RES_1  = DEC(2.999999999999999999999999999999999);
+
+            struct {
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+            } DATA[] = {
+            //--------------------------------
+            // LINE |     X     |   EXPECTED
+            //--------------------------------
+                { L_, DEC(100.0),  DEC(10.0) },
+                { L_, DEC_1,       RES_1     },
+                { L_, DEC(  2.0),  SQRT_2    },
+                { L_, DEC( -1.0),  NAN_P     },
+                { L_, INF_P,       INF_P     },
+                { L_, INF_N,       NAN_P     },
+                { L_, NAN_P,       NAN_P     },
+                { L_, NAN_N,       NAN_N     },
+                { L_, ZERO_P,      ZERO_P    },
+                { L_, ZERO_N,      ZERO_N    },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::sqrt(X);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            }
+        }
+
+        const Obj DECIMAL = DEC(1234567890123456789012345678901234.0);
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "ceil()" << bsl::endl;
+        {
+            Obj RESULT   = Util::ceil(DEC(0.5));
+            Obj EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::ceil(DEC(-0.5));
+            EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::ceil(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::ceil(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::ceil(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::ceil(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::ceil(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::ceil(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::ceil(NAN_N),   NAN_N));
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "floor()" << bsl::endl;
+        {
+            Obj RESULT   = Util::floor(DEC(0.5));
+            Obj EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::floor(DEC(-0.5));
+            EXPECTED = DEC(-1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::floor(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::floor(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::floor(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::floor(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::floor(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::floor(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::floor(NAN_N),   NAN_N));
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "trunc()" << bsl::endl;
+        {
+            Obj RESULT   = Util::trunc(DEC(0.5));
+            Obj EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::trunc(DEC(-0.5));
+            EXPECTED = DEC(0.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::trunc(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::trunc(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::trunc(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::trunc(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::trunc(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::trunc(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::trunc(NAN_N),   NAN_N));
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "round()" << bsl::endl;
+        {
+            Obj RESULT   = Util::round(DEC(0.5));
+            Obj EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::round(DEC(-0.5));
+            EXPECTED = DEC(-1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::round(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::round(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::round(INF_N),   INF_N));
+            ASSERT(Util::equal(Util::round(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::round(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::round(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::round(NAN_N),   NAN_N));
+        }
+
+        if (veryVeryVerbose) T_ T_ bsl::cout << "fabs()" << bsl::endl;
+        {
+            Obj RESULT   = Util::fabs(DEC(1.0));
+            Obj EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            RESULT   = Util::fabs(DEC(-1.0));
+            EXPECTED = DEC(1.0);
+            ASSERT(Util::equal(RESULT, EXPECTED));
+
+            ASSERT(Util::equal(Util::fabs(DECIMAL), DECIMAL));
+            ASSERT(Util::equal(Util::fabs(INF_P),   INF_P));
+            ASSERT(Util::equal(Util::fabs(INF_N),   INF_P));
+            ASSERT(Util::equal(Util::fabs(ZERO_P),  ZERO_P));
+            ASSERT(Util::equal(Util::fabs(ZERO_N),  ZERO_N));
+            ASSERT(   nanEqual(Util::fabs(NAN_P),   NAN_P));
+            ASSERT(   nanEqual(Util::fabs(NAN_N),   NAN_N));
+        }
+#undef DEC
+    }
+}
+
 void TestDriver::testCase26()
 {
     // ------------------------------------------------------------------------
@@ -4068,7 +6577,7 @@ void TestDriver::testCase16()
         { "+42e10", +   100 },
         { "+Inf",   +100000 }
     };
-    const int numTests = sizeof(tests) / sizeof(tests[0]);
+    const int numTests = static_cast<int>(sizeof(tests) / sizeof(tests[0]));
 
     for (int i = 0; i < numTests; ++i) {
         const char *const lhsValue = tests[i].number;
@@ -4091,7 +6600,6 @@ void TestDriver::testCase16()
         ASSERT(!Util::lessEqual(lhs32,  nan32));
         ASSERT(!Util::greaterEqual( nan32, lhs32));
         ASSERT(!Util::greaterEqual(lhs32,  nan32));
-
         ASSERT(!Util::less(nan64, lhs64));
         ASSERT(!Util::less(lhs64, nan64));
         ASSERT(!Util::greater(nan64, lhs64));
@@ -5831,7 +8339,8 @@ void TestDriver::testCase8()
         { 42,  0,  1,  2, 42, -2 },
         {  1,  2, 10,  0, 10,  0 }
     };
-    const int numTestCases = sizeof(testCases) / sizeof(*testCases);
+    const int numTestCases = static_cast<int>(
+                                       sizeof(testCases) / sizeof(*testCases));
 
     for (int i = 0; i < numTestCases; ++i) {
         long long int lhsMantissa = testCases[ i ].lhsMantissa;
@@ -6042,7 +8551,7 @@ void TestDriver::testCase7()
     //:
     //:             L * R|-Inf|Normal|+Inf|NaN|
     //:            ------+----+------+----+---+
-    //:             -Inf |+Inf|+/-Inf|+Inf|NaN|
+    //:             -Inf |+Inf|+/-Inf|-Inf|NaN|
     //:            ------+----+------+----+---+
     //:            Normal| Inf|Normal| Inf|NaN|
     //:            ------+----+------+----+---+
@@ -6131,6 +8640,23 @@ void TestDriver::testCase7()
                               << " == "
                               << resMantissa << "e" << resExponent << endl;
 
+        Util::ValueType32 identity32 = Util::parse32("1");
+
+           lhs32 = Util::makeDecimalRaw32(lhsMantissa, lhsExponent);
+           rhs32 = Util::makeDecimalRaw32(rhsMantissa, rhsExponent);
+        result32 = Util::multiply(lhs32, rhs32);
+
+        LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                     rhsMantissa, rhsExponent,
+                     resMantissa, resExponent,
+               Util::equal(result32, Util::makeDecimalRaw32(resMantissa,
+                                                            resExponent)));
+        LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                     rhsMantissa, rhsExponent,
+                     resMantissa, resExponent,
+               Util::equal(lhs32, Util::multiply(lhs32, identity32)));
+
+
         Util::ValueType64 identity64 = Util::parse64("1");
 
            lhs64 = Util::makeDecimalRaw64(lhsMantissa, lhsExponent);
@@ -6171,7 +8697,7 @@ void TestDriver::testCase7()
     {
         //:             L * R|-Inf|Normal|+Inf|NaN|
         //:            ------+----+------+----+---+
-        //:             -Inf |+Inf|+/-Inf|+Inf|NaN|
+        //:             -Inf |+Inf|+/-Inf|-Inf|NaN|
         //:            ------+----+------+----+---+
         //:            Normal| Inf|Normal| Inf|NaN|
         //:            ------+----+------+----+---+
@@ -9697,6 +12223,15 @@ int main(int argc, char* argv[])
 
 
     switch (test) { case 0:
+      case 29: {
+        TestDriver::testCase29();
+      } break;
+      case 28: {
+        TestDriver::testCase28();
+      } break;
+      case 27: {
+        TestDriver::testCase27();
+      } break;
       case 26: {
         TestDriver::testCase26();
       } break;
