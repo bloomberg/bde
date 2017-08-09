@@ -2763,23 +2763,6 @@ std::size_t hashBasicString(const string& str);
 std::size_t hashBasicString(const wstring& str);
     // Return a hash value for the specified 'str'.
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
-    : ::BloombergLP::bslh::Hash<>
-    // Specialize 'bsl::hash' for strings, including an overload for pointers
-    // to allow character arrays to be hashed without converting them first.
-{
-    // PUBLIC ACCESSORS
-    std::size_t operator()(
-        const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input) const;
-        // Compute and return the hash value of the specified 'input'.
-
-    std::size_t operator()(const CHAR_TYPE *input) const;
-        // Compute and return the hash value of the contents of the specified
-        // null-terminated 'input'.  This value will be the same as the hash
-        // value of a 'basic_string' constructed from 'input'.
-};
-
 }  // close namespace bsl
 
 namespace BloombergLP {
@@ -5688,33 +5671,6 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                    lhsNumChars,
                    other,
                    CHAR_TRAITS::length(other));
-}
-
-// PUBLIC ACCESSORS
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-BSLS_PLATFORM_AGGRESSIVE_INLINE
-std::size_t hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >::
-operator()(const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input) const
-{
-    using ::BloombergLP::bslh::hashAppend;
-    ::BloombergLP::bslh::Hash<>::HashAlgorithm hashAlg;
-    hashAlg(input.data(), sizeof(CHAR_TYPE) * input.size());
-    hashAppend(hashAlg, input.size());
-    return static_cast<std::size_t>(hashAlg.computeHash());
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-BSLS_PLATFORM_AGGRESSIVE_INLINE
-std::size_t hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >::
-operator()(const CHAR_TYPE *input) const
-{
-    BSLS_ASSERT_SAFE(input);
-    using ::BloombergLP::bslh::hashAppend;
-    std::size_t length = CHAR_TRAITS::length(input);
-    ::BloombergLP::bslh::Hash<>::HashAlgorithm hashAlg;
-    hashAlg(input, sizeof(CHAR_TYPE) * length);
-    hashAppend(hashAlg, length);
-    return static_cast<std::size_t>(hashAlg.computeHash());
 }
 
 }  // close namespace bsl
