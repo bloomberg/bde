@@ -128,7 +128,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      const char softDelimiters[] = " \t\n";  // whitespace
 //
-//      for (bslstl::StringRef token : bdlb_Tokenizer(input, softDelimiters) {
+//      for (bslstl::StringRef token : bdlb_Tokenizer(input, softDelimiters)) {
 //          bsl::cout << "| " << token << bsl::endl;
 //      }
 //  }
