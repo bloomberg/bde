@@ -1,5 +1,12 @@
-bsl-internal (3.2.0.1) unstable; urgency=low
+bsl-internal (3.2.0.2) unstable; urgency=low
 
+  * fd687430a Merge pull request #1248 from mgiroux/pr/1246-rebased-releases/3.2.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Wed, 9 Aug 2017 09:13:16 -0400
+
+bsl-internal (3.2.0.1) git; urgency=low
+
+  * 125eea772 Changelog for version 3.2.0.1
   * 253508796 Merge pull request #1243 from mgiroux/pr/1141-rebased-releases/3.2.x
   * c1a4720d9 [IMPORT] Assemble internal version of github-PR-232 based on mergebase with master
   * 1a0c6ee09 Adopt commit c501feef4 from master: Merge pull request #1066 from glaptev1/feature/rationalize_versioning_component-rdsibde-1600
@@ -48,7 +55,7 @@ bsl-internal (3.2.0.1) unstable; urgency=low
   * 7d17f279e initial conversion
   * ec495caf4 Revert "Remove bdef_Function conversions from bsl::function"
 
- -- mgiroux <mgiroux@bloomberg.net>  Tue, 8 Aug 2017 11:19:31 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 8 Aug 2017 17:09:26 -0400
 
 bsl-internal (3.0.0.0) git; urgency=low
 
