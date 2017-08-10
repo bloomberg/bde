@@ -164,6 +164,10 @@ BSLS_IDENT("$Id$")
 #include <bsl_algorithm.h>
 #endif
 
+#ifndef INCLUDED_BSL_CMATH
+#include <bsl_cmath.h>
+#endif
+
 #ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
 
                 // DECIMAL FLOATING-POINT LITERAL EMULATION
@@ -270,6 +274,44 @@ class DecimalImpUtil {
 #error Improperly configured decimal floating point platform settings
 
 #endif
+                            // classify
+
+    static int classify(ValueType32  x);
+    static int classify(ValueType64  x);
+    static int classify(ValueType128 x);
+        // Return the integer value that respresents the floating point
+        // classification of the specified 'x' value as follows:
+        //
+        //: o if 'x' is NaN, return FP_NAN;
+        //: o otherwise if 'x' is positive or negative infinity, return
+        //:   'FP_INFINITE';
+        //: o otherwise if 'x' is a subnormal value, return 'FP_SUBNORMAL'
+        //: o otherwise if 'x' is a zero value, return 'FP_ZERO'
+        //: o otherwise return 'FP_NORMAL'
+        //
+        // Note that the mention 'FP_XXX' constants are C99 standard macros and
+        // they are defined in the math.h (cmath) standard header.  On systems
+        // that fail to define those standard macros we define the in this
+        // component as public macros.
+
+
+                          // normalize
+
+    static ValueType32 normalize(ValueType32 original);
+    static ValueType64 normalize(ValueType64 original);
+    static ValueType128 normalize(ValueType128 original);
+        // Return a 'ValueTypeXX' number having the value as the specified
+        // 'original, but with the significand, that can not be divided by ten,
+        // and appropriate exponent.
+        //
+        //: o Any representations of zero value (either positive or negative)
+        //:   are normalized to positive zero having null significand and
+        //:   exponent.
+        //:
+        //: o Any NaN values (either signaling or quiet) are normalized to
+        //:   quiet NaN.
+        //:
+        //: o Normalized non-zero value has the same sign as the original one.
 
                         // compose and decompose
 
@@ -281,12 +323,40 @@ class DecimalImpUtil {
         // undefined if the 'significand' has too many decimal digits for
         // 'ValueType', or the 'exponent' is too large for 'ValueType'
 
-    //static DecimalTriple decomposeDecimal(ValueType32  value);
-    //static DecimalTriple decomposeDecimal(ValueType64  value);
-    //static DecimalTriple decomposeDecimal(ValueType128 value);
-        // Return a 'DecimalTriple' object representing the salient attributes
-        // of the specified 'value'.  The behavior is undefined, unless 'value'
-        // is neither 'NaN' nor 'Inf'.
+    static int decompose(int                 *sign,
+                         unsigned  int       *significand,
+                         int                 *exponent,
+                         ValueType32          value);
+    static int decompose(int                 *sign,
+                         bsls::Types::Uint64 *significand,
+                         int                 *exponent,
+                         ValueType64          value);
+    static int decompose(int                 *sign,
+                         Uint128             *significand,
+                         int                 *exponent,
+                         ValueType128         value);
+        // Decompose the specified decimal 'value' into the components of
+        // the decimal floating-point format and load the result into the
+        // specified 'sign', 'significand' and 'exponent' such that
+        // 'value' is equal to 'sign * significand * (10 ** exponent)'.
+        // The special values infinity and NaNs are decomposed to 'sign',
+        // 'exponent' and 'significand' parts, even though they don't have
+        // their normal meaning (except 'sign').  That is those specific values
+        // cannot be restored using these parts, unlike the finite ones.
+        // Return the integer value that represents the floating point
+        // classification of the specified 'value' as follows:
+        //
+        //: o if 'value' is NaN, return FP_NAN;
+        //: o if 'value' is infinity, return 'FP_INFINITE';
+        //: o if 'value' is a subnormal value, return 'FP_SUBNORMAL';
+        //: o if 'value' is a zero value, return 'FP_ZERO';
+        //: o otherwise return 'FP_NORMAL'.
+        //
+        // Note that a decomposed representation may not be unique,
+        // for example 10 can be represented as either '10 * (10 ** 0)'
+        // or '1 * (10 ** 1)'.  The returned 'significand' and 'exponent'
+        // reflect the encoded representation of 'value' (i.e., they
+        // reflect the 'quantum' of 'value').
 
                         // Integer construction
 
@@ -906,6 +976,133 @@ class DecimalImpUtil {
         // Return a 'BinaryIntegralDecimalImpUtil::StorageTypeXX' representing
         // the specified 'value' in Binary Integral Decimal (BID) format.  This
         // format is compatible with the Intel DFP implementation type.
+
+
+                  // Functions returning special values
+
+    static
+    ValueType32 min32() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive normalized number 'ValueType32' can
+        // represent (IEEE-754: +1e-95).
+
+    static
+    ValueType32 max32() BSLS_NOTHROW_SPEC;
+        // Return the largest number 'ValueType32' can represent (IEEE-754:
+        // +9.999999e+96).
+
+    static
+    ValueType32 epsilon32() BSLS_NOTHROW_SPEC;
+        // Return the difference between the least representable value of type
+        // 'ValueType32' greater than 1 and 1 (IEEE-754: +1e-6).
+
+    static
+    ValueType32 roundError32() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the 'ValueType32' type.  The
+        // actual value returned depends on the current decimal floating point
+        // rounding setting.
+
+    static
+    ValueType32 denormMin32() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive denormalized value for the
+        // 'ValueType32' type (IEEE-754: +0.000001e-95).
+
+    static
+    ValueType32 infinity32() BSLS_NOTHROW_SPEC;
+        // Return the value that represents positive infinity for the
+        // 'ValueType32' type.
+
+    static
+    ValueType32 quietNaN32() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // 'ValueType32' type.
+
+    static
+    ValueType32 signalingNaN32() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the 'ValueType32'
+        // type.
+
+    static
+    ValueType64 min64() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive normalized number 'ValueType64' can
+        // represent (IEEE-754: +1e-383).
+
+    static
+    ValueType64 max64() BSLS_NOTHROW_SPEC;
+        // Return the largest number 'ValueType64' can represent (IEEE-754:
+        // +9.999999999999999e+384).
+
+    static
+    ValueType64 epsilon64() BSLS_NOTHROW_SPEC;
+        // Return the difference between the least representable value of type
+        // 'ValueType64' greater than 1 and 1 (IEEE-754: +1e-15).
+
+    static
+    ValueType64 roundError64() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the 'ValueType64' type.  The
+        // actual value returned depends on the current decimal floating point
+        // rounding setting.
+
+    static
+    ValueType64 denormMin64() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive denormalized value for the
+        // 'ValueType64' type (IEEE-754: +0.000000000000001e-383).
+
+    static
+    ValueType64 infinity64() BSLS_NOTHROW_SPEC;
+        // Return the value that represents positive infinity for the
+        // 'ValueType64' type.
+
+    static
+    ValueType64 quietNaN64() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // 'ValueType64' type.
+
+    static
+    ValueType64 signalingNaN64() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the 'ValueType64'
+        // type.
+
+    static
+    ValueType128 min128() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive normalized number 'ValueType128' can
+        // represent (IEEE-754: +1e-6143).
+
+    static
+    ValueType128 max128() BSLS_NOTHROW_SPEC;
+        // Return the largest number 'ValueType128' can represent (IEEE-754:
+        // +9.999999999999999999999999999999999e+6144).
+
+    static
+    ValueType128 epsilon128() BSLS_NOTHROW_SPEC;
+        // Return the difference between the least representable value of type
+        // 'ValueType128' greater than 1 and 1 (IEEE-754: +1e-33).
+
+    static
+    ValueType128 roundError128() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the 'ValueType128' type.  The
+        // actual value returned depends on the current decimal floating point
+        // rounding setting.
+
+    static
+    ValueType128 denormMin128() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive denormalized value for the
+        // 'ValueType128' type (IEEE-754:
+        // +0.000000000000000000000000000000001e-6143).
+
+    static
+    ValueType128 infinity128() BSLS_NOTHROW_SPEC;
+        // Return the value that represents positive infinity for the
+        // 'ValueType128' type.
+
+    static
+    ValueType128 quietNaN128() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // 'ValueType128' type.
+
+    static
+    ValueType128 signalingNaN128() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the 'ValueType128'
+        // type.
 };
 
 // ============================================================================

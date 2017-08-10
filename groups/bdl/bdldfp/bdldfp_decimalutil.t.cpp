@@ -647,38 +647,6 @@ int main(int argc, char* argv[])
                 }
             }
         }
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            const Type    TEMP(0);
-            int           SIGN;
-            unsigned int  SIGNIFICAND;
-            int           EXPONENT;
-            int           *VALID_SIGN(&SIGN);
-            unsigned int  *VALID_SIGNIFICAND(&SIGNIFICAND);
-            int           *VALID_EXPONENT(&EXPONENT);
-            int           *INVALID_SIGN(0);
-            unsigned int  *INVALID_SIGNIFICAND(0);
-            int           *INVALID_EXPONENT(0);
-
-            ASSERT_PASS(Util::decompose(VALID_SIGN,
-                                        VALID_SIGNIFICAND,
-                                        VALID_EXPONENT,
-                                        TEMP));
-            ASSERT_FAIL(Util::decompose(INVALID_SIGN,
-                                        VALID_SIGNIFICAND,
-                                        VALID_EXPONENT,
-                                        TEMP));
-            ASSERT_FAIL(Util::decompose(VALID_SIGN,
-                                        INVALID_SIGNIFICAND,
-                                        VALID_EXPONENT,
-                                        TEMP));
-            ASSERT_FAIL(Util::decompose(VALID_SIGN,
-                                        VALID_SIGNIFICAND,
-                                        INVALID_EXPONENT,
-                                        TEMP));
-        }
     }
 #undef DEC
 #define DEC(X) BDLDFP_DECIMAL_DD(X)
@@ -798,38 +766,6 @@ int main(int argc, char* argv[])
                     ASSERTV(LINE, INPUT, VALUE, INPUT == VALUE);
                 }
             }
-        }
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            const Type           TEMP(0);
-            int                  SIGN;
-            bsls::Types::Uint64  SIGNIFICAND;
-            int                  EXPONENT;
-            int                 *VALID_SIGN(&SIGN);
-            bsls::Types::Uint64 *VALID_SIGNIFICAND(&SIGNIFICAND);
-            int                 *VALID_EXPONENT(&EXPONENT);
-            int                 *INVALID_SIGN(0);
-            bsls::Types::Uint64 *INVALID_SIGNIFICAND(0);
-            int                 *INVALID_EXPONENT(0);
-
-            ASSERT_PASS(Util::decompose(VALID_SIGN,
-                                        VALID_SIGNIFICAND,
-                                        VALID_EXPONENT,
-                                        TEMP));
-            ASSERT_FAIL(Util::decompose(INVALID_SIGN,
-                                        VALID_SIGNIFICAND,
-                                        VALID_EXPONENT,
-                                        TEMP));
-            ASSERT_FAIL(Util::decompose(VALID_SIGN,
-                                        INVALID_SIGNIFICAND,
-                                        VALID_EXPONENT,
-                                        TEMP));
-            ASSERT_FAIL(Util::decompose(VALID_SIGN,
-                                        VALID_SIGNIFICAND,
-                                        INVALID_EXPONENT,
-                                        TEMP));
         }
     }
 #undef DEC
@@ -982,38 +918,6 @@ int main(int argc, char* argv[])
                 }
 
             }
-        }
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertTestHandlerGuard hG;
-
-            const Type     TEMP(0);
-            int            SIGN;
-            BDEC::Uint128  SIGNIFICAND;
-            int            EXPONENT;
-            int           *VALID_SIGN(&SIGN);
-            BDEC::Uint128 *VALID_SIGNIFICAND(&SIGNIFICAND);
-            int           *VALID_EXPONENT(&EXPONENT);
-            int           *INVALID_SIGN(0);
-            BDEC::Uint128 *INVALID_SIGNIFICAND(0);
-            int           *INVALID_EXPONENT(0);
-
-            ASSERT_PASS(Util::decompose(VALID_SIGN,
-                                        VALID_SIGNIFICAND,
-                                        VALID_EXPONENT,
-                                        TEMP));
-            ASSERT_FAIL(Util::decompose(INVALID_SIGN,
-                                        VALID_SIGNIFICAND,
-                                        VALID_EXPONENT,
-                                        TEMP));
-            ASSERT_FAIL(Util::decompose(VALID_SIGN,
-                                        INVALID_SIGNIFICAND,
-                                        VALID_EXPONENT,
-                                        TEMP));
-            ASSERT_FAIL(Util::decompose(VALID_SIGN,
-                                        VALID_SIGNIFICAND,
-                                        INVALID_EXPONENT,
-                                        TEMP));
         }
     }
 #undef DEC

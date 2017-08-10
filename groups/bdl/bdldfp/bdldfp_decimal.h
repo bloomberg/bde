@@ -545,6 +545,10 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalimputil.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
 #endif
@@ -963,6 +967,19 @@ operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
     //
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
+
+// FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const Decimal32& object);
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const Decimal64& object);
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, const Decimal128& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for 'DecimalXX'.  Note that two
+    // objects which have the same value but different representations will
+    // hash to the same value.
 
                             // ====================
                             // class Decimal_Type64
@@ -5139,7 +5156,6 @@ bool bdldfp::operator>=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
 }
 
 // FREE OPERATORS
-
 inline
 bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64 value)
 {
@@ -6372,6 +6388,42 @@ inline
 bool bdldfp::operator>=(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
 {
     return lhs >= Decimal128(rhs);
+}
+
+// FREE FUNCTIONS
+template <class HASHALG>
+inline
+void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal32& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    bdldfp::Decimal32 normalizedObject = DecimalImpUtil::normalize(
+                                                               object.value());
+    hashAlg(&normalizedObject, sizeof(normalizedObject));
+}
+
+template <class HASHALG>
+inline
+void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal64& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    bdldfp::Decimal64 normalizedObject = DecimalImpUtil::normalize(
+                                                               object.value());
+
+    hashAlg(&normalizedObject, sizeof(normalizedObject));
+}
+
+template <class HASHALG>
+inline
+void bdldfp::hashAppend(HASHALG& hashAlg, const bdldfp::Decimal128& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    bdldfp::Decimal128 normalizedObject = DecimalImpUtil::normalize(
+                                                               object.value());
+
+    hashAlg(&normalizedObject, sizeof(normalizedObject));
 }
 
 }  // close enterprise namespace
