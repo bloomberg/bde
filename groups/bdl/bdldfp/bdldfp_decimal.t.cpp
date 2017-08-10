@@ -1,11 +1,18 @@
 // bdldfp_decimal.t.cpp                                               -*-C++-*-
 #include <bdldfp_decimal.h>
 
+#include <bdlb_randomdevice.h>
+
 #include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+
+#include <bslx_testinstream.h>
+#include <bslx_testoutstream.h>
+#include <bslx_versionfunctions.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -13,12 +20,6 @@
 #include <bsl_cstring.h>
 #include <bsl_climits.h> // CHAR_BIT
 #include <bsl_limits.h>
-
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslx_testinstream.h>
-#include <bslx_testoutstream.h>
-#include <bslx_versionfunctions.h>
 
 #include <typeinfo>
 
@@ -110,12 +111,17 @@ using bsl::atoi;
 //: o 'operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream...'
 //: o 'operator>> (bsl::basic_ostream<CHARTYPE, TRAITS>& stream...'
 //
+// FREE FUNCTIONS
+//: o void hashAppend(HASHALG& hashAlg, const Decimal32& object);
+//: o void hashAppend(HASHALG& hashAlg, const Decimal64& object);
+//: o void hashAppend(HASHALG& hashAlg, const Decimal128& object);
+//
 // ----------------------------------------------------------------------------
 // [ 1] Implementation Assumptions
 // [ 2] Decimal32 Type
 // [ 3] Decimal64 Type
 // [ 4] Decimal128 Type
-// [ 5] USAGE EXAMPLES
+// [ 8] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
@@ -244,6 +250,91 @@ struct NulBuf : bsl::streambuf {
     }
 };
 
+long long int clipValue(long long int value,
+                        long long int min,
+                        long long int max)
+    // Clip the specified 'value' to fit segment between the specified 'min'
+    // and the specified 'max'.
+{
+    return static_cast<long long int>(
+           (static_cast<unsigned long long int>(value)%(max - min + 1)) + min);
+}
+
+bdldfp::Decimal32 randomDecimal32()
+    // Return randomly generated Decimal32 object having finite value on
+    // success and infinity value otherwise.
+{
+    int significand = 0;
+    int exponent = 0;
+
+    int rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
+                                reinterpret_cast<unsigned char*>(&significand),
+                                sizeof(int));
+    ASSERTV(rc, 0 == rc);
+
+    significand = static_cast<int>(clipValue( significand,
+                                             -9999999,
+                                              9999999));
+
+    rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
+                                   reinterpret_cast<unsigned char*>(&exponent),
+                                   sizeof(int));
+    ASSERTV(rc, 0 == rc);
+
+    exponent = static_cast<int>(clipValue(exponent, -101, 90));
+
+    return BDEC::DecimalImpUtil::makeDecimalRaw32(significand, exponent);
+}
+
+bdldfp::Decimal64 randomDecimal64()
+    // Return randomly generated Decimal64 object having finite value on
+    // success and infinity value otherwise.
+{
+    long long int significand = 0;
+    int           exponent = 0;
+
+    int rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
+                                reinterpret_cast<unsigned char*>(&significand),
+                                sizeof(long long int));
+    ASSERTV(rc, 0 == rc);
+
+    significand = clipValue( significand,
+                            -9999999999999999LL,
+                             9999999999999999LL);
+
+    rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
+                                   reinterpret_cast<unsigned char*>(&exponent),
+                                   sizeof(int));
+    ASSERTV(rc, 0 == rc);
+
+    exponent = static_cast<int>(clipValue(exponent, -398, 369));
+
+    return BDEC::DecimalImpUtil::makeDecimalRaw64(significand, exponent);
+}
+
+bdldfp::Decimal128 randomDecimal128()
+    // Return randomly generated Decimal128 object having finite value on
+    // success and infinity value otherwise.
+{
+    long long int significand = 0;
+    int           exponent = 0;
+
+    int rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
+                                reinterpret_cast<unsigned char*>(&significand),
+                                sizeof(long long int));
+    ASSERTV(rc, 0 == rc);
+
+    rc = bdlb::RandomDevice::getRandomBytesNonBlocking(
+                                   reinterpret_cast<unsigned char*>(&exponent),
+                                   sizeof(int));
+    ASSERTV(rc, 0 == rc);
+
+    exponent = static_cast<int>(clipValue(exponent, -6176, 6111));
+
+    return BDEC::DecimalImpUtil::makeDecimalRaw128(significand, exponent);
+}
+
+
 //=============================================================================
 //                      TEST DRIVER NAMESPACE CLASS
 //-----------------------------------------------------------------------------
@@ -253,6 +344,7 @@ struct TestDriver {
     // the test driver main program.  This class is necessitated by
     // compile-time performance issues on some platforms.
 
+    static void testCase8();
     static void testCase7();
     static void testCase6();
     static void testCase5();
@@ -263,10 +355,10 @@ struct TestDriver {
 
 };
 
-void TestDriver::testCase7()
+void TestDriver::testCase8()
 {
     // ------------------------------------------------------------------------
-    // USAGE EXAMPLES
+    // USAGE EXAMPLE
     //   Extracted from component header file.
     //
     // Concerns:
@@ -279,12 +371,12 @@ void TestDriver::testCase7()
     //:   (C-1)
     //
     // Testing:
-    //   USAGE EXAMPLES
+    //   USAGE EXAMPLE
     // ------------------------------------------------------------------------
 
     if (verbose) bsl::cout << bsl::endl
-                           << "Testing Usage Examples" << bsl::endl
-                           << "======================" << bsl::endl;
+                           << "Testing Usage Example" << bsl::endl
+                           << "=====================" << bsl::endl;
 
     if (veryVerbose) bsl::cout << bsl::endl
                                << "Portable initialization of "
@@ -329,6 +421,421 @@ void TestDriver::testCase7()
         ASSERT(BDLDFP_DECIMAL_DD(0.1) +  BDLDFP_DECIMAL_DD(0.2) ==
                BDLDFP_DECIMAL_DD(0.3));
         //..
+    }
+}
+
+void TestDriver::testCase7()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'hashAppend'
+    //
+    // Concerns:
+    //: 1 The 'hashAppend' function hashes objects with different values
+    //:   differently.
+    //:
+    //: 2 The 'hashAppend' function hashes objects with the same values
+    //:   identically irregardless their representations.
+    //:
+    //: 3 The 'hashAppend' function hashes const and non-const objects.
+    //
+    // Plan:
+    //: 1 Brute force test of a several hand picked and randomly generated
+    //:   values, ensuring that hashes of equivalent objects match and hashes
+    //:   of unequal objects do not.  (C-1..3)
+    //
+    // Testing:
+    //   void hashAppend(HASHALG& hashAlg, const Decimal32& object);
+    //   void hashAppend(HASHALG& hashAlg, const Decimal64& object);
+    //   void hashAppend(HASHALG& hashAlg, const Decimal128& object);
+    // ------------------------------------------------------------------------
+
+    if (verbose) bsl::cout << bsl::endl
+                           << "Testing 'hashAppend'" << bsl::endl
+                           << "====================" << bsl::endl;
+
+    typedef ::BloombergLP::bslh::Hash<> Hasher;
+    typedef Hasher::result_type         HashType;
+
+    Hasher hasher;
+
+    bslma::TestAllocator va("vector", veryVeryVeryVerbose);
+
+    if (verbose) bsl::cout << "\tTesting Decimal32" << bsl::endl;
+    {
+        typedef BDEC::Decimal32                      Obj;
+        typedef bsl::numeric_limits<BDEC::Decimal32> d32_limits;
+        typedef bsl::pair<Obj, HashType>             TestDataPair;
+        typedef bsl::vector<TestDataPair>            TestDataVector;
+
+        TestDataVector testData(&va);
+
+        // Adding boundary and special values.
+
+        const Obj ZERO_P        = BDLDFP_DECIMAL_DF(0.00);
+        const Obj MIN_P         = d32_limits::min();
+        const Obj MAX_P         = d32_limits::max();
+        const Obj EPSILON_P     = d32_limits::epsilon();
+        const Obj ROUND_ERROR_P = d32_limits::round_error();
+        const Obj INFINITE_P    = d32_limits::infinity();
+        const Obj DENORM_MIN_P  = d32_limits::denorm_min();
+        const Obj ZERO_N        = -ZERO_P;
+        const Obj MIN_N         = -MIN_P;
+        const Obj MAX_N         = -MAX_P;
+        const Obj EPSILON_N     = -EPSILON_P;
+        const Obj ROUND_ERROR_N = -ROUND_ERROR_P;
+        const Obj INFINITE_N    = -INFINITE_P;
+        const Obj DENORM_MIN_N  = -DENORM_MIN_P;
+
+        const Obj Q_NAN      = d32_limits::quiet_NaN();
+        HashType  Q_NAN_HASH = hasher(Q_NAN);
+        const Obj S_NAN      = d32_limits::signaling_NaN();
+        HashType  S_NAN_HASH = hasher(S_NAN);
+
+        testData.push_back(TestDataPair(ZERO_P       , hasher(ZERO_P       )));
+        testData.push_back(TestDataPair(MIN_P        , hasher(MIN_P        )));
+        testData.push_back(TestDataPair(MAX_P        , hasher(MAX_P        )));
+        testData.push_back(TestDataPair(EPSILON_P    , hasher(EPSILON_P    )));
+        testData.push_back(TestDataPair(ROUND_ERROR_P, hasher(ROUND_ERROR_P)));
+        testData.push_back(TestDataPair(INFINITE_P   , hasher(INFINITE_P   )));
+        testData.push_back(TestDataPair(DENORM_MIN_P , hasher(DENORM_MIN_P )));
+        testData.push_back(TestDataPair(ZERO_N       , hasher(ZERO_N       )));
+        testData.push_back(TestDataPair(MIN_N        , hasher(MIN_N        )));
+        testData.push_back(TestDataPair(MAX_N        , hasher(MAX_N        )));
+        testData.push_back(TestDataPair(EPSILON_N    , hasher(EPSILON_N    )));
+        testData.push_back(TestDataPair(ROUND_ERROR_N, hasher(ROUND_ERROR_N)));
+        testData.push_back(TestDataPair(INFINITE_N   , hasher(INFINITE_N   )));
+        testData.push_back(TestDataPair(DENORM_MIN_N , hasher(DENORM_MIN_N )));
+
+        // Adding identical values, having different representations:
+        // 1e+3
+        // 10e+2
+        // ...
+        // 100000e-2
+        // 1000000e-3
+
+        int       cloneSignificand = 1;
+        int       cloneExponent    = 3;
+        const Obj ORIGINAL         = BDEC::DecimalImpUtil::makeDecimalRaw32(
+                                                              cloneSignificand,
+                                                              cloneExponent);
+        testData.push_back(TestDataPair(ORIGINAL, hasher(ORIGINAL)));
+
+        for (int i = 0; i < 6; ++i) {
+            --cloneExponent;
+            cloneSignificand *= 10;
+            const Obj CLONE = BDEC::DecimalImpUtil::makeDecimalRaw32(
+                                                              cloneSignificand,
+                                                              cloneExponent);
+            ASSERTV(ORIGINAL, CLONE, ORIGINAL == CLONE);
+            testData.push_back(TestDataPair(CLONE, hasher(CLONE)));
+        }
+
+        // Adding zero values, having different representations.
+
+        const Obj ZERO1 = BDLDFP_DECIMAL_DF(-0.00);
+        const Obj ZERO2 = BDEC::DecimalImpUtil::makeDecimalRaw32(0, 1);
+        const Obj ZERO3 = BDEC::DecimalImpUtil::makeDecimalRaw32(0, 10);
+        const Obj ZERO4 = BDEC::DecimalImpUtil::makeDecimalRaw32(0, 90);
+
+        testData.push_back(TestDataPair(ZERO1, hasher(ZERO1)));
+        testData.push_back(TestDataPair(ZERO2, hasher(ZERO2)));
+        testData.push_back(TestDataPair(ZERO3, hasher(ZERO3)));
+        testData.push_back(TestDataPair(ZERO4, hasher(ZERO4)));
+
+        // Adding random values.
+
+        const int RANDOM_VALUES_NUM = 100;
+        for (int i = 0; i < RANDOM_VALUES_NUM; ++i) {
+            Obj randomValue = randomDecimal32();
+            testData.push_back(TestDataPair(randomValue,
+                                            hasher(randomValue)));
+        }
+
+        if (veryVerbose) {
+            T_ T_ P(testData.size());
+        }
+
+        // Testing 'hashAppend' function.
+
+        TestDataVector::iterator iter1 = testData.begin();
+
+        while (iter1 != testData.end()) {
+            const Obj&               VALUE1 = iter1->first;
+            const HashType&          HASH1  = iter1->second;
+            TestDataVector::iterator iter2  = testData.begin();
+
+            if (veryVerbose) {
+                T_ T_ P_(VALUE1) P(HASH1);
+            }
+
+            while (iter2 != testData.end()) {
+                const Obj&      VALUE2 = iter2->first;
+                const HashType& HASH2  = iter2->second;
+                if (VALUE1 == VALUE2) {
+                    ASSERTV(VALUE1, VALUE2, HASH1, HASH2, HASH1 == HASH2);
+                } else {
+                    ASSERTV(VALUE1, VALUE2, HASH1, HASH2, HASH1 != HASH2);
+                }
+                ++iter2;
+            }
+            ASSERT(Q_NAN_HASH != HASH1);
+            ASSERT(S_NAN_HASH != HASH1);
+            ++iter1;
+        }
+    }
+
+    if (verbose) bsl::cout << "\tTesting Decimal64" << bsl::endl;
+    {
+        typedef BDEC::Decimal64                      Obj;
+        typedef bsl::numeric_limits<BDEC::Decimal32> d64_limits;
+        typedef bsl::pair<Obj, HashType>             TestDataPair;
+        typedef bsl::vector<TestDataPair>            TestDataVector;
+
+        TestDataVector       testData(&va);
+
+        // Adding boundary and special values.
+
+        const Obj ZERO_P        = BDLDFP_DECIMAL_DD(0.00);
+        const Obj MIN_P         = d64_limits::min();
+        const Obj MAX_P         = d64_limits::max();
+        const Obj EPSILON_P     = d64_limits::epsilon();
+        const Obj ROUND_ERROR_P = d64_limits::round_error();
+        const Obj INFINITE_P    = d64_limits::infinity();
+        const Obj DENORM_MIN_P  = d64_limits::denorm_min();
+        const Obj ZERO_N        = -ZERO_P;
+        const Obj MIN_N         = -MIN_P;
+        const Obj MAX_N         = -MAX_P;
+        const Obj EPSILON_N     = -EPSILON_P;
+        const Obj ROUND_ERROR_N = -ROUND_ERROR_P;
+        const Obj INFINITE_N    = -INFINITE_P;
+        const Obj DENORM_MIN_N  = -DENORM_MIN_P;
+
+        const Obj Q_NAN      = d64_limits::quiet_NaN();
+        HashType  Q_NAN_HASH = hasher(Q_NAN);
+        const Obj S_NAN      = d64_limits::signaling_NaN();
+        HashType  S_NAN_HASH = hasher(S_NAN);
+
+        testData.push_back(TestDataPair(ZERO_P       , hasher(ZERO_P       )));
+        testData.push_back(TestDataPair(MIN_P        , hasher(MIN_P        )));
+        testData.push_back(TestDataPair(MAX_P        , hasher(MAX_P        )));
+        testData.push_back(TestDataPair(EPSILON_P    , hasher(EPSILON_P    )));
+        testData.push_back(TestDataPair(ROUND_ERROR_P, hasher(ROUND_ERROR_P)));
+        testData.push_back(TestDataPair(INFINITE_P   , hasher(INFINITE_P   )));
+        testData.push_back(TestDataPair(DENORM_MIN_P , hasher(DENORM_MIN_P )));
+        testData.push_back(TestDataPair(ZERO_N       , hasher(ZERO_N       )));
+        testData.push_back(TestDataPair(MIN_N        , hasher(MIN_N        )));
+        testData.push_back(TestDataPair(MAX_N        , hasher(MAX_N        )));
+        testData.push_back(TestDataPair(EPSILON_N    , hasher(EPSILON_N    )));
+        testData.push_back(TestDataPair(ROUND_ERROR_N, hasher(ROUND_ERROR_N)));
+        testData.push_back(TestDataPair(INFINITE_N   , hasher(INFINITE_N   )));
+        testData.push_back(TestDataPair(DENORM_MIN_N , hasher(DENORM_MIN_N )));
+
+        // Adding identical values, having different representations:
+        // 1e+7
+        // 10e+6
+        // ...
+        // 100000000000000e-7
+        // 1000000000000000e-8
+
+        long long cloneSignificand = 1;
+        int       cloneExponent    = 7;
+        const Obj ORIGINAL         = BDEC::DecimalImpUtil::makeDecimalRaw64(
+                                                              cloneSignificand,
+                                                              cloneExponent);
+        testData.push_back(TestDataPair(ORIGINAL, hasher(ORIGINAL)));
+
+        for (int i = 0; i < 15; ++i) {
+            --cloneExponent;
+            cloneSignificand *= 10;
+            const Obj CLONE = BDEC::DecimalImpUtil::makeDecimalRaw64(
+                                                              cloneSignificand,
+                                                              cloneExponent);
+            ASSERTV(ORIGINAL, CLONE, ORIGINAL == CLONE);
+            testData.push_back(TestDataPair(CLONE, hasher(CLONE)));
+        }
+
+        // Adding zero values, having different representations.
+
+        const Obj ZERO1 = BDLDFP_DECIMAL_DD(-0.00);
+        const Obj ZERO2 = BDEC::DecimalImpUtil::makeDecimalRaw64(0, 1);
+        const Obj ZERO3 = BDEC::DecimalImpUtil::makeDecimalRaw64(0, 10);
+        const Obj ZERO4 = BDEC::DecimalImpUtil::makeDecimalRaw64(0, 100);
+        const Obj ZERO5 = BDEC::DecimalImpUtil::makeDecimalRaw64(0, 369);
+
+        testData.push_back(TestDataPair(ZERO1, hasher(ZERO1)));
+        testData.push_back(TestDataPair(ZERO2, hasher(ZERO2)));
+        testData.push_back(TestDataPair(ZERO3, hasher(ZERO3)));
+        testData.push_back(TestDataPair(ZERO4, hasher(ZERO4)));
+        testData.push_back(TestDataPair(ZERO5, hasher(ZERO5)));
+
+        // Adding random values.
+
+        const int RANDOM_VALUES_NUM = 100;
+        for (int i = 0; i < RANDOM_VALUES_NUM; ++i) {
+            const Obj randomValue = randomDecimal64();
+            testData.push_back(TestDataPair(randomValue,
+                                            hasher(randomValue)));
+        }
+
+        if (veryVerbose) {
+            T_ T_ P(testData.size());
+        }
+
+        // Testing 'hashAppend' function.
+
+        TestDataVector::iterator iter1 = testData.begin();
+
+        while (iter1 != testData.end()) {
+            const Obj&               VALUE1 = iter1->first;
+            const HashType&          HASH1  = iter1->second;
+            TestDataVector::iterator iter2  = testData.begin();
+
+            if (veryVerbose) {
+                T_ T_ P_(VALUE1) P(HASH1);
+            }
+
+            while (iter2 != testData.end()) {
+                const Obj&      VALUE2 = iter2->first;
+                const HashType& HASH2  = iter2->second;
+                if (VALUE1 == VALUE2) {
+                    ASSERTV(VALUE1, VALUE2, HASH1, HASH2, HASH1 == HASH2);
+                } else {
+                    ASSERTV(VALUE1, VALUE2, HASH1, HASH2, HASH1 != HASH2);
+                }
+                ++iter2;
+            }
+            ASSERT(Q_NAN_HASH != HASH1);
+            ASSERT(S_NAN_HASH != HASH1);
+            ++iter1;
+        }
+    }
+
+    if (verbose) bsl::cout << "\tTesting Decimal128" << bsl::endl;
+    {
+        typedef BDEC::Decimal128                     Obj;
+        typedef bsl::numeric_limits<BDEC::Decimal32> d128_limits;
+        typedef bsl::pair<Obj, HashType>             TestDataPair;
+        typedef bsl::vector<TestDataPair>            TestDataVector;
+
+        TestDataVector       testData(&va);
+
+        // Adding boundary and special values.
+
+        const Obj ZERO_P        = BDLDFP_DECIMAL_DL(0.00);
+        const Obj MIN_P         = d128_limits::min();
+        const Obj MAX_P         = d128_limits::max();
+        const Obj EPSILON_P     = d128_limits::epsilon();
+        const Obj ROUND_ERROR_P = d128_limits::round_error();
+        const Obj INFINITE_P    = d128_limits::infinity();
+        const Obj DENORM_MIN_P  = d128_limits::denorm_min();
+        const Obj ZERO_N        = -ZERO_P;
+        const Obj MIN_N         = -MIN_P;
+        const Obj MAX_N         = -MAX_P;
+        const Obj EPSILON_N     = -EPSILON_P;
+        const Obj ROUND_ERROR_N = -ROUND_ERROR_P;
+        const Obj INFINITE_N    = -INFINITE_P;
+        const Obj DENORM_MIN_N  = -DENORM_MIN_P;
+
+        const Obj Q_NAN      = d128_limits::quiet_NaN();
+        HashType  Q_NAN_HASH = hasher(Q_NAN);
+        const Obj S_NAN      = d128_limits::signaling_NaN();
+        HashType  S_NAN_HASH = hasher(S_NAN);
+
+        testData.push_back(TestDataPair(ZERO_P       , hasher(ZERO_P       )));
+        testData.push_back(TestDataPair(MIN_P        , hasher(MIN_P        )));
+        testData.push_back(TestDataPair(MAX_P        , hasher(MAX_P        )));
+        testData.push_back(TestDataPair(EPSILON_P    , hasher(EPSILON_P    )));
+        testData.push_back(TestDataPair(ROUND_ERROR_P, hasher(ROUND_ERROR_P)));
+        testData.push_back(TestDataPair(INFINITE_P   , hasher(INFINITE_P   )));
+        testData.push_back(TestDataPair(DENORM_MIN_P , hasher(DENORM_MIN_P )));
+        testData.push_back(TestDataPair(ZERO_N       , hasher(ZERO_N       )));
+        testData.push_back(TestDataPair(MIN_N        , hasher(MIN_N        )));
+        testData.push_back(TestDataPair(MAX_N        , hasher(MAX_N        )));
+        testData.push_back(TestDataPair(EPSILON_N    , hasher(EPSILON_N    )));
+        testData.push_back(TestDataPair(ROUND_ERROR_N, hasher(ROUND_ERROR_N)));
+        testData.push_back(TestDataPair(INFINITE_N   , hasher(INFINITE_N   )));
+        testData.push_back(TestDataPair(DENORM_MIN_N , hasher(DENORM_MIN_N )));
+
+        // Adding identical values, having different representations:
+        // 1e+9
+        // 10e+8
+        // ...
+        // 100000000000000000e-8
+        // 1000000000000000000e-9
+
+        long long cloneSignificand = 1;
+        int       cloneExponent    = 9;
+        const Obj ORIGINAL         = BDEC::DecimalImpUtil::makeDecimalRaw128(
+                                                              cloneSignificand,
+                                                              cloneExponent);
+        testData.push_back(TestDataPair(ORIGINAL, hasher(ORIGINAL)));
+
+        for (int i = 0; i < 18; ++i) {
+            --cloneExponent;
+            cloneSignificand *= 10;
+            const Obj CLONE = BDEC::DecimalImpUtil::makeDecimalRaw128(
+                                                              cloneSignificand,
+                                                              cloneExponent);
+            ASSERTV(ORIGINAL, CLONE, ORIGINAL == CLONE);
+            testData.push_back(TestDataPair(CLONE, hasher(CLONE)));
+        }
+
+        // Adding zero values, having different representations.
+
+        const Obj ZERO1 = BDLDFP_DECIMAL_DL(-0.00);
+        const Obj ZERO2 = BDEC::DecimalImpUtil::makeDecimalRaw128(0, 1);
+        const Obj ZERO3 = BDEC::DecimalImpUtil::makeDecimalRaw128(0, 10);
+        const Obj ZERO4 = BDEC::DecimalImpUtil::makeDecimalRaw128(0, 100);
+        const Obj ZERO5 = BDEC::DecimalImpUtil::makeDecimalRaw128(0, 1000);
+        const Obj ZERO6 = BDEC::DecimalImpUtil::makeDecimalRaw128(0, 6111);
+
+        testData.push_back(TestDataPair(ZERO1, hasher(ZERO1)));
+        testData.push_back(TestDataPair(ZERO2, hasher(ZERO2)));
+        testData.push_back(TestDataPair(ZERO3, hasher(ZERO3)));
+        testData.push_back(TestDataPair(ZERO4, hasher(ZERO4)));
+        testData.push_back(TestDataPair(ZERO5, hasher(ZERO5)));
+        testData.push_back(TestDataPair(ZERO6, hasher(ZERO6)));
+
+        // Adding random values.
+
+        const int RANDOM_VALUES_NUM = 100;
+        for (int i = 0; i < RANDOM_VALUES_NUM; ++i) {
+            const Obj randomValue = randomDecimal128();
+            testData.push_back(TestDataPair(randomValue,
+                                            hasher(randomValue)));
+        }
+
+        if (veryVerbose) {
+            T_ T_ P(testData.size());
+        }
+
+        // Testing 'hashAppend' function.
+
+        TestDataVector::iterator iter1 = testData.begin();
+
+        while (iter1 != testData.end()) {
+            const Obj&               VALUE1 = iter1->first;
+            const HashType&          HASH1  = iter1->second;
+            TestDataVector::iterator iter2  = testData.begin();
+
+            if (veryVerbose) {
+                T_ T_ P_(VALUE1) P(HASH1);
+            }
+
+            while (iter2 != testData.end()) {
+                const Obj&      VALUE2 = iter2->first;
+                const HashType& HASH2  = iter2->second;
+                if (VALUE1 == VALUE2) {
+                    ASSERTV(VALUE1, VALUE2, HASH1, HASH2, HASH1 == HASH2);
+                } else {
+                    ASSERTV(VALUE1, VALUE2, HASH1, HASH2, HASH1 != HASH2);
+                }
+                ++iter2;
+            }
+            ASSERT(Q_NAN_HASH != HASH1);
+            ASSERT(S_NAN_HASH != HASH1);
+            ++iter1;
+        }
     }
 }
 
@@ -906,7 +1413,7 @@ void TestDriver::testCase4()
 
         {  L_, NAN_Q,      0,     'i', true,          "NAN" },
     };
-    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int             LINE       = DATA[ti].d_line;
