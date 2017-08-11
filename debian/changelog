@@ -1,3 +1,9 @@
+bsl-internal (3.2.0.3) unstable; urgency=low
+
+  * 195e6a4ba Merge pull request #1250 from cwilson/pr/1249-rebased-releases/3.2.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Fri, 11 Aug 2017 09:47:36 -0400
+
 bsl-internal (3.2.0.2) unstable; urgency=low
 
   * fd687430a Merge pull request #1248 from mgiroux/pr/1246-rebased-releases/3.2.x
