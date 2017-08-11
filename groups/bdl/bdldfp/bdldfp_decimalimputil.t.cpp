@@ -6585,7 +6585,6 @@ void TestDriver::testCase5()
     Util::ValueType128    rhs128;
     Util::ValueType128 result128;
 
-
     struct {
         long long int lhsMantissa;
                   int lhsExponent;
@@ -6699,6 +6698,38 @@ void TestDriver::testCase5()
         //:             +Inf | NaN| +Inf |+Inf|NaN|
         //:            ------+----+------+----+---+
         //:              NaN | NaN|  NaN | NaN|NaN|
+
+        Util::ValueType32   ninf32 = Util::parse32("-Inf");
+        Util::ValueType32   pinf32 = Util::parse32("+Inf");
+        Util::ValueType32    nan32 = Util::parse32( "NaN");
+        ASSERT( Util::equal(pinf32, pinf32));
+        ASSERT( Util::equal(ninf32, ninf32));
+        ASSERT( Util::notEqual(pinf32, ninf32));
+        ASSERT(!Util::equal(nan32, nan32));
+        ASSERT( Util::notEqual(nan32, nan32));
+        Util::ValueType32 normal32 = Util::makeDecimalRaw32(42,1);
+
+        ASSERT(nanEqual(ninf32, Util::add(  ninf32,   ninf32)));
+        ASSERT(nanEqual(ninf32, Util::add(  ninf32, normal32)));
+        ASSERT(nanEqual( nan32, Util::add(  ninf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::add(  ninf32,    nan32)));
+
+        ASSERT(nanEqual(ninf32, Util::add(normal32,   ninf32)));
+        ASSERT(nanEqual(        Util::add(normal32, normal32),
+                        Util::makeDecimalRaw32(84,1)));
+        ASSERT(nanEqual(pinf32, Util::add(normal32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::add(normal32,    nan32)));
+
+        ASSERT(nanEqual( nan32, Util::add(  pinf32,   ninf32)));
+        ASSERT(nanEqual(pinf32, Util::add(  pinf32, normal32)));
+        ASSERT(nanEqual(pinf32, Util::add(  pinf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::add(  pinf32,    nan32)));
+
+        ASSERT(nanEqual( nan32, Util::add(   nan32,   ninf32)));
+        ASSERT(nanEqual( nan32, Util::add(   nan32, normal32)));
+        ASSERT(nanEqual( nan32, Util::add(   nan32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::add(   nan32,    nan32)));
+
 
         Util::ValueType64   ninf64 = Util::parse64("-Inf");
         Util::ValueType64   pinf64 = Util::parse64("+Inf");
