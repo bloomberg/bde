@@ -1,3 +1,8 @@
+bsl-internal (3.2.0.4) unstable; urgency=low
+
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Fri, 11 Aug 2017 13:00:44 -0400
+
 bsl-internal (3.2.0.3) unstable; urgency=low
 
   * 195e6a4ba Merge pull request #1250 from cwilson/pr/1249-rebased-releases/3.2.x
