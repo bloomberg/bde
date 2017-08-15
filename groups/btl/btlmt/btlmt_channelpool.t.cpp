@@ -7,60 +7,60 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <btlmt_channelpool.h>
 
 #include <btlmt_channelpoolconfiguration.h>
 #include <btlmt_asyncchannel.h>
 
+#include <btlb_blobutil.h>
 #include <btls_iovecutil.h>
 #include <btlso_flags.h>
 #include <btlso_inetstreamsocketfactory.h>
 #include <btlso_ipv4address.h>
 #include <btlso_resolveutil.h>
-#include <btlso_streamsocket.h>
 #include <btlso_socketoptions.h>
 #include <btlso_socketoptutil.h>
+#include <btlso_streamsocket.h>
 #include <btlsos_tcpchannel.h>
 #include <btlsos_tcptimedacceptor.h>
 #include <btlsos_tcptimedchannel.h>
 
-#include <bdlcc_queue.h>
-#include <bslma_testallocator.h>
-#include <btlb_blobutil.h>
-#include <bdlma_concurrentpool.h>
-#include <bslmt_barrier.h>
-#include <bslmt_lockguard.h>
-#include <bslmt_condition.h>
-#include <bslmt_mutex.h>
-#include <bslmt_threadattributes.h>
-#include <bslmt_threadutil.h>
-#include <bdlmt_fixedthreadpool.h>
-
-#include <bdlf_bind.h>
-#include <bdlf_placeholder.h>
-#include <bdlf_memfn.h>
 #include <bdlb_hashutil.h>
 #include <bdlb_print.h>
 #include <bdlb_tokenizer.h>
+#include <bdlcc_queue.h>
+#include <bdlf_bind.h>
+#include <bdlf_memfn.h>
+#include <bdlf_placeholder.h>
+#include <bdlma_concurrentpool.h>
+#include <bdlmt_fixedthreadpool.h>
 
 #include <bslma_allocator.h>
+#include <bslma_deallocatorproctor.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslmt_barrier.h>
+#include <bslmt_condition.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadattributes.h>
+#include <bslmt_threadutil.h>
+#include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <bslx_byteoutstream.h>
 #include <bslx_byteinstream.h>
+#include <bslx_byteoutstream.h>
 #include <bslx_instreamfunctions.h>
 #include <bslx_marshallingutil.h>
 #include <bslx_outstreamfunctions.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -69,8 +69,6 @@
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
-
-#include <bsls_assert.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <bsl_c_signal.h>
@@ -4668,10 +4666,12 @@ bteso_SslLikeStreamSocket<ADDRESS>::bteso_SslLikeStreamSocket(
 , d_writeOffset(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    bsl::auto_ptr<char> readBuffer((char *)d_allocator_p->
-                                                       allocate(d_bufferSize));
+    d_readBuffer = (char *)d_allocator_p->allocate(d_bufferSize);
+    bslma::DeallocatorProctor<bslma::Allocator> guard(d_readBuffer,
+                                                      d_allocator_p);
+
     d_writeBuffer = (char *)d_allocator_p->allocate(d_bufferSize);
-    d_readBuffer  = readBuffer.release();
+    guard.release();
 }
 
 template <class ADDRESS>
