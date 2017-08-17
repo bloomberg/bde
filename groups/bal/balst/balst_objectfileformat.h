@@ -137,10 +137,15 @@ struct ObjectFileFormat {
     // some user-extended 'DW_LNE_*' opcode that is not defined in 'dwarf.h'
     // and that we don't know how to interpret.
 
+#  if 0
+    // In our new RHEL6 release build images, dwarf.h is currently unavailable.
+    // Suppressing this temporarily.  (DRQS 105151106)
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
         // DWARF is not a complete object file format, it is a format for
         // information embedded within ELF files to give source file name and
         // line number information.
+#  endif
+
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_AIX)
