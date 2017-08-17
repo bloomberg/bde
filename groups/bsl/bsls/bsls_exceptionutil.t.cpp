@@ -2,6 +2,7 @@
 
 #include <bsls_exceptionutil.h>
 
+#include <bsls_deprecate.h>
 #include <bsls_keyword.h>
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
@@ -249,11 +250,11 @@ void noThrowFunction() BSLS_NOTHROW_SPEC
 {
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+#if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 16)
 void exceptionSpecFunction() BSLS_EXCEPTION_SPEC((TestExceptionClass))
 {
 }
-#endif
+#endif // BSLS_DEPRECATE_IS_ACTIVE
 
 struct CustomException : native_std::exception {
     const char *what() const BSLS_EXCEPTION_WHAT_NOTHROW BSLS_KEYWORD_OVERRIDE;

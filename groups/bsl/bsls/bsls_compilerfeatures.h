@@ -555,6 +555,12 @@ BSLS_IDENT("$Id: $")
 # define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 #endif
 
+// Remove macros defined for earlier dialacts (including C++98) that are
+// removed from later editions of the C++ Standard.
+#if __cplusplus >= 201703L
+# undef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+#endif
+
 // GCC
 // https://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
 // As GCC tracked the evolving C++11 standard, earlier versions of the compiler
@@ -721,7 +727,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-// MSVC
+// MSVC (Minimum supported version is MSVC 2013)
 // http://msdn.microsoft.com/en-us/library/hh567368.aspx
 // http://blogs.msdn.com/b/vcblog/archive/2014/06/11/c-11-14-feature-tables-for-visual-studio-14-ctp1.aspx
 // MSVC enables C++11 features automatically in versions that provide the
@@ -730,24 +736,20 @@ BSLS_IDENT("$Id: $")
 //: * extern template is not supported. It is documented as being
 //:   "supported" but behaves in a non-conforming manner.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#if BSLS_PLATFORM_CMP_VERSION >= 1700  // Microsoft Visual Studio 2012
-#define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
-#endif
-#if BSLS_PLATFORM_CMP_VERSION >= 1800  // Microsoft Visual Studio 2013
-#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
-#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
-#define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-#endif
-#if BSLS_PLATFORM_CMP_VERSION >= 1900  // Microsoft Visual Studio 2015
+# define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+# define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+# define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
+# define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+# define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
+# define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+# define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+# define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+# define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+# define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+# define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+# define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+# define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+# if BSLS_PLATFORM_CMP_VERSION >= 1900  // Microsoft Visual Studio 2015
 // Note that while MSVC 2013 supports variadic templates in principle, there
 // are sufficient problems with the implementation that we defer support until
 // the 2015 compiler where those issues are ironed out.
@@ -755,44 +757,44 @@ BSLS_IDENT("$Id: $")
 // use we had caused a C1001 compiler internal error.
 // Also note that the variable template C++14 compiler feature is supported
 // since the 2015 update 2 compiler.
-#define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
-#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
-#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-#define BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
-#define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-#define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-#define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-#endif
-#if BSLS_PLATFORM_CMP_VERSION >= 1910  // Microsoft Visual Studio 2017
-#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-#endif
+#   define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+#   define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#   define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#   define BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
+#   define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+#   define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+#   define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+#   define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+# endif
+# if BSLS_PLATFORM_CMP_VERSION >= 1910  // Microsoft Visual Studio 2017
+#   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+# endif
 // MSVC has __declspec(noreturn)
 // (see bsls_bslexceptionutil.h bslstl_stdexceptutil.h)
-//#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+//# define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // (not yet supported in MSVC)
-//#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+//# define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 
 // Not yet enabling C++17 support, but pro-active test drivers may want to add
 // coverage.
 // # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 
-#if BSLS_PLATFORM_CMP_VERSION >= 1911  // Microsoft Visual Studio 2017
-                                       // version 15.3
-#define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-#endif
+# if BSLS_PLATFORM_CMP_VERSION >= 1911  // Microsoft Visual Studio 2017
+                                        // version 15.3
+#   define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+# endif
 
-#if BSLS_PLATFORM_CMP_VERSION >= 1912  // Microsoft Visual Studio 2017
-                                       // version 15.5
-#if _MSVC_LANG >= 201703L  // C++17
+# if BSLS_PLATFORM_CMP_VERSION >= 1912  // Microsoft Visual Studio 2017
+                                        // version 15.5
+#   if _MSVC_LANG >= 201703L  // C++17
 // Microsoft does not always report the language dialect properly in
 // '__cplusplus', therefore we need to use the Microsoft specific predefined
 // macro.  See https://goo.gl/ikfyDw and
 // https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros
-#define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-#endif
-#endif
+#     define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
+#   endif
+# endif
 #endif
 
 // IBM Visual Age xlC 11.1 and better include increasing support for C++11

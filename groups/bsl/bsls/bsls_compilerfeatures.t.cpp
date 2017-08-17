@@ -5,9 +5,15 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
 
+#include <exception>    // testing exception specifications
+#include <utility>      // 'declval'
+
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
-#include <iostream>
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+#include <initializer_list>
+#endif
 
 //=============================================================================
 //                             TEST PLAN
@@ -26,25 +32,36 @@
 // [22] BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
 // [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 // [18] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+// [  ] BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // [ 2] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 // [ 3] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
 // [ 4] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+// [  ] BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
 // [ 5] BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
 // [ 6] BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+// [  ] BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
 // [ 7] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 // [ 8] BSLS_COMPILERFEATURES_SUPPORT_FINAL
 // [ 9] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 // [21] BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 // [10] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+// [  ] BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
+// [  ] BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 // [11] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+// [  ] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 // [12] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 // [13] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 // [14] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
 // [19] BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 // [15] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 // [16] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// [23] BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+// [  ] BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 // [20] BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+// [  ] BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 // [17] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// [  ] BSLS_COMPILERFEATURES_FORWARD_REF
+// [  ] BSLS_COMPILERFEATURES_FORWARD
 //=============================================================================
 
 using namespace BloombergLP;
@@ -786,6 +803,58 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+        //
+        // Concerns:
+        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS' is defined
+        //:    only when the compiler properly supports C++98 exception
+        //:    specifications, which are removed in C++17, and were never
+        //:    properly implemented by Microsoft.
+        //
+        // Plan:
+        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS' is
+        //:   defined then compile code that attempts to throw an invalid
+        //:   exception out of a function that has an exception specification
+        //:   that permits 'std::bad_exception', and confirm it is translated
+        //:   into the expected type through a call to 'unexpected'.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+        // --------------------------------------------------------------------
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS)
+        if (verbose) printf("Testing exception specifications skipped\n"
+                            "========================================\n");
+#else
+        if (verbose) printf("Testing exception specifications\n"
+                            "================================\n");
+
+        struct LocalClass {
+            static void test() throw (std::bad_exception, double) {
+                throw 13;
+            }
+
+            static void throwBadException() {
+                throw std::bad_exception();
+            }
+
+        };
+
+        std::set_unexpected(&LocalClass::throwBadException);
+
+        bool caughtBadException = false;
+        try {
+            LocalClass::test();
+        }
+        catch (const std::bad_exception&) {
+            caughtBadException = true;
+        }
+
+        ASSERTV(caughtBadException, caughtBadException);
+#endif
+      } break;
       case 22: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
@@ -1007,10 +1076,10 @@ int main(int argc, char *argv[])
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
         if (verbose) printf("Testing 'alignas' skipped\n"
-                            "===========================\n");
+                            "=========================\n");
 #else
         if (verbose) printf("Testing 'alignas' specifier\n"
-                            "====================================\n");
+                            "===========================\n");
 
         alignas(8) int foo; (void) foo;
 #endif
