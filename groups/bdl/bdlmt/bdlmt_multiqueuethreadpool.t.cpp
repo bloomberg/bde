@@ -1220,6 +1220,10 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
 }
 }  // close namespace MULTIQUEUETHREADPOOL_CASE_14
 
+struct Case21_DoNothing {
+    void operator()() const {}
+};
+
 // ============================================================================
 //                              MAIN PROGRAM
 
@@ -1234,7 +1238,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1314,6 +1318,51 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING DRQS 104502699
+        //
+        // Concerns:
+        //: 1 DRQS 104502699 shows that if a multiqueue thread pool is
+        //    constructed for a thread pool, and that threadpool is shutdown,
+        //    operations on the multiqueue thread pool hang.
+        //
+        // Plan:
+        //: 1 Incorporate the example from DRQS and show it no longer hangs.
+        //
+        // Testing:
+        //   DRQS 104502699
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "TESTING DRQS 104502699" << endl
+                 << "======================" << endl;
+        }
+
+        bslmt::ThreadAttributes attr;
+        bdlmt::MultiQueueThreadPool pool(attr, 1, 40, 10000);
+
+        int rc = pool.start();
+        BSLS_ASSERT_OPT(rc == 0);
+
+        const int queueId = pool.createQueue();
+        BSLS_ASSERT_OPT(queueId);
+
+        rc = pool.enqueueJob(queueId, Case21_DoNothing());
+        BSLS_ASSERT_OPT(rc == 0);
+
+        rc = pool.pauseQueue(queueId);
+        BSLS_ASSERT_OPT(rc == 0);
+
+        rc = pool.deleteQueue(queueId); // This used to block indefinitely
+        BSLS_ASSERT_OPT(rc != 0);       // When queue is paused, it now fails.
+
+        rc = pool.resumeQueue(queueId); // Resume to be able to deleteQueue.
+        BSLS_ASSERT_OPT(rc == 0);
+
+        rc = pool.deleteQueue(queueId);
+        BSLS_ASSERT_OPT(rc == 0);
       }  break;
       case 20: {
         // --------------------------------------------------------------------
