@@ -19,6 +19,14 @@
 // such collection can be limited so as not to overwhelm processes where
 // assertions fail frequently, and ways to examine the accumulated data.
 //
+// ********************************* WARNING *********************************
+// IT IS CORPORATE POLICY THAT IN PRODUCTION CODE, ASSERTION FAILURE HANDLERS
+// MUST NOT RETURN TO THEIR CALLERS.  THIS COMPONENT EXISTS IN CONTRAVENTION OF
+// THAT POLICY, AND IS MEANT TO BE USED ONLY WITH SPECIAL PERMISSION OF
+// MANAGEMENT, FOR THE PURPOSE OF ASCERTAINING THE CORRECTNESS OF FRESHLY
+// WRITTEN OR ENABLED ASSERTIONS THAT ARE FAILING.
+// ********************************* WARNING *********************************
+//
 // For purposes of this component, an assertion is considered to have a
 // location, represented by a triple of assertion text, source file name, and
 // source line number, and a stack trace, consisting of a vector of addresses
