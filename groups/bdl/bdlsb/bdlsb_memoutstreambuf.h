@@ -228,10 +228,6 @@ class MemOutStreamBuf : public bsl::streambuf {
         // 'k_INITIAL_BUFFER_SIZE'.  This method has no effect if 'newLength <=
         // capacity()' holds before the call.
 
-    // PRIVATE ACCESSORS
-    bsl::size_t capacity() const;
-        // Return the current buffer capacity.
-
   protected:
     // PROTECTED MANIPULATORS
     virtual int_type overflow(
@@ -309,6 +305,10 @@ class MemOutStreamBuf : public bsl::streambuf {
         // to this method.
 
     // ACCESSORS
+    bsl::size_t capacity() const;
+        // Return the current capacity of the buffer managed by this stream
+        // buffer.
+
     const char *data() const;
         // Return the address of the non-modifiable character buffer managed by
         // this stream buffer.
@@ -324,13 +324,6 @@ class MemOutStreamBuf : public bsl::streambuf {
                          // ---------------------
                          // class MemOutStreamBuf
                          // ---------------------
-
-// PRIVATE ACCESSORS
-inline
-bsl::size_t MemOutStreamBuf::capacity() const
-{
-    return epptr() - pbase();
-}
 
 // CREATORS
 inline
@@ -366,6 +359,12 @@ void MemOutStreamBuf::reset()
 }
 
 // ACCESSORS
+inline
+bsl::size_t MemOutStreamBuf::capacity() const
+{
+    return epptr() - pbase();
+}
+
 inline
 const char *MemOutStreamBuf::data() const
 {
