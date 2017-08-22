@@ -313,6 +313,31 @@ class DecimalImpUtil {
         //:
         //: o Normalized non-zero value has the same sign as the original one.
 
+                             // Quantum functions
+
+    static ValueType32  quantize(ValueType32  value, ValueType32  exponent);
+    static ValueType64  quantize(ValueType64  value, ValueType64  exponent);
+    static ValueType128 quantize(ValueType128 value, ValueType128 exponent);
+        // Return a number that is equal in value (except for any rounding) and
+        // sign to the specified 'value', and which has the exponent of the
+        // specified 'exponent'.  If the exponent needs to be increased, round
+        // the value according to the current decimal floating point rounding
+        // mode; and if the result of the rounding is not equal to the value of
+        // 'value'.  If the exponent needs to be decreased and the significant
+        // of the result has more digits than the type would allow, return NaN.
+        // The returned value is unspecified if either operand is NaN or
+        // infinity of either sign.
+
+    static bool sameQuantum(ValueType32  x, ValueType32  y);
+    static bool sameQuantum(ValueType64  x, ValueType64  y);
+    static bool sameQuantum(ValueType128 x, ValueType128 y);
+        // Return 'true' if the specified 'x' and 'y' values have the same
+        // quantum exponents, and 'false' otherwise.  If both arguments are NaN
+        // or both arguments are infinity, they have the same quantum
+        // exponents.  Note that if exactly one operand is NaN or exactly one
+        // operand is infinity, they do not have the same quantum exponents.
+        // Also note that this function will raise no exceptions.
+
                         // compose and decompose
 
     //static ValueType32  composeDecimal32 (DecimalTriple triple);
@@ -1485,6 +1510,61 @@ DecimalImpUtil::divide(DecimalImpUtil::ValueType128 lhs,
 {
     return Imp::divide(lhs, rhs);
 }
+
+inline
+DecimalImpUtil::ValueType32  DecimalImpUtil::quantize(ValueType32  value,
+                                                      ValueType32  exponent)
+{
+    DecimalImpUtil::ValueType32 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid32_quantize(value.d_raw,
+                                    exponent.d_raw,
+                                    &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType64  DecimalImpUtil::quantize(ValueType64  value,
+                                                      ValueType64  exponent)
+{
+    DecimalImpUtil::ValueType64 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid64_quantize(value.d_raw,
+                                    exponent.d_raw,
+                                    &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::quantize(ValueType128 value,
+                                                      ValueType128 exponent)
+{
+    DecimalImpUtil::ValueType128 retval;
+    _IDEC_flags flags;
+    retval.d_raw = __bid128_quantize(value.d_raw,
+                                     exponent.d_raw,
+                                     &flags);
+    return retval;
+}
+
+inline
+bool DecimalImpUtil::sameQuantum(ValueType32  x, ValueType32  y)
+{
+    return __bid32_sameQuantum(x.d_raw, y.d_raw);
+}
+
+inline
+bool DecimalImpUtil::sameQuantum(ValueType64  x, ValueType64  y)
+{
+    return __bid64_sameQuantum(x.d_raw, y.d_raw);
+}
+
+inline
+bool DecimalImpUtil::sameQuantum(ValueType128 x, ValueType128 y)
+{
+    return __bid128_sameQuantum(x.d_raw, y.d_raw);
+}
+
 
                         // Math functions
 

@@ -1368,6 +1368,10 @@ void TestDriver::testCase27()
     //:    thoroughly tested, we only need to make sure that math functions are
     //:    used correctly and that math methods forward arguments to the
     //:    appropriate math implementation function.
+    //:
+    //: 2 That decimal arguments with higher precision 'ValueType64/128' and
+    //:   are not rounded to fit into the decimal numbers with lower precision
+    //:   'ValueType32/64' when passed to underlying library's functions.
     //
     // Plan:
     //:  1 Using table-driven technique:
@@ -1375,7 +1379,11 @@ void TestDriver::testCase27()
     //:    1 Specify a set of arguments representing distinct decimal type
     //:      values and expected result of math method execution.
     //:
-    //:    2 Exercise math method using the arguments from (P-1.1) and ensure
+    //:    2 For functions that accept decimal numbers with higher precision
+    //:      select arguments that precision exceeds the lower precision
+    //:      decimal types.  C-2.
+    //:
+    //:    3 Exercise math method using the arguments from (P-1.1-2) and ensure
     //:      that the result of execution equals the expected value.
     //
     // Testing:
@@ -1394,9 +1402,6 @@ void TestDriver::testCase27()
     //   ValueType32   log10     (ValueType32);
     //   ValueType64   log10     (ValueType64);
     //   ValueType128  log10     (ValueType128);
-    //   ValueType32   ceil      (ValueType32);
-    //   ValueType64   ceil      (ValueType64);
-    //   ValueType128  ceil      (ValueType128);
     //   ValueType32   fmod      (ValueType32,  ValueType32);
     //   ValueType64   fmod      (ValueType64,  ValueType64);
     //   ValueType128  fmod      (ValueType128, ValueType128);
@@ -1444,7 +1449,7 @@ void TestDriver::testCase27()
                            << "\n===================="
                            << bsl::endl;
 
-    if (veryVeryVerbose) T_ bsl::cout << "ValueType32" << bsl::endl;
+    if (veryVerbose) T_ bsl::cout << "ValueType32" << bsl::endl;
     {
         typedef Util::ValueType32 Obj;
 
@@ -1458,7 +1463,7 @@ void TestDriver::testCase27()
         const Obj ZERO_P  =              DEC(0.0);
         const Obj ZERO_N  = Util::negate(ZERO_P);
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "copySign()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "copySign()" << bsl::endl; };
         {
             const Obj DEC_P  = DEC(+1234567.0);
             const Obj DEC_N  = DEC(-1234567.0);
@@ -1566,18 +1571,18 @@ void TestDriver::testCase27()
                 Obj d_x;
                 Obj d_expected;
             } DATA[] = {
-            //--------------------------------------
-            // LINE |     X     | EXPECTED
-            //--------------------------------------
-                { L_, DEC( 12.0), DEC(1.627548e+5) },
-                { L_, DEC(-11.0), DEC(1.670170e-5) },
-                { L_, DEC(9999999.0), INF_P },
-                { L_, NAN_P,      NAN_P            },
-                { L_, NAN_N,      NAN_N            },
-                { L_, INF_P,      INF_P            },
-                { L_, INF_N,      ZERO_P           },
-                { L_, ZERO_P,     DEC(1.0)         },
-                { L_, ZERO_N,     DEC(1.0)         },
+            //------------------------------------------
+            // LINE |     X         | EXPECTED
+            //------------------------------------------
+                { L_, DEC( 12.0),     DEC(1.627548e+5) },
+                { L_, DEC(-11.0),     DEC(1.670170e-5) },
+                { L_, DEC(9999999.0), INF_P            },
+                { L_, NAN_P,          NAN_P            },
+                { L_, NAN_N,          NAN_N            },
+                { L_, INF_P,          INF_P            },
+                { L_, INF_N,          ZERO_P           },
+                { L_, ZERO_P,         DEC(1.0)         },
+                { L_, ZERO_N,         DEC(1.0)         },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -1587,14 +1592,13 @@ void TestDriver::testCase27()
                 const int  LINE     = DATA[ti].d_line;
                 const Obj& X        = DATA[ti].d_x;
                 const Obj& EXPECTED = DATA[ti].d_expected;
-
                 const Obj  RESULT   = Util::exp(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "log()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "log()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -1627,7 +1631,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "logB()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -1660,7 +1664,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "log10()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "log10()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -1693,7 +1697,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "fmod()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "fmod()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -1731,7 +1735,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "remainder()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "remainder()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -1768,7 +1772,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "lrint()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
             const long int NaN = 0x8000000000000000l;
             struct {
@@ -1804,7 +1808,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "llrint()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
         {
             const long long int NaN = 0x8000000000000000ll;
             struct {
@@ -1840,7 +1844,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "nextafter()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "nextafter()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -1848,19 +1852,19 @@ void TestDriver::testCase27()
                 Obj d_to;
                 Obj d_expected;
             } DATA[] = {
-            //-----------------------------------------------
+            //-------------------------------------------------
             // LINE |   FROM  |     TO   | EXPECTED
-            //-----------------------------------------------
-                { L_, DEC(0.0),  DEC(1.0), DEC(1.0e-101)    },
-                { L_, DEC(1.0),  DEC(2.0), DEC(1.000001)    },
-                { L_, DEC(1.0),  DEC(0.0), DEC(9.999999e-1) },
-                { L_, DEC(0.0),  DEC(0.0), DEC(0.0)         },
-                { L_, NAN_P,     NAN_P,    NAN_P            },
-                { L_, NAN_N,     NAN_N,    NAN_N            },
-                { L_, INF_P,     INF_P,    INF_P            },
-                { L_, INF_N,     INF_N,    INF_N            },
-                // { L_, INF_P,     DEC(2.0), NAN_P            },
-                // { L_, INF_N,     DEC(2.0), NAN_N            },
+            //-------------------------------------------------
+                { L_, DEC(0.0),  DEC(1.0), DEC(1.0e-101)      },
+                { L_, DEC(1.0),  DEC(2.0), DEC(1.000001)      },
+                { L_, DEC(1.0),  DEC(0.0), DEC(9.999999e-1)   },
+                { L_, DEC(0.0),  DEC(0.0), DEC(0.0)           },
+                { L_, NAN_P,     NAN_P,    NAN_P              },
+                { L_, NAN_N,     NAN_N,    NAN_N              },
+                { L_, INF_P,     INF_P,    INF_P              },
+                { L_, INF_N,     INF_N,    INF_N              },
+                { L_, INF_P,     DEC(2.0), DEC( 9.999999e+96) },
+                { L_, INF_N,     DEC(2.0), DEC(-9.999999e+96) },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -1875,7 +1879,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "nexttoward()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "nexttoward()" << bsl::endl; }
         {
             struct {
                 int                d_line;
@@ -1883,16 +1887,16 @@ void TestDriver::testCase27()
                 Util::ValueType128 d_to;
                 Obj                d_expected;
             } DATA[] = {
-//-----------------------------------------------------------------------------
-//LINE |        FROM          |          TO            | EXPECTED
-//-----------------------------------------------------------------------------
- { L_,  DEC(0.0),               Util::denormMin128(),    Util::denormMin32()  },
- { L_,  DEC(0.0),               Util::negate(
-                                Util::denormMin128()),   Util::negate(
-                                                         Util::denormMin32()) },
- { L_,  Util::quietNaN32(),     Util::quietNaN128(),     Util::quietNaN32()   },
- { L_,  Util::signalingNaN32(), Util::signalingNaN128(), Util::quietNaN32()   },
- { L_,  Util::infinity32(),     Util::infinity128(),     Util::infinity32()   },
+//----------------------------------------------------------------------------
+//LINE |        FROM         |          TO            | EXPECTED
+//----------------------------------------------------------------------------
+{ L_, DEC(0.0),               Util::denormMin128(),    Util::denormMin32()   },
+{ L_, DEC(0.0),               Util::negate(
+                              Util::denormMin128()),   Util::negate(
+                                                       Util::denormMin32())  },
+{ L_, Util::quietNaN32(),     Util::quietNaN128(),     Util::quietNaN32()    },
+{ L_, Util::signalingNaN32(), Util::signalingNaN128(), Util::signalingNaN32()},
+{ L_, Util::infinity32(),     Util::infinity128(),     Util::infinity32()    },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -1901,13 +1905,13 @@ void TestDriver::testCase27()
                 const Obj&                FROM     = DATA[ti].d_from;
                 const Util::ValueType128& TO       = DATA[ti].d_to;
                 const Obj&                EXPECTED = DATA[ti].d_expected;
-                const Obj                 RESULT   = Util::nexttoward(FROM, TO);
+                const Obj                 RESULT   = Util::nexttoward(FROM,TO);
 
                 LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "pow()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "pow()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -1943,7 +1947,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "lround()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
             const long int NaN = 0x8000000000000000l;
             struct {
@@ -1977,7 +1981,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "sqrt()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "sqrt()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -2010,7 +2014,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "ceil()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "ceil()" << bsl::endl; }
         {
             const Obj DECIMAL  = DEC(1234567.0);
                   Obj RESULT   = Util::ceil(DEC(0.5));
@@ -2030,7 +2034,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::ceil(NAN_N),   NAN_N));
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "floor()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "floor()" << bsl::endl; }
         {
             Obj RESULT   = Util::floor(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -2048,7 +2052,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::floor(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::floor(NAN_N),   NAN_N));
         }
-        if (veryVeryVerbose) T_ T_ bsl::cout << "trunc()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "trunc()" << bsl::endl; }
         {
             Obj RESULT   = Util::trunc(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -2067,7 +2071,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::trunc(NAN_N),   NAN_N));
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "round()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "round()" << bsl::endl; }
         {
             Obj RESULT   = Util::round(DEC(0.5));
             Obj EXPECTED = DEC(1.0);
@@ -2086,7 +2090,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::round(NAN_N),   NAN_N));
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "fabs()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "fabs()" << bsl::endl; }
         {
             Obj RESULT   = Util::fabs(DEC(1.0));
             Obj EXPECTED = DEC(1.0);
@@ -2107,7 +2111,7 @@ void TestDriver::testCase27()
 #undef DEC
     }
 
-    if (veryVeryVerbose) T_ bsl::cout << "ValueType64" << bsl::endl;
+    if (veryVerbose) { T_ bsl::cout << "ValueType64" << bsl::endl; }
     {
         typedef Util::ValueType64 Obj;
 
@@ -2121,7 +2125,7 @@ void TestDriver::testCase27()
         const Obj ZERO_P  =              DEC(0.0);
         const Obj ZERO_N  = Util::negate(ZERO_P);
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "copySign()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "copySign()" << bsl::endl; }
         {
             const Obj DEC_P  = DEC(+1234567.0);
             const Obj DEC_N  = DEC(-1234567.0);
@@ -2222,8 +2226,13 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "exp()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "exp()" << bsl::endl; }
         {
+            const Obj DEC_X1 = DEC( 12.000046);
+            const Obj DEC_X2 = DEC(-11.000046);
+            const Obj RES_1  = DEC(1.627622783116064e+5);
+            const Obj RES_2  = DEC(1.670093252967944e-5);
+
             struct {
                 int d_line;
                 Obj d_x;
@@ -2232,14 +2241,14 @@ void TestDriver::testCase27()
             //-----------------------------------------------
             // LINE |     X     |      EXPECTED
             //-----------------------------------------------
-                { L_, DEC( 12.0), DEC(1.627547914190039e+5) },
-                { L_, DEC(-11.0), DEC(1.670170079024566e-5) },
-                { L_, NAN_P,      NAN_P                     },
-                { L_, NAN_N,      NAN_N                     },
-                { L_, INF_P,      INF_P                     },
-                { L_, INF_N,      ZERO_P                    },
-                { L_, ZERO_P,     DEC(1.0)                  },
-                { L_, ZERO_N,     DEC(1.0)                  },
+                { L_, DEC_X1,     RES_1    },
+                { L_, DEC_X2,     RES_2    },
+                { L_, NAN_P,      NAN_P    },
+                { L_, NAN_N,      NAN_N    },
+                { L_, INF_P,      INF_P    },
+                { L_, INF_N,      ZERO_P   },
+                { L_, ZERO_P,     DEC(1.0) },
+                { L_, ZERO_N,     DEC(1.0) },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -2254,25 +2263,28 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "log()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "log()" << bsl::endl; }
         {
+            const Obj DEC_X = DEC(12.000046);
+            const Obj RES_1 = DEC( 2.484910483113986);
+
             struct {
                 int d_line;
                 Obj d_x;
                 Obj d_expected;
             } DATA[] = {
-            //--------------------------------------------
+            //------------------------------
             // LINE |     X     | EXPECTED
-            //--------------------------------------------
-                { L_, DEC(  1.0), ZERO_P                 },
-                { L_, DEC( 12.0), DEC(2.484906649788000) },
-                { L_, DEC(-11.0), NAN_N                  },
-                { L_, NAN_P,      NAN_P                  },
-                { L_, NAN_N,      NAN_N                  },
-                { L_, INF_P,      INF_P                  },
-                { L_, INF_N,      NAN_N                  },
-                { L_, ZERO_P,     INF_N                  },
-                { L_, ZERO_N,     INF_N                  },
+            //------------------------------
+                { L_, DEC(  1.0), ZERO_P   },
+                { L_, DEC_X,      RES_1    },
+                { L_, DEC(-11.0), NAN_N    },
+                { L_, NAN_P,      NAN_P    },
+                { L_, NAN_N,      NAN_N    },
+                { L_, INF_P,      INF_P    },
+                { L_, INF_N,      NAN_N    },
+                { L_, ZERO_P,     INF_N    },
+                { L_, ZERO_N,     INF_N    },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -2287,7 +2299,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "logB()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -2320,25 +2332,28 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "log10()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "log10()" << bsl::endl; }
         {
+            const Obj DEC_X = DEC(12.000046);
+            const Obj RES_1 = DEC(1.079182910839948);
+
             struct {
                 int d_line;
                 Obj d_x;
                 Obj d_expected;
             } DATA[] = {
-            //--------------------------------------------
-            // LINE |     X     |       EXPECTED
-            //--------------------------------------------
-                { L_, DEC(  1.0), ZERO_P                 },
-                { L_, DEC( 12.0), DEC(1.079181246047625) },
-                { L_, DEC(-11.0), NAN_N                  },
-                { L_, NAN_P,      NAN_P                  },
-                { L_, NAN_N,      NAN_N                  },
-                { L_, INF_P,      INF_P                  },
-                { L_, INF_N,      NAN_N                  },
-                { L_, ZERO_P,     INF_N                  },
-                { L_, ZERO_N,     INF_N                  },
+            //----------------------------
+            // LINE |     X     | EXPECTED
+            //----------------------------
+                { L_, DEC(  1.0), ZERO_P },
+                { L_, DEC_X,      RES_1  },
+                { L_, DEC(-11.0), NAN_N  },
+                { L_, NAN_P,      NAN_P  },
+                { L_, NAN_N,      NAN_N  },
+                { L_, INF_P,      INF_P  },
+                { L_, INF_N,      NAN_N  },
+                { L_, ZERO_P,     INF_N  },
+                { L_, ZERO_N,     INF_N  },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -2353,7 +2368,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "fmod()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "fmod()" << bsl::endl; }
         {
             const Obj DEC_X   = DEC( 5.0000002);
             const Obj DEC_Y   = DEC( 3.0000001);
@@ -2399,7 +2414,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "remainder()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "remainder()" << bsl::endl; }
         {
             const Obj DEC_X   = DEC( 5.0000003);
             const Obj DEC_Y   = DEC( 3.0000001);
@@ -2444,7 +2459,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "lrint()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
             const long long int NaN = 0x8000000000000000ll;
 
@@ -2482,7 +2497,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "llrint()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
         {
             const long long int NaN = 0x8000000000000000ll;
 
@@ -2520,7 +2535,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "nextafter()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "nextafter()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -2528,17 +2543,19 @@ void TestDriver::testCase27()
                 Obj d_to;
                 Obj d_expected;
             } DATA[] = {
-            //--------------------------------------------------------
+            //-----------------------------------------------------------
             // LINE |   FROM  |     TO   |       EXPECTED
-            //--------------------------------------------------------
-                { L_, DEC(0.0),  DEC(1.0), Util::denormMin64()       },
-                { L_, DEC(1.0),  DEC(2.0), DEC(1.000000000000001)    },
-                { L_, DEC(1.0),  DEC(0.0), DEC(9.999999999999999e-1) },
-                { L_, DEC(0.0),  DEC(0.0), DEC(0.0)                  },
-                { L_, NAN_P,     NAN_P,    NAN_P                     },
-                { L_, NAN_N,     NAN_N,    NAN_N                     },
-                { L_, INF_P,     INF_P,    INF_P                     },
-                { L_, INF_N,     INF_N,    INF_N                     },
+            //-----------------------------------------------------------
+                { L_, DEC(0.0),  DEC(1.0), Util::denormMin64()          },
+                { L_, DEC(1.0),  DEC(2.0), DEC(1.000000000000001)       },
+                { L_, DEC(1.0),  DEC(0.0), DEC(9.999999999999999e-1)    },
+                { L_, DEC(0.0),  DEC(0.0), DEC(0.0)                     },
+                { L_, NAN_P,     NAN_P,    NAN_P                        },
+                { L_, NAN_N,     NAN_N,    NAN_N                        },
+                { L_, INF_P,     INF_P,    INF_P                        },
+                { L_, INF_N,     INF_N,    INF_N                        },
+                { L_, INF_P,     DEC(2.0), DEC( 9.999999999999999e+384) },
+                { L_, INF_N,     DEC(2.0), DEC(-9.999999999999999e+384) },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2553,7 +2570,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "nexttoward()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "nexttoward()" << bsl::endl; }
         {
             struct {
                 int                d_line;
@@ -2585,7 +2602,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "pow()" << bsl::endl;
+        if (veryVerbose)  { T_ T_ bsl::cout << "pow()" << bsl::endl; }
         {
             const Obj SQRT_2 = DEC(1.414213562373095);
             const Obj DEC_Y  = DEC(0.333333333333333);
@@ -2622,7 +2639,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "lround()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
             const long int NaN = 0x8000000000000000l;
             struct {
@@ -2657,7 +2674,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "sqrt()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "sqrt()" << bsl::endl; }
         {
             const Obj SQRT_2 = DEC(1.414213562373095);
             const Obj DEC_1  = DEC(8.999999999999996);
@@ -2695,7 +2712,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "ceil()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "ceil()" << bsl::endl; }
         {
             Obj RESULT   = Util::ceil(DEC(0.5));
             Obj EXPECTED = DEC(1.0);
@@ -2714,7 +2731,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::ceil(NAN_N),   NAN_N));
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "floor()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "floor()" << bsl::endl; }
         {
             Obj RESULT   = Util::floor(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -2733,7 +2750,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::floor(NAN_N),   NAN_N));
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "trunc()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "trunc()" << bsl::endl; }
         {
             Obj RESULT   = Util::trunc(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -2752,7 +2769,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::trunc(NAN_N),   NAN_N));
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "round()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "round()" << bsl::endl; }
         {
             Obj RESULT   = Util::round(DEC(0.5));
             Obj EXPECTED = DEC(1.0);
@@ -2771,7 +2788,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::round(NAN_N),   NAN_N));
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "fabs()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "fabs()" << bsl::endl; }
         {
             Obj RESULT   = Util::fabs(DEC(1.0));
             Obj EXPECTED = DEC(1.0);
@@ -2793,7 +2810,7 @@ void TestDriver::testCase27()
 #undef DEC
     }
 
-    if (veryVeryVerbose) T_ bsl::cout << "ValueType128" << bsl::endl;
+    if (veryVerbose) { T_ bsl::cout << "ValueType128" << bsl::endl; }
     {
         typedef Util::ValueType128 Obj;
 
@@ -2806,7 +2823,7 @@ void TestDriver::testCase27()
         const Obj ZERO_P  =              DEC(0.0);
         const Obj ZERO_N  = Util::negate(ZERO_P);
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "copySign()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "copySign()" << bsl::endl; }
         {
             const Obj DEC_P  = DEC(+1234567890123456789012345678901234.0);
             const Obj DEC_N  = DEC(-1234567890123456789012345678901234.0);
@@ -2907,10 +2924,12 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "exp()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "exp()" << bsl::endl; }
         {
-            const Obj RES_1 = DEC(1.627547914190039208080052048984868e+5);
-            const Obj RES_2 = DEC(1.670170079024565931263551736058088e-5);
+            const Obj DEC_X1 = DEC( 12.000000000000046);
+            const Obj DEC_X2 = DEC(-11.000000000000046);
+            const Obj RES_1  = DEC(1.627547914190114075284104792510385e+5);
+            const Obj RES_2  = DEC(1.670170079024489103439916607792290e-5);
 
             struct {
                 int d_line;
@@ -2920,15 +2939,15 @@ void TestDriver::testCase27()
             //------------------------------
             // LINE |     X     | EXPECTED
             //------------------------------
-                { L_, DEC( 12.0), RES_1    },
-                { L_, DEC(-11.0), RES_2    },
-                { L_, DEC(9999999.0), INF_P },
-                { L_, NAN_P,      NAN_P    },
-                { L_, NAN_N,      NAN_N    },
-                { L_, INF_P,      INF_P    },
-                { L_, INF_N,      ZERO_P   },
-                { L_, ZERO_P,     DEC(1.0) },
-                { L_, ZERO_N,     DEC(1.0) },
+                { L_, DEC_X1,         RES_1    },
+                { L_, DEC_X2,         RES_2    },
+                { L_, DEC(9999999.0), INF_P    },
+                { L_, NAN_P,          NAN_P    },
+                { L_, NAN_N,          NAN_N    },
+                { L_, INF_P,          INF_P    },
+                { L_, INF_N,          ZERO_P   },
+                { L_, ZERO_P,         DEC(1.0) },
+                { L_, ZERO_N,         DEC(1.0) },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -2943,9 +2962,10 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "log()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "log()" << bsl::endl; }
         {
-            const Obj RES_1 = DEC(2.484906649788000310229709479838879);
+            const Obj DEC_X = DEC(12.000000000000046);
+            const Obj RES_1 = DEC(2.484906649788004143563042813164865);
 
             struct {
                 int d_line;
@@ -2956,7 +2976,7 @@ void TestDriver::testCase27()
             // LINE |     X     | EXPECTED
             //----------------------------
                 { L_, DEC(  1.0), ZERO_P },
-                { L_, DEC( 12.0), RES_1  },
+                { L_, DEC_X,      RES_1  },
                 { L_, DEC(-11.0), NAN_N  },
                 { L_, NAN_P,      NAN_P  },
                 { L_, NAN_N,      NAN_N  },
@@ -2978,7 +2998,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "logB()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -3011,9 +3031,10 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "log10()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "log10()" << bsl::endl; }
         {
-            const Obj RES_1 = DEC(1.079181246047624827722505692704101);
+            const Obj DEC_X = DEC(12.000000000000046);
+            const Obj RES_1 = DEC(1.079181246047626492518019655166250);
 
             struct {
                 int d_line;
@@ -3024,7 +3045,7 @@ void TestDriver::testCase27()
             // LINE |     X     | EXPECTED
             //-----------------------------
                 { L_, DEC(  1.0), ZERO_P },
-                { L_, DEC( 12.0), RES_1  },
+                { L_, DEC_X,      RES_1  },
                 { L_, DEC(-11.0), NAN_N  },
                 { L_, NAN_P,      NAN_P  },
                 { L_, NAN_N,      NAN_N  },
@@ -3046,7 +3067,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "fmod()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "fmod()" << bsl::endl; }
         {
             const Obj DEC_X   = DEC( 5.0000000000000002);
             const Obj DEC_Y   = DEC( 3.0000000000000001);
@@ -3092,7 +3113,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "remainder()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "remainder()" << bsl::endl; }
         {
             const Obj DEC_X   = DEC( 5.0000000000000003);
             const Obj DEC_Y   = DEC( 3.0000000000000001);
@@ -3137,7 +3158,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "lrint()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
             const long int NaN = 0x8000000000000000l;
             struct {
@@ -3174,7 +3195,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "llrint()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
         {
             const long long int NaN = 0x8000000000000000ll;
             struct {
@@ -3211,10 +3232,12 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "nextafter()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "nextafter()" << bsl::endl; }
         {
-            const Obj DEC_1 = DEC(1.000000000000000000000000000000001);
-            const Obj DEC_9 = DEC(9.999999999999999999999999999999999e-1);
+            const Obj DEC_1 = DEC( 1.000000000000000000000000000000001);
+            const Obj DEC_9 = DEC( 9.999999999999999999999999999999999e-1);
+            const Obj MAX_P = DEC( 9.999999999999999999999999999999999e+6144);
+            const Obj MAX_N = DEC(-9.999999999999999999999999999999999e+6144);
 
             struct {
                 int d_line;
@@ -3233,6 +3256,8 @@ void TestDriver::testCase27()
                 { L_, NAN_N,     NAN_N,    NAN_N                },
                 { L_, INF_P,     INF_P,    INF_P                },
                 { L_, INF_N,     INF_N,    INF_N                },
+                { L_, INF_P,     DEC(1.0), MAX_P                },
+                { L_, INF_N,     DEC(1.0), MAX_N                },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -3247,7 +3272,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "nexttoward()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "nexttoward()" << bsl::endl; }
         {
             struct {
                 int                d_line;
@@ -3279,7 +3304,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "pow()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "pow()" << bsl::endl; }
         {
             const Obj SQRT_2 = DEC(1.414213562373095048801688724209698);
             const Obj DEC_Y1 = DEC(2.9999999999999999);
@@ -3319,7 +3344,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "lround()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
             const long int NaN   = 0x8000000000000000l;
             const Obj      DEC_1 = DEC(2.4999999999999999);
@@ -3356,7 +3381,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "sqrt()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "sqrt()" << bsl::endl; }
         {
             const Obj SQRT_2 = DEC(1.414213562373095048801688724209698);
             const Obj DEC_1  = DEC(8.999999999999999999999999999999996);
@@ -3396,7 +3421,7 @@ void TestDriver::testCase27()
 
         const Obj DECIMAL = DEC(1234567890123456789012345678901234.0);
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "ceil()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "ceil()" << bsl::endl; }
         {
             Obj RESULT   = Util::ceil(DEC(0.5));
             Obj EXPECTED = DEC(1.0);
@@ -3415,7 +3440,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::ceil(NAN_N),   NAN_N));
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "floor()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "floor()" << bsl::endl; }
         {
             Obj RESULT   = Util::floor(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -3434,7 +3459,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::floor(NAN_N),   NAN_N));
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "trunc()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "trunc()" << bsl::endl; }
         {
             Obj RESULT   = Util::trunc(DEC(0.5));
             Obj EXPECTED = DEC(0.0);
@@ -3453,7 +3478,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::trunc(NAN_N),   NAN_N));
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "round()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "round()" << bsl::endl; }
         {
             Obj RESULT   = Util::round(DEC(0.5));
             Obj EXPECTED = DEC(1.0);
@@ -3472,7 +3497,7 @@ void TestDriver::testCase27()
             ASSERT(   nanEqual(Util::round(NAN_N),   NAN_N));
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "fabs()" << bsl::endl;
+        if (veryVerbose) { T_ T_ bsl::cout << "fabs()" << bsl::endl; }
         {
             Obj RESULT   = Util::fabs(DEC(1.0));
             Obj EXPECTED = DEC(1.0);

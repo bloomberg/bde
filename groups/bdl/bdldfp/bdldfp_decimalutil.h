@@ -189,13 +189,124 @@ struct DecimalUtil {
         // unspecified whether the NaNs returned are quiet or signaling.
 
                                   // math
+    static Decimal32  copySign(Decimal32  x, Decimal32  y);
+    static Decimal64  copySign(Decimal64  x, Decimal64  y);
+    static Decimal128 copySign(Decimal128 x, Decimal128 y);
+        // Return a decimal value with the magnitude of the specifed 'x' and
+        // the sign of the specified 'y'.  If 'x' is NaN, then NaN with the
+        // sign of 'y' is returned.
+        // Examples: 'copysign(5.0, -2.0)' ==> -5.0; 'ceil(-5.0, -2.0)' ==> 5.0
 
+    static Decimal32  exp(Decimal32  x);
+    static Decimal64  exp(Decimal64  x);
+    static Decimal128 exp(Decimal128 x);
+        // Return 'e' (Euler's number, 2.7182818) raised to the specified power
+        // 'x'.
+        //
+        // Error handling:
+        //: o If 'x' is +/-0, 1 is returned.
+        //: o If 'x' is negative infinity, +0 is returned.
+        //: o If 'x' is infinity, infinity is returned.
+        //: o If 'x' is NaN, NaN is returned.
+
+    static Decimal32  log(Decimal32  x);
+    static Decimal64  log(Decimal64  x);
+    static Decimal128 log(Decimal128 x);
+        // Return the natural (base 'e') logarithm of the specified 'x'.
+        //
+        // Error handling:
+        //: o If 'x' is +/-0, -infinity is returned.
+        //: o If 'x' is 1, +0 is returned.
+        //: o If 'x' is negative, NaN is returned.
+        //: o If 'x' is infinity, infinity is returned.
+        //: o If 'x' is NaN, NaN is returned.
+
+    static Decimal32  logB(Decimal32  x);
+    static Decimal64  logB(Decimal64  x);
+    static Decimal128 logB(Decimal128 x);
+        // Return the value of the unbiased radix-independent exponent
+        // extracted from the specified 'x'.
+        //
+        // Error handling:
+        //: o If 'x' is +/-0, -infinity is returned.
+        //: o If 'x' is +/-infinity, +infinity is returned.
+        //: o If 'x' is NaN, NaN is returned.
+
+    static Decimal32  log10(Decimal32  x);
+    static Decimal64  log10(Decimal64  x);
+    static Decimal128 log10(Decimal128 x);
+        // Return the common (base-10) logarithm of the specified 'x'.
+        //
+        // Error handling:
+        //: o If 'x' is +/-0, -infinity is returned.
+        //: o If 'x' is 1, +0 is returned.
+        //: o If 'x' is negative, NaN is returned.
+        //: o If 'x' is infinity, infinity is returned.
+        //: o If 'x' is NaN, NaN is returned.
+
+    static Decimal32  fmod(Decimal32  x, Decimal32  y);
+    static Decimal64  fmod(Decimal64  x, Decimal64  y);
+    static Decimal128 fmod(Decimal128 x, Decimal128 y);
+        // Return the remainder of the division the specified 'x' by the
+        // specified 'y'.
+        //
+        // Error handling:
+        //: o If 'x' is +/-0 and 'y' is not zero, +/-0 is returned.
+        //: o If 'x' is +/-infnity and 'y' is not NaN, NaN is returned.
+        //: o If 'y' is +/-0 and 'x' is not NaN, NaN is returned.
+        //: o If 'y' is +/-infnity and 'x' is finite, 'x' is returned.
+        //: o If either argument is NaN, NaN is returned.
+
+    static Decimal32  remainder(Decimal32  x, Decimal32  y);
+    static Decimal64  remainder(Decimal64  x, Decimal64  y);
+    static Decimal128 remainder(Decimal128 x, Decimal128 y);
+        // Return the remainder of the division the specified 'x' by the
+        // specified 'y'.  Note that in contrast to 'DecimalImpUtil::fmod()',
+        // the returned value is not guaranteed to have the same sign as 'x'.
+        //
+        // Error handling:
+        //: o The current rounding mode has no effect.
+        //: o If 'y' is +/-0 and 'y' is not NaN, NaN is returned.
+        //: o If 'x' is +/-infnity and 'y' is not NaN, NaN is returned.
+        //: o If either argument is NaN, NaN is returned.
+
+    static long int        lrint(Decimal32  x);
+    static long int        lrint(Decimal64  x);
+    static long int        lrint(Decimal128 x);
+    static long long int  llrint(Decimal32  x);
+    static long long int  llrint(Decimal64  x);
+    static long long int  llrint(Decimal128 x);
+        // Return an integer value nearest to the specified 'x'.  Round 'x'
+        // using the current rounding mode.
+        //
+        // Error handling:
+        //: o If 'x' is +/-infnity, NaN is returned.
+        //: o If 'x' is NaN, NaN is returned.
+
+    static Decimal32  nextafter( Decimal32  from, Decimal32  to);
+    static Decimal64  nextafter( Decimal64  from, Decimal64  to);
+    static Decimal128 nextafter( Decimal128 from, Decimal128 to);
+    static Decimal32  nexttoward(Decimal32  from, Decimal128 to);
+    static Decimal64  nexttoward(Decimal64  from, Decimal128 to);
+    static Decimal128 nexttoward(Decimal128 from, Decimal128 to);
+        // Return the next representable value of the specified 'from' in the
+        // direction of the specified 'to'.
+        //
+        // Error handling:
+        //: o If either argument is NaN, NaN is returned.
+
+    static Decimal32  pow(Decimal32  base, Decimal32  exp);
+    static Decimal64  pow(Decimal64  base, Decimal64  exp);
+    static Decimal128 pow(Decimal128 base, Decimal128 exp);
+        // Return the value of the specified 'base' raised to the power the
+        // specified 'exp'.
+
+    static Decimal32  fma(Decimal32  x, Decimal32  y, Decimal32  z);
     static Decimal64  fma(Decimal64  x, Decimal64  y, Decimal64  z);
     static Decimal128 fma(Decimal128 x, Decimal128 y, Decimal128 z);
         // Return, using the specified 'x', 'y', and 'z', the value of the
         // expression 'x * y + z', rounded as one ternary operation according
         // to the current decimal floating point rounding mode.
-
 
                        // Selecting, converting functions
 
@@ -205,6 +316,11 @@ struct DecimalUtil {
         // Return the absolute value of the specified 'value'.  Note that the
         // absolute value of NaN is NaN.  The absolute values of negative zero
         // or infinity are positive zero and infinity respectively.
+
+    static Decimal32  sqrt(Decimal32  x);
+    static Decimal64  sqrt(Decimal64  x);
+    static Decimal128 sqrt(Decimal128 x);
+        // Return the square root of the specified 'x'.
 
     // TODO TBD priority 2
     // static Decimal32 fmax(Decimal32 x, Decimal32 y);
@@ -300,14 +416,25 @@ struct DecimalUtil {
         // NaN, or infinity 'x' return 'x' itself.
         // Examples: 'floor(0.5)' ==> 0.0; 'floor(-0.5)' ==> -1.0
 
-    static Decimal32  round(Decimal32  x);
-    static Decimal64  round(Decimal64  x);
-    static Decimal128 round(Decimal128 x);
+    static Decimal32   round(Decimal32  x);
+    static Decimal64   round(Decimal64  x);
+    static Decimal128  round(Decimal128 x);
         // Return the integal value nearest to the specified 'x'.  Round
         // halfway cases away from zero, regardless of the current decimal
         // floating point rounding mode.  If 'x' is integral, positive zero,
         // negative zero, NaN, or infinity then return 'x' itself.
         // Examples: 'round(0.5)' ==> 1.0; 'round(-0.5)' ==> -1.0
+
+    static long int   lround(Decimal32  x);
+    static long int   lround(Decimal64  x);
+    static long int   lround(Decimal128 x);
+        // Return the integal value nearest to the specified 'x', rounding away
+        // from zero regardless of the current decimal floating point rounding
+        // mode.  If the specified 'x' is NaN, infinity, or too large a value
+        // to be stored in the return type raise a 'domain exception', the
+        // return value in such case is unspecified.  Note that these
+        // functions, unlike the other rounding functions, return different
+        // types than their argument type.
 
     static Decimal32  trunc(Decimal32  x);
     static Decimal64  trunc(Decimal64  x);
@@ -319,20 +446,19 @@ struct DecimalUtil {
 
                              // Quantum functions
 
-    static Decimal64  multiplyByPowerOf10(Decimal64  value,
+    static Decimal32  multiplyByPowerOf10(Decimal32  value,
                                           int        exponent);
-    static Decimal64  multiplyByPowerOf10(Decimal64  value,
-                                          Decimal64  exponent);
-    static Decimal128 multiplyByPowerOf10(Decimal128 value,
+    static Decimal64  multiplyByPowerOf10(Decimal64 value,
                                           int        exponent);
     static Decimal128 multiplyByPowerOf10(Decimal128 value,
-                                          Decimal128 exponent);
+                                          int        exponent);
         // Return the result of multiplying the specified 'value' by ten raised
         // to the specified 'exponent'.  The quantum of 'value' is scaled
         // according to IEEE 754's 'scaleB' operations.  The result is
         // unspecified if 'value' is NaN or infinity.  The behavior is
-        // undefined unless '-1999999997 <= y <= 99999999'.
+        // undefined unless '-1999999997 <= exponent <= 99999999'.
 
+    static Decimal32  quantize(Decimal32  value, Decimal32  exponent);
     static Decimal64  quantize(Decimal64  value, Decimal64  exponent);
     static Decimal128 quantize(Decimal128 value, Decimal128 exponent);
         // Return a number that is equal in value (except for any rounding) and
@@ -343,15 +469,9 @@ struct DecimalUtil {
         // 'value'.  If the exponent needs to be decreased and the significant
         // of the result has more digits than the type would allow, return NaN.
         // The returned value is unspecified if either operand is NaN or
-        // infinity of either sign.  Note that the 'invalid' and 'inexact'
-        // floating-point exception may be raised.  Also note that the AIX
-        // hardware function of '__d64_quantize' and '__d128_quantize',
-        // produces some results contrary to N1312 on operands of infinity and
-        // Nan.  Note that this function does not guarantee behavior consistent
-        // with Decimal TR N1312 for infinity and NaN because the XLC compiler
-        // intrinsics ('__d6_quantize' and '__d128_quantize') are
-        // non-conformant.
+        // infinity of either sign.
 
+    static int quantum(Decimal32  value);
     static int quantum(Decimal64  value);
     static int quantum(Decimal128 value);
         // Return an integer equal to the exponent field in the specified
@@ -360,6 +480,7 @@ struct DecimalUtil {
         // exponent.  This function returns that exponent value.  The behavior
         // is undefined if 'value' is NaN or 'value' is infinity.
 
+    static bool sameQuantum(Decimal32  x, Decimal32  y);
     static bool sameQuantum(Decimal64  x, Decimal64  y);
     static bool sameQuantum(Decimal128 x, Decimal128 y);
         // Return 'true' if the specified 'x' and 'y' values have the same
@@ -536,6 +657,15 @@ Decimal64 DecimalUtil::makeDecimal64(unsigned long long significand,
                              // Quantum functions
 
 inline
+Decimal32 DecimalUtil::multiplyByPowerOf10(Decimal32 value, int exponent)
+{
+    BSLS_ASSERT(-1999999997 <= exponent);
+    BSLS_ASSERT(               exponent <= 99999999);
+
+    return bdldfp::DecimalImpUtil::scaleB(*value.data(), exponent);
+}
+
+inline
 Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
 {
     BSLS_ASSERT(-1999999997 <= exponent);
@@ -551,6 +681,402 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
     BSLS_ASSERT(               exponent <= 99999999);
 
     return bdldfp::DecimalImpUtil::scaleB(*value.data(), exponent);
+}
+
+inline
+Decimal32 DecimalUtil::quantize(Decimal32 value, Decimal32 exponent)
+{
+    return DecimalImpUtil::quantize(*value.data(), *exponent.data());
+}
+
+inline
+Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
+{
+    return DecimalImpUtil::quantize(*value.data(), *exponent.data());
+}
+
+inline
+Decimal128 DecimalUtil::quantize(Decimal128 value, Decimal128 exponent)
+{
+    return DecimalImpUtil::quantize(*value.data(), *exponent.data());
+}
+
+inline
+bool DecimalUtil::sameQuantum(Decimal32 x, Decimal32 y)
+{
+    return DecimalImpUtil::sameQuantum(*x.data(), *y.data());
+}
+
+inline
+bool DecimalUtil::sameQuantum(Decimal64 x, Decimal64 y)
+{
+    return DecimalImpUtil::sameQuantum(*x.data(), *y.data());
+}
+
+inline
+bool DecimalUtil::sameQuantum(Decimal128 x, Decimal128 y)
+{
+    return DecimalImpUtil::sameQuantum(*x.data(), *y.data());
+}
+
+inline
+Decimal32 DecimalUtil::copySign(Decimal32 x, Decimal32 y)
+{
+    return bdldfp::DecimalImpUtil::copySign(*x.data(), *y.data());
+}
+
+inline
+Decimal64 DecimalUtil::copySign(Decimal64 x, Decimal64 y)
+{
+    return bdldfp::DecimalImpUtil::copySign(*x.data(), *y.data());
+}
+
+inline
+Decimal128 DecimalUtil::copySign(Decimal128 x, Decimal128 y)
+{
+    return bdldfp::DecimalImpUtil::copySign(*x.data(), *y.data());
+}
+
+inline
+Decimal32 DecimalUtil::exp(Decimal32 x)
+{
+    return bdldfp::DecimalImpUtil::exp(*x.data());
+}
+
+inline
+Decimal64 DecimalUtil::exp(Decimal64 x)
+{
+    return bdldfp::DecimalImpUtil::exp(*x.data());
+}
+
+inline
+Decimal128 DecimalUtil::exp(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::exp(*x.data());
+}
+
+inline
+Decimal32 DecimalUtil::log(Decimal32 x)
+{
+    return bdldfp::DecimalImpUtil::log(*x.data());
+}
+
+inline
+Decimal64 DecimalUtil::log(Decimal64 x)
+{
+    return bdldfp::DecimalImpUtil::log(*x.data());
+}
+
+inline
+Decimal128 DecimalUtil::log(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::log(*x.data());
+}
+
+inline
+Decimal32 DecimalUtil::logB(Decimal32 x)
+{
+    return bdldfp::DecimalImpUtil::logB(*x.data());
+}
+
+inline
+Decimal64 DecimalUtil::logB(Decimal64 x)
+{
+    return bdldfp::DecimalImpUtil::logB(*x.data());
+}
+
+inline
+Decimal128 DecimalUtil::logB(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::logB(*x.data());
+}
+
+inline
+Decimal32 DecimalUtil::log10(Decimal32 x)
+{
+    return bdldfp::DecimalImpUtil::log10(*x.data());
+}
+
+inline
+Decimal64 DecimalUtil::log10(Decimal64 x)
+{
+    return bdldfp::DecimalImpUtil::log10(*x.data());
+}
+
+inline
+Decimal128 DecimalUtil::log10(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::log10(*x.data());
+}
+
+inline
+Decimal32 DecimalUtil::fmod(Decimal32 x, Decimal32 y)
+{
+    return bdldfp::DecimalImpUtil::fmod(*x.data(), *y.data());
+}
+
+inline
+Decimal64 DecimalUtil::fmod(Decimal64 x, Decimal64 y)
+{
+    return bdldfp::DecimalImpUtil::fmod(*x.data(), *y.data());
+}
+
+inline
+Decimal128 DecimalUtil::fmod(Decimal128 x, Decimal128 y)
+{
+    return bdldfp::DecimalImpUtil::fmod(*x.data(), *y.data());
+}
+
+inline
+Decimal32 DecimalUtil::remainder(Decimal32 x, Decimal32 y)
+{
+    return bdldfp::DecimalImpUtil::remainder(*x.data(), *y.data());
+}
+
+inline
+Decimal64 DecimalUtil::remainder(Decimal64 x, Decimal64 y)
+{
+    return bdldfp::DecimalImpUtil::remainder(*x.data(), *y.data());
+}
+
+inline
+Decimal128 DecimalUtil::remainder(Decimal128 x, Decimal128 y)
+{
+    return bdldfp::DecimalImpUtil::remainder(*x.data(), *y.data());
+}
+
+inline
+long int DecimalUtil::lrint(Decimal32  x)
+{
+    return bdldfp::DecimalImpUtil::lrint(*x.data());
+}
+
+inline
+long int DecimalUtil::lrint(Decimal64  x)
+{
+    return bdldfp::DecimalImpUtil::lrint(*x.data());
+}
+
+inline
+long int DecimalUtil::lrint(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::lrint(*x.data());
+}
+
+inline
+long long int DecimalUtil::llrint(Decimal32  x)
+{
+    return bdldfp::DecimalImpUtil::llrint(*x.data());
+}
+
+inline
+long long int DecimalUtil::llrint(Decimal64  x)
+{
+    return bdldfp::DecimalImpUtil::llrint(*x.data());
+}
+
+inline
+long long int DecimalUtil::llrint(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::llrint(*x.data());
+}
+
+inline
+Decimal32 DecimalUtil::nextafter(Decimal32 x, Decimal32 y)
+{
+    return bdldfp::DecimalImpUtil::nextafter(*x.data(), *y.data());
+}
+
+inline
+Decimal64 DecimalUtil::nextafter(Decimal64 x, Decimal64 y)
+{
+    return bdldfp::DecimalImpUtil::nextafter(*x.data(), *y.data());
+}
+
+inline
+Decimal128 DecimalUtil::nextafter(Decimal128 x, Decimal128 y)
+{
+    return bdldfp::DecimalImpUtil::nextafter(*x.data(), *y.data());
+}
+
+inline
+Decimal32 DecimalUtil::nexttoward(Decimal32 x, Decimal128 y)
+{
+    return bdldfp::DecimalImpUtil::nexttoward(*x.data(), *y.data());
+}
+
+inline
+Decimal64 DecimalUtil::nexttoward(Decimal64 x, Decimal128 y)
+{
+    return bdldfp::DecimalImpUtil::nexttoward(*x.data(), *y.data());
+}
+
+inline
+Decimal128 DecimalUtil::nexttoward(Decimal128 x, Decimal128 y)
+{
+    return bdldfp::DecimalImpUtil::nexttoward(*x.data(), *y.data());
+}
+
+inline
+Decimal32 DecimalUtil::pow(Decimal32 x, Decimal32 y)
+{
+    return bdldfp::DecimalImpUtil::pow(*x.data(), *y.data());
+}
+
+inline
+Decimal64 DecimalUtil::pow(Decimal64 x, Decimal64 y)
+{
+    return bdldfp::DecimalImpUtil::pow(*x.data(), *y.data());
+}
+
+inline
+Decimal128 DecimalUtil::pow(Decimal128 x, Decimal128 y)
+{
+    return bdldfp::DecimalImpUtil::pow(*x.data(), *y.data());
+}
+
+inline
+Decimal32 DecimalUtil::ceil(Decimal32 x)
+{
+    return bdldfp::DecimalImpUtil::ceil(*x.data());
+}
+
+inline
+Decimal64 DecimalUtil::ceil(Decimal64 x)
+{
+    return bdldfp::DecimalImpUtil::ceil(*x.data());
+}
+
+inline
+Decimal128 DecimalUtil::ceil(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::ceil(*x.data());
+}
+
+inline
+Decimal32 DecimalUtil::floor(Decimal32 x)
+{
+    return bdldfp::DecimalImpUtil::floor(*x.data());
+}
+
+inline
+Decimal64 DecimalUtil::floor(Decimal64 x)
+{
+    return bdldfp::DecimalImpUtil::floor(*x.data());
+}
+
+inline
+Decimal128 DecimalUtil::floor(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::floor(*x.data());
+}
+
+inline
+Decimal32 DecimalUtil::round(Decimal32  x)
+{
+    return bdldfp::DecimalImpUtil::round(*x.data());
+}
+
+inline
+Decimal64 DecimalUtil::round(Decimal64  x)
+{
+    return bdldfp::DecimalImpUtil::round(*x.data());
+}
+
+inline
+Decimal128 DecimalUtil::round(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::round(*x.data());
+}
+
+inline
+long int DecimalUtil::lround(Decimal32  x)
+{
+    return bdldfp::DecimalImpUtil::lround(*x.data());
+}
+
+inline
+long int DecimalUtil::lround(Decimal64  x)
+{
+    return bdldfp::DecimalImpUtil::lround(*x.data());
+}
+
+inline
+long int DecimalUtil::lround(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::lround(*x.data());
+}
+
+inline
+Decimal32 DecimalUtil::trunc(Decimal32 x)
+{
+    return bdldfp::DecimalImpUtil::trunc(*x.data());
+}
+
+inline
+Decimal64 DecimalUtil::trunc(Decimal64 x)
+{
+    return bdldfp::DecimalImpUtil::trunc(*x.data());
+}
+
+inline
+Decimal128 DecimalUtil::trunc(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::trunc(*x.data());
+}
+
+inline
+Decimal32 DecimalUtil::fma(Decimal32  x, Decimal32  y, Decimal32  z)
+{
+    return bdldfp::DecimalImpUtil::fma(*x.data(), *y.data(), *z.data());
+}
+
+inline
+Decimal64 DecimalUtil::fma(Decimal64  x, Decimal64  y, Decimal64  z)
+{
+    return bdldfp::DecimalImpUtil::fma(*x.data(), *y.data(), *z.data());
+}
+
+inline
+Decimal128 DecimalUtil::fma(Decimal128 x, Decimal128 y, Decimal128 z)
+{
+    return bdldfp::DecimalImpUtil::fma(*x.data(), *y.data(), *z.data());
+}
+
+inline
+Decimal32 DecimalUtil::fabs(Decimal32 x)
+{
+    return bdldfp::DecimalImpUtil::fabs(*x.data());
+}
+
+inline
+Decimal64 DecimalUtil::fabs(Decimal64 x)
+{
+    return bdldfp::DecimalImpUtil::fabs(*x.data());
+}
+
+inline
+Decimal128 DecimalUtil::fabs(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::fabs(*x.data());
+}
+
+inline
+Decimal32 DecimalUtil::sqrt(Decimal32 x)
+{
+    return bdldfp::DecimalImpUtil::sqrt(*x.data());
+}
+
+inline
+Decimal64 DecimalUtil::sqrt(Decimal64 x)
+{
+    return bdldfp::DecimalImpUtil::sqrt(*x.data());
+}
+
+inline
+Decimal128 DecimalUtil::sqrt(Decimal128 x)
+{
+    return bdldfp::DecimalImpUtil::sqrt(*x.data());
 }
 
 }  // close package namespace
