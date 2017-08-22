@@ -780,14 +780,31 @@ struct DecimalConvertUtil {
         // network encoding, which is supported by the
         // 'decimal64FromMultiWidthEncoding' function.
 
+    static bool isValidMultiWidthSize(bsls::Types::size_type  size);
+        // Return 'true' if the specified 'size' is a valid encoding size in
+        // the *multi-width encoding* format, and 'false' otherwise.  Note that
+        // valid encoding sizes are 1, 2, 3, 4, 5 and 8 bytes.
+
     static Decimal64 decimal64FromMultiWidthEncoding(
                                                 const unsigned char    *buffer,
                                                 bsls::Types::size_type  size);
-        // Decode a decimal value in the *multi-width Encoding' format from the
-        // specified 'buffer' having the specified 'size'. Return the decoded
+        // Decode a decimal value in the *multi-width encoding* format from the
+        // specified 'buffer' having the specified 'size'.  Return the decoded
         // value.  The behavior is undefined unless 'buffer' has at least
         // 'size' bytes, and 'size' is a valid encoding size in the
         // 'multi-width encoding' format.
+
+    static int decimal64FromMultiWidthEncodingIfValid(
+                                               Decimal64              *decimal,
+                                               const unsigned char    *buffer,
+                                               bsls::Types::size_type  size);
+        // Decode a decimal value in the *multi-width encoding* format from the
+        // specified 'buffer' having the specified 'size' and store the result
+        // into the specified 'decimal' parameter.  Return 0 on success, and
+        // non-zero value otherwise.  The behavior is undefined unless 'buffer'
+        // has at least 'size' bytes.  Note that this function returns a
+        // non-zero value and leaves 'decimal' unchanged if 'size' is not a
+        // valid encoding size of the *multi-width encoding* format.
 
     static unsigned char *decimal64ToVariableWidthEncoding(
                                                    unsigned char     *buffer,
@@ -994,6 +1011,12 @@ bsls::Types::size_type DecimalConvertUtil::decimal64ToMultiWidthEncodingRaw(
 }
 
 inline
+bool DecimalConvertUtil::isValidMultiWidthSize(bsls::Types::size_type  size)
+{
+    return (size > 0 && size <= 5) || size == 8;
+}
+
+inline
 Decimal64 DecimalConvertUtil::decimal64FromMultiWidthEncoding(
                                                 const unsigned char    *buffer,
                                                 bsls::Types::size_type  size)
@@ -1014,6 +1037,23 @@ Decimal64 DecimalConvertUtil::decimal64FromMultiWidthEncoding(
         return decimal64FromBID(reinterpret_cast<unsigned char *>(&encoded));
                                                                       // RETURN
     }
+}
+
+inline
+int DecimalConvertUtil::decimal64FromMultiWidthEncodingIfValid(
+                                               Decimal64              *decimal,
+                                               const unsigned char    *buffer,
+                                               bsls::Types::size_type  size)
+{
+    int ret(0);
+
+    if (isValidMultiWidthSize(size)) {
+        *decimal = decimal64FromMultiWidthEncoding(buffer, size);
+    }
+    else {
+        ret = 1;
+    }
+    return ret;
 }
 
 inline
