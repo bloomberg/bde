@@ -4209,12 +4209,13 @@ void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
                                      const TARGET_TYPE& original)
 {
     if (bsl::is_fundamental<TARGET_TYPE>::value
-     || bsl::is_pointer<TARGET_TYPE>::value) {
+     || bsl::is_pointer<TARGET_TYPE>::value
+     || bsl::is_empty<TARGET_TYPE>::value) {
 
         ::new (voidify(address)) TARGET_TYPE(original);
         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
     }
-    else if (!bsl::is_empty<TARGET_TYPE>::value) {
+    else {
         memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
     }
 }
