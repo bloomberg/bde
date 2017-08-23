@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 //  #endif
 //..
 
-#define BSLSCM_PATCHVERSION_PATCH 19
+#define BSLSCM_PATCHVERSION_PATCH 20
     // Provide the patch version number of the current (latest) BSL release.
 
 #endif
