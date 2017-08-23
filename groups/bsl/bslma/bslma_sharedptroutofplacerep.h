@@ -694,8 +694,9 @@ void SharedPtrOutofplaceRep<TYPE, DELETER>::disposeRep()
     // qualification with the scope operator (5.1) suppresses the virtual call
     // mechanism.", page 224 of Working Draft 2007-10).
 
+    Allocator *alloc = d_allocator_p;
     this->SharedPtrOutofplaceRep<TYPE, DELETER>::~SharedPtrOutofplaceRep();
-    d_allocator_p->deallocate(this);
+    alloc->deallocate(this);
 }
 
 template <class TYPE, class DELETER>
