@@ -1,3 +1,15 @@
+bsl-internal (3.1.9.0) unstable; urgency=low
+
+  * cf8e4aae1 Merge pull request #1275 from mgiroux/review/bump-version-to-3.1.9
+  * dd97af986 Bump bal/bdl version to 3.1.9, and bsl to 3.0.20
+  * d5fc24e9b Merge pull request #1274 from osubbotin/pr/1214-rebased-releases/3.1.x
+  * b9286fecd Merge pull request #1270 from hversche/pr/1236-rebased-releases/3.1.x
+  * 0e118c3ae Merge pull request #1261 from hversche/pr/1260-rebased-releases/3.1.x
+  * 3ec2b83f7 Merge pull request #1244 from hversche/pr/1180-rebased-releases/3.1.x
+  * fa8c047df Merge pull request #1225 from hversche/pr/1148-rebased-releases/3.1.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Wed, 23 Aug 2017 14:56:50 -0400
+
 bsl-internal (3.1.8.0) unstable; urgency=low
 
   * e5aea8a34 Merge pull request #1224 from mgiroux/review/bump-versions-to-3.0.19-and-3.0.8
