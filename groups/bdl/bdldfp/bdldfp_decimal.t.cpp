@@ -118,10 +118,9 @@ using bsl::atoi;
 //: o void hashAppend(HASHALG& hashAlg, const Decimal128& object);
 //
 // ----------------------------------------------------------------------------
-// [ 1] Implementation Assumptions
-// [ 2] Decimal32 Type
-// [ 3] Decimal64 Type
-// [ 4] Decimal128 Type
+// [ 1] Decimal32 Type
+// [ 2] Decimal64 Type
+// [ 3] Decimal128 Type
 // [ 8] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
@@ -2050,6 +2049,33 @@ void TestDriver::testCase3()
         if (veryVeryVerbose) bsl::cout << "+=(Decimal128)" << bsl::endl;
         d += BDLDFP_DECIMAL_DL(9.0);
         LOOP_ASSERT(d, BDLDFP_DECIMAL_DL(32.0) == d);
+
+        if (veryVeryVerbose)
+            bsl::cout << "Test precision in mixed-mode addition" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "+=(Decimal32)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal32  rhs( BDLDFP_DECIMAL_DF(1.000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000010000000001));
+            d128 += rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "+=(Decimal64)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal64  rhs( BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000000000000011));
+            d128 += rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "+=(Decimal128)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal128 rhs( BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000000000000002));
+            d128 += rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
     }
 
     if (veryVerbose) bsl::cout << "-=" << bsl::endl;
@@ -2093,6 +2119,34 @@ void TestDriver::testCase3()
         if (veryVeryVerbose) bsl::cout << "-=(Decimal128)" << bsl::endl;
         d -= BDLDFP_DECIMAL_DL(9.0);
         LOOP_ASSERT(d, BDLDFP_DECIMAL_DL(-32.0) == d);
+
+        if (veryVeryVerbose)
+            bsl::cout << "Test precision in mixed-mode subtraction"
+                      << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "-=(Decimal32)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(2.0000010000000001));
+            BDEC::Decimal32  rhs( BDLDFP_DECIMAL_DF(1.000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(1.0000000000000001));
+            d128 -= rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "-=(Decimal64)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(2.0000000000000011));
+            BDEC::Decimal64  rhs( BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(1.0000000000000001));
+            d128 -= rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "-=(Decimal128)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(2.0000000000000002));
+            BDEC::Decimal128 rhs( BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(1.0000000000000001));
+            d128 -= rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
     }
 
     if (veryVerbose) bsl::cout << "*=" << bsl::endl;
@@ -2136,6 +2190,34 @@ void TestDriver::testCase3()
         if (veryVeryVerbose) bsl::cout << "*=(Decimal128)" << bsl::endl;
         d *= BDLDFP_DECIMAL_DL(2.4e-134);
         LOOP_ASSERT(d, BDLDFP_DECIMAL_DL(-2.16e-132) == d);
+
+        if (veryVeryVerbose)
+            bsl::cout << "Test precision in mixed-mode multiplication"
+                      << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "*=(Decimal32)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal32  rhs( BDLDFP_DECIMAL_DF(3.0));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(3.0000000000000003));
+            d128 *= rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "*=(Decimal64)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal64  rhs( BDLDFP_DECIMAL_DD(3.0));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(3.0000000000000003));
+            d128 *= rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "*=(Decimal128)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal128 rhs( BDLDFP_DECIMAL_DL(3.0));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(3.0000000000000003));
+            d128 *= rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
     }
 
     if (veryVerbose) bsl::cout << "/=" << bsl::endl;
@@ -2179,6 +2261,33 @@ void TestDriver::testCase3()
         if (veryVeryVerbose) bsl::cout << "/=(Decimal128)" << bsl::endl;
         d /= BDLDFP_DECIMAL_DL(-2.5e-134);
         LOOP_ASSERT(d, BDLDFP_DECIMAL_DL(8.e131) == d);
+
+        if (veryVeryVerbose)
+            bsl::cout << "Test precision in mixed-mode division" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "/=(Decimal32)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal32  rhs( BDLDFP_DECIMAL_DF(0.5));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000000000000002));
+            d128 /= rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "/=(Decimal64)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal64  rhs( BDLDFP_DECIMAL_DD(0.5));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000000000000002));
+            d128 /= rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "/=(Decimal128)" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal128 rhs( BDLDFP_DECIMAL_DL(0.5));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000000000000002));
+            d128 /= rhs;
+            LOOP_ASSERT(d128, EXP == d128);
+        }
     }
 
     if (veryVerbose) bsl::cout << "operator+" << bsl::endl;
@@ -2234,6 +2343,37 @@ void TestDriver::testCase3()
         LOOP_ASSERT(BDLDFP_DECIMAL_DD(-3.0) + d,
                     BDLDFP_DECIMAL_DD(-3.0) + d ==
                     BDLDFP_DECIMAL_DL(-8.0));
+
+        if (veryVeryVerbose)
+            bsl::cout << "Test precision in mixed-mode addition" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec + dec32" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal32  d32( BDLDFP_DECIMAL_DF(1.000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000010000000001));
+            LOOP_ASSERT(d128 + d32, EXP == d128 + d32);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec32 + dec" << bsl::endl; }
+        {
+            BDEC::Decimal32  d32 (BDLDFP_DECIMAL_DF(1.000001));
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000010000000001));
+            LOOP_ASSERT(d32 + d128, EXP == d32 + d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec + dec64" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal64  d64( BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000000000000011));
+            LOOP_ASSERT(d128 + d64, EXP == d128 + d64);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec64 + dec" << bsl::endl; }
+        {
+            BDEC::Decimal64  d64( BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000000000000011));
+            LOOP_ASSERT(d64 + d128, EXP == d64 + d128);
+        }
     }
 
     if (veryVerbose) bsl::cout << "operator-" << bsl::endl;
@@ -2289,6 +2429,38 @@ void TestDriver::testCase3()
         LOOP_ASSERT(BDLDFP_DECIMAL_DD(-3.0) - d,
                     BDLDFP_DECIMAL_DD(-3.0) - d ==
                     BDLDFP_DECIMAL_DL( 2.0));
+
+        if (veryVeryVerbose)
+            bsl::cout << "Test precision in mixed-mode subtraction"
+                      << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec - dec32" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(3.0000020000000001));
+            BDEC::Decimal32  d32( BDLDFP_DECIMAL_DF(1.000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000010000000001));
+            LOOP_ASSERT(d128 - d32, EXP == d128 - d32);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec32 - dec" << bsl::endl; }
+        {
+            BDEC::Decimal32  d32 (BDLDFP_DECIMAL_DF(3.000001));
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000009999999999));
+            LOOP_ASSERT(d32 - d128, EXP == d32 - d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec - dec64" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(3.0000000000000021));
+            BDEC::Decimal64  d64( BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000000000000011));
+            LOOP_ASSERT(d128 - d64, EXP == d128 - d64);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec64 - dec" << bsl::endl; }
+        {
+            BDEC::Decimal64  d64( BDLDFP_DECIMAL_DD(3.000000000000001));
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000000000000009));
+            LOOP_ASSERT(d64 - d128, EXP == d64 - d128);
+        }
     }
 
     if (veryVerbose) bsl::cout << "operator*" << bsl::endl;
@@ -2335,6 +2507,38 @@ void TestDriver::testCase3()
         LOOP_ASSERT(BDLDFP_DECIMAL_DF(-3.0) * d,
                     BDLDFP_DECIMAL_DF(-3.0) * d ==
                     BDLDFP_DECIMAL_DD(15.0));
+
+        if (veryVeryVerbose)
+            bsl::cout << "Test precision in mixed-mode multiplication"
+                      << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * dec32" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal32  d32( BDLDFP_DECIMAL_DF(3.0));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(3.0000000000000003));
+            LOOP_ASSERT(d128 * d32, EXP == d128 * d32);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec32 * dec" << bsl::endl; }
+        {
+            BDEC::Decimal32  d32 (BDLDFP_DECIMAL_DF(3.0));
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(3.0000000000000003));
+            LOOP_ASSERT(d32 * d128, EXP == d32 * d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * dec64" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal64  d64( BDLDFP_DECIMAL_DD(3.0));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(3.0000000000000003));
+            LOOP_ASSERT(d128 * d64, EXP == d128 * d64);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec64 * dec" << bsl::endl; }
+        {
+            BDEC::Decimal64  d64( BDLDFP_DECIMAL_DD(3.0));
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(3.0000000000000003));
+            LOOP_ASSERT(d64 * d128, EXP == d64 * d128);
+        }
     }
 
     if (veryVerbose) bsl::cout << "operator/" << bsl::endl;
@@ -2389,6 +2593,46 @@ void TestDriver::testCase3()
         LOOP_ASSERT(BDLDFP_DECIMAL_DD(-50.0) / d,
                     BDLDFP_DECIMAL_DD(-50.0) / d ==
                     BDLDFP_DECIMAL_DL(10.0));
+
+        if (veryVeryVerbose)
+            bsl::cout << "Test precision in mixed-mode division"
+                      << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / dec32" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(BDLDFP_DECIMAL_DL(1.0000000000000001));
+            BDEC::Decimal32  d32( BDLDFP_DECIMAL_DF(0.5));
+            BDEC::Decimal128 EXP( BDLDFP_DECIMAL_DL(2.0000000000000002));
+            LOOP_ASSERT(d128 / d32, EXP == d128 / d32);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec32 / dec" << bsl::endl; }
+        {
+            BDEC::Decimal32  d32 (BDLDFP_DECIMAL_DF(2.0));
+            BDEC::Decimal128 d128(
+                       BDLDFP_DECIMAL_DL(1.000000000000000000000000000000001));
+            BDEC::Decimal128 EXP(
+                       BDLDFP_DECIMAL_DL(1.999999999999999999999999999999998));
+            LOOP_ASSERT(d32 / d128, EXP == d32 / d128);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / dec64" << bsl::endl; }
+        {
+            BDEC::Decimal128 d128(
+                       BDLDFP_DECIMAL_DL(2.000000000000000000000000000000001));
+            BDEC::Decimal64  d64(
+                       BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal128 EXP(
+                       BDLDFP_DECIMAL_DL(1.999999999999998000000000000002001));
+            LOOP_ASSERT(d128 / d64, EXP == d128 / d64);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec64 / dec" << bsl::endl; }
+        {
+            BDEC::Decimal64  d64(
+                       BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal128 d128(
+                       BDLDFP_DECIMAL_DL(1.000000000000000000000000000000001));
+            BDEC::Decimal128 EXP(
+                       BDLDFP_DECIMAL_DL(1.000000000000000999999999999999999));
+            LOOP_ASSERT(d64 / d128, EXP == d64 / d128);
+        }
     }
 
     if (veryVerbose) bsl::cout << "Create test objects" << bsl::endl;
@@ -2910,34 +3154,34 @@ void TestDriver::testCase2()
             bsl::cout << "Test precision in mixed-mode addition" << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "+=(Decimal64)" << bsl::endl;
         {
-            BDEC::Decimal64 d64(     BDLDFP_DECIMAL_DD(0.9999999999999985e+0));
-            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(1.0000000000000001e+0));
-            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(1.999999999999998e+0));
+            BDEC::Decimal64 d64(     BDLDFP_DECIMAL_DD(0.9999999999999980));
+            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(1.999999999999999));
             d64 += rhs;
             LOOP_ASSERT(d64, EXPECTED == d64);
         }
         if (veryVeryVerbose) bsl::cout << "+=(Decimal128)" << bsl::endl;
         {
-           BDEC::Decimal64  d64(     BDLDFP_DECIMAL_DD(0.9999999999999985e+0));
-           BDEC::Decimal128 rhs(     BDLDFP_DECIMAL_DL(1.0000000000000001e+0));
-           BDEC::Decimal64  EXPECTED(BDLDFP_DECIMAL_DD(1.9999999999999990e+0));
+           BDEC::Decimal64  d64(     BDLDFP_DECIMAL_DD(0.9999999999999985));
+           BDEC::Decimal128 rhs(     BDLDFP_DECIMAL_DL(1.0000000000000001));
+           BDEC::Decimal64  EXPECTED(BDLDFP_DECIMAL_DD(1.9999999999999990));
            d64 += rhs;
            LOOP_ASSERT(d64, EXPECTED == d64);
         }
         if (veryVeryVerbose) bsl::cout << "+=(long long)" << bsl::endl;
         {
-           BDEC::Decimal64 d64(     BDLDFP_DECIMAL_DD( 9999999999999985.0e+0));
-           long long       rhs(                       10000000000000001ll    );
-           BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(19999999999999990.0e+0));
+           BDEC::Decimal64 d64(     BDLDFP_DECIMAL_DD( 9999999999999985.0));
+           long long       rhs(                       10000000000000001ll);
+           BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(19999999999999990.0));
            d64 += rhs;
            LOOP_ASSERT(d64, EXPECTED == d64);
         }
         if (veryVeryVerbose)
             bsl::cout << "+=(unsigned long long)" << bsl::endl;
         {
-           BDEC::Decimal64 d64(     BDLDFP_DECIMAL_DD( 9999999999999985.0e+0));
-           long long       rhs(                       10000000000000001ull   );
-           BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(19999999999999990.0e+0));
+           BDEC::Decimal64 d64(     BDLDFP_DECIMAL_DD( 9999999999999985.0));
+           long long       rhs(                       10000000000000001ull);
+           BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(19999999999999990.0));
            d64 += rhs;
            LOOP_ASSERT(d64, EXPECTED == d64);
         }
@@ -2990,32 +3234,32 @@ void TestDriver::testCase2()
                       << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "-=(Decimal64)" << bsl::endl;
         {
-            BDEC::Decimal64 d64(BDLDFP_DECIMAL_DD(2.0e+0               ));
-            BDEC::Decimal64 rhs(BDLDFP_DECIMAL_DD(1.0000000000000001e+0));
+            BDEC::Decimal64 d64(BDLDFP_DECIMAL_DD(    3.0              ));
+            BDEC::Decimal64 rhs(BDLDFP_DECIMAL_DD(    1.000000000000001));
             d64 -= rhs;
-            LOOP_ASSERT(d64, BDLDFP_DECIMAL_DD(1.0e+0) == d64);
+            LOOP_ASSERT(d64, d64 == BDLDFP_DECIMAL_DD(1.999999999999999));
         }
         if (veryVeryVerbose) bsl::cout << "-=(Decimal128)" << bsl::endl;
         {
-            BDEC::Decimal64  d64(BDLDFP_DECIMAL_DD(2.0e+0               ));
-            BDEC::Decimal128 rhs(BDLDFP_DECIMAL_DL(1.0000000000000001e+0));
+            BDEC::Decimal64  d64(BDLDFP_DECIMAL_DD(   2.0               ));
+            BDEC::Decimal128 rhs(BDLDFP_DECIMAL_DL(   1.0000000000000001));
             d64 -= rhs;
-            LOOP_ASSERT(d64, BDLDFP_DECIMAL_DD(0.9999999999999999e+0) == d64);
+            LOOP_ASSERT(d64, d64 == BDLDFP_DECIMAL_DD(0.9999999999999999));
         }
         if (veryVeryVerbose) bsl::cout << "-=(long long)" << bsl::endl;
         {
-            BDEC::Decimal64 d64(BDLDFP_DECIMAL_DD(20000000000000000.0e+0));
-            long long       rhs(                  10000000000000001ll    );
+            BDEC::Decimal64 d64(BDLDFP_DECIMAL_DD(   20000000000000000.0));
+            long long       rhs(                     10000000000000001ll    );
             d64 -= rhs;
-            LOOP_ASSERT(d64, BDLDFP_DECIMAL_DD(9999999999999999e+0) == d64);
+            LOOP_ASSERT(d64, d64 == BDLDFP_DECIMAL_DD(9999999999999999.0));
         }
         if (veryVeryVerbose)
             bsl::cout << "-=(unsigned long long)" << bsl::endl;
         {
-            BDEC::Decimal64 d64(BDLDFP_DECIMAL_DD(20000000000000000.0e+0));
-            long long       rhs(                  10000000000000001ull   );
+            BDEC::Decimal64 d64(BDLDFP_DECIMAL_DD(   20000000000000000.0));
+            long long       rhs(                     10000000000000001ull   );
             d64 -= rhs;
-            LOOP_ASSERT(d64, BDLDFP_DECIMAL_DD(9999999999999999e+0) == d64);
+            LOOP_ASSERT(d64, d64 == BDLDFP_DECIMAL_DD(9999999999999999.0));
         }
     }
 
@@ -3065,33 +3309,33 @@ void TestDriver::testCase2()
                       << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "*=(Decimal64)" << bsl::endl;
         {
-            BDEC::Decimal64 d64(     BDLDFP_DECIMAL_DD(9.0e+0));
-            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(1.0000000000000003e+0));
-            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(9.0e+0));
+            BDEC::Decimal64 d64(     BDLDFP_DECIMAL_DD(9.0));
+            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(1.000000000000003));
+            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(9.000000000000027));
             d64 *= rhs;
             LOOP_ASSERT(d64, EXPECTED == d64);
         }
         if (veryVeryVerbose) bsl::cout << "*=(Decimal128)" << bsl::endl;
         {
-            BDEC::Decimal64  d64(   BDLDFP_DECIMAL_DD(9.0e+0));
-            BDEC::Decimal128 rhs(   BDLDFP_DECIMAL_DL(1.0000000000000003e+0));
+            BDEC::Decimal64  d64(   BDLDFP_DECIMAL_DD(9.0));
+            BDEC::Decimal128 rhs(   BDLDFP_DECIMAL_DL(1.0000000000000003));
             d64 *= rhs;
-            LOOP_ASSERT(d64, d64 == BDLDFP_DECIMAL_DD(9.000000000000003e+0));
+            LOOP_ASSERT(d64, d64 == BDLDFP_DECIMAL_DD(9.000000000000003));
         }
         if (veryVeryVerbose) bsl::cout << "*=(long long)" << bsl::endl;
         {
-            BDEC::Decimal64 d64(BDLDFP_DECIMAL_DD(                    9.0e+0));
+            BDEC::Decimal64 d64(BDLDFP_DECIMAL_DD(                    9.0));
             long long       rhs(                      10000000000000003ll);
             d64 *= rhs;
-            LOOP_ASSERT(d64, d64 == BDLDFP_DECIMAL_DD(90000000000000030e+0));
+            LOOP_ASSERT(d64, d64 == BDLDFP_DECIMAL_DD(90000000000000030.0));
         }
         if (veryVeryVerbose)
             bsl::cout << "*=(unsigned long long)" << bsl::endl;
         {
-            BDEC::Decimal64    d64(BDLDFP_DECIMAL_DD(                 9.0e+0));
+            BDEC::Decimal64    d64(BDLDFP_DECIMAL_DD(                 9.0));
             unsigned long long rhs(                   10000000000000003ull);
             d64 *= rhs;
-            LOOP_ASSERT(d64, d64 == BDLDFP_DECIMAL_DD(90000000000000030e+0));
+            LOOP_ASSERT(d64, d64 == BDLDFP_DECIMAL_DD(90000000000000030.0));
         }
     }
 
@@ -3141,33 +3385,33 @@ void TestDriver::testCase2()
             bsl::cout << "Test precision in mix-mode division" << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "/=(Decimal64)" << bsl::endl;
         {
-            BDEC::Decimal64 d64(     BDLDFP_DECIMAL_DD(1.0e+0));
-            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(1.0000000000000001e+0));
-            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(1.0e+0));
+            BDEC::Decimal64 d64(     BDLDFP_DECIMAL_DD(2.0));
+            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(1.999999999999998));
             d64 /= rhs;
             LOOP_ASSERT(d64, EXPECTED == d64);
         }
         if (veryVeryVerbose) bsl::cout << "/=(Decimal128)" << bsl::endl;
         {
-            BDEC::Decimal64  d64(BDLDFP_DECIMAL_DD(1.0e+0));
-            BDEC::Decimal128 rhs(BDLDFP_DECIMAL_DL(1.0000000000000001e+0));
+            BDEC::Decimal64  d64(BDLDFP_DECIMAL_DD(1.0));
+            BDEC::Decimal128 rhs(BDLDFP_DECIMAL_DL(1.0000000000000001));
             d64 /= rhs;
-            LOOP_ASSERT(d64, BDLDFP_DECIMAL_DD(0.9999999999999999e+0) == d64);
+            LOOP_ASSERT(d64, BDLDFP_DECIMAL_DD(0.9999999999999999) == d64);
         }
         if (veryVeryVerbose) bsl::cout << "/=(long long)" << bsl::endl;
         {
-            BDEC::Decimal64  d64(BDLDFP_DECIMAL_DD(10000000000000000.0e+0));
+            BDEC::Decimal64  d64(BDLDFP_DECIMAL_DD(10000000000000000.0));
             long long        rhs(                  10000000000000001ll);
             d64 /= rhs;
-            LOOP_ASSERT(d64, BDLDFP_DECIMAL_DD(0.9999999999999999e+0) == d64);
+            LOOP_ASSERT(d64, BDLDFP_DECIMAL_DD(0.9999999999999999) == d64);
         }
         if (veryVeryVerbose)
             bsl::cout << "/=(unsigned long long)" << bsl::endl;
         {
-            BDEC::Decimal64    d64(BDLDFP_DECIMAL_DD(10000000000000000.0e+0));
+            BDEC::Decimal64    d64(BDLDFP_DECIMAL_DD(10000000000000000.0));
             unsigned long long rhs(                  10000000000000001ull);
             d64 /= rhs;
-            LOOP_ASSERT(d64, BDLDFP_DECIMAL_DD(0.9999999999999999e+0) == d64);
+            LOOP_ASSERT(d64, BDLDFP_DECIMAL_DD(0.9999999999999999) == d64);
         }
     }
 
@@ -3175,40 +3419,44 @@ void TestDriver::testCase2()
     {
         BDEC::Decimal64 d(BDLDFP_DECIMAL_DD(-5.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec + int" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec + int" << bsl::endl; }
         LOOP_ASSERT(d + 1, d + 1 == BDLDFP_DECIMAL_DD(-4.0));
         LOOP_ASSERT(1 + d, 1 + d == BDLDFP_DECIMAL_DD(-4.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec + unsigned int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "dec + unsigned int" << bsl::endl;
+        }
         LOOP_ASSERT(d + 10u, d + 10u == BDLDFP_DECIMAL_DD(5.0));
         LOOP_ASSERT(10u + d, 10u + d == BDLDFP_DECIMAL_DD(5.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec + long int" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec + long int" << bsl::endl; }
         LOOP_ASSERT(d + 1l, d + 1l == BDLDFP_DECIMAL_DD(-4.0));
         LOOP_ASSERT(1l + d, 1l + d == BDLDFP_DECIMAL_DD(-4.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec + unsigned long int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "dec + unsigned long int" << bsl::endl;
+        }
         LOOP_ASSERT(d + 10ul, d + 10ul == BDLDFP_DECIMAL_DD(5.0));
         LOOP_ASSERT(10ul + d, 10ul + d == BDLDFP_DECIMAL_DD(5.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec + long long int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "dec + long long int" << bsl::endl;
+        }
         LOOP_ASSERT(d + 1ll, d + 1ll == BDLDFP_DECIMAL_DD(-4.0));
         LOOP_ASSERT(1ll + d, 1ll + d == BDLDFP_DECIMAL_DD(-4.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec + unsigned long long int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "dec + unsigned long long int" << bsl::endl;
+        }
         LOOP_ASSERT(d + 10ull, d + 10ull == BDLDFP_DECIMAL_DD(5.0));
         LOOP_ASSERT(10ull + d, 10ull + d == BDLDFP_DECIMAL_DD(5.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec + dec64" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec + dec64" << bsl::endl; }
         LOOP_ASSERT(d + BDLDFP_DECIMAL_DD(-3.0),
                     d + BDLDFP_DECIMAL_DD(-3.0) ==
                     BDLDFP_DECIMAL_DD(-8.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec + dec32" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec + dec32" << bsl::endl; }
         LOOP_ASSERT(d + BDLDFP_DECIMAL_DF(-3.0),
                     d + BDLDFP_DECIMAL_DF(-3.0) ==
                     BDLDFP_DECIMAL_DD(-8.0));
@@ -3217,42 +3465,62 @@ void TestDriver::testCase2()
                     BDLDFP_DECIMAL_DD(-8.0));
         if (veryVeryVerbose)
             bsl::cout << "Test precision in mixed-mode addition" << bsl::endl;
-        if (veryVeryVerbose) bsl::cout << "dec + dec64" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec + dec32" << bsl::endl; }
         {
-            BDEC::Decimal64 lhs(     BDLDFP_DECIMAL_DD(0.9999999999999985e+0));
-            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(1.0000000000000001e+0));
-            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(1.999999999999998e+0));
+            BDEC::Decimal32 lhs(     BDLDFP_DECIMAL_DF(0.9999999));
+            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(1.999999900000001));
             LOOP_ASSERT(lhs + rhs, EXPECTED == lhs + rhs);
         }
-        if (veryVeryVerbose) bsl::cout << "dec + long long" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec32 + dec" << bsl::endl; }
         {
-            BDEC::Decimal64  lhs(    BDLDFP_DECIMAL_DD( 9999999999999985e+0));
+            BDEC::Decimal64 lhs(     BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(0.9999999));
+            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(1.999999900000001));
+            LOOP_ASSERT(lhs + rhs, EXPECTED == lhs + rhs);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec + dec64" << bsl::endl; }
+        {
+            BDEC::Decimal64 lhs(     BDLDFP_DECIMAL_DD(0.9999999999999980));
+            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(1.999999999999999));
+            LOOP_ASSERT(lhs + rhs, EXPECTED == lhs + rhs);
+        }
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "dec + long long" << bsl::endl;
+        }
+        {
+            BDEC::Decimal64  lhs(    BDLDFP_DECIMAL_DD( 9999999999999985.0));
             long long        rhs(                      10000000000000001ll  );
             LOOP_ASSERT(lhs + rhs,
-                        lhs + rhs == BDLDFP_DECIMAL_DD(19999999999999990e+0));
+                        lhs + rhs == BDLDFP_DECIMAL_DD(19999999999999990.0));
         }
-        if (veryVeryVerbose)
-            bsl::cout << "dec + unsigned long long" << bsl::endl;
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "dec + unsigned long long" << bsl::endl;
+        }
         {
-            BDEC::Decimal64     lhs( BDLDFP_DECIMAL_DD( 9999999999999985e+0));
+            BDEC::Decimal64     lhs( BDLDFP_DECIMAL_DD( 9999999999999985.0));
             unsigned long long  rhs(                   10000000000000001ull );
             LOOP_ASSERT(lhs + rhs,
-                        lhs + rhs == BDLDFP_DECIMAL_DD(19999999999999990e+0));
+                        lhs + rhs == BDLDFP_DECIMAL_DD(19999999999999990.0));
         }
-        if (veryVeryVerbose) bsl::cout << "long long + dec" << bsl::endl;
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "long long + dec" << bsl::endl;
+        }
         {
             long long        lhs(                      10000000000000001ll  );
-            BDEC::Decimal64  rhs(    BDLDFP_DECIMAL_DD( 9999999999999985e+0));
+            BDEC::Decimal64  rhs(    BDLDFP_DECIMAL_DD( 9999999999999985.0));
             LOOP_ASSERT(lhs + rhs,
-                        lhs + rhs == BDLDFP_DECIMAL_DD(19999999999999990e+0));
+                        lhs + rhs == BDLDFP_DECIMAL_DD(19999999999999990.0));
         }
-        if (veryVeryVerbose)
-            bsl::cout << "unsigned long long + dec" << bsl::endl;
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "unsigned long long + dec" << bsl::endl;
+        }
         {
-            unsigned long long  lhs(                   10000000000000001ull );
-            BDEC::Decimal64     rhs( BDLDFP_DECIMAL_DD( 9999999999999985e+0));
+            unsigned long long  lhs(                   10000000000000001ull);
+            BDEC::Decimal64     rhs( BDLDFP_DECIMAL_DD( 9999999999999985.0));
             LOOP_ASSERT(lhs + rhs,
-                        lhs + rhs == BDLDFP_DECIMAL_DD(19999999999999990e+0));
+                        lhs + rhs == BDLDFP_DECIMAL_DD(19999999999999990.0));
         }
     }
 
@@ -3304,48 +3572,62 @@ void TestDriver::testCase2()
         if (veryVeryVerbose)
             bsl::cout << "Test precision in mixed-mode subtraction"
                       << bsl::endl;
-        if (veryVeryVerbose) bsl::cout << "dec - dec64" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec - dec32" << bsl::endl; }
         {
-            BDEC::Decimal64 lhs(BDLDFP_DECIMAL_DD(2.0e+0));
-            BDEC::Decimal64 rhs(BDLDFP_DECIMAL_DD(1.0000000000000001e+0));
-            LOOP_ASSERT(lhs - rhs, lhs - rhs == BDLDFP_DECIMAL_DD(1.0e+0));
-        }
-        if (veryVeryVerbose) bsl::cout << "dec - dec128" << bsl::endl;
-        {
-            BDEC::Decimal64  lhs(BDLDFP_DECIMAL_DD(2.0e+0));
-            BDEC::Decimal128 rhs(BDLDFP_DECIMAL_DL(1.0000000000000001e+0));
+            BDEC::Decimal64 lhs(BDLDFP_DECIMAL_DD(3.000000000000001));
+            BDEC::Decimal32 rhs(BDLDFP_DECIMAL_DF(1.000001));
             LOOP_ASSERT(lhs - rhs,
-                        lhs - rhs == BDLDFP_DECIMAL_DD(0.9999999999999999e+0));
+                        lhs - rhs == BDLDFP_DECIMAL_DD(1.999999000000001));
         }
-        if (veryVeryVerbose) bsl::cout << "dec - long long" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec32 - dec" << bsl::endl; }
         {
-            BDEC::Decimal64  lhs(BDLDFP_DECIMAL_DD(   20000000000000000.0e+0));
-            long long        rhs(                     10000000000000001ll    );
+            BDEC::Decimal32 lhs(BDLDFP_DECIMAL_DF(3.000001));
+            BDEC::Decimal64 rhs(BDLDFP_DECIMAL_DD(1.000000000000001));
             LOOP_ASSERT(lhs - rhs,
-                        lhs - rhs == BDLDFP_DECIMAL_DD(9999999999999999.0e+0));
+                        lhs - rhs == BDLDFP_DECIMAL_DD(2.000000999999999));
         }
-        if (veryVeryVerbose)
-            bsl::cout << "dec - unsigned long long" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec - dec64" << bsl::endl; }
         {
-            BDEC::Decimal64    lhs(BDLDFP_DECIMAL_DD( 20000000000000000.0e+0));
-            unsigned long long rhs(                   10000000000000001ull   );
+            BDEC::Decimal64 lhs(BDLDFP_DECIMAL_DD(3.0));
+            BDEC::Decimal64 rhs(BDLDFP_DECIMAL_DD(1.000000000000001));
             LOOP_ASSERT(lhs - rhs,
-                        lhs - rhs == BDLDFP_DECIMAL_DD(9999999999999999.0e+0));
+                        lhs - rhs == BDLDFP_DECIMAL_DD(1.999999999999999));
         }
-        if (veryVeryVerbose) bsl::cout << "long long - dec" << bsl::endl;
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "dec - long long" << bsl::endl;
+        }
         {
-            long long        lhs(                  10000000000000001ll    );
-            BDEC::Decimal64  rhs(BDLDFP_DECIMAL_DD(20000000000000000.0e+0));
-            BDEC::Decimal64  EXP(BDLDFP_DECIMAL_DD(-9999999999999999.0e+0));
+            BDEC::Decimal64  lhs(BDLDFP_DECIMAL_DD(   20000000000000000.0));
+            long long        rhs(                     10000000000000001ll);
+            LOOP_ASSERT(lhs - rhs,
+                        lhs - rhs == BDLDFP_DECIMAL_DD(9999999999999999.0));
+        }
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "dec - unsigned long long" << bsl::endl;
+        }
+        {
+            BDEC::Decimal64    lhs(BDLDFP_DECIMAL_DD( 20000000000000000.0));
+            unsigned long long rhs(                   10000000000000001ull);
+            LOOP_ASSERT(lhs - rhs,
+                        lhs - rhs == BDLDFP_DECIMAL_DD(9999999999999999.0));
+        }
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "long long - dec" << bsl::endl;
+        }
+        {
+            long long        lhs(                  10000000000000001ll);
+            BDEC::Decimal64  rhs(BDLDFP_DECIMAL_DD(20000000000000000.0));
+            BDEC::Decimal64  EXP(BDLDFP_DECIMAL_DD(-9999999999999999.0));
             LOOP_ASSERT(lhs - rhs, lhs - rhs == EXP);
 
         }
-        if (veryVeryVerbose)
-            bsl::cout << "unsigned long long - dec" << bsl::endl;
+        if (veryVeryVerbose) {
+            T_ bsl::cout << "unsigned long long - dec" << bsl::endl;
+        }
         {
-            unsigned long long lhs(                  10000000000000001ull   );
-            BDEC::Decimal64    rhs(BDLDFP_DECIMAL_DD(20000000000000000.0e+0));
-            BDEC::Decimal64    EXP(BDLDFP_DECIMAL_DD(-9999999999999999.0e+0));
+            unsigned long long lhs(                  10000000000000001ull);
+            BDEC::Decimal64    rhs(BDLDFP_DECIMAL_DD(20000000000000000.0));
+            BDEC::Decimal64    EXP(BDLDFP_DECIMAL_DD(-9999999999999999.0));
             LOOP_ASSERT(lhs - rhs, lhs - rhs == EXP);
         }
     }
@@ -3354,40 +3636,40 @@ void TestDriver::testCase2()
     {
         BDEC::Decimal64 d(BDLDFP_DECIMAL_DD(-5.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec * int" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * int" << bsl::endl; }
         LOOP_ASSERT(d * -2, d * -2 == BDLDFP_DECIMAL_DD(10.0));
         LOOP_ASSERT(-2 * d, -2 * d == BDLDFP_DECIMAL_DD(10.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec * unsigned int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * unsigned int"
+                                            << bsl::endl; }
         LOOP_ASSERT(d * 10u, d * 10u == BDLDFP_DECIMAL_DD(-50.0));
         LOOP_ASSERT(10u * d, 10u * d == BDLDFP_DECIMAL_DD(-50.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec * long int" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * long int" << bsl::endl; }
         LOOP_ASSERT(d * -2l, d * -2l == BDLDFP_DECIMAL_DD(10.0));
         LOOP_ASSERT(-2l * d, -2l * d == BDLDFP_DECIMAL_DD(10.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec * unsigned long int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * unsigned long int"
+                                            << bsl::endl; }
         LOOP_ASSERT(d * 10ul, d * 10ul == BDLDFP_DECIMAL_DD(-50.0));
         LOOP_ASSERT(10ul * d, 10ul * d == BDLDFP_DECIMAL_DD(-50.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec * long long int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * long long int"
+                                            << bsl::endl; }
         LOOP_ASSERT(d * -2ll, d * -2ll == BDLDFP_DECIMAL_DD(10.0));
         LOOP_ASSERT(-2ll * d, -2ll * d == BDLDFP_DECIMAL_DD(10.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec * unsigned long long int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * unsigned long long int"
+                                       << bsl::endl; }
         LOOP_ASSERT(d * 10ull, d * 10ull == BDLDFP_DECIMAL_DD(-50.0));
         LOOP_ASSERT(10ull * d, 10ull * d == BDLDFP_DECIMAL_DD(-50.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec * dec64" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * dec64" << bsl::endl; }
         LOOP_ASSERT(d * BDLDFP_DECIMAL_DD(-3.0),
                     d * BDLDFP_DECIMAL_DD(-3.0) ==
                     BDLDFP_DECIMAL_DD(15.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec * dec32" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * dec32" << bsl::endl; }
         LOOP_ASSERT(d * BDLDFP_DECIMAL_DF(-3.0),
                     d * BDLDFP_DECIMAL_DF(-3.0) ==
                     BDLDFP_DECIMAL_DD(15.0));
@@ -3397,41 +3679,57 @@ void TestDriver::testCase2()
         if (veryVeryVerbose)
             bsl::cout << "Test precision in mixed-mode multiplication"
                       << bsl::endl;
-        if (veryVeryVerbose) bsl::cout << "dec * dec64" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * dec32" << bsl::endl; }
         {
-            BDEC::Decimal64 lhs(     BDLDFP_DECIMAL_DD(9.0e+0));
-            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(1.0000000000000003e+0));
-            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(9.0e+0));
+            BDEC::Decimal64 lhs(     BDLDFP_DECIMAL_DD(3.000000000000001));
+            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(3.0));
+            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(9.000000000000003));
             LOOP_ASSERT(lhs * rhs, EXPECTED == lhs * rhs);
         }
-        if (veryVeryVerbose) bsl::cout << "dec * long long" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec32 * dec" << bsl::endl; }
         {
-            BDEC::Decimal64  lhs(BDLDFP_DECIMAL_DD(                9.0e+0));
-            long long        rhs(                  10000000000000003ll    );
-            BDEC::Decimal64  EXP(BDLDFP_DECIMAL_DD(90000000000000030e+0   ));
+            BDEC::Decimal32 lhs(     BDLDFP_DECIMAL_DF(3.0));
+            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(3.000000000000001));
+            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(9.000000000000003));
+            LOOP_ASSERT(lhs * rhs, EXPECTED == lhs * rhs);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * dec64" << bsl::endl; }
+        {
+            BDEC::Decimal64 lhs(     BDLDFP_DECIMAL_DD(9.0));
+            BDEC::Decimal64 rhs(     BDLDFP_DECIMAL_DD(1.000000000000003));
+            BDEC::Decimal64 EXPECTED(BDLDFP_DECIMAL_DD(9.000000000000027));
+            LOOP_ASSERT(lhs * rhs, EXPECTED == lhs * rhs);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec * long long"
+                                            << bsl::endl; }
+        {
+            BDEC::Decimal64  lhs(BDLDFP_DECIMAL_DD(                9.0));
+            long long        rhs(                  10000000000000003ll);
+            BDEC::Decimal64  EXP(BDLDFP_DECIMAL_DD(90000000000000030.0));
             LOOP_ASSERT(lhs * rhs, EXP == lhs * rhs);
         }
         if (veryVeryVerbose)
-            bsl::cout << "dec * unsigned long long" << bsl::endl;
+            { T_ bsl::cout << "dec * unsigned long long" << bsl::endl; }
         {
-            BDEC::Decimal64    lhs(BDLDFP_DECIMAL_DD(                9.0e+0));
-            unsigned long long rhs(                  10000000000000003ull   );
-            BDEC::Decimal64    EXP(BDLDFP_DECIMAL_DD(90000000000000030e+0   ));
+            BDEC::Decimal64    lhs(BDLDFP_DECIMAL_DD(                9.0));
+            unsigned long long rhs(                  10000000000000003ull);
+            BDEC::Decimal64    EXP(BDLDFP_DECIMAL_DD(90000000000000030.0));
             LOOP_ASSERT(lhs * rhs, EXP == lhs * rhs);
         }
-        if (veryVeryVerbose) bsl::cout << "long long * dec" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "long long * dec"
+                                            << bsl::endl; }
         {
-            long long        lhs(                  10000000000000003ll    );
-            BDEC::Decimal64  rhs(BDLDFP_DECIMAL_DD(                9.0e+0));
-            BDEC::Decimal64  EXP(BDLDFP_DECIMAL_DD(90000000000000030e+0   ));
+            long long        lhs(                  10000000000000003ll);
+            BDEC::Decimal64  rhs(BDLDFP_DECIMAL_DD(                9.0));
+            BDEC::Decimal64  EXP(BDLDFP_DECIMAL_DD(90000000000000030.0));
             LOOP_ASSERT(lhs * rhs, EXP == lhs * rhs);
         }
         if (veryVeryVerbose)
-            bsl::cout << "unsigned long long * dec" << bsl::endl;
+            { T_ bsl::cout << "unsigned long long * dec" << bsl::endl; }
         {
-            unsigned long long lhs(                  10000000000000003ull   );
-            BDEC::Decimal64    rhs(BDLDFP_DECIMAL_DD(                9.0e+0));
-            BDEC::Decimal64    EXP(BDLDFP_DECIMAL_DD(90000000000000030e+0   ));
+            unsigned long long lhs(                  10000000000000003ull);
+            BDEC::Decimal64    rhs(BDLDFP_DECIMAL_DD(                9.0));
+            BDEC::Decimal64    EXP(BDLDFP_DECIMAL_DD(90000000000000030.0));
             LOOP_ASSERT(lhs * rhs, EXP == lhs * rhs);
         }
     }
@@ -3440,40 +3738,40 @@ void TestDriver::testCase2()
     {
         BDEC::Decimal64 d(BDLDFP_DECIMAL_DD(-5.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec / int" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / int" << bsl::endl; }
         LOOP_ASSERT(d / -2, d / -2 == BDLDFP_DECIMAL_DD(2.5));
         LOOP_ASSERT(-2 / d, -2 / d == BDLDFP_DECIMAL_DD(0.4));
 
-        if (veryVeryVerbose) bsl::cout << "dec / unsigned int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / unsigned int"
+                                       << bsl::endl; }
         LOOP_ASSERT(d / 100u, d / 100u == BDLDFP_DECIMAL_DD( -0.05));
         LOOP_ASSERT(100u / d, 100u / d == BDLDFP_DECIMAL_DD(-20.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec / long int" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / long int" << bsl::endl; }
         LOOP_ASSERT(d / -2l, d / -2l == BDLDFP_DECIMAL_DD(2.5));
         LOOP_ASSERT(-2l / d, -2l / d == BDLDFP_DECIMAL_DD(0.4));
 
-        if (veryVeryVerbose) bsl::cout << "dec / unsigned long int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / unsigned long int"
+                                       << bsl::endl; }
         LOOP_ASSERT(d / 100ul, d / 100ul == BDLDFP_DECIMAL_DD( -0.05));
         LOOP_ASSERT(100ul / d, 100ul / d == BDLDFP_DECIMAL_DD(-20.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec / long long int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / long long int"
+                                       << bsl::endl; }
         LOOP_ASSERT(d / -2ll, d / -2ll == BDLDFP_DECIMAL_DD(2.5));
         LOOP_ASSERT(-2ll / d, -2ll / d == BDLDFP_DECIMAL_DD(0.4));
 
-        if (veryVeryVerbose) bsl::cout << "dec / unsigned long long int"
-                                       << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / unsigned long long int"
+                                       << bsl::endl; }
         LOOP_ASSERT(d / 100ull, d / 100ull == BDLDFP_DECIMAL_DD( -0.05));
         LOOP_ASSERT(100ull / d, 100ull / d == BDLDFP_DECIMAL_DD(-20.0));
 
-        if (veryVeryVerbose) bsl::cout << "dec / dec64" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / dec64" << bsl::endl; }
         LOOP_ASSERT(d / BDLDFP_DECIMAL_DD(-50.0),
                     d / BDLDFP_DECIMAL_DD(-50.0) ==
                     BDLDFP_DECIMAL_DD(0.1));
 
-        if (veryVeryVerbose) bsl::cout << "dec / dec32" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / dec32" << bsl::endl; }
         LOOP_ASSERT(d / BDLDFP_DECIMAL_DF(-50.0),
                     d / BDLDFP_DECIMAL_DF(-50.0) ==
                     BDLDFP_DECIMAL_DD(0.1));
@@ -3484,41 +3782,57 @@ void TestDriver::testCase2()
         if (veryVeryVerbose)
             bsl::cout << "Test precision in mixed-mode division"
                       << bsl::endl;
-        if (veryVeryVerbose) bsl::cout << "dec / dec64" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / dec32" << bsl::endl; }
         {
-            BDEC::Decimal64 lhs(BDLDFP_DECIMAL_DD(1.0e+0));
-            BDEC::Decimal64 rhs(BDLDFP_DECIMAL_DD(1.0000000000000001e+0));
-            BDEC::Decimal64 EXP(BDLDFP_DECIMAL_DD(1.0e+0));
+            BDEC::Decimal64 lhs(BDLDFP_DECIMAL_DD(2.000000000000002));
+            BDEC::Decimal32 rhs(BDLDFP_DECIMAL_DF(2.0));
+            BDEC::Decimal64 EXP(BDLDFP_DECIMAL_DD(1.000000000000001));
             LOOP_ASSERT(lhs / rhs, EXP == lhs / rhs);
         }
-        if (veryVeryVerbose) bsl::cout << "dec / long long" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "dec32 / dec" << bsl::endl; }
         {
-            BDEC::Decimal64 lhs(BDLDFP_DECIMAL_DD(10000000000000000.0e+0));
-            long long       rhs(                  10000000000000001ll    );
-            BDEC::Decimal64 EXP(BDLDFP_DECIMAL_DD(0.9999999999999999e+0 ));
+            BDEC::Decimal32 lhs(BDLDFP_DECIMAL_DF(1.0));
+            BDEC::Decimal64 rhs(BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal64 EXP(BDLDFP_DECIMAL_DD(0.999999999999999));
+            LOOP_ASSERT(lhs / rhs, EXP == lhs / rhs);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / dec64" << bsl::endl; }
+        {
+            BDEC::Decimal64 lhs(BDLDFP_DECIMAL_DD(2.0));
+            BDEC::Decimal64 rhs(BDLDFP_DECIMAL_DD(1.000000000000001));
+            BDEC::Decimal64 EXP(BDLDFP_DECIMAL_DD(1.999999999999998));
+            LOOP_ASSERT(lhs / rhs, EXP == lhs / rhs);
+        }
+        if (veryVeryVerbose) { T_ bsl::cout << "dec / long long"
+                                            << bsl::endl; }
+        {
+            BDEC::Decimal64 lhs(BDLDFP_DECIMAL_DD(10000000000000000.0));
+            long long       rhs(                  10000000000000001ll);
+            BDEC::Decimal64 EXP(BDLDFP_DECIMAL_DD(0.9999999999999999));
             LOOP_ASSERT(lhs / rhs, EXP == lhs / rhs);
         }
         if (veryVeryVerbose)
-            bsl::cout << "dec / unsigned long long" << bsl::endl;
+            { T_ bsl::cout << "dec / unsigned long long" << bsl::endl; }
         {
-            BDEC::Decimal64    lhs(BDLDFP_DECIMAL_DD(10000000000000000.0e+0));
-            unsigned long long rhs(                  10000000000000001ull   );
-            BDEC::Decimal64    EXP(BDLDFP_DECIMAL_DD(0.9999999999999999e+0 ));
+            BDEC::Decimal64    lhs(BDLDFP_DECIMAL_DD(10000000000000000.0));
+            unsigned long long rhs(                  10000000000000001ull);
+            BDEC::Decimal64    EXP(BDLDFP_DECIMAL_DD(0.9999999999999999));
             LOOP_ASSERT(lhs / rhs, EXP == lhs / rhs);
         }
-        if (veryVeryVerbose) bsl::cout << "long long / dec" << bsl::endl;
+        if (veryVeryVerbose) { T_ bsl::cout << "long long / dec"
+                                            << bsl::endl; }
         {
-            long long       lhs(                  20000000000000011ll    );
-            BDEC::Decimal64 rhs(BDLDFP_DECIMAL_DD(                2.0e+0));
-            BDEC::Decimal64 EXP(BDLDFP_DECIMAL_DD(10000000000000010e+0  ));
+            long long       lhs(                  20000000000000011ll);
+            BDEC::Decimal64 rhs(BDLDFP_DECIMAL_DD(                2.0));
+            BDEC::Decimal64 EXP(BDLDFP_DECIMAL_DD(10000000000000010.0));
             LOOP_ASSERT(lhs / rhs, EXP == lhs / rhs);
         }
         if (veryVeryVerbose)
-            bsl::cout << "unsigned long long / dec" << bsl::endl;
+            { T_ bsl::cout << "unsigned long long / dec" << bsl::endl; }
         {
-            unsigned long long lhs(                  20000000000000011ull   );
-            BDEC::Decimal64    rhs(BDLDFP_DECIMAL_DD(                2.0e+0));
-            BDEC::Decimal64    EXP(BDLDFP_DECIMAL_DD(10000000000000010e+0  ));
+            unsigned long long lhs(                  20000000000000011ull);
+            BDEC::Decimal64    rhs(BDLDFP_DECIMAL_DD(                2.0));
+            BDEC::Decimal64    EXP(BDLDFP_DECIMAL_DD(10000000000000010.0));
             LOOP_ASSERT(lhs / rhs, EXP == lhs / rhs);
         }
     }
@@ -3993,9 +4307,9 @@ void TestDriver::testCase1()
             bsl::cout << "Test precision in mixed-mode addition" << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "+=(Decimal32)" << bsl::endl;
         {
-            BDEC::Decimal32 d32(     BDLDFP_DECIMAL_DF(0.9999985e+0));
-            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.0000001e+0));
-            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(1.999998e+0));
+            BDEC::Decimal32 d32(     BDLDFP_DECIMAL_DF(0.9999980e+0));
+            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.000001e+0));
+            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(1.999999e+0));
             d32 += rhs;
             LOOP_ASSERT(d32, EXPECTED == d32);
         }
@@ -4113,9 +4427,9 @@ void TestDriver::testCase1()
         if (veryVeryVerbose) bsl::cout << "-=(Decimal32)" << bsl::endl;
         {
             BDEC::Decimal32 d32(BDLDFP_DECIMAL_DF(2.0e+0));
-            BDEC::Decimal32 rhs(BDLDFP_DECIMAL_DF(1.0000001e+0));
+            BDEC::Decimal32 rhs(BDLDFP_DECIMAL_DF(1.000001e+0));
             d32 -= rhs;
-            LOOP_ASSERT(d32, BDLDFP_DECIMAL_DF(1.0e+0) == d32);
+            LOOP_ASSERT(d32, BDLDFP_DECIMAL_DF(0.999999) == d32);
         }
         if (veryVeryVerbose) bsl::cout << "-=(Decimal64)" << bsl::endl;
         {
@@ -4223,9 +4537,9 @@ void TestDriver::testCase1()
                       << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "*=(Decimal32)" << bsl::endl;
         {
-            BDEC::Decimal32 d32(     BDLDFP_DECIMAL_DF(9.0e+0));
-            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.0000003e+0));
-            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(9.0e+0));
+            BDEC::Decimal32 d32(     BDLDFP_DECIMAL_DF(9.0));
+            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.000003));
+            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(9.000027));
             d32 *= rhs;
             LOOP_ASSERT(d32, EXPECTED == d32);
         }
@@ -4343,9 +4657,9 @@ void TestDriver::testCase1()
             bsl::cout << "Test precision in mix-mode division" << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "/=(Decimal32)" << bsl::endl;
         {
-            BDEC::Decimal32 d32(     BDLDFP_DECIMAL_DF(1.0e+0));
-            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.0000001e+0));
-            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(1.0e+0));
+            BDEC::Decimal32 d32(     BDLDFP_DECIMAL_DF(1.0));
+            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.000001));
+            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(0.999999));
             d32 /= rhs;
             LOOP_ASSERT(d32, EXPECTED == d32);
         }
@@ -4450,9 +4764,9 @@ void TestDriver::testCase1()
             bsl::cout << "Test precision in mixed-mode addition" << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "dec + dec32" << bsl::endl;
         {
-            BDEC::Decimal32 lhs(     BDLDFP_DECIMAL_DF(0.9999985e+0));
-            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.0000001e+0));
-            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(1.999998e+0));
+            BDEC::Decimal32 lhs(     BDLDFP_DECIMAL_DF(0.9999980));
+            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.000001));
+            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(1.999999));
             LOOP_ASSERT(lhs + rhs, EXPECTED == lhs + rhs);
         }
         if (veryVeryVerbose) bsl::cout << "dec + int" << bsl::endl;
@@ -4585,9 +4899,9 @@ void TestDriver::testCase1()
                       << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "dec - dec32" << bsl::endl;
         {
-            BDEC::Decimal32 lhs(     BDLDFP_DECIMAL_DF(2.0e+0));
-            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.0000001e+0));
-            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(1.0e+0));
+            BDEC::Decimal32 lhs(     BDLDFP_DECIMAL_DF(2.0));
+            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.000001));
+            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(0.999999));
             LOOP_ASSERT(lhs - rhs, EXPECTED == lhs - rhs);
         }
         if (veryVeryVerbose) bsl::cout << "dec - int" << bsl::endl;
@@ -4720,9 +5034,9 @@ void TestDriver::testCase1()
                       << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "dec * dec32" << bsl::endl;
         {
-            BDEC::Decimal32 lhs(     BDLDFP_DECIMAL_DF(9.0e+0));
-            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.0000003e+0));
-            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(9.0e+0));
+            BDEC::Decimal32 lhs(     BDLDFP_DECIMAL_DF(9.0));
+            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.000003));
+            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(9.000027));
             LOOP_ASSERT(lhs * rhs, EXPECTED == lhs * rhs);
         }
         if (veryVeryVerbose) bsl::cout << "dec * int" << bsl::endl;
@@ -4855,9 +5169,9 @@ void TestDriver::testCase1()
                       << bsl::endl;
         if (veryVeryVerbose) bsl::cout << "dec / dec32" << bsl::endl;
         {
-            BDEC::Decimal32 lhs(     BDLDFP_DECIMAL_DF(1.0e+0));
-            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.0000001e+0));
-            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(1.0e+0));
+            BDEC::Decimal32 lhs(     BDLDFP_DECIMAL_DF(1.0));
+            BDEC::Decimal32 rhs(     BDLDFP_DECIMAL_DF(1.000001));
+            BDEC::Decimal32 EXPECTED(BDLDFP_DECIMAL_DF(0.999999));
             LOOP_ASSERT(lhs / rhs, EXPECTED == lhs / rhs);
         }
         if (veryVeryVerbose) bsl::cout << "dec / int" << bsl::endl;
