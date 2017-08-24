@@ -1,3 +1,9 @@
+bsl-internal (3.1.9.1) unstable; urgency=low
+
+  * 688f87c3f Merge pull request #1278 from mgiroux/pr/1253-rebased-releases/3.1.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Thu, 24 Aug 2017 08:43:08 -0400
+
 bsl-internal (3.1.9.0) unstable; urgency=low
 
   * cf8e4aae1 Merge pull request #1275 from mgiroux/review/bump-version-to-3.1.9
