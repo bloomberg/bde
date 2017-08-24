@@ -229,10 +229,16 @@ using bsl::atoi;
 // [28] fma(ValueType32,  ValueType32,  ValueType32);
 // [28] fma(ValueType64,  ValueType64,  ValueType64);
 // [28] fma(ValueType128, ValueType128, ValueType128);
+// [29] quantize(ValueType32,  ValueType32);
+// [29] quantize(ValueType64,  ValueType64);
+// [29] quantize(ValueType128, ValueType128);
+// [30] sameQuantum(ValueType32,  ValueType32);
+// [30] sameQuantum(ValueType64,  ValueType64);
+// [30] sameQuantum(ValueType128, ValueType128);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] TEST 'notEqual' FOR 'NaN' CORRECTNESS
-// [29] USAGE EXAMPLE
+// [31] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 //=============================================================================
@@ -1181,6 +1187,8 @@ static int veryVeryVeryVerbose;
 
 struct TestDriver {
     typedef bsls::AssertFailureHandlerGuard AssertFailureHandlerGuard;
+    static void testCase31();
+    static void testCase30();
     static void testCase29();
     static void testCase28();
     static void testCase27();
@@ -1212,7 +1220,7 @@ struct TestDriver {
     static void testCase1();
 };
 
-void TestDriver::testCase29()
+void TestDriver::testCase31()
 {
     // ------------------------------------------------------------------------
     // TESTING USAGE EXAMPLE
@@ -1312,6 +1320,347 @@ void TestDriver::testCase29()
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+}
+
+void TestDriver::testCase30()
+{
+    // ------------------------------------------------------------------------
+    // TESTING SAMEQUANTUM
+    //
+    // Concerns:
+    //: 1 Forwarding to the right routines.
+    //
+    // Plan:
+    //:  1 Using table-driven technique:
+    //:
+    //:    1 Specify a set of arguments representing distinct decimal type
+    //:      values and expected result of 'quantize()' method.
+    //:
+    //:    2 Exercise 'sameQuantum()' using the arguments from (P-1.1) and
+    //:      ensure that the result of execution equals the expected value.
+    //
+    // Testing:
+    //   ValueType32  quantize(ValueType32,  ValueType32);
+    //   ValueType64  quantize(ValueType64,  ValueType64);
+    //   ValueType128 quantize(ValueType128, ValueType128);
+    // ------------------------------------------------------------------------
+
+    if (verbose) bsl::cout << "\nTESTING 'sameQuantum' METHOD"
+                           << "\n============================"
+                           << bsl::endl;
+
+    if (veryVeryVerbose) { T_ bsl::cout << "ValueType32" << bsl::endl; }
+    {
+        typedef Util::ValueType32 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
+
+        const Obj NaN   = Util::quietNaN32();
+        const Obj INF   = Util::infinity32();
+        const Obj DEC_X = DEC(1.234567);
+        const Obj DEC_Y = DEC(123456.7);
+
+        struct {
+            int  d_line;
+            Obj  d_x;
+            Obj  d_y;
+            bool d_expected;
+        } DATA[] = {
+        //----------------------------------
+        // LINE |  X   | DEC_Y  | EXPECTED
+        //----------------------------------
+        { L_,    DEC_X,  DEC_X,   true     },
+        { L_,    DEC_Y,  DEC_Y,   true     },
+        { L_,    DEC_X,  DEC_Y,   false    },
+        { L_,    DEC_Y,  DEC_X,   false    },
+        { L_,    DEC_X,  INF,     false    },
+        { L_,    DEC_X,  NaN,     false    },
+        { L_,    INF,    DEC_X,   false    },
+        { L_,    NaN,    DEC_X,   false    },
+        { L_,    NaN,    INF,     false    },
+        { L_,    INF,    NaN,     false    },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE     = DATA[ti].d_line;
+            const Obj&  X        = DATA[ti].d_x;
+            const Obj&  Y        = DATA[ti].d_y;
+            const bool& EXPECTED = DATA[ti].d_expected;
+            const bool  RESULT   = Util::sameQuantum(X, Y);
+
+            LOOP_ASSERT(LINE, RESULT == EXPECTED);
+        }
+#undef DEC
+    }
+
+    if (veryVeryVerbose) { T_ bsl::cout << "ValueType64" << bsl::endl; }
+    {
+        typedef Util::ValueType64 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DD(X)
+        const Obj NaN   = Util::quietNaN64();
+        const Obj INF   = Util::infinity64();
+        const Obj DEC_X = DEC(1.2345678);
+        const Obj DEC_Y = DEC(1234567.8);
+
+        struct {
+            int  d_line;
+            Obj  d_x;
+            Obj  d_y;
+            bool d_expected;
+        } DATA[] = {
+        //----------------------------------
+        // LINE |  X   | DEC_Y  | EXPECTED
+        //----------------------------------
+        { L_,    DEC_X,  DEC_X,   true     },
+        { L_,    DEC_Y,  DEC_Y,   true     },
+        { L_,    DEC_X,  DEC_Y,   false    },
+        { L_,    DEC_Y,  DEC_X,   false    },
+        { L_,    DEC_X,  INF,     false    },
+        { L_,    DEC_X,  NaN,     false    },
+        { L_,    INF,    DEC_X,   false    },
+        { L_,    NaN,    DEC_X,   false    },
+        { L_,    NaN,    INF,     false    },
+        { L_,    INF,    NaN,     false    },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE     = DATA[ti].d_line;
+            const Obj&  X        = DATA[ti].d_x;
+            const Obj&  Y        = DATA[ti].d_y;
+            const bool& EXPECTED = DATA[ti].d_expected;
+            const bool  RESULT   = Util::sameQuantum(X, Y);
+
+            LOOP_ASSERT(LINE, RESULT == EXPECTED);
+        }
+#undef DEC
+    }
+
+    if (veryVeryVerbose) { T_ bsl::cout << "ValueType128" << bsl::endl; }
+    {
+        typedef Util::ValueType128 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DL(X)
+        const Obj NaN   = Util::quietNaN128();
+        const Obj INF   = Util::infinity128();
+        const Obj DEC_X = DEC(1.2345678901234567);
+        const Obj DEC_Y = DEC(1234567890123456.7);
+
+        struct {
+            int  d_line;
+            Obj  d_x;
+            Obj  d_y;
+            bool d_expected;
+        } DATA[] = {
+        //----------------------------------
+        // LINE |  X   | DEC_Y  | EXPECTED
+        //----------------------------------
+        { L_,    DEC_X,  DEC_X,   true     },
+        { L_,    DEC_Y,  DEC_Y,   true     },
+        { L_,    DEC_X,  DEC_Y,   false    },
+        { L_,    DEC_Y,  DEC_X,   false    },
+        { L_,    DEC_X,  INF,     false    },
+        { L_,    DEC_X,  NaN,     false    },
+        { L_,    INF,    DEC_X,   false    },
+        { L_,    NaN,    DEC_X,   false    },
+        { L_,    NaN,    INF,     false    },
+        { L_,    INF,    NaN,     false    },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE     = DATA[ti].d_line;
+            const Obj&  X        = DATA[ti].d_x;
+            const Obj&  Y        = DATA[ti].d_y;
+            const bool& EXPECTED = DATA[ti].d_expected;
+            const bool  RESULT   = Util::sameQuantum(X, Y);
+
+            LOOP_ASSERT(LINE, RESULT == EXPECTED);
+        }
+#undef DEC
+    }
+}
+
+void TestDriver::testCase29()
+{
+    // ------------------------------------------------------------------------
+    // TESTING QUANTIZE
+    //
+    // Concerns:
+    //: 1 Forwarding to the right routines.
+    //
+    // Plan:
+    //:  1 Using table-driven technique:
+    //:
+    //:    1 Specify a set of arguments representing distinct decimal type
+    //:      values and expected result of 'quantize()' method.
+    //:
+    //:    2 Exercise 'quantize()' method using the arguments from (P-1.1) and
+    //:      ensure that the result of execution equals the expected value.
+    //
+    // Testing:
+    //   ValueType32  quantize(ValueType32,  ValueType32);
+    //   ValueType64  quantize(ValueType64,  ValueType64);
+    //   ValueType128 quantize(ValueType128, ValueType128);
+    // ------------------------------------------------------------------------
+
+    if (verbose) bsl::cout << "\nTESTING 'quantize' METHOD"
+                           << "\n========================="
+                           << bsl::endl;
+
+    if (veryVeryVerbose) { T_ bsl::cout << "ValueType32" << bsl::endl; }
+    {
+        typedef Util::ValueType32 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
+
+        const Obj NAN_P   =              Util::quietNaN32();
+        const Obj NAN_N   = Util::negate(Util::quietNaN32());
+        const Obj INF_P   =              Util::infinity32();
+        const Obj INF_N   = Util::negate(Util::infinity32());
+
+        struct {
+            int d_line;
+            Obj d_x;
+            Obj d_exponent;
+            Obj d_expected;
+        } DATA[] = {
+        //---------------------------------------------------
+        // LINE |      X     | EXPONENT     | EXPECTED
+        //---------------------------------------------------
+        { L_,    DEC(1.23456), DEC(0.1),      DEC(1.2)      },
+        { L_,    DEC(1.23456), DEC(0.01),     DEC(1.23)     },
+        { L_,    DEC(1.23456), DEC(0.001),    DEC(1.235)    },
+        { L_,    DEC(1.23456), DEC(0.0001),   DEC(1.2346)   },
+        { L_,    DEC(1.23456), DEC(0.00001),  DEC(1.23456)  },
+        { L_,    DEC(1.23456), DEC(0.000001), DEC(1.234560) },
+        { L_,    DEC(1.23456), INF_P,         NAN_P         },
+        { L_,    DEC(1.23456), INF_N,         NAN_P         },
+        { L_,    DEC(1.23456), NAN_P,         NAN_P         },
+        { L_,    DEC(1.23456), NAN_N,         NAN_P         },
+        { L_,    INF_P,        DEC(0.1),      NAN_P         },
+        { L_,    INF_N,        DEC(0.1),      NAN_P         },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int  LINE     = DATA[ti].d_line;
+            const Obj& X        = DATA[ti].d_x;
+            const Obj& EXPONENT = DATA[ti].d_exponent;
+            const Obj& EXPECTED = DATA[ti].d_expected;
+            const Obj  RESULT   = Util::quantize(X, EXPONENT);
+
+            LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+        }
+#undef DEC
+    }
+
+    if (veryVeryVerbose) { T_ bsl::cout << "ValueType64" << bsl::endl; }
+    {
+        typedef Util::ValueType64 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DD(X)
+
+        const Obj NAN_P   =              Util::quietNaN64();
+        const Obj NAN_N   = Util::negate(Util::quietNaN64());
+        const Obj INF_P   =              Util::infinity64();
+        const Obj INF_N   = Util::negate(Util::infinity64());
+
+        struct {
+            int d_line;
+            Obj d_x;
+            Obj d_exponent;
+            Obj d_expected;
+        } DATA[] = {
+        //---------------------------------------------------
+        // LINE |      X       | EXPONENT | EXPECTED
+        //---------------------------------------------------
+        { L_,    DEC(1.2345678), DEC(1e-1), DEC(1.2)        },
+        { L_,    DEC(1.2345678), DEC(1e-2), DEC(1.23)       },
+        { L_,    DEC(1.2345678), DEC(1e-3), DEC(1.235)      },
+        { L_,    DEC(1.2345678), DEC(1e-4), DEC(1.2346)     },
+        { L_,    DEC(1.2345678), DEC(1e-5), DEC(1.23457)    },
+        { L_,    DEC(1.2345678), DEC(1e-6), DEC(1.234568)   },
+        { L_,    DEC(1.2345678), DEC(1e-7), DEC(1.2345678)  },
+        { L_,    DEC(1.2345678), DEC(1e-8), DEC(1.23456780) },
+        { L_,    DEC(1.2345678), INF_P,     NAN_P           },
+        { L_,    DEC(1.2345678), INF_N,     NAN_P           },
+        { L_,    DEC(1.2345678), NAN_P,     NAN_P           },
+        { L_,    DEC(1.2345678), NAN_N,     NAN_P           },
+        { L_,    DEC(1.2345678), NAN_P,     NAN_P           },
+        { L_,    DEC(1.2345678), NAN_N,     NAN_P           },
+        { L_,    INF_P,          DEC(0.1),  NAN_P           },
+        { L_,    INF_N,          DEC(0.1),  NAN_P           },
+        };
+
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int  LINE     = DATA[ti].d_line;
+            const Obj& X        = DATA[ti].d_x;
+            const Obj& EXPONENT = DATA[ti].d_exponent;
+            const Obj& EXPECTED = DATA[ti].d_expected;
+            const Obj  RESULT   = Util::quantize(X, EXPONENT);
+
+            LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+        }
+#undef DEC
+    }
+
+    if (veryVeryVerbose) { T_ bsl::cout << "ValueType128" << bsl::endl; }
+    {
+        typedef Util::ValueType128 Obj;
+
+#define DEC(X) BDLDFP_DECIMALIMPUTIL_DL(X)
+
+        const Obj NAN_P   =              Util::quietNaN128();
+        const Obj NAN_N   = Util::negate(Util::quietNaN128());
+        const Obj INF_P   =              Util::infinity128();
+        const Obj INF_N   = Util::negate(Util::infinity128());
+        const Obj DEC_NUM = DEC(1.23456789012345678901);
+
+        struct {
+            int d_line;
+            Obj d_x;
+            Obj d_exponent;
+            Obj d_expected;
+        } DATA[] = {
+        //---------------------------------------------------
+        // LINE |   X   | EXPONENT | EXPECTED
+        //---------------------------------------------------
+        { L_,    DEC_NUM, DEC(1e-10), DEC(1.2345678901)         },
+        { L_,    DEC_NUM, DEC(1e-11), DEC(1.23456789012)        },
+        { L_,    DEC_NUM, DEC(1e-12), DEC(1.234567890123)       },
+        { L_,    DEC_NUM, DEC(1e-13), DEC(1.2345678901235)      },
+        { L_,    DEC_NUM, DEC(1e-14), DEC(1.23456789012346)     },
+        { L_,    DEC_NUM, DEC(1e-15), DEC(1.234567890123457)    },
+        { L_,    DEC_NUM, DEC(1e-16), DEC(1.2345678901234568)   },
+        { L_,    DEC_NUM, DEC(1e-17), DEC(1.23456789012345679)  },
+        { L_,    DEC_NUM, DEC(1e-18), DEC(1.234567890123456789) },
+        { L_,    DEC_NUM, INF_P,      NAN_P                     },
+        { L_,    DEC_NUM, INF_N,      NAN_P                     },
+        { L_,    DEC_NUM, NAN_P,      NAN_P                     },
+        { L_,    DEC_NUM, NAN_N,      NAN_P                     },
+        { L_,    DEC_NUM, NAN_P,      NAN_P                     },
+        { L_,    DEC_NUM, NAN_N,      NAN_P                     },
+        { L_,    INF_P,   DEC(0.1),   NAN_P                     },
+        { L_,    INF_N,   DEC(0.1),   NAN_P                     },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int  LINE     = DATA[ti].d_line;
+            const Obj& X        = DATA[ti].d_x;
+            const Obj& EXPONENT = DATA[ti].d_exponent;
+            const Obj& EXPECTED = DATA[ti].d_expected;
+            const Obj  RESULT   = Util::quantize(X, EXPONENT);
+
+            LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+        }
+#undef DEC
+    }
 }
 
 void TestDriver::testCase28()
@@ -1449,7 +1798,7 @@ void TestDriver::testCase27()
                            << "\n===================="
                            << bsl::endl;
 
-    if (veryVerbose) T_ bsl::cout << "ValueType32" << bsl::endl;
+    if (veryVerbose) { T_ bsl::cout << "ValueType32" << bsl::endl; }
     {
         typedef Util::ValueType32 Obj;
 
@@ -1564,7 +1913,7 @@ void TestDriver::testCase27()
             }
         }
 
-        if (veryVeryVerbose) T_ T_ bsl::cout << "exp()" << bsl::endl;
+        if (veryVeryVerbose) { T_ T_ bsl::cout << "exp()" << bsl::endl; }
         {
             struct {
                 int d_line;
@@ -12248,6 +12597,12 @@ int main(int argc, char* argv[])
 
 
     switch (test) { case 0:
+      case 31: {
+        TestDriver::testCase31();
+      } break;
+      case 30: {
+        TestDriver::testCase30();
+      } break;
       case 29: {
         TestDriver::testCase29();
       } break;
