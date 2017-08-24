@@ -1224,6 +1224,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
 
 struct Case21_DoNothing {
     void operator()() const {}
+        // NOP functor for cases 21, 22.
 };
 
 // ============================================================================
@@ -1342,6 +1343,9 @@ int main(int argc, char *argv[]) {
         }
 
         for(int i = 0; i < 1000; ++i) {
+            if (veryVerbose && i % 100 == 0) {
+                cout << "ITERATION " << i << endl;
+            }
             bslmt::ThreadAttributes attr;
             bdlmt::MultiQueueThreadPool pool(attr, 1, 40, 10000);
 
@@ -1357,8 +1361,8 @@ int main(int argc, char *argv[]) {
             rc = pool.pauseQueue(queueId);
             BSLS_ASSERT_OPT(rc == 0);
 
-            rc = pool.deleteQueue(queueId); // This used to block indefinitely
-            BSLS_ASSERT_OPT(rc == 0);       // When queue is paused, it now fails.
+            rc = pool.deleteQueue(queueId);
+            BSLS_ASSERT_OPT(rc == 0);  // delete after pause.
         }
       }  break;
       case 21: {
@@ -1398,7 +1402,7 @@ int main(int argc, char *argv[]) {
         BSLS_ASSERT_OPT(rc == 0);
 
         rc = pool.deleteQueue(queueId); // This used to block indefinitely
-        BSLS_ASSERT_OPT(rc == 0);       // When queue is paused, it now fails.
+        BSLS_ASSERT_OPT(rc == 0);       // delete after pause now succeeds.
       }  break;
       case 20: {
         // --------------------------------------------------------------------

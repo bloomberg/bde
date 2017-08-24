@@ -383,8 +383,9 @@ int MultiQueueThreadPool::enqueueJobImpl(int          id,
             } else {
                 guard.unlock();
 
+                ++context->d_queue.d_numPendingJobs;
                 if ( (isPaused && e_DELETION == type)
-                    || 1 == ++context->d_queue.d_numPendingJobs) {
+                    || 1 == context->d_queue.d_numPendingJobs) {
                     ++d_numActiveQueues;
 
                     BSLS_ASSERT(context->d_processingCb);
