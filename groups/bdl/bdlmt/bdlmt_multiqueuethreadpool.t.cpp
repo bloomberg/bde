@@ -110,7 +110,9 @@ using namespace BloombergLP;
 // [11] CONCERN: 'deleteQueue' blocks the caller
 // [12] CONCERN: Cleanup callback does not deadlock
 // [20] DRQS 99979290
-// [21] USAGE EXAMPLE 1
+// [21] DRQS 104502699
+// [22] PAUSE/DELETE INTERACTION
+// [23] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -1238,7 +1240,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1319,6 +1321,46 @@ int main(int argc, char *argv[]) {
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING PAUSE/DELETE INTERACTION
+        //
+        // Concerns:
+        //: 1 The various loadRelaxed statements do not cause a race condition
+        //    where 'deleteQueue' executed after 'pauseQueue' fails or hangs.
+        //
+        // Plan:
+        //: 1 Run Pause/Delete a 1000 times, and check for success on delete.
+        //
+        // Testing:
+        //   PAUSE/DELETE INTERACTION
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "TESTING PAUSE/DELETE INTERACTION" << endl
+                 << "================================" << endl;
+        }
+
+        for(int i = 0; i < 1000; ++i) {
+            bslmt::ThreadAttributes attr;
+            bdlmt::MultiQueueThreadPool pool(attr, 1, 40, 10000);
+
+            int rc = pool.start();
+            BSLS_ASSERT_OPT(rc == 0);
+
+            const int queueId = pool.createQueue();
+            BSLS_ASSERT_OPT(queueId);
+
+            rc = pool.enqueueJob(queueId, Case21_DoNothing());
+            BSLS_ASSERT_OPT(rc == 0);
+
+            rc = pool.pauseQueue(queueId);
+            BSLS_ASSERT_OPT(rc == 0);
+
+            rc = pool.deleteQueue(queueId); // This used to block indefinitely
+            BSLS_ASSERT_OPT(rc == 0);       // When queue is paused, it now fails.
+        }
+      }  break;
       case 21: {
         // --------------------------------------------------------------------
         // TESTING DRQS 104502699
@@ -1356,13 +1398,7 @@ int main(int argc, char *argv[]) {
         BSLS_ASSERT_OPT(rc == 0);
 
         rc = pool.deleteQueue(queueId); // This used to block indefinitely
-        BSLS_ASSERT_OPT(rc != 0);       // When queue is paused, it now fails.
-
-        rc = pool.resumeQueue(queueId); // Resume to be able to deleteQueue.
-        BSLS_ASSERT_OPT(rc == 0);
-
-        rc = pool.deleteQueue(queueId);
-        BSLS_ASSERT_OPT(rc == 0);
+        BSLS_ASSERT_OPT(rc == 0);       // When queue is paused, it now fails.
       }  break;
       case 20: {
         // --------------------------------------------------------------------

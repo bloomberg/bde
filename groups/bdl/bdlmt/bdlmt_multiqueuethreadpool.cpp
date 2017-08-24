@@ -28,6 +28,7 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 
 #include <bsl_memory.h>
 #include <bsl_vector.h>
+#include <bsl_iostream.h>
 
 namespace BloombergLP {
 
@@ -382,7 +383,8 @@ int MultiQueueThreadPool::enqueueJobImpl(int          id,
             } else {
                 guard.unlock();
 
-                if (1 == ++context->d_queue.d_numPendingJobs) {
+                if ( (isPaused && e_DELETION == type)
+                    || 1 == ++context->d_queue.d_numPendingJobs) {
                     ++d_numActiveQueues;
 
                     BSLS_ASSERT(context->d_processingCb);
@@ -457,10 +459,6 @@ int MultiQueueThreadPool::createQueue()
 int MultiQueueThreadPool::deleteQueue(int                   id,
                                       const CleanupFunctor& cleanupFunctor)
 {
-    if (isPaused(id)) {
-        return 1;                                                     // RETURN
-    }
-
     Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
                                    this,
                                    id,
@@ -472,10 +470,6 @@ int MultiQueueThreadPool::deleteQueue(int                   id,
 
 int MultiQueueThreadPool::deleteQueue(int id)
 {
-    if (isPaused(id)) {
-        return 1;                                                     // RETURN
-    }
-
     bslmt::Barrier barrier(2);    // block in calling and execution threads
 
     Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
