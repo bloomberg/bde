@@ -21,11 +21,12 @@ namespace btlb {
 
 // CREATORS
 PooledBlobBufferFactory::PooledBlobBufferFactory(
-        int               bufferSize,
-        bslma::Allocator *basicAllocator)
+                                              int               bufferSize,
+                                              bslma::Allocator *basicAllocator)
 : d_bufferSize(bufferSize)
 , d_spPool(basicAllocator)
 {
+    BSLS_ASSERT(0 < bufferSize);
 }
 
 PooledBlobBufferFactory::~PooledBlobBufferFactory()
