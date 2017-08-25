@@ -72,7 +72,7 @@ class PooledBlobBufferFactory: public BlobBufferFactory {
         // Create a pooled factory for allocating 'BlobBuffer' objects of the
         // specified 'bufferSize'.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  The behaviour is undefined unless
+        // default allocator is used.  The behavior is undefined unless
         // '0 < bufferSize'.
 
     ~PooledBlobBufferFactory();

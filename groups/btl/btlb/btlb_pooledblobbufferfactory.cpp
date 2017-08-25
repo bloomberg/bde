@@ -12,6 +12,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlb_pooledblobbufferfactory_cpp,"$Id$ $CSID$")
 
+#include <bsls_assert.h>
+
 namespace BloombergLP {
 namespace btlb {
 
