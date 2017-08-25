@@ -110,7 +110,9 @@ using namespace BloombergLP;
 // [11] CONCERN: 'deleteQueue' blocks the caller
 // [12] CONCERN: Cleanup callback does not deadlock
 // [20] DRQS 99979290
-// [21] USAGE EXAMPLE 1
+// [21] DRQS 104502699
+// [22] PAUSE/DELETE INTERACTION
+// [23] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -1220,6 +1222,11 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
 }
 }  // close namespace MULTIQUEUETHREADPOOL_CASE_14
 
+struct DoNothing {
+    void operator()() const {}
+        // NOP functor for cases 21, 22.
+};
+
 // ============================================================================
 //                              MAIN PROGRAM
 
@@ -1234,7 +1241,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 21: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1314,6 +1321,88 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING PAUSE/DELETE INTERACTION
+        //
+        // Concerns:
+        //: 1 The various loadRelaxed statements do not cause a race condition
+        //    where 'deleteQueue' executed after 'pauseQueue' fails or hangs.
+        //
+        // Plan:
+        //: 1 Run Pause/Delete a 1000 times, and check for success on delete.
+        //
+        // Testing:
+        //   PAUSE/DELETE INTERACTION
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "TESTING PAUSE/DELETE INTERACTION" << endl
+                 << "================================" << endl;
+        }
+
+        for(int i = 0; i < 1000; ++i) {
+            if (veryVerbose && i % 100 == 0) {
+                cout << "ITERATION " << i << endl;
+            }
+            bslmt::ThreadAttributes attr;
+            bdlmt::MultiQueueThreadPool pool(attr, 1, 40, 10000);
+
+            int rc = pool.start();
+            BSLS_ASSERT_OPT(rc == 0);
+
+            const int queueId = pool.createQueue();
+            BSLS_ASSERT_OPT(queueId);
+
+            rc = pool.enqueueJob(queueId, DoNothing());
+            BSLS_ASSERT_OPT(rc == 0);
+
+            rc = pool.pauseQueue(queueId);
+            BSLS_ASSERT_OPT(rc == 0);
+
+            rc = pool.deleteQueue(queueId);
+            BSLS_ASSERT_OPT(rc == 0);  // delete after pause.
+        }
+      }  break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING DRQS 104502699
+        //
+        // Concerns:
+        //: 1 DRQS 104502699 shows that if a multiqueue thread pool is
+        //    constructed for a thread pool, and that threadpool is shutdown,
+        //    operations on the multiqueue thread pool hang.
+        //
+        // Plan:
+        //: 1 Incorporate the example from DRQS and show it no longer hangs.
+        //
+        // Testing:
+        //   DRQS 104502699
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "TESTING DRQS 104502699" << endl
+                 << "======================" << endl;
+        }
+
+        bslmt::ThreadAttributes attr;
+        bdlmt::MultiQueueThreadPool pool(attr, 1, 40, 10000);
+
+        int rc = pool.start();
+        BSLS_ASSERT_OPT(rc == 0);
+
+        const int queueId = pool.createQueue();
+        BSLS_ASSERT_OPT(queueId);
+
+        rc = pool.enqueueJob(queueId, DoNothing());
+        BSLS_ASSERT_OPT(rc == 0);
+
+        rc = pool.pauseQueue(queueId);
+        BSLS_ASSERT_OPT(rc == 0);
+
+        rc = pool.deleteQueue(queueId); // This used to block indefinitely
+        BSLS_ASSERT_OPT(rc == 0);       // delete after pause now succeeds.
       }  break;
       case 20: {
         // --------------------------------------------------------------------

@@ -290,6 +290,7 @@ void MultiQueueThreadPool::processQueueCb(
     bslmt::QLockGuard guard(&context->mutex());
     context->d_processor = bslmt::ThreadUtil::self();
     BSLS_ASSERT(0 < context->d_queue.d_numPendingJobs);
+    BSLS_ASSERT(!context->d_queue.d_list.empty());
 
     {
         Job functor(bsl::allocator_arg_t(), d_allocator_p);
@@ -382,7 +383,9 @@ int MultiQueueThreadPool::enqueueJobImpl(int          id,
             } else {
                 guard.unlock();
 
-                if (1 == ++context->d_queue.d_numPendingJobs) {
+                int numPendingJobs = ++context->d_queue.d_numPendingJobs;
+                if ( (isPaused && e_DELETION == type)
+                    || 1 == numPendingJobs) {
                     ++d_numActiveQueues;
 
                     BSLS_ASSERT(context->d_processingCb);
