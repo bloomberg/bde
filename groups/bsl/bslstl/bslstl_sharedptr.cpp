@@ -27,6 +27,7 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
                                               size_t            bufferSize,
                                               bslma::Allocator *basicAllocator)
 {
+    BSLS_ASSERT(0 < bufferSize);
     basicAllocator = bslma::Default::allocator(basicAllocator);
                                                        // allocator is optional
 

@@ -4132,7 +4132,8 @@ struct SharedPtrUtil {
         // newly-created uninitialized buffer of the specified 'bufferSize' (in
         // bytes).  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // allocator is used.  The behavior is undefined unless
+        // '0 < bufferSize'.
 
     // CASTING FUNCTIONS
     template <class TARGET, class SOURCE>
