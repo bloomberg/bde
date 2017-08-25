@@ -51,6 +51,8 @@
 //
 //  #if BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 2)
 //  #define XYZ_COMPONENT_DEPRECATED_3_2 BSLS_DEPRECATE
+//  #else
+//  #define XYZ_COMPONENT_DEPRECATED_3_2
 //  #endif
 //
 //  //...
