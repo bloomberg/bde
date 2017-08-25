@@ -28,7 +28,6 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 
 #include <bsl_memory.h>
 #include <bsl_vector.h>
-#include <bsl_iostream.h>
 
 namespace BloombergLP {
 
@@ -384,9 +383,9 @@ int MultiQueueThreadPool::enqueueJobImpl(int          id,
             } else {
                 guard.unlock();
 
-                ++context->d_queue.d_numPendingJobs;
+                int numPendingJobs = ++context->d_queue.d_numPendingJobs;
                 if ( (isPaused && e_DELETION == type)
-                    || 1 == context->d_queue.d_numPendingJobs) {
+                    || 1 == numPendingJobs) {
                     ++d_numActiveQueues;
 
                     BSLS_ASSERT(context->d_processingCb);

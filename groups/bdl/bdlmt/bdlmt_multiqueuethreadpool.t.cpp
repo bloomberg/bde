@@ -1222,7 +1222,7 @@ void testDrainQueueAndDrain(bslma::TestAllocator *ta, int concurrency)
 }
 }  // close namespace MULTIQUEUETHREADPOOL_CASE_14
 
-struct Case21_DoNothing {
+struct DoNothing {
     void operator()() const {}
         // NOP functor for cases 21, 22.
 };
@@ -1355,7 +1355,7 @@ int main(int argc, char *argv[]) {
             const int queueId = pool.createQueue();
             BSLS_ASSERT_OPT(queueId);
 
-            rc = pool.enqueueJob(queueId, Case21_DoNothing());
+            rc = pool.enqueueJob(queueId, DoNothing());
             BSLS_ASSERT_OPT(rc == 0);
 
             rc = pool.pauseQueue(queueId);
@@ -1395,7 +1395,7 @@ int main(int argc, char *argv[]) {
         const int queueId = pool.createQueue();
         BSLS_ASSERT_OPT(queueId);
 
-        rc = pool.enqueueJob(queueId, Case21_DoNothing());
+        rc = pool.enqueueJob(queueId, DoNothing());
         BSLS_ASSERT_OPT(rc == 0);
 
         rc = pool.pauseQueue(queueId);
