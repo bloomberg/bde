@@ -267,59 +267,6 @@ bool DecimalUtil::isUnordered(Decimal128 x, Decimal128 y)
 
                              // Quantum functions
 
-// Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
-// {
-//     BSLS_ASSERT_SAFE(
-//       makeDecimal64(-1999999997, 0) <= exponent);
-//     BSLS_ASSERT_SAFE(                  exponent <= makeDecimal64(99999999, 0));
-
-// #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-//     const int intExponent = __d64_to_long_long(*exponent.data());
-//     return scalblnd64(*value.data(), intExponent);
-// #elif defined(BDLDFP_DECIMALPLATFORM_DPD)
-//     Decimal64 result = value;
-//     decDoubleScaleB(result.data(),
-//                     value.data(),
-//                     exponent.data(),
-//                     DecimalImpUtil_DecNumber::getDecNumberContext());
-//     return result;
-// #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-//     _IDEC_flags flags;
-//     value.data()->d_raw =
-//         __bid64_scalbn(value.data()->d_raw,
-//                        __bid64_to_int32_int(exponent.data()->d_raw, &flags),
-//                        &flags);
-//     return value;
-// #else
-// BDLDFP_DISABLE_COMPILE; // Unsupported platform
-// #endif
-// }
-
-// Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
-//                                             Decimal128 exponent)
-// {
-// #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-//     const int intExponent = __d128_to_long_long(*exponent.data());
-//     return scalblnd128(*value.data(), intExponent);
-// #elif defined(BDLDFP_DECIMALPLATFORM_DPD)
-//     Decimal128 result = value;
-//     decQuadScaleB(result.data(),
-//                   value.data(),
-//                   exponent.data(),
-//                   DecimalImpUtil_DecNumber::getDecNumberContext());
-//     return result;
-// #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-//     _IDEC_flags flags;
-//     value.data()->d_raw =
-//         __bid128_scalbn(value.data()->d_raw,
-//                         __bid128_to_int32_int(exponent.data()->d_raw, &flags),
-//                         &flags);
-//     return value;
-// #else
-// BDLDFP_DISABLE_COMPILE; // Unsupported platform
-// #endif
-// }
-
 int DecimalUtil::quantum(Decimal32 value)
 {
     BSLS_ASSERT(!isInf(value));

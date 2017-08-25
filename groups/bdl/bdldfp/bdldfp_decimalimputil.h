@@ -1516,7 +1516,7 @@ DecimalImpUtil::ValueType32  DecimalImpUtil::quantize(ValueType32  value,
                                                       ValueType32  exponent)
 {
     DecimalImpUtil::ValueType32 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid32_quantize(value.d_raw,
                                     exponent.d_raw,
                                     &flags);
@@ -1528,7 +1528,7 @@ DecimalImpUtil::ValueType64  DecimalImpUtil::quantize(ValueType64  value,
                                                       ValueType64  exponent)
 {
     DecimalImpUtil::ValueType64 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid64_quantize(value.d_raw,
                                     exponent.d_raw,
                                     &flags);
@@ -1540,7 +1540,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::quantize(ValueType128 value,
                                                       ValueType128 exponent)
 {
     DecimalImpUtil::ValueType128 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid128_quantize(value.d_raw,
                                      exponent.d_raw,
                                      &flags);
@@ -1571,42 +1571,42 @@ bool DecimalImpUtil::sameQuantum(ValueType128 x, ValueType128 y)
 inline
 long int DecimalImpUtil::lrint(ValueType32  x)
 {
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     return __bid32_lrint(x.d_raw, &flags);
 }
 
 inline
 long int DecimalImpUtil::lrint(ValueType64  x)
 {
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     return __bid64_lrint(x.d_raw, &flags);
 }
 
 inline
 long int DecimalImpUtil::lrint(ValueType128 x)
 {
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     return __bid128_lrint(x.d_raw, &flags);
 }
 
 inline
 long long int DecimalImpUtil::llrint(ValueType32  x)
 {
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     return __bid32_llrint(x.d_raw, &flags);
 }
 
 inline
 long long int DecimalImpUtil::llrint(ValueType64  x)
 {
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     return __bid64_llrint(x.d_raw, &flags);
 }
 
 inline
 long long int DecimalImpUtil::llrint(ValueType128 x)
 {
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     return __bid128_llrint(x.d_raw, &flags);
 }
 
@@ -1615,7 +1615,7 @@ DecimalImpUtil::ValueType32
 DecimalImpUtil::nextafter(ValueType32  x, ValueType32  y)
 {
     DecimalImpUtil::ValueType32 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid32_nextafter(x.d_raw, y.d_raw, &flags);
     return retval;
 }
@@ -1625,7 +1625,7 @@ DecimalImpUtil::ValueType64
 DecimalImpUtil::nextafter(ValueType64  x, ValueType64  y)
 {
     DecimalImpUtil::ValueType64 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid64_nextafter(x.d_raw, y.d_raw, &flags);
     return retval;
 }
@@ -1635,7 +1635,7 @@ DecimalImpUtil::ValueType128
 DecimalImpUtil::nextafter(ValueType128 x, ValueType128 y)
 {
     DecimalImpUtil::ValueType128 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid128_nextafter(x.d_raw, y.d_raw, &flags);
     return retval;
 }
@@ -1645,7 +1645,7 @@ DecimalImpUtil::ValueType32
 DecimalImpUtil::nexttoward(ValueType32  x, ValueType128 y)
 {
     DecimalImpUtil::ValueType32 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid32_nexttoward(x.d_raw, y.d_raw, &flags);
     return retval;
 }
@@ -1655,7 +1655,7 @@ DecimalImpUtil::ValueType64
 DecimalImpUtil::nexttoward(ValueType64  x, ValueType128 y)
 {
     DecimalImpUtil::ValueType64 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid64_nexttoward(x.d_raw, y.d_raw, &flags);
     return retval;
 }
@@ -1665,7 +1665,7 @@ DecimalImpUtil::ValueType128
 DecimalImpUtil::nexttoward(ValueType128 x, ValueType128 y)
 {
     DecimalImpUtil::ValueType128 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid128_nexttoward(x.d_raw, y.d_raw, &flags);
     return retval;
 }
@@ -1675,7 +1675,7 @@ DecimalImpUtil::ValueType32
 DecimalImpUtil::pow(ValueType32  base, ValueType32  exp)
 {
     DecimalImpUtil::ValueType32 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid32_pow(base.d_raw, exp.d_raw, &flags);
     return retval;
 }
@@ -1685,7 +1685,7 @@ DecimalImpUtil::ValueType64
 DecimalImpUtil::pow(ValueType64  base, ValueType64  exp)
 {
     DecimalImpUtil::ValueType64 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid64_pow(base.d_raw, exp.d_raw, &flags);
     return retval;
 }
@@ -1695,7 +1695,7 @@ DecimalImpUtil::ValueType128
 DecimalImpUtil::pow(ValueType128 base, ValueType128 exp)
 {
     DecimalImpUtil::ValueType128 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid128_pow(base.d_raw, exp.d_raw, &flags);
     return retval;
 }
@@ -1704,7 +1704,7 @@ inline
 DecimalImpUtil::ValueType32 DecimalImpUtil::ceil(ValueType32  x)
 {
     DecimalImpUtil::ValueType32 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_positive(x.d_raw, &flags);
     return retval;
 }
@@ -1713,7 +1713,7 @@ inline
 DecimalImpUtil::ValueType64 DecimalImpUtil::ceil(ValueType64  x)
 {
     DecimalImpUtil::ValueType64 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_positive(x.d_raw, &flags);
     return retval;
 }
@@ -1722,7 +1722,7 @@ inline
 DecimalImpUtil::ValueType128 DecimalImpUtil::ceil(ValueType128 x)
 {
     DecimalImpUtil::ValueType128 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid128_round_integral_positive(x.d_raw, &flags);
     return retval;
 
@@ -1732,7 +1732,7 @@ inline
 DecimalImpUtil::ValueType32 DecimalImpUtil::floor(ValueType32 x)
 {
     DecimalImpUtil::ValueType32 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_negative(x.d_raw, &flags);
     return retval;
 }
@@ -1741,7 +1741,7 @@ inline
 DecimalImpUtil::ValueType64 DecimalImpUtil::floor(ValueType64 x)
 {
     DecimalImpUtil::ValueType64 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_negative(x.d_raw, &flags);
     return retval;
 }
@@ -1750,7 +1750,7 @@ inline
 DecimalImpUtil::ValueType128 DecimalImpUtil::floor(ValueType128 x)
 {
     DecimalImpUtil::ValueType128 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid128_round_integral_negative(x.d_raw, &flags);
     return retval;
 }
@@ -1759,7 +1759,7 @@ inline
 DecimalImpUtil::ValueType32 DecimalImpUtil::round(ValueType32 x)
 {
     DecimalImpUtil::ValueType32 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_nearest_away(x.d_raw, &flags);
     return retval;
 }
@@ -1768,7 +1768,7 @@ inline
 DecimalImpUtil::ValueType128 DecimalImpUtil::round(ValueType128 x)
 {
     DecimalImpUtil::ValueType128 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid128_round_integral_nearest_away(x.d_raw, &flags);
     return retval;
 }
@@ -1777,7 +1777,7 @@ inline
 DecimalImpUtil::ValueType64 DecimalImpUtil::round(ValueType64 x)
 {
     DecimalImpUtil::ValueType64 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_nearest_away(x.d_raw, &flags);
     return retval;
 }
@@ -1785,21 +1785,21 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::round(ValueType64 x)
 inline
 long int DecimalImpUtil::lround(ValueType32 x)
 {
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     return __bid32_lround(x.d_raw, &flags);
 }
 
 inline
 long int DecimalImpUtil::lround(ValueType64 x)
 {
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     return __bid64_lround(x.d_raw, &flags);
 }
 
 inline
 long int DecimalImpUtil::lround(ValueType128 x)
 {
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     return __bid128_lround(x.d_raw, &flags);
 }
 
@@ -1807,7 +1807,7 @@ inline
 DecimalImpUtil::ValueType32 DecimalImpUtil::trunc(ValueType32 x)
 {
     DecimalImpUtil::ValueType32 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_zero(x.d_raw, &flags);
     return retval;
 }
@@ -1816,7 +1816,7 @@ inline
 DecimalImpUtil::ValueType64 DecimalImpUtil::trunc(ValueType64 x)
 {
     DecimalImpUtil::ValueType64 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_zero(x.d_raw, &flags);
     return retval;
 }
@@ -1825,7 +1825,7 @@ inline
 DecimalImpUtil::ValueType128 DecimalImpUtil::trunc(ValueType128 x)
 {
     DecimalImpUtil::ValueType128 retval;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     retval.d_raw = __bid128_round_integral_zero(x.d_raw, &flags);
     return retval;
 }
@@ -1835,7 +1835,7 @@ inline
 DecimalImpUtil::ValueType32 DecimalImpUtil::fma(ValueType32 x, ValueType32 y, ValueType32 z)
 {
     ValueType32 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid32_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
     return rv;
 }
@@ -1844,7 +1844,7 @@ inline
 DecimalImpUtil::ValueType64 DecimalImpUtil::fma(ValueType64 x, ValueType64 y, ValueType64 z)
 {
     ValueType64 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid64_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
     return rv;
 }
@@ -1853,7 +1853,7 @@ inline
 DecimalImpUtil::ValueType128 DecimalImpUtil::fma(ValueType128 x, ValueType128 y, ValueType128 z)
 {
     ValueType128 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid128_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
     return rv;
 }
@@ -1887,7 +1887,7 @@ inline
 DecimalImpUtil::ValueType32 DecimalImpUtil::sqrt(ValueType32 value)
 {
     ValueType32 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid32_sqrt(value.d_raw, &flags);
     return rv;
 }
@@ -1896,7 +1896,7 @@ inline
 DecimalImpUtil::ValueType64 DecimalImpUtil::sqrt(ValueType64 value)
 {
     ValueType64 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid64_sqrt(value.d_raw, &flags);
     return rv;
 }
@@ -1905,7 +1905,7 @@ inline
 DecimalImpUtil::ValueType128 DecimalImpUtil::sqrt(ValueType128 value)
 {
     ValueType128 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid128_sqrt(value.d_raw, &flags);
     return rv;
 }
@@ -1941,7 +1941,7 @@ inline
 DecimalImpUtil::ValueType32 DecimalImpUtil::exp(ValueType32 value)
 {
     ValueType32 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid32_exp(value.d_raw, &flags);
     return rv;
 }
@@ -1950,7 +1950,7 @@ inline
 DecimalImpUtil::ValueType64 DecimalImpUtil::exp(ValueType64 value)
 {
     ValueType64 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid64_exp(value.d_raw, &flags);
     return rv;
 }
@@ -1959,7 +1959,7 @@ inline
 DecimalImpUtil::ValueType128 DecimalImpUtil::exp(ValueType128 value)
 {
     ValueType128 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid128_exp(value.d_raw, &flags);
     return rv;
 }
@@ -1968,7 +1968,7 @@ inline
 DecimalImpUtil::ValueType32 DecimalImpUtil::log(ValueType32 value)
 {
     ValueType32 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid32_log(value.d_raw, &flags);
     return rv;
 }
@@ -1977,7 +1977,7 @@ inline
 DecimalImpUtil::ValueType64 DecimalImpUtil::log(ValueType64 value)
 {
     ValueType64 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid64_log(value.d_raw, &flags);
     return rv;
 }
@@ -1986,7 +1986,7 @@ inline
 DecimalImpUtil::ValueType128 DecimalImpUtil::log(ValueType128 value)
 {
     ValueType128 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid128_log(value.d_raw, &flags);
     return rv;
 }
@@ -1995,7 +1995,7 @@ inline
 DecimalImpUtil::ValueType32 DecimalImpUtil::logB(ValueType32 value)
 {
     ValueType32 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid32_logb(value.d_raw, &flags);
     return rv;
 }
@@ -2004,7 +2004,7 @@ inline
 DecimalImpUtil::ValueType64 DecimalImpUtil::logB(ValueType64 value)
 {
     ValueType64 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid64_logb(value.d_raw, &flags);
     return rv;
 }
@@ -2013,7 +2013,7 @@ inline
 DecimalImpUtil::ValueType128 DecimalImpUtil::logB(ValueType128 value)
 {
     ValueType128 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid128_logb(value.d_raw, &flags);
     return rv;
 }
@@ -2022,7 +2022,7 @@ inline
 DecimalImpUtil::ValueType32 DecimalImpUtil::log10(ValueType32 value)
 {
     ValueType32 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid32_log10(value.d_raw, &flags);
     return rv;
 }
@@ -2031,7 +2031,7 @@ inline
 DecimalImpUtil::ValueType64 DecimalImpUtil::log10(ValueType64 value)
 {
     ValueType64 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid64_log10(value.d_raw, &flags);
     return rv;
 }
@@ -2040,7 +2040,7 @@ inline
 DecimalImpUtil::ValueType128 DecimalImpUtil::log10(ValueType128 value)
 {
     ValueType128 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid128_log10(value.d_raw, &flags);
     return rv;
 }
@@ -2050,7 +2050,7 @@ DecimalImpUtil::ValueType32  DecimalImpUtil::fmod(ValueType32  x,
                                                   ValueType32  y)
 {
     ValueType32 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid32_fmod(x.d_raw, y.d_raw, &flags);
     return rv;
 }
@@ -2060,7 +2060,7 @@ DecimalImpUtil::ValueType64  DecimalImpUtil::fmod(ValueType64  x,
                                                   ValueType64  y)
 {
     ValueType64 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid64_fmod(x.d_raw, y.d_raw, &flags);
     return rv;
 }
@@ -2070,7 +2070,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::fmod(ValueType128 x,
                                                   ValueType128 y)
 {
     ValueType128 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid128_fmod(x.d_raw, y.d_raw, &flags);
     return rv;
 }
@@ -2080,7 +2080,7 @@ DecimalImpUtil::ValueType32  DecimalImpUtil::remainder(ValueType32  x,
                                                        ValueType32  y)
 {
     ValueType32 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid32_rem(x.d_raw, y.d_raw, &flags);
     return rv;
 }
@@ -2090,7 +2090,7 @@ DecimalImpUtil::ValueType64  DecimalImpUtil::remainder(ValueType64  x,
                                                        ValueType64  y)
 {
     ValueType64 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid64_rem(x.d_raw, y.d_raw, &flags);
     return rv;
 }
@@ -2100,7 +2100,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::remainder(ValueType128 x,
                                                        ValueType128 y)
 {
     ValueType128 rv;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     rv.d_raw = __bid128_rem(x.d_raw, y.d_raw, &flags);
     return rv;
 }
@@ -2111,7 +2111,6 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::negate(DecimalImpUtil::ValueType32 value)
 {
-
     return Imp::negate(value);
 }
 
@@ -2477,7 +2476,7 @@ DecimalImpUtil::ValueType32
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType32 value, int exponent)
 {
     ValueType32 result;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     result.d_raw = __bid32_scalbn(value.d_raw, exponent, &flags);
     return result;
 }
@@ -2487,7 +2486,7 @@ DecimalImpUtil::ValueType64
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType64 value, int exponent)
 {
     ValueType64 result;
-    _IDEC_flags flags;
+    _IDEC_flags flags(0);
     result.d_raw = __bid64_scalbn(value.d_raw, exponent, &flags);
     return result;
 }
@@ -2497,7 +2496,7 @@ DecimalImpUtil::ValueType128
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType128 value, int exponent)
 {
     ValueType128 result;
-    _IDEC_flags  flags;
+    _IDEC_flags  flags(0);
     result.d_raw = __bid128_scalbn(value.d_raw, exponent, &flags);
     return result;
 }
