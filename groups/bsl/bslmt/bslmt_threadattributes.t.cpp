@@ -458,6 +458,11 @@ int main(int argc, char *argv[])
         {
             Obj mY;
         }
+        {
+            struct Box { Obj d_a; };
+            Box b = { {} };
+            (void)b;
+        }
         const Obj& X = mX;
 
         ASSERT(Obj::e_CREATE_JOINABLE == X.detachedState());
