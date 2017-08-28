@@ -458,11 +458,12 @@ int main(int argc, char *argv[])
         {
             Obj mY;
         }
+#if __cplusplus >= 201103L
         {
-            struct Box { Obj d_a; };
-            Box b = { {} };
+            Obj b[2]{{}, {}};
             (void)b;
         }
+#endif
         const Obj& X = mX;
 
         ASSERT(Obj::e_CREATE_JOINABLE == X.detachedState());
