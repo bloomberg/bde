@@ -24,6 +24,17 @@ BSLS_IDENT_RCSID(bslmt_threadattributes_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // CREATORS
+bslmt::ThreadAttributes::ThreadAttributes()
+: d_detachedState(e_CREATE_JOINABLE)
+, d_guardSize(e_UNSET_GUARD_SIZE)
+, d_inheritScheduleFlag(true)
+, d_schedulingPolicy(e_SCHED_DEFAULT)
+, d_schedulingPriority(e_UNSET_PRIORITY)
+, d_stackSize(e_UNSET_STACK_SIZE)
+, d_threadName(static_cast<bslma::Allocator *>(0))
+{
+}
+
 bslmt::ThreadAttributes::ThreadAttributes(bslma::Allocator *basicAllocator)
 : d_detachedState(e_CREATE_JOINABLE)
 , d_guardSize(e_UNSET_GUARD_SIZE)
