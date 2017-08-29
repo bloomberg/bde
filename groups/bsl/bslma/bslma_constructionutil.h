@@ -412,6 +412,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISEMPTY
+#include <bslmf_isempty.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
 #endif
@@ -4205,7 +4209,8 @@ void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
                                      const TARGET_TYPE& original)
 {
     if (bsl::is_fundamental<TARGET_TYPE>::value
-     || bsl::is_pointer<TARGET_TYPE>::value) {
+     || bsl::is_pointer<TARGET_TYPE>::value
+     || bsl::is_empty<TARGET_TYPE>::value) {
 
         ::new (voidify(address)) TARGET_TYPE(original);
         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
