@@ -370,8 +370,8 @@ class ThreadAttributes {
 
   public:
     // CREATORS
-    explicit
-    ThreadAttributes(bslma::Allocator *basicAllocator = 0);
+    ThreadAttributes();
+    explicit ThreadAttributes(bslma::Allocator *basicAllocator);
         // Create a 'ThreadAttributes' object having the (default) attribute
         // values:
         //: o 'detachedState()      == e_CREATE_JOINABLE'
