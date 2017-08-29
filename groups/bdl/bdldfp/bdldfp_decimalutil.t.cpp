@@ -590,6 +590,7 @@ int main(int argc, char* argv[])
         const Obj INF_N   = -INF_P;
         const Obj ZERO_P  = DEC( 0.0);
         const Obj ZERO_N  = DEC(-0.0);
+        const Obj MAX_P   = bsl::numeric_limits<Obj>::max();
 
         if (veryVerbose) { T_ bsl::cout << "copySign()" << bsl::endl; }
         {
@@ -815,7 +816,7 @@ int main(int argc, char* argv[])
                     LOOP2_ASSERT(LINE, EXPECTED, EXPECTED == RESULT);
                 }
             }
-        }y
+        }
 
         if (veryVerbose) { T_ bsl::cout << "remainder()" << bsl::endl; }
         {
@@ -1092,6 +1093,97 @@ int main(int argc, char* argv[])
             }
         }
 
+        if (veryVerbose) { T_ T_ bsl::cout << "round(x, p)" << bsl::endl; }
+        {
+            struct {
+                int          d_line;
+                Obj          d_x;
+                unsigned int d_precision;
+                Obj          d_expected;
+                unsigned int d_errno;
+            } DATA[] = {
+            //-------------------------------------------------------------
+            // LINE |      X          | PRECISION | EXPECTED        | ERRNO
+            //------------------------------------------------------------
+                { L_, DEC( 1234567e-6),         7, DEC( 1234567e-6), 0 },
+                { L_, DEC( 1234567e-6),         6, DEC( 1234567e-6), 0 },
+                { L_, DEC( 1234567e-6),         5, DEC( 123457e-5),  0 },
+                { L_, DEC( 1234567e-6),         4, DEC( 12346e-4),   0 },
+                { L_, DEC( 1234567e-6),         3, DEC( 1235e-3),    0 },
+                { L_, DEC( 1234567e-6),         2, DEC( 123e-2),     0 },
+                { L_, DEC( 1234567e-6),         1, DEC( 12e-1),      0 },
+                { L_, DEC( 1234567e-6),         0, DEC( 1e-0),       0 },
+
+                { L_, DEC(-1234567e-6),         7, DEC(-1234567e-6), 0 },
+                { L_, DEC(-1234567e-6),         6, DEC(-1234567e-6), 0 },
+                { L_, DEC(-1234567e-6),         5, DEC(-123457e-5),  0 },
+                { L_, DEC(-1234567e-6),         4, DEC(-12346e-4),   0 },
+                { L_, DEC(-1234567e-6),         3, DEC(-1235e-3),    0 },
+                { L_, DEC(-1234567e-6),         2, DEC(-123e-2),     0 },
+                { L_, DEC(-1234567e-6),         1, DEC(-12e-1),      0 },
+                { L_, DEC(-1234567e-6),         0, DEC(-1e-0),       0 },
+
+                { L_, DEC( 1234567e+4),         7, DEC( 1234567e+4),  0 },
+                { L_, DEC( 1234567e+4),         6, DEC( 1234567e+4),  0 },
+                { L_, DEC( 1234567e+4),         5, DEC( 123457e+5),   0 },
+                { L_, DEC( 1234567e+4),         4, DEC( 12346e+6),    0 },
+                { L_, DEC( 1234567e+4),         3, DEC( 1235e+7),     0 },
+                { L_, DEC( 1234567e+4),         2, DEC( 123e+8),      0 },
+                { L_, DEC( 1234567e+4),         1, DEC( 12e+9),       0 },
+                { L_, DEC( 1234567e+4),         0, DEC( 1e+10),       0 },
+
+                { L_, DEC(-1234567e+4),         7, DEC(-1234567e+4),  0 },
+                { L_, DEC(-1234567e+4),         6, DEC(-1234567e+4),  0 },
+                { L_, DEC(-1234567e+4),         5, DEC(-123457e+5),   0 },
+                { L_, DEC(-1234567e+4),         4, DEC(-12346e+6),    0 },
+                { L_, DEC(-1234567e+4),         3, DEC(-1235e+7),     0 },
+                { L_, DEC(-1234567e+4),         2, DEC(-123e+8),      0 },
+                { L_, DEC(-1234567e+4),         1, DEC(-12e+9),       0 },
+                { L_, DEC(-1234567e+4),         0, DEC(-1e+10),       0 },
+
+                { L_, MAX_P,                    7, MAX_P,             0 },
+                { L_, MAX_P,                    6, MAX_P,             0 },
+                { L_, MAX_P,                    5, INF_P,             ERANGE },
+                { L_, MAX_P,                    4, INF_P,             ERANGE },
+                { L_, MAX_P,                    3, INF_P,             ERANGE },
+                { L_, MAX_P,                    2, INF_P,             ERANGE },
+                { L_, MAX_P,                    1, INF_P,             ERANGE },
+                { L_, MAX_P,                    0, INF_P,             ERANGE },
+
+                { L_, DEC(9999999e-101),        4, DEC(1.0e-94),      0 },
+                { L_, DEC(9999999e-101),        3, DEC(1.0e-94),      0 },
+                { L_, DEC(9999999e-101),        2, DEC(1.0e-94),      0 },
+                { L_, DEC(9999999e-101),        1, DEC(1.0e-94),      0 },
+                { L_, DEC(9999999e-101),        0, DEC(1.0e-94),      0 },
+
+                { L_, ZERO_P,                   0, ZERO_P,            0 },
+                { L_, ZERO_N,                   0, ZERO_N,            0 },
+                { L_, INF_P,                    0, INF_P,             0 },
+                { L_, INF_N,                    0, INF_N,             0 },
+                { L_, NAN_P,                    0, NAN_P,             0 },
+                { L_, NAN_N,                    0, NAN_N,             0 },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int           LINE      = DATA[ti].d_line;
+                const Obj&          X         = DATA[ti].d_x;
+                const unsigned int& PRECISION = DATA[ti].d_precision;
+                const Obj&          EXPECTED  = DATA[ti].d_expected;
+                const unsigned int& ERRNO     = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::round(X, PRECISION);
+
+                if (Util::isNan(EXPECTED)) {
+                    LOOP2_ASSERT(LINE, RESULT, Util::isNan(RESULT));
+                } else {
+                    LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                }
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
+            }
+        }
+
         if (veryVerbose) { T_ bsl::cout << "sqrt()" << bsl::endl; }
         {
             struct {
@@ -1144,6 +1236,7 @@ int main(int argc, char* argv[])
         const Obj INF_N   = -INF_P;
         const Obj ZERO_P  = DEC( 0.0);
         const Obj ZERO_N  = DEC(-0.0);
+        const Obj MAX_P   = bsl::numeric_limits<Obj>::max();
 
         if (veryVerbose) { T_ bsl::cout << "copySign()" << bsl::endl; }
         {
@@ -1674,6 +1767,100 @@ int main(int argc, char* argv[])
             }
         }
 
+        if (veryVerbose) { T_ T_ bsl::cout << "round(x, p)" << bsl::endl; }
+        {
+            const Obj DEC_X = DEC(9999999999999999e-308);
+            const Obj DEC_R = DEC(1e-292);
+
+            struct {
+                int          d_line;
+                Obj          d_x;
+                unsigned int d_precision;
+                Obj          d_expected;
+                unsigned int d_errno;
+            } DATA[] = {
+            //-------------------------------------------------------------
+            // LINE |      X          | PRECISION | EXPECTED        | ERRNO
+            //-------------------------------------------------------------
+                { L_, DEC( 1234567e-6),          7, DEC( 1234567e-6), 0 },
+                { L_, DEC( 1234567e-6),          6, DEC( 1234567e-6), 0 },
+                { L_, DEC( 1234567e-6),          5, DEC( 123457e-5),  0 },
+                { L_, DEC( 1234567e-6),          4, DEC( 12346e-4),   0 },
+                { L_, DEC( 1234567e-6),          3, DEC( 1235e-3),    0 },
+                { L_, DEC( 1234567e-6),          2, DEC( 123e-2),     0 },
+                { L_, DEC( 1234567e-6),          1, DEC( 12e-1),      0 },
+                { L_, DEC( 1234567e-6),          0, DEC( 1e-0),       0 },
+
+                { L_, DEC(-1234567e-6),          7, DEC(-1234567e-6), 0 },
+                { L_, DEC(-1234567e-6),          6, DEC(-1234567e-6), 0 },
+                { L_, DEC(-1234567e-6),          5, DEC(-123457e-5),  0 },
+                { L_, DEC(-1234567e-6),          4, DEC(-12346e-4),   0 },
+                { L_, DEC(-1234567e-6),          3, DEC(-1235e-3),    0 },
+                { L_, DEC(-1234567e-6),          2, DEC(-123e-2),     0 },
+                { L_, DEC(-1234567e-6),          1, DEC(-12e-1),      0 },
+                { L_, DEC(-1234567e-6),          0, DEC(-1e-0),       0 },
+
+                { L_, DEC( 1234567e+4),         7, DEC( 1234567e+4),  0 },
+                { L_, DEC( 1234567e+4),         6, DEC( 1234567e+4),  0 },
+                { L_, DEC( 1234567e+4),         5, DEC( 123457e+5),   0 },
+                { L_, DEC( 1234567e+4),         4, DEC( 12346e+6),    0 },
+                { L_, DEC( 1234567e+4),         3, DEC( 1235e+7),     0 },
+                { L_, DEC( 1234567e+4),         2, DEC( 123e+8),      0 },
+                { L_, DEC( 1234567e+4),         1, DEC( 12e+9),       0 },
+                { L_, DEC( 1234567e+4),         0, DEC( 1e+10),       0 },
+
+                { L_, DEC(-1234567e+4),         7, DEC(-1234567e+4),  0 },
+                { L_, DEC(-1234567e+4),         6, DEC(-1234567e+4),  0 },
+                { L_, DEC(-1234567e+4),         5, DEC(-123457e+5),   0 },
+                { L_, DEC(-1234567e+4),         4, DEC(-12346e+6),    0 },
+                { L_, DEC(-1234567e+4),         3, DEC(-1235e+7),     0 },
+                { L_, DEC(-1234567e+4),         2, DEC(-123e+8),      0 },
+                { L_, DEC(-1234567e+4),         1, DEC(-12e+9),       0 },
+                { L_, DEC(-1234567e+4),         0, DEC(-1e+10),       0 },
+
+                { L_, MAX_P,                   16, MAX_P,             0 },
+                { L_, MAX_P,                   15, MAX_P,             0 },
+                { L_, MAX_P,                   14, INF_P,             ERANGE },
+                { L_, MAX_P,                    5, INF_P,             ERANGE },
+                { L_, MAX_P,                    4, INF_P,             ERANGE },
+                { L_, MAX_P,                    3, INF_P,             ERANGE },
+                { L_, MAX_P,                    2, INF_P,             ERANGE },
+                { L_, MAX_P,                    1, INF_P,             ERANGE },
+                { L_, MAX_P,                    0, INF_P,             ERANGE },
+
+                { L_, DEC_X,                    0, DEC_R,             0 },
+                { L_, DEC_X,                    1, DEC_R,             0 },
+                { L_, DEC_X,                   14, DEC_R,             0 },
+                { L_, DEC_X,                   15, DEC_X,             0 },
+
+                { L_, ZERO_P,                   0, ZERO_P,            0 },
+                { L_, ZERO_N,                   0, ZERO_N,            0 },
+                { L_, INF_P,                    0, INF_P,             0 },
+                { L_, INF_N,                    0, INF_N,             0 },
+                { L_, NAN_P,                    0, NAN_P,             0 },
+                { L_, NAN_N,                    0, NAN_N,             0 },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int           LINE      = DATA[ti].d_line;
+                const Obj&          X         = DATA[ti].d_x;
+                const unsigned int& PRECISION = DATA[ti].d_precision;
+                const Obj&          EXPECTED  = DATA[ti].d_expected;
+                const unsigned int& ERRNO     = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::round(X, PRECISION);
+
+                if (Util::isNan(EXPECTED)) {
+                    LOOP2_ASSERT(LINE, RESULT, Util::isNan(RESULT));
+                } else {
+                    LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                }
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
+            }
+        }
+
         if (veryVerbose) { T_ bsl::cout << "sqrt()" << bsl::endl; }
         {
             const Obj SQRT_2 = DEC(1.414213562373095);
@@ -1732,6 +1919,7 @@ int main(int argc, char* argv[])
         const Obj INF_N   = -INF_P;
         const Obj ZERO_P  = DEC( 0.0);
         const Obj ZERO_N  = DEC(-0.0);
+        const Obj MAX_P   = bsl::numeric_limits<Obj>::max();
 
         if (veryVerbose) { T_ bsl::cout << "copySign()" << bsl::endl; }
         {
@@ -2255,6 +2443,100 @@ int main(int argc, char* argv[])
                 const long int  RESULT   = Util::lround(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+            }
+        }
+
+        if (veryVerbose) { T_ T_ bsl::cout << "round(x, p)" << bsl::endl; }
+        {
+            const Obj DEC_X = DEC(9999999999999999999999999999999999e-6176);
+            const Obj DEC_R = DEC(1e-6142);
+
+            struct {
+                int          d_line;
+                Obj          d_x;
+                unsigned int d_precision;
+                Obj          d_expected;
+                unsigned int d_errno;
+            } DATA[] = {
+            //-------------------------------------------------------------
+            // LINE |      X          | PRECISION | EXPECTED        | ERRNO
+            //-------------------------------------------------------------
+                { L_, DEC( 1234567e-6),         7, DEC( 1234567e-6), 0 },
+                { L_, DEC( 1234567e-6),         6, DEC( 1234567e-6), 0 },
+                { L_, DEC( 1234567e-6),         5, DEC( 123457e-5),  0 },
+                { L_, DEC( 1234567e-6),         4, DEC( 12346e-4),   0 },
+                { L_, DEC( 1234567e-6),         3, DEC( 1235e-3),    0 },
+                { L_, DEC( 1234567e-6),         2, DEC( 123e-2),     0 },
+                { L_, DEC( 1234567e-6),         1, DEC( 12e-1),      0 },
+                { L_, DEC( 1234567e-6),         0, DEC( 1e-0),       0 },
+
+                { L_, DEC(-1234567e-6),         7, DEC(-1234567e-6), 0 },
+                { L_, DEC(-1234567e-6),         6, DEC(-1234567e-6), 0 },
+                { L_, DEC(-1234567e-6),         5, DEC(-123457e-5),  0 },
+                { L_, DEC(-1234567e-6),         4, DEC(-12346e-4),   0 },
+                { L_, DEC(-1234567e-6),         3, DEC(-1235e-3),    0 },
+                { L_, DEC(-1234567e-6),         2, DEC(-123e-2),     0 },
+                { L_, DEC(-1234567e-6),         1, DEC(-12e-1),      0 },
+                { L_, DEC(-1234567e-6),         0, DEC(-1e-0),       0 },
+
+                { L_, DEC( 1234567e+4),         7, DEC( 1234567e+4),  0 },
+                { L_, DEC( 1234567e+4),         6, DEC( 1234567e+4),  0 },
+                { L_, DEC( 1234567e+4),         5, DEC( 123457e+5),   0 },
+                { L_, DEC( 1234567e+4),         4, DEC( 12346e+6),    0 },
+                { L_, DEC( 1234567e+4),         3, DEC( 1235e+7),     0 },
+                { L_, DEC( 1234567e+4),         2, DEC( 123e+8),      0 },
+                { L_, DEC( 1234567e+4),         1, DEC( 12e+9),       0 },
+                { L_, DEC( 1234567e+4),         0, DEC( 1e+10),       0 },
+
+                { L_, DEC(-1234567e+4),         7, DEC(-1234567e+4),  0 },
+                { L_, DEC(-1234567e+4),         6, DEC(-1234567e+4),  0 },
+                { L_, DEC(-1234567e+4),         5, DEC(-123457e+5),   0 },
+                { L_, DEC(-1234567e+4),         4, DEC(-12346e+6),    0 },
+                { L_, DEC(-1234567e+4),         3, DEC(-1235e+7),     0 },
+                { L_, DEC(-1234567e+4),         2, DEC(-123e+8),      0 },
+                { L_, DEC(-1234567e+4),         1, DEC(-12e+9),       0 },
+                { L_, DEC(-1234567e+4),         0, DEC(-1e+10),       0 },
+
+                { L_, MAX_P,                   34, MAX_P,             0 },
+                { L_, MAX_P,                   33, MAX_P,             0 },
+                { L_, MAX_P,                   32, INF_P,             ERANGE },
+                { L_, MAX_P,                    5, INF_P,             ERANGE },
+                { L_, MAX_P,                    4, INF_P,             ERANGE },
+                { L_, MAX_P,                    3, INF_P,             ERANGE },
+                { L_, MAX_P,                    2, INF_P,             ERANGE },
+                { L_, MAX_P,                    1, INF_P,             ERANGE },
+                { L_, MAX_P,                    0, INF_P,             ERANGE },
+
+                { L_, DEC_X,                    0, DEC_R,             0 },
+                { L_, DEC_X,                    1, DEC_R,             0 },
+                { L_, DEC_X,                   32, DEC_R,             0 },
+                { L_, DEC_X,                   33, DEC_X,             0 },
+
+                { L_, ZERO_P,                   0, ZERO_P,            0 },
+                { L_, ZERO_N,                   0, ZERO_N,            0 },
+                { L_, INF_P,                    0, INF_P,             0 },
+                { L_, INF_N,                    0, INF_N,             0 },
+                { L_, NAN_P,                    0, NAN_P,             0 },
+                { L_, NAN_N,                    0, NAN_N,             0 },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int           LINE      = DATA[ti].d_line;
+                const Obj&          X         = DATA[ti].d_x;
+                const unsigned int& PRECISION = DATA[ti].d_precision;
+                const Obj&          EXPECTED  = DATA[ti].d_expected;
+                const unsigned int& ERRNO     = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::round(X, PRECISION);
+
+                if (Util::isNan(EXPECTED)) {
+                    LOOP2_ASSERT(LINE, RESULT, Util::isNan(RESULT));
+                } else {
+                    LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                }
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 

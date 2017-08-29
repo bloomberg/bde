@@ -36,6 +36,57 @@ namespace bdldfp {
 
 namespace {
 
+template <class T>
+static
+T divmod10(T& v)
+    // Load the resultant value of dividing the specified value 'v' by 10 into
+    // 'v'.  Return the remainder of the division.
+{
+    T r =  v % 10;
+    v /= 10;
+    return r;
+}
+
+static
+bsls::Types::Uint64 divmod10(Uint128& v)
+    // Load the resultant value of dividing the specified value 'v' by 10 into
+    // 'v'.  Return the remainder of the division.
+{
+    // Set a = v.high(), b = v.low().
+    // Let Q = (2^64 * a + b) / 10 and R = (2^64 * a + b) % 10.
+    // Set a to Q / 2^64, b to Q % 2^64, and return R.
+    bsls::Types::Uint64 a  = v.high();
+    bsls::Types::Uint64 b  = v.low();
+
+    bsls::Types::Uint64 qa = a / 10;
+    bsls::Types::Uint64 ra = a % 10;
+    bsls::Types::Uint64 qb = b / 10;
+    bsls::Types::Uint64 rb = b % 10;
+
+    v.setHigh(qa);
+    v.setLow(qb + 0x1999999999999999ull * ra + (6 * ra + rb) / 10);
+
+    return (6 * ra + rb) % 10;
+}
+
+bool operator !=(const Uint128& lhr, const bsls::Types::Uint64& rhr)
+{
+    return lhr.high() || lhr.low() != rhr;
+}
+
+template <class T>
+int getMostSignificandPlace(T value)
+    // Return the most significant decimal place of the specified 'value'.
+{
+    int place = 0;
+    do {
+        divmod10(value);
+        ++place;
+    } while (value != 0);
+
+    return place;
+}
+
 bool isNanString(const char *str) {
     // Return 'true' if the specified 'str' represents a NaN value, and 'false'
     // otherwise.  Note that the IEEE 754 standard specifies sequence of
@@ -261,6 +312,78 @@ bool DecimalUtil::isUnordered(Decimal64 x, Decimal64 y)
 bool DecimalUtil::isUnordered(Decimal128 x, Decimal128 y)
 {
     return isNan(x) || isNan(y);
+}
+
+Decimal32  DecimalUtil::round(Decimal32  x, unsigned int decimalPlaces)
+{
+    int          sign;
+    unsigned int significand;
+    int          exponent;
+    int          cl = decompose(&sign, &significand, &exponent, x);
+
+    if (FP_NORMAL == cl) {
+        int mostPlace = getMostSignificandPlace(significand);
+        if (mostPlace - 1 > decimalPlaces) {
+            int exp = exponent + mostPlace - 1 - decimalPlaces;
+            errno = 0;
+            x = multiplyByPowerOf10(x, -exp);
+            if (0 == errno) {
+                x = round(x);
+                if (0 == errno) {
+                    x = multiplyByPowerOf10(x, exp);
+                }
+            }
+        }
+    }
+    return x;
+}
+
+Decimal64 DecimalUtil::round(Decimal64  x, unsigned int decimalPlaces)
+{
+    int                 sign;
+    bsls::Types::Uint64 significand;
+    int                 exponent;
+    int                 cl = decompose(&sign, &significand, &exponent, x);
+
+    if (FP_NORMAL == cl) {
+        int mostPlace = getMostSignificandPlace(significand);
+        if (mostPlace - 1 > decimalPlaces) {
+            int exp = exponent + mostPlace - 1 - decimalPlaces;
+            errno = 0;
+            x = multiplyByPowerOf10(x, -exp);
+            if (0 == errno) {
+                x = round(x);
+                if (0 == errno) {
+                    x = multiplyByPowerOf10(x, exp);
+                }
+            }
+        }
+    }
+    return x;
+}
+
+Decimal128 DecimalUtil::round(Decimal128 x, unsigned int decimalPlaces)
+{
+    int     sign;
+    Uint128 significand;
+    int     exponent;
+    int     cl = decompose(&sign, &significand, &exponent, x);
+
+    if (FP_NORMAL == cl) {
+        int mostPlace = getMostSignificandPlace(significand);
+        if (mostPlace - 1 > decimalPlaces) {
+            int exp = exponent + mostPlace - 1 - decimalPlaces;
+            errno = 0;
+            x = multiplyByPowerOf10(x, -exp);
+            if (0 == errno) {
+                x = round(x);
+                if (0 == errno) {
+                    x = multiplyByPowerOf10(x, exp);
+                }
+            }
+        }
+    }
+    return x;
 }
 
                              // Quantum functions

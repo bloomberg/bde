@@ -232,14 +232,13 @@ BSLS_IDENT("$Id$")
 //
 /// Error Reporting
 ///-  -  -  -  -  -
-// The utility 'bdldfp_decimalutil' component provides a set of math functions
-// that parallel functions in the C++ standard math library.  The utility
-// functions implement the same functionality as standard math functions but
-// operate on decimal floating-point numbers.  If an error occurs during a math
-// operation, the 'errno' is used to report the error as described in the
-// "Status Flags" section above.  Such unusual for BDE way to handle errors is
-// motivated by intention to replicate in the utility math functions error
-// reporting mechanism implemented in C++ standard math library.
+// The 'bdldfp_decimalutil' utility component provides a set of decimal math
+// functions that parallel those provided for binary floating point in the C++
+// standard math library.  Errors during computation of these functions (e.g.,
+// domain errors) will be reported through the setting of 'errno' as described
+// in the "Status Flags" section above.  (Note that this method of reporting
+// errors is atypical for BDE-provided interfaces, but matches the style used
+// by the standard functions.)
 //
 ///Floating-Point Terminology
 /// - - - - - - - - - - - - -

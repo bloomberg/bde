@@ -1576,6 +1576,26 @@ void TestDriver::testCase29()
         { L_,    DEC(1.23456),    DEC(0.00001),  DEC(1.23456)  },
         { L_,    DEC(1.23456),    DEC(0.000001), DEC(1.234560) },
         { L_,    DEC(1.23456e+5), DEC(1e+2),     DEC(1.235e+5) },
+
+
+        { L_,    DEC(1.23456e+5), DEC(0.1),      DEC(1.23456e+5) },
+        { L_,    DEC(1.23456e+5), DEC(1.0),      DEC(1.23456e+5) },
+        { L_,    DEC(1.23456e+5), DEC(1e+1),     DEC(1.2346e+5) },
+        { L_,    DEC(1.23456e+5), DEC(1e+2),     DEC(1.235e+5) },
+        { L_,    DEC(1.23456e+5), DEC(1e+3),     DEC(1.23e+5) },
+        { L_,    DEC(1.23456e+5), DEC(1e+4),     DEC(1.2e+5) },
+        { L_,    DEC(1.23456e+5), DEC(1e+5),     DEC(1.0e+5) },
+        { L_,    DEC(1.23456e+5), DEC(1e+6),     DEC(0.0) },
+
+        { L_,    DEC(1.23456e-5), DEC(1e-4),     DEC(0.0) },
+        { L_,    DEC(1.23456e-5), DEC(1e-5),     DEC(1.0e-5) },
+        { L_,    DEC(1.23456e-5), DEC(1e-6),     DEC(1.2e-5) },
+        { L_,    DEC(1.23456e-5), DEC(1e-7),     DEC(1.23e-5) },
+        { L_,    DEC(1.23456e-5), DEC(1e-8),     DEC(1.235e-5) },
+        { L_,    DEC(1.23456e-5), DEC(1e-9),     DEC(1.2346e-5) },
+        { L_,    DEC(1.23456e-5), DEC(1e-10),    DEC(1.23456e-5) },
+        { L_,    DEC(1.23456e-5), DEC(1e-11),    DEC(1.23456e-5) },
+
         { L_,    DEC(1.23456),    INF_P,         NAN_P         },
         { L_,    DEC(1.23456),    INF_N,         NAN_P         },
         { L_,    DEC(1.23456),    NAN_P,         NAN_P         },
@@ -2008,7 +2028,6 @@ void TestDriver::testCase27()
             // LINE |     X     | EXPECTED     |  ERRNO
             //-------------------------------------------
                 { L_, sNAN_P,     NAN_P,           EDOM },
-                { L_, DEC(  1.0), ZERO_P,             0 },
                 { L_, DEC( 12.0), DEC(2.484907),      0 },
                 { L_, DEC(-11.0), NAN_P,           EDOM },
                 { L_, NAN_P,      NAN_P,              0 },
@@ -2171,26 +2190,28 @@ void TestDriver::testCase27()
                 Obj          d_expected;
                 unsigned int d_errno;
             } DATA[] = {
-            //----------------------------------------------
-            // LINE |     X    |     Y   | EXPECTED | ERRNO
-            //----------------------------------------------
-                { L_, DEC( 5.1), DEC(3.0), DEC(-0.9),    0 },
-                { L_, DEC( 5.1), DEC(3.0), DEC(-0.9),    0 },
-                { L_, DEC(-5.1), DEC(3.0), DEC( 0.9),    0 },
-                { L_, DEC( 5.1), NAN_P,    NAN_P,        0 },
-                { L_, DEC( 5.1), NAN_N,    NAN_N,        0 },
-                { L_, sNAN_P,    DEC(3.0), NAN_P,     EDOM },
-                { L_, DEC(3.0),  sNAN_P,   NAN_P,     EDOM },
-                { L_, NAN_P,     DEC(3.0), NAN_P,        0 },
-                { L_, NAN_N,     DEC(3.0), NAN_N,        0 },
-                { L_, INF_P,     DEC(3.0), NAN_P,     EDOM },
-                { L_, INF_N,     ZERO_P,   NAN_P,     EDOM },
-                { L_, ZERO_P,    INF_N,    ZERO_P,       0 },
-                { L_, DEC( 5.1), INF_P,    DEC( 5.1),    0 },
-                { L_, DEC(-5.1), INF_N,    DEC(-5.1),    0 },
-                { L_, DEC( 5.1), ZERO_P,   NAN_P,     EDOM },
-                { L_, DEC( 5.1), ZERO_N,   NAN_P,     EDOM },
-                { L_, ZERO_P,    DEC(3.0), ZERO_P,       0 },
+            //-----------------------------------------------
+            // LINE |     X    |     Y   | EXPECTED  | ERRNO
+            //-----------------------------------------------
+                { L_, DEC( 7.0), DEC(2.0),  DEC(-1.0),    0 },
+                { L_, DEC( 5.1), DEC(3.0),  DEC(-0.9),    0 },
+                { L_, DEC(-5.1), DEC(3.0),  DEC( 0.9),    0 },
+                { L_, DEC( 5.1), DEC(-3.0), DEC(-0.9),    0 },
+                { L_, DEC(-5.1), DEC(-3.0), DEC( 0.9),    0 },
+                { L_, DEC( 5.1), NAN_P,     NAN_P,        0 },
+                { L_, DEC( 5.1), NAN_N,     NAN_N,        0 },
+                { L_, sNAN_P,    DEC(3.0),  NAN_P,     EDOM },
+                { L_, DEC(3.0),  sNAN_P,    NAN_P,     EDOM },
+                { L_, NAN_P,     DEC(3.0),  NAN_P,        0 },
+                { L_, NAN_N,     DEC(3.0),  NAN_N,        0 },
+                { L_, INF_P,     DEC(3.0),  NAN_P,     EDOM },
+                { L_, INF_N,     ZERO_P,    NAN_P,     EDOM },
+                { L_, ZERO_P,    INF_N,     ZERO_P,       0 },
+                { L_, DEC( 5.1), INF_P,     DEC( 5.1),    0 },
+                { L_, DEC(-5.1), INF_N,     DEC(-5.1),    0 },
+                { L_, DEC( 5.1), ZERO_P,    NAN_P,     EDOM },
+                { L_, DEC( 5.1), ZERO_N,    NAN_P,     EDOM },
+                { L_, ZERO_P,    DEC(3.0),  ZERO_P,       0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2314,6 +2335,7 @@ void TestDriver::testCase27()
                 { L_, MAX_P,         INF_P,    INF_P,            ERANGE },
                 { L_, ZERO_P,        DEC(1.0), DEC(1.0e-101),    ERANGE },
                 { L_, DEC(1.0e-101), ZERO_P,   ZERO_P,           ERANGE },
+                { L_, DEC(1.0),      DEC(1.0), DEC(1.0),              0 },
                 { L_, DEC(1.0),      DEC(2.0), DEC(1.000001),         0 },
                 { L_, DEC(1.0),      ZERO_P,   DEC(9.999999e-1),      0 },
                 { L_, ZERO_P,        ZERO_P,   ZERO_P,                0 },
@@ -2325,6 +2347,8 @@ void TestDriver::testCase27()
                 { L_, INF_N,         INF_P,    MAX_N,                 0 },
                 { L_, INF_P,         DEC(2.0), MAX_P,                 0 },
                 { L_, INF_N,         DEC(2.0), MAX_N,                 0 },
+                { L_, sNAN_P,        NAN_P,    NAN_P,              EDOM },
+                { L_, DEC(2.0),      sNAN_P,   NAN_P,              EDOM },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -3124,6 +3148,8 @@ void TestDriver::testCase27()
                 { L_, INF_N,     INF_N,    INF_N,                         0 },
                 { L_, INF_P,     DEC(2.0), MAX_P,                         0 },
                 { L_, INF_N,     DEC(2.0), MAX_N,                         0 },
+                { L_, sNAN_P,    NAN_P,    NAN_P,                      EDOM },
+                { L_, DEC(2.0),  sNAN_P,   NAN_P,                      EDOM },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -3939,6 +3965,8 @@ void TestDriver::testCase27()
                 { L_, INF_N,     INF_N,    INF_N,                     0 },
                 { L_, INF_P,     DEC(1.0), MAX_P,                     0 },
                 { L_, INF_N,     DEC(1.0), MAX_N,                     0 },
+                { L_, sNAN_P,    NAN_P,    NAN_P,                  EDOM },
+                { L_, DEC(2.0),  sNAN_P,   NAN_P,                  EDOM },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -7211,6 +7239,23 @@ void TestDriver::testCase17()
     test32  = Util::scaleB(Util::parse32("42"), -10);
     ASSERT(Util::equal(value32, test32));
 
+    errno = 0;
+    value32 = Util::infinity32();
+    test32  = Util::scaleB(Util::max32(), 10);
+    ASSERT(nanEqual(value32, test32));
+    LOOP2_ASSERT(L_, errno, ERANGE == errno);
+
+    errno = 0;
+    value32 = Util::infinity32();
+    test32  = Util::scaleB(Util::infinity32(), 10);
+    ASSERT(nanEqual(value32, test32));
+    LOOP2_ASSERT(L_, errno, 0 == errno);
+
+    errno = 0;
+    value32 = Util::quietNaN32();
+    test32  = Util::scaleB(Util::signalingNaN32(), 10);
+    ASSERT(nanEqual(value32, test32));
+    LOOP2_ASSERT(L_, errno, EDOM == errno);
 
     value64 = Util::parse64("0");
     test64  = Util::scaleB(Util::parse64("0"), 10);
@@ -7228,6 +7273,24 @@ void TestDriver::testCase17()
     test64  = Util::scaleB(Util::parse64("42"), -10);
     ASSERT(Util::equal(value64, test64));
 
+    errno = 0;
+    value64 = Util::infinity64();
+    test64  = Util::scaleB(Util::max64(), 10);
+    ASSERT(nanEqual(value64, test64));
+    LOOP2_ASSERT(L_, errno, ERANGE == errno);
+
+    errno = 0;
+    value64 = Util::infinity64();
+    test64  = Util::scaleB(Util::infinity64(), 10);
+    ASSERT(nanEqual(value64, test64));
+    LOOP2_ASSERT(L_, errno, 0 == errno);
+
+    errno = 0;
+    value64 = Util::quietNaN64();
+    test64  = Util::scaleB(Util::signalingNaN64(), 10);
+    ASSERT(nanEqual(value64, test64));
+    LOOP2_ASSERT(L_, errno, EDOM == errno);
+
 
     value128 = Util::parse128("0");
     test128  = Util::scaleB(Util::parse128("0"), 10);
@@ -7244,6 +7307,25 @@ void TestDriver::testCase17()
     value128 = Util::parse128("4.2e-9");
     test128  = Util::scaleB(Util::parse128("42"), -10);
     ASSERT(Util::equal(value128, test128));
+
+    errno = 0;
+    value128 = Util::infinity128();
+    test128  = Util::scaleB(Util::max128(), 10);
+    ASSERT(nanEqual(value128, test128));
+    LOOP2_ASSERT(L_, errno, ERANGE == errno);
+
+    errno = 0;
+    value128 = Util::infinity128();
+    test128  = Util::scaleB(Util::infinity128(), 10);
+    ASSERT(nanEqual(value128, test128));
+    LOOP2_ASSERT(L_, errno, 0 == errno);
+
+    errno = 0;
+    value128 = Util::quietNaN128();
+    test128  = Util::scaleB(Util::signalingNaN128(), 10);
+    ASSERT(nanEqual(value128, test128));
+    LOOP2_ASSERT(L_, errno, EDOM == errno);
+
 }
 
 void TestDriver::testCase16()
