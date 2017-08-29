@@ -708,15 +708,17 @@ int main(int argc, char* argv[])
             //------------------------------
             // LINE |     X     | EXPECTED
             //------------------------------
-                { L_, DEC(  1.0), ZERO_P   },
-                { L_, DEC( 12.0), DEC(1.0) },
-                { L_, DEC(-11.0), DEC(1.0) },
-                { L_, NAN_P,      NAN_P    },
-                { L_, NAN_N,      NAN_N    },
-                { L_, INF_P,      INF_P    },
-                { L_, INF_N,      INF_P    },
-                { L_, ZERO_P,     INF_N    },
-                { L_, ZERO_N,     INF_N    },
+                { L_, DEC(  1.0),  ZERO_P   },
+                { L_, DEC( 10.0),  DEC(1.0) },
+                { L_, DEC( 12.0),  DEC(1.0) },
+                { L_, DEC(-11.0),  DEC(1.0) },
+                { L_, DEC(-100.0), DEC(2.0) },
+                { L_, NAN_P,       NAN_P    },
+                { L_, NAN_N,       NAN_N    },
+                { L_, INF_P,       INF_P    },
+                { L_, INF_N,       INF_P    },
+                { L_, ZERO_P,      INF_N    },
+                { L_, ZERO_N,      INF_N    },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -787,14 +789,15 @@ int main(int argc, char* argv[])
                 { L_, DEC( 5.1), DEC(3.0), DEC( 2.1)  },
                 { L_, DEC(-5.1), DEC(3.0), DEC(-2.1)  },
                 { L_, DEC( 5.1), NAN_P,    NAN_P      },
-                { L_, DEC( 5.1), NAN_N,    NAN_P      },
-                { L_, DEC( 5.1), INF_P,    DEC( 5.1)  },
-                { L_, DEC(-5.1), INF_N,    DEC(-5.1)  },
-                { L_, DEC( 5.1), ZERO_P,   NAN_P      },
-                { L_, DEC( 5.1), ZERO_N,   NAN_P      },
                 { L_, NAN_P,     DEC(3.0), NAN_P      },
                 { L_, INF_P,     DEC(3.0), NAN_P      },
+                { L_, INF_P,     INF_P,    NAN_P      },
+                { L_, INF_P,     ZERO_P,   NAN_P      },
+                { L_, ZERO_P,    ZERO_P,   NAN_P      },
+                { L_, DEC(5.1),  ZERO_P,   NAN_P      },
                 { L_, ZERO_P,    DEC(3.0), ZERO_P     },
+                { L_, DEC( 5.1), INF_P,    DEC( 5.1)  },
+                { L_, DEC(-5.1), INF_N,    DEC(-5.1)  },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -812,7 +815,7 @@ int main(int argc, char* argv[])
                     LOOP2_ASSERT(LINE, EXPECTED, EXPECTED == RESULT);
                 }
             }
-        }
+        }y
 
         if (veryVerbose) { T_ bsl::cout << "remainder()" << bsl::endl; }
         {

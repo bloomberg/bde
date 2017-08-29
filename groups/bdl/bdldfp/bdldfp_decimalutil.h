@@ -195,7 +195,9 @@ struct DecimalUtil {
         // Return a decimal value with the magnitude of the specifed 'x' and
         // the sign of the specified 'y'.  If 'x' is NaN, then NaN with the
         // sign of 'y' is returned.
-        // Examples: 'copysign(5.0, -2.0)' ==> -5.0; 'ceil(-5.0, -2.0)' ==> 5.0
+        //
+        // Examples: 'copySign( 5.0, -2.0)' ==> -5.0;
+        //           'copySign(-5.0, -2.0)' ==>  5.0
 
     static Decimal32  exp(Decimal32  x);
     static Decimal64  exp(Decimal64  x);
@@ -203,72 +205,102 @@ struct DecimalUtil {
         // Return 'e' (Euler's number, 2.7182818) raised to the specified power
         // 'x'.
         //
-        // Error handling:
+        // Special value handling:
         //: o If 'x' is +/-0, 1 is returned.
         //: o If 'x' is negative infinity, +0 is returned.
-        //: o If 'x' is infinity, infinity is returned.
-        //: o If 'x' is NaN, NaN is returned.
+        //: o If 'x' is +infinity, +infinity is returned.
+        //: o If 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is finite, but the result value is outside the range of
+        //:   the return type, store the value of the macro 'ERANGE' into
+        //:   'errno' and +infinity value is returned.
 
     static Decimal32  log(Decimal32  x);
     static Decimal64  log(Decimal64  x);
     static Decimal128 log(Decimal128 x);
         // Return the natural (base 'e') logarithm of the specified 'x'.
         //
-        // Error handling:
-        //: o If 'x' is +/-0, -infinity is returned.
+        // Special value handling:
+        //: o If 'x' is +/-0, -infinity is returned and the value of the macro
+        //:   'ERANGE' is stored into 'errno'.
         //: o If 'x' is 1, +0 is returned.
-        //: o If 'x' is negative, NaN is returned.
-        //: o If 'x' is infinity, infinity is returned.
-        //: o If 'x' is NaN, NaN is returned.
+        //: o If 'x' is negative, quiet NaN is returned and the value of the
+        //:   macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is +infinity, +infinity is returned.
+        //: o If 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
 
     static Decimal32  logB(Decimal32  x);
     static Decimal64  logB(Decimal64  x);
     static Decimal128 logB(Decimal128 x);
-        // Return the value of the unbiased radix-independent exponent
-        // extracted from the specified 'x'.
+        // Return the logarithm of the modulo of the specified 'x', using
+        // 'DecimalXX' type radix value as base for the logarithm.  The radix
+        // for 'DecimalXX' types is 10, so 'logB()' is equivalent to 'log10()'
+        // for positive values.
         //
-        // Error handling:
-        //: o If 'x' is +/-0, -infinity is returned.
+        // Special value handling:
+        //: o If 'x' is +/-0, -infinity is returned and the value of the macro
+        //:   'ERANGE' is stored into 'errno'.
         //: o If 'x' is +/-infinity, +infinity is returned.
-        //: o If 'x' is NaN, NaN is returned.
+        //: o If 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //
+        // Examples: 'logB(  10.0)' ==> 1.0;
+        //           'logB(-100.0)' ==> 2.0
 
     static Decimal32  log10(Decimal32  x);
     static Decimal64  log10(Decimal64  x);
     static Decimal128 log10(Decimal128 x);
         // Return the common (base-10) logarithm of the specified 'x'.
         //
-        // Error handling:
-        //: o If 'x' is +/-0, -infinity is returned.
+        // Special value handling:
+        //: o If 'x' is +/-0, -infinity is returned and the value of the macro
+        //:   'ERANGE' is stored into 'errno'.
         //: o If 'x' is 1, +0 is returned.
-        //: o If 'x' is negative, NaN is returned.
-        //: o If 'x' is infinity, infinity is returned.
-        //: o If 'x' is NaN, NaN is returned.
+        //: o If 'x' is negative, quiet NaN is returned and the value of the
+        //:   macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is +infinity, +infinity is returned.
+        //: o If 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, NaN is returned and the value of the
+        //:   macro 'EDOM' is stored into 'errno'.
 
     static Decimal32  fmod(Decimal32  x, Decimal32  y);
     static Decimal64  fmod(Decimal64  x, Decimal64  y);
     static Decimal128 fmod(Decimal128 x, Decimal128 y);
-        // Return the remainder of the division the specified 'x' by the
+        // Return the remainder of the division the specified 'x' of the
         // specified 'y'.
         //
-        // Error handling:
+        // Special value handling:
+        //: o If either argument is quiet NaN, quiet NaN is returned.
+        //: o If either argument is signaling NaN, quiet NaN is returned, and
+        //:   the value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is +/-infnity and 'y' is not NaN, quiet NaN is returned
+        //:   and the value of the macro 'EDOM' is stored into 'errno'.
         //: o If 'x' is +/-0 and 'y' is not zero, +/-0 is returned.
-        //: o If 'x' is +/-infnity and 'y' is not NaN, NaN is returned.
-        //: o If 'y' is +/-0 and 'x' is not NaN, NaN is returned.
-        //: o If 'y' is +/-infnity and 'x' is finite, 'x' is returned.
-        //: o If either argument is NaN, NaN is returned.
+        //: o If 'y' is +/-0, quite NaN is returned and the value of the macro
+        //:   'EDOM' is stored into 'errno'.
+        //: o If 'x' is finite and 'y' is +/-infnity, 'x' is returned.
 
     static Decimal32  remainder(Decimal32  x, Decimal32  y);
     static Decimal64  remainder(Decimal64  x, Decimal64  y);
     static Decimal128 remainder(Decimal128 x, Decimal128 y);
-        // Return the remainder of the division the specified 'x' by the
+        // Return the remainder of the division the specified 'x' of the
         // specified 'y'.  Note that in contrast to 'DecimalImpUtil::fmod()',
         // the returned value is not guaranteed to have the same sign as 'x'.
         //
-        // Error handling:
+        // Special value handling:
         //: o The current rounding mode has no effect.
-        //: o If 'y' is +/-0 and 'y' is not NaN, NaN is returned.
-        //: o If 'x' is +/-infnity and 'y' is not NaN, NaN is returned.
-        //: o If either argument is NaN, NaN is returned.
+        //: o If either argument is quiet NaN, quiet NaN is returned.
+        //: o If either argument is signaling NaN, quiet NaN is returned, and
+        //:   the value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'y' is +/-0, quiet NaN is returned and the value of the macro
+        //:   'EDOM' is stored into 'errno'.
+        //: o If 'x' is +/-infnity and 'y' is not NaN, quiet NaN is returned
+        //:   and the value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is finite and 'y' is +/-infnity, 'x' is returned.
 
     static long int        lrint(Decimal32  x);
     static long int        lrint(Decimal64  x);
@@ -277,11 +309,10 @@ struct DecimalUtil {
     static long long int  llrint(Decimal64  x);
     static long long int  llrint(Decimal128 x);
         // Return an integer value nearest to the specified 'x'.  Round 'x'
-        // using the current rounding mode.
-        //
-        // Error handling:
-        //: o If 'x' is +/-infnity, NaN is returned.
-        //: o If 'x' is NaN, NaN is returned.
+        // using the current rounding mode.  If 'x' is +/-infnity, NaN (either
+        // signaling or quiet) or the rounded value is outside the range of the
+        // return type, store the value of the macro 'EDOM' into 'errno' and
+        // return 0x8000000000000000 value.
 
     static Decimal32  nextafter( Decimal32  from, Decimal32  to);
     static Decimal64  nextafter( Decimal64  from, Decimal64  to);
@@ -292,14 +323,34 @@ struct DecimalUtil {
         // Return the next representable value of the specified 'from' in the
         // direction of the specified 'to'.
         //
-        // Error handling:
-        //: o If either argument is NaN, NaN is returned.
+        // Special value handling:
+        //: o If either argument is quiet NaN, quiet NaN is returned.
+        //: o If either argument is signaling NaN, quiet NaN is returned and
+        //:   the value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'from' is finite, but the expected result is an infinity,
+        //:   infinity is returned and the value of the macro 'ERANGE' is
+        //:   stored into 'errno'.
+        //: o If 'from' does not equal 'to' and the result is subnormal or
+        //:   zero, the value of the macro 'ERANGE' is stored into 'errno'.
 
     static Decimal32  pow(Decimal32  base, Decimal32  exp);
     static Decimal64  pow(Decimal64  base, Decimal64  exp);
     static Decimal128 pow(Decimal128 base, Decimal128 exp);
         // Return the value of the specified 'base' raised to the power the
         // specified 'exp'.
+        //
+        // Special value handling:
+        //: o If 'base' is finite and negative and 'exp' is finite and
+        //:   non-integer, quiet NaN is returned and the value of the macro
+        //:   'EDOM' is stored into 'errno'.
+        //: o If a pole error or a range error due to overflow occurs, infinity
+        //:   is returned and the value of the macro 'ERANGE' is stored into
+        //:  'errno'.
+        //: o If a range error occurs due to underflow, the correct result
+        //:   (after rounding) is returned and the value of the macro 'ERANGE'
+        //:   is stored into 'errno'.
+        //: o If either argument is signaling NaN, quiet NaN is returned and
+        //:   the value of the macro 'EDOM' is stored into 'errno'.
 
     static Decimal32  fma(Decimal32  x, Decimal32  y, Decimal32  z);
     static Decimal64  fma(Decimal64  x, Decimal64  y, Decimal64  z);
@@ -307,20 +358,41 @@ struct DecimalUtil {
         // Return, using the specified 'x', 'y', and 'z', the value of the
         // expression 'x * y + z', rounded as one ternary operation according
         // to the current decimal floating point rounding mode.
+        //
+        // Special value handling:
+        //: o If 'x' or 'y' are quiet NaN, quiet NaN is returned.
+        //: o If any argument is signaling NaN, quiet NaN is returned and the
+        //:   value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x*y' is an exact infinity and 'z' is an infinity with the
+        //:   opposite sign, quiet NaN is returned and the value of the macro
+        //:   'EDOM' is stored into 'errno'.
+        //: o If 'x' is zero and 'y' is infinite or if 'x' is infinite and 'y'
+        //:   is zero, and 'z' is not a NaN, then quiet NaN is returned and the
+        //:   value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is zero and 'y' is infinite or if 'x' is infinite and 'y'
+        //:   is zero, and 'z' is NaN, then quiet NaN is returned.
 
                        // Selecting, converting functions
 
     static Decimal32  fabs(Decimal32  value);
     static Decimal64  fabs(Decimal64  value);
     static Decimal128 fabs(Decimal128 value);
-        // Return the absolute value of the specified 'value'.  Note that the
-        // absolute value of NaN is NaN.  The absolute values of negative zero
-        // or infinity are positive zero and infinity respectively.
+        // Return the absolute value of the specified 'x'.
+        //
+        // Special value handling:
+        //: o if 'x' is NaN (either signaling or quiet), quiet NaN is returned.
+        //: o if 'x' is +/-infinity or +/-0, it is returned unmodified.
 
     static Decimal32  sqrt(Decimal32  x);
     static Decimal64  sqrt(Decimal64  x);
     static Decimal128 sqrt(Decimal128 x);
         // Return the square root of the specified 'x'.
+        //
+        // Special value handling:
+        //: o If 'x' is NaN, NaN is returned.
+        //: o If 'x' is less than -0, NaN is returned and the value of the
+        //:   macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is +/-infinity or +/-0, it is returned unmodified.
 
     // TODO TBD priority 2
     // static Decimal32 fmax(Decimal32 x, Decimal32 y);
@@ -404,44 +476,74 @@ struct DecimalUtil {
     static Decimal64  ceil(Decimal64  x);
     static Decimal128 ceil(Decimal128 x);
         // Return the smallest integral value that is not less than the
-        // specified 'x'.  If 'x' is integral, plus zero, minus zero, NaN, or
-        // infinity 'x' return 'x' itself.
+        // specified 'x'.
+        //
+        // Special value handling:
+        //: o if 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o if 'x' is +/-infinity or +/-0, it is returned unmodified.
+        //
         // Examples: 'ceil(0.5)' ==> 1.0; 'ceil(-0.5)' ==> 0.0
 
     static Decimal32  floor(Decimal32  x);
     static Decimal64  floor(Decimal64  x);
     static Decimal128 floor(Decimal128 x);
         // Return the largest integral value that is not greater than the
-        // specified 'x'.  If 'x' is integral, positive zero, negative zero,
-        // NaN, or infinity 'x' return 'x' itself.
+        // specified 'x'.
+        //
+        // Special value handling:
+        //: o if 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o if 'x' is +/-infinity or +/-0, it is returned unmodified.
+        //
         // Examples: 'floor(0.5)' ==> 0.0; 'floor(-0.5)' ==> -1.0
 
     static Decimal32   round(Decimal32  x);
     static Decimal64   round(Decimal64  x);
     static Decimal128  round(Decimal128 x);
-        // Return the integal value nearest to the specified 'x'.  Round
+        // Return the integral value nearest to the specified 'x'.  Round
         // halfway cases away from zero, regardless of the current decimal
-        // floating point rounding mode.  If 'x' is integral, positive zero,
-        // negative zero, NaN, or infinity then return 'x' itself.
+        // floating point rounding mode.
+        //
+        // Special value handling:
+        //: o if 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o if 'x' is +/-infinity or +/-0, it is returned unmodified.
+        //
         // Examples: 'round(0.5)' ==> 1.0; 'round(-0.5)' ==> -1.0
 
     static long int   lround(Decimal32  x);
     static long int   lround(Decimal64  x);
     static long int   lround(Decimal128 x);
-        // Return the integal value nearest to the specified 'x', rounding away
-        // from zero regardless of the current decimal floating point rounding
-        // mode.  If the specified 'x' is NaN, infinity, or too large a value
-        // to be stored in the return type raise a 'domain exception', the
-        // return value in such case is unspecified.  Note that these
-        // functions, unlike the other rounding functions, return different
-        // types than their argument type.
+        // Return the integral value nearest to the specified 'x'.  Round
+        // halfway cases away from zero, regardless of the current decimal
+        // floating point rounding mode.
+        //
+        // Special value handling:
+        //: o if 'x' is NaN (either quiet or signaling), quiet NaN is returned
+        //:   and the value of the macro 'EDOM' is stored into 'errno'.
+        //: o if 'x' is +/-infinity, quite NaN is returned and the value of the
+        //:   macro 'EDOM' is stored into 'errno'.
+        //: o If the result of the rounding is outside the range of the return
+        //:   type, the macro 'EDOM' is stored into 'errno'.
+        //
+        // Examples: 'lround(0.5)' ==> 1.0; 'lround(-0.5)' ==> -1.0
 
     static Decimal32  trunc(Decimal32  x);
     static Decimal64  trunc(Decimal64  x);
     static Decimal128 trunc(Decimal128 x);
-        // Return the nearest integal value that is not greater in absolute
-        // value than the specified 'x'.  If 'x' is integral, NaN, or infinity
-        // then return 'x' itself.
+        // Return the nearest integral value that is not greater in absolute
+        // value than the specified 'x'.
+        //
+        // Special value handling:
+        //: o if 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o if 'x' is +/-infinity or +/-0, it is returned unmodified.
+        //
         // Examples: 'trunc(0.5)' ==> 0.0; 'trunc(-0.5)' ==> 0.0
 
                              // Quantum functions
@@ -517,7 +619,7 @@ struct DecimalUtil {
         // 'invalid floating point expection' is raised and NaN is returned.
 
     // static Decimal32 rint(Decimal32 x);
-        // Return the integal value nearest to the specified 'x'.  Round
+        // Return the integral value nearest to the specified 'x'.  Round
         // halfway according to the current decimal floating point rounding
         // mode.  Raise the 'inexact exception' if the return value differs
         // from the argument 'x' in value.  If 'x' is integral, plus zero,
@@ -525,7 +627,7 @@ struct DecimalUtil {
 
     // static long int lround(Decimal32 x);
     // static long long int llround(Decimal32 x);
-        // Return the integal value nearest to the specified 'x', rounding away
+        // Return the integral value nearest to the specified 'x', rounding away
         // from zero regardless of the current decimal floating point rounding
         // mode.  If the specified 'x' is NaN, infinity, or too large a value
         // to be stored in the return type raise a 'domain exception', the

@@ -230,6 +230,17 @@ BSLS_IDENT("$Id$")
 // floating-point events can clear the flags prior to an operation and check
 // their values afterwards.)
 //
+/// Error Reporting
+///-  -  -  -  -  -
+// The utility 'bdldfp_decimalutil' component provides a set of math functions
+// that parallel functions in the C++ standard math library.  The utility
+// functions implement the same functionality as standard math functions but
+// operate on decimal floating-point numbers.  If an error occurs during a math
+// operation, the 'errno' is used to report the error as described in the
+// "Status Flags" section above.  Such unusual for BDE way to handle errors is
+// motivated by intention to replicate in the utility math functions error
+// reporting mechanism implemented in C++ standard math library.
+//
 ///Floating-Point Terminology
 /// - - - - - - - - - - - - -
 // A floating-point representation of a number is defined as follows:

@@ -11,6 +11,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalutil_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bslmf_assert.h>
 
+#include <bsl_c_errno.h>
 #include <bsl_cmath.h>
 #include <bsl_cstring.h>
 #include <errno.h>
@@ -28,9 +29,6 @@ BSLS_IDENT_RCSID(bdldfp_decimalutil_cpp,"$Id$ $CSID$")
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
 #include <bdldfp_intelimpwrapper.h>
 #endif
-
-
-#include <errno.h>
 
 namespace BloombergLP {
 namespace bdldfp {

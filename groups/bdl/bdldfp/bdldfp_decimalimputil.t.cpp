@@ -166,9 +166,9 @@ using bsl::atoi;
 // [23] ValueType128 infinity128();
 // [23] ValueType128 quietNaN128();
 // [23] ValueType128 signalingNaN128();
-// [27] ValueType32  copysign(ValueType32);
-// [27] ValueType64  copysign(ValueType64);
-// [27] ValueType128 copysign(ValueType128);
+// [27] ValueType32  copySign(ValueType32);
+// [27] ValueType64  copySign(ValueType64);
+// [27] ValueType128 copySign(ValueType128);
 // [27] ValueType32  exp(ValueType32);
 // [27] ValueType64  exp(ValueType64);
 // [27] ValueType128 exp(ValueType128);
@@ -916,6 +916,13 @@ struct DecimalFactory<Util::ValueType32>
     {
         return Util::quietNaN32();
     }
+
+    static Util::ValueType32 signalingNaN()
+        // Return a value that represents signaling NaN for the
+        // 'ValueType32' type.
+    {
+        return Util::signalingNaN32();
+    }
 };
 
 template <>
@@ -948,6 +955,13 @@ struct DecimalFactory<Util::ValueType64>
     {
         return Util::quietNaN64();
     }
+
+    static Util::ValueType64 signalingNaN()
+        // Return a value that represents signaling NaN for the
+        // 'ValueType64' type.
+    {
+        return Util::signalingNaN64();
+    }
 };
 
 template <>
@@ -979,6 +993,13 @@ struct DecimalFactory<Util::ValueType128>
         // 'ValueType128' type.
     {
         return Util::quietNaN128();
+    }
+
+    static Util::ValueType128 signalingNaN()
+        // Return a value that represents signaling NaN for the
+        // 'ValueType128' type.
+    {
+        return Util::signalingNaN128();
     }
 };
 
@@ -1027,7 +1048,9 @@ void testFma()
     const DECIMAL  INF_P  = Factory::infinity();
     const DECIMAL  INF_N  = Util::negate(INF_P);
     const DECIMAL  NaN    = Factory::quietNaN();
+    const DECIMAL  sNAN   = Factory::signalingNaN();
     const DECIMAL  NORMAL = Factory::makeDecimalRaw(42, 0);
+    const DECIMAL  ZERO   = Factory::makeDecimalRaw( 0, 0);
 
     ASSERT( Util::equal(INF_P, INF_P));
     ASSERT( Util::equal(INF_N, INF_N));
@@ -1036,107 +1059,123 @@ void testFma()
     ASSERT( Util::notEqual(NaN, NaN));
 
     struct {
-        int     d_line;
-        DECIMAL  d_x;
-        DECIMAL  d_y;
-        DECIMAL  d_z;
-        DECIMAL  d_expected;
+        int          d_line;
+        DECIMAL      d_x;
+        DECIMAL      d_y;
+        DECIMAL      d_z;
+        DECIMAL      d_expected;
+        unsigned int d_errno;
     } DATA[] = {
+     //------------------------------------------------
+     //LINE |   A  |   B   |   C    | EXPECTED
+     //------------------------------------------------
+        { L_, INF_N,  INF_N,  INF_N,  NaN,    EDOM },
+        { L_, INF_N,  INF_N,  NORMAL, INF_P,     0 },
+        { L_, INF_N,  INF_N,  INF_P,  INF_P,     0 },
+        { L_, INF_N,  INF_N,  NaN,    NaN,       0 },
 
-        //    A        B        C,      EXPECTED
-        { L_, INF_N,  INF_N,  INF_N,  NaN    },
-        { L_, INF_N,  INF_N,  NORMAL, INF_P  },
-        { L_, INF_N,  INF_N,  INF_P,  INF_P  },
-        { L_, INF_N,  INF_N,  NaN,    NaN    },
+        { L_, INF_N,  NORMAL, INF_N,  INF_N,     0 },
+        { L_, INF_N,  NORMAL, NORMAL, INF_N,     0 },
+        { L_, INF_N,  NORMAL, INF_P,  NaN,    EDOM },
+        { L_, INF_N,  NORMAL, NaN,    NaN,       0 },
 
-        { L_, INF_N,  NORMAL, INF_N,  INF_N  },
-        { L_, INF_N,  NORMAL, NORMAL, INF_N  },
-        { L_, INF_N,  NORMAL, INF_P,  NaN    },
-        { L_, INF_N,  NORMAL, NaN,    NaN    },
+        { L_, INF_N,  INF_P,  INF_N,  INF_N,     0 },
+        { L_, INF_N,  INF_P,  NORMAL, INF_N,     0 },
+        { L_, INF_N,  INF_P,  INF_P,  NaN,    EDOM },
+        { L_, INF_N,  INF_P,  NaN,    NaN,       0 },
 
-        { L_, INF_N,  INF_P,  INF_N,  INF_N  },
-        { L_, INF_N,  INF_P,  NORMAL, INF_N  },
-        { L_, INF_N,  INF_P,  INF_P,  NaN    },
-        { L_, INF_N,  INF_P,  NaN,    NaN    },
+        { L_, INF_N,  NaN,    INF_N,  NaN,       0 },
+        { L_, INF_N,  NaN,    NORMAL, NaN,       0 },
+        { L_, INF_N,  NaN,    INF_P,  NaN,       0 },
+        { L_, INF_N,  NaN,    NaN,    NaN,       0 },
 
-        { L_, INF_N,  NaN,    INF_N,  NaN    },
-        { L_, INF_N,  NaN,    NORMAL, NaN    },
-        { L_, INF_N,  NaN,    INF_P,  NaN    },
-        { L_, INF_N,  NaN,    NaN,    NaN    },
+        { L_, NORMAL, INF_N,  INF_N,  INF_N,     0 },
+        { L_, NORMAL, INF_N,  NORMAL, INF_N,     0 },
+        { L_, NORMAL, INF_N,  INF_P,  NaN,    EDOM },
+        { L_, NORMAL, INF_N,  NaN,    NaN,       0 },
 
-        { L_, NORMAL, INF_N,  INF_N,  INF_N  },
-        { L_, NORMAL, INF_N,  NORMAL, INF_N  },
-        { L_, NORMAL, INF_N,  INF_P,  NaN    },
-        { L_, NORMAL, INF_N,  NaN,    NaN    },
+        { L_, NORMAL, NORMAL, INF_N,  INF_N,     0 },
+        { L_, NORMAL, NORMAL, NORMAL, Factory::makeDecimalRaw(42*42+42, 0),
+                                                 0 },
+        { L_, NORMAL, NORMAL, INF_P,  INF_P,     0 },
+        { L_, NORMAL, NORMAL, NaN,    NaN,       0 },
 
-        { L_, NORMAL, NORMAL, INF_N,  INF_N  },
-        { L_, NORMAL, NORMAL, NORMAL, Factory::makeDecimalRaw(42*42+42, 0) },
-        { L_, NORMAL, NORMAL, INF_P,  INF_P  },
-        { L_, NORMAL, NORMAL, NaN,    NaN    },
+        { L_, NORMAL, INF_P,  INF_N,  NaN,    EDOM },
+        { L_, NORMAL, INF_P,  NORMAL, INF_P,     0 },
+        { L_, NORMAL, INF_P,  INF_P,  INF_P,     0 },
+        { L_, NORMAL, INF_P,  NaN,    NaN,       0 },
 
-        { L_, NORMAL, INF_P,  INF_N,  NaN    },
-        { L_, NORMAL, INF_P,  NORMAL, INF_P  },
-        { L_, NORMAL, INF_P,  INF_P,  INF_P  },
-        { L_, NORMAL, INF_P,  NaN,    NaN    },
+        { L_, NORMAL, NaN,    INF_N,  NaN,       0 },
+        { L_, NORMAL, NaN,    NORMAL, NaN,       0 },
+        { L_, NORMAL, NaN,    INF_P,  NaN,       0 },
+        { L_, NORMAL, NaN,    NaN,    NaN,       0 },
 
-        { L_, NORMAL, NaN,    INF_N,  NaN    },
-        { L_, NORMAL, NaN,    NORMAL, NaN    },
-        { L_, NORMAL, NaN,    INF_P,  NaN    },
-        { L_, NORMAL, NaN,    NaN,    NaN    },
+        { L_, INF_P,  INF_N,  INF_N,  INF_N,     0 },
+        { L_, INF_P,  INF_N,  NORMAL, INF_N,     0 },
+        { L_, INF_P,  INF_N,  INF_P,  NaN,    EDOM },
+        { L_, INF_P,  INF_N,  NaN,    NaN,       0 },
 
-        { L_, INF_P,  INF_N,  INF_N,  INF_N  },
-        { L_, INF_P,  INF_N,  NORMAL, INF_N  },
-        { L_, INF_P,  INF_N,  INF_P,  NaN    },
-        { L_, INF_P,  INF_N,  NaN,    NaN    },
+        { L_, INF_P,  NORMAL, INF_N,  NaN,    EDOM },
+        { L_, INF_P,  NORMAL, NORMAL, INF_P,     0 },
+        { L_, INF_P,  NORMAL, INF_P,  INF_P,     0 },
+        { L_, INF_P,  NORMAL, NaN,    NaN,       0 },
 
-        { L_, INF_P,  NORMAL, INF_N,  NaN    },
-        { L_, INF_P,  NORMAL, NORMAL, INF_P  },
-        { L_, INF_P,  NORMAL, INF_P,  INF_P  },
-        { L_, INF_P,  NORMAL, NaN,    NaN    },
+        { L_, INF_P,  INF_P,  INF_N,  NaN,    EDOM },
+        { L_, INF_P,  INF_P,  NORMAL, INF_P,     0 },
+        { L_, INF_P,  INF_P,  INF_P,  INF_P,     0 },
+        { L_, INF_P,  INF_P,  NaN,    NaN,       0 },
 
-        { L_, INF_P,  INF_P,  INF_N,  NaN    },
-        { L_, INF_P,  INF_P,  NORMAL, INF_P  },
-        { L_, INF_P,  INF_P,  INF_P,  INF_P  },
-        { L_, INF_P,  INF_P,  NaN,    NaN    },
+        { L_, INF_P,  NaN,    INF_N,  NaN,       0 },
+        { L_, INF_P,  NaN,    NORMAL, NaN,       0 },
+        { L_, INF_P,  NaN,    INF_P,  NaN,       0 },
+        { L_, INF_P,  NaN,    NaN,    NaN,       0 },
 
-        { L_, INF_P,  NaN,    INF_N,  NaN    },
-        { L_, INF_P,  NaN,    NORMAL, NaN    },
-        { L_, INF_P,  NaN,    INF_P,  NaN    },
-        { L_, INF_P,  NaN,    NaN,    NaN    },
+        { L_, NaN,    INF_N,  INF_N,  NaN,       0 },
+        { L_, NaN,    INF_N,  NORMAL, NaN,       0 },
+        { L_, NaN,    INF_N,  INF_P,  NaN,       0 },
+        { L_, NaN,    INF_N,  NaN,    NaN,       0 },
 
-        { L_, NaN,    INF_N,  INF_N,  NaN    },
-        { L_, NaN,    INF_N,  NORMAL, NaN    },
-        { L_, NaN,    INF_N,  INF_P,  NaN    },
-        { L_, NaN,    INF_N,  NaN,    NaN    },
+        { L_, NaN,    NORMAL, INF_N,  NaN,       0 },
+        { L_, NaN,    NORMAL, NORMAL, NaN,       0 },
+        { L_, NaN,    NORMAL, INF_P,  NaN,       0 },
+        { L_, NaN,    NORMAL, NaN,    NaN,       0 },
 
-        { L_, NaN,    NORMAL, INF_N,  NaN    },
-        { L_, NaN,    NORMAL, NORMAL, NaN    },
-        { L_, NaN,    NORMAL, INF_P,  NaN    },
-        { L_, NaN,    NORMAL, NaN,    NaN    },
+        { L_, NaN,    INF_P,  INF_N,  NaN,       0 },
+        { L_, NaN,    INF_P,  NORMAL, NaN,       0 },
+        { L_, NaN,    INF_P,  INF_P,  NaN,       0 },
+        { L_, NaN,    INF_P,  NaN,    NaN,       0 },
 
-        { L_, NaN,    INF_P,  INF_N,  NaN    },
-        { L_, NaN,    INF_P,  NORMAL, NaN    },
-        { L_, NaN,    INF_P,  INF_P,  NaN    },
-        { L_, NaN,    INF_P,  NaN,    NaN    },
+        { L_, NaN,    NaN,    INF_N,  NaN,       0 },
+        { L_, NaN,    NaN,    NORMAL, NaN,       0 },
+        { L_, NaN,    NaN,    INF_P,  NaN,       0 },
+        { L_, NaN,    NaN,    NaN,    NaN,       0 },
 
-        { L_, NaN,    NaN,    INF_N,  NaN    },
-        { L_, NaN,    NaN,    NORMAL, NaN    },
-        { L_, NaN,    NaN,    INF_P,  NaN    },
-        { L_, NaN,    NaN,    NaN,    NaN    },
+        { L_, ZERO,   INF_P,  NORMAL, NaN,    EDOM },
+        { L_, INF_P,  ZERO,   NORMAL, NaN,    EDOM },
+        { L_, ZERO,   INF_P,  NaN,    NaN,       0 },
+        { L_, INF_P,  ZERO,   NaN,    NaN,       0 },
+
+        { L_, sNAN,   NORMAL, NORMAL, NaN,    EDOM },
+        { L_, NORMAL, sNAN,   NORMAL, NaN,    EDOM },
+        { L_, NORMAL, NORMAL, sNAN,   NaN,    EDOM },
     };
 
 
     const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
-        const int     LINE     = DATA[ti].d_line;
-        const DECIMAL  X        = DATA[ti].d_x;
-        const DECIMAL  Y        = DATA[ti].d_y;
-        const DECIMAL  Z        = DATA[ti].d_z;
-        const DECIMAL  EXPECTED = DATA[ti].d_expected;
+        const int     LINE  = DATA[ti].d_line;
+        const DECIMAL X     = DATA[ti].d_x;
+        const DECIMAL Y     = DATA[ti].d_y;
+        const DECIMAL Z     = DATA[ti].d_z;
+        unsigned int& ERRNO = DATA[ti].d_errno;
+
+        errno = 0;
+        const DECIMAL EXPECTED = DATA[ti].d_expected;
 
         DECIMAL RESULT = Util::fma(X, Y, Z);
         LOOP1_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+        LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
     }
 }
 
@@ -1340,9 +1379,9 @@ void TestDriver::testCase30()
     //:      ensure that the result of execution equals the expected value.
     //
     // Testing:
-    //   ValueType32  quantize(ValueType32,  ValueType32);
-    //   ValueType64  quantize(ValueType64,  ValueType64);
-    //   ValueType128 quantize(ValueType128, ValueType128);
+    //   ValueType32  sameQuantum(ValueType32,  ValueType32);
+    //   ValueType64  sameQuantum(ValueType64,  ValueType64);
+    //   ValueType128 sameQuantum(ValueType128, ValueType128);
     // ------------------------------------------------------------------------
 
     if (verbose) bsl::cout << "\nTESTING 'sameQuantum' METHOD"
@@ -1527,21 +1566,22 @@ void TestDriver::testCase29()
             Obj d_exponent;
             Obj d_expected;
         } DATA[] = {
-        //---------------------------------------------------
-        // LINE |      X     | EXPONENT     | EXPECTED
-        //---------------------------------------------------
-        { L_,    DEC(1.23456), DEC(0.1),      DEC(1.2)      },
-        { L_,    DEC(1.23456), DEC(0.01),     DEC(1.23)     },
-        { L_,    DEC(1.23456), DEC(0.001),    DEC(1.235)    },
-        { L_,    DEC(1.23456), DEC(0.0001),   DEC(1.2346)   },
-        { L_,    DEC(1.23456), DEC(0.00001),  DEC(1.23456)  },
-        { L_,    DEC(1.23456), DEC(0.000001), DEC(1.234560) },
-        { L_,    DEC(1.23456), INF_P,         NAN_P         },
-        { L_,    DEC(1.23456), INF_N,         NAN_P         },
-        { L_,    DEC(1.23456), NAN_P,         NAN_P         },
-        { L_,    DEC(1.23456), NAN_N,         NAN_P         },
-        { L_,    INF_P,        DEC(0.1),      NAN_P         },
-        { L_,    INF_N,        DEC(0.1),      NAN_P         },
+        //------------------------------------------------------
+        // LINE |      X     |    EXPONENT     | EXPECTED
+        //------------------------------------------------------
+        { L_,    DEC(1.23456),    DEC(0.1),      DEC(1.2)      },
+        { L_,    DEC(1.23456),    DEC(0.01),     DEC(1.23)     },
+        { L_,    DEC(1.23456),    DEC(0.001),    DEC(1.235)    },
+        { L_,    DEC(1.23456),    DEC(0.0001),   DEC(1.2346)   },
+        { L_,    DEC(1.23456),    DEC(0.00001),  DEC(1.23456)  },
+        { L_,    DEC(1.23456),    DEC(0.000001), DEC(1.234560) },
+        { L_,    DEC(1.23456e+5), DEC(1e+2),     DEC(1.235e+5) },
+        { L_,    DEC(1.23456),    INF_P,         NAN_P         },
+        { L_,    DEC(1.23456),    INF_N,         NAN_P         },
+        { L_,    DEC(1.23456),    NAN_P,         NAN_P         },
+        { L_,    DEC(1.23456),    NAN_N,         NAN_P         },
+        { L_,    INF_P,           DEC(0.1),      NAN_P         },
+        { L_,    INF_N,           DEC(0.1),      NAN_P         },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -1588,9 +1628,9 @@ void TestDriver::testCase29()
         { L_,    DEC(1.2345678), INF_P,     NAN_P           },
         { L_,    DEC(1.2345678), INF_N,     NAN_P           },
         { L_,    DEC(1.2345678), NAN_P,     NAN_P           },
-        { L_,    DEC(1.2345678), NAN_N,     NAN_P           },
+        { L_,    DEC(1.2345678), NAN_N,     NAN_N           },
         { L_,    DEC(1.2345678), NAN_P,     NAN_P           },
-        { L_,    DEC(1.2345678), NAN_N,     NAN_P           },
+        { L_,    DEC(1.2345678), NAN_N,     NAN_N           },
         { L_,    INF_P,          DEC(0.1),  NAN_P           },
         { L_,    INF_N,          DEC(0.1),  NAN_P           },
         };
@@ -1642,9 +1682,9 @@ void TestDriver::testCase29()
         { L_,    DEC_NUM, INF_P,      NAN_P                     },
         { L_,    DEC_NUM, INF_N,      NAN_P                     },
         { L_,    DEC_NUM, NAN_P,      NAN_P                     },
-        { L_,    DEC_NUM, NAN_N,      NAN_P                     },
+        { L_,    DEC_NUM, NAN_N,      NAN_N                     },
         { L_,    DEC_NUM, NAN_P,      NAN_P                     },
-        { L_,    DEC_NUM, NAN_N,      NAN_P                     },
+        { L_,    DEC_NUM, NAN_N,      NAN_N                     },
         { L_,    INF_P,   DEC(0.1),   NAN_P                     },
         { L_,    INF_N,   DEC(0.1),   NAN_P                     },
         };
@@ -1805,12 +1845,15 @@ void TestDriver::testCase27()
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
 
         const Obj DECIMAL = DEC(1234567.0);
-        const Obj NAN_P   =              Util::quietNaN32();
-        const Obj NAN_N   = Util::negate(Util::quietNaN32());
-        const Obj INF_P   =              Util::infinity32();
-        const Obj INF_N   = Util::negate(Util::infinity32());
-        const Obj ZERO_P  =              DEC(0.0);
+        const Obj NAN_P   = Util::quietNaN32();
+        const Obj NAN_N   = Util::negate(NAN_P);
+        const Obj sNAN_P  = Util::signalingNaN32();
+        const Obj INF_P   = Util::infinity32();
+        const Obj INF_N   = Util::negate(INF_P);
+        const Obj ZERO_P  = DEC(0.0);
         const Obj ZERO_N  = Util::negate(ZERO_P);
+        const Obj MAX_P   = Util::max32();
+        const Obj MAX_N   = Util::negate(MAX_P);
 
         if (veryVerbose) { T_ T_ bsl::cout << "copySign()" << bsl::endl; };
         {
@@ -1916,315 +1959,387 @@ void TestDriver::testCase27()
         if (veryVeryVerbose) { T_ T_ bsl::cout << "exp()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //------------------------------------------
-            // LINE |     X         | EXPECTED
-            //------------------------------------------
-                { L_, DEC( 12.0),     DEC(1.627548e+5) },
-                { L_, DEC(-11.0),     DEC(1.670170e-5) },
-                { L_, DEC(9999999.0), INF_P            },
-                { L_, NAN_P,          NAN_P            },
-                { L_, NAN_N,          NAN_N            },
-                { L_, INF_P,          INF_P            },
-                { L_, INF_N,          ZERO_P           },
-                { L_, ZERO_P,         DEC(1.0)         },
-                { L_, ZERO_N,         DEC(1.0)         },
+            //--------------------------------------------------
+            // LINE |     X         | EXPECTED        |  ERRNO
+            //--------------------------------------------------
+                { L_, sNAN_P,         NAN_P,              EDOM },
+                { L_, DEC( 12.0),     DEC(1.627548e+5),      0 },
+                { L_, DEC(-11.0),     DEC(1.670170e-5),      0 },
+                { L_, DEC(9999999.0), INF_P,            ERANGE },
+                { L_, NAN_P,          NAN_P,                 0 },
+                { L_, NAN_N,          NAN_N,                 0 },
+                { L_, INF_P,          INF_P,                 0 },
+                { L_, INF_N,          ZERO_P,                0 },
+                { L_, ZERO_P,         DEC(1.0),              0 },
+                { L_, ZERO_N,         DEC(1.0),              0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::exp(X);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj  RESULT = Util::exp(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "log()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------
-            // LINE |     X     | EXPECTED
-            //-----------------------------------
-                { L_, DEC(  1.0), ZERO_P        },
-                { L_, DEC( 12.0), DEC(2.484907) },
-                { L_, DEC(-11.0), NAN_N         },
-                { L_, NAN_P,      NAN_P         },
-                { L_, NAN_N,      NAN_N         },
-                { L_, INF_P,      INF_P         },
-                { L_, INF_N,      NAN_N         },
-                { L_, ZERO_P,     INF_N         },
-                { L_, ZERO_N,     INF_N         },
+            //-------------------------------------------
+            // LINE |     X     | EXPECTED     |  ERRNO
+            //-------------------------------------------
+                { L_, sNAN_P,     NAN_P,           EDOM },
+                { L_, DEC(  1.0), ZERO_P,             0 },
+                { L_, DEC( 12.0), DEC(2.484907),      0 },
+                { L_, DEC(-11.0), NAN_P,           EDOM },
+                { L_, NAN_P,      NAN_P,              0 },
+                { L_, NAN_N,      NAN_N,              0 },
+                { L_, INF_P,      INF_P,              0 },
+                { L_, INF_N,      NAN_P,           EDOM },
+                { L_, ZERO_P,     INF_N,         ERANGE },
+                { L_, ZERO_N,     INF_N,         ERANGE },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::log(X);
+                const int  LINE           = DATA[ti].d_line;
+                const Obj& X              = DATA[ti].d_x;
+                const Obj& EXPECTED       = DATA[ti].d_expected;
+                const unsigned int& ERRNO = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::log(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //------------------------------
-            // LINE |     X     | EXPECTED
-            //------------------------------
-                { L_, DEC(  1.0), ZERO_P   },
-                { L_, DEC( 12.0), DEC(1.0) },
-                { L_, DEC(-11.0), DEC(1.0) },
-                { L_, NAN_P,      NAN_P    },
-                { L_, NAN_N,      NAN_N    },
-                { L_, INF_P,      INF_P    },
-                { L_, INF_N,      INF_P    },
-                { L_, ZERO_P,     INF_N    },
-                { L_, ZERO_N,     INF_N    },
+            //---------------------------------------
+            // LINE |     X     | EXPECTED |  ERRNO
+            //---------------------------------------
+                { L_, DEC(  1.0),  ZERO_P,        0 },
+                { L_, DEC( 10.0),  DEC(1.0),      0 },
+                { L_, DEC( 12.0),  DEC(1.0),      0 },
+                { L_, DEC(-11.0),  DEC(1.0),      0 },
+                { L_, DEC(-100.0), DEC(2.0),      0 },
+                { L_, sNAN_P,      NAN_P,      EDOM },
+                { L_, NAN_P,       NAN_P,         0 },
+                { L_, NAN_N,       NAN_N,         0 },
+                { L_, INF_P,       INF_P,         0 },
+                { L_, INF_N,       INF_P,         0 },
+                { L_, ZERO_P,      INF_N,    ERANGE },
+                { L_, ZERO_N,      INF_N,    ERANGE },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::logB(X);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::logB(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "log10()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------
-            // LINE |     X     | EXPECTED
-            //-----------------------------------
-                { L_, DEC(  1.0), ZERO_P        },
-                { L_, DEC( 12.0), DEC(1.079181) },
-                { L_, DEC(-11.0), NAN_N         },
-                { L_, NAN_P,      NAN_P         },
-                { L_, NAN_N,      NAN_N         },
-                { L_, INF_P,      INF_P         },
-                { L_, INF_N,      NAN_N         },
-                { L_, ZERO_P,     INF_N         },
-                { L_, ZERO_N,     INF_N         },
+            //-------------------------------------------
+            // LINE |     X     | EXPECTED     |  ERRNO
+            //-------------------------------------------
+                { L_, DEC(  1.0), ZERO_P,             0 },
+                { L_, DEC( 12.0), DEC(1.079181),      0 },
+                { L_, DEC(-11.0), NAN_P,           EDOM },
+                { L_, sNAN_P,     NAN_P,           EDOM },
+                { L_, NAN_P,      NAN_P,              0 },
+                { L_, NAN_N,      NAN_N,              0 },
+                { L_, INF_P,      INF_P,              0 },
+                { L_, INF_N,      NAN_P,           EDOM },
+                { L_, ZERO_P,     INF_N,         ERANGE },
+                { L_, ZERO_N,     INF_N,         ERANGE },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::log10(X);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::log10(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "fmod()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_y;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_y;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------------
-            // LINE |     X    |     Y   | EXPECTED
-            //-----------------------------------------
-                { L_, DEC( 5.1), DEC(3.0), DEC( 2.1)  },
-                { L_, DEC( 5.1), DEC(3.0), DEC( 2.1)  },
-                { L_, DEC(-5.1), DEC(3.0), DEC(-2.1)  },
-                { L_, DEC( 5.1), NAN_P,    NAN_P      },
-                { L_, DEC( 5.1), NAN_N,    NAN_P      },
-                { L_, DEC( 5.1), INF_P,    DEC( 5.1)  },
-                { L_, DEC(-5.1), INF_N,    DEC(-5.1)  },
-                { L_, DEC( 5.1), ZERO_P,   NAN_P      },
-                { L_, DEC( 5.1), ZERO_N,   NAN_P      },
-                { L_, NAN_P,     DEC(3.0), NAN_P      },
-                { L_, INF_P,     DEC(3.0), NAN_P      },
-                { L_, ZERO_P,    DEC(3.0), ZERO_P     },
+            //----------------------------------------------
+            // LINE |     X    |     Y   | EXPECTED | ERRNO
+            //----------------------------------------------
+                { L_, DEC( 5.1), DEC(3.0), DEC( 2.1),    0 },
+                { L_, DEC(-5.1), DEC(3.0), DEC(-2.1),    0 },
+                { L_, DEC( 5.1), NAN_P,    NAN_P,        0 },
+                { L_, NAN_P,     DEC(3.0), NAN_P,        0 },
+                { L_, NAN_P,     ZERO_P,   NAN_P,        0 },
+                { L_, sNAN_P,    DEC(3.0), NAN_P,     EDOM },
+                { L_, DEC(1.0),  sNAN_P,   NAN_P,     EDOM },
+                { L_, INF_P,     DEC(3.0), NAN_P,     EDOM },
+                { L_, INF_N,     DEC(3.0), NAN_P,     EDOM },
+                { L_, INF_P,     INF_P,    NAN_P,     EDOM },
+                { L_, INF_P,     ZERO_P,   NAN_P,     EDOM },
+                { L_, ZERO_P,    ZERO_P,   NAN_P,     EDOM },
+                { L_, DEC(5.1),  ZERO_P,   NAN_P,     EDOM },
+                { L_, ZERO_P,    DEC(3.0), ZERO_P,       0 },
+                { L_, DEC( 5.1), INF_P,    DEC( 5.1),    0 },
+                { L_, DEC(-5.1), INF_N,    DEC(-5.1),    0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& Y        = DATA[ti].d_y;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::fmod(X, Y);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          Y        = DATA[ti].d_y;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::fmod(X, Y);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "remainder()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_y;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_y;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------------
-            // LINE |     X    |     Y   | EXPECTED
-            //-----------------------------------------
-                { L_, DEC( 5.1), DEC(3.0), DEC(-0.9)  },
-                { L_, DEC( 5.1), DEC(3.0), DEC(-0.9)  },
-                { L_, DEC(-5.1), DEC(3.0), DEC( 0.9)  },
-                { L_, DEC( 5.1), NAN_P,    NAN_P      },
-                { L_, DEC( 5.1), NAN_N,    NAN_P      },
-                { L_, DEC( 5.1), INF_P,    DEC( 5.1)  },
-                { L_, DEC(-5.1), INF_N,    DEC(-5.1)  },
-                { L_, DEC( 5.1), ZERO_P,   NAN_P      },
-                { L_, DEC( 5.1), ZERO_N,   NAN_P      },
-                { L_, NAN_P,     DEC(3.0), NAN_P      },
-                { L_, INF_P,     DEC(3.0), NAN_P      },
-                { L_, ZERO_P,    DEC(3.0), ZERO_P     },
+            //----------------------------------------------
+            // LINE |     X    |     Y   | EXPECTED | ERRNO
+            //----------------------------------------------
+                { L_, DEC( 5.1), DEC(3.0), DEC(-0.9),    0 },
+                { L_, DEC( 5.1), DEC(3.0), DEC(-0.9),    0 },
+                { L_, DEC(-5.1), DEC(3.0), DEC( 0.9),    0 },
+                { L_, DEC( 5.1), NAN_P,    NAN_P,        0 },
+                { L_, DEC( 5.1), NAN_N,    NAN_N,        0 },
+                { L_, sNAN_P,    DEC(3.0), NAN_P,     EDOM },
+                { L_, DEC(3.0),  sNAN_P,   NAN_P,     EDOM },
+                { L_, NAN_P,     DEC(3.0), NAN_P,        0 },
+                { L_, NAN_N,     DEC(3.0), NAN_N,        0 },
+                { L_, INF_P,     DEC(3.0), NAN_P,     EDOM },
+                { L_, INF_N,     ZERO_P,   NAN_P,     EDOM },
+                { L_, ZERO_P,    INF_N,    ZERO_P,       0 },
+                { L_, DEC( 5.1), INF_P,    DEC( 5.1),    0 },
+                { L_, DEC(-5.1), INF_N,    DEC(-5.1),    0 },
+                { L_, DEC( 5.1), ZERO_P,   NAN_P,     EDOM },
+                { L_, DEC( 5.1), ZERO_N,   NAN_P,     EDOM },
+                { L_, ZERO_P,    DEC(3.0), ZERO_P,       0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& Y        = DATA[ti].d_y;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::remainder(X, Y);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          Y        = DATA[ti].d_y;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::remainder(X, Y);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-            const long int NaN = 0x8000000000000000l;
+            const long int NaN   = 0x8000000000000000ll;
+
             struct {
-                int      d_line;
-                Obj      d_x;
-                long int d_expected;
+                int          d_line;
+                Obj          d_x;
+                long int     d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //---------------------------
-            // LINE |     X    | EXPECTED
-            //---------------------------
-                { L_, DEC( 2.3),  2  },
-                { L_, DEC( 2.5),  2  },
-                { L_, DEC( 3.5),  4  },
-                { L_, DEC(-2.3), -2  },
-                { L_, DEC(-2.5), -2  },
-                { L_, DEC(-3.5), -4  },
-                { L_, NAN_P,     NaN },
-                { L_, NAN_N,     NaN },
-                { L_, INF_P,     NaN },
-                { L_, INF_N,     NaN },
-                { L_, ZERO_P,     0  },
-                { L_, ZERO_N,     0  },
+            //-----------------------------------
+            // LINE |     X    | EXPECTED | ERRNO
+            //-----------------------------------
+                { L_, ZERO_P,        0,       0 },
+                { L_, ZERO_N,        0,       0 },
+                { L_, DEC( 2.3),     2,       0 },
+                { L_, DEC( 2.5),     2,       0 },
+                { L_, DEC( 3.5),     4,       0 },
+                { L_, DEC(-2.3),    -2,       0 },
+                { L_, DEC(-2.5),    -2,       0 },
+                { L_, DEC(-3.5),    -4,       0 },
+                { L_, MAX_P,       NaN,    EDOM },
+                { L_, MAX_N,       NaN,    EDOM },
+                { L_, sNAN_P,      NaN,    EDOM },
+                { L_, NAN_P,       NaN,    EDOM },
+                { L_, NAN_N,       NaN,    EDOM },
+                { L_, INF_P,       NaN,    EDOM },
+                { L_, INF_N,       NaN,    EDOM },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE     = DATA[ti].d_line;
-                const Obj&      X        = DATA[ti].d_x;
-                const long int& EXPECTED = DATA[ti].d_expected;
-                const long int  RESULT   = Util::lrint(X);
+                const int          LINE     = DATA[ti].d_line;
+                const Obj&         X        = DATA[ti].d_x;
+                const long int&    EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const long int RESULT = Util::lrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                LOOP3_ASSERT(LINE, ERRNO,    errno,  ERRNO    == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
         {
             const long long int NaN = 0x8000000000000000ll;
+
             struct {
                 int           d_line;
                 Obj           d_x;
                 long long int d_expected;
+                unsigned int  d_errno;
             } DATA[] = {
-            //---------------------------
-            // LINE |     X    | EXPECTED
-            //---------------------------
-                { L_, DEC( 2.3),  2  },
-                { L_, DEC( 2.5),  2  },
-                { L_, DEC( 3.5),  4  },
-                { L_, DEC(-2.3), -2  },
-                { L_, DEC(-2.5), -2  },
-                { L_, DEC(-3.5), -4  },
-                { L_, NAN_P,     NaN },
-                { L_, NAN_N,     NaN },
-                { L_, INF_P,     NaN },
-                { L_, INF_N,     NaN },
-                { L_, ZERO_P,     0  },
-                { L_, ZERO_N,     0  },
+            //-----------------------------------
+            // LINE |     X    | EXPECTED | ERRNO
+            //-----------------------------------
+                { L_, ZERO_P,        0,       0 },
+                { L_, ZERO_N,        0,       0 },
+                { L_, DEC( 2.3),     2,       0 },
+                { L_, DEC( 2.5),     2,       0 },
+                { L_, DEC( 3.5),     4,       0 },
+                { L_, DEC(-2.3),    -2,       0 },
+                { L_, DEC(-2.5),    -2,       0 },
+                { L_, DEC(-3.5),    -4,       0 },
+                { L_, MAX_P,       NaN,    EDOM },
+                { L_, MAX_N,       NaN,    EDOM },
+                { L_, sNAN_P,      NaN,    EDOM },
+                { L_, NAN_P,       NaN,    EDOM },
+                { L_, NAN_N,       NaN,    EDOM },
+                { L_, INF_P,       NaN,    EDOM },
+                { L_, INF_N,       NaN,    EDOM },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE     = DATA[ti].d_line;
-                const Obj&      X        = DATA[ti].d_x;
-                const long int& EXPECTED = DATA[ti].d_expected;
+                const int            LINE     = DATA[ti].d_line;
+                const Obj&           X        = DATA[ti].d_x;
+                const long long int& EXPECTED = DATA[ti].d_expected;
+                const unsigned int   ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
                 const long int  RESULT   = Util::llrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                LOOP3_ASSERT(LINE, ERRNO,    errno,  ERRNO    == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "nextafter()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_from;
-                Obj d_to;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_from;
+                Obj          d_to;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-------------------------------------------------
-            // LINE |   FROM  |     TO   | EXPECTED
-            //-------------------------------------------------
-                { L_, DEC(0.0),  DEC(1.0), DEC(1.0e-101)      },
-                { L_, DEC(1.0),  DEC(2.0), DEC(1.000001)      },
-                { L_, DEC(1.0),  DEC(0.0), DEC(9.999999e-1)   },
-                { L_, DEC(0.0),  DEC(0.0), DEC(0.0)           },
-                { L_, NAN_P,     NAN_P,    NAN_P              },
-                { L_, NAN_N,     NAN_N,    NAN_N              },
-                { L_, INF_P,     INF_P,    INF_P              },
-                { L_, INF_N,     INF_N,    INF_N              },
-                { L_, INF_P,     DEC(2.0), DEC( 9.999999e+96) },
-                { L_, INF_N,     DEC(2.0), DEC(-9.999999e+96) },
+            //-----------------------------------------------------------
+            // LINE |   FROM       |    TO   | EXPECTED        |  ERRNO
+            //-----------------------------------------------------------
+                { L_, MAX_P,         INF_P,    INF_P,            ERANGE },
+                { L_, ZERO_P,        DEC(1.0), DEC(1.0e-101),    ERANGE },
+                { L_, DEC(1.0e-101), ZERO_P,   ZERO_P,           ERANGE },
+                { L_, DEC(1.0),      DEC(2.0), DEC(1.000001),         0 },
+                { L_, DEC(1.0),      ZERO_P,   DEC(9.999999e-1),      0 },
+                { L_, ZERO_P,        ZERO_P,   ZERO_P,                0 },
+                { L_, NAN_P,         NAN_P,    NAN_P,                 0 },
+                { L_, NAN_N,         NAN_N,    NAN_N,                 0 },
+                { L_, INF_P,         INF_P,    INF_P,                 0 },
+                { L_, INF_N,         INF_N,    INF_N,                 0 },
+                { L_, INF_P,         INF_N,    MAX_P,                 0 },
+                { L_, INF_N,         INF_P,    MAX_N,                 0 },
+                { L_, INF_P,         DEC(2.0), MAX_P,                 0 },
+                { L_, INF_N,         DEC(2.0), MAX_N,                 0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& FROM     = DATA[ti].d_from;
-                const Obj& TO       = DATA[ti].d_to;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::nextafter(FROM, TO);
+                const int          LINE     = DATA[ti].d_line;
+                const Obj&         FROM     = DATA[ti].d_from;
+                const Obj&         TO       = DATA[ti].d_to;
+                const Obj&         EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj  RESULT = Util::nextafter(FROM, TO);
 
                 LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -2235,17 +2350,19 @@ void TestDriver::testCase27()
                 Obj                d_from;
                 Util::ValueType128 d_to;
                 Obj                d_expected;
+                unsigned int       d_errno;
             } DATA[] = {
-//----------------------------------------------------------------------------
-//LINE |        FROM         |          TO            | EXPECTED
-//----------------------------------------------------------------------------
-{ L_, DEC(0.0),               Util::denormMin128(),    Util::denormMin32()   },
-{ L_, DEC(0.0),               Util::negate(
-                              Util::denormMin128()),   Util::negate(
-                                                       Util::denormMin32())  },
-{ L_, Util::quietNaN32(),     Util::quietNaN128(),     Util::quietNaN32()    },
-{ L_, Util::signalingNaN32(), Util::signalingNaN128(), Util::signalingNaN32()},
-{ L_, Util::infinity32(),     Util::infinity128(),     Util::infinity32()    },
+    //------------------------------------------------------------------------
+    //LINE | FROM    |          TO            | EXPECTED           |  ERRNO
+    //------------------------------------------------------------------------
+       { L_, MAX_P,    Util::infinity128(),     INF_P,                ERANGE },
+       { L_, ZERO_P,   Util::denormMin128(),    Util::denormMin32(),  ERANGE },
+       { L_, DEC(0.0), Util::negate(
+                       Util::denormMin128()),   Util::negate(
+                                                Util::denormMin32()), ERANGE },
+       { L_, NAN_P,    Util::quietNaN128(),     NAN_P,                0      },
+       { L_, sNAN_P,   Util::signalingNaN128(), NAN_P,                EDOM   },
+       { L_, INF_P,    Util::infinity128(),     INF_P,                0      },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2254,45 +2371,59 @@ void TestDriver::testCase27()
                 const Obj&                FROM     = DATA[ti].d_from;
                 const Util::ValueType128& TO       = DATA[ti].d_to;
                 const Obj&                EXPECTED = DATA[ti].d_expected;
-                const Obj                 RESULT   = Util::nexttoward(FROM,TO);
+                const unsigned int&       ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::nexttoward(FROM,TO);
 
                 LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "pow()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_base;
-                Obj d_exponent;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_base;
+                Obj          d_exponent;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
 
-            //-------------------------------------------------
-            // LINE |   BASE   |  EXPONENT |     EXPECTED
-            //-------------------------------------------------
-                { L_, DEC( 2.0),  DEC(10.0), DEC(1024.0     ) },
-                { L_, DEC( 2.0),  DEC( 0.5), DEC(   1.414214) },
-                { L_, DEC(-2.0),  DEC(-3.0), DEC(  -0.125   ) },
-                { L_, DEC(-1.0),  NAN_P,            NAN_P     },
-                { L_, DEC( 1.0),  NAN_P,     DEC(   1.0     ) },
-                { L_, INF_P,      DEC( 2.0),        INF_P     },
-                { L_, INF_P,      DEC(-1.0), DEC(   0.0     ) },
-                { L_, DEC(-1.0),  DEC(0.3333333),   NAN_N     },
-                { L_, ZERO_N,     DEC(-3.0),        INF_N     },
-                { L_, NAN_P,      DEC( 2.0),        NAN_P     },
+          //------------------------------------------------------------------
+         // LINE |   BASE             |  EXPONENT     | EXPECTED    |  ERRNO
+         //-------------------------------------------------------------------
+            { L_, ZERO_P,              ZERO_P,         DEC(1.0),           0 },
+            { L_, MAX_P,               DEC(2.0),       INF_P,         ERANGE },
+            { L_, Util::denormMin32(), DEC(2.0),       ZERO_P,        ERANGE },
+            { L_, DEC( 2.0),           DEC(10.0),      DEC(1024.0),        0 },
+            { L_, DEC( 2.0),           DEC( 0.5),      DEC(1.414214),      0 },
+            { L_, DEC(-2.0),           DEC(-3.0),      DEC(-0.125),        0 },
+            { L_, DEC(-1.0),           NAN_P,          NAN_P,              0 },
+            { L_, DEC( 1.0),           NAN_P,          DEC(1.0),           0 },
+            { L_, INF_P,               DEC( 2.0),      INF_P,              0 },
+            { L_, INF_P,               DEC(-1.0),      ZERO_P,             0 },
+            { L_, DEC(-1.0),           DEC(0.3333333), NAN_P,           EDOM },
+            { L_, ZERO_N,              DEC(-3.0),      INF_N,         ERANGE },
+            { L_, NAN_P,               DEC( 2.0),      NAN_P,              0 },
+            { L_, sNAN_P,              DEC( 2.0),      NAN_P,           EDOM },
+            { L_, DEC(2.0),            sNAN_P,         NAN_P,           EDOM },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& BASE     = DATA[ti].d_base;
-                const Obj& EXPONENT = DATA[ti].d_exponent;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::pow(BASE, EXPONENT);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          BASE     = DATA[ti].d_base;
+                const Obj&          EXPONENT = DATA[ti].d_exponent;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj  RESULT = Util::pow(BASE, EXPONENT);
 
                 LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -2300,66 +2431,80 @@ void TestDriver::testCase27()
         {
             const long int NaN = 0x8000000000000000l;
             struct {
-                int      d_line;
-                Obj      d_x;
-                long int d_expected;
+                int          d_line;
+                Obj          d_x;
+                long int     d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //---------------------------
-            // LINE |     X    | EXPECTED
-            //---------------------------
-                { L_, DEC( 2.3),  2  },
-                { L_, DEC( 2.5),  3  },
-                { L_, DEC(-2.3), -2  },
-                { L_, DEC(-2.5), -3  },
-                { L_, NAN_P,     NaN },
-                { L_, NAN_N,     NaN },
-                { L_, INF_P,     NaN },
-                { L_, INF_N,     NaN },
-                { L_, ZERO_P,     0  },
-                { L_, ZERO_N,     0  },
+            //-----------------------------------
+            // LINE |     X    | EXPECTED | ERRNO
+            //-----------------------------------
+                { L_, DEC( 2.3),  2,          0 },
+                { L_, DEC( 2.5),  3,          0 },
+                { L_, DEC(-2.3), -2,          0 },
+                { L_, DEC(-2.5), -3,          0 },
+                { L_, MAX_P,     NaN,      EDOM },
+                { L_, MAX_N,     NaN,      EDOM },
+                { L_, sNAN_P,    NaN,      EDOM },
+                { L_, NAN_P,     NaN,      EDOM },
+                { L_, NAN_N,     NaN,      EDOM },
+                { L_, INF_P,     NaN,      EDOM },
+                { L_, INF_N,     NaN,      EDOM },
+                { L_, ZERO_P,     0,          0 },
+                { L_, ZERO_N,     0,          0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE     = DATA[ti].d_line;
-                const Obj&      X        = DATA[ti].d_x;
-                const long int& EXPECTED = DATA[ti].d_expected;
-                const long int  RESULT   = Util::lround(X);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const long int&     EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const long int RESULT = Util::lround(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "sqrt()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------
-            // LINE |     X     |   EXPECTED
-            //-----------------------------------
-                { L_, DEC(100.0), DEC(10.0)     },
-                { L_, DEC(  2.0), DEC(1.414214) },
-                { L_, DEC(-1.0),  NAN_P         },
-                { L_, INF_P,      INF_P         },
-                { L_, INF_N,      NAN_P         },
-                { L_, NAN_P,      NAN_P         },
-                { L_, NAN_N,      NAN_N         },
-                { L_, ZERO_P,     ZERO_P        },
-                { L_, ZERO_N,     ZERO_N        },
+            //------------------------------------------
+            // LINE |     X     | EXPECTED     | ERRNO
+            //------------------------------------------
+                { L_, DEC(100.0), DEC(10.0),        0 },
+                { L_, DEC(  2.0), DEC(1.414214),    0 },
+                { L_, DEC(-1.0),  NAN_P,         EDOM },
+                { L_, INF_P,      INF_P,            0 },
+                { L_, INF_N,      NAN_P,         EDOM },
+                { L_, sNAN_P,     NAN_P,         EDOM },
+                { L_, NAN_P,      NAN_P,            0 },
+                { L_, NAN_N,      NAN_N,            0 },
+                { L_, ZERO_P,     ZERO_P,           0 },
+                { L_, ZERO_N,     ZERO_N,           0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::sqrt(X);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::sqrt(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -2381,6 +2526,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::ceil(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::ceil(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::ceil(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::ceil(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "floor()" << bsl::endl; }
@@ -2400,6 +2548,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::floor(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::floor(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::floor(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::floor(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
         if (veryVerbose) { T_ T_ bsl::cout << "trunc()" << bsl::endl; }
         {
@@ -2418,6 +2569,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::trunc(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::trunc(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::trunc(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::trunc(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "round()" << bsl::endl; }
@@ -2437,6 +2591,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::round(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::round(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::round(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::round(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "fabs()" << bsl::endl; }
@@ -2453,9 +2610,10 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::fabs(INF_P),   INF_P));
             ASSERT(Util::equal(Util::fabs(INF_N),   INF_P));
             ASSERT(Util::equal(Util::fabs(ZERO_P),  ZERO_P));
-            ASSERT(Util::equal(Util::fabs(ZERO_N),  ZERO_N));
+            ASSERT(Util::equal(Util::fabs(ZERO_N),  ZERO_P))
             ASSERT(   nanEqual(Util::fabs(NAN_P),   NAN_P));
-            ASSERT(   nanEqual(Util::fabs(NAN_N),   NAN_N));
+            ASSERT(   nanEqual(Util::fabs(NAN_N),   NAN_P));
+            ASSERT(   nanEqual(Util::fabs(sNAN_P),  NAN_P));
         }
 #undef DEC
     }
@@ -2469,10 +2627,13 @@ void TestDriver::testCase27()
         const Obj DECIMAL = DEC(1234567890123456.0);
         const Obj NAN_P   =              Util::quietNaN64();
         const Obj NAN_N   = Util::negate(Util::quietNaN64());
+        const Obj sNAN_P  = Util::signalingNaN64();
         const Obj INF_P   =              Util::infinity64();
         const Obj INF_N   = Util::negate(Util::infinity64());
         const Obj ZERO_P  =              DEC(0.0);
         const Obj ZERO_N  = Util::negate(ZERO_P);
+        const Obj MAX_P   =              Util::max64();
+        const Obj MAX_N   = Util::negate(MAX_P);
 
         if (veryVerbose) { T_ T_ bsl::cout << "copySign()" << bsl::endl; }
         {
@@ -2586,18 +2747,21 @@ void TestDriver::testCase27()
                 int d_line;
                 Obj d_x;
                 Obj d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------------------
-            // LINE |     X     |      EXPECTED
-            //-----------------------------------------------
-                { L_, DEC_X1,     RES_1    },
-                { L_, DEC_X2,     RES_2    },
-                { L_, NAN_P,      NAN_P    },
-                { L_, NAN_N,      NAN_N    },
-                { L_, INF_P,      INF_P    },
-                { L_, INF_N,      ZERO_P   },
-                { L_, ZERO_P,     DEC(1.0) },
-                { L_, ZERO_N,     DEC(1.0) },
+            //-------------------------------------------
+            // LINE |     X         | EXPECTED |  ERRNO
+            //-------------------------------------------
+                { L_, sNAN_P,         NAN_P,       EDOM },
+                { L_, DEC_X1,         RES_1,          0 },
+                { L_, DEC_X2,         RES_2,          0 },
+                { L_, DEC(9999999.0), INF_P,     ERANGE },
+                { L_, NAN_P,          NAN_P,          0 },
+                { L_, NAN_N,          NAN_N,          0 },
+                { L_, INF_P,          INF_P,          0 },
+                { L_, INF_N,          ZERO_P,         0 },
+                { L_, ZERO_P,         DEC(1.0),       0 },
+                { L_, ZERO_N,         DEC(1.0),       0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -2606,9 +2770,13 @@ void TestDriver::testCase27()
                 const int  LINE     = DATA[ti].d_line;
                 const Obj& X        = DATA[ti].d_x;
                 const Obj& EXPECTED = DATA[ti].d_expected;
+                unsigned int& ERRNO = DATA[ti].d_errno;
+
+                errno = 0;
                 const Obj  RESULT   = Util::exp(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -2618,66 +2786,79 @@ void TestDriver::testCase27()
             const Obj RES_1 = DEC( 2.484910483113986);
 
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //------------------------------
-            // LINE |     X     | EXPECTED
-            //------------------------------
-                { L_, DEC(  1.0), ZERO_P   },
-                { L_, DEC_X,      RES_1    },
-                { L_, DEC(-11.0), NAN_N    },
-                { L_, NAN_P,      NAN_P    },
-                { L_, NAN_N,      NAN_N    },
-                { L_, INF_P,      INF_P    },
-                { L_, INF_N,      NAN_N    },
-                { L_, ZERO_P,     INF_N    },
-                { L_, ZERO_N,     INF_N    },
+            //---------------------------------------
+            // LINE |     X     | EXPECTED |  ERRNO
+            //---------------------------------------
+                { L_, sNAN_P,     NAN_P,       EDOM },
+                { L_, DEC(  1.0), ZERO_P,         0 },
+                { L_, DEC_X,      RES_1,          0 },
+                { L_, DEC(-11.0), NAN_P,       EDOM },
+                { L_, NAN_P,      NAN_P,          0 },
+                { L_, NAN_N,      NAN_N,          0 },
+                { L_, INF_P,      INF_P,          0 },
+                { L_, INF_N,      NAN_P,       EDOM },
+                { L_, ZERO_P,     INF_N,     ERANGE },
+                { L_, ZERO_N,     INF_N,     ERANGE },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
                 const Obj  RESULT   = Util::log(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------
-            // LINE |       X        | EXPECTED
-            //-----------------------------------
-                { L_, DEC(  1.0),      ZERO_P   },
-                { L_, DEC( 99.999999), DEC(1.0) },
-                { L_, DEC(-11.0),      DEC(1.0) },
-                { L_, NAN_P,           NAN_P    },
-                { L_, NAN_N,           NAN_N    },
-                { L_, INF_P,           INF_P    },
-                { L_, INF_N,           INF_P    },
-                { L_, ZERO_P,          INF_N    },
-                { L_, ZERO_N,          INF_N    },
+            //---------------------------------------------
+            // LINE |       X        | EXPECTED |  ERRNO
+            //---------------------------------------------
+                { L_, DEC(  1.0),      ZERO_P,         0  },
+                { L_, DEC( 99.999999), DEC(1.0),       0  },
+                { L_, DEC(100.0),      DEC(2.0),       0  },
+                { L_, DEC(-11.0),      DEC(1.0),       0  },
+                { L_, sNAN_P,          NAN_P,       EDOM  },
+                { L_, NAN_P,           NAN_P,          0  },
+                { L_, NAN_N,           NAN_N,          0  },
+                { L_, INF_P,           INF_P,          0  },
+                { L_, INF_N,           INF_P,          0  },
+                { L_, ZERO_P,          INF_N,     ERANGE  },
+                { L_, ZERO_N,          INF_N,     ERANGE  },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  LINE           = DATA[ti].d_line;
+                const Obj& X              = DATA[ti].d_x;
+                const Obj& EXPECTED       = DATA[ti].d_expected;
+                const unsigned int& ERRNO = DATA[ti].d_errno;
+
+                errno = 0;
                 const Obj RESULT    = Util::logB(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -2687,33 +2868,39 @@ void TestDriver::testCase27()
             const Obj RES_1 = DEC(1.079182910839948);
 
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //----------------------------
-            // LINE |     X     | EXPECTED
-            //----------------------------
-                { L_, DEC(  1.0), ZERO_P },
-                { L_, DEC_X,      RES_1  },
-                { L_, DEC(-11.0), NAN_N  },
-                { L_, NAN_P,      NAN_P  },
-                { L_, NAN_N,      NAN_N  },
-                { L_, INF_P,      INF_P  },
-                { L_, INF_N,      NAN_N  },
-                { L_, ZERO_P,     INF_N  },
-                { L_, ZERO_N,     INF_N  },
+            //---------------------------------------
+            // LINE |     X     | EXPECTED |  ERRNO
+            //---------------------------------------
+                { L_, DEC(  1.0), ZERO_P,         0 },
+                { L_, DEC_X,      RES_1,          0 },
+                { L_, DEC(-11.0), NAN_P,       EDOM },
+                { L_, sNAN_P,     NAN_P,       EDOM },
+                { L_, NAN_P,      NAN_P,          0 },
+                { L_, NAN_N,      NAN_N,          0 },
+                { L_, INF_P,      INF_P,          0 },
+                { L_, INF_N,      NAN_P,       EDOM },
+                { L_, ZERO_P,     INF_N,     ERANGE },
+                { L_, ZERO_N,     INF_N,     ERANGE },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::log10(X);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::log10(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -2727,39 +2914,46 @@ void TestDriver::testCase27()
             const Obj DEC_R_N = DEC(-2.0000001);
 
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_y;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_y;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------
-            // LINE |    X   |    Y   | EXPECTED
-            //-----------------------------------
-                { L_, DEC_X,   DEC_Y,   DEC_R   },
-                { L_, DEC_X_N, DEC_Y,   DEC_R_N },
-                { L_, DEC_X,   DEC_Y_N, DEC_R   },
-                { L_, DEC_X_N, DEC_Y_N, DEC_R_N },
-                { L_, DEC_X,   NAN_P,   NAN_P   },
-                { L_, DEC_X,   NAN_N,   NAN_P   },
-                { L_, DEC_X,   INF_P,   DEC_X   },
-                { L_, DEC_X,   INF_N,   DEC_X   },
-                { L_, DEC_X,   ZERO_P,  NAN_P   },
-                { L_, DEC_X,   ZERO_N,  NAN_P   },
-                { L_, NAN_P,   DEC_Y,   NAN_P   },
-                { L_, INF_P,   DEC_Y,   NAN_P   },
-                { L_, ZERO_P,  DEC_Y,   ZERO_P  },
+            //------------------------------------------
+            // LINE |    X   |    Y   | EXPECTED | ERRNO
+            //------------------------------------------
+                { L_, DEC_X,   DEC_Y,   DEC_R,       0 },
+                { L_, DEC_X_N, DEC_Y,   DEC_R_N,     0 },
+                { L_, DEC_X,   DEC_Y_N, DEC_R,       0 },
+                { L_, DEC_X_N, DEC_Y_N, DEC_R_N,     0 },
+                { L_, DEC_X,   NAN_P,   NAN_P,       0 },
+                { L_, DEC_X,   NAN_N,   NAN_N,       0 },
+                { L_, DEC_X,   INF_P,   DEC_X,       0 },
+                { L_, DEC_X,   INF_N,   DEC_X,       0 },
+                { L_, DEC_X,   ZERO_P,  NAN_P,    EDOM },
+                { L_, DEC_X,   ZERO_N,  NAN_P,    EDOM },
+                { L_, sNAN_P,  DEC_X,   NAN_P,    EDOM },
+                { L_, DEC_X,   sNAN_P,  NAN_P,    EDOM },
+                { L_, NAN_P,   DEC_Y,   NAN_P,       0 },
+                { L_, INF_P,   DEC_Y,   NAN_P,    EDOM },
+                { L_, ZERO_P,  DEC_Y,   ZERO_P,      0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& Y        = DATA[ti].d_y;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::fmod(X, Y);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          Y        = DATA[ti].d_y;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::fmod(X, Y);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -2773,66 +2967,77 @@ void TestDriver::testCase27()
             const Obj DEC_R_N = DEC(-0.9999999);
 
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_y;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_y;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------
-            // LINE |    X   |    Y   | EXPECTED
-            //-----------------------------------
-                { L_, DEC_X,   DEC_Y,   DEC_R_N },
-                { L_, DEC_X_N, DEC_Y,   DEC_R   },
-                { L_, DEC_X,   DEC_Y_N, DEC_R_N },
-                { L_, DEC_X_N, DEC_Y_N, DEC_R   },
-                { L_, DEC_X,   NAN_P,   NAN_P   },
-                { L_, DEC_X,   NAN_N,   NAN_P   },
-                { L_, DEC_X,   INF_P,   DEC_X   },
-                { L_, DEC_X_N, INF_N,   DEC_X_N },
-                { L_, DEC_X,   ZERO_P,  NAN_P   },
-                { L_, DEC_X,   ZERO_N,  NAN_P   },
-                { L_, NAN_P,   DEC_Y,   NAN_P   },
-                { L_, INF_P,   DEC_Y,   NAN_P   },
-                { L_, ZERO_P,  DEC_Y,   ZERO_P  },
+            //-------------------------------------------
+            // LINE |    X   |    Y   | EXPECTED | ERRNO
+            //-------------------------------------------
+                { L_, DEC_X,   DEC_Y,   DEC_R_N,      0 },
+                { L_, DEC_X_N, DEC_Y,   DEC_R,        0 },
+                { L_, DEC_X,   DEC_Y_N, DEC_R_N,      0 },
+                { L_, DEC_X_N, DEC_Y_N, DEC_R,        0 },
+                { L_, DEC_X,   NAN_P,   NAN_P,        0 },
+                { L_, DEC_X,   NAN_N,   NAN_N,        0 },
+                { L_, sNAN_P,  DEC_X,   NAN_P,     EDOM },
+                { L_, DEC_X,   sNAN_P,  NAN_P,     EDOM },
+                { L_, DEC_X,   INF_P,   DEC_X,        0 },
+                { L_, DEC_X_N, INF_N,   DEC_X_N,      0 },
+                { L_, DEC_X,   ZERO_P,  NAN_P,     EDOM },
+                { L_, DEC_X,   ZERO_N,  NAN_P,     EDOM },
+                { L_, NAN_P,   DEC_Y,   NAN_P,        0 },
+                { L_, INF_P,   DEC_Y,   NAN_P,     EDOM },
+                { L_, ZERO_P,  DEC_Y,   ZERO_P,       0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& Y        = DATA[ti].d_y;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::remainder(X, Y);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          Y        = DATA[ti].d_y;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::remainder(X, Y);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-            const long long int NaN = 0x8000000000000000ll;
+            const long int NaN   = 0x8000000000000000l;
 
             struct {
-                int      d_line;
-                Obj      d_x;
-                long int d_expected;
+                int          d_line;
+                Obj          d_x;
+                long int     d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //---------------------------------
-            // LINE |       X        | EXPECTED
-            //---------------------------------
-                { L_, DEC( 2.3),        2    },
-                { L_, DEC( 2.5),        2    },
-                { L_, DEC( 3.5),        4    },
-                { L_, DEC(-2.3),       -2    },
-                { L_, DEC(-2.5),       -2    },
-                { L_, DEC(-3.4999999), -3    },
-                { L_, DEC(-3.5),       -4    },
-                { L_, NAN_P,           NaN   },
-                { L_, NAN_N,           NaN   },
-                { L_, INF_P,           NaN   },
-                { L_, INF_N,           NaN   },
-                { L_, ZERO_P,           0    },
-                { L_, ZERO_N,           0    },
+            //-------------------------------------------
+            // LINE |       X        | EXPECTED | ERRNO
+            //-------------------------------------------
+                { L_, ZERO_P,            0,          0  },
+                { L_, ZERO_N,            0,          0  },
+                { L_, DEC( 2.3),         2,          0  },
+                { L_, DEC( 2.5),         2,          0  },
+                { L_, DEC( 3.5),         4,          0  },
+                { L_, DEC(-2.3),        -2,          0  },
+                { L_, DEC(-2.5),        -2,          0  },
+                { L_, DEC(-3.4999999),  -3,          0  },
+                { L_, DEC(-3.5),        -4,          0  },
+                { L_, MAX_P,           NaN,       EDOM  },
+                { L_, MAX_N,           NaN,       EDOM  },
+                { L_, sNAN_P,          NaN,       EDOM  },
+                { L_, NAN_P,           NaN,       EDOM  },
+                { L_, NAN_N,           NaN,       EDOM  },
+                { L_, INF_P,           NaN,       EDOM  },
+                { L_, INF_N,           NaN,       EDOM  },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2840,37 +3045,45 @@ void TestDriver::testCase27()
                 const int       LINE     = DATA[ti].d_line;
                 const Obj&      X        = DATA[ti].d_x;
                 const long int& EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO = DATA[ti].d_errno;
+
+                errno = 0;
                 const long int  RESULT   = Util::lrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                LOOP3_ASSERT(LINE, ERRNO,    errno,  ERRNO    == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
         {
-            const long long int NaN = 0x8000000000000000ll;
+            const long long int NaN   = 0x8000000000000000ll;
 
             struct {
                 int           d_line;
                 Obj           d_x;
                 long long int d_expected;
+                unsigned int  d_errno;
             } DATA[] = {
-            //---------------------------------
-            // LINE |       X        | EXPECTED
-            //---------------------------------
-                { L_, DEC( 2.3),        2    },
-                { L_, DEC( 2.5),        2    },
-                { L_, DEC( 3.5),        4    },
-                { L_, DEC(-2.3),       -2    },
-                { L_, DEC(-2.5),       -2    },
-                { L_, DEC(-3.4999999), -3    },
-                { L_, DEC(-3.5),       -4    },
-                { L_, NAN_P,           NaN   },
-                { L_, NAN_N,           NaN   },
-                { L_, INF_P,           NaN   },
-                { L_, INF_N,           NaN   },
-                { L_, ZERO_P,           0    },
-                { L_, ZERO_N,           0    },
+            //-------------------------------------------
+            // LINE |       X        | EXPECTED | ERRNO
+            //-------------------------------------------
+                { L_, ZERO_P,            0,          0  },
+                { L_, ZERO_N,            0,          0  },
+                { L_, DEC( 2.3),         2,          0  },
+                { L_, DEC( 2.5),         2,          0  },
+                { L_, DEC( 3.5),         4,          0  },
+                { L_, DEC(-2.3),        -2,          0  },
+                { L_, DEC(-2.5),        -2,          0  },
+                { L_, DEC(-3.4999999),  -3,          0  },
+                { L_, DEC(-3.5),        -4,          0  },
+                { L_, MAX_P,           NaN,       EDOM  },
+                { L_, MAX_N,           NaN,       EDOM  },
+                { L_, sNAN_P,          NaN,       EDOM  },
+                { L_, NAN_P,           NaN,       EDOM  },
+                { L_, NAN_N,           NaN,       EDOM  },
+                { L_, INF_P,           NaN,       EDOM  },
+                { L_, INF_N,           NaN,       EDOM  },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2878,44 +3091,54 @@ void TestDriver::testCase27()
                 const int       LINE     = DATA[ti].d_line;
                 const Obj&      X        = DATA[ti].d_x;
                 const long int& EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO = DATA[ti].d_errno;
+
+                errno = 0;
                 const long int  RESULT   = Util::llrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                LOOP3_ASSERT(LINE, ERRNO,    errno,  ERRNO    == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "nextafter()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_from;
-                Obj d_to;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_from;
+                Obj          d_to;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------------------------------
-            // LINE |   FROM  |     TO   |       EXPECTED
-            //-----------------------------------------------------------
-                { L_, DEC(0.0),  DEC(1.0), Util::denormMin64()          },
-                { L_, DEC(1.0),  DEC(2.0), DEC(1.000000000000001)       },
-                { L_, DEC(1.0),  DEC(0.0), DEC(9.999999999999999e-1)    },
-                { L_, DEC(0.0),  DEC(0.0), DEC(0.0)                     },
-                { L_, NAN_P,     NAN_P,    NAN_P                        },
-                { L_, NAN_N,     NAN_N,    NAN_N                        },
-                { L_, INF_P,     INF_P,    INF_P                        },
-                { L_, INF_N,     INF_N,    INF_N                        },
-                { L_, INF_P,     DEC(2.0), DEC( 9.999999999999999e+384) },
-                { L_, INF_N,     DEC(2.0), DEC(-9.999999999999999e+384) },
+            //---------------------------------------------------------------
+            // LINE |   FROM  |     TO   |       EXPECTED          |  ERRNO
+            //---------------------------------------------------------------
+                { L_, MAX_P,     INF_P,    INF_P,                    ERANGE },
+                { L_, DEC(0.0),  DEC(1.0), Util::denormMin64(),      ERANGE },
+                { L_, DEC(1.0),  DEC(2.0), DEC(1.000000000000001),        0 },
+                { L_, DEC(1.0),  DEC(0.0), DEC(9.999999999999999e-1),     0 },
+                { L_, DEC(0.0),  DEC(0.0), DEC(0.0),                      0 },
+                { L_, NAN_P,     NAN_P,    NAN_P,                         0 },
+                { L_, NAN_N,     NAN_N,    NAN_N,                         0 },
+                { L_, INF_P,     INF_P,    INF_P,                         0 },
+                { L_, INF_N,     INF_N,    INF_N,                         0 },
+                { L_, INF_P,     DEC(2.0), MAX_P,                         0 },
+                { L_, INF_N,     DEC(2.0), MAX_N,                         0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& FROM     = DATA[ti].d_from;
-                const Obj& TO       = DATA[ti].d_to;
-                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int          LINE     = DATA[ti].d_line;
+                const Obj&         FROM     = DATA[ti].d_from;
+                const Obj&         TO       = DATA[ti].d_to;
+                const Obj&         EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
                 const Obj  RESULT   = Util::nextafter(FROM, TO);
 
                 LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -2926,17 +3149,19 @@ void TestDriver::testCase27()
                 Obj                d_from;
                 Util::ValueType128 d_to;
                 Obj                d_expected;
+                unsigned int       d_errno;
             } DATA[] = {
-//-----------------------------------------------------------------------------
-//LINE |        FROM          |          TO            | EXPECTED
-//-----------------------------------------------------------------------------
- { L_, DEC(0.0),               Util::denormMin128(),    Util::denormMin64()  },
- { L_, DEC(0.0),               Util::negate(
-                               Util::denormMin128()),   Util::negate(
-                                                        Util::denormMin64()) },
- { L_, Util::quietNaN64(),     Util::quietNaN128(),     Util::quietNaN64()   },
- { L_, Util::signalingNaN64(), Util::signalingNaN128(), Util::quietNaN64()   },
- { L_, Util::infinity64(),     Util::infinity128(),     Util::infinity64()   },
+   //-------------------------------------------------------------------------
+   // LINE | FROM    |          TO            | EXPECTED           |  ERRNO
+   //-------------------------------------------------------------------------
+       { L_, MAX_P,    Util::infinity128(),     INF_P,                ERANGE },
+       { L_, ZERO_P,   Util::denormMin128(),    Util::denormMin64(),  ERANGE },
+       { L_, DEC(0.0), Util::negate(
+                       Util::denormMin128()),   Util::negate(
+                                                Util::denormMin64()), ERANGE },
+       { L_, NAN_P,    Util::quietNaN128(),     NAN_P,                0      },
+       { L_, sNAN_P,   Util::signalingNaN128(), NAN_P,                EDOM   },
+       { L_, INF_P,    Util::infinity128(),     INF_P,                0      },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2945,9 +3170,13 @@ void TestDriver::testCase27()
                 const Obj&                FROM     = DATA[ti].d_from;
                 const Util::ValueType128& TO       = DATA[ti].d_to;
                 const Obj&                EXPECTED = DATA[ti].d_expected;
-                const Obj                 RESULT   = Util::nexttoward(FROM, TO);
+                const unsigned int        ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::nexttoward(FROM, TO);
 
                 LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -2957,34 +3186,46 @@ void TestDriver::testCase27()
             const Obj DEC_Y  = DEC(0.333333333333333);
 
             struct {
-                int d_line;
-                Obj d_base;
-                Obj d_exponent;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_base;
+                Obj          d_exponent;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //----------------------------------------------
-            // LINE |   BASE   |  EXPONENT |   EXPECTED
-            //----------------------------------------------
-                { L_, DEC( 2.0),  DEC(10.0), DEC(1024.0)   },
-                { L_, DEC( 2.0),  DEC( 0.5), SQRT_2        },
-                { L_, DEC(-2.0),  DEC(-3.0), DEC(  -0.125) },
-                { L_, DEC(-1.0),  NAN_P,     NAN_P         },
-                { L_, DEC( 1.0),  NAN_P,     DEC(   1.0)   },
-                { L_, INF_P,      DEC( 2.0), INF_P         },
-                { L_, INF_P,      DEC(-1.0), DEC(   0.0)   },
-                { L_, DEC(-1.0),  DEC_Y,     NAN_N         },
-                { L_, ZERO_N,     DEC(-3.0), INF_N         },
+            //--------------------------------------------------------------
+            // LINE |   BASE             |  EXPONENT | EXPECTED   |  ERRNO
+            //--------------------------------------------------------------
+                { L_, ZERO_P,              ZERO_P,     DEC(1.0),         0 },
+                { L_, MAX_P,               DEC(2.0),   INF_P,       ERANGE },
+                { L_, Util::denormMin64(), DEC(2.0),   ZERO_P,      ERANGE },
+                { L_, DEC( 2.0),           DEC(10.0),  DEC(1024.0),      0 },
+                { L_, DEC( 2.0),           DEC( 0.5),  SQRT_2,           0 },
+                { L_, DEC(-2.0),           DEC(-3.0),  DEC(-0.125),      0 },
+                { L_, DEC(-1.0),           NAN_P,      NAN_P,            0 },
+                { L_, DEC( 1.0),           NAN_P,      DEC(1.0),         0 },
+                { L_, INF_P,               DEC( 2.0),  INF_P,            0 },
+                { L_, INF_P,               DEC(-1.0),  ZERO_P,           0 },
+                { L_, DEC(-1.0),           DEC_Y,      NAN_P,         EDOM },
+                { L_, ZERO_N,              DEC(-3.0),  INF_N,       ERANGE },
+                { L_, NAN_P,               DEC( 2.0),  NAN_P,            0 },
+                { L_, sNAN_P,              DEC( 2.0),  NAN_P,         EDOM },
+                { L_, DEC(2.0),            sNAN_P,     NAN_P,         EDOM },
             };
+
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& BASE     = DATA[ti].d_base;
-                const Obj& EXPONENT = DATA[ti].d_exponent;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::pow(BASE, EXPONENT);
+                const int          LINE     = DATA[ti].d_line;
+                const Obj&         BASE     = DATA[ti].d_base;
+                const Obj&         EXPONENT = DATA[ti].d_exponent;
+                const Obj&         EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj  RESULT = Util::pow(BASE, EXPONENT);
 
                 LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -2992,34 +3233,42 @@ void TestDriver::testCase27()
         {
             const long int NaN = 0x8000000000000000l;
             struct {
-                int      d_line;
-                Obj      d_x;
-                long int d_expected;
+                int          d_line;
+                Obj          d_x;
+                long int     d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //---------------------------------
-            // LINE |     X          | EXPECTED
-            //---------------------------------
-                { L_, DEC( 2.3),        2  },
-                { L_, DEC( 2.4999999),  2  },
-                { L_, DEC( 2.5),        3  },
-                { L_, DEC(-2.3),       -2  },
-                { L_, DEC(-2.5),       -3  },
-                { L_, NAN_P,           NaN },
-                { L_, NAN_N,           NaN },
-                { L_, INF_P,           NaN },
-                { L_, INF_N,           NaN },
-                { L_, ZERO_P,           0  },
-                { L_, ZERO_N,           0  },
+            //-------------------------------------------
+            // LINE |     X          | EXPECTED | ERRNO
+            //-------------------------------------------
+                { L_, DEC( 2.3),           2,         0 },
+                { L_, DEC( 2.4999999),     2,         0 },
+                { L_, DEC( 2.5),           3,         0 },
+                { L_, DEC(-2.3),          -2,         0 },
+                { L_, DEC(-2.5),          -3,         0 },
+                { L_, MAX_P,              NaN,     EDOM },
+                { L_, MAX_N,              NaN,     EDOM },
+                { L_, sNAN_P,             NaN,     EDOM },
+                { L_, NAN_P,              NaN,     EDOM },
+                { L_, NAN_N,              NaN,     EDOM },
+                { L_, INF_P,              NaN,     EDOM },
+                { L_, INF_N,              NaN,     EDOM },
+                { L_, ZERO_P,              0,         0 },
+                { L_, ZERO_N,              0,         0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE     = DATA[ti].d_line;
-                const Obj&      X        = DATA[ti].d_x;
-                const long int& EXPECTED = DATA[ti].d_expected;
-                const long int  RESULT   = Util::lround(X);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const long int&     EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const long int RESULT = Util::lround(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -3030,34 +3279,40 @@ void TestDriver::testCase27()
             const Obj RES_1  = DEC(2.999999999999999);
 
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------
-            // LINE |     X     |   EXPECTED
-            //-----------------------------------
-                { L_, DEC(100.0),  DEC(10.0) },
-                { L_, DEC_1,       RES_1     },
-                { L_, DEC(  2.0),  SQRT_2    },
-                { L_, DEC( -1.0),  NAN_P     },
-                { L_, INF_P,       INF_P     },
-                { L_, INF_N,       NAN_P     },
-                { L_, NAN_P,       NAN_P     },
-                { L_, NAN_N,       NAN_N     },
-                { L_, ZERO_P,      ZERO_P    },
-                { L_, ZERO_N,      ZERO_N    },
+            //------------------------------------------
+            // LINE |     X     | EXPECTED | ERRNO
+            //------------------------------------------
+                { L_, DEC(100.0), DEC(10.0),    0 },
+                { L_, DEC_1,      RES_1,        0 },
+                { L_, DEC(  2.0), SQRT_2,       0 },
+                { L_, DEC(-1.0),  NAN_P,     EDOM },
+                { L_, INF_P,      INF_P,        0 },
+                { L_, INF_N,      NAN_P,     EDOM },
+                { L_, sNAN_P,     NAN_P,     EDOM },
+                { L_, NAN_P,      NAN_P,        0 },
+                { L_, NAN_N,      NAN_N,        0 },
+                { L_, ZERO_P,     ZERO_P,       0 },
+                { L_, ZERO_N,     ZERO_N,       0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::sqrt(X);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj  RESULT = Util::sqrt(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -3078,6 +3333,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::ceil(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::ceil(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::ceil(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::ceil(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "floor()" << bsl::endl; }
@@ -3097,6 +3355,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::floor(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::floor(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::floor(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::floor(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "trunc()" << bsl::endl; }
@@ -3116,6 +3377,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::trunc(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::trunc(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::trunc(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::trunc(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "round()" << bsl::endl; }
@@ -3135,6 +3399,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::round(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::round(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::round(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::round(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "fabs()" << bsl::endl; }
@@ -3153,7 +3420,7 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::fabs(ZERO_P),  ZERO_P));
             ASSERT(Util::equal(Util::fabs(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::fabs(NAN_P),   NAN_P));
-            ASSERT(   nanEqual(Util::fabs(NAN_N),   NAN_N));
+            ASSERT(   nanEqual(Util::fabs(NAN_N),   NAN_P));
         }
 
 #undef DEC
@@ -3167,10 +3434,13 @@ void TestDriver::testCase27()
 
         const Obj NAN_P   =              Util::quietNaN128();
         const Obj NAN_N   = Util::negate(Util::quietNaN128());
+        const Obj sNAN_P  = Util::signalingNaN128();
         const Obj INF_P   =              Util::infinity128();
         const Obj INF_N   = Util::negate(Util::infinity128());
         const Obj ZERO_P  =              DEC(0.0);
         const Obj ZERO_N  = Util::negate(ZERO_P);
+        const Obj MAX_P   =              Util::max128();
+        const Obj MAX_N   = Util::negate(MAX_P);
 
         if (veryVerbose) { T_ T_ bsl::cout << "copySign()" << bsl::endl; }
         {
@@ -3281,33 +3551,39 @@ void TestDriver::testCase27()
             const Obj RES_2  = DEC(1.670170079024489103439916607792290e-5);
 
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //------------------------------
-            // LINE |     X     | EXPECTED
-            //------------------------------
-                { L_, DEC_X1,         RES_1    },
-                { L_, DEC_X2,         RES_2    },
-                { L_, DEC(9999999.0), INF_P    },
-                { L_, NAN_P,          NAN_P    },
-                { L_, NAN_N,          NAN_N    },
-                { L_, INF_P,          INF_P    },
-                { L_, INF_N,          ZERO_P   },
-                { L_, ZERO_P,         DEC(1.0) },
-                { L_, ZERO_N,         DEC(1.0) },
+            //-------------------------------------------
+            // LINE |     X         | EXPECTED |  ERRNO
+            //-------------------------------------------
+                { L_, sNAN_P,         NAN_P,       EDOM },
+                { L_, DEC_X1,         RES_1,          0 },
+                { L_, DEC_X2,         RES_2,          0 },
+                { L_, DEC(9999999.0), INF_P,     ERANGE },
+                { L_, NAN_P,          NAN_P,          0 },
+                { L_, NAN_N,          NAN_N,          0 },
+                { L_, INF_P,          INF_P,          0 },
+                { L_, INF_N,          ZERO_P,         0 },
+                { L_, ZERO_P,         DEC(1.0),       0 },
+                { L_, ZERO_N,         DEC(1.0),       0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::exp(X);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::exp(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -3317,22 +3593,24 @@ void TestDriver::testCase27()
             const Obj RES_1 = DEC(2.484906649788004143563042813164865);
 
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //----------------------------
-            // LINE |     X     | EXPECTED
-            //----------------------------
-                { L_, DEC(  1.0), ZERO_P },
-                { L_, DEC_X,      RES_1  },
-                { L_, DEC(-11.0), NAN_N  },
-                { L_, NAN_P,      NAN_P  },
-                { L_, NAN_N,      NAN_N  },
-                { L_, INF_P,      INF_P  },
-                { L_, INF_N,      NAN_N  },
-                { L_, ZERO_P,     INF_N  },
-                { L_, ZERO_N,     INF_N  },
+            //---------------------------------------
+            // LINE |     X     | EXPECTED |  ERRNO
+            //---------------------------------------
+                { L_, sNAN_P,     NAN_P,       EDOM },
+                { L_, DEC(  1.0), ZERO_P,         0 },
+                { L_, DEC_X,      RES_1,          0 },
+                { L_, DEC(-11.0), NAN_P,       EDOM },
+                { L_, NAN_P,      NAN_P,          0 },
+                { L_, NAN_N,      NAN_N,          0 },
+                { L_, INF_P,      INF_P,          0 },
+                { L_, INF_N,      NAN_P,       EDOM },
+                { L_, ZERO_P,     INF_N,     ERANGE },
+                { L_, ZERO_N,     INF_N,     ERANGE },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -3341,42 +3619,53 @@ void TestDriver::testCase27()
                 const int  LINE     = DATA[ti].d_line;
                 const Obj& X        = DATA[ti].d_x;
                 const Obj& EXPECTED = DATA[ti].d_expected;
+                unsigned int& ERRNO = DATA[ti].d_errno;
+
+                errno = 0;
                 const Obj  RESULT   = Util::log(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
         {
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //---------------------------------------------
-            // LINE |       X                  | EXPECTED
-            //---------------------------------------------
-                { L_, DEC(  1.0),                ZERO_P   },
-                { L_, DEC( 99.9999999999999999), DEC(1.0) },
-                { L_, DEC(-11.0),                DEC(1.0) },
-                { L_, NAN_P,                     NAN_P    },
-                { L_, NAN_N,                     NAN_N    },
-                { L_, INF_P,                     INF_P    },
-                { L_, INF_N,                     INF_P    },
-                { L_, ZERO_P,                    INF_N    },
-                { L_, ZERO_N,                    INF_N    },
+            //------------------------------------------------------
+            // LINE |       X                  | EXPECTED |  ERRNO
+            //------------------------------------------------------
+                { L_, DEC(  1.0),                ZERO_P,         0 },
+                { L_, DEC( 99.9999999999999999), DEC(1.0),       0 },
+                { L_, DEC(100.0),                DEC(2.0),       0 },
+                { L_, DEC(-11.0),                DEC(1.0),       0 },
+                { L_, sNAN_P,                    NAN_P,       EDOM },
+                { L_, NAN_P,                     NAN_P,          0 },
+                { L_, NAN_N,                     NAN_N,          0 },
+                { L_, INF_P,                     INF_P,          0 },
+                { L_, INF_N,                     INF_P,          0 },
+                { L_, ZERO_P,                    INF_N,     ERANGE },
+                { L_, ZERO_N,                    INF_N,     ERANGE },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
                 const Obj  RESULT   = Util::logB(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -3386,33 +3675,39 @@ void TestDriver::testCase27()
             const Obj RES_1 = DEC(1.079181246047626492518019655166250);
 
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------
-            // LINE |     X     | EXPECTED
-            //-----------------------------
-                { L_, DEC(  1.0), ZERO_P },
-                { L_, DEC_X,      RES_1  },
-                { L_, DEC(-11.0), NAN_N  },
-                { L_, NAN_P,      NAN_P  },
-                { L_, NAN_N,      NAN_N  },
-                { L_, INF_P,      INF_P  },
-                { L_, INF_N,      NAN_N  },
-                { L_, ZERO_P,     INF_N  },
-                { L_, ZERO_N,     INF_N  },
+            //---------------------------------------
+            // LINE |     X     | EXPECTED |  ERRNO
+            //---------------------------------------
+                { L_, DEC(  1.0), ZERO_P,         0 },
+                { L_, DEC_X,      RES_1,          0 },
+                { L_, DEC(-11.0), NAN_P,       EDOM },
+                { L_, sNAN_P,     NAN_P,       EDOM },
+                { L_, NAN_P,      NAN_P,          0 },
+                { L_, NAN_N,      NAN_N,          0 },
+                { L_, INF_P,      INF_P,          0 },
+                { L_, INF_N,      NAN_P,       EDOM },
+                { L_, ZERO_P,     INF_N,     ERANGE },
+                { L_, ZERO_N,     INF_N,     ERANGE },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::log10(X);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::log10(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -3426,39 +3721,46 @@ void TestDriver::testCase27()
             const Obj DEC_R_N = DEC(-2.0000000000000001);
 
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_y;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_y;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------
-            // LINE |    X   |    Y   | EXPECTED
-            //-----------------------------------
-                { L_, DEC_X,   DEC_Y,   DEC_R   },
-                { L_, DEC_X_N, DEC_Y,   DEC_R_N },
-                { L_, DEC_X,   DEC_Y_N, DEC_R   },
-                { L_, DEC_X_N, DEC_Y_N, DEC_R_N },
-                { L_, DEC_X,   NAN_P,   NAN_P   },
-                { L_, DEC_X,   NAN_N,   NAN_P   },
-                { L_, DEC_X,   INF_P,   DEC_X   },
-                { L_, DEC_X,   INF_N,   DEC_X   },
-                { L_, DEC_X,   ZERO_P,  NAN_P   },
-                { L_, DEC_X,   ZERO_N,  NAN_P   },
-                { L_, NAN_P,   DEC_Y,   NAN_P   },
-                { L_, INF_P,   DEC_Y,   NAN_P   },
-                { L_, ZERO_P,  DEC_Y,   ZERO_P  },
+            //------------------------------------------
+            // LINE |    X   |    Y   | EXPECTED | ERRNO
+            //------------------------------------------
+                { L_, DEC_X,   DEC_Y,   DEC_R,        0 },
+                { L_, DEC_X_N, DEC_Y,   DEC_R_N,      0 },
+                { L_, DEC_X,   DEC_Y_N, DEC_R,        0 },
+                { L_, DEC_X_N, DEC_Y_N, DEC_R_N,      0 },
+                { L_, DEC_X,   NAN_P,   NAN_P,        0 },
+                { L_, DEC_X,   NAN_N,   NAN_N,        0 },
+                { L_, DEC_X,   INF_P,   DEC_X,        0 },
+                { L_, DEC_X,   INF_N,   DEC_X,        0 },
+                { L_, DEC_X,   ZERO_P,  NAN_P,     EDOM },
+                { L_, DEC_X,   ZERO_N,  NAN_P,     EDOM },
+                { L_, sNAN_P,  DEC_X,   NAN_P,     EDOM },
+                { L_, DEC_X,   sNAN_P,  NAN_P,     EDOM },
+                { L_, NAN_P,   DEC_Y,   NAN_P,        0 },
+                { L_, INF_P,   DEC_Y,   NAN_P,     EDOM },
+                { L_, ZERO_P,  DEC_Y,   ZERO_P,       0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& Y        = DATA[ti].d_y;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::fmod(X, Y);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          Y        = DATA[ti].d_y;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::fmod(X, Y);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -3472,112 +3774,142 @@ void TestDriver::testCase27()
             const Obj DEC_R_N = DEC(-0.9999999999999999);
 
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_y;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_y;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //-----------------------------------
-            // LINE |    X   |    Y   | EXPECTED
-            //-----------------------------------
-                { L_, DEC_X,   DEC_Y,   DEC_R_N },
-                { L_, DEC_X_N, DEC_Y,   DEC_R   },
-                { L_, DEC_X,   DEC_Y_N, DEC_R_N },
-                { L_, DEC_X_N, DEC_Y_N, DEC_R   },
-                { L_, DEC_X,   NAN_P,   NAN_P   },
-                { L_, DEC_X,   NAN_N,   NAN_P   },
-                { L_, DEC_X,   INF_P,   DEC_X   },
-                { L_, DEC_X_N, INF_N,   DEC_X_N },
-                { L_, DEC_X,   ZERO_P,  NAN_P   },
-                { L_, DEC_X,   ZERO_N,  NAN_P   },
-                { L_, NAN_P,   DEC_Y,   NAN_P   },
-                { L_, INF_P,   DEC_Y,   NAN_P   },
-                { L_, ZERO_P,  DEC_Y,   ZERO_P  },
+            //-------------------------------------------
+            // LINE |    X   |    Y   | EXPECTED | ERRNO
+            //-------------------------------------------
+                { L_, DEC_X,   DEC_Y,   DEC_R_N,      0 },
+                { L_, DEC_X_N, DEC_Y,   DEC_R,        0 },
+                { L_, DEC_X,   DEC_Y_N, DEC_R_N,      0 },
+                { L_, DEC_X_N, DEC_Y_N, DEC_R,        0 },
+                { L_, DEC_X,   NAN_P,   NAN_P,        0 },
+                { L_, DEC_X,   NAN_N,   NAN_N,        0 },
+                { L_, sNAN_P,  DEC_X,   NAN_P,     EDOM },
+                { L_, DEC_X,   sNAN_P,  NAN_P,     EDOM },
+                { L_, DEC_X,   INF_P,   DEC_X,        0 },
+                { L_, DEC_X_N, INF_N,   DEC_X_N,      0 },
+                { L_, DEC_X,   ZERO_P,  NAN_P,     EDOM },
+                { L_, DEC_X,   ZERO_N,  NAN_P,     EDOM },
+                { L_, NAN_P,   DEC_Y,   NAN_P,        0 },
+                { L_, INF_P,   DEC_Y,   NAN_P,     EDOM },
+                { L_, ZERO_P,  DEC_Y,   ZERO_P,       0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& Y        = DATA[ti].d_y;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::remainder(X, Y);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const Obj&          Y        = DATA[ti].d_y;
+                const Obj&          EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::remainder(X, Y);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
             const long int NaN = 0x8000000000000000l;
+            const Obj           DEC_X = DEC(-9223372036854775808.0);
+
             struct {
-                int      d_line;
-                Obj      d_x;
-                long int d_expected;
+                int          d_line;
+                Obj          d_x;
+                long int     d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //------------------------------------------
-            // LINE |     X                   | EXPECTED
-            //------------------------------------------
-                { L_, DEC( 2.3),                 2  },
-                { L_, DEC( 2.5),                 2  },
-                { L_, DEC( 3.5),                 4  },
-                { L_, DEC(-2.3),                -2  },
-                { L_, DEC(-2.5),                -2  },
-                { L_, DEC(-3.4999999999999999), -3  },
-                { L_, DEC(-3.5),                -4  },
-                { L_, NAN_P,                    NaN },
-                { L_, NAN_N,                    NaN },
-                { L_, INF_P,                    NaN },
-                { L_, INF_N,                    NaN },
-                { L_, ZERO_P,                    0  },
-                { L_, ZERO_N,                    0  },
+            //---------------------------------------------------------------
+            // LINE |     X                   | EXPECTED             | ERRNO
+            //---------------------------------------------------------------
+                { L_, ZERO_P,                    0,                      0  },
+                { L_, ZERO_N,                    0,                      0  },
+                { L_, DEC_X,                     0x8000000000000000ll,   0  },
+                { L_, DEC( 2.3),                 2,                      0  },
+                { L_, DEC( 2.5),                 2,                      0  },
+                { L_, DEC( 3.5),                 4,                      0  },
+                { L_, DEC(-2.3),                -2,                      0  },
+                { L_, DEC(-2.5),                -2,                      0  },
+                { L_, DEC(-3.4999999999999999), -3,                      0  },
+                { L_, DEC(-3.5),                -4,                      0  },
+                { L_, MAX_P,                    NaN,                  EDOM  },
+                { L_, MAX_N,                    NaN,                  EDOM  },
+                { L_, sNAN_P,                   NaN,                  EDOM  },
+                { L_, NAN_P,                    NaN,                  EDOM  },
+                { L_, NAN_N,                    NaN,                  EDOM  },
+                { L_, INF_P,                    NaN,                  EDOM  },
+                { L_, INF_N,                    NaN,                  EDOM  },
             };
+
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE     = DATA[ti].d_line;
-                const Obj&      X        = DATA[ti].d_x;
-                const long int& EXPECTED = DATA[ti].d_expected;
-                const long int  RESULT   = Util::lrint(X);
+                const int          LINE     = DATA[ti].d_line;
+                const Obj&         X        = DATA[ti].d_x;
+                const long int&    EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const long int     RESULT   = Util::lrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                LOOP3_ASSERT(LINE, ERRNO, errno,  ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
         {
-            const long long int NaN = 0x8000000000000000ll;
+            const long long int NaN   = 0x8000000000000000ll;
+            const Obj           DEC_X = DEC(-9223372036854775808.0);
+
             struct {
                 int           d_line;
                 Obj           d_x;
                 long long int d_expected;
+                unsigned int  d_errno;
             } DATA[] = {
-            //------------------------------------------
-            // LINE |       X                 | EXPECTED
-            //------------------------------------------
-                { L_, DEC( 2.3),                 2  },
-                { L_, DEC( 2.5),                 2  },
-                { L_, DEC( 3.5),                 4  },
-                { L_, DEC(-2.3),                -2  },
-                { L_, DEC(-2.5),                -2  },
-                { L_, DEC(-3.4999999999999999), -3  },
-                { L_, DEC(-3.5),                -4  },
-                { L_, NAN_P,                    NaN },
-                { L_, NAN_N,                    NaN },
-                { L_, INF_P,                    NaN },
-                { L_, INF_N,                    NaN },
-                { L_, ZERO_P,                    0  },
-                { L_, ZERO_N,                    0  },
+            //---------------------------------------------------
+            // LINE |       X                 | EXPECTED | ERRNO
+            //---------------------------------------------------
+                { L_, ZERO_P,                    0,           0 },
+                { L_, ZERO_N,                    0,           0 },
+                { L_, DEC_X,                    NaN,          0 },
+                { L_, DEC( 2.3),                 2,           0 },
+                { L_, DEC( 2.5),                 2,           0 },
+                { L_, DEC( 3.5),                 4,           0 },
+                { L_, DEC(-2.3),                -2,           0 },
+                { L_, DEC(-2.5),                -2,           0 },
+                { L_, DEC(-3.4999999999999999), -3,           0 },
+                { L_, DEC(-3.5),                -4,           0 },
+                { L_, MAX_P,                    NaN,       EDOM },
+                { L_, MAX_N,                    NaN,       EDOM },
+                { L_, sNAN_P,                   NaN,       EDOM },
+                { L_, NAN_P,                    NaN,       EDOM },
+                { L_, NAN_N,                    NaN,       EDOM },
+                { L_, INF_P,                    NaN,       EDOM },
+                { L_, INF_N,                    NaN,       EDOM },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE     = DATA[ti].d_line;
-                const Obj&      X        = DATA[ti].d_x;
-                const long int& EXPECTED = DATA[ti].d_expected;
-                const long int  RESULT   = Util::llrint(X);
+                const int          LINE     = DATA[ti].d_line;
+                const Obj&         X        = DATA[ti].d_x;
+                const long int&    EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const long int     RESULT   = Util::llrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -3585,71 +3917,81 @@ void TestDriver::testCase27()
         {
             const Obj DEC_1 = DEC( 1.000000000000000000000000000000001);
             const Obj DEC_9 = DEC( 9.999999999999999999999999999999999e-1);
-            const Obj MAX_P = DEC( 9.999999999999999999999999999999999e+6144);
-            const Obj MAX_N = DEC(-9.999999999999999999999999999999999e+6144);
 
             struct {
-                int d_line;
-                Obj d_from;
-                Obj d_to;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_from;
+                Obj          d_to;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
             //---------------------------------------------------
             // LINE |   FROM  |     TO   |       EXPECTED
             //---------------------------------------------------
-                { L_, DEC(0.0),  DEC(1.0), Util::denormMin128() },
-                { L_, DEC(1.0),  DEC(2.0), DEC_1                },
-                { L_, DEC(1.0),  DEC(0.0), DEC_9                },
-                { L_, DEC(0.0),  DEC(0.0), DEC(0.0)             },
-                { L_, NAN_P,     NAN_P,    NAN_P                },
-                { L_, NAN_N,     NAN_N,    NAN_N                },
-                { L_, INF_P,     INF_P,    INF_P                },
-                { L_, INF_N,     INF_N,    INF_N                },
-                { L_, INF_P,     DEC(1.0), MAX_P                },
-                { L_, INF_N,     DEC(1.0), MAX_N                },
+                { L_, MAX_P,     INF_P,    INF_P,                ERANGE },
+                { L_, DEC(0.0),  DEC(1.0), Util::denormMin128(), ERANGE },
+                { L_, DEC(1.0),  DEC(2.0), DEC_1,                     0 },
+                { L_, DEC(1.0),  DEC(0.0), DEC_9,                     0 },
+                { L_, DEC(0.0),  DEC(0.0), DEC(0.0),                  0 },
+                { L_, NAN_P,     NAN_P,    NAN_P,                     0 },
+                { L_, NAN_N,     NAN_N,    NAN_N,                     0 },
+                { L_, INF_P,     INF_P,    INF_P,                     0 },
+                { L_, INF_N,     INF_N,    INF_N,                     0 },
+                { L_, INF_P,     DEC(1.0), MAX_P,                     0 },
+                { L_, INF_N,     DEC(1.0), MAX_N,                     0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& FROM     = DATA[ti].d_from;
-                const Obj& TO       = DATA[ti].d_to;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::nextafter(FROM, TO);
+                const int          LINE     = DATA[ti].d_line;
+                const Obj&         FROM     = DATA[ti].d_from;
+                const Obj&         TO       = DATA[ti].d_to;
+                const Obj&         EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj  RESULT = Util::nextafter(FROM, TO);
 
                 LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "nexttoward()" << bsl::endl; }
         {
             struct {
-                int                d_line;
-                Obj                d_from;
-                Util::ValueType128 d_to;
-                Obj                d_expected;
+                int          d_line;
+                Obj          d_from;
+                Obj          d_to;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-//-----------------------------------------------------------------------------
-//LINE |        FROM         |          TO            | EXPECTED
-//-----------------------------------------------------------------------------
-{ L_, DEC(0.0),                Util::denormMin128(),    Util::denormMin128() },
-{ L_, DEC(0.0),                Util::negate(
-                               Util::denormMin128()),   Util::negate(
-                                                        Util::denormMin128())},
-{ L_, Util::quietNaN128(),     Util::quietNaN128(),     Util::quietNaN128()  },
-{ L_, Util::signalingNaN128(), Util::signalingNaN128(), Util::quietNaN128()  },
-{ L_, Util::infinity128(),     Util::infinity128(),     Util::infinity128()  },
+  //-------------------------------------------------------------------------
+  // LINE | FROM    |          TO          | EXPECTED           |  ERRNO
+  //-------------------------------------------------------------------------
+      { L_, MAX_P,    INF_P,     INF_P,                 ERANGE },
+      { L_, ZERO_P,   Util::denormMin128(),    Util::denormMin128(),  ERANGE },
+      { L_, DEC(0.0), Util::negate(
+                      Util::denormMin128()),   Util::negate(
+                                               Util::denormMin128()), ERANGE },
+      { L_, NAN_P,    NAN_P,                   NAN_P,                      0 },
+      { L_, sNAN_P,   sNAN_P,                  NAN_P,                   EDOM },
+      { L_, INF_P,    INF_P,                   INF_P,                      0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& FROM     = DATA[ti].d_from;
-                const Obj& TO       = DATA[ti].d_to;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::nexttoward(FROM, TO);
+                const int          LINE     = DATA[ti].d_line;
+                const Obj&         FROM     = DATA[ti].d_from;
+                const Obj&         TO       = DATA[ti].d_to;
+                const Obj&         EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::nexttoward(FROM, TO);
 
                 LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -3661,72 +4003,92 @@ void TestDriver::testCase27()
             const Obj DEC_R1 = DEC(7.999999999999999445482255552043771);
 
             struct {
-                int d_line;
-                Obj d_base;
-                Obj d_exponent;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_base;
+                Obj          d_exponent;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //----------------------------------------------
-            // LINE |   BASE   |  EXPONENT |   EXPECTED
-            //----------------------------------------------
-                { L_, DEC( 2.0),  DEC(10.0),  DEC( 1024.0) },
-                { L_, DEC( 2.0),  DEC_Y1,     DEC_R1       },
-                { L_, DEC( 2.0),  DEC( 0.5),  SQRT_2       },
-                { L_, DEC(-2.0),  DEC(-3.0),  DEC(-0.125)  },
-                { L_, DEC(-1.0),  NAN_P,      NAN_P        },
-                { L_, DEC( 1.0),  NAN_P,      DEC( 1.0)    },
-                { L_, INF_P,      DEC( 2.0),  INF_P        },
-                { L_, INF_P,      DEC(-1.0),  DEC( 0.0)    },
-                { L_, DEC(-1.0),  DEC_Y2,     NAN_N        },
-                { L_, ZERO_N,     DEC(-3.0),  INF_N        },
+            //---------------------------------------------------------------
+            // LINE |   BASE              |  EXPONENT | EXPECTED   |  ERRNO
+            //---------------------------------------------------------------
+                { L_, ZERO_P,               ZERO_P,     DEC(1.0),         0 },
+                { L_, MAX_P,                DEC(2.0),   INF_P,       ERANGE },
+                { L_, Util::denormMin128(), DEC(2.0),   ZERO_P,      ERANGE },
+                { L_, DEC( 2.0),            DEC_Y1,     DEC_R1,           0 },
+                { L_, DEC( 2.0),            DEC(10.0),  DEC(1024.0),      0 },
+                { L_, DEC( 2.0),            DEC( 0.5),  SQRT_2,           0 },
+                { L_, DEC(-2.0),            DEC(-3.0),  DEC(-0.125),      0 },
+                { L_, DEC(-1.0),            NAN_P,      NAN_P,            0 },
+                { L_, DEC( 1.0),            NAN_P,      DEC(1.0),         0 },
+                { L_, INF_P,                DEC( 2.0),  INF_P,            0 },
+                { L_, INF_P,                DEC(-1.0),  ZERO_P,           0 },
+                { L_, DEC(-1.0),            DEC_Y2,     NAN_P,         EDOM },
+                { L_, ZERO_N,               DEC(-3.0),  INF_N,       ERANGE },
+                { L_, NAN_P,                DEC( 2.0),  NAN_P,            0 },
+                { L_, sNAN_P,               DEC( 2.0),  NAN_P,         EDOM },
+                { L_, DEC(2.0),             sNAN_P,     NAN_P,         EDOM },
             };
+
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& BASE     = DATA[ti].d_base;
-                const Obj& EXPONENT = DATA[ti].d_exponent;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::pow(BASE, EXPONENT);
+                const int          LINE     = DATA[ti].d_line;
+                const Obj&         BASE     = DATA[ti].d_base;
+                const Obj&         EXPONENT = DATA[ti].d_exponent;
+                const Obj&         EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj  RESULT = Util::pow(BASE, EXPONENT);
 
                 LOOP_ASSERT(LINE, nanEqual(EXPECTED, RESULT));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
             const long int NaN   = 0x8000000000000000l;
-            const Obj      DEC_1 = DEC(2.4999999999999999);
+            const Obj      DEC_X = DEC(2.4999999999999999);
 
             struct {
-                int      d_line;
-                Obj      d_x;
-                long int d_expected;
+                int          d_line;
+                Obj          d_x;
+                long int     d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //---------------------------
-            // LINE |    X     | EXPECTED
-            //---------------------------
-                { L_, DEC( 2.3),  2  },
-                { L_, DEC_1,      2  },
-                { L_, DEC( 2.5),  3  },
-                { L_, DEC(-2.3), -2  },
-                { L_, DEC(-2.5), -3  },
-                { L_, NAN_P,     NaN },
-                { L_, NAN_N,     NaN },
-                { L_, INF_P,     NaN },
-                { L_, INF_N,     NaN },
-                { L_, ZERO_P,     0  },
-                { L_, ZERO_N,     0  },
+            //------------------------------------
+            // LINE |    X     | EXPECTED | ERRNO
+            //------------------------------------
+                { L_, DEC( 2.3),      2,       0 },
+                { L_, DEC_X,          2,       0 },
+                { L_, DEC( 2.5),      3,       0 },
+                { L_, DEC(-2.3),     -2,       0 },
+                { L_, DEC(-2.5),     -3,       0 },
+                { L_, MAX_P,         NaN,   EDOM },
+                { L_, MAX_N,         NaN,   EDOM },
+                { L_, sNAN_P,        NaN,   EDOM },
+                { L_, NAN_P,         NaN,   EDOM },
+                { L_, NAN_N,         NaN,   EDOM },
+                { L_, INF_P,         NaN,   EDOM },
+                { L_, INF_N,         NaN,   EDOM },
+                { L_, ZERO_P,         0,       0 },
+                { L_, ZERO_N,         0,       0 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE     = DATA[ti].d_line;
-                const Obj&      X        = DATA[ti].d_x;
-                const long int& EXPECTED = DATA[ti].d_expected;
-                const long int  RESULT   = Util::lround(X);
+                const int           LINE     = DATA[ti].d_line;
+                const Obj&          X        = DATA[ti].d_x;
+                const long int&     EXPECTED = DATA[ti].d_expected;
+                const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const long int RESULT = Util::lround(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -3737,34 +4099,40 @@ void TestDriver::testCase27()
             const Obj RES_1  = DEC(2.999999999999999999999999999999999);
 
             struct {
-                int d_line;
-                Obj d_x;
-                Obj d_expected;
+                int          d_line;
+                Obj          d_x;
+                Obj          d_expected;
+                unsigned int d_errno;
             } DATA[] = {
-            //--------------------------------
-            // LINE |     X     |   EXPECTED
-            //--------------------------------
-                { L_, DEC(100.0),  DEC(10.0) },
-                { L_, DEC_1,       RES_1     },
-                { L_, DEC(  2.0),  SQRT_2    },
-                { L_, DEC( -1.0),  NAN_P     },
-                { L_, INF_P,       INF_P     },
-                { L_, INF_N,       NAN_P     },
-                { L_, NAN_P,       NAN_P     },
-                { L_, NAN_N,       NAN_N     },
-                { L_, ZERO_P,      ZERO_P    },
-                { L_, ZERO_N,      ZERO_N    },
+            //------------------------------------------
+            // LINE |     X     | EXPECTED | ERRNO
+            //------------------------------------------
+                { L_, DEC(100.0), DEC(10.0),    0 },
+                { L_, DEC_1,      RES_1,        0 },
+                { L_, DEC(  2.0), SQRT_2,       0 },
+                { L_, DEC(-1.0),  NAN_P,     EDOM },
+                { L_, INF_P,      INF_P,        0 },
+                { L_, INF_N,      NAN_P,     EDOM },
+                { L_, sNAN_P,     NAN_P,     EDOM },
+                { L_, NAN_P,      NAN_P,        0 },
+                { L_, NAN_N,      NAN_N,        0 },
+                { L_, ZERO_P,     ZERO_P,       0 },
+                { L_, ZERO_N,     ZERO_N,       0 },
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE     = DATA[ti].d_line;
-                const Obj& X        = DATA[ti].d_x;
-                const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::sqrt(X);
+                const int          LINE     = DATA[ti].d_line;
+                const Obj&         X        = DATA[ti].d_x;
+                const Obj&         EXPECTED = DATA[ti].d_expected;
+                const unsigned int ERRNO    = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj  RESULT = Util::sqrt(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
             }
         }
 
@@ -3787,6 +4155,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::ceil(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::ceil(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::ceil(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::ceil(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "floor()" << bsl::endl; }
@@ -3806,6 +4177,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::floor(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::floor(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::floor(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::floor(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "trunc()" << bsl::endl; }
@@ -3825,6 +4199,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::trunc(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::trunc(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::trunc(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::trunc(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "round()" << bsl::endl; }
@@ -3844,6 +4221,9 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::round(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::round(NAN_P),   NAN_P));
             ASSERT(   nanEqual(Util::round(NAN_N),   NAN_N));
+            errno = 0;
+            ASSERT(   nanEqual(Util::round(sNAN_P),  NAN_P));
+            LOOP_ASSERT(L_, EDOM == errno);
         }
 
         if (veryVerbose) { T_ T_ bsl::cout << "fabs()" << bsl::endl; }
@@ -3862,7 +4242,8 @@ void TestDriver::testCase27()
             ASSERT(Util::equal(Util::fabs(ZERO_P),  ZERO_P));
             ASSERT(Util::equal(Util::fabs(ZERO_N),  ZERO_N));
             ASSERT(   nanEqual(Util::fabs(NAN_P),   NAN_P));
-            ASSERT(   nanEqual(Util::fabs(NAN_N),   NAN_N));
+
+            ASSERT(   nanEqual(Util::fabs(NAN_N),   NAN_P));
         }
 #undef DEC
     }
@@ -8739,15 +9120,19 @@ void TestDriver::testCase8()
 
         Util::ValueType32 identity32 = Util::parse32("1");
 
-           lhs32 = Util::makeDecimalRaw32(lhsMantissa, lhsExponent);
-           rhs32 = Util::makeDecimalRaw32(rhsMantissa, rhsExponent);
-           result32 = Util::divide(lhs32, rhs32);
+        lhs32 = Util::makeDecimalRaw32(static_cast<int>(lhsMantissa),
+                                                        lhsExponent);
+        rhs32 = Util::makeDecimalRaw32(static_cast<int>(rhsMantissa),
+                                                        rhsExponent);
+        result32 = Util::divide(lhs32, rhs32);
 
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
                      resMantissa, resExponent,
-               Util::equal(result32, Util::makeDecimalRaw32(resMantissa,
-                                                            resExponent)));
+               Util::equal(
+                        result32,
+                        Util::makeDecimalRaw32(static_cast<int>(resMantissa),
+                                                                resExponent)));
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
                      resMantissa, resExponent,
@@ -8991,7 +9376,8 @@ void TestDriver::testCase7()
         { 42,  0,  1,  2, 42,  2 },
         {  1,  2, 42,  0, 42,  2 }
     };
-    const int numTestCases = sizeof(testCases) / sizeof(*testCases);
+    const int numTestCases = static_cast<int>(sizeof(testCases) /
+                                              sizeof(*testCases));
 
     for (int i = 0; i < numTestCases; ++i) {
         long long int lhsMantissa = testCases[ i ].lhsMantissa;
@@ -9016,15 +9402,19 @@ void TestDriver::testCase7()
 
         Util::ValueType32 identity32 = Util::parse32("1");
 
-           lhs32 = Util::makeDecimalRaw32(lhsMantissa, lhsExponent);
-           rhs32 = Util::makeDecimalRaw32(rhsMantissa, rhsExponent);
+        lhs32 = Util::makeDecimalRaw32(static_cast<int>(lhsMantissa),
+                                                        lhsExponent);
+        rhs32 = Util::makeDecimalRaw32(static_cast<int>(rhsMantissa),
+                                                        rhsExponent);
         result32 = Util::multiply(lhs32, rhs32);
 
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
                      resMantissa, resExponent,
-               Util::equal(result32, Util::makeDecimalRaw32(resMantissa,
-                                                            resExponent)));
+                     Util::equal(
+                        result32,
+                        Util::makeDecimalRaw32(static_cast<int>(resMantissa),
+                                                                resExponent)));
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
                      resMantissa, resExponent,
@@ -9243,7 +9633,8 @@ void TestDriver::testCase6()
         { 42,  0,  1,  1, 32,  0 },
         {  1,  1, 42,  0,-32,  0 }
     };
-    const int numTestCases = sizeof(testCases) / sizeof(*testCases);
+    const int numTestCases = static_cast<int>(sizeof(testCases) /
+                                              sizeof(*testCases));
 
     for (int i = 0; i < numTestCases; ++i) {
         long long int lhsMantissa = testCases[ i ].lhsMantissa;
@@ -9268,15 +9659,19 @@ void TestDriver::testCase6()
 
         Util::ValueType32 negativeZero32 = Util::parse32("-0");
 
-           lhs32 = Util::makeDecimalRaw32(lhsMantissa, lhsExponent);
-           rhs32 = Util::makeDecimalRaw32(rhsMantissa, rhsExponent);
+        lhs32 = Util::makeDecimalRaw32(static_cast<int>(lhsMantissa),
+                                                        lhsExponent);
+        rhs32 = Util::makeDecimalRaw32(static_cast<int>(rhsMantissa),
+                                                        rhsExponent);
         result32 = Util::subtract(lhs32, rhs32);
 
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
                      resMantissa, resExponent,
-               Util::equal(result32, Util::makeDecimalRaw32(resMantissa,
-                                                            resExponent)));
+                     Util::equal(
+                        result32,
+                        Util::makeDecimalRaw32(static_cast<int>(resMantissa),
+                                                                resExponent)));
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
                      resMantissa, resExponent,
@@ -9503,7 +9898,8 @@ void TestDriver::testCase5()
         { 42,  0,  1,  1, 52,  0 },
         {  1,  1, 42,  0, 52,  0 }
     };
-    const int numTestCases = sizeof(testCases) / sizeof(*testCases);
+    const int numTestCases = static_cast<int>(sizeof(testCases) /
+                                              sizeof(*testCases));
 
     for (int i = 0; i < numTestCases; ++i) {
         long long int lhsMantissa = testCases[ i ].lhsMantissa;
@@ -9528,16 +9924,18 @@ void TestDriver::testCase5()
 
         Util::ValueType32 negativeZero32 = Util::parse32("-0");
 
-           lhs32 = Util::makeDecimalRaw32(lhsMantissa, lhsExponent);
-           rhs32 = Util::makeDecimalRaw32(rhsMantissa, rhsExponent);
-           result32 = Util::add(lhs32, rhs32);
+        lhs32 = Util::makeDecimalRaw32(static_cast<int>(lhsMantissa),
+                                                        lhsExponent);
+        rhs32 = Util::makeDecimalRaw32(static_cast<int>(rhsMantissa),
+                                                        rhsExponent);
+        result32 = Util::add(lhs32, rhs32);
 
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
                      resMantissa, resExponent,
                      Util::equal(result32,
-                                 Util::makeDecimalRaw32(resMantissa,
-                                                        resExponent)));
+                        Util::makeDecimalRaw32(static_cast<int>(resMantissa),
+                                                                resExponent)));
         LOOP6_ASSERT(lhsMantissa, lhsExponent,
                      rhsMantissa, rhsExponent,
                      resMantissa, resExponent,
@@ -12215,7 +12613,8 @@ void TestDriver::testCase2()
                                  -1234567890123456LL,
                                  -9876543210987654LL
                                 };
-        int numMantissas = sizeof(mantissas) / sizeof(*mantissas);
+        int numMantissas = static_cast<int>(sizeof(mantissas) /
+                                            sizeof(*mantissas));
 
         int exponents[] = {
                               0,
@@ -12233,7 +12632,8 @@ void TestDriver::testCase2()
                            -123,
                            -321
                           };
-        int numExponents = sizeof(exponents) / sizeof(*exponents);
+        int numExponents = static_cast<int>(sizeof(exponents) /
+                                            sizeof(*exponents));
 
         Util::ValueType128 test;
         Util::ValueType128 witnessAlternate;

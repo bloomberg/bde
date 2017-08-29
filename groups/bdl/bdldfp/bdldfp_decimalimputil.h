@@ -172,6 +172,8 @@ BSLS_IDENT("$Id$")
 #include <bsl_cmath.h>
 #endif
 
+#include <bsl_iostream.h>
+
 #ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
 
                 // DECIMAL FLOATING-POINT LITERAL EMULATION
@@ -322,11 +324,10 @@ class DecimalImpUtil {
         // sign to the specified 'value', and which has the exponent of the
         // specified 'exponent'.  If the exponent needs to be increased, round
         // the value according to the current decimal floating point rounding
-        // mode; and if the result of the rounding is not equal to the value of
-        // 'value'.  If the exponent needs to be decreased and the significant
-        // of the result has more digits than the type would allow, return NaN.
-        // The returned value is unspecified if either operand is NaN or
-        // infinity of either sign.
+        // mode.  If the exponent needs to be decreased, multiply the value by
+        // power of ten and if the significand of the result has more digits
+        // than the type would allow, return NaN.  The returned value is
+        // unspecified if either operand is NaN or infinity of either sign.
 
     static bool sameQuantum(ValueType32  x, ValueType32  y);
     static bool sameQuantum(ValueType64  x, ValueType64  y);
@@ -336,7 +337,6 @@ class DecimalImpUtil {
         // or both arguments are infinity, they have the same quantum
         // exponents.  Note that if exactly one operand is NaN or exactly one
         // operand is infinity, they do not have the same quantum exponents.
-        // Also note that this function will raise no exceptions.
 
                         // compose and decompose
 
@@ -609,7 +609,9 @@ class DecimalImpUtil {
         // Return a decimal value with the magnitude of the specifed 'x' and
         // the sign of the specified 'y'.  If 'x' is NaN, then NaN with the
         // sign of 'y' is returned.
-        // Examples: 'copysign(5.0, -2.0)' ==> -5.0; 'ceil(-5.0, -2.0)' ==> 5.0
+        //
+        // Examples: 'copysign( 5.0, -2.0)' ==> -5.0;
+        //           'copysign(-5.0, -2.0)' ==> -5.0
 
     static ValueType32  exp(ValueType32  x);
     static ValueType64  exp(ValueType64  x);
@@ -617,72 +619,102 @@ class DecimalImpUtil {
         // Return 'e' (Euler's number, 2.7182818) raised to the specified power
         // 'x'.
         //
-        // Error handling:
+        // Special value handling:
         //: o If 'x' is +/-0, 1 is returned.
         //: o If 'x' is negative infinity, +0 is returned.
-        //: o If 'x' is infinity, infinity is returned.
-        //: o If 'x' is NaN, NaN is returned.
+        //: o If 'x' is +infinity, +infinity is returned.
+        //: o If 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is finite, but the result value is outside the range of
+        //:   the return type, store the value of the macro 'ERANGE' into
+        //:   'errno' and +infinity value is returned.
 
     static ValueType32  log(ValueType32  x);
     static ValueType64  log(ValueType64  x);
     static ValueType128 log(ValueType128 x);
         // Return the natural (base 'e') logarithm of the specified 'x'.
         //
-        // Error handling:
-        //: o If 'x' is +/-0, -infinity is returned.
+        // Special value handling:
+        //: o If 'x' is +/-0, -infinity is returned and the value of the macro
+        //:   'ERANGE' is stored into 'errno'.
         //: o If 'x' is 1, +0 is returned.
-        //: o If 'x' is negative, NaN is returned.
-        //: o If 'x' is infinity, infinity is returned.
-        //: o If 'x' is NaN, NaN is returned.
+        //: o If 'x' is negative, quiet NaN is returned and the value of the
+        //:   macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is +infinity, +infinity is returned.
+        //: o If 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
 
     static ValueType32  logB(ValueType32  x);
     static ValueType64  logB(ValueType64  x);
     static ValueType128 logB(ValueType128 x);
-        // Return the value of the unbiased radix-independent exponent
-        // extracted from the specified 'x'.
+        // Return the logarithm of the modulo of the specified 'x', using
+        // 'DecimalXX' type radix value as base for the logarithm.  The radix
+        // for 'DecimalXX' types is 10, so 'logB()' is equivalent to 'log10()'
+        // for positive values.
         //
-        // Error handling:
-        //: o If 'x' is +/-0, -infinity is returned.
+        // Special value handling:
+        //: o If 'x' is +/-0, -infinity is returned and the value of the macro
+        //:   'ERANGE' is stored into 'errno'.
         //: o If 'x' is +/-infinity, +infinity is returned.
-        //: o If 'x' is NaN, NaN is returned.
+        //: o If 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //
+        // Examples: 'logB(  10.0)' ==> 1.0;
+        //           'logB(-100.0)' ==> 2.0
 
     static ValueType32  log10(ValueType32  x);
     static ValueType64  log10(ValueType64  x);
     static ValueType128 log10(ValueType128 x);
         // Return the common (base-10) logarithm of the specified 'x'.
         //
-        // Error handling:
-        //: o If 'x' is +/-0, -infinity is returned.
+        // Special value handling:
+        //: o If 'x' is +/-0, -infinity is returned and the value of the macro
+        //:   'ERANGE' is stored into 'errno'.
         //: o If 'x' is 1, +0 is returned.
-        //: o If 'x' is negative, NaN is returned.
-        //: o If 'x' is infinity, infinity is returned.
-        //: o If 'x' is NaN, NaN is returned.
+        //: o If 'x' is negative, quiet NaN is returned and the value of the
+        //:   macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is +infinity, +infinity is returned.
+        //: o If 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
 
     static ValueType32  fmod(ValueType32  x, ValueType32  y);
     static ValueType64  fmod(ValueType64  x, ValueType64  y);
     static ValueType128 fmod(ValueType128 x, ValueType128 y);
-        // Return the remainder of the division the specified 'x' by the
+        // Return the remainder of the division the specified 'x' of the
         // specified 'y'.
         //
-        // Error handling:
+        // Special value handling:
+        //: o If either argument is quiet NaN, quiet NaN is returned.
+        //: o If either argument is signaling NaN, quiet NaN is returned, and
+        //:   the value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is +/-infnity and 'y' is not NaN, quiet NaN is returned
+        //:   and the value of the macro 'EDOM' is stored into 'errno'.
         //: o If 'x' is +/-0 and 'y' is not zero, +/-0 is returned.
-        //: o If 'x' is +/-infnity and 'y' is not NaN, NaN is returned.
-        //: o If 'y' is +/-0 and 'x' is not NaN, NaN is returned.
-        //: o If 'y' is +/-infnity and 'x' is finite, 'x' is returned.
-        //: o If either argument is NaN, NaN is returned.
+        //: o If 'y' is +/-0, quite NaN is returned and the value of the macro
+        //:   'EDOM' is stored into 'errno'.
+        //: o If 'x' is finite and 'y' is +/-infnity, 'x' is returned.
 
     static ValueType32  remainder(ValueType32  x, ValueType32  y);
     static ValueType64  remainder(ValueType64  x, ValueType64  y);
     static ValueType128 remainder(ValueType128 x, ValueType128 y);
-        // Return the remainder of the division the specified 'x' by the
+        // Return the remainder of the division the specified 'x' of the
         // specified 'y'.  Note that in contrast to 'DecimalImpUtil::fmod()',
         // the returned value is not guaranteed to have the same sign as 'x'.
         //
-        // Error handling:
+        // Special value handling:
         //: o The current rounding mode has no effect.
-        //: o If 'y' is +/-0 and 'y' is not NaN, NaN is returned.
-        //: o If 'x' is +/-infnity and 'y' is not NaN, NaN is returned.
-        //: o If either argument is NaN, NaN is returned.
+        //: o If either argument is quiet NaN, quiet NaN is returned.
+        //: o If either argument is signaling NaN, quiet NaN is returned, and
+        //:   the value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'y' is +/-0, quiet NaN is returned and the value of the macro
+        //:   'EDOM' is stored into 'errno'.
+        //: o If 'x' is +/-infnity and 'y' is not NaN, quiet NaN is returned
+        //:   and the value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is finite and 'y' is +/-infnity, 'x' is returned.
 
     static long int        lrint(ValueType32  x);
     static long int        lrint(ValueType64  x);
@@ -691,11 +723,10 @@ class DecimalImpUtil {
     static long long int  llrint(ValueType64  x);
     static long long int  llrint(ValueType128 x);
         // Return an integer value nearest to the specified 'x'.  Round 'x'
-        // using the current rounding mode.
-        //
-        // Error handling:
-        //: o If 'x' is +/-infnity, NaN is returned.
-        //: o If 'x' is NaN, NaN is returned.
+        // using the current rounding mode.  If 'x' is +/-infnity, NaN (either
+        // signaling or quiet) or the rounded value is outside the range of the
+        // return type, store the value of the macro 'EDOM' into 'errno' and
+        // return 0x8000000000000000 value.
 
     static ValueType32  nextafter( ValueType32  from, ValueType32  to);
     static ValueType64  nextafter( ValueType64  from, ValueType64  to);
@@ -706,49 +737,107 @@ class DecimalImpUtil {
         // Return the next representable value of the specified 'from' in the
         // direction of the specified 'to'.
         //
-        // Error handling:
-        //: o If either argument is NaN, NaN is returned.
+        // Special value handling:
+        //: o If either argument is quiet NaN, quiet NaN is returned.
+        //: o If either argument is signaling NaN, quiet NaN is returned and
+        //:   the value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'from' is finite, but the expected result is an infinity,
+        //:   infinity is returned and the value of the macro 'ERANGE' is
+        //:   stored into 'errno'.
+        //: o If 'from' does not equal 'to' and the result is subnormal or
+        //:   zero, the value of the macro 'ERANGE' is stored into 'errno'.
 
     static ValueType32  pow(ValueType32  base, ValueType32  exp);
     static ValueType64  pow(ValueType64  base, ValueType64  exp);
     static ValueType128 pow(ValueType128 base, ValueType128 exp);
         // Return the value of the specified 'base' raised to the power the
         // specified 'exp'.
+        //
+        // Special value handling:
+        //: o If 'base' is finite and negative and 'exp' is finite and
+        //:   non-integer, quiet NaN is returned and the value of the macro
+        //:   'EDOM' is stored into 'errno'.
+        //: o If a pole error or a range error due to overflow occurs, infinity
+        //:   is returned and the value of the macro 'ERANGE' is stored into
+        //:  'errno'.
+        //: o If a range error occurs due to underflow, the correct result
+        //:   (after rounding) is returned and the value of the macro 'ERANGE'
+        //:   is stored into 'errno'.
+        //: o If either argument is signaling NaN, quiet NaN is returned and
+        //:   the value of the macro 'EDOM' is stored into 'errno'.
 
     static ValueType32  ceil(ValueType32  x);
     static ValueType64  ceil(ValueType64  x);
     static ValueType128 ceil(ValueType128 x);
         // Return the smallest integral value that is not less than the
-        // specified 'x'.  If 'x' is integral, plus zero, minus zero, NaN, or
-        // infinity 'x' return 'x' itself.
+        // specified 'x'.
+        //
+        // Special value handling:
+        //: o if 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o if 'x' is +/-infinity or +/-0, it is returned unmodified.
+        //
         // Examples: 'ceil(0.5)' ==> 1.0; 'ceil(-0.5)' ==> 0.0
 
     static ValueType32  floor(ValueType32  x);
     static ValueType64  floor(ValueType64  x);
     static ValueType128 floor(ValueType128 x);
         // Return the largest integral value that is not greater than the
-        // specified 'x'.  If 'x' is integral, positive zero, negative zero,
-        // NaN, or infinity 'x' return 'x' itself.
+        // specified 'x'.
+        //
+        // Special value handling:
+        //: o if 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o if 'x' is +/-infinity or +/-0, it is returned unmodified.
+        //
         // Examples: 'floor(0.5)' ==> 0.0; 'floor(-0.5)' ==> -1.0
 
-    static ValueType32     round(ValueType32  x);
-    static ValueType64     round(ValueType64  x);
-    static ValueType128    round(ValueType128 x);
-    static long int       lround(ValueType32  x);
-    static long int       lround(ValueType64  x);
-    static long int       lround(ValueType128 x);
-        // Return the integal value nearest to the specified 'x'.  Round
+    static ValueType32  round(ValueType32  x);
+    static ValueType64  round(ValueType64  x);
+    static ValueType128 round(ValueType128 x);
+        // Return the integral value nearest to the specified 'x'.  Round
         // halfway cases away from zero, regardless of the current decimal
-        // floating point rounding mode.  If 'x' is integral, positive zero,
-        // negative zero, NaN, or infinity then return 'x' itself.
+        // floating point rounding mode.
+        //
+        // Special value handling:
+        //: o if 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o if 'x' is +/-infinity or +/-0, it is returned unmodified.
+        //
         // Examples: 'round(0.5)' ==> 1.0; 'round(-0.5)' ==> -1.0
+
+    static long int lround(ValueType32  x);
+    static long int lround(ValueType64  x);
+    static long int lround(ValueType128 x);
+        // Return the integral value nearest to the specified 'x'.  Round
+        // halfway cases away from zero, regardless of the current decimal
+        // floating point rounding mode.
+        //
+        // Special value handling:
+        //: o if 'x' is NaN (either quiet or signaling), quiet NaN is returned
+        //:   and the value of the macro 'EDOM' is stored into 'errno'.
+        //: o if 'x' is +/-infinity, quite NaN is returned and the value of the
+        //:   macro 'EDOM' is stored into 'errno'.
+        //: o If the result of the rounding is outside the range of the return
+        //:   type, the macro 'EDOM' is stored into 'errno'.
+        //
+        // Examples: 'lround(0.5)' ==> 1.0; 'lround(-0.5)' ==> -1.0
 
     static ValueType32  trunc(ValueType32  x);
     static ValueType64  trunc(ValueType64  x);
     static ValueType128 trunc(ValueType128 x);
-        // Return the nearest integal value that is not greater in absolute
-        // value than the specified 'x'.  If 'x' is integral, NaN, or infinity
-        // then return 'x' itself.
+        // Return the nearest integral value that is not greater in absolute
+        // value than the specified 'x'.
+        //
+        // Special value handling:
+        //: o if 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o if 'x' is +/-infinity or +/-0, it is returned unmodified.
+        //
         // Examples: 'trunc(0.5)' ==> 0.0; 'trunc(-0.5)' ==> 0.0
 
     static ValueType32  fma(ValueType32  x, ValueType32  y, ValueType32  z);
@@ -757,18 +846,41 @@ class DecimalImpUtil {
         // Return, using the specified 'x', 'y', and 'z', the value of the
         // expression 'x * y + z', rounded as one ternary operation according
         // to the current decimal floating point rounding mode.
+        //
+        // Special value handling:
+        //: o If 'x' or 'y' are quiet NaN, quiet NaN is returned.
+        //: o If any argument is signaling NaN, quiet NaN is returned and the
+        //:   value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x*y' is an exact infinity and 'z' is an infinity with the
+        //:   opposite sign, quiet NaN is returned and the value of the macro
+        //:   'EDOM' is stored into 'errno'.
+        //: o If 'x' is zero and 'y' is infinite or if 'x' is infinite and 'y'
+        //:   is zero, and 'z' is not a NaN, then quiet NaN is returned and the
+        //:   value of the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is zero and 'y' is infinite or if 'x' is infinite and 'y'
+        //:   is zero, and 'z' is NaN, then quiet NaN is returned.
 
     static ValueType32  fabs(ValueType32  x);
     static ValueType64  fabs(ValueType64  x);
     static ValueType128 fabs(ValueType128 x);
-        // Return the absolute value of the specified 'x'.  Note that the
-        // absolute value of NaN is NaN.  The absolute values of zero
-        // or infinity are zero and infinity respectively.
+        // Return the absolute value of the specified 'x'.
+        //
+        // Special value handling:
+        //: o if 'x' is NaN (either signaling or quiet), quiet NaN is returned.
+        //: o if 'x' is +/-infinity or +/-0, it is returned unmodified.
 
     static ValueType32  sqrt(ValueType32  x);
     static ValueType64  sqrt(ValueType64  x);
     static ValueType128 sqrt(ValueType128 x);
         // Return the square root of the specified 'x'.
+        //
+        // Special value handling:
+        //: o If 'x' is quiet NaN, quiet NaN is returned.
+        //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is less than -0, quiet NaN is returned and the value of
+        //:   the macro 'EDOM' is stored into 'errno'.
+        //: o If 'x' is +/-infinity or +/-0, it is returned unmodified.
 
                         // Negation functions
 
@@ -1572,42 +1684,66 @@ inline
 long int DecimalImpUtil::lrint(ValueType32  x)
 {
     _IDEC_flags flags(0);
-    return __bid32_lrint(x.d_raw, &flags);
+    long int ret =  __bid32_lrint(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    return ret;
 }
 
 inline
 long int DecimalImpUtil::lrint(ValueType64  x)
 {
     _IDEC_flags flags(0);
-    return __bid64_lrint(x.d_raw, &flags);
+    long int ret =  __bid64_lrint(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    return ret;
 }
 
 inline
 long int DecimalImpUtil::lrint(ValueType128 x)
 {
     _IDEC_flags flags(0);
-    return __bid128_lrint(x.d_raw, &flags);
+    long int ret =  __bid128_lrint(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    return ret;
 }
 
 inline
 long long int DecimalImpUtil::llrint(ValueType32  x)
 {
     _IDEC_flags flags(0);
-    return __bid32_llrint(x.d_raw, &flags);
+    long int ret =  __bid32_llrint(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    return ret;
 }
 
 inline
 long long int DecimalImpUtil::llrint(ValueType64  x)
 {
     _IDEC_flags flags(0);
-    return __bid64_llrint(x.d_raw, &flags);
+    long int ret =  __bid64_llrint(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    return ret;
 }
 
 inline
 long long int DecimalImpUtil::llrint(ValueType128 x)
 {
     _IDEC_flags flags(0);
-    return __bid128_llrint(x.d_raw, &flags);
+    long long int ret =  __bid128_llrint(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    return ret;
 }
 
 inline
@@ -1617,6 +1753,11 @@ DecimalImpUtil::nextafter(ValueType32  x, ValueType32  y)
     DecimalImpUtil::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_nextafter(x.d_raw, y.d_raw, &flags);
+    if (BID_OVERFLOW_EXCEPTION  & flags ||
+        BID_UNDERFLOW_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
     return retval;
 }
 
@@ -1627,6 +1768,11 @@ DecimalImpUtil::nextafter(ValueType64  x, ValueType64  y)
     DecimalImpUtil::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_nextafter(x.d_raw, y.d_raw, &flags);
+    if (BID_OVERFLOW_EXCEPTION  & flags ||
+        BID_UNDERFLOW_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
     return retval;
 }
 
@@ -1637,6 +1783,11 @@ DecimalImpUtil::nextafter(ValueType128 x, ValueType128 y)
     DecimalImpUtil::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_nextafter(x.d_raw, y.d_raw, &flags);
+    if (BID_OVERFLOW_EXCEPTION  & flags ||
+        BID_UNDERFLOW_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
     return retval;
 }
 
@@ -1647,6 +1798,14 @@ DecimalImpUtil::nexttoward(ValueType32  x, ValueType128 y)
     DecimalImpUtil::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_nexttoward(x.d_raw, y.d_raw, &flags);
+    if (BID_OVERFLOW_EXCEPTION  & flags ||
+        BID_UNDERFLOW_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1657,6 +1816,14 @@ DecimalImpUtil::nexttoward(ValueType64  x, ValueType128 y)
     DecimalImpUtil::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_nexttoward(x.d_raw, y.d_raw, &flags);
+    if (BID_OVERFLOW_EXCEPTION  & flags ||
+        BID_UNDERFLOW_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1667,6 +1834,14 @@ DecimalImpUtil::nexttoward(ValueType128 x, ValueType128 y)
     DecimalImpUtil::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_nexttoward(x.d_raw, y.d_raw, &flags);
+    if (BID_OVERFLOW_EXCEPTION  & flags ||
+        BID_UNDERFLOW_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1677,6 +1852,15 @@ DecimalImpUtil::pow(ValueType32  base, ValueType32  exp)
     DecimalImpUtil::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_pow(base.d_raw, exp.d_raw, &flags);
+    if (BID_OVERFLOW_EXCEPTION    & flags ||
+        BID_UNDERFLOW_EXCEPTION   & flags ||
+        BID_ZERO_DIVIDE_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1687,6 +1871,15 @@ DecimalImpUtil::pow(ValueType64  base, ValueType64  exp)
     DecimalImpUtil::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_pow(base.d_raw, exp.d_raw, &flags);
+    if (BID_OVERFLOW_EXCEPTION    & flags ||
+        BID_UNDERFLOW_EXCEPTION   & flags ||
+        BID_ZERO_DIVIDE_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1697,6 +1890,15 @@ DecimalImpUtil::pow(ValueType128 base, ValueType128 exp)
     DecimalImpUtil::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_pow(base.d_raw, exp.d_raw, &flags);
+    if (BID_OVERFLOW_EXCEPTION    & flags ||
+        BID_UNDERFLOW_EXCEPTION   & flags ||
+        BID_ZERO_DIVIDE_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1706,6 +1908,9 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::ceil(ValueType32  x)
     DecimalImpUtil::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_positive(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1715,6 +1920,9 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::ceil(ValueType64  x)
     DecimalImpUtil::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_positive(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1724,6 +1932,9 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::ceil(ValueType128 x)
     DecimalImpUtil::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_round_integral_positive(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 
 }
@@ -1734,6 +1945,9 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::floor(ValueType32 x)
     DecimalImpUtil::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_negative(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1743,6 +1957,9 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::floor(ValueType64 x)
     DecimalImpUtil::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_negative(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1752,6 +1969,9 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::floor(ValueType128 x)
     DecimalImpUtil::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_round_integral_negative(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1761,15 +1981,9 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::round(ValueType32 x)
     DecimalImpUtil::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_nearest_away(x.d_raw, &flags);
-    return retval;
-}
-
-inline
-DecimalImpUtil::ValueType128 DecimalImpUtil::round(ValueType128 x)
-{
-    DecimalImpUtil::ValueType128 retval;
-    _IDEC_flags flags(0);
-    retval.d_raw = __bid128_round_integral_nearest_away(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1779,6 +1993,21 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::round(ValueType64 x)
     DecimalImpUtil::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_nearest_away(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::round(ValueType128 x)
+{
+    DecimalImpUtil::ValueType128 retval;
+    _IDEC_flags flags(0);
+    retval.d_raw = __bid128_round_integral_nearest_away(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1786,21 +2015,33 @@ inline
 long int DecimalImpUtil::lround(ValueType32 x)
 {
     _IDEC_flags flags(0);
-    return __bid32_lround(x.d_raw, &flags);
+    long int rv = __bid32_lround(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
+    return rv;
 }
 
 inline
 long int DecimalImpUtil::lround(ValueType64 x)
 {
     _IDEC_flags flags(0);
-    return __bid64_lround(x.d_raw, &flags);
+    long int rv = __bid64_lround(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
+    return rv;
 }
 
 inline
 long int DecimalImpUtil::lround(ValueType128 x)
 {
     _IDEC_flags flags(0);
-    return __bid128_lround(x.d_raw, &flags);
+    long int rv = __bid128_lround(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
+    return rv;
 }
 
 inline
@@ -1809,6 +2050,9 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::trunc(ValueType32 x)
     DecimalImpUtil::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_zero(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1818,6 +2062,9 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::trunc(ValueType64 x)
     DecimalImpUtil::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_zero(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1827,6 +2074,9 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::trunc(ValueType128 x)
     DecimalImpUtil::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_round_integral_zero(x.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return retval;
 }
 
@@ -1837,6 +2087,9 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::fma(ValueType32 x, ValueType32 y, Va
     ValueType32 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
 
@@ -1846,6 +2099,9 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::fma(ValueType64 x, ValueType64 y, Va
     ValueType64 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
 
@@ -1855,6 +2111,9 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::fma(ValueType128 x, ValueType128 y,
     ValueType128 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
                        // Selecting, converting functions
@@ -1889,6 +2148,9 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::sqrt(ValueType32 value)
     ValueType32 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_sqrt(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
 
@@ -1898,6 +2160,9 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::sqrt(ValueType64 value)
     ValueType64 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_sqrt(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
 
@@ -1907,6 +2172,9 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::sqrt(ValueType128 value)
     ValueType128 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_sqrt(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
 
@@ -1943,6 +2211,12 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::exp(ValueType32 value)
     ValueType32 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_exp(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    if (BID_OVERFLOW_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -1952,6 +2226,12 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::exp(ValueType64 value)
     ValueType64 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_exp(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    if (BID_OVERFLOW_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -1961,6 +2241,12 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::exp(ValueType128 value)
     ValueType128 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_exp(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    if (BID_OVERFLOW_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -1970,6 +2256,12 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::log(ValueType32 value)
     ValueType32 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_log(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -1979,6 +2271,12 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::log(ValueType64 value)
     ValueType64 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_log(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -1988,6 +2286,12 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::log(ValueType128 value)
     ValueType128 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_log(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION     & flags) {
+        errno = EDOM;
+    }
+    if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -1997,6 +2301,12 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::logB(ValueType32 value)
     ValueType32 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_logb(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -2006,6 +2316,12 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::logB(ValueType64 value)
     ValueType64 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_logb(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -2015,6 +2331,12 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::logB(ValueType128 value)
     ValueType128 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_logb(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
+    if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -2024,6 +2346,12 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::log10(ValueType32 value)
     ValueType32 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_log10(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION     & flags) {
+        errno = EDOM;
+    }
+    if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -2033,6 +2361,12 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::log10(ValueType64 value)
     ValueType64 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_log10(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION     & flags) {
+        errno = EDOM;
+    }
+    if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -2042,6 +2376,12 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::log10(ValueType128 value)
     ValueType128 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_log10(value.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION     & flags) {
+        errno = EDOM;
+    }
+    if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
+        errno = ERANGE;
+    }
     return rv;
 }
 
@@ -2052,6 +2392,9 @@ DecimalImpUtil::ValueType32  DecimalImpUtil::fmod(ValueType32  x,
     ValueType32 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_fmod(x.d_raw, y.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
 
@@ -2062,6 +2405,9 @@ DecimalImpUtil::ValueType64  DecimalImpUtil::fmod(ValueType64  x,
     ValueType64 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_fmod(x.d_raw, y.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
 
@@ -2072,6 +2418,9 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::fmod(ValueType128 x,
     ValueType128 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_fmod(x.d_raw, y.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
 
@@ -2082,6 +2431,9 @@ DecimalImpUtil::ValueType32  DecimalImpUtil::remainder(ValueType32  x,
     ValueType32 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_rem(x.d_raw, y.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
 
@@ -2092,6 +2444,9 @@ DecimalImpUtil::ValueType64  DecimalImpUtil::remainder(ValueType64  x,
     ValueType64 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_rem(x.d_raw, y.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
 
@@ -2102,6 +2457,9 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::remainder(ValueType128 x,
     ValueType128 rv;
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_rem(x.d_raw, y.d_raw, &flags);
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno = EDOM;
+    }
     return rv;
 }
 
