@@ -450,6 +450,8 @@ BSLS_IDENT("$Id: $")
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 50000
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+// Note that while basic support is available in earlier versions of the
+// library, the full header is not implemented until gcc 5.0.
 #endif
 
 
@@ -649,7 +651,7 @@ BSLS_IDENT("$Id: $")
 // Oracle Solaris Studio 12.4 claims C++11 support except for C++11
 // concurrency and atomic operations, and for user-defined literals
 // http://docs.oracle.com/cd/E37069_01/html/E37071/gncix.html#scrolltoc
-// No C++11 features are available by default. To use any C++11 features,
+// No C++11 features are available by default.  To use any C++11 features,
 // you must use the new -std=c++11 option with the CC compiler.
 // (__cplusplus >= 201103L when Oracle Solaris Studio CC -std=c++11 is invoked)
 // CC -std=c++11
@@ -672,14 +674,6 @@ BSLS_IDENT("$Id: $")
 # endif
 
 # if BSLS_PLATFORM_CMP_VERSION >= 0x5140
-#   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-    // CC 12.4 'constexpr' implementation almost satisfies our testing, but
-    // the compiler crashes when for some rare-but-reasonable data structures.
-
-#   define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
-    // CC 12.4 fails in a very specific way, that unfortuntely breaks for
-    // 'shared_ptr' in a way that is widely used.
-
 #   define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     // CC 12.4 will overly aggressively match an initializer list when it sees
     // brace initalization, leading to rejection of valid code when there is no
@@ -688,21 +682,41 @@ BSLS_IDENT("$Id: $")
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // CC 12.4 hits an awkward bug when performing deduction in some corner
-    // cases, that happen to be important to our vector implementation.
+    // cases, which happen to be important to our vector implementation.
+
+#  define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER 1
+    // The previous compiler ships with a mostly-complete version of the
+    // <type_traits> header, but we insist on a full implementation before
+    // defining this macro.
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
     // CC 12.4 has problems partially ordering template parameter packs that
     // typically result in failing to compile with ambiguity errors.
 # endif
 
-// # define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+# if BSLS_PLATFORM_CMP_VERSION == 0x5150
+#   undef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // CC 12.6 (beta) has a nasty bug with reference collapsing rvalue and
+    // lvalue references that crashes the compiler.
+#endif
 
-// Not yet tested for support
-// # define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+# if BSLS_PLATFORM_CMP_VERSION > 0x5150
+#   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+    // CC 12.4 'constexpr' implementation almost satisfies our testing, but
+    // the compiler crashes when for some rare-but-reasonable data structures.
+    // CC 12.5 has different corner cases, although we are still to track down
+    // a narrowed test case.  Both 12.5 and 12.6 have a regresion compared to
+    // 12.4 though with the (implicit) 'constexpr' constructors of aggregates
+    // that have dependent base classes, such as most type traits.
 
-// Not yet enabling C++17 support, but pro-active test drivers may want to add
-// coverage.
-// # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+#   define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
+    // CC 12.4, CC 12.5, and 12.6 all fail in a very specific way, which
+    // unfortuntely breaks for 'shared_ptr' in a way that is widely used.
+    // Note that the version check assumes the next revision of the compiler
+    // will have this fix, or the test driver will force us to update again.
+#endif
+
+//# define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #endif
 
 

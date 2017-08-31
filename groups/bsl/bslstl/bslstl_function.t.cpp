@@ -388,6 +388,8 @@ struct Function_DisableIfLosslessCnvrsn<BloombergLP::bdef_Function<PROTOTYPE*>,
 }  // close namespace bsl
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
+namespace {
+
 // Size type used by test allocator.
 typedef bsls::Types::Int64 AllocSizeType;
 
@@ -971,6 +973,8 @@ bool operator!=(const ThrowingEmptyFunctor&, const ThrowingEmptyFunctor&)
     return false;
 }
 
+} // unnamed namespace
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -981,6 +985,8 @@ struct IsBitwiseMoveable<ThrowingEmptyFunctor> : false_type
 
 }  // close namespace bslmf
 }  // close enterprise namespace
+
+namespace {
 
 class ThrowingSmallFunctor : public FunctorBase
 {
@@ -1497,6 +1503,8 @@ struct ValueGenerator<SmartPtr<TYPE> > : ValueGeneratorBase<TYPE> {
 // Special marker for moved-from comparisons
 bsls::ObjectBuffer<Obj> movedFromMarkerBuf;
 const Obj& movedFromMarker = movedFromMarkerBuf.object();
+
+} // unnamed namespace
 
 namespace BloombergLP {
 namespace bslma {

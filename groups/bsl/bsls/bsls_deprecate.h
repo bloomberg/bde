@@ -588,7 +588,16 @@
                                // ==============
 
 // First, try to determine if the C++14 'deprecated' attribute is supported,
-// using standard feature-detection facilities.
+// using standard feature-detection facilities.  Note that Sun CC breaks this
+// detection by defining a macro called '__has_cpp_attribute' that reports
+// compile-errors rather than returning a 0 literal when called with
+// 'deprecated'.
+
+#if !defined(__SUNPRO_CC) && !defined(__SUNPRO_C)
+//      Check the Sun compiler macros directly, rather than rely on the BDE
+//      platform-detection macros in 'bsls_platform', to allow deprecation of
+//      features in that component in the future.  This feature was last
+//      tested with CC 12.5.
 
 #if defined(__has_cpp_attribute)
 #  if __has_cpp_attribute(deprecated)
@@ -619,6 +628,8 @@
 #    endif
 #  endif
 #endif
+
+#endif  // Sun-avoidance
 
 // Next, define non-standard attributes for platforms known to support them.
 

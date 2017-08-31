@@ -145,7 +145,7 @@ BSLS_IDENT("$Id: $")
 ///Log Severity and the Severity Threshold
 /// - - - - - - - - - - - - - - - - - - -
 // Clients submitting a message to 'bsls::Log' (either through a function or
-// one of the macros) either implicity or explicitly provide a severity level
+// one of the macros) either implicitly or explicitly provide a severity level
 // describing the relative importance of that message to clients.  The possible
 // severity levels are FATAL, ERROR, WARNING, INFO, DEBUG, and TRACE (these are
 // enumerated in 'bsls_logseverity').

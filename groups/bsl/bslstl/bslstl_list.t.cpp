@@ -32,6 +32,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
@@ -3145,11 +3146,9 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
         Int64 B = defaultAllocator_p->numBlocksInUse(), A, BB, AA;
 
         int numThrows;
-#if defined(BSLS_PLATFORM_CMP_GNU)
-        // There's a bug in 'std::initializer_list' in the GNU g++ compiler
-        // which, if a throw occurs while the initializer list is being
-        // constructed, it isn't destroyed properly and memory is leaked.  To
-        // avoid that, do this test without the exceptions.
+#if defined(BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
+        // To avoid reporting spurious memory leaks, perform this test without
+        // the exceptions.
 
         if (veryVerbose) {
             printf("C'tor, naked list, %s, no exceptions\n",

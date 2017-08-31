@@ -17,6 +17,8 @@ BSLS_IDENT("$Id: $")
 // BSL_NATIVE_CPP_C_HEADER(header): path to C++ versions of C standard header
 // BSL_NATIVE_CPP_DEPRECATED_HEADER(header): path to deprecated C++ STD header
 // BSL_NATIVE_C_LIB_HEADER(header): path to C standard header (end in '.h')
+// BSL_NATIVE_OS_RTL_HEADER(header): path to a subset of C standard headers
+// BSL_NATIVE_OS_STDDEF_HEADER(header): path to standard C stddef,h header
 //
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //
@@ -60,6 +62,12 @@ BSLS_IDENT("$Id: $")
 //                                      compiler version, starting with Visual
 //                                      C++ 2015.  Note that this will *not*
 //                                      work for 'errno.h'
+//  BSL_NATIVE_OS_STDDEF_HEADER         The specific location of the <stddef.h>
+//                                      header, which needs to be tracked
+//                                      separately on at least Solaris CC C++11
+//                                      builds, in order to support chaining
+//                                      intercept headers with the platform
+//                                      standard library.
 //..
 // Note that 'BSL_NATIVE_C_LIB_HEADER' cannot be used to include the native
 // version of 'errno.h' because 'errno' is '#define'd as a macro by several
@@ -104,6 +112,17 @@ BSLS_IDENT("$Id: $")
 // ignored), which causes link errors when multiple files defining the version
 // symbol are linked together.
 
+extern "C++" {
+// Some third party libraries #include standard C headers inside an
+// 'extern "C"' block, which can cause problems when our intercept headers
+// transitively include code expected to be parsed as C++.  As we cannot fix
+// the third party headers, we protect the file that is ubiquitously included
+// when intercepting headers.
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -111,132 +130,187 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
+} // extern "C++"
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
-# if BSLS_PLATFORM_CMP_VERSION < 0x5130  // Sun CC 5.5 to 5.12.3
-#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_CISO646_HEADER(filename) <../CC/std/filename>
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+    // If a compiler supports #include_next, then the following machinery is
+    // unnecessary.
 
-#   if !defined(BDE_BUILD_TARGET_STLPORT)
-#       define BSL_NATIVE_CPP_LIB_HEADER(filename) <../CC/Cstd/filename>
-#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../CC/filename>
-#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../CC/Cstd/filename>
-#       define BSL_NATIVE_CPP_C_HEADER(filename) <../CC/std/filename>
-#   else
-#       define BSL_NATIVE_SUN_STLPORT_HEADER(filename)                        \
-                                                      <../CC/stlport4/filename>
-#       define BSL_NATIVE_CPP_LIB_HEADER(filename)                            \
-                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
-#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                        \
-                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
-#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                     \
-                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
-#       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
-                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
-#   endif
-# else  // Oracle CC 5.12.4 or later
-#   define BSL_NATIVE_SUN_LIBRARY_HEADER(filename) <../../include/CC/filename>
-            // Support macro to keep whithin 79 char line limit, used by both
-            // non-C++11 libraries.
+#elif defined(BSLS_PLATFORM_CMP_CLANG)                                        \
+   || defined(BSLS_PLATFORM_CMP_GNU)                                          \
+   || defined(BSLS_PLATFORM_CMP_IBM)
+    // Clang, GCC, and xlC use 'include_next' so this branch should never be
+    // activated.
 
-#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
+    BSLMF_ASSERT(false);
 
-#   if __cplusplus >= 201103  // C++11 libary is fixed as GCC
-#       define BSL_NATIVE_SUN_CPP11_HEADER(filename)                          \
+#elif defined(BSLS_PLATFORM_CMP_SUN)
+    // For Solaris, the C headers are provided by the operating system with the
+    // typical include path.  The C++ header locations vary considerably with
+    // compiler version and configuration.  The intercept strategy is defined,
+    // in order, according to the configured library that is being intercepted:
+    //..
+    // 1 For C++11, some version of the gcc standard library is in use, with a
+    //   path that varies by compiler version
+    // 2 If the STLport command line switch is used for C++03 builds, set up
+    //   the search paths accordingly
+    // 3 Otherwise, assume the pre-standard C++98 configuration using the
+    //   supplied Rogue Wave headers is in effect.
+    //..
+    // Note that while later version of this compiler provide an #include_next
+    // preprocessor directive, it does not resume searching in the expected
+    // manner, and so cannot be used to implement our intercept headers.
+
+# define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+    // C standard library is provided by the OS, not the compiler, so is always
+    // in the same location.
+
+# if __cplusplus >= 201103  // C++11 libary is fixed as GCC, but path changes
+                            // for each new version.
+#   if BSLS_PLATFORM_CMP_VERSION < 0x5140
+#     define BSL_NATIVE_CPP_LIB_HEADER(filename)                              \
                                       <../../CC-gcc/include/c++/4.8.2/filename>
-            // Support macro to keep whithin 79 char line limit
+#   elif BSLS_PLATFORM_CMP_VERSION < 0x5150
+#     define BSL_NATIVE_CPP_LIB_HEADER(filename)                              \
+                                      <../../CC-gcc/include/c++/5.1.0/filename>
+#   else
+#     define BSL_NATIVE_CPP_LIB_HEADER(filename)                              \
+                                      <../../CC-gcc/include/c++/5.4.0/filename>
+#   endif
 
-#       define BSL_NATIVE_CISO646_HEADER(filename)                            \
-                                          BSL_NATIVE_SUN_CPP11_HEADER(filename)
-#       define BSL_NATIVE_CPP_LIB_HEADER(filename)                            \
-                                          BSL_NATIVE_SUN_CPP11_HEADER(filename)
-#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                        \
-                                          BSL_NATIVE_SUN_CPP11_HEADER(filename)
-#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                     \
-                                 BSL_NATIVE_SUN_CPP11_HEADER(backward/filename)
-#       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
-                                          BSL_NATIVE_SUN_CPP11_HEADER(filename)
-#   elif !defined(BDE_BUILD_TARGET_STLPORT)  // (default) Rogue Wave library
-#       define BSL_NATIVE_CPP_LIB_HEADER(filename)                            \
-                                   BSL_NATIVE_SUN_LIBRARY_HEADER(Cstd/filename)
-#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                        \
-                                        BSL_NATIVE_SUN_LIBRARY_HEADER(filename)
-#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                     \
-                                   BSL_NATIVE_SUN_LIBRARY_HEADER(Cstd/filename)
-#       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
-                                        BSL_NATIVE_SUN_LIBRARY_HEADER(filename)
-#       define BSL_NATIVE_CISO646_HEADER(filename)                            \
-                                        BSL_NATIVE_SUN_LIBRARY_HEADER(filename)
-#   else  // assuming STLport library selected on the command line
-#       define BSL_NATIVE_SUN_STLPORT_HEADER(filename)                        \
+#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                         \
+                                   BSL_NATIVE_CPP_LIB_HEADER(backward/filename)
+
+#   if BSLS_PLATFORM_CMP_VERSION >= 0x5140
+        // gnu standard library needs to provide its own intercept of the OS
+        // <stddef.h> header, in order to add 'max_align_t'.
+#     define BSL_NATIVE_OS_STDDEF_HEADER(filename) <../CC/gnu/filename>
+#   endif
+
+# elif defined(BDE_BUILD_TARGET_STLPORT)
+    // The command line was configured to use the STLport library for C++03
+#   if BSLS_PLATFORM_CMP_VERSION < 0x5130  // Sun CC 5.5 to 5.12.3
+#     define BSL_NATIVE_CPP_LIB_HEADER(filename) <../CC/stlport4/filename>
+#     define BSL_NATIVE_CISO646_HEADER(filename) <../CC/std/filename>
+#   else  // Sun CC 5.12.4 and later use a different directory structure
+#     define BSL_NATIVE_CPP_LIB_HEADER(filename)                              \
                                            <../../include/CC/stlport4/filename>
-            // Support macro to keep whithin 79 char line limit
+#   endif
 
-#       define BSL_NATIVE_CPP_LIB_HEADER(filename)                            \
-                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
-#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                        \
-                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
-#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                     \
-                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
-#       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
-                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
-#       define BSL_NATIVE_CISO646_HEADER(filename)                            \
-                                        BSL_NATIVE_SUN_LIBRARY_HEADER(filename)
+# else  // (default) Rogue Wave library
+#   if BSLS_PLATFORM_CMP_VERSION < 0x5130  // Sun CC 5.5 to 5.12.3
+#     define BSL_NATIVE_CPP_LIB_HEADER(filename)     <../CC/Cstd/filename>
+#     define BSL_NATIVE_CPP_C_HEADER(filename)       <../CC/std/filename>
+#     define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../CC/filename>
+#   else  // Sun CC 5.12.4 and later use a different directory structure
+#     define BSL_NATIVE_CPP_LIB_HEADER(filename)                              \
+                                               <../../include/CC/Cstd/filename>
+#     define BSL_NATIVE_CPP_C_HEADER(filename) <../../include/CC/filename>
+#     define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                          \
+                                               <../../include/CC/filename>
 #   endif
 # endif
 
-#elif defined(BSLS_PLATFORM_CMP_CLANG) || defined(BSLS_PLATFORM_CMP_GNU)
-
-  // Clang and GCC use 'include_next'
-
-#elif defined(BSLS_PLATFORM_CMP_HP)
-  // HP C/aC++
-#   define BSL_NATIVE_CPP_LIB_HEADER(filename) <../include_std/filename>
-#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../include_std/filename>
-#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../include_std/filename>
-#   define BSL_NATIVE_CPP_C_HEADER(filename) <../include_std/filename>
-#   define BSL_NATIVE_CISO646_HEADER(filename) <../include_std/filename>
-#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include_std/filename>
-#   define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
-
 #elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900
   // Visual C++ 2015 and later splits the C library over two directories
-#   define BSL_NATIVE_CPP_LIB_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_CPP_C_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_CISO646_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_OS_RTL_HEADER(filename) <../ucrt/filename>
-#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+# define BSL_NATIVE_C_LIB_HEADER(filename)     <../include/filename>
+# define BSL_NATIVE_CPP_LIB_HEADER(filename)   <../include/filename>
+# define BSL_NATIVE_OS_RTL_HEADER(filename)    <../ucrt/filename>
 #else
   // Most other compilers
-#   define BSL_NATIVE_CPP_LIB_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_CPP_C_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_CISO646_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
-#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+# define BSL_NATIVE_C_LIB_HEADER(filename)     <../include/filename>
+# define BSL_NATIVE_CPP_LIB_HEADER(filename)   <../include/filename>
+#endif
+
+// Several compilers require special handling for a small subset of standard
+// headers, and have those special cases handled above.  Here, we set the
+// default for each of those macros to otherwise resolve to the same location
+// as the rest of the siliarly located C or C++ library headers, using the
+// default macro we have defined to establish that search path.
+
+#if !defined(BSL_NATIVE_CPP_C_HEADER)
+# define BSL_NATIVE_CPP_C_HEADER(filename) BSL_NATIVE_CPP_LIB_HEADER(filename)
+#endif
+
+#if !defined(BSL_NATIVE_CISO646_HEADER)
+# define BSL_NATIVE_CISO646_HEADER(filename) BSL_NATIVE_CPP_C_HEADER(filename)
+    // This file is usually with the other <cstd*> headers, so picks up their
+    // custom location by default.
+#endif
+
+#if !defined(BSL_NATIVE_CPP_DEPRECATED_HEADER)
+# define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                           \
+                                            BSL_NATIVE_CPP_LIB_HEADER(filename)
+#endif
+
+#if !defined(BSL_NATIVE_CPP_RUNTIME_HEADER)
+# define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                              \
+                                            BSL_NATIVE_CPP_LIB_HEADER(filename)
 #endif
 
 #else /* ! __cplusplus */
+# define BSL_NATIVE_C_LIB_HEADER(filename)     <../include/filename>
 
-#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-#   if defined(_MSC_VER) && _MSC_VER >= 1900
-#     define BSL_NATIVE_OS_RTL_HEADER(filename) <../ucrt/filename>
-#   else
-#     define BSL_NATIVE_OS_RTL_HEADER(filename) <../include/filename>
-#   endif
-#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+# if defined(_MSC_VER) && _MSC_VER >= 1900
+#   define BSL_NATIVE_OS_RTL_HEADER(filename)  <../ucrt/filename>
+# endif
 
 #endif /* __cplusplus */
+
+// The intercept headers required for some platforms C libraries require
+// adjustment, as listed above, regardless of whether compiling as C or C++.
+// Otherwise, fall back to the standard location.
+
+#if !defined(BSL_NATIVE_OS_RTL_HEADER)
+# define BSL_NATIVE_OS_RTL_HEADER(filename)   BSL_NATIVE_C_LIB_HEADER(filename)
+#endif
+
+#if !defined(BSL_NATIVE_OS_STDDEF_HEADER)
+# define BSL_NATIVE_OS_STDDEF_HEADER(filename)                                \
+                                             BSL_NATIVE_OS_RTL_HEADER(filename)
+    // <stddef.h> is expected to be part of the platform RTL unless overriden
+    // above.  If the RTL subset of files is relocated, then <stddef.h> will
+    // generally be found there, rather than with the remaining C headers.
+#endif
+
+
+// Confirm all of the macros are defined.
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+
+# if defined __cplusplus
+
+# ifndef BSL_NATIVE_CPP_LIB_HEADER
+#   error BSL_NATIVE_CPP_LIB_HEADER not defined: cannot find the C++ library
+# endif
+
+# ifndef BSL_NATIVE_CPP_RUNTIME_HEADER
+#   error BSL_NATIVE_CPP_RUNTIME_HEADER not defined: cannot find the C++ RTL
+# endif
+
+# ifndef BSL_NATIVE_CPP_C_HEADER
+#   error BSL_NATIVE_CPP_C_HEADER not defined: cannot find the C wrappers
+# endif
+
+# ifndef BSL_NATIVE_CPP_DEPRECATED_HEADER
+#   error BSL_NATIVE_CPP_DEPRECATED_HEADER not defined: cannot find old headers
+# endif
+
+# endif // __cplusplus
+
+# ifndef BSL_NATIVE_C_LIB_HEADER
+#   error BSL_NATIVE_C_LIB_HEADER not defined: cannot find the C library
+# endif
+
+# ifndef BSL_NATIVE_OS_RTL_HEADER
+#   error BSL_NATIVE_OS_RTL_HEADER not defined: cannot find the C RTL headers
+# endif
+
+# ifndef BSL_NATIVE_OS_STDDEF_HEADER
+#   error BSL_NATIVE_OS_STDDEF_HEADER not defined: cannot find <stddef.h>
+# endif
+
+#endif // sanity checks
 
 #endif // ! defined(INCLUDED_BSL_STDHDRS_INCPATHS)
 

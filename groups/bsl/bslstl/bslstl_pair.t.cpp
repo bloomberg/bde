@@ -56,7 +56,7 @@
 // Local macros to detect and work around compiler defects.
 
 #if !defined(BSLS_COMPILER_FEATURES_SUPPORT_RVALUE_REFERENCES) \
- &&  defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130
+ &&  defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130
 #   define BSL_COMPILER_THINKS_MOVE_AMBIGUOUS_WITH_COPY 1
 #endif
 

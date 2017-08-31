@@ -41,7 +41,7 @@
  && (defined(BSLS_PLATFORM_CMP_IBM)   \
   || defined(BSLS_PLATFORM_CMP_CLANG) \
   || defined(BSLS_PLATFORM_CMP_MSVC)  \
-  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130) \
+  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130) \
      )
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
@@ -2875,7 +2875,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34_inline()
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(usedAlloc) {
             ++numThrows;
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
             // There's a bug in 'std::initializer_list' in the GNU g++ compiler
             // which, if a throw occurs while the initializer list is being
             // constructed, it isn't destroyed properly and memory is leaked.

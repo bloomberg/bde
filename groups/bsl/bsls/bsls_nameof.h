@@ -134,7 +134,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  NameOf<SW>() = "bsls::Stopwatch"
 //..
-// Finally, we see that 'NameOf' and 'nameOfType' will simplifiy
+// Finally, we see that 'NameOf' and 'nameOfType' will simplify
 // 'std::basic_string<...>' declarations to 'std::string'.
 //..
 //  const std::string s = "std::string";

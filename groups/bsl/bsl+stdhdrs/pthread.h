@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <pthread.h>
 #   else
-#     include BSL_NATIVE_SYS_TIME_HEADER(pthread.h)
+#     include BSL_NATIVE_C_LIB_HEADER(pthread.h)
 #   endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <pthread.h>
 #   else
-#     include BSL_NATIVE_SYS_TIME_HEADER(pthread.h)
+#     include BSL_NATIVE_C_LIB_HEADER(pthread.h)
 #   endif
 
 // This native header does not define any symbols in namespace 'std' to import,

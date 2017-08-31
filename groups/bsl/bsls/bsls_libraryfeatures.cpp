@@ -154,6 +154,15 @@ BSLS_IDENT("$Id$ $CSID$")
         in component-level documentation."
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
+
+    #ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+    #error "'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS' \
+             requires 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'"
+    #endif
+
+#endif
+
 // ----------------------------------------------------------------------------
 // Copyright 2017 Bloomberg Finance L.P.
 //

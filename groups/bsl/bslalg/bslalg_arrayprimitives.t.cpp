@@ -4456,10 +4456,10 @@ bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
         func<FuncPtrType>(true, true);                                        \
                                                                               \
         if (verbose) printf("\t...with 'FnPtrConvertibleType'.\n");           \
-        func<FnPtrConvertibleType>(false, false);                               \
+        func<FnPtrConvertibleType>(false, false);                             \
                                                                               \
         if (verbose) printf("\t...with 'AmbiguousConvertibleType'.\n");       \
-        func<AmbiguousConvertibleType>(false, false);                           \
+        func<AmbiguousConvertibleType>(false, false);                         \
                                                                               \
         if (verbose) printf("\tException test.\n");                           \
         func<T>(false, false, true);                                          \
