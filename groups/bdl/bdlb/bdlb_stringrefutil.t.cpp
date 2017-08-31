@@ -99,7 +99,7 @@ using bsl::hex;
 // [ 4] strrstr        (const bslstl::StringRef& string, subString);
 // [ 4] strrstrCaseless(const bslstl::StringRef& string, subString);
 //
-// [ 5] substr(string, position = 0, numChars = npos);
+// [ 5] substr(string, position = 0, numChars = k_NPOS);
 // ----------------------------------------------------------------------------
 // [ 6] USAGE EXAMPLE
 // [ 1] HELPER FUNCTION: 'whitespaceLabel'
@@ -452,7 +452,7 @@ int main(int argc, char *argv[])
         //: 5 Use a 'const bslstl::StringRef' as input.
         //
         // Testing:
-        //  substr(stringRef, position = 0, numChars = npos);
+        //  substr(string, position = 0, numChars = k_NPOS);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "SUBSTRING\n"
@@ -476,18 +476,26 @@ int main(int argc, char *argv[])
 
         ASSERT(Util::substr(string, string.length()) == "");
 
-        static const bsl::string stdstr(string.data(), string.length());
         for (Util::size_type pos = 0; pos <= string.length(); ++pos) {
+            if (veryVerbose) P(pos);
             for (Util::size_type n = 0; n <= string.length(); ++n) {
                 bslstl::StringRef result = Util::substr(string, pos, n);
-                bsl::string       oracle = stdstr.substr(pos, n);
+                bslstl::StringRef oracle(string, pos, n);
+                if (veryVerbose) {
+                    P(n);
+                    P(oracle);
+                    P(result);
+                }
                 LOOP2_ASSERT(pos, n, result == oracle);
             }
         }
 
         ASSERT(Util::substr(string, 20) == "01234567");
+        ASSERT(Util::substr(string, 20) ==
+                                       Util::substr(string, 20, Util::k_NPOS));
 
         ASSERT(Util::substr(string) == string);
+        ASSERT(Util::substr(string) == Util::substr(string, 0, Util::k_NPOS));
 
       } break;
       case 4: {

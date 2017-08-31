@@ -165,11 +165,7 @@ struct StringRefUtil {
         // Size type of strings.
 
     // PUBLIC CLASS DATA
-    static const size_type npos = ~size_type(0);
-        // Value used to denote "not-a-position", guaranteed to be outside the
-        // 'range[0 .. INT_MAX]'.
-
-    static const size_type char_max_size = ~size_type(0) - 1;
+    static const size_type k_NPOS = ~size_type(0);
         // Value used to denote "not-a-position", guaranteed to be outside the
         // 'range[0 .. INT_MAX]'.
 
@@ -217,16 +213,16 @@ struct StringRefUtil {
     static bslstl::StringRef substr(
                                   const bslstl::StringRef& string,
                                   size_type                position = 0,
-                                  size_type                numChars = npos);
+                                  size_type                numChars = k_NPOS);
         // Return a string whose value is the substring starting at the
-        // optionally specified 'position' in this string, of length the
-        // optionally specified 'numChars' or 'length() - position', whichever
-        // is smaller.  If 'position' is not specified, 0 is used (i.e., the
-        // substring is from the beginning of this string).  If 'numChars' is
-        // not specified, 'npos' is used (i.e., the entire suffix from
-        // 'position' to the end of the string is returned).  The behavior is
-        // undefined unless 'position' is within the string boundaries
-        // ('0 <= position <= string.length()').
+        // optionally specified 'position' in the specified 'string', of length
+        // the optionally specified 'numChars' or 'length() - position',
+        // whichever is smaller.  If 'position' is not specified, 0 is used
+        // (i.e., the substring is from the beginning of this string).  If
+        // 'numChars' is not specified, 'k_NPOS' is used (i.e., the entire
+        // suffix from 'position' to the end of the string is returned).  The
+        // behavior is undefined unless 'position' is within the string
+        // boundaries ('0 <= position <= string.length()').
 
     static bslstl::StringRef trim(const bslstl::StringRef& stringRef);
         // Return a 'bslstl::StringRef' object referring to the substring of
