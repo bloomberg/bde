@@ -1,3 +1,13 @@
+bsl-internal (3.2.0.8) unstable; urgency=low
+
+  * 2fdf9424f Merge pull request #1277 from hversche/pr/1271-rebased-releases/3.2.0.x
+  * 58bbf9404 Merge pull request #1290 from hversche/pr/1288-rebased-releases/3.2.0.x
+  * cecf9b72d Merge pull request #1272 from osubbotin/pr/1214-rebased-releases/3.2.0.x
+  * 82b5ad9a6 Merge pull request #1269 from hversche/pr/1236-rebased-releases/3.2.0.x
+  * c580cbb99 Merge pull request #1265 from hversche/pr/1263-rebased-releases/3.2.0.x
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Tue, 29 Aug 2017 13:24:13 -0400
+
 bsl-internal (3.2.0.5) unstable; urgency=low
 
 
