@@ -78,9 +78,7 @@ void aSsErT(bool condition, const char *message, int line)
 //# define BSLMF_REMOVECONST_SHOW_COMPILER_ERRORS 1
 #if !defined(BSLMF_REMOVECONST_SHOW_COMPILER_ERRORS)
 
-# if defined(BSLS_PLATFORM_CMP_IBM)                                           \
-  ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION <= 40400)   \
-  ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
 // The xlC compiler matches function types with trailing cv-qualifiers as being
 // cv-qualified themselves.  However, in such cases the cv-qualifier applies to
 // the (hidden) 'this' pointer, as these function types exist only to be the
@@ -92,7 +90,7 @@ void aSsErT(bool condition, const char *message, int line)
 // simply returning the original type in such cases.  However, that simply
 // exposes that our current implementation of 'is_function' does not detect
 // such types either.
-#   define BSLMF_REMOVECONST_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES 1
+#   define BSLMF_REMOVECONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES 1
 # endif
 
 # if defined(BSLS_PLATFORM_CMP_IBM)
@@ -253,7 +251,7 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_const<const int (TestType::*)() const>::type,
                                      const int (TestType::*)() const>::value));
 
-#if !defined(BSLMF_REMOVECONST_COMPILER_MISMATCHES_ABOMINABLE_FUNCTION_TYPES)
+#if !defined(BSLMF_REMOVECONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
         ASSERT((is_same<remove_const<int const() const>::type,
                                      int const() const>::value));
 

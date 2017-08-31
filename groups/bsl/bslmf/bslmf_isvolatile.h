@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::is_volatile: meta-function for determining 'volatile'-qualified types
 //
-//@SEE_ALSO: bslmf_integralconstant
+//@SEE_ALSO: bslmf_integralconstantt
 //
 //@AUTHOR:
 //
@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 // In this section we show intended use of this component.
 //
 ///Example 1: Verify 'volatile' Types
-/// - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is
 // 'volatile'-qualified.
 //
@@ -36,13 +36,13 @@ BSLS_IDENT("$Id: $")
 // unqualified type:
 //..
 //  typedef int           MyType;
-//  typedef volatile int  MyVolatileType;
+//  typedef volatile int  MyvolatileType;
 //..
 // Now, we instantiate the 'bsl::is_volatile' template for each of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_volatile<MyType>::value);
-//  assert(true  == bsl::is_volatile<MyVolatileType>::value);
+//  assert(true  == bsl::is_volatile<MyvolatileType>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -53,8 +53,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISFUNCTION
-#include <bslmf_isfunction.h>
+#ifndef INCLUDED_BSLMF_ISSAME
+#include <bslmf_issame.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -66,16 +66,17 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_STDDEF_H
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_SUN)
-// The Microsoft and Sun compilers do not recognize array-types as cv-qualified
-// (when the element type is cv-qualified) when performing matching for partial
+
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1910)     \
+ ||  defined(BSLS_PLATFORM_CMP_IBM)
+// The Microsoft compiler does not recognize array-types as cv-qualified (when
+// the element type is cv-qualified) when performing matching for partial
 // template specialization, but does get the correct result when performing
 // overload resolution for functions (taking arrays by reference).  Given the
 // function dispatch behavior being correct, we choose to work around this
 // compiler bug, rather than try to report compiler behavior, as the compiler
-// itself is inconsistent depeoning on how the trait might be used.  This also
+// itself is inconsistent depending on how the trait might be used.  This also
 // corresponds to how Microsft itself implements the trait in VC2010 and later.
-// Last tested against VC 2015 (Release Candidate).
 # define BSLMF_ISVOLATILE_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT 1
 #endif
 
@@ -100,12 +101,26 @@ struct is_volatile : false_type {
                          // struct is_volatile<TYPE volatile>
                          // =================================
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
 template <class TYPE>
-struct is_volatile<TYPE volatile> : true_type {
+struct is_volatile<volatile TYPE>
+    : integral_constant<bool, !is_same<TYPE, volatile TYPE>::value> {
      // This partial specialization of 'is_volatile', for when the (template
      // parameter) 'TYPE' is 'volatile'-qualified, derives from
-     // 'bsl::true_type'
+     // 'bsl::true_type'.  Note that the Solaris CC compiler misdiagnoses
+     // cv-qualified "abominable" function types as being cv-qualified
+     // themselves.  The correct result is obtained by delegating the result to
+     // a call through 'is_same'.
 };
+#else
+template <class TYPE>
+struct is_volatile<volatile TYPE> : true_type {
+     // This partial specialization of 'is_volatile', for when the (template
+     // parameter) 'TYPE' is 'volatile'-qualified, derives from
+     // 'bsl::true_type'.
+};
+#endif
+
 
 #ifdef BSLMF_ISVOLATILE_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT
 // The Microsoft compiler does not recognize array-types as cv-qualified when
@@ -116,7 +131,6 @@ struct is_volatile<TYPE volatile> : true_type {
 // compiler bug, rather than try to report compiler behavior, as the compiler
 // itself is inconsistent depeoning on how the trait might be used.  This also
 // corresponds to how Microsft itself implements the trait in VC2010 and later.
-// Last tested against VC 2015 (Release Candidate).
 
 template <class TYPE>
 struct is_volatile<volatile TYPE[]> : true_type {
@@ -133,7 +147,6 @@ struct is_volatile<volatile TYPE[LENGTH]> : true_type {
      // 'bsl::true_type'.  Note that this single specialization is sufficient
      // to work around the MSVC issue, even for multidimensional arrays.
 };
-
 #endif
 
 }  // close namespace bsl
@@ -155,3 +168,4 @@ struct is_volatile<volatile TYPE[LENGTH]> : true_type {
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
+

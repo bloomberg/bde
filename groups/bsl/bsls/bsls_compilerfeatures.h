@@ -26,9 +26,11 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS: init-list syntax
 //  BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: flag for 'include_next'
 //  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: 'noexcept' operator
+//  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES: func-type includes 'noexcept'
 //  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: flag for 'nullptr'
 //  BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: 'explicit' operator
 //  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: 'override' keyword
+//  BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: flag for reference qualifiers
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
 //  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: has <type_traits> header
@@ -440,6 +442,7 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+#define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
@@ -448,6 +451,14 @@ BSLS_IDENT("$Id: $")
 #if BSLS_PLATFORM_CMP_VERSION >= 50000
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #endif
+
+
+// Not yet enabling C++17 support, but pro-active test drivers may want to add
+// coverage.  Note that gcc 7.0 has a name-mangling bug with 'noexcept' on
+// abominable function types, so we would want at least the first patch release
+// before enabling.
+// # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+
 #endif
 
 // clang
@@ -566,6 +577,15 @@ BSLS_IDENT("$Id: $")
 //#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // (not yet supported in MSVC)
 //#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+
+
+// Not yet tested for support
+// # define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+
+// Not yet enabling C++17 support, but pro-active test drivers may want to add
+// coverage.
+// # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+
 #endif
 
 
@@ -616,6 +636,13 @@ BSLS_IDENT("$Id: $")
 // (not yet supported in xlC)
 //#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 //#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+
+// Not yet tested for support
+// # define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+
+// Not yet enabling C++17 support, but pro-active test drivers may want to add
+// coverage.
+// # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 #endif
 
 
@@ -669,6 +696,13 @@ BSLS_IDENT("$Id: $")
 # endif
 
 // # define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+
+// Not yet tested for support
+// # define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+
+// Not yet enabling C++17 support, but pro-active test drivers may want to add
+// coverage.
+// # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 #endif
 
 

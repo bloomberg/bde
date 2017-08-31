@@ -177,7 +177,14 @@ int main(int argc, char *argv[])
         ASSERT((is_same<add_const<int *>::type, int * const>::value));
         ASSERT((is_same<add_const<int const *>::type,
                                                    int const * const>::value));
+        ASSERT((is_same<add_const<int[]>::type, const int[]>::value));
+        ASSERT((is_same<add_const<int[2]>::type, const int[2]>::value));
+        ASSERT((is_same<add_const<int[][2]>::type, const int[][2]>::value));
         ASSERT((is_same<add_const<TestType>::type, TestType const>::value));
+
+        ASSERT((is_same<add_const<void>::type, const void>::value));
+        ASSERT((is_same<add_const<volatile void>::type,
+                                                 const volatile void>::value));
 
         // C-2
         ASSERT((is_same<add_const<int &>::type, int &>::value));
