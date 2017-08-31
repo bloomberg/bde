@@ -47,6 +47,8 @@ BSLS_IDENT("$Id: $")
 //                   rtrim(SR) exclude whitespace from right side  of string
 //                    trim(SR) exclude whitespace from both  sides of string
 //
+//        substr(SR, pos, num) substring, 'num' characters from 'pos'
+//
 //  strstr         (SR, SUBSR) find first substring in string
 //  strstrCaseless (SR, SUBSR) find first substring in string, case insensitive
 //  strrstr        (SR, SUBSR) find last  substring in string
@@ -156,6 +158,15 @@ struct StringRefUtil {
     // This 'struct' provides a namespace for a suite of functions on
     // 'bslstl::StringRef' references to strings.
 
+    // PUBLIC TYPES
+    typedef bslstl::StringRef::size_type size_type;
+        // Size type of strings.
+
+    // PUBLIC CLASS DATA
+    static const size_type k_NPOS = ~size_type(0);
+        // Value used to denote "not-a-position", guaranteed to be outside the
+        // 'range[0 .. INT_MAX]'.
+
     // CLASS METHODS
                         // Comparison
 
@@ -196,6 +207,20 @@ struct StringRefUtil {
         // 'stringRef' consists entirely of whitespace, return a zero-length
         // reference to the beginning of (the referent data of) 'stringRef'
         // (i.e., 'bslstl::StringRef(stringRef.data(), 0)').
+
+    static bslstl::StringRef substr(
+                                  const bslstl::StringRef& string,
+                                  size_type                position = 0,
+                                  size_type                numChars = k_NPOS);
+        // Return a string whose value is the substring starting at the
+        // optionally specified 'position' in the specified 'string', of length
+        // the optionally specified 'numChars' or 'length() - position',
+        // whichever is smaller.  If 'position' is not specified, 0 is used
+        // (i.e., the substring is from the beginning of this string).  If
+        // 'numChars' is not specified, 'k_NPOS' is used (i.e., the entire
+        // suffix from 'position' to the end of the string is returned).  The
+        // behavior is undefined unless 'position' is within the string
+        // boundaries ('0 <= position <= string.length()').
 
     static bslstl::StringRef trim(const bslstl::StringRef& stringRef);
         // Return a 'bslstl::StringRef' object referring to the substring of
@@ -274,6 +299,18 @@ bool StringRefUtil::areEqualCaseless(const bslstl::StringRef& lhs,
     }
 
     return 0 == lowerCaseCmp(lhs, rhs);
+}
+
+                        // Substring
+
+inline
+bslstl::StringRef StringRefUtil::substr(const bslstl::StringRef& string,
+                                        size_type                position,
+                                        size_type                numChars)
+{
+    BSLS_ASSERT_SAFE(position <= string.length());
+
+    return bslstl::StringRef(string, position, numChars);
 }
 
                         // Trim
