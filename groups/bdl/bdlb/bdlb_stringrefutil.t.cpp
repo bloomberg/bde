@@ -3,6 +3,8 @@
 #include <bdlb_stringrefutil.h>
 
 #include <bslim_testutil.h>
+#include <bsls_asserttest.h>
+
 #include <bslstl_stringref.h>
 
 #include <bsl_algorithm.h> // 'bsl::transform'
@@ -96,8 +98,10 @@ using bsl::hex;
 // [ 4] strstrCaseless (const bslstl::StringRef& string, subString);
 // [ 4] strrstr        (const bslstl::StringRef& string, subString);
 // [ 4] strrstrCaseless(const bslstl::StringRef& string, subString);
+//
+// [ 5] substr(string, position = 0, numChars = k_NPOS);
 // ----------------------------------------------------------------------------
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 // [ 1] HELPER FUNCTION: 'whitespaceLabel'
 // [ 1] HELPER FUNCTION: 'isEqual'
 // [ 1] HELPER FUNCTION: 'Local::toLower'
@@ -146,6 +150,13 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -339,7 +350,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -409,6 +420,82 @@ int main(int argc, char *argv[])
 // Notice that, as expected, the 'textOfInterest' object refers to the "Hello,
 // world!" sub-sequence within the 'rawInput' byte array while the data at
 // 'rawInput' remains *unchanged*.
+
+      } break;
+    case 5: {
+        // --------------------------------------------------------------------
+        // SUBSTRING
+        //
+        // Concerns:
+        //: 1 Bad 'position' asserts.
+        //: 2 Negative 'numChars' asserts.
+        //: 3 Larger-than-length 'numChars' is adjusted.
+        //: 4 The proper substring is returned.
+        //: 5 Default arguments are provided.
+        //: 6 The input string argument is 'const'.
+        //: 7 'position' at the end is valid.
+        //
+        // Plan:
+        //: 1 If compiling with exceptions enabled, verify that a 'position'
+        //    larger than string length asserts.
+        //:
+        //: 2 Verify that if 'position + numChars' are larger than the length
+        //:   of the string 'numChars' is adjusted.
+        //:
+        //: 3 Verify that 'position == string.length()' is valid and returns an
+        //:   empty string.
+        //:
+        //: 3 Verify that the proper substring is returned.
+        //:
+        //: 4 Verify the default arguments.
+        //:
+        //: 5 Use a 'const bslstl::StringRef' as input.
+        //
+        // Testing:
+        //  substr(string, position = 0, numChars = k_NPOS);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "SUBSTRING\n"
+                                     "=========" << endl;
+
+        static const bslstl::StringRef string = "0123456789012345678901234567";
+
+        typedef bdlb::StringRefUtil Util;
+
+#ifdef BDE_BUILD_TARGET_EXC
+        {
+            using bsls::AssertFailureHandlerGuard;
+            using bsls::AssertTest;
+            AssertFailureHandlerGuard g(AssertTest::failTestDriver); (void)g;
+
+            ASSERT_SAFE_FAIL(Util::substr(string, string.length() + 1));
+        }
+#endif
+
+        ASSERT(Util::substr(string, 10, 50) == "012345678901234567");
+
+        ASSERT(Util::substr(string, string.length()) == "");
+
+        for (Util::size_type pos = 0; pos <= string.length(); ++pos) {
+            if (veryVerbose) P(pos);
+            for (Util::size_type n = 0; n <= string.length(); ++n) {
+                bslstl::StringRef result = Util::substr(string, pos, n);
+                bslstl::StringRef oracle(string, pos, n);
+                if (veryVerbose) {
+                    P(n);
+                    P(oracle);
+                    P(result);
+                }
+                LOOP2_ASSERT(pos, n, result == oracle);
+            }
+        }
+
+        ASSERT(Util::substr(string, 20) == "01234567");
+        ASSERT(Util::substr(string, 20) ==
+                                       Util::substr(string, 20, Util::k_NPOS));
+
+        ASSERT(Util::substr(string) == string);
+        ASSERT(Util::substr(string) == Util::substr(string, 0, Util::k_NPOS));
 
       } break;
       case 4: {
