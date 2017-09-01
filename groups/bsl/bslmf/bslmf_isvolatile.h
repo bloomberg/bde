@@ -36,13 +36,13 @@ BSLS_IDENT("$Id: $")
 // unqualified type:
 //..
 //  typedef int           MyType;
-//  typedef volatile int  MyvolatileType;
+//  typedef volatile int  MyVolatileType;
 //..
 // Now, we instantiate the 'bsl::is_volatile' template for each of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
 //  assert(false == bsl::is_volatile<MyType>::value);
-//  assert(true  == bsl::is_volatile<MyvolatileType>::value);
+//  assert(true  == bsl::is_volatile<MyVolatileType>::value);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -154,7 +154,7 @@ struct is_volatile<volatile TYPE[LENGTH]> : true_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

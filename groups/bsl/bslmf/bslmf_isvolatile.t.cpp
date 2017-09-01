@@ -293,13 +293,13 @@ int main(int argc, char *argv[])
 // unqualified type:
 //..
     typedef int           MyType;
-    typedef volatile int  MyvolatileType;
+    typedef volatile int  MyVolatileType;
 //..
 // Now, we instantiate the 'bsl::is_volatile' template for each of the
 // 'typedef's and assert the 'value' static data member of each instantiation:
 //..
     ASSERT(false == bsl::is_volatile<MyType>::value);
-    ASSERT(true  == bsl::is_volatile<MyvolatileType>::value);
+    ASSERT(true  == bsl::is_volatile<MyVolatileType>::value);
 //..
 
       } break;
@@ -648,7 +648,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

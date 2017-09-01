@@ -5,6 +5,7 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -90,8 +91,8 @@ typedef AbominableFunction* BadFunctionPointer;
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
 # define BSLMF_ADDPOINTER_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND 1
-// Old microsoft compilers compilers do not support references to arrays of
-// unknown bound.
+// Old microsoft compilers do not support references to arrays of unknown
+// bound.
 #endif
 
 
@@ -288,7 +289,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -68,11 +68,11 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-// The IBM xlC compiler produces a hard (non-SFINAEable) error when trying to
-// apply cv-qualifiers to a template parameter (or typedef) that is a function
-// type.  Hence, a more oblique approach is needed to detect all function types
-// on this platform.  This implementation relies on the fact that you cannot
-// form an array of function types.
+// The IBM xlC compiler produces a "hard" error (not eligible for SFINAE) when
+// trying to apply cv-qualifiers to a template parameter (or typedef) that is a
+// function type.  Hence, a more oblique approach is needed to detect all
+// function types on this platform.  This implementation relies on the fact
+// that you cannot form an array of function types.
 
 namespace BloombergLP {
 namespace bslmf {
@@ -167,7 +167,7 @@ struct is_function<const volatile void> : false_type {
 
 } // close namespace bsl
 
-#else  // This is the simplest implementation, for conforming compilers
+#else  // This is the simplest implementation, for conforming compilers.
 namespace bsl {
 
 template <class TYPE>
@@ -208,7 +208,7 @@ struct is_function<TYPE &&> : false_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
