@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // BSL_NATIVE_CPP_DEPRECATED_HEADER(header): path to deprecated C++ STD header
 // BSL_NATIVE_C_LIB_HEADER(header): path to C standard header (end in '.h')
 // BSL_NATIVE_OS_RTL_HEADER(header): path to a subset of C standard headers
-// BSL_NATIVE_OS_STDDEF_HEADER(header): path to standard C stddef,h header
+// BSL_NATIVE_OS_STDDEF_HEADER(header): path to standard C stddef.h header
 //
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //
@@ -64,10 +64,10 @@ BSLS_IDENT("$Id: $")
 //                                      work for 'errno.h'
 //  BSL_NATIVE_OS_STDDEF_HEADER         The specific location of the <stddef.h>
 //                                      header, which needs to be tracked
-//                                      separately on at least Solaris CC C++11
-//                                      builds, in order to support chaining
-//                                      intercept headers with the platform
-//                                      standard library.
+//                                      separately for, at least, Solaris CC
+//                                      C++11 builds, in order to support
+//                                      chaining intercept headers with the
+//                                      platform standard library.
 //..
 // Note that 'BSL_NATIVE_C_LIB_HEADER' cannot be used to include the native
 // version of 'errno.h' because 'errno' is '#define'd as a macro by several
@@ -223,9 +223,9 @@ extern "C++" {
 #endif
 
 // Several compilers require special handling for a small subset of standard
-// headers, and have those special cases handled above.  Here, we set the
+// headers, and those special cases were handled above.  Here, we set the
 // default for each of those macros to otherwise resolve to the same location
-// as the rest of the siliarly located C or C++ library headers, using the
+// as the rest of the similarly located C or C++ library headers, using the
 // default macro we have defined to establish that search path.
 
 #if !defined(BSL_NATIVE_CPP_C_HEADER)
@@ -316,7 +316,7 @@ extern "C++" {
 
 /*
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

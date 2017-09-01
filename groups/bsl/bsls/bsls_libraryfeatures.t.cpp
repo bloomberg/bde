@@ -63,7 +63,8 @@
 //: o If not defined, the component could be updated to recognize the build
 //:   configuration as providing the feature of interest.
 //
-// TBD Add tests for the new macros (and amendments to existing macros):
+// TBD Add tests for the new macros (and amendments to existing macros).  See
+//     the macros without test-case numbers below.
 // ----------------------------------------------------------------------------
 // [  ] BSLS_LIBRARYFEATURES_HAS_C90_GETS
 // [  ] BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY

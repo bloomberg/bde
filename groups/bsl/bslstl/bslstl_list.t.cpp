@@ -3148,7 +3148,7 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
         int numThrows;
 #if defined(BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
         // To avoid reporting spurious memory leaks, perform this test without
-        // the exceptions.
+        // exceptions.
 
         if (veryVerbose) {
             printf("C'tor, naked list, %s, no exceptions\n",

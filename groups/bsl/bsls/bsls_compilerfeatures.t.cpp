@@ -473,7 +473,7 @@ struct Wrapper {
 // reference-collapsing lvalue-references with rvalue-refences provided in a
 // non-deducing context.  This test also relies on alias templates to set up
 // the error condition, but it prevents us migrating code from C++03 -> C++11
-// with our move-emuilation library.
+// with our move-emulation library.
 
 template <class TYPE>
 struct RValueType { using type = TYPE &&; };

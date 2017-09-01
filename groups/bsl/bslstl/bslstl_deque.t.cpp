@@ -75,12 +75,18 @@
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_CMP_SUN)
 # define u_LIMIT_EMPLACE_TESTS 1
-// The Linux compiler exceeds 64K compilation units and can't cope due to the
-// explosion of the number of templates in these tests, so turn them off on
-// that platform.  The Solaris CC compiler somehow complains that it's out of
-// memory.  The Solaric g++ compiler ran for 90 minutes before being killed.
+// This test driver is configured to reduce test coverage in order to reduce
+// the number of template instantiations when this macro is defined.  If the
+// Linux g++ compiler exceeds 64K compilation units, it cannot cope with the
+// large number of template instantiations in the tests below.  The Solaris CC
+// compiler runs out of memory trying to build the same set of template
+// instantiations.  The Solaric g++ compiler ran for 90 minutes before being
+// killed.
+
 # ifndef BSL_DO_NOT_TEST_MOVE_FORWARDING
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
+// This is the main macro tested to reduce the number of template
+// instantiations.
 # endif
 #endif
 
