@@ -1547,6 +1547,7 @@ void testPtrToMemFunc(const char *prototypeStr)
     // Test invocation of pointer to member function wrapper.
     // Tests using non-const member functions 'IntWrapper::increment[0-9]'
 {
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
     if (veryVeryVerbose) printf("\t%s\n", prototypeStr);
 
     const ARG a1(0x0002);
@@ -1609,6 +1610,9 @@ void testPtrToMemFunc(const char *prototypeStr)
     bsl::function<RET(T, ARG, ARG)> ntf3(ntWrap(&IntWrapper::increment2));
     ASSERT(0x2007 == ntf3(gen.obj(), a1, a2));
     ASSERT(gen.check(0x2007));
+#else
+    (void)prototypeStr;
+#endif
 }
 
 template <class T, class RET, class ARG>
@@ -1619,6 +1623,7 @@ void testPtrToConstMemFunc(const char *prototypeStr)
     // argument-list length, we test only a small number of possible
     // argument-list lengths (specifically 0, 1, and 9 arguments) here.
 {
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
     if (veryVeryVerbose) printf("\t%s\n", prototypeStr);
 
     const ARG a1(0x0002);
@@ -1654,6 +1659,9 @@ void testPtrToConstMemFunc(const char *prototypeStr)
                       ARG, ARG, ARG)> ntf10(&IntWrapper::add9);
     ASSERT(0x23ff == ntf10(gen.obj(), a1, a2, a3, a4, a5, a6, a7, a8, a9));
     ASSERT(gen.check(0x2001));
+#else
+    (void)prototypeStr;
+#endif
 }
 
 template <class FUNCTOR, class OBJ>
@@ -3129,9 +3137,12 @@ struct OuterClass {
     bsl::function<NestedClass(int)>              d_f2;
     bsl::function<NestedClass(int)>              d_f3;
         // 'function' taking one 'int' argument and returning a 'NestedClass'.
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
     bsl::function<NestedClass(OuterClass&, int)> d_f4;
+    bsl::function<NestedClass(OuterClass&, int)> d_f5;
         // 'function' taking argument of class 'OuterClass' and an 'int'
         // argument, and returning a 'NestedClass'.
+#endif
 
     OuterClass()
         // Constructor initializes 'function' members from each of the
@@ -3139,8 +3150,14 @@ struct OuterClass {
         : d_f1(&OuterClass::staticFunc)
         , d_f2(smallFunctor())
         , d_f3(largeFunctor())
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
         , d_f4(&OuterClass::memberFunc)
+        , d_f5()
+#endif
     {
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+        d_f5 = &OuterClass::memberFunc;
+#endif
     }
 };
 
@@ -3304,10 +3321,23 @@ int main(int argc, char *argv[])
 
         OuterClass testObj;
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+        bsl::function<OuterClass::NestedClass(OuterClass&, int)> mem_fun(
+                                                      &OuterClass::memberFunc);
+        ASSERT(99 == mem_fun(testObj, 99).d_data);
+#endif
+
         ASSERT(42 == testObj.d_f1(42).d_data);
         ASSERT(13 == testObj.d_f2(13).d_data);
         ASSERT(69 == testObj.d_f3(69).d_data);
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+        int x = testObj.d_f4(testObj, 37).d_data;
+        ASSERTV(x, 37 == x);
         ASSERT(37 == testObj.d_f4(testObj, 37).d_data);
+        int y = testObj.d_f5(testObj, 73).d_data;
+        ASSERTV(y, 73 == y);
+        ASSERT(73 == testObj.d_f5(testObj, 73).d_data);
+#endif
 
         typedef OuterClass::NestedClass (*SimpleFuncPtr_t)(int);
         SimpleFuncPtr_t *f1 = testObj.d_f1.target<SimpleFuncPtr_t>();
@@ -3317,6 +3347,7 @@ int main(int argc, char *argv[])
                            &OuterClass::staticFunc   ==   *f1);
         }
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
         typedef OuterClass::NestedClass (OuterClass::*SimpleMemFuncPtr_t)(int);
         SimpleMemFuncPtr_t *f4 = testObj.d_f4.target<SimpleMemFuncPtr_t>();
         ASSERT(f4);
@@ -3324,6 +3355,13 @@ int main(int argc, char *argv[])
             ASSERTV(&OuterClass::memberFunc == *f4);
         }
 
+        typedef OuterClass::NestedClass (OuterClass::*SimpleMemFuncPtr_t)(int);
+        SimpleMemFuncPtr_t *f5 = testObj.d_f5.target<SimpleMemFuncPtr_t>();
+        ASSERT(f5);
+        if (f5) {
+            ASSERTV(&OuterClass::memberFunc == *f5);
+        }
+#endif
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -3541,9 +3579,11 @@ int main(int argc, char *argv[])
 
         TestData data[] = {
             TEST_ITEM(SimpleFuncPtr_t             , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t          , nullMemFuncPtr    ),
             TEST_ITEM(SimpleFuncPtr_t             , simpleFunc        ),
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+            TEST_ITEM(SimpleMemFuncPtr_t          , nullMemFuncPtr    ),
             TEST_ITEM(SimpleMemFuncPtr_t          , &IntWrapper::add1 ),
+#endif
             TEST_ITEM(EmptyFunctor                , 0                 ),
             TEST_ITEM(SmallFunctor                , 0x2000            ),
             TEST_ITEM(MediumFunctor               , 0x4000            ),
@@ -3555,7 +3595,9 @@ int main(int argc, char *argv[])
             TEST_ITEM(NTSmallFunctorWithAlloc     , 0x2000            ),
             TEST_ITEM(LargeFunctorWithAlloc       , 0x1000            ),
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
             NTTST_ITM(SimpleMemFuncPtr_t          , &IntWrapper::add1 ),
+#endif
             NTTST_ITM(EmptyFunctor                , 0                 ),
             NTTST_ITM(SmallFunctor                , 0x2000            ),
             NTTST_ITM(LargeFunctor                , 0x6000            ),
@@ -3585,12 +3627,14 @@ int main(int argc, char *argv[])
             TEST(StatefulAllocator<char> , nullFuncPtr          );
             TEST(StatefulAllocator2<char>, nullFuncPtr          );
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
             if (veryVerbose) printf("Assign %s = nullMemFuncPtr\n", funcName);
             TEST(bslma::TestAllocator *  , nullMemFuncPtr       );
             TEST(bsl::allocator<char>    , nullMemFuncPtr       );
             TEST(EmptySTLAllocator<char> , nullMemFuncPtr       );
             TEST(StatefulAllocator<char> , nullMemFuncPtr       );
             TEST(StatefulAllocator2<char>, nullMemFuncPtr       );
+#endif
 
             if (veryVerbose) printf("Assign %s = simpleFunc\n", funcName);
             TEST(bslma::TestAllocator *  , simpleFunc           );
@@ -3599,6 +3643,7 @@ int main(int argc, char *argv[])
             TEST(StatefulAllocator<char> , simpleFunc           );
             TEST(StatefulAllocator2<char>, simpleFunc           );
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
             if (veryVerbose) printf("Assign %s = &IntWrapper::add1\n",
                                     funcName);
             TEST(bslma::TestAllocator *  , &IntWrapper::add1    );
@@ -3606,6 +3651,7 @@ int main(int argc, char *argv[])
             TEST(EmptySTLAllocator<char> , &IntWrapper::add1    );
             TEST(StatefulAllocator<char> , &IntWrapper::add1    );
             TEST(StatefulAllocator2<char>, &IntWrapper::add1    );
+#endif
 
             if (veryVerbose) printf("Assign %s = EmptyFunctor()\n", funcName);
             TEST(bslma::TestAllocator *  , EmptyFunctor()       );
@@ -3777,9 +3823,11 @@ int main(int argc, char *argv[])
 
         TestData data[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc        ),
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
+#endif
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x2000            ),
             TEST_ITEM(MediumFunctor          , 0x4000            ),
@@ -3791,7 +3839,9 @@ int main(int argc, char *argv[])
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x1000            ),
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
             NTTST_ITM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
+#endif
             NTTST_ITM(EmptyFunctor           , 0                 ),
             NTTST_ITM(SmallFunctor           , 0x2000            ),
             NTTST_ITM(LargeFunctor           , 0x6000            ),
@@ -3963,9 +4013,11 @@ int main(int argc, char *argv[])
 
         TestData dataA[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc        ),
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
+#endif
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x2000            ),
             TEST_ITEM(MediumFunctor          , 0x4000            ),
@@ -3982,9 +4034,11 @@ int main(int argc, char *argv[])
 
         TestData dataB[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc2       ),
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::sub1 ),
+#endif
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x3000            ),
             TEST_ITEM(MediumFunctor          , 0x5000            ),
@@ -4137,9 +4191,11 @@ int main(int argc, char *argv[])
 
         TestData dataA[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc        ),
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::add1 ),
+#endif
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x2000            ),
             TEST_ITEM(MediumFunctor          , 0x4000            ),
@@ -4156,9 +4212,11 @@ int main(int argc, char *argv[])
 
         TestData dataB[] = {
             TEST_ITEM(SimpleFuncPtr_t        , nullFuncPtr       ),
-            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
             TEST_ITEM(SimpleFuncPtr_t        , simpleFunc2       ),
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+            TEST_ITEM(SimpleMemFuncPtr_t     , nullMemFuncPtr    ),
             TEST_ITEM(SimpleMemFuncPtr_t     , &IntWrapper::sub1 ),
+#endif
             TEST_ITEM(EmptyFunctor           , 0                 ),
             TEST_ITEM(SmallFunctor           , 0x3000            ),
             TEST_ITEM(MediumFunctor          , 0x5000            ),
@@ -4591,12 +4649,14 @@ int main(int argc, char *argv[])
         TEST(StatefulAllocator<char>,  nullFuncPtr          );
         TEST(StatefulAllocator2<char>, nullFuncPtr          );
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
         if (veryVerbose) printf("FUNC is nullMemFuncPtr\n");
         TEST(bslma::TestAllocator *,   nullMemFuncPtr       );
         TEST(bsl::allocator<char>,     nullMemFuncPtr       );
         TEST(EmptySTLAllocator<char>,  nullMemFuncPtr       );
         TEST(StatefulAllocator<char>,  nullMemFuncPtr       );
         TEST(StatefulAllocator2<char>, nullMemFuncPtr       );
+#endif
 
         if (veryVerbose) printf("FUNC is simpleFunc\n");
         TEST(bslma::TestAllocator *,   simpleFunc           );
@@ -4605,12 +4665,14 @@ int main(int argc, char *argv[])
         TEST(StatefulAllocator<char>,  simpleFunc           );
         TEST(StatefulAllocator2<char>, simpleFunc           );
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
         if (veryVerbose) printf("FUNC is &IntWrapper::add1\n");
         TEST(bslma::TestAllocator *,   &IntWrapper::add1    );
         TEST(bsl::allocator<char>,     &IntWrapper::add1    );
         TEST(EmptySTLAllocator<char>,  &IntWrapper::add1    );
         TEST(StatefulAllocator<char>,  &IntWrapper::add1    );
         TEST(StatefulAllocator2<char>, &IntWrapper::add1    );
+#endif
 
         if (veryVerbose) printf("FUNC is EmptyFunctor()\n");
         TEST(bslma::TestAllocator *,   EmptyFunctor()       );
@@ -4858,12 +4920,14 @@ int main(int argc, char *argv[])
         TEST(StatefulAllocator<char> , nullFuncPtr      , e_INPLACE_FUNC_ONLY);
         TEST(StatefulAllocator2<char>, nullFuncPtr      , e_INPLACE_FUNC_ONLY);
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
         if (veryVerbose) printf("FUNC is nullMemFuncPtr\n");
         TEST(bslma::TestAllocator *  , nullMemFuncPtr   , e_INPLACE_BOTH);
         TEST(bsl::allocator<char>    , nullMemFuncPtr   , e_INPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , nullMemFuncPtr   , e_INPLACE_BOTH);
         TEST(StatefulAllocator<char> , nullMemFuncPtr   , e_INPLACE_FUNC_ONLY);
         TEST(StatefulAllocator2<char>, nullMemFuncPtr   , e_INPLACE_FUNC_ONLY);
+#endif
 
         if (veryVerbose) printf("FUNC is simpleFunc\n");
         TEST(bslma::TestAllocator *  , simpleFunc       , e_INPLACE_BOTH);
@@ -4872,12 +4936,14 @@ int main(int argc, char *argv[])
         TEST(StatefulAllocator<char> , simpleFunc       , e_INPLACE_FUNC_ONLY);
         TEST(StatefulAllocator2<char>, simpleFunc       , e_INPLACE_FUNC_ONLY);
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
         if (veryVerbose) printf("FUNC is &IntWrapper::add1\n");
         TEST(bslma::TestAllocator *  , &IntWrapper::add1, e_INPLACE_BOTH);
         TEST(bsl::allocator<char>    , &IntWrapper::add1, e_INPLACE_BOTH);
         TEST(EmptySTLAllocator<char> , &IntWrapper::add1, e_INPLACE_BOTH);
         TEST(StatefulAllocator<char> , &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
         TEST(StatefulAllocator2<char>, &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
+#endif
 
         if (veryVerbose) printf("FUNC is EmptyFunctor()\n");
         TEST(bslma::TestAllocator *  , EmptyFunctor()   , e_INPLACE_BOTH);
@@ -5489,6 +5555,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("Plan step 9\n");
         IntWrapper iw(0x3001);
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
         bsl::function<void(IntWrapper, int)> ft(&IntWrapper::increment1);
         ft(iw, 1);                     // No return type to test
         ASSERT(0x3001 == iw.value());  // Passed by value. Original unchanged.
@@ -5533,6 +5600,7 @@ int main(int argc, char *argv[])
             ntvtsp(ntWrap(&IntWrapper::voidIncrement1));
         vtsp(&iw, 0x100);               // No return type to test
         ASSERT(0x31ff == iw.value());
+#endif
 
         MutatingFunctor incrementing;
         const bsl::function<long long()> mutator(incrementing);
@@ -6139,6 +6207,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
         if (veryVerbose) {
             printf("Construct with null pointer to member function\n");
         }
@@ -6163,6 +6232,7 @@ int main(int argc, char *argv[])
             ASSERT(&globalTestAllocator == fw.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
+#endif
 
         if (veryVerbose) printf("Construct with pointer to function\n");
         globalAllocMonitor.reset();
@@ -6190,6 +6260,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(globalAllocMonitor.isInUseSame());
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
         if (veryVerbose) printf("Construct with pointer to member function\n");
         globalAllocMonitor.reset();
         {
@@ -6216,6 +6287,7 @@ int main(int argc, char *argv[])
             ASSERT(&globalTestAllocator == fw.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
+#endif
 
         if (veryVerbose) printf("Construct with empty functor\n");
         globalAllocMonitor.reset();
@@ -6590,6 +6662,7 @@ int main(int argc, char *argv[])
             ASSERT(&sum2 == *f.target<int(*)(int, int)>());
         }
 
+#if !defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
         {
             IntWrapper iw(0x4000), *iw_p = &iw; const IntWrapper& IW = iw;
 
@@ -6616,6 +6689,7 @@ int main(int argc, char *argv[])
             ASSERT(fv);
             ASSERT(0x400f == fv(IW, 8));
         }
+#endif
       } break;
 
       case -1: {

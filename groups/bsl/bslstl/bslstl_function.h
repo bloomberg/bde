@@ -203,6 +203,21 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDLIB_H
 #endif
 
+                        // ---------------------
+                        // COMPILER DEFECT FLAGS
+                        // ---------------------
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+# define BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES
+    // The IBM compiler has problems storing specific kinds of member-function
+    // pointer in a 'bsl::functionb' object, which appear to compile correctly
+    // but produce corrupt results when executed, including potential stack
+    // corruption with wildly unpredictable results.  The recommended
+    // workaround until an IBM compiler patch is available is to pass member
+    // function pointers through 'bdlf::MemFn' objects instead - see
+    // 'bdlf::MemFnUtil' for more details.
+#endif
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 namespace BloombergLP {
 
@@ -4079,6 +4094,10 @@ class function : public Function_Imp<PROTOTYPE> {
     {
         // Must be in-place inline because the use of 'DisableIf' will
         // otherwise break the MSVC 2010 compiler.
+
+#if defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+        BSLMF_ASSERT(!bsl::is_member_function_pointer<FUNC>::value);
+#endif
     }
 
     template<class ALLOC>
@@ -4098,6 +4117,10 @@ class function : public Function_Imp<PROTOTYPE> {
         : Base(alloc, func) {
         // Must be in-place inline because the use of 'DisableIf' will
         // otherwise break the MSVC 2010 compiler.
+
+#if defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+        BSLMF_ASSERT(!bsl::is_member_function_pointer<FUNC>::value);
+#endif
     }
 
     template <class ALLOC>
@@ -4116,6 +4139,11 @@ class function : public Function_Imp<PROTOTYPE> {
     {
         // Must be in-place inline because the use of 'DisableIf' will
         // otherwise break the MSVC 2010 compiler.
+
+#if defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
+        BSLMF_ASSERT(!bsl::is_member_function_pointer<FUNC>::value);
+#endif
+
         Base::operator=(BSLS_COMPILERFEATURES_FORWARD(FUNC, func));
         return *this;
     }
