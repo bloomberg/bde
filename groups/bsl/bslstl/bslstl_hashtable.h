@@ -2879,8 +2879,11 @@ class HashTable {
         // Remove the specified 'node' from this hash-table, and return the
         // address of the node immediately after 'node' this hash-table (prior
         // to its removal), or a null pointer value if 'node' is the last node
-        // in the table.  The behavior is undefined unless 'node' refers to a
-        // node in this hash-table.
+        // in the table.  This method shall invalidate only iterators and
+        // references to the removed node and possibly the 'end()' iterator,
+        // as well as preserve the relative order of the nodes not removed.
+        // The behavior is undefined unless 'node' refers to a node in this
+        // hash-table.
 
     void removeAll();
         // Remove all the elements from this hash-table.  Note that this
