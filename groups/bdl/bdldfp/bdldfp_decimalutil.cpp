@@ -433,7 +433,41 @@ int DecimalUtil::decompose(int                 *sign,
                                       value.value());
 
 }
+/*
+int DecimalFormatUtil::format(char                      *buffer,
+                              int                        length,
+                              Decimal32                  value,
+                              const DecimalFormatConfig& config)
+{
+    return formatImpl(buffer,
+                      length,
+                      value,
+                      config);
+}
 
+int DecimalFormatUtil::format(char                      *buffer,
+                              int                        length,
+                              Decimal64                  value,
+                              const DecimalFormatConfig& config)
+{
+    return formatImpl(buffer,
+                      length,
+                      value,
+                      config);
+}
+
+int DecimalFormatUtil::format(char                      *buffer,
+                              int                        length,
+                              Decimal128                 value,
+                              const DecimalFormatConfig& config)
+{
+    return formatImpl(buffer,
+                      length,
+                      value,
+                      config);
+    return 0;
+}
+*/
 }  // close package namespace
 }  // close enterprise namespace
 

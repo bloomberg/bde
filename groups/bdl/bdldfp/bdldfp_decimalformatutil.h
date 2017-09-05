@@ -19,105 +19,10 @@ BSLS_IDENT("$Id$")
 //
 
 #include <bdldfp_decimal.h>
+#include <bdldfp_decimalformatconfig.h>
 
 namespace BloombergLP {
 namespace bdldfp {
-
-class DecimalFormatConfig {
-    // This attribute class characterizes haw to configure certain behavior of
-    // 'DecimalFormatUtil' functions.  Note that declaring the configuration
-    // class in this header file is a temporary solution.  This class will be
-    // extracted into a separate component during 'bdldfp_Decimal' package
-    // re-organization.
-
-  public:
-    enum Sign {
-        e_NEGATIVE_ONLY,  // no sign output when sign bit is not set
-        e_ALWAYS,         // output '+' when sign bit is not set
-    };
-
-    enum Style {
-        e_SCIENTIFIC,     // output number in scientific notation
-        e_FIXED,          // output number in fixed-format
-        e_NATURAL         // output number in "to-scientific-string" format
-                          // described in
-                          // {http://speleotrove.com/decimal/decarith.pdf}
-    };
-
-  private:
-    // DATA
-    int         d_precision;
-    Style       d_style;
-    Sign        d_sign;
-    const char *d_infinityText;
-    const char *d_nanText;
-    const char *d_sNanText;
-    char        d_decimalPoint;
-    char        d_exponent;
-
-  public:
-    // CREATORS
-    explicit
-    DecimalFormatConfig(int         precision,
-                        Style       style     = e_SCIENTIFIC,
-                        Sign        sign      = e_NEGATIVE_ONLY,
-                        const char *infinity  = "inf",
-                        const char *nan       = "nan",
-                        const char *snan      = "snan",
-                        char        point     = '.',
-                        char        exponent  = 'E')
-        : d_precision(precision)
-        , d_style(style)
-        , d_sign(sign)
-        , d_infinityText(infinity)
-        , d_nanText(nan)
-        , d_sNanText(snan)
-        , d_decimalPoint(point)
-        , d_exponent(exponent)
-    {
-    }
-
-    // ACCESSORS
-    int precision() const
-    {
-        return d_precision;
-    }
-
-    Style style() const
-    {
-        return d_style;
-    }
-
-    Sign sign() const
-    {
-        return d_sign;
-    }
-
-    const char *infinity() const
-    {
-        return d_infinityText;
-    }
-
-    const char *nan() const
-    {
-        return d_nanText;
-    }
-
-    const char *sNan() const
-    {
-        return d_sNanText;
-    }
-
-    char decimalPoint() const
-    {
-        return d_decimalPoint;
-    }
-
-    char exponent() const
-    {
-        return d_exponent;
-    }
-};
 
                         // =======================
                         // class DecimalFormatUtil
