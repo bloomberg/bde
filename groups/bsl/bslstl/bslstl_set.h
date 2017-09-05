@@ -1381,21 +1381,27 @@ class set {
         // 'position', and return an iterator referring to the element
         // immediately following the removed element, or to the past-the-end
         // position if the removed element was the last element in the sequence
-        // of elements maintained by this set.  The behavior is undefined
-        // unless 'position' refers to a 'value_type' object in this set.
+        // of elements maintained by this set.  This method shall invalidate
+        // only iterators and references to the erased element and possibly the
+        // 'end()' iterator.  The behavior is undefined unless 'position'
+        // refers to a 'value_type' object in this set.
 
     size_type erase(const key_type& key);
         // Remove from this set the 'value_type' object that is equivalent to
         // the specified 'key', if such an entry exists, and return 1;
         // otherwise, if there is no 'value_type' object that is equivalent to
-        // 'key', return 0 with no other effect.
+        // 'key', return 0 with no other effect.  This method shall invalidate
+        // only iterators and references to the erased element and possibly the
+        // 'end()' iterator.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this set the 'value_type' objects starting at the
         // specified 'first' position up to, but including the specified 'last'
-        // position, and return 'last'.  The behavior is undefined unless
-        // 'first' and 'last' either refer to elements in this set or are the
-        // 'end' iterator, and the 'first' position is at or before the 'last'
+        // position, and return 'last'.  This method shall invalidate only
+        // iterators and references to the erased element and possibly the
+        // 'end()' iterator.  The behavior is undefined unless 'first' and
+        // 'last' either refer to elements in this set or are the 'end'
+        // iterator, and the 'first' position is at or before the 'last'
         // position in the ordered sequence provided by this container.
 
     void swap(set& other)

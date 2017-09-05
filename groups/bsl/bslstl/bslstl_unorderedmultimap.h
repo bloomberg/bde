@@ -1059,25 +1059,33 @@ class unordered_multimap {
         // key equivalent to the specified 'key', if such exist, and return the
         // number of objects erased; otherwise, if there are no 'value_type'
         // objects with a key equivalent to 'key', return 0 with no other
-        // effect.
+        // effect.  This method shall invalidate only iterators and references
+        // to the erased element and possibly the 'end()' iterator, as well as
+        // preserve the relative order of the elements not erased.
 
     iterator erase(const_iterator position);
         // Remove from this unordered multimap the 'value_type' object at the
         // specified 'position', and return an iterator referring to the
         // element immediately following the removed element, or to the
         // past-the-end position if the removed element was the last element in
-        // the sequence of elements maintained by this unordered multimap.  The
+        // the sequence of elements maintained by this unordered multimap.
+        // This method shall invalidate only iterators and references to the
+        // erased element and possibly the 'end()' iterator, as well as
+        // preserve the relative order of the elements not erased.  The
         // behavior is undefined unless 'position' refers to a 'value_type'
         // object in this unordered multimap.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this unordered multimap the 'value_type' objects
         // starting at the specified 'first' position up to, but not including,
-        // the specified 'last' position, and return 'last'.  The behavior is
-        // undefined unless 'first' and 'last' either refer to elements in this
-        // unordered multimap or are the 'end' iterator, and the 'first'
-        // position is at or before the 'last' position in the sequence
-        // provided by this container.
+        // the specified 'last' position, and return 'last'.  This method shall
+        // invalidate only iterators and references to the erased element and
+        // possibly the 'end()' iterator, as well as preserve the relative
+        // order of the elements not erased.  The behavior is undefined unless
+        // 'first' and 'last' either refer to elements in this unordered
+        // multimap or are the 'end' iterator, and the 'first' position is at
+        // or before the 'last' position in the sequence provided by this
+        // container.
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the first
