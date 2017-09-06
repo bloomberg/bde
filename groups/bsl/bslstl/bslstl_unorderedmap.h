@@ -1532,32 +1532,32 @@ class unordered_map {
         // element immediately following the removed element, or to the
         // past-the-end position if the removed element was the last element in
         // the sequence of elements maintained by this unordered map.  This
-        // method shall invalidate only iterators and references to the erased
-        // element and possibly the 'end()' iterator, as well as preserve the
-        // relative order of the elements not erased.  The behavior is
-        // undefined unless 'position' refers to a 'value_type' object in this
-        // unordered map.
+        // method invalidates only iterators and references to the removed
+        // element and previously saved values of the 'end()' iterator, and
+        // preserves the relative order of the elements not removed.  The
+        // behavior is undefined unless 'position' refers to a 'value_type'
+        // object in this unordered map.
 
     size_type erase(const key_type& key);
         // Remove from this unordered map the 'value_type' object having the
         // specified 'key', if it exists, and return 1; otherwise (there is no
         // object with a key equivalent to 'key' in this unordered map) return
-        // 0 with no other effect.  This method shall invalidate only iterators
-        // and references to the erased element and possibly the 'end()'
-        // iterator, as well as preserve the relative order of the elements not
-        // erased.
+        // 0 with no other effect.  This method invalidates only iterators and
+        // references to the removed element and previously saved values of the
+        // 'end()' iterator, and preserves the relative order of the elements
+        // not removed.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this unordered map the 'value_type' objects starting at
         // the specified 'first' position up to, but not including, the
-        // specified 'last' position, and return 'last'.  This method shall
-        // invalidate only iterators and references to the erased element and
-        // possibly the 'end()' iterator, as well as preserve the relative
-        // order of the elements not erased.  The behavior is undefined unless
-        // 'first' and 'last' either refer to elements in this unordered map or
-        // are the 'end' iterator, and the 'first' position is at or before the
-        // 'last' position in the iteration sequence provided by this
-        // container.
+        // specified 'last' position, and return 'last'.  This method
+        // invalidates only iterators and references to the removed element and
+        // previously saved values of the 'end()' iterator, and preserves the
+        // relative order of the elements not removed.  The behavior is
+        // undefined unless 'first' and 'last' either refer to elements in this
+        // unordered map or are the 'end' iterator, and the 'first' position is
+        // at or before the 'last' position in the iteration sequence provided
+        // by this container.
 
     iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the 'value_type'
