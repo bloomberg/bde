@@ -1266,7 +1266,9 @@ class multimap {
         // 'position', and return an iterator referring to the element
         // immediately following the removed element, or to the past-the-end
         // position if the removed element was the last element in the sequence
-        // of elements maintained by this multimap.  The behavior is undefined
+        // of elements maintained by this multimap.   This method invalidates
+        // only iterators and references to the removed element and previously
+        // saved values of the 'end()' iterator.  The behavior is undefined
         // unless 'position' refers to a 'value_type' object in this multimap.
 
     size_type erase(const key_type& key);
@@ -1274,11 +1276,15 @@ class multimap {
         // equivalent to the specified 'key', if such entries exist, and return
         // the number of erased objects; otherwise, if there is no 'value_type'
         // objects having an equivalent key, return 0 with no other effect.
+        // This method invalidates only iterators and references to the removed
+        // element and previously saved values of the 'end()' iterator.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this multimap the 'value_type' objects starting at the
         // specified 'first' position up to, but including the specified 'last'
-        // position, and return 'last'.  The behavior is undefined unless
+        // position, and return 'last'.   This method invalidates only
+        // iterators and references to the removed element and previously saved
+        // values of the 'end()' iterator.  The behavior is undefined unless
         // 'first' and 'last' either refer to elements in this multimap or are
         // the 'end' iterator, and the 'first' position is at or before the
         // 'last' position in the ordered sequence provided by this container.
