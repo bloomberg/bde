@@ -79,6 +79,10 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimal.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMALFORMATCONFIG
+#include <bdldfp_decimalformatconfig.h>
+#endif
+
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_DECNUMBER
 #include <bdldfp_decimalimputil_decnumber.h>
 #endif
@@ -703,7 +707,7 @@ struct DecimalUtil {
         // reflect the 'quantum' of 'value').
 
                          // Format functions
-    /*
+
     static
     int format(char                      *buffer,
                int                        length,
@@ -721,7 +725,7 @@ struct DecimalUtil {
                int                        length,
                Decimal128                 value,
                const DecimalFormatConfig& cfg = DecimalFormatConfig(33));
-    */
+
         // Format the specified 'value' according to the parameters as
         // described below, placing the output in the buffer designated by the
         // specified 'buffer' and 'length', and return the length of the
@@ -1191,6 +1195,27 @@ inline
 long int DecimalUtil::lround(Decimal128 x)
 {
     return bdldfp::DecimalImpUtil::lround(*x.data());
+}
+
+inline
+Decimal32 DecimalUtil::round(Decimal32 x, unsigned int decimalPlaces)
+{
+    Decimal32 exp = makeDecimalRaw32(1, quantum(x) + decimalPlaces);
+    return quantize(x, exp);
+}
+
+inline
+Decimal64 DecimalUtil::round(Decimal64 x, unsigned int decimalPlaces)
+{
+    Decimal64 exp = makeDecimalRaw64(1, quantum(x) - decimalPlaces);
+    return quantize(x, exp);
+}
+
+inline
+Decimal128 DecimalUtil::round(Decimal128 x, unsigned int decimalPlaces)
+{
+    Decimal128 exp = makeDecimalRaw128(1, quantum(x) - decimalPlaces);
+    return quantize(x, exp);
 }
 
 inline
