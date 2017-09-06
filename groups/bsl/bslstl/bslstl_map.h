@@ -1562,27 +1562,27 @@ class map {
         // 'position', and return an iterator referring to the element
         // immediately following the removed element, or to the past-the-end
         // position if the removed element was the last element in the sequence
-        // of elements maintained by this map.  This method shall invalidate
-        // only iterators and references to the erased element and possibly the
-        // 'end()' iterator.  The behavior is undefined unless 'position'
-        // refers to a 'value_type' object in this map.
+        // of elements maintained by this map.   This method invalidates only
+        // iterators and references to the removed element and previously saved
+        // values of the 'end()' iterator.  The behavior is undefined unless
+        // 'position' refers to a 'value_type' object in this map.
 
     size_type erase(const key_type& key);
         // Remove from this map the 'value_type' object whose key is equivalent
         // the specified 'key', if such an entry exists, and return 1;
         // otherwise, if there is no 'value_type' object having an equivalent
-        // key, return 0 with no other effect.  This method shall invalidate
-        // only iterators and references to the erased element and possibly the
-        // 'end()' iterator.
+        // key, return 0 with no other effect.   This method invalidates only
+        // iterators and references to the removed element and previously saved
+        // values of the 'end()' iterator.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this map the 'value_type' objects starting at the
         // specified 'first' position up to, but including the specified 'last'
-        // position, and return 'last'.  This method shall invalidate only
-        // iterators and references to the erased element and possibly the
-        // 'end()' iterator.  The behavior is undefined unless 'first' and
-        // 'last' either refer to elements in this map or are the 'end'
-        // iterator, and the 'first' position is at or before the 'last'
+        // position, and return 'last'.   This method invalidates only
+        // iterators and references to the removed element and previously saved
+        // values of the 'end()' iterator.  The behavior is undefined unless
+        // 'first' and 'last' either refer to elements in this map or are the
+        // 'end' iterator, and the 'first' position is at or before the 'last'
         // position in the ordered sequence provided by this container.
 
     void swap(map& other)
