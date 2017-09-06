@@ -1434,7 +1434,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING DIRECT ACCESSORS:
-        //   Verify that the the threadpool correctly initializes with the
+        //   Verify that the threadpool correctly initializes with the
         //   specified max/min threads and idle time values.
         //
         // Plan:

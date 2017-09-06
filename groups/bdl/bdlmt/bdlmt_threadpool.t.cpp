@@ -17,6 +17,8 @@
 
 #include <bdlf_bind.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeinterval.h>
@@ -63,6 +65,7 @@ using namespace bsl;  // automatically added by script
 // [4 ] void stop();
 // [4 ] void drain();
 // [4 ] void shutdown();
+// [4 ] int enabled() const;
 // [4 ] int numActiveThreads() const;
 // [4 ] int numWaitingThreads() const;
 // [4 ] int numPendingJobs() const;
@@ -125,6 +128,13 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1406,6 +1416,7 @@ int main(int argc, char *argv[])
         //   void stop();
         //   void drain();
         //   void shutdown();
+        //   int enabled() const;
         // --------------------------------------------------------------------
 
         static const struct {
@@ -1461,6 +1472,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, IDLE== X.maxIdleTime());
 
             STARTPOOL(x);
+            ASSERT(1 == x.enabled());
             mutex.lock();
             ASSERT(MIN == x.numWaitingThreads());
             for (int j=0; j < MIN; j++) {
@@ -1517,6 +1529,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(i, IDLE== X.maxIdleTime());
 
             STARTPOOL(x);
+            ASSERT(1 == x.enabled());
             mutex.lock();
             ASSERT(x.numWaitingThreads() == MIN);
             for (int j=0; j < MAX; j++) {
@@ -1531,6 +1544,7 @@ int main(int argc, char *argv[])
             mutex.unlock();
             stopCond.broadcast();
             x.stop();
+            ASSERT(0 == x.enabled());
             ASSERT(MAX == args.d_count);
             ASSERT(0 == x.numActiveThreads());
             ASSERT(0 == x.numWaitingThreads());
@@ -1595,6 +1609,7 @@ int main(int argc, char *argv[])
             stopCond.broadcast();
             mutex.unlock();
             x.shutdown();
+            ASSERT(0 == x.enabled());
 
             ASSERT(0 == x.numActiveThreads());
             ASSERT(0 == x.numWaitingThreads());
@@ -1607,7 +1622,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING DIRECT ACCESSORS:
-        //   Verify that the the threadpool correctly initializes with the
+        //   Verify that the threadpool correctly initializes with the
         //   specified max/min threads and idle time values.
         //
         // Plan:
@@ -1661,6 +1676,23 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(i, MAX  == X.maxThreads());
                 LOOP_ASSERT(i, IDLE == X.maxIdleTime());
                 LOOP_ASSERT(i, 0    == X.threadFailures());
+            }
+
+            if (verbose) cout << "\nNegative Testing." << endl;
+            {
+                bsls::AssertTestHandlerGuard hG;
+
+                if (verbose) cout << "\t'Value CTOR'" << endl;
+                {
+                    bslmt::ThreadAttributes attr;
+                    ASSERT_PASS(Obj(attr,   0, 100, 1000));
+                    ASSERT_FAIL(Obj(attr,  -1, 100, 1000));
+                    ASSERT_FAIL(Obj(attr,  11,  10, 1000));
+                    ASSERT_PASS(Obj(attr,  10,  10, 1000));
+                    ASSERT_PASS(Obj(attr,   9,  10, 1000));
+                    ASSERT_FAIL(Obj(attr,  10,  10,   -1));
+                }
+
             }
         }
 

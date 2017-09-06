@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // queues.  Queue processing is implemented on top of a 'bdlmt::ThreadPool' by
 // enqueuing a per-queue functor to the thread pool.  Each functor dequeues
 // the next item from its associated queue, processes it, and re-enqueues
-// itself to the thread pool.  Since there is only one representative functor
+// itself to the thread pool.  Since there is at most one representative functor
 // per queue, each queue is guaranteed to be processed serially by the thread
 // pool.
 //
@@ -61,13 +61,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// The 'bdlmt::MultiQueueThreadPool' class is *thread-aware*, but not *fully
-// thread-safe*.  The function-level documentation identifies methods (i.e.,
-// the 'reset' method) that cannot be safely used by multiple threads.  This
-// class is also *thread-enabled* (i.e., the class does not function correctly
-// in a non-multi-threading environment).  See 'bsldoc_glossary' for complete
-// definitions of *thread-aware*, *fully thread-safe*, and *thread-enabled*.
-//
+// The 'bdlmt::MultiQueueThreadPool' class is *fully thread-safe* (i.e., all
+// public methods of a particular instance may safely execute concurrently).
+// This class is also *thread-enabled* (i.e., the class does not function
+// correctly in a non-multi-threading environment).  See 'bsldoc_glossary' for
+// complete definitions of *fully thread-safe* and *thread-enabled*.
+// 
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -250,9 +249,6 @@ BSLS_IDENT("$Id: $")
 //                                       basicAllocator);
 //      RegistryType profileRegistry(bsl::less<bsl::string>(), basicAllocator);
 //
-//      // Start the pool, enabling queue creation and processing.
-//      pool.start();
-//
 //      // Create a queue and a search profile associated with each word in
 //      // 'wordList'.
 //
@@ -275,6 +271,10 @@ BSLS_IDENT("$Id: $")
 //          profileRegistry[word] = bsl::make_pair(id, profile);
 //          deleter.release();
 //      }
+//
+//      // Start the pool, enabling enqueuing and queue processing.
+//      pool.start();
+//
 //
 //      // Enqueue a job which tries to match each file in 'fileList' with each
 //      // search profile.
@@ -334,6 +334,18 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_objectpool.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_QLOCK
 #include <bslmt_qlock.h>
 #endif
@@ -344,18 +356,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_SPINLOCK
-#include <bsls_spinlock.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
-#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSL_DEQUE
@@ -376,9 +376,10 @@ namespace bdlmt {
                       // ================================
 
 class MultiQueueThreadPool_Queue {
-    // This private class provides a lightweight queue, plus a spin lock.
-    // Thread-safety may be implemented by the client by acquiring and
-    // manipulating the queue's lock vis-a-vis the 'mutex' function.
+    // This private class provides a lightweight queue, plus some state.
+    // This class relies on external synchronization to behave correctly in a
+    // multi-threaded context (see
+    // 'MultiQueueThreadPool_QueueContext::mutex()').
 
   public:
     // PUBLIC TYPES
@@ -389,9 +390,16 @@ class MultiQueueThreadPool_Queue {
     enum {
         // Queue states.
 
-        e_ENQUEUING_ENABLED,  // enqueueing is enabled
-        e_ENQUEUING_DISABLED, // enqueueing is disabled
-        e_DELETING             // queue is stopped pending deletion
+        e_ENQUEUING_ENABLED,  // enqueuing is enabled
+        e_ENQUEUING_DISABLED, // enqueuing is disabled
+        e_DELETING            // queue is stopped pending deletion
+    };
+
+    enum {
+        // Pause states
+        e_RUNNING = 0, // not paused
+        e_PAUSING,     // pause requested but not completed yet
+        e_PAUSED       // paused
     };
 
   private:
@@ -401,7 +409,7 @@ class MultiQueueThreadPool_Queue {
 
     bsls::AtomicInt d_state;          // maintains enqueue state
 
-    bool            d_paused;         // whether job processing is disabled
+    bsls::AtomicInt d_pauseState;     // whether job processing is disabled
 
     bsls::AtomicInt d_numEnqueued;    // the number of items enqueued into this
                                       // queue since creation or the last time
@@ -433,9 +441,9 @@ class MultiQueueThreadPool_Queue {
         // Destroy this queue.
 
     // MANIPULATORS
-    Job popFront();
-        // Dequeue and return the element at the front of this queue.  The
-        // behavior is undefined if the queue is empty.
+    void popFront(Job *job);
+        // Copy the element at the front of this queue to the specified 'job'
+        // and dequeue it.  The behavior is undefined if this queue is empty.
 
     int pushBack(const Job& functor);
         // Enqueue the specified 'functor' at the end of this queue.  Return 0
@@ -478,6 +486,10 @@ class MultiQueueThreadPool_Queue {
         // Load into the specified 'numDequeued' and 'numEnqueued' the number
         // of items dequeued / enqueued (respectively) since the last time
         // these values were reset.
+
+    bool isEnabled() const;
+        // Report whether enqueuing to this object is enabled.  This object is
+        // constructed with enqueuing enabled.
 };
 
                   // =======================================
@@ -485,8 +497,8 @@ class MultiQueueThreadPool_Queue {
                   // =======================================
 
 class MultiQueueThreadPool_QueueContext {
-    // This private class encapsulates a lightweight job queue and a callback
-    // which processes the queue.
+    // This private class encapsulates a lightweight job queue, the callback
+    // and thread which process the queue, and a lock for synchronization.
 
   public:
     // PUBLIC TYPES
@@ -500,8 +512,9 @@ class MultiQueueThreadPool_QueueContext {
     mutable bslmt::QLock       d_lock;         // protect queue and
                                                // informational members
 
-    bool                       d_pausing;      // set while pauseQueue is
-                                               // waiting for callback
+    bool                       d_isChanging;   // set when pauseQueue or
+                                               // resumeQueue is waiting for
+                                               // callback.
 
     QueueProcessorCb           d_processingCb; // bound processing callback for
                                                // pool
@@ -521,8 +534,8 @@ class MultiQueueThreadPool_QueueContext {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MultiQueueThreadPool_QueueContext,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MultiQueueThreadPool_QueueContext,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit
@@ -588,7 +601,8 @@ class MultiQueueThreadPool {
                       d_queueRegistry;      // registry of queue contexts
 
     mutable bslmt::RWMutex
-                      d_registryLock;       // synchronizes registry access
+                      d_queueStateLock;     // locked for write when deleting
+                                            // queues or changing pool state
     bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
     bsls::AtomicInt   d_state;              // maintains internal state
@@ -627,10 +641,17 @@ class MultiQueueThreadPool {
         // Return 0 if enqueued successfully, and a non-zero value if queuing
         // is disabled.  The behavior is undefined unless 'functor' is bound.
 
+    int changePauseState(int id, bool paused);
+        // If the specified 'paused' flag is 'true', pause the queue with the
+        // specified 'id'; otherwise, resume it.  Return 0 on success, or a
+        // nonzero value if the queue does not have the opposite state or is
+        // changing state.  If 'paused' is true, wait until any currently
+        // executing job completes.
+
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(MultiQueueThreadPool,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(MultiQueueThreadPool,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     MultiQueueThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
@@ -639,11 +660,13 @@ class MultiQueueThreadPool {
                          int                             maxIdleTime,
                          bslma::Allocator               *basicAllocator = 0);
         // Construct a 'MultiQueueThreadPool' with the specified
-        // 'threadAttributes', 'minThread' and 'maxThreads' minimum and maximum
-        // number of threads respectively, and the specified 'maxIdleTime'
-        // maximum idle time (in milliseconds).  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the default memory allocator is used.  Note that the
+        // 'threadAttributes', the specified 'minThreads' minimum number of
+        // threads, the specified 'maxThreads' maximum number of threads, and
+        // the specified 'maxIdleTime' maximum idle time (in milliseconds).
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless '0 <= minThreads',
+        // 'minThreads <= maxThreads', and '0 <= maxIdleTime'.  Note that the
         // 'MultiQueueThreadPool' is created without any queues.  Although
         // queues may be created, 'start' must be called before enqueuing jobs.
 
@@ -675,9 +698,8 @@ class MultiQueueThreadPool {
 
     int createQueue();
         // Create a queue with unlimited capacity and a default number of
-        // initial elements.  Return a non-zero queue ID on success, and 0
-        // otherwise.  The queue ID can be used to enqueue jobs to the queue,
-        // or to control or delete the queue.
+        // initial elements.  Return a non-zero queue ID.  The queue ID can be
+        // used to enqueue jobs to the queue, or to control or delete the queue.
 
     int deleteQueue(int id, const CleanupFunctor& cleanupFunctor);
         // Disable enqueuing to the queue associated with the specified 'id',
@@ -686,15 +708,14 @@ class MultiQueueThreadPool {
         // element processed, after which the queue is destroyed.  The caller
         // will NOT be blocked until 'cleanupFunctor' executes to completion.
         // Return 0 on success, and a non-zero value otherwise.  Note that
-        // this function will fail if called on a stopped multi queue thread
-        // pool.
+        // this function will fail if this pool is stopped.
 
     int deleteQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id',
         // and block the calling thread until a currently-active callback, if
-        // any, is completed; then destroy the queue.  Note that the queue
-        // may be destroyed after this method returns.  Return 0 on success,
-        // and a non-zero value otherwise.
+        // any, is completed; then destroy the queue.  Return 0 on success,
+        // and a non-zero value otherwise.  Note that this function will fail
+        // if this pool is stopped.
 
     int disableQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id'.
@@ -705,11 +726,13 @@ class MultiQueueThreadPool {
 
     int drainQueue(int id);
         // Wait until all jobs in the queue indicated by the specified 'id' are
-        // finished.  This method simply blocks until that queue is empty,
-        // without disabling the queue.  The queue may be enabled or disabled
-        // when this is called.  Return 0 on success, and a non-zero value
-        // otherwise.  The behavior is undefined if another thread deletes the
-        // queue before this method finishes.
+        // finished.  This method simply waits until that queue is empty,
+        // without disabling the queue; it may thus wait indefinitely if more
+        // jobs are being added.  The queue may be enabled or disabled when
+        // this method is called.  Return 0 on success, and a non-zero value
+        // if the specified queue does not exist or is deleted while this
+        // method is waiting.  Note that this method waits by repeatedly
+        // yielding.
 
     int enqueueJob(int id, const Job& functor);
         // Enqueue the specified 'functor' to the queue specified by 'id'.
@@ -753,16 +776,17 @@ class MultiQueueThreadPool {
         // started.  Note that any paused queues remain paused.
 
     void drain();
-        // Block until all queues are empty.  This method waits until all
-        // queues are empty without disabling the queues.  The queues and/or
-        // the thread pool may be either enabled or disabled when this method
-        // is called.  This method may be called on a stopped or started thread
-        // pool.  This method will block if any thread is executing 'start',
-        // 'stop', or 'shutdown' at the time of the call.  Note that 'drain'
-        // does not attempt to delete queues directly.  However, as a
-        // side-effect of emptying all queues, any queue for which
-        // 'deleteQueue' was called previously will be deleted before 'drain'
-        // unblocks.
+        // Wait until all queues are empty.  This method waits until all
+        // queues are empty without disabling the queues (and may thus wait
+        // indefinitely).  The queues and/or the thread pool may be either
+        // enabled or disabled when this method is called.  This method may be
+        // called on a stopped or started thread pool.  This method will block
+        // if any thread is executing 'start', 'stop', or 'shutdown' at the
+        // time of the call.  Note that 'drain' does not attempt to delete
+        // queues directly.  However, as a side-effect of emptying all queues,
+        // any queue for which 'deleteQueue' was called previously will be
+        // deleted before 'drain' returns.  Note also that this method waits
+        // by repeatedly yielding.
 
     void stop();
         // Disable queuing on all queues and wait until all non-paused queues
@@ -783,7 +807,13 @@ class MultiQueueThreadPool {
     // ACCESSORS
     bool isPaused(int id) const;
         // Return 'true' if the queue associated with the specified 'id' is
-        // currently paused, or 'false' otherwise.
+        // currently paused, or 'false' otherwise (including if 'id' is not
+        // a valid queue id).
+
+    bool isEnabled(int id) const;
+        // Return 'true' if the queue identified by the specified 'id' is
+        // enabled, or 'false' otherwise (including if 'id' is not a valid queue
+        // id).
 
     int numQueues() const;
         // Return an instantaneous snapshot of the number of queues managed by
@@ -837,6 +867,18 @@ void MultiQueueThreadPool::numProcessedReset(int *numDequeued,
 
     *numDequeued = d_numDequeued.swap(0);
     *numEnqueued = d_numEnqueued.swap(0);
+}
+
+inline
+int MultiQueueThreadPool::pauseQueue(int id)
+{
+    return changePauseState(id, true);
+}
+
+inline
+int MultiQueueThreadPool::resumeQueue(int id)
+{
+    return changePauseState(id, false);
 }
 
 // ACCESSORS
