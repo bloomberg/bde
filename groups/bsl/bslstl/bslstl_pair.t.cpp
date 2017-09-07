@@ -2728,10 +2728,10 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
 
     ASSERT(false == k_ALLOC);
 
+    bslma::TestAllocator ta(veryVeryVeryVerbose);
+    bslma::TestAllocator tb(veryVeryVeryVerbose);
     bslma::TestAllocator da(veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard daGuard(&da);
-
-    Int64 taSoFar = 0, tbSoFar = 0, daSoFar = 0;
 
     for (int bb = 0; bb < 2; ++bb) {
         const bool b = bb;
@@ -2740,7 +2740,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
-            FromPair& fp = u::initPair(&ofp, 'F');
+            FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
             bsl::pair<FromPair, bool> tp(native_std::make_pair(fp, b));
@@ -2749,9 +2749,13 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
         }
 
+        ASSERT(0 == ta.numAllocations());
+        ASSERT(0 == tb.numAllocations());
+        ASSERT(0 == da.numAllocations());
+
         {
             bsls::ObjectBuffer<FromPair> ofp;
-            FromPair& fp = u::initPair(&ofp, 'F');
+            FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
             bsl::pair<ToPair, bool> tp(native_std::make_pair(fp, b));
@@ -2760,9 +2764,13 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
         }
 
+        ASSERT(0 == ta.numAllocations());
+        ASSERT(0 == tb.numAllocations());
+        ASSERT(0 == da.numAllocations());
+
         {
             bsls::ObjectBuffer<FromPair> ofp;
-            FromPair& fp = u::initPair(&ofp, 'F');
+            FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
             native_std::pair<FromPair, bool> np(fp, b);
@@ -2773,9 +2781,13 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
         }
 
+        ASSERT(0 == ta.numAllocations());
+        ASSERT(0 == tb.numAllocations());
+        ASSERT(0 == da.numAllocations());
+
         {
             bsls::ObjectBuffer<FromPair> ofp;
-            FromPair& fp = u::initPair(&ofp, 'F');
+            FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
             native_std::pair<FromPair, bool> np(fp, b);
@@ -2786,11 +2798,15 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.first.second));
         }
 
+        ASSERT(0 == ta.numAllocations());
+        ASSERT(0 == tb.numAllocations());
+        ASSERT(0 == da.numAllocations());
+
         // pair in 'second' element
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
-            FromPair& fp = u::initPair(&ofp, 'F');
+            FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
             bsl::pair<bool, FromPair> tp(native_std::make_pair(b, fp));
@@ -2799,9 +2815,13 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.second.second));
         }
 
+        ASSERT(0 == ta.numAllocations());
+        ASSERT(0 == tb.numAllocations());
+        ASSERT(0 == da.numAllocations());
+
         {
             bsls::ObjectBuffer<FromPair> ofp;
-            FromPair& fp = u::initPair(&ofp, 'F');
+            FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
             bsl::pair<bool, ToPair> tp(native_std::make_pair(b, fp));
@@ -2810,9 +2830,13 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.second.second));
         }
 
+        ASSERT(0 == ta.numAllocations());
+        ASSERT(0 == tb.numAllocations());
+        ASSERT(0 == da.numAllocations());
+
         {
             bsls::ObjectBuffer<FromPair> ofp;
-            FromPair& fp = u::initPair(&ofp, 'F');
+            FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
             native_std::pair<bool, FromPair> np(b, fp);
@@ -2823,9 +2847,13 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.second.second));
         }
 
+        ASSERT(0 == ta.numAllocations());
+        ASSERT(0 == tb.numAllocations());
+        ASSERT(0 == da.numAllocations());
+
         {
             bsls::ObjectBuffer<FromPair> ofp;
-            FromPair& fp = u::initPair(&ofp, 'F');
+            FromPair& fp = u::initPair(&ofp, 'F', &ta);
             u::PairGuard<FromPair> fpg(&fp);
 
             native_std::pair<bool, FromPair> np(b, fp);
@@ -2835,11 +2863,12 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT('F'                    == u::valueOf(tp.second.first));
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.second.second));
         }
+
+        ASSERT(0 == ta.numAllocations());
+        ASSERT(0 == tb.numAllocations());
+        ASSERT(0 == da.numAllocations());
     }
-
-    ASSERT(0 == da.numAllocations());
 }
-
 template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
 void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
                                                                 bsl::true_type)
@@ -3049,7 +3078,7 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14()
     // Dispatch depending on whether any of the parameter types allocate
     // memory.
 
-    testCase11(UsesBslma());
+    testCase14(UsesBslma());
 }
 
 
