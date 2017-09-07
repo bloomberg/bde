@@ -539,11 +539,20 @@ struct CharConvertUtf16 {
                            char                  errorByte            = '?',
                            ByteOrder::Enum       byteOrder            =
                                                             ByteOrder::e_HOST);
+    static int utf16ToUtf8(bsl::string          *dstString,
+                           const unsigned short *srcString,
+                           bsl::size_t           srcLengthInWords,
+                           bsl::size_t          *numCodePointsWritten = 0,
+                           char                  errorByte            = '?',
+                           ByteOrder::Enum       byteOrder            =
+                                                            ByteOrder::e_HOST);
         // Load into the specified 'dstString' the result of converting the
         // specified null-terminated UTF-16 '*srcString' to its UTF-8
-        // equivalent.  Optionally specify 'numCodePointsWritten', which (if
-        // not 0) indicates the location of the modifiable variable into which
-        // the number of Unicode code points written, including the null
+        // equivalent.  Optionally specify 'srcLengthInWords', the number of
+        // 'unsigned short's of input, otherwise the input is terminated by a
+        // null word.  Optionally specify 'numCodePointsWritten', which (if not
+        // 0) indicates the location of the modifiable variable into which the
+        // number of Unicode code points written, including the null
         // terminator, is to be loaded, where one code point may occupy
         // multiple bytes.  Optionally specify an 'errorByte' to be substituted
         // (if not 0) for invalid encodings in the input string.  Invalid
@@ -556,10 +565,10 @@ struct CharConvertUtf16 {
         // are discarded.  Return 0 on success and
         // 'CharConvertStatus::k_INVALID_INPUT_BIT' if one or more invalid
         // sequences were encountered in the input.  The behavior is undefined
-        // unless 'srcString' is null-terminated and 'errorByte' is either 0 or
-        // a valid single-byte Unicode code point ('0 < errorByte < 0x80').
-        // Note that the string length will be sized to the length of the
-        // output, such that
+        // unless either 'srcLengthInWords' is specified or 'srcString' is
+        // null-terminated; and 'errorByte' is either 0 or a valid single-byte
+        // Unicode code point ('0 < errorByte < 0x80').  Note that the string
+        // length will be sized to the length of the output, such that
         // 'strlen(dstString->c_str()) == dstString->length()'.
 
     static int utf16ToUtf8(
@@ -604,11 +613,20 @@ struct CharConvertUtf16 {
                            char                  errorByte            = '?',
                            ByteOrder::Enum       byteOrder            =
                                                             ByteOrder::e_HOST);
+    static int utf16ToUtf8(bsl::vector<char>    *dstVector,
+                           const unsigned short *srcString,
+                           bsl::size_t           srcLengthInWords,
+                           bsl::size_t          *numCodePointsWritten = 0,
+                           char                  errorByte            = '?',
+                           ByteOrder::Enum       byteOrder            =
+                                                            ByteOrder::e_HOST);
         // Load into the specified 'dstVector' the null-terminated result of
         // converting the specified null-terminated UTF-16 '*srcString' to its
-        // UTF-8 equivalent.  Optionally specify 'numCodePointsWritten', which
-        // (if not 0) indicates the location of the modifiable variable into
-        // which the number of Unicode code points written, including the null
+        // UTF-8 equivalent.  Optionally specify 'srcLengthInWords', the number
+        // of 'unsigned short's of input, otherwise the input is terminated by
+        // a null word.  Optionally specify 'numCodePointsWritten', which (if
+        // not 0) indicates the location of the modifiable variable into which
+        // the number of Unicode code points written, including the null
         // terminator, is to be loaded, where one code point may occupy
         // multiple bytes.  Optionally specify an 'errorByte' to be substituted
         // (if not 0) for invalid encodings in the input string.  Invalid
@@ -621,8 +639,9 @@ struct CharConvertUtf16 {
         // are discarded.  Return 0 on success and
         // 'CharConvertStatus::k_INVALID_INPUT_BIT' if one or more invalid
         // sequences were encountered in the input.  The behavior is undefined
-        // unless 'srcString' is null-terminated and 'errorByte' is either 0 or
-        // a valid single-byte Unicode code point ('0 < errorByte < 0x80').
+        // unless either 'srcLengthInWords' is specified or 'srcString' is
+        // null-terminated; and 'errorByte' is either 0 or a valid single-byte
+        // Unicode code point ('0 < errorByte < 0x80').
 
     static int utf16ToUtf8(
                       bsl::vector<char>            *dstVector,
@@ -669,9 +688,20 @@ struct CharConvertUtf16 {
                            char                  errorByte            = '?',
                            ByteOrder::Enum       byteOrder            =
                                                             ByteOrder::e_HOST);
+    static int utf16ToUtf8(char                 *dstBuffer,
+                           bsl::size_t           dstCapacity,
+                           const unsigned short *srcString,
+                           bsl::size_t           srcLengthInWords,
+                           bsl::size_t          *numCodePointsWritten = 0,
+                           bsl::size_t          *numBytesWritten      = 0,
+                           char                  errorByte            = '?',
+                           ByteOrder::Enum       byteOrder            =
+                                                            ByteOrder::e_HOST);
         // Load, into the specified 'dstBuffer' of the specified 'dstCapacity',
         // the result of converting the specified null-terminated UTF-16
         // '*srcString' to its null-terminated UTF-8 equivalent.  Optionally
+        // specify 'srcLengthInWords', the number of 'unsigned short's of
+        // input, otherwise the input is terminated by a null word.  Optionally
         // specify 'numCodePointsWritten', which (if not 0) indicates the
         // location of the modifiable variable into which the number of Unicode
         // code points (including the terminating 0, if any) written is to be
@@ -693,14 +723,15 @@ struct CharConvertUtf16 {
         // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' will be set if the output
         // space was exhausted before conversion was complete.  The behavior is
         // undefined unless 'dstBuffer' refers to an array of at least
-        // 'dstCapacity' elements, 'srcString' is null-terminated, and
-        // 'errorByte' is either 0 or a valid single-byte Unicode code point
-        // ('0 < errorByte < 0x80').  Note that if 'dstCapacity' is 0, this
-        // function returns 'CharConvertStatus::k_OUT_OF_SPACE_BIT' set and 0
-        // is written into '*numCodePointsWritten' and '*numBytesWritten' (if
-        // those pointers are non-null), since there is insufficient space for
-        // even a null terminator alone.  Also note that since UTF-8 is a
-        // variable-length encoding, 'numBytesWritten' may be up to four times
+        // 'dstCapacity' elements, either 'srcLengthInWords' is specified
+        // or'srcString' is null-terminated, and 'errorByte' is either 0 or a
+        // valid single-byte Unicode code point ('0 < errorByte < 0x80').  Note
+        // that if 'dstCapacity' is 0, this function returns
+        // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' set and 0 is written into
+        // '*numCodePointsWritten' and '*numBytesWritten' (if those pointers
+        // are non-null), since there is insufficient space for even a null
+        // terminator alone.  Also note that since UTF-8 is a variable-length
+        // encoding, 'numBytesWritten' may be up to four times
         // 'numCodePointsWritten', and therefore that an input 'srcString' of
         // 'dstCapacity' words (including the terminating 0) may not fit into
         // 'dstBuffer'.  A one-word (two-byte) UTF-16 code point will require
