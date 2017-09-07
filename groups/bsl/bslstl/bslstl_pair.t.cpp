@@ -2724,7 +2724,9 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
     if (veryVerbose) printf("TD<%s, %s>::case14, %s\n",
                             NameOf<ToFirst>().name(),
                             NameOf<ToSecond>().name(),
-                            k_ALLOC ? "alloc" : "no alloc");
+                            "no alloc");
+
+    ASSERT(false == k_ALLOC);
 
     bslma::TestAllocator da(veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard daGuard(&da);
@@ -2834,6 +2836,8 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT('F' + u::k_VALUE_SHIFT == u::valueOf(tp.second.second));
         }
     }
+
+    ASSERT(0 == da.numAllocations());
 }
 
 template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
@@ -2843,7 +2847,9 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
     if (veryVerbose) printf("TD<%s, %s>::case14, %s\n",
                             NameOf<ToFirst>().name(),
                             NameOf<ToSecond>().name(),
-                            k_ALLOC ? "alloc" : "no alloc");
+                            "alloc");
+
+    ASSERT(true == k_ALLOC);
 
     bslma::TestAllocator ta(veryVeryVeryVerbose);
     bslma::TestAllocator tb(veryVeryVeryVerbose);
@@ -2871,14 +2877,12 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT(u::allocatorMatches(tp.first.second, &tb));
         }
 
-        if (k_ALLOC) {
-            ASSERT(taSoFar < ta.numAllocations());
-            ASSERT(tbSoFar < tb.numAllocations());
-            ASSERT(daSoFar < da.numAllocations());
-            taSoFar = ta.numAllocations();
-            tbSoFar = tb.numAllocations();
-            daSoFar = da.numAllocations();
-        }
+        ASSERT(taSoFar < ta.numAllocations());
+        ASSERT(tbSoFar < tb.numAllocations());
+        ASSERT(daSoFar < da.numAllocations());
+        taSoFar = ta.numAllocations();
+        tbSoFar = tb.numAllocations();
+        daSoFar = da.numAllocations();
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
@@ -2894,14 +2898,12 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT(u::allocatorMatches(tp.first.second, &tb));
         }
 
-        if (k_ALLOC) {
-            ASSERT(taSoFar < ta.numAllocations());
-            ASSERT(tbSoFar < tb.numAllocations());
-            ASSERT(daSoFar < da.numAllocations());
-            taSoFar = ta.numAllocations();
-            tbSoFar = tb.numAllocations();
-            daSoFar = da.numAllocations();
-        }
+        ASSERT(taSoFar < ta.numAllocations());
+        ASSERT(tbSoFar < tb.numAllocations());
+        ASSERT(daSoFar < da.numAllocations());
+        taSoFar = ta.numAllocations();
+        tbSoFar = tb.numAllocations();
+        daSoFar = da.numAllocations();
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
@@ -2919,14 +2921,12 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT(u::allocatorMatches(tp.first.second, &tb));
         }
 
-        if (k_ALLOC) {
-            ASSERT(taSoFar < ta.numAllocations());
-            ASSERT(tbSoFar < tb.numAllocations());
-            ASSERT(daSoFar < da.numAllocations());
-            taSoFar = ta.numAllocations();
-            tbSoFar = tb.numAllocations();
-            daSoFar = da.numAllocations();
-        }
+        ASSERT(taSoFar < ta.numAllocations());
+        ASSERT(tbSoFar < tb.numAllocations());
+        ASSERT(daSoFar < da.numAllocations());
+        taSoFar = ta.numAllocations();
+        tbSoFar = tb.numAllocations();
+        daSoFar = da.numAllocations();
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
@@ -2944,14 +2944,12 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT(u::allocatorMatches(tp.first.second, &tb));
         }
 
-        if (k_ALLOC) {
-            ASSERT(taSoFar < ta.numAllocations());
-            ASSERT(tbSoFar < tb.numAllocations());
-            ASSERT(daSoFar < da.numAllocations());
-            taSoFar = ta.numAllocations();
-            tbSoFar = tb.numAllocations();
-            daSoFar = da.numAllocations();
-        }
+        ASSERT(taSoFar < ta.numAllocations());
+        ASSERT(tbSoFar < tb.numAllocations());
+        ASSERT(daSoFar < da.numAllocations());
+        taSoFar = ta.numAllocations();
+        tbSoFar = tb.numAllocations();
+        daSoFar = da.numAllocations();
 
         // pair in 'second' element
 
@@ -2969,14 +2967,12 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT(u::allocatorMatches(tp.second.second, &tb));
         }
 
-        if (k_ALLOC) {
-            ASSERT(taSoFar < ta.numAllocations());
-            ASSERT(tbSoFar < tb.numAllocations());
-            ASSERT(daSoFar < da.numAllocations());
-            taSoFar = ta.numAllocations();
-            tbSoFar = tb.numAllocations();
-            daSoFar = da.numAllocations();
-        }
+        ASSERT(taSoFar < ta.numAllocations());
+        ASSERT(tbSoFar < tb.numAllocations());
+        ASSERT(daSoFar < da.numAllocations());
+        taSoFar = ta.numAllocations();
+        tbSoFar = tb.numAllocations();
+        daSoFar = da.numAllocations();
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
@@ -2992,14 +2988,12 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT(u::allocatorMatches(tp.second.second, &tb));
         }
 
-        if (k_ALLOC) {
-            ASSERT(taSoFar < ta.numAllocations());
-            ASSERT(tbSoFar < tb.numAllocations());
-            ASSERT(daSoFar < da.numAllocations());
-            taSoFar = ta.numAllocations();
-            tbSoFar = tb.numAllocations();
-            daSoFar = da.numAllocations();
-        }
+        ASSERT(taSoFar < ta.numAllocations());
+        ASSERT(tbSoFar < tb.numAllocations());
+        ASSERT(daSoFar < da.numAllocations());
+        taSoFar = ta.numAllocations();
+        tbSoFar = tb.numAllocations();
+        daSoFar = da.numAllocations();
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
@@ -3017,14 +3011,12 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT(u::allocatorMatches(tp.second.second, &tb));
         }
 
-        if (k_ALLOC) {
-            ASSERT(taSoFar < ta.numAllocations());
-            ASSERT(tbSoFar < tb.numAllocations());
-            ASSERT(daSoFar < da.numAllocations());
-            taSoFar = ta.numAllocations();
-            tbSoFar = tb.numAllocations();
-            daSoFar = da.numAllocations();
-        }
+        ASSERT(taSoFar < ta.numAllocations());
+        ASSERT(tbSoFar < tb.numAllocations());
+        ASSERT(daSoFar < da.numAllocations());
+        taSoFar = ta.numAllocations();
+        tbSoFar = tb.numAllocations();
+        daSoFar = da.numAllocations();
 
         {
             bsls::ObjectBuffer<FromPair> ofp;
@@ -3042,20 +3034,12 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase14(
             ASSERT(u::allocatorMatches(tp.second.second, &tb));
         }
 
-        if (k_ALLOC) {
-            ASSERT(taSoFar < ta.numAllocations());
-            ASSERT(tbSoFar < tb.numAllocations());
-            ASSERT(daSoFar < da.numAllocations());
-            taSoFar = ta.numAllocations();
-            tbSoFar = tb.numAllocations();
-            daSoFar = da.numAllocations();
-        }
-    }
-
-    if (!k_ALLOC) {
-        ASSERT(0 == ta.numAllocations());
-        ASSERT(0 == tb.numAllocations());
-        ASSERT(0 == da.numAllocations());
+        ASSERT(taSoFar < ta.numAllocations());
+        ASSERT(tbSoFar < tb.numAllocations());
+        ASSERT(daSoFar < da.numAllocations());
+        taSoFar = ta.numAllocations();
+        tbSoFar = tb.numAllocations();
+        daSoFar = da.numAllocations();
     }
 }
 
