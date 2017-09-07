@@ -160,6 +160,7 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
+// [ 4] maps of smart pointers
 // [ 3] string vector resize
 // [ 2] CONCERN: REGRESSION TEST FOR C99 FEATURES
 // [ 1] CONCERN: Support references as 'mapped_type' in map-like containers.
@@ -410,12 +411,12 @@ int main(int argc, char *argv[])
         //: 1 Do such operations.
         //
         // Testing:
-        //   maps of unique_ptr
+        //   maps of smart pointers
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "CONCERN: MAPS CONTAINING UNIQUE_PTR\n"
-                      << "===================================\n";
+            bsl::cout << "CONCERN: MAPS CONTAINING SMART POINTERS\n"
+                      << "=======================================\n";
         }
 #if __cplusplus >= 201103
         if (veryVerbose) {
