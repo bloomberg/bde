@@ -12,6 +12,7 @@
 
 #include <bdlde_charconvertstatus.h>
 
+#include <bslim_testutil.h>
 #include <bslma_testallocator.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -161,82 +162,50 @@ using namespace bsl;
 // that does the work.
 
 // ============================================================================
-//                 MODIFIED "STANDARD" BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-// There are two changes here.  First, the variable 'testStatus' and the
-// function 'aSsErT' are moved into the anonymous namespace; previously they
-// were file-level static.  The Sun compiler (Suite 8) did not believe that
-// file-level statics should be visible in a template function.  Second, the
-// function and macro are changed so that they constitute an expression that
-// returns 'true' if the test passes and 'false' otherwise.  This allows
-// verbose flags to govern additional error reporting when a failure occurs.
-
 namespace {
+
 int testStatus = 0;
 
-bool aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
-    return 0 == c;
 }
 
 }  // close unnamed namespace
 
-#define ASSERT(X) ( aSsErT(!(X), #X, __LINE__) )
-
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << (I) << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " \
-              << (J) << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) << "\t" \
-              << #K << ": " << (K) << "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) << "\t" \
-        << #K << ": " << (K) << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) << \
-       "\t" <<  #K << ": " << (K) << "\t" << #L << ": " << (L) << "\t" << \
-       #M << ": " << (M) << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) << \
-        "\t" << #K << ": " << (K) << "\t" << #L << ": " << (L) << "\t" << \
-       #M << ": " << (M) << "\t" << #N << ": " << (N) << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP7_ASSERT(I,J,K,L,M,N,P,X) { \
-   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) << \
-        "\t" << #K << ": " << (K) << "\t" << #L << ": " << (L) << "\t" << \
-       #M << ": " << (M) << "\t" << #N << ": " << (N) << "\t" << \
-       #P << ": " << (P) << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define ASSERT_RET(exp)     ((exp) ? 1 : (aSsErT(0, #exp, __LINE__), 0))
 
 // ============================================================================
 //                         CUSTOM TEST OUTPUT MACROS
@@ -1319,8 +1288,8 @@ struct ConversionArg<char, unsigned short> {
         ((WP).fillMargins(MEM),                             \
          (RESULT) = (CONV)((WP),(MEM),(SOURCE),(EXPECTED)), \
           bothAnd(EXPECTED_GOT((EXPECTED),(RESULT)),        \
-                  ASSERT((WP).checkMargins(MEM)) &&         \
-                  ASSERT((WP).checkFinalNull(MEM))))
+                  ASSERT_RET((WP).checkMargins(MEM)) &&         \
+                  ASSERT_RET((WP).checkFinalNull(MEM))))
 
 // Given a vector of pointers to strings, compare them and determine
 // equivalence classes among them.  Return a vector of vectors, containing the
@@ -4980,14 +4949,14 @@ int main(int argc, char**argv)
                             bsl::size_t nc = -1;
                             ASSERT(0 == Obj::utf8ToUtf16(&utf16, utf8In, &nc));
                             ASSERT(expectedUtf16 == utf16);
-                            LOOP7_ASSERT(nc, NUM_CODE_POINTS, ti, tj, tk, tm,
+                            ASSERTV(nc, NUM_CODE_POINTS, ti, tj, tk,
                                                     tn, NUM_CODE_POINTS == nc);
 
                             bsl::string utf8Out;
                             nc = -1;
                             ASSERT(0 == Obj::utf16ToUtf8(&utf8Out, utf16,&nc));
                             ASSERT(utf8In == utf8Out);
-                            LOOP7_ASSERT(nc, NUM_CODE_POINTS, ti, tj, tk, tm,
+                            ASSERTV(nc, NUM_CODE_POINTS, ti, tj, tk,
                                                     tn, NUM_CODE_POINTS == nc);
 
                             // Broken glass test, just making sure embedded
@@ -6313,6 +6282,47 @@ int main(int argc, char**argv)
                 ASSERT(0 == rc);
                 ASSERT(utf8String == utf8StringB);
             }
+
+            utf16S[numWords16S - 1] = 1001;
+            utf16S[numWords16S + 0] = 1002;
+            utf16S[numWords16S + 1] = 1003;
+            utf16S[numWords16S + 2] = 1004;
+
+            {
+                bsl::fill(utf8Vec.begin(), utf8Vec.end(), 0xa5);
+                bsl::size_t numCodePoints8 = 0;
+
+                rc = Util::utf16ToUtf8(&utf8Vec,
+                                       utf16S,
+                                       numWords16S - 1,
+                                       &numCodePoints8);
+                ASSERT(0 == rc);
+
+                ASSERT(numCodePoints8 == numCodePoints16);
+                ASSERT(sizeof(utf8MultiLang) == utf8Vec.size());
+
+                ASSERT(bsl::strlen(utf8Vec.begin()) + 1 == utf8Vec.size());
+                ASSERT(!bsl::strcmp(utf8Vec.begin(), charUtf8MultiLang));
+            }
+            {
+                bsl::string utf8String(&ta);
+
+                bsl::size_t numCodePoints8 = 0;
+
+                rc = Util::utf16ToUtf8(&utf8String,
+                                       utf16S,
+                                       numWords16S - 1,
+                                       &numCodePoints8);
+                ASSERT(0 == rc);
+
+                bsl::size_t numBytes8 = utf8String.length() + 1;
+
+                ASSERT(numCodePoints8 == numCodePoints16);
+                ASSERT(numBytes8 == sizeof(utf8MultiLang));
+
+                ASSERT(bsl::strlen(utf8String.c_str()) + 1 == numBytes8);
+                ASSERT(!bsl::strcmp(utf8String.begin(), charUtf8MultiLang));
+            }
         }
 
         ta.deallocate(utf16S);
@@ -6360,6 +6370,11 @@ int main(int argc, char**argv)
             else                           ++errorBytes;
         }
 
+        const unsigned CODE_POINTS = singleBytes + doubleHeaders +
+                                               tripleHeaders + quadHeaders + 1;
+        const unsigned UTF16_WORDS = singleBytes + doubleHeaders +
+                                           tripleHeaders + 2 * quadHeaders + 1;
+
         if (verbose) {
             P_(sizeof(utf8MultiLang)) P_(singleBytes) P(doubleHeaders);
             P_(tripleHeaders) P_(quadHeaders) P_(contBytes) P(errorBytes);
@@ -6373,9 +6388,7 @@ int main(int argc, char**argv)
         bslma::TestAllocator ta;
         unsigned short *utf16S = (unsigned short *)
                                 ta.allocate(CAPACITY * sizeof(unsigned short));
-        wchar_t *utf16W = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
-
-        bsl::size_t numCodePoints16 = 0, numWords16S = 0, numWords16W = 0;
+        bsl::size_t numCodePoints16 = 0, numWords16S = 0;
 
         int rc = Util::utf8ToUtf16(utf16S,
                                    CAPACITY,
@@ -6390,24 +6403,43 @@ int main(int argc, char**argv)
 
         ASSERT(0 == rc);
         ASSERT(numCodePoints16  < sizeof(utf8MultiLang));
+        ASSERTV(CODE_POINTS, numCodePoints16, CODE_POINTS == numCodePoints16);
         ASSERT(numWords16S < sizeof(utf8MultiLang));
         ASSERT(numWords16S >= numCodePoints16);
+        ASSERTV(UTF16_WORDS, numWords16S, UTF16_WORDS == numWords16S);
 
-        rc = Util::utf8ToUtf16(utf16S,
+        unsigned short *utf16SB = (unsigned short *)
+                                ta.allocate(CAPACITY * sizeof(unsigned short));
+        bsl::size_t numCodePoints16B = 0, numWords16SB = 0;
+
+        rc = Util::utf8ToUtf16(utf16SB,
                                CAPACITY,
                                bslstl::StringRef(charUtf8MultiLang),
-                               &numCodePoints16,
-                               &numWords16S);
+                               &numCodePoints16B,
+                               &numWords16SB);
 
         if (verbose) {
             Q(utf8ToUtf16:);
-            P_(rc) P_(numCodePoints16) P(numWords16S);
+            P_(rc) P_(numCodePoints16B) P(numWords16SB);
         }
 
         ASSERT(0 == rc);
-        ASSERT(numCodePoints16  < sizeof(utf8MultiLang));
-        ASSERT(numWords16S < sizeof(utf8MultiLang));
-        ASSERT(numWords16S >= numCodePoints16);
+        ASSERT(numCodePoints16B  < sizeof(utf8MultiLang));
+        ASSERTV(CODE_POINTS, numCodePoints16B,
+                                              CODE_POINTS == numCodePoints16B);
+        ASSERT(numWords16SB < sizeof(utf8MultiLang));
+        ASSERT(numWords16SB >= numCodePoints16B);
+        ASSERTV(UTF16_WORDS, numWords16SB, UTF16_WORDS == numWords16SB);
+
+        ASSERT(numCodePoints16B == numCodePoints16);
+        ASSERT(numWords16SB     == numWords16S);
+        ASSERT(0 == bsl::memcmp(utf16S,
+                                utf16SB,
+                                numWords16S * sizeof(unsigned short)));
+
+        wchar_t *utf16W = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
+        bsl::size_t numWords16W = 0;
+        numCodePoints16 = 0;
 
         rc = Util::utf8ToUtf16(utf16W,
                                CAPACITY,
@@ -6422,15 +6454,28 @@ int main(int argc, char**argv)
 
         ASSERT(0 == rc);
         ASSERT(numCodePoints16  < sizeof(utf8MultiLang));
+        ASSERTV(CODE_POINTS, numCodePoints16, CODE_POINTS == numCodePoints16);
         ASSERT(numWords16W < sizeof(utf8MultiLang));
         ASSERT(numWords16W >= numCodePoints16);
         ASSERT(numWords16W == numWords16S);
+        ASSERTV(UTF16_WORDS, numWords16W, UTF16_WORDS == numWords16W);
 
-        rc = Util::utf8ToUtf16(utf16W,
+        for (unsigned ii = 0; ii < numWords16W; ++ii) {
+            if (utf16S[ii] != utf16W[ii]) {
+                ASSERTV(ii, utf16S[ii], utf16W[ii], utf16S[ii] != utf16W[ii]);
+                break;
+            }
+        }
+
+        wchar_t *utf16WB = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
+        bsl::size_t numWords16WB = 0;
+        numCodePoints16B = 0;
+
+        rc = Util::utf8ToUtf16(utf16WB,
                                CAPACITY,
                                bslstl::StringRef(charUtf8MultiLang),
-                               &numCodePoints16,
-                               &numWords16W);
+                               &numCodePoints16B,
+                               &numWords16WB);
 
         if (verbose) {
             Q(utf8ToUtf16:);
@@ -6438,14 +6483,25 @@ int main(int argc, char**argv)
         }
 
         ASSERT(0 == rc);
-        ASSERT(numCodePoints16  < sizeof(utf8MultiLang));
-        ASSERT(numWords16W < sizeof(utf8MultiLang));
-        ASSERT(numWords16W >= numCodePoints16);
-        ASSERT(numWords16W == numWords16S);
+        ASSERT(numCodePoints16B  < sizeof(utf8MultiLang));
+        ASSERTV(CODE_POINTS, numCodePoints16B,
+                                              CODE_POINTS == numCodePoints16B);
+        ASSERT(numWords16WB < sizeof(utf8MultiLang));
+        ASSERT(numWords16WB >= numCodePoints16);
+        ASSERT(numWords16WB == numWords16S);
+        ASSERTV(UTF16_WORDS, numWords16WB, UTF16_WORDS  == numWords16WB);
+
+        ASSERT(numCodePoints16B == numCodePoints16);
+        ASSERT(numWords16WB     == numWords16W);
+
+        ASSERT(0 == bsl::memcmp(utf16W,
+                                utf16WB,
+                                numWords16W * sizeof(wchar_t)));
 
         bsl::size_t numCodePoints8 = 0, numBytes8 = 0;
 
         char *utf8 = (char *) ta.allocate(CAPACITY);
+        bsl::memset(utf8, 0xa5, CAPACITY);
 
         rc = Util::utf16ToUtf8(utf8,
                                CAPACITY,
@@ -6460,14 +6516,121 @@ int main(int argc, char**argv)
 
         ASSERT(0 == rc);
         ASSERT(numCodePoints16 == numCodePoints8);
+        ASSERT(CODE_POINTS == numCodePoints8);
         ASSERT(numBytes8  == sizeof(utf8MultiLang));
         ASSERT(bsl::strlen(utf8) + 1 == numBytes8);
         ASSERT(!bsl::strcmp(utf8, charUtf8MultiLang));
 
         numCodePoints8 = 0;
         numBytes8 = 0;
+        bsl::memset(utf8, 0xa5, CAPACITY);
 
-        bsl::memset(utf8, 0, CAPACITY);
+        numCodePoints8 = 0;
+        bsl::string s(&ta);
+
+        rc = Util::utf16ToUtf8(&s,
+                               utf16S,
+                               &numCodePoints8);
+
+        if (verbose) {
+            Q(utf16ToUtf8:);
+            P_(rc) P(numCodePoints8);
+        }
+
+        ASSERT(0 == rc);
+        ASSERT(numCodePoints16 == numCodePoints8);
+        ASSERT(CODE_POINTS == numCodePoints8);
+        ASSERT(s == charUtf8MultiLang);
+        ASSERT(s.length() + 1 == sizeof(utf8MultiLang));
+
+        numCodePoints8 = 0;
+        bsl::vector<char> v(&ta);
+
+        rc = Util::utf16ToUtf8(&v,
+                               utf16S,
+                               &numCodePoints8);
+
+        if (verbose) {
+            Q(utf16ToUtf8:);
+            P_(rc) P(numCodePoints8);
+        }
+
+        ASSERT(0 == rc);
+        ASSERT(numCodePoints16 == numCodePoints8);
+        ASSERT(CODE_POINTS == numCodePoints8);
+        ASSERT(!bsl::strcmp(&v[0], charUtf8MultiLang));
+        ASSERT(v.size() == sizeof(utf8MultiLang));
+
+        utf16S[numWords16W - 1] = 'a';
+        utf16S[numWords16W + 0] = 'b';
+        utf16S[numWords16W + 1] = 'c';
+        utf16S[numWords16W + 2] = 'd';
+
+        numCodePoints8 = 0;
+        numBytes8 = 0;
+        bsl::memset(utf8, 0xa5, CAPACITY);
+
+        rc = Util::utf16ToUtf8(utf8,
+                               CAPACITY,
+                               utf16S,
+                               numWords16W - 1,
+                               &numCodePoints8,
+                               &numBytes8);
+        if (verbose) {
+            Q(utf16ToUtf8:);
+            P_(rc) P_(numCodePoints8) P(numBytes8);
+        }
+
+        ASSERT(0 == rc);
+        ASSERT(numCodePoints16 == numCodePoints8);
+        ASSERT(CODE_POINTS == numCodePoints8);
+        ASSERT(numBytes8  == sizeof(utf8MultiLang));
+        ASSERT(bsl::strlen(utf8) + 1 == numBytes8);
+        ASSERT(!bsl::strcmp(utf8, charUtf8MultiLang));
+
+        numCodePoints8 = 0;
+        bsl::memset(&s[0], 0xaf, s.length());
+        s.clear();
+
+        rc = Util::utf16ToUtf8(&s,
+                               utf16S,
+                               numWords16S - 1,
+                               &numCodePoints8);
+        if (verbose) {
+            Q(utf16ToUtf8:);
+            P_(rc) P(numCodePoints8);
+        }
+
+        ASSERT(0 == rc);
+        ASSERT(numCodePoints16 == numCodePoints8);
+        ASSERT(CODE_POINTS == numCodePoints8);
+        ASSERT(s == charUtf8MultiLang);
+        ASSERT(s.length() + 1 == sizeof(utf8MultiLang));
+
+
+        numCodePoints8 = 0;
+        bsl::memset(&v[0], 0xa5, v.size());
+        v.clear();
+
+        rc = Util::utf16ToUtf8(&v,
+                               utf16S,
+                               numWords16S - 1,
+                               &numCodePoints8);
+
+        if (verbose) {
+            Q(utf16ToUtf8:);
+            P_(rc) P(numCodePoints8);
+        }
+
+        ASSERT(0 == rc);
+        ASSERT(numCodePoints16 == numCodePoints8);
+        ASSERT(CODE_POINTS == numCodePoints8);
+        ASSERT(!bsl::strcmp(&v[0], charUtf8MultiLang));
+        ASSERT(v.size() == sizeof(utf8MultiLang));
+
+        numCodePoints8 = 0;
+        numBytes8 = 0;
+        bsl::memset(utf8, 0xa5, CAPACITY);
 
         rc = Util::utf16ToUtf8(utf8,
                                CAPACITY,
@@ -6510,7 +6673,9 @@ int main(int argc, char**argv)
         ASSERT(!bsl::strcmp(utf8, charUtf8MultiLang));
 
         ta.deallocate(utf16S);
+        ta.deallocate(utf16SB);
         ta.deallocate(utf16W);
+        ta.deallocate(utf16WB);
         ta.deallocate(utf8);
       } break;
       case 5: {
@@ -8864,7 +9029,9 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
         return true;                                                  // RETURN
     }
 
-    if (!ASSERT(cmpAllStrings())) {
+
+    if (!cmpAllStrings()) {
+        ASSERT(cmpAllStrings());
         cout << "   From line " << line << "/" << __LINE__ << endl;
         failed = true;
     }
@@ -10466,7 +10633,8 @@ bool testOneErrorCharConversion(int                          line,
         failed = true;
     }
 
-    if (! ASSERT(fillCheck.check(from))) {
+    if (!fillCheck.check(from)) {
+        ASSERT(fillCheck.check(from));
         cout << "\t(Source array damaged at line " << line << "/" << __LINE__
              << ".)" << endl;
 
@@ -10519,7 +10687,8 @@ bool testOneErrorCharConversion(int                          line,
         failed = true;
     }
 
-    if (! ASSERT(fillCheck.check(from + 1))) {
+    if (!fillCheck.check(from + 1)) {
+        ASSERT(fillCheck.check(from + 1));
         cout << "Source array damaged at line " << line << "/" << __LINE__
              << "." << endl;
 
@@ -10569,7 +10738,8 @@ bool testOneErrorCharConversion(int                          line,
         failed = true;
     }
 
-    if (! ASSERT(fillCheck.check(from))) {
+    if (!fillCheck.check(from)) {
+        ASSERT(fillCheck.check(from));
         cout << "Source array damaged at line " << line << "/" << __LINE__
              << "." << endl;
 
@@ -10624,7 +10794,8 @@ bool testOneErrorCharConversion(int                          line,
         failed = true;
     }
 
-    if (! ASSERT(fillCheck.check(from + 1))) {
+    if (!fillCheck.check(from + 1)) {
+        ASSERT(fillCheck.check(from + 1));
         cout << "Source array damaged at line " << line << "/" << __LINE__
              << "." << endl;
 
@@ -10701,7 +10872,8 @@ bool oneStringConversion(
 
         failed = true;
     }
-    else if (! ASSERT(toFillCheck.check(bwp.begin()))) {
+    else if (!toFillCheck.check(bwp.begin())) {
+        ASSERT(toFillCheck.check(bwp.begin()));
         cout << "\t(Conversion error at line " << line << "/" << __LINE__
              << ".)" << endl;
 
@@ -10713,7 +10885,8 @@ bool oneStringConversion(
     }
 // @+@+@+@+@ else { veryVeryVerbose input string dump? }
 
-    if (! ASSERT(fromFillCheck.check(from))) {
+    if (!fromFillCheck.check(from)) {
+        ASSERT(fromFillCheck.check(from));
         cout << "\t(Source array damaged at line " << line << "/" << __LINE__
              << ".)" << endl;
 
