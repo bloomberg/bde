@@ -398,6 +398,51 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
     switch (test) { case 0:  // Zero is always the leading case.
+      case 4: {
+        // --------------------------------------------------------------------
+        // CONCERN: MAPS CONTAINING SMART POINTERS
+        //
+        // Concerns:
+        //: 1 Insertion into maps of unique_ptr should work.
+        //: 2 Insertion into maps of shared_ptr should work.
+        //
+        // Plan:
+        //: 1 Do such operations.
+        //
+        // Testing:
+        //   maps of unique_ptr
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            bsl::cout << "CONCERN: MAPS CONTAINING UNIQUE_PTR\n"
+                      << "===================================\n";
+        }
+#if __cplusplus >= 201103
+        if (veryVerbose) {
+            bsl::cout << "Testing bsl::map of bsl::unique_ptr\n";
+        }
+        {
+            bsl::map<char, bsl::unique_ptr<char>> m;
+            ASSERTV(m.insert(bsl::make_pair(
+                                 'a', bsl::unique_ptr<char>(new char('b'))))
+                        .second);
+        }
+#else
+        if (veryVerbose) {
+            bsl::cout << "Not testing bsl::map of bsl::unique_ptr\n";
+        }
+#endif
+
+        if (veryVerbose) {
+            bsl::cout << "Testing bsl::map of bsl::shared_ptr\n";
+        }
+        {
+            bsl::map<char, bsl::shared_ptr<char> > m;
+            ASSERTV(m.insert(bsl::make_pair(
+                                 'a', bsl::shared_ptr<char>(new char('b'))))
+                        .second);
+        }
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // CONCERN: RESIZE OF EMPTY VECTOR OF STRINGS
@@ -447,7 +492,7 @@ int main(int argc, char *argv[])
               if (verbose) { bsl::cout << "Testing C99 as aliases.\n"; }
 #if defined(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY)
               typedef int (*FuncPtrType)(double);
-              FuncPtrType funcPtr = &bsl::fpclassify;
+              FuncPtrType funcPtr = &bsl::fpclassify; (void)funcPtr;
 #endif
         }
       } break;
