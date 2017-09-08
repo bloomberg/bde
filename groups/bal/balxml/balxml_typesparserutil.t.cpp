@@ -3201,7 +3201,7 @@ int main(int argc, char *argv[])
                 const int   INPUT_LENGTH =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
 
-                Type mX;  const Type& X = mX;
+                Type mX;
 
                 int retCode = Util::parseText(&mX, INPUT, INPUT_LENGTH);
 
@@ -3796,7 +3796,7 @@ int main(int argc, char *argv[])
                 const int   INPUT_LENGTH =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
 
-                Type mX;  const Type& X = mX;
+                Type mX;
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 

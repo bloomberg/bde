@@ -912,7 +912,7 @@ MiniReader::searchCommentCDataOrEndElementName(const bsl::string& name)
         }
 
         checkForNewLine();
-        const char ch = getChar();
+        const int ch = getChar();
         if (ch == '\n') {
             continue;                                               // CONTINUE
         }
@@ -1009,7 +1009,7 @@ MiniReader::searchElementName(const bsl::string& name)
         }
 
         checkForNewLine();
-        const char ch = getChar();
+        const int ch = getChar();
         if (ch == '\n') {
             continue;                                               // CONTINUE
         }
