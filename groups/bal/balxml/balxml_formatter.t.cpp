@@ -750,7 +750,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -761,7 +761,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -772,7 +772,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.addAttribute("test", value);
                 ASSERT(!ss.good());
@@ -786,7 +786,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -797,7 +797,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -808,7 +808,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.addAttribute("test", value);
                 ASSERT(!ss.good());
@@ -822,7 +822,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -833,7 +833,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -846,7 +846,7 @@ int main(int argc, char *argv[])
                 int value = 1;
 
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.addAttribute("test", value, mode);
                 ASSERT(!ss.good());
