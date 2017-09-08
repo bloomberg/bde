@@ -649,10 +649,8 @@ class DecimalImpUtil {
     static ValueType32  logB(ValueType32  x);
     static ValueType64  logB(ValueType64  x);
     static ValueType128 logB(ValueType128 x);
-        // Return the logarithm of the absolute value of the specified 'x',
-        // using 'DecimalXX' type radix value as base for the logarithm.  The
-        // radix for 'DecimalXX' types is 10, so 'logB()' is equivalent to
-        // 'log10()' for positive values.
+        // Return the FLT_RADIX-based logarithm (i.e., base 10) of the absolute
+        //  value of the specified 'x'.
         //
         // Special value handling:
         //: o If 'x' is +/-0, -infinity is returned and the value of the macro
