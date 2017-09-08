@@ -116,27 +116,23 @@ static
 int parseFractionalSecond(const char **nextPos,
                           int         *microsecond,
                           const char  *begin,
-                          const char  *end,
-                          int          roundMicroseconds)
+                          const char  *end)
     // Parse the fractional second starting at the specified 'begin' and ending
     // before the specified 'end', load into the specified 'microsecond' the
-    // parsed value (in microseconds) rounded to the closest multiple of the
-    // specified 'roundMicroseconds', and set the specified '*nextPos' to the
-    // location one past the last parsed character (necessarily a decimal
-    // digit).  Return 0 on success, and a non-zero value (with no effect)
-    // otherwise.  There must be at least one digit, only the first 7 digits
-    // are significant, and all digits beyond the first 7 are parsed but
-    // ignored.  The behavior is undefined unless 'begin <= end' and
-    // '0 <= roundMicroseconds < 1000000'.  Note that successfully parsing a
-    // fractional second before 'end' is reached is not an error.
+    // parsed value (in microseconds) rounded to the closest microsecond, and
+    // set the specified '*nextPos' to the location one past the last parsed
+    // character (necessarily a decimal digit).  Return 0 on success, and a
+    // non-zero value (with no effect) otherwise.  There must be at least one
+    // digit, only the first 7 digits are significant, and all digits beyond
+    // the first 7 are parsed but ignored.  The behavior is undefined unless
+    // 'begin <= end'.  Note that successfully parsing a fractional second
+    // before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(microsecond);
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
     BSLS_ASSERT(begin <= end);
-    BSLS_ASSERT(0     <= roundMicroseconds);
-    BSLS_ASSERT(         roundMicroseconds < 1000000);
 
     const char *p = begin;
 
@@ -165,8 +161,7 @@ int parseFractionalSecond(const char **nextPos,
 
     // round
 
-    tmp = (tmp + roundMicroseconds * 5) / (roundMicroseconds * 10)
-                                                           * roundMicroseconds;
+    tmp = (tmp + 5) / 10;
 
     // Skip and ignore all digits beyond the first 7, if any.
 
@@ -265,20 +260,19 @@ int parseTime(const char **nextPos,
               int         *tzOffset,
               bool        *isNextDay,
               const char  *begin,
-              const char  *end,
-              int          roundMicroseconds)
+              const char  *end)
     // Parse the time, represented in the "hh:mm[:ss[.s+]]" FIX extended
     // format, from the string starting at the specified 'begin' and ending
     // before the specified 'end', load into the specified 'time' the parsed
-    // values with the fractional second rounded to the closest multiple of the
-    // specified 'roundMicroseconds', load into the specified 'tzOffset' the
-    // number of minutes the time is offset from UTC, load into the specified
-    // 'isNextDay' whether the specified 'time' would be 24:00:00.000000 or
-    // greater, and set the specified '*nextPos' to the location one past the
-    // last parsed character.  Return 0 on success, and a non-zero value (with
-    // no effect on '*nextPos') otherwise.  The behavior is undefined unless
-    // 'begin <= end' and '0 <= roundMicroseconds < 1000000'.  Note that
-    // successfully parsing a time before 'end' is reached is not an error.
+    // value with the fractional second rounded to the closest microsecond,
+    // load into the specified 'tzOffset' the number of minutes the time is
+    // offset from UTC, load into the specified 'isNextDay' whether the
+    // specified 'time' would be 24:00:00.000000 or greater, and set the
+    // specified '*nextPos' to the location one past the last parsed
+    // character.  Return 0 on success, and a non-zero value (with no effect on
+    // '*nextPos') otherwise.  The behavior is undefined unless
+    // 'begin <= end'.  Note that successfully parsing a time before 'end' is
+    // reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(time);
@@ -287,8 +281,6 @@ int parseTime(const char **nextPos,
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
     BSLS_ASSERT(begin <= end);
-    BSLS_ASSERT(0     <= roundMicroseconds);
-    BSLS_ASSERT(         roundMicroseconds < 1000000);
 
     const char *p = begin;
 
@@ -331,11 +323,7 @@ int parseTime(const char **nextPos,
 
             ++p;  // skip '.'
 
-            if (0 != parseFractionalSecond(&p,
-                                           &microsecond,
-                                           p,
-                                           end,
-                                           roundMicroseconds)) {
+            if (0 != parseFractionalSecond(&p, &microsecond, p, end)) {
                 return -1;                                            // RETURN
             }
             millisecond = microsecond / 1000;
@@ -1110,7 +1098,7 @@ int FixUtil::parse(Time *result, const char *string, int length)
     Time localTime;
     int tzOffset;
     bool isNextDay;
-    if ( 0 != parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end, 1000)) {
+    if ( 0 != parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end)) {
         return -1;                                                    // RETURN
     }
 
@@ -1227,7 +1215,7 @@ int FixUtil::parse(TimeTz *result, const char *string, int length)
     Time localTime;
     int tzOffset;
     bool isNextDay;
-    if ( 0 != parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end, 1000)) {
+    if ( 0 != parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end)) {
         return -1;                                                    // RETURN
     }
 
@@ -1264,7 +1252,7 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
     Time time;
     int tzOffset;
     bool isNextDay;
-    if (0 != parseTime(&p, &time, &tzOffset, &isNextDay, p, end, 1)) {
+    if (0 != parseTime(&p, &time, &tzOffset, &isNextDay, p, end)) {
         return -1;                                                    // RETURN
     }
 
