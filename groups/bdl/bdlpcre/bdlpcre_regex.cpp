@@ -451,7 +451,7 @@ void RegEx::extractMatchResult(pcre2_match_data               *matchData,
 // CLASS METHODS
 bool RegEx::isJitAvailable()
 {
-    unsigned int result;
+    unsigned int result = 0;
     (void) result;
 
     BSLS_ASSERT(0 <= pcre2_config(PCRE2_CONFIG_JIT, &result));
