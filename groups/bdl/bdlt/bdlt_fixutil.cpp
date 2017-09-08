@@ -62,24 +62,20 @@ int asciiToInt(const char **nextPos,
 
 static
 int parseDate(const char **nextPos,
-              int         *year,
-              int         *month,
-              int         *day,
+              Date        *date,
               const char  *begin,
               const char  *end)
     // Parse the date, represented in the "YYYYMMDD" FIX extended format, from
     // the string starting at the specified 'begin' and ending before the
-    // specified 'end', load into the specified 'year', 'month', and 'day'
-    // their respective parsed values, and set the specified '*nextPos' to the
-    // location one past the last parsed character.  Return 0 on success, and a
-    // non-zero value (with no effect on '*nextPos') otherwise.  The behavior
-    // is undefined unless 'begin <= end'.  Note that successfully parsing a
-    // date before 'end' is reached is not an error.
+    // specified 'end', load into the specified 'date' the parsed values, and
+    // set the specified '*nextPos' to the location one past the last parsed
+    // character.  Return 0 on success, and a non-zero value (with no effect on
+    // '*nextPos') otherwise.  The behavior is undefined unless 'begin <= end'.
+    // Note that successfully parsing a date before 'end' is reached is not an
+    // error.
 {
     BSLS_ASSERT(nextPos);
-    BSLS_ASSERT(year);
-    BSLS_ASSERT(month);
-    BSLS_ASSERT(day);
+    BSLS_ASSERT(date);
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
     BSLS_ASSERT(begin <= end);
@@ -92,21 +88,22 @@ int parseDate(const char **nextPos,
         return -1;                                                    // RETURN
     }
 
-    // 1. Parse year.
-
-    if (0 != asciiToInt(&p, year, p, p + 4)) {
+    int year;
+    if (0 != asciiToInt(&p, &year, p, p + 4)) {
         return -1;                                                    // RETURN
     }
 
-    // 2. Parse month.
-
-    if (0 != asciiToInt(&p, month, p, p + 2)) {
+    int month;
+    if (0 != asciiToInt(&p, &month, p, p + 2)) {
         return -1;                                                    // RETURN
     }
 
-    // 3. Parse day.
+    int day;
+    if (0 != asciiToInt(&p, &day, p, p + 2)) {
+        return -1;                                                    // RETURN
+    }
 
-    if (0 != asciiToInt(&p, day, p, p + 2)) {
+    if (0 != date->setYearMonthDayIfValid(year, month, day)) {
         return -1;                                                    // RETURN
     }
 
@@ -185,35 +182,26 @@ int parseFractionalSecond(const char **nextPos,
 
 static
 int parseTime(const char **nextPos,
-              int         *hour,
-              int         *minute,
-              int         *second,
-              int         *millisecond,
-              int         *microsecond,
-              bool        *hasLeapSecond,
+              Time        *time,
+              bool        *isNextDay,
               const char  *begin,
               const char  *end,
               int          roundMicroseconds)
     // Parse the time, represented in the "hh:mm[:ss[.s+]]" FIX extended
     // format, from the string starting at the specified 'begin' and ending
-    // before the specified 'end', load into the specified 'hour', 'minute',
-    // 'second', 'millisecond', and 'microsecond' their respective parsed
+    // before the specified 'end', load into the specified 'time' the parsed
     // values with the fractional second rounded to the closest multiple of the
-    // specified 'roundMicroseconds', set the specified 'hasLeapSecond' flag to
-    // 'true' if a leap second was indicated and 'false' otherwise, and set the
-    // specified '*nextPos' to the location one past the last parsed character.
-    // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
-    // otherwise.  The behavior is undefined unless 'begin <= end' and
-    // '0 <= roundMicroseconds < 1000000'.  Note that successfully parsing a
-    // time before 'end' is reached is not an error.
+    // specified 'roundMicroseconds', load into the specified 'isNextDay'
+    // whether the specified 'time' would be 24:00:00.000000 or greater, and
+    // set the specified '*nextPos' to the location one past the last parsed
+    // character.  Return 0 on success, and a non-zero value (with no effect on
+    // '*nextPos') otherwise.  The behavior is undefined unless 'begin <= end'
+    // and '0 <= roundMicroseconds < 1000000'.  Note that successfully parsing
+    // a time before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
-    BSLS_ASSERT(hour);
-    BSLS_ASSERT(minute);
-    BSLS_ASSERT(second);
-    BSLS_ASSERT(millisecond);
-    BSLS_ASSERT(microsecond);
-    BSLS_ASSERT(hasLeapSecond);
+    BSLS_ASSERT(time);
+    BSLS_ASSERT(isNextDay);
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
     BSLS_ASSERT(begin <= end);
@@ -228,31 +216,33 @@ int parseTime(const char **nextPos,
         return -1;                                                    // RETURN
     }
 
-    // 1. Parse hour.
-
-    if (0 != asciiToInt(&p, hour, p, p + 2) || ':' != *p) {
+    int hour;
+    if (0 != asciiToInt(&p, &hour, p, p + 2) || ':' != *p) {
+        return -1;                                                    // RETURN
+    }
+    // "24:00" is not a valid FIX time string according to the protocol.
+    if (24 <= hour) {
         return -1;                                                    // RETURN
     }
     ++p;  // skip ':'
 
-    // 2. Parse minute.
-
-    if (0 != asciiToInt(&p, minute, p, p + 2)) {
+    int minute;
+    if (0 != asciiToInt(&p, &minute, p, p + 2)) {
         return -1;                                                    // RETURN
     }
 
-    // 3. Parse (optional) second.
-
+    int second = 0;
+    int millisecond = 0;
+    int microsecond = 0;
+    bool hasLeapSecond = false;
     if (p < end && ':' == *p) {
         // We have seconds.
 
         ++p;  // skip ':'
 
-        if (0 != asciiToInt(&p, second, p, p + 2)) {
+        if (0 != asciiToInt(&p, &second, p, p + 2)) {
             return -1;                                                // RETURN
         }
-
-        // 4. Parse (optional) fractional second, in microseconds.
 
         if (p < end && '.' == *p) {
             // We have a fraction of a second.
@@ -260,35 +250,43 @@ int parseTime(const char **nextPos,
             ++p;  // skip '.'
 
             if (0 != parseFractionalSecond(&p,
-                                           microsecond,
+                                           &microsecond,
                                            p,
                                            end,
                                            roundMicroseconds)) {
                 return -1;                                            // RETURN
             }
-            *millisecond = *microsecond / 1000;
-            *microsecond %= 1000;
-        }
-        else {
-            *millisecond = 0;
-            *microsecond = 0;
+            millisecond = microsecond / 1000;
+            microsecond %= 1000;
         }
 
-        // 5. Handle leap second.
-
-        if (60 == *second) {
-            *hasLeapSecond = true;
-            *second        = 59;
-        }
-        else {
-            *hasLeapSecond = false;
+        if (60 == second) {
+            hasLeapSecond = true;
+            second        = 59;
         }
     }
-    else {
-        *second = 0;
-        *millisecond = 0;
-        *microsecond = 0;
-        *hasLeapSecond = false;
+
+    bool roundedUpMicroseconds = (1000 == millisecond);
+    if (roundedUpMicroseconds) {
+        millisecond = 0;
+    }
+
+    if (0 != time->setTimeIfValid(hour,
+                                  minute,
+                                  second,
+                                  millisecond,
+                                  microsecond)) {
+        return -1;                                                    // RETURN
+    }
+
+    *isNextDay = false;
+    if (roundedUpMicroseconds) {
+        *isNextDay = (1 == time->addSeconds(1));
+    }
+    if (hasLeapSecond) {
+        if (1 == time->addSeconds(1)) {
+            *isNextDay = true;
+        }
     }
 
     *nextPos = p;
@@ -1050,16 +1048,10 @@ int FixUtil::parse(Date *result, const char *string, int length)
     const char *p   = string;
     const char *end = string + length;
 
-    // 1. Parse and validate date.
-
-    int year, month, day;
-
-    if (0 != parseDate(&p, &year, &month, &day, p, end)
-     || !Date::isValidYearMonthDay(year, month, day)) {
+    Date date;
+    if (0 != parseDate(&p, &date, p, end)) {
         return -1;                                                    // RETURN
     }
-
-    // 2. Parse and ignore timezone offset, if any.
 
     if (p != end) {
         int tzOffset;
@@ -1069,7 +1061,7 @@ int FixUtil::parse(Date *result, const char *string, int length)
         }
     }
 
-    result->setYearMonthDay(year, month, day);
+    *result = date;
 
     return 0;
 }
@@ -1093,45 +1085,13 @@ int FixUtil::parse(Time *result, const char *string, int length)
     const char *p   = string;
     const char *end = string + length;
 
-    // 1. Parse and validate time.
-
-    // Milliseconds could be rounded to 1000 (if fractional second is .9995 or
-    // greater).  Thus, we have to add it after setting the time, else it might
-    // not validate.
-
-    int  hour, minute, second, millisecond, microsecond;
-    bool hasLeapSecond;
     Time localTime;
-
-    // "24:00" is not a valid FIX time string.
-
-    if ( 0 != parseTime(&p,
-                        &hour,
-                        &minute,
-                        &second,
-                        &millisecond,
-                        &microsecond,
-                        &hasLeapSecond,
-                        p,
-                        end,
-                        1000)
-     ||  0 != localTime.setTimeIfValid(hour, minute, second)
-     || 24 == hour) {
+    bool isNextDay;
+    if ( 0 != parseTime(&p, &localTime, &isNextDay, p, end, 1000)) {
         return -1;                                                    // RETURN
     }
 
-    if (hasLeapSecond) {
-        localTime.addSeconds(1);
-    }
-
-    if (millisecond) {
-        localTime.addMilliseconds(millisecond);
-    }
-
-    // 2. Parse timezone offset, if any.
-
     int tzOffset = 0;  // minutes from UTC
-
     if (p != end) {
         if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
@@ -1212,27 +1172,19 @@ int FixUtil::parse(DateTz *result, const char *string, int length)
     const char *p   = string;
     const char *end = string + length;
 
-    // 1. Parse and validate date.
-
-    int  year, month, day;
-    Date localDate;
-
-    if (0 != parseDate(&p, &year, &month, &day, p, end)
-     || 0 != localDate.setYearMonthDayIfValid(year, month, day)) {
+    Date date;
+    if (0 != parseDate(&p, &date, p, end)) {
         return -1;                                                    // RETURN
     }
 
-    // 2. Parse timezone offset, if any.
-
     int tzOffset = 0;  // minutes from UTC
-
     if (p != end) {
         if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
 
-    result->setDateTz(localDate, tzOffset);
+    result->setDateTz(date, tzOffset);
 
     return 0;
 }
@@ -1256,45 +1208,13 @@ int FixUtil::parse(TimeTz *result, const char *string, int length)
     const char *p   = string;
     const char *end = string + length;
 
-    // 1. Parse and validate time.
-
-    // Milliseconds could be rounded to 1000 (if fractional second is .9995 or
-    // greater).  Thus, we have to add it after setting the time, else it might
-    // not validate.
-
-    int  hour, minute, second, millisecond, microsecond;
-    bool hasLeapSecond;
     Time localTime;
-
-    // "24:00" is not a valid FIX time string.
-
-    if ( 0 != parseTime(&p,
-                        &hour,
-                        &minute,
-                        &second,
-                        &millisecond,
-                        &microsecond,
-                        &hasLeapSecond,
-                        p,
-                        end,
-                        1000)
-     ||  0 != localTime.setTimeIfValid(hour, minute, second)
-     || 24 == hour) {
+    bool isNextDay;
+    if ( 0 != parseTime(&p, &localTime, &isNextDay, p, end, 1000)) {
         return -1;                                                    // RETURN
     }
 
-    if (hasLeapSecond) {
-        localTime.addSeconds(1);
-    }
-
-    if (millisecond) {
-        localTime.addMilliseconds(millisecond);
-    }
-
-    // 2. Parse timezone offset, if any.
-
     int tzOffset = 0;  // minutes from UTC
-
     if (p != end) {
         if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
@@ -1325,99 +1245,32 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
     const char *p   = string;
     const char *end = string + length;
 
-    // 1. Parse date.
-
-    int year, month, day;
-
-    if (0   != parseDate(&p, &year, &month, &day, p, end)
-     || p   == end
-     || '-' != *p) {
-
+    Date date;
+    if (0 != parseDate(&p, &date, p, end) || p == end || '-' != *p) {
         return -1;                                                    // RETURN
     }
     ++p;  // skip '-'
 
-    // 2. Parse time.
-
-    int  hour, minute, second, millisecond, microsecond;
-    bool hasLeapSecond;
-
-    if (0 != parseTime(&p,
-                       &hour,
-                       &minute,
-                       &second,
-                       &millisecond,
-                       &microsecond,
-                       &hasLeapSecond,
-                       p,
-                       end,
-                       1)) {
+    Time time;
+    bool isNextDay;
+    if (0 != parseTime(&p, &time, &isNextDay, p, end, 1)) {
         return -1;                                                    // RETURN
     }
 
-    // 3. Parse timezone offset, if any.
-
     int tzOffset = 0;  // minutes from UTC
-
     if (p != end) {
         if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
             return -1;                                                // RETURN
         }
     }
 
-    // 4. Account for special FIX values.
-
-    ///Leap Seconds and Maximum Fractional Seconds
-    ///- - - - - - - - - - - - - - - - - - - - - -
-    // Note that leap seconds or 'millisecond' values of 1000 (which result
-    // from rounding up a fractional second that is .9999995 or greater) cannot
-    // be directly represented with a 'Datetime'.  Hence, we create an initial
-    // 'Datetime' object without accounting for these, then adjust it forward
-    // by up to 2 seconds, as needed.
-
-    DatetimeInterval resultAdjustment;  // adjust for leap second and maximum
-                                        // fractional second
-
-    if (hasLeapSecond) {
-        resultAdjustment.addSeconds(1);
-    }
-
-    if (1000 == millisecond) {
-        millisecond = 0;
-        resultAdjustment.addSeconds(1);
-    }
-
-    // 5. Load a 'Datetime'.
-
-    Datetime localDatetime;
-
-    // "24:00" is not a valid FIX time string.
-
-    if ( 0 != localDatetime.setDatetimeIfValid(
-              year, month, day, hour, minute, second, millisecond, microsecond)
-     || 24 == hour) {
-        return -1;                                                    // RETURN
-    }
-
-    // 6. Apply adjustments for special FIX values.
-
-    if (DatetimeInterval() != resultAdjustment) {
-
-        BSLS_ASSERT(resultAdjustment > DatetimeInterval());
-        // We assert the above to prevent future developers from accidentally
-        // introducing negative adjustments, which are not handled by the
-        // following logic.
-
-        const Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
-
-        if (maxDatetime - resultAdjustment < localDatetime) {
+    if (isNextDay) {
+        if (0 != date.addDaysIfValid(1)) {
             return -1;                                                // RETURN
         }
-
-        localDatetime += resultAdjustment;
     }
 
-    result->setDatetimeTz(localDatetime, tzOffset);
+    result->setDatetimeTz(Datetime(date, time), tzOffset);
 
     return 0;
 }
