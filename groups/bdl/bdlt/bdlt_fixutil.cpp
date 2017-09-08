@@ -262,6 +262,7 @@ int parseTimezoneOffset(const char **nextPos,
 static
 int parseTime(const char **nextPos,
               Time        *time,
+              int         *tzOffset,
               bool        *isNextDay,
               const char  *begin,
               const char  *end,
@@ -270,16 +271,18 @@ int parseTime(const char **nextPos,
     // format, from the string starting at the specified 'begin' and ending
     // before the specified 'end', load into the specified 'time' the parsed
     // values with the fractional second rounded to the closest multiple of the
-    // specified 'roundMicroseconds', load into the specified 'isNextDay'
-    // whether the specified 'time' would be 24:00:00.000000 or greater, and
-    // set the specified '*nextPos' to the location one past the last parsed
-    // character.  Return 0 on success, and a non-zero value (with no effect on
-    // '*nextPos') otherwise.  The behavior is undefined unless 'begin <= end'
-    // and '0 <= roundMicroseconds < 1000000'.  Note that successfully parsing
-    // a time before 'end' is reached is not an error.
+    // specified 'roundMicroseconds', load into the specified 'tzOffset' the
+    // number of minutes the time is offset from UTC, load into the specified
+    // 'isNextDay' whether the specified 'time' would be 24:00:00.000000 or
+    // greater, and set the specified '*nextPos' to the location one past the
+    // last parsed character.  Return 0 on success, and a non-zero value (with
+    // no effect on '*nextPos') otherwise.  The behavior is undefined unless
+    // 'begin <= end' and '0 <= roundMicroseconds < 1000000'.  Note that
+    // successfully parsing a time before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(time);
+    BSLS_ASSERT(tzOffset);
     BSLS_ASSERT(isNextDay);
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
@@ -350,6 +353,13 @@ int parseTime(const char **nextPos,
         millisecond = 0;
     }
 
+    int localTzOffset = 0;
+    if (p != end) {
+        if (0 != parseTimezoneOffset(&p, &localTzOffset, p, end) || p != end) {
+            return -1;                                                // RETURN
+        }
+    }
+
     if (0 != time->setTimeIfValid(hour,
                                   minute,
                                   second,
@@ -357,6 +367,8 @@ int parseTime(const char **nextPos,
                                   microsecond)) {
         return -1;                                                    // RETURN
     }
+
+    *tzOffset = localTzOffset;
 
     *isNextDay = false;
     if (roundedUpMicroseconds) {
@@ -1096,20 +1108,14 @@ int FixUtil::parse(Time *result, const char *string, int length)
     const char *end = string + length;
 
     Time localTime;
+    int tzOffset;
     bool isNextDay;
-    if ( 0 != parseTime(&p, &localTime, &isNextDay, p, end, 1000)) {
+    if ( 0 != parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end, 1000)) {
         return -1;                                                    // RETURN
     }
 
-    int tzOffset = 0;  // minutes from UTC
-    if (p != end) {
-        if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
-            return -1;                                                // RETURN
-        }
-
-        if (tzOffset) {
-            localTime.addMinutes(-tzOffset);  // convert to UTC
-        }
+    if (tzOffset) {
+        localTime.addMinutes(-tzOffset);  // convert to UTC
     }
 
     *result = localTime;
@@ -1219,16 +1225,10 @@ int FixUtil::parse(TimeTz *result, const char *string, int length)
     const char *end = string + length;
 
     Time localTime;
+    int tzOffset;
     bool isNextDay;
-    if ( 0 != parseTime(&p, &localTime, &isNextDay, p, end, 1000)) {
+    if ( 0 != parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end, 1000)) {
         return -1;                                                    // RETURN
-    }
-
-    int tzOffset = 0;  // minutes from UTC
-    if (p != end) {
-        if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
-            return -1;                                                // RETURN
-        }
     }
 
     result->setTimeTz(localTime, tzOffset);
@@ -1262,16 +1262,10 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
     ++p;  // skip '-'
 
     Time time;
+    int tzOffset;
     bool isNextDay;
-    if (0 != parseTime(&p, &time, &isNextDay, p, end, 1)) {
+    if (0 != parseTime(&p, &time, &tzOffset, &isNextDay, p, end, 1)) {
         return -1;                                                    // RETURN
-    }
-
-    int tzOffset = 0;  // minutes from UTC
-    if (p != end) {
-        if (0 != parseTimezoneOffset(&p, &tzOffset, p, end) || p != end) {
-            return -1;                                                // RETURN
-        }
     }
 
     if (isNextDay) {
