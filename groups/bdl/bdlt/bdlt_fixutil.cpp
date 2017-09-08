@@ -181,6 +181,85 @@ int parseFractionalSecond(const char **nextPos,
 }
 
 static
+int parseTimezoneOffset(const char **nextPos,
+                        int         *minuteOffset,
+                        const char  *begin,
+                        const char  *end)
+    // Parse the timezone offset, represented in the "Z|(+|-])hh{:mm}" FIX
+    // extended format, from the string starting at the specified 'begin' and
+    // ending before the specified 'end', load into the specified
+    // 'minuteOffset' the indicated offset (in minutes) from UTC, and set the
+    // specified '*nextPos' to the location one past the last parsed character.
+    // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
+    // otherwise.  The behavior is undefined unless 'begin <= end'.  Note that
+    // successfully parsing a timezone offset before 'end' is reached is not an
+    // error.
+{
+    BSLS_ASSERT(nextPos);
+    BSLS_ASSERT(minuteOffset);
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(end);
+    BSLS_ASSERT(begin <= end);
+
+    const char *p = begin;
+
+    if (p >= end) {
+        return -1;                                                    // RETURN
+    }
+
+    const char sign = *p++;  // store and skip '(+|-|Z)'
+
+    if ('Z' == sign) {
+        *minuteOffset = 0;
+        *nextPos      = p;
+
+        return 0;                                                     // RETURN
+    }
+
+    enum { k_MINIMUM_LENGTH = sizeof "hh" - 1 };
+
+    if (('+' != sign && '-' != sign) || end - p < k_MINIMUM_LENGTH) {
+        return -1;                                                    // RETURN
+    }
+
+    // We have parsed a '+' or '-' and established that there are sufficient
+    // characters to represent "hh" (but not necessarily "hh:mm").
+
+    // Parse hour.
+
+    int hour;
+    int minute = 0;
+
+    if (0 != asciiToInt(&p, &hour, p, p + 2) || hour >= 24) {
+        return -1;                                                    // RETURN
+    }
+
+    if (':' == *p) {
+        ++p;  // skip ':'
+
+        if (end - p < 2) {
+            return -1;                                                // RETURN
+        }
+
+        // Parse minute.
+
+        if (0 != asciiToInt(&p, &minute, p, p + 2) || minute > 59) {
+            return -1;                                                // RETURN
+        }
+    }
+
+    *minuteOffset = hour * 60 + minute;
+
+    if ('-' == sign) {
+        *minuteOffset = -*minuteOffset;
+    }
+
+    *nextPos = p;
+
+    return 0;
+}
+
+static
 int parseTime(const char **nextPos,
               Time        *time,
               bool        *isNextDay,
@@ -287,85 +366,6 @@ int parseTime(const char **nextPos,
         if (1 == time->addSeconds(1)) {
             *isNextDay = true;
         }
-    }
-
-    *nextPos = p;
-
-    return 0;
-}
-
-static
-int parseTimezoneOffset(const char **nextPos,
-                        int         *minuteOffset,
-                        const char  *begin,
-                        const char  *end)
-    // Parse the timezone offset, represented in the "Z|(+|-])hh{:mm}" FIX
-    // extended format, from the string starting at the specified 'begin' and
-    // ending before the specified 'end', load into the specified
-    // 'minuteOffset' the indicated offset (in minutes) from UTC, and set the
-    // specified '*nextPos' to the location one past the last parsed character.
-    // Return 0 on success, and a non-zero value (with no effect on '*nextPos')
-    // otherwise.  The behavior is undefined unless 'begin <= end'.  Note that
-    // successfully parsing a timezone offset before 'end' is reached is not an
-    // error.
-{
-    BSLS_ASSERT(nextPos);
-    BSLS_ASSERT(minuteOffset);
-    BSLS_ASSERT(begin);
-    BSLS_ASSERT(end);
-    BSLS_ASSERT(begin <= end);
-
-    const char *p = begin;
-
-    if (p >= end) {
-        return -1;                                                    // RETURN
-    }
-
-    const char sign = *p++;  // store and skip '(+|-|Z)'
-
-    if ('Z' == sign) {
-        *minuteOffset = 0;
-        *nextPos      = p;
-
-        return 0;                                                     // RETURN
-    }
-
-    enum { k_MINIMUM_LENGTH = sizeof "hh" - 1 };
-
-    if (('+' != sign && '-' != sign) || end - p < k_MINIMUM_LENGTH) {
-        return -1;                                                    // RETURN
-    }
-
-    // We have parsed a '+' or '-' and established that there are sufficient
-    // characters to represent "hh" (but not necessarily "hh:mm").
-
-    // Parse hour.
-
-    int hour;
-    int minute = 0;
-
-    if (0 != asciiToInt(&p, &hour, p, p + 2) || hour >= 24) {
-        return -1;                                                    // RETURN
-    }
-
-    if (':' == *p) {
-        ++p;  // skip ':'
-
-        if (end - p < 2) {
-            return -1;                                                // RETURN
-        }
-
-        // Parse minute.
-
-        if (0 != asciiToInt(&p, &minute, p, p + 2) || minute > 59) {
-            return -1;                                                // RETURN
-        }
-    }
-
-    *minuteOffset = hour * 60 + minute;
-
-    if ('-' == sign) {
-        *minuteOffset = -*minuteOffset;
     }
 
     *nextPos = p;
