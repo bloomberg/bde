@@ -337,6 +337,13 @@ class DatetimeInterval {
         // time interval value is valid (i.e., the days field must not overflow
         // a 32-bit integer).
 
+    void setTotalSeconds(double seconds);
+        // Set the overall value of this object to indicate the specified
+        // number of 'seconds'.  The fractional part of 'seconds', if any,
+        // is rounded to the nearest whole number of microseconds.  The
+        // behavior is undefined unless the resulting time interval value is 
+        // valid (i.e., the days field must not overflow a 32-bit integer).
+
     void setTotalMilliseconds(bsls::Types::Int64 milliseconds);
         // Set the overall value of this object to indicate the specified
         // number of 'milliseconds'.  The behavior is undefined unless the
@@ -718,6 +725,20 @@ void DatetimeInterval::setTotalSeconds(bsls::Types::Int64 seconds)
 {
     assign(seconds / TimeUnitRatio::k_S_PER_D,
            seconds % TimeUnitRatio::k_S_PER_D * TimeUnitRatio::k_US_PER_S);
+}
+
+inline
+void DatetimeInterval::setTotalSeconds(double seconds)
+{
+    const bsls::Types::Int64 days =
+        static_cast<bsls::Types::Int64>(seconds / TimeUnitRatio::k_S_PER_D);
+
+    const bsls::Types::Int64 microseconds = static_cast<bsls::Types::Int64>(
+        (seconds - static_cast<double>(days * TimeUnitRatio::k_S_PER_D)) *
+            TimeUnitRatio::k_US_PER_S +
+        (seconds < 0 ? -0.5 : 0.5));
+
+    assign(days, microseconds);
 }
 
 inline
