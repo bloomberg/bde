@@ -1,3 +1,11 @@
+bsl-internal (3.1.10.0) unstable; urgency=low
+
+  * 8a885f4dc Merge pull request #1317 from mgiroux/review/bump-patch-to-3.1.10
+  * 23cd54ff7 bump bdl patch version to 3.1.10
+  * c90879305 DRQS 104502699 for releases/3.1.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 11 Sep 2017 12:52:15 -0400
+
 bsl-internal (3.1.9.1) unstable; urgency=low
 
   * 688f87c3f Merge pull request #1278 from mgiroux/pr/1253-rebased-releases/3.1.x
