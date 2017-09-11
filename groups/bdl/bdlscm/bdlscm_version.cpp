@@ -12,7 +12,7 @@ namespace BloombergLP {
 
 // For the 3.1.x release series, 'bdl' is versioned independently of 'bsl'.
 
-#define BDL_VERSION_PATCH 9
+#define BDL_VERSION_PATCH 10
 
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)
