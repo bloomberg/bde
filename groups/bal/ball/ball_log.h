@@ -802,6 +802,10 @@ BSLS_IDENT("$Id: $")
 #include <ball_severity.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ANNOTATION
+#include <bsls_annotation.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
 #endif
@@ -1184,7 +1188,7 @@ struct Log {
     // CLASS METHODS
     static int format(char        *buffer,
                       bsl::size_t  numBytes,
-                      const char  *format, ...);
+                      const char  *format, ...) BSLS_ANNOTATION_PRINTF(3, 4);
         // Fill the specified 'buffer' with at most the specified 'numBytes'
         // characters produced by formatting the variable argument list
         // according to the specified 'printf'-style 'format' argument; return
