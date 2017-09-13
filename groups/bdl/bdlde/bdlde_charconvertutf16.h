@@ -565,8 +565,8 @@ struct CharConvertUtf16 {
         // byte order.  Any previous contents of the destination are discarded.
         // Return 0 on success and 'CharConvertStatus::k_INVALID_INPUT_BIT' if
         // one or more invalid sequences were encountered in the input.  The
-        // behavior is undefined unless either 'srcLengthInWords' is specified
-        // or 'srcString' is null-terminated, and 'errorByte' is either 0 or a
+        // behavior is undefined unless either 'srcLengthInWords' is passed or
+        // 'srcString' is null-terminated, and 'errorByte' is either 0 or a
         // valid single-byte Unicode code point ('0 < errorByte < 0x80').  Note
         // that the string length will be sized to the length of the output,
         // such that 'strlen(dstString->c_str()) == dstString->length()'.
@@ -639,8 +639,8 @@ struct CharConvertUtf16 {
         // byte order.  Any previous contents of the destination are discarded.
         // Return 0 on success and 'CharConvertStatus::k_INVALID_INPUT_BIT' if
         // one or more invalid sequences were encountered in the input.  The
-        // behavior is undefined unless either 'srcLengthInWords' is specified
-        // or 'srcString' is null-terminated, and 'errorByte' is either 0 or a
+        // behavior is undefined unless either 'srcLengthInWords' is passed or
+        // 'srcString' is null-terminated, and 'errorByte' is either 0 or a
         // valid single-byte Unicode code point ('0 < errorByte < 0x80').
 
     static int utf16ToUtf8(
@@ -723,7 +723,7 @@ struct CharConvertUtf16 {
         // 'CharConvertStatus::k_OUT_OF_SPACE_BIT' will be set if the output
         // space was exhausted before conversion was complete.  The behavior is
         // undefined unless 'dstBuffer' refers to an array of at least
-        // 'dstCapacity' elements, either 'srcLengthInWords' is specified or
+        // 'dstCapacity' elements, either 'srcLengthInWords' is passed or
         // 'srcString' is null-terminated, and 'errorByte' is either 0 or a
         // valid single-byte Unicode code point ('0 < errorByte < 0x80').  Note
         // that if 'dstCapacity' is 0, this function returns

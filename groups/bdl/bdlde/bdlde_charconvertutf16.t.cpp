@@ -6408,8 +6408,8 @@ int main(int argc, char**argv)
         ASSERT(numWords16S >= numCodePoints16);
         ASSERTV(UTF16_WORDS, numWords16S, UTF16_WORDS == numWords16S);
 
-        unsigned short *utf16SB = (unsigned short *)
-                                ta.allocate(CAPACITY * sizeof(unsigned short));
+        unsigned short *utf16SB = static_cast<unsigned short *>(
+                               ta.allocate(CAPACITY * sizeof(unsigned short)));
         bsl::size_t numCodePoints16B = 0, numWords16SB = 0;
 
         rc = Util::utf8ToUtf16(utf16SB,
@@ -6437,7 +6437,8 @@ int main(int argc, char**argv)
                                 utf16SB,
                                 numWords16S * sizeof(unsigned short)));
 
-        wchar_t *utf16W = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
+        wchar_t *utf16W = static_cast<wchar_t *>(
+                                      ta.allocate(CAPACITY * sizeof(wchar_t)));
         bsl::size_t numWords16W = 0;
         numCodePoints16 = 0;
 
@@ -6467,7 +6468,8 @@ int main(int argc, char**argv)
             }
         }
 
-        wchar_t *utf16WB = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
+        wchar_t *utf16WB = static_cast<wchar_t *>(
+                                      ta.allocate(CAPACITY * sizeof(wchar_t)));
         bsl::size_t numWords16WB = 0;
         numCodePoints16B = 0;
 
