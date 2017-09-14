@@ -189,6 +189,17 @@ static void observerCounterFunc(const bsl::shared_ptr<Observer>&,
     ++observerCounter;
 }
 
+struct ObserverCounterFunctor {
+
+    // ACCESSORS
+    void operator()(const bsl::shared_ptr<Observer>&,
+                    const bslstl::StringRef&) const
+        // Increment invocation counter.
+    {
+        ++observerCounter;
+    }
+};
+
 }  // close namespace TEST_CASE_8
 
 namespace {
@@ -217,10 +228,10 @@ static bool isNthRecord(const ball::Record& record, int nth)
 {
     const ball::RecordAttributes& attr = record.fixedFields();
 
-    if (nth == attr.lineNumber()
+    if (nth    == attr.lineNumber()
         && nth == attr.processID()
         && nth == attr.severity()
-        && nth == attr.threadID()) {
+        && nth == static_cast<int>(attr.threadID())) {
         return true;                                                  // RETURN
     }
 
@@ -232,8 +243,8 @@ static bool isNthContext(const ball::Context& context, int nth)
     // publication sequence, and 'false' otherwise.
 {
     if (ball::Transmission::e_TRIGGER == context.transmissionCause()
-        &&                     nth == context.recordIndex()
-        &&         SEQUENCE_LENGTH == context.sequenceLength()) {
+        &&                        nth == context.recordIndex()
+        &&            SEQUENCE_LENGTH == context.sequenceLength()) {
         return true;                                                  // RETURN
     }
 
@@ -420,7 +431,7 @@ int main(int argc, char *argv[])
 
             observerCounter = 0;
 
-            X.visitObservers(observerCounterFunc);
+            X.visitObservers(ObserverCounterFunctor());
 
             ASSERTV(observerCounter, 0 == observerCounter);
         }
@@ -436,7 +447,7 @@ int main(int argc, char *argv[])
 
             observerCounter = 0;
 
-            X.visitObservers(observerCounterFunc);
+            X.visitObservers(ObserverCounterFunctor());
 
             ASSERTV(observerCounter, 1 == observerCounter);
         }

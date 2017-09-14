@@ -402,7 +402,7 @@ static bool isRecordOkay(const BloombergLP::ball::TestObserver&  observer,
         P_(severity);                  P(attributes.severity());
         P_(fileName);                  P(attributes.fileName());
         P_(lineNumber);                P(attributes.lineNumber());
-        P_(message);                   P(attributes.message());
+        P(message);                    P(attributes.message());
     }
 
     return status;
@@ -1625,15 +1625,17 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
     scribbleBuffer();
     BALL_LOGVA(severity, "Hello?");
     ASSERT(!isBufferUnchangedSinceScribbled());
-    BALL_LOGVA(severity, "Hello?", 1);
-    BALL_LOGVA(severity, "Hello?", 1, 2);
-    BALL_LOGVA(severity, "Hello?", 1, 2, 3);
-    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4);
-    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4, 5);
-    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4, 5, 6);
-    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4, 5, 6, 7);
-    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4, 5, 6, 7, 8);
-    BALL_LOGVA(severity, "Hello?", 1, 2, 3, 4, 5, 6, 7, 8, 9);
+    BALL_LOGVA(severity, "Hello? %d", 1);
+    BALL_LOGVA(severity, "Hello? %d %d", 1, 2);
+    BALL_LOGVA(severity, "Hello? %d %d %d", 1, 2, 3);
+    BALL_LOGVA(severity, "Hello? %d %d %d %d", 1, 2, 3, 4);
+    BALL_LOGVA(severity, "Hello? %d %d %d %d %d", 1, 2, 3, 4, 5);
+    BALL_LOGVA(severity, "Hello? %d %d %d %d %d %d", 1, 2, 3, 4, 5, 6);
+    BALL_LOGVA(severity, "Hello? %d %d %d %d %d %d %d", 1, 2, 3, 4, 5, 6, 7);
+    BALL_LOGVA(severity, "Hello? %d %d %d %d %d %d %d %d",
+                                                     1, 2, 3, 4, 5, 6, 7, 8);
+    BALL_LOGVA(severity, "Hello? %d %d %d %d %d %d %d %d %d",
+                                                  1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     if (loggerManagerExistsFlag) {
         numPublishedSoFar += 10;
@@ -6443,19 +6445,20 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         const int MAX_ARGS = 9;
 
-        const char *FORMAT[] = {
-            "message",
-            "message:%d",
-            "message:%d:%d",
-            "message:%d:%d:%d",
-            "message:%d:%d:%d:%d",
-            "message:%d:%d:%d:%d:%d",
-            "message:%d:%d:%d:%d:%d:%d",
-            "message:%d:%d:%d:%d:%d:%d:%d",
-            "message:%d:%d:%d:%d:%d:%d:%d:%d",
-            "message:%d:%d:%d:%d:%d:%d:%d:%d:%d"
-        };
-        ASSERT(MAX_ARGS + 1 == sizeof FORMAT / sizeof *FORMAT);
+        // Note: some compilers warn when the following aren't string literals:
+        //   warning: format string is not a string literal (potentially
+        //    insecure) [-Wformat-security]
+
+        #define FORMAT_SPEC_0_ARGS "message"
+        #define FORMAT_SPEC_1_ARGS "message:%d"
+        #define FORMAT_SPEC_2_ARGS "message:%d:%d"
+        #define FORMAT_SPEC_3_ARGS "message:%d:%d:%d"
+        #define FORMAT_SPEC_4_ARGS "message:%d:%d:%d:%d"
+        #define FORMAT_SPEC_5_ARGS "message:%d:%d:%d:%d:%d"
+        #define FORMAT_SPEC_6_ARGS "message:%d:%d:%d:%d:%d:%d"
+        #define FORMAT_SPEC_7_ARGS "message:%d:%d:%d:%d:%d:%d:%d"
+        #define FORMAT_SPEC_8_ARGS "message:%d:%d:%d:%d:%d:%d:%d:%d"
+        #define FORMAT_SPEC_9_ARGS "message:%d:%d:%d:%d:%d:%d:%d:%d:%d"
 
         const char *MESSAGE[] = {
             "message",
@@ -6554,10 +6557,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 0"
                                            << bsl::endl;
 
-            BALL_LOGVA(TRACE, FORMAT[0]);
+            BALL_LOGVA(TRACE, FORMAT_SPEC_0_ARGS);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
-            BALL_LOGVA(TRACE, FORMAT[0]);
+            BALL_LOGVA(TRACE, FORMAT_SPEC_0_ARGS);
             ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -6566,7 +6569,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
-            BALL_LOGVA(TRACE, FORMAT[1], 1);
+            BALL_LOGVA(TRACE, FORMAT_SPEC_1_ARGS, 1);
             ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -6575,7 +6578,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
-            BALL_LOGVA(TRACE, FORMAT[2], 1, 2);
+            BALL_LOGVA(TRACE, FORMAT_SPEC_2_ARGS, 1, 2);
             ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -6584,7 +6587,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
-            BALL_LOGVA(TRACE, FORMAT[3], 1, 2, 3);
+            BALL_LOGVA(TRACE, FORMAT_SPEC_3_ARGS, 1, 2, 3);
             ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -6593,7 +6596,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
-            BALL_LOGVA(TRACE, FORMAT[4], 1, 2, 3, 4);
+            BALL_LOGVA(TRACE, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
             ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -6602,7 +6605,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
-            BALL_LOGVA(TRACE, FORMAT[5], 1, 2, 3, 4, 5);
+            BALL_LOGVA(TRACE, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
             ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -6611,7 +6614,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
-            BALL_LOGVA(TRACE, FORMAT[6], 1, 2, 3, 4, 5, 6);
+            BALL_LOGVA(TRACE, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
             ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -6620,7 +6623,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
-            BALL_LOGVA(TRACE, FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            BALL_LOGVA(TRACE, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
             ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -6629,7 +6632,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
-            BALL_LOGVA(TRACE, FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            BALL_LOGVA(TRACE, FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
             ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
@@ -6638,7 +6641,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
-            BALL_LOGVA(TRACE, FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            BALL_LOGVA(TRACE, FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(0 == isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
         }
@@ -6646,100 +6649,100 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 0\n";
         {
             scribbleBuffer();
-            BALL_LOGVA(255, FORMAT[0]);
+            BALL_LOGVA(255, FORMAT_SPEC_0_ARGS);
             ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
-            BALL_LOGVA(INFO, FORMAT[0]);
+            BALL_LOGVA(INFO, FORMAT_SPEC_0_ARGS);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[0]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 1\n";
         {
             scribbleBuffer();
-            BALL_LOGVA(255, FORMAT[1], 1);
+            BALL_LOGVA(255, FORMAT_SPEC_1_ARGS, 1);
             ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
-            BALL_LOGVA(INFO, FORMAT[1], 1);
+            BALL_LOGVA(INFO, FORMAT_SPEC_1_ARGS, 1);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[1]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 2\n";
         {
             scribbleBuffer();
-            BALL_LOGVA(255, FORMAT[2], 1, 2);
+            BALL_LOGVA(255, FORMAT_SPEC_2_ARGS, 1, 2);
             ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
-            BALL_LOGVA(INFO, FORMAT[2], 1, 2);
+            BALL_LOGVA(INFO, FORMAT_SPEC_2_ARGS, 1, 2);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[2]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 3\n";
         {
             scribbleBuffer();
-            BALL_LOGVA(255, FORMAT[3], 1, 2, 3);
+            BALL_LOGVA(255, FORMAT_SPEC_3_ARGS, 1, 2, 3);
             ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
-            BALL_LOGVA(INFO, FORMAT[3], 1, 2, 3);
+            BALL_LOGVA(INFO, FORMAT_SPEC_3_ARGS, 1, 2, 3);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[3]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 4\n";
         {
             scribbleBuffer();
-            BALL_LOGVA(255, FORMAT[4], 1, 2, 3, 4);
+            BALL_LOGVA(255, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
             ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
-            BALL_LOGVA(INFO, FORMAT[4], 1, 2, 3, 4);
+            BALL_LOGVA(INFO, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[4]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 5\n";
         {
             scribbleBuffer();
-            BALL_LOGVA(255, FORMAT[5], 1, 2, 3, 4, 5);
+            BALL_LOGVA(255, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
             ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
-            BALL_LOGVA(INFO, FORMAT[5], 1, 2, 3, 4, 5);
+            BALL_LOGVA(INFO, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[5]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 6\n";
         {
             scribbleBuffer();
-            BALL_LOGVA(255, FORMAT[6], 1, 2, 3, 4, 5, 6);
+            BALL_LOGVA(255, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
             ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
-            BALL_LOGVA(INFO, FORMAT[6], 1, 2, 3, 4, 5, 6);
+            BALL_LOGVA(INFO, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[6]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 7\n";
         {
             scribbleBuffer();
-            BALL_LOGVA(255, FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            BALL_LOGVA(255, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
             ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
-            BALL_LOGVA(INFO, FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            BALL_LOGVA(INFO, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[7]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 8\n";
         {
             scribbleBuffer();
-            BALL_LOGVA(255, FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            BALL_LOGVA(255, FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
             ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
-            BALL_LOGVA(INFO, FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            BALL_LOGVA(INFO, FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[8]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 9\n";
         {
             scribbleBuffer();
-            BALL_LOGVA(255, FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            BALL_LOGVA(255, FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(1 == isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
-            BALL_LOGVA(INFO, FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            BALL_LOGVA(INFO, FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[9]));
         }
 
@@ -6749,12 +6752,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
-                BALL_LOGVA_TRACE(FORMAT[0]);
+                BALL_LOGVA_TRACE(FORMAT_SPEC_0_ARGS);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_TRACE(FORMAT[0]);
+            BALL_LOGVA_TRACE(FORMAT_SPEC_0_ARGS);
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[0]));
         }
 
@@ -6764,12 +6767,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
-                BALL_LOGVA_TRACE(FORMAT[1], 1);
+                BALL_LOGVA_TRACE(FORMAT_SPEC_1_ARGS, 1);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_TRACE(FORMAT[1], 1);
+            BALL_LOGVA_TRACE(FORMAT_SPEC_1_ARGS, 1);
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[1]));
         }
 
@@ -6779,12 +6782,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
-                BALL_LOGVA_TRACE(FORMAT[2], 1, 2);
+                BALL_LOGVA_TRACE(FORMAT_SPEC_2_ARGS, 1, 2);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_TRACE(FORMAT[2], 1, 2);
+            BALL_LOGVA_TRACE(FORMAT_SPEC_2_ARGS, 1, 2);
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[2]));
         }
 
@@ -6794,12 +6797,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
-                BALL_LOGVA_TRACE(FORMAT[3], 1, 2, 3);
+                BALL_LOGVA_TRACE(FORMAT_SPEC_3_ARGS, 1, 2, 3);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_TRACE(FORMAT[3], 1, 2, 3);
+            BALL_LOGVA_TRACE(FORMAT_SPEC_3_ARGS, 1, 2, 3);
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[3]));
         }
 
@@ -6809,12 +6812,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
-                BALL_LOGVA_TRACE(FORMAT[4], 1, 2, 3, 4);
+                BALL_LOGVA_TRACE(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_TRACE(FORMAT[4], 1, 2, 3, 4);
+            BALL_LOGVA_TRACE(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[4]));
         }
 
@@ -6824,12 +6827,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
-                BALL_LOGVA_TRACE(FORMAT[5], 1, 2, 3, 4, 5);
+                BALL_LOGVA_TRACE(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_TRACE(FORMAT[5], 1, 2, 3, 4, 5);
+            BALL_LOGVA_TRACE(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[5]));
         }
 
@@ -6839,12 +6842,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
-                BALL_LOGVA_TRACE(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                BALL_LOGVA_TRACE(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_TRACE(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            BALL_LOGVA_TRACE(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[6]));
         }
 
@@ -6854,12 +6857,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
-                BALL_LOGVA_TRACE(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                BALL_LOGVA_TRACE(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_TRACE(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            BALL_LOGVA_TRACE(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[7]));
         }
 
@@ -6869,12 +6872,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
-                BALL_LOGVA_TRACE(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                BALL_LOGVA_TRACE(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_TRACE(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            BALL_LOGVA_TRACE(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[8]));
         }
 
@@ -6884,12 +6887,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
                 scribbleBuffer();
-                BALL_LOGVA_TRACE(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                BALL_LOGVA_TRACE(FORMAT_SPEC_9_ARGS,
+                                 1, 2, 3, 4, 5, 6, 7, 8, 9);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_TRACE(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            BALL_LOGVA_TRACE(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[9]));
         }
 
@@ -6899,12 +6903,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
-                BALL_LOGVA_DEBUG(FORMAT[0]);
+                BALL_LOGVA_DEBUG(FORMAT_SPEC_0_ARGS);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_DEBUG(FORMAT[0]);
+            BALL_LOGVA_DEBUG(FORMAT_SPEC_0_ARGS);
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[0]));
         }
 
@@ -6914,12 +6918,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
-                BALL_LOGVA_DEBUG(FORMAT[1], 1);
+                BALL_LOGVA_DEBUG(FORMAT_SPEC_1_ARGS, 1);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_DEBUG(FORMAT[1], 1);
+            BALL_LOGVA_DEBUG(FORMAT_SPEC_1_ARGS, 1);
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[1]));
         }
 
@@ -6929,12 +6933,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
-                BALL_LOGVA_DEBUG(FORMAT[2], 1, 2);
+                BALL_LOGVA_DEBUG(FORMAT_SPEC_2_ARGS, 1, 2);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_DEBUG(FORMAT[2], 1, 2);
+            BALL_LOGVA_DEBUG(FORMAT_SPEC_2_ARGS, 1, 2);
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[2]));
         }
 
@@ -6944,12 +6948,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
-                BALL_LOGVA_DEBUG(FORMAT[3], 1, 2, 3);
+                BALL_LOGVA_DEBUG(FORMAT_SPEC_3_ARGS, 1, 2, 3);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_DEBUG(FORMAT[3], 1, 2, 3);
+            BALL_LOGVA_DEBUG(FORMAT_SPEC_3_ARGS, 1, 2, 3);
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[3]));
         }
 
@@ -6959,12 +6963,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
-                BALL_LOGVA_DEBUG(FORMAT[4], 1, 2, 3, 4);
+                BALL_LOGVA_DEBUG(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_DEBUG(FORMAT[4], 1, 2, 3, 4);
+            BALL_LOGVA_DEBUG(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[4]));
         }
 
@@ -6974,12 +6978,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
-                BALL_LOGVA_DEBUG(FORMAT[5], 1, 2, 3, 4, 5);
+                BALL_LOGVA_DEBUG(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_DEBUG(FORMAT[5], 1, 2, 3, 4, 5);
+            BALL_LOGVA_DEBUG(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[5]));
         }
 
@@ -6989,12 +6993,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
-                BALL_LOGVA_DEBUG(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                BALL_LOGVA_DEBUG(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_DEBUG(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            BALL_LOGVA_DEBUG(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[6]));
         }
 
@@ -7004,12 +7008,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
-                BALL_LOGVA_DEBUG(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                BALL_LOGVA_DEBUG(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_DEBUG(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            BALL_LOGVA_DEBUG(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[7]));
         }
 
@@ -7019,12 +7023,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
-                BALL_LOGVA_DEBUG(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                BALL_LOGVA_DEBUG(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_DEBUG(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            BALL_LOGVA_DEBUG(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[8]));
         }
 
@@ -7034,12 +7038,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
                 scribbleBuffer();
-                BALL_LOGVA_DEBUG(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                BALL_LOGVA_DEBUG(FORMAT_SPEC_9_ARGS,
+                                 1, 2, 3, 4, 5, 6, 7, 8, 9);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_DEBUG(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            BALL_LOGVA_DEBUG(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[9]));
         }
 
@@ -7049,12 +7054,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
-                BALL_LOGVA_INFO(FORMAT[0]);
+                BALL_LOGVA_INFO(FORMAT_SPEC_0_ARGS);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_INFO(FORMAT[0]);
+            BALL_LOGVA_INFO(FORMAT_SPEC_0_ARGS);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[0]));
         }
 
@@ -7064,12 +7069,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
-                BALL_LOGVA_INFO(FORMAT[1], 1);
+                BALL_LOGVA_INFO(FORMAT_SPEC_1_ARGS, 1);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_INFO(FORMAT[1], 1);
+            BALL_LOGVA_INFO(FORMAT_SPEC_1_ARGS, 1);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[1]));
         }
 
@@ -7079,12 +7084,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
-                BALL_LOGVA_INFO(FORMAT[2], 1, 2);
+                BALL_LOGVA_INFO(FORMAT_SPEC_2_ARGS, 1, 2);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_INFO(FORMAT[2], 1, 2);
+            BALL_LOGVA_INFO(FORMAT_SPEC_2_ARGS, 1, 2);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[2]));
         }
 
@@ -7094,12 +7099,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
-                BALL_LOGVA_INFO(FORMAT[3], 1, 2, 3);
+                BALL_LOGVA_INFO(FORMAT_SPEC_3_ARGS, 1, 2, 3);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_INFO(FORMAT[3], 1, 2, 3);
+            BALL_LOGVA_INFO(FORMAT_SPEC_3_ARGS, 1, 2, 3);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[3]));
         }
 
@@ -7109,12 +7114,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
-                BALL_LOGVA_INFO(FORMAT[4], 1, 2, 3, 4);
+                BALL_LOGVA_INFO(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_INFO(FORMAT[4], 1, 2, 3, 4);
+            BALL_LOGVA_INFO(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[4]));
         }
 
@@ -7124,12 +7129,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
-                BALL_LOGVA_INFO(FORMAT[5], 1, 2, 3, 4, 5);
+                BALL_LOGVA_INFO(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_INFO(FORMAT[5], 1, 2, 3, 4, 5);
+            BALL_LOGVA_INFO(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[5]));
         }
 
@@ -7139,12 +7144,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
-                BALL_LOGVA_INFO(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                BALL_LOGVA_INFO(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_INFO(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            BALL_LOGVA_INFO(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[6]));
         }
 
@@ -7154,12 +7159,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
-                BALL_LOGVA_INFO(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                BALL_LOGVA_INFO(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_INFO(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            BALL_LOGVA_INFO(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[7]));
         }
 
@@ -7169,12 +7174,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
-                BALL_LOGVA_INFO(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                BALL_LOGVA_INFO(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_INFO(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            BALL_LOGVA_INFO(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[8]));
         }
 
@@ -7184,12 +7189,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
                 scribbleBuffer();
-                BALL_LOGVA_INFO(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                BALL_LOGVA_INFO(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_INFO(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            BALL_LOGVA_INFO(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[9]));
         }
 
@@ -7199,12 +7204,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
-                BALL_LOGVA_WARN(FORMAT[0]);
+                BALL_LOGVA_WARN(FORMAT_SPEC_0_ARGS);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_WARN(FORMAT[0]);
+            BALL_LOGVA_WARN(FORMAT_SPEC_0_ARGS);
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[0]));
         }
 
@@ -7214,12 +7219,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
-                BALL_LOGVA_WARN(FORMAT[1], 1);
+                BALL_LOGVA_WARN(FORMAT_SPEC_1_ARGS, 1);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_WARN(FORMAT[1], 1);
+            BALL_LOGVA_WARN(FORMAT_SPEC_1_ARGS, 1);
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[1]));
         }
 
@@ -7229,12 +7234,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
-                BALL_LOGVA_WARN(FORMAT[2], 1, 2);
+                BALL_LOGVA_WARN(FORMAT_SPEC_2_ARGS, 1, 2);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_WARN(FORMAT[2], 1, 2);
+            BALL_LOGVA_WARN(FORMAT_SPEC_2_ARGS, 1, 2);
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[2]));
         }
 
@@ -7244,12 +7249,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
-                BALL_LOGVA_WARN(FORMAT[3], 1, 2, 3);
+                BALL_LOGVA_WARN(FORMAT_SPEC_3_ARGS, 1, 2, 3);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_WARN(FORMAT[3], 1, 2, 3);
+            BALL_LOGVA_WARN(FORMAT_SPEC_3_ARGS, 1, 2, 3);
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[3]));
         }
 
@@ -7259,12 +7264,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
-                BALL_LOGVA_WARN(FORMAT[4], 1, 2, 3, 4);
+                BALL_LOGVA_WARN(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_WARN(FORMAT[4], 1, 2, 3, 4);
+            BALL_LOGVA_WARN(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[4]));
         }
 
@@ -7274,12 +7279,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
-                BALL_LOGVA_WARN(FORMAT[5], 1, 2, 3, 4, 5);
+                BALL_LOGVA_WARN(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_WARN(FORMAT[5], 1, 2, 3, 4, 5);
+            BALL_LOGVA_WARN(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[5]));
         }
 
@@ -7289,12 +7294,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
-                BALL_LOGVA_WARN(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                BALL_LOGVA_WARN(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_WARN(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            BALL_LOGVA_WARN(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[6]));
         }
 
@@ -7304,12 +7309,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
-                BALL_LOGVA_WARN(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                BALL_LOGVA_WARN(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_WARN(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            BALL_LOGVA_WARN(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[7]));
         }
 
@@ -7319,12 +7324,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
-                BALL_LOGVA_WARN(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                BALL_LOGVA_WARN(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_WARN(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            BALL_LOGVA_WARN(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[8]));
         }
 
@@ -7334,12 +7339,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
                 scribbleBuffer();
-                BALL_LOGVA_WARN(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                BALL_LOGVA_WARN(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_WARN(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            BALL_LOGVA_WARN(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[9]));
         }
 
@@ -7349,12 +7354,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
-                BALL_LOGVA_ERROR(FORMAT[0]);
+                BALL_LOGVA_ERROR(FORMAT_SPEC_0_ARGS);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_ERROR(FORMAT[0]);
+            BALL_LOGVA_ERROR(FORMAT_SPEC_0_ARGS);
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[0]));
         }
 
@@ -7364,12 +7369,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
-                BALL_LOGVA_ERROR(FORMAT[1], 1);
+                BALL_LOGVA_ERROR(FORMAT_SPEC_1_ARGS, 1);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_ERROR(FORMAT[1], 1);
+            BALL_LOGVA_ERROR(FORMAT_SPEC_1_ARGS, 1);
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[1]));
         }
 
@@ -7379,12 +7384,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
-                BALL_LOGVA_ERROR(FORMAT[2], 1, 2);
+                BALL_LOGVA_ERROR(FORMAT_SPEC_2_ARGS, 1, 2);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_ERROR(FORMAT[2], 1, 2);
+            BALL_LOGVA_ERROR(FORMAT_SPEC_2_ARGS, 1, 2);
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[2]));
         }
 
@@ -7394,12 +7399,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
-                BALL_LOGVA_ERROR(FORMAT[3], 1, 2, 3);
+                BALL_LOGVA_ERROR(FORMAT_SPEC_3_ARGS, 1, 2, 3);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_ERROR(FORMAT[3], 1, 2, 3);
+            BALL_LOGVA_ERROR(FORMAT_SPEC_3_ARGS, 1, 2, 3);
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[3]));
         }
 
@@ -7409,12 +7414,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
-                BALL_LOGVA_ERROR(FORMAT[4], 1, 2, 3, 4);
+                BALL_LOGVA_ERROR(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_ERROR(FORMAT[4], 1, 2, 3, 4);
+            BALL_LOGVA_ERROR(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[4]));
         }
 
@@ -7424,12 +7429,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
-                BALL_LOGVA_ERROR(FORMAT[5], 1, 2, 3, 4, 5);
+                BALL_LOGVA_ERROR(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_ERROR(FORMAT[5], 1, 2, 3, 4, 5);
+            BALL_LOGVA_ERROR(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[5]));
         }
 
@@ -7439,12 +7444,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
-                BALL_LOGVA_ERROR(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                BALL_LOGVA_ERROR(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_ERROR(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            BALL_LOGVA_ERROR(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[6]));
         }
 
@@ -7454,12 +7459,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
-                BALL_LOGVA_ERROR(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                BALL_LOGVA_ERROR(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_ERROR(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            BALL_LOGVA_ERROR(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[7]));
         }
 
@@ -7469,12 +7474,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
-                BALL_LOGVA_ERROR(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                BALL_LOGVA_ERROR(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_ERROR(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            BALL_LOGVA_ERROR(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[8]));
         }
 
@@ -7484,12 +7489,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
                 scribbleBuffer();
-                BALL_LOGVA_ERROR(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                BALL_LOGVA_ERROR(FORMAT_SPEC_9_ARGS,
+                                 1, 2, 3, 4, 5, 6, 7, 8, 9);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_ERROR(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            BALL_LOGVA_ERROR(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[9]));
         }
 
@@ -7499,12 +7505,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
-                BALL_LOGVA_FATAL(FORMAT[0]);
+                BALL_LOGVA_FATAL(FORMAT_SPEC_0_ARGS);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_FATAL(FORMAT[0]);
+            BALL_LOGVA_FATAL(FORMAT_SPEC_0_ARGS);
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[0]));
         }
 
@@ -7514,12 +7520,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
-                BALL_LOGVA_FATAL(FORMAT[1], 1);
+                BALL_LOGVA_FATAL(FORMAT_SPEC_1_ARGS, 1);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_FATAL(FORMAT[1], 1);
+            BALL_LOGVA_FATAL(FORMAT_SPEC_1_ARGS, 1);
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[1]));
         }
 
@@ -7529,12 +7535,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
-                BALL_LOGVA_FATAL(FORMAT[2], 1, 2);
+                BALL_LOGVA_FATAL(FORMAT_SPEC_2_ARGS, 1, 2);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_FATAL(FORMAT[2], 1, 2);
+            BALL_LOGVA_FATAL(FORMAT_SPEC_2_ARGS, 1, 2);
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[2]));
         }
 
@@ -7544,12 +7550,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
-                BALL_LOGVA_FATAL(FORMAT[3], 1, 2, 3);
+                BALL_LOGVA_FATAL(FORMAT_SPEC_3_ARGS, 1, 2, 3);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_FATAL(FORMAT[3], 1, 2, 3);
+            BALL_LOGVA_FATAL(FORMAT_SPEC_3_ARGS, 1, 2, 3);
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[3]));
         }
 
@@ -7559,12 +7565,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
-                BALL_LOGVA_FATAL(FORMAT[4], 1, 2, 3, 4);
+                BALL_LOGVA_FATAL(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_FATAL(FORMAT[4], 1, 2, 3, 4);
+            BALL_LOGVA_FATAL(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[4]));
         }
 
@@ -7574,12 +7580,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
-                BALL_LOGVA_FATAL(FORMAT[5], 1, 2, 3, 4, 5);
+                BALL_LOGVA_FATAL(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_FATAL(FORMAT[5], 1, 2, 3, 4, 5);
+            BALL_LOGVA_FATAL(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[5]));
         }
 
@@ -7589,12 +7595,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
-                BALL_LOGVA_FATAL(FORMAT[6], 1, 2, 3, 4, 5, 6);
+                BALL_LOGVA_FATAL(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_FATAL(FORMAT[6], 1, 2, 3, 4, 5, 6);
+            BALL_LOGVA_FATAL(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[6]));
         }
 
@@ -7604,12 +7610,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
-                BALL_LOGVA_FATAL(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+                BALL_LOGVA_FATAL(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_FATAL(FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
+            BALL_LOGVA_FATAL(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[7]));
         }
 
@@ -7619,12 +7625,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
-                BALL_LOGVA_FATAL(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+                BALL_LOGVA_FATAL(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_FATAL(FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
+            BALL_LOGVA_FATAL(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[8]));
         }
 
@@ -7634,12 +7640,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
                 scribbleBuffer();
-                BALL_LOGVA_FATAL(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+                BALL_LOGVA_FATAL(FORMAT_SPEC_9_ARGS,
+                                 1, 2, 3, 4, 5, 6, 7, 8, 9);
                 ASSERT(1 == isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
-            BALL_LOGVA_FATAL(FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
+            BALL_LOGVA_FATAL(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[9]));
         }
 
@@ -7653,11 +7660,148 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::fill(longString + 0, longString + N, 'x');
             longString[N-1] = '\0';
 
+            // Note: when the "long string" is to be used as the format
+            // specification, we need a string literal instead to avoid
+            // possible compiler warning:
+            //   warning: format string is not a string literal (potentially
+            //    insecure) [-Wformat-security]
+
+#define OVERLY_LONG_STRING                                                    \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+           "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx!?" \
+           "****************************************************************"
+
             {
-                longString[BUFLEN - 2] = 'a';
-                longString[BUFLEN - 1] = 'x';
+                longString[BUFLEN - 2] = '!';
+                longString[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, longString);
+                BALL_LOGVA(DEBUG, OVERLY_LONG_STRING);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7675,7 +7819,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'c';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s", longString, 2);
+                BALL_LOGVA(DEBUG, "%s %d", longString, 2);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7684,7 +7828,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'd';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s", longString, 2, 3);
+                BALL_LOGVA(DEBUG, "%s %d %d", longString, 2, 3);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7693,7 +7837,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'e';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s", longString, 2, 3, 4);
+                BALL_LOGVA(DEBUG, "%s %d %d %d", longString, 2, 3, 4);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7702,7 +7846,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'f';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s", longString, 2, 3, 4, 5);
+                BALL_LOGVA(DEBUG, "%s %d %d %d %d", longString, 2, 3, 4, 5);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7710,8 +7854,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'g';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s", longString, 2, 3, 4, 5, 6);
+                const int LINE = L_ + 2;
+                BALL_LOGVA(DEBUG, "%s %d %d %d %d %d",
+                                  longString, 2, 3, 4, 5, 6);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7719,8 +7864,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'h';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s", longString, 2, 3, 4, 5, 6, 7);
+                const int LINE = L_ + 2;
+                BALL_LOGVA(DEBUG, "%s %d %d %d %d %d %d",
+                                  longString, 2, 3, 4, 5, 6, 7);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7728,8 +7874,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'i';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                const int LINE = L_ + 2;
+                BALL_LOGVA(DEBUG, "%s %d %d %d %d %d %d %d",
+                                  longString, 2, 3, 4, 5, 6, 7, 8);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7737,17 +7884,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'j';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                const int LINE = L_ + 2;
+                BALL_LOGVA(DEBUG, "%s %d %d %d %d %d %d %d %d",
+                                  longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
 
             {
-                longString[BUFLEN - 2] = 'k';
-                longString[BUFLEN - 1] = 'x';
+                longString[BUFLEN - 2] = '!';
+                longString[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE(longString);
+                BALL_LOGVA_TRACE(OVERLY_LONG_STRING);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
             }
@@ -7765,7 +7913,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'm';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s", longString, 2);
+                BALL_LOGVA_TRACE("%s %d", longString, 2);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
             }
@@ -7774,7 +7922,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'n';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s", longString, 2, 3);
+                BALL_LOGVA_TRACE("%s %d %d", longString, 2, 3);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
             }
@@ -7783,7 +7931,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'o';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s", longString, 2, 3, 4);
+                BALL_LOGVA_TRACE("%s %d %d %d", longString, 2, 3, 4);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
             }
@@ -7792,7 +7940,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'p';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s", longString, 2, 3, 4, 5);
+                BALL_LOGVA_TRACE("%s %d %d %d %d", longString, 2, 3, 4, 5);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
             }
@@ -7800,8 +7948,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'q';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s", longString, 2, 3, 4, 5, 6);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_TRACE("%s %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
             }
@@ -7809,8 +7958,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'r';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s", longString, 2, 3, 4, 5, 6, 7);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_TRACE("%s %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
             }
@@ -7818,8 +7968,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 's';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_TRACE("%s %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
             }
@@ -7827,17 +7978,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 't';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_TRACE("%s %d %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
             }
 
             {
-                longString[BUFLEN - 2] = 'u';
-                longString[BUFLEN - 1] = 'x';
+                longString[BUFLEN - 2] = '!';
+                longString[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG(longString);
+                BALL_LOGVA_DEBUG(OVERLY_LONG_STRING);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7855,7 +8007,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'w';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s", longString, 2);
+                BALL_LOGVA_DEBUG("%s %d", longString, 2);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7864,7 +8016,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'x';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s", longString, 2, 3);
+                BALL_LOGVA_DEBUG("%s %d %d", longString, 2, 3);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7873,7 +8025,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'y';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s", longString, 2, 3, 4);
+                BALL_LOGVA_DEBUG("%s %d %d %d", longString, 2, 3, 4);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7882,7 +8034,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'z';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s", longString, 2, 3, 4, 5);
+                BALL_LOGVA_DEBUG("%s %d %d %d %d", longString, 2, 3, 4, 5);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7890,8 +8042,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'A';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s", longString, 2, 3, 4, 5, 6);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_DEBUG("%s %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7899,8 +8052,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'B';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s", longString, 2, 3, 4, 5, 6, 7);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_DEBUG("%s %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7908,8 +8062,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'C';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_DEBUG("%s %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
@@ -7917,17 +8072,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'D';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_DEBUG("%s %d %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
             }
 
             {
-                longString[BUFLEN - 2] = 'E';
-                longString[BUFLEN - 1] = 'x';
+                longString[BUFLEN - 2] = '!';
+                longString[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_INFO(longString);
+                BALL_LOGVA_INFO(OVERLY_LONG_STRING);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
             }
@@ -7945,7 +8101,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'G';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s", longString, 2);
+                BALL_LOGVA_INFO("%s %d", longString, 2);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
             }
@@ -7954,7 +8110,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'H';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s", longString, 2, 3);
+                BALL_LOGVA_INFO("%s %d %d", longString, 2, 3);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
             }
@@ -7963,7 +8119,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'I';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s", longString, 2, 3, 4);
+                BALL_LOGVA_INFO("%s %d %d %d", longString, 2, 3, 4);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
             }
@@ -7972,7 +8128,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'J';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s", longString, 2, 3, 4, 5);
+                BALL_LOGVA_INFO("%s %d %d %d %d", longString, 2, 3, 4, 5);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
             }
@@ -7980,8 +8136,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'K';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s", longString, 2, 3, 4, 5, 6);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_INFO("%s %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
             }
@@ -7989,8 +8146,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'L';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s", longString, 2, 3, 4, 5, 6, 7);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_INFO("%s %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
             }
@@ -7998,8 +8156,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'M';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_INFO("%s %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
             }
@@ -8007,17 +8166,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'N';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_INFO("%s %d %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
             }
 
             {
-                longString[BUFLEN - 2] = 'O';
-                longString[BUFLEN - 1] = 'x';
+                longString[BUFLEN - 2] = '!';
+                longString[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_WARN(longString);
+                BALL_LOGVA_WARN(OVERLY_LONG_STRING);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
             }
@@ -8035,7 +8195,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'Q';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s", longString, 2);
+                BALL_LOGVA_WARN("%s %d", longString, 2);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
             }
@@ -8044,7 +8204,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'R';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s", longString, 2, 3);
+                BALL_LOGVA_WARN("%s %d %d", longString, 2, 3);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
             }
@@ -8053,7 +8213,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'S';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s", longString, 2, 3, 4);
+                BALL_LOGVA_WARN("%s %d %d %d", longString, 2, 3, 4);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
             }
@@ -8062,7 +8222,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'T';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s", longString, 2, 3, 4, 5);
+                BALL_LOGVA_WARN("%s %d %d %d %d", longString, 2, 3, 4, 5);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
             }
@@ -8070,8 +8230,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'U';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s", longString, 2, 3, 4, 5, 6);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_WARN("%s %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
             }
@@ -8079,8 +8240,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'V';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s", longString, 2, 3, 4, 5, 6, 7);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_WARN("%s %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
             }
@@ -8088,8 +8250,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'W';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_WARN("%s %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
             }
@@ -8097,17 +8260,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'X';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_WARN("%s %d %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
             }
 
             {
-                longString[BUFLEN - 2] = 'Y';
-                longString[BUFLEN - 1] = 'x';
+                longString[BUFLEN - 2] = '!';
+                longString[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR(longString);
+                BALL_LOGVA_ERROR(OVERLY_LONG_STRING);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
             }
@@ -8125,7 +8289,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = '0';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s", longString, 2);
+                BALL_LOGVA_ERROR("%s %d", longString, 2);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
             }
@@ -8134,7 +8298,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = '1';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s", longString, 2, 3);
+                BALL_LOGVA_ERROR("%s %d %d", longString, 2, 3);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
             }
@@ -8143,7 +8307,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = '2';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s", longString, 2, 3, 4);
+                BALL_LOGVA_ERROR("%s %d %d %d", longString, 2, 3, 4);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
             }
@@ -8152,7 +8316,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = '3';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s", longString, 2, 3, 4, 5);
+                BALL_LOGVA_ERROR("%s %d %d %d %d", longString, 2, 3, 4, 5);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
             }
@@ -8160,8 +8324,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = '4';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s", longString, 2, 3, 4, 5, 6);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_ERROR("%s %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
             }
@@ -8169,8 +8334,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = '5';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s", longString, 2, 3, 4, 5, 6, 7);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_ERROR("%s %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
             }
@@ -8178,8 +8344,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = '6';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_ERROR("%s %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
             }
@@ -8187,17 +8354,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = '7';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_ERROR("%s %d %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
             }
 
             {
-                longString[BUFLEN - 2] = '8';
-                longString[BUFLEN - 1] = 'x';
+                longString[BUFLEN - 2] = '!';
+                longString[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL(longString);
+                BALL_LOGVA_FATAL(OVERLY_LONG_STRING);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
             }
@@ -8215,7 +8383,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'a';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s", longString, 2);
+                BALL_LOGVA_FATAL("%s %d", longString, 2);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
             }
@@ -8224,7 +8392,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'b';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s", longString, 2, 3);
+                BALL_LOGVA_FATAL("%s %d %d", longString, 2, 3);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
             }
@@ -8233,7 +8401,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'c';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s", longString, 2, 3, 4);
+                BALL_LOGVA_FATAL("%s %d %d %d", longString, 2, 3, 4);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
             }
@@ -8242,7 +8410,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 longString[BUFLEN - 2] = 'd';
                 longString[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s", longString, 2, 3, 4, 5);
+                BALL_LOGVA_FATAL("%s %d %d %d %d", longString, 2, 3, 4, 5);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
             }
@@ -8250,8 +8418,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'e';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s", longString, 2, 3, 4, 5, 6);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_FATAL("%s %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
             }
@@ -8259,8 +8428,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'f';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s", longString, 2, 3, 4, 5, 6, 7);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_FATAL("%s %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
             }
@@ -8268,8 +8438,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'g';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s", longString, 2, 3, 4, 5, 6, 7, 8);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_FATAL("%s %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
             }
@@ -8277,13 +8448,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 longString[BUFLEN - 2] = 'h';
                 longString[BUFLEN - 1] = 'x';
-                const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s", longString, 2, 3, 4, 5, 6, 7, 8, 9);
+                const int LINE = L_ + 2;
+                BALL_LOGVA_FATAL("%s %d %d %d %d %d %d %d %d",
+                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
                 longString[BUFLEN - 1] = '\0';
                 ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
             }
 
             delete [] longString;
+
+#undef OVERLY_LONG_STRING
         }
 
         // Note that the following is expressly meant to test the modifications
@@ -8301,7 +8475,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 const int LINE = L_ + 2;
                 if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
-                    BALL_LOGVA_TRACE(FORMAT[0]);
+                    BALL_LOGVA_TRACE(FORMAT_SPEC_0_ARGS);
                 else
                     ++unbracketedLoggingFlag;
                 ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[0]));
@@ -8310,7 +8484,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 const int LINE = L_ + 2;
                 if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
-                    BALL_LOGVA_DEBUG(FORMAT[1], 1);
+                    BALL_LOGVA_DEBUG(FORMAT_SPEC_1_ARGS, 1);
                 else
                     ++unbracketedLoggingFlag;
                 ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[1]));
@@ -8319,7 +8493,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 const int LINE = L_ + 2;
                 if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
-                    BALL_LOGVA_INFO(FORMAT[2], 1, 2);
+                    BALL_LOGVA_INFO(FORMAT_SPEC_2_ARGS, 1, 2);
                 else
                     ++unbracketedLoggingFlag;
                 ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[2]));
@@ -8328,7 +8502,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 const int LINE = L_ + 2;
                 if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
-                    BALL_LOGVA_WARN(FORMAT[3], 1, 2, 3);
+                    BALL_LOGVA_WARN(FORMAT_SPEC_3_ARGS, 1, 2, 3);
                 else
                     ++unbracketedLoggingFlag;
                 ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[3]));
@@ -8337,7 +8511,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 const int LINE = L_ + 2;
                 if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
-                    BALL_LOGVA_ERROR(FORMAT[4], 1, 2, 3, 4);
+                    BALL_LOGVA_ERROR(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
                 else
                     ++unbracketedLoggingFlag;
                 ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[4]));
@@ -8346,7 +8520,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             {
                 const int LINE = L_ + 2;
                 if (unbracketedLoggingFlag)  // *INTENTIONALLY* *NOT* '{}'ed
-                    BALL_LOGVA_FATAL(FORMAT[5], 1, 2, 3, 4, 5);
+                    BALL_LOGVA_FATAL(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
                 else
                     ++unbracketedLoggingFlag;
                 ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[5]));
@@ -8354,6 +8528,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERT(1 == unbracketedLoggingFlag);
         }
+
+        #undef FORMAT_SPEC_0_ARGS
+        #undef FORMAT_SPEC_1_ARGS
+        #undef FORMAT_SPEC_2_ARGS
+        #undef FORMAT_SPEC_3_ARGS
+        #undef FORMAT_SPEC_4_ARGS
+        #undef FORMAT_SPEC_5_ARGS
+        #undef FORMAT_SPEC_6_ARGS
+        #undef FORMAT_SPEC_7_ARGS
+        #undef FORMAT_SPEC_8_ARGS
+        #undef FORMAT_SPEC_9_ARGS
+
       } break;
       case 2: {
         // --------------------------------------------------------------------

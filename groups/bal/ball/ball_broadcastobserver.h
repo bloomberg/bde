@@ -172,10 +172,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readlockguard.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compiler_features.h>
-#endif
-
 #ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
 #endif
@@ -310,7 +306,7 @@ class BroadcastObserver : public Observer {
         // previously provided shared pointers must be released.
 
     template <class VISITOR>
-    void visitObservers(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor);
+    void visitObservers(VISITOR& visitor);
         // Invoke the specified 'visitor' functor of (template parameter)
         // 'VISITOR' type on each element in the registry of this broadcast
         // observer, supplying that functor modifiable access to each observer.
@@ -358,8 +354,7 @@ class BroadcastObserver : public Observer {
         // observer.
 
     template <class VISITOR>
-    void visitObservers(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor)
-                                                                         const;
+    void visitObservers(const VISITOR& visitor) const;
         // Invoke the specified 'visitor' functor of (template parameter)
         // 'VISITOR' type on each element in the registry of this broadcast
         // observer, supplying that functor modifiable access to each observer.
@@ -389,8 +384,7 @@ BroadcastObserver::BroadcastObserver(bslma::Allocator *basicAllocator)
 // MANIPULATORS
 template <class VISITOR>
 inline
-void BroadcastObserver::visitObservers(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor)
+void BroadcastObserver::visitObservers(VISITOR& visitor)
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 
@@ -412,8 +406,7 @@ int BroadcastObserver::numRegisteredObservers() const
 
 template <class VISITOR>
 inline
-void BroadcastObserver::visitObservers(
-                      BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor) const
+void BroadcastObserver::visitObservers(const VISITOR& visitor) const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_rwMutex);
 
