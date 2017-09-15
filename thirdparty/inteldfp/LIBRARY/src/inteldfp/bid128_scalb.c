@@ -58,6 +58,7 @@ if (!CX.w[1]) {
        exponent_x = exp64;
   bid_get_BID128_very_fast (&res, sign_x, exponent_x, CX);
 }
+
 BID_RETURN (res);
 }
 
@@ -70,7 +71,9 @@ if ((BID_UINT32) exponent_x <= MAX_DECIMAL_EXPONENT_128) {
 }
   // check for overflow
 if (exp64 > MAX_DECIMAL_EXPONENT_128) {
-  if (CX.w[1] < 0x314dc6448d93ull) {
+       if ((CX.w[1] <  0x314dc6448d93ull) ||
+           (CX.w[1] == 0x314dc6448d93ull && CX.w[0] <= 0x38c15b09ffffffffull))
+ {
     // try to normalize coefficient
     do {
       CBID_X8.w[1] = (CX.w[1] << 3) | (CX.w[0] >> 61);
@@ -82,8 +85,9 @@ if (exp64 > MAX_DECIMAL_EXPONENT_128) {
       exponent_x--;
       exp64--;
     }
-    while (CX.w[1] < 0x314dc6448d93ull
-	   && exp64 > MAX_DECIMAL_EXPONENT_128);
+    while (((CX.w[1] <  0x314dc6448d93ull) ||
+            (CX.w[1] == 0x314dc6448d93ull  && CX.w[0] <= 0x38c15b09ffffffffull))
+           && exp64 > MAX_DECIMAL_EXPONENT_128);
 
   }
   if (exp64 <= MAX_DECIMAL_EXPONENT_128) {

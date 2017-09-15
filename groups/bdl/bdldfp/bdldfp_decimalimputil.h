@@ -1193,8 +1193,7 @@ class DecimalImpUtil {
     static ValueType128 scaleB(ValueType128 value, int exponent);
         // Return the result of multiplying the specified 'value' by ten raised
         // to the specified 'exponent'.  The quantum of 'value' is scaled
-        // according to IEEE 754's 'scaleB' operations.  The behavior is
-        // undefined unless '-1999999997 <= exponent <= 99999999'.
+        // according to IEEE 754's 'scaleB' operations.
         //
         // Special value handling:
         //: o If 'value' is quiet NaN, quiet NaN is returned.
@@ -2855,17 +2854,14 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType32 value, int exponent)
 {
-    BSLS_ASSERT(-1999999997 <= exponent);
-    BSLS_ASSERT(               exponent <= 99999999);
-
     ValueType32 result;
     _IDEC_flags flags(0);
     result.d_raw = __bid32_scalbn(value.d_raw, exponent, &flags);
     if (BID_INVALID_EXCEPTION     & flags) {
-        errno = EDOM;
+        errno |= EDOM;
     }
     if (BID_OVERFLOW_EXCEPTION & flags) {
-        errno = ERANGE;
+        errno |= ERANGE;
     }
     return result;
 }
@@ -2874,17 +2870,14 @@ inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType64 value, int exponent)
 {
-    BSLS_ASSERT(-1999999997 <= exponent);
-    BSLS_ASSERT(               exponent <= 99999999);
-
     ValueType64 result;
     _IDEC_flags flags(0);
     result.d_raw = __bid64_scalbn(value.d_raw, exponent, &flags);
-    if (BID_INVALID_EXCEPTION     & flags) {
-        errno = EDOM;
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno |= EDOM;
     }
     if (BID_OVERFLOW_EXCEPTION & flags) {
-        errno = ERANGE;
+        errno |= ERANGE;
     }
     return result;
 }
@@ -2893,21 +2886,17 @@ inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType128 value, int exponent)
 {
-    BSLS_ASSERT(-1999999997 <= exponent);
-    BSLS_ASSERT(               exponent <= 99999999);
-
     ValueType128 result;
-    _IDEC_flags  flags(0);
+    _IDEC_flags flags(0);
     result.d_raw = __bid128_scalbn(value.d_raw, exponent, &flags);
-    if (BID_INVALID_EXCEPTION     & flags) {
-        errno = EDOM;
+    if (BID_INVALID_EXCEPTION & flags) {
+        errno |= EDOM;
     }
     if (BID_OVERFLOW_EXCEPTION & flags) {
-        errno = ERANGE;
+        errno |= ERANGE;
     }
     return result;
 }
-
                         // Parsing functions
 
 inline

@@ -572,8 +572,7 @@ struct DecimalUtil {
                                           int        exponent);
         // Return the result of multiplying the specified 'value' by ten raised
         // to the specified 'exponent'.  The quantum of 'value' is scaled
-        // according to IEEE 754's 'scaleB' operations.  The behavior is
-        // undefined unless '-1999999997 <= exponent <= 99999999'.
+        // according to IEEE 754's 'scaleB' operations.
         //
         // Special value handling:
         //: o If 'value' is quiet NaN, quiet NaN is returned.
@@ -784,27 +783,18 @@ Decimal64 DecimalUtil::makeDecimal64(unsigned long long significand,
 inline
 Decimal32 DecimalUtil::multiplyByPowerOf10(Decimal32 value, int exponent)
 {
-    BSLS_ASSERT(-1999999997 <= exponent);
-    BSLS_ASSERT(               exponent <= 99999999);
-
     return bdldfp::DecimalImpUtil::scaleB(*value.data(), exponent);
 }
 
 inline
 Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
 {
-    BSLS_ASSERT(-1999999997 <= exponent);
-    BSLS_ASSERT(               exponent <= 99999999);
-
     return bdldfp::DecimalImpUtil::scaleB(*value.data(), exponent);
 }
 
 inline
 Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
 {
-    BSLS_ASSERT(-1999999997 <= exponent);
-    BSLS_ASSERT(               exponent <= 99999999);
-
     return bdldfp::DecimalImpUtil::scaleB(*value.data(), exponent);
 }
 

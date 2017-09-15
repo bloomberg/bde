@@ -7199,10 +7199,54 @@ void TestDriver::testCase17()
     // TESTING 'scaleB'
     //
     // Concerns:
-    //:  1 Values should be '/=' or '*=' by 10 times the second parameter.
+    //: 1 That if the sum of the specified 'exponent' and value's exponent is
+    //:   in the range of exponents supported by tested decimal type then the
+    //:   sum is assigned to resultant value's exponent with the value's
+    //:   significand remained unchanged.
+    //:
+    //: 2 That if the sum of the specified 'exponent' and value's exponent
+    //:   exceeds the max exponent value supported by tested decimal type then
+    //:   the max exponent value is assigned to the resultant exponent and the
+    //:   significand value is 'normalized' by multiplying to 10 raised to the
+    //:   difference between the exponent and max exponent value.  If the
+    //:   resultant number of decimal places exceeds the number supported by
+    //:   the tested type then infinity is returned and 'errno' is set the
+    //:   value of 'ERANGE' macro.
+    //:
+    //: 3 That if the sum of the specified 'exponent' and value's exponent
+    //:   is less than the min exponent value supported by tested decimal type
+    //:   then the min exponent value is assigned to the resultant exponent and
+    //:   the significand value is 'normalized' by dividing by 10 raised to the
+    //:   difference between the max and the exponent value.  The significand
+    //:   value is rounded halfway cases away from zero.
+    //:
+    //: 4 That if the value is 0, infinity or quiet NaN then the value is
+    //:   retured.
+    //:
+    //: 5 That if the value is signaling NaN, then quiet NaN is returned and
+    //:   'errno' is set the value of 'EDOM' macro.
     //
     // Plan:
-    //:  1 Run some sample values.
+    //: 1 Using table-driven technique:
+    //:
+    //:   1 Specify a set of arguments representing distinct decimal type
+    //:     values and expected result of 'scaleB()' method.  (C-1)
+    //:
+    //:   2 Specify a set of decimal values which significand values have
+    //:     decimal places from 1 to max number of decimal places supported by
+    //:     the tested type.  Specify a set of exponent values so that
+    //:     resultant exponent values equal to the max exponent and ensure that
+    //:     the significand values are normalized correctly.  (C-2)
+    //:
+    //:   3 Specify a set of decimal values which significands values have
+    //:     decimal places from 1 to max number of decimal places supported by
+    //:     the tested type.  Specify a set of exponent values so that
+    //:     resultant exponent values equal to the min exponent and ensure that
+    //:     the significand values are normalized correctly.  (C-2)
+    //:
+    //:   4 Specify a set of special decimal values and ensure 'scaleB' returns
+    //:     correct values and writes appropriate error codes to 'errno'.
+    //:     (C-4,5)
     //
     // Testing:
     //   scaleB(ValueType32,  int)
@@ -7214,118 +7258,351 @@ void TestDriver::testCase17()
                       << "TESTING 'scaleB'" << endl
                       << "================" << endl;
 
-    Util::ValueType32  value32;
-    Util::ValueType32   test32;
+    {
+#define DEC(X) Util::parse32(#X)
+        typedef Util::ValueType32 Obj;
 
-    Util::ValueType64  value64;
-    Util::ValueType64   test64;
+        const Obj MAX_P   =              Util::max32();
+        const Obj NAN_P   =              Util::quietNaN32();
+        const Obj NAN_N   = Util::negate(Util::quietNaN32());
+        const Obj INF_P   =              Util::infinity32();
+        const Obj INF_N   = Util::negate(Util::infinity32());
+        const Obj SNAN_P  =              Util::signalingNaN32();
 
-    Util::ValueType128 value128;
-    Util::ValueType128  test128;
+        struct {
+            int          d_line;
+            Obj          d_x;
+            int          d_exponent;
+            Obj          d_expected;
+            unsigned int d_errno;
+        } DATA[] = {
+        //----------------------------------------------------------------
+        // LINE |     X         | EXPONENT   | EXPECTED        | ERRNO
+        //----------------------------------------------------------------
+            { L_, DEC(0),          0,          DEC( 0),               0 },
+            { L_, DEC(1),          0,          DEC( 1),               0 },
+            { L_, DEC(1),          1,          DEC(10),               0 },
+            { L_, DEC(1),         -1,          DEC(0.1),              0 },
+            { L_, INF_P,           1,          INF_P,                 0 },
+            { L_, INF_N,           1,          INF_N,                 0 },
+            { L_, NAN_P,           1,          NAN_P,                 0 },
+            { L_, NAN_N,           1,          NAN_N,                 0 },
+            { L_, SNAN_P,          1,          NAN_P,              EDOM },
+            { L_, DEC(1e-101),     101 + 96,   DEC(1e+96),            0 },
+            { L_, DEC(1e+96),     -96 - 101,   DEC(1e-101),           0 },
+            { L_, DEC(1),          INT_MAX,    INF_P,            ERANGE },
+            { L_, DEC(1),         -INT_MAX,    0,                     0 },
 
-    value32 = Util::parse32("0");
-    test32  = Util::scaleB(Util::parse32("0"), 10);
-    ASSERT(Util::equal(value32, test32));
+            { L_, DEC(9999999.0),   89,        DEC(9999999e+89),      0 },
+            { L_, DEC(9999999.0),   90,        DEC(9999999e+90),      0 },
+            { L_, DEC(999999.0),    91,        DEC(9999990e+90),      0 },
+            { L_, DEC(99999.0),     92,        DEC(9999900e+90),      0 },
+            { L_, DEC(9999.0),      93,        DEC(9999000e+90),      0 },
+            { L_, DEC(999.0),       94,        DEC(9990000e+90),      0 },
+            { L_, DEC(99.0),        95,        DEC(9900000e+90),      0 },
+            { L_, DEC(9.0),         96,        DEC(9000000e+90),      0 },
+            { L_, DEC(9.0),         97,        INF_P,            ERANGE },
 
-    value32 = Util::parse32("0");
-    test32  = Util::scaleB(Util::parse32("0"), -10);
-    ASSERT(Util::equal(value32, test32));
+            { L_, MAX_P,          -192,        DEC(1000000e-101),     0 },
+            { L_, MAX_P,          -193,        DEC( 100000e-101),     0 },
+            { L_, MAX_P,          -194,        DEC(  10000e-101),     0 },
+            { L_, MAX_P,          -195,        DEC(   1000e-101),     0 },
+            { L_, MAX_P,          -196,        DEC(    100e-101),     0 },
+            { L_, MAX_P,          -197,        DEC(     10e-101),     0 },
+            { L_, MAX_P,          -198,        DEC(      1e-101),     0 },
+            { L_, MAX_P,          -199,        DEC(      0     ),     0 },
+        };
 
-    value32 = Util::parse32("420000000000");
-    test32  = Util::scaleB(Util::parse32("42"), 10);
-    ASSERT(Util::equal(value32, test32));
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-    value32 = Util::parse32("4.2e-9");
-    test32  = Util::scaleB(Util::parse32("42"), -10);
-    ASSERT(Util::equal(value32, test32));
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int           LINE     = DATA[ti].d_line;
+            const Obj&          X        = DATA[ti].d_x;
+            const int&          EXPONENT = DATA[ti].d_exponent;
+            const Obj&          EXPECTED = DATA[ti].d_expected;
+            const unsigned int& ERRNO    = DATA[ti].d_errno;
 
-    errno = 0;
-    value32 = Util::infinity32();
-    test32  = Util::scaleB(Util::max32(), 10);
-    ASSERT(nanEqual(value32, test32));
-    LOOP2_ASSERT(L_, errno, ERANGE == errno);
+            errno = 0;
+            const Obj RESULT = Util::scaleB(X, EXPONENT);
 
-    errno = 0;
-    value32 = Util::infinity32();
-    test32  = Util::scaleB(Util::infinity32(), 10);
-    ASSERT(nanEqual(value32, test32));
-    LOOP2_ASSERT(L_, errno, 0 == errno);
+            LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
+        }
+#undef DEC
+    }
 
-    errno = 0;
-    value32 = Util::quietNaN32();
-    test32  = Util::scaleB(Util::signalingNaN32(), 10);
-    ASSERT(nanEqual(value32, test32));
-    LOOP2_ASSERT(L_, errno, EDOM == errno);
+    {
+#define DEC(X) Util::parse64(#X)
+        typedef Util::ValueType64 Obj;
 
-    value64 = Util::parse64("0");
-    test64  = Util::scaleB(Util::parse64("0"), 10);
-    ASSERT(Util::equal(value64, test64));
+        const Obj MAX_P   =              Util::max64();
+        const Obj NAN_P   =              Util::quietNaN64();
+        const Obj NAN_N   = Util::negate(Util::quietNaN64());
+        const Obj INF_P   =              Util::infinity64();
+        const Obj INF_N   = Util::negate(Util::infinity64());
+        const Obj SNAN_P  =              Util::signalingNaN64();
 
-    value64 = Util::parse64("0");
-    test64  = Util::scaleB(Util::parse64("0"), -10);
-    ASSERT(Util::equal(value64, test64));
+        struct {
+            int          d_line;
+            Obj          d_x;
+            int          d_exponent;
+            Obj          d_expected;
+            unsigned int d_errno;
+        } DATA[] = {
+        //-------------------------------------------------------------
+        // LINE |     X       |  EXPONENT   | EXPECTED        | ERRNO
+        //-------------------------------------------------------------
+            { L_, DEC(0),        0,           DEC( 0),              0 },
+            { L_, DEC(1),        0,           DEC( 1),              0 },
+            { L_, DEC(1),        1,           DEC(10),              0 },
+            { L_, DEC(1),       -1,           DEC(0.1),             0 },
+            { L_, INF_P,         1,           INF_P,                0 },
+            { L_, INF_N,         1,           INF_N,                0 },
+            { L_, NAN_P,         1,           NAN_P,                0 },
+            { L_, NAN_N,         1,           NAN_N,                0 },
+            { L_, SNAN_P,        1,           NAN_P,             EDOM },
+            { L_, DEC(1e-398),   398 + 369,   DEC(1e+369),          0 },
+            { L_, DEC(1e+369),  -369 - 398,   DEC(1e-398),          0 },
+            { L_, DEC(1),        INT_MAX,     INF_P,           ERANGE },
+            { L_, DEC(1),       -INT_MAX,     0,                    0 },
 
-    value64 = Util::parse64("420000000000");
-    test64  = Util::scaleB(Util::parse64("42"), 10);
-    ASSERT(Util::equal(value64, test64));
+        //--------------------------------------------------------------------
+        // LINE |    X                  | EXP |    EXPECTED      |     | ERRNO
+        //--------------------------------------------------------------------
+           { L_, DEC(9999999999999999.0), 369, DEC(9999999999999999e+369), 0 },
+           { L_, DEC(999999999999999.0),  370, DEC(9999999999999990e+369), 0 },
+           { L_, DEC(99999999999999.0),   371, DEC(9999999999999900e+369), 0 },
+           { L_, DEC(9999999999999.0),    372, DEC(9999999999999000e+369), 0 },
+           { L_, DEC(999999999999.0),     373, DEC(9999999999990000e+369), 0 },
+           { L_, DEC(99999999999.0),      374, DEC(9999999999900000e+369), 0 },
+           { L_, DEC(9999999999.0),       375, DEC(9999999999000000e+369), 0 },
+           { L_, DEC(999999999.0),        376, DEC(9999999990000000e+369), 0 },
+           { L_, DEC(99999999.0),         377, DEC(9999999900000000e+369), 0 },
+           { L_, DEC(9999999.0),          378, DEC(9999999000000000e+369), 0 },
+           { L_, DEC(999999.0),           379, DEC(9999990000000000e+369), 0 },
+           { L_, DEC(99999.0),            380, DEC(9999900000000000e+369), 0 },
+           { L_, DEC(9999.0),             381, DEC(9999000000000000e+369), 0 },
+           { L_, DEC(999.0),              382, DEC(9990000000000000e+369), 0 },
+           { L_, DEC(99.0),               383, DEC(9900000000000000e+369), 0 },
+           { L_, DEC(9.0),                384, DEC(9000000000000000e+369), 0 },
+           { L_, DEC(9.0),                385, INF_P,                 ERANGE },
 
-    value64 = Util::parse64("4.2e-9");
-    test64  = Util::scaleB(Util::parse64("42"), -10);
-    ASSERT(Util::equal(value64, test64));
+           { L_, MAX_P,                  -767, DEC(9999999999999999e-398), 0 },
+           { L_, MAX_P,                  -768, DEC(1000000000000000e-398), 0 },
+           { L_, MAX_P,                  -769, DEC( 100000000000000e-398), 0 },
+           { L_, MAX_P,                  -770, DEC(  10000000000000e-398), 0 },
+           { L_, MAX_P,                  -771, DEC(   1000000000000e-398), 0 },
+           { L_, MAX_P,                  -772, DEC(    100000000000e-398), 0 },
+           { L_, MAX_P,                  -773, DEC(     10000000000e-398), 0 },
+           { L_, MAX_P,                  -774, DEC(      1000000000e-398), 0 },
+           { L_, MAX_P,                  -775, DEC(       100000000e-398), 0 },
+           { L_, MAX_P,                  -776, DEC(        10000000e-398), 0 },
+           { L_, MAX_P,                  -777, DEC(         1000000e-398), 0 },
+           { L_, MAX_P,                  -778, DEC(          100000e-398), 0 },
+           { L_, MAX_P,                  -779, DEC(           10000e-398), 0 },
+           { L_, MAX_P,                  -780, DEC(            1000e-398), 0 },
+           { L_, MAX_P,                  -781, DEC(             100e-398), 0 },
+           { L_, MAX_P,                  -782, DEC(              10e-398), 0 },
+           { L_, MAX_P,                  -783, DEC(               1e-398), 0 },
+           { L_, MAX_P,                  -784, DEC(               0     ), 0 },
+            };
 
-    errno = 0;
-    value64 = Util::infinity64();
-    test64  = Util::scaleB(Util::max64(), 10);
-    ASSERT(nanEqual(value64, test64));
-    LOOP2_ASSERT(L_, errno, ERANGE == errno);
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-    errno = 0;
-    value64 = Util::infinity64();
-    test64  = Util::scaleB(Util::infinity64(), 10);
-    ASSERT(nanEqual(value64, test64));
-    LOOP2_ASSERT(L_, errno, 0 == errno);
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int           LINE     = DATA[ti].d_line;
+            const Obj&          X        = DATA[ti].d_x;
+            const int&          EXPONENT = DATA[ti].d_exponent;
+            const Obj&          EXPECTED = DATA[ti].d_expected;
+            const unsigned int& ERRNO    = DATA[ti].d_errno;
 
-    errno = 0;
-    value64 = Util::quietNaN64();
-    test64  = Util::scaleB(Util::signalingNaN64(), 10);
-    ASSERT(nanEqual(value64, test64));
-    LOOP2_ASSERT(L_, errno, EDOM == errno);
+            errno = 0;
+            const Obj RESULT = Util::scaleB(X, EXPONENT);
 
+            int                 sign;
+            bsls::Types::Uint64 s;
+            int                 e;
+            int                 cl;
 
-    value128 = Util::parse128("0");
-    test128  = Util::scaleB(Util::parse128("0"), 10);
-    ASSERT(Util::equal(value128, test128));
+            cl = Util::decompose(&sign, &s, &e, RESULT);
+            // P_(cl) P_(s) P(e);
 
-    value128 = Util::parse128("0");
-    test128  = Util::scaleB(Util::parse128("0"), -10);
-    ASSERT(Util::equal(value128, test128));
+            LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
+        }
+#undef DEC
+    }
 
-    value128 = Util::parse128("420000000000");
-    test128  = Util::scaleB(Util::parse128("42"), 10);
-    ASSERT(Util::equal(value128, test128));
+    {
+#define DEC(X) Util::parse128(#X)
+        typedef Util::ValueType128 Obj;
 
-    value128 = Util::parse128("4.2e-9");
-    test128  = Util::scaleB(Util::parse128("42"), -10);
-    ASSERT(Util::equal(value128, test128));
+        const Obj MAX_P   =              Util::max128();
+        const Obj NAN_P   =              Util::quietNaN128();
+        const Obj NAN_N   = Util::negate(Util::quietNaN128());
+        const Obj INF_P   =              Util::infinity128();
+        const Obj INF_N   = Util::negate(Util::infinity128());
+        const Obj SNAN_P  =              Util::signalingNaN128();
 
-    errno = 0;
-    value128 = Util::infinity128();
-    test128  = Util::scaleB(Util::max128(), 10);
-    ASSERT(nanEqual(value128, test128));
-    LOOP2_ASSERT(L_, errno, ERANGE == errno);
+        struct {
+            int          d_line;
+            Obj          d_x;
+            int          d_exponent;
+            Obj          d_expected;
+            unsigned int d_errno;
+        } DATA[] = {
+        //-------------------------------------------------------------
+        // LINE |     X       |  EXPONENT   | EXPECTED        | ERRNO
+        //-------------------------------------------------------------
+            { L_, DEC(0),        0,           DEC( 0),              0 },
+            { L_, DEC(1),        0,           DEC( 1),              0 },
+            { L_, DEC(1),        1,           DEC(10),              0 },
+            { L_, DEC(1),       -1,           DEC(0.1),             0 },
+            { L_, INF_P,         1,           INF_P,                0 },
+            { L_, INF_N,         1,           INF_N,                0 },
+            { L_, NAN_P,         1,           NAN_P,                0 },
+            { L_, NAN_N,         1,           NAN_N,                0 },
+            { L_, SNAN_P,        1,           NAN_P,             EDOM },
+            { L_, DEC(1e-6176),  6176 + 6144, DEC(1e+6144),         0 },
+            { L_, DEC(1e+6144), -6144 - 6176, DEC(1e-6176),         0 },
+            { L_, DEC(1),        INT_MAX,     INF_P,           ERANGE },
+            { L_, DEC(1),       -INT_MAX,     0,                    0 },
 
-    errno = 0;
-    value128 = Util::infinity128();
-    test128  = Util::scaleB(Util::infinity128(), 10);
-    ASSERT(nanEqual(value128, test128));
-    LOOP2_ASSERT(L_, errno, 0 == errno);
+        //--------------------------------------------------------------
+        // LINE |                 X                        | EXP |
+        //      |                 EXPECTED                 |     | ERRNO
+        //--------------------------------------------------------------
+            { L_, DEC(9999999999999999999999999999999999.0), 6110,
+                  DEC(9999999999999999999999999999999999e+6110),    0 },
+            { L_, DEC(9999999999999999999999999999999999.0), 6111,
+                  DEC(9999999999999999999999999999999999e+6111),    0 },
+            { L_, DEC(999999999999999999999999999999999.0),  6112,
+                  DEC(9999999999999999999999999999999990e+6111),    0 },
+            { L_, DEC(99999999999999999999999999999999.0),   6113,
+                  DEC(9999999999999999999999999999999900e+6111),    0 },
+            { L_, DEC(9999999999999999999999999999999.0),    6114,
+                  DEC(9999999999999999999999999999999000e+6111),    0 },
+            { L_, DEC(999999999999999999999999999999.0),     6115,
+                  DEC(9999999999999999999999999999990000e+6111),    0 },
+            { L_, DEC(99999999999999999999999999999.0),      6116,
+                  DEC(9999999999999999999999999999900000e+6111),    0 },
+            { L_, DEC(9999999999999999999999999999.0),       6117,
+                  DEC(9999999999999999999999999999000000e+6111),    0 },
+            { L_, DEC(999999999999999999999999999.0),        6118,
+                  DEC(9999999999999999999999999990000000e+6111),    0 },
+            { L_, DEC(99999999999999999999999999.0),         6119,
+                  DEC(9999999999999999999999999900000000e+6111),    0 },
+            { L_, DEC(9999999999999999999999999.0),          6120,
+                  DEC(9999999999999999999999999000000000e+6111),    0 },
+            { L_, DEC(999999999999999999999999.0),           6121,
+                  DEC(9999999999999999999999990000000000e+6111),    0 },
+            { L_, DEC(99999999999999999999999.0),            6122,
+                  DEC(9999999999999999999999900000000000e+6111),    0 },
+            { L_, DEC(9999999999999999999999.0),             6123,
+                  DEC(9999999999999999999999000000000000e+6111),    0 },
+            { L_, DEC(999999999999999999999.0),              6124,
+                  DEC(9999999999999999999990000000000000e+6111),    0 },
+            { L_, DEC(99999999999999999999.0),               6125,
+                  DEC(9999999999999999999900000000000000e+6111),    0 },
+            { L_, DEC(9999999999999999999.0),                6126,
+                  DEC(9999999999999999999000000000000000e+6111),    0 },
+            { L_, DEC(999999999999999999.0),                 6127,
+                  DEC(9999999999999999990000000000000000e+6111),    0 },
+            { L_, DEC(99999999999999999.0),                  6128,
+                  DEC(9999999999999999900000000000000000e+6111),    0 },
+            { L_, DEC(9999999999999999.0),                   6129,
+                  DEC(9999999999999999000000000000000000e+6111),    0 },
+            { L_, DEC(999999999999999.0),                    6130,
+                  DEC(9999999999999990000000000000000000e+6111),    0 },
+            { L_, DEC(99999999999999.0),                     6131,
+                  DEC(9999999999999900000000000000000000e+6111),    0 },
+            { L_, DEC(9999999999999.0),                      6132,
+                  DEC(9999999999999000000000000000000000e+6111),    0 },
+            { L_, DEC(999999999999.0),                       6133,
+                  DEC(9999999999990000000000000000000000e+6111),    0 },
+            { L_, DEC(99999999999.0),                        6134,
+                  DEC(9999999999900000000000000000000000e+6111),    0 },
+            { L_, DEC(9999999999.0),                         6135,
+                  DEC(9999999999000000000000000000000000e+6111),    0 },
+            { L_, DEC(999999999.0),                          6136,
+                  DEC(9999999990000000000000000000000000e+6111),    0 },
+            { L_, DEC(99999999.0),                           6137,
+                  DEC(9999999900000000000000000000000000e+6111),    0 },
+            { L_, DEC(9999999.0),                            6138,
+                  DEC(9999999000000000000000000000000000e+6111),    0 },
+            { L_, DEC(999999.0),                             6139,
+                  DEC(9999990000000000000000000000000000e+6111),    0 },
+            { L_, DEC(99999.0),                              6140,
+                  DEC(9999900000000000000000000000000000e+6111),    0 },
+            { L_, DEC(9999.0),                               6141,
+                  DEC(9999000000000000000000000000000000e+6111),    0 },
+            { L_, DEC(999.0),                                6142,
+                  DEC(9990000000000000000000000000000000e+6111),    0 },
+            { L_, DEC(99.0),                                 6143,
+                  DEC(9900000000000000000000000000000000e+6111),    0 },
+            { L_, DEC(9.0),                                  6144,
+                  DEC(9000000000000000000000000000000000e+6111),    0 },
+            { L_, DEC(9.0),                                  6145,
+                  INF_P,                                       ERANGE },
 
-    errno = 0;
-    value128 = Util::quietNaN128();
-    test128  = Util::scaleB(Util::signalingNaN128(), 10);
-    ASSERT(nanEqual(value128, test128));
-    LOOP2_ASSERT(L_, errno, EDOM == errno);
+  //---------------------------------------------------------------------------
+  // LINE |  X   |  EXP  |     EXPECTED                                 | ERRNO
+  //---------------------------------------------------------------------------
+      { L_, MAX_P, -12287, DEC(9999999999999999999999999999999999e-6176),  0 },
+      { L_, MAX_P, -12288, DEC(1000000000000000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12289, DEC( 100000000000000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12290, DEC(  10000000000000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12291, DEC(   1000000000000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12292, DEC(    100000000000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12293, DEC(     10000000000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12294, DEC(      1000000000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12295, DEC(       100000000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12296, DEC(        10000000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12297, DEC(         1000000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12298, DEC(          100000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12299, DEC(           10000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12300, DEC(            1000000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12301, DEC(             100000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12302, DEC(              10000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12303, DEC(               1000000000000000000e-6176),  0 },
+      { L_, MAX_P, -12304, DEC(                100000000000000000e-6176),  0 },
+      { L_, MAX_P, -12305, DEC(                 10000000000000000e-6176),  0 },
+      { L_, MAX_P, -12306, DEC(                  1000000000000000e-6176),  0 },
+      { L_, MAX_P, -12307, DEC(                   100000000000000e-6176),  0 },
+      { L_, MAX_P, -12308, DEC(                    10000000000000e-6176),  0 },
+      { L_, MAX_P, -12309, DEC(                     1000000000000e-6176),  0 },
+      { L_, MAX_P, -12310, DEC(                      100000000000e-6176),  0 },
+      { L_, MAX_P, -12311, DEC(                       10000000000e-6176),  0 },
+      { L_, MAX_P, -12312, DEC(                        1000000000e-6176),  0 },
+      { L_, MAX_P, -12313, DEC(                         100000000e-6176),  0 },
+      { L_, MAX_P, -12314, DEC(                          10000000e-6176),  0 },
+      { L_, MAX_P, -12315, DEC(                           1000000e-6176),  0 },
+      { L_, MAX_P, -12316, DEC(                            100000e-6176),  0 },
+      { L_, MAX_P, -12317, DEC(                             10000e-6176),  0 },
+      { L_, MAX_P, -12318, DEC(                              1000e-6176),  0 },
+      { L_, MAX_P, -12319, DEC(                               100e-6176),  0 },
+      { L_, MAX_P, -12320, DEC(                                10e-6176),  0 },
+      { L_, MAX_P, -12321, DEC(                                 1e-6176),  0 },
+      { L_, MAX_P, -12322, DEC(                                 0      ),  0 },
+        };
 
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int           LINE     = DATA[ti].d_line;
+            const Obj&          X        = DATA[ti].d_x;
+            const int&          EXPONENT = DATA[ti].d_exponent;
+            const Obj&          EXPECTED = DATA[ti].d_expected;
+            const unsigned int& ERRNO    = DATA[ti].d_errno;
+
+            errno = 0;
+            const Obj RESULT = Util::scaleB(X, EXPONENT);
+
+            LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
+        }
+#undef DEC
+    }
 }
 
 void TestDriver::testCase16()
