@@ -6056,10 +6056,8 @@ void Harness::testCase38(int value)
             == BSLS_CPP11_NOEXCEPT_OPERATOR(
                           bsl::shared_ptr<T>(bslmf::MovableRefUtil::move(r))));
 
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
             == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::shared_ptr<T>(0)));
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
     }
 
     // page 590
@@ -17517,7 +17515,6 @@ int main(int argc, char *argv[])
 # endif
 #endif
 
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) printf("\nTesting ASSIGNMENT of null pointer"
                             "\n----------------------------------\n");
         {
@@ -17552,7 +17549,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == X1.use_count());
         }
         ASSERT(1 == numDeletes);
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -18370,28 +18366,10 @@ int main(int argc, char *argv[])
         numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-            // This test case is omitted as it raises an ambiguity with the
-            // deprecated-internal constructor taking a 'bslma::SharedPtrRep *'
-            // argument.  As that constructor is implicit, and commonly called
-            // with a pointer of the correct type, the only time the ambiguity
-            // occurs is literally using an explicit constructor syntax for a
-            // 'shared_ptr' and supplying a null-pointer literal.  This awkward
-            // case is not observed in our production code base, and the
-            // concern will be eliminated when this constructor is finally
-            // retired.  Disabling the constructor is greatly preferred to the
-            // house of cards that must otherwise be created to support this
-            // corner case, which involves adding a second SFINAEd parameter to
-            // the main 'shared_ptr' single-argument constructor taking a
-            // 'COMPATIBLE_TYPE *', in addition to wrapping the 'SharedPtrRep*'
-            // in another wrapper type to create a longer conversion sequence
-            // to disambiguate from the 'nullptr_t' form.
-#else
             Obj v = NULL; const Obj& V = v;
             ASSERT(0 == V.get());
             ASSERT(0 == V.use_count());
             ASSERT(numAllocations == ta.numAllocations());
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             Obj w(0); const Obj& W = w;
             ASSERT(0 == W.get());
@@ -19141,41 +19119,6 @@ int main(int argc, char *argv[])
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
         }
         ASSERT((numDeallocations+2) == ta.numDeallocations());
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-        if (verbose) printf("\nTesting deprecated constructor (with rep)"
-                            "\n-----------------------------------------\n");
-
-        numDeallocations = ta.numDeallocations();
-        {
-            numDeletes = 0;
-            TObj *p = new (ta) TObj(&numDeletes);
-            numAllocations = ta.numAllocations();
-
-            Obj x(p, &ta); const Obj& X = x;
-            ASSERT(++numAllocations == ta.numAllocations());
-
-            if (veryVerbose) {
-                P(X.use_count());
-            }
-            ASSERT(0 == numDeletes);
-            ASSERT(p == X.get());
-            ASSERT(1 == X.use_count());
-
-            bslma::SharedPtrRep *rep = x.rep();
-            x.release();
-
-            Obj xx(rep); const Obj& XX = xx;
-            ASSERT(p == XX.get());
-            ASSERT(rep ==  XX.rep());
-            ASSERT(1 == XX.use_count());
-        }
-        if (veryVerbose) {
-            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
-        }
-        ASSERT((numDeallocations+2) == ta.numDeallocations());
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
       } break;
       case 2: {
         // --------------------------------------------------------------------

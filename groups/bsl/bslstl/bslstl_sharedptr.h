@@ -526,15 +526,6 @@ BSLS_IDENT("$Id$ $CSID$")
 // the management of the object and will use the deleter from the original
 // 'BloombergLP::bslma::ManagedPtr' to destroy the managed object when all the
 // references to that shared object are released.
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-//
-///Storing a 'shared_ptr' in an Invokable in a 'bdef_Function' Object
-///------------------------------------------------------------------
-// In addition to the guarantees already made in the 'bdef_function' component,
-// 'bsl::shared_ptr' also guarantees that storing a shared pointer to an
-// invokable object in a 'bdef_Function' object will be "in-place", i.e., it
-// will not trigger memory allocation.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 //
 ///Weak Pointers using "in-place" or Pooled Shared Pointer Representations
 ///-----------------------------------------------------------------------
@@ -1873,29 +1864,11 @@ class shared_ptr {
         // representation that does not refer to any object and has no
         // deleter.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
-        // Create a shared pointer taking ownership of the specified 'rep' and
-        // pointing to the object stored in the 'rep'.  The behavior is
-        // undefined unless 'rep->originalPtr()' points to an object of type
-        // 'ELEMENT_TYPE'.  Note that this method *DOES* *NOT* increment the
-        // number of references to 'rep'.
-        //
-        // DEPRECATED This constructor will be made inaccessible in the next
-        // BDE release, as the undefined behavior is too easily triggered and
-        // offers no simple way to guard against misuse.  Instead, call the
-        // constructor taking an additional 'ELEMENT_TYPE *' initial argument:
-        //..
-        //  shared_ptr(ELEMENT_TYPE *p, BloombergLP::bslma::SharedPtrRep *rep);
-        //..
-#else
     BSLS_CPP11_CONSTEXPR
     shared_ptr(bsl::nullptr_t) BSLS_CPP11_NOEXCEPT;                 // IMPLICIT
         // Create an empty shared pointer, i.e., a shared pointer with no
         // representation that does not refer to any object and has no
         // deleter.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
@@ -5211,15 +5184,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr() BSLS_CPP11_NOEXCEPT
 {
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <class ELEMENT_TYPE>
-inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(BloombergLP::bslma::SharedPtrRep *rep)
-: d_ptr_p(rep ? reinterpret_cast<ELEMENT_TYPE *>(rep->originalPtr()) : 0)
-, d_rep_p(rep)
-{
-}
-#else
 template <class ELEMENT_TYPE>
 inline
 BSLS_CPP11_CONSTEXPR
@@ -5228,7 +5192,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t) BSLS_CPP11_NOEXCEPT
 , d_rep_p(0)
 {
 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE
