@@ -14,6 +14,8 @@ BSLS_IDENT("$Id: $")
 //      bslstl::StringRef: reference wrapper for a 'char' string
 //  bslstl::StringRefWide: reference wrapper for a 'wchar_t' string
 //
+//@SEE_ALSO: bdlb_stringrefutil
+//
 //@AUTHOR: Vladimir Kliatchko (vkliatch), Anthony Comerico (acomeric)
 //
 //@DESCRIPTION: This component defines two classes, 'bslstl::StringRef' and

@@ -98,6 +98,8 @@ using namespace bslstl;
 // [15] USAGE EXAMPLE
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ *] CONCERN: No memory is ever allocated from this class.
+// [16] CONCERN: The type is trivially copyable.
+// [17] CONCERN: There are no surprising constructor overloads.
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -316,6 +318,82 @@ namespace UsageExample {
 
 }  // close namespace UsageExample
 
+                            // =============
+                            // class BasedOn
+                            // =============
+
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
+class BasedOn : public TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>
+    // This is a minimal class that has a public base of a 'TreeIterator',
+    // therefore it implicitly converts to a 'TreeIterator'
+{
+  public:
+    // CREATORS
+    explicit BasedOn(const bslalg::RbTreeNode *node);
+        // Create an 'BasedOn' object at the specified 'position'.  The
+        // behavior is undefined unless 'node' is of the parameterized 'NODE',
+        // which is derived from 'bslalg::RbTreeNode.
+
+};
+
+                            // -------------
+                            // class BasedOn
+                            // -------------
+
+// CREATORS
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
+inline
+BasedOn<VALUE, NODE, DIFFERENCE_TYPE>::
+BasedOn(const bslalg::RbTreeNode *node)
+: TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>(node)
+{
+}
+
+                          // ================
+                          // class ConvertsTo
+                          // ================
+
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
+class ConvertsTo
+    // This is a minimal class that has a public base of a 'TreeIterator',
+    // therefore it implicitly converts to a 'TreeIterator'
+{
+  private:
+    // DATA
+    TreeIterator<VALUE, NODE, DIFFERENCE_TYPE> d_node;
+
+  public:
+    // CREATORS
+    explicit ConvertsTo(const bslalg::RbTreeNode *node);
+        // Create an 'BasedOn' object at the specified 'position'.  The
+        // behavior is undefined unless 'node' is of the parameterized 'NODE',
+        // which is derived from 'bslalg::RbTreeNode.
+
+    operator const TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>&() const;
+        // Convert to a tree iterator.
+};
+
+                          // ----------------
+                          // class ConvertsTo
+                          // ----------------
+
+// CREATORS
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
+inline
+ConvertsTo<VALUE, NODE, DIFFERENCE_TYPE>::
+ConvertsTo(const bslalg::RbTreeNode *node)
+: d_node(node)
+{
+}
+
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
+inline
+ConvertsTo<VALUE, NODE, DIFFERENCE_TYPE>::
+operator const TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>&() const
+{
+    return d_node;
+}
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -339,6 +417,169 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
+      case 17: {
+        // --------------------------------------------------------------------
+        // CONSTRUCTOR OVERLOADS
+        //   Ensure that the iterator types (const and non-const) both have
+        //   only a copy constructor, a conversion constructor from the
+        //   const-version, a default constructor, and no other, surprising
+        //   overloads.
+        //
+        // Concerns:
+        //:  1 A non-const 'iterator' is copy constructible from a type that
+        //:    converts to a non-const 'iterator'.
+        //:
+        //:  2 A 'const_iterator' is copy constructible from a type that
+        //:    converts to a 'const_iterator'.
+        //:
+        //:  3 A non-const 'iterator' is copy constructible from a type that
+        //:    converts to a 'const_iterator'.
+        //
+        // Plan:
+        //: 1 Create two (const/non-const) iterator types.
+        //:
+        //: 2 Create a templated type 'BasedOn' that publicly inherits from an
+        //:   'iterator'.
+        //:
+        //: 3 Create a templated type 'ConvertsTo' that implicitly converts to
+        //:   an 'iterator'.
+        //:
+        //: 4 Construct 'BasedOn' and a 'ConvertsTo' with known values; some
+        //:   with const, the others with non-const value type.
+        //:
+        //: 5 Construct 'iterator's from the objects with mutable value types.
+        //:   Verify that the values were copied properly.
+        //:
+        //: 6 Construct 'const_iterator's from all objects.  Verify that the
+        //:   values were copied properly.
+        //
+        // Testing
+        //   CONCERN: There are no surprising constructor overloads.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONSTRUCTOR OVERLOADS"
+                            "\n=====================\n");
+
+        typedef TreeIterator<MyWrapper, WrapperNode, std::ptrdiff_t> iterator;
+        typedef TreeIterator<const MyWrapper, WrapperNode, std::ptrdiff_t>
+                                                                const_iterator;
+
+        typedef BasedOn<MyWrapper, WrapperNode, std::ptrdiff_t> based_on;
+        typedef BasedOn<const MyWrapper, WrapperNode, std::ptrdiff_t>
+                                                                const_based_on;
+
+        typedef ConvertsTo<MyWrapper, WrapperNode, std::ptrdiff_t> converts_to;
+        typedef ConvertsTo<const MyWrapper, WrapperNode, std::ptrdiff_t>
+                                                             const_converts_to;
+
+        WrapperNode node1;
+        node1.value().data() = 1;
+
+        WrapperNode node2;
+        node2.value().data() = 2;
+
+        if (verbose) printf("\nVerify inheritance-conversion (to base).\n");
+        {
+            based_on basedOn1(&node1);
+            based_on basedOn2(&node2);
+
+            iterator it1(basedOn1);
+            iterator it2(basedOn2);
+
+            ASSERT(it1->data() == 1);
+            ASSERT(it2->data() == 2);
+        }
+
+        {
+            const_based_on cBasedOn1(&node1);
+            const_based_on cBasedOn2(&node2);
+
+            const_iterator cit11(cBasedOn1);
+            const_iterator cit12(cBasedOn2);
+
+            ASSERT(cit11->data() == 1);
+            ASSERT(cit12->data() == 2);
+
+            based_on basedOn1(&node1);
+            based_on basedOn2(&node2);
+
+            iterator it1(basedOn1);
+            iterator it2(basedOn2);
+
+            const_iterator cit21(it1);
+            const_iterator cit22(it2);
+
+            ASSERT(cit21->data() == 1);
+            ASSERT(cit22->data() == 2);
+        }
+
+        if (verbose) printf("\nVerify conversion-operator.\n");
+        {
+            converts_to convertsTo1(&node1);
+            converts_to convertsTo2(&node2);
+
+            iterator it1(convertsTo1);
+            iterator it2(convertsTo2);
+
+            ASSERT(it1->data() == 1);
+            ASSERT(it2->data() == 2);
+        }
+
+        {
+            const_converts_to cConvertsTo1(&node1);
+            const_converts_to cConvertsTo2(&node2);
+
+            const_iterator cit11(cConvertsTo1);
+            const_iterator cit12(cConvertsTo2);
+
+            ASSERT(cit11->data() == 1);
+            ASSERT(cit12->data() == 2);
+
+            converts_to convertsTo1(&node1);
+            converts_to convertsTo2(&node2);
+
+            iterator it1(convertsTo1);
+            iterator it2(convertsTo2);
+
+            const_iterator cit21(it1);
+            const_iterator cit22(it2);
+
+            ASSERT(cit21->data() == 1);
+            ASSERT(cit22->data() == 2);
+        }
+
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TYPE TRAITS
+        //   Ensure that the iterator types (const and non-const) both have the
+        //   proper type traits.
+        //
+        // Concerns:
+        //:  1 The types are trivially copyable.
+        //
+        // Plan:
+        //: 1 Create two (const/non-const) iterator types.
+        //:
+        //: 2 Verify that their type traits say they are trivially copyable.
+        //
+        // Testing
+        //   CONCERN: The type is trivially copyable.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTYPE TRAITS"
+                            "\n===========\n");
+
+#ifndef BSLS_PLATFORM_CMP_SUN
+        typedef TreeIterator<MyWrapper, WrapperNode, std::ptrdiff_t> iterator;
+        typedef TreeIterator<const MyWrapper, WrapperNode, std::ptrdiff_t>
+                                                                const_iterator;
+
+        ASSERT(bsl::is_trivially_copyable<iterator>::value == true);
+
+        ASSERT(bsl::is_trivially_copyable<const_iterator>::value == true);
+#endif
+      } break;
       case 15: {
           if (verbose) printf("\nUSAGE EXAMPLE"
                               "\n=============\n");

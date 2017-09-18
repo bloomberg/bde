@@ -63,9 +63,6 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// *This class is for internal use only, do not use.* This usage example is
-// here to illustrate a typical usage of this class for BDE only.
-//
 // A 'bsl::pair' is a very simple object when used without allocators.  Our
 // usage example concentrates on the use of allocators with 'bsl::pair'.
 // First, we create a utility function that copies a null-terminated string
