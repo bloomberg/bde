@@ -660,8 +660,6 @@ class DecimalImpUtil {
         //: o If 'x' is quiet NaN, quiet NaN is returned.
         //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
         //:   the macro 'EDOM' is stored into 'errno'.
-        //: o If 'x' is positive or negative finite, the correct result is
-        //:   returned.
         //
         // Examples: 'logB(  10.0)' ==> 1.0;
         //           'logB(-100.0)' ==> 2.0
@@ -757,15 +755,15 @@ class DecimalImpUtil {
     static ValueType32  pow(ValueType32  base, ValueType32  exp);
     static ValueType64  pow(ValueType64  base, ValueType64  exp);
     static ValueType128 pow(ValueType128 base, ValueType128 exp);
-        // Return the value of the specified 'base' raised to the power the
+        // Return the value of the specified 'base' raised to the power of the
         // specified 'exp'.
         //
         // Special value handling:
         //: o If 'base' is finite and negative and 'exp' is finite and
         //:   non-integer, quiet NaN is returned and the value of the macro
         //:   'EDOM' is stored into 'errno'.
-        //: o If the mathematical result of this function is exactly infinity
-        //:   or undefined or a range error due to overflow occurs, infinity is
+        //: o If the mathematical result of this function is infinity or
+        //:   undefined or a range error due to overflow occurs, infinity is
         //:   returned and the value of the macro 'ERANGE' is stored into
         //:   'errno'.
         //: o If a range error occurs due to underflow, the correct result
@@ -1701,7 +1699,7 @@ long int DecimalImpUtil::lrint(ValueType32  x)
     _IDEC_flags flags(0);
     long int ret =  __bid32_lrint(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return ret;
 }
@@ -1712,7 +1710,7 @@ long int DecimalImpUtil::lrint(ValueType64  x)
     _IDEC_flags flags(0);
     long int ret =  __bid64_lrint(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return ret;
 }
@@ -1723,7 +1721,7 @@ long int DecimalImpUtil::lrint(ValueType128 x)
     _IDEC_flags flags(0);
     long int ret =  __bid128_lrint(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return ret;
 }
@@ -1734,7 +1732,7 @@ long long int DecimalImpUtil::llrint(ValueType32  x)
     _IDEC_flags flags(0);
     long int ret =  __bid32_llrint(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return ret;
 }
@@ -1745,7 +1743,7 @@ long long int DecimalImpUtil::llrint(ValueType64  x)
     _IDEC_flags flags(0);
     long int ret =  __bid64_llrint(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return ret;
 }
@@ -1756,7 +1754,7 @@ long long int DecimalImpUtil::llrint(ValueType128 x)
     _IDEC_flags flags(0);
     long long int ret =  __bid128_llrint(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return ret;
 }
@@ -1771,10 +1769,10 @@ DecimalImpUtil::nextafter(ValueType32  x, ValueType32  y)
     if (BID_OVERFLOW_EXCEPTION  & flags ||
         BID_UNDERFLOW_EXCEPTION & flags)
     {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1789,10 +1787,10 @@ DecimalImpUtil::nextafter(ValueType64  x, ValueType64  y)
     if (BID_OVERFLOW_EXCEPTION  & flags ||
         BID_UNDERFLOW_EXCEPTION & flags)
     {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1807,10 +1805,10 @@ DecimalImpUtil::nextafter(ValueType128 x, ValueType128 y)
     if (BID_OVERFLOW_EXCEPTION  & flags ||
         BID_UNDERFLOW_EXCEPTION & flags)
     {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1825,10 +1823,10 @@ DecimalImpUtil::nexttoward(ValueType32  x, ValueType128 y)
     if (BID_OVERFLOW_EXCEPTION  & flags ||
         BID_UNDERFLOW_EXCEPTION & flags)
     {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1843,10 +1841,10 @@ DecimalImpUtil::nexttoward(ValueType64  x, ValueType128 y)
     if (BID_OVERFLOW_EXCEPTION  & flags ||
         BID_UNDERFLOW_EXCEPTION & flags)
     {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1861,10 +1859,10 @@ DecimalImpUtil::nexttoward(ValueType128 x, ValueType128 y)
     if (BID_OVERFLOW_EXCEPTION  & flags ||
         BID_UNDERFLOW_EXCEPTION & flags)
     {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1880,10 +1878,10 @@ DecimalImpUtil::pow(ValueType32  base, ValueType32  exp)
         BID_UNDERFLOW_EXCEPTION   & flags ||
         BID_ZERO_DIVIDE_EXCEPTION & flags)
     {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1899,10 +1897,10 @@ DecimalImpUtil::pow(ValueType64  base, ValueType64  exp)
         BID_UNDERFLOW_EXCEPTION   & flags ||
         BID_ZERO_DIVIDE_EXCEPTION & flags)
     {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1918,10 +1916,10 @@ DecimalImpUtil::pow(ValueType128 base, ValueType128 exp)
         BID_UNDERFLOW_EXCEPTION   & flags ||
         BID_ZERO_DIVIDE_EXCEPTION & flags)
     {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1933,7 +1931,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::ceil(ValueType32  x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_positive(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1945,7 +1943,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::ceil(ValueType64  x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_positive(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1957,7 +1955,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::ceil(ValueType128 x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_round_integral_positive(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 
@@ -1970,7 +1968,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::floor(ValueType32 x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_negative(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1982,7 +1980,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::floor(ValueType64 x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_negative(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -1994,7 +1992,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::floor(ValueType128 x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_round_integral_negative(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -2006,7 +2004,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::round(ValueType32 x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_nearest_away(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -2018,7 +2016,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::round(ValueType64 x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_nearest_away(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -2030,7 +2028,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::round(ValueType128 x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_round_integral_nearest_away(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -2041,7 +2039,7 @@ long int DecimalImpUtil::lround(ValueType32 x)
     _IDEC_flags flags(0);
     long int rv = __bid32_lround(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2052,7 +2050,7 @@ long int DecimalImpUtil::lround(ValueType64 x)
     _IDEC_flags flags(0);
     long int rv = __bid64_lround(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2063,7 +2061,7 @@ long int DecimalImpUtil::lround(ValueType128 x)
     _IDEC_flags flags(0);
     long int rv = __bid128_lround(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2075,7 +2073,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::trunc(ValueType32 x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_round_integral_zero(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -2087,7 +2085,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::trunc(ValueType64 x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_round_integral_zero(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -2099,7 +2097,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::trunc(ValueType128 x)
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_round_integral_zero(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return retval;
 }
@@ -2112,7 +2110,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::fma(ValueType32 x, ValueType32 y, Va
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2124,7 +2122,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::fma(ValueType64 x, ValueType64 y, Va
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2136,7 +2134,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::fma(ValueType128 x, ValueType128 y,
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_fma(x.d_raw, y.d_raw, z.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2173,7 +2171,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::sqrt(ValueType32 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_sqrt(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2185,7 +2183,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::sqrt(ValueType64 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_sqrt(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2197,7 +2195,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::sqrt(ValueType128 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_sqrt(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION  & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2236,10 +2234,10 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::exp(ValueType32 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_exp(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_OVERFLOW_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2251,10 +2249,10 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::exp(ValueType64 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_exp(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_OVERFLOW_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2266,10 +2264,10 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::exp(ValueType128 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_exp(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_OVERFLOW_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2281,10 +2279,10 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::log(ValueType32 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_log(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2296,10 +2294,10 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::log(ValueType64 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_log(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2311,10 +2309,10 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::log(ValueType128 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_log(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2326,10 +2324,10 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::logB(ValueType32 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_logb(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2341,10 +2339,10 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::logB(ValueType64 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_logb(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2356,10 +2354,10 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::logB(ValueType128 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_logb(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2371,10 +2369,10 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::log10(ValueType32 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_log10(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2386,10 +2384,10 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::log10(ValueType64 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_log10(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2401,10 +2399,10 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::log10(ValueType128 value)
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_log10(value.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_ZERO_DIVIDE_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return rv;
 }
@@ -2417,7 +2415,7 @@ DecimalImpUtil::ValueType32  DecimalImpUtil::fmod(ValueType32  x,
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_fmod(x.d_raw, y.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2430,7 +2428,7 @@ DecimalImpUtil::ValueType64  DecimalImpUtil::fmod(ValueType64  x,
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_fmod(x.d_raw, y.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2443,7 +2441,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::fmod(ValueType128 x,
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_fmod(x.d_raw, y.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2456,7 +2454,7 @@ DecimalImpUtil::ValueType32  DecimalImpUtil::remainder(ValueType32  x,
     _IDEC_flags flags(0);
     rv.d_raw = __bid32_rem(x.d_raw, y.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2469,7 +2467,7 @@ DecimalImpUtil::ValueType64  DecimalImpUtil::remainder(ValueType64  x,
     _IDEC_flags flags(0);
     rv.d_raw = __bid64_rem(x.d_raw, y.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }
@@ -2482,7 +2480,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::remainder(ValueType128 x,
     _IDEC_flags flags(0);
     rv.d_raw = __bid128_rem(x.d_raw, y.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     return rv;
 }

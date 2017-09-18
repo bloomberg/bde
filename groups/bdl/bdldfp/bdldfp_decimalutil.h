@@ -246,8 +246,6 @@ struct DecimalUtil {
         //: o If 'x' is quiet NaN, quiet NaN is returned.
         //: o If 'x' is signaling NaN, quiet NaN is returned and the value of
         //:   the macro 'EDOM' is stored into 'errno'.
-        //: o If 'x' is positive or negative finite, the correct result is
-        //:   returned.
         //
         // Examples: 'logB(  10.0)' ==> 1.0;
         //           'logB(-100.0)' ==> 2.0
@@ -343,15 +341,15 @@ struct DecimalUtil {
     static Decimal32  pow(Decimal32  base, Decimal32  exp);
     static Decimal64  pow(Decimal64  base, Decimal64  exp);
     static Decimal128 pow(Decimal128 base, Decimal128 exp);
-        // Return the value of the specified 'base' raised to the power the
+        // Return the value of the specified 'base' raised to the power of the
         // specified 'exp'.
         //
         // Special value handling:
         //: o If 'base' is finite and negative and 'exp' is finite and
         //:   non-integer, quiet NaN is returned and the value of the macro
         //:   'EDOM' is stored into 'errno'.
-        //: o If the mathematical result of this function is exactly infinity
-        //:   or undefined or a range error due to overflow occurs, infinity is
+        //: o If the mathematical result of this function is infinity or
+        //:   undefined or a range error due to overflow occurs, infinity is
         //:   returned and the value of the macro 'ERANGE' is stored into
         //:   'errno'.
         //: o If a range error occurs due to underflow, the correct result
@@ -547,10 +545,6 @@ struct DecimalUtil {
         // Round halfway cases away from zero, regardless of the current
         // decimal floating point rounding mode.  If 'x' is integral, positive
         // zero, negative zero, NaN, or infinity then return 'x' itself.
-        //
-        // Special value handling:
-        //: o If a range error due to overflow occurs, infinity is returned and
-        //:   the value of the macro 'ERANGE' is stored into 'errno'.
         //
         //  Examples: 'round(3.14159, 3)' ==> 3.142
 

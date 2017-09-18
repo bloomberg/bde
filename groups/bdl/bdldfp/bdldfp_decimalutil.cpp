@@ -321,19 +321,12 @@ Decimal32  DecimalUtil::round(Decimal32  x, unsigned int decimalPlaces)
     int          exponent;
     int          cl = decompose(&sign, &significand, &exponent, x);
 
-    if (FP_NORMAL == cl) {
-        int mostPlace = getMostSignificandPlace(significand);
-        if (mostPlace - 1 > decimalPlaces) {
-            int exp = exponent + mostPlace - 1 - decimalPlaces;
-            errno = 0;
-            x = multiplyByPowerOf10(x, -exp);
-            if (0 == errno) {
-                x = round(x);
-                if (0 == errno) {
-                    x = multiplyByPowerOf10(x, exp);
-                }
-            }
-        }
+    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
+        (exponent + static_cast<int>(decimalPlaces) < 0))
+    {
+        x = multiplyByPowerOf10(x, decimalPlaces);
+        x = round(x);
+        x = multiplyByPowerOf10(x, -decimalPlaces);
     }
     return x;
 }
@@ -345,19 +338,12 @@ Decimal64 DecimalUtil::round(Decimal64  x, unsigned int decimalPlaces)
     int                 exponent;
     int                 cl = decompose(&sign, &significand, &exponent, x);
 
-    if (FP_NORMAL == cl) {
-        int mostPlace = getMostSignificandPlace(significand);
-        if (mostPlace - 1 > decimalPlaces) {
-            int exp = exponent + mostPlace - 1 - decimalPlaces;
-            errno = 0;
-            x = multiplyByPowerOf10(x, -exp);
-            if (0 == errno) {
-                x = round(x);
-                if (0 == errno) {
-                    x = multiplyByPowerOf10(x, exp);
-                }
-            }
-        }
+    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
+        (exponent + static_cast<int>(decimalPlaces) < 0))
+    {
+        x = multiplyByPowerOf10(x, decimalPlaces);
+        x = round(x);
+        x = multiplyByPowerOf10(x, -decimalPlaces);
     }
     return x;
 }
@@ -369,19 +355,12 @@ Decimal128 DecimalUtil::round(Decimal128 x, unsigned int decimalPlaces)
     int     exponent;
     int     cl = decompose(&sign, &significand, &exponent, x);
 
-    if (FP_NORMAL == cl) {
-        int mostPlace = getMostSignificandPlace(significand);
-        if (mostPlace - 1 > decimalPlaces) {
-            int exp = exponent + mostPlace - 1 - decimalPlaces;
-            errno = 0;
-            x = multiplyByPowerOf10(x, -exp);
-            if (0 == errno) {
-                x = round(x);
-                if (0 == errno) {
-                    x = multiplyByPowerOf10(x, exp);
-                }
-            }
-        }
+    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
+        (exponent + static_cast<int>(decimalPlaces) < 0))
+    {
+        x = multiplyByPowerOf10(x, decimalPlaces);
+        x = round(x);
+        x = multiplyByPowerOf10(x, -decimalPlaces);
     }
     return x;
 }
