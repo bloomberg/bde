@@ -7202,7 +7202,7 @@ void TestDriver::testCase17()
     //: 1 That if the sum of the specified 'exponent' and value's exponent is
     //:   in the range of exponents supported by tested decimal type then the
     //:   sum is assigned to resultant value's exponent with the value's
-    //:   significand remained unchanged.
+    //:   significand remaining unchanged.
     //:
     //: 2 That if the sum of the specified 'exponent' and value's exponent
     //:   exceeds the max exponent value supported by tested decimal type then

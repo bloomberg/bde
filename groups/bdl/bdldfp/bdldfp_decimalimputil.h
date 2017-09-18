@@ -2858,10 +2858,10 @@ DecimalImpUtil::scaleB(DecimalImpUtil::ValueType32 value, int exponent)
     _IDEC_flags flags(0);
     result.d_raw = __bid32_scalbn(value.d_raw, exponent, &flags);
     if (BID_INVALID_EXCEPTION     & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_OVERFLOW_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return result;
 }
@@ -2874,10 +2874,10 @@ DecimalImpUtil::scaleB(DecimalImpUtil::ValueType64 value, int exponent)
     _IDEC_flags flags(0);
     result.d_raw = __bid64_scalbn(value.d_raw, exponent, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_OVERFLOW_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return result;
 }
@@ -2890,10 +2890,10 @@ DecimalImpUtil::scaleB(DecimalImpUtil::ValueType128 value, int exponent)
     _IDEC_flags flags(0);
     result.d_raw = __bid128_scalbn(value.d_raw, exponent, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
-        errno |= EDOM;
+        errno = EDOM;
     }
     if (BID_OVERFLOW_EXCEPTION & flags) {
-        errno |= ERANGE;
+        errno = ERANGE;
     }
     return result;
 }
