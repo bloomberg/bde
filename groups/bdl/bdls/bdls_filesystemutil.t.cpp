@@ -1521,7 +1521,8 @@ int main(int argc, char *argv[])
             ASSERT(Obj::exists(testBaseDir));
             ASSERT(Obj::exists(fullPath));
 
-# ifdef BSLS_PLATFORM_OS_CYGWIN
+# if defined(BSLS_PLATFORM_OS_CYGWIN) || \
+    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
             struct stat info;
             ASSERT(0 == ::stat(  fullPath.c_str(), &info));
 # else
@@ -1544,7 +1545,8 @@ int main(int argc, char *argv[])
             }
             ASSERT(eqLeafDir);
 
-# ifdef BSLS_PLATFORM_OS_CYGWIN
+# if defined(BSLS_PLATFORM_OS_CYGWIN) || \
+    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
             ASSERT(0 == ::stat(  testBaseDir.c_str(), &info));
 # else
             ASSERT(0 == ::stat64(testBaseDir.c_str(), &info));
@@ -1577,7 +1579,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
             ASSERT(Obj::exists(fullPath));
 
-# ifdef BSLS_PLATFORM_OS_CYGWIN
+# if defined(BSLS_PLATFORM_OS_CYGWIN) || \
+    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
             struct stat info;
             ASSERT(0 == ::stat(  fullPath.c_str(), &info));
 # else
@@ -1645,7 +1648,8 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == Obj::close(fd));
 
-# ifdef BSLS_PLATFORM_OS_CYGWIN
+# if defined(BSLS_PLATFORM_OS_CYGWIN) || \
+    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
             struct stat info;
             ASSERT(0 == ::stat(  testFile.c_str(), &info));
 # else
@@ -1689,7 +1693,8 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == Obj::close(fd));
 
-# ifdef BSLS_PLATFORM_OS_CYGWIN
+# if defined(BSLS_PLATFORM_OS_CYGWIN) || \
+    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
             struct stat info;
             ASSERT(0 == ::stat(  testFile.c_str(), &info));
 # else
@@ -2542,7 +2547,8 @@ int main(int argc, char *argv[])
             // On UNIX use 'stat64' ('stat' on cygwin) as an oracle: the file
             // size of a directory depends on the file system.
 
-#ifdef BSLS_PLATFORM_OS_CYGWIN
+#if defined(BSLS_PLATFORM_OS_CYGWIN) || \
+    (defined(BSLS_PLATFORM_OS_DARWIN) && defined(_DARWIN_FEATURE_64_BIT_INODE))
             struct stat oracleInfo;
             int rc = ::stat(dirName.c_str(), &oracleInfo);
             ASSERT(0 == rc);
