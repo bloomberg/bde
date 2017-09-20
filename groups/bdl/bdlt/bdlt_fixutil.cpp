@@ -540,11 +540,7 @@ int generatedLengthForTimeObject(int                         defaultLength,
 
     int precision = configuration.fractionalSecondPrecision();
 
-    if (precision > 3) {
-        precision = 3;
-    }
-
-    return defaultLength - (3 - precision) - (0 == precision ? 1 : 0);
+    return defaultLength - (6 - precision) - (0 == precision ? 1 : 0);
 }
 
 static
@@ -927,17 +923,11 @@ int FixUtil::generateRaw(char                        *buffer,
     int precision = configuration.fractionalSecondPrecision();
 
     if (precision) {
-        // 'bdlt::Time' only supports milliseconds; limit precision to 3.
-
-        if (precision > 3) {
-            precision = 3;
-        }
-
         p += generateInt(p, object.second(), 2, '.');
 
-        int value = object.millisecond();
+        int value = object.millisecond() * 1000 + object.microsecond();
 
-        for (int i = 3; i > precision; --i) {
+        for (int i = 6; i > precision; --i) {
             value /= 10;
         }
 
@@ -1436,7 +1426,7 @@ int FixUtil::parse(DatetimeTz *result, const char *string, int length)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
