@@ -728,20 +728,6 @@ void DatetimeInterval::setTotalSeconds(bsls::Types::Int64 seconds)
 }
 
 inline
-void DatetimeInterval::setTotalSeconds(double seconds)
-{
-    const bsls::Types::Int64 days =
-        static_cast<bsls::Types::Int64>(seconds / TimeUnitRatio::k_S_PER_D);
-
-    const bsls::Types::Int64 microseconds = static_cast<bsls::Types::Int64>(
-        (seconds - static_cast<double>(days * TimeUnitRatio::k_S_PER_D)) *
-            TimeUnitRatio::k_US_PER_S +
-        (seconds < 0 ? -0.5 : 0.5));
-
-    assign(days, microseconds);
-}
-
-inline
 void DatetimeInterval::setTotalMilliseconds(bsls::Types::Int64 milliseconds)
 {
     assign(milliseconds / TimeUnitRatio::k_MS_PER_D,

@@ -4,6 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_datetimeinterval_cpp,"$Id$ $CSID$")
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#   define copysign _copysign
+#endif
+
 #include <bdlb_bitutil.h>
 
 #include <bslim_printer.h>
@@ -164,6 +168,28 @@ void DatetimeInterval::assign(bsls::Types::Int64 days,
 }
 
 // MANIPULATORS
+void DatetimeInterval::setTotalSeconds(double seconds)
+{
+    double wholeDays;
+    modf(seconds / TimeUnitRatio::k_S_PER_D, &wholeDays);
+        // Ignoring fractional part to maintain as much accuracy from
+        // 'seconds' as possible.
+
+    BSLS_ASSERT(bsl::numeric_limits<bsls::Types::Int64>::max() >=
+                fabs(wholeDays));
+        // Failing for bsl::numeric_limits<bsls::Types::Int64>::min() is OK
+        // here, because wholeDays has to fit into 32 bits.  Here we're just
+        // checking that we are not about to run into UB when casting to
+        // bsls::Types::Int64.
+
+    const bsls::Types::Int64 microseconds = static_cast<bsls::Types::Int64>(
+        (seconds - wholeDays * TimeUnitRatio::k_S_PER_D) *
+            TimeUnitRatio::k_US_PER_S +
+        copysign(0.5, seconds)); // round
+
+    assign(static_cast<bsls::Types::Int64>(wholeDays), microseconds);
+}
+
 void DatetimeInterval::addInterval(int                days,
                                    bsls::Types::Int64 hours,
                                    bsls::Types::Int64 minutes,
