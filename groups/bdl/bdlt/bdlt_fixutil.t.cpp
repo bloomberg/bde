@@ -176,7 +176,7 @@ const int k_DATE_MAX_PRECISION       = 3;
 const int k_DATETZ_MAX_PRECISION     = 3;
 const int k_DATETIME_MAX_PRECISION   = 6;
 const int k_DATETIMETZ_MAX_PRECISION = 6;
-const int k_TIME_MAX_PRECISION       = 3;
+const int k_TIME_MAX_PRECISION       = 6;
 
 const int k_TIMETZ_MAX_PRECISION     = 0;  // ensures a fractional second is
                                            // never generated
@@ -1627,8 +1627,8 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "\t'Invalid result'" << endl;
             {
-                bdlt::Datetime   *bad   = 0;
-                bdlt::DatetimeTz *badTz = 0;
+                bdlt::Datetime   *bad   = 0;  (void)bad;
+                bdlt::DatetimeTz *badTz = 0;  (void)badTz;
 
                 ASSERT_PASS(Util::parse(  &result, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(      bad, INPUT, LENGTH));
@@ -2180,8 +2180,8 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "\t'Invalid result'" << endl;
             {
-                bdlt::Time   *bad   = 0;
-                bdlt::TimeTz *badTz = 0;
+                bdlt::Time   *bad   = 0;  (void)bad;
+                bdlt::TimeTz *badTz = 0;  (void)badTz;
 
                 ASSERT_PASS(Util::parse(  &result, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(      bad, INPUT, LENGTH));
@@ -2569,8 +2569,8 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "\t'Invalid result'" << endl;
             {
-                bdlt::Date   *bad   = 0;
-                bdlt::DateTz *badTz = 0;
+                bdlt::Date   *bad   = 0;  (void)bad;
+                bdlt::DateTz *badTz = 0;  (void)badTz;
 
                 ASSERT_PASS(Util::parse(  &result, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(      bad, INPUT, LENGTH));
@@ -3094,9 +3094,10 @@ if (veryVerbose)
             const int   MIN     = TIME_DATA[ti].d_min;
             const int   SEC     = TIME_DATA[ti].d_sec;
             const int   MSEC    = TIME_DATA[ti].d_msec;
+            const int   USEC    = TIME_DATA[ti].d_usec;
             const char *FIX = TIME_DATA[ti].d_fix;
 
-            const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC);
+            const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC, USEC);
             const bsl::string EXPECTED_TIME(FIX);
 
             for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
@@ -4169,9 +4170,10 @@ if (veryVerbose)
             const int   MIN     = TIME_DATA[ti].d_min;
             const int   SEC     = TIME_DATA[ti].d_sec;
             const int   MSEC    = TIME_DATA[ti].d_msec;
-            const char *FIX = TIME_DATA[ti].d_fix;
+            const int   USEC    = TIME_DATA[ti].d_usec;
+            const char *FIX     = TIME_DATA[ti].d_fix;
 
-            const TYPE        X(HOUR, MIN, SEC, MSEC);
+            const TYPE        X(HOUR, MIN, SEC, MSEC, USEC);
             const bsl::string BASE_EXPECTED(FIX);
 
             if (veryVerbose) { T_ P_(ILINE) P_(X) P(BASE_EXPECTED) }
