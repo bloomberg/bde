@@ -72,23 +72,22 @@ BSLS_IDENT("$Id: $")
 // has a timezone offset of '+04:00', indicating a timezone 4 hours ahead of
 // UTC.
 //
-// A FIX *fractional* *second* corresponds to, for example, the 'millisecond'
-// attribute of a 'bdlt::Time' object, or the combined 'millisecond' and
-// 'microsecond' attributes of a 'bdlt::Datetime' object.  For example, the
-// 'Time' value (and FIX string) '15:46:09.330' has a 'millisecond' attribute
-// value of 330; i.e., a fractional second of .33.
+// A FIX *fractional* *second* corresponds to, for example, the combined
+// 'millisecond' and 'microsecond' attributes of a 'bdlt::Time' object, or the
+// combined 'millisecond' and 'microsecond' attributes of a 'bdlt::Datetime'
+// object.  For example, the 'Time' value (and FIX string) '15:46:09.330000'
+// has a 'millisecond' attribute value of 330 and a microsecond attribute of 0
+// (i.e., a fractional second of .33).
 //
 ///FIX String Generation
 ///---------------------
 // Strings produced by the 'generate' and 'generateRaw' functions are a
 // straightforward transposition of the attributes of the source 'bdlt' value
 // into an appropriate FIX format, and are best illustrated by a few examples.
-// Note that for 'Datetime' and 'DatetimeTz', the fractional second is
+// Note that for 'Datetime', 'DatetimeTz', and 'Time', the fractional second is
 // generated with the precision specified in the configuration.  Also note that
-// for 'Time', the fractional second is generated with the precision specified
-// in the configuration up to a maximum precision of 3, and for 'TimeTz', no
-// fractional second is generated (as per the FIX specification for
-// "TZTimeOnly").
+// for 'TimeTz', no fractional second is generated (as per the FIX
+// specification for "TZTimeOnly").
 //..
 //  +--------------------------------------+---------------------------------+
 //  |             Object Value             |      Generated FIX String       |
@@ -192,15 +191,10 @@ BSLS_IDENT("$Id: $")
 // FIX protocol document, which indicates the fractional second may be
 // unspecified or have a positive multiple of three digits).  Although FIX has
 // provision for picosecond (or finer) time resolution, be aware that 'bdlt' is
-// limited to either microsecond resolution ('Datetime' and 'DatetimeTz') or
-// millisecond resolution ('Time' and 'TimeTz').  For 'Time' and 'TimeTz', if
-// more than three digits are included in the fractional second, values are
-// rounded to a full millisecond; i.e., values greater than or equal to .5
-// milliseconds are rounded up.  For 'Datetime' and 'DatetimeTz', if more than
-// six digits are included in the fractional second, values are rounded to a
-// full microsecond; i.e., values greater than or equal to .5 microseconds are
-// rounded up.  These roundings may incur a carry of one second into the
-// 'second' attribute:
+// limited to microsecond resolution.  If more than six digits are included in
+// the fractional second, values are rounded to a full microsecond; i.e.,
+// values greater than or equal to .5 microseconds are rounded up.  These
+// roundings may incur a carry of one second into the 'second' attribute:
 //..
 //  +--------------------------------------+---------------------------------+
 //  |          Parsed FIX String           |      Result Object Value        |
@@ -211,10 +205,10 @@ BSLS_IDENT("$Id: $")
 //  |                                      |         -300)                   |
 //  |                                      |  # implied '.0'                 |
 //  +--------------------------------------+---------------------------------+
-//  |  15:46:09.99949                      |  Time(15, 46, 09, 999)          |
+//  |  15:46:09.99999949                   |  Time(15, 46, 09, 999, 999)     |
 //  |                                      |  # truncate last two digits     |
 //  +--------------------------------------+---------------------------------+
-//  |  15:46:09.9995                       |  Time(15, 46, 10, 000)          |
+//  |  15:46:09.9999995                    |  Time(15, 46, 10, 000)          |
 //  |                                      |  # round up and carry           |
 //  +--------------------------------------+---------------------------------+
 //..
@@ -512,7 +506,7 @@ struct FixUtil {
         k_DATE_STRLEN       =  8,  // 'bdlt::Date'
         k_DATETZ_STRLEN     = 14,  // 'bdlt::DateTz'
 
-        k_TIME_STRLEN       = 12,  // 'bdlt::Time'
+        k_TIME_STRLEN       = 15,  // 'bdlt::Time'
         k_TIMETZ_STRLEN     = 14,  // 'bdlt::TimeTz'
 
         k_DATETIME_STRLEN   = 24,  // 'bdlt::Datetime'
@@ -1300,7 +1294,7 @@ int FixUtil::parse(DatetimeTz *result, const bslstl::StringRef& string)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
