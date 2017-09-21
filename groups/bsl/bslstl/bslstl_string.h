@@ -1103,32 +1103,36 @@ class basic_string
 
     typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR>        ContainerBase;
 
-    class StringLengthGuard {
-        // This class implements a scoped guard for setting and restoring
-        // the length of a string. The intended usage is to implement 
-        // 'assign' methods in terms of 'append' while maintaining the
-        // strong exception guarantees.
+    class StringClearGuard {
+        // This class implements a scoped guard for clearing and restoring
+        // a string.  The intended usage is to implement 'assign' methods in 
+        // terms of 'append' while maintaining the strong exception guarantees.
 
         // DATA
-        basic_string* d_string_p;   // pointer to the string supplied at
-                                    // construction (held, not owned)
+        basic_string* d_string_p;          // pointer to the string supplied at
+                                           // construction (held, not owned)
 
-        size_type d_originalLength; // original length of the string supplied 
-                                    // at construction
+        size_type     d_originalLength;    // original length of the string
+                                           // supplied at construction
+
+        CHAR_TYPE     d_originalFirstChar; // original first character of the 
+                                           // string supplied at construction
+
       public:
         // CREATORS
-        StringLengthGuard(basic_string *string_p, size_type newLength);
-            // Create a 'StringLengthGuard' for the specified 'string_p' and
-            // set the length of 'string_p' to the specified 'newLength'.
+        explicit StringClearGuard(basic_string *string_p);
+            // Create a 'StringLengthGuard' for the specified 'string_p',
+            // set the length of 'string_p' to 0 and first character to
+            // CHAR_TYPE()
 
-        ~StringLengthGuard();
-            // Destroy this object and restore the original length of the
+        ~StringClearGuard();
+            // Destroy this object and restore the original state of the
             // string supplied at construction, unless release() has been
             // called.
 
         // MANIPULATORS
         void release();
-            // Release the guard indicating that the string length need not
+            // Release the guard indicating that the string state need not
             // to be restored.
     };
 
@@ -2981,27 +2985,30 @@ const CHAR_TYPE *String_Imp<CHAR_TYPE, SIZE_TYPE>::dataPtr() const
 
 // CREATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringLengthGuard::
-                 StringLengthGuard(basic_string *string_p, size_type newLength)
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearGuard::
+                                       StringClearGuard(basic_string *string_p)
     : d_string_p(string_p)
     , d_originalLength(string_p->d_length)
+    , d_originalFirstChar(*string_p->dataPtr())
 {
-    d_string_p->d_length = newLength;
+    d_string_p->d_length = 0;
+    CHAR_TRAITS::assign(*(d_string_p->dataPtr()), CHAR_TYPE());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringLengthGuard::
-                                                           ~StringLengthGuard()
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearGuard::
+                                                            ~StringClearGuard()
 {
     if (d_string_p) {
         d_string_p->d_length = d_originalLength;
+        CHAR_TRAITS::assign(*(d_string_p->dataPtr()), d_originalFirstChar);
     }
 }
 
 // MANIPULATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringLengthGuard::release()
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearGuard::release()
 {
     d_string_p = 0;
 }
@@ -3245,7 +3252,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssignDispatch(
                                                             SECOND_TYPE second)
 {
     {
-        StringLengthGuard guard(this, 0);
+        StringClearGuard guard(this);
         append(first, second);
         guard.release();
     }
