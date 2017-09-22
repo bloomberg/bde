@@ -1103,8 +1103,8 @@ class basic_string
 
     typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR>        ContainerBase;
 
-    class StringClearGuard {
-        // This class implements a scoped guard for clearing and restoring
+    class StringClearProctor {
+        // This class implements a proctor for clearing and restoring
         // a string.  The intended usage is to implement 'assign' methods in 
         // terms of 'append' while maintaining the strong exception guarantees.
 
@@ -1120,12 +1120,12 @@ class basic_string
 
       public:
         // CREATORS
-        explicit StringClearGuard(basic_string *string_p);
-            // Create a 'StringLengthGuard' for the specified 'string_p',
+        explicit StringClearProctor(basic_string *string_p);
+            // Create a 'StringClearProctor' for the specified 'string_p',
             // set the length of 'string_p' to 0 and first character to
             // CHAR_TYPE()
 
-        ~StringClearGuard();
+        ~StringClearProctor();
             // Destroy this object and restore the original state of the
             // string supplied at construction, unless release() has been
             // called.
@@ -2985,8 +2985,8 @@ const CHAR_TYPE *String_Imp<CHAR_TYPE, SIZE_TYPE>::dataPtr() const
 
 // CREATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearGuard::
-                                       StringClearGuard(basic_string *string_p)
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearProctor::
+                                       StringClearProctor(basic_string *string_p)
     : d_string_p(string_p)
     , d_originalLength(string_p->d_length)
     , d_originalFirstChar(*string_p->dataPtr())
@@ -2996,8 +2996,8 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearGuard::
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearGuard::
-                                                            ~StringClearGuard()
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearProctor::
+                                                            ~StringClearProctor()
 {
     if (d_string_p) {
         d_string_p->d_length = d_originalLength;
@@ -3008,7 +3008,7 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearGuard::
 // MANIPULATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearGuard::release()
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearProctor::release()
 {
     d_string_p = 0;
 }
@@ -3252,7 +3252,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssignDispatch(
                                                             SECOND_TYPE second)
 {
     {
-        StringClearGuard guard(this);
+        StringClearProctor guard(this);
         append(first, second);
         guard.release();
     }
