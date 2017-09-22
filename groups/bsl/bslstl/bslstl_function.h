@@ -210,7 +210,7 @@ BSL_OVERRIDES_STD mode"
 #if defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES
     // The IBM compiler has problems storing specific kinds of member-function
-    // pointer in a 'bsl::functionb' object, which appear to compile correctly
+    // pointer in a 'bsl::function' object, which appear to compile correctly
     // but produce corrupt results when executed, including potential stack
     // corruption with wildly unpredictable results.  The recommended
     // workaround until an IBM compiler patch is available is to pass member
