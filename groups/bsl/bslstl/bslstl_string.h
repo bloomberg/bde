@@ -1017,6 +1017,48 @@ class String_Imp {
         // the string defined by the return value of 'isShortString'.
 };
 
+template<class STRING_TYPE>
+class StringClearProctor {
+    // This component private 'class' implements a proctor that clears a
+    // string, and, if 'release' is not called, will restore that string upon
+    // it's destruction.  The intended usage is to implement 'assign' methods
+    // in terms of 'append' (by clearing the string before appending to it),
+    // while maintaining the strong exceptions guarantee.
+
+    // PRIVATE TYPES
+    typedef typename STRING_TYPE::value_type  value_type;
+    typedef typename STRING_TYPE::size_type   size_type;
+    typedef typename STRING_TYPE::traits_type traits_type;
+
+    // DATA
+    STRING_TYPE* d_string_p;          // pointer to the string supplied at
+                                      // construction (held, not owned)
+
+    size_type    d_originalLength;    // original length of the string supplied
+                                      // at construction
+
+    value_type   d_originalFirstChar; // original first character of the string
+                                      // supplied at construction
+
+  public:
+    // CREATORS
+    explicit StringClearProctor(STRING_TYPE *stringPtr);
+        // Create a 'StringClearProctor' for the specified 'stringImp',
+        // set the length of 'string_p' to 0 and first character to
+        // CHAR_TYPE()
+
+    ~StringClearProctor();
+        // Destroy this object and restore the original state of the
+        // string supplied at construction, unless release() has been
+        // called.
+
+    // MANIPULATORS
+    void release();
+        // Release the guard indicating that the string state need not
+        // to be restored.
+};
+
+
                         // =======================
                         // class bsl::basic_string
                         // =======================
@@ -1103,39 +1145,6 @@ class basic_string
 
     typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR>        ContainerBase;
 
-    class StringClearProctor {
-        // This class implements a proctor for clearing and restoring
-        // a string.  The intended usage is to implement 'assign' methods in 
-        // terms of 'append' while maintaining the strong exception guarantees.
-
-        // DATA
-        basic_string* d_string_p;          // pointer to the string supplied at
-                                           // construction (held, not owned)
-
-        size_type     d_originalLength;    // original length of the string
-                                           // supplied at construction
-
-        CHAR_TYPE     d_originalFirstChar; // original first character of the 
-                                           // string supplied at construction
-
-      public:
-        // CREATORS
-        explicit StringClearProctor(basic_string *string_p);
-            // Create a 'StringClearProctor' for the specified 'string_p',
-            // set the length of 'string_p' to 0 and first character to
-            // CHAR_TYPE()
-
-        ~StringClearProctor();
-            // Destroy this object and restore the original state of the
-            // string supplied at construction, unless release() has been
-            // called.
-
-        // MANIPULATORS
-        void release();
-            // Release the guard indicating that the string state need not
-            // to be restored.
-    };
-
     // FRIENDS
     friend string to_string(int);
     friend string to_string(long);
@@ -1145,6 +1154,22 @@ class basic_string
     friend string to_string(unsigned long long);
         // 'to_string' functions are made friends to allow access to the
         // internal short string buffer.
+
+    friend class StringClearProctor<basic_string>;
+        // StringClearProctor is made friend to allow access to internal
+        // buffer and length.
+
+    // PRIVATE CLASS METHODS
+    static void privateThrowLengthError(bool        maxLengthExceeded,
+                                        const char *message);
+        // Throw 'length_error' with the specified 'message' if the specified
+        // 'maxLengthExceeded' is 'true'.  Otherwise, this method has no
+        // effect.
+
+    static void privateThrowOutOfRange(bool outOfRange, const char *message);
+        // Throw 'out_of_range' with the specified 'message' if the specified
+        // 'outOfRange' is 'true'.   Otherwise, this method has no effect.
+
 
     // PRIVATE MANIPULATORS
 
@@ -1172,71 +1197,92 @@ class basic_string
         // enough to fit into the small buffer storage.
 
     basic_string& privateAppend(const CHAR_TYPE *characterString,
-                                size_type        numChars);
+                                size_type        numChars,
+                                const char      *message);
         // Append characters from the specified 'characterString' array of
         // characters of the specified 'numChars' length to this string, and
-        // return a reference providing modifiable access to this string.  The
-        // behavior is undefined unless 'numChars <= max_size() - length()',
-        // and the 'characterString' array is at least 'numChars' long.
+        // return a reference providing modifiable access to this string.
+        // Throw 'length_error' with the specified 'message' if 
+        // 'numChars > max_size() - length()'.  The behavior is undefined
+        // unless 'characterString' array is at least 'numChars' long.
 
-    basic_string& privateAppend(size_type numChars,
-                                CHAR_TYPE character);
+    basic_string& privateAppend(size_type   numChars,
+                                CHAR_TYPE   character,
+                                const char *message);
         // Append the specified 'numChars' copies of the specified 'character'
         // to this string.  Return a reference providing modifiable access to
-        // this string.  The behavior is undefined unless and
-        // 'numChars <= max_size() - length()'.
+        // this string.  Throw 'length_error' with the specified 'message' if
+        // 'numChars > max_size() - length()'.
 
-    basic_string& privateAppend(iterator first,
-                                iterator last,
+    basic_string& privateAppend(iterator    first,
+                                iterator    last,
+                                const char *message,
                                 std::forward_iterator_tag);
-    basic_string& privateAppend(const_iterator first,
-                                const_iterator last,
+    basic_string& privateAppend(const_iterator  first,
+                                const_iterator  last,
+                                const char     *message,
                                 std::forward_iterator_tag);
-        // Append the characters from the string represented by the
-        // specified 'first' and 'last' iterators.  The behavior is undefined
-        // unless 'first' and 'last' refer to a sequence of valid values where
-        // 'first' is at a position at or before 'last'.
+        // Append the characters from the string represented by the specified
+        // 'first' and 'last' iterators.  Throw 'length_error' with the
+        // specified 'message' if 'length() > max_size() - (last - first)'.
+        // The behavior is undefined unless 'first' and 'last' refer to a
+        // sequence of valid values where 'first' is at a position at or before
+        // 'last'.
 
     template <class INPUT_ITER>
-    basic_string& privateAppend(INPUT_ITER first,
-                                INPUT_ITER last,
+    basic_string& privateAppend(INPUT_ITER  first,
+                                INPUT_ITER  last,
+                                const char *message,
                                 std::input_iterator_tag);
         // Specialized replacement for input iterators, using repeated
         // 'push_back' operations.
 
     template <class INPUT_ITER>
-    basic_string& privateAppend(INPUT_ITER first,
-                                INPUT_ITER last,
+    basic_string& privateAppend(INPUT_ITER  first,
+                                INPUT_ITER  last,
+                                const char *message,
                                 std::forward_iterator_tag);
-        // Specialized append for forward, bidirectional, and
-        // random-access iterators.  Throw 'length_error' if
-        // 'length() - numChars > max_size() - distance(first, last)'.
+        // Specialized append for forward, bidirectional, and random-access
+        // iterators.  Throw 'length_error' with the specified 'message' if
+        // 'length() > max_size() - distance(first, last)'.
 
     template <class INPUT_ITER>
     basic_string& privateAppendDispatch(
-                              INPUT_ITER                              first,
-                              INPUT_ITER                              last,
-                              BloombergLP::bslmf::MatchArithmeticType ,
-                              BloombergLP::bslmf::Nil                 );
+                              INPUT_ITER                               first,
+                              INPUT_ITER                               last,
+                              const char                              *message,
+                              BloombergLP::bslmf::MatchArithmeticType,
+                              BloombergLP::bslmf::Nil);
         // Match integral type for 'INPUT_ITER'.
 
     template <class INPUT_ITER>
     basic_string& privateAppendDispatch(
-                                     INPUT_ITER                       first,
-                                     INPUT_ITER                       last,
-                                     BloombergLP::bslmf::MatchAnyType ,
-                                     BloombergLP::bslmf::MatchAnyType );
+                                     INPUT_ITER                        first,
+                                     INPUT_ITER                        last,
+                                     const char                       *message,
+                                     BloombergLP::bslmf::MatchAnyType,
+                                     BloombergLP::bslmf::MatchAnyType);
         // Match non-integral type for 'INPUT_ITER'.
 
+    template<class INPUT_ITER>
+    basic_string& privateAppend(INPUT_ITER  first,
+                                INPUT_ITER  last,
+                                const char *message);
+        // Dispatch the append operation to the correct 'privateAppend'
+        // overload using 'privateAppendDispatch'.
+
+
     template<class FIRST_TYPE, class SECOND_TYPE>
-    basic_string& privateAssignDispatch(FIRST_TYPE first,
-                                        SECOND_TYPE second);
-        // Assign characters to this string given the specified 'first' and
-        // 'second' values, and return a reference providing modifiable access
-        // to this string.  The parametrized 'FIRST_TYPE' and 'SECOND_TYPE'
-        // may resolve to 'const CHAR_TYPE*' and 'size_type', 'size_type' and
-        // 'CHAR_TYPE', or a pair of iterators.  The call will be dispatched
-        // to the corresponding append function. 
+    basic_string& privateAssignDispatch(FIRST_TYPE   first,
+                                        SECOND_TYPE  second, 
+                                        const char  *message);
+        // Assign to this string the value of the string described by the
+        // specified 'first' and 'second' values, and return a reference
+        // providing modifiable access to this string.  The parametrized
+        // 'FIRST_TYPE' and 'SECOND_TYPE' may resolve to 'const CHAR_TYPE*' and
+        // 'size_type', 'size_type' and 'CHAR_TYPE', or a pair of iterators.
+        // This call will clear the string and then dispatch to the
+        // corresponding 'privateAppend' function. 
 
     Imp& privateBase();
         // Return a reference providing modifiable access to the base object
@@ -2979,36 +3025,33 @@ const CHAR_TYPE *String_Imp<CHAR_TYPE, SIZE_TYPE>::dataPtr() const
           : d_start_p;
 }
 
-                // ------------------------------------------
-                // class bsl::basic_string::StringLengthGuard
-                // ------------------------------------------
+                    // -----------------------------
+                    // class bsl::StringClearProctor
+                    // -----------------------------
 
 // CREATORS
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearProctor::
-                                       StringClearProctor(basic_string *string_p)
-    : d_string_p(string_p)
-    , d_originalLength(string_p->d_length)
-    , d_originalFirstChar(*string_p->dataPtr())
+template <class STRING_TYPE>
+StringClearProctor<STRING_TYPE>::StringClearProctor(STRING_TYPE *stringPtr)
+: d_string_p(stringPtr)
+, d_originalLength(stringPtr->d_length)
+, d_originalFirstChar(*stringPtr->dataPtr())
 {
     d_string_p->d_length = 0;
-    CHAR_TRAITS::assign(*(d_string_p->dataPtr()), CHAR_TYPE());
+    traits_type::assign(*(d_string_p->dataPtr()), value_type());
 }
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearProctor::
-                                                            ~StringClearProctor()
+template <class STRING_TYPE>
+StringClearProctor<STRING_TYPE>::~StringClearProctor()
 {
     if (d_string_p) {
         d_string_p->d_length = d_originalLength;
-        CHAR_TRAITS::assign(*(d_string_p->dataPtr()), d_originalFirstChar);
+        traits_type::assign(*(d_string_p->dataPtr()), d_originalFirstChar);
     }
 }
 
 // MANIPULATORS
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-void
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearProctor::release()
+template <class STRING_TYPE>
+void StringClearProctor<STRING_TYPE>::release()
 {
     d_string_p = 0;
 }
@@ -3021,6 +3064,34 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringClearProctor::release()
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 const typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::npos;
+
+
+// PRIVATE CLASS METHODS
+template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+void
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateThrowLengthError(
+                                                 bool        maxLengthExceeded, 
+                                                 const char *message)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(maxLengthExceeded)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(message);
+    }
+}
+
+template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+void
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateThrowOutOfRange(
+                                                        bool        outOfRange,
+                                                        const char *message)
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(outOfRange)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(message);
+    }
+}
 
 // PRIVATE MANIPULATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -3067,9 +3138,10 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
                                               const CHAR_TYPE *characterString,
-                                              size_type        numChars)
+                                              size_type        numChars,
+                                              const char      *message)
 {
-    BSLS_ASSERT_SAFE(length() <= max_size() - numChars);
+    privateThrowLengthError(numChars > max_size() - length(), message);
 
     size_type  newLength  = this->d_length + numChars;
     size_type  newStorage = this->d_capacity;
@@ -3102,10 +3174,11 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
-                                                           size_type numChars,
-                                                           CHAR_TYPE character)
+                                                         size_type   numChars,
+                                                         CHAR_TYPE   character,
+                                                         const char *message)
 {
-    BSLS_ASSERT_SAFE(length() <= max_size() - numChars);
+    privateThrowLengthError(numChars > max_size() - length(), message);
 
     size_type newLength = this->d_length + numChars;
     privateReserveRaw(newLength);
@@ -3119,34 +3192,30 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
-                                                     iterator begin,
-                                                     iterator end,
+                                                     iterator    begin,
+                                                     iterator    end,
+                                                     const char *message,
                                                      std::forward_iterator_tag)
 {
     BSLS_ASSERT_SAFE(begin <= end);
 
     return privateAppend(const_iterator(begin),
                          const_iterator(end),
+                         message,
                          std::forward_iterator_tag());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
-                                                     const_iterator first,
-                                                     const_iterator last,
+                                                     const_iterator  first,
+                                                     const_iterator  last,
+                                                     const char     *message,
                                                      std::forward_iterator_tag)
 {
     BSLS_ASSERT_SAFE(first <= last);
-
-    size_type numChars = last - first;
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                           numChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                            "string<...>::append<Iter>(i,j): string too long");
-    }
-    return privateAppend(&*first, numChars);
+    return privateAppend(&*first, last - first, message);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -3154,8 +3223,9 @@ template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
-                                                       INPUT_ITER first,
-                                                       INPUT_ITER last,
+                                                       INPUT_ITER  first,
+                                                       INPUT_ITER  last,
+                                                       const char *message,
                                                        std::input_iterator_tag)
 {
     basic_string temp(get_allocator());
@@ -3169,7 +3239,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
         quickSwapRetainAllocators(temp);
         return *this;                                                 // RETURN
     }
-    return privateAppend(temp.data(), temp.length());
+    return privateAppend(temp.data(), temp.length(), message);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -3177,17 +3247,13 @@ template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
-                                                     INPUT_ITER first,
-                                                     INPUT_ITER last,
+                                                     INPUT_ITER  first,
+                                                     INPUT_ITER  last,
+                                                     const char *message,
                                                      std::forward_iterator_tag)
 {
     size_type numChars = bsl::distance(first, last);
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                           numChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                            "string<...>::append<Iter>(i,j): string too long");
-    }
+    privateThrowLengthError(numChars > max_size() - length(), message);
 
     size_type  newLength  = this->d_length + numChars;
     size_type  newStorage = this->d_capacity;
@@ -3223,37 +3289,57 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
                               INPUT_ITER                              first,
                               INPUT_ITER                              last,
-                              BloombergLP::bslmf::MatchArithmeticType ,
+                              const char                             *message,
+                              BloombergLP::bslmf::MatchArithmeticType,
                               BloombergLP::bslmf::Nil                 )
 {
-    return privateAppend((size_type)first, (CHAR_TYPE)last);
+    return privateAppend((size_type)first, (CHAR_TYPE)last, message);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
                                      INPUT_ITER                       first,
                                      INPUT_ITER                       last,
-                                     BloombergLP::bslmf::MatchAnyType ,
+                                     const char                      *message,
+                                     BloombergLP::bslmf::MatchAnyType,
                                      BloombergLP::bslmf::MatchAnyType )
 {
     typename iterator_traits<INPUT_ITER>::iterator_category tag;
-    return privateAppend(first, last, tag);
+    return privateAppend(first, last, message, tag);
+}
+
+template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template<class INPUT_ITER>
+inline
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateAppend(
+                                                           INPUT_ITER  first,
+                                                           INPUT_ITER  last,
+                                                           const char *message)
+{
+    return privateAppendDispatch(first,
+                                 last,
+                                 message,
+                                 first,
+                                 BloombergLP::bslmf::Nil());
 }
 
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class FIRST_TYPE, class SECOND_TYPE>
+inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssignDispatch(
-                                                            FIRST_TYPE first,
-                                                            SECOND_TYPE second)
+                                                          FIRST_TYPE   first,
+                                                          SECOND_TYPE  second,
+                                                          const char  *message)
 {
     {
-        StringClearProctor guard(this);
-        append(first, second);
+        StringClearProctor<basic_string> guard(this);
+        privateAppend(first, second, message);
         guard.release();
     }
 
@@ -3306,18 +3392,15 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
     BSLS_ASSERT_SAFE(first <= last);
 
     size_type pos = position - cbegin();
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pos > length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+    privateThrowOutOfRange(
+                       pos > length(),
                        "string<...>::insert<Iter>(pos,i,j): invalid position");
-    }
+
     size_type numChars = last - first;
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                           numChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+    privateThrowLengthError(
+                        numChars > max_size() - length(),
                         "string<...>::insert<Iter>(pos,i,j): string too long");
-    }
+
     privateInsertRaw(pos, &*first, numChars);
 }
 
@@ -3579,11 +3662,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
                                                        INPUT_ITER last,
                                                        std::input_iterator_tag)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < outPosition)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                 "string<...>::replace<InputIter>(pos,i,j): invalid position");
-    }
+    privateThrowOutOfRange(
+               length() < outPosition,
+               "string<...>::replace<InputIter>(pos,n,i,j): invalid position");
+
     basic_string temp(get_allocator());
     for (; first != last; ++first) {
         temp.push_back(*first);
@@ -3611,19 +3693,14 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
                                                      INPUT_ITER last,
                                                      std::forward_iterator_tag)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < outPosition)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                      "string<...>::replace<Iter>(pos,i,j): invalid position");
-    }
-    size_type numChars = bsl::distance(first, last);
+    privateThrowOutOfRange(
+                    length() < outPosition,
+                    "string<...>::replace<Iter>(pos,n,i,j): invalid position");
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                           max_size() - (length() - outPosition) < numChars)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+    size_type numChars = bsl::distance(first, last);
+    privateThrowLengthError(
+                     max_size() - (length() - outPosition) < numChars,
                      "string<...>::replace<Iter>(pos,n,i,j): string too long");
-    }
 
     // Create a temp string because the 'first'/'last' iterator pair can alias
     // the current string; not using the constructor with two iterators because
@@ -3651,20 +3728,15 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
 {
     BSLS_ASSERT_SAFE(first <= last);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < position)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                      "string<...>::replace<Iter>(pos,i,j): invalid position");
-    }
+    privateThrowOutOfRange(
+                    length() < position,
+                    "string<...>::replace<Iter>(pos,n,i,j): invalid position");
+
     size_type numNewChars = bsl::distance(first, last);
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                           max_size() - (length() - position) < numNewChars)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+    privateThrowLengthError(
+                     max_size() - (length() - position) < numNewChars,
                      "string<...>::replace<Iter>(pos,n,i,j): string too long");
-    }
-
+    
     return privateReplaceRaw(position, numChars, &*first, numNewChars);
 }
 
@@ -4021,13 +4093,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
             quickSwapExchangeAllocators(other);
         }
         else {
-            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                                    rhs.size() > max_size())) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-                BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+            privateAssignDispatch(
+                  rhs.data(),
+                  rhs.size(),
                   "string<...>::operator=(const string&...): string too long");
-            }
-            privateAssignDispatch(rhs.data(), rhs.size());
         }
     }
     return *this;
@@ -4052,14 +4121,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
             quickSwapRetainAllocators(other);
         }
         else {
-            if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                                 lvalue.size() > max_size())) {
-                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-                BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                       "string<...>::operator=(string&&...): string too long");
-            }
-
-            privateAssignDispatch(lvalue.data(), lvalue.size());
+            privateAssignDispatch(
+                  lvalue.data(),
+                  lvalue.size(),
+                  "string<...>::operator=(const string&...): string too long");
         }
     }
     return *this;
@@ -4071,14 +4136,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                       const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& rhs)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-               static_cast<size_type>(rhs.end() - rhs.begin()) > max_size())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-           "string<...>::operator=(const stringRefData&...): string too long");
-    }
-
-    return privateAssignDispatch(rhs.begin(), rhs.end() - rhs.begin());
+    return privateAssignDispatch(
+                  rhs.begin(),
+                  rhs.end() - rhs.begin(),
+                  "string<...>::operator=(const string&...): string too long");
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4106,7 +4167,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                                        std::initializer_list<CHAR_TYPE> values)
 {
-    return privateAssignDispatch(values.begin(), values.end());
+    return privateAssignDispatch(
+                  values.begin(),
+                  values.end(),
+                  "string<...>::operator=(initializer_list): string too long");
 }
 #endif
 
@@ -4117,11 +4181,8 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength,
                                                            CHAR_TYPE character)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newLength > max_size())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                                  "string<...>::resize(n,c): string too long");
-    }
+    privateThrowLengthError(newLength > max_size(),
+                            "string<...>::resize(n,c): string too long");
     privateResizeRaw(newLength, character);
 }
 
@@ -4129,11 +4190,8 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newLength > max_size())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                                    "string<...>::resize(n): string too long");
-    }
+    privateThrowLengthError(newLength > max_size(),
+                            "string<...>::resize(n): string too long");
     privateResizeRaw(newLength, CHAR_TYPE());
 }
 
@@ -4142,11 +4200,8 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reserve(
                                                          size_type newCapacity)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newCapacity > max_size())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                                   "string<...>::reserve(n): string too long");
-    }
+    privateThrowLengthError(newCapacity > max_size(),
+                            "string<...>::reserve(n): string too long");
     privateReserveRaw(newCapacity);
 }
 
@@ -4214,11 +4269,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position)
     // function, and 2) it is very convenient to have at least one non-inlined
     // element accessor for debugging.
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position >= length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                                       "string<...>::at(n): invalid position");
-    }
+    privateThrowOutOfRange(position >= length(),
+                           "string<...>::at(n): invalid position");
+
     return *(begin() + position);
 }
 
@@ -4309,21 +4362,17 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                                   size_type           position,
                                                   size_type           numChars)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > suffix.length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                 "string<...>::append(string const&,pos,n): invalid position");
-    }
+    privateThrowOutOfRange(
+                 position > suffix.length(),
+                 "string<...>::append(const string&,pos,n): invalid position");
+
     if (numChars > suffix.length() - position) {
         numChars = suffix.length() - position;
     }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                           numChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                     "string<...>::append(string const&...): string too long");
-    }
-    return privateAppend(suffix.data() + position, numChars);
+    return privateAppend(
+                  suffix.data() + position,
+                  numChars,
+                  "string<...>::append(const string&,pos,n): string too long");
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4335,13 +4384,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
 {
     BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                           numChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                             "string<...>::append(char*...): string too long");
-    }
-    return privateAppend(characterString, numChars);
+    return privateAppend(characterString,
+                         numChars,
+                         "string<...>::append(char*...): string too long");
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4361,37 +4406,30 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(size_type numChars,
                                                       CHAR_TYPE character)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                     numChars > max_size() - this->d_length)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                                  "string<...>::append(n,c): string too long");
-    }
-    return privateResizeRaw(length() + numChars, character);
+    return privateAppend(numChars,
+                         character,
+                         "string<...>::append(n,c): string too long");
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class INPUT_ITER>
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(INPUT_ITER first,
                                                       INPUT_ITER last)
 {
-    return privateAppendDispatch(first,
-                                 last,
-                                 first,
-                                 BloombergLP::bslmf::Nil());
+    return privateAppend(first,
+                         last,
+                         "string<...>::append<Iter>(i,j): string too long");
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::push_back(
                                                            CHAR_TYPE character)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() >= max_size())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                              "string<...>::push_back(char): string too long");
-    }
+    privateThrowLengthError(length() >= max_size(),
+                            "string<...>::push_back(char): string too long");
+
     if (length() + 1 > capacity()) {
         privateReserveRaw(length() + 1);
     }
@@ -4427,22 +4465,17 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                                size_type           position,
                                                size_type           numChars)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                            position > replacement.length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                 "string<...>::assign(string const&,pos,n): invalid position");
-    }
+    privateThrowOutOfRange(
+                 position > replacement.length(),
+                 "string<...>::assign(const string&,pos,n): invalid position");
+
     if (numChars > replacement.length() - position) {
         numChars = replacement.length() - position;
     }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > max_size())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                     "string<...>::assign(string const&...): string too long");
-    }
-
-    return privateAssignDispatch(replacement.data() + position, numChars);
+    return privateAssignDispatch(
+                 replacement.data() + position,
+                 numChars,
+                 "string<...>::assign(const string&,pos,n): invalid position");
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4457,6 +4490,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                               const CHAR_TYPE *characterString,
@@ -4464,13 +4498,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
 {
     BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > max_size())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+    return privateAssignDispatch(
+                             characterString,
+                             numChars,
                              "string<...>::assign(char*...): string too long");
-    }
-
-    return privateAssignDispatch(characterString, numChars);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4488,32 +4519,35 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(size_type numChars,
                                                       CHAR_TYPE character)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > max_size())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+    return privateAssignDispatch(
+                                  numChars,
+                                  character,
                                   "string<...>::assign(n,c): string too long");
-    }
-
-    return privateAssignDispatch(numChars, character);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class INPUT_ITER>
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
                                                       INPUT_ITER last)
 {
-    return privateAssignDispatch(first, last);
+    return privateAssignDispatch(
+                            first,
+                            last,
+                            "string<...>::assign<Iter>(i,j): string too long");
 }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-inline
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                        std::initializer_list<CHAR_TYPE> values)
 {
-    return privateAssignDispatch(values.begin(), values.end());
+    return privateAssignDispatch(
+                     values.begin(),
+                     values.end(),
+                     "string<...>::assign(initializer_list): string too long");
 }
 #endif
 
@@ -4535,21 +4569,19 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                               size_type            position,
                                               size_type            numChars)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(outPosition > length())
-     || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > other.length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                "string<...>::insert(pos,string const&...): invalid position");
-    }
+    privateThrowOutOfRange(
+                outPosition > length(), 
+                "string<...>::insert(pos,const string&...): invalid position");
+    privateThrowOutOfRange(
+                position > other.length(),
+                "string<...>::insert(pos,const string&...): invalid position");
+
     if (numChars > other.length() - position) {
         numChars = other.length() - position;
     }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                           numChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                     "string<...>::insert(string const&...): string too long");
-    }
+    privateThrowLengthError(
+                 numChars > max_size() - length(),
+                 "string<...>::insert(pos,const string&...): string too long");
     return privateInsertRaw(outPosition, other.data() + position, numChars);
 }
 
@@ -4562,17 +4594,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
 {
     BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+    privateThrowOutOfRange(
+                        position > length(),
                         "string<...>::insert(pos,char*...): invalid position");
-    }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                           numChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                             "string<...>::insert(char*...): string too long");
-    }
+
+    privateThrowLengthError(
+                         numChars > max_size() - length(),
+                         "string<...>::insert(pos,char*...): string too long");
     return privateInsertRaw(position, characterString, numChars);
 }
 
@@ -4596,17 +4624,11 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(size_type position,
                                                       size_type numChars,
                                                       CHAR_TYPE character)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                             "string<...>::insert(pos,n,c): invalid position");
-    }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                           numChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                              "string<...>::insert(pos,n,v): string too long");
-    }
+    privateThrowOutOfRange(position > length(),
+                           "string<...>::insert(pos,n,c): invalid position");
+
+    privateThrowLengthError(numChars > max_size() - length(),
+                            "string<...>::insert(pos,n,c): string too long");
     return privateReplaceRaw(position, size_type(0), numChars, character);
 }
 
@@ -4692,11 +4714,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(size_type position,
                                                      size_type numChars)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                                "string<...>::erase(pos,n): invalid position");
-    }
+    privateThrowOutOfRange(position > length(),
+                           "string<...>::erase(pos,n): invalid position");
+
     if (numChars > length() - position) {
         numChars = length() - position;
     }
@@ -4769,21 +4789,16 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                                size_type           outNumChars,
                                                const basic_string& replacement)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < outPosition)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-               "string<...>::replace(pos,string const&...): invalid position");
-    }
+    privateThrowOutOfRange(
+               length() < outPosition,
+               "string<...>::replace(pos,const string&...): invalid position");
     if (outNumChars > length() - outPosition) {
         outNumChars = length() - outPosition;
     }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                 replacement.length()               > outNumChars
-              && replacement.length() - outNumChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                "string<...>::replace(pos,string const&...): string too long");
-    }
+    privateThrowLengthError(
+                replacement.length() > outNumChars && 
+                    replacement.length() - outNumChars > max_size() - length(),
+                "string<...>::replace(pos,const string&...): string too long");
     return privateReplaceRaw(outPosition,
                              outNumChars,
                              replacement.data(),
@@ -4799,30 +4814,24 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                                size_type           position,
                                                size_type           numChars)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(outPosition > length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-               "string<...>::replace(pos,string const&...): invalid position");
-    }
+    privateThrowOutOfRange(
+               length() < outPosition,
+               "string<...>::replace(pos,const string&...): invalid position");
+
     if (outNumChars > length() - outPosition) {
         outNumChars = length() - outPosition;
     }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                            position > replacement.length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-               "string<...>::replace(pos,string const&...): invalid position");
-    }
+    privateThrowOutOfRange(
+               position > replacement.length(),
+               "string<...>::replace(pos,const string&...): invalid position");
+
     if (numChars > replacement.length() - position) {
         numChars = replacement.length() - position;
     }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > outNumChars)
-     && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                             numChars - outNumChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                    "string<...>::replace(string const&...): string too long");
-    }
+    privateThrowLengthError(
+                numChars > outNumChars &&
+                                numChars - outNumChars > max_size() - length(),
+                "string<...>::replace(pos,const string&...): string too long");
     return privateReplaceRaw(outPosition,
                              outNumChars,
                              replacement.data() + position,
@@ -4839,21 +4848,18 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
 {
     BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(outPosition > length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+    privateThrowOutOfRange(
+                       length() < outPosition,
                        "string<...>::replace(pos,char*...): invalid position");
-    }
+
     if (outNumChars > length() - outPosition) {
         outNumChars = length() - outPosition;
     }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > outNumChars)
-     && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                             numChars - outNumChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                            "string<...>::replace(char*...): string too long");
-    }
+
+    privateThrowLengthError(
+                        numChars > outNumChars &&
+                                numChars - outNumChars > max_size() - length(),
+                        "string<...>::replace(pos,char*...): string too long");
     return privateReplaceRaw(outPosition,
                              outNumChars,
                              characterString,
@@ -4883,21 +4889,16 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(size_type outPosition,
                                                        size_type numChars,
                                                        CHAR_TYPE character)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(outPosition > length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+    privateThrowOutOfRange(
+                            length() < outPosition,
                             "string<...>::replace(pos,n,c): invalid position");
-    }
     if (outNumChars > length() - outPosition) {
         outNumChars = length() - outPosition;
     }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > outNumChars)
-     && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                             numChars - outNumChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                             "string<...>::replace(pos,n,v): string too long");
-    }
+    privateThrowLengthError(
+                             numChars > outNumChars &&
+                                numChars - outNumChars > max_size() - length(),
+                             "string<...>::replace(pos,n,c): string too long");
     return privateReplaceRaw(outPosition,
                              outNumChars,
                              numChars,
@@ -4918,14 +4919,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
 
     size_type outPosition = first - cbegin();
     size_type outNumChars = last - first;
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                            replacement.length() > outNumChars)
-     && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                 replacement.length() - outNumChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                    "string<...>::replace(string const&...): string too long");
-    }
+
+    privateThrowLengthError(
+                    replacement.length() > outNumChars &&
+                    replacement.length() - outNumChars > max_size() - length(),
+                    "string<...>::replace(const string&...): string too long");
+
     return privateReplaceRaw(outPosition,
                              outNumChars,
                              replacement.data(),
@@ -4948,13 +4947,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
 
     size_type outPosition = first - cbegin();
     size_type outNumChars = last - first;
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > outNumChars)
-     && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                             numChars - outNumChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+    privateThrowLengthError(
+                            numChars > outNumChars &&
+                            numChars - outNumChars > max_size() - length(),
                             "string<...>::replace(char*...): string too long");
-    }
     return privateReplaceRaw(outPosition,
                              outNumChars,
                              characterString,
@@ -4996,13 +4992,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
 
     size_type outPosition = first - cbegin();
     size_type outNumChars = last - first;
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numChars > outNumChars)
-     && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                             numChars - outNumChars > max_size() - length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                            "string<...>::replace(char*...): string too long");
-    }
+    privateThrowLengthError(numChars > outNumChars &&
+                                numChars - outNumChars > max_size() - length(),
+                            "string<...>::replace(n,c): string too long");
     return privateReplaceRaw(outPosition, outNumChars, numChars, character);
 }
 
@@ -5199,11 +5191,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position) const
 {
     // Note: deliberately not inlined (see comment in non-const version).
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position >= length())) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
-                                 "const string<...>::at(n): invalid position");
-    }
+    privateThrowOutOfRange(position >= length(),
+                           "const string<...>::at(n): invalid position");
     return *(begin() + position);
 }
 
@@ -5235,11 +5224,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::copy(CHAR_TYPE *characterString,
 {
     BSLS_ASSERT_SAFE(characterString);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < position)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+    privateThrowOutOfRange(
+                       length() < position,
                        "const string<...>::copy(str,pos,n): invalid position");
-    }
     if (numChars > length() - position) {
         numChars = length() - position;
     }
@@ -5682,11 +5669,9 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                               size_type            numChars,
                                               const basic_string&  other) const
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < position)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+    privateThrowOutOfRange(
+                    length() < position,
                     "const string<...>::compare(pos,n,...): invalid position");
-    }
     if (numChars > length() - position) {
         numChars = length() - position;
     }
@@ -5701,20 +5686,15 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                        size_type           otherPosition,
                                        size_type           otherNumChars) const
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < lhsPosition)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+    privateThrowOutOfRange(
+                    length() < lhsPosition,
                     "const string<...>::compare(pos,n,...): invalid position");
-    }
     if (lhsNumChars > length() - lhsPosition) {
         lhsNumChars = length() - lhsPosition;
     }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(other.length() <
-                                                              otherPosition)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+    privateThrowOutOfRange(
+                    other.length() < otherPosition,
                     "const string<...>::compare(pos,n,...): invalid position");
-    }
     if (otherNumChars > other.length() - otherPosition) {
         otherNumChars = other.length() - otherPosition;
     }
@@ -5746,11 +5726,9 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
 {
     BSLS_ASSERT_SAFE(other);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < lhsPosition)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+    privateThrowOutOfRange(
+                    length() < lhsPosition,
                     "const string<...>::compare(pos,n,...): invalid position");
-    }
     if (lhsNumChars > length() - lhsPosition) {
         lhsNumChars = length() - lhsPosition;
     }
