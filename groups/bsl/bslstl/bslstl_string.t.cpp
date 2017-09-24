@@ -3255,6 +3255,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 case 3: printf("\tWith assign(C *s).\n");         break;
                 case 4: printf("\tWith assign(n, c).n");          break;
                 case 5: printf("\tWith assign<Iter>(f, l).\n");   break;
+                case 6: printf("\tWith assign<Iter>(i, i).\n");   break;
                 default: ASSERT(0);
             };
         }
@@ -3270,12 +3271,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 LimitObj mX(a);
 
                 switch (assignMethod) {
-                  case 0: mX.assign(Y);                   break;
-                  case 1: mX.assign(Y, 0, LENGTH);        break;
-                  case 2: mX.assign(Y.c_str(), LENGTH);   break;
-                  case 3: mX.assign(Y.c_str());           break;
-                  case 4: mX.assign(LENGTH, Y[0]);        break;
-                  case 5: mX.assign(Y.begin(), Y.end());  break;
+                case 0: mX.assign(Y);                                 break;
+                case 1: mX.assign(Y, 0, LENGTH);                      break;
+                case 2: mX.assign(Y.c_str(), LENGTH);                 break;
+                case 3: mX.assign(Y.c_str());                         break;
+                case 4: mX.assign(LENGTH, Y[0]);                      break;
+                case 5: mX.assign(Y.begin(), Y.end());                break;
+                case 6: mX.assign(LENGTH, static_cast<size_t>(Y[0])); break;
                   default: ASSERT(0);
                 };
             }
@@ -3381,6 +3383,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
               case 3: printf("\tWith append(C *s).\n");        break;
               case 4: printf("\tWith append(n, c).\n");        break;
               case 5: printf("\tWith append<Iter>(f, l).\n");  break;
+              case 6: printf("\tWith append<Iter>(i, i).\n");  break;
               default: ASSERT(0);
             };
         }
@@ -3413,6 +3416,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                   } break;
                   case 5: {
                     mX.append(Y.begin(), Y.end());
+                  } break;
+                  case 6: {
+                    mX.append(LENGTH, static_cast<size_t>(DEFAULT_VALUE));
                   } break;
                   default: ASSERT(0);
                 };
