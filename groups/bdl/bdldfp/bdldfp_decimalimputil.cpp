@@ -441,6 +441,60 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::normalize(ValueType128 value)
     return result;
 }
 
+DecimalImpUtil::ValueType32
+DecimalImpUtil::round(ValueType32  x, unsigned int decimalPlaces)
+{
+    int          sign;
+    unsigned int significand;
+    int          exponent;
+    int          cl = decompose(&sign, &significand, &exponent, x);
+
+    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
+        (exponent + static_cast<int>(decimalPlaces) < 0))
+    {
+        x = scaleB(x, decimalPlaces);
+        x = round(x);
+        x = scaleB(x, -decimalPlaces);
+    }
+    return x;
+}
+
+DecimalImpUtil::ValueType64
+DecimalImpUtil::round(ValueType64  x, unsigned int decimalPlaces)
+{
+    int                 sign;
+    bsls::Types::Uint64 significand;
+    int                 exponent;
+    int                 cl = decompose(&sign, &significand, &exponent, x);
+
+    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
+        (exponent + static_cast<int>(decimalPlaces) < 0))
+    {
+        x = scaleB(x, decimalPlaces);
+        x = round(x);
+        x = scaleB(x, -decimalPlaces);
+    }
+    return x;
+}
+
+DecimalImpUtil::ValueType128
+DecimalImpUtil::round(ValueType128 x, unsigned int decimalPlaces)
+{
+    int     sign;
+    Uint128 significand;
+    int     exponent;
+    int     cl = decompose(&sign, &significand, &exponent, x);
+
+    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
+        (exponent + static_cast<int>(decimalPlaces) < 0))
+    {
+        x = scaleB(x, decimalPlaces);
+        x = round(x);
+        x = scaleB(x, -decimalPlaces);
+    }
+    return x;
+}
+
 int DecimalImpUtil::decompose(int          *sign,
                               unsigned int *significand,
                               int          *exponent,

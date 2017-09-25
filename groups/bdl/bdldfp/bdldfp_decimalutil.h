@@ -1169,6 +1169,24 @@ long int DecimalUtil::lround(Decimal128 x)
 }
 
 inline
+Decimal32  DecimalUtil::round(Decimal32  x, unsigned int decimalPlaces)
+{
+    return bdldfp::DecimalImpUtil::round(*x.data(), decimalPlaces);
+}
+
+inline
+Decimal64 DecimalUtil::round(Decimal64  x, unsigned int decimalPlaces)
+{
+    return bdldfp::DecimalImpUtil::round(*x.data(), decimalPlaces);
+}
+
+inline
+Decimal128 DecimalUtil::round(Decimal128 x, unsigned int decimalPlaces)
+{
+    return bdldfp::DecimalImpUtil::round(*x.data(), decimalPlaces);
+}
+
+inline
 Decimal32 DecimalUtil::trunc(Decimal32 x)
 {
     return bdldfp::DecimalImpUtil::trunc(*x.data());

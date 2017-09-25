@@ -832,6 +832,17 @@ class DecimalImpUtil {
         //
         // Examples: 'lround(0.5)' ==> 1.0; 'lround(-0.5)' ==> -1.0
 
+    static ValueType32  round(ValueType32  x, unsigned int precision);
+    static ValueType64  round(ValueType64  x, unsigned int precision);
+    static ValueType128 round(ValueType128 x, unsigned int precision);
+        // Return the specified 'x' value rounded to the specified 'precision'.
+        // Round halfway cases away from zero, regardless of the current
+        // decimal floating point rounding mode.  If 'x' is integral, positive
+        // zero, negative zero, NaN, or infinity then return 'x' itself.
+        //
+        //  Examples: 'round(3.14159, 3)' ==> 3.142
+
+
     static ValueType32  trunc(ValueType32  x);
     static ValueType64  trunc(ValueType64  x);
     static ValueType128 trunc(ValueType128 x);

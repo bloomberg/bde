@@ -674,57 +674,6 @@ bool DecimalUtil::isUnordered(Decimal128 x, Decimal128 y)
     return isNan(x) || isNan(y);
 }
 
-Decimal32  DecimalUtil::round(Decimal32  x, unsigned int decimalPlaces)
-{
-    int          sign;
-    unsigned int significand;
-    int          exponent;
-    int          cl = decompose(&sign, &significand, &exponent, x);
-
-    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
-        (exponent + static_cast<int>(decimalPlaces) < 0))
-    {
-        x = multiplyByPowerOf10(x, decimalPlaces);
-        x = round(x);
-        x = multiplyByPowerOf10(x, -decimalPlaces);
-    }
-    return x;
-}
-
-Decimal64 DecimalUtil::round(Decimal64  x, unsigned int decimalPlaces)
-{
-    int                 sign;
-    bsls::Types::Uint64 significand;
-    int                 exponent;
-    int                 cl = decompose(&sign, &significand, &exponent, x);
-
-    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
-        (exponent + static_cast<int>(decimalPlaces) < 0))
-    {
-        x = multiplyByPowerOf10(x, decimalPlaces);
-        x = round(x);
-        x = multiplyByPowerOf10(x, -decimalPlaces);
-    }
-    return x;
-}
-
-Decimal128 DecimalUtil::round(Decimal128 x, unsigned int decimalPlaces)
-{
-    int     sign;
-    Uint128 significand;
-    int     exponent;
-    int     cl = decompose(&sign, &significand, &exponent, x);
-
-    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
-        (exponent + static_cast<int>(decimalPlaces) < 0))
-    {
-        x = multiplyByPowerOf10(x, decimalPlaces);
-        x = round(x);
-        x = multiplyByPowerOf10(x, -decimalPlaces);
-    }
-    return x;
-}
-
                              // Quantum functions
 
 int DecimalUtil::quantum(Decimal32 value)
