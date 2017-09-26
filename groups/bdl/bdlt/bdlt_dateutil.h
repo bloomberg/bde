@@ -56,7 +56,7 @@ BSLS_IDENT("$Id: $")
 // 20140201.
 //
 // Note that the year is not restricted to values on or after 1000, so, for
-// example, 10102 (or 00010102) represents the date January 2, 0002.
+// example, 10102 (or 00010102) represents the date January 2, 0001.
 //
 ///End-of-Month Adjustment Conventions
 ///-----------------------------------
