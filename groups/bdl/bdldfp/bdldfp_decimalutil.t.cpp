@@ -155,6 +155,10 @@ typedef bdldfp::DecimalImpUtil              ImpUtil;
  "0.00000000""0000000000""0000000000""0000000000""0000000000"             \
  "0000000000""0000000000""0000000000""0000000000""0000001"
 
+#define SUBNORMAL_DECIMAL_32                                              \
+ "0.00000000""0000000000""0000000000""0000000000""0000000000"             \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""001"
+
 #define MAX_DECIMAL_64                                                    \
  "9999999999""9999990000""0000000000""0000000000""0000000000""0000000000" \
  "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
@@ -172,6 +176,15 @@ typedef bdldfp::DecimalImpUtil              ImpUtil;
  "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
  "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
  "0000000000""0000000000""00001"
+
+#define SUBNORMAL_DECIMAL_64                                                    \
+ "0.00000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000001"
 
 #define MAX_DECIMAL_128                                                   \
  "9999999999""9999999999""9999999999""9999000000""0000000000""0000000000" \
@@ -383,6 +396,110 @@ typedef bdldfp::DecimalImpUtil              ImpUtil;
  "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
  "0000000000""0000000000""00001"
 
+ #define SUBNORMAL_DECIMAL_128                                            \
+ "0.00000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""0000000000" \
+ "0000000000""0000000000""0000000000""0000000000""0000000000""00000001"
 //=============================================================================
 //                          PERFORMANCE TEST HELPERS
 //-----------------------------------------------------------------------------
@@ -754,72 +871,70 @@ int main(int argc, char* argv[])
         //:
         //: 2 That 'format' returns the necessary size of a buffer with no
         //:   effect on 'buffer' which is sufficient for coping resultant
-        //:   string if the string size exceeds the size of 'buffer'.
+        //:   string if the string size exceeds the size of the 'buffer'.
         //:
-        //: 3 That 'format' outputs decimal value in fixed format if
-        //:   'style == e_FIXED'.
+        //: 3 That 'format' returns the necessary size of a buffer sufficient
+        //:   for storing the specified decimal 'value' formatted to human
+        //:   readable string with no effect on the 'buffer' if the 'length' is
+        //:   negative.
         //:
-        //: 4 That 'format' outputs decimal value in scientific format if
-        //:   'style == e_SCIENTIFIC'.
+        //: 4 That 'format' outputs decimal value in fixed notation if
+        //:   format configuration attribute 'style' is 'e_FIXED'.
         //:
-        //: 5 That 'style' is default to 'e_SCIENTIFIC' if not defined.
+        //: 5 That 'format' outputs decimal value in scientific notation if
+        //:   format configuration attribute 'style' is 'e_SCIENTIFIC'.
         //:
-        //: 6 That 'format' outputs decimal value in natural format if
-        //:   'style == e_NATURAL'.
+        //: 6 That 'format' outputs decimal value in natural notation if
+        //:   format configuration attribute 'style' is 'e_NATURAL'.
         //:
-        //: 7 That 'format' precedes the resultant string with a minus sign if
-        //:   decimal value is less that 0.
+        //: 7 That 'format' outputs decimal value to expected human readable
+        //:   string according to various combination of attributes specified
+        //:   in 'cfg' object.
         //:
-        //: 8 That 'sign' is default to 'e_NEGATIVE_ONLY' if not defined.
+        //: 8 That if 'cfg' is not defined then 'format' outputs decimal value
+        //:   in scientific notation with a precision sufficient to produce
+        //:   all available digits.
         //:
-        //: 9 That 'format' precedes the resultant string with plus or minus
-        //:   sign if 'sign == e_ALWAYS"
+        //: 9 That 'format' does not write terminating null character to the
+        //:   buffer.
         //:
-        //: 10 That 'format' returns the necessary size of a buffer sufficient
-        //:    for storing the specified decimal 'value' formatted to human
-        //:    readable string with no effect on buffer if the 'length' of the
-        //:    'buffer' is negative.
+        //: 10 That length of fraction part of the decimal value is output to
+        //:    the 'buffer' equals the precision value specified in 'cfg'
+        //:    object.
         //:
-        //: 11 That 'format' does not write terminating null character to the
-        //:    buffer.
-        //:
-        //: 12 That length of string representing fraction part of the decimal
-        //:    value equals the specified precision.
-        //:
-        //: 13 That if the number of digits after decimal point is less than
+        //: 11 That if the number of digits after decimal point is less than
         //:    the specified precision then the fraction part is expanded by
         //:    by '0' on the right up to the precision length.
         //:
-        //: 14 That if the number of digits after decimal pointis greater than
+        //: 12 That if the number of digits after decimal pointis greater than
         //:    the specified precision then the fraction part is cut off to
         //:    fewer digits designated by the precision and rounded so that the
         //:    resultant value to be as close as possible to initial value.
         //:
-        //: 15 That the resultant string for special values does not depend on
-        //:    the style, precision and decimal point character.
+        //: 13 That a special decimal value is output correctly.
         //:
-        //: 16 That 'format' outputs decimal value in natural format if
-        //:   'style == e_NATURAL'.
+        //: 14 That a decimal value is output in scientific notation if 'cfg'
+        //:    parameter is not defined.
         //:
-        //: 17 QoI: Asserted precondition violations are detected when enabled.
+        //: 15 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //:
         //: 1 Using a table driven technique test that 'format' returns the
         //:   necessary size of a buffer with no effect on 'buffer' which is
         //:   sufficient for coping resultant string if the string size exceeds
-        //:   the size of 'buffer'.  (C-2)
+        //:   the size of 'buffer'.  (C-2,3)
         //:
         //:  1 For each test element in the table specify decimal value,
-        //:    configuration, pointer to the buffer, buffer size and expected
-        //:    length.
+        //:    configuration, pointer to the buffer, size of the buffer and
+        //:    expected length.
         //:
         //:  2 For each test element create a 'Decimal32' object.
         //:
-        //:  3 Fill in output 'buffer' with 'x' character.
+        //:  3 Fill in the buffer with 'x' character.
         //:
         //:  4 Call 'format' function for the decimal object created in P-1.2.
-        //:    Test that the 'buffer' was not modified and resultant value
+        //:    Test that the buffer was not modified and resultant value
         //:    equals to the expected value.
         //:
         //: 2 Using a loop-based technique test that 'format' function produces
@@ -827,8 +942,7 @@ int main(int argc, char* argv[])
         //:   designated by the significand value consisting of various number
         //:   of digits and the exponent in the range of minimum to maximum
         //:   exponent value defined by 'Decimal32' type.  For the test purpose
-        //:   set precision value to 100 and use default 'sign' and
-        //:   'decimalPoint' values.
+        //:   use configuration object with precision value set to 100.  (C-1)
         //:
         //:  1 Create a 'Decimal32' object.
         //:
@@ -838,11 +952,11 @@ int main(int argc, char* argv[])
         //:    value equals to the value created in P-2.1.
         //:
         //:  4 Repeat P-2.1..3 for 'e_FIXED', 'e_SCIENTIFIC' and 'e_NATURAL'
-        //:    format styles.
+        //:    format notations.
         //:
         //: 3 Using a table driven technique test that 'format' function
         //:   produces a human readable string from a decimal number with the
-        //:   specified 'precision', 'sign' and 'decimalPoint'.
+        //:   various combination of configuration attributes.
         //:
         //:  1 For each test element in the table specify decimal value,
         //:    'precision', 'style', 'sign', 'decimalPoint' and expected
@@ -854,43 +968,24 @@ int main(int argc, char* argv[])
         //:
         //:  4 Call 'format' function for the decimal object created in P-3.2.
         //:    Test that the 'buffer' is filled in by a string that equals
-        //:    to the expected string and the resultant value equals to the
-        //:    length of the expected string.
+        //:    to the expected string and length of the resultant value equals
+        //:    to length of the expected string.
         //:
         //:  5 Test that if rounding is required the 'format' function rounds
-        //:    up the decimal value as "round-half-up".  (C-14)
+        //:    up the decimal value as "round-half-up".  (C-12)
         //:
         //:  6 Test that a character in the 'buffer' that follows by a
         //:    character representing the less significant digit equals to 'x'.
-        //:    (C-11)
+        //:    (C-9)
         //:
         //:  7 Test that for normal decimal values length of string
         //:    representing fraction part of equals to the specified precision.
-        //:    (C-12)
+        //:    (C-10)
         //:
-        //: 4 Test that style' is default to 'e_SCIENTIFIC' if not defined.
-        //:   (C-5)
+        //: 4 Test that style is default to scientific notation  if 'cfg' is
+        //:   not defined.  (C-14)
         //:
-        //:   1 Call 'format' function with default and explicitly set
-        //:     'e_SCIENTIFIC' configuration.  Test that resultant values are
-        //:     the same.
-        //:
-        //:   2 Call 'format' function with explicitly set 'e_FIXED'
-        //:     configuration.  Test that resultant value does not equal to
-        //:     default and 'e_SCIENTIFIC' formats.
-        //:
-        //: 5 Test that 'sign' is default to 'e_NEGATIVE_ONLY' if not defined.
-        //:   (C-8)
-        //:
-        //:   1 Call 'format' function with default and explicitly set
-        //:     'e_NEGATIVE_ONLY' configuration.  Test that resultant values
-        //:     are the same.
-        //:
-        //:   2 Call 'format' function with explicitly set 'e_ALWAYS'
-        //:     configuration.  Test that resultant value does not equal to
-        //:     default and 'e_NEGATIVE_ONLY' formats.
-        //:
-        //: 6 Repeat P1-5 for Decimal64 and Decimal128 types. 
+        //: 5 Repeat P1-4 for Decimal64 and Decimal128 types.
         //
         // Testing:
         //   int format(char *, int, Decimal32,  int, Style, Sign, Ltrs, char);
@@ -940,9 +1035,11 @@ int main(int argc, char* argv[])
                           << "Test Decimal32" << endl
                           << "--------------" << endl;
 
+        bslma::TestAllocator ta;
+
 #define DEC(X) BDLDFP_DECIMAL_DF(X)
         //-----------------------------------------------------------------
-        // C-2,10
+        // C-2,3
         {
             typedef bdldfp::Decimal32 Type;
 
@@ -974,9 +1071,8 @@ int main(int argc, char* argv[])
             {  L_,   DEC( 1234.865),    F(3),   B_PTR,       0,       8 },
             {  L_,   DEC(-1234.865),    F(3),   B_PTR,      -1,       9 },
             {  L_,   DEC( 1234.865),    F(3),       0,      -1,       8 },
-
-            {  L_,   SUBN_P,            F(0),   B_PTR,       0,       4 },
-            {  L_,   SUBN_N,            F(0),   B_PTR,       0,       5 },
+            {  L_,   SUBN_P,            F(0),   B_PTR,       0,       1 },
+            {  L_,   SUBN_N,            F(0),   B_PTR,       0,       2 },
             {  L_,   INF_P,             F(0),   B_PTR,       0,       3 },
             {  L_,   INF_N,             F(0),   B_PTR,       0,       4 },
             {  L_,   NAN_Q_P,           F(0),   B_PTR,       0,       3 },
@@ -1035,9 +1131,8 @@ int main(int argc, char* argv[])
                                                      sizeof CONFIGURATIONS
                                                      / sizeof *CONFIGURATIONS);
 
-            const int BUFFER_SIZE = 256;
-            char      BUFFER[BUFFER_SIZE];
-
+            const int   BUFFER_SIZE = 256;
+            char        BUFFER[BUFFER_SIZE];
             for (int ci = 0; ci < NUM_CONFIGURATIONS; ++ci) {
 
                 const Config& CONFIG =  CONFIGURATIONS[ci];
@@ -1059,9 +1154,8 @@ int main(int argc, char* argv[])
                                                VALUE,
                                                CONFIG);
 
-                        const bsl::string RESULT(BUFFER, len);
-
-                        int  res = Util::parseDecimal32(&VALUE, RESULT);
+                        bsl::string RESULT(BUFFER, len, &ta);
+                        int         res = Util::parseDecimal32(&VALUE, RESULT);
 
                         ASSERTV(L_, res, 0 == res);
                         LOOP5_ASSERT(L_,
@@ -1100,30 +1194,31 @@ int main(int argc, char* argv[])
                 //-----------------------------------------------------
                 // Line | Decimal   | Configuration |  Expected
                 //-----------------------------------------------------
-
                 // ----------------------------------------------------
                 // FIXED format
-                // C-1,3
-                {  L_,    SUBN_P,            F(0),     "snan"          },
-                {  L_,    SUBN_N,            F(0),    "-snan"          },
-                {  L_,    INF_P,             F(0),     "inf"           },
-                {  L_,    INF_N,             F(0),    "-inf"           },
-                {  L_,    NAN_Q_P,           F(0),     "nan"           },
-                {  L_,    NAN_Q_N,           F(0),    "-nan"           },
-                {  L_,    NAN_S_P,           F(0),     "nan"           },
-                {  L_,    NAN_S_N,           F(0),    "-nan"           },
-                {  L_,    MAX,               F(0),      MAX_DECIMAL_32 },
-                {  L_,   -MAX,               F(0),  "-" MAX_DECIMAL_32 },
-                {  L_,    MIN,               F(95),     MIN_DECIMAL_32 },
-                {  L_,   -MIN,               F(95), "-" MIN_DECIMAL_32 },
-                {  L_,    DEC(-0.0),         F(0),    "-0"             },
-                {  L_,    DEC(0.0),          F(0),     "0"             },
-
+                // C-1,4
+                {  L_,    SUBN_P,           F(101),     SUBNORMAL_DECIMAL_32 },
+                {  L_,    SUBN_N,           F(101), "-" SUBNORMAL_DECIMAL_32 },
+                {  L_,    INF_P,            F(0),     "inf"                  },
+                {  L_,    INF_N,            F(0),    "-inf"                  },
+                {  L_,    NAN_Q_P,          F(0),     "nan"                  },
+                {  L_,    NAN_Q_N,          F(0),    "-nan"                  },
+                {  L_,    NAN_S_P,          F(0),     "nan"                  },
+                {  L_,    NAN_S_N,          F(0),    "-nan"                  },
+                {  L_,    MAX,              F(0),      MAX_DECIMAL_32        },
+                {  L_,   -MAX,              F(0),  "-" MAX_DECIMAL_32        },
+                {  L_,    MIN,              F(95),     MIN_DECIMAL_32        },
+                {  L_,   -MIN,              F(95), "-" MIN_DECIMAL_32        },
+                {  L_,    DEC(-0.0),        F(0),    "-0"                    },
+                {  L_,    DEC(0.0),         F(0),     "0"                    },
+                {  L_,    DEC(123.0),       F(0),     "123"                  },
+                {  L_,    DEC(1230e-1),     F(0),     "123"                  },
                 // -----------------------------------------------------------
                 // SCIENTIFIC format
-                // C-1,4
-                {  L_,    SUBN_P,            S(0),    "snan"         },
-                {  L_,    SUBN_N,            S(0),   "-snan"         },
+                // C-1,5
+
+                {  L_,    SUBN_P,            S(0),    "1E-101"       },
+                {  L_,    SUBN_N,            S(0),   "-1E-101"       },
                 {  L_,    INF_P,             S(0),    "inf"          },
                 {  L_,    INF_N,             S(0),   "-inf"          },
                 {  L_,    NAN_Q_P,           S(0),    "nan"          },
@@ -1139,43 +1234,108 @@ int main(int argc, char* argv[])
                 {  L_,    DEC(0.0),          S(1),    "0.0E-1"       },
                 {  L_,    DEC(0.00),         S(2),    "0.00E-2"      },
                 {  L_,    DEC(0.000),        S(3),    "0.000E-3"     },
+                {  L_,    DEC(123.0),        S(2),    "1.23E+2"      },
+                {  L_,    DEC(1230e-1),      S(2),    "1.23E+2"      },
+                {  L_,    DEC(1230e-1),      S(3),    "1.230E+2"     },
 
                 //-------------------------------------------------------------
-                // C-7,8
-                {  L_,    DEC( 123.0),       F(0),       "123"       },
-                {  L_,    DEC(-123.0),       F(0),      "-123"       },
-                {  L_,    DEC( 123.0),       S(2),       "1.23E+2"   },
-                {  L_,    DEC(-123.0),       S(2),      "-1.23E+2"   },
-                {  L_,    DEC( 123.0),       N(0),       "123"       },
-                {  L_,    DEC(-123.0),       N(0),      "-123"       },
-                {  L_,    NAN_Q_P,           F(0),       "nan"       },
-                {  L_,    NAN_Q_N,           F(0),      "-nan"       },
-                {  L_,    NAN_S_P,           F(0),       "nan"       },
-                {  L_,    NAN_S_N,           F(0),      "-nan"       },
-                {  L_,    SUBN_P,            F(0),       "snan"      },
-                {  L_,    SUBN_N,            F(0),      "-snan"      },
-                {  L_,    INF_P,             F(0),       "inf"       },
-                {  L_,    INF_N,             F(0),      "-inf"       },
+                // C-6
+                {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
+                {  L_,    DEC(1E-7),         N(0),     "1E-7"           },
+                {  L_,    DEC(1E-6),         N(6),     "0.000001"       },
+                {  L_,    DEC(1E-5),         N(5),     "0.00001"        },
+                {  L_,    DEC(1E-4),         N(4),     "0.0001"         },
+
+                {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
+                {  L_,    DEC(11E-8),        N(1),     "1.1E-7"         },
+                {  L_,    DEC(111E-8),       N(8),     "0.00000111"     },
+                {  L_,    DEC(1111E-8),      N(8),     "0.00001111"     },
+                {  L_,    DEC(11111E-8),     N(8),     "0.00011111"     },
 
                 //-------------------------------------------------------------
-                // C-9
-                {  L_,    DEC( 123.0),       FS(0),     "+123"       },
-                {  L_,    DEC(-123.0),       FS(0),     "-123"       },
-                {  L_,    DEC( 123.0),       SS(2),     "+1.23E+2"   },
-                {  L_,    DEC(-123.0),       SS(2),     "-1.23E+2"   },
-                {  L_,    DEC( 123.0),       NS(0),     "+123"       },
-                {  L_,    DEC(-123.0),       NS(0),     "-123"       },
-                {  L_,    NAN_Q_P,           FS(0),     "+nan"       },
-                {  L_,    NAN_Q_N,           FS(0),     "-nan"       },
-                {  L_,    NAN_S_P,           FS(0),     "+nan"       },
-                {  L_,    NAN_S_N,           FS(0),     "-nan"       },
-                {  L_,    SUBN_P,            FS(0),     "+snan"      },
-                {  L_,    SUBN_N,            FS(0),     "-snan"      },
-                {  L_,    INF_P,             FS(0),     "+inf"       },
-                {  L_,    INF_N,             FS(0),     "-inf"       },
+                // C-7
+                //-------------------------------------------------------------
+                // Test 'sign' attribute
+#define CONFIG(SIGN) Config(0,                  \
+                            Config::e_FIXED,    \
+                            Config::SIGN)
+
+                {  L_,    DEC( 123.0),    CONFIG(e_NEGATIVE_ONLY),  "123" },
+                {  L_,    DEC(-123.0),    CONFIG(e_NEGATIVE_ONLY), "-123" },
+                {  L_,    DEC( 123.0),    CONFIG(e_ALWAYS),        "+123" },
+                {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),        "-123" },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'infinity' attribute
+#define CONFIG(INF) Config(0,                       \
+                           Config::e_SCIENTIFIC,    \
+                           Config::e_NEGATIVE_ONLY, \
+                           INF)
+
+                {  L_,    INF_P,          CONFIG(""),         ""          },
+                {  L_,    INF_P,          CONFIG("inf"),      "inf"       },
+                {  L_,    INF_N,          CONFIG("Inf"),     "-Inf"       },
+                {  L_,    INF_N,          CONFIG("INF"),     "-INF"       },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'nan' attribute
+#define CONFIG(NAN) Config(0,                                   \
+                           Config::e_SCIENTIFIC,                \
+                           Config::e_NEGATIVE_ONLY,             \
+                           "",                                  \
+                           NAN)
+
+                {  L_,    NAN_Q_P,        CONFIG(""),         ""          },
+                {  L_,    NAN_Q_P,        CONFIG("nan"),      "nan"       },
+                {  L_,    NAN_Q_N,        CONFIG("NaN"),     "-NaN"       },
+                {  L_,    NAN_Q_N,        CONFIG("NAN"),     "-NAN"       },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'snan' attribute
+#define CONFIG(SNAN) Config(0,                                          \
+                            Config::e_SCIENTIFIC,                       \
+                            Config::e_NEGATIVE_ONLY,                    \
+                            "",                                         \
+                            "",                                         \
+                            SNAN)
+
+                // {  L_,    NAN_S_P,           CONFIG(""),          ""       },
+                // {  L_,    NAN_S_P,           CONFIG("snan"),      "snan"   },
+                // {  L_,    NAN_S_N,           CONFIG("sNaN"),     "-sNaN"   },
+                // {  L_,    NAN_S_N,           CONFIG("sNAN"),     "-sNAN"   },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'point'
+#define CONFIG(POINT) Config(2,                         \
+                             Config::e_SCIENTIFIC,      \
+                             Config::e_NEGATIVE_ONLY,   \
+                             "",                        \
+                             "",                        \
+                             "",                        \
+                             POINT)
+
+                {  L_,    DEC( 123.0),    CONFIG('.'),     "1.23E+2"      },
+                {  L_,    DEC(-123.0),    CONFIG(','),    "-1,23E+2"      },
+                {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23E+2"      },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'exponent'
+#define CONFIG(EXP) Config(2,                           \
+                           Config::e_SCIENTIFIC,        \
+                           Config::e_ALWAYS,            \
+                           "",                          \
+                           "",                          \
+                           "",                          \
+                           '.',                         \
+                           EXP)
+
+                {  L_,    DEC(-123.0),    CONFIG('E'),     "-1.23E+2"    },
+                {  L_,    DEC( 123.0),    CONFIG('e'),     "+1.23e+2"    },
+                {  L_,    DEC(-123.0),    CONFIG('^'),     "-1.23^+2"    },
+#undef CONFIG
 
                 //-------------------------------------------------------------
-                // C-13
+                // C-11
                 {  L_,    DEC(1.11),         F(2),      "1.11"       },
                 {  L_,    DEC(1.11),         F(3),      "1.110"      },
                 {  L_,    DEC(1.11),         F(4),      "1.1100"     },
@@ -1185,9 +1345,8 @@ int main(int argc, char* argv[])
                 {  L_,    DEC(1.11),         N(2),      "1.11"       },
                 {  L_,    DEC(1.11),         N(3),      "1.110"      },
                 {  L_,    DEC(1.11),         N(4),      "1.1100"     },
-
                 //-------------------------------------------------------------
-                // C-14
+                // C-12
                 {  L_,    DEC(4.44),         F(2),      "4.44"       },
                 {  L_,    DEC(4.44),         F(1),      "4.4"        },
                 {  L_,    DEC(4.44),         F(0),      "4"          },
@@ -1197,7 +1356,6 @@ int main(int argc, char* argv[])
                 {  L_,    DEC(9.99),         F(2),      "9.99"       },
                 {  L_,    DEC(9.99),         F(1),      "10.0"       },
                 {  L_,    DEC(9.99),         F(0),      "10"         },
-
                 {  L_,    DEC(4.44),         S(2),      "4.44E+0"    },
                 {  L_,    DEC(4.44),         S(1),      "4.4E+0"     },
                 {  L_,    DEC(4.44),         S(0),      "4E+0"       },
@@ -1207,7 +1365,6 @@ int main(int argc, char* argv[])
                 {  L_,    DEC(9.99),         S(2),      "9.99E+0"    },
                 {  L_,    DEC(9.99),         S(1),      "1.0E+1"     },
                 {  L_,    DEC(9.99),         S(0),      "1E+1"       },
-
                 {  L_,    DEC(4.44),         N(2),      "4.44"       },
                 {  L_,    DEC(4.44),         N(1),      "4.4"        },
                 {  L_,    DEC(4.44),         N(0),      "4"          },
@@ -1217,11 +1374,8 @@ int main(int argc, char* argv[])
                 {  L_,    DEC(9.99),         N(2),      "9.99"       },
                 {  L_,    DEC(9.99),         N(1),      "10.0"       },
                 {  L_,    DEC(9.99),         N(0),      "10"         },
-
                 //-------------------------------------------------------------
-                // C-15
-                {  L_,    SUBN_P,            F(0),      "snan"       },
-                {  L_,    SUBN_N,            F(1),     "-snan"       },
+                // C-13
                 {  L_,    INF_P,             F(2),      "inf"        },
                 {  L_,    INF_N,             F(3),     "-inf"        },
                 {  L_,    NAN_Q_P,           F(4),      "nan"        },
@@ -1229,8 +1383,6 @@ int main(int argc, char* argv[])
                 {  L_,    NAN_S_P,           F(6),      "nan"        },
                 {  L_,    NAN_S_N,           F(7),     "-nan"        },
 
-                {  L_,    SUBN_P,            S(7),      "snan"       },
-                {  L_,    SUBN_N,            S(6),     "-snan"       },
                 {  L_,    INF_P,             S(5),      "inf"        },
                 {  L_,    INF_N,             S(4),     "-inf"        },
                 {  L_,    NAN_Q_P,           S(3),      "nan"        },
@@ -1238,36 +1390,12 @@ int main(int argc, char* argv[])
                 {  L_,    NAN_S_P,           S(1),      "nan"        },
                 {  L_,    NAN_S_N,           S(0),     "-nan"        },
 
-                {  L_,    SUBN_P,            N(0),     "snan"        },
-                {  L_,    SUBN_N,            N(1),    "-snan"        },
                 {  L_,    INF_P,             N(2),     "inf"         },
                 {  L_,    INF_N,             N(3),    "-inf"         },
                 {  L_,    NAN_Q_P,           N(4),     "nan"         },
                 {  L_,    NAN_Q_N,           N(5),    "-nan"         },
                 {  L_,    NAN_S_P,           N(6),     "nan"         },
                 {  L_,    NAN_S_N,           N(7),    "-nan"         },
-
-                //-------------------------------------------------------------
-                // C-16
-                {  L_,    DEC(1E-7),         N(0),     "1E-7"           },
-                {  L_,    DEC(1E-6),         N(6),     "0.000001"       },
-                {  L_,    DEC(1.1E-6),       N(7),     "0.0000011"      },
-                {  L_,    DEC(1.11E-6),      N(8),     "0.00000111"     },
-                {  L_,    DEC(1.111E-6),     N(9),     "0.000001111"    },
-                {  L_,    DEC(1.1111E-6),    N(10),    "0.0000011111"   },
-                {  L_,    DEC(1.11111E-6),   N(11),    "0.00000111111"  },
-                {  L_,    DEC(1.111111E-6),  N(12),    "0.000001111111" },
-
-                {  L_,    DEC(1E+0),         N(0),     "1"              },
-                {  L_,    DEC(1.1E+1),       N(0),     "11"             },
-                {  L_,    DEC(1.11E+2),      N(0),     "111"            },
-                {  L_,    DEC(1.111E+3),     N(0),     "1111"           },
-                {  L_,    DEC(1.1111E+4),    N(0),     "11111"          },
-                {  L_,    DEC(1.11111E+5),   N(0),     "111111"         },
-                {  L_,    DEC(1.111111E+6),  N(0),     "1111111"        },
-                {  L_,    DEC(1.111111E+7),  N(6),     "1.111111E+7"    },
-
-
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -1281,17 +1409,17 @@ int main(int argc, char* argv[])
                 const int          LINE        = DATA[ti].d_line;
                 const Type         DECIMAL32   = DATA[ti].d_decimal;
                 const Config       CONFIG      = DATA[ti].d_config;
-                const bsl::string& EXPECTED    = DATA[ti].d_expected;
+                const bsl::string  EXPECTED(DATA[ti].d_expected, &ta);
 
                 int len = Util::format(buffer,
                                        k_BUFFER_SIZE,
                                        DECIMAL32,
                                        CONFIG);
 
-                const bsl::string RESULT(buffer, len);
-                if (veryVerbose) P_(len) P(RESULT);
+                const bsl::string RESULT(buffer, len, &ta);
+                if (veryVerbose) { P_(len) P(RESULT); }
 
-                ASSERTV(LINE, len, len > 0);
+                ASSERTV(LINE, len, len >= 0);
                 LOOP3_ASSERT(LINE, RESULT, EXPECTED, RESULT == EXPECTED);
                 LOOP3_ASSERT(LINE,
                              len,
@@ -1299,11 +1427,11 @@ int main(int argc, char* argv[])
                              len == static_cast<int>(EXPECTED.length()));
 
                 //-------------------------------------------------------------
-                // C-11
+                // C-9
                 LOOP2_ASSERT(LINE, buffer[len], 'x' == buffer[len]);
 
                 //-------------------------------------------------------------
-                // C-12
+                // C-10
                 if (FP_NORMAL == Util::classify(DECIMAL32)) {
 
                     const char *BEGIN     = &buffer[0];
@@ -1333,122 +1461,91 @@ int main(int argc, char* argv[])
             }
 
             //-----------------------------------------------------------------
-            // C-5
+            // C-8,14
             {
-                const Config      DEFAULT_CONFIG(   4);
-                const Config      SCIENTIFIC_CONFIG(4, Config::e_SCIENTIFIC);
-                const Config      FIXED_CONFIG(     4, Config::e_FIXED);
-                const Type        VALUE     = DEC(376.12);
-                const bsl::string EXPECTED  = "3.7612E+2";
-                char              DEFAULT_BUFFER[k_BUFFER_SIZE];
-                int               len = Util::format(DEFAULT_BUFFER,
-                                                     k_BUFFER_SIZE,
-                                                     VALUE,
-                                                     DEFAULT_CONFIG);
+                const Type  VALUE = DEC(1.234567E+0);
+                int         len = Util::format(buffer,
+                                               k_BUFFER_SIZE,
+                                               VALUE);
 
-                const bsl::string DEFAULT(DEFAULT_BUFFER, len);
-                LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
+                const bsl::string DEFAULT(buffer, len, &ta);
 
-                // Test that 'format' produces the same resultant string when
-                // invoked with default and scientific configuration.
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   SCIENTIFIC_CONFIG);
+                {
+                    // Test that 'format' produces the same resultant string
+                    // when invoked with 'MAX_DAGIT_CONFIG' configuration.
+                    const bsl::string EXPECTED("1.234567E+0", &ta);
 
-                const bsl::string SCIENTIFIC_FORMAT(buffer, len);
-                LOOP3_ASSERT(L_,
-                             SCIENTIFIC_FORMAT,
-                             EXPECTED,
-                             SCIENTIFIC_FORMAT == EXPECTED);
-                LOOP3_ASSERT(L_,
-                             SCIENTIFIC_FORMAT,
-                             DEFAULT,
-                             SCIENTIFIC_FORMAT == DEFAULT);
+                    LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
 
-                // Test that 'format' produces the different resultant strings
-                // when invoked with default and fixed configuration.
-                const bsl::string FIXED_EXPECTED("376.1200");
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   FIXED_CONFIG);
+                    const Config MAX_DAGIT_CONFIG(
+                                      bsl::numeric_limits<Type>::digits10 - 1);
+                    len = Util::format(buffer,
+                                       k_BUFFER_SIZE,
+                                       VALUE,
+                                       MAX_DAGIT_CONFIG);
 
-                const bsl::string FIXED_FORMAT(buffer, len);
-                LOOP3_ASSERT(L_,
-                             FIXED_FORMAT,
-                             FIXED_EXPECTED,
-                             FIXED_FORMAT == FIXED_EXPECTED);
-                LOOP3_ASSERT(L_,
-                             FIXED_FORMAT,
-                             DEFAULT,
-                             FIXED_FORMAT != DEFAULT);
+                    const bsl::string RESULT(buffer, len, &ta);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 EXPECTED,
+                                 RESULT == EXPECTED);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 DEFAULT,
+                                 RESULT == DEFAULT);
+                }
+                {
+                    // Test that 'format' produces a resultant strings
+                    // different to 'DEFAULT' string when invoked with
+                    // precision different the one provided by default
+                    // configuration object.
+                    const bsl::string EXPECTED("1.23457E+0", &ta);
+                    const Config CONFIG(5);
+                    len = Util::format(buffer,
+                                       k_BUFFER_SIZE,
+                                       VALUE,
+                                       CONFIG);
+
+                    const bsl::string RESULT(buffer, len, &ta);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 EXPECTED,
+                                 RESULT == EXPECTED);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 DEFAULT,
+                                 RESULT != DEFAULT);
+                }
+                {
+                    // Test that 'format' output a decimal value in notation
+                    // different to 'DEFAULT' string when invoked with
+                    // a style different the one provided by default
+                    // configuration object.
+                    const bsl::string EXPECTED("1.234567", &ta);
+                    const Config CONFIG(6, Config::e_FIXED);
+                    len = Util::format(buffer,
+                                       k_BUFFER_SIZE,
+                                       VALUE,
+                                       CONFIG);
+
+                    const bsl::string RESULT(buffer, len, &ta);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 EXPECTED,
+                                 RESULT == EXPECTED);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 DEFAULT,
+                                 RESULT != DEFAULT);
+                }
             }
 
-            //-----------------------------------------------------------------
-            // C-8
-            {
-                const Config    DEFAULT_CONFIG(      2);
-                const Config    NEGATIVE_ONLY_CONFIG(2,
-                                                     Config::e_SCIENTIFIC,
-                                                     Config::e_NEGATIVE_ONLY);
-                const Config    ALWAYS_CONFIG(       2,
-                                                     Config::e_SCIENTIFIC,
-                                                     Config::e_ALWAYS);
-                const Type   VALUE = DEC(456.0);
-                const bsl::string EXPECTED = "4.56E+2";
-                char         DEFAULT_BUFFER[k_BUFFER_SIZE];
-
-                int          len = Util::format(DEFAULT_BUFFER,
-                                                k_BUFFER_SIZE,
-                                                VALUE,
-                                                DEFAULT_CONFIG);
-                const bsl::string DEFAULT(DEFAULT_BUFFER, len);
-                LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
-
-                // Test that 'format' produces the same resultant string when
-                // invoked with default and 'negative only' sign configuration.
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   NEGATIVE_ONLY_CONFIG);
-
-                const bsl::string    NEGATIVE_ONLY(buffer, len);
-                LOOP3_ASSERT(L_,
-                             NEGATIVE_ONLY,
-                             EXPECTED,
-                             NEGATIVE_ONLY == EXPECTED);
-                LOOP3_ASSERT(L_,
-                             NEGATIVE_ONLY,
-                             DEFAULT,
-                             NEGATIVE_ONLY == DEFAULT);
-
-                // Test that 'format' produces the different resultant strings
-                // when invoked with default and always sign configuration.
-                const bsl::string  ALWAYS_EXPECTED("+4.56E+2");
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   ALWAYS_CONFIG);
-
-                const bsl::string  ALWAYS(buffer, len);
-
-                LOOP3_ASSERT(L_,
-                             ALWAYS,
-                             ALWAYS_EXPECTED,
-                             ALWAYS == ALWAYS_EXPECTED);
-                LOOP3_ASSERT(L_,
-                             ALWAYS,
-                             DEFAULT,
-                             ALWAYS != DEFAULT);
-            }
-
-            if (verbose) cout << "\nNegative Testing." << endl;
+            if (veryVerbose) cout << "\nNegative Testing." << endl;
             {
                 bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-                if (verbose) cout << "\t'buffer == NULL'" << endl;
+                if (veryVerbose) cout << "\t'buffer == NULL'" << endl;
                 {
                     const int  k_SIZE = 1000;
                     char       BUFFER[k_SIZE];
@@ -1458,7 +1555,7 @@ int main(int argc, char* argv[])
                     ASSERT_SAFE_FAIL(Util::format(     0, k_SIZE, V));
                 }
 
-                if (verbose) cout << "\t'Negative buffer size'" << endl;
+                if (veryVerbose) cout << "\t'Negative buffer size'" << endl;
                 {
                     const int  k_SIZE = 1000;
                     char       BUFFER[k_SIZE];
@@ -1468,7 +1565,7 @@ int main(int argc, char* argv[])
                     ASSERT_SAFE_FAIL(Util::format(BUFFER,     -1, V));
                 }
 
-                if (verbose) cout << "\t'Negative precision'" << endl;
+                if (veryVerbose) cout << "\t'Negative precision'" << endl;
                 {
                     const bdldfp::DecimalFormatConfig VALID(0);
                     const bdldfp::DecimalFormatConfig INVALID(-1);
@@ -1488,7 +1585,7 @@ int main(int argc, char* argv[])
                           << "--------------" << endl;
 #define DEC(X) BDLDFP_DECIMAL_DD(X)
         //-----------------------------------------------------------------
-        // C-2,10
+        // C-2,3
         {
             typedef bdldfp::Decimal64 Type;
 
@@ -1524,8 +1621,8 @@ int main(int argc, char* argv[])
             {  L_,   DEC(-1234.865),    S(6),   B_PTR,      -1,      12 },
             {  L_,   DEC( 1234.865),    S(6),       0,      -1,      11 },
 
-            {  L_,   SUBN_P,            F(0),   B_PTR,       0,       4 },
-            {  L_,   SUBN_N,            F(0),   B_PTR,       0,       5 },
+            {  L_,   SUBN_P,            F(0),   B_PTR,       0,       1 },
+            {  L_,   SUBN_N,            F(0),   B_PTR,       0,       2 },
             {  L_,   INF_P,             F(0),   B_PTR,       0,       3 },
             {  L_,   INF_N,             F(0),   B_PTR,       0,       4 },
             {  L_,   NAN_Q_P,           F(0),   B_PTR,       0,       3 },
@@ -1598,9 +1695,9 @@ int main(int argc, char* argv[])
 
             for (int ci = 0; ci < NUM_CONFIGURATIONS; ++ci) {
 
-                const Config&   CONFIG =  CONFIGURATIONS[ci];
-                const int EXPONENT_MIN = -383;
-                const int EXPONENT_MAX =  384;
+                const Config& CONFIG       =  CONFIGURATIONS[ci];
+                const int     EXPONENT_MIN = -383;
+                const int     EXPONENT_MAX =  384;
 
                 for (int si = 0; si < NUM_SIGNIFCANDS; ++si) {
                     const unsigned long long SIGNIFICAND = SIGNIFICANDS[si];
@@ -1617,7 +1714,7 @@ int main(int argc, char* argv[])
                                                VALUE,
                                                CONFIG);
 
-                        const bsl::string RESULT(BUFFER, len);
+                        const bsl::string RESULT(BUFFER, len, &ta);
 
                         int  res = Util::parseDecimal64(&VALUE, RESULT);
 
@@ -1661,27 +1758,27 @@ int main(int argc, char* argv[])
 
                 // ----------------------------------------------------
                 // FIXED format
-                // C-1,3
-                {  L_,    SUBN_P,            F(0),      "snan"          },
-                {  L_,    SUBN_N,            F(0),     "-snan"          },
-                {  L_,    INF_P,             F(0),      "inf"           },
-                {  L_,    INF_N,             F(0),     "-inf"           },
-                {  L_,    NAN_Q_P,           F(0),      "nan"           },
-                {  L_,    NAN_Q_N,           F(0),     "-nan"           },
-                {  L_,    NAN_S_P,           F(0),      "nan"           },
-                {  L_,    NAN_S_N,           F(0),     "-nan"           },
-                {  L_,    MAX,               F(0),       MAX_DECIMAL_64 },
-                {  L_,   -MAX,               F(0),   "-" MAX_DECIMAL_64 },
-                {  L_,    MIN,               F(383),     MIN_DECIMAL_64 },
-                {  L_,   -MIN,               F(383), "-" MIN_DECIMAL_64 },
-                {  L_,    DEC(-0.0),         F(0),     "-0"             },
-                {  L_,    DEC(0.0),          F(0),      "0"             },
+                // C-1,4
+                {  L_,    SUBN_P,           F(398),     SUBNORMAL_DECIMAL_64 },
+                {  L_,    SUBN_N,           F(398), "-" SUBNORMAL_DECIMAL_64 },
+                {  L_,    INF_P,            F(0),      "inf"                 },
+                {  L_,    INF_N,            F(0),     "-inf"                 },
+                {  L_,    NAN_Q_P,          F(0),      "nan"                 },
+                {  L_,    NAN_Q_N,          F(0),     "-nan"                 },
+                {  L_,    NAN_S_P,          F(0),      "nan"                 },
+                {  L_,    NAN_S_N,          F(0),     "-nan"                 },
+                {  L_,    MAX,              F(0),       MAX_DECIMAL_64       },
+                {  L_,   -MAX,              F(0),   "-" MAX_DECIMAL_64       },
+                {  L_,    MIN,              F(383),     MIN_DECIMAL_64       },
+                {  L_,   -MIN,              F(383), "-" MIN_DECIMAL_64       },
+                {  L_,    DEC(-0.0),        F(0),     "-0"                   },
+                {  L_,    DEC(0.0),         F(0),      "0"                   },
 
                 // -----------------------------------------------------------
                 // SCIENTIFIC format
-                // C-1,4
-                {  L_,    SUBN_P,          S(0),    "snan"                   },
-                {  L_,    SUBN_N,          S(0),   "-snan"                   },
+                // C-1,5
+                {  L_,    SUBN_P,          S(0),    "1E-398"                 },
+                {  L_,    SUBN_N,          S(0),   "-1E-398"                 },
                 {  L_,    INF_P,           S(0),    "inf"                    },
                 {  L_,    INF_N,           S(0),   "-inf"                    },
                 {  L_,    NAN_Q_P,         S(0),    "nan"                    },
@@ -1699,41 +1796,103 @@ int main(int argc, char* argv[])
                 {  L_,    DEC(0.000),      S(3),    "0.000E-3"               },
 
                 //-------------------------------------------------------------
-                // C-7,8
-                {  L_,    DEC( 123.0),       F(0),       "123"       },
-                {  L_,    DEC(-123.0),       F(0),      "-123"       },
-                {  L_,    DEC( 123.0),       S(2),       "1.23E+2"   },
-                {  L_,    DEC(-123.0),       S(2),      "-1.23E+2"   },
-                {  L_,    DEC( 123.0),       N(0),       "123"       },
-                {  L_,    DEC(-123.0),       N(0),      "-123"       },
-                {  L_,    NAN_Q_P,           F(0),       "nan"       },
-                {  L_,    NAN_Q_N,           F(0),      "-nan"       },
-                {  L_,    NAN_S_P,           F(0),       "nan"       },
-                {  L_,    NAN_S_N,           F(0),      "-nan"       },
-                {  L_,    SUBN_P,            F(0),       "snan"      },
-                {  L_,    SUBN_N,            F(0),      "-snan"      },
-                {  L_,    INF_P,             F(0),       "inf"       },
-                {  L_,    INF_N,             F(0),      "-inf"       },
+                // C-6
+                {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
+                {  L_,    DEC(1E-7),         N(0),     "1E-7"           },
+                {  L_,    DEC(1E-6),         N(6),     "0.000001"       },
+                {  L_,    DEC(1E-5),         N(5),     "0.00001"        },
+                {  L_,    DEC(1E-4),         N(4),     "0.0001"         },
+
+                {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
+                {  L_,    DEC(11E-8),        N(1),     "1.1E-7"         },
+                {  L_,    DEC(111E-8),       N(8),     "0.00000111"     },
+                {  L_,    DEC(1111E-8),      N(8),     "0.00001111"     },
+                {  L_,    DEC(11111E-8),     N(8),     "0.00011111"     },
 
                 //-------------------------------------------------------------
-                // C-9
-                {  L_,    DEC( 123.0),       FS(0),     "+123"       },
-                {  L_,    DEC(-123.0),       FS(0),     "-123"       },
-                {  L_,    DEC( 123.0),       SS(2),     "+1.23E+2"   },
-                {  L_,    DEC(-123.0),       SS(2),     "-1.23E+2"   },
-                {  L_,    DEC( 123.0),       NS(0),     "+123"       },
-                {  L_,    DEC(-123.0),       NS(0),     "-123"       },
-                {  L_,    NAN_Q_P,           FS(0),     "+nan"       },
-                {  L_,    NAN_Q_N,           FS(0),     "-nan"       },
-                {  L_,    NAN_S_P,           FS(0),     "+nan"       },
-                {  L_,    NAN_S_N,           FS(0),     "-nan"       },
-                {  L_,    SUBN_P,            FS(0),     "+snan"      },
-                {  L_,    SUBN_N,            FS(0),     "-snan"      },
-                {  L_,    INF_P,             FS(0),     "+inf"       },
-                {  L_,    INF_N,             FS(0),     "-inf"       },
+                // C-7
+                //-------------------------------------------------------------
+                // Test 'sign' attribute
+#define CONFIG(SIGN) Config(0,                  \
+                            Config::e_FIXED,    \
+                            Config::SIGN)
+
+                {  L_,    DEC( 123.0),    CONFIG(e_NEGATIVE_ONLY),  "123" },
+                {  L_,    DEC(-123.0),    CONFIG(e_NEGATIVE_ONLY), "-123" },
+                {  L_,    DEC( 123.0),    CONFIG(e_ALWAYS),        "+123" },
+                {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),        "-123" },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'infinity' attribute
+#define CONFIG(INF) Config(0,                       \
+                           Config::e_SCIENTIFIC,    \
+                           Config::e_NEGATIVE_ONLY, \
+                           INF)
+
+                {  L_,    INF_P,          CONFIG(""),         ""          },
+                {  L_,    INF_P,          CONFIG("inf"),      "inf"       },
+                {  L_,    INF_N,          CONFIG("Inf"),     "-Inf"       },
+                {  L_,    INF_N,          CONFIG("INF"),     "-INF"       },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'nan' attribute
+#define CONFIG(NAN) Config(0,                                   \
+                           Config::e_SCIENTIFIC,                \
+                           Config::e_NEGATIVE_ONLY,             \
+                           "",                                  \
+                           NAN)
+
+                {  L_,    NAN_Q_P,        CONFIG(""),         ""          },
+                {  L_,    NAN_Q_P,        CONFIG("nan"),      "nan"       },
+                {  L_,    NAN_Q_N,        CONFIG("NaN"),     "-NaN"       },
+                {  L_,    NAN_Q_N,        CONFIG("NAN"),     "-NAN"       },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'snan' attribute
+#define CONFIG(SNAN) Config(0,                                          \
+                            Config::e_SCIENTIFIC,                       \
+                            Config::e_NEGATIVE_ONLY,                    \
+                            "",                                         \
+                            "",                                         \
+                            SNAN)
+
+                // {  L_,    NAN_S_P,           CONFIG(""),          ""       },
+                // {  L_,    NAN_S_P,           CONFIG("snan"),      "snan"   },
+                // {  L_,    NAN_S_N,           CONFIG("sNaN"),     "-sNaN"   },
+                // {  L_,    NAN_S_N,           CONFIG("sNAN"),     "-sNAN"   },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'point'
+#define CONFIG(POINT) Config(2,                         \
+                             Config::e_SCIENTIFIC,      \
+                             Config::e_NEGATIVE_ONLY,   \
+                             "",                        \
+                             "",                        \
+                             "",                        \
+                             POINT)
+
+                {  L_,    DEC( 123.0),    CONFIG('.'),     "1.23E+2"      },
+                {  L_,    DEC(-123.0),    CONFIG(','),    "-1,23E+2"      },
+                {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23E+2"      },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'exponent'
+#define CONFIG(EXP) Config(2,                           \
+                           Config::e_SCIENTIFIC,        \
+                           Config::e_ALWAYS,            \
+                           "",                          \
+                           "",                          \
+                           "",                          \
+                           '.',                         \
+                           EXP)
+
+                {  L_,    DEC(-123.0),    CONFIG('E'),     "-1.23E+2"    },
+                {  L_,    DEC( 123.0),    CONFIG('e'),     "+1.23e+2"    },
+                {  L_,    DEC(-123.0),    CONFIG('^'),     "-1.23^+2"    },
+#undef CONFIG
 
                 //-------------------------------------------------------------
-                // C-13
+                // C-11
                 {  L_,    DEC(1.11),         F(2),      "1.11"       },
                 {  L_,    DEC(1.11),         F(3),      "1.110"      },
                 {  L_,    DEC(1.11),         F(4),      "1.1100"     },
@@ -1745,7 +1904,7 @@ int main(int argc, char* argv[])
                 {  L_,    DEC(1.11),         N(4),      "1.1100"     },
 
                 //-------------------------------------------------------------
-                // C-14
+                // C-12
                 {  L_,    DEC(4.44),         F(2),      "4.44"       },
                 {  L_,    DEC(4.44),         F(1),      "4.4"        },
                 {  L_,    DEC(4.44),         F(0),      "4"          },
@@ -1777,9 +1936,7 @@ int main(int argc, char* argv[])
                 {  L_,    DEC(9.99),         N(0),      "10"         },
 
                 //-------------------------------------------------------------
-                // C-15
-                {  L_,    SUBN_P,            F(0),      "snan"       },
-                {  L_,    SUBN_N,            F(1),     "-snan"       },
+                // C-13
                 {  L_,    INF_P,             F(2),      "inf"        },
                 {  L_,    INF_N,             F(3),     "-inf"        },
                 {  L_,    NAN_Q_P,           F(4),      "nan"        },
@@ -1787,8 +1944,6 @@ int main(int argc, char* argv[])
                 {  L_,    NAN_S_P,           F(6),      "nan"        },
                 {  L_,    NAN_S_N,           F(7),     "-nan"        },
 
-                {  L_,    SUBN_P,            S(7),      "snan"       },
-                {  L_,    SUBN_N,            S(6),     "-snan"       },
                 {  L_,    INF_P,             S(5),      "inf"        },
                 {  L_,    INF_N,             S(4),     "-inf"        },
                 {  L_,    NAN_Q_P,           S(3),      "nan"        },
@@ -1796,34 +1951,12 @@ int main(int argc, char* argv[])
                 {  L_,    NAN_S_P,           S(1),      "nan"        },
                 {  L_,    NAN_S_N,           S(0),     "-nan"        },
 
-                {  L_,    SUBN_P,            N(0),     "snan"        },
-                {  L_,    SUBN_N,            N(1),    "-snan"        },
                 {  L_,    INF_P,             N(2),     "inf"         },
                 {  L_,    INF_N,             N(3),    "-inf"         },
                 {  L_,    NAN_Q_P,           N(4),     "nan"         },
                 {  L_,    NAN_Q_N,           N(5),    "-nan"         },
                 {  L_,    NAN_S_P,           N(6),     "nan"         },
                 {  L_,    NAN_S_N,           N(7),    "-nan"         },
-
-                //-------------------------------------------------------------
-                // C-16
-                {  L_,    DEC(1E-7),         N(0),     "1E-7"           },
-                {  L_,    DEC(1E-6),         N(6),     "0.000001"       },
-                {  L_,    DEC(1.1E-6),       N(7),     "0.0000011"      },
-                {  L_,    DEC(1.11E-6),      N(8),     "0.00000111"     },
-                {  L_,    DEC(1.111E-6),     N(9),     "0.000001111"    },
-                {  L_,    DEC(1.1111E-6),    N(10),    "0.0000011111"   },
-                {  L_,    DEC(1.11111E-6),   N(11),    "0.00000111111"  },
-                {  L_,    DEC(1.111111E-6),  N(12),    "0.000001111111" },
-
-                {  L_,    DEC(1E+0),         N(0),     "1"              },
-                {  L_,    DEC(1.1E+1),       N(0),     "11"             },
-                {  L_,    DEC(1.11E+2),      N(0),     "111"            },
-                {  L_,    DEC(1.111E+3),     N(0),     "1111"           },
-                {  L_,    DEC(1.1111E+4),    N(0),     "11111"          },
-                {  L_,    DEC(1.11111E+5),   N(0),     "111111"         },
-                {  L_,    DEC(1.111111E+6),  N(0),     "1111111"        },
-                {  L_,    DEC(1.111111E+7),  N(6),     "1.111111E+7"    },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -1834,18 +1967,18 @@ int main(int argc, char* argv[])
 
                 bsl::fill_n(&buffer[0], k_BUFFER_SIZE, 'x');
 
-                const int      LINE        = DATA[ti].d_line;
-                const Type     DECIMAL32   = DATA[ti].d_decimal;
-                const Config   CONFIG      = DATA[ti].d_config;
-                const bsl::string&  EXPECTED    = DATA[ti].d_expected;
+                const int         LINE      = DATA[ti].d_line;
+                const Type        DECIMAL32 = DATA[ti].d_decimal;
+                const Config      CONFIG    = DATA[ti].d_config;
+                const bsl::string EXPECTED(DATA[ti].d_expected, &ta);
 
                 int len = Util::format(buffer,
                                        k_BUFFER_SIZE,
                                        DECIMAL32,
                                        CONFIG);
 
-                const bsl::string RESULT(buffer, len);
-                if (veryVerbose) P_(len) P(RESULT);
+                const bsl::string RESULT(buffer, len, &ta);
+                if (veryVerbose) { P_(len) P(RESULT); }
 
                 LOOP3_ASSERT(LINE, RESULT, EXPECTED, RESULT == EXPECTED);
                 LOOP3_ASSERT(LINE,
@@ -1853,11 +1986,11 @@ int main(int argc, char* argv[])
                              EXPECTED.length(),
                              len == static_cast<int>(EXPECTED.length()));
                 //-------------------------------------------------------------
-                // C-11
+                // C-9
                 LOOP2_ASSERT(LINE, buffer[len], 'x' == buffer[len]);
 
                 //-------------------------------------------------------------
-                // C-12
+                // C-10
                 if (FP_NORMAL == Util::classify(DECIMAL32)) {
 
                     const char *BEGIN     = &buffer[0];
@@ -1887,122 +2020,91 @@ int main(int argc, char* argv[])
             }
 
             //-----------------------------------------------------------------
-            // C-5
+            // C-8,14
             {
-                const Config  DEFAULT_CONFIG(   4);
-                const Config  SCIENTIFIC_CONFIG(4, Config::e_SCIENTIFIC);
-                const Config  FIXED_CONFIG(     4, Config::e_FIXED);
-                const Type    VALUE = DEC(376.12);
-                const bsl::string  EXPECTED = "3.7612E+2";
-                char          DEFAULT_BUFFER[k_BUFFER_SIZE];
+                const Type  VALUE = DEC(1.234567890123456E+0);
+                int         len = Util::format(buffer,
+                                               k_BUFFER_SIZE,
+                                               VALUE);
 
-                int           len = Util::format(DEFAULT_BUFFER,
-                                                 k_BUFFER_SIZE,
-                                                 VALUE,
-                                                 DEFAULT_CONFIG);
+                const bsl::string DEFAULT(buffer, len, &ta);
 
-                const bsl::string DEFAULT(DEFAULT_BUFFER, len);
-                LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
+                {
+                    // Test that 'format' produces the same resultant string
+                    // when invoked with 'MAX_DAGIT_CONFIG' configuration.
+                    const bsl::string EXPECTED("1.234567890123456E+0", &ta);
 
-                // Test that 'format' produces the same resultant string when
-                // invoked with default and scientific configuration.
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   SCIENTIFIC_CONFIG);
+                    LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
 
-                const bsl::string SCIENTIFIC_FORMAT(buffer, len);
-                LOOP3_ASSERT(L_,
-                             SCIENTIFIC_FORMAT,
-                             EXPECTED,
-                             SCIENTIFIC_FORMAT == EXPECTED);
-                LOOP3_ASSERT(L_,
-                             SCIENTIFIC_FORMAT,
-                             DEFAULT,
-                             SCIENTIFIC_FORMAT == DEFAULT);
+                    const Config MAX_DAGIT_CONFIG(
+                                      bsl::numeric_limits<Type>::digits10 - 1);
+                    len = Util::format(buffer,
+                                       k_BUFFER_SIZE,
+                                       VALUE,
+                                       MAX_DAGIT_CONFIG);
 
-                // Test that 'format' produces the different resultant strings
-                // when invoked with default and fixed configuration.
-                const bsl::string FIXED_EXPECTED("376.1200");
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   FIXED_CONFIG);
+                    const bsl::string RESULT(buffer, len, &ta);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 EXPECTED,
+                                 RESULT == EXPECTED);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 DEFAULT,
+                                 RESULT == DEFAULT);
+                }
+                {
+                    // Test that 'format' produces a resultant strings
+                    // different to 'DEFAULT' string when invoked with
+                    // precision different the one provided by default
+                    // configuration object.
+                    const bsl::string EXPECTED("1.23457E+0", &ta);
+                    const Config CONFIG(5);
+                    len = Util::format(buffer,
+                                       k_BUFFER_SIZE,
+                                       VALUE,
+                                       CONFIG);
 
-                const bsl::string FIXED_FORMAT(buffer, len);
-                LOOP3_ASSERT(L_,
-                             FIXED_FORMAT,
-                             FIXED_EXPECTED,
-                             FIXED_FORMAT == FIXED_EXPECTED);
-                LOOP3_ASSERT(L_,
-                             FIXED_FORMAT,
-                             DEFAULT,
-                             FIXED_FORMAT != DEFAULT);
+                    const bsl::string RESULT(buffer, len, &ta);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 EXPECTED,
+                                 RESULT == EXPECTED);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 DEFAULT,
+                                 RESULT != DEFAULT);
+                }
+                {
+                    // Test that 'format' output a decimal value in notation
+                    // different to 'DEFAULT' string when invoked with
+                    // a style different the one provided by default
+                    // configuration object.
+                    const bsl::string EXPECTED("1.234567890123456", &ta);
+                    const Config CONFIG(15, Config::e_FIXED);
+                    len = Util::format(buffer,
+                                       k_BUFFER_SIZE,
+                                       VALUE,
+                                       CONFIG);
+
+                    const bsl::string RESULT(buffer, len, &ta);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 EXPECTED,
+                                 RESULT == EXPECTED);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 DEFAULT,
+                                 RESULT != DEFAULT);
+                }
             }
 
-            //-----------------------------------------------------------------
-            // C-8
-            {
-                const Config    DEFAULT_CONFIG(      2);
-                const Config    NEGATIVE_ONLY_CONFIG(2,
-                                                     Config::e_SCIENTIFIC,
-                                                     Config::e_NEGATIVE_ONLY);
-                const Config    ALWAYS_CONFIG(       2,
-                                                     Config::e_SCIENTIFIC,
-                                                     Config::e_ALWAYS);
-                const Type   VALUE = DEC(456.0);
-                const bsl::string EXPECTED = "4.56E+2";
-                char         DEFAULT_BUFFER[k_BUFFER_SIZE];
-
-                int          len = Util::format(DEFAULT_BUFFER,
-                                                k_BUFFER_SIZE,
-                                                VALUE,
-                                                DEFAULT_CONFIG);
-                const bsl::string DEFAULT(DEFAULT_BUFFER, len);
-                LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
-
-                // Test that 'format' produces the same resultant string when
-                // invoked with default and 'negative only' sign configuration.
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   NEGATIVE_ONLY_CONFIG);
-
-                const bsl::string    NEGATIVE_ONLY(buffer, len);
-                LOOP3_ASSERT(L_,
-                             NEGATIVE_ONLY,
-                             EXPECTED,
-                             NEGATIVE_ONLY == EXPECTED);
-                LOOP3_ASSERT(L_,
-                             NEGATIVE_ONLY,
-                             DEFAULT,
-                             NEGATIVE_ONLY == DEFAULT);
-
-                // Test that 'format' produces the different resultant strings
-                // when invoked with default and always sign configuration.
-                const bsl::string  ALWAYS_EXPECTED("+4.56E+2");
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   ALWAYS_CONFIG);
-
-                const bsl::string  ALWAYS(buffer, len);
-
-                LOOP3_ASSERT(L_,
-                             ALWAYS,
-                             ALWAYS_EXPECTED,
-                             ALWAYS == ALWAYS_EXPECTED);
-                LOOP3_ASSERT(L_,
-                             ALWAYS,
-                             DEFAULT,
-                             ALWAYS != DEFAULT);
-            }
-            if (verbose) cout << "\nNegative Testing." << endl;
+            if (veryVerbose) cout << "\nNegative Testing." << endl;
             {
                 bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-                if (verbose) cout << "\t'buffer == NULL'" << endl;
+                if (veryVerbose) cout << "\t'buffer == NULL'" << endl;
                 {
                     const int  k_SIZE = 1000;
                     char       BUFFER[k_SIZE];
@@ -2012,7 +2114,7 @@ int main(int argc, char* argv[])
                     ASSERT_SAFE_FAIL(Util::format(     0, k_SIZE, V));
                 }
 
-                if (verbose) cout << "\t'Negative buffer size'" << endl;
+                if (veryVerbose) cout << "\t'Negative buffer size'" << endl;
                 {
                     const int  k_SIZE = 1000;
                     char       BUFFER[k_SIZE];
@@ -2022,7 +2124,7 @@ int main(int argc, char* argv[])
                     ASSERT_SAFE_FAIL(Util::format(BUFFER,     -1, V));
                 }
 
-                if (verbose) cout << "\t'Negative precision'" << endl;
+                if (veryVerbose) cout << "\t'Negative precision'" << endl;
                 {
                     const bdldfp::DecimalFormatConfig VALID(0);
                     const bdldfp::DecimalFormatConfig INVALID(-1);
@@ -2044,7 +2146,7 @@ int main(int argc, char* argv[])
 #define DEC(X) BDLDFP_DECIMAL_DL(X)
 
         //-----------------------------------------------------------------
-        // C-2,10
+        // C-2,3
         {
             typedef bdldfp::Decimal128 Type;
 
@@ -2080,8 +2182,8 @@ int main(int argc, char* argv[])
             {  L_,   DEC(-1234.865),    S(6),   B_PTR,      -1,      12 },
             {  L_,   DEC( 1234.865),    S(6),       0,      -1,      11 },
 
-            {  L_,   SUBN_P,            F(0),   B_PTR,       0,       4 },
-            {  L_,   SUBN_N,            F(0),   B_PTR,       0,       5 },
+            {  L_,   SUBN_P,            F(0),   B_PTR,       0,       1 },
+            {  L_,   SUBN_N,            F(0),   B_PTR,       0,       2 },
             {  L_,   INF_P,             F(0),   B_PTR,       0,       3 },
             {  L_,   INF_N,             F(0),   B_PTR,       0,       4 },
             {  L_,   NAN_Q_P,           F(0),   B_PTR,       0,       3 },
@@ -2119,40 +2221,40 @@ int main(int argc, char* argv[])
 
             typedef bdldfp::Decimal128 Type;
 
-            const bsl::string SIGNIFICANDS[] = {                                "1",
-                                                                          "22",
-                                                                         "333",
-                                                                        "4444",
-                                                                       "55555",
-                                                                      "666666",
-                                                                     "7777777",
-                                                                    "88888888",
-                                                                   "999999999",
-                                                                  "1111111111",
-                                                                 "22222222222",
-                                                                "333333333333",
-                                                               "4444444444444",
-                                                              "55555555555555",
-                                                             "666666666666666",
-                                                            "7777777777777777",
-                                                           "88888888888888888",
-                                                          "999999999999999999",
-                                                         "1111111111111111111",
-                                                        "22222222222222222222",
-                                                       "333333333333333333333",
-                                                      "4444444444444444444444",
-                                                     "55555555555555555555555",
-                                                    "666666666666666666666666",
-                                                   "7777777777777777777777777",
-                                                  "88888888888888888888888888",
-                                                 "999999999999999999999999999",
-                                                "1111111111111111111111111111",
-                                               "22222222222222222222222222222",
-                                              "333333333333333333333333333333",
-                                             "4444444444444444444444444444444",
-                                            "55555555555555555555555555555555",
-                                           "666666666666666666666666666666666",
-                                          "7777777777777777777777777777777777",
+            const char* SIGNIFICANDS[] = {                           "1",
+                                                                    "22",
+                                                                   "333",
+                                                                  "4444",
+                                                                 "55555",
+                                                                "666666",
+                                                               "7777777",
+                                                              "88888888",
+                                                             "999999999",
+                                                            "1111111111",
+                                                           "22222222222",
+                                                          "333333333333",
+                                                         "4444444444444",
+                                                        "55555555555555",
+                                                       "666666666666666",
+                                                      "7777777777777777",
+                                                     "88888888888888888",
+                                                    "999999999999999999",
+                                                   "1111111111111111111",
+                                                  "22222222222222222222",
+                                                 "333333333333333333333",
+                                                "4444444444444444444444",
+                                               "55555555555555555555555",
+                                              "666666666666666666666666",
+                                             "7777777777777777777777777",
+                                            "88888888888888888888888888",
+                                           "999999999999999999999999999",
+                                          "1111111111111111111111111111",
+                                         "22222222222222222222222222222",
+                                        "333333333333333333333333333333",
+                                       "4444444444444444444444444444444",
+                                      "55555555555555555555555555555555",
+                                     "666666666666666666666666666666666",
+                                    "7777777777777777777777777777777777",
             };
             const int NUM_SIGNIFCANDS = static_cast<int>(
                                                        sizeof SIGNIFICANDS
@@ -2177,7 +2279,7 @@ int main(int argc, char* argv[])
                 const int     EXPONENT_MAX =  6144;
 
                 for (int si = 0; si < NUM_SIGNIFCANDS; ++si) {
-                    const bsl::string SIGNIFICAND = SIGNIFICANDS[si];
+                    const char *SIGNIFICAND = SIGNIFICANDS[si];
 
                     Type VALUE;
                     Util::parseDecimal128(&VALUE, SIGNIFICAND);
@@ -2194,7 +2296,7 @@ int main(int argc, char* argv[])
                                                VALUE,
                                                CONFIG);
 
-                        const bsl::string RESULT(BUFFER, len);
+                        const bsl::string RESULT(BUFFER, len, &ta);
 
                         int  res = Util::parseDecimal128(&VALUE, RESULT);
 
@@ -2238,27 +2340,27 @@ int main(int argc, char* argv[])
 
                 // ----------------------------------------------------
                 // FIXED format
-                // C-1,3
-                {  L_,    SUBN_P,            F(0),       "snan"           },
-                {  L_,    SUBN_N,            F(0),      "-snan"           },
-                {  L_,    INF_P,             F(0),       "inf"            },
-                {  L_,    INF_N,             F(0),      "-inf"            },
-                {  L_,    NAN_Q_P,           F(0),       "nan"            },
-                {  L_,    NAN_Q_N,           F(0),      "-nan"            },
-                {  L_,    NAN_S_P,           F(0),       "nan"            },
-                {  L_,    NAN_S_N,           F(0),      "-nan"            },
-                {  L_,    MAX,               F(0),        MAX_DECIMAL_128 },
-                {  L_,   -MAX,               F(0),    "-" MAX_DECIMAL_128 },
-                {  L_,    MIN,               F(6143),     MIN_DECIMAL_128 },
-                {  L_,   -MIN,               F(6143), "-" MIN_DECIMAL_128 },
-                {  L_,    DEC(-0.0),         F(0),      "-0"              },
-                {  L_,    DEC(0.0),          F(0),       "0"              },
+                // C-1,4
+                {  L_,    SUBN_P,         F(6176),     SUBNORMAL_DECIMAL_128 },
+                {  L_,    SUBN_N,         F(6176), "-" SUBNORMAL_DECIMAL_128 },
+                {  L_,    INF_P,          F(0),       "inf"                  },
+                {  L_,    INF_N,          F(0),      "-inf"                  },
+                {  L_,    NAN_Q_P,        F(0),       "nan"                  },
+                {  L_,    NAN_Q_N,        F(0),      "-nan"                  },
+                {  L_,    NAN_S_P,        F(0),       "nan"                  },
+                {  L_,    NAN_S_N,        F(0),      "-nan"                  },
+                {  L_,    MAX,            F(0),        MAX_DECIMAL_128       },
+                {  L_,   -MAX,            F(0),    "-" MAX_DECIMAL_128       },
+                {  L_,    MIN,            F(6143),     MIN_DECIMAL_128       },
+                {  L_,   -MIN,            F(6143), "-" MIN_DECIMAL_128       },
+                {  L_,    DEC(-0.0),      F(0),      "-0"                    },
+                {  L_,    DEC(0.0),       F(0),       "0"                    },
 
                 // -----------------------------------------------------------
                 // SCIENTIFIC format
-                // C-1,4
-                {  L_,    SUBN_P,            S(0),    "snan"                 },
-                {  L_,    SUBN_N,            S(0),   "-snan"                 },
+                // C-1,5
+                {  L_,    SUBN_P,            S(0),    "1E-6176"              },
+                {  L_,    SUBN_N,            S(0),   "-1E-6176"              },
                 {  L_,    INF_P,             S(0),    "inf"                  },
                 {  L_,    INF_N,             S(0),   "-inf"                  },
                 {  L_,    NAN_Q_P,           S(0),    "nan"                  },
@@ -2278,41 +2380,103 @@ int main(int argc, char* argv[])
                 {  L_,    DEC(0.000),        S(3),    "0.000E-3"             },
 
                 //-------------------------------------------------------------
-                // C-7,8
-                {  L_,    DEC( 123.0),       F(0),       "123"       },
-                {  L_,    DEC(-123.0),       F(0),      "-123"       },
-                {  L_,    DEC( 123.0),       S(2),       "1.23E+2"   },
-                {  L_,    DEC(-123.0),       S(2),      "-1.23E+2"   },
-                {  L_,    DEC( 123.0),       N(0),       "123"       },
-                {  L_,    DEC(-123.0),       N(0),      "-123"       },
-                {  L_,    NAN_Q_P,           F(0),       "nan"       },
-                {  L_,    NAN_Q_N,           F(0),      "-nan"       },
-                {  L_,    NAN_S_P,           F(0),       "nan"       },
-                {  L_,    NAN_S_N,           F(0),      "-nan"       },
-                {  L_,    SUBN_P,            F(0),       "snan"      },
-                {  L_,    SUBN_N,            F(0),      "-snan"      },
-                {  L_,    INF_P,             F(0),       "inf"       },
-                {  L_,    INF_N,             F(0),      "-inf"       },
+                // C-6
+                {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
+                {  L_,    DEC(1E-7),         N(0),     "1E-7"           },
+                {  L_,    DEC(1E-6),         N(6),     "0.000001"       },
+                {  L_,    DEC(1E-5),         N(5),     "0.00001"        },
+                {  L_,    DEC(1E-4),         N(4),     "0.0001"         },
+
+                {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
+                {  L_,    DEC(11E-8),        N(1),     "1.1E-7"         },
+                {  L_,    DEC(111E-8),       N(8),     "0.00000111"     },
+                {  L_,    DEC(1111E-8),      N(8),     "0.00001111"     },
+                {  L_,    DEC(11111E-8),     N(8),     "0.00011111"     },
 
                 //-------------------------------------------------------------
-                // C-9
-                {  L_,    DEC( 123.0),       FS(0),     "+123"       },
-                {  L_,    DEC(-123.0),       FS(0),     "-123"       },
-                {  L_,    DEC( 123.0),       SS(2),     "+1.23E+2"   },
-                {  L_,    DEC(-123.0),       SS(2),     "-1.23E+2"   },
-                {  L_,    DEC( 123.0),       NS(0),     "+123"       },
-                {  L_,    DEC(-123.0),       NS(0),     "-123"       },
-                {  L_,    NAN_Q_P,           FS(0),     "+nan"       },
-                {  L_,    NAN_Q_N,           FS(0),     "-nan"       },
-                {  L_,    NAN_S_P,           FS(0),     "+nan"       },
-                {  L_,    NAN_S_N,           FS(0),     "-nan"       },
-                {  L_,    SUBN_P,            FS(0),     "+snan"      },
-                {  L_,    SUBN_N,            FS(0),     "-snan"      },
-                {  L_,    INF_P,             FS(0),     "+inf"       },
-                {  L_,    INF_N,             FS(0),     "-inf"       },
+                // C-7
+                //-------------------------------------------------------------
+                // Test 'sign' attribute
+#define CONFIG(SIGN) Config(0,                  \
+                            Config::e_FIXED,    \
+                            Config::SIGN)
+
+                {  L_,    DEC( 123.0),    CONFIG(e_NEGATIVE_ONLY),  "123" },
+                {  L_,    DEC(-123.0),    CONFIG(e_NEGATIVE_ONLY), "-123" },
+                {  L_,    DEC( 123.0),    CONFIG(e_ALWAYS),        "+123" },
+                {  L_,    DEC(-123.0),    CONFIG(e_ALWAYS),        "-123" },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'infinity' attribute
+#define CONFIG(INF) Config(0,                       \
+                           Config::e_SCIENTIFIC,    \
+                           Config::e_NEGATIVE_ONLY, \
+                           INF)
+
+                {  L_,    INF_P,          CONFIG(""),         ""          },
+                {  L_,    INF_P,          CONFIG("inf"),      "inf"       },
+                {  L_,    INF_N,          CONFIG("Inf"),     "-Inf"       },
+                {  L_,    INF_N,          CONFIG("INF"),     "-INF"       },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'nan' attribute
+#define CONFIG(NAN) Config(0,                                   \
+                           Config::e_SCIENTIFIC,                \
+                           Config::e_NEGATIVE_ONLY,             \
+                           "",                                  \
+                           NAN)
+
+                {  L_,    NAN_Q_P,        CONFIG(""),         ""          },
+                {  L_,    NAN_Q_P,        CONFIG("nan"),      "nan"       },
+                {  L_,    NAN_Q_N,        CONFIG("NaN"),     "-NaN"       },
+                {  L_,    NAN_Q_N,        CONFIG("NAN"),     "-NAN"       },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'snan' attribute
+#define CONFIG(SNAN) Config(0,                                          \
+                            Config::e_SCIENTIFIC,                       \
+                            Config::e_NEGATIVE_ONLY,                    \
+                            "",                                         \
+                            "",                                         \
+                            SNAN)
+
+                // {  L_,    NAN_S_P,           CONFIG(""),          ""       },
+                // {  L_,    NAN_S_P,           CONFIG("snan"),      "snan"   },
+                // {  L_,    NAN_S_N,           CONFIG("sNaN"),     "-sNaN"   },
+                // {  L_,    NAN_S_N,           CONFIG("sNAN"),     "-sNAN"   },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'point'
+#define CONFIG(POINT) Config(2,                         \
+                             Config::e_SCIENTIFIC,      \
+                             Config::e_NEGATIVE_ONLY,   \
+                             "",                        \
+                             "",                        \
+                             "",                        \
+                             POINT)
+
+                {  L_,    DEC( 123.0),    CONFIG('.'),     "1.23E+2"      },
+                {  L_,    DEC(-123.0),    CONFIG(','),    "-1,23E+2"      },
+                {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23E+2"      },
+#undef CONFIG
+                //-------------------------------------------------------------
+                // Test 'exponent'
+#define CONFIG(EXP) Config(2,                           \
+                           Config::e_SCIENTIFIC,        \
+                           Config::e_ALWAYS,            \
+                           "",                          \
+                           "",                          \
+                           "",                          \
+                           '.',                         \
+                           EXP)
+
+                {  L_,    DEC(-123.0),    CONFIG('E'),     "-1.23E+2"    },
+                {  L_,    DEC( 123.0),    CONFIG('e'),     "+1.23e+2"    },
+                {  L_,    DEC(-123.0),    CONFIG('^'),     "-1.23^+2"    },
+#undef CONFIG
 
                 //-------------------------------------------------------------
-                // C-13
+                // C-11
                 {  L_,    DEC(1.11),         F(2),      "1.11"       },
                 {  L_,    DEC(1.11),         F(3),      "1.110"      },
                 {  L_,    DEC(1.11),         F(4),      "1.1100"     },
@@ -2324,7 +2488,7 @@ int main(int argc, char* argv[])
                 {  L_,    DEC(1.11),         N(4),      "1.1100"     },
 
                 //-------------------------------------------------------------
-                // C-14
+                // C-12
                 {  L_,    DEC(4.44),         F(2),      "4.44"       },
                 {  L_,    DEC(4.44),         F(1),      "4.4"        },
                 {  L_,    DEC(4.44),         F(0),      "4"          },
@@ -2356,9 +2520,7 @@ int main(int argc, char* argv[])
                 {  L_,    DEC(9.99),         N(0),      "10"         },
 
                 //-------------------------------------------------------------
-                // C-15
-                {  L_,    SUBN_P,            F(0),      "snan"       },
-                {  L_,    SUBN_N,            F(1),     "-snan"       },
+                // C-13
                 {  L_,    INF_P,             F(2),      "inf"        },
                 {  L_,    INF_N,             F(3),     "-inf"        },
                 {  L_,    NAN_Q_P,           F(4),      "nan"        },
@@ -2366,8 +2528,6 @@ int main(int argc, char* argv[])
                 {  L_,    NAN_S_P,           F(6),      "nan"        },
                 {  L_,    NAN_S_N,           F(7),     "-nan"        },
 
-                {  L_,    SUBN_P,            S(7),      "snan"       },
-                {  L_,    SUBN_N,            S(6),     "-snan"       },
                 {  L_,    INF_P,             S(5),      "inf"        },
                 {  L_,    INF_N,             S(4),     "-inf"        },
                 {  L_,    NAN_Q_P,           S(3),      "nan"        },
@@ -2375,17 +2535,15 @@ int main(int argc, char* argv[])
                 {  L_,    NAN_S_P,           S(1),      "nan"        },
                 {  L_,    NAN_S_N,           S(0),     "-nan"        },
 
-                {  L_,    SUBN_P,            N(0),     "snan"        },
-                {  L_,    SUBN_N,            N(1),    "-snan"        },
-                {  L_,    INF_P,             N(2),     "inf"         },
-                {  L_,    INF_N,             N(3),    "-inf"         },
-                {  L_,    NAN_Q_P,           N(4),     "nan"         },
-                {  L_,    NAN_Q_N,           N(5),    "-nan"         },
-                {  L_,    NAN_S_P,           N(6),     "nan"         },
-                {  L_,    NAN_S_N,           N(7),    "-nan"         },
+                {  L_,    INF_P,             N(2),      "inf"        },
+                {  L_,    INF_N,             N(3),     "-inf"        },
+                {  L_,    NAN_Q_P,           N(4),      "nan"        },
+                {  L_,    NAN_Q_N,           N(5),     "-nan"        },
+                {  L_,    NAN_S_P,           N(6),      "nan"        },
+                {  L_,    NAN_S_N,           N(7),     "-nan"        },
 
                 //-------------------------------------------------------------
-                // C-16
+                // C-6
                 {  L_,    DEC(1E-7),         N(0),     "1E-7"           },
                 {  L_,    DEC(1E-6),         N(6),     "0.000001"       },
                 {  L_,    DEC(1.1E-6),       N(7),     "0.0000011"      },
@@ -2413,18 +2571,18 @@ int main(int argc, char* argv[])
 
                 bsl::fill_n(&buffer[0], k_BUFFER_SIZE, 'x');
 
-                const int      LINE        = DATA[ti].d_line;
-                const Type     DECIMAL32   = DATA[ti].d_decimal;
-                const Config   CONFIG      = DATA[ti].d_config;
-                const bsl::string&  EXPECTED    = DATA[ti].d_expected;
+                const int         LINE      = DATA[ti].d_line;
+                const Type        DECIMAL32 = DATA[ti].d_decimal;
+                const Config      CONFIG    = DATA[ti].d_config;
+                const bsl::string EXPECTED(DATA[ti].d_expected, &ta);
 
                 int len = Util::format(buffer,
                                        k_BUFFER_SIZE,
                                        DECIMAL32,
                                        CONFIG);
 
-                const bsl::string RESULT(buffer, len);
-                if (veryVerbose) P_(len) P(RESULT);
+                const bsl::string RESULT(buffer, len, &ta);
+                if (veryVerbose) { P_(len) P(RESULT); }
 
                 LOOP3_ASSERT(LINE, RESULT, EXPECTED, RESULT == EXPECTED);
                 LOOP3_ASSERT(LINE,
@@ -2433,11 +2591,11 @@ int main(int argc, char* argv[])
                              len == static_cast<int>(EXPECTED.length()));
 
                 //-------------------------------------------------------------
-                // C-11
+                // C-9
                 LOOP2_ASSERT(LINE, buffer[len], 'x' == buffer[len]);
 
                 //-------------------------------------------------------------
-                // C-12
+                // C-10
                 if (FP_NORMAL == Util::classify(DECIMAL32)) {
 
                     const char *BEGIN     = &buffer[0];
@@ -2467,123 +2625,94 @@ int main(int argc, char* argv[])
             }
 
             //-----------------------------------------------------------------
-            // C-5
+            // C-8,14
             {
-                const Config  DEFAULT_CONFIG(   4);
-                const Config  SCIENTIFIC_CONFIG(4, Config::e_SCIENTIFIC);
-                const Config  FIXED_CONFIG(     4, Config::e_FIXED);
-                const Type    VALUE = DEC(376.12);
-                const bsl::string  EXPECTED = "3.7612E+2";
-                char          DEFAULT_BUFFER[k_BUFFER_SIZE];
+                const Type  VALUE = DEC(
+                                       1.234567890123456789012345678901234E+0);
+                int         len = Util::format(buffer,
+                                               k_BUFFER_SIZE,
+                                               VALUE);
 
-                int           len = Util::format(DEFAULT_BUFFER,
-                                                 k_BUFFER_SIZE,
-                                                 VALUE,
-                                                 DEFAULT_CONFIG);
+                const bsl::string DEFAULT(buffer, len, &ta);
 
-                const bsl::string DEFAULT(DEFAULT_BUFFER, len);
-                LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
+                {
+                    // Test that 'format' produces the same resultant string
+                    // when invoked with 'MAX_DAGIT_CONFIG' configuration.
+                    const bsl::string EXPECTED(
+                                "1.234567890123456789012345678901234E+0", &ta);
 
-                // Test that 'format' produces the same resultant string when
-                // invoked with default and scientific configuration.
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   SCIENTIFIC_CONFIG);
+                    LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
 
-                const bsl::string SCIENTIFIC_FORMAT(buffer, len);
-                LOOP3_ASSERT(L_,
-                             SCIENTIFIC_FORMAT,
-                             EXPECTED,
-                             SCIENTIFIC_FORMAT == EXPECTED);
-                LOOP3_ASSERT(L_,
-                             SCIENTIFIC_FORMAT,
-                             DEFAULT,
-                             SCIENTIFIC_FORMAT == DEFAULT);
+                    const Config MAX_DAGIT_CONFIG(
+                                      bsl::numeric_limits<Type>::digits10 - 1);
+                    len = Util::format(buffer,
+                                       k_BUFFER_SIZE,
+                                       VALUE,
+                                       MAX_DAGIT_CONFIG);
 
-                // Test that 'format' produces the different resultant strings
-                // when invoked with default and fixed configuration.
-                const bsl::string FIXED_EXPECTED("376.1200");
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   FIXED_CONFIG);
+                    const bsl::string RESULT(buffer, len, &ta);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 EXPECTED,
+                                 RESULT == EXPECTED);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 DEFAULT,
+                                 RESULT == DEFAULT);
+                }
+                {
+                    // Test that 'format' produces a resultant strings
+                    // different to 'DEFAULT' string when invoked with
+                    // precision different the one provided by default
+                    // configuration object.
+                    const bsl::string EXPECTED("1.23457E+0", &ta);
+                    const Config CONFIG(5);
+                    len = Util::format(buffer,
+                                       k_BUFFER_SIZE,
+                                       VALUE,
+                                       CONFIG);
 
-                const bsl::string FIXED_FORMAT(buffer, len);
-                LOOP3_ASSERT(L_,
-                             FIXED_FORMAT,
-                             FIXED_EXPECTED,
-                             FIXED_FORMAT == FIXED_EXPECTED);
-                LOOP3_ASSERT(L_,
-                             FIXED_FORMAT,
-                             DEFAULT,
-                             FIXED_FORMAT != DEFAULT);
+                    const bsl::string RESULT(buffer, len, &ta);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 EXPECTED,
+                                 RESULT == EXPECTED);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 DEFAULT,
+                                 RESULT != DEFAULT);
+                }
+                {
+                    // Test that 'format' output a decimal value in notation
+                    // different to 'DEFAULT' string when invoked with
+                    // a style different the one provided by default
+                    // configuration object.
+                    const bsl::string EXPECTED(
+                                   "1.234567890123456789012345678901234", &ta);
+                    const Config CONFIG(33, Config::e_FIXED);
+                    len = Util::format(buffer,
+                                       k_BUFFER_SIZE,
+                                       VALUE,
+                                       CONFIG);
+
+                    const bsl::string RESULT(buffer, len, &ta);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 EXPECTED,
+                                 RESULT == EXPECTED);
+                    LOOP3_ASSERT(L_,
+                                 RESULT,
+                                 DEFAULT,
+                                 RESULT != DEFAULT);
+                }
             }
 
-            //-----------------------------------------------------------------
-            // C-8
-            {
-                const Config    DEFAULT_CONFIG(      2);
-                const Config    NEGATIVE_ONLY_CONFIG(2,
-                                                     Config::e_SCIENTIFIC,
-                                                     Config::e_NEGATIVE_ONLY);
-                const Config    ALWAYS_CONFIG(       2,
-                                                     Config::e_SCIENTIFIC,
-                                                     Config::e_ALWAYS);
-                const Type   VALUE = DEC(456.0);
-                const bsl::string EXPECTED = "4.56E+2";
-                char         DEFAULT_BUFFER[k_BUFFER_SIZE];
-
-                int          len = Util::format(DEFAULT_BUFFER,
-                                                k_BUFFER_SIZE,
-                                                VALUE,
-                                                DEFAULT_CONFIG);
-                const bsl::string DEFAULT(DEFAULT_BUFFER, len);
-                LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
-
-                // Test that 'format' produces the same resultant string when
-                // invoked with default and 'negative only' sign configuration.
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   NEGATIVE_ONLY_CONFIG);
-
-                const bsl::string    NEGATIVE_ONLY(buffer, len);
-                LOOP3_ASSERT(L_,
-                             NEGATIVE_ONLY,
-                             EXPECTED,
-                             NEGATIVE_ONLY == EXPECTED);
-                LOOP3_ASSERT(L_,
-                             NEGATIVE_ONLY,
-                             DEFAULT,
-                             NEGATIVE_ONLY == DEFAULT);
-
-                // Test that 'format' produces the different resultant strings
-                // when invoked with default and always sign configuration.
-                const bsl::string  ALWAYS_EXPECTED("+4.56E+2");
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   ALWAYS_CONFIG);
-
-                const bsl::string  ALWAYS(buffer, len);
-
-                LOOP3_ASSERT(L_,
-                             ALWAYS,
-                             ALWAYS_EXPECTED,
-                             ALWAYS == ALWAYS_EXPECTED);
-                LOOP3_ASSERT(L_,
-                             ALWAYS,
-                             DEFAULT,
-                             ALWAYS != DEFAULT);
-            }
-
-            if (verbose) cout << "\nNegative Testing." << endl;
+            if (veryVerbose) cout << "\nNegative Testing." << endl;
             {
                 bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-                if (verbose) cout << "\t'buffer == NULL'" << endl;
+                if (veryVerbose) cout << "\t'buffer == NULL'" << endl;
                 {
                     const int  k_SIZE = 1000;
                     char       BUFFER[k_SIZE];
@@ -2593,7 +2722,7 @@ int main(int argc, char* argv[])
                     ASSERT_SAFE_FAIL(Util::format(     0, k_SIZE, V));
                 }
 
-                if (verbose) cout << "\t'Negative buffer size'" << endl;
+                if (veryVerbose) cout << "\t'Negative buffer size'" << endl;
                 {
                     const int  k_SIZE = 1000;
                     char       BUFFER[k_SIZE];
@@ -2603,7 +2732,7 @@ int main(int argc, char* argv[])
                     ASSERT_SAFE_FAIL(Util::format(BUFFER,     -1, V));
                 }
 
-                if (verbose) cout << "\t'Negative precision'" << endl;
+                if (veryVerbose) cout << "\t'Negative precision'" << endl;
                 {
                     const bdldfp::DecimalFormatConfig VALID(0);
                     const bdldfp::DecimalFormatConfig INVALID(-1);
@@ -2709,7 +2838,6 @@ int main(int argc, char* argv[])
         const Obj INF_N   = -INF_P;
         const Obj ZERO_P  = DEC( 0.0);
         const Obj ZERO_N  = DEC(-0.0);
-        const Obj MAX_P   = bsl::numeric_limits<Obj>::max();
 
         if (veryVerbose) { T_ bsl::cout << "copySign()" << bsl::endl; }
         {
@@ -3381,14 +3509,12 @@ int main(int argc, char* argv[])
     {
         typedef BDEC::Decimal64 Obj;
 
-        const Obj DECIMAL = DEC(1234567890123456.0);
         const Obj NAN_P   = bsl::numeric_limits<Obj>::quiet_NaN();
         const Obj NAN_N   = -NAN_P;
         const Obj INF_P   = bsl::numeric_limits<Obj>::infinity();
         const Obj INF_N   = -INF_P;
         const Obj ZERO_P  = DEC( 0.0);
         const Obj ZERO_N  = DEC(-0.0);
-        const Obj MAX_P   = bsl::numeric_limits<Obj>::max();
 
         if (veryVerbose) { T_ bsl::cout << "copySign()" << bsl::endl; }
         {
@@ -4459,9 +4585,9 @@ int main(int argc, char* argv[])
         {
             const Obj DEC_1  = DEC( 1.000000000000000000000000000000001);
             const Obj DEC_9  = DEC( 9.999999999999999999999999999999999e-1);
-            const Obj MAX_P  = DEC( 9.999999999999999999999999999999999e+6144);
-            const Obj MAX_N  = DEC(-9.999999999999999999999999999999999e+6144);
-            const Obj SUBN_P =  bsl::numeric_limits<Obj>::denorm_min();
+            const Obj MAX_P  = bsl::numeric_limits<Obj>::max();
+            const Obj MAX_N  = -MAX_P;
+            const Obj SUBN_P = bsl::numeric_limits<Obj>::denorm_min();
 
             struct {
                 int d_line;

@@ -725,57 +725,28 @@ struct DecimalUtil {
                int                        length,
                Decimal128                 value,
                const DecimalFormatConfig& cfg = DecimalFormatConfig(33));
-
-        // Format the specified 'value' according to the parameters as
-        // described below, placing the output in the buffer designated by the
-        // specified 'buffer' and 'length', and return the length of the
-        // formatted value.  If there is insufficient room in the buffer, its
-        // contents will be left in an unspecified state, with the returned
-        // value indicating the necessary size.  This function does not write a
-        // terminating null character.  If 'length' is not positive, 'buffer'
-        // is permitted to be null.  This can be used to determine the
-        // necessary buffer size.
+        // Format the specified 'value', placing the output in the buffer
+        // designated by the specified 'buffer' and 'length', and return the
+        // length of the formatted value.  If there is insufficient room in the
+        // buffer, its contents will be left in an unspecified state, with the
+        // returned value indicating the necessary size.  This function does
+        // not write a terminating null character.  If 'length' is not
+        // positive, 'buffer' is permitted to be null.  This can be used to
+        // determine the necessary buffer size.  Optionally specify a 'cfg',
+        // indicating formatting parameters.  If 'cfg' is not specified, then
+        // default configuration instance, indicating scientific notation style
+        // with a precision sufficient to produce all available digits is used.
+        // See the Attributes section under @DESCRIPTION in the component-level
+        // documentation for 'bdldfp::DecimalFormatConfig' component for
+        // information on the configuration attributes.
         //
-        // Optionally specify 'precision' to control how many digits are
-        // written after the decimal point.  If not specified, a default value
-        // sufficient to produce all available digits in scientific notation is
-        // used.  The behavior is undefined if 'precision' is negative.
-        //
-        // Optionally specify 'style' to control how the number is written.  If
-        // 'style' is not given or is 'e_SCIENTIFIC', the number is written as
-        // its sign (see below), then a single digit, then a decimal point (see
-        // below), then 'precision' digits, then an 'e' or 'E' (see below),
-        // then a '-' or '+', then an exponent with no leading zeroes (with a
-        // zero exponent written as '0').  If 'style' is 'e_FIXED', the number
-        // is written as its sign, then one or more digits, then a decimal
-        // point, then 'precision' digits.  If the 'precision' value equals '0'
-        // then precision digits and the decimal point are not written.  If
-        // 'style' is 'e_NATURAL', the number is written according to the
-        // description of 'to-scientific-string' found in
-        // {http://speleotrove.com/decimal/decarith.pdf}.
-        //
-        // Optionally specify 'sign' to control how the sign is output.  If
-        // 'value' has its sign bit set, a '-' is always written.  Otherwise,
-        // if 'sign' is not given or is 'e_NEGATIVE_ONLY', no sign is written.
-        //  If it is 'e_ALWAYS', a '+' is written, and if it is
-        // 'e_POSITIVE_SPACE', a ' ' is written.
-        //
-        // Optionally specify 'letters' to control the case of letters.  If it
-        // is not specified or 'e_LOWER', letters are written in lower-case.
-        // If it is 'e_UPPER', letters are written in upper-case.  If it is
-        // 'e_MIXED', letters are written as specified for
-        // 'to-scientific-string' ('E' for exponents, 'Infinity', 'NaN', and
-        // 'sNaN').
-        //
-        // Optionally specify 'point' as the character to use for decimal
-        // points.  If it is not specified, '.' is used.
-        //
-        // Note that for some combinations of 'value' and 'precision', the
-        // number being written must first be rounded to fewer digits than it
-        // initially contains.  The number written must be as close as possible
-        // to the initial value given the constraints on precision.  The
-        // rounding should be done as "round-half-up", i.e., round up in
-        // magnitude when the first of the discarded digits is between 5 and 9.
+        // Note that for some combinations of 'value' and precision provided by
+        // 'cfg' object, the number being written must first be rounded to
+        // fewer digits than it initially contains.  The number written must be
+        // as close as possible to the initial value given the constraints on
+        // precision.  The rounding should be done as "round-half-up", i.e.,
+        // round up in magnitude when the first of the discarded digits is
+        // between 5 and 9.
 };
 
 // ============================================================================
@@ -1195,27 +1166,6 @@ inline
 long int DecimalUtil::lround(Decimal128 x)
 {
     return bdldfp::DecimalImpUtil::lround(*x.data());
-}
-
-inline
-Decimal32 DecimalUtil::round(Decimal32 x, unsigned int decimalPlaces)
-{
-    Decimal32 exp = makeDecimalRaw32(1, quantum(x) + decimalPlaces);
-    return quantize(x, exp);
-}
-
-inline
-Decimal64 DecimalUtil::round(Decimal64 x, unsigned int decimalPlaces)
-{
-    Decimal64 exp = makeDecimalRaw64(1, quantum(x) - decimalPlaces);
-    return quantize(x, exp);
-}
-
-inline
-Decimal128 DecimalUtil::round(Decimal128 x, unsigned int decimalPlaces)
-{
-    Decimal128 exp = makeDecimalRaw128(1, quantum(x) - decimalPlaces);
-    return quantize(x, exp);
 }
 
 inline
