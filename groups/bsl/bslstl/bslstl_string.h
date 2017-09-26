@@ -1234,8 +1234,9 @@ class basic_string
                                 INPUT_ITER  last,
                                 const char *message,
                                 std::input_iterator_tag);
-        // Specialized replacement for input iterators, using repeated
-        // 'push_back' operations.
+        // Specialized append for input iterators, using repeated 'push_back'
+        // operations.   Throw 'length_error' with the specified 'message' if
+        // 'length() > max_size() - distance(first, last)'.
 
     template <class INPUT_ITER>
     basic_string& privateAppend(INPUT_ITER  first,
@@ -1282,7 +1283,9 @@ class basic_string
         // 'FIRST_TYPE' and 'SECOND_TYPE' may resolve to 'const CHAR_TYPE*' and
         // 'size_type', 'size_type' and 'CHAR_TYPE', or a pair of iterators.
         // This call will clear the string and then dispatch to the
-        // corresponding 'privateAppend' function. 
+        // corresponding 'privateAppend' function.  Throw 'length_error' with
+        // the specified 'message' if the length of the string described by
+        // 'first' and 'second' is greater than 'max_length'. 
 
     Imp& privateBase();
         // Return a reference providing modifiable access to the base object
@@ -3192,15 +3195,15 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
-                                                     iterator    begin,
-                                                     iterator    end,
+                                                     iterator    first,
+                                                     iterator    last,
                                                      const char *message,
                                                      std::forward_iterator_tag)
 {
-    BSLS_ASSERT_SAFE(begin <= end);
+    BSLS_ASSERT_SAFE(first <= last);
 
-    return privateAppend(const_iterator(begin),
-                         const_iterator(end),
+    return privateAppend(const_iterator(first),
+                         const_iterator(last),
                          message,
                          std::forward_iterator_tag());
 }
