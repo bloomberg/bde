@@ -1018,7 +1018,7 @@ class String_Imp {
 };
 
 template<class STRING_TYPE>
-class StringClearProctor {
+class String_ClearProctor {
     // This component private 'class' implements a proctor that clears a
     // string, and, if 'release' is not called, will restore that string upon
     // it's destruction.  The intended usage is to implement 'assign' methods
@@ -1042,20 +1042,19 @@ class StringClearProctor {
 
   public:
     // CREATORS
-    explicit StringClearProctor(STRING_TYPE *stringPtr);
-        // Create a 'StringClearProctor' for the specified 'stringImp',
-        // set the length of 'string_p' to 0 and first character to
-        // CHAR_TYPE()
+    explicit String_ClearProctor(STRING_TYPE *stringPtr);
+        // Create a 'String_ClearProctor' for the specified 'stringPtr', and
+        // set both the length of 'stringPtr' to 0 and the first character of
+        // 'stringPtr' to 'CHAR_TYPE()'.
 
-    ~StringClearProctor();
-        // Destroy this object and restore the original state of the
-        // string supplied at construction, unless release() has been
-        // called.
+    ~String_ClearProctor();
+        // Destroy this object, and if 'release' has not been called, restore
+        // the original state of the string supplied at construction.
 
     // MANIPULATORS
     void release();
-        // Release the guard indicating that the string state need not
-        // to be restored.
+        // Release the proctor indicating that the string state need not to be
+        // restored.
 };
 
 
@@ -1155,8 +1154,8 @@ class basic_string
         // 'to_string' functions are made friends to allow access to the
         // internal short string buffer.
 
-    friend class StringClearProctor<basic_string>;
-        // StringClearProctor is made friend to allow access to internal
+    friend class String_ClearProctor<basic_string>;
+        // String_ClearProctor is made friend to allow access to internal
         // buffer and length.
 
     // PRIVATE CLASS METHODS
@@ -1202,7 +1201,7 @@ class basic_string
         // Append characters from the specified 'characterString' array of
         // characters of the specified 'numChars' length to this string, and
         // return a reference providing modifiable access to this string.
-        // Throw 'length_error' with the specified 'message' if 
+        // Throw 'length_error' with the specified 'message' if
         // 'numChars > max_size() - length()'.  The behavior is undefined
         // unless 'characterString' array is at least 'numChars' long.
 
@@ -1247,6 +1246,13 @@ class basic_string
         // iterators.  Throw 'length_error' with the specified 'message' if
         // 'length() > max_size() - distance(first, last)'.
 
+    template<class INPUT_ITER>
+    basic_string& privateAppend(INPUT_ITER  first,
+                                INPUT_ITER  last,
+                                const char *message);
+        // Dispatch the append operation to the correct 'privateAppend'
+        // overload using 'privateAppendDispatch'.
+
     template <class INPUT_ITER>
     basic_string& privateAppendDispatch(
                               INPUT_ITER                               first,
@@ -1265,17 +1271,9 @@ class basic_string
                                      BloombergLP::bslmf::MatchAnyType);
         // Match non-integral type for 'INPUT_ITER'.
 
-    template<class INPUT_ITER>
-    basic_string& privateAppend(INPUT_ITER  first,
-                                INPUT_ITER  last,
-                                const char *message);
-        // Dispatch the append operation to the correct 'privateAppend'
-        // overload using 'privateAppendDispatch'.
-
-
     template<class FIRST_TYPE, class SECOND_TYPE>
     basic_string& privateAssignDispatch(FIRST_TYPE   first,
-                                        SECOND_TYPE  second, 
+                                        SECOND_TYPE  second,
                                         const char  *message);
         // Assign to this string the value of the string described by the
         // specified 'first' and 'second' values, and return a reference
@@ -1285,7 +1283,7 @@ class basic_string
         // This call will clear the string and then dispatch to the
         // corresponding 'privateAppend' function.  Throw 'length_error' with
         // the specified 'message' if the length of the string described by
-        // 'first' and 'second' is greater than 'max_length'. 
+        // 'first' and 'second' is greater than 'max_length'.
 
     Imp& privateBase();
         // Return a reference providing modifiable access to the base object
@@ -3028,13 +3026,13 @@ const CHAR_TYPE *String_Imp<CHAR_TYPE, SIZE_TYPE>::dataPtr() const
           : d_start_p;
 }
 
-                    // -----------------------------
-                    // class bsl::StringClearProctor
-                    // -----------------------------
+                    // ------------------------------
+                    // class bsl::String_ClearProctor
+                    // ------------------------------
 
 // CREATORS
 template <class STRING_TYPE>
-StringClearProctor<STRING_TYPE>::StringClearProctor(STRING_TYPE *stringPtr)
+String_ClearProctor<STRING_TYPE>::String_ClearProctor(STRING_TYPE *stringPtr)
 : d_string_p(stringPtr)
 , d_originalLength(stringPtr->d_length)
 , d_originalFirstChar(*stringPtr->dataPtr())
@@ -3044,7 +3042,7 @@ StringClearProctor<STRING_TYPE>::StringClearProctor(STRING_TYPE *stringPtr)
 }
 
 template <class STRING_TYPE>
-StringClearProctor<STRING_TYPE>::~StringClearProctor()
+String_ClearProctor<STRING_TYPE>::~String_ClearProctor()
 {
     if (d_string_p) {
         d_string_p->d_length = d_originalLength;
@@ -3054,7 +3052,7 @@ StringClearProctor<STRING_TYPE>::~StringClearProctor()
 
 // MANIPULATORS
 template <class STRING_TYPE>
-void StringClearProctor<STRING_TYPE>::release()
+void String_ClearProctor<STRING_TYPE>::release()
 {
     d_string_p = 0;
 }
@@ -3074,7 +3072,7 @@ template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 void
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateThrowLengthError(
-                                                 bool        maxLengthExceeded, 
+                                                 bool        maxLengthExceeded,
                                                  const char *message)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(maxLengthExceeded)) {
@@ -3285,6 +3283,22 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
     return *this;
 }
 
+template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template<class INPUT_ITER>
+inline
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateAppend(
+                                                           INPUT_ITER  first,
+                                                           INPUT_ITER  last,
+                                                           const char *message)
+{
+    return privateAppendDispatch(first,
+                                 last,
+                                 message,
+                                 first,
+                                 BloombergLP::bslmf::Nil());
+}
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
@@ -3314,23 +3328,6 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
     return privateAppend(first, last, message, tag);
 }
 
-template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-template<class INPUT_ITER>
-inline
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
-basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateAppend(
-                                                           INPUT_ITER  first,
-                                                           INPUT_ITER  last,
-                                                           const char *message)
-{
-    return privateAppendDispatch(first,
-                                 last,
-                                 message,
-                                 first,
-                                 BloombergLP::bslmf::Nil());
-}
-
-
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class FIRST_TYPE, class SECOND_TYPE>
 inline
@@ -3341,7 +3338,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssignDispatch(
                                                           const char  *message)
 {
     {
-        StringClearProctor<basic_string> guard(this);
+        String_ClearProctor<basic_string> guard(this);
         privateAppend(first, second, message);
         guard.release();
     }
@@ -3739,7 +3736,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
     privateThrowLengthError(
                      max_size() - (length() - position) < numNewChars,
                      "string<...>::replace<Iter>(pos,n,i,j): string too long");
-    
+
     return privateReplaceRaw(position, numChars, &*first, numNewChars);
 }
 
@@ -4573,7 +4570,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                               size_type            numChars)
 {
     privateThrowOutOfRange(
-                outPosition > length(), 
+                outPosition > length(),
                 "string<...>::insert(pos,const string&...): invalid position");
     privateThrowOutOfRange(
                 position > other.length(),
@@ -4799,7 +4796,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
         outNumChars = length() - outPosition;
     }
     privateThrowLengthError(
-                replacement.length() > outNumChars && 
+                replacement.length() > outNumChars &&
                     replacement.length() - outNumChars > max_size() - length(),
                 "string<...>::replace(pos,const string&...): string too long");
     return privateReplaceRaw(outPosition,

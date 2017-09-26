@@ -3271,13 +3271,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 LimitObj mX(a);
 
                 switch (assignMethod) {
-                case 0: mX.assign(Y);                                 break;
-                case 1: mX.assign(Y, 0, LENGTH);                      break;
-                case 2: mX.assign(Y.c_str(), LENGTH);                 break;
-                case 3: mX.assign(Y.c_str());                         break;
-                case 4: mX.assign(LENGTH, Y[0]);                      break;
-                case 5: mX.assign(Y.begin(), Y.end());                break;
-                case 6: mX.assign(LENGTH, static_cast<size_t>(Y[0])); break;
+                  case 0: mX.assign(Y);                                 break;
+                  case 1: mX.assign(Y, 0, LENGTH);                      break;
+                  case 2: mX.assign(Y.c_str(), LENGTH);                 break;
+                  case 3: mX.assign(Y.c_str());                         break;
+                  case 4: mX.assign(LENGTH, Y[0]);                      break;
+                  case 5: mX.assign(Y.begin(), Y.end());                break;
+                  case 6: mX.assign(LENGTH, static_cast<size_t>(Y[0])); break;
                   default: ASSERT(0);
                 };
             }
