@@ -571,7 +571,7 @@ class Zoneinfo {
         // Return an iterator providing non-modifiable access to the transition
         // that holds the local-time descriptor associated with the specified
         // 'utcTime'.  The behavior is undefined unless 'numTransitions() > 0'
-        // and 'utcTime' is later than the transition returned by
+        // and 'utcTime' is at or after the transition returned by
         // 'firstTransition'.
 
     const ZoneinfoTransition& firstTransition() const;
