@@ -778,10 +778,10 @@ class ChannelPool {
         // passed the user-specified channel context (set using
         // 'setChannelContext()') or '(void *)0' if no context was specified.
         // The callback, when invoked, must store into the first argument the
-        // minimum length of additional data that is needed to complete a
-        // message.  If there is not enough data for a single message of a
-        // particular protocol, 0 must be stored into the first argument.  The
-        // prototype for a data callback might look like:
+        // minimum size that the passed in blob should be before this read
+        // callback is invoked again.  If there is not enough data for a single
+        // message of a particular protocol, 0 must be stored into the first
+        // argument.  The prototype for a data callback might look like:
         //..
         //  void blobDataCallback(int        *numNeeded,
         //                        btlb::Blob *message,

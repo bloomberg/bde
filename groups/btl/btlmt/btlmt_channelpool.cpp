@@ -1256,19 +1256,19 @@ void Channel::processReadData(int numBytes)
     int blobDataLen = d_blobReadData.length() + numBytes;
     d_blobReadData.setLength(blobDataLen);
     if (blobDataLen >= d_minBytesBeforeNextCb) {
-        int minAdditional = -1;
+        int minBytesBeforeNextCb = -1;
 
         // Invariant (must be verified prior to callback): this can
         // shed additional unused buffers in 'blob', but they are
         // regrown inside the calling 'readCb'.
 
-        d_blobBasedReadCb(&minAdditional,
+        d_blobBasedReadCb(&minBytesBeforeNextCb,
                           &d_blobReadData,
                           d_channelId,
                           d_userData);
-        BSLS_ASSERT(0 < minAdditional);
+        BSLS_ASSERT(0 < minBytesBeforeNextCb);
 
-        d_minBytesBeforeNextCb = minAdditional;
+        d_minBytesBeforeNextCb = minBytesBeforeNextCb;
     }
 }
 }  // close package namespace

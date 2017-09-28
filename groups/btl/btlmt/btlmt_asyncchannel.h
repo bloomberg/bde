@@ -398,15 +398,16 @@ class AsyncChannel {
         // occurs.  The callback is invoked with four arguments: (1) an integer
         // result code corresponding to 'ReadResult' that indicates the result
         // of the read operation, and if this code is equal to 'e_SUCCESS', (2)
-        // a pointer to an integer value where the callee can indicate how many
-        // more bytes are needed to complete the read operation, (3) a
-        // modifiable 'btlb::Blob' object containing the payload.  The caller
-        // is responsible for taking ownership of a certain number of bytes in
-        // the 'btlb::Blob' and readjusting it appropriately.  Note that the
-        // read operation is not considered completed until the callee
-        // indicates that zero more bytes are needed (argument 2), and (4)
-        // channel id.  Also note that the last three arguments are ignored if
-        // the first argument is different from 'e_SUCCESS'.
+        // a pointer to an integer value where the callee can indicate the
+        // minimum size that the passed in 'btlb::Blob' object should be before
+        // this read callback is invoked again, (3) a modifiable 'btlb::Blob'
+        // object containing the payload.  The caller is responsible for taking
+        // ownership of a certain number of bytes in the 'btlb::Blob' and
+        // readjusting it appropriately.  Note that the read operation is not
+        // considered completed until the callee indicates that zero more bytes
+        // are needed (argument 2), and (4) channel id.  Also note that the
+        // last three arguments are ignored if the first argument is different
+        // from 'e_SUCCESS'.
         //
         // A typical function matching this interface might look as follows:
         //..
