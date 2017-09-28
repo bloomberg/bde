@@ -132,6 +132,10 @@ BSLS_IDENT("$Id$")
 #include <bdlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMALFORMATCONFIG
+#include <bdldfp_decimalformatconfig.h>
+#endif
+
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
 #include <bdldfp_decimalimputil_inteldfp.h>
 #endif
@@ -382,6 +386,43 @@ class DecimalImpUtil {
         // or '1 * (10 ** 1)'.  The returned 'significand' and 'exponent'
         // reflect the encoded representation of 'value' (i.e., they
         // reflect the 'quantum' of 'value').
+
+                         // Format functions
+
+    static int format(char                      *buffer,
+                      int                        length,
+                      ValueType32                value,
+                      const DecimalFormatConfig& cfg);
+
+    static int format(char                      *buffer,
+                      int                        length,
+                      ValueType64                value,
+                      const DecimalFormatConfig& cfg);
+
+    static int format(char                      *buffer,
+                      int                        length,
+                      ValueType128               value,
+                      const DecimalFormatConfig& cfg);
+        // Format the specified 'value', according to the parameters in the
+        // specified 'cfg'. Place the output in the buffer designated by the
+        // specified 'buffer' and 'length', and return the length of the
+        // formatted value.  If there is insufficient room in the buffer, its
+        // contents will be left in an unspecified state, with the returned
+        // value indicating the necessary size.  This function does not write
+        // a terminating null character.  If 'length' is not positive, 'buffer'
+        // is permitted to be null.  This can be used to determine the
+        // necessary buffer size.  See the Attributes section under
+        // @DESCRIPTION in the component-level documentation for
+        // 'bdldfp::DecimalFormatConfig' component for information on the
+        // configuration attributes.
+        //
+        // Note that for some combinations of 'value' and precision provided by
+        // 'cfg' object, the number being written must first be rounded to
+        // fewer digits than it initially contains.  The number written must be
+        // as close as possible to the initial value given the constraints on
+        // precision.  The rounding should be done as "round-half-up", i.e.,
+        // round up in magnitude when the first of the discarded digits is
+        // between 5 and 9.
 
                         // Integer construction
 
