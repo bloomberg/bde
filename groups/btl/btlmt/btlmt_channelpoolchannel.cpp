@@ -355,30 +355,30 @@ void ChannelPoolChannel::blobBasedDataCb(int *numNeeded, btlb::Blob *msg)
             continue;
         }
 
-        int numConsumed = 0;
-        int nNeeded     = 0;
+        int numConsumed          = 0;
+        int minBytesBeforeNextCb = 0;
 
         const BlobBasedReadCallback& callback = entry.d_readCallback;
         numBytesAvailable = msg->length();
 
         {
             bslmt::LockGuardUnlock<bslmt::Mutex> guard(&d_mutex);
-            callback(e_SUCCESS, &nNeeded, msg, d_channelId);
+            callback(e_SUCCESS, &minBytesBeforeNextCb, msg, d_channelId);
             numConsumed = numBytesAvailable - msg->length();
         }
 
-        BSLS_ASSERT(0 <= nNeeded);
+        BSLS_ASSERT(0 <= minBytesBeforeNextCb);
         BSLS_ASSERT(0 <= numConsumed);
 
         numBytesAvailable -= numConsumed;
 
-        if (nNeeded) {
-            entry.d_numBytesNeeded = nNeeded;
-            if (nNeeded <= numBytesAvailable) {
+        if (minBytesBeforeNextCb) {
+            entry.d_numBytesNeeded = minBytesBeforeNextCb;
+            if (minBytesBeforeNextCb <= numBytesAvailable) {
                 continue;
             }
 
-            *numNeeded = nNeeded - numBytesAvailable;
+            *numNeeded = minBytesBeforeNextCb - numBytesAvailable;
         }
         else {
             removeTopReadEntry(false);
