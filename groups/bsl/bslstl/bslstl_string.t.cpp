@@ -705,6 +705,36 @@ struct ExceptionGuard {
     }
 };
 
+                          // =======================
+                          // class AllocatorUseGuard
+                          // =======================
+
+struct AllocatorUseGuard {
+    // This scoped guard helps to verify that no allocations or deallocations
+    // were triggered for a specific allocator.
+
+    // DATA
+    const bslma::TestAllocator *d_allocator_p;
+    Int64                       d_numAllocations;
+    Int64                       d_numDeallocations;
+    Int64                       d_numBytesInUse;
+
+  public:
+    // CREATORS
+    AllocatorUseGuard(const bslma::TestAllocator *allocatorPtr)
+    : d_allocator_p(allocatorPtr)
+    , d_numAllocations(allocatorPtr->numAllocations())
+    , d_numDeallocations(allocatorPtr->numDeallocations())
+    , d_numBytesInUse(allocatorPtr->numBytesInUse())
+    {}
+
+    ~AllocatorUseGuard() {
+        ASSERT(d_numAllocations == d_allocator_p->numAllocations());
+        ASSERT(d_numDeallocations == d_allocator_p->numDeallocations());
+        ASSERT(d_numBytesInUse == d_allocator_p->numBytesInUse());
+    }
+};
+
                                // ==============
                                // class CharList
                                // ==============
@@ -5468,24 +5498,22 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase21()
         ASSERT(bslma::Default::defaultAllocator() == str1.get_allocator());
         ASSERT(&testAlloc2 == str2.get_allocator());
 
-        const Int64 numAlloc2 = testAlloc2.numAllocations();
-        const Int64 numDealloc2 = testAlloc2.numDeallocations();
-        const Int64 inUse2 = testAlloc2.numBytesInUse();
 
         if (verbose) printf("Swap strings with equal allocators.\n");
 
         {
+            const Int64 inUse2 = testAlloc2.numBytesInUse();
             Obj str3(&testAlloc2);
             ASSERT(testAlloc2.numBytesInUse() == inUse2);
 
-            str3.swap(str2);
-            ASSERT(str2.empty());
-            ASSERT(LENGTH == str3.size());
-            ASSERT(str1cpy == str3);
+            {
+                AllocatorUseGuard guard(&testAlloc2);
 
-            ASSERT(numAlloc2 == testAlloc2.numAllocations());
-            ASSERT(numDealloc2 == testAlloc2.numDeallocations());
-            ASSERT(inUse2 == testAlloc2.numBytesInUse());
+                str3.swap(str2);
+                ASSERT(str2.empty());
+                ASSERT(LENGTH == str3.size());
+                ASSERT(str1cpy == str3);
+            }
         }
 
         // Destructor for str3 should have freed memory
@@ -9059,6 +9087,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
     //      - size
     //      - capacity
     //      - element value at each index position { 0 .. length - 1 }.
+    //   In addition, check QoI of 'append' in that it does not internally
+    //   allocate a temporary string.
     //
     // Testing:
     //   basic_string& operator+=(CHAR_TYPE c);
@@ -9157,6 +9187,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
 
                     // string& operator+=(C c);
                     for (int j = 0; j != NUM_ELEMENTS; ++j) {
+                        AllocatorUseGuard guardG(globalAllocator_p);
+                        AllocatorUseGuard guardD(defaultAllocator_p);
                         Obj &result = mX += VALUE;
                         LOOP2_ASSERT(INIT_LINE, i, &X == &result);
                     }
@@ -9252,8 +9284,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
                     }
 
                     // string& append(n, C c);
-                    Obj &result = mX.append(NUM_ELEMENTS, VALUE);
-                    LOOP2_ASSERT(INIT_LINE, i, &X == &result);
+                    {
+                        AllocatorUseGuard guardG(globalAllocator_p);
+                        AllocatorUseGuard guardD(defaultAllocator_p);
+                        Obj &result = mX.append(NUM_ELEMENTS, VALUE);
+                        LOOP2_ASSERT(INIT_LINE, i, &X == &result);
+                    }
 
                     const Int64 AA = testAllocator.numBlocksTotal();
                     const Int64  A = testAllocator.numBlocksInUse();
@@ -9377,6 +9413,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     //      - size
     //      - capacity
     //      - element value at each index position { 0 .. length - 1 }.
+    //   In addition, check QoI of 'append' in that it does not internally
+    //   allocate a temporary string.
     //
     // Testing:
     //   basic_string& operator+=(const StringRefData& strRefData);
@@ -9530,46 +9568,50 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         printf("\t\t\t\tBefore:"); P_(BB); P(B);
                     }
 
-                    switch(appendMode) {
-                      case APPEND_STRING: {
-                        // string& append(const string<C,CT,A>& str);
-                        Obj &result = mX.append(Y);
-                        ASSERT(&result == &mX);
-                      } break;
-                      case APPEND_CSTRING_N: {
-                        // string& append(pos, const C *s, n);
-                        Obj &result = mX.append(Y.data(), NUM_ELEMENTS);
-                        ASSERT(&result == &mX);
-                      } break;
-                      case APPEND_CSTRING_NULL_0: {
-                        // string& append(pos, const C *s, n);
-                        Obj &result = mX.append(0, NUM_ELEMENTS);
-                        ASSERT(&result == &mX);
-                      } break;
-                      case APPEND_CSTRING: {
-                        // string& append(const C *s);
-                        Obj &result = mX.append(Y.c_str());
-                        ASSERT(&result == &mX);
-                      } break;
-                      case APPEND_RANGE: {
-                        // void append(InputIter first, last);
-                        Obj &result = mX.append(mU.begin(), mU.end());
-                        ASSERT(&result == &mX);
-                      } break;
-                      case APPEND_CONST_RANGE: {
-                        // void append(InputIter first, last);
-                        Obj &result = mX.append(U.begin(), U.end());
-                        ASSERT(&result == &mX);
-                      } break;
-                      case APPEND_STRINGREFDATA: {
-                        //operator+=(const StringRefData& strRefData);
-                        Obj &result = mX += V;
-                        ASSERT(&result == &mX);
-                      } break;
-                      default:
-                        printf("***UNKNOWN APPEND MODE***\n");
-                        ASSERT(0);
-                    };
+                    {
+                        AllocatorUseGuard guardG(globalAllocator_p);
+                        AllocatorUseGuard guardD(defaultAllocator_p);
+                        switch(appendMode) {
+                          case APPEND_STRING: {
+                            // string& append(const string<C,CT,A>& str);
+                            Obj &result = mX.append(Y);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_CSTRING_N: {
+                            // string& append(pos, const C *s, n);
+                            Obj &result = mX.append(Y.data(), NUM_ELEMENTS);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_CSTRING_NULL_0: {
+                            // string& append(pos, const C *s, n);
+                            Obj &result = mX.append(0, NUM_ELEMENTS);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_CSTRING: {
+                            // string& append(const C *s);
+                            Obj &result = mX.append(Y.c_str());
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_RANGE: {
+                            // void append(InputIter first, last);
+                            Obj &result = mX.append(mU.begin(), mU.end());
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_CONST_RANGE: {
+                            // void append(InputIter first, last);
+                            Obj &result = mX.append(U.begin(), U.end());
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_STRINGREFDATA: {
+                            //operator+=(const StringRefData& strRefData);
+                            Obj &result = mX += V;
+                            ASSERT(&result == &mX);
+                          } break;
+                          default:
+                            printf("***UNKNOWN APPEND MODE***\n");
+                            ASSERT(0);
+                        };
+                    }
 
                     const Int64 AA = testAllocator.numBlocksTotal();
                     const Int64  A = testAllocator.numBlocksInUse();
@@ -9673,8 +9715,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                         // string& append(const string<C,CT,A>& str,
                         //                pos2, n);
-                        Obj &result = mX.append(Y, POS2, NUM_ELEMENTS);
-                        ASSERT(&result == &mX);
+                        {
+                            AllocatorUseGuard guardG(globalAllocator_p);
+                            AllocatorUseGuard guardD(defaultAllocator_p);
+                            Obj &result = mX.append(Y, POS2, NUM_ELEMENTS);
+                            ASSERT(&result == &mX);
+                        }
 
                         const Int64 AA = testAllocator.numBlocksTotal();
                         const Int64  A = testAllocator.numBlocksInUse();
@@ -9879,7 +9925,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                     mX[k] = VALUES[k % NUM_VALUES];
                 }
 
-                Obj mY(X); const Obj& Y = mY;  // control
+                Obj mY(X, AllocType(&testAllocator)); const Obj& Y = mY;
+                                                                 // ^-- control
 
                 bslstl::StringRefData<TYPE> mV(&*Y.begin(),
                                                    &*Y.end());
@@ -9889,51 +9936,55 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                     printf("\t\t\tAppend itself.\n");
                 }
 
-                switch(appendMode) {
-                  case APPEND_STRING: {
-                // string& append(const string<C,CT,A>& str);
-                    mX.append(Y);
-                    mY.append(Y);
-                  } break;
-                  case APPEND_CSTRING_N: {
-                // string& append(pos, const C *s, n);
-                    mX.append(Y.data(), INIT_LENGTH);
-                    mY.append(Y.data(), INIT_LENGTH);
-                  } break;
-                  case APPEND_CSTRING_NULL_0: {
-                // string& append(pos, const C *s, n);
-                    mX.append(0, 0);
-                    mY.append(0, 0);
-                  } break;
-                  case APPEND_CSTRING: {
-                // string& append(const C *s);
-                    mX.append(Y.c_str());
-                    mY.append(Y.c_str());
-                  } break;
-                  case APPEND_SUBSTRING: {
-                // string& append(const string<C,CT,A>& str, pos2, n);
-                    mX.append(Y, 0, INIT_LENGTH);
-                    mY.append(Y, 0, INIT_LENGTH);
-                  } break;
-                  case APPEND_RANGE: {
-                // void append(InputIter first, last);
-                    mX.append(mY.begin(), mY.end());
-                    mY.append(mY.begin(), mY.end());
-                  } break;
-                  case APPEND_CONST_RANGE: {
-                // void append(InputIter first, last);
-                    mX.append(Y.begin(), Y.end());
-                    mY.append(Y.begin(), Y.end());
-                  } break;
-                  case APPEND_STRINGREFDATA: {
-                //operator+=(const StringRefData& strRefData);
-                    mX += V;
-                    mY += V;
-                  } break;
-                  default:
-                    printf("***UNKNOWN APPEND MODE***\n");
-                    ASSERT(0);
-                };
+                {
+                    AllocatorUseGuard guardG(globalAllocator_p);
+                    AllocatorUseGuard guardD(defaultAllocator_p);
+                    switch(appendMode) {
+                      case APPEND_STRING: {
+                    // string& append(const string<C,CT,A>& str);
+                        mX.append(Y);
+                        mY.append(Y);
+                      } break;
+                      case APPEND_CSTRING_N: {
+                    // string& append(pos, const C *s, n);
+                        mX.append(Y.data(), INIT_LENGTH);
+                        mY.append(Y.data(), INIT_LENGTH);
+                      } break;
+                      case APPEND_CSTRING_NULL_0: {
+                    // string& append(pos, const C *s, n);
+                        mX.append(0, 0);
+                        mY.append(0, 0);
+                      } break;
+                      case APPEND_CSTRING: {
+                    // string& append(const C *s);
+                        mX.append(Y.c_str());
+                        mY.append(Y.c_str());
+                      } break;
+                      case APPEND_SUBSTRING: {
+                    // string& append(const string<C,CT,A>& str, pos2, n);
+                        mX.append(Y, 0, INIT_LENGTH);
+                        mY.append(Y, 0, INIT_LENGTH);
+                      } break;
+                      case APPEND_RANGE: {
+                    // void append(InputIter first, last);
+                        mX.append(mY.begin(), mY.end());
+                        mY.append(mY.begin(), mY.end());
+                      } break;
+                      case APPEND_CONST_RANGE: {
+                    // void append(InputIter first, last);
+                        mX.append(Y.begin(), Y.end());
+                        mY.append(Y.begin(), Y.end());
+                      } break;
+                      case APPEND_STRINGREFDATA: {
+                    //operator+=(const StringRefData& strRefData);
+                        mX += V;
+                        mY += V;
+                      } break;
+                      default:
+                        printf("***UNKNOWN APPEND MODE***\n");
+                        ASSERT(0);
+                    };
+                }
 
                 if (veryVerbose) {
                     T_; T_; T_; T_; P(X);
@@ -9980,7 +10031,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             mX[k] = VALUES[k % NUM_VALUES];
                         }
 
-                        Obj mY(X); const Obj& Y = mY;  // control
+                        Obj mY(X,
+                               AllocType(&testAllocator)); const Obj& Y = mY;
+                                                                 // ^-- control
 
                         if (veryVerbose) {
                             printf("\t\t\tAppend substring of itself");
@@ -9988,8 +10041,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         }
 
                         // string& append(const string<C,CT,A>& str, pos2, n);
-                        mX.append(Y, INDEX, NUM_ELEMENTS);
-                        mY.append(Y, INDEX, NUM_ELEMENTS);
+                        {
+                            AllocatorUseGuard guardG(globalAllocator_p);
+                            AllocatorUseGuard guardD(defaultAllocator_p);
+                            mX.append(Y, INDEX, NUM_ELEMENTS);
+                            mY.append(Y, INDEX, NUM_ELEMENTS);
+                        }
 
                         if (veryVerbose) {
                             T_; T_; T_; T_; P(X);
@@ -10771,10 +10828,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
     //   in addition the previous value of the string being assigned to must be
     //   freed properly.  There is a further concern about aliasing (although
     //   assigning a portion of oneself is not subject to aliasing in most
-    //   implementations), and an additional concern that allocators are not
-    //   propagated (until we support the C++11 allocator propagation traits).
-    //   Finally, all 'assign' functions must return a reference to the string
-    //   that has just been assigned to, just like the assignment operators.
+    //   implementations), QoI concern that 'assign' does not internally
+    //   allocate a temporary string, and an additional concern that allocators
+    //   are not propagated (until we support the C++11 allocator propagation
+    //   traits).  Finally, all 'assign' functions must return a reference to
+    //   the string that has just been assigned to, just like the assignment
+    //   operators.
     //
     // Plan:
     //   For the assignment we will create objects of varying sizes containing
@@ -10800,8 +10859,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
     //   basic_string& assign(size_type n, CHAR_TYPE c);
     // --------------------------------------------------------------------
 
-    bslma::TestAllocator  testAllocator(veryVeryVerbose);
-    bslma::Allocator     *Z = &testAllocator;
+    bslma::TestAllocator         testAllocator(veryVeryVerbose);
+    bslma::Allocator            *Z = &testAllocator;
 
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
@@ -10869,8 +10928,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
                         printf(" using "); P(VALUE);
                     }
 
-                    Obj& result = mX.assign(LENGTH, VALUE);        // test here
-                    ASSERT(&result == &mX);
+                    {
+                        AllocatorUseGuard guardG(globalAllocator_p);
+                        AllocatorUseGuard guardD(defaultAllocator_p);
+                        Obj& result = mX.assign(LENGTH, VALUE);    // test here
+                        ASSERT(&result == &mX);
+                    }
 
                     if (veryVerbose) {
                         T_; T_; T_; P_(X); P(X.capacity());
@@ -10917,13 +10980,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
 
                         Obj mX(INIT_LENGTH, DEFAULT_VALUE, Z);
                         const Obj& X = mX;
-                        ExceptionGuard<Obj> guard(X, L_);
+                        ExceptionGuard<Obj> excGuard(X, L_);
 
                         testAllocator.setAllocationLimit(AL);
 
                         Obj& result = mX.assign(LENGTH, VALUE);    // test here
                         ASSERT(&result == &mX);
-                        guard.release();
+                        excGuard.release();
 
                         if (veryVerbose) {
                             T_; T_; T_; P_(X); P(X.capacity());
@@ -10975,8 +11038,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
                     const Int64 BB = testAllocator.numBlocksTotal();
                     const Int64  B = testAllocator.numBlocksInUse();
 
-                    Obj& result = dst.assign(MoveUtil::move(src));
-                    ASSERT(&result == &dst);                    // ^--test here
+                    {
+                        AllocatorUseGuard guardG(globalAllocator_p);
+                        AllocatorUseGuard guardD(defaultAllocator_p);
+                        Obj& result = dst.assign(MoveUtil::move(src));
+                        ASSERT(&result == &dst);                // ^--test here
+                    }
 
                     LOOP2_ASSERT(INIT_LINE, LINE, dst == src_copy);
                     LOOP2_ASSERT(INIT_LINE, LINE,
@@ -11027,8 +11094,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
                     const Int64 BB = testAllocator.numBlocksTotal();
                     const Int64  B = testAllocator.numBlocksInUse();
 
-                    Obj& result = dst.assign(MoveUtil::move(src));
-                    ASSERT(&result == &dst);                       // test here
+                    {
+                        AllocatorUseGuard guardG(globalAllocator_p);
+                        AllocatorUseGuard guardD(defaultAllocator_p);
+                        Obj& result = dst.assign(MoveUtil::move(src));
+                        ASSERT(&result == &dst);                   // test here
+                    }
 
                     LOOP4_ASSERT(INIT_LINE, LINE, LENGTH, VALUE, dst == src);
                     LOOP4_ASSERT(INIT_LINE, LINE, LENGTH, VALUE,
@@ -11389,7 +11460,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrRefData()
                 const bsls::Types::Int64 numAllocs =
                                                 testAllocator.numAllocations();
 
-                mX.assign(strRef);
+                {
+                    AllocatorUseGuard guardG(globalAllocator_p);
+                    AllocatorUseGuard guardD(defaultAllocator_p);
+                    mX.assign(strRef);
+                }
 
                 if (LENGTH <= preCapacity) {
                     LOOP2_ASSERT(testAllocator.numAllocations(), numAllocs,
@@ -11524,8 +11599,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13InputIterator()
                        AllocType(&testAllocator));
                 const Obj& X = mX;
 
-                mX.assign(InputIterator(Y.data()),
-                          InputIterator(Y.data() + LENGTH));
+                {
+                    AllocatorUseGuard guardG(globalAllocator_p);
+                    AllocatorUseGuard guardD(defaultAllocator_p);
+                    mX.assign(InputIterator(Y.data()),
+                              InputIterator(Y.data() + LENGTH));
+                }
 
                 if (veryVerbose) {
                     T_; T_; T_; P_(X); P(X.capacity());
@@ -11676,7 +11755,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                 const bsls::Types::Int64 numAllocs =
                                                 testAllocator.numAllocations();
 
-                mX.assign(U.begin(), U.end());
+                {
+                    AllocatorUseGuard guardG(globalAllocator_p);
+                    AllocatorUseGuard guardD(defaultAllocator_p);
+                    mX.assign(U.begin(), U.end());
+                }
 
                 if (LENGTH <= preCapacity) {
                     LOOP2_ASSERT(testAllocator.numAllocations(), numAllocs,
@@ -11742,7 +11825,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
 
                     testAllocator.setAllocationLimit(AL);
 
-                    Obj& result = mX.assign(U.begin(), U.end());  // test here
+                    Obj& result = mX.assign(U.begin(), U.end());   // test here
                     ASSERT(&result == &mX);
                     guard.release();
 
@@ -12070,6 +12153,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                     }
                 }
                 {
+                    AllocatorUseGuard guardG(globalAllocator_p);
+                    AllocatorUseGuard guardD(defaultAllocator_p);
+
                     const Int64 BB = testAllocator.numBlocksTotal();
                     const Int64  B = testAllocator.numBlocksInUse();
 
@@ -12370,35 +12456,21 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
             Obj mY(g(SPEC));  const Obj& Y = mY;
 
             for (int i = 0; i < 4; ++i) {
-                const Int64 TB = defaultAllocator_p->numBytesInUse();
-                ASSERTV(LINE, 0  == globalAllocator_p->numBytesInUse());
-                ASSERTV(LINE, TB == defaultAllocator_p->numBytesInUse());
-                ASSERTV(LINE, 0  == objectAllocator_p->numBytesInUse());
+                AllocatorUseGuard guardG(globalAllocator_p);
+                AllocatorUseGuard guardD(defaultAllocator_p);
 
                 switch (i) {
                   case 0: {
                     Obj x(LENGTH, VALUE, objectAllocator_p);
-
-                    ASSERTV(LINE, 0  == globalAllocator_p->numBytesInUse());
-                    ASSERTV(LINE, TB == defaultAllocator_p->numBytesInUse());
                   } break;
                   case 1: {
                     Obj x(&Y[0], objectAllocator_p);
-
-                    ASSERTV(LINE, 0  == globalAllocator_p->numBytesInUse());
-                    ASSERTV(LINE, TB == defaultAllocator_p->numBytesInUse());
                   } break;
                   case 2: {
                     Obj x(&Y[0], LENGTH, objectAllocator_p);
-
-                    ASSERTV(LINE, 0  == globalAllocator_p->numBytesInUse());
-                    ASSERTV(LINE, TB == defaultAllocator_p->numBytesInUse());
                   } break;
                   case 3: {
                     Obj x(Y, 0, LENGTH, objectAllocator_p);
-
-                    ASSERTV(LINE, 0  == globalAllocator_p->numBytesInUse());
-                    ASSERTV(LINE, TB == defaultAllocator_p->numBytesInUse());
                   } break;
                 };
 
@@ -12526,6 +12598,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
             const Int64 BB = testAllocator.numBlocksTotal();
             const Int64  B = testAllocator.numBlocksInUse();
 
+            AllocatorUseGuard guardG(globalAllocator_p);
+            AllocatorUseGuard guardD(defaultAllocator_p);
             Obj mX(U.begin(), U.end(), AllocType(&testAllocator));
             const Obj& X = mX;
 
