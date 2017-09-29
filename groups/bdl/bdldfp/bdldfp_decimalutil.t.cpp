@@ -585,8 +585,8 @@ int main(int argc, char* argv[])
             }
             {
                 // Test that 'format' produces a resultant strings
-                // different to 'DEFAULT' string when invoked with
-                // precision different the one provided by default
+                // distinct from 'DEFAULT' string when invoked with
+                // precision distinct from the one provided by default
                 // configuration object.
                 const bsl::string EXPECTED("1.23457E+0", pa);
                 const Config CONFIG(5);
@@ -607,9 +607,9 @@ int main(int argc, char* argv[])
             }
             {
                 // Test that 'format' output a decimal value in notation
-                // different to 'DEFAULT' string when invoked with
-                // a style different the one provided by default
-                // configuration object.
+                // distinct from to 'DEFAULT' string when invoked with a style
+                // distinct from the one provided by default configuration
+                // object.
                 const bsl::string EXPECTED("1.234567", pa);
                 const Config CONFIG(6, Config::e_FIXED);
                 len = Util::format(buffer,
@@ -673,8 +673,8 @@ int main(int argc, char* argv[])
             }
             {
                 // Test that 'format' produces a resultant strings
-                // different to 'DEFAULT' string when invoked with
-                // precision different the one provided by default
+                // distinct from 'DEFAULT' string when invoked with
+                // precision distinct from the one provided by default
                 // configuration object.
                 const bsl::string EXPECTED("1.23457E+0", pa);
                 const Config CONFIG(5);
@@ -695,9 +695,9 @@ int main(int argc, char* argv[])
             }
             {
                 // Test that 'format' output a decimal value in notation
-                // different to 'DEFAULT' string when invoked with
-                // a style different the one provided by default
-                // configuration object.
+                // distinct from 'DEFAULT' string when invoked with a style
+                // distinct from the one provided by default configuration
+                // object.
                 const bsl::string EXPECTED("1.234567890123456", pa);
                 const Config CONFIG(15, Config::e_FIXED);
                 len = Util::format(buffer,
@@ -766,8 +766,8 @@ int main(int argc, char* argv[])
             }
             {
                 // Test that 'format' produces a resultant strings
-                // different to 'DEFAULT' string when invoked with
-                // precision different the one provided by default
+                // distinct from 'DEFAULT' string when invoked with
+                // precision distinct from the one provided by default
                 // configuration object.
                 const bsl::string EXPECTED("1.23457E+0", pa);
                 const Config CONFIG(5);
@@ -788,9 +788,9 @@ int main(int argc, char* argv[])
             }
             {
                 // Test that 'format' output a decimal value in notation
-                // different to 'DEFAULT' string when invoked with
-                // a style different the one provided by default
-                // configuration object.
+                // distinct from 'DEFAULT' string when invoked with a style
+                // distinct from the one provided by default configuration
+                // object.
                 const bsl::string EXPECTED(
                                     "1.234567890123456789012345678901234", pa);
                 const Config CONFIG(33, Config::e_FIXED);

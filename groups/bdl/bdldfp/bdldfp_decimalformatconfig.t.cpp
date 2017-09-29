@@ -6,8 +6,11 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
-#include <bsl_cstdlib.h>
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -16,24 +19,30 @@ using bsl::flush;
 using bsl::endl;
 using bsl::atoi;
 
-
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test provides a set of value-semantic classes which
-// represent a floating point numbers in the decimal base, where each class has
-// a different precision.
+// The component under test implements a single, simply constrained
+// (value-semantic) attribute class.  This class does not have Primary
+// Manipulators and provides Basic Accessors to the attributes initialized in
+// this class constructor.
 // ----------------------------------------------------------------------------
 // CREATORS
-//: o 'Decimal_Type32()'
+// [2] bdldfp::DecimalFormatConfig(int, Style, Sign, str, str, str, char, char);
+//
+// ACCESSORS
+// [3] int precision() const;
+// [3] Style style() const;
+// [3] Sign sign() const;
+// [3] const char *infinity() const;
+// [3] const char *nan() const;
+// [3] const char *sNan() const;
+// [3] char decimalPoint() const;
+// [3] char exponent() const;
 // ----------------------------------------------------------------------------
-// [ 1] Implementation Assumptions
-// [ 2] Decimal32 Type
-// [ 3] Decimal64 Type
-// [ 4] Decimal128 Type
-// [ 8] USAGE EXAMPLE
+// [1] BREATHING TEST
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -79,11 +88,23 @@ static bslma::TestAllocator *pa;
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace BDEC = BloombergLP::bdldfp;
+typedef BDEC::DecimalFormatConfig Obj;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -111,7 +132,252 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING ACCESSORS
+        //
+        // Concerns:
+        //: 1 An object created with the constructor taking the precision
+        //:   parameter only  has the rest of parameters initialized to
+        //    contractually specified default values.
+        //:
+        //: 2 That each accessor returns a value bound to an attribute in the
+        //:   constructor.
+        //
+        // Plan:
+        //: 1 Create DecimalFormatConfig object with the constructor taking
+        //:   the precision parameter only.  Use default values for optional
+        //:   parameters.
+        //:
+        //: 2 Ensure that each accessor to an attribute returns the default
+        //:   value.
+        //:
+        //: 3 Create DecimalFormatConfig object with the constructor taking
+        //:   all configuration parameters.
+        //:
+        //: 4 Ensure that each accessor to an attribute returns a value bound
+        //:   to the attribute in the constructor.
+
+        if (verbose) cout <<"\nTESTING ACCESSORS"
+                            "\n=================\n";
+
+        const int PRECISION = 42;
+        Obj mD(PRECISION); const Obj& D = mD;
+
+        {
+            if (veryVerbose)
+                cout << "\tPrecesion accessor" << endl;
+
+            ASSERT(PRECISION == D.precision());
+        }
+        {
+            if (veryVerbose)
+                cout << "\tStyle accessor" << endl;
+
+            ASSERT(Obj::e_SCIENTIFIC == D.style());
+
+            Obj mX(PRECISION, Obj::e_FIXED); const Obj& X = mX;
+
+            ASSERT(Obj::e_FIXED == X.style());
+            ASSERT(D.style() != X.style());
+        }
+        {
+            if (veryVerbose)
+                cout << "\tSign accessor" << endl;
+
+            ASSERT(Obj::e_NEGATIVE_ONLY == D.sign());
+
+            Obj mX(PRECISION, Obj::e_FIXED, Obj::e_ALWAYS); const Obj& X = mX;
+
+            ASSERT(Obj::e_ALWAYS == X.sign());
+            ASSERT(D.sign() != X.sign());
+        }
+        {
+            if (veryVerbose)
+                cout << "\tSign accessor" << endl;
+
+            ASSERT(Obj::e_NEGATIVE_ONLY == D.sign());
+
+            Obj mX(PRECISION, Obj::e_FIXED, Obj::e_ALWAYS); const Obj& X = mX;
+
+            ASSERT(Obj::e_ALWAYS == X.sign());
+            ASSERT(D.sign() != X.sign());
+        }
+        {
+            if (veryVerbose)
+                cout << "\tSign accessor" << endl;
+
+            ASSERT(Obj::e_NEGATIVE_ONLY == D.sign());
+
+            Obj mX(PRECISION, Obj::e_FIXED, Obj::e_ALWAYS); const Obj& X = mX;
+
+            ASSERT(Obj::e_ALWAYS == X.sign());
+            ASSERT(D.sign() != X.sign());
+        }
+        {
+            if (veryVerbose)
+                cout << "\tInfinity accessor" << endl;
+
+            ASSERT(0 == strcmp("inf", D.infinity()));
+
+            const char *INF = "Inf";
+                  Obj   mX(PRECISION, Obj::e_FIXED, Obj::e_ALWAYS, INF);
+            const Obj&   X = mX;
+
+            ASSERT(0 == strcmp(INF,          X.infinity()));
+            ASSERT(0 != strcmp(D.infinity(), X.infinity()));
+        }
+        {
+            if (veryVerbose)
+                cout << "\tNan accessor" << endl;
+
+            ASSERT(0 == strcmp("nan", D.nan()));
+
+            const char *QNAN = "NaN";
+            Obj         mX(PRECISION, Obj::e_FIXED, Obj::e_ALWAYS, "", QNAN);
+            const Obj&   X = mX;
+
+            ASSERT(0 == strcmp(QNAN,    X.nan()));
+            ASSERT(0 != strcmp(D.nan(), X.nan()));
+        }
+        {
+            if (veryVerbose)
+                cout << "\tsNan accessor" << endl;
+
+            ASSERT(0 == strcmp("snan", D.sNan()));
+
+            const char *SNAN = "sNaN";
+            Obj         mX(PRECISION,
+                           Obj::e_FIXED,
+                           Obj::e_ALWAYS,
+                           "",
+                           "",
+                           SNAN);
+            const Obj&   X = mX;
+
+            ASSERT(0 == strcmp(SNAN,     X.sNan()));
+            ASSERT(0 != strcmp(D.sNan(), X.sNan()));
+        }
+        {
+            if (veryVerbose)
+                cout << "\tPoint accessor" << endl;
+
+            ASSERT('.' == D.decimalPoint());
+
+            const char POINT = ',';
+            Obj        mX(PRECISION,
+                          Obj::e_FIXED,
+                          Obj::e_ALWAYS,
+                          "",
+                          "",
+                          "",
+                          POINT);
+            const Obj&  X = mX;
+
+            ASSERT(POINT            == X.decimalPoint());
+            ASSERT(D.decimalPoint() != X.decimalPoint());
+        }
+        {
+            if (veryVerbose)
+                cout << "\tExponent accessor" << endl;
+
+            ASSERT('E' == D.exponent());
+
+            const char EXPONENT = 'e';
+            Obj        mX(PRECISION,
+                          Obj::e_FIXED,
+                          Obj::e_ALWAYS,
+                          "",
+                          "",
+                          "",
+                          '.',
+                          EXPONENT);
+            const Obj&  X = mX;
+
+            ASSERT(EXPONENT     == X.exponent());
+            ASSERT(D.exponent() != X.exponent());
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING CREATORS
+        //
+        // Concerns:
+        //: 1 An object is creatable with the constructor taking configuration
+        //:   attributes.
+        //:
+        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create DecimalFormatConfig object with the constructor taking
+        //:   configuration attributes.
+
+        if (verbose) cout <<"\nTESTING CREATOR"
+                            "\n===============\n";
+
+        if (veryVerbose)
+            cout << "\tDecimalFormatConfig constructor with configuration "
+                 << "attributes\n";
+
+        const int PRECISION = 42;
+        Obj mX(PRECISION); const Obj& X = mX;
+
+        ASSERT(PRECISION == X.precision());
+
+        if (veryVerbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                         bsls::AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\t'Negative precision'" << endl;
+            {
+                ASSERT_SAFE_PASS(Obj( 0));
+                ASSERT_SAFE_FAIL(Obj(-1));
+            }
+        }
+      } break;
       case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Create an object 'X'.
+        //: 2 Get access to each attribute.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BREATHING TEST" << endl
+                          << "==============" << endl;
+
+        const int         PRECISION = 81;
+        const Obj::Style  STYLE     = Obj::e_NATURAL;
+        const Obj::Sign   SIGN      = Obj::e_ALWAYS;
+        const char       *INF       = "Inf";
+        const char       *QNAN      = "qNaN";
+        const char       *SNAN      = "sNaN";
+        const char        POINT     = ',';
+        const char        EXPONENT  = 'e';
+
+              Obj mX(PRECISION, STYLE, SIGN, INF, QNAN, SNAN, POINT, EXPONENT);
+        const Obj& X = mX;
+
+        ASSERT(PRECISION == X.precision());
+        ASSERT(STYLE     == X.style());
+        ASSERT(SIGN      == X.sign());
+        ASSERT(INF       == X.infinity());
+        ASSERT(QNAN      == X.nan());
+        ASSERT(SNAN      == X.sNan());
+        ASSERT(POINT     == X.decimalPoint());
+        ASSERT(EXPONENT  == X.exponent());
+
       } break;
 
       default: {

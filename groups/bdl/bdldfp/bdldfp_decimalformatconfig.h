@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide an attribute class to configure decimal formatting.
 //
 //@CLASSES:
-//  bdltdfp::DecimalFormatConfig: configuration for format functions
+//  bdltdfp::DecimalFormatConfig: configuration for formatting functions
 //
 //@SEE_ALSO: bdldfp_decimalutil
 //
