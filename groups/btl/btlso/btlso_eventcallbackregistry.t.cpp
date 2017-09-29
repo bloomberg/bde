@@ -1,4 +1,4 @@
-// btlso_eventcallbackregistry.t.cpp
+// btlso_eventcallbackregistry.t.cpp                                  -*-C++-*-
 
 #include <btlso_eventcallbackregistry.h>
 #include <btlso_socketimputil.h>
