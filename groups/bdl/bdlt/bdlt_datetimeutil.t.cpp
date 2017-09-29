@@ -609,7 +609,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, INITIAL_VALUE == result);
             }
-            
+
             {
                 tm tmp;
                 memset(&tmp, i, sizeof tmp);    // junk

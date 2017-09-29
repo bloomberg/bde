@@ -131,7 +131,7 @@ int TcpTimerEventManager::dispatch(int flags)
 {
     typedef bsl::vector<bdlcc::TimeQueueItem<bsl::function<void() > > >
         TimerArray;
-    
+
     if (d_timers.length()) {
         bsls::TimeInterval minTime;
         if (d_timers.minTime(&minTime)) {

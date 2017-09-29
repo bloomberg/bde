@@ -846,7 +846,7 @@ int TcpChannel::writev(int *augStatus, int length, int flags)
     // this particular implementation.
 
     BSLS_ASSERT(INT_MAX >= d_ovecBuffers.size());
-    
+
     if (d_isInvalidFlag) {
         return e_ERROR_INVALID;                                       // RETURN
     }
@@ -856,7 +856,7 @@ int TcpChannel::writev(int *augStatus, int length, int flags)
     int originalNumBuffers = static_cast<int>(d_ovecBuffers.size());
     int numBuffers = originalNumBuffers;
     bsl::vector<btls::Ovec> *writeBuffers = &d_ovecBuffers;
-    
+
     while (numBytesWritten < length) {
         rc = d_socket_p->writev(&writeBuffers->front(), numBuffers);
 

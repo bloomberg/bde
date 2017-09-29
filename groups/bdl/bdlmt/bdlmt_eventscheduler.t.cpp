@@ -1248,7 +1248,7 @@ void postSema(bslmt::TimedSemaphore *sema)
 {
     sema->post();
 }
-    
+
 void waitStopAndSignal(bslmt::Barrier        *barrier,
                        Obj                   *mX,
                        bslmt::TimedSemaphore *sema)
@@ -1267,7 +1267,7 @@ void waitStopAndSignal(bslmt::Barrier        *barrier,
 }
 
 void waitAndStart(Obj *mX, bslmt::Barrier *barrier)
-  // Wait on the specified 'barrier', then invoke 'mX->start()'. 
+  // Wait on the specified 'barrier', then invoke 'mX->start()'.
 {
     barrier->wait();
     if (veryVerbose) {
@@ -1278,7 +1278,7 @@ void waitAndStart(Obj *mX, bslmt::Barrier *barrier)
         ET("Started");
     }
 }
-    
+
 void startStopConcurrencyTest()
 {
     // This test tries to expose a vulnerability in a particular implementation
@@ -1322,19 +1322,19 @@ void startStopConcurrencyTest()
 
     // Ensure that the 'start' thread has launched
     syncBarrier.wait();
-    
+
     // Release the scheduled event so that the dispatcher thread can complete
     if (veryVerbose) {
         ET("Releasing dispatcher");
     }
     sema.post();
-    
+
     // Finish 'start'ing
     bslmt::ThreadUtil::join(startThread);
 
     // 'stop' should be able to finish without any problem now. If it takes
     // anything approaching a second, it's deadlocked.
-    
+
     int rc = stopSema.timedWait(
                           bsls::SystemTime::nowMonotonicClock().addSeconds(1));
     ASSERT(0 == rc);
@@ -1347,11 +1347,11 @@ void startStopConcurrencyTest()
     // Job should have been executed
     rc = jobSema.timedWait(bsls::SystemTime::nowMonotonicClock().addSeconds(1));
     ASSERT(0 == rc);
-    
+
     // all done; cleanup
     x.stop();
     bslmt::ThreadUtil::join(stopThread);
-}    
+}
 
 }  // close namespace EVENTSCHEDULER_TEST_CASE_9
 

@@ -612,7 +612,7 @@ void fastSearch(const bsl::vector<bsl::string>&  wordList,
 
     // Start the pool, enabling enqueuing and queue processing.
     ASSERT(0 == pool.start());
-    
+
     // Enqueue a job which tries to match each file in 'fileList' with each
     // search profile.
 
@@ -3364,7 +3364,7 @@ int main(int argc, char *argv[]) {
                 // created above
                 ASSERT(0 == mX.deleteQueue(id2));
                 ASSERT(1 == X.numQueues());
-                
+
                 mX.pauseQueue(id);
                 ASSERT(X.isPaused(id));
                 mX.enqueueJob(id, bdlf::BindUtil::bind(&incrementCounter,

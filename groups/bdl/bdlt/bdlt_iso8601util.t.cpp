@@ -1015,7 +1015,7 @@ if (veryVerbose)
                         const int  PRECISION = CNFG_DATA[tc].d_precision;
                         const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
                         const bool USEZ      = CNFG_DATA[tc].d_useZ;
- 
+
                         int expMsec = MSEC;
                         int expUsec = USEC;
                         {

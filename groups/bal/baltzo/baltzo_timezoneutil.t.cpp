@@ -800,7 +800,7 @@ struct LogVerbosityGuard {
     bool                    d_verbose;             // verbose mode does not
                                                    // disable logging
 
-    bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough 
+    bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough
                                                    // log level
 
     explicit LogVerbosityGuard(bool verbose = false)
@@ -1183,10 +1183,10 @@ int main(int argc, char *argv[])
         //: 1 Obtain a time from 'bdlt::CurrentTime', obtain test values from
         //:   'now', then obtain a second time from 'bdlt::CurrentTime'.
         //:   Verify that the test values have the same utc offset as returned
-        //:   by 'utcToLocalTime' for the current time, and that the 
+        //:   by 'utcToLocalTime' for the current time, and that the
         //:   UTC value for the test times is between the first and second
         //:   call to get the current time.  (C-1)
-        //: 
+        //:
         //: 2 Test that a non-zero value is returned with a time zone id that
         //:   does not exist. (C-2)
         //:
@@ -1212,7 +1212,7 @@ int main(int argc, char *argv[])
             baltzo::LocalDatetime y; const baltzo::LocalDatetime& Y = y;
             ASSERT(0 == Obj::now(&x, NY));
             ASSERT(0 == Obj::now(&y, NY));
-            
+
             bdlt::Datetime end = bdlt::CurrentTime::utc();
 
             ASSERT(startNY.offset() == X.offset());
@@ -1221,9 +1221,9 @@ int main(int argc, char *argv[])
             ASSERT(start <= X.utcDatetime() && X.utcDatetime() <= end);
 
             bdlt::Datetime utcY = Y.datetimeTz().utcDatetime();
-            ASSERT(start <= utcY && utcY <= end);            
+            ASSERT(start <= utcY && utcY <= end);
         }
-        
+
         if (verbose) cout << "\nTesting an invalid time zone id." << endl;
         {
             // Test with an invalid time zone id.
