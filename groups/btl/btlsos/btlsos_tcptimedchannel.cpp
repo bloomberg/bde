@@ -575,7 +575,7 @@ int TcpTimedChannel::timedReadv(int                       *augStatus,
         originalNumBuffers = numBuffers,
         length           = btls::IovecUtil::length(buffers, numBuffers),
         availableData    = d_readBufferOffset - d_readBufferedStartPointer;
-    
+
     d_readBuffers.resize(numBuffers);
     for (int i = 0; i < numBuffers; ++i){
         d_readBuffers[i].setBuffer(buffers[i].buffer(), buffers[i].length());
@@ -2371,7 +2371,7 @@ int TcpTimedChannel::writev(int *augStatus, int length, int flags)
     // this particular implementation.
 
     BSLS_ASSERT(INT_MAX >= d_ovecBuffers.size());
-    
+
     if (d_isInvalidFlag) {
         return e_ERROR_INVALID;                                       // RETURN
     }
@@ -2381,7 +2381,7 @@ int TcpTimedChannel::writev(int *augStatus, int length, int flags)
     int originalNumBuffers = static_cast<int>(d_ovecBuffers.size());
     int numBuffers = originalNumBuffers;
     bsl::vector<btls::Ovec> *writeBuffers = &d_ovecBuffers;
-    
+
     while (numBytesWritten < length) {
         rc = d_socket_p->writev(&writeBuffers->front(), numBuffers);
 
@@ -2435,20 +2435,20 @@ int TcpTimedChannel::timedWritev(int                       *augStatus,
     // this particular implementation.
 
     BSLS_ASSERT(INT_MAX >= d_ovecBuffers.size());
-    
+
     if (d_isInvalidFlag) {
         return e_ERROR_INVALID;                                       // RETURN
     }
 
     int rc = d_socket_p->setBlockingMode(btlso::Flags::e_NONBLOCKING_MODE);
     BSLS_ASSERT(0 == rc);
-    
+
     int numBytesWritten = 0;
     int retValue = 0;
     int originalNumBuffers = static_cast<int>(d_ovecBuffers.size());
     int numBuffers = originalNumBuffers;
     bsl::vector<btls::Ovec> *writeBuffers = &d_ovecBuffers;
-    
+
     while (numBytesWritten < length) {
         rc = d_socket_p->writev(&writeBuffers->front(), numBuffers);
 
@@ -2483,7 +2483,7 @@ int TcpTimedChannel::timedWritev(int                       *augStatus,
         else if (btlso::SocketHandle::e_ERROR_TIMEDOUT == rc) {
             retValue = numBytesWritten;
             *augStatus = e_ERR_TIMEOUT;
-            
+
             break;
         }
         else if (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc) {

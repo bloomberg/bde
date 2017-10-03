@@ -448,7 +448,7 @@ MultiQueueThreadPool::~MultiQueueThreadPool()
 int MultiQueueThreadPool::createQueue()
 {
     MultiQueueThreadPool_QueueContext *context = d_queuePool.getObject();
-    
+
     context->d_processingCb = bdlf::BindUtil::bind(
                                       &MultiQueueThreadPool::processQueueCb,
                                       this,
@@ -535,7 +535,7 @@ int MultiQueueThreadPool::drainQueue(int id)
             numPendingJobs = context->d_queue.d_numPendingJobs;
             if (numPendingJobs > 0) {
                 // Release the lock before yielding.
-                regGuard.release()->unlock(); 
+                regGuard.release()->unlock();
                 bslmt::ThreadUtil::yield();
             }
         } else {
@@ -555,7 +555,7 @@ int MultiQueueThreadPool::start()
 
     // While changing the state of the pool, acquire a write lock on
     // d_queueStateLock.
-    
+
     bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_queueStateLock);
     for (RegistryIterator it(d_queueRegistry); it; ++it) {
         RegistryValue rv = it();
@@ -646,14 +646,14 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
     if (paused) {
         // 'enqueueJobImpl' locks the queue state and context locks, so invoke
         // while both are unlocked.
-        
+
         guard.unlock();
         bslmt::ReadLockGuardUnlock<bslmt::ReaderWriterMutex> regUnlock(
                                                           &d_queueStateLock);
         if (0 != enqueueJobImpl(id, job, e_FRONT_FORCE)) {
             // Queue was deleted (no need to reset d_isChanging flag, this queue
             // is in a terminal state).
-            
+
             return 1;                                                 // RETURN
         }
 
@@ -663,7 +663,7 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
         // of jobs but unconditionally re-enqueue the processing callback
         // (to effect the resumption) so we need to do it manually.  At this
         // point we still hold the queue state and context locks.
-        
+
         context->d_queue.forceFront(job);
         ++context->d_queue.d_numPendingJobs;
         ++d_numActiveQueues;
@@ -674,7 +674,7 @@ int MultiQueueThreadPool::changePauseState(int id, bool paused)
 
         // Now unlock the queue state and context locks to wait on the
         // semaphore.
-        
+
         guard.unlock();
         bslmt::ReadLockGuardUnlock<bslmt::ReaderWriterMutex> regUnlock(
                                                           &d_queueStateLock);
@@ -753,7 +753,7 @@ void MultiQueueThreadPool::shutdown()
     // object catalog, we have to extract the queue IDs, and then delete the
     // queues using the extracted list.  (RegistryIterator holds a read lock
     // on the catalog and thus we can't delete within the scope of
-    // a RegistryIterator).  
+    // a RegistryIterator).
 
     bsl::vector<int> qids;
     qids.reserve(numQueues());

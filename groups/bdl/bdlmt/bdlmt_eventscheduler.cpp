@@ -170,7 +170,7 @@ void EventScheduler::releaseCurrentEvents()
 
 // CREATORS
 EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
-: d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator, 
+: d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
                                             bsls::SystemClockType::e_REALTIME))
 , d_eventQueue(basicAllocator)
@@ -264,7 +264,7 @@ int EventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
     // Implementation note: d_dispatcherMutex is in a lock hierarchy with
     // d_mutex and must be locked first.
     bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
-    
+
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     if (d_running ||
         bslmt::ThreadUtil::invalidHandle() != d_dispatcherThread) {

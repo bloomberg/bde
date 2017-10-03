@@ -513,7 +513,7 @@ int main(int argc, char *argv[])
                                               VALUES[idx].d_total,
                                               VALUES[idx].d_min,
                                               VALUES[idx].d_max);
-                
+
                 MX.load(&r);
 
                 volatile double resultTotal = r.total();
@@ -635,15 +635,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting basic mainpulator and accessors."
                           << endl;
 
-        double UPDATES[] = { 
-            0.0, 
+        double UPDATES[] = {
+            0.0,
             12.0,
-            -1321123, 
-            2131241, 
+            -1321123,
+            2131241,
             1321.5,
-            43145.1, 
-            .0001, 
-            -1.00001, 
+            43145.1,
+            .0001,
+            -1.00001,
             -.002342
         };
         const int NUM_UPDATES = sizeof(UPDATES)/sizeof(*UPDATES);

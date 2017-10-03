@@ -247,7 +247,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // The constructor is simple: it initializes the internal 'bdlcc::TimeQueue'
-// and sets the I/O timeout value.  The virtual destructor sets a shared 
+// and sets the I/O timeout value.  The virtual destructor sets a shared
 // completion flag to indicate completion, wakes up all waiting threads, and
 // waits for them to join.
 //..

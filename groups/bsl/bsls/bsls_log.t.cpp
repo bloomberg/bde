@@ -276,7 +276,7 @@ static const size_t NUM_DEFAULT_DATA = sizeof(DEFAULT_DATA)
 // The Windows implementation of 'platformDefaultMessageHandler' has to format
 // data to a stack-local buffer, and if it does not fit, it has to allocate a
 // new buffer.  We need to test data that has a length around the size of the
-// buffer. 
+// buffer.
 
 // What kind of final string lengths do we want to test for the Windows buffer?
 // This describes the length of the *final* string, i.e. ":3 <message>\n".
@@ -2105,7 +2105,7 @@ int main(int argc, char *argv[]) {
                 // actually provide that format string explicitly to
                 // 'logFormatedMessage' (note that 'LogMessageSink' provides no
                 // formatting of its own).
-                
+
                 bsls::Log::logFormattedMessage(
                     testSeverity,
                     testFile,

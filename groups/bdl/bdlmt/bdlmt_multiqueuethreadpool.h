@@ -66,7 +66,7 @@ BSLS_IDENT("$Id: $")
 // This class is also *thread-enabled* (i.e., the class does not function
 // correctly in a non-multi-threading environment).  See 'bsldoc_glossary' for
 // complete definitions of *fully thread-safe* and *thread-enabled*.
-// 
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.

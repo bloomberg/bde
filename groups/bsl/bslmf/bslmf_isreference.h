@@ -85,8 +85,8 @@ template <class TYPE> struct is_reference : false_type {
     // follow for lvalue and rvalue references.
 };
 
-template <class TYPE> 
-struct is_reference<TYPE&> : true_type { 
+template <class TYPE>
+struct is_reference<TYPE&> : true_type {
     // This 'struct' template implements the 'is_reference' meta-function
     // defined in the C++11 standard [meta.unary.comp] to determine if the
     // (template parameter) 'TYPE' is a (lvalue or rvalue) reference type.

@@ -1267,7 +1267,7 @@ void postSema(bslmt::TimedSemaphore *sema)
 {
     sema->post();
 }
-    
+
 void waitStopAndSignal(bslmt::Barrier        *barrier,
                        Obj                   *mX,
                        bslmt::TimedSemaphore *sema)
@@ -1285,7 +1285,7 @@ void startScheduler(Obj *mX)
 {
     mX->start();
 }
-    
+
 void startStopConcurrencyTest()
 {
     // This test tries to expose a vulnerability in a particular implementation
@@ -1328,13 +1328,13 @@ void startStopConcurrencyTest()
 
     // Release the scheduled event so that the dispatcher thread can complete
     sema.post();
-    
+
     // Finish 'start'ing
     bslmt::ThreadUtil::join(startThread);
 
     // 'stop' should be able to finish without any problem now. If it takes
     // anything approaching a second, it's deadlocked.
-    
+
     int rc = stopSema.timedWait(
                           bsls::SystemTime::nowMonotonicClock().addSeconds(1));
     ASSERT(0 == rc);
@@ -1348,15 +1348,15 @@ void startStopConcurrencyTest()
     // may be either stopped or started at this point.  Invoke 'start' again
     // (harmlessly) to make sure.
     ASSERT(0 == x.start());
-    
+
     // Job should have been executed
     rc = jobSema.timedWait(bsls::SystemTime::nowMonotonicClock().addSeconds(1));
     ASSERT(0 == rc);
-    
+
     // all done; cleanup
     x.stop();
     bslmt::ThreadUtil::join(stopThread);
-}    
+}
 
 }  // close namespace TIMER_EVENT_SCHEDULER_TEST_CASE_9
 // ============================================================================
@@ -4115,7 +4115,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_START_STOP_TESTS; ++i) {
             startStopConcurrencyTest();
         }
-        
+
         {
             // Restart scheduler after stopping and make sure that the
             // scheduler is still in good state (this is done by starting the

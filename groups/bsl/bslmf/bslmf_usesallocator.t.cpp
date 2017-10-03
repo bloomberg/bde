@@ -17,7 +17,7 @@ using namespace BloombergLP;
 // any function whose test case relies upon it.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ ] 
+// [ ]
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [ ] USAGE EXAMPLE

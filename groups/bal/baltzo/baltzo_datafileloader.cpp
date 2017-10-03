@@ -169,7 +169,7 @@ int baltzo::DataFileLoader::loadTimeZone(Zoneinfo   *result,
         // the data-file loader is not correctly configured, return
         // 'UNSPECIFIED_ERROR' (different from 'k_UNSUPPORTED_ID').
 
-        BSLS_LOG_ERROR("Failed to open time-zone information file '%s'", 
+        BSLS_LOG_ERROR("Failed to open time-zone information file '%s'",
                        path.c_str());
 
         return isRootPathPlausible()
