@@ -797,7 +797,7 @@ struct LogVerbosityGuard {
     bool                    d_verbose;             // verbose mode does not
                                                    // disable logging
 
-    bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough 
+    bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough
                                                    // log level
 
     explicit LogVerbosityGuard(bool verbose = false)

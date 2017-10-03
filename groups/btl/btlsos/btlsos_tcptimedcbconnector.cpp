@@ -792,7 +792,7 @@ void TcpTimedCbConnector::cancelAll() {
         // A callback is active -- can't destroy current request.
         bsl::deque<TcpTimedCbConnector_Reg *>::iterator end =
             d_callbacks.begin() + d_callbacks.size() - 1;
-        
+
         bsl::deque<TcpTimedCbConnector_Reg *> toBeCancelled(
                                                  d_callbacks.begin(), end);
         d_callbacks.erase(d_callbacks.begin(), end);

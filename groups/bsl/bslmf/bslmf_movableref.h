@@ -651,7 +651,7 @@ struct MovableRefUtil {
         // is used.
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         return static_cast<typename bsl::remove_reference<TYPE>::type&&>(
-								       lvalue);
+                                       lvalue);
 #else
         return MovableRef<TYPE>(bsls::Util::addressOf(lvalue));
 #endif

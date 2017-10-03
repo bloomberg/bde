@@ -103,7 +103,7 @@ class StdAllocTestType {
     // DATA
     int                     *d_data_p;      // pointer to the data value
 
-    ALLOC                    d_allocator;   // allocator used to supply memory 
+    ALLOC                    d_allocator;   // allocator used to supply memory
 
     StdAllocTestType<ALLOC> *d_self_p;      // pointer to self (to verify this
                                             // object is not bit-wise moved)
@@ -121,7 +121,7 @@ class StdAllocTestType {
         //..
         // Optionally specify a 'stdAllocator' used to supply memory.  If
         // an allocator is not supplied, a default-constructed object of the
-        // template parameter type 'ALLOC' is used.  
+        // template parameter type 'ALLOC' is used.
 
     explicit StdAllocTestType(int value, const ALLOC& stdAllocator = ALLOC());
         // Create a 'StdAllocTestType' object having the specified 'data'
@@ -232,7 +232,7 @@ StdAllocTestType<ALLOC>::StdAllocTestType(const StdAllocTestType& original,
 
 template <class ALLOC>
 inline
-StdAllocTestType<ALLOC>::~StdAllocTestType() 
+StdAllocTestType<ALLOC>::~StdAllocTestType()
 {
     if (d_data_p) {
         bsl::allocator_traits<ALLOC>::destroy(d_allocator, d_data_p);

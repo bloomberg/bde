@@ -92,7 +92,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//              DEFECT MACROS FOR PLATFORM SPECIFIC WORKAROUNDS 
+//              DEFECT MACROS FOR PLATFORM SPECIFIC WORKAROUNDS
 // ----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130

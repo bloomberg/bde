@@ -264,7 +264,7 @@ class TcpTimedChannel : public btlsc::TimedChannel {
     int setupWritev(const VECTYPE *buffers, int numBuffers);
         // Populate 'd_ovecBuffers' with the specified 'buffers', of the
         // specified 'numBuffers' size; return the total length of 'buffers'.
-    
+
     int writev(int *augStatus, int length, int flags);
         // Write to this channel from 'd_ovecBuffers', collectively of the
         // specified 'length'.  If the specified 'flags' incorporates
@@ -295,7 +295,7 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // undefined unless 'd_ovecBuffers' is not empty.  Note that if the
         // 'timeout' time has already passed, the "write" operation will still
         // be attempted, but the attempt will not block.
-    
+
   public:
     // CREATORS
     TcpTimedChannel(
@@ -444,8 +444,8 @@ class TcpTimedChannel : public btlsc::TimedChannel {
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
-        // and '0 < numBytes'.  
-    
+        // and '0 < numBytes'.
+
     int timedReadRaw(char                      *buffer,
                      int                        numBytes,
                      const bsls::TimeInterval&  timeout,
@@ -1083,7 +1083,7 @@ int TcpTimedChannel::timedWritev(int                       *augStatus,
     int length = setupWritev(buffers, numBuffers);
     return timedWritev(augStatus, length, flags, timeout);
 }
-    
+
 template <typename VECTYPE>
 inline
 int TcpTimedChannel::setupWritev(const VECTYPE *buffers, int numBuffers)

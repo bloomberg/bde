@@ -603,7 +603,7 @@ class Tokenizer_Proxy {
     // 'TokernizerIterator' object, allowing correct return of 'operator->'.
 
     // DATA
-	bslstl::StringRef d_obj; // The object
+    bslstl::StringRef d_obj; // The object
 
   private:
     // NOT IMPLEMENTED

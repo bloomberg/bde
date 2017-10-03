@@ -359,7 +359,7 @@ BSLS_IDENT("$Id: $")
 //              ELEMENT_TYPE(BSLS_COMPILERFEATURES_FORWARD(A1, a1),
 //                           BSLS_COMPILERFEATURES_FORWARD(A2, a2));
 //      }
-//  
+//
 //      template <class ELEMENT_TYPE, class A1, class A2, class A3>
 //      void construct(ELEMENT_TYPE *p,
 //                     BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
@@ -371,7 +371,7 @@ BSLS_IDENT("$Id: $")
 //                           BSLS_COMPILERFEATURES_FORWARD(A2, a2),
 //                           BSLS_COMPILERFEATURES_FORWARD(A3, a3));
 //      }
-//  
+//
 //      template <class ELEMENT_TYPE, class A1, class A2, class A3, class A4>
 //      void construct(ELEMENT_TYPE *p,
 //                     BSLS_COMPILERFEATURES_FORWARD_REF(A1) a1,
@@ -385,7 +385,7 @@ BSLS_IDENT("$Id: $")
 //                           BSLS_COMPILERFEATURES_FORWARD(A3, a3),
 //                           BSLS_COMPILERFEATURES_FORWARD(A4, a4));
 //      }
-//  
+//
 //      template <class ELEMENT_TYPE,
 //                class A1,
 //                class A2,
@@ -406,10 +406,10 @@ BSLS_IDENT("$Id: $")
 //                           BSLS_COMPILERFEATURES_FORWARD(A4, a4),
 //                           BSLS_COMPILERFEATURES_FORWARD(A5, a5));
 //      }
-//  
+//
 //      template <class ELEMENT_TYPE>
 //      void destroy(ELEMENT_TYPE *p) { p->~ELEMENT_TYPE(); }
-//  
+//
 //      int state() const { return d_state; }
 //  };
 //

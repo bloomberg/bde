@@ -22,7 +22,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: btlso_socketoptutil
 //
 //@DESCRIPTION: This component provides concrete implementation of the blocking
-// communication channel ('btlsc_channel') over TCP/IPv4 sockets.  
+// communication channel ('btlsc_channel') over TCP/IPv4 sockets.
 // Additionally, operations to set various socket options and to get local and
 // remote addresses are provided.
 //
@@ -247,7 +247,7 @@ class TcpChannel : public btlsc::Channel {
         // 'augStatus', if supplied, with a positive value, indicating that an
         // asynchronous event caused the interruption; otherwise, 'augStatus'
         // is unmodified.  The behavior is undefined unless '0 < numBuffers'.
-    
+
     int writev(int *augStatus, int length, int flags);
         // Write to this channel from 'd_ovecBuffers', collectively of the
         // specified 'length'.  If the specified 'flags' incorporates
@@ -259,7 +259,7 @@ class TcpChannel : public btlsc::Channel {
         // 'augStatus' with a positive value, indicating that an asynchronous
         // event caused the interruption; otherwise, 'augStatus' is unmodified.
         // The behavior is undefined unless 'd_ovecBuffers' is not empty.
-    
+
   public:
     // CREATORS
     TcpChannel(btlso::StreamSocket<btlso::IPv4Address> *socket,
@@ -338,7 +338,7 @@ class TcpChannel : public btlsc::Channel {
         // undefined); -1 implies that the connection was closed by the peer
         // (but the converse is not guaranteed).  The behavior is undefined
         // unless 'buffer' has sufficient capacity to hold the requested data
-        // and '0 < numBytes'.  
+        // and '0 < numBytes'.
 
     int readvRaw(const btls::Iovec *buffers, int numBuffers, int flags);
     int readvRaw(int               *augStatus,
@@ -348,7 +348,7 @@ class TcpChannel : public btlsc::Channel {
         // DEPRECATED. Invoke 'readvRaw(const btls::Iovec*, int);
 
     int readvRaw(const btls::Iovec *buffers,
-                 int                numBuffers);    
+                 int                numBuffers);
         // *Atomically* read from this channel into the specified sequence of
         // 'buffers' of specified sequence length 'numBuffers' *at* *most* the
         // respective numbers of bytes as specified in each corresponding
@@ -445,16 +445,16 @@ class TcpChannel : public btlsc::Channel {
                  int         flags = 0);
     int writeRaw(const char *buffer, int numBytes, int flags);
         // DEPRECATED.  Invoke 'writeRaw(const char*, int)'.
-    
+
     int writeRaw(const char *buffer, int numBytes);
         // *Atomically* write to this channel from the specified 'buffer' *at*
-        // *most* the specified 'numBytes'.  Return 'numBytes' on success, 
+        // *most* the specified 'numBytes'.  Return 'numBytes' on success,
         // a negative value on error, and the number of bytes newly written
         // from 'buffer' (indicating a partial result) otherwise.  A partial
         // result typically does not invalidate this channel; hence, this (or
         // another) operation may be retried (with arguments suitably adjusted)
         // with some reasonable hope of success.  The behavior is undefined
-        // unless '0 < numBytes'.  
+        // unless '0 < numBytes'.
 
     int writev(const btls::Ovec *buffers, int numBuffers, int flags = 0);
     int writev(const btls::Iovec *buffers, int numBuffers, int flags = 0);
@@ -621,7 +621,7 @@ int TcpChannel::readvRaw(int               *,
 {
     return readvRaw(buffers, numBuffers);
 }
-    
+
 inline
 int TcpChannel::write(const char* buffer, int numBytes, int flags)
 {
@@ -686,7 +686,7 @@ int TcpChannel::writevImpl(int *augStatus, const VECTYPE *buffers,
     }
     return writev(augStatus, length, flags);
 }
-    
+
 }  // close package namespace
 
 }  // close enterprise namespace

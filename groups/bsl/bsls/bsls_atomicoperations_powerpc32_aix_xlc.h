@@ -127,7 +127,7 @@ struct Atomic_TypeTraits<AtomicOperations_POWERPC32_AIX_XLC>
     struct Uint
     {
         volatile unsigned int d_value
-		                    __attribute__((__aligned__(sizeof(unsigned int))));
+                            __attribute__((__aligned__(sizeof(unsigned int))));
     };
 
     struct Uint64

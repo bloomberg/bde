@@ -36,7 +36,7 @@ bsls::TimeInterval LocalTimeOffset::
 {
     bsl::time_t currentTime;
     int         status = EpochUtil::convertToTimeT(&currentTime, utcDatetime);
-    
+
     (void)status;
     BSLS_ASSERT(0 == status);
 

@@ -506,7 +506,7 @@ class EventScheduler {
 
     bslmt::Mutex          d_dispatcherMutex;    // serialize starting/stopping
                                                 // dispatcher thread
-    
+
     bslmt::Mutex          d_mutex;              // synchronizes access to
                                                 // condition variables
 
@@ -706,7 +706,7 @@ class EventScheduler {
                        const bsl::function<void()>&  callback);
         // Schedule the specified 'callback' to be dispatched at the specified
         // 'epochTime'.  Load into the optionally specified 'event' a handle
-        // that can be used to cancel the event (by invoking 'cancelEvent'). 
+        // that can be used to cancel the event (by invoking 'cancelEvent').
         // The 'epochTime' is an absolute time represented as an interval from
         // some epoch, which is determined by the clock indicated at
         // construction (see {Supported Clock-Types} in the component

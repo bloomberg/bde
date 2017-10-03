@@ -393,12 +393,12 @@ int main(int argc, char *argv[])
                 //  Empty fields                       // Binary analog
                 { L_,  ""                 ,  false },  // 0
                 { L_,  "1"                ,  true  },  // 1
-               
+
                 { L_,  "."                ,  false },  // 00
                 { L_,  ".1"               ,  false },  // 01
                 { L_,  "1."               ,  false },  // 10
                 { L_,  "1.1"              ,  true  },  // 11
-                
+
                 { L_,  ".."               ,  false },  // 000
                 { L_,  "..1"              ,  false },  // 001
                 { L_,  ".1."              ,  false },  // 010
@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
                 { L_,  "1..1"             ,  false },  // 101
                 { L_,  "1.1."             ,  false },  // 110
                 { L_,  "1.1.1"            ,  true  },  // 111
-                
+
                 { L_,  "..."              ,  false },  // 0000
                 { L_,  "...1"             ,  false },  // 0001
                 { L_,  "..1."             ,  false },  // 0010
@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
                 { L_,  "1.1..1"           ,  false },  // 1101
                 { L_,  "1.1.1."           ,  false },  // 1110
                 { L_,  "1.1.1.1"          ,  true  },  // 1111
-                
+
                 //  Leading/trailing dots
                 { L_,  "1"                ,  true  },  // none
                 { L_,  "1.2"              ,  true  },  // none
