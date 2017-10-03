@@ -1,4 +1,4 @@
-// bsltf_movabletesttype.h                                       -*-C++-*-
+// bsltf_movabletesttype.h                                            -*-C++-*-
 #ifndef INCLUDED_BSLTF_MOVABLETESTTYPE
 #define INCLUDED_BSLTF_MOVABLETESTTYPE
 
