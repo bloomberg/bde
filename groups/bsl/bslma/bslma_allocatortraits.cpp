@@ -1,4 +1,4 @@
-// bslma_allocatortraits.cpp                                         -*-C++-*-
+// bslma_allocatortraits.cpp                                          -*-C++-*-
 #include <bslma_allocatortraits.h>
 
 #ifdef TESTING

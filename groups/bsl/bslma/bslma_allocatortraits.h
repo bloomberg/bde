@@ -1,4 +1,4 @@
-// bslma_allocatortraits.h                                           -*-C++-*-
+// bslma_allocatortraits.h                                            -*-C++-*-
 #ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #define INCLUDED_BSLMA_ALLOCATORTRAITS
 

@@ -1,4 +1,4 @@
-// baljsn_encodingstyle.t.cpp                                     -*-C++-*-
+// baljsn_encodingstyle.t.cpp                                         -*-C++-*-
 
 #include <baljsn_encodingstyle.h>
 

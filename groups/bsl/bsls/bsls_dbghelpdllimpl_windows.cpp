@@ -1,4 +1,4 @@
-// bsls_dbghelpdllimpl_windows.cpp                                   -*-C++-*-
+// bsls_dbghelpdllimpl_windows.cpp                                    -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE

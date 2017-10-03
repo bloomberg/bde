@@ -1,4 +1,4 @@
-// bslma_allocatortraits.t.cpp                                       -*-C++-*-
+// bslma_allocatortraits.t.cpp                                        -*-C++-*-
 #include <bslma_allocatortraits.h>
 #include <bslma_constructionutil.h>
 #include <bslma_default.h>
