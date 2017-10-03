@@ -108,27 +108,27 @@ using namespace bsl;
 //
 // FREE OPERATORS
 // [ 5] bool operator==(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator==(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-// [ 5] bool operator==(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [ 5] bool operator==(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator==(const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator!=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator!=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-// [ 5] bool operator!=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [ 5] bool operator!=(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator!=(const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator< (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator< (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-// [ 5] bool operator< (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [ 5] bool operator< (const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator< (const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator<=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator<=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-// [ 5] bool operator<=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [ 5] bool operator<=(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator<=(const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator> (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator> (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-// [ 5] bool operator> (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [ 5] bool operator> (const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator> (const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator>=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator>=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-// [ 5] bool operator>=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-// [17] bool operator==(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-// [17] bool operator==(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-// [17] bool operator!=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-// [17] bool operator!=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [ 5] bool operator>=(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator>=(const TYPE&, const NullableValue<TYPE>&);
+// [17] bool operator==(const NullableValue<TYPE>&, const TYPE&);
+// [17] bool operator==(const TYPE&, const NullableValue<TYPE>&);
+// [17] bool operator!=(const NullableValue<TYPE>&, const TYPE&);
+// [17] bool operator!=(const TYPE&, const NullableValue<TYPE>&);
 // [ 4] ostream& operator<<(ostream&, const NullableValue<TYPE>&);
 // [20] void hashAppend(HASHALG& hashAlg, NullableValue<TYPE>& input);
 // ----------------------------------------------------------------------------
@@ -6636,36 +6636,36 @@ int main(int argc, char *argv[])
         //   same value compare equal.
         //
         // Plan:
-        //   Use 'int' for both 'LHS_TYPE' and 'RHS_TYPE'.  Construct a set of
-        //   objects containing similar but different values.  Loop through the
-        //   cross product of the test data.  For each tuple, check the
-        //   correctness of the return value of all relational operators (==,
-        //   !=, <, >, <=, >=).  Then, use 'int' and 'double' as 'LHS_TYPE' and
-        //   'RHS_TYPE'.  Construct two sets of objects containing similar but
-        //   different values.  Loop through the cross product of the two sets.
-        //   For each tuple and the tuple where left and right values are
-        //   swapped, check the correctness of the return value of all
-        //   relational operators (==, !=, <, >, <=, >=).
+        //   Use 'int' for 'TYPE'.  Construct a set of objects containing
+        //   similar but different values.  Loop through the cross product of
+        //   the test data.  For each tuple, check the correctness of the
+        //   return value of all relational operators (==, !=, <, >, <=, >=).
+        //   Then, use 'int' and 'double' as 'LHS_TYPE' and 'RHS_TYPE'.
+        //   Construct two sets of objects containing similar but different
+        //   values.  Loop through the cross product of the two sets.  For each
+        //   tuple and the tuple where left and right values are swapped, check
+        //   the correctness of the return value of all relational operators
+        //   (==, !=, <, >, <=, >=).
         //
         // Testing:
         //   bool operator==(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator==(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-        //   bool operator==(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator==(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator==(const TYPE&, const NullableValue<TYPE>&);
         //   bool operator!=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator!=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-        //   bool operator!=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator!=(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator!=(const TYPE&, const NullableValue<TYPE>&);
         //   bool operator< (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator< (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-        //   bool operator< (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator< (const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator< (const TYPE&, const NullableValue<TYPE>&);
         //   bool operator<=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator<=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-        //   bool operator<=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator<=(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator<=(const TYPE&, const NullableValue<TYPE>&);
         //   bool operator> (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator> (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-        //   bool operator> (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator> (const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator> (const TYPE&, const NullableValue<TYPE>&);
         //   bool operator>=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator>=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
-        //   bool operator>=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator>=(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator>=(const TYPE&, const NullableValue<TYPE>&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Equality Operators"
@@ -6722,16 +6722,6 @@ int main(int argc, char *argv[])
 
                     testRelationalOperations(i, j, ni, nd);
                     testRelationalOperations(j, i, nd, ni);
-
-                    if (!ni.isNull()) {
-                        testRelationalOperations(i, j, ni.value(), nd);
-                        testRelationalOperations(j, i, nd,         ni.value());
-                    }
-
-                    if (!nd.isNull()) {
-                        testRelationalOperations(i, j, ni,         nd.value());
-                        testRelationalOperations(j, i, nd.value(), ni);
-                    }
                 }
             }
         }
