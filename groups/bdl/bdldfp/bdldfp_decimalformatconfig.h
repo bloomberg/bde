@@ -171,13 +171,18 @@ class DecimalFormatConfig {
 
     void setInfinity(const char *value);
         // Set the 'infinity' attribute of this object to the specified
-        // 'value'.
+        // 'value'.  The behavior is undefined unless the pointer to the
+        // 'value' remains valid for the lifetime of this object.
 
     void setNan(const char *value);
         // Set the 'nan' attribute of this object to the specified 'value'.
+        // The behavior is undefined unless the pointer to the 'value' remains
+        // valid for the lifetime of this object.
 
     void setSNan(const char *value);
         // Set the 'snan' attribute of this object to the specified 'value'.
+        // The behavior is undefined unless the pointer to the 'value' remains
+        // valid for the lifetime of this object.
 
     void setDecimalPoint(char value);
         // Set the 'point' attribute of this object to the specified 'value'.
