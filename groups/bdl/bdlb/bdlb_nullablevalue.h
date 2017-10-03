@@ -199,7 +199,7 @@ class NullableValue {
     // operations, conversions between comparable underlying value types is
     // also supported.  Two nullable objects with different underlying types
     // compare equal if their underlying types are comparable and either (1)
-    // both objects are null or (2) the non-null values compare equal. A null
+    // both objects are null or (2) the non-null values compare equal.  A null
     // nullable object is considered ordered before any non-null nullable
     // object.  Attempts to copy construct, copy assign, or compare
     // incompatible values types will fail to compile.  The 'NullableValue'
@@ -1560,7 +1560,7 @@ bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs,
                      const NullableValue<RHS_TYPE>& rhs)
 {
     if (rhs.isNull()) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     return lhs.isNull() || lhs.value() < rhs.value();

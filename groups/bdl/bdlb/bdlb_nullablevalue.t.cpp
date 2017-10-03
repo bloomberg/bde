@@ -266,8 +266,8 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 //-----------------------------------------------------------------------------
 
 template <class LHS_TYPE, class RHS_TYPE>
-void testRelationalOperations(int i,
-                              int j,
+void testRelationalOperations(int             i,
+                              int             j,
                               const LHS_TYPE& lhs,
                               const RHS_TYPE& rhs)
     // Test all the relational operations for the specified 'lhs' and 'rhs'.
