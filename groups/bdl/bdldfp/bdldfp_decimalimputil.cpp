@@ -83,7 +83,6 @@ struct DecimalTraits<DecimalImpUtil::ValueType128>
 };
 
 template <class T>
-static
 T divmod10(T* v)
     // Load the resultant value of dividing the specified value 'v' by 10 into
     // 'v'.  Return the remainder of the division.
@@ -136,16 +135,21 @@ int getMostSignificandPlace(T value)
 
 template <class T>
 int print(char *b, char *e, T value)
-    // Read a data from the specified 'value', convert them to character string
-    // equivalent and load the result into a buffer confined by the specified
-    // 'b' and 'e' iterators.  Return the total number of written characters.
+    // Convert the specified 'value' to a character string, place the result
+    // into the buffer specified by 'b' and 'e' and return the number of
+    // characters written.  The behavior is undefined if the buffer is
+    // insufficiently large.
 {
     char *i = e;
     do {
         *--i = static_cast<char>('0' + divmod10(&value));
-    } while (value != 0);
+    } while (value != 0 && i > b);
 
-    bsl::copy(i, e, b);
+    BSLS_ASSERT(0 == value);
+
+    if (i > b) {
+        bsl::copy(i, e, b);
+    }
 
     return static_cast<int>(e - i);
 }

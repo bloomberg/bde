@@ -19,6 +19,7 @@
   7. bdldfp_decimalutil
 
   6. bdldfp_decimal
+     bdkdfp_decimalformatconfig
 
   5. bdldfp_decimalimputil
 
@@ -41,6 +42,9 @@
 :
 : 'bdldfp_decimalconvertutil':
 :      Provide decimal floating-point conversion functions.
+:
+: 'bdldfp_decimalformatconfig':
+:      Provide an attribute class to configure decimal formatting.
 :
 : 'bdldfp_decimalimputil':
 :      Provide a unified low-level interface for decimal floating point.

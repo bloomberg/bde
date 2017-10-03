@@ -14,28 +14,25 @@ BSLS_IDENT("$Id$")
 //
 //@SEE_ALSO: bdldfp_decimalutil
 //
-//@DESCRIPTION: This component provides an unconstrained (value-semantic)
-// attribute class, 'bdldfp::DecimalFormatConfig', that is used to configure
-// various aspects of decimal value formatting.
+//@DESCRIPTION: This component provides a single, simply constrained
+// (value-semantic) attribute class, 'bdldfp::DecimalFormatConfig', that is
+// used to configure various aspects of decimal value formatting.
 //
 ///Attributes
 ///----------
 //..
-//  Name        Type         Values            Default
-//  ---------   ----------   ------------      -----------
-//  style       enum Style   e_SCIENTIFIC      e_SCIENTIFIC
-//                           e_FIXED
-//                           e_NATURAL
-//  precision   int          0..INT_MAX
-//  sign        enum Sign    e_NEGATIVE_ONLY  e_NEGATIVE_ONLY
-//                           e_ALWAYS
-//  infinity    string                        "infinity"
-//  nan         string                        "nan"
-//  snan        string                        "snan"
-//  point       char                          '.'
-//  exponent    char                          'E'
-//..
+//  Name        Type      Default          Simple Constraints
+//  ---------   ------    ---------------  ------------------
+//  style       Style     e_SCIENTIFIC     none
+//  precision   int       15               >= 0
+//  sign        Sign      e_NEGATIVE_ONLY  none
+//  infinity    string    "infinity"       none
+//  nan         string    "nan"            none
+//  snan        string    "snan"           none
+//  point       char      '.'              none
+//  exponent    char      'E'              none
 //
+//..
 //: o 'style': control how the decimal number is written.  If 'style' is
 //:   'e_SCIENTIFIC', the number is written as its sign, then a single digit,
 //:   then the decimal point, then 'precision' digits, then the 'exponent'
@@ -65,6 +62,10 @@ BSLS_IDENT("$Id$")
 //:
 //: o 'exponent': specify the character to use for exponent when 'style' is
 //:   'e_SCIENTIFIC' or 'e_NATURAL'.
+
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
+#endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
@@ -106,8 +107,28 @@ class DecimalFormatConfig {
     char        d_decimalPoint;  // decimal point character
     char        d_exponent;      // exponent character
 
+    // FRIENDS
+    friend bool operator==(const DecimalFormatConfig&,
+                           const DecimalFormatConfig&);
+    friend bool operator!=(const DecimalFormatConfig&,
+                           const DecimalFormatConfig&);
+
   public:
     // CREATORS
+    DecimalFormatConfig();
+        // Create an object of this class having the (default) attribute
+        // values:
+        //..
+        //  precision == 15
+        //  style     == e_SCIENTIFIC
+        //  sign      == e_NEGATIVE_ONLY
+        //  infinity  == "inf"
+        //  nan       == "nan"
+        //  snan      == "snan"
+        //  point     == '.'
+        //  exponent  == 'E'
+        //..
+
     explicit
     DecimalFormatConfig(int         precision,
                         Style       style     = e_SCIENTIFIC,
@@ -128,12 +149,42 @@ class DecimalFormatConfig {
         // Optionally specify 'nan' as a string to output NaN value.  If it is
         // not specified, "nan" is used.  Optionally specify 'snan' as a string
         // to output signaling NaN value.  If it is not specified, "snan" is
-        // used.  Optionally specify 'point' as the character to use for
-        // decimal points.  If it is not specified, '.' is used.  Optionally
-        // specify 'exponent' as the character to use for exponent.  If it is
-        // not specified, 'E' is used.  See the Attributes section under
+        // used.  The behavior is undefined unless the pointers to 'infinity',
+        // 'nan' and 'snan' remain valid for the lifetime of this object.
+        // Optionally specify 'point' as the character to use for decimal
+        // points.  If it is not specified, '.' is used.  Optionally specify
+        // 'exponent' as the character to use for exponent.  If it is not
+        // specified, 'E' is used.  See the Attributes section under
         // @DESCRIPTION in the component-level documentation for information on
         // the class attributes.
+
+    // MANIPULATORS
+    void setPrecision (int value);
+        // Set the 'precision' attribute of this object to the specified
+        // 'value'.  Behavior is undefined if 'value' is negative.
+
+    void setStyle(Style value);
+        // Set the 'style' attribute of this object to the specified 'value'.
+
+    void setSign(Sign  value);
+        // Set the 'sign' attribute of this object to the specified 'value'.
+
+    void setInfinity(const char *value);
+        // Set the 'infinity' attribute of this object to the specified
+        // 'value'.
+
+    void setNan(const char *value);
+        // Set the 'nan' attribute of this object to the specified 'value'.
+
+    void setSNan(const char *value);
+        // Set the 'snan' attribute of this object to the specified 'value'.
+
+    void setDecimalPoint(char value);
+        // Set the 'point' attribute of this object to the specified 'value'.
+
+    void setExponent(char value);
+        // Set the 'exponent' attribute of this object to the specified
+        // 'value'.
 
     // ACCESSORS
     int precision() const;
@@ -161,6 +212,23 @@ class DecimalFormatConfig {
         // Return exponent character.
 };
 
+// FREE OPERATORS
+bool operator==(const DecimalFormatConfig& lhs,
+                const DecimalFormatConfig& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'DecimalFormatConfig' objects have
+    // the same value if each of their attributes (respectively) have the same
+    // value.  Note that comparison of two string type attributes are done via
+    // 'bsl::strcmp() function.
+
+bool operator!=(const DecimalFormatConfig& lhs,
+                const DecimalFormatConfig& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'DecimalFormatConfig' objects
+    // do not have the same value if any of their attributes (respectively) do
+    // not have the same value.  Note that comparison of two string type
+    // attributes are done via 'bsl::strcmp() function.
+
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -171,6 +239,19 @@ class DecimalFormatConfig {
                           // -------------------------
 
 // CREATORS
+inline
+DecimalFormatConfig::DecimalFormatConfig()
+    : d_precision(15)
+    , d_style(e_SCIENTIFIC)
+    , d_sign(e_NEGATIVE_ONLY)
+    , d_infinityText("inf")
+    , d_nanText("nan")
+    , d_sNanText("snan")
+    , d_decimalPoint('.')
+    , d_exponent('E')
+{
+}
+
 inline
 DecimalFormatConfig::DecimalFormatConfig(int         precision,
                                          Style       style,
@@ -190,6 +271,59 @@ DecimalFormatConfig::DecimalFormatConfig(int         precision,
     , d_exponent(exponent)
 {
     BSLS_ASSERT(precision >= 0);
+}
+
+// MANIPULATORS
+inline
+void DecimalFormatConfig::setPrecision (int value)
+{
+    BSLS_ASSERT(value >= 0);
+    d_precision = value;
+}
+
+inline
+void DecimalFormatConfig::setStyle(Style value)
+{
+    d_style = value;
+}
+
+inline
+void DecimalFormatConfig::setSign(Sign  value)
+{
+    d_sign = value;
+}
+
+inline
+void DecimalFormatConfig::setInfinity(const char *value)
+{
+    BSLS_ASSERT(value);
+    d_infinityText = value;
+}
+
+inline
+void DecimalFormatConfig::setNan(const char *value)
+{
+    BSLS_ASSERT(value);
+    d_nanText = value;
+}
+
+inline
+void DecimalFormatConfig::setSNan(const char *value)
+{
+    BSLS_ASSERT(value);
+    d_sNanText = value;
+}
+
+inline
+void DecimalFormatConfig::setDecimalPoint(char value)
+{
+    d_decimalPoint = value;
+}
+
+inline
+void DecimalFormatConfig::setExponent(char value)
+{
+    d_exponent = value;
 }
 
 // ACCESSORS
@@ -240,8 +374,37 @@ char DecimalFormatConfig::exponent() const
 {
     return d_exponent;
 }
-
 }  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdldfp::operator==(const DecimalFormatConfig& lhs,
+                        const DecimalFormatConfig& rhs)
+{
+    return lhs.d_precision              == rhs.d_precision          &&
+           lhs.d_style                  == rhs.d_style              &&
+           lhs.d_sign                   == rhs.d_sign               &&
+           bsl::strcmp(lhs.d_infinityText, rhs.d_infinityText) == 0 &&
+           bsl::strcmp(lhs.d_nanText,      rhs.d_nanText)      == 0 &&
+           bsl::strcmp(lhs.d_sNanText,     rhs.d_sNanText)     == 0 &&
+           lhs.d_decimalPoint           == rhs.d_decimalPoint       &&
+           lhs.d_exponent               == rhs.d_exponent;
+}
+
+inline
+bool bdldfp::operator!=(const DecimalFormatConfig& lhs,
+                        const DecimalFormatConfig& rhs)
+{
+    return lhs.d_precision              != rhs.d_precision     ||
+           lhs.d_style                  != rhs.d_style         ||
+           lhs.d_sign                   != rhs.d_sign          ||
+           bsl::strcmp(lhs.d_infinityText, rhs.d_infinityText) ||
+           bsl::strcmp(lhs.d_nanText,      rhs.d_nanText)      ||
+           bsl::strcmp(lhs.d_sNanText,     rhs.d_sNanText)     ||
+           lhs.d_decimalPoint           != rhs.d_decimalPoint  ||
+           lhs.d_exponent               != rhs.d_exponent;
+}
+
 }  // close enterprise namespace
 
 #endif
