@@ -557,6 +557,12 @@
 #      undef BSLS_DEPRECATE
 #    endif
 
+#    if defined(__GNUC__) && __GNUC__ <= 5 && __cplusplus < 201103L
+//     G++ version 5 passes the __has_cpp_attribute(deprecated) test but still
+//     produces an error when [[deprecated]] is used in non-c++11 mode.
+#      undef BSLS_DEPRECATE
+#    endif
+
 #  endif
 #endif
 
