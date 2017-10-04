@@ -1,19 +1,30 @@
-bsl-internal (3.1.10.0) unstable; urgency=low
+bsl-internal (3.1.11.0) unstable; urgency=low
 
+  * b2fe14426 Merge pull request #1362 from mgiroux/review/bump-bdl-to-3.1.11
+  * 711388ddf Bump bdl version to 3.1.11
+  * b0f3a0bd0 Merge pull request #1352 from hversche/pr/1307-rebased-releases/3.1.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Wed, 4 Oct 2017 12:25:07 -0400
+
+bsl-internal (3.1.10.0) git; urgency=low
+
+  * fb6127bcb Changelog for version 3.1.10.0
   * 8a885f4dc Merge pull request #1317 from mgiroux/review/bump-patch-to-3.1.10
   * 23cd54ff7 bump bdl patch version to 3.1.10
   * c90879305 DRQS 104502699 for releases/3.1.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 11 Sep 2017 12:52:15 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 11 Sep 2017 15:13:35 -0400
 
-bsl-internal (3.1.9.1) unstable; urgency=low
+bsl-internal (3.1.9.1) git; urgency=low
 
+  * baad2ce77 Changelog for version 3.1.9.1
   * 688f87c3f Merge pull request #1278 from mgiroux/pr/1253-rebased-releases/3.1.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Thu, 24 Aug 2017 08:43:08 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Aug 2017 08:44:20 -0400
 
-bsl-internal (3.1.9.0) unstable; urgency=low
+bsl-internal (3.1.9.0) git; urgency=low
 
+  * e9fc5ece8 Changelog for version 3.1.9.0
   * cf8e4aae1 Merge pull request #1275 from mgiroux/review/bump-version-to-3.1.9
   * dd97af986 Bump bal/bdl version to 3.1.9, and bsl to 3.0.20
   * d5fc24e9b Merge pull request #1274 from osubbotin/pr/1214-rebased-releases/3.1.x
@@ -22,10 +33,11 @@ bsl-internal (3.1.9.0) unstable; urgency=low
   * 3ec2b83f7 Merge pull request #1244 from hversche/pr/1180-rebased-releases/3.1.x
   * fa8c047df Merge pull request #1225 from hversche/pr/1148-rebased-releases/3.1.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Wed, 23 Aug 2017 14:56:50 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 23 Aug 2017 16:09:04 -0400
 
-bsl-internal (3.1.8.0) unstable; urgency=low
+bsl-internal (3.1.8.0) git; urgency=low
 
+  * 90ebe8a32 Changelog for version 3.1.8.0
   * e5aea8a34 Merge pull request #1224 from mgiroux/review/bump-versions-to-3.0.19-and-3.0.8
   * f6a934ff3 bump versions (bsl->3.0.19, bdl->3.0.8)
   * e1fc0aa29 Merge pull request #1222 from hversche/pr/1221-rebased-releases/3.1.x
@@ -33,14 +45,15 @@ bsl-internal (3.1.8.0) unstable; urgency=low
   * ad2c2e389 bsls_deprecate: versioned ABI-compatible deprecation.
   * 969d7cb66 Merge pull request #1209 from mgiroux/pr/1207-rebased-releases/3.1.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Tue, 25 Jul 2017 13:07:25 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 25 Jul 2017 14:15:41 -0400
 
-bsl-internal (3.1.5.2) unstable; urgency=low
+bsl-internal (3.1.5.2) git; urgency=low
 
+  * 8f400ab5d Changelog for version 3.1.5.2
   * cbacdb622 fix 3.1.5.x version numbers
   * 011522211 Merge pull request #1183 from hversche/pr/1159-rebased-releases/3.1.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 13 Jun 2017 15:10:00 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 13 Jun 2017 15:14:00 -0400
 
 bsl-internal (3.1.5.1) git; urgency=low
 
@@ -48,40 +61,39 @@ bsl-internal (3.1.5.1) git; urgency=low
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 13 Jun 2017 13:58:11 -0400
 
-bsl-internal (3.1.5.0) unstable; urgency=low
+bsl-internal (3.1.5.0) git; urgency=low
 
+  * 6e80c5099 Changelog for version 3.1.15.0
   * 2d5af6846 Merge pull request #1181 from bde/review/bump-patchversion-to-3.1.5
   * 3d751724e bump patchversion to 3.1.5 for bdl/bal/btl/bbl
-  * 20cea7235 fixed version number
 
- -- mgiroux <mgiroux@bloomberg.net>  Tue, 13 Jun 2017 11:55:09 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 13 Jun 2017 13:43:47 -0400
 
-bsl-internal (3.1.4.0) unstable; urgency=low
+bsl-internal (3.1.4.0) git; urgency=low
 
+  * e767fd5e4 Changelog for version 3.1.4.0
   * 1bc6e4ca6 Merge pull request #1151 from bde/review/bump-version-numbers-for-3.1.4
   * 4d63154d6 bump bsl version to 3.0.18 (for the 3.1.4 release)
   * 5346efcc6 Merge pull request #1143 from osubbotin/pr/589-rebased-releases/3.1.x
   * d75c44464 Merge pull request #1149 from hversche/pr/1145-rebased-releases/3.1.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 22 May 2017 14:29:15 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 May 2017 15:37:17 -0400
 
-bsl-internal (3.1.3.0) unstable; urgency=low
+bsl-internal (3.1.3.0) git; urgency=low
 
+  * a03712542 Changelog for version 3.1.3.0
+  * 20cea7235 fixed version number
 
- -- Henry Verschell <hverschell@bloomberg.net>  Thu, 11 May 2017 15:54:34 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 15 May 2017 15:14:03 -0400
 
-bsl-internal (3.1.2.0) unstable; urgency=low
+bsl-internal (3.1.2.0) git; urgency=low
 
+  * 11b762715 Changelog for version 3.1.2.0
   * 2215647e1 Merge pull request #1126 from mgiroux/review/bump-bdl-version-to-3.1.2
   * c04d54b4b Bump bdl version to 3.1.2
-  * 9477cd0ca Merge pull request #1123 from hversche/remove-bdlat-from-bdl-mem-drqs-100139563
-  * 6640698a3 Merge pull request #1124 from jmendelsohn4/drqs-100179004/3.1.x/fix_calendar
   * b4c6f51ff Merge pull request #1120 from hversche/pr/1118-rebased-releases/3.1.x
-  * 2b341fede Merge pull request #1112 from jmendelsohn4/drqs-100143457/add-bdlde_crc64-to-3.1
-  * 5cfaa1530 Merge pull request #1101 from jmendelsohn4/drqs-99914297/bdlt_time_windows_warning
-  * 0d7b6e0ed Merge pull request #1098 from jmendelsohn4/drqs-99852598/datetime_time_test_build_failures
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 8 May 2017 10:40:17 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 8 May 2017 10:55:17 -0400
 
 bsl-internal (3.1.0.0) git; urgency=low
 
@@ -94,7 +106,6 @@ bsl-internal (3.1.0.0) git; urgency=low
 bsl-internal (3.0.15.2) git; urgency=low
 
   * b6cc5b69c Changelog for version 3.0.15.2
-  * 6e47c0818 Merge pull request #1022 from afeher/fix-bdld_datummaker
   * 73a288107 Merge pull request #1021 from hversche/pr/1020-rebased-releases/3.0.x
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 6 Mar 2017 10:35:28 -0500
@@ -110,7 +121,6 @@ bsl-internal (3.0.15.1) git; urgency=low
 bsl-internal (3.0.15) git; urgency=low
 
   * c0028604c Changelog for version 3.0.15
-  * 97388f7df Merge pull request #994 from mgiroux/make-return-types-const
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 28 Feb 2017 11:13:38 -0500
 
@@ -127,7 +137,6 @@ bsl-internal (3.0.13.0) git; urgency=low
   * 8fc40b5a7 Changelog for version 3.0.13.0
   * 285849611 Merge pull request #965 from mgiroux/review/bump-patchversion-for-3.0.13
   * 91cd00507 bump patchversion to 3.0.13
-  * 7d7ca323a Merge pull request #955 from jmendelsohn4/drqs-95303426/day_count_conventions_contract_violation_20170119
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 30 Jan 2017 09:14:01 -0500
 
@@ -136,7 +145,6 @@ bsl-internal (3.0.12.0) git; urgency=low
   * 4075e17fe Changelog for version 3.0.12.0
   * 120584dde Merge pull request #950 from mgiroux/review/bump-patchversion-for-3.0.12
   * 71fb78171 Patch version bumped to 3.0.12
-  * af0a4cff4 Merge pull request #948 from jmendelsohn4/drqs-95172579/3.0.x/bdlt_datetimeinterval_remove_range_logging
   * 09786be1b Merge pull request #912 from afeher/on-release__add-decimal64-support
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 18 Jan 2017 10:01:25 -0500
@@ -155,7 +163,6 @@ bsl-internal (3.0.10.0) git; urgency=low
 
   * e1a4afee6 Changelog for version 3.0.10.0
   * f9f4b55ed Merge pull request #884 from mgiroux/review/bump-version-to-3.0.10
-  * 7d1dbf698 Merge pull request #879 from jmendelsohn4/drqs-93222828/bdlc_bitarray_assignment_operator_allocation
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 6 Dec 2016 10:03:18 -0500
 
@@ -164,8 +171,6 @@ bsl-internal (3.0.9.0) git; urgency=low
   * add120fed Changelog for version 3.0.9.0
   * 9bbcb31a4 Merge pull request #866 from mgiroux/review/bump-version-to-3.0.9
   * 0e332544c bump version to 3.0.9
-  * e0722601b Merge pull request #855 from jmendelsohn4/drqs-92491241/bdlma_sequentialpool_reserveCapacity
-  * b3d2b1612 Merge pull request #729 from bchapman/bdlcc_objectcatalog-punning-drqs-88681998
   * e56feb45d Merge pull request #845 from hversche/pr/843-rebased-releases/3.0.x
   * cd17d2d3c Merge pull request #842 from hversche/pr/799-rebased-releases/3.0.x
   * 3aa77404d Merge pull request #840 from bde/revert-838-pr/823-rebased-releases/3.0.x
@@ -187,7 +192,6 @@ bsl-internal (3.0.8.0) git; urgency=low
 bsl-internal (3.0.7.1) git; urgency=low
 
   * 3896bf2de Changelog for version 3.0.7.1
-  * 462d925b9 Merge pull request #809 from mgiroux/review/remove-assert-from-bsls-log-drqs-91256983
   * 2dd78e3c0 Merge pull request #808 from hversche/pr/805-rebased-releases/3.0.x
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 25 Oct 2016 18:43:23 -0400
@@ -198,18 +202,14 @@ bsl-internal (3.0.7.0) git; urgency=low
   * c53f53e80 Merge pull request #802 from abeels/bsls_assert-log-handler-return-jira-1460-release-30x
   * be04c8256 Merge pull request #804 from mgiroux/review/bump-version-to-3.0.7
   * e183776c1 bump patchversion to 3.0.7
-  * 986481c7c Merge pull request #789 from jmendelsohn4/drqs-90203436/bdlt_datetimeinterval_instrument_range
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 24 Oct 2016 19:03:00 -0400
 
 bsl-internal (3.0.6.0) git; urgency=low
 
   * b216abb84 Changelog for version 3.0.6.0
-  * 76307d278 Merge pull request #778 from mgiroux/review/fix-bitset-all-drqs-90339397
   * bcfed76b8 Merge pull request #773 from hversche/pr/768-rebased-releases/3.0.x
-  * 98a47e087 Merge pull request #771 from hrosen4/allocatortraits-declval-3.0.6-drqs-90075227
   * b851bc8c2 Merge pull request #769 from hversche/pr/764-rebased-releases/3.0.x
-  * 75cbc4238 Merge pull request #766 from afeher/bdlb_chartype-octal-digit-support
   * 3e57b8218 Merge pull request #763 from mgiroux/review/bump-version-to-3.0.6
   * b7bd68570 Bump patchversion for 3.0.6
 
@@ -229,15 +229,7 @@ bsl-internal (3.0.4.1) git; urgency=low
 
   * d217a7e36 Changelog for version 3.0.4.1
   * cdb202812 Merge pull request #747 from hversche/pr/746-rebased-releases/3.0.x
-  * 717a2d4d8 Merge pull request #742 from afeher/remove-narrowing-warning
-  * c23d849ce Merge pull request #726 from jmendelsohn4/drqs-89038199/bdlt_datetimetz_bdex_support_for_microseconds
   * e6813e17e Remove narrowing conversion warning.
-  * 91b3b1b9c Merge pull request #740 from hrosen4/swaputil-recursive-3.0.5-drqs-89393882
-  * b7777a7fe Merge pull request #738 from afeher/quoted-escaped-string-literal-creator
-  * 53bfcd6ce Merge pull request #721 from afeher/tiny-tidy
-  * 0cc024da0 Merge pull request #728 from jmendelsohn4/drqs-88737563/bslmt_threadgroup_test_case_4_fix
-  * 7da1f12a9 Merge pull request #719 from jmendelsohn4/drqs-89072888/bdlt_epochutil_always_true_assert_warning
-  * 07c183b96 Merge pull request #709 from che2/balxml-encoderoptions-use-z-drqs-88689528
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 23 Sep 2016 10:37:30 -0400
 
@@ -245,23 +237,9 @@ bsl-internal (3.0.4.0) git; urgency=low
 
   * eab4cdef5 Changelog for version 3.0.4.0
   * d914049da Merge pull request #706 from che2/releases/3.0.x
-  * 248af51e2 Merge pull request #637 from mgiroux/review/apaprock-scalar-primitives-maybe-uninitialized-drqs-87862955
   * fad434a3b Merge pull request #703 from mgiroux/review/bump-patchversion-to-3.0.4
   * 9c2e9a09e Bump patchversion to 3.0.4
   * e4bae82ad Merge pull request #691 from hrosen4/pr/689-rebased-releases/3.0.x
-  * 9b6c3b18d Merge pull request #693 from afeher/move-an-include
-  * 147254626 Merge pull request #683 from afeher/bdls_pipeutil-fix-mbcs-windows
-  * 72526a2a5 Merge pull request #682 from hrosen4/darwin-c++03-type_traits-3.04-drqs-88674288
-  * e5a2d2950 Merge pull request #680 from afeher/bdls_processutil-fix-for-mbcs-windows
-  * 43d5f14ea Merge pull request #685 from jmendelsohn4/drqs-88262799/bdlt_epochutil_enhanced_precision
-  * d076c6084 Merge pull request #674 from che2/revert-berencoder-datetime-format-drqs-88346514
-  * fb5f4b4c2 Merge pull request #675 from che2/baexml-encoderoptions-midif-drqs-87973002
-  * fb60521bb Merge pull request #671 from hrosen4/type_traits-3.0.4-drqs-87976746
-  * 4e0e2810f Merge pull request #660 from afeher/fix-osutil
-  * edb292a19 Merge pull request #661 from afeher/fix-bslstl_function-warning
-  * 6f8a23f5a Merge pull request #662 from jmendelsohn4/drqs-88262799/bdlt_epochutil_enhanced_precision
-  * 2315bfa36 Merge pull request #659 from afeher/fix-bdls_filesystemutil-mbcs-windows
-  * ff7a294f1 Merge pull request #658 from afeher/fix-redefined-macro
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 13 Sep 2016 19:18:40 -0400
 
@@ -273,8 +251,6 @@ bsl-internal (3.0.2.0) git; urgency=low
   * 5381d8bc4 Changelog for version 3.0.1.0
   * c821f78d7 Update patch version to 3.0.1
   * a5fd6f52a Merge pull request #649 from hversche/pr/648-rebased-releases/3.0.x
-  * a9b36716a Merge pull request #646 from mgiroux/review/enable-BUILD_ID-in-bsls_ident-drqs-77787475
-  * 69ec8b778 Merge pull request #643 from ameredit/windows_patch_for_3_0_0
 
  -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 26 Aug 2016 23:00:44 -0400
 
@@ -283,10 +259,7 @@ bsl-internal (3.0.1.0) git; urgency=low
   * 0008fe9ec Changelog for version 3.0.1.0
   * d25c16c59 Merge pull request #634 from mgiroux/review/bump-version-to-3.0.1
   * 14196d306 bump patchversion to 3.0.1
-  * bd010230c Merge pull request #633 from che2/bdldfp-nan-inf-for-3.0-drqs-74546219
   * 9c5e865e5 Merge pull request #630 from afeher/compiler-internal-error-fix-for-release-3.0.x-vs-2013
-  * f8ea97098 Merge pull request #626 from mgiroux/review/fix-bitset-warning-drqs-87662186
-  * cb8ce4640 Merge pull request #621 from afeher/readd-bdld__datummapowningkeysbuilder__allocator
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Aug 2016 12:41:50 -0400
 
@@ -312,401 +285,30 @@ bsl-internal (3.0.0.0) git; urgency=low
 
   * 3a50a278a Merge pull request #550 from mgiroux/review/bump-debian-changelog-version-to-3.0.0.0
   * cee4625fc Changelog for version 3.0.0.0
-  * 4089a1214 Merge pull request #424 from hrosen4/seven-digits-drqs-82889541
-  * 4acb8d8dc Merge pull request #540 from abeels/explicit-bsl-namespace-in-test-macros-drqs-85361728
-  * 19b4238c9 Merge pull request #544 from mgiroux/review/remove-bdef_function-constructors-drqs-85444392
   * 56adb805d Remove bdef_Function conversions from bsl::function
-  * e2d969bd6 Merge pull request #543 from skumar445/pair_fixes_20160711
-  * 080c4f7a0 Merge pull request #541 from abeels/wscript-python-3-support-in-bde-drqs-85387882
-  * 24c448b97 Merge pull request #538 from skumar445/pair_fixes_20160708
-  * 80d54b438 Merge pull request #537 from jmendelsohn4/fix_transitive_include_20160708
   * eb6ab2539 correct transitive include of intervalconversionutil in currenttime
-  * 001dada08 Merge pull request #536 from bchapman/bsl-stdhdrs-unorderedmap-include_next-drqs-83202055
   * d4beeb56a Fix up conversion docs.
-  * dca929cb4 Merge pull request #535 from skumar445/pair_fixes_20160707
-  * 36ff22631 Merge pull request #534 from skumar445/unordered_map_support_for_incomplete_types
   * 092456948 bsl+stdhdrs/unordered_map: include native_std version
-  * c305551ae Merge pull request #511 from che2/mifid-baejsn-fractional-seconds-attribute-tests
-  * 06a1fcd35 Merge pull request #491 from rbhindwa/btlmt_tcptimereventmanager-fix-deregistertimer
-  * 94f0a1f4a Merge pull request #529 from hversche/fix-arcconfig
-  * cba069b07 Merge pull request #527 from mgiroux/review/fixup-pcre2-jit-3
-  * e43e42fcd Merge pull request #528 from bchapman/bslstl_list-160627-drqs-78702571
-  * 52ba207ad Merge pull request #513 from skumar445/btlmt_tcptimereventmanager_test_driver_fix
-  * 3eadcd900 Merge pull request #526 from sbreitst/noexcept.6
   * b82376027 Tidy up the documentation and code.  Add shortest conversion.
-  * 34ba32130 Merge pull request #524 from cwilson/small-map-deque-fixes-for-icbeta-drqs-84793398
-  * f6fadc620 Merge pull request #525 from hversche/bslim_printer-icbeta-fail-drqs-84805986
-  * 3e8bf6852 Merge pull request #518 from che2/fix-balber_berencoder-test-failures
-  * f2a195f6c Merge pull request #522 from hrosen4/cast-warnings-bsls_log-drqs-84798246
-  * 88f4faf68 fix two small C++11 issues (map, deque) for ICBETA
-  * 8c09518dc Merge pull request #520 from cwilson/bsls_pointercastutil-macro-collisions-drqs-84786108
   * 0a41ad671 Initial version of patch for JIT optimization support on SPARC 64.
-  * dc8927c44 Merge pull request #519 from osubbotin/review/bde-vector-drqs-84752387
-  * fc2e639ce Merge pull request #517 from jmendelsohn4/bdlt_calendar_fix_assert_20160628
-  * eeacf07de Merge pull request #516 from osubbotin/review/bde-unordered-multimap-drqs-81624593-rebased
-  * 0025d4a60 Merge pull request #418 from dsokolov7/review/pcre2-jit-drqs-80642705
-  * 34a2eff9b Merge pull request #509 from skumar445/clay_vector_review-2nd_round_pull
-  * 1af7c37d4 Merge pull request #510 from skumar445/add_back_bslstl_allocatortraits_stub
-  * 951d7476f Merge pull request #507 from dharesig/patch-1
-  * 71804e0f6 Merge pull request #506 from hrosen4/task-count-balb_performancemonitor-drqs-84436301
-  * db01f37eb Merge pull request #505 from hrosen4/0-increment-filesystemutil-drqs-84401656
-  * 9c0e68c06 Merge pull request #504 from hrosen4/bad-rights-drqs-84377086
-  * aa12b704a Merge pull request #499 from jmendelsohn4/mifid/fixutil_additional_review_comments
-  * fe728d0a9 Merge pull request #500 from bchapman/bslstl-gcc-4.3.5-bugfixes
   * d46cca2a2 Add an early note about conversions.
   * db18857ad Use the quick conversion where plausible.
   * 0abeef2a3 More conversion from binary to decimal, with digits specified.
   * 04d603ad6 Add "business float" conversion test.
   * 18552333b Allow 7-digit float-to-decimal conversion on a restricted range.
-  * f95226f6a Merge pull request #492 from ameredit/no_move_only_values_for_Cpp03_unordered_map
-  * 26f0bb18c Merge pull request #498 from skumar445/big_build_fixes_pull_v2
   * b4eb6f7bf add missing DelegatingDateImpUtil to releases/2.x
-  * fbd03e600 Merge pull request #494 from jmendelsohn4/add_undef_20160616
-  * 71d24d93d Merge pull request #496 from che2/mifid-baejsn-fractional-seconds-attribute
-  * 471f71666 Merge pull request #493 from jmendelsohn4/fix_crazy_return_comments_20160616
-  * 0f5bac506 Merge pull request #490 from jmendelsohn4/port_bdxt_calendarutil_to_bdlt
-  * 8cdd63f65 Merge remote-tracking branch 'upstream/mifid/baseline'
-  * 465a721e0 Merge pull request #396 from hrosen4/exception-in-typeinfo-drqs-81469826
-  * fc38caf9a Merge pull request #488 from jmendelsohn4/revert_3.0_mem
-  * e2adfe36a Merge pull request #449 from jmendelsohn4/mifid/fixutil
-  * 9ce87db8a Merge pull request #486 from hversche/add-baltzo-now
-  * 7c2d4a6cb Merge pull request #484 from jmendelsohn4/mifid/allow_lowercase_in_iso8601
-  * 567538015 Merge pull request #481 from rbhindwa/update-ball-to-use-bdlt_iso8601util
-  * 25e98b8d9 Merge pull request #479 from che2/balxml-mifid-support
-  * c3f16c2f7 Merge pull request #469 from che2/mifid-encoder-decoder-support
-  * 10ffbda6c Merge remote-tracking branch 'upstream/mifid/baseline' into mifid/fixutil
-  * 362754f31 Merge pull request #478 from jmendelsohn4/mifid/pre_3.0_mem
-  * f6091484e Merge remote-tracking branch 'upstream/mifid/baseline' into mifid/fixutil
-  * fd575a1fb Merge pull request #477 from jmendelsohn4/mifid/pre_3.0_mem
-  * ececc357b Merge remote-tracking branch 'upstream/mifid/baseline' into mifid/fixutil
   * a737f64b7 removing items that should not be released
-  * 14c03d707 Adopt commit cb42ab8 from master: Merge pull request #465 from hrosen4/path-symlink-drqs-82022519
-  * 08b500725 Adopt commit 89e6df8 from master: Merge pull request #463 from ameredit/3_0/fix_open_source_variant_test_driver
-  * 5ab5fa81a Adopt commit e3faeb7 from master: Merge pull request #464 from hversche/pr/443-rebased
-  * f632867ff Adopt commit cfcbd8f from master: Merge pull request #446 from hversche/fix-isbitwisemoveable-gcc-drqs-83433752
-  * cb42ab841 Merge pull request #465 from hrosen4/path-symlink-drqs-82022519
-  * 89e6df83f Merge pull request #463 from ameredit/3_0/fix_open_source_variant_test_driver
-  * e3faeb74d Merge pull request #464 from hversche/pr/443-rebased
-  * 0ca22860c Merge pull request #460 from jmendelsohn4/mifid/build_clean_20160607
-  * cfcbd8f15 Merge pull request #446 from hversche/fix-isbitwisemoveable-gcc-drqs-83433752
-  * 67bde9f09 Adopt commit b6fb686 from master: Merge pull request #455 from mgiroux/review/pr/454-rebased
-  * b6fb68682 Merge pull request #455 from mgiroux/review/pr/454-rebased
-  * b61e47284 Adopt commit 6b9b189 from master: Merge pull request #448 from ameredit/3_0/add_missing_transitive_includes
-  * 618edf0a8 Adopt commit 2970f27 from master: Merge pull request #445 from abeels/fix-include-guard-typos-gh-pr-214-internal
-  * f76be2041 Adopt commit 7861a1b from master: Merge pull request #429 from rbhindwa/btlso_resolveutil-test-run-failures
-  * e8c2ab54e Adopt commit cf6d055 from master: Merge pull request #433 from rbhindwa/baljsn_tokenizer-resetStreambufGetPointer-drqs-68957064
-  * 15bb97663 Adopt commit af136fb from master: Merge pull request #431 from rbhindwa/baljsn_printutil-fix-printString-inefficiency-drqs-81409494
-  * 3aad702c4 Adopt commit 45749d6 from master: Merge pull request #437 from sbreitst/master-bdedox-drqs-81638921
-  * 01dc37538 Adopt commit 9fa1945 from master: Merge pull request #416 from rbhindwa/btl-fix-test-run-errors
-  * bf7f2b283 Adopt commit 4df05bc from master: Merge pull request #419 from che2/bdlcc_fixedqueue-doc-fix-drqs-68110252
-  * 3301ca419 Adopt commit 061dc05 from master: Merge pull request #414 from ameredit/3_0/bslmf_assert_updated_fix
-  * 972677a63 Adopt commit ebfdc1a from master: Merge pull request #411 from jmendelsohn4/sun_nightly_build-drqs-82730915
-  * d198251e1 Adopt commit cef0e0f from master: Merge pull request #353 from jmendelsohn4/add_ISDA-30E-360_and_NL-365_to_bbl-drqs-81348834
-  * 8269d563a Adopt commit 4626725 from master: Merge pull request #410 from hrosen4/unsafe-visitPaths-drqs-82551711
-  * 1bf8ddf0f Adopt commit dbc0d55 from master: Merge pull request #384 from fsimek1/atomicbool
-  * 085b19b60 Adopt commit 1705608 from master: Merge pull request #389 from hrosen4/path-symlink-drqs-82022519
-  * 6c7a686e6 Adopt commit 792a366 from master: Merge pull request #381 from hrosen4/remove-strstream-drqs-58096909
-  * 427496981 Adopt commit d08775e from master: Merge pull request #373 from abeels/migrate-testtimesource-bde-1099
-  * 1ad5c3208 Adopt commit 584f79d from master: Merge pull request #395 from abeels/remove-bslmf_assert-special-case-ss12.4-drqs-79918675
-  * ff2e24f3d Adopt commit 5bbe625 from master: Merge pull request #399 from jolkin/patch-1
-  * 1cb741c48 Adopt commit 5d77623 from master: Merge pull request #397 from hversche/fix-sun-function-failures-for-dpkg
-  * 6dc2c34af Adopt commit 7b34228 from master: Merge pull request #398 from mgiroux/review/undefine-BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-  * 8e3740f61 Adopt commit 00a35f9 from master: Merge pull request #393 from bde/revert-388-update-bsls_log-for-3.0
-  * 633522081 Adopt commit 1864119 from master: Merge pull request #388 from hversche/update-bsls_log-for-3.0
-  * a26032f3a Merge pull request #452 from jmendelsohn4/mifid/baltzo
-  * 51f3d72f6 Merge pull request #440 from rbhindwa/update-ball-for-mifid-datetime-changes
-  * 6b9b18997 Merge pull request #448 from ameredit/3_0/add_missing_transitive_includes
-  * b6e8499ae Merge pull request #447 from mgiroux/review/add-missing-bdlat_bdeatoverrides
-  * 2970f27ab Merge pull request #445 from abeels/fix-include-guard-typos-gh-pr-214-internal
   * f9bd5031f [IMPORT] Assemble internal version of fix-include-guard-typos-gh-pr-214 based on mergebase with master
-  * 7861a1b2c Merge pull request #429 from rbhindwa/btlso_resolveutil-test-run-failures
-  * cf6d05569 Merge pull request #433 from rbhindwa/baljsn_tokenizer-resetStreambufGetPointer-drqs-68957064
-  * af136fb40 Merge pull request #431 from rbhindwa/baljsn_printutil-fix-printString-inefficiency-drqs-81409494
-  * 45749d6a3 Merge pull request #437 from sbreitst/master-bdedox-drqs-81638921
-  * 1dd57aa92 Merge pull request #409 from jmendelsohn4/mifid/iso8601util
-  * 9fa1945d3 Merge pull request #416 from rbhindwa/btl-fix-test-run-errors
-  * 4df05bcaa Merge pull request #419 from che2/bdlcc_fixedqueue-doc-fix-drqs-68110252
-  * 061dc05a7 Merge pull request #414 from ameredit/3_0/bslmf_assert_updated_fix
-  * ebfdc1a79 Merge pull request #411 from jmendelsohn4/sun_nightly_build-drqs-82730915
-  * cef0e0f00 Merge pull request #353 from jmendelsohn4/add_ISDA-30E-360_and_NL-365_to_bbl-drqs-81348834
-  * 46267250a Merge pull request #410 from hrosen4/unsafe-visitPaths-drqs-82551711
-  * 1046adb73 Merge pull request #401 from jmendelsohn4/mifid/initial_changes
-  * dbc0d5549 Merge pull request #384 from fsimek1/atomicbool
-  * 170560809 Merge pull request #389 from hrosen4/path-symlink-drqs-82022519
-  * 792a366ff Merge pull request #381 from hrosen4/remove-strstream-drqs-58096909
-  * d08775e91 Merge pull request #373 from abeels/migrate-testtimesource-bde-1099
-  * 584f79d3e Merge pull request #395 from abeels/remove-bslmf_assert-special-case-ss12.4-drqs-79918675
-  * 5bbe62543 Merge pull request #399 from jolkin/patch-1
-  * 5d7762395 Merge pull request #397 from hversche/fix-sun-function-failures-for-dpkg
-  * 7b342281c Merge pull request #398 from mgiroux/review/undefine-BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-  * 00a35f973 Merge pull request #393 from bde/revert-388-update-bsls_log-for-3.0
-  * 186411901 Merge pull request #388 from hversche/update-bsls_log-for-3.0
-  * 3034ca5c5 Adopt commit 007cdb0 from master: Merge pull request #392 from hrosen4/decimal-format-github-pull-213
-  * 87a6e5fad Adopt commit 8c382e9 from master: Merge pull request #387 from abeels/bas-core-build-failure-in-balber_berencoderoptions
-  * 347347bee Adopt commit abbcb80 from master: Merge pull request #386 from hversche/pr/315
-  * dccfc9c0a Adopt commit 206e595 from master: Merge pull request #378 from hrosen4/cpp-compilerfeatures-drqs-81932536
-  * 91dd7b1b8 Adopt commit 2493734 from master: Merge pull request #370 from hrosen4/sun-gcc-64-warnings-drqs-81423822
-  * ffc4660a1 Adopt commit 03bf3f7 from master: Merge pull request #372 from bde/add-bslx-to-variant
-  * b925098a1 Adopt commit 1ff59a9 from master: Merge pull request #347 from sbreitst/stringref_stringutils-drqs-69340099.2.warnings.2
-  * 14dc10932 Adopt commit a1c6b45 from master: Merge pull request #358 from hrosen4/sun-gcc-cast-align-drqs-81423822
-  * 26227495c Adopt commit 4346f9b from master: Merge pull request #357 from abeels/remove-BOID-on-windows-for-3.0
-  * a3e3a8fa3 Adopt commit 55de6b3 from master: Merge pull request #350 from bde/bas-building-on-bde3
-  * 6ee92866b Adopt commit 25b942f from master: Merge pull request #340 from abeels/warnings-gcc-5.3
-  * f369836ee Adopt commit 5f4cc73 from master: Merge pull request #338 from ameredit/3_0/fix_gcc_UB_warning_in_deque_iterator
-  * 6c8ebff03 Adopt commit 50b69a1 from master: Merge pull request #282 from sbreitst/stringref_stringutils-drqs-69340099.2
-  * 5a707fe6f Adopt commit b697eed from master: Merge pull request #334 from ameredit/3_0/datum_patch
-  * 084d004c4 Adopt commit a8b6067 from master: Merge pull request #335 from ameredit/3_0/fix_indexclerk_cpp
-  * 411420234 Adopt commit 070b22c from master: Merge pull request #317 from abuch/datum-typo-fix
-  * f50d8f7f6 Adopt commit 82129f8 from master: Merge pull request #327 from afeher/fix-test-driver-for-64-bits
-  * ff78dfec8 Adopt commit 7e046ee from master: Merge pull request #331 from hversche/pr/316-rebased
-  * b99c4b367 Adopt commit 76555e0 from master: Merge pull request #311 from afeher/remove-global-data-from-datum
-  * ce5c22998 Adopt commit 25e8d7a from master: Merge pull request #326 from jmendelsohn4/bdl_build_warnings-drqs-81106581
-  * 8c0040b6d Adopt commit 599f226 from master: Merge pull request #323 from mgiroux/review/fix-compile-warning-in-bsls_systemtime.cpp
-  * 8be8db7a3 Adopt commit 159d5ed from master: Merge pull request #321 from jmendelsohn4/bdlt_build_warnings-drqs-81062345
-  * 558541497 Adopt commit 2d5f24e from master: Merge pull request #320 from mgiroux/review/fix-bdedpkgconfig-for-bde-3.0-uors
-  * 0318a8f65 Adopt commit 7862aa4 from master: Merge pull request #318 from jmendelsohn4/bdlma_build_warnings-drqs-81021810
-  * 3c8181bcf Adopt commit ef6249a from master: Merge pull request #169 from bchapman/bdls_filesystemutil-build-error-drqs-78483162
-  * c60fe0f0e Adopt commit 992bde5 from master: Merge pull request #233 from abeels/balb_performancemonitor-fix-case-2-drqs-79642001
-  * 4e530bae7 Adopt commit a2a393f from master: Merge pull request #286 from cwilson/bael-to-ball-migration-phase1-drqs-78487440
-  * 14003da84 Adopt commit e6ca323 from master: Merge pull request #308 from che2/third-party-use-relatively-include-paths-drqs-69714826-master
-  * 95b1c6ef0 Adopt commit 47f794c from master: Merge pull request #303 from jmendelsohn4/bdlma_aix_nightly_build-drqs-80716067
-  * d0a67271c Adopt commit 28aea80 from master: Merge pull request #294 from jcamino2/fix-date-comment
-  * 48a330a08 Adopt commit bd9e70a from master: Merge pull request #289 from sbreitst/bsl_remove_cycle-drqs-80433527
-  * 0e83ac3a8 Adopt commit 64c0ad7 from master: Merge pull request #287 from bde/remove-bdls-cycle-drqs-80433743
-  * 8af7efea1 Adopt commit 36b8a42 from master: Merge pull request #281 from rbhindwa/btlmt_sessionpool-windows-compilation-issue
-  * f99775479 Adopt commit 8a9b6d8 from master: Merge pull request #278 from hversche/fix-pcre2-package-config-file-drqs-80306088-v2
-  * cb4e50c7a Adopt commit 2eaa117 from master: Merge pull request #227 from rbhindwa/btlmt-report-platform-error-codes-drqs-75036658
-  * d7464ca2d Adopt commit a8cf5e9 from master: Merge pull request #271 from jmendelsohn4/bsls_stopwatch-copy-constructor-drqs-80248078
-  * 3961e6ade Adopt commit 8cb94a8 from master: Merge pull request #268 from ameredit/3_0/strict_nullptr_testdriver_fix
-  * c6d8301ad Adopt commit 3c5539e from master: Merge pull request #256 from ameredit/3_0/bsl_stoX_function_fixes
-  * 4d6e883f9 Adopt commit 2d2e1d9 from master: Merge pull request #258 from afeher/fix-makeerror-alignment-crash
-  * b2e16ca2e Adopt commit 775304a from master: Merge pull request #269 from jmendelsohn4/bdlma-drqs-78633855
-  * 9f61ff492 Adopt commit 62befe6 from master: Merge pull request #266 from ameredit/3_0/hash_warning_on_MSVC
-  * 414f3e79e Adopt commit cdd99c6 from master: Merge pull request #182 from jmendelsohn4/bdlma-drqs-78633855
-  * 2c376f32a Adopt commit fb57c51 from master: Merge pull request #265 from hversche/correct-bdlpcre-de-file
-  * dd167bc0e Adopt commit 6118c62 from master: Merge pull request #259 from hversche/pr/257-rebased
-  * acec2f918 Adopt commit ff4e438 from master: Merge pull request #255 from rbhindwa/btlmt_channelpool-test-driver-failure-drqs-80033328
-  * e8f16c37a Adopt commit 38c63ae from master: Merge pull request #185 from dgoffred/managedptr-elementtype-drqs-78683245
-  * 007cdb0a5 Merge pull request #392 from hrosen4/decimal-format-github-pull-213
   * 75cbd7cee [IMPORT] Assemble internal version of decimal-format based on mergebase with master
-  * 8c382e97e Merge pull request #387 from abeels/bas-core-build-failure-in-balber_berencoderoptions
-  * abbcb805e Merge pull request #386 from hversche/pr/315
-  * 206e59534 Merge pull request #378 from hrosen4/cpp-compilerfeatures-drqs-81932536
-  * 24937349a Merge pull request #370 from hrosen4/sun-gcc-64-warnings-drqs-81423822
-  * 03bf3f715 Merge pull request #372 from bde/add-bslx-to-variant
   * fbd6be36a Finish conversion of bdlmt_eventscheduler
-  * 1ff59a97b Merge pull request #347 from sbreitst/stringref_stringutils-drqs-69340099.2.warnings.2
-  * a1c6b45e2 Merge pull request #358 from hrosen4/sun-gcc-cast-align-drqs-81423822
-  * 4346f9b44 Merge pull request #357 from abeels/remove-BOID-on-windows-for-3.0
-  * 55de6b3b0 Merge pull request #350 from bde/bas-building-on-bde3
-  * 25b942f32 Merge pull request #340 from abeels/warnings-gcc-5.3
-  * 5f4cc7355 Merge pull request #338 from ameredit/3_0/fix_gcc_UB_warning_in_deque_iterator
-  * 50b69a145 Merge pull request #282 from sbreitst/stringref_stringutils-drqs-69340099.2
   * a8b209714 Silence conversion warnings (gcc-5.3 64-bit).
-  * b697eedd4 Merge pull request #334 from ameredit/3_0/datum_patch
-  * a8b606700 Merge pull request #335 from ameredit/3_0/fix_indexclerk_cpp
-  * 070b22c22 Merge pull request #317 from abuch/datum-typo-fix
-  * 82129f89f Merge pull request #327 from afeher/fix-test-driver-for-64-bits
-  * 7e046ee3f Merge pull request #331 from hversche/pr/316-rebased
-  * 76555e0ec Merge pull request #311 from afeher/remove-global-data-from-datum
-  * 25e8d7aef Merge pull request #326 from jmendelsohn4/bdl_build_warnings-drqs-81106581
-  * 599f22683 Merge pull request #323 from mgiroux/review/fix-compile-warning-in-bsls_systemtime.cpp
-  * 159d5ed48 Merge pull request #321 from jmendelsohn4/bdlt_build_warnings-drqs-81062345
-  * 2d5f24e3d Merge pull request #320 from mgiroux/review/fix-bdedpkgconfig-for-bde-3.0-uors
-  * 7862aa414 Merge pull request #318 from jmendelsohn4/bdlma_build_warnings-drqs-81021810
-  * ef6249ac9 Merge pull request #169 from bchapman/bdls_filesystemutil-build-error-drqs-78483162
-  * 992bde5f0 Merge pull request #233 from abeels/balb_performancemonitor-fix-case-2-drqs-79642001
-  * f51a05e57 Merge pull request #314 from mgiroux/review/fix-bdedpkgconfig-for-bde-3.0-uors
-  * ed6f6c87e Merge pull request #313 from mgiroux/review/fix-bdedpkgconfig-for-bde-3.0-uors
-  * a2a393f4f Merge pull request #286 from cwilson/bael-to-ball-migration-phase1-drqs-78487440
-  * e6ca32310 Merge pull request #308 from che2/third-party-use-relatively-include-paths-drqs-69714826-master
-  * 47f794c29 Merge pull request #303 from jmendelsohn4/bdlma_aix_nightly_build-drqs-80716067
-  * 8f9a48b98 reduced cases where the really large allocations is performed
-  * 3181dc999 Merge pull request #284 from jmendelsohn4/bbl_debian_changes-drqs-80375198
-  * 28aea80fd Merge pull request #294 from jcamino2/fix-date-comment
-  * bd9e70ac5 Merge pull request #289 from sbreitst/bsl_remove_cycle-drqs-80433527
-  * 64c0ad7c7 Merge pull request #287 from bde/remove-bdls-cycle-drqs-80433743
-  * 36b8a429e Merge pull request #281 from rbhindwa/btlmt_sessionpool-windows-compilation-issue
-  * 8a9b6d897 Merge pull request #278 from hversche/fix-pcre2-package-config-file-drqs-80306088-v2
-  * 904d0c03b Merge pull request #276 from ebaunton/fixMissingPcreDep
-  * 2eaa11711 Merge pull request #227 from rbhindwa/btlmt-report-platform-error-codes-drqs-75036658
-  * a8cf5e966 Merge pull request #271 from jmendelsohn4/bsls_stopwatch-copy-constructor-drqs-80248078
-  * 8cb94a82f Merge pull request #268 from ameredit/3_0/strict_nullptr_testdriver_fix
-  * 3c5539e48 Merge pull request #256 from ameredit/3_0/bsl_stoX_function_fixes
-  * 2d2e1d908 Merge pull request #258 from afeher/fix-makeerror-alignment-crash
-  * 775304abf Merge pull request #269 from jmendelsohn4/bdlma-drqs-78633855
-  * 62befe675 Merge pull request #266 from ameredit/3_0/hash_warning_on_MSVC
-  * cdd99c6b4 Merge pull request #182 from jmendelsohn4/bdlma-drqs-78633855
-  * fb7d992d8 fixing non-64 bit machine INT_MAX allocation requests
-  * fb57c51a8 Merge pull request #265 from hversche/correct-bdlpcre-de-file
-  * 6118c626e Merge pull request #259 from hversche/pr/257-rebased
-  * ff4e43801 Merge pull request #255 from rbhindwa/btlmt_channelpool-test-driver-failure-drqs-80033328
-  * 38c63ae83 Merge pull request #185 from dgoffred/managedptr-elementtype-drqs-78683245
-  * 1fe5e53d1 Adopt commit 31661fe from branch-name: Merge pull request #206 from hversche/resolveutil-schumann-drqs-76780625
-  * 31661feb9 Merge pull request #206 from hversche/resolveutil-schumann-drqs-76780625
-  * e6b4e8a6d Merge pull request #210 into oss/master
-  * 1346f60f7 Adopt commit 62f1b71 from master: Merge pull request #187 from jmendelsohn4/calendarcache-drqs-78537580
-  * cff28fd5b Adopt commit e9c867c from master: Merge pull request #220 from ameredit/patch/better_is_convertible_testing
-  * 52e18f7da Adopt commit 51bca5f from master: Merge pull request #184 from rbhindwa/btlso_resolveutil-test-failures
-  * 8c8b23767 Adopt commit e2cbd83 from master: Merge pull request #181 from che2/fix-clang-cpp1-build-failure-btlso-ipv4address
-  * b12650ee3 Adopt commit 4648080 from master: Merge pull request #191 from rbhindwa/btl_disable_default_alloc_asserts_due_to_function_in_container_bug
-  * c8003690b Adopt commit eef208a from master: Merge pull request #236 from sbreitst/add_bdld.txt-bde-1004
-  * e0f89f93c Adopt commit 119e9ef from master: Merge pull request #235 from che2/thirdparty-build-respect-libdir
-  * d12ce3659 Adopt commit 7502998 from master: Merge pull request #224 from afeher/fix-typos-and-extends-gitignore
-  * 749b2cad2 Adopt commit a0a2ab6 from master: Merge pull request #159 from nmyers12/channelpool-lowater-cb-2-drqs-35427895
-  * ea0b07c6f Adopt commit 132b930 from master: Merge pull request #222 from hrosen4/no-DUMMY-drqs-79583761
-  * 0eeb2d73e Adopt commit 444a05b from master: Merge pull request #203 from nchamber/master
-  * 252b399a1 Adopt commit a9ecd49 from master: Merge pull request #201 from afeher/clang-fix-for-datum
-  * ece728c53 Adopt commit 1f2e879 from master: Merge pull request #199 from bguthiko/master
-  * b8b379944 Adopt commit 040222e from master: Merge pull request #198 from jmendelsohn4/additional_leap_year_tests-drqs-78932179
-  * 2cb016936 Adopt commit 3da3876 from master: Merge pull request #164 from osubbotin/review/bde-pcre2-drqs-75830340
-  * ac6593bf9 Adopt commit 4d430f6 from master: Merge pull request #189 from ameredit/patch/fixing_is_convertible_tests
-  * 7a4dd7e58 Adopt commit e33f44c from master: Merge pull request #188 from che2/workaround-sun-cc-bug-decimal-streambuf
-  * 62f1b719e Merge pull request #187 from jmendelsohn4/calendarcache-drqs-78537580
-  * e9c867c3d Merge pull request #220 from ameredit/patch/better_is_convertible_testing
-  * 51bca5fa6 Merge pull request #184 from rbhindwa/btlso_resolveutil-test-failures
-  * e2cbd830d Merge pull request #181 from che2/fix-clang-cpp1-build-failure-btlso-ipv4address
-  * 4648080e0 Merge pull request #191 from rbhindwa/btl_disable_default_alloc_asserts_due_to_function_in_container_bug
-  * eef208a67 Merge pull request #236 from sbreitst/add_bdld.txt-bde-1004
-  * 119e9ef75 Merge pull request #235 from che2/thirdparty-build-respect-libdir
-  * 750299826 Merge pull request #224 from afeher/fix-typos-and-extends-gitignore
-  * a0a2ab65c Merge pull request #159 from nmyers12/channelpool-lowater-cb-2-drqs-35427895
-  * 132b9305f Merge pull request #222 from hrosen4/no-DUMMY-drqs-79583761
   * b83135c08 fix btl version of DRQS 79315481
-  * 444a05bfc Merge pull request #203 from nchamber/master
-  * a9ecd49b2 Merge pull request #201 from afeher/clang-fix-for-datum
-  * 1f2e879c6 Merge pull request #199 from bguthiko/master
-  * 040222eaa Merge pull request #198 from jmendelsohn4/additional_leap_year_tests-drqs-78932179
-  * 3da38761a Merge pull request #164 from osubbotin/review/bde-pcre2-drqs-75830340
-  * 4d430f694 Merge pull request #189 from ameredit/patch/fixing_is_convertible_tests
-  * e33f44c26 Merge pull request #188 from che2/workaround-sun-cc-bug-decimal-streambuf
   * e7eef11e6 Fix C++11 narrowing conversion error.
-  * 1e9647ad3 Merge pull request #207 into master
-  * 3be0a2934 Merge pull request #179 from cwilson/balb_performancemonitor-uncaught-exception-drqs-57176174
-  * 91c256448 Adopt commit 33562d2 from master: Merge pull request #176 from hrosen4/pointer-cast-util-retry-drqs-78040055
-  * 975f8e7a0 Adopt commit dd803ac from master: Merge pull request #175 from ameredit/for_master/shared_ptr_fixes_and_conformance
-  * 370cab27a Adopt commit 140ae43 from master: Merge pull request #177 from hversche/fix-stlport4-build-drqs-78626169
-  * 69cb7f598 Adopt commit bbbbd3b from master: Merge pull request #174 from mgiroux/review/fix-bdld_datum-streamout-declaration-master
-  * 0b5b19c09 Adopt commit 8e91bff from master: Merge pull request #124 from sbreitst/doc_bindA-drqs-76451807
-  * 398722a60 Adopt commit ba894fb from master: Merge pull request #170 from jmendelsohn4/bdlt_timeutil-nightly-build-20160219
-  * 33562d215 Merge pull request #176 from hrosen4/pointer-cast-util-retry-drqs-78040055
-  * dd803acbd Merge pull request #175 from ameredit/for_master/shared_ptr_fixes_and_conformance
-  * 140ae43a2 Merge pull request #177 from hversche/fix-stlport4-build-drqs-78626169
   * 5d9ec0477 guard against uncaught exception reported with some gcc versions
-  * bbbbd3bef Merge pull request #174 from mgiroux/review/fix-bdld_datum-streamout-declaration-master
-  * 8e91bff3b Merge pull request #124 from sbreitst/doc_bindA-drqs-76451807
-  * cd4e3d8ec Merge branch 'master' of bbgithub:bde/bde into sequential-allocation-changes-20160219
-  * ba894fb22 Merge pull request #170 from jmendelsohn4/bdlt_timeutil-nightly-build-20160219
-  * 0fce75299 Adopt commit bca5d3a from master: Merge pull request #166 from cwilson/bsls_compilerfeatures-SUPPORT_NOEXCEPT-echoed-in-doc-drqs-78478944
-  * 53ce558c5 Adopt commit eaa2dbd from master: Merge pull request #149 from dharesig/bslstl-stringref-remove-copy-ctor
-  * b2f8ccc88 Adopt commit 15c9df3 from master: Merge pull request #125 from abeels/add-missing-bdlmt-txt
-  * 53c5386dd Adopt commit 09c4119 from master: Merge pull request #119 from jmendelsohn4/bcec_timequeue_removeAll_doc-drqs70987428
-  * 7966f50d6 Adopt commit 0e5c39a from master: Merge pull request #83 from abeels/fix-BOD-build-drqs-71435297
-  * d35e27a69 Adopt commit 4fe993c from master: Merge pull request #84 from bchapman/bdlt_timeutil-drqs-70771884
-  * a2ee49d52 Adopt commit ea106c3 from master: Merge pull request #154 from osubbotin/review/bde-datum-rebase
-  * 39a178035 Adopt commit a0d1da1 from master: Merge pull request #162 from abeels/bslstl_sharedptr-no-exception-build-drqs-78426023
-  * 09f8a2644 Adopt commit 346d04c from master: Merge pull request #151 from abeels/bslmt_latch-fix-negative-test-drqs-78220968
-  * 8881b01c1 Adopt commit f43f8db from master: Merge pull request #132 from sbreitst/ibm_isValidAddress-drqs-76925158
-  * e42536eab Adopt commit 9843c5f from master: Merge pull request #157 from sbreitst/typo_url-drqs-77447937
-  * a0333b9f4 Adopt commit f2edc60 from master: Merge pull request #120 from dharesig/d73658474-fix-abs-warning
-  * f02620342 Adopt commit 845968e from master: Merge pull request #147 from ameredit/patch/vc2010_type_traits
-  * bca5d3a55 Merge pull request #166 from cwilson/bsls_compilerfeatures-SUPPORT_NOEXCEPT-echoed-in-doc-drqs-78478944
-  * eaa2dbd88 Merge pull request #149 from dharesig/bslstl-stringref-remove-copy-ctor
-  * 15c9df3c9 Merge pull request #125 from abeels/add-missing-bdlmt-txt
-  * 09c4119bc Merge pull request #119 from jmendelsohn4/bcec_timequeue_removeAll_doc-drqs70987428
-  * 0e5c39a41 Merge pull request #83 from abeels/fix-BOD-build-drqs-71435297
-  * 4fe993c70 Merge pull request #84 from bchapman/bdlt_timeutil-drqs-70771884
-  * ea106c352 Merge pull request #154 from osubbotin/review/bde-datum-rebase
-  * 8f0b9c4d7 Merge branch 'master' into sequential-allocation-changes-20160203
-  * a0d1da12f Merge pull request #162 from abeels/bslstl_sharedptr-no-exception-build-drqs-78426023
-  * 346d04c15 Merge pull request #151 from abeels/bslmt_latch-fix-negative-test-drqs-78220968
-  * f43f8db73 Merge pull request #132 from sbreitst/ibm_isValidAddress-drqs-76925158
-  * 9843c5f9e Merge pull request #157 from sbreitst/typo_url-drqs-77447937
-  * f2edc60a8 Merge pull request #120 from dharesig/d73658474-fix-abs-warning
   * 83f40f949 Initial version of Datum components
-  * 845968ece Merge pull request #147 from ameredit/patch/vc2010_type_traits
-  * c3cc2a8e0 Merge pull request #148 from abeels/btlso_defaulteventmanager_devpoll-drqs-78218274
-  * 25ddf8420 Merge pull request #108 from bchapman/bdlmt_fixedthreadpool-bslmt_threadgroup-alloc-to-create-drqs-73867294
-  * 76a9eeba6 Merge pull request #49 from bchapman/bdls_filesystemutil-visittree-drqs-74566524
-  * 516fdfc27 Merge pull request #121 from che2/decimal-stream-set-fail-bits-amend-drqs-59317739
-  * 83dc6b84e Merge pull request #146 from abeels/bsls_compilerfeatures-fixes-drqs-78151385
-  * 355527e07 Merge pull request #144 from abeels/bsls_compilerfeatures-fixes-drqs-78151385
-  * 7e8a7613d Merge pull request #143 from ameredit/patch/disable_native_traits_on_windows
-  * 9867a80f3 Merge pull request #94 from che2/fix-cycle-bdls
-  * 3d6829b07 Merge pull request #118 from che2/decimal64-decoders-encoders-support-drqs-76475273
-  * 27dc1c40a Merge branch 'master' into sequential-allocation-changes-20160203
-  * 034f33ab4 Merge pull request #140 from hrosen4/bslmt_latch-bad_pow-drqs_78032891
-  * 487ed4b48 Merge pull request #139 from abeels/backport-github-pr-201
-  * d80f726d7 Merge pull request #123 from blivings/D76761821
-  * 1ad050d4d Merge pull request #116 from hrosen4/bdlmt_threadpool-dtor-doc_drqs-76512668
-  * acb1dd2e6 Merge branch 'master' into sequential-allocation-changes-20160111
-  * 80cc5ab0d Merge pull request #117 from hversche/pending/alias-bcemt_latch-to-bslmt_latch-drqs-74314192
-  * 9d4693e21 Merge pull request #93 from bchapman/bdlde-rename-chars-to-code-points-drqs-70494301
-  * dd0382d70 Merge pull request #115 from hrosen4/bdlmt_timereventscheduler-stop-doc_drqs-77120508
-  * d9f6e2bcf Merge pull request #103 from ameredit/feature/traits_tests_check_for_old_gcc
-  * 564bc3947 Merge pull request #102 from ameredit/feature/bitwise_moveable_reference_wrapper
-  * 283013e41 Merge pull request #114 from che2/decimal-stream-set-fail-bits-drqs-59317739
-  * 85b90f016 Merge branch 'master' into sequential-allocation-changes-20160111
-  * 46402dea0 Merge pull request #106 from ameredit/feature/strict_types_for_string
-  * e3fa03f97 Merge pull request #104 from che2/add-reverse-iterators-stringref-drqs-55611625
-  * 31e39bc62 Merge pull request #105 from sarahwon/patch-1
-  * 468451110 Merge pull request #99 from ameredit/squash/cpp11_traits_support
-  * 83324f59a Merge pull request #96 from ameredit/feature/3_0_fix_C_includes_drqs76458497
-  * 5e8234983 Merge pull request #89 from mgiroux/review/master-add-missing-bsls-compilerfeatures-includes-drqs-75487826
-  * a26c44b69 Merge pull request #85 from bchapman/bslstl_string-resize-doc-tweak-drqs-75243234
-  * 445286b9f Merge pull request #82 from mrahman1/fix-documentation
-  * 56b699a71 Merge pull request #78 from ameredit/feature/vc2015_support
-  * f7e4ed3aa Merge pull request #68 from hversche/pending/remove_gcc_warning-master
-  * faa4ec688 Merge pull request #201 from frutiger/bdlb-randomdevice-doc-typo
-  * b23b6e853 Merge pull request #56 from rbhindwa/btlmt_channelpool-use-atomics-for-stats
-  * 467b2efda Merge pull request #55 from ameredit/patch/vector_tests__static_asserts_in_cpp11
-  * 5d92d2045 Merge pull request #54 from ameredit/patch/function_static_asserts_in_cpp11
-  * d0e2a0f27 Merge pull request #48 from ameredit/feature/fix_warnings_in_headers
-  * 5d6eef884 Merge pull request #67 from ameredit/feature/detect_nullptr_macro_breaking_bsls_nullptr
-  * 64a30a39e Merge pull request #66 from abeels/bbgithub-transition-update-arcconfig-drqs-74968186
-  * 4b030b89e Merge pull request #50 from drangana/master
-  * 630f89855 Merge remote-tracking branch 'upstream/master' into bdls_filesystemutil-visittree-drqs-74566524
-  * f34717402 Merge pull request #34 from sbreitst/posix_not_proleptic-bde-675
-  * 2e549f352 Merge pull request #57 from mseplowi/stringref-doc-fix
-  * e9fe3a05a Merge pull request #46 from bchapman/bslmt_threadattributes-kill-getMaxMinSchedPri-drqs-62233758
-  * 47b2e2c1b Merge pull request #33 from bchapman/bdepcre-bdlma_aligningallocator-drqs-65738203
-  * 13c0a048f Merge pull request #44 from ameredit/patch/balxml_formatter_SAFE2_builds
-  * f5b7aecc7 Merge pull request #43 from hrosen4/intr-bdls_filesystemutil-drqs-74347847
-  * 047a0271c Merge pull request #40 from hversche/pending/merge_pull_199_internal
-  * f4a2d738b Merge pull request #39 from ameredit/quick_fix/filesystemutil_threadid_for_windows
-  * 9cccf5e74 Merge pull request #38 from ameredit/feature/printf_waring_in_hash_test_driver
-  * 788b6d7b4 Merge pull request #37 from ameredit/feature/test_facility_narrows_char
-  * c91a91deb Merge pull request #1 from bloomberg/master
   * 6a8efddce Fix narrowing conversion warnings from template test facility
-  * ddbbb0c0b Merge pull request #36 from ameredit/feature/vector.t.cpp_printf_warnings
-  * 30d5ecd8d Merge pull request #32 from hversche/pending/balst_stacktraceresolverimpl_xcoff-sfn-in-wrong-frame-drqs-69386823
-  * 51783ca75 Merge pull request #31 from hversche/pending/merge_pull_195
-  * da4811dc9 Merge pull request #28 from ameredit/feature/native_string_should_not_be_bitwise_movable
-  * dd6b93a50 Merge pull request #14 from jmendelsohn4/forward-to-opensource-20151015
-  * 2f5ad2cf3 Merge pull request #26 from ameredit/feature/movable_string_patch
-  * 46251620e Merge pull request #25 from sbreitst/bdlb_nullablevalue_inplace-drqs-65641404
   * 6c7d74adf Merge pull request #23 from ameredit/feature/update_vc_compiler_version_tested_in_bslmf_forwardingtype
   * 9c72f75ce Fix test driver version check for VC2015
-  * 443b3b4c1 Merge pull request #21 from ameredit/typelist_workaround_for_vc2015
-  * a80beb700 Merge pull request #18 from abeels/fix-allocatortraits-dtor-test-drqs-69900687
-  * de22290d0 Merge pull request #15 from hversche/update-blacklist
-  * 3e861debf Merge remote-tracking branch 'gh/review/bdlsb_fixedmemoutstreambuf-drqs-65895425' into oss/master
-  * 8f91dcc70 Merge remote-tracking branch 'gh/review/bdlb_nulloutputiterator-drqs-66603638' into oss/master
-  * 789445950 Merge pull request #186 from osubboo/review/bdlb_nulloutputiterator-drqs-66603638
-  * 5ea679792 Merge pull request #187 from densokolov/review/bdlsb_fixedmemoutstreambuf-drqs-65895425
-  * 3596b906f Merge remote-tracking branch 'devgit/review/bdlat-cycles-drqs-73018426'
-  * 14c9f3777 Merge remote-tracking branch 'devgit/review/bslalg-cycles-drqs-73014010'
-  * 9949b7372 Merge remote-tracking branch 'devgit/review/balm-cycles-drqs-73014010'
-  * 235159bda Merge remote-tracking branch 'devgit/review/bdldfp-cycles-drqs-73014010'
-  * aef866c03 Merge remote-tracking branch 'upstream/master'
-  * fcc82f2cc Merge pull request #5 from bchapman/bdlmt_timereventscheduler-clockType-drqs-71935584
-  * 8da6cd50a Merge pull request #3 from rbhindwa/balber_berdecoder-disable-spurious-redhat-compiler-warning
-  * da6a5bf35 Merge pull request #12 from hversche/fix_bsl_test_drivers_undef_behavior_drqs69900687
-  * ea4c28d21 Merge pull request #9 from hversche/update-C++11-library-feature-detection-drqs-72948281
-  * c7cc78f23 Merge pull request #8 from hversche/managed-ptr-doc-internal
-  * cce444061 Merge pull request #2 from bchapman/bslstl_string-SizeTChar-assign-bug-drqs-73482283
-  * fc86b11c7 Merge remote-tracking branch 'igit/dev/cwilson9/alias-bae-to-bal' into review/forward-to-opensource-20151015
-  * 303a66dec Merge pull request #1 from abeels/update-bde-metadata-for-bbgithub
   * b2034064b [APPROVAL] INTERNAL clean-up-fixedqueueindexmanager-drqs-61272211 to master
   * 0442c2f5b [APPROVAL] clean-up-fixedqueueindexmanager-drqs-61272211 to master
   * 811a5fbed [APPROVAL] INTERNAL pending/master/deprecate-bslma-types-drqs-73220711 to master
@@ -749,7 +351,6 @@ bsl-internal (3.0.0.0) git; urgency=low
   * e1f7483ac [APPROVAL] github-documentation-updates to master
   * e521f04e4 [APPROVAL] INTERNAL pending/bdlb-bdlsb-late-merges to master
   * d5252fc5d [APPROVAL] pending/bdlb-bdlsb-late-merges to master
-  * d76e60d2b Merge remote-tracking branch 'review/bdlsb_memoutstreambuf-drqs-67705059' into pending/bdlb-bdlsb-late-merges
   * 72fd6a62c [APPROVAL] OSS pending/master/fix-doc to master
   * fef1290ce [APPROVAL] pending/master/fix-doc to master
   * e052d1bf8 [APPROVAL] OSS pending/master/address-test-failures to master
@@ -769,32 +370,18 @@ bsl-internal (3.0.0.0) git; urgency=low
   * f20859eea [APPROVAL] bdlf_bind-windows-options-fix to master
   * c3c88d9e9 [APPROVAL] INTERNAL merge-bdlb_variant-fix to master
   * ba6e2363a [APPROVAL] merge-bdlb_variant-fix to master
-  * f630c708c Merge remote-tracking branch 'oss/master'
   * 023c3fb57 [APPROVAL] INTERNAL review/2015-opensource-baseline to baseline-integration
   * 0d610b5f7 [APPROVAL] review/2015-opensource-baseline to baseline-integration
   * d86951fbc [APPROVAL] INTERNAL 2015-opensource-baseline to master
   * 1b4d094c4 [APPROVAL] 2015-opensource-baseline to master
-  * 377fd5f6e Merge remote-tracking branch 'igit/dev/cwilson9/2015-opensource-baseline-gcc-build-issues' into 2015-opensouce-baseline
   * 11fb8233f Fix the gcc version arithmetic.
-  * c5804ccc9 Merge remote-tracking branch 'origin/review/fasttrack-banner-and-doxygen-fixes' into 2015-opensource-baseline
-  * cfe24e684 Merge remote-tracking branch 'origin/review/doxygen_fixes-bde-671' into fasttrack-banner-and-doxygen-fixes
   * b720f7bb1 [APPROVAL] pending/master/fix-bdldfp-runtime-failures to master
-  * 93b73ae92 Merge remote-tracking branch 'origin/review/doxygen_fixes-bde-671' into fasttrack-banner-and-doxygen-fixes
   * c742031a4 update NOTICE to "final" version
   * d0ed16dc7 [APPROVAL] OSS review/remove-bigobj-vs-drqs-49025948 to master
   * e6b88143f [APPROVAL] review/remove-bigobj-vs-drqs-49025948 to master
   * 17ed7c741 [APPROVAL] origin/review/2015-opensource-baseline-bump-to-3.0.0 to 2015-opensource-baseline
   * 3e2ba6b27 Bump repo lib versions to 3.0.0
-  * 1860428a1 Merge remote-tracking branch 'igit/dev/cwilson9/2015-opensource-baseline-osx-build-issues' into 2015-opensource-baseline
-  * d21448f3e Merge remote-tracking branch 'igit/dev/cwilson9/bdlt_iso8601util-create-component-drqs-60292017' into 2015-opensource-baseline
-  * 31854d4b8 Merge remote-tracking branch 'igit/dev/cwilson9/2015-opensource-baseline-bdlb_variant-etc-drqs-71009610' into 2015-opensource-baseline
-  * bdc21a25d Merge remote-tracking branch 'origin/review/balm-enabled-cleanup-drqs-71979128' into 2015-opensource-baseline
   * a0bea2346 [APPROVAL] origin/review/fix-balber-versioning-and-deps-drqs-71875144 to 2015-opensource-baseline
-  * dc34dcbb1 Merge remote-tracking branch 'origin/review/2015-opensource-baseline' into 2015-opensource-baseline-bdlb_variant-etc-drqs-71009610
-  * d9a92d4c7 Merge remote-tracking branch 'origin/dev/ameredit/2015-opensource-baseline-windows-buildfixes' into dev/abeels/2015-opensource-baseline-windows-buildfixes
-  * d85363d1c Merge remote-tracking branch 'origin/dev/abeels/2015-opensource-baseline-windows-buildfixes' into dev/hrosen4/2015-opensource-baseline-windows-buildfixes
-  * 154e18e07 Merge remote-tracking branch 'origin/dev/hrosen4/2015-opensource-baseline-windows-buildfixes' into dev/abeels/2015-opensource-baseline-windows-buildfixes
-  * 64c3f0a5e Merge remote-tracking branch 'origin/review/2015-opensource-baseline' into dev/abeels/2015-opensource-baseline-windows-buildfixes
   * f14f11d56 [APPROVAL] OSS review/clean-up-opts-drqs-71253375 to master
   * 35482dfaf [APPROVAL] review/clean-up-opts-drqs-71253375 to master
   * 4b68f7765 [APPROVAL] INTERNAL fix-bslim-bsltf-dependency-decl to master
@@ -802,7 +389,6 @@ bsl-internal (3.0.0.0) git; urgency=low
   * 06bb69841 [APPROVAL] INTERNAL review/mergebase-fixes_for_doxygen-drqs-71737205 to master
   * 37f5ab2e8 [APPROVAL] review/mergebase-fixes_for_doxygen-drqs-71737205 to master
   * 2df162050 drqs-71737205: Fixes for 'doxygen' conversion.
-  * fd8da7ced Merge remote-tracking branch 'igit/dev/phalpern/bdlf_bind-bitwise-moveable' into 2015-opensource-switch-to_bsl_function
   * e4270acca [APPROVAL] INTERNAL review/siphash-endian_drqs-64939495 to master
   * c5cdce1b2 [APPROVAL] review/siphash-endian_drqs-64939495 to master
   * 08a40e6fa [APPROVAL] OSS bdlt_datetimeinterval-min-max-drqs-69539058 to master
@@ -814,13 +400,7 @@ bsl-internal (3.0.0.0) git; urgency=low
   * 133e51705 [APPROVAL] OSS pending/master/fix_bsmlf_switch_usage_for_cpp11_drqs68728082 to master
   * 4a694ff82 [APPROVAL] pending/master/fix_bsmlf_switch_usage_for_cpp11_drqs68728082 to master
   * b645d0e71 [APPROVAL] pending/master/drqs70802736 to master
-  * e4c1d6e7e Merge remote-tracking branch 'origin/review/2015-opensource-baseline' into 2015-opensource-switch-to_bsl_function
-  * 1ce43399c Merge remote-tracking branch 'vendevgit/review/bdlb_tokenizer-drqs-69799757' into 2015-merge-tokenizer
   * b659bde62 bdlf::Function -> bsl::function conversion
-  * ae9a92893 Merge remote-tracking branch 'origin/review/2015-opensource-baseline' into 2015-opensource-switch-to_bsl_function
-  * ce0300411 Merge remote-tracking branch 'origin/review/2015-opensource-baseline' into 2015-opensource-switch-to_bsl_function
-  * 417675f38 Merge remote-tracking branch 'igit/dev/phalpern/bsl_function' into 2015-opensource-switch-to_bsl_function
-  * 63959f930 Merge remote-tracking branch 'origin/review/2015-opensource-bdlf' into review/2015-opensource-baseline
   * d2123e554 Final polishing bits for initial component release.
   * 096bb7cb1 [APPROVAL] OSS pending/master/merge_pull_192 to master
   * 4768084d4 [APPROVAL] pending/master/merge_pull_192 to master
@@ -834,17 +414,12 @@ bsl-internal (3.0.0.0) git; urgency=low
   * 01fe44816 [APPROVAL] INTERNAL review/bslim_testutil-create-component-drqs-68761302 to master
   * 20709737c [APPROVAL] review/bslim_testutil-create-component-drqs-68761302 to master
   * bec696175 Initial version of constructor's test.
-  * 409851146 Merge remote-tracking branch 'origin/review/2015-opensource-balb' into review/2015-opensource-baseline
-  * 4495a1b1f Merge remote-tracking branch 'origin/review/2015-opensource-balb' into review/2015-opensource-baseline
-  * 8291accff Merge remote-tracking branch 'origin/review/2015-opensource-baseline' into bdlde-opensource-transition
   * 41e379307 Initial version of bdlb::Tokenizer component.
   * 8b464a1e7 Update SpinLockGuard::release to return the lock. Open source bdlmt cleanup.
   * 1b1d730a7 [APPROVAL] INTERNAL review/ajm_reviews_pablos_bsl_allocatorargt to master
   * 10d240f8a [APPROVAL] review/ajm_reviews_pablos_bsl_allocatorargt to master
   * 62726c670 Initial version of bdlsb_overflowmemoutstreambuf component.
-  * 82b25526b Merge remote-tracking branch 'igit/review/dschumann-bsls-spinlock' into 2015-opensource-baseline
   * 23b9118a3 Add new s_unlocked static member, usage example, tests, release() function
-  * 3a105dbb6 Merge remote-tracking branch 'origin/review/2015-opensource-baseline' into bdlde-opensource-transition
   * 1cb924fd8 Initial version of bdlb_bigendian component.
   * 5928dbbff Fix bdlat/bdeat reversions.
 
@@ -853,33 +428,11 @@ bsl-internal (3.0.0.0) git; urgency=low
 bsl-internal (2.24.0.3) git; urgency=low
 
   * 96deef815 Changelog for version 2.24.0.3
-  * b785f4369 Merge remote-tracking branch 'remotes/origin/review/2015-opensource-bdlat' into review/2015-opensource-baseline
   * edaa52f27 Fix incomplete enum conversion in btlsos_tcptimedchannel.t.cpp
-  * f921ceb63 endpoint avoid excess allocation
-  * ba852f5fd Merge remote-tracking branch 'ab/2015-opensource-global-enum-fixes' into 2015-opensource-global-enum-fixes
-  * 2a7ebb723 Mark locations for new #ifndefs
-  * a4abb653f Merge remote-tracking branch 'remotes/origin/review/2015-opensource-baltzo' into review/2015-opensource-baseline
   * 90726a1e3 [APPROVAL] OSS pending/master/bbldcu_initial_development-drqs-64659538 to master
   * 9bc216634 [APPROVAL] pending/master/bbldcu_initial_development-drqs-64659538 to master
-  * ff145b6b9 Merge remote-tracking branch 'origin/review/2015-opensource-baseline' into balst-opensource-transition
-  * cef121b53 Merge remote-tracking branch 'remotes/origin/review/2015-opensource-bdlc' into review/2015-opensource-baseline
-  * d0bf2f942 Merge remote-tracking branch 'remotes/origin/review/2015-opensource-bdlc' into review/2015-opensource-baseline
   * 2570d3b3d [APPROVAL] add-thirdparty-deps to master
-  * 35a373a70 Merge remote-tracking branch 'origin/review/2015-opensource-bal-btl-various' into review/2015-opensource-baseline
-  * f13a87885 Merge remote-tracking branch 'igit/review/dschumann-bsls-spinlock' into 2015-opensource-spinlock-merge
-  * b3d72fd3d Merge remote-tracking branch 'origin/review/2015-opensource-baseline' into balst-opensource-transition
-  * 064ee3cd6 Merge remote-tracking branch 'origin/review/2015-opensource-bdlqq' into balst-opensource-transition
-  * 10e4608de Merge remote-tracking branch 'origin/review/2015-opensource-baseline' into 2015-opensource-baseline-bdlb-68825085
-  * af7249bee Merge remote-tracking branch 'origin/review/2015-opensource-bdlqq' into review/2015-opensource-baseline
-  * 809ecfb9a Merge remote-tracking branch 'origin/review/2015-opensource-bdlqq' into balst-opensource-transition
-  * 7307f3a0b Merge remote-tracking branch 'origin/review/2015-opensource-bdlqq' into review/2015-opensource-baseline
-  * b63f63f04 Merge remote-tracking branch 'origin/review/2015-opensource-bdlc' into review/2015-opensource-baseline
-  * cbb5ab17f Merge remote-tracking branch 'origin/review/2015-opensource-bdlat' into review/2015-opensource-baseline
   * 3e1e636d3 Open source conversion for bdlc.
-  * 1ddae835c Merge remote-tracking branches 'origin' and 'origin/review/2015-opensource-baseline' into 2015-opensource-baseline-bdlb-68825085
-  * fb78ad852 Merge remote-tracking branch 'origin/review/2015-opensource-balm-drqs-68710658' into review/2015-opensource-baseline
-  * 2f1fad31a Merge remote-tracking branch 'origin/review/2015-opensource-baltzo' into review/2015-opensource-baseline
-  * 9c6bf0a0f Merge remote-tracking branch 'origin/review/2015-opensource-general-xxx-removal' into review/2015-opensource-baseline
   * 58f61ff0d commit initila versions of user field components
   * 06c1d1098 [APPROVAL] OSS pending/master/add_cpp11_headers_to_pub_file_drqs68717642 to master
   * 11aee09a2 [APPROVAL] pending/master/add_cpp11_headers_to_pub_file_drqs68717642 to master
@@ -954,7 +507,6 @@ bsl-internal (2.24.0.3) git; urgency=low
   * 364cb2dcb Initial version of bdlsb_memoutstreambuf component.
   * 14590b722 [APPROVAL] INTERNAL pending/master/implement_enable_shared_from_this_on_shared_ptr-drqs-60067289 to master
   * a29804e29 [APPROVAL] pending/master/implement_enable_shared_from_this_on_shared_ptr-drqs-60067289 to master
-  * 0da02cd92 Merge remote-tracking branch 'origin/review/2015-opensource-hr' into review/2015-opensource-bdlmca-to-concurrent
   * 9a08a5860 [APPROVAL] INTERNAL pending/master/fix_external_include_guards_in_bsl_drqs67967094 to master
   * a1ce5d165 [APPROVAL] pending/master/fix_external_include_guards_in_bsl_drqs67967094 to master
   * c8b57521f [APPROVAL] OSS pending/master/clang-cpp11-fixes-drqs-65224932 to master
@@ -967,7 +519,6 @@ bsl-internal (2.24.0.3) git; urgency=low
   * 776f5f8f3 [APPROVAL] pending/master/msvc_fix_for_traits_of_cv_arrays_drqs67453073 to master
   * 5deb5ff65 [APPROVAL] INTERNAL hashAppend-re-merge to master
   * 79d3c8502 [APPROVAL] hashAppend-re-merge to master
-  * 393ab11c3 Remove unnecessary include.  Move implementation to canonical location within file.  Reformat testcase based on comments.
   * f6e5bf880 [APPROVAL] OSS bbldcu_initial_development-drqs-64659538 to master
   * 2b8b55e75 [APPROVAL] bbldcu_initial_development-drqs-64659538 to master
   * 21cbc5153 [APPROVAL] INTERNAL pending/master/fixing_bsltf_testing_assert_in_dtor_drqs67271958 to master
@@ -988,15 +539,10 @@ bsl-internal (2.24.0.3) git; urgency=low
   * f1ed37be5 [APPROVAL] pending/master/bbldcu_initial_development-drqs-64659538 to master
   * 0d0c0a4cb Add conversion tests.
   * 0c70bd75e Do a quicker check to avoid some back conversions.
-  * b9976f55e Merge pull request #185 from densokolov/review/bdlb_nullinputiterator-drqs-66483237
   * c19311f65 [APPROVAL] OSS review/bdlb_cstringless-drqs-66481827 to master
   * a054b0aa1 [APPROVAL] review/bdlb_cstringless-drqs-66481827 to master
   * 4c27fb1f9 [APPROVAL] OSS review/bdlb_cstringequalto-drqs-66663821 to master
   * b29548205 [APPROVAL] review/bdlb_cstringequalto-drqs-66663821 to master
-  * afc00ba32 Merge pull request #181 from densokolov/review/bdlsb_fixedmemoutstreambuf-drqs-65895425
-  * 4e9fedf16 Merge pull request #184 from osubboo/review/bdlb_nulloutputiterator-drqs-66603638
-  * 835449e56 Merge pull request #183 from osubboo/review/bdlb_cstringequalto-drqs-66663821
-  * b89be90ad Merge pull request #182 from densokolov/review/bdlb_cstringless-drqs-66481827
   * fc72f1c23 [APPROVAL] OSS review/bdlb_cstringless-drqs-66481827 to master
   * 6017b429a [APPROVAL] review/bdlb_cstringless-drqs-66481827 to master
   * 4012e81ac [APPROVAL] OSS review/bdlb_cstringequalto-drqs-66663821 to master
@@ -1007,10 +553,7 @@ bsl-internal (2.24.0.3) git; urgency=low
   * a84a3e071 [APPROVAL] OSS remerge-math.h-changes to master
   * b95feb05e [APPROVAL] remerge-math.h-changes to master
   * c6e8481dc [APPROVAL] origin/review/add_missing_math.h_drqs44022886 to master
-  * 2c1246e0f Merge pull request #180 from osubboo/review/bdlb_nulloutputiterator-drqs-66603638
   * 9c58a70f1 Initial version of bdlb_nullinputiterator component.
-  * cac8cd842 Merge pull request #178 from densokolov/review/bdlb_cstringless-drqs-66481827
-  * e1a095fe5 Merge pull request #179 from densokolov/review/bdlsb_fixedmemoutstreambuf-drqs-65895425
   * 2cb447738 [APPROVAL] INTERNAL fix-availible-typo-drqs-66755548 to master
   * ceed3c21d [APPROVAL] fix-availible-typo-drqs-66755548 to master
   * 7142a6652 [APPROVAL] OSS readme-md-typo-bdlb-guidutil-drqs-66724320 to master
@@ -1055,7 +598,6 @@ bsl-internal (2.24.0.3) git; urgency=low
   * 6eabc0fb2 [APPROVAL] OSS pending/master/bdlb_guidutil-stlport-fix-drqs-65917200 to master
   * ff110b998 [APPROVAL] pending/master/bdlb_guidutil-stlport-fix-drqs-65917200 to master
   * bf283f2d6 [APPROVAL] master-remove-atomics-from-logIfProblematic-drqs-66019213 to master
-  * 635b5e3b5 apply Hy review comments and bounds-check locationId
   * a4af94691 [APPROVAL] OSS pending/master/bdlc_packedintarray_remove_iterator_category to master
   * 2a3a90694 [APPROVAL] pending/master/bdlc_packedintarray_remove_iterator_category to master
   * a33be5a47 [APPROVAL] OSS reorganize-bde-oss-tools-drqs-64972737 to master
@@ -1272,7 +814,6 @@ bsl-internal (2.24.0.3) git; urgency=low
   * fbcdd43ec [APPROVAL] pending/master/enable_hash_const_char_star_drqs59061791 to master
   * af208d982 [APPROVAL] OSS pending/master/remove-gyp-remnants-drqs-59265638 to master
   * 81767c728 [APPROVAL] pending/master/remove-gyp-remnants-drqs-59265638 to master
-  * 9e4b95eca fixed typos and reorganized location of methods
   * ba9ac03eb [APPROVAL] OSS bsls_log-typos-drqs-60947360 to master
   * 26ea0367f [APPROVAL] bsls_log-typos-drqs-60947360 to master
   * 41f6a3478 [APPROVAL] INTERNAL pending/master/bdlt_date-proleptic-instrumentation-drqs-59817558 to master
@@ -1445,7 +986,6 @@ bsl-internal (2.24.0.3) git; urgency=low
   * d1e6a5d57 [APPROVAL] pending/master/resolve_ambiguous_assign_drqs57251422 to master
   * e9cc3b85a [APPROVAL] INTERNAL undef-P7-in-bdldfp-drqs-57209949 to master
   * 179bd3254 [APPROVAL] undef-P7-in-bdldfp-drqs-57209949 to master
-  * b8af7e61f Merge remote-tracking branch 'oss/master'
   * 4cb746edc [APPROVAL] origin/review/limit-header-copies-for-inteldfp-drqs-57002187 to master
   * 9c70541ea [APPROVAL] OSS bump-version-to-2.22 to master
   * 0f470a386 [APPROVAL] bump-version-to-2.22 to master
@@ -1454,7 +994,6 @@ bsl-internal (2.24.0.3) git; urgency=low
   * 17ab9ba75 [APPROVAL] Fix_bdldfp_build to master
   * 63f3332da [APPROVAL] INTERNAL review/shared_ptr_merge_patches_drqs56891899 to master
   * b549d8f05 [APPROVAL] review/shared_ptr_merge_patches_drqs56891899 to master
-  * 14ab2af1e Merge remote-tracking branch 'origin/dev/phalpern/scalarprimitives-move' into bsl_function
   * 67a360681 [APPROVAL] INTERNAL review/fix-bslstl_stringbuf.h-warnings-drqs-56877438 to review/bde2.22-master-audit
   * 4f2ae0d60 [APPROVAL] review/fix-bslstl_stringbuf.h-warnings-drqs-56877438 to review/bde2.22-master-audit
   * ba0d0b52a [APPROVAL] INTERNAL review/fix-bdlb_bitutil-trailing-comma-drqs-56875824 to review/bde2.22-master-audit
@@ -1524,7 +1063,6 @@ bsl-internal (2.24.0.3) git; urgency=low
   * eb009cd9e Conversion changes.
   * 743f36169 [APPROVAL] OSS vector_of_function_ptrs_drqs34693876 to master
   * 0182100f2 [APPROVAL] vector_of_function_ptrs_drqs34693876 to master
-  * ac22b73f9 Merge remote-tracking branch 'origin/review/correct_std_string_usage_to_bsl-drqs52854327' into decimal-new-impl-design
   * 24a9765e7 [APPROVAL] OSS pending/master/ericvw-waf-configure-doc-update to master
   * 9e7b31652 [APPROVAL] pending/master/ericvw-waf-configure-doc-update to master
   * 0a5697d59 [APPROVAL] INTERNAL merge-fix-bdldfp-stlport-build-drqs-54236699 to master
@@ -1620,7 +1158,6 @@ bsl-internal (2.21.0.0.beta.1) git; urgency=low
   * 0f5b30224 [APPROVAL] bump-version-to-2.21 to master
   * ab26257f7 Make version 2.21.0
   * 91d767da6 Conversions to call getQuantum and getExponent in hardware mode.
-  * 508cfeeac Merge remote-tracking branch 'remotes/origin/dev/amartin172/decimal-util-include-fix' into hardware_code_3
   * 91644cd04 [APPROVAL] INTERNAL pending/master/fix-deprecation-macro-usage-drqs-46623495 to master
   * 0bf678a42 [APPROVAL] pending/master/fix-deprecation-macro-usage-drqs-46623495 to master
   * 712114c72 [APPROVAL] OSS fix-bsl+stdhdrs-dep-file-drqs50570497 to master
@@ -1644,7 +1181,6 @@ bsl-internal (2.21.0.0.beta.1) git; urgency=low
   * b437adc59 [APPROVAL] pending/master/ostream-decimal-flags to master
   * f4975b1a2 Removed old version of multiplyByPowerOf10.
   * f5a92af99 [APPROVAL] OSS master to master
-  * c6bc9cbca bslstl_function: Refactor swap() and moveInit(). Swap is still not avoiding memory allocations or functor moves when possible, so this is only a checkpoint for swap() implementation.
   * 3c48e2993 [APPROVAL] pending/master/bdldfp-performance-tests to master
   * 356a1b722 [APPROVAL] INTERNAL rebase-forward_std_names-drqs-46623495 to master
   * 67eb6f599 [APPROVAL] rebase-forward_std_names-drqs-46623495 to master
@@ -1688,8 +1224,6 @@ bsl-internal (2.20.0.1) git; urgency=low
   * ab3960903 [APPROVAL] OSS pending/master/remove-windows.h-include2 to master
   * 5a03feaf4 [APPROVAL] pending/master/remove-windows.h-include2 to master
   * acfa60d16 [APPROVAL] pending/master/waf-build-support-bde-bb-drqs-48413481 to master
-  * e7ac04643 Merge remote-tracking branch 'origin/review/fix-bdls_testutil-test-driver-aix-drqs-48513817' into pending/bdl-fixes-drqs-48513817
-  * 802c4c559 Merge remote-tracking branch 'origin/review/fix-bdlma_buffermanager-test-sun-drqs-48513817' into pending/bdl-fixes-drqs-48513817
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 30 Jan 2014 14:12:46 -0500
 
@@ -1851,7 +1385,6 @@ bsl-internal (2.18.0.0) git; urgency=low
   * 5a8756330 [APPROVAL] OSS bump-version-to-2.18-drqs-41339858 to master
   * 8285cf691 [APPROVAL] bump-version-to-2.18-drqs-41339858 to master
   * 46bd7a8b1 bump version to 2.18.0
-  * 5e25613a2 Merge remote-tracking branch 'oss/master'
   * 66ea7d6da [APPROVAL] pending/master/move-default.opts-metadata-to-bde-tools-drqs-40974008 to master
   * 85116d4e4 [APPROVAL] OSS pending/master/const-cast-qual-drqs40473559 to master
   * ea47c0578 [APPROVAL] pending/master/const-cast-qual-drqs40473559 to master
@@ -1890,8 +1423,6 @@ bsl-internal (2.18.0.0) git; urgency=low
   * b0edd545f [APPROVAL] OSS review/remove-bslma-size-is-signed-from-bslstl-allocator-drqs-40228902 to master
   * c92e96fcd [APPROVAL] OSS master to master
   * 27f334853 Import internal commit 0454183481f25471c59b3a0f5740766f5a22812b : [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
-  * d92586e13 Merge remote-tracking branch 'github/master'
-  * c8dc1e4e5 Merge remote-tracking branch 'oss/master' into import
   * 6734b02b5 Import internal commit 7602e96e54223a3ac2a9c15554d971a7031741d0 : [APPROVAL] pending/master/rbtreeutil-usage-example-drqs37234278 to master
   * afd9b76dd Import internal commit f9a3125265ac3d13b12c5c62babdffa669cba457 : [APPROVAL] pending/master/alloctesttype-td-safe-fix-drqs-36772136 to master
   * e2140fb2e Import internal commit 899fb2b4cd942eba7a41d7016769cf4cc2938eef : [APPROVAL] pending/master/oss-universal-size-type-printf-code-in-bsls_bsltestutil-drqs_37405914 to master
@@ -1932,9 +1463,6 @@ bsl-internal (2.18.0.0) git; urgency=low
   * 81b7d17f8 Import internal commit 018b110162ce1bb470001fa0c50d46cf9a03a85e : [APPROVAL] origin/review/bsl-stringbuf-assertsize-drqs38618050 to master
   * b9e8a0488 Import internal commit 90e91784ee3e86697cbfccd9ca0ab88680eb7d7a : [APPROVAL] origin/review/fixes_for_doxygen-drqs-38664727 to master
   * e7a6ea092 Import internal commit 414edb6e54182def7d25aa540cdcfe70818d92ee : [APPROVAL] pending/master/fix-bdeut_variant-warning-drqs-37689270 to master
-  * 6f02da82b Merge remote-tracking branch 'oss/master'
-  * 79f40212d Merge remote-tracking branch 'oss/master'
-  * 2778b53c1 Merge remote-tracking branch 'oss/master'
   * 1f5eebf74 Import internal commit 49a9b029b9417d6b4bfe8ff366c554d82e4fb7d8 : [APPROVAL] pending/master/bslalg_autoarray-move-destructor-usage-drqs-34554786 to master
   * 8783b8876 Import internal commit de0473a297248668b55a3385ba5eda7b73184ff3 : [APPROVAL] pending/master/restore_non_standard_bsl_hash_for_strings_drqs37540921 to master
   * e3755a09a Import internal commit e02418a7deff5f08ca6cd1d9ff425c3ddb0da679 : [APPROVAL] pending/master/bslmf-tests-msvc-drqs37446628 to master
