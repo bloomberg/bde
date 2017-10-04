@@ -702,15 +702,7 @@ int main(int argc, char* argv[])
             { L_,               0x10000,      false },
             { L_,              0xFFFFFF,      false },
             { L_,             0x1000000,      false },
-            { L_,            0xFFFFFFFFull,   false },
-            { L_,           0x100000000ull,   false },
-            { L_,          0xFFFFFFFFFFull,   false },
-            { L_,         0x10000000000ull,   false },
-            { L_,        0xFFFFFFFFFFFFull,   false },
-            { L_,       0x1000000000000ull,   false },
-            { L_,      0xFFFFFFFFFFFFFFull,   false },
-            { L_,     0x100000000000000ull,   false },
-            { L_,    0xFFFFFFFFFFFFFFFFull,   false },
+            { L_,            0xFFFFFFFF,      false },
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
