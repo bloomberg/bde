@@ -208,7 +208,7 @@ void BlobUtil::erase(Blob *blob, int offset, int length)
     if (leadingBufferLen) {
         const BlobBuffer& leadingBuffer = blob->buffer(currBufferIdx);
         bsl::shared_ptr<char>   leadingShptr(leadingBuffer.buffer(),
-                                             leadingBuffer.data());
+            leadingBuffer.data());
         BlobBuffer        leadingPartialBuffer;
 
         leadingPartialBuffer.setSize(leadingBufferLen);
@@ -225,36 +225,45 @@ void BlobUtil::erase(Blob *blob, int offset, int length)
         length += leadingBufferLen;
     }
 
+    int nextBufferIdx = currBufferIdx;
+
     while (length > 0) {
-        const BlobBuffer& currBlobBuffer = blob->buffer(currBufferIdx);
-        int                     currBufferSize = currBlobBuffer.size();
-        if (currBufferSize <= length) {
-            blob->removeBuffer(currBufferIdx);
-            length -= currBufferSize;
+        const int nextBufferSize = blob->buffer(nextBufferIdx).size();
+
+        if (nextBufferSize <= length) {
+            ++nextBufferIdx;
+            length -= nextBufferSize;
         }
         else {
-            int       numBytesToAdjust = 0;
-            const int lastDataBufLen   = blob->lastDataBufferLength();
-            if (currBufferIdx == blob->numDataBuffers() - 1
-             && lastDataBufLen < currBufferSize) {
-                numBytesToAdjust = currBufferSize - lastDataBufLen;
-            }
-
-            const int trailingBufferLen = currBufferSize - length;
-            bsl::shared_ptr<char> trailingShptr(
-                                               currBlobBuffer.buffer(),
-                                               currBlobBuffer.data() + length);
-            BlobBuffer      trailingPartialBuffer;
-            trailingPartialBuffer.setSize(trailingBufferLen);
-
-            blob->insertBuffer(currBufferIdx, trailingPartialBuffer);
-            trailingPartialBuffer.buffer().swap(trailingShptr);
-            blob->swapBufferRaw(currBufferIdx, &trailingPartialBuffer);
-            blob->removeBuffer(currBufferIdx + 1);
-            if (numBytesToAdjust) {
-                blob->setLength(blob->length() - numBytesToAdjust);
-            }
             break;
+        }
+    }
+
+    blob->removeBuffers(currBufferIdx, nextBufferIdx - currBufferIdx);
+
+    if (length > 0) {
+        const BlobBuffer& currBlobBuffer = blob->buffer(currBufferIdx);
+        const int         currBufferSize = currBlobBuffer.size();
+
+        int       numBytesToAdjust = 0;
+        const int lastDataBufLen   = blob->lastDataBufferLength();
+        if (currBufferIdx == blob->numDataBuffers() - 1
+            && lastDataBufLen < currBufferSize) {
+            numBytesToAdjust = currBufferSize - lastDataBufLen;
+        }
+
+        bsl::shared_ptr<char> trailingShptr(
+                      currBlobBuffer.buffer(), currBlobBuffer.data() + length);
+
+        BlobBuffer trailingPartialBuffer;
+        trailingPartialBuffer.setSize(currBufferSize - length);
+
+        blob->insertBuffer(currBufferIdx, trailingPartialBuffer);
+        trailingPartialBuffer.buffer().swap(trailingShptr);
+        blob->swapBufferRaw(currBufferIdx, &trailingPartialBuffer);
+        blob->removeBuffer(currBufferIdx + 1);
+        if (numBytesToAdjust) {
+            blob->setLength(blob->length() - numBytesToAdjust);
         }
     }
 }
