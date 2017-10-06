@@ -283,8 +283,8 @@ static void waitThenAppend(bslmt::Semaphore *semaphore,
                            bsl::string      *value,
                            char              letter)
 {
-    // Wait on the specified 'semaphore', then append the specified 'letter'
-    // to the specified 'value'.
+    // Wait on the specified 'semaphore', then append the specified 'letter' to
+    // the specified 'value'.
     semaphore->wait();
     value->push_back(letter);
 }
@@ -425,9 +425,9 @@ void case12DeleteQueue(bdlmt::MultiQueueThreadPool *mqtp,
 //          CLASSES AND HELPER FUNCTIONS FOR TESTING USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
-                           // ======================
-                           // class my_SearchProfile
-                           // ======================
+                          // ======================
+                          // class my_SearchProfile
+                          // ======================
 
 class my_SearchProfile {
     // This class defines a search profile consisting of a word and a set of
@@ -471,7 +471,7 @@ class my_SearchProfile {
 };
 
 // ----------------------------------------------------------------------------
-//                              IMPLEMENTATION
+//                               IMPLEMENTATION
 // ----------------------------------------------------------------------------
 
 // CREATORS
@@ -550,12 +550,11 @@ void fastSearch(const bsl::vector<bsl::string>&  wordList,
                 bslma::Allocator                *basicAllocator = 0)
 {
     // Return the set of files, specified by 'fileList', containing every word
-    // in the specified 'wordList', in the specified 'resultSet'. Optionally
+    // in the specified 'wordList', in the specified 'resultSet'.  Optionally
     // specify 'repetitions', the number of repetitions to run the search jobs.
     // It is used to increase the load for performance testing.  Optionally
     // specify a 'basicAllocator' used to supply memory.  If 'basicAllocator'
     // is 0, the default memory allocator is used.
-
 
     typedef bsl::vector<bsl::string> ListType;
         // This type is defined for notational convenience when iterating over
@@ -576,8 +575,8 @@ void fastSearch(const bsl::vector<bsl::string>&  wordList,
         // thread pool configuration
         MIN_THREADS = 4,
         MAX_THREADS = 20,
-        MAX_IDLE    = 100   // use a very short idle time since new jobs
-                            // arrive only at startup
+        MAX_IDLE    = 100   // use a very short idle time since new jobs arrive
+                            // only at startup
     };
     bslmt::ThreadAttributes     defaultAttrs;
     bdlmt::MultiQueueThreadPool pool(defaultAttrs,
@@ -628,7 +627,7 @@ void fastSearch(const bsl::vector<bsl::string>&  wordList,
             RegistryValue&     rv   = profileRegistry[word];
             Func               job;
             makeFunc(&job, my_SearchCb, rv.second, file.c_str());
-            for(int i = 0; i < repetitions; ++i) {
+            for (int i = 0; i < repetitions; ++i) {
                 int rc = pool.enqueueJob(rv.first, job);
                 LOOP_ASSERT(word, 0 == rc);
             }
@@ -733,8 +732,8 @@ class MQPoolPerformance {
     TimeType d_seUTime;
     TimeType d_seSTime;
         // Standard errors of Wall time, User time and system time in nanos,
-        // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.
-        // It is set to 0 if d_numRepeat = 1.
+        // calculated from d_vecWTime, d_vecUTime, d_vecCTime respectively.  It
+        // is set to 0 if d_numRepeat = 1.
     VecTimeType runTest(VecIntType& args, RunFunc func);
         // run a single repetition of the calculation.  The calculation is
         // defined in the specified 'func' function, and takes as input the
@@ -755,7 +754,7 @@ class MQPoolPerformance {
                          bslma::Allocator                 *basicAllocator = 0);
 
     int initialize(VecIntType& args, InitFunc func);
-        // run the initialization function. The initialization is defined in
+        // run the initialization function.  The initialization is defined in
         // the specified 'func' function, and takes as input the specified
         // 'args' vector.  Returns the return code from 'func'.
     VecTimeType runTests(VecIntType& args, RunFunc func);
@@ -830,11 +829,11 @@ MQPoolPerformance::VecTimeType MQPoolPerformance::runTests(VecIntType&      args
     d_seWTime = d_seUTime = d_seSTime = 0;
     d_avgWTime = d_avgUTime = d_avgSTime = 0;
 //bsl::cout << "NR=" << d_numRepeats << ",NC=" << d_numCalcs << "\n";
-    for(int j = 0; j < d_numRepeats; ++j) {
+    for (int j = 0; j < d_numRepeats; ++j) {
         VecTimeType times(d_allocator_p);
         times = runTest(args, func);
         TimeType curWTime = 0, curUTime = 0, curSTime = 0;
-        for(int i = 0; i < d_numThreads; ++i) {
+        for (int i = 0; i < d_numThreads; ++i) {
             d_vecWTime.push_back(times[i * 3    ]);
             d_vecUTime.push_back(times[i * 3 + 1]);
             d_vecSTime.push_back(times[i * 3 + 2]);
@@ -921,7 +920,7 @@ MQPoolPerformance::VecTimeType MQPoolPerformance::runTest(VecIntType&       args
     bsl::vector<WorkData>                  todos(d_numThreads);
 
     // Spawn work threads
-    for(int i = 0; i < d_numThreads; ++i) {
+    for (int i = 0; i < d_numThreads; ++i) {
         todos[i].d_func = func;
         todos[i].d_poolperf_p = this;
         todos[i].d_data = args;
@@ -932,10 +931,10 @@ MQPoolPerformance::VecTimeType MQPoolPerformance::runTest(VecIntType&       args
     // Collect results
     VecTimeType        times(d_allocator_p);
     bsl::vector<void*> results(d_numThreads);
-    for(int i = 0; i < d_numThreads; ++i) {
+    for (int i = 0; i < d_numThreads; ++i) {
         bslmt::ThreadUtil::join(handles[i], &results[i]);
         VecTimeType *pRes = reinterpret_cast<VecTimeType*>(results[i]);
-        for(size_t j = 0; j < pRes->size(); ++j) times.push_back((*pRes)[j]);
+        for (size_t j = 0; j < pRes->size(); ++j) times.push_back((*pRes)[j]);
         delete pRes;
     }
 
@@ -1002,13 +1001,12 @@ const char* MQPoolPerformance::title() const
     return d_title.c_str();
 }
 
-
 // TEST FUNCTIONS
 int MQPoolPerformance::testFastSearch(MQPoolPerformance *poolperf_p,
                                  VecIntType&       args)
 {
-    // Run the fastSearch test functionInsert with the specified
-    // 'poolperf_p'.  The specified 'args' vector is empty.
+    // Run the fastSearch test functionInsert with the specified 'poolperf_p'.
+    // The specified 'args' vector is empty.
     bslma::TestAllocator ta(false);
 
     bsl::string WORDS[] = {
@@ -1342,7 +1340,7 @@ int main(int argc, char *argv[]) {
                  << "================================" << endl;
         }
 
-        for(int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 1000; ++i) {
             if (veryVerbose && i % 100 == 0) {
                 cout << "ITERATION " << i << endl;
             }
@@ -1671,9 +1669,9 @@ int main(int argc, char *argv[]) {
                                                         &pauseBarrier,
                                                         &mX, id1, &pauseCount));
                 pauseBarrier.wait();
-                // Now the thread will invoke pauseQueue. Wait a little bit
-                // and ensure it hasn't finished (because the threadpool job
-                // is still running)
+                // Now the thread will invoke pauseQueue.  Wait a little bit
+                // and ensure it hasn't finished (because the threadpool job is
+                // still running)
                 bslmt::ThreadUtil::microSleep(SHORT_SLEEP);
                 ASSERT(0 == pauseCount);
                 controlBarrier.wait();
@@ -1687,9 +1685,9 @@ int main(int argc, char *argv[]) {
                 // Pausing waited till the first job completed
                 ASSERT(1 == count);
 
-                // At this point there's still one blocked job sitting on
-                // the queue. Try to wait for it for a short time -- this
-                // will fail, as the queue is paused.
+                // At this point there's still one blocked job sitting on the
+                // queue.  Try to wait for it for a short time -- this will
+                // fail, as the queue is paused.
                 ASSERT(0 != controlBarrier.timedWait(
                                       bsls::SystemTime::nowRealtimeClock()
                                       .addMicroseconds(SHORT_SLEEP)));
@@ -1734,10 +1732,10 @@ int main(int argc, char *argv[]) {
                     cout << "\tJobs execute after resume is invoked"
                          << endl;
                 }
-                // Queue id1 is still paused and still has two jobs
-                // sitting on it.  The first is to increment (from the existing
-                // value of 1) by '1', and the second is to increment by '2'.
-                // Ensure that the jobs execute in the correct order.
+                // Queue id1 is still paused and still has two jobs sitting on
+                // it.  The first is to increment (from the existing value of
+                // 1) by '1', and the second is to increment by '2'.  Ensure
+                // that the jobs execute in the correct order.
 
                 // Try to resume N times in parallel.  Only one resume() should
                 // succeed, as the others should encounter either a resumed
@@ -2895,7 +2893,7 @@ int main(int argc, char *argv[]) {
                  << endl;
         }
 
-        for(int k=0; k<100; ++k){
+        for (int k=0; k<100; ++k) {
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
@@ -3346,9 +3344,9 @@ int main(int argc, char *argv[]) {
             }
 
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Re-start the pool; pause the queue. Enqueue a job to the queue.
-            // Stop the pool and ensure the job is not executed and stop()
-            // does not deadlock. Start, resume, drain, and stop the queue.
+            // Re-start the pool; pause the queue.  Enqueue a job to the queue.
+            // Stop the pool and ensure the job is not executed and stop() does
+            // not deadlock.  Start, resume, drain, and stop the queue.
             if (veryVerbose) {
                 const int LINE = L_;
                 P_(LINE);
@@ -3722,7 +3720,7 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
