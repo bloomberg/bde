@@ -2595,7 +2595,7 @@ class DefaultOnlyHasher {
         // Return the hash of the specified 'value'.
     {
         return bsl::hash<int>().operator()(
-                      bsltf::TemplateTestFacility::getIdentifier<TYPE>(value));
+                      bsltf::TemplateTestFacility::getIdentifier(value));
     }
 };
 
@@ -3315,9 +3315,9 @@ template <class TYPE, int GROUP_SIZE>
 bool GroupedEqualityComparator<TYPE, GROUP_SIZE>::
 operator() (const TYPE& lhs, const TYPE& rhs) const
 {
-    int leftValue = bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
+    int leftValue = bsltf::TemplateTestFacility::getIdentifier(lhs)
                   / GROUP_SIZE;
-    int rightValue = bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs)
+    int rightValue = bsltf::TemplateTestFacility::getIdentifier(rhs)
                    / GROUP_SIZE;
 
     return leftValue == rightValue;
@@ -3332,7 +3332,7 @@ template <class TYPE, class HASHER, int GROUP_SIZE>
 inline
 size_t GroupedHasher<TYPE, HASHER, GROUP_SIZE>::operator() (const TYPE& value)
 {
-    int groupNum = bsltf::TemplateTestFacility::getIdentifier<TYPE>(value)
+    int groupNum = bsltf::TemplateTestFacility::getIdentifier(value)
                  / GROUP_SIZE;
 
     return HASHER::operator()(groupNum);
@@ -3379,8 +3379,8 @@ bool ThrowingEqualityComparator<TYPE>::operator() (const TYPE& lhs,
         BSLS_THROW(TestException());
     }
 
-    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-        == bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+    return bsltf::TemplateTestFacility::getIdentifier(lhs)
+        == bsltf::TemplateTestFacility::getIdentifier(rhs);
 }
 
 template <class TYPE>
@@ -3461,7 +3461,7 @@ ThrowingHashFunctor<TYPE>::operator() (const TYPE& obj) const
         BSLS_THROW(TestException());
     }
 
-    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj) + d_id;
+    return bsltf::TemplateTestFacility::getIdentifier(obj) + d_id;
 }
 
 template <class TYPE>
@@ -3519,7 +3519,7 @@ inline
 native_std::size_t
 TestFacilityHasher<KEY, HASHER>::operator() (const KEY& k) const
 {
-    int temp =  bsltf::TemplateTestFacility::getIdentifier<KEY>(k);
+    int temp =  bsltf::TemplateTestFacility::getIdentifier(k);
     return HASHER::operator()(temp);
 }
 

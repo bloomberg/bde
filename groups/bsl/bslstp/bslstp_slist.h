@@ -85,14 +85,6 @@
 #include <bslstp_util.h>
 #endif
 
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
-#include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_AUTODESTRUCTOR
-#include <bslma_autodestructor.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_ARRAYPRIMITIVES
 #include <bslalg_arrayprimitives.h>
 #endif
@@ -101,8 +93,12 @@
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
+#ifndef INCLUDED_BSLMA_AUTODESTRUCTOR
+#include <bslma_autodestructor.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_STDALLOCATOR
@@ -113,12 +109,16 @@
 #include <bsls_exceptionutil.h>
 #endif
 
-#ifndef INCLUDED_BSLS_UTIL
-#include <bsls_util.h>
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_objectbuffer.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_ALGORITHM
@@ -230,7 +230,7 @@ protected:
     _Node* __next = (_Node*) (__pos->_M_next);
     _Slist_node_base* __next_next = __next->_M_next;
     __pos->_M_next = __next_next;
-    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslma::DestructionUtil::destroy(
                                          BSLS_UTIL_ADDRESSOF(__next->_M_data));
     _M_head.deallocate(__next,1);
     return __next_next;
@@ -432,7 +432,7 @@ public:
   void pop_front() {
     _Node* __node = (_Node*) this->_M_head._M_data._M_next;
     this->_M_head._M_data._M_next = __node->_M_next;
-    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslma::DestructionUtil::destroy(
                                          BSLS_UTIL_ADDRESSOF(__node->_M_data));
     this->_M_head.deallocate(__node, 1);
   }
@@ -793,7 +793,7 @@ _Slist_base<_Tp,_Alloc>::_M_erase_after(_Slist_node_base* __before_first,
   while (__cur != __last_node) {
     _Slist_node<_Tp>* __tmp = __cur;
     __cur = (_Slist_node<_Tp>*) __cur->_M_next;
-    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslma::DestructionUtil::destroy(
                                           BSLS_UTIL_ADDRESSOF(__tmp->_M_data));
     _M_head.deallocate(__tmp,1);
   }

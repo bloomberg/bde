@@ -211,6 +211,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
 #endif
@@ -794,7 +798,7 @@ void FixedQueue<TYPE>::removeAll()
             break;
         }
 
-        bslalg::ScalarDestructionPrimitives::destroy(d_elements + index);
+        bslma::DestructionUtil::destroy(d_elements + index);
         d_impl.commitPopIndex(generation, index);
     }
 
@@ -900,8 +904,7 @@ FixedQueue_PopGuard<VALUE>::~FixedQueue_PopGuard()
     // position and then release the reservation.  Wake up to 1 waiting pusher
     // thread.
 
-    bslalg::ScalarDestructionPrimitives::destroy(
-                                             d_parent_p->d_elements + d_index);
+    bslma::DestructionUtil::destroy(d_parent_p->d_elements + d_index);
 
     d_parent_p->d_impl.commitPopIndex(d_generation, d_index);
 
@@ -947,8 +950,7 @@ FixedQueue_PushProctor<VALUE>::~FixedQueue_PushProctor()
                                                                &index,
                                                                d_generation,
                                                                d_index)) {
-            bslalg::ScalarDestructionPrimitives::destroy(
-                                              d_parent_p->d_elements + index);
+            bslma::DestructionUtil::destroy(d_parent_p->d_elements + index);
             ++poppedItems;
 
             d_parent_p->d_impl.commitPopIndex(generation, index);

@@ -91,12 +91,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_autoscalardestructor.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -176,6 +176,14 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_NEW
 #include <new>          // placement 'new'
 #define INCLUDED_NEW
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
+#include <bslalg_scalardestructionprimitives.h>
+#endif
+
 #endif
 
 namespace BloombergLP {
@@ -651,7 +659,7 @@ struct ScalarPrimitives {
     template <class TARGET_TYPE>
     static void destruct(TARGET_TYPE *object,
                          void        *allocator);
-        // !DEPRECATED!: Use 'ScalarDestructionPrimitives::destroy' without an
+        // !DEPRECATED!: Use 'bslma::DestructionUtil::destroy' without an
         // allocator argument instead.
         //
         // Destroy the specified 'object' of the parameterized 'TARGET_TYPE',
@@ -663,7 +671,7 @@ struct ScalarPrimitives {
 
     template <class TARGET_TYPE>
     static void destruct(TARGET_TYPE *object);
-        // !DEPRECATED!: Use 'ScalarDestructionPrimitives::destroy' instead.
+        // !DEPRECATED!: Use 'bslma::DestructionUtil::destroy' instead.
         //
         // Destroy the specified 'object' of the parameterized 'TARGET_TYPE',
         // as if by calling the 'TARGET_TYPE' destructor, but do not deallocate
@@ -2485,14 +2493,14 @@ template <class TARGET_TYPE>
 inline
 void ScalarPrimitives::destruct(TARGET_TYPE *address, void *)
 {
-    ScalarDestructionPrimitives::destroy(address);
+    bslma::DestructionUtil::destroy(address);
 }
 
 template <class TARGET_TYPE>
 inline
 void ScalarPrimitives::destruct(TARGET_TYPE *address)
 {
-    ScalarDestructionPrimitives::destroy(address);
+    bslma::DestructionUtil::destroy(address);
 }
 
 }  // close package namespace
@@ -2876,7 +2884,7 @@ ScalarPrimitives_Imp::destructiveMove(
                                    bsl::integral_constant<int, e_NIL_TRAITS> *)
 {
     ScalarPrimitives::moveConstruct(address, *original, allocator);
-    ScalarDestructionPrimitives::destroy(original);
+    bslma::DestructionUtil::destroy(original);
 }
 
                         // *** construct overloads: ***

@@ -5906,8 +5906,8 @@ class TestEqualityComparator {
 
         ++d_count;
 
-        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-            == bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+        return bsltf::TemplateTestFacility::getIdentifier(lhs)
+            == bsltf::TemplateTestFacility::getIdentifier(rhs);
     }
 
     bool operator== (const TestEqualityComparator& rhs) const
@@ -5989,7 +5989,7 @@ class TestHashFunctor {
 
         return d_shortCircuit
                ? 0
-               : bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
+               : bsltf::TemplateTestFacility::getIdentifier(obj);
     }
 
     bool operator== (const TestHashFunctor& rhs) const

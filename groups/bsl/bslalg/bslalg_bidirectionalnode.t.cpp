@@ -1,12 +1,12 @@
 // bslalg_bidirectionalnode.t.cpp                                     -*-C++-*-
 #include <bslalg_bidirectionalnode.h>
 
-#include <bslalg_scalardestructionprimitives.h>
 #include <bslalg_scalarprimitives.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_destructionutil.h>
 #include <bslma_testallocator.h>
 
 #include <bslmf_isconst.h>
@@ -289,7 +289,7 @@ MyList<PAYLOAD>::~MyList()
         Node *toDelete = p;
         p = (Node *) p->nextLink();
 
-        bslalg::ScalarDestructionPrimitives::destroy(&toDelete->value());
+        bslma::DestructionUtil::destroy(&toDelete->value());
         d_allocator_p->deleteObjectRaw(
                            static_cast<bslalg::BidirectionalLink *>(toDelete));
     }
@@ -350,7 +350,7 @@ void MyList<PAYLOAD>::popBack()
         d_begin = 0;
     }
 
-    bslalg::ScalarDestructionPrimitives::destroy(&toDelete->value());
+    bslma::DestructionUtil::destroy(&toDelete->value());
     d_allocator_p->deleteObjectRaw(
                            static_cast<bslalg::BidirectionalLink *>(toDelete));
 }

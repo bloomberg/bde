@@ -5,10 +5,10 @@
 #include <bslalg_bidirectionallinklistutil.h>
 #include <bslalg_bidirectionalnode.h>
 #include <bslalg_hashtablebucket.h>
-#include <bslalg_scalardestructionprimitives.h>
 #include <bslalg_scalarprimitives.h>
 
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_destructionutil.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -183,7 +183,7 @@ struct NodeUtil {
 
         Node *node = static_cast<Node *>(link);
 
-        bslalg::ScalarDestructionPrimitives::destroy(&node->value());
+        bslma::DestructionUtil::destroy(&node->value());
         basicAllocator->deallocate(node);
     }
 

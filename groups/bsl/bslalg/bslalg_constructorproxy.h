@@ -282,12 +282,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -710,7 +710,7 @@ template <class OBJECT_TYPE>
 inline
 ConstructorProxy<OBJECT_TYPE>::~ConstructorProxy()
 {
-    ScalarDestructionPrimitives::destroy(d_objectBuffer.address());
+    bslma::DestructionUtil::destroy(d_objectBuffer.address());
 }
 
 // MANIPULATORS

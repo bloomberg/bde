@@ -11,7 +11,10 @@
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_outputredirector.h>
 #include <bsls_util.h>
 
 #include <stdio.h>
@@ -20,6 +23,7 @@
 
 using namespace BloombergLP;
 using namespace BloombergLP::bsltf;
+using bsls::NameOf;
 
 //=============================================================================
 //                             TEST PLAN
@@ -116,6 +120,24 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+// ============================================================================
+//              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) \
+ && (defined(BSLS_PLATFORM_CMP_IBM)   \
+  || defined(BSLS_PLATFORM_CMP_CLANG) \
+  || defined(BSLS_PLATFORM_CMP_MSVC)  \
+  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130) \
+     )
+# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
+// Some compilers produce ambiguities when trying to construct our test types
+// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
+// compiler bug triggering in lower level components, so we simply disable
+// those aspects of testing, and rely on the extensive test coverage on other
+// platforms.
+#endif
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -191,7 +213,7 @@ class MyNullableValue {
   public:
     // CREATORS
     MyNullableValue()
-    // Create a 'MyNullableValue' that initially has a value of null.
+        // Create a 'MyNullableValue' that initially has a value of null.
     : d_nullFlag(true)
     {
     }
@@ -209,14 +231,14 @@ class MyNullableValue {
         // return a reference providing modifiable access to this object.
 
     void makeNull()
-    // Set this object to the null value.
+        // Set this object to the null value.
     {
         d_nullFlag = true;
     }
 
     void makeValue(const TYPE& value)
-    // Set the value of this object to be that of the specified 'value'
-    // of the parameterized 'TYPE'.
+        // Set the value of this object to be that of the specified 'value'
+        // of the parameterized 'TYPE'.
     {
         d_nullFlag = false;
         d_value = value;
@@ -224,15 +246,15 @@ class MyNullableValue {
 
     // ACCESSORS
     bool isNull() const
-    // Return 'true' if this object is null, and 'false' otherwise.
+        // Return 'true' if this object is null, and 'false' otherwise.
     {
         return d_nullFlag;
     }
 
     const TYPE& value() const
-    // Return a reference providing non-modifiable access to the
-    // underlying object of the parameterized 'TYPE'.  The behavior is
-    // undefined if the object is null.
+        // Return a reference providing non-modifiable access to the
+        // underlying object of the parameterized 'TYPE'.  The behavior is
+        // undefined if the object is null.
     {
         return d_value;
     }
@@ -333,6 +355,8 @@ void MyTestDriver<TYPE>::testCase2()
                         "\n============================================\n");
 
 
+    if (verbose) printf("\n\tfor type: %s\n", NameOf<TYPE>().name());
+
     if (verbose) printf("\nTesting default constructor.\n");
 
     Obj mW; const Obj& W = mW;
@@ -341,7 +365,9 @@ void MyTestDriver<TYPE>::testCase2()
     Obj mX; const Obj& X = mX;
     const TYPE XV = TemplateTestFacility::create<TYPE>(1);
     mX.makeValue(XV);
-    ASSERT(1 == TemplateTestFacility::getIdentifier<TYPE>(X.value()));
+
+    ASSERTV(X.value(), TemplateTestFacility::getIdentifier(X.value()),
+            1 == TemplateTestFacility::getIdentifier(X.value()));
 
     if (verbose) printf("\nTesting primary manipulators.\n");
 
@@ -415,7 +441,7 @@ template <class TYPE>
 void TestHelper<TYPE>::breathingTest()
 {
     if (veryVerbose)
-        printf("\n==TYPE: %s==\n", typeid(TYPE).name());
+        printf("\n==TYPE: %s==\n", NameOf<TYPE>().name());
 
     for (int ti = 0; ti < 128; ++ti) {
         TYPE obj = TemplateTestFacility::create<TYPE>(ti);
@@ -449,7 +475,7 @@ template <class TYPE>
 void TestHelper<TYPE>::test3Helper()
 {
     if (veryVerbose)
-        printf("\n==TYPE: %s==\n", typeid(TYPE).name());
+        printf("\n==TYPE: %s==\n", NameOf<TYPE>().name());
 
     g_invokedFlags[TYPE::value()] = true;
 }
@@ -485,67 +511,27 @@ BSLTF_TTF_DEFINE_TYPE(19);
 
 #define BSLTF_TTF_TYPE_NAME(num) TestType ## num
 
-#define BSLTF_TTF_TYPES0  BSLTF_TTF_TYPE_NAME(0)                              \
-
-#define BSLTF_TTF_TYPES1  BSLTF_TTF_TYPES0                                    \
-    ,BSLTF_TTF_TYPE_NAME(1)
-
-#define BSLTF_TTF_TYPES2  BSLTF_TTF_TYPES1                                    \
-    ,BSLTF_TTF_TYPE_NAME(2)
-
-#define BSLTF_TTF_TYPES3  BSLTF_TTF_TYPES2                                    \
-    ,BSLTF_TTF_TYPE_NAME(3)
-
-#define BSLTF_TTF_TYPES4  BSLTF_TTF_TYPES3                                    \
-    ,BSLTF_TTF_TYPE_NAME(4)
-
-#define BSLTF_TTF_TYPES5  BSLTF_TTF_TYPES4                                    \
-    ,BSLTF_TTF_TYPE_NAME(5)
-
-#define BSLTF_TTF_TYPES6  BSLTF_TTF_TYPES5                                    \
-    ,BSLTF_TTF_TYPE_NAME(6)
-
-#define BSLTF_TTF_TYPES7  BSLTF_TTF_TYPES6                                    \
-    ,BSLTF_TTF_TYPE_NAME(7)
-
-#define BSLTF_TTF_TYPES8  BSLTF_TTF_TYPES7                                    \
-    ,BSLTF_TTF_TYPE_NAME(8)
-
-#define BSLTF_TTF_TYPES9  BSLTF_TTF_TYPES8                                    \
-    ,BSLTF_TTF_TYPE_NAME(9)
-
-#define BSLTF_TTF_TYPES10 BSLTF_TTF_TYPES9                                    \
-    ,BSLTF_TTF_TYPE_NAME(10)
-
-#define BSLTF_TTF_TYPES11  BSLTF_TTF_TYPES10                                  \
-    ,BSLTF_TTF_TYPE_NAME(11)
-
-#define BSLTF_TTF_TYPES12  BSLTF_TTF_TYPES11                                  \
-    ,BSLTF_TTF_TYPE_NAME(12)
-
-#define BSLTF_TTF_TYPES13  BSLTF_TTF_TYPES12                                  \
-    ,BSLTF_TTF_TYPE_NAME(13)
-
-#define BSLTF_TTF_TYPES14  BSLTF_TTF_TYPES13                                  \
-    ,BSLTF_TTF_TYPE_NAME(14)
-
-#define BSLTF_TTF_TYPES15  BSLTF_TTF_TYPES14                                  \
-    ,BSLTF_TTF_TYPE_NAME(15)
-
-#define BSLTF_TTF_TYPES16  BSLTF_TTF_TYPES15                                  \
-    ,BSLTF_TTF_TYPE_NAME(16)
-
-#define BSLTF_TTF_TYPES17  BSLTF_TTF_TYPES16                                  \
-    ,BSLTF_TTF_TYPE_NAME(17)
-
-#define BSLTF_TTF_TYPES18  BSLTF_TTF_TYPES17                                  \
-    ,BSLTF_TTF_TYPE_NAME(18)
-
-#define BSLTF_TTF_TYPES19  BSLTF_TTF_TYPES18                                  \
-    ,BSLTF_TTF_TYPE_NAME(19)
-
-#define BSLTF_TTF_TYPES20  BSLTF_TTF_TYPES19                                  \
-    ,BSLTF_TTF_TYPE_NAME(20)
+#define BSLTF_TTF_TYPES0   BSLTF_TTF_TYPE_NAME(0)
+#define BSLTF_TTF_TYPES1   BSLTF_TTF_TYPES0,  BSLTF_TTF_TYPE_NAME(1)
+#define BSLTF_TTF_TYPES2   BSLTF_TTF_TYPES1,  BSLTF_TTF_TYPE_NAME(2)
+#define BSLTF_TTF_TYPES3   BSLTF_TTF_TYPES2,  BSLTF_TTF_TYPE_NAME(3)
+#define BSLTF_TTF_TYPES4   BSLTF_TTF_TYPES3,  BSLTF_TTF_TYPE_NAME(4)
+#define BSLTF_TTF_TYPES5   BSLTF_TTF_TYPES4,  BSLTF_TTF_TYPE_NAME(5)
+#define BSLTF_TTF_TYPES6   BSLTF_TTF_TYPES5,  BSLTF_TTF_TYPE_NAME(6)
+#define BSLTF_TTF_TYPES7   BSLTF_TTF_TYPES6,  BSLTF_TTF_TYPE_NAME(7)
+#define BSLTF_TTF_TYPES8   BSLTF_TTF_TYPES7,  BSLTF_TTF_TYPE_NAME(8)
+#define BSLTF_TTF_TYPES9   BSLTF_TTF_TYPES8,  BSLTF_TTF_TYPE_NAME(9)
+#define BSLTF_TTF_TYPES10  BSLTF_TTF_TYPES9,  BSLTF_TTF_TYPE_NAME(10)
+#define BSLTF_TTF_TYPES11  BSLTF_TTF_TYPES10, BSLTF_TTF_TYPE_NAME(11)
+#define BSLTF_TTF_TYPES12  BSLTF_TTF_TYPES11, BSLTF_TTF_TYPE_NAME(12)
+#define BSLTF_TTF_TYPES13  BSLTF_TTF_TYPES12, BSLTF_TTF_TYPE_NAME(13)
+#define BSLTF_TTF_TYPES14  BSLTF_TTF_TYPES13, BSLTF_TTF_TYPE_NAME(14)
+#define BSLTF_TTF_TYPES15  BSLTF_TTF_TYPES14, BSLTF_TTF_TYPE_NAME(15)
+#define BSLTF_TTF_TYPES16  BSLTF_TTF_TYPES15, BSLTF_TTF_TYPE_NAME(16)
+#define BSLTF_TTF_TYPES17  BSLTF_TTF_TYPES16, BSLTF_TTF_TYPE_NAME(17)
+#define BSLTF_TTF_TYPES18  BSLTF_TTF_TYPES17, BSLTF_TTF_TYPE_NAME(18)
+#define BSLTF_TTF_TYPES19  BSLTF_TTF_TYPES18, BSLTF_TTF_TYPE_NAME(19)
+#define BSLTF_TTF_TYPES20  BSLTF_TTF_TYPES19, BSLTF_TTF_TYPE_NAME(20)
 
 #define BSLTF_TTF_TEST3_N(num)                                                \
 clearInvokedFlags();                                                          \
@@ -560,7 +546,7 @@ template <class TYPE>
 void TestHelper<TYPE>::test4Helper()
 {
     if (veryVerbose)
-        printf("\n==TYPE: %s==\n", typeid(TYPE).name());
+        printf("\n==TYPE: %s==\n", NameOf<TYPE>().name());
 }
 
 #define BSLTF_TTF_TEST4_SPECIALIZE(type, num)                                 \
@@ -568,41 +554,45 @@ template<>                                                                    \
 void TestHelper<type>::test4Helper()                                          \
 {                                                                             \
     if (veryVerbose)                                                          \
-        printf("\n==TYPE: %s==\n", typeid(type).name());                      \
+        printf("\n==TYPE: %s==\n", NameOf<type>().name());                    \
     g_invokedFlags[num] = true;                                               \
 }
 
-#define BSLTF_TTF_TEST4_NUM_PRIMITIVE_TYPES 5
+#define BSLTF_TTF_TEST4_NUM_PRIMITIVE_TYPES 6
 
 BSLTF_TTF_TEST4_SPECIALIZE(signed char, 0)
 BSLTF_TTF_TEST4_SPECIALIZE(size_t, 1)
-BSLTF_TTF_TEST4_SPECIALIZE(TemplateTestFacility::ObjectPtr, 2)
-BSLTF_TTF_TEST4_SPECIALIZE(TemplateTestFacility::FunctionPtr, 3)
-BSLTF_TTF_TEST4_SPECIALIZE(TemplateTestFacility::MethodPtr, 4)
+BSLTF_TTF_TEST4_SPECIALIZE(const char *, 2)
+BSLTF_TTF_TEST4_SPECIALIZE(TemplateTestFacility::ObjectPtr, 3)
+BSLTF_TTF_TEST4_SPECIALIZE(TemplateTestFacility::FunctionPtr, 4)
+BSLTF_TTF_TEST4_SPECIALIZE(TemplateTestFacility::MethodPtr, 5)
 
-#define BSLTF_TTF_TEST4_NUM_USER_DEFINED_TYPES 7
+#define BSLTF_TTF_TEST4_NUM_USER_DEFINED_TYPES 10
 
-BSLTF_TTF_TEST4_SPECIALIZE(EnumeratedTestType::Enum, 5)
-BSLTF_TTF_TEST4_SPECIALIZE(UnionTestType, 6)
-BSLTF_TTF_TEST4_SPECIALIZE(SimpleTestType, 7)
-BSLTF_TTF_TEST4_SPECIALIZE(AllocTestType, 8)
-BSLTF_TTF_TEST4_SPECIALIZE(MovableAllocTestType, 8)
-BSLTF_TTF_TEST4_SPECIALIZE(MoveOnlyAllocTestType, 8)
-BSLTF_TTF_TEST4_SPECIALIZE(BitwiseMoveableTestType, 9)
-BSLTF_TTF_TEST4_SPECIALIZE(AllocBitwiseMoveableTestType, 10)
-BSLTF_TTF_TEST4_SPECIALIZE(NonTypicalOverloadsTestType, 11)
+BSLTF_TTF_TEST4_SPECIALIZE(EnumeratedTestType::Enum, 6)
+BSLTF_TTF_TEST4_SPECIALIZE(UnionTestType, 7)
+BSLTF_TTF_TEST4_SPECIALIZE(SimpleTestType, 8)
+BSLTF_TTF_TEST4_SPECIALIZE(AllocTestType, 9)
+BSLTF_TTF_TEST4_SPECIALIZE(BitwiseCopyableTestType, 10)
+BSLTF_TTF_TEST4_SPECIALIZE(BitwiseMoveableTestType, 11)
+BSLTF_TTF_TEST4_SPECIALIZE(AllocBitwiseMoveableTestType, 12)
+BSLTF_TTF_TEST4_SPECIALIZE(MovableTestType, 13)
+BSLTF_TTF_TEST4_SPECIALIZE(MovableAllocTestType, 14)
+BSLTF_TTF_TEST4_SPECIALIZE(NonTypicalOverloadsTestType, 15)
 
 #define BSLTF_TTF_TEST4_NUM_REGULAR_TYPES                                     \
 (BSLTF_TTF_TEST4_NUM_PRIMITIVE_TYPES + BSLTF_TTF_TEST4_NUM_USER_DEFINED_TYPES)
 
 #define BSLTF_TTF_TEST4_NUM_AWKWARD_TYPES 3
 
-BSLTF_TTF_TEST4_SPECIALIZE(NonAssignableTestType, 12)
-BSLTF_TTF_TEST4_SPECIALIZE(NonDefaultConstructibleTestType, 13)
-BSLTF_TTF_TEST4_SPECIALIZE(NonEqualComparableTestType, 14)
+BSLTF_TTF_TEST4_SPECIALIZE(NonAssignableTestType, 16)
+BSLTF_TTF_TEST4_SPECIALIZE(NonDefaultConstructibleTestType, 17)
+BSLTF_TTF_TEST4_SPECIALIZE(NonEqualComparableTestType, 18)
 
 #define BSLTF_TTF_TEST4_NUM_ALL_TYPES                                         \
 (BSLTF_TTF_TEST4_NUM_REGULAR_TYPES + BSLTF_TTF_TEST4_NUM_AWKWARD_TYPES)
+
+// BSLTF_TTF_TEST4_SPECIALIZE(MoveOnlyAllocTestType, 8)
 
 // Test Case 5 Apparatus
 
@@ -610,7 +600,7 @@ template <class TYPE>
 void TestHelper<TYPE>::test5Helper()
 {
     if (veryVerbose)
-        printf("\n==TYPE: %s==\n", typeid(TYPE).name());
+        printf("\n==TYPE: %s==\n", NameOf<TYPE>().name());
 
     for (int ti = 0; ti <= 127; ++ti) {
         TYPE X = TemplateTestFacility::create<TYPE>(ti);
@@ -629,7 +619,7 @@ template <class TYPE>
 void TestHelper<TYPE>::test6Helper()
 {
     if (veryVerbose)
-        printf("\n==TYPE: %s==\n", typeid(TYPE).name());
+        printf("\n==TYPE: %s==\n", NameOf<TYPE>().name());
 
     bslma::TestAllocator defaultAllocator("defaultAllocator",
                                           veryVeryVeryVerbose);
@@ -665,22 +655,26 @@ void TestHelper<TYPE>::test6Helper()
 template <class TYPE>
 void TestHelper<TYPE>::test7Helper()
 {
-    if (veryVerbose)
-        printf("\n==TYPE: %s==\n", typeid(TYPE).name());
+    bsls::OutputRedirector redirect(bsls::OutputRedirector::e_STDOUT_STREAM,
+                                    veryVerbose);
+
+    if (veryVerbose) printf("\n==TYPE: %s==\n", NameOf<TYPE>().name());
 
     for (int ti = 0; ti <= 127; ++ti) {
         TYPE X = TemplateTestFacility::create<TYPE>(ti);
 
-        if (verbose) {
-            using bsls::debugprint;  // otherwise the name is hidden by this
-                                     // component
-
-            debugprint(X);
-
-            BSLS_BSLTESTUTIL_P(X);
-
-            ASSERTV(X, true);
+        if (!verbose) {
+            redirect.enable();
         }
+
+        using bsls::debugprint;  // otherwise the name is hidden by this
+                                 // component
+
+        debugprint(X);
+
+        BSLS_BSLTESTUTIL_P(X);
+
+        ASSERTV(X, true);
     }
 }
 
@@ -702,16 +696,39 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 8: {
-          if (verbose) printf("\nUSAGE EXAMPLE"
-                              "\n=============\n");
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
+        bsls::OutputRedirector redirect(
+                                       bsls::OutputRedirector::e_STDOUT_STREAM,
+                                       veryVerbose);
+        if (!verbose) {
+            redirect.enable();
+        }
 
 // Now, we can instantiate and call the 'TestTemplate::printTypeName' class
 // method template for each of the types 'int', 'char', and 'double' using the
 // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro:
 //..
-          BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestTemplate,
-                                                   printTypeName,
-                                                   int, char, double);
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestTemplate,
+                                                 printTypeName,
+                                                 int, char, double);
 //..
 // Finally, we observe the console output:
 //..
@@ -730,16 +747,16 @@ int main(int argc, char *argv[])
           // DEFAULT CTOR & PRIMARY MANIPULATORS
           // ------------------------------------------------------------------
 
-          if (verbose) printf("\nDEFAULT CTOR & PRIMARY MANIPULATORS"
-                              "\n===================================\n");
+        if (verbose) printf("\nDEFAULT CTOR & PRIMARY MANIPULATORS"
+                            "\n===================================\n");
 
-          RUN_EACH_TYPE(MyTestDriver, testCase2, TEST_TYPES_REGULAR);
+        RUN_EACH_TYPE(MyTestDriver, testCase2, TEST_TYPES_REGULAR);
 //    } break;
 //..
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // 'debugprint' FREE FUNCTION
+        // TESTING 'debugprint' FREE FUNCTION
         //
         // Concerns:
         //: 1 Ensure that the 'debugprint' function overloads are defined for
@@ -780,63 +797,32 @@ int main(int argc, char *argv[])
         //   void debugprint(const NonDefaultConstructibleTestType& obj);
         // --------------------------------------------------------------------
 
-        EnumeratedTestType::Enum o1 =
-                     TemplateTestFacility::create<EnumeratedTestType::Enum>(1);
-
-        UnionTestType o2 = TemplateTestFacility::create<UnionTestType>(2);
-
-        SimpleTestType o3 = TemplateTestFacility::create<SimpleTestType>(3);
-
-        AllocTestType o4 = TemplateTestFacility::create<AllocTestType>(4);
-
-        BitwiseMoveableTestType o5 =
-                      TemplateTestFacility::create<BitwiseMoveableTestType>(5);
-
-        AllocBitwiseMoveableTestType o6 =
-                 TemplateTestFacility::create<AllocBitwiseMoveableTestType>(6);
-
-        NonTypicalOverloadsTestType o7 =
-                  TemplateTestFacility::create<NonTypicalOverloadsTestType>(7);
-
-        NonCopyConstructibleTestType o8(8);
-
-        NonDefaultConstructibleTestType o9 =
-              TemplateTestFacility::create<NonDefaultConstructibleTestType>(9);
-
-        MovableAllocTestType o10 =
-                        TemplateTestFacility::create<MovableAllocTestType>(10);
-
-        MoveOnlyAllocTestType o11(11);
-
-        debugprint(o1);
-        debugprint(o2);
-        debugprint(o3);
-        debugprint(o4);
-        debugprint(o5);
-        debugprint(o6);
-        debugprint(o7);
-        debugprint(o8);
-        debugprint(o9);
-        debugprint(o10);
-        debugprint(o11);
-
-        BSLS_BSLTESTUTIL_P(o1);
-        BSLS_BSLTESTUTIL_P(o2);
-        BSLS_BSLTESTUTIL_P(o3);
-        BSLS_BSLTESTUTIL_P(o4);
-        BSLS_BSLTESTUTIL_P(o5);
-        BSLS_BSLTESTUTIL_P(o6);
-        BSLS_BSLTESTUTIL_P(o7);
-        BSLS_BSLTESTUTIL_P(o8);
-        BSLS_BSLTESTUTIL_P(o9);
-        BSLS_BSLTESTUTIL_P(o10);
-        BSLS_BSLTESTUTIL_P(o11);
+        if (verbose) printf("\nTESTING 'debugprint' FREE FUNCTION"
+                            "\n==================================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
                                     test7Helper,
-                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL,
-                                    const char *);
+                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        // The following types are not in 'all' yet
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                    TestHelper,
+                                    test7Helper,
+                                    bsltf::MoveOnlyAllocTestType,
+//                                    bsltf::AllocEmplacableTestType,
+                                    bsltf::EmplacableTestType
+                                    );
+#elif !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                    TestHelper,
+                                    test7Helper,
+//                                    bsltf::AllocEmplacableTestType,
+                                    bsltf::EmplacableTestType
+                                    );
+#endif
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -881,12 +867,30 @@ int main(int argc, char *argv[])
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
                                     test6Helper,
-                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL,
-                                    const char *);
+                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        // The following types are not in 'all' yet
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                    TestHelper,
+                                    test6Helper,
+                                    bsltf::MoveOnlyAllocTestType,
+//                                    bsltf::AllocEmplacableTestType,
+                                    bsltf::EmplacableTestType
+                                    );
+#elif !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                    TestHelper,
+                                    test6Helper,
+//                                    bsltf::AllocEmplacableTestType,
+                                    bsltf::EmplacableTestType
+                                    );
+#endif
+
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // CLASS METHODS 'create' and 'getIdentifier'
+        // TESTING CLASS METHODS 'create' AND 'getIdentifier'
         //   Ensure that the class methods 'TemplateTestFacility::create' and
         //   'TemplateTestFacility::getIdentifier' behave according to their
         //   contracts.
@@ -919,14 +923,32 @@ int main(int argc, char *argv[])
         //   int TemplateTestFacility::getIdentifier(const TYPE& object);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCLASS METHODS 'create' and 'getIdentifier'"
-                            "\n=====================================\n");
+        if (verbose) printf(
+                     "\nTESTING CLASS METHODS 'create' AND 'getIdentifier'"
+                     "\n==================================================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
                                     TestHelper,
                                     test5Helper,
-                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL,
-                                    const char *);
+                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        // The following types are not in 'all' yet
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                    TestHelper,
+                                    test5Helper,
+                                    bsltf::MoveOnlyAllocTestType,
+//                                    bsltf::AllocEmplacableTestType,
+                                    bsltf::EmplacableTestType
+                                    );
+#elif !defined(BSL_DO_NOT_TEST_MOVE_FORWARDING)
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                    TestHelper,
+                                    test5Helper,
+//                                    bsltf::AllocEmplacableTestType,
+                                    bsltf::EmplacableTestType
+                                    );
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -989,8 +1011,9 @@ int main(int argc, char *argv[])
         //   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES*' MACROS"
-                            "\n==========================\n");
+        if (verbose) printf(
+                        "\n'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES*' MACROS"
+                        "\n===============================================\n");
 
         if (verbose)
            printf("\nTest BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE.\n");

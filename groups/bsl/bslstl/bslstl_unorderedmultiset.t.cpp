@@ -1181,8 +1181,8 @@ class TestNonConstEqualityComparator {
         // Return 'true' if the integer representation of the specified 'lhs'
         // is less than integer representation of the specified 'rhs'.
     {
-        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-            == bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+        return bsltf::TemplateTestFacility::getIdentifier(lhs)
+            == bsltf::TemplateTestFacility::getIdentifier(rhs);
     }
 
     bool operator==(const TestNonConstEqualityComparator&) const
@@ -1276,7 +1276,7 @@ class TestNonConstHashFunctor {
         // specified 'lhs' is less than integer representation of the specified
         // 'rhs'.
     {
-        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
+        return bsltf::TemplateTestFacility::getIdentifier(obj);
     }
 
     bool operator==(const TestNonConstHashFunctor&)

@@ -198,7 +198,7 @@ BSLS_IDENT("$Id: $")
 //          Node *toDelete = p;
 //          p = (Node *) p->nextLink();
 //
-//          bslalg::ScalarDestructionPrimitives::destroy(&toDelete->value());
+//          bslma::DestructionUtil::destroy(&toDelete->value());
 //          d_allocator_p->deleteObjectRaw(
 //                         static_cast<bslalg::BidirectionalLink *>(toDelete));
 //      }
@@ -259,7 +259,7 @@ BSLS_IDENT("$Id: $")
 //          d_begin = 0;
 //      }
 //
-//      bslalg::ScalarDestructionPrimitives::destroy(&toDelete->value());
+//      bslma::DestructionUtil::destroy(&toDelete->value());
 //      d_allocator_p->deleteObjectRaw(
 //                         static_cast<bslalg::BidirectionalLink *>(toDelete));
 //  }

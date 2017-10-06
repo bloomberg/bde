@@ -27,7 +27,7 @@ BSLS_IDENT_RCSID(btlso_eventmanagertester_cpp,"$Id$ $CSID$")
 #include <bdlf_bind.h>
 #include <bdlt_currenttime.h>
 #include <bslalg_scalarprimitives.h>
-#include <bslalg_scalardestructionprimitives.h>
+#include <bslma_destructionutil.h>
 #include <bslma_testallocator.h>                // allocate memory
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
@@ -1856,8 +1856,8 @@ EventManagerTester::testDispatchPerformance(EventManager *mX,
         bsl::cout << "\n" << averageResult << "\n";
 
         for (int j = 0; j < i; j++){ //have to 'destructor' one by one
-            bslalg::ScalarDestructionPrimitives::destroy(socketPairs+j);
-            bslalg::ScalarDestructionPrimitives::destroy(readCb+j);
+            bslma::DestructionUtil::destroy(socketPairs+j);
+            bslma::DestructionUtil::destroy(readCb+j);
         }
 
         testAllocator.deallocate(readCb);
@@ -1962,7 +1962,7 @@ EventManagerTester::testRegisterPerformance(EventManager *mX, int flags)
 
     for (int j = 0; j < numSockets; j++) {
         SocketImpUtil::close(socket[j]);
-        bslalg::ScalarDestructionPrimitives::destroy(&socket[j]);
+        bslma::DestructionUtil::destroy(&socket[j]);
     }
     testAllocator.deallocate(socket);
 

@@ -587,6 +587,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_stdallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
 #endif
@@ -615,6 +619,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_STDIO_H
 #include <stdio.h>  // for 'printf'
 #define INCLUDED_STDIO_H
+#endif
+
+#ifndef INCLUDED_STDLIB_H
+#include <stdlib.h>  // for 'atoi'
+#define INCLUDED_STDLIB_H
 #endif
 
 namespace BloombergLP {
@@ -673,6 +682,13 @@ struct TemplateTestFacility {
     // unless the specified object was originally created with the 'create'
     // class method template.
 
+  private:
+    static const char* nullTerminatedStringForIdentifier(int identifier);
+        // Return a pointer to a null-terminated string that will parse as
+        // having the same value as the specified 'identifier'.  The behavior
+        // is undefined unless '0 <= identifier < 128'.
+
+  public:
     // PUBLIC TYPES
     typedef TemplateTestFacility_StubClass *ObjectPtr;
         // This 'typedef' is an alias for a pointer to a
@@ -697,8 +713,7 @@ struct TemplateTestFacility {
     template <class TYPE, class ALLOCATOR>
     static void emplace(TYPE *address, int identifier, ALLOCATOR allocator);
     template <class TYPE, class ALLOCATOR>
-    static void
-    emplace(TYPE *address, int identifier, ALLOCATOR *allocator);
+    static void emplace(TYPE *address, int identifier, ALLOCATOR *allocator);
         // Create an object of the parameterized 'TYPE' at the specified
         // 'address' whose state is unique for the specified 'identifier'.  The
         // behavior is undefined unless '0 <= identifier < 128' and 'TYPE' is
@@ -707,11 +722,26 @@ struct TemplateTestFacility {
     template <class TYPE, class ALLOCATOR>
     static void emplace(TYPE **address, int identifier, ALLOCATOR allocator);
     template <class TYPE, class ALLOCATOR>
-    static void
-    emplace(TYPE **address, int identifier, ALLOCATOR *allocator);
+    static void emplace(TYPE **address, int identifier, ALLOCATOR *allocator);
         // Create a pointer to the parameterized 'TYPE' at the specified
         // 'address' whose value is unique for the specified 'identifier'.  The
-        // behavior is undefined unless '0 <= identifier < 128'.
+        // behavior is undefined unless '0 <= identifier < 128'.  Note that no
+        // object is created at the address of the returned pointer, nor is it
+        // guaranteed to be a valid address for an object (or function).  Also
+        // note that the same address may be returned for different allocators,
+        // and is guaranteed to be unique only with respect to the 'identifier'
+        // value.
+
+    template <class ALLOCATOR>
+    static void
+    emplace(const char **address, int identifier, ALLOCATOR allocator);
+    template <class ALLOCATOR>
+    static void
+    emplace(const char **address, int identifier, ALLOCATOR *allocator);
+        // Create at the specified 'address' a pointer to a null-terminated
+        // string that will parse as having the same value as the specified
+        // 'identifier'.  The specified 'allocator' is not used.  The behavior
+        // is undefined unless '0 <= identifier < 128'.
 
     template <class ALLOCATOR>
     static void emplace(char *address, int identifier, ALLOCATOR allocator);
@@ -730,12 +760,30 @@ struct TemplateTestFacility {
     template <class ALLOCATOR>
     static void
     emplace(unsigned char *address, int identifier, ALLOCATOR *allocator);
+    template <class ALLOCATOR>
         // Set the character object at the specified 'address' to the value of
         // the specified 'identifier'.  The specified 'allocator' is not used.
         // The behavior is undefined unless '0 <= identifier < 128'.  Note that
         // these overloads are needed only to avoid narrowing conversion
         // warnings that will occur in lower-level utilities when using this
         // test facility.
+
+    static void
+    emplace(EmplacableTestType *address, int identifier, ALLOCATOR allocator);
+    template <class ALLOCATOR>
+    static void
+    emplace(EmplacableTestType *address, int identifier, ALLOCATOR *allocator);
+
+    template <class ALLOCATOR>
+    static void
+    emplace(AllocEmplacableTestType *address,
+            int                      identifier,
+            ALLOCATOR                allocator);
+    template <class ALLOCATOR>
+    static void
+    emplace(AllocEmplacableTestType *address,
+            int                      identifier,
+            ALLOCATOR               *allocator);
 
     template <class ALLOCATOR>
     static void emplace(EnumeratedTestType::Enum *address,
@@ -772,6 +820,12 @@ struct TemplateTestFacility {
         // 'object'.  The behavior is undefined unless 'object' was created by
         // a call to the 'TemplateTestFacility::create' class method template,
         // or is a copy of such an object.
+
+    static int getIdentifier(const char*const& object);
+        // Return the integer identifier that uniquely identifies the specified
+        // 'object'.  The behavior is undefined unless 'object' could be
+        // created from the 'TemplateTestFacility::create' class method
+        // template.
 
     template <class ALLOC>
     static int getIdentifier(const StdAllocTestType<ALLOC>& object);
@@ -850,6 +904,7 @@ void debugprint(const UnionTestType& obj);
 #define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE                       \
         signed char,                                                          \
         size_t,                                                               \
+        const char *,                                                         \
         bsltf::TemplateTestFacility::ObjectPtr,                               \
         bsltf::TemplateTestFacility::FunctionPtr,                             \
         bsltf::TemplateTestFacility::MethodPtr
@@ -865,6 +920,8 @@ void debugprint(const UnionTestType& obj);
     bsltf::BitwiseCopyableTestType,                                           \
     bsltf::BitwiseMoveableTestType,                                           \
     bsltf::AllocBitwiseMoveableTestType,                                      \
+    bsltf::MovableTestType,                                                   \
+    bsltf::MovableAllocTestType,                                              \
     bsltf::NonTypicalOverloadsTestType
     // This macro refers to all of the user-defined test types defined in this
     // package.  Note that the macro can be used as the last argument to the
@@ -881,12 +938,12 @@ void debugprint(const UnionTestType& obj);
         bsltf::NonAssignableTestType,                                         \
         bsltf::NonDefaultConstructibleTestType,                               \
         bsltf::NonEqualComparableTestType
-        // TBD: can't add following -- test run failure in 'bslstl_hashtable'
-        // bsltf::MovableAllocTestType
-        // bsltf::MovableTestType
-        // TBD: can't add following -- 'create' relies on copy ctor
+        // TBD: move-only types should be in a separate movable macro, as many
+        //      existing test rely on copying.
         //  bsltf::MoveOnlyAllocTestType
-        // TBD: can't add following - supports only 14 valid values
+        // TBD: cannot add following as they supports only 14 valid values, and
+        //      'create'/'getIdentifier' require support for (at least) 128
+        //      distinct values.  'bool' has the same issue, as do empty types.
         //  bsltf::AllocEmplacableTestType
         //  bsltf::EmplacableTestType
     // This macro refers to all of the awkward test types defined in this
@@ -1197,7 +1254,11 @@ TYPE TemplateTestFacility::create(int identifier)
     emplace(obj.address(),
             identifier,
             &bslma::MallocFreeAllocator::singleton());
-    return obj.object();
+#if defined(BSLS_PLATFORM_CMP_IBM)
+    return TYPE(bslmf::MovableRefUtil::move(obj.object()));
+#else
+    return TYPE(bslmf::MovableRefUtil::move(obj.object()));
+#endif
 }
 
 template <class TYPE, class ALLOCATOR>
@@ -1240,6 +1301,32 @@ void TemplateTestFacility::emplace(TYPE **address, int identifier, ALLOCATOR *)
     BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
 
     *address = reinterpret_cast<TYPE *>(bsls::Types::IntPtr(identifier));
+}
+
+template <class ALLOCATOR>
+void TemplateTestFacility::emplace(const char **address,
+                                   int          identifier,
+                                   ALLOCATOR    allocator)
+{
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
+
+    (void)allocator;
+
+    *address = nullTerminatedStringForIdentifier(identifier);
+}
+
+template <class ALLOCATOR>
+void TemplateTestFacility::emplace(const char **address,
+                                   int          identifier,
+                                   ALLOCATOR   *allocator)
+{
+    BSLS_ASSERT_SAFE(address);
+    BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
+
+    (void)allocator;
+
+    *address = nullTerminatedStringForIdentifier(identifier);
 }
 
 template <class ALLOCATOR>
@@ -1322,7 +1409,7 @@ void TemplateTestFacility::emplace(TemplateTestFacility::MethodPtr *address,
     BSLS_ASSERT_SAFE(0 <= identifier);  BSLS_ASSERT_SAFE(identifier < 128);
 
     switch (identifier) {
-      case   0: *address = &TemplateTestFacility_StubClass::method<  0>; break;
+      case   0: *address =                                           0 ; break;
       case   1: *address = &TemplateTestFacility_StubClass::method<  1>; break;
       case   2: *address = &TemplateTestFacility_StubClass::method<  2>; break;
       case   3: *address = &TemplateTestFacility_StubClass::method<  3>; break;
@@ -1463,20 +1550,18 @@ void TemplateTestFacility::emplace(MethodPtr *address,
     emplace(address, identifier, bsl::allocator<MethodPtr>(allocator));
 }
 
-#if 0
+#if 1
 // TBD: still working on this as part of C++11 project but should not affect
 //      component test drivers
 template <class ALLOCATOR>
 inline
-void TemplateTestFacility::emplace<EmplacableTestType>(
-                                   EmplacableTestType *address,
+void TemplateTestFacility::emplace(EmplacableTestType *address,
                                    int                 identifier,
-                                   ALLOCATOR allocator)
+                                   ALLOCATOR           allocator)
 {
-    const int N_ARGS = 14;
-    BSLS_ASSERT_SAFE(identifier >= 0); BSLS_ASSERT_SAFE(identifier < N_ARGS);
+    BSLS_ASSERT_SAFE(identifier >= 0); BSLS_ASSERT_SAFE(identifier < 128);
 
-    EmplacableTestType::ArgType01 A01(   1);
+    EmplacableTestType::ArgType01 A01(identifier);
     EmplacableTestType::ArgType02 A02(  20);
     EmplacableTestType::ArgType03 A03(  23);
     EmplacableTestType::ArgType04 A04(  44);
@@ -1493,38 +1578,42 @@ void TemplateTestFacility::emplace<EmplacableTestType>(
 
     switch (identifier) {
       case 0: {
-        bslma::ConstructionUtil::construct(address,
-                                           allocator);
+        bsl::allocator_traits<ALLOCATOR>::construct(allocator, address);
       } break;
       case 1: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01));
       } break;
       case 2: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02));
       } break;
       case 3: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03));
       } break;
       case 4: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
                                            bslmf::MovableRefUtil::move(A04));
       } break;
       case 5: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1532,8 +1621,9 @@ void TemplateTestFacility::emplace<EmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A05));
       } break;
       case 6: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1542,8 +1632,9 @@ void TemplateTestFacility::emplace<EmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A06));
       } break;
       case 7: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1553,8 +1644,9 @@ void TemplateTestFacility::emplace<EmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A07));
       } break;
       case 8: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1565,8 +1657,9 @@ void TemplateTestFacility::emplace<EmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A08));
       } break;
       case 9: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1578,8 +1671,9 @@ void TemplateTestFacility::emplace<EmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A09));
       } break;
       case 10: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1592,8 +1686,9 @@ void TemplateTestFacility::emplace<EmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A10));
       } break;
       case 11: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1607,8 +1702,9 @@ void TemplateTestFacility::emplace<EmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A11));
       } break;
       case 12: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1623,8 +1719,9 @@ void TemplateTestFacility::emplace<EmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A12));
       } break;
       case 13: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1640,8 +1737,9 @@ void TemplateTestFacility::emplace<EmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A13));
       } break;
       case 14: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1658,22 +1756,35 @@ void TemplateTestFacility::emplace<EmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A14));
       } break;
       default: {
-          BSLS_ASSERT_OPT(false);
+        bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           address,
+                                           bslmf::MovableRefUtil::move(A01));
       }
     }
 }
 
 template <class ALLOCATOR>
 inline
-void TemplateTestFacility::emplace<AllocEmplacableTestType>(
-                                   AllocEmplacableTestType *address,
+void TemplateTestFacility::emplace(EmplacableTestType *address,
+                                   int                 identifier,
+                                   ALLOCATOR          *allocator)
+{
+    emplace(address,
+            identifier,
+            bsl::allocator<EmplacableTestType>(allocator));
+}
+
+template <class ALLOCATOR>
+inline
+void TemplateTestFacility::emplace(AllocEmplacableTestType *address,
                                    int                      identifier,
-                                   ALLOCATOR allocator)
+                                   ALLOCATOR                allocator)
 {
     const int N_ARGS = 14;
     BSLS_ASSERT_SAFE(identifier >= 0); BSLS_ASSERT_SAFE(identifier < N_ARGS);
 
-    AllocEmplacableTestType::ArgType01 A01(   1, allocator);
+    AllocEmplacableTestType::ArgType01 A01(identifier, allocator);
     AllocEmplacableTestType::ArgType02 A02(  20, allocator);
     AllocEmplacableTestType::ArgType03 A03(  23, allocator);
     AllocEmplacableTestType::ArgType04 A04(  44, allocator);
@@ -1690,38 +1801,42 @@ void TemplateTestFacility::emplace<AllocEmplacableTestType>(
 
     switch (identifier) {
       case 0: {
-        bslma::ConstructionUtil::construct(address,
-                                           allocator);
+        bsl::allocator_traits<ALLOCATOR>::construct(allocator, address);
       } break;
       case 1: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01));
       } break;
       case 2: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02));
       } break;
       case 3: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03));
       } break;
       case 4: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
                                            bslmf::MovableRefUtil::move(A04));
       } break;
       case 5: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1729,8 +1844,9 @@ void TemplateTestFacility::emplace<AllocEmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A05));
       } break;
       case 6: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1739,8 +1855,9 @@ void TemplateTestFacility::emplace<AllocEmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A06));
       } break;
       case 7: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1750,8 +1867,9 @@ void TemplateTestFacility::emplace<AllocEmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A07));
       } break;
       case 8: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1762,8 +1880,9 @@ void TemplateTestFacility::emplace<AllocEmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A08));
       } break;
       case 9: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1775,8 +1894,9 @@ void TemplateTestFacility::emplace<AllocEmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A09));
       } break;
       case 10: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1789,8 +1909,9 @@ void TemplateTestFacility::emplace<AllocEmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A10));
       } break;
       case 11: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1804,8 +1925,9 @@ void TemplateTestFacility::emplace<AllocEmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A11));
       } break;
       case 12: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1820,8 +1942,9 @@ void TemplateTestFacility::emplace<AllocEmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A12));
       } break;
       case 13: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1837,8 +1960,9 @@ void TemplateTestFacility::emplace<AllocEmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A13));
       } break;
       case 14: {
-        bslma::ConstructionUtil::construct(address,
+        bsl::allocator_traits<ALLOCATOR>::construct(
                                            allocator,
+                                           address,
                                            bslmf::MovableRefUtil::move(A01),
                                            bslmf::MovableRefUtil::move(A02),
                                            bslmf::MovableRefUtil::move(A03),
@@ -1855,18 +1979,25 @@ void TemplateTestFacility::emplace<AllocEmplacableTestType>(
                                            bslmf::MovableRefUtil::move(A14));
       } break;
       default: {
-          BSLS_ASSERT_OPT(false);
+        bsl::allocator_traits<ALLOCATOR>::construct(
+                                           allocator,
+                                           address,
+                                           bslmf::MovableRefUtil::move(A01));
       }
     }
 }
-#endif
 
-template <class TYPE>
+template <class ALLOCATOR>
 inline
-int TemplateTestFacility::getIdentifier(const TYPE& object)
+void TemplateTestFacility::emplace(AllocEmplacableTestType *address,
+                                   int                      identifier,
+                                   ALLOCATOR               *allocator)
 {
-    return int(object);
+    emplace(address,
+            identifier,
+            bsl::allocator<EmplacableTestType>(allocator));
 }
+#endif
 
 template <class TYPE>
 inline
@@ -1874,6 +2005,25 @@ int TemplateTestFacility::getIdentifier(TYPE*const& object)
 {
     bsls::Types::IntPtr result = reinterpret_cast<bsls::Types::IntPtr>(object);
     return static_cast<int>(result);
+}
+
+template <class TYPE>
+inline
+int TemplateTestFacility::getIdentifier(const TYPE& object)
+{
+    BSLMF_ASSERT((!bsl::is_same<TYPE, const char *>::value));
+    // The static assertion catches most improper use of calling this function
+    // with an explicit instantiation: 'getIdentifier<TYPE>(obj)'.  Calls to
+    // this function should always rely on type deduction to determine 'TYPE'
+    // and pick the correct overload for this template.
+
+    return static_cast<int>(object);
+}
+
+inline
+int TemplateTestFacility::getIdentifier(const char*const& object)
+{
+    return object ? atoi(object) : 0;
 }
 
 template <class ALLOC>
@@ -1885,40 +2035,13 @@ int TemplateTestFacility::getIdentifier(const StdAllocTestType<ALLOC>& object)
 
 template <>
 inline
-int TemplateTestFacility::getIdentifier<bsltf::EnumeratedTestType::Enum>(
-                                 const bsltf::EnumeratedTestType::Enum& object)
-{
-    return static_cast<int>(object);
-}
-
-template <>
-inline
-int TemplateTestFacility::getIdentifier<
-    bsltf::TemplateTestFacility::ObjectPtr>(
-                             const bsltf::TemplateTestFacility::ObjectPtr& ptr)
-{
-
-    bsls::Types::IntPtr value = reinterpret_cast<bsls::Types::IntPtr>(ptr);
-    return static_cast<int>(value);
-}
-
-template <>
-inline
-int TemplateTestFacility::getIdentifier<
-    bsltf::TemplateTestFacility::FunctionPtr>(
-                           const bsltf::TemplateTestFacility::FunctionPtr& ptr)
-{
-    bsls::Types::IntPtr value = reinterpret_cast<bsls::Types::IntPtr>(ptr);
-    return static_cast<int>(value);
-}
-
-template <>
-inline
 int TemplateTestFacility::getIdentifier<
     bsltf::TemplateTestFacility::MethodPtr>(
                              const bsltf::TemplateTestFacility::MethodPtr& ptr)
 {
-    BSLS_ASSERT_OPT(ptr);
+    if (!ptr) {
+        return 0;                                                     // RETURN
+    }
 
     TemplateTestFacility_StubClass object = TemplateTestFacility_StubClass();
     return (object.*ptr)();
@@ -1951,7 +2074,7 @@ int TemplateTestFacility::getIdentifier<bsltf::AllocTestType>(
 template <>
 inline
 int TemplateTestFacility::getIdentifier<bsltf::NonOptionalAllocTestType>(
-                                  const bsltf::NonOptionalAllocTestType& object)
+                                 const bsltf::NonOptionalAllocTestType& object)
 {
     return object.data();
 }
@@ -1967,7 +2090,7 @@ int TemplateTestFacility::getIdentifier<bsltf::MovableAllocTestType>(
 template <>
 inline
 int TemplateTestFacility::getIdentifier<bsltf::MovableTestType>(
-                                     const bsltf::MovableTestType& object)
+                                          const bsltf::MovableTestType& object)
 {
     return object.data();
 }
@@ -2051,7 +2174,7 @@ inline
 int TemplateTestFacility::getIdentifier<bsltf::EmplacableTestType>(
                                const bsltf::EmplacableTestType& object)
 {
-    BSLS_ASSERT_SAFE(   1 == object.arg01() || -1 == object.arg01());
+    BSLS_ASSERT_SAFE(   1 <= object.arg01() || 128 > object.arg01());
     BSLS_ASSERT_SAFE(  20 == object.arg02() || -1 == object.arg02());
     BSLS_ASSERT_SAFE(  23 == object.arg03() || -1 == object.arg03());
     BSLS_ASSERT_SAFE(  44 == object.arg04() || -1 == object.arg04());
@@ -2066,35 +2189,21 @@ int TemplateTestFacility::getIdentifier<bsltf::EmplacableTestType>(
     BSLS_ASSERT_SAFE( 712 == object.arg13() || -1 == object.arg13());
     BSLS_ASSERT_SAFE(1414 == object.arg14() || -1 == object.arg14());
 
-    return -1 == object.arg01()
-           ? 0
-           : -1 == object.arg02()
-             ? 1
-             : -1 == object.arg03()
-               ? 2
-               : -1 == object.arg04()
-                 ? 3
-                 : -1 == object.arg05()
-                   ? 4
-                   : -1 == object.arg06()
-                     ? 5
-                     : -1 == object.arg07()
-                       ? 6
-                       : -1 == object.arg08()
-                         ? 7
-                         : -1 == object.arg09()
-                           ? 8
-                           : -1 == object.arg10()
-                             ? 9
-                             : -1 == object.arg11()
-                               ? 10
-                               : -1 == object.arg12()
-                                 ? 11
-                                 : -1 == object.arg13()
-                                   ? 12
-                                   : -1 == object.arg14()
-                                     ? 13
-                                     : 14;
+    return -1 == object.arg01() ?  0
+         : -1 == object.arg02() ?  object.arg01()
+         : -1 == object.arg03() ?  2
+         : -1 == object.arg04() ?  3
+         : -1 == object.arg05() ?  4
+         : -1 == object.arg06() ?  5
+         : -1 == object.arg07() ?  6
+         : -1 == object.arg08() ?  7
+         : -1 == object.arg09() ?  8
+         : -1 == object.arg10() ?  9
+         : -1 == object.arg11() ? 10
+         : -1 == object.arg12() ? 11
+         : -1 == object.arg13() ? 12
+         : -1 == object.arg14() ? 13
+         :                        14;
 }
 
 template <>
@@ -2117,35 +2226,21 @@ int TemplateTestFacility::getIdentifier<bsltf::AllocEmplacableTestType>(
     BSLS_ASSERT_SAFE( 712 == object.arg13() || -1 == object.arg13());
     BSLS_ASSERT_SAFE(1414 == object.arg14() || -1 == object.arg14());
 
-    return -1 == object.arg01()
-           ? 0
-           : -1 == object.arg02()
-             ? 1
-             : -1 == object.arg03()
-               ? 2
-               : -1 == object.arg04()
-                 ? 3
-                 : -1 == object.arg05()
-                   ? 4
-                   : -1 == object.arg06()
-                     ? 5
-                     : -1 == object.arg07()
-                       ? 6
-                       : -1 == object.arg08()
-                         ? 7
-                         : -1 == object.arg09()
-                           ? 8
-                           : -1 == object.arg10()
-                             ? 9
-                             : -1 == object.arg11()
-                               ? 10
-                               : -1 == object.arg12()
-                                 ? 11
-                                 : -1 == object.arg13()
-                                   ? 12
-                                   : -1 == object.arg14()
-                                     ? 13
-                                     : 14;
+    return -1 == object.arg01() ?  0
+         : -1 == object.arg02() ?  1
+         : -1 == object.arg03() ?  2
+         : -1 == object.arg04() ?  3
+         : -1 == object.arg05() ?  4
+         : -1 == object.arg06() ?  5
+         : -1 == object.arg07() ?  6
+         : -1 == object.arg08() ?  7
+         : -1 == object.arg09() ?  8
+         : -1 == object.arg10() ?  9
+         : -1 == object.arg11() ? 10
+         : -1 == object.arg12() ? 11
+         : -1 == object.arg13() ? 12
+         : -1 == object.arg14() ? 13
+         :                        14;
 }
 
 template <class TYPE>

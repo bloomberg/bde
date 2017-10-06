@@ -2,11 +2,11 @@
 #include <bslalg_scalarprimitives.h>
 
 #include <bslalg_autoscalardestructor.h>
-#include <bslalg_scalardestructionprimitives.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_destructionutil.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_usesbslmaallocator.h>
@@ -123,8 +123,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef BloombergLP::bslalg::ScalarPrimitives            Obj;
-typedef BloombergLP::bslalg::ScalarDestructionPrimitives DestructionPrimitives;
+typedef BloombergLP::bslalg::ScalarPrimitives  Obj;
 
 typedef bslmf::MovableRefUtil MovUtl;
 
@@ -1627,8 +1626,8 @@ int main(int argc, char *argv[])
             ASSERT(TA2 == rawBuf[1].d_allocator_p);
             Obj::swap(objPtr[0], objPtr[0]);
             ASSERT(2   == rawBuf[0].d_value);
-            DestructionPrimitives::destroy(&objPtr[0]);
-            DestructionPrimitives::destroy(&objPtr[1]);
+            bslma::DestructionUtil::destroy(&objPtr[0]);
+            bslma::DestructionUtil::destroy(&objPtr[1]);
         }
         {
             my_ClassDef  rawBuf[2];
@@ -1642,8 +1641,8 @@ int main(int argc, char *argv[])
             ASSERT(TA2 == rawBuf[1].d_allocator_p);
             Obj::swap(objPtr[0], objPtr[0]);
             ASSERT(2   == rawBuf[0].d_value);
-            DestructionPrimitives::destroy(&objPtr[0]);
-            DestructionPrimitives::destroy(&objPtr[1]);
+            bslma::DestructionUtil::destroy(&objPtr[0]);
+            bslma::DestructionUtil::destroy(&objPtr[1]);
         }
         {
             my_ClassDef  rawBuf[2];
@@ -1657,8 +1656,8 @@ int main(int argc, char *argv[])
             ASSERT(TA2 == rawBuf[1].d_allocator_p);
             Obj::swap(objPtr[0], objPtr[0]);
             ASSERT(2   == rawBuf[0].d_value);
-            DestructionPrimitives::destroy(&objPtr[0]);
-            DestructionPrimitives::destroy(&objPtr[1]);
+            bslma::DestructionUtil::destroy(&objPtr[0]);
+            bslma::DestructionUtil::destroy(&objPtr[1]);
         }
         {
             my_ClassDef  rawBuf[2];
@@ -1672,8 +1671,8 @@ int main(int argc, char *argv[])
             ASSERT(TA2 == rawBuf[1].d_allocator_p);
             Obj::swap(objPtr[0], objPtr[0]);
             ASSERT(2   == rawBuf[0].d_value);
-            DestructionPrimitives::destroy(&objPtr[0]);
-            DestructionPrimitives::destroy(&objPtr[1]);
+            bslma::DestructionUtil::destroy(&objPtr[0]);
+            bslma::DestructionUtil::destroy(&objPtr[1]);
         }
 
         if (verbose) printf("Heterogeneous swap testing.\n");
@@ -1693,8 +1692,8 @@ int main(int argc, char *argv[])
             ASSERT(TA1 == rawBuf[0].d_allocator_p);
             ASSERT(2   == rawBuf[1].d_value);
             ASSERT(TA2 == rawBuf[1].d_allocator_p);
-            DestructionPrimitives::destroy(objPtr4);
-            DestructionPrimitives::destroy(objPtr5);
+            bslma::DestructionUtil::destroy(objPtr4);
+            bslma::DestructionUtil::destroy(objPtr5);
         }
 
         if (verbose) printf("Exception testing.\n");
@@ -1711,8 +1710,8 @@ int main(int argc, char *argv[])
             guard2.release();
             ASSERT(2 == rawBuf[0].d_value);
             ASSERT(1 == rawBuf[1].d_value);
-            DestructionPrimitives::destroy(&objPtr[0]);
-            DestructionPrimitives::destroy(&objPtr[1]);
+            bslma::DestructionUtil::destroy(&objPtr[0]);
+            bslma::DestructionUtil::destroy(&objPtr[1]);
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (verbose) printf("Trait selection testing.\n");
@@ -1734,8 +1733,8 @@ int main(int argc, char *argv[])
             }
             Obj::swap(objPtr[0], objPtr[0]);
             ASSERT(2   == rawBuf[0].d_value);
-            DestructionPrimitives::destroy(&objPtr[0]);
-            DestructionPrimitives::destroy(&objPtr[1]);
+            bslma::DestructionUtil::destroy(&objPtr[0]);
+            bslma::DestructionUtil::destroy(&objPtr[1]);
         }
 
       } break;
@@ -2675,7 +2674,7 @@ int main(int argc, char *argv[])
         // 'destroy' invokes destructor ... with no particular constraints.
 
         std::memset(&rawBuf, 92, sizeof(rawBuf));
-        DestructionPrimitives::destroy((my_Class1*) &rawBuf);
+        bslma::DestructionUtil::destroy((my_Class1*) &rawBuf);
         ASSERT(0  == rawBuf.d_allocator_p);
         ASSERT(91 == rawBuf.d_value);
 
@@ -2691,7 +2690,7 @@ int main(int argc, char *argv[])
         // 'destroy' invokes destructor ... with no particular constraints.
 
         std::memset(&rawBuf, 92, sizeof(rawBuf));
-        DestructionPrimitives::destroy((my_Class2*) &rawBuf);
+        bslma::DestructionUtil::destroy((my_Class2*) &rawBuf);
         ASSERT(0  == rawBuf.d_allocator_p);
         ASSERT(92 == rawBuf.d_value);
 

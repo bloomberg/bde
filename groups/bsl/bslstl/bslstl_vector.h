@@ -3019,8 +3019,12 @@ class vector< VALUE_TYPE *, ALLOCATOR >
                       // *** construct/copy/destroy ***
 
     // CREATORS
-    explicit vector(const ALLOCATOR& basicAllocator = ALLOCATOR())
-                                                            BSLS_CPP11_NOEXCEPT
+    vector() BSLS_CPP11_NOEXCEPT
+    : Base()
+    {
+    }
+
+    explicit vector(const ALLOCATOR& basicAllocator) BSLS_CPP11_NOEXCEPT
     : Base(BaseAlloc(basicAllocator))
     {
     }
@@ -3439,11 +3443,16 @@ class vector< const VALUE_TYPE *, ALLOCATOR >
                       // *** construct/copy/destroy ***
 
     // CREATORS
-    explicit vector(const ALLOCATOR& basicAllocator = ALLOCATOR())
-                                                            BSLS_CPP11_NOEXCEPT
+    vector() BSLS_CPP11_NOEXCEPT
+    : Base()
+    {
+    }
+
+    explicit vector(const ALLOCATOR& basicAllocator) BSLS_CPP11_NOEXCEPT
     : Base(BaseAlloc(basicAllocator))
     {
     }
+
 
     explicit vector(size_type        initialSize,
                     const ALLOCATOR& basicAllocator = ALLOCATOR())
@@ -5854,12 +5863,6 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(
     BSLS_ASSERT_SAFE(this->begin() <= position);
     BSLS_ASSERT_SAFE(position      <= this->end());
 
-    VALUE_TYPE& lvalue = value;
-
-    const size_type index = position - this->begin();
-
-    const iterator& pos = const_cast<const iterator&>(position);
-
     const size_type maxSize = max_size();
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(1 > maxSize - this->size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -5867,7 +5870,12 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(
                                "vector<...>::insert(pos,rv): vector too long");
     }
 
+    VALUE_TYPE& lvalue = value;
+
+    const size_type index   = position - this->begin();
+    const iterator& pos     = const_cast<const iterator&>(position);
     const size_type newSize = this->size() + 1;
+
     if (newSize > this->d_capacity) {
         size_type newCapacity = Vector_Util::computeNewCapacity(
                                                               newSize,
@@ -5907,9 +5915,6 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
     BSLS_ASSERT_SAFE(this->begin() <= position);
     BSLS_ASSERT_SAFE(position      <= this->end());
 
-    const size_type index = position - this->begin();
-    const iterator& pos = const_cast<const iterator&>(position);
-
     const size_type maxSize = max_size();
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                        numElements > maxSize - this->size())) {
@@ -5918,7 +5923,10 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
                               "vector<...>::insert(pos,n,v): vector too long");
     }
 
+    const size_type index   = position - this->begin();
+    const iterator& pos     = const_cast<const iterator&>(position);
     const size_type newSize = this->size() + numElements;
+
     if (newSize > this->d_capacity) {
         size_type newCapacity = Vector_Util::computeNewCapacity(
                                                               newSize,

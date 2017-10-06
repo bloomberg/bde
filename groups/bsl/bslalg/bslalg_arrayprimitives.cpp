@@ -112,7 +112,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 
 #include <bslalg_arraydestructionprimitives.h>          // for testing only
-#include <bslalg_scalardestructionprimitives.h>         // for testing only
 #include <bslalg_scalarprimitives.h>                    // for testing only
 
 #include <bslmf_assert.h>
@@ -124,7 +123,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <cstring>
 
 namespace BloombergLP {
-
 namespace bslalg {
 
 // CLASS METHODS

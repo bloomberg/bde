@@ -606,16 +606,16 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_pool.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -663,6 +663,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
+#include <bslalg_scalardestructionprimitives.h>
+#endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
@@ -1735,7 +1739,7 @@ template <class DATA>
 TimeQueueItem<DATA>::TimeQueueItem(bslma::Allocator *basicAllocator)
 : d_key(0)
 {
-    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslma::DestructionUtil::destroy(&d_data);
     bslalg::ScalarPrimitives::defaultConstruct(&d_data, basicAllocator);
 }
 
@@ -1748,7 +1752,7 @@ TimeQueueItem(TimeQueueItem<DATA> const&  original,
 , d_handle(original.d_handle)
 , d_key(original.d_key)
 {
-    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslma::DestructionUtil::destroy(&d_data);
     bslalg::ScalarPrimitives::copyConstruct(&d_data,
                                             original.d_data,
                                             basicAllocator);
@@ -1765,7 +1769,7 @@ TimeQueueItem(const bsls::TimeInterval&  time,
 , d_handle(handle)
 , d_key(0)
 {
-    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslma::DestructionUtil::destroy(&d_data);
     bslalg::ScalarPrimitives::copyConstruct(&d_data,
                                             data,
                                             basicAllocator);
@@ -1783,7 +1787,7 @@ TimeQueueItem(const bsls::TimeInterval&  time,
 , d_handle(handle)
 , d_key(key)
 {
-    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslma::DestructionUtil::destroy(&d_data);
     bslalg::ScalarPrimitives::copyConstruct(&d_data,
                                             data,
                                             basicAllocator);
