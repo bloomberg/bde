@@ -126,6 +126,8 @@ using namespace bdlf::PlaceHolders;
 // [ 3] static LoggerManager& initSingleton(const Configuration&, *alloc=0);
 // [ 4] static LoggerManager& initSingleton(observer, *alloc = 0);
 // [ 5] static LoggerManager& initSingleton(observer, config, *alloc = 0);
+// [34] static int initSingleton(LoggerManager *, false);
+// [33] static int initSingleton(LoggerManager *, true);
 // [ *] static bool isInitialized();
 // [ *] static void logMessage(int severity, ball::Record *record);
 // [ *] static ball::LoggerManager& singleton();
@@ -202,8 +204,6 @@ using namespace bdlf::PlaceHolders;
 // [29] TESTING 'isCategoryEnabled' (RULE BASED LOGGING)
 // [30] TESTING 'ball::Logger::logMessage' (RULE BASED LOGGING)
 // [31] TESTING '~LoggerManager' calls 'Observer::releaseRecords'
-// [33] initSingleton(LoggerManager *, true);
-// [34] initSingleton(LoggerManager *, false);
 // [36] SINGLETON REINITIALIZATION
 // [38] USAGE EXAMPLE #1
 // [39] USAGE EXAMPLE #2
@@ -1170,6 +1170,58 @@ extern "C" void *scopedGuardThread(void *args)
 }
 
 }  // close namespace BALL_LOGGERMANAGER_SINGLETON_REINITIALIZATION
+
+// ============================================================================
+//                    FUNKY WINDOWS-SPECIFIC INITSINGLETON
+// ----------------------------------------------------------------------------
+
+namespace BALL_LOGGERMANAGER_WINDOWS_SPECIFIC_INITSINGLETON {
+
+struct TrackingAllocator : public bslma::Allocator {
+    // This 'struct' provides a concrete implementation of the
+    // 'bslma::Allocator' protocol that tracks the address of a
+    // 'ball::LoggerManager' object and detects when it has been deleted.
+
+    // PUBLIC DATA
+    void *d_tracked_pointer_p;  // address of tracked 'LoggerManager' object
+    bool  d_deleted;            // 'true' iff tracked pointer has been deleted
+
+    // CREATORS
+    TrackingAllocator()
+        // Create a tracking allocator that is initialized to track no object.
+    : d_tracked_pointer_p(0)
+    , d_deleted(false)
+    {
+    }
+
+    // MANIPULATORS
+    void *allocate(size_type size)
+        // Return a newly allocated block of memory of (at least) the specified
+        // positive 'size' (in bytes).  If this allocator it not yet tracking
+        // an address and 'sizeof(ball::LoggerManager) == size', then set this
+        // object to track the address that is returned.
+    {
+        void *p = ::operator new(size);
+        if (!d_tracked_pointer_p
+            && sizeof(ball::LoggerManager) == size) {
+            d_tracked_pointer_p = p;
+        }
+        return p;
+    }
+
+    virtual void deallocate(void *address)
+        // Return the memory block at the specified 'address' back to this
+        // allocator.  If 'address' matches the pointer being tracked, then set
+        // a flag indicating that it has been deleted.
+    {
+        if (address && d_tracked_pointer_p == address) {
+            d_deleted = true;
+        }
+        ::operator delete(address);
+    }
+};
+
+}  // close namespace BALL_LOGGERMANAGER_WINDOWS_SPECIFIC_INITSINGLETON
 
 // ============================================================================
 //                         CASE 17 RELATED ENTITIES
@@ -2379,131 +2431,178 @@ int main(int argc, char *argv[])
       } break;
       case 34: {
         // --------------------------------------------------------------------
-        // TESTING EXTERNAL 'initSingleton' WITH NO SHUTDOWN
+        // TESTING EXTERNAL 'initSingleton' W/O OWNERSHIP
         //
         // Concerns:
-        //: 1 We want to make sure that the supplied singleton is accepted and
-        //:   that 'shutDownSingleton' does not deallocate it.
+        //: 1 When the 'takeOwnership' flag is 'false':
+        //:
+        //:   1 The supplied logger manager is adopted as the singleton only if
+        //:     the singleton does not already exist.
+        //:
+        //:   2 'shutDownSingleton' does not delete the supplied logger manager
+        //:     in any case.
+        //:
+        //: 2 The method returns the expected status value.
+        //:
+        //: 3 The singleton is reinitializable using the method under test.
         //
         // Plan:
-        //: 1 Construct a singleton using a custom allocator that will notice
-        //:   whether it is deleted.  Supply the singleton to the logger
-        //:   manager, verify that it has been accepted, and then call
-        //:   'shutDownSingleton' and verify that the singleton is not deleted.
-        //:   (C-1)
+        //: 1 Create a logger manager using a custom allocator that will notice
+        //:   whether it is deleted.  Supply the logger manager to the method:
+        //:   (1) when the singleton already exists, and (2) when the singleton
+        //:   does not already exist.  The 'takeOwnership' flag is 'false' in
+        //:   both cases.  Verify that the logger manager is adopted only in
+        //:   the second case.  Call 'shutDownSingleton' and verify that in
+        //:   neither case is the supplied logger manager deleted.  (C-1..2)
+        //:
+        //: 2 Repeat the second test from P-1.  (C-3)
         //
         // Testing:
-        //   initSingleton(LoggerManager *, false);
+        //   static int initSingleton(LoggerManager *, false);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING EXTERNAL 'initSingleton' WITH NO SHUTDOWN"
-                 << "\n=================================================\n";
+            cout << "\nTESTING EXTERNAL 'initSingleton' W/O OWNERSHIP"
+                 << "\n==============================================\n";
 
-        struct TrackingAllocator : public bslma::Allocator {
-            void *d_tracked_pointer_p;
-            bool  d_deleted;
+        using namespace BALL_LOGGERMANAGER_WINDOWS_SPECIFIC_INITSINGLETON;
 
-            TrackingAllocator()
-            : d_tracked_pointer_p(0)
-            , d_deleted(false)
-            {
-            }
+        if (verbose) cout << "\tSingleton already exists." << endl;
+        {
+            const ball::LoggerManagerConfiguration XC;
+            ball::LoggerManagerScopedGuard         lmGuard(XC);
 
-            void *allocate(size_type size)
-            {
-                void *p = ::operator new(size);
-                if (!d_tracked_pointer_p
-                    && sizeof(ball::LoggerManager) == size) {
-                    d_tracked_pointer_p = p;
-                }
-                return p;
-            }
+            TrackingAllocator ta;
+            ball::StreamObserver obs(&cout);
+            ball::LoggerManagerConfiguration cfg;
+            bslma::ManagedPtr<ball::LoggerManager> mp;
+            ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+            ball::LoggerManager *p = mp.ptr();
+            ASSERT(0 != ball::LoggerManager::initSingleton(p, false));
+            ASSERT(ta.d_tracked_pointer_p            == p);
+            ASSERT(&ball::LoggerManager::singleton() != p);  // not adopted
+            ball::LoggerManager::shutDownSingleton();
+            ASSERT(!ta.d_deleted);                           // not deleted
+        }
 
-            virtual void deallocate(void *address)
-            {
-                if (address && d_tracked_pointer_p == address) {
-                    d_deleted = true;
-                }
-                ::operator delete(address);
-            }
-        };
+        if (verbose) cout << "\tSingleton does not already exist." << endl;
+        {
+            TrackingAllocator ta;
+            ball::StreamObserver obs(&cout);
+            ball::LoggerManagerConfiguration cfg;
+            bslma::ManagedPtr<ball::LoggerManager> mp;
+            ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+            ball::LoggerManager *p = mp.ptr();
+            ASSERT(0 == ball::LoggerManager::initSingleton(p));
+            ASSERT(ta.d_tracked_pointer_p            == p);
+            ASSERT(&ball::LoggerManager::singleton() == p);  // adopted
+            ball::LoggerManager::shutDownSingleton();
+            ASSERT(!ta.d_deleted);                           // not deleted
+        }
 
-        TrackingAllocator ta;
-        ball::StreamObserver obs(&cout);
-        ball::LoggerManagerConfiguration cfg;
-        bslma::ManagedPtr<ball::LoggerManager> mp;
-        ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
-        ball::LoggerManager *p = mp.ptr();
-        ball::LoggerManager::initSingleton(p);
-        ASSERT(ta.d_tracked_pointer_p == p);
-        ASSERT(&ball::LoggerManager::singleton() == p);
-        ball::LoggerManager::shutDownSingleton();
-        ASSERT(!ta.d_deleted);
+        if (verbose) cout << "\t\tRepeat." << endl;
+        {
+            TrackingAllocator ta;
+            ball::StreamObserver obs(&cout);
+            ball::LoggerManagerConfiguration cfg;
+            bslma::ManagedPtr<ball::LoggerManager> mp;
+            ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+            ball::LoggerManager *p = mp.ptr();
+            ASSERT(0 == ball::LoggerManager::initSingleton(p));
+            ASSERT(ta.d_tracked_pointer_p            == p);
+            ASSERT(&ball::LoggerManager::singleton() == p);  // adopted
+            ball::LoggerManager::shutDownSingleton();
+            ASSERT(!ta.d_deleted);                           // not deleted
+        }
+
       } break;
       case 33: {
         // --------------------------------------------------------------------
-        // TESTING EXTERNAL 'initSingleton' WITH SHUTDOWN
+        // TESTING EXTERNAL 'initSingleton' W/OWNERSHIP
         //
         // Concerns:
-        //: 1 We want to make sure that the supplied singleton is accepted and
-        //:   that 'shutDownSingleton' deallocates it.
+        //: 1 When the 'takeOwnership' flag is 'true':
+        //:
+        //:   1 The supplied logger manager is adopted as the singleton only if
+        //:     the singleton does not already exist.
+        //:
+        //:   2 'shutDownSingleton' deletes the supplied logger manager only if
+        //:     it has been adopted.
+        //:
+        //: 2 The method returns the expected status value.
+        //:
+        //: 3 The singleton is reinitializable using the method under test.
         //
         // Plan:
-        //: 1 Construct a singleton using a custom allocator that will notice
-        //:   whether it is deleted.  Supply the singleton to the logger
-        //:   manager, verify that it has been accepted, and then call
-        //:   'shutDownSingleton' and verify that the singleton is deleted.
-        //:   (C-1)
+        //: 1 Create a logger manager using a custom allocator that will notice
+        //:   whether it is deleted.  Supply the logger manager to the method:
+        //:   (1) when the singleton already exists, and (2) when the singleton
+        //:   does not already exist.  The 'takeOwnership' flag is 'true' in
+        //:   both cases.  Verify that the logger manager is adopted only in
+        //:   the second case.  Call 'shutDownSingleton' and verify that the
+        //:   supplied logger manager is deleted only if it has been adopted.
+        //:   (C-1..2)
+        //:
+        //: 2 Repeat the second test from P-1.  (C-3)
         //
         // Testing:
-        //   initSingleton(LoggerManager *, true);
+        //   static int initSingleton(LoggerManager *, true);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING EXTERNAL 'initSingleton' WITH SHUTDOWN"
-                 << "\n==============================================\n";
+            cout << "\nTESTING EXTERNAL 'initSingleton' W/OWNERSHIP"
+                 << "\n============================================\n";
 
-        struct TrackingAllocator : public bslma::Allocator {
-            void *d_tracked_pointer_p;
-            bool  d_deleted;
+        using namespace BALL_LOGGERMANAGER_WINDOWS_SPECIFIC_INITSINGLETON;
 
-            TrackingAllocator()
-            : d_tracked_pointer_p(0)
-            , d_deleted(false)
-            {
-            }
+        if (verbose) cout << "\tSingleton already exists." << endl;
+        {
+            const ball::LoggerManagerConfiguration XC;
+            ball::LoggerManagerScopedGuard         lmGuard(XC);
 
-            void *allocate(size_type size)
-            {
-                void *p = ::operator new(size);
-                if (!d_tracked_pointer_p
-                    && sizeof(ball::LoggerManager) == size) {
-                    d_tracked_pointer_p = p;
-                }
-                return p;
-            }
+            TrackingAllocator ta;
+            ball::StreamObserver obs(&cout);
+            ball::LoggerManagerConfiguration cfg;
+            bslma::ManagedPtr<ball::LoggerManager> mp;
+            ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+            ball::LoggerManager *p = mp.ptr();
+            ASSERT(0 != ball::LoggerManager::initSingleton(p, true));
+            ASSERT(ta.d_tracked_pointer_p            == p);
+            ASSERT(&ball::LoggerManager::singleton() != p);  // not adopted
+            ball::LoggerManager::shutDownSingleton();
+            ASSERT(!ta.d_deleted);                           // not deleted
+        }
 
-            virtual void deallocate(void *address)
-            {
-                if (address && d_tracked_pointer_p == address) {
-                    d_deleted = true;
-                }
-                ::operator delete(address);
-            }
-        };
+        if (verbose) cout << "\tSingleton does not already exist." << endl;
+        {
+            TrackingAllocator ta;
+            ball::StreamObserver obs(&cout);
+            ball::LoggerManagerConfiguration cfg;
+            bslma::ManagedPtr<ball::LoggerManager> mp;
+            ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+            ball::LoggerManager *p = mp.release().first;
+            ASSERT(0 == ball::LoggerManager::initSingleton(p, true));
+            ASSERT(ta.d_tracked_pointer_p            == p);
+            ASSERT(&ball::LoggerManager::singleton() == p);  // adopted
+            ball::LoggerManager::shutDownSingleton();
+            ASSERT(ta.d_deleted);                            // deleted
+        }
 
-        TrackingAllocator ta;
-        ball::StreamObserver obs(&cout);
-        ball::LoggerManagerConfiguration cfg;
-        bslma::ManagedPtr<ball::LoggerManager> mp;
-        ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
-        ball::LoggerManager *p = mp.release().first;
-        ball::LoggerManager::initSingleton(p, true);
-        ASSERT(ta.d_tracked_pointer_p == p);
-        ASSERT(&ball::LoggerManager::singleton() == p);
-        ball::LoggerManager::shutDownSingleton();
-        ASSERT(ta.d_deleted);
+        if (verbose) cout << "\t\tRepeat." << endl;
+        {
+            TrackingAllocator ta;
+            ball::StreamObserver obs(&cout);
+            ball::LoggerManagerConfiguration cfg;
+            bslma::ManagedPtr<ball::LoggerManager> mp;
+            ball::LoggerManager::createLoggerManager(&mp, &obs, cfg, &ta);
+            ball::LoggerManager *p = mp.release().first;
+            ASSERT(0 == ball::LoggerManager::initSingleton(p, true));
+            ASSERT(ta.d_tracked_pointer_p            == p);
+            ASSERT(&ball::LoggerManager::singleton() == p);  // adopted
+            ball::LoggerManager::shutDownSingleton();
+            ASSERT(ta.d_deleted);                            // deleted
+        }
+
       } break;
       case 32: {
         // --------------------------------------------------------------------
@@ -6089,13 +6188,13 @@ int main(int argc, char *argv[])
             // Verify no allocation from the non-object allocators.
             ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
-            ASSERTV(CONFIG, &oa == mX.allocator());
-            ASSERTV(CONFIG, 0   == mX.observer()); // no observers
+            ASSERTV(CONFIG, &oa == X.allocator());
+            ASSERTV(CONFIG, 0   == X.observer()); // no observers
 
-            ASSERT(FACTORY_RECORD     == mX.defaultRecordThresholdLevel());
-            ASSERT(FACTORY_PASS       == mX.defaultPassThresholdLevel());
-            ASSERT(FACTORY_TRIGGER    == mX.defaultTriggerThresholdLevel());
-            ASSERT(FACTORY_TRIGGERALL == mX.defaultTriggerAllThresholdLevel());
+            ASSERT(FACTORY_RECORD     == X.defaultRecordThresholdLevel());
+            ASSERT(FACTORY_PASS       == X.defaultPassThresholdLevel());
+            ASSERT(FACTORY_TRIGGER    == X.defaultTriggerThresholdLevel());
+            ASSERT(FACTORY_TRIGGERALL == X.defaultTriggerAllThresholdLevel());
 
             // Reclaim dynamically allocated object under test.
             objPtr.reset();
@@ -6215,13 +6314,13 @@ int main(int argc, char *argv[])
             // Verify no allocation from the non-object allocators.
             ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
-            ASSERTV(CONFIG, &oa == mX.allocator());
-            ASSERTV(CONFIG, 0   == mX.observer()); // no observers
+            ASSERTV(CONFIG, &oa == X.allocator());
+            ASSERTV(CONFIG, 0   == X.observer()); // no observers
 
-            ASSERT(FACTORY_RECORD     == mX.defaultRecordThresholdLevel());
-            ASSERT(FACTORY_PASS       == mX.defaultPassThresholdLevel());
-            ASSERT(FACTORY_TRIGGER    == mX.defaultTriggerThresholdLevel());
-            ASSERT(FACTORY_TRIGGERALL == mX.defaultTriggerAllThresholdLevel());
+            ASSERT(FACTORY_RECORD     == X.defaultRecordThresholdLevel());
+            ASSERT(FACTORY_PASS       == X.defaultPassThresholdLevel());
+            ASSERT(FACTORY_TRIGGER    == X.defaultTriggerThresholdLevel());
+            ASSERT(FACTORY_TRIGGERALL == X.defaultTriggerAllThresholdLevel());
 
             // Reclaim dynamically allocated object under test.
             fa.deleteObject(objPtr);

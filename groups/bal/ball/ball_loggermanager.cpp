@@ -493,8 +493,8 @@ char *Logger::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
                            // -------------------
 
 // CLASS DATA
-LoggerManager *LoggerManager::s_singleton_p   = 0;
-bool           LoggerManager::s_doNotShutDown = false;
+LoggerManager *LoggerManager::s_singleton_p       = 0;
+bool           LoggerManager::s_doNotOwnSingleton = false;
 
 namespace {
 
@@ -731,16 +731,24 @@ LoggerManager& LoggerManager::initSingleton(
     return *s_singleton_p;
 }
 
-void
-LoggerManager::initSingleton(LoggerManager *singleton, bool shutDownEnabled)
+int
+LoggerManager::initSingleton(LoggerManager *singleton, bool takeOwnership)
 {
     BSLS_ASSERT(singleton);
+
+    enum { e_SUCCESS = 0, e_FAILURE = -1 };
 
     bslmt::QLockGuard qLockGuard(&singletonQLock);
 
     if (0 == s_singleton_p) {
-        s_singleton_p   = singleton;
-        s_doNotShutDown = !shutDownEnabled;
+        // Parallel what is done in 'initSingletonImpl'.  (The first version of
+        // this function did not call 'AttributeContext::initialize'.)
+
+        AttributeContext::initialize(&singleton->d_categoryManager,
+                                     bslma::Default::globalAllocator(0));
+
+        s_singleton_p       = singleton;
+        s_doNotOwnSingleton = !takeOwnership;
 
         // Configure 'bsls::Log' to publish records using 'ball' via the
         // 'LoggerManager' singleton.
@@ -749,6 +757,8 @@ LoggerManager::initSingleton(LoggerManager *singleton, bool shutDownEnabled)
 
         savedBslsLogMessageHandler = bsls::Log::logMessageHandler();
         bsls::Log::setLogMessageHandler(&bslsLogMessage);
+
+        return e_SUCCESS;                                             // RETURN
     }
     else {
         LoggerManager::singleton().getLogger().
@@ -757,6 +767,8 @@ LoggerManager::initSingleton(LoggerManager *singleton, bool shutDownEnabled)
                        __FILE__,
                        __LINE__,
                        "BALL logger manager has already been initialized!");
+
+        return e_FAILURE;                                             // RETURN
     }
 }
 
@@ -836,7 +848,7 @@ void LoggerManager::shutDownSingleton()
 {
     bslmt::QLockGuard qLockGuard(&singletonQLock);
 
-    if (s_singleton_p && !s_doNotShutDown) {
+    if (s_singleton_p) {
         // Restore the 'bsls::Log' message handler that was in effect prior to
         // the creation of the singleton.  The lock ensures that the singleton
         // is not destroyed while a 'bsls::Log' record is being published.
@@ -855,7 +867,12 @@ void LoggerManager::shutDownSingleton()
 
         AttributeContext::reset();
 
-        singleton->allocator()->deleteObjectRaw(singleton);
+        if (!s_doNotOwnSingleton) {
+            singleton->allocator()->deleteObjectRaw(singleton);
+        }
+        else {
+            s_doNotOwnSingleton = false;
+        }
     }
 }
 

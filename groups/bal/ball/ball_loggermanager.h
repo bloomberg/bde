@@ -1223,8 +1223,14 @@ class LoggerManager {
     static LoggerManager  *s_singleton_p;        // address of singleton if
                                                  // initialized; 0 otherwise
 
-    static bool            s_doNotShutDown;      // whether 'shutDownSingleton'
-                                                 // should do nothing
+    static bool            s_doNotOwnSingleton;  // 'false' by default whereby
+                                                 // 'ball' owns the singleton
+                                                 // and destroys it in
+                                                 // 'shutDownSingleton'; can be
+                                                 // set to 'true' by the
+                                                 // Windows-specific
+                                                 // 'initSingleton' taking a
+                                                 // 'takeOwnership' flag
 
     // DATA
     const bsl::shared_ptr<BroadcastObserver>
@@ -1307,7 +1313,9 @@ class LoggerManager {
         // 'configuration' of defaults and attributes, and the specified
         // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,
         // the currently installed global allocator is used.  This method has
-        // no effect if the logger manager singleton currently exists.
+        // no effect (aside from logging a warning) if the logger manager
+        // singleton already exists.  The behavior is undefined unless the lock
+        // guarding the singleton is acquired before calling this method.
 
     // PRIVATE CREATORS
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -1394,9 +1402,9 @@ class LoggerManager {
         // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,
         // the currently installed global allocator is used.  Return a
         // non-'const' reference to the logger manager singleton.  This method
-        // has no effect if the logger manager singleton already exists.  The
-        // behavior is undefined if 'observer' is 0, goes out of scope, or is
-        // otherwise destroyed.
+        // has no effect (aside from logging a warning) if the logger manager
+        // singleton already exists.  The behavior is undefined if 'observer'
+        // is 0, goes out of scope, or is otherwise destroyed.
         //
         // !DEPRECATED!: Use the 'initSingleton' method that does *not* take an
         // 'observer' instead.
@@ -1413,25 +1421,27 @@ class LoggerManager {
         // 'globalAllocator' used to supply memory.  If 'globalAllocator' is 0,
         // the currently installed global allocator is used.  Return a
         // non-'const' reference to the logger manager singleton.  This method
-        // has no effect if the logger manager singleton currently exists.
+        // has no effect (aside from logging a warning) if the logger manager
+        // singleton already exists.
 
-    static void initSingleton(LoggerManager *singleton,
-                              bool           shutDownEnabled = false);
+    static int initSingleton(LoggerManager *singleton,
+                             bool           takeOwnership = false);
         // Initialize the logger manager singleton with the specified
-        // 'singleton'.  Optionally specify a 'shutDownEnabled' flag to
-        // indicate whether 'shutDownSingleton' will do anything when called,
-        // in which case it will destroy 'singleton' and this method takes
-        // ownership of 'singleton'.  If 'shutDownEnabled' is not specified,
-        // 'shutDownSingleton' will have no effect and this method does *not*
-        // take ownership of 'singleton'.  This method has no effect if the
-        // logger manager singleton already exists, in which case this method
-        // does *not* take ownership of 'singleton' regardless of the value of
-        // 'shutDownEnabled'.  Note that this version of 'initSingleton' is
-        // meant for use *only* on Windows to initialize another dynamically
-        // loaded copy of the 'LoggerManager' system.  Also note that a
-        // suitable singleton may be obtained by calling 'createLoggerManager',
-        // or from the 'singleton' class method of an already-initialized
-        // 'LoggerManager' system.
+        // 'singleton'.  Optionally specify a 'takeOwnership' flag indicating
+        // whether this method takes ownership of 'singleton', in which case
+        // 'shutDownSingleton' will destroy 'singleton'.  If 'takeOwnership' is
+        // not specified, this method does *not* take ownership of 'singleton'
+        // (and 'shutDownSingleton' will not destroy it).  Return 0 if the
+        // logger manager singleton was successfully initialized, and a
+        // non-zero value otherwise.  This method has no effect (aside from
+        // logging a warning) if the logger manager singleton already exists,
+        // in which case this method does *not* take ownership of 'singleton'
+        // regardless of the value of 'takeOwnership'.  Note that this version
+        // of 'initSingleton' is meant for use *only* on Windows to initialize
+        // another dynamically loaded copy of the 'LoggerManager' system.  Also
+        // note that a suitable singleton may be obtained by calling
+        // 'createLoggerManager', or from the 'singleton' class method of an
+        // already-initialized 'LoggerManager' system.
 
     static bool isInitialized();
         // Return 'true' if the logger manager singleton exists, and 'false'
@@ -1926,11 +1936,11 @@ class LoggerManagerScopedGuard {
         // and the specified 'configuration' of defaults and attributes.
         // Optionally specify a 'globalAllocator' used to supply memory.  If
         // 'globalAllocator' is 0, the currently installed global allocator is
-        // used.  This method has no effect if the logger manager singleton
-        // already exists.  The behavior is undefined if 'observer' is 0, goes
-        // out of scope, or is otherwise destroyed.  Note that on destruction,
-        // this scoped guard will destroy the logger manager singleton, if the
-        // singleton exists at that time.
+        // used.  This method has no effect (aside from logging a warning) if
+        // the logger manager singleton already exists.  The behavior is
+        // undefined if 'observer' is 0, goes out of scope, or is otherwise
+        // destroyed.  Note that on destruction, this scoped guard will destroy
+        // the logger manager singleton, if the singleton exists at that time.
         //
         // !DEPRECATED!: Use the 'LoggerManagerScopedGuard' constructor that
         // does *not* take an 'observer' instead.
@@ -1943,10 +1953,10 @@ class LoggerManagerScopedGuard {
         // having the specified 'configuration' of defaults and attributes.
         // Optionally specify a 'globalAllocator' used to supply memory.  If
         // 'globalAllocator' is 0, the currently installed global allocator is
-        // used.  This method has no effect if the logger manager singleton
-        // already exists.  Note that on destruction, this scoped guard will
-        // destroy the logger manager singleton, if the singleton exists at
-        // that time.
+        // used.  This method has no effect (aside from logging a warning) if
+        // the logger manager singleton already exists.  Note that on
+        // destruction, this scoped guard will destroy the logger manager
+        // singleton, if the singleton exists at that time.
 
     ~LoggerManagerScopedGuard();
         // Destroy the logger manager singleton, if the singleton exists, and
