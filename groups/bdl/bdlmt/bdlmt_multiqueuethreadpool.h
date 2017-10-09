@@ -361,7 +361,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bslmt { class Barrier; }
+namespace bslmt { class Latch; }
 namespace bdlmt {
 
                      // ================================
@@ -372,7 +372,7 @@ class MultiQueueThreadPool_Queue {
     // This private class provides a thread-safe, lightweight job queue.
 
     friend class MultiQueueThreadPool;  // TBD remove
-    
+
   public:
     // PUBLIC TYPES
     typedef bsl::function<void()> Job;
@@ -400,8 +400,8 @@ class MultiQueueThreadPool_Queue {
                                                  // executing jobs
 
     bsls::AtomicInt           *d_numActiveQueues_p;
-                                                 // used to track the number
-                                                 // of active queues
+                                                 // used to track the number of
+                                                 // active queues
 
     int                        d_enqueueState;   // maintains enqueue state
 
@@ -412,6 +412,9 @@ class MultiQueueThreadPool_Queue {
 
     bslmt::Semaphore           d_pauseBlock;     // use to notify thread
                                                  // awaiting pause state
+
+    int                        d_pauseCount;     // number of threads waiting
+                                                 // for the pause to complete
 
     Job                        d_processingCb;   // bound processing callback
                                                  // for pool
@@ -432,9 +435,11 @@ class MultiQueueThreadPool_Queue {
 
     // CREATORS
     MultiQueueThreadPool_Queue(bslma::Allocator *basicAllocator = 0);
-        // Create a 'MultiQueueThreadPool_Queue' with an initial capacity of 0 that uses the specified 'threadPool' to execute jobs that are appended to this queue.
-        // Optionally specify a 'basicAllocator' used to supply memory If
-        // 'basicAllocator' is 0, the default memory allocator is used.
+        // Create a 'MultiQueueThreadPool_Queue' with an initial capacity of 0
+        // that uses the specified 'threadPool' to execute jobs that are
+        // appended to this queue.  Optionally specify a 'basicAllocator' used
+        // to supply memory If 'basicAllocator' is 0, the default memory
+        // allocator is used.
 
     ~MultiQueueThreadPool_Queue();
         // Destroy this queue.
@@ -453,7 +458,7 @@ class MultiQueueThreadPool_Queue {
         // Add the specified 'functor' at the front of this queue.  Return 0 on
         // success, and a non-zero value if enqueuing is disabled.
 
-    void prepareForDeletion();
+    void prepareForDeletion(const Job& functor);
         // Permanently disable enqueuing to this queue.
 
     int enable();
@@ -537,20 +542,23 @@ class MultiQueueThreadPool {
           bdlcc::ObjectPoolFunctors::Reset<MultiQueueThreadPool_Queue>
     >                 d_queuePool;          // pool of queue contexts
 
-    bdlcc::ObjectCatalog<MultiQueueThreadPool_Queue*>
+    bslmt::Mutex      d_queuePoolLock;      // lock for 'd_queuePool'
+
+    bdlcc::ObjectCatalog<MultiQueueThreadPool_Queue *>
                       d_queueRegistry;      // registry of queue contexts
 
-    mutable bslmt::ReaderWriterMutex
-                      d_queueStateLock;     // locked for write when deleting
-                                            // queues or changing pool state
-    bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
+    int               d_state;              // maintains internal state
 
-    bsls::AtomicInt   d_state;              // maintains internal state
-    bslmt::Mutex      d_stateLock;          // synchronizes internal state
+    mutable bslmt::ReaderWriterMutex d_lock;
+                                            // locked for write when deleting
+                                            // queues or changing pool state
+
+    bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
     bsls::AtomicInt   d_numDequeued;        // the total number of requests
                                             // processed by this pool since the
                                             // last time this value was reset
+
     bsls::AtomicInt   d_numEnqueued;        // the total number of requests
                                             // enqueued into this pool since
                                             // the last time this value was
@@ -564,9 +572,10 @@ class MultiQueueThreadPool {
     MultiQueueThreadPool& operator=(const MultiQueueThreadPool&);
 
     // PRIVATE MANIPULATORS
-    void deleteQueueCb(int                    id,
-                       const CleanupFunctor&  cleanupFunctor,
-                       bslmt::Barrier        *barrier);
+    void deleteQueueCb(MultiQueueThreadPool_Queue *queue,
+                       const CleanupFunctor&       cleanupFunctor,
+                       bslmt::Latch               *latch);
+        // TBD
         // Remove the queue associated with the specified 'id' from the queue
         // registry, execute the specified 'cleanupFunctor', wait on the
         // specified 'barrier', and then delete the referenced queue.
@@ -703,13 +712,13 @@ class MultiQueueThreadPool {
         // started.  Note that any paused queues remain paused.
 
     void drain();
-        // Wait until all queues are empty.  This method waits until all non-paused queues
-        // are empty without disabling the queues (and may thus wait
-        // indefinitely).  The queues and/or the thread pool may be either
-        // enabled or disabled when this method is called.  This method may be
-        // called on a stopped or started thread pool.  This method will block
-        // if any thread is executing 'start', 'stop', or 'shutdown' at the
-        // time of the call.  Note that 'drain' does not attempt to delete
+        // Wait until all queues are empty.  This method waits until all
+        // non-paused queues are empty without disabling the queues (and may
+        // thus wait indefinitely).  The queues and/or the thread pool may be
+        // either enabled or disabled when this method is called.  This method
+        // may be called on a stopped or started thread pool.  This method will
+        // block if any thread is executing 'start', 'stop', or 'shutdown' at
+        // the time of the call.  Note that 'drain' does not attempt to delete
         // queues directly.  However, as a side-effect of emptying all queues,
         // any queue for which 'deleteQueue' was called previously will be
         // deleted before 'drain' returns.  Note also that this method waits by
@@ -726,10 +735,11 @@ class MultiQueueThreadPool {
         // unblocks.
 
     void shutdown();
-        // Disable queuing on all queues, and wait until all non-paused queues are empty.
-        // Then, delete all queues, and shut down the thread pool if the thread
-        // pool is owned by this object.  This method will block if any thread
-        // is executing 'start' or 'drain' or 'stop' at the time of the call.
+        // Disable queuing on all queues, and wait until all non-paused queues
+        // are empty.  Then, delete all queues, and shut down the thread pool
+        // if the thread pool is owned by this object.  This method will block
+        // if any thread is executing 'start' or 'drain' or 'stop' at the time
+        // of the call.
 
     // ACCESSORS
     bool isPaused(int id) const;
@@ -773,6 +783,8 @@ class MultiQueueThreadPool {
 inline
 int MultiQueueThreadPool::addJobAtFront(int id, const Job& functor)
 {
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
     MultiQueueThreadPool_Queue *queue = lookupQueue(id);
 
     if (0 == queue) {
@@ -790,6 +802,8 @@ int MultiQueueThreadPool::addJobAtFront(int id, const Job& functor)
 inline
 int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 {
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
     MultiQueueThreadPool_Queue *queue = lookupQueue(id);
 
     if (0 == queue) {
@@ -828,6 +842,8 @@ void MultiQueueThreadPool::numProcessed(int *numDequeued,
 inline
 int MultiQueueThreadPool::numQueues() const
 {
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
     return d_queueRegistry.length();
 }
 
