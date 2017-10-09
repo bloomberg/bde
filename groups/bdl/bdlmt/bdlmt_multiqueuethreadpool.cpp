@@ -100,9 +100,9 @@ void MultiQueueThreadPool_Queue::popFront()
                 int status = d_threadPool_p->enqueueJob(d_list.front());
 
                 BSLS_ASSERT(0 == status);  (void)status;
-
-                return;                                               // RETURN
             }
+
+            return;                                                   // RETURN
         }
 
         functor = d_list.front();
