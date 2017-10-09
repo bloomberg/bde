@@ -499,7 +499,7 @@ void Blob::removeBuffers(int index, int numBuffers)
             dataLength = preDataIndexLength;
 
             if (preDataIndexLength != 0) {
-                BSLS_ASSERT(0 != currIdx);
+                BSLS_ASSERT(0 != dataIndex);
 
                 preDataIndexLength -= d_buffers[dataIndex - 1].size();
             }
