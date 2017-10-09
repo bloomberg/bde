@@ -461,7 +461,7 @@ int MultiQueueThreadPool::deleteQueue(int                   id,
 {
     bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    if (e_STATE_RUNNING != d_state) {
+    if (e_STATE_RUNNING != d_state || 0 == d_threadPool_p->enabled()) {
         return 1;                                                     // RETURN
     }
 
@@ -490,7 +490,7 @@ int MultiQueueThreadPool::deleteQueue(int id)
     {
         bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-        if (e_STATE_RUNNING != d_state) {
+        if (e_STATE_RUNNING != d_state || 0 == d_threadPool_p->enabled()) {
             return 1;                                                 // RETURN
         }
 
@@ -680,7 +680,7 @@ void MultiQueueThreadPool::shutdown()
     {
         bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-        if (e_STATE_STOPPED == d_state) {
+        if (e_STATE_STOPPED == d_state || 0 == d_threadPool_p->enabled()) {
             bslmt::LockGuard<bslmt::Mutex> guardQueuePool(&d_queuePoolLock);
 
             bsl::vector<MultiQueueThreadPool_Queue *> buffer;
