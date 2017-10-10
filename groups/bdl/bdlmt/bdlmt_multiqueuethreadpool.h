@@ -494,6 +494,9 @@ class MultiQueueThreadPool_Queue {
         // and a non-zero value if the queue does not exist or is not paused.
 
     // ACCESSORS
+    bool isDrained() const;
+        // Report whether all jobs in this queue are finished.
+
     bool isEnabled() const;
         // Report whether enqueuing to this object is enabled.  This object is
         // constructed with enqueuing enabled.

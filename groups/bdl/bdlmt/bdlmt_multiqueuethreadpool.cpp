@@ -210,8 +210,6 @@ void MultiQueueThreadPool_Queue::prepareForDeletion(const Job& functor)
         BSLS_ASSERT(0 == status);  (void)status;
     }
     else {
-        BSLS_ASSERT(e_SCHEDULED == d_runState || e_PAUSING == d_runState);
-
         d_runState = e_PAUSING;
 
         d_list.push_front(functor);
@@ -259,8 +257,6 @@ int MultiQueueThreadPool_Queue::pause()
             return 0;                                                 // RETURN
         }
 
-        BSLS_ASSERT(e_SCHEDULED == d_runState);
-
         d_runState = e_PAUSING;
 
         if (bslmt::ThreadUtil::self() == d_processor) {
@@ -300,6 +296,14 @@ int MultiQueueThreadPool_Queue::resume()
 }
 
 // ACCESSORS
+bool MultiQueueThreadPool_Queue::isDrained() const
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    return 0 == d_list.size() && (   e_NOT_SCHEDULED == d_runState
+                                  || e_PAUSED        == d_runState);
+}
+
 bool MultiQueueThreadPool_Queue::isEnabled() const
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
@@ -544,25 +548,25 @@ int MultiQueueThreadPool::disableQueue(int id)
 int MultiQueueThreadPool::drainQueue(int id)
 {
     MultiQueueThreadPool_Queue *queue;
-    int                         numPendingJobs;
 
-    do {
+    while (1) {
         {
             bslmt::ReadLockGuard<bslmt::ReaderWriterMutex>
                                                    guard(&d_lock);
 
             int rc = d_queueRegistry.find(id, &queue);
             if (0 == rc) {
-                numPendingJobs = queue->length();
+                if (queue->isDrained()) {
+                    return 0;                                         // RETURN
+                }
             }
             else {
                 return rc;                                            // RETURN
             }
         }
-        if (numPendingJobs) {
-            bslmt::ThreadUtil::yield();
-        }
-    } while (numPendingJobs);
+
+        bslmt::ThreadUtil::yield();
+    }
 
     return 0;
 }
@@ -613,8 +617,6 @@ void MultiQueueThreadPool::drain()
 
     if (d_threadPoolIsOwned) {
         d_threadPool_p->drain();
-        BSLS_ASSERT(0 <  d_threadPool_p->numWaitingThreads());
-        BSLS_ASSERT(0 == d_threadPool_p->numActiveThreads());
         d_threadPool_p->start();
     }
 }
@@ -667,8 +669,6 @@ void MultiQueueThreadPool::stop()
 
         if (d_threadPoolIsOwned) {
             d_threadPool_p->drain();
-            BSLS_ASSERT(0 <  d_threadPool_p->numWaitingThreads());
-            BSLS_ASSERT(0 == d_threadPool_p->numActiveThreads());
         }
 
         d_state = e_STATE_STOPPED;
@@ -693,8 +693,6 @@ void MultiQueueThreadPool::shutdown()
 
             if (d_threadPoolIsOwned) {
                 d_threadPool_p->stop();
-                BSLS_ASSERT(0 == d_threadPool_p->numWaitingThreads());
-                BSLS_ASSERT(0 == d_threadPool_p->numActiveThreads());
             }
 
             d_state = e_STATE_STOPPED;
@@ -753,8 +751,6 @@ void MultiQueueThreadPool::shutdown()
 
         if (d_threadPoolIsOwned) {
             d_threadPool_p->stop();
-            BSLS_ASSERT(0 == d_threadPool_p->numWaitingThreads());
-            BSLS_ASSERT(0 == d_threadPool_p->numActiveThreads());
         }
 
         d_state = e_STATE_STOPPED;
