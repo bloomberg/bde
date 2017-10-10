@@ -169,13 +169,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(expr)
 #define ASSERT_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_PASS_RAW(expr)
 
-// The following macros facilitate thread-safe streaming to standard output.
-
-#define MTCOUT   coutMutex.lock(); { bsl::cout << bslmt::ThreadUtil::self() \
-                                               << ": "
-#define MTENDL   bsl::endl;  } coutMutex.unlock()
-#define MTFLUSH  bsl::flush; } coutMutex.unlock()
-
 // ============================================================================
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
@@ -226,7 +219,11 @@ void makeFunc(Func *f, void (*fptr)(A1, A2, A3), A1 a1, A2 a2, A3 a3)
 
 template <class A1, class A2, class A3, class A4>
 void makeFunc(Func  *f,
-              void (*fptr)(A1, A2, A3, A4), A1 a1, A2 a2, A3 a3, A4 a4)
+              void (*fptr)(A1, A2, A3, A4),
+              A1     a1,
+              A2     a2,
+              A3     a3,
+              A4     a4)
 {
     *f = bdlf::BindUtil::bind(fptr, a1, a2, a3, a4);
 }
@@ -254,7 +251,9 @@ static void waitTwiceAndIncrement(bslmt::Barrier  *barrier,
     counter->add(incrementBy);
 }
 
-static void resumeAndIncrement(Obj *pool, int queueId, bsls::AtomicInt *counter)
+static void resumeAndIncrement(Obj             *pool,
+                               int              queueId,
+                               bsls::AtomicInt *counter)
 {
     // Resume the queue with the specified 'queueId' in the specified 'pool'.
     // On success, increment the specified 'counter'.
@@ -267,7 +266,7 @@ static void resumeAndIncrement(Obj *pool, int queueId, bsls::AtomicInt *counter)
 static void waitPauseAndIncrement(bslmt::Barrier  *barrier,
                                   Obj             *pool,
                                   int              queueId,
-                                  bsls::AtomicInt  *counter)
+                                  bsls::AtomicInt *counter)
 {
     // Wait on the specified 'barrier', pause the queue with the specified
     // 'queueId' in the specified 'pool' and then increment the specified
@@ -289,10 +288,10 @@ static void waitThenAppend(bslmt::Semaphore *semaphore,
     value->push_back(letter);
 }
 
-static void addAppendJobAtFront(Obj            *pool,
-                                int             queue,
-                                bsl::string    *value,
-                                char            letter)
+static void addAppendJobAtFront(Obj         *pool,
+                                int          queue,
+                                bsl::string *value,
+                                char         letter)
 {
     pool->addJobAtFront(queue,
                         bdlf::BindUtil::bind(&bsl::string::push_back,
@@ -745,13 +744,12 @@ class MQPoolPerformance {
     MQPoolPerformance& operator=(const MQPoolPerformance&);
 
   public:
-    MQPoolPerformance(
-                         const char                       *title,
-                         int                               numRThreads,
-                         int                               numWThreads,
-                         int                               numCalcs,
-                         int                               numRepeats,
-                         bslma::Allocator                 *basicAllocator = 0);
+    MQPoolPerformance(const char       *title,
+                      int               numRThreads,
+                      int               numWThreads,
+                      int               numCalcs,
+                      int               numRepeats,
+                      bslma::Allocator *basicAllocator = 0);
 
     int initialize(VecIntType& args, InitFunc func);
         // run the initialization function.  The initialization is defined in
@@ -815,16 +813,17 @@ MQPoolPerformance::MQPoolPerformance(
 {
 }
 
-int MQPoolPerformance::initialize(VecIntType&                args,
-                                 MQPoolPerformance::InitFunc func)
+int MQPoolPerformance::initialize(VecIntType&                 args,
+                                  MQPoolPerformance::InitFunc func)
 {
     // Call initializing function
     int rc = func(this, args);
     return rc;
 }
 
-MQPoolPerformance::VecTimeType MQPoolPerformance::runTests(VecIntType&      args,
-                                                MQPoolPerformance::RunFunc func)
+MQPoolPerformance::VecTimeType MQPoolPerformance::runTests(
+                                               VecIntType&                args,
+                                               MQPoolPerformance::RunFunc func)
 {
     d_seWTime = d_seUTime = d_seSTime = 0;
     d_avgWTime = d_avgUTime = d_avgSTime = 0;
@@ -856,12 +855,15 @@ MQPoolPerformance::VecTimeType MQPoolPerformance::runTests(VecIntType&      args
     }
     else {
         // SD = SQRT(E(X^2) - E(X)^2)
-        d_seWTime = bsl::sqrt(static_cast<double>(d_seWTime / d_numRepeats
-            - d_avgWTime * d_avgWTime));
-        d_seUTime = bsl::sqrt(static_cast<double>(d_seUTime / d_numRepeats
-            - d_avgUTime * d_avgUTime));
-        d_seSTime = bsl::sqrt(static_cast<double>(d_seSTime / d_numRepeats
-            - d_avgSTime * d_avgSTime));
+        d_seWTime = static_cast<TimeType>(
+                    bsl::sqrt(static_cast<double>(  d_seWTime / d_numRepeats
+                                                  - d_avgWTime * d_avgWTime)));
+        d_seUTime = static_cast<TimeType>(
+                    bsl::sqrt(static_cast<double>(  d_seUTime / d_numRepeats
+                                                  - d_avgUTime * d_avgUTime)));
+        d_seSTime = static_cast<TimeType>(
+                    bsl::sqrt(static_cast<double>(  d_seSTime / d_numRepeats
+                                                  - d_avgSTime * d_avgSTime)));
     }
     VecTimeType ret(d_allocator_p);
     ret.push_back(d_avgWTime);
@@ -882,7 +884,7 @@ extern "C" void *workFunc(void *arg)
     MQPoolPerformance::TimeType startUTime, startSTime;
     bsls::TimeUtil::getProcessTimers(&startSTime, &startUTime);
 
-    int rc = wdp->d_func(wdp->d_poolperf_p, wdp->d_data);
+    wdp->d_func(wdp->d_poolperf_p, wdp->d_data);
 
     MQPoolPerformance::TimeType endWTime = bsls::TimeUtil::getTimer();
 
@@ -896,8 +898,9 @@ extern "C" void *workFunc(void *arg)
     return pTimes;
 }
 
-MQPoolPerformance::VecTimeType MQPoolPerformance::runTest(VecIntType&       args,
-                                                MQPoolPerformance::RunFunc func)
+MQPoolPerformance::VecTimeType MQPoolPerformance::runTest(
+                                               VecIntType&                args,
+                                               MQPoolPerformance::RunFunc func)
 {
     if (d_numThreads == 1) {
         // For a single thread, run calculation on the caller
@@ -905,7 +908,7 @@ MQPoolPerformance::VecTimeType MQPoolPerformance::runTest(VecIntType&       args
         TimeType startUTime, startSTime;
         bsls::TimeUtil::getProcessTimers(&startSTime, &startUTime);
         args.push_back(-1);
-        int      rc = func(this, args);
+        func(this, args);
         TimeType endWTime = bsls::TimeUtil::getTimer();
         TimeType endUTime, endSTime;
         bsls::TimeUtil::getProcessTimers(&endSTime, &endUTime);
@@ -950,12 +953,24 @@ void MQPoolPerformance::printResult()
               << ",RThreads=" << d_numRThreads
               << ",WThreads=" << d_numWThreads << "\n";
     // Time is printed in milliseconds
-    bsl::cout << "Wall Time="   << d_avgWTime / 1000 << "+/-"
-            << d_seWTime / static_cast<double>(d_avgWTime) * 100.0 << "%\n";
-    bsl::cout << "User Time="   << d_avgUTime / 1000 << "+/-"
-            << d_seUTime / static_cast<double>(d_avgUTime) * 100.0 << "%\n";
-    bsl::cout << "System Time="   << d_avgSTime / 1000 << "+/-"
-            << d_seSTime / static_cast<double>(d_avgSTime) * 100.0 << "%\n";
+    bsl::cout << "Wall Time="
+              << d_avgWTime / 1000
+              << "+/-"
+              << static_cast<double>(d_seWTime)
+                                      / static_cast<double>(d_avgWTime) * 100.0
+              << "%\n";
+    bsl::cout << "User Time="
+              << d_avgUTime / 1000
+              << "+/-"
+              << static_cast<double>(d_seUTime)
+                                      / static_cast<double>(d_avgUTime) * 100.0
+              << "%\n";
+    bsl::cout << "System Time="
+              << d_avgSTime / 1000
+              << "+/-"
+              << static_cast<double>(d_seSTime)
+                                      / static_cast<double>(d_avgSTime) * 100.0
+              << "%\n";
 }
 
 // ACCESSORS
@@ -1003,7 +1018,7 @@ const char* MQPoolPerformance::title() const
 
 // TEST FUNCTIONS
 int MQPoolPerformance::testFastSearch(MQPoolPerformance *poolperf_p,
-                                 VecIntType&       args)
+                                      VecIntType&)
 {
     // Run the fastSearch test functionInsert with the specified 'poolperf_p'.
     // The specified 'args' vector is empty.

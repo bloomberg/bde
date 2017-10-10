@@ -691,6 +691,14 @@ void MultiQueueThreadPool::shutdown()
                 d_queuePool.releaseObject(buffer[i]);
             }
 
+            if (d_threadPoolIsOwned) {
+                d_threadPool_p->stop();
+                BSLS_ASSERT(0 == d_threadPool_p->numWaitingThreads());
+                BSLS_ASSERT(0 == d_threadPool_p->numActiveThreads());
+            }
+
+            d_state = e_STATE_STOPPED;
+
             return;                                                   // RETURN
         }
 
