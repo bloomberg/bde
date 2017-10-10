@@ -13,6 +13,7 @@
 
 #include <bslma_testallocator.h>
 #include <bslmt_barrier.h>
+#include <bslmt_latch.h>
 #include <bslmt_mutex.h>
 #include <bslmt_semaphore.h>
 #include <bslmt_threadattributes.h>
@@ -355,6 +356,49 @@ struct Reproducer {
     }
 };
 bsls::AtomicInt Reproducer::s_counter;
+
+class UniqueGuard {
+    static bsls::AtomicInt s_count;
+
+  public:
+    UniqueGuard() {  ASSERT(0 == s_count++);  }
+    ~UniqueGuard() {  ASSERT(0 == --s_count);  }
+};
+
+bsls::AtomicInt UniqueGuard::s_count(0);
+
+static int s_daisyChainCount = 0;
+
+void daisyChain(Obj *pObj, int id)
+{
+    if (++s_daisyChainCount < 100) {
+        bslmt::ThreadUtil::microSleep(100000);
+        pObj->addJobAtFront(id, bdlf::BindUtil::bind(&daisyChain, pObj, id));
+    }
+}
+
+void startDaisyChain(Obj *pObj, int id, bslmt::Latch *waitLatch)
+{
+    waitLatch->arrive();
+    bslmt::ThreadUtil::microSleep(100000);
+    pObj->addJobAtFront(id, bdlf::BindUtil::bind(&daisyChain, pObj, id));
+}
+
+void pauseQueueWithUniqueGuard(Obj          *pObj,
+                               int           id,
+                               bslmt::Latch *pauseLatch,
+                               bslmt::Latch *doneLatch)
+{
+    UniqueGuard guard;
+    pObj->pauseQueue(id);
+    pauseLatch->arrive();
+    doneLatch->wait();
+}
+
+void noopWithUniqueGuard()
+{
+    UniqueGuard guard;
+}
 
 double now() {
     return bdlt::CurrentTime::now().totalSecondsAsDouble();
@@ -1254,7 +1298,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 23: {
+      case 25: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1334,6 +1378,62 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 24: {
+          Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
+
+          mX.start();
+
+          bslmt::Latch waitLatch(1);
+
+          int queueId = mX.createQueue();
+
+          mX.enqueueJob(queueId,
+                        bdlf::BindUtil::bind(&startDaisyChain,
+                                             &mX,
+                                             queueId,
+                                             &waitLatch));
+
+          waitLatch.wait();
+          mX.pauseQueue(queueId);
+
+          mX.stop();
+
+          // While no tasks should be scheduled before the 'pauseQueue'
+          // completes, verify only a few tasks were schedulable before the
+          // 'pauseQueue' completed.  Failure of this assert implies the
+          // 'pauseQueue' can be indefinitely delayed.
+
+          ASSERT(100 > s_daisyChainCount);
+      }  break;
+      case 23: {
+          Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
+
+          mX.start();
+
+          bslmt::Latch pauseLatch(1);
+          bslmt::Latch doneLatch(1);
+
+          int queueId = mX.createQueue();
+
+          mX.enqueueJob(queueId,
+                        bdlf::BindUtil::bind(&pauseQueueWithUniqueGuard,
+                                             &mX,
+                                             queueId,
+                                             &pauseLatch,
+                                             &doneLatch));
+
+          pauseLatch.wait();
+
+          mX.enqueueJob(queueId, bdlf::BindUtil::bind(&noopWithUniqueGuard));
+
+          mX.resumeQueue(queueId);
+
+          bslmt::ThreadUtil::microSleep(100000);
+
+          doneLatch.arrive();
+
+          mX.stop();
       }  break;
       case 22: {
         // --------------------------------------------------------------------
