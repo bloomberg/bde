@@ -113,9 +113,6 @@ inline
 double BasicNl365::yearsDiff(const bdlt::Date& beginDate,
                              const bdlt::Date& endDate)
 {
-    // Storing the result value in a 'volatile double' should remove
-    // any extra-precision available in floating-point registers.
-
 #if defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VERSION >= 50301)
     // Storing the result value in a 'volatile double' removes extra-precision
     // available in floating-point registers.
