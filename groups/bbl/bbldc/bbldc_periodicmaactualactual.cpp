@@ -59,7 +59,10 @@ double PeriodIcmaActualActual::yearsDiff(
         return 0.0;                                                   // RETURN
     }
 
-    double result;
+    // Storing the result value in a 'volatile double' should remove
+    // any extra-precision available in floating-point registers.
+
+    volatile double result;
 
     // Compute the negation flag and produce sorted dates.
 
@@ -110,7 +113,7 @@ double PeriodIcmaActualActual::yearsDiff(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -35,7 +35,12 @@ double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
                         + endYearDayDiff * daysInBeginYear;
     const int denominator = daysInBeginYear * daysInEndYear;
 
-    return numerator / static_cast<double>(denominator);
+    // Storing the result value in a 'volatile double' should remove
+    // any extra-precision available in floating-point registers.
+
+    const volatile double rv = numerator / static_cast<double>(denominator);
+
+    return rv;
 }
 
 }  // close package namespace

@@ -130,9 +130,15 @@ double TerminatedIsda30360Eom::yearsDiff(const bdlt::Date& beginDate,
                                          const bdlt::Date& endDate,
                                          const bdlt::Date& terminationDate)
 {
-    return static_cast<double>(daysDiff(beginDate,
-                                        endDate,
-                                        terminationDate)) / 360.0;
+    // Storing the result value in a 'volatile double' should remove
+    // any extra-precision available in floating-point registers.
+
+    const volatile double rv =
+                        static_cast<double>(daysDiff(beginDate,
+                                                     endDate,
+                                                     terminationDate)) / 360.0;
+
+    return rv;
 }
 
 }  // close package namespace
@@ -141,7 +147,7 @@ double TerminatedIsda30360Eom::yearsDiff(const bdlt::Date& beginDate,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
