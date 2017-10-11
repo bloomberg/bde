@@ -113,13 +113,13 @@ public:
 
     void assertInputPosition(int line, std::streampos inputPos)
     {
-        LOOP_ASSERT(line, eback() + inputPos == gptr());
+        LOOP_ASSERT(line, inputPos == gptr() - eback());
         LOOP_ASSERT(line, egptr() - eback() > inputPos);
     }
 
     void assertOutputPosition(int line, std::streampos outputPos)
     {
-        LOOP_ASSERT(line, pbase() + outputPos == pptr());
+        LOOP_ASSERT(line, outputPos == pptr() - pbase());
         LOOP_ASSERT(line, epptr() - pbase() > outputPos);
     }
 
