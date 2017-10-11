@@ -780,7 +780,7 @@ struct FilesystemUtil {
     static int map(FileDescriptor   descriptor,
                    void           **address,
                    Offset           offset,
-                   int              size,
+                   bsl::size_t      size,
                    int              mode);
         // Map the region of the specified 'size' bytes, starting at the
         // specified 'offset' bytes into the file with the specified
@@ -796,13 +796,13 @@ struct FilesystemUtil {
         // file will result in undefined behavior (i.e., this function does not
         // grow the file to guarantee it can accommodate the mapped region).
 
-    static int unmap(void *address, int size);
+    static int unmap(void *address, bsl::size_t size);
         // Unmap the memory mapping with the specified base 'address' and
         // specified 'size'.  Return 0 on success, and a non-zero value
         // otherwise.  The behavior is undefined unless this area with
         // 'address' and 'size' was previously mapped with a 'map' call.
 
-    static int sync(char *address, int numBytes, bool syncFlag);
+    static int sync(char *address, bsl::size_t numBytes, bool syncFlag);
         // Synchronize the contents of the specified 'numBytes' of mapped
         // memory beginning at the specified 'address' with the underlying file
         // on disk.  If the specified 'syncFlag' is true, block until all
