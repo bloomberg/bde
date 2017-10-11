@@ -59,7 +59,7 @@ using bsl::endl;
 // [ 3] int value(bslstl::StringRef *data) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [15] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -315,6 +315,218 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == address.d_state);
     ASSERT(10022           == address.d_zipcode);
 //..
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING that truncated data is handled correctly
+        //
+        // Concerns:
+        //: 1 A stream of data that is truncated at any point -- within an
+        //:   element name or value -- is correctly handled.
+        //:
+        //: 2 After advancing past the truncated data the tokenizer reflects
+        //:   that it is in an error state.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text with an 'X' at the expected final
+        //:   location, the number of 'advanceToNextToken' calls to be made,
+        //:   the expected token type and data value.
+        //:
+        //: 2 For each row in the table of P-1:
+        //:
+        //:   1 Create an 'bsl::istringstream', 'is', with the input text.
+        //:
+        //:   2 Create a 'baljsn::Tokenizer' object, mX, and associate the
+        //:     'bsl::streambuf' of 'is' with 'mX'.
+        //:
+        //:   3 Invoke 'advanceToNextToken' on 'mX' the specified number of
+        //:     times.
+        //:
+        //:   4 Confirm that the token type and value is as expected.
+        //:
+        //:   5 The next 'advanceToNextToken' should result in an error and
+        //:     the state of 'mX' should also be reflected as the error state.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING that truncated data is handled correctly"
+                          << endl;
+
+
+        const struct {
+            int             d_line;
+            const char     *d_text_p;
+            int             d_numPreAdvances;
+            Obj::TokenType  d_expTokenType;
+            const char     *d_value_p;
+        } DATA[] = {
+            {
+                L_,
+                "",                          // empty string
+                0,
+                Obj::e_BEGIN,
+                0
+            },
+            {
+                L_,
+                "{",                         // with only open brace
+                1,
+                Obj::e_START_OBJECT,
+                0
+            },
+            {
+                L_,
+                "{\"",                       // with only one quote char
+                1,
+                Obj::e_START_OBJECT,
+                0
+            },
+            {
+                L_,
+                "{\"name",                   // with incomplete element name
+                1,
+                Obj::e_START_OBJECT,
+                0
+            },
+            {
+                L_,
+                "{\"name\"",                 // with complete element name
+                                             // but missing value
+                2,
+                Obj::e_ELEMENT_NAME,
+                "name"
+            },
+            {
+                L_,
+                "{\"name\":",                 // with complete element name
+                                              // but missing value
+                2,
+                Obj::e_ELEMENT_NAME,
+                "name"
+            },
+            {
+                L_,
+                "{\"name\":1.2",              // with complete element name
+                                              // and value but missing closing
+                                              // brace
+                3,
+                Obj::e_ELEMENT_VALUE,
+                "1.2"
+            },
+            {
+                L_,
+                "{\"name\":1.2,",             // with complete element name
+                                              // and value but spurious comma
+                3,
+                Obj::e_ELEMENT_VALUE,
+                "1.2"
+            },
+            {
+                L_,
+                "{\"n\":1.2,\"",              // with incomplete element name
+                3,
+                Obj::e_ELEMENT_VALUE,
+                "1.2"
+            },
+            {
+                L_,
+                "{\"n\":1.2,\"t",             // with incomplete element name
+                3,
+                Obj::e_ELEMENT_VALUE,
+                "1.2"
+            },
+            {
+                L_,
+                "{\"n\":1.2,\"too",           // with incomplete element name
+                3,
+                Obj::e_ELEMENT_VALUE,
+                "1.2"
+            },
+            {
+                L_,
+                "{\"n\":1,\"t\"",             // with incomplete element name
+                4,
+                Obj::e_ELEMENT_NAME,
+                "t"
+            },
+            {
+                L_,
+                "{\"n\":1,\"t\":",            // with complete element name
+                                              // but missing value
+                4,
+                Obj::e_ELEMENT_NAME,
+                "t"
+            },
+            {
+                L_,
+                "{\"n\":1,\"t\":\"2\"",       // with complete element name
+                                              // and value but missing closing
+                                              // brace
+                5,
+                Obj::e_ELEMENT_VALUE,
+                "\"2\""
+            },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ ti) {
+            const int             LINE        = DATA[ti].d_line;
+            const string          TEXT        = DATA[ti].d_text_p;
+            const int             NUM_PREADVS = DATA[ti].d_numPreAdvances;
+            const Obj::TokenType  EXP_TOKEN   = DATA[ti].d_expTokenType;
+            const char           *EXP_VALUE   = DATA[ti].d_value_p;
+
+            bsl::istringstream is(TEXT);
+
+            if (veryVerbose) {
+                P(LINE) P(TEXT) P(NUM_PREADVS)
+            }
+
+            Obj mX;  const Obj& X = mX;
+            ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
+
+            mX.reset(is.rdbuf());
+
+            // NUM_PREADVS advances should be successful.
+
+            for (int i = 0; i < NUM_PREADVS; ++i) {
+                int rc = mX.advanceToNextToken();
+                ASSERTV(LINE, rc, !rc);
+            }
+
+            // Confirm the state after the pre-advances.
+
+            ASSERTV(LINE, EXP_TOKEN, mX.tokenType(),
+                    EXP_TOKEN == mX.tokenType());
+            if (EXP_VALUE) {
+                bslstl::StringRef nodeValue;
+                int rc = mX.value(&nodeValue);
+                ASSERTV(LINE, rc, !rc);
+
+                bsl::string strValue = nodeValue;
+                ASSERTV(LINE, strValue, EXP_VALUE, strValue == EXP_VALUE);
+            }
+
+            // The next advance should fail.
+
+            int rc = mX.advanceToNextToken();
+            ASSERTV(LINE, rc, rc);
+
+            // Confirm that the error state is accurately reflected.
+
+            ASSERTV(LINE, mX.tokenType(), Obj::e_ERROR == mX.tokenType());
+            if (EXP_VALUE) {
+                bslstl::StringRef nodeValue;
+                int rc = mX.value(&nodeValue);
+                ASSERTV(LINE, rc, rc);
+
+                bsl::string strValue = nodeValue;
+                ASSERTV(LINE, strValue, strValue == "");
+            }
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
