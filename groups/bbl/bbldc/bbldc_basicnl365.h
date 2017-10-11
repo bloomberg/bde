@@ -65,6 +65,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_date.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 namespace BloombergLP {
 namespace bbldc {
 
@@ -112,7 +116,15 @@ double BasicNl365::yearsDiff(const bdlt::Date& beginDate,
     // Storing the result value in a 'volatile double' should remove
     // any extra-precision available in floating-point registers.
 
-    const volatile double rv = daysDiff(beginDate, endDate) / 365.0;
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VERSION >= 50301)
+    // Storing the result value in a 'volatile double' removes extra-precision
+    // available in floating-point registers.
+
+    const volatile double rv =
+#else
+    const double rv =
+#endif
+                      daysDiff(beginDate, endDate) / 365.0;
 
     return rv;
 }

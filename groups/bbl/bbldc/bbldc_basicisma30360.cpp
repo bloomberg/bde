@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(bbldc_basicisma30360_cpp,"$Id$ $CSID$")
 
 #include <bdlt_date.h>
 
+#include <bsls_platform.h>
+
 namespace BloombergLP {
 namespace bbldc {
 
@@ -47,10 +49,14 @@ int BasicIsma30360::daysDiff(const bdlt::Date& beginDate,
 double BasicIsma30360::yearsDiff(const bdlt::Date& beginDate,
                                  const bdlt::Date& endDate)
 {
-    // Storing the result value in a 'volatile double' should remove
-    // any extra-precision available in floating-point registers.
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VERSION >= 50301)
+    // Storing the result value in a 'volatile double' removes extra-precision
+    // available in floating-point registers.
 
     const volatile double rv =
+#else
+    const double rv =
+#endif
               static_cast<double>(computeDaysDiff(beginDate, endDate)) / 360.0;
 
     return rv;

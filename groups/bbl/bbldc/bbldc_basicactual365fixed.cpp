@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bbldc_basicactual365fixed_cpp,"$Id$ $CSID$")
 
+#include <bsls_platform.h>
+
 namespace BloombergLP {
 namespace bbldc {
 
@@ -15,11 +17,15 @@ namespace bbldc {
 double BasicActual365Fixed::yearsDiff(const bdlt::Date& beginDate,
                                       const bdlt::Date& endDate)
 {
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VERSION >= 50301)
+    // Storing the result value in a 'volatile double' removes extra-precision
+    // available in floating-point registers.
 
-    // Storing the result value in a 'volatile double' should remove
-    // any extra-precision available in floating-point registers.
-
-    const volatile double rv = (endDate - beginDate) / 365.0;
+    const volatile double rv =
+#else
+    const double rv =
+#endif
+                      (endDate - beginDate) / 365.0;
 
     return rv;
 }

@@ -7,6 +7,7 @@ BSLS_IDENT_RCSID(bbldc_basicisdaactualactual_cpp,"$Id$ $CSID$")
 #include <bdlt_serialdateimputil.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 namespace BloombergLP {
 namespace bbldc {
@@ -35,10 +36,15 @@ double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
                         + endYearDayDiff * daysInBeginYear;
     const int denominator = daysInBeginYear * daysInEndYear;
 
-    // Storing the result value in a 'volatile double' should remove
-    // any extra-precision available in floating-point registers.
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VERSION >= 50301)
+    // Storing the result value in a 'volatile double' removes extra-precision
+    // available in floating-point registers.
 
-    const volatile double rv = numerator / static_cast<double>(denominator);
+    const volatile double rv =
+#else
+    const double rv =
+#endif
+                      numerator / static_cast<double>(denominator);
 
     return rv;
 }

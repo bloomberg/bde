@@ -72,6 +72,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 namespace BloombergLP {
 namespace bbldc {
 
@@ -143,10 +147,14 @@ double CalendarBus252::yearsDiff(const bdlt::Date&     beginDate,
                                  const bdlt::Date&     endDate,
                                  const bdlt::Calendar& calendar)
 {
-    // Storing the result value in a 'volatile double' should remove
-    // any extra-precision available in floating-point registers.
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VERSION >= 50301)
+    // Storing the result value in a 'volatile double' removes extra-precision
+    // available in floating-point registers.
 
-    const volatile double rv = 
+    const volatile double rv =
+#else
+    const double rv =
+#endif
            static_cast<double>(daysDiff(beginDate, endDate, calendar)) / 252.0;
 
     return rv;
