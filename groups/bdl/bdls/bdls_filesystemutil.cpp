@@ -628,11 +628,10 @@ int FilesystemUtil::write(FileDescriptor  descriptor,
 int FilesystemUtil::map(FileDescriptor   descriptor,
                         void           **address,
                         Offset           offset,
-                        int              len,
+                        bsl::size_t      len,
                         int              mode)
 {
     BSLS_ASSERT(address);
-    BSLS_ASSERT(0 <= len);
 
     HANDLE hMap;
 
@@ -677,14 +676,14 @@ int FilesystemUtil::map(FileDescriptor   descriptor,
     return 0;
 }
 
-int FilesystemUtil::unmap(void *address, int)
+int FilesystemUtil::unmap(void *address, bsl::size_t)
 {
     BSLS_ASSERT(address);
 
     return UnmapViewOfFile(address) ? 0 : -1;
 }
 
-int FilesystemUtil::sync(char *address, int numBytes, bool)
+int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool)
                                                              // 3rd arg is sync
 {
     BSLS_ASSERT(0 != address);
@@ -1479,11 +1478,10 @@ int FilesystemUtil::write(FileDescriptor  descriptor,
 int FilesystemUtil::map(FileDescriptor   descriptor,
                         void           **address,
                         Offset           offset,
-                        int              size,
+                        bsl::size_t      size,
                         int              mode)
 {
     BSLS_ASSERT(address);
-    BSLS_ASSERT(0 <= size);
 
     int protect = 0;
     if (mode & MemoryUtil::k_ACCESS_READ) {
@@ -1512,19 +1510,17 @@ int FilesystemUtil::map(FileDescriptor   descriptor,
     }
 }
 
-int  FilesystemUtil::unmap(void *address, int size)
+int  FilesystemUtil::unmap(void *address, bsl::size_t size)
 {
     BSLS_ASSERT(address);
-    BSLS_ASSERT(0 <= size);
 
     int rc = munmap(static_cast<char *>(address), size);
     return rc;
 }
 
-int FilesystemUtil::sync(char *address, int numBytes, bool syncFlag)
+int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool syncFlag)
 {
     BSLS_ASSERT(0 != address);
-    BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % MemoryUtil::pageSize());
     BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(address) %
                      MemoryUtil::pageSize());
