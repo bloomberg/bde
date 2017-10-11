@@ -5112,13 +5112,8 @@ int main(int argc, char *argv[])
 
         typedef Obj Util;
 
-#if 1
         const bsls::Types::Int64 fiveGig = 5LL * 1000LL * 1000LL * 1000LL;
         const bsls::Types::Int64 deltaMileStone = 100LL * 1000LL * 1000LL;
-#else
-        const bsls::Types::Int64 fiveGig = 5 * 1000LL * 1000LL;
-        const bsls::Types::Int64 deltaMileStone = 100LL * 1000LL;
-#endif
 
         bsls::Types::Int64 mileStone = deltaMileStone;
 
@@ -5205,6 +5200,45 @@ int main(int argc, char *argv[])
         ASSERT(Util::seek(fd, 0, Util::e_SEEK_FROM_END)     == bytesRead);
 
         cout << "Reading done\n";
+
+        // Map the first 3G of that file.
+
+        void *startAddress = 0;
+        bsls::Types::Int64 threeGig = 3LL * 1000LL * 1000LL * 1000LL;
+        ASSERT(0 == Util::map(fd,
+                              &startAddress,
+                              0,
+                              threeGig,
+                              bdls::MemoryUtil::k_ACCESS_READ));
+
+        bytesRead = 0;
+        mileStone = deltaMileStone;
+        rand.reset();
+        char *address = static_cast<char *>(startAddress);
+
+        for (;;) {
+            ASSERT(0 == bsl::memcmp(record, address, 63));
+
+            rand.munge();
+            ASSERT(0 == bsl::memcmp(address + 63, rand.display(), 16));
+            ASSERT('\n' == address[79]);
+
+            bytesRead += 80;
+            address   += 80;
+
+            if (bytesRead >= mileStone) {
+                cout << bytesRead << " checked map -- last: " <<
+                                                        rand.display() << endl;
+                if (bytesRead >= threeGig) {
+                    break;
+                }
+                mileStone += deltaMileStone;
+            }
+        }
+        ASSERT(threeGig == bytesRead);
+        ASSERT(static_cast<char *>(startAddress) + threeGig == address);
+
+        ASSERT(0 == Util::unmap(startAddress, threeGig));
 
         ASSERT(0 == Util::close(fd));
 
