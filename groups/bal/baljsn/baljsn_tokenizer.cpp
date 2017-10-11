@@ -97,16 +97,14 @@ int Tokenizer::moveValueCharsToStartAndReloadBuffer()
                          d_stringBuffer.begin() + d_valueBegin);
     d_stringBuffer.resize(k_MAX_STRING_SIZE);
 
-    d_valueIter = d_valueIter - d_valueBegin;
+    d_valueIter  = d_valueIter - d_valueBegin;
+    d_valueBegin = 0;
 
     const int numRead =
        static_cast<int>(d_streambuf_p->sgetn(&d_stringBuffer[d_valueIter],
                                              k_MAX_STRING_SIZE - d_valueIter));
 
-    if (numRead > 0) {
-        d_stringBuffer.resize(d_valueIter + numRead);
-        d_valueBegin = 0;
-    }
+    d_stringBuffer.resize(d_valueIter + numRead);
 
     return numRead;
 }
