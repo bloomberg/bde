@@ -203,6 +203,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  --------              ---------  ----------  -----------
 //  e_ARRAY               maybe      maybe       array
 //  e_MAP                 no         maybe       map keyed by string values
+//  e_INT_MAP             no         maybe       map keyed by 32-bit int values
 //..
 //: o *dataType* - the value returned by the 'type()'
 //:
@@ -210,7 +211,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //:   in which case 'Datum::destroy' will not release the externally
 //:   referenced data (see 'References to External Strings and Arrays'})
 //:
-//: o *requires-allocation* - whether a 'Datum' refering to this type requires
+//: o *requires-allocation* - whether a 'Datum' referring to this type requires
 //:   memory allocation.  Note that for externally represented string or
 //:   arrays, meta-data may still need to be allocated.
 //
@@ -535,6 +536,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
 #endif
@@ -573,6 +578,10 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_CLIMITS
+#include <bsl_climits.h>
 #endif
 
 #ifndef INCLUDED_BSL_CSTRING
@@ -615,9 +624,12 @@ namespace bslma { class Allocator; }
 namespace bdld {
 
 class DatumArrayRef;
+class DatumIntMapEntry;
+class DatumIntMapRef;
 class DatumMapEntry;
 class DatumMapRef;
 class DatumMutableArrayRef;
+class DatumMutableIntMapRef;
 class DatumMutableMapOwningKeysRef;
 class DatumMutableMapRef;
 
@@ -678,6 +690,7 @@ class Datum {
         , e_MAP                  = 13  // map reference
         , e_BINARY               = 14  // pointer to the binary data
         , e_DECIMAL64            = 15  // Decimal64
+        , e_INT_MAP              = 16  // integer map reference
 
     };
 
@@ -685,7 +698,7 @@ class Datum {
         // Define 'k_NUM_TYPES' to be the number of consecutively valued
         // enumerators in the range '[ e_NIL .. e_DECIMAL64 ]'.
 
-          k_NUM_TYPES    = 16           // number of distinct enumerated types
+          k_NUM_TYPES    = 17           // number of distinct enumerated types
     };
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
@@ -738,7 +751,7 @@ class Datum {
         , e_EXTENDED_INTERNAL_ERROR       = 3  // error with code only
 
         , e_EXTENDED_INTERNAL_ERROR_ALLOC = 4  // error with code and
-                                               // desription string
+                                               // description string
 
         // We never need to externally allocate the reference types with the
         // 64-bit implementation because we can fit 32 bits of length inline.
@@ -763,14 +776,17 @@ class Datum {
         , e_EXTENDED_INTERNAL_DECIMAL64_ALLOC   = 13 // allocated Decimal64
 
         , e_EXTENDED_INTERNAL_NIL               = 14 // null value
+
+        , e_EXTENDED_INTERNAL_INT_MAP           = 15 // map of datums keyed by
+                                                     // 32-bit integer values
     };
 
     enum {
         // Define 'k_NUM_EXTENDED_INTERNAL_TYPES' to be the number of
         // consecutively valued enumerators in the range
-        // '[ e_EXTENDED_INTERNAL_MAP .. e_EXTENDED_INTERNAL_NIL ]'.
+        // '[ e_EXTENDED_INTERNAL_MAP .. e_EXTENDED_INTERNAL_INT_MAP ]'.
 
-        k_NUM_EXTENDED_INTERNAL_TYPES = 15  // number of distinct enumerated
+        k_NUM_EXTENDED_INTERNAL_TYPES = 16  // number of distinct enumerated
                                             // extended types
     };
 
@@ -869,7 +885,7 @@ class Datum {
 #endif
 
     enum {
-        // Enumeration used to discriminate between the special uncompressible
+        // Enumeration used to discriminate between the special incompressible
         // Decimal64 values.
 
         e_DECIMAL64_SPECIAL_NAN,
@@ -965,6 +981,11 @@ class Datum {
         //                          d_cvp = pointer to allocated memory
         //                                  containing: length, sorted flag,
         //                                  array of map entries
+        //
+        // Int-map                  d_short = extended type
+        //                          d_cvp = pointer to allocated memory
+        //                                  containing: length, sorted flag,
+        //                                  array of int-map entries
         //
         // Binary:                  d_short = extended type
         //                          d_cvp = pointer to allocated memory
@@ -1122,7 +1143,10 @@ class Datum {
 
         e_INTERNAL_BINARY_ALLOC      = 22,  // binary data, allocated storage
 
-        e_INTERNAL_DECIMAL64         = 23   // Decimal64
+        e_INTERNAL_DECIMAL64         = 23,  // Decimal64
+
+        e_INTERNAL_INT_MAP           = 24,  // map of datums keyed by 32-bit
+                                            // integer values
     };
 
     enum {
@@ -1130,7 +1154,7 @@ class Datum {
         // valued enumerators in the range
         // '[ e_INTERNAL_UNINITIALIZED .. e_INTERNAL_DECIMAL64 ]'.
 
-        k_NUM_INTERNAL_TYPES         = 24  // number of internal types
+        k_NUM_INTERNAL_TYPES         = 25  // number of internal types
     };
 
     // CLASS DATA
@@ -1264,7 +1288,7 @@ class Datum {
         // to supply memory (if needed).  'array' is not copied, and is not
         // freed when the returned object is destroyed with 'Datum::destroy'.
         // The behavior is undefined unless 'array' contains at least 'length'
-        // elements.  The behaviour is also undefined unless 'length <
+        // elements.  The behavior is also undefined unless 'length <
         // UINT_MAX'.
 
     static Datum createArrayReference(const DatumArrayRef&  value,
@@ -1333,7 +1357,7 @@ class Datum {
         // Return, by value, a datum that refers to the specified 'string'
         // having the specified 'length', using the specified 'basicAllocator'
         // to supply memory (if needed).  The behavior is undefined unless
-        // '0 != string || 0 == length'.  The behaviour is also undefined
+        // '0 != string || 0 == length'.  The behavior is also undefined
         // unless 'length < UINT_MAX'.  Note that 'string' is not copied, and
         // is not freed if 'Datum::destroy' is called on the returned object.
 
@@ -1342,7 +1366,7 @@ class Datum {
         // Return, by value, a datum that refers to the specified 'string',
         // using the specified 'basicAllocator' to supply memory (if needed).
         // The behavior is undefined unless 'string' points to a UTF-8 encoded
-        // c-string.  The behaviour is also undefined unless 'strlen(string) <
+        // c-string.  The behavior is also undefined unless 'strlen(string) <
         // UINT_MAX'.  Note that 'string' is not copied, and is not freed if
         // 'Datum::destroy' is called on the returned object.
 
@@ -1403,6 +1427,15 @@ class Datum {
         // the adopted array is owned and will be freed if 'Datum::destroy' is
         // called on the returned object.
 
+    static Datum adoptIntMap(const DatumMutableIntMapRef& intMap);
+        // Return, by value, a datum that refers to the specified 'intMap'.
+        // The behavior is undefined unless 'map' was created using
+        // 'createUninitializedIntMap' method.  The behavior is also undefined
+        // unless each element in the held map has been assigned a value and
+        // the size of the map has been set accordingly.  Note that the adopted
+        // map is owned and will be freed if 'Datum::destroy' is called on the
+        // returned object.
+
     static Datum adoptMap(const DatumMutableMapRef& map);
         // Return, by value, a datum that refers to the specified 'map'.  The
         // behavior is undefined unless 'map' was created using
@@ -1435,11 +1468,26 @@ class Datum {
         // Also note that any elements in the datum array that need dynamic
         // memory must be allocated with 'basicAllocator'.
 
+    static void createUninitializedIntMap(
+                                        DatumMutableIntMapRef *result,
+                                        SizeType               capacity,
+                                        bslma::Allocator      *basicAllocator);
+        // Load the specified 'result' with a reference to a newly created
+        // datum int-map having the specified 'capacity', using the specified
+        // 'basicAllocator' to supply memory.  The behavior is undefined if
+        // 'capacity' 'DatumIntMapEntry' objects would exceed the addressable
+        // memory for the platform.  Note that the caller is responsible for
+        // filling in elements into the datum int-map and setting its size
+        // accordingly.  The number of elements in the datum int-map cannot
+        // exceed 'capacity'.  Also note that any elements in the datum int-map
+        // that need dynamic memory, should also be allocated with
+        // 'basicAllocator'.
+
     static void createUninitializedMap(DatumMutableMapRef *result,
                                        SizeType            capacity,
                                        bslma::Allocator   *basicAllocator);
         // Load the specified 'result' with a reference to a newly created
-        // datum map having the specified 'capacity',  using the specified
+        // datum map having the specified 'capacity', using the specified
         // 'basicAllocator' to supply memory.  The behavior is undefined if
         // 'capacity' 'DatumMapEntry' objects would exceed the addressable
         // memory for the platform.  Note that the caller is responsible for
@@ -1504,7 +1552,7 @@ class Datum {
         // undefined unless all dynamically allocated memory owned by 'value'
         // was allocated using 'basicAllocator', and has not previously been
         // released by a call to 'destroy', either on this object, or on
-        // another object refering to same contents as this object (i.e., only
+        // another object referring to same contents as this object (i.e., only
         // one copy of a 'Datum' object can be destroyed).  The behavior is
         // also undefined if 'value' has an uninitialized or partially
         // initialized array or map (created using 'createUninitializedArray',
@@ -1522,6 +1570,17 @@ class Datum {
         // elements and the memory allocated for those elements must be
         // explicitly deallocated before calling this method.  The behavior is
         // undefined unless 'array' was created with 'createUninitializedArray'
+        // using 'basicAllocator'.
+
+    static void disposeUninitializedIntMap(
+                                 const DatumMutableIntMapRef&  intMap,
+                                 bslma::Allocator             *basicAllocator);
+        // Deallocate the memory used by the specified 'intMap' (but *not*
+        // memory allocated for its contained elements) using the specified
+        // 'basicAllocator'.  This method does not destroy individual map
+        // elements and the memory allocated for those elements must be
+        // explicitly deallocated before calling this method.  The behavior is
+        // undefined unless 'map' was created with 'createUninitializedIntMap'
         // using 'basicAllocator'.
 
     static void disposeUninitializedMap(
@@ -1630,6 +1689,10 @@ class Datum {
         // Return 'true' if this object represents a 'Int64' value and 'false'
         // otherwise.
 
+    bool isIntMap() const;
+        // Return 'true' if this object represents a map of datums that are
+        // keyed by 32-bit int values and 'false' otherwise.
+
     bool isMap() const;
         // Return 'true' if this object represents a map of datums that are
         // keyed by string values and 'false' otherwise.
@@ -1705,6 +1768,11 @@ class Datum {
         // 'Int64' value.  The behavior is undefined unless this object
         // actually represents a 64-bit integer value.
 
+    DatumIntMapRef theIntMap() const;
+        // Return the int-map value represented by this object as a
+        // 'DatumIntMapRef' object.  The behavior is undefined unless this
+        // object actually represents an int-map of datums.
+
     DatumMapRef theMap() const;
         // Return the map value represented by this object as a 'DatumMapRef'
         // object.  The behavior is undefined unless this object actually
@@ -1733,7 +1801,7 @@ class Datum {
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
         // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to the modifyable
+        // human-readable format, and return a reference to the modifiable
         // 'stream'.  Optionally specify an initial indentation 'level', whose
         // absolute value is incremented recursively for nested objects.  If
         // 'level' is specified, optionally specify 'spacesPerLevel', whose
@@ -1806,8 +1874,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datum& rhs);
     //  string                 - plain double-quoted string value
     //
     //  array                  - [ elem0, ..., elemN]
-    //                           where elem1..elemN are output for individul
+    //                           where elem1..elemN are output for individual
     //                           array elements
+    //
+    //  int-map                - [key0 = val0, ..., keyN = valN]
+    //                           where keyX and valX are respectively key and
+    //                           value of the map entry elements of the map
     //
     //  map                    - [key0 = val0, ..., keyN = valN]
     //                           where keyX and valX are respectively key and
@@ -1831,7 +1903,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datum& rhs);
 bsl::ostream& operator<<(bsl::ostream& stream, Datum::DataType rhs);
     // Write the string representation of the specified enumeration 'rhs' to
     // the specified 'stream' in a single-line format, and return a reference
-    // to the modifyable 'stream'.  See 'dataTypeToAscii' for what constitutes
+    // to the modifiable 'stream'.  See 'dataTypeToAscii' for what constitutes
     // the string representation of a 'Datum::DataType' value.
 
                          // ==========================
@@ -1886,11 +1958,24 @@ class DatumMutableArrayRef {
         // Return pointer to the length of the array.
 };
 
+                        // =========================
+                        // struct Datum_IntMapHeader
+                        // =========================
+
+struct Datum_IntMapHeader {
+    // This component-local class provides a layout of the meta-information
+    // stored in front of the Datum int-maps.
+
+    // DATA
+    Datum::SizeType d_size;      // size of the map
+    bool            d_sorted;    // sorted flag
+};
+
                           // ======================
                           // struct Datum_MapHeader
                           // ======================
 
-struct Datum_MapHeader{
+struct Datum_MapHeader {
     // This component-local class provides a layout of the meta-information
     // stored in front of the Datum maps.
 
@@ -1950,6 +2035,70 @@ class DatumMutableMapRef {
 
     // ACCESSORS
     DatumMapEntry *data() const;
+        // Return pointer to the first element in the (held) map.
+
+    SizeType *size() const;
+        // Return pointer to the location where the (held) map's size is
+        // stored.
+
+    bool *sorted() const;
+        // Return pointer to the location where the (held) map's *sorted* flag
+        // is stored.
+};
+
+                        // ===========================
+                        // class DatumMutableIntMapRef
+                        // ===========================
+
+class DatumMutableIntMapRef {
+    // This 'class' provides a mutable access to a datum int-map.  The users of
+    // this class can assign to the individual elements and also change the
+    // size of the map.
+
+  public:
+    typedef Datum::SizeType SizeType;
+        // 'SizeType' is an alias for an unsigned integral value, representing
+        // the capacity of a datum array, the capacity of a datum map, the
+        // capacity of the *keys-capacity* of a datum-key-owning map or the
+        // length of a string.
+
+  private:
+    // DATA
+    DatumIntMapEntry *d_data_p;  // pointer to an int-map of datums (not owned)
+
+    SizeType         *d_size_p;    // pointer to the size of the map
+
+    bool             *d_sorted_p;  // pointer to flag indicating whether the
+                                   // int-map is sorted or not
+
+  public:
+    // CREATORS
+    DatumMutableIntMapRef();
+        // Create a 'DatumMutableIntMapRef' object.
+
+    DatumMutableIntMapRef(DatumIntMapEntry *data,
+                          SizeType         *size,
+                          bool             *sorted);
+        // Create a 'DatumMutableIntMapRef' object having the specified 'data',
+        // 'size', and 'sorted'.
+
+    //! DatumMutableIntMapRef(const DatumMutableIntMapRef& original) = default;
+        // Create a 'DatumMutableIntMapRef' having the value of the specified
+        // 'original' object.  Note that this method's definition is compiler
+        // generated.
+
+    //! ~DatumMutableIntMapRef() = default;
+        // Destroy this object. Note that this method's definition is compiler
+        // generated.
+
+    // MANIPULATORS
+    //! DatumMutableIntMapRef& operator=(const DatumMutableIntMapRef& rhs)
+                                                                 //! = default;
+        // Assign to this object the value of the specified 'rhs' object. Note
+        // that this method's definition is compiler generated.
+
+    // ACCESSORS
+    DatumIntMapEntry *data() const;
         // Return pointer to the first element in the (held) map.
 
     SizeType *size() const;
@@ -2094,7 +2243,7 @@ class DatumArrayRef {
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
         // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to the modifyable
+        // human-readable format, and return a reference to the modifiable
         // 'stream'.  Optionally specify an initial indentation 'level', whose
         // absolute value is incremented recursively for nested objects.  If
         // 'level' is specified, optionally specify 'spacesPerLevel', whose
@@ -2128,6 +2277,193 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DatumArrayRef& rhs);
     //..
     //  [aa,bb,cc] - aa, bb and cc are the result of invoking operator '<<'
     //               on the individual elements in the array
+    //..
+    // and return a reference to the modifiable 'stream'.  The function will
+    // have no effect if the 'stream' is not valid.
+
+                          // ======================
+                          // class DatumIntMapEntry
+                          // ======================
+
+class DatumIntMapEntry {
+    // This class represents an entry in a datum map keyed by string values.
+
+    BSLMF_ASSERT(sizeof(int) == 4 && CHAR_BIT == 8);
+
+  private:
+    // DATA
+    int   d_key;    // key for this entry
+    Datum d_value;  // value for this entry
+
+  public:
+    // CREATORS
+      DatumIntMapEntry();
+        // Create a 'DatumIntMapEntry' object.
+
+      DatumIntMapEntry(int key, const Datum& value);
+        // Create a 'DatumIntMapEntry' object using the specified 'key' and
+        // 'value'.
+
+    //!~DatumIntMapEntry() = default;
+
+    // MANIPULATORS
+    void setKey(int key);
+        // Set the key for this entry to the specified 'key'.
+
+    void setValue(const Datum& value);
+        // Set the value for this entry to the specified 'value'.
+
+    // ACCESSORS
+    int key() const;
+        // Return the key for this entry.
+
+    const Datum& value() const;
+        // Return the value for this entry.
+
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output 'stream' in a
+        // human-readable format, and return a reference to the modifiable
+        // 'stream'.  Optionally specify an initial indentation 'level', whose
+        // absolute value is incremented recursively for nested objects.  If
+        // 'level' is specified, optionally specify 'spacesPerLevel', whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by 'level').  If 'stream' is
+        // not valid on entry, this operation has no effect.  Note that this
+        // human-readable format is not fully specified, and can change without
+        // notice.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumIntMapEntry,
+                                                   bsl::is_trivially_copyable);
+};
+
+// FREE OPERATORS
+bool operator==(const DatumIntMapEntry& lhs, const DatumIntMapEntry& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.  Two 'DatumIntMapEntry' objects have the same value
+    // if their keys and values compare equal.
+
+bool operator!=(const DatumIntMapEntry& lhs, const DatumIntMapEntry& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' have different values,
+    // and 'false' otherwise.  Two 'DatumIntMapEntry' objects have different
+    // values if either the keys or values are not equal.
+
+bsl::ostream& operator<<(bsl::ostream& stream, const DatumIntMapEntry& rhs);
+    // Write the specified 'rhs' value to the specified output 'stream' in the
+    // format shown below:
+    //..
+    //  (nnn,aa) - nnn is key integer, while aa is the result of invoking
+    //             operator '<<' on the value
+    //..
+    // and return a reference to the modifiable 'stream'.  The function will
+    // have no effect if the 'stream' is not valid.
+
+                          // ====================
+                          // class DatumIntMapRef
+                          // ====================
+
+class DatumIntMapRef {
+    // This class provides a read-only view to a map of datums (an array of
+    // 'DatumIntMapEntry' objects).  It holds the array by a 'const' pointer
+    // and an integral size value.  It acts as return value for accessors
+    // inside the 'Datum' class that return a map of 'Datum' objects.  Note
+    // that zero-size maps are valid.
+
+  public:
+    typedef Datum::SizeType SizeType;
+        // 'SizeType' is an alias for an unsigned integral value, representing
+        // the capacity of a datum array, the capacity of a datum map, the
+        // capacity of the *keys-capacity* of a datum-key-owning map or the
+        // length of a string.
+
+  private:
+    // DATA
+    const DatumIntMapEntry *d_data_p; // pointer to the array of
+                                      // 'DatumIntMapEntry' objects (not owned)
+
+    SizeType                d_size;     // length of the array
+
+    bool                    d_sorted;   // flag indicating whether the array is
+                                        // sorted or not
+
+  public:
+    // CREATORS
+      DatumIntMapRef(const DatumIntMapEntry *data,
+                    SizeType                 size,
+                    bool                     sorted);
+        // Create a 'DatumIntMapRef' object having the specified 'data' of the
+        // specified 'size' and the specified 'sorted' flag.  The behavior is
+        // undefined unless '0 != data' or '0 == size'.  Note that the pointer
+        // to the array is just copied.
+
+    //!~DatumIntMapRef() = default;
+
+    // ACCESSORS
+    const DatumIntMapEntry& operator[](SizeType index) const;
+        // Return the element stored at the specified 'index' position in this
+        // map.  The behavior is undefined unless 'index < size()'.
+
+    const DatumIntMapEntry *data() const;
+        // Return pointer to the first element in the map.
+
+    bool isSorted() const;
+        // Return 'true' if underlying map is sorted and 'false' otherwise.
+
+    SizeType size() const;
+        // Return the size of the map.
+
+    const Datum *find(int key) const;
+        // Return a const pointer to the datum having the specified 'key', if
+        // it exists and 0 otherwise.  Note that the 'find' has order of 'O(n)'
+        // if the data is not sorted based on the keys.  If the data is sorted,
+        // it has order of 'O(log(n))'.
+
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level          = 0,
+                        int           spacesPerLevel = 4) const;
+        // Write the value of this object to the specified output 'stream' in a
+        // human-readable format, and return a reference to the modifiable
+        // 'stream'.  Optionally specify an initial indentation 'level', whose
+        // absolute value is incremented recursively for nested objects.  If
+        // 'level' is specified, optionally specify 'spacesPerLevel', whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by 'level').  If 'stream' is
+        // not valid on entry, this operation has no effect.  Note that this
+        // human-readable format is not fully specified, and can change without
+        // notice.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapRef, bsl::is_trivially_copyable);
+};
+
+// FREE OPERATORS
+bool operator==(const DatumIntMapRef& lhs, const DatumIntMapRef& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.  Two 'DatumIntMapRef' objects have the same value if
+    // they hold maps of the same size and all the corresponding
+    // 'DatumIntMapEntry' elements in the two maps also compare equal.
+
+bool operator!=(const DatumIntMapRef& lhs, const DatumIntMapRef& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' have different values,
+    // and 'false' otherwise.  Two 'DatumIntMapRef' objects have different
+    // values if they hold maps of different sizes or operator '==' returns
+    // 'false' for at least one of the corresponding elements in the maps.
+
+bsl::ostream& operator<<(bsl::ostream& stream, const DatumIntMapRef& rhs);
+    // Write the specified 'rhs' value to the specified output 'stream' in the
+    // format shown below:
+    //..
+    //  [ nnn = aa, mmm = bb] - nnn and mmm are key ints, while aa and bb
+    //                          are the result of invoking operator '<<' on the
+    //                          individual value elements in the map
     //..
     // and return a reference to the modifiable 'stream'.  The function will
     // have no effect if the 'stream' is not valid.
@@ -2173,7 +2509,7 @@ class DatumMapEntry {
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
         // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to the modifyable
+        // human-readable format, and return a reference to the modifiable
         // 'stream'.  Optionally specify an initial indentation 'level', whose
         // absolute value is incremented recursively for nested objects.  If
         // 'level' is specified, optionally specify 'spacesPerLevel', whose
@@ -2258,7 +2594,7 @@ class DatumMapRef {
     // ACCESSORS
     const DatumMapEntry& operator[](SizeType index) const;
         // Return the element stored at the specified 'index' position in this
-        // map.  The behaviour is undefined unless 'index < size()'.
+        // map.  The behavior is undefined unless 'index < size()'.
 
     const DatumMapEntry *data() const;
         // Return pointer to the first element in the map.
@@ -2283,7 +2619,7 @@ class DatumMapRef {
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
         // Write the value of this object to the specified output 'stream' in a
-        // human-readable format, and return a reference to the modifyable
+        // human-readable format, and return a reference to the modifiable
         // 'stream'.  Optionally specify an initial indentation 'level', whose
         // absolute value is incremented recursively for nested objects.  If
         // 'level' is specified, optionally specify 'spacesPerLevel', whose
@@ -2323,6 +2659,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DatumMapRef& rhs);
     //..
     // and return a reference to the modifiable 'stream'.  The function will
     // have no effect if the 'stream' is not valid.
+
 
                             // ====================
                             // struct Datum_Helpers
@@ -2553,6 +2890,7 @@ Datum::DataType Datum::typeFromExtendedInternalType() const
       , Datum::e_DECIMAL64      // e_EXTENDED_INTERNAL_DECIMAL64_SPECIAL   = 12
       , Datum::e_DECIMAL64      // e_EXTENDED_INTERNAL_DECIMAL64_ALLOC     = 13
       , Datum::e_NIL            // e_EXTENDED_INTERNAL_NIL                 = 14
+      , Datum::e_INT_MAP        // e_EXTENDED_INTERNAL_INT_MAP             = 15
     };
 
     BSLMF_ASSERT(sizeof(convert)/sizeof(convert[0]) ==
@@ -3109,6 +3447,20 @@ Datum Datum::adoptMap(const DatumMutableMapRef& map)
 }
 
 inline
+Datum Datum::adoptIntMap(const DatumMutableIntMapRef& map)
+{
+    // Note that 'map.size' contains the *address* of the 'size' information
+    // for the map, which precedes the 'map' data in a contiguously allocated
+    // block (see 'DatumMutableIntMapRef').
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return createExtendedDataObject(e_EXTENDED_INTERNAL_INT_MAP, map.size());
+#else   // BSLS_PLATFORM_CPU_32_BIT
+    return createDatum(e_INTERNAL_INT_MAP, map.size());
+#endif  // BSLS_PLATFORM_CPU_32_BIT
+}
+
+inline
 Datum Datum::adoptMap(const DatumMutableMapOwningKeysRef& map)
 {
     // Note that 'map.size' contains the *address* of the 'size' information
@@ -3140,8 +3492,17 @@ void Datum::disposeUninitializedArray(
 }
 
 inline
+void Datum::disposeUninitializedIntMap(
+                                  const DatumMutableIntMapRef&  map,
+                                  bslma::Allocator             *basicAllocator)
+{
+    BSLS_ASSERT_SAFE(basicAllocator);
+    basicAllocator->deallocate(map.size());
+}
+
+inline
 void Datum::disposeUninitializedMap(const DatumMutableMapRef&  map,
-                                    bslma::Allocator          *basicAllocator)
+bslma::Allocator          *basicAllocator)
 {
     BSLS_ASSERT_SAFE(basicAllocator);
     basicAllocator->deallocate(map.size());
@@ -3257,6 +3618,12 @@ inline
 bool Datum::isInteger64() const
 {
     return (e_INTEGER64 == type());
+}
+
+inline
+bool Datum::isIntMap() const
+{
+    return (e_INT_MAP == type());
 }
 
 inline
@@ -3522,6 +3889,31 @@ DatumMapRef Datum::theMap() const
 }
 
 inline
+DatumIntMapRef Datum::theIntMap() const
+{
+    BSLS_ASSERT_SAFE(isIntMap());
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    const DatumIntMapEntry *map =
+                             static_cast<const DatumIntMapEntry *>(d_as.d_cvp);
+#else  // BSLS_PLATFORM_CPU_32_BIT
+    const DatumIntMapEntry *map =
+                             static_cast<const DatumIntMapEntry *>(d_as.d_ptr);
+#endif // BSLS_PLATFORM_CPU_32_BIT
+
+    if (map) {
+        // Map header takes first DatumMapEntry
+        const Datum_IntMapHeader *header =
+                             reinterpret_cast<const Datum_IntMapHeader *>(map);
+
+        return DatumIntMapRef(map + 1,
+                              header->d_size,
+                              header->d_sorted);                      // RETURN
+    }
+    return DatumIntMapRef(0, 0, false);
+}
+
+inline
 bslstl::StringRef Datum::theString() const
 {
     BSLS_ASSERT_SAFE(isString());
@@ -3629,6 +4021,7 @@ Datum::DataType Datum::type() const
       , e_BINARY                           // e_INTERNAL_BINARY            = 21
       , e_BINARY                           // e_INTERNAL_BINARY_ALLOC      = 22
       , e_DECIMAL64                        // e_INTERNAL_DECIMAL64         = 23
+      , e_INT_MAP                          // e_INTERNAL_INT_MAP           = 24
     };
 
     const InternalDataType type = internalType();
@@ -3691,6 +4084,9 @@ void Datum::apply(BDLD_VISITOR& visitor) const
         break;
       case e_INTERNAL_EXTENDED:
         switch (extendedInternalType()) {
+          case e_EXTENDED_INTERNAL_INT_MAP:
+            visitor(theIntMap());
+            break;
           case e_EXTENDED_INTERNAL_MAP:
           case e_EXTENDED_INTERNAL_OWNED_MAP:  // fall through
             visitor(theMap());
@@ -3809,6 +4205,9 @@ void Datum::apply(BDLD_VISITOR& visitor) const
       case e_INTERNAL_DECIMAL64:
         visitor(theDecimal64());
         break;
+      case e_INTERNAL_INT_MAP:
+          visitor(theIntMap());
+          break;
       case e_INTERNAL_UNINITIALIZED:
         BSLS_ASSERT(!"Uninitialized Datum!!");
         break;
@@ -3859,6 +4258,90 @@ inline
 DatumArrayRef::SizeType DatumArrayRef::length() const
 {
     return d_length;
+}
+
+                          // ----------------------
+                          // class DatumIntMapEntry
+                          // ----------------------
+// CREATORS
+inline
+DatumIntMapEntry::DatumIntMapEntry()
+{
+}
+
+inline
+DatumIntMapEntry::DatumIntMapEntry(int          key,
+                                   const Datum& value)
+: d_key(key)
+, d_value(value)
+{
+}
+
+// MANIPULATORS
+inline
+void DatumIntMapEntry::setKey(int key)
+{
+    d_key = key;
+}
+
+inline
+void DatumIntMapEntry::setValue(const Datum& value)
+{
+    d_value = value;
+}
+
+// ACCESSORS
+inline
+int DatumIntMapEntry::key() const
+{
+    return d_key;
+}
+
+inline
+const Datum& DatumIntMapEntry::value() const
+{
+    return d_value;
+}
+
+                        // --------------------
+                        // class DatumIntMapRef
+                        // --------------------
+// CREATORS
+inline
+DatumIntMapRef::DatumIntMapRef(const DatumIntMapEntry *data,
+                               SizeType                size,
+                               bool                    sorted)
+: d_data_p(data)
+, d_size(size)
+, d_sorted(sorted)
+{
+    BSLS_ASSERT_SAFE((size && data) || !size);
+}
+
+// ACCESSORS
+inline
+const DatumIntMapEntry& DatumIntMapRef::operator[](SizeType index) const
+{
+    BSLS_ASSERT_SAFE(index < d_size);
+    return d_data_p[index];
+}
+
+inline
+const DatumIntMapEntry *DatumIntMapRef::data() const
+{
+    return d_data_p;
+}
+
+inline
+bool DatumIntMapRef::isSorted() const
+{
+    return d_sorted;
+}
+
+inline
+DatumIntMapRef::SizeType DatumIntMapRef::size() const
+{
+    return d_size;
 }
 
                             // -------------------
@@ -3988,6 +4471,48 @@ DatumMutableArrayRef::SizeType *DatumMutableArrayRef::length() const
     return d_length_p;
 }
 
+                       // ---------------------------
+                       // class DatumMutableIntMapRef
+                       // ---------------------------
+
+// CREATORS
+inline
+DatumMutableIntMapRef::DatumMutableIntMapRef()
+: d_data_p(0)
+, d_size_p(0)
+, d_sorted_p(0)
+{
+}
+
+inline
+DatumMutableIntMapRef::DatumMutableIntMapRef(DatumIntMapEntry *data,
+                                             SizeType         *size,
+                                             bool             *sorted)
+: d_data_p(data)
+, d_size_p(size)
+, d_sorted_p(sorted)
+{
+}
+
+// ACCESSORS
+inline
+DatumIntMapEntry *DatumMutableIntMapRef::data() const
+{
+    return d_data_p;
+}
+
+inline
+DatumMutableIntMapRef::SizeType *DatumMutableIntMapRef::size() const
+{
+    return d_size_p;
+}
+
+inline
+bool *DatumMutableIntMapRef::sorted() const
+{
+    return d_sorted_p;
+}
+
                           // ------------------------
                           // class DatumMutableMapRef
                           // ------------------------
@@ -4100,6 +4625,24 @@ bool bdld::operator!=(const DatumArrayRef& lhs, const DatumArrayRef& rhs)
 }
 
 inline
+bool bdld::operator==(const DatumIntMapEntry& lhs, const DatumIntMapEntry& rhs)
+{
+    return (lhs.key() == rhs.key()) && (lhs.value() == rhs.value());
+}
+
+inline
+bool bdld::operator!=(const DatumIntMapEntry& lhs, const DatumIntMapEntry& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool bdld::operator!=(const DatumIntMapRef& lhs, const DatumIntMapRef& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
 bool bdld::operator==(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
 {
     return (lhs.key() == rhs.key()) && (lhs.value() == rhs.value());
@@ -4131,6 +4674,19 @@ bsl::ostream& bdld::operator<<(bsl::ostream& stream, const DatumArrayRef& rhs)
 
 inline
 bsl::ostream& bdld::operator<<(bsl::ostream& stream, const DatumMapEntry& rhs)
+{
+    return rhs.print(stream, 0 , -1);
+}
+
+inline
+bsl::ostream& bdld::operator<<(bsl::ostream&           stream,
+                               const DatumIntMapEntry& rhs)
+{
+    return rhs.print(stream, 0 , -1);
+}
+
+inline
+bsl::ostream& bdld::operator<<(bsl::ostream& stream, const DatumIntMapRef& rhs)
 {
     return rhs.print(stream, 0 , -1);
 }
