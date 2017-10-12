@@ -4082,7 +4082,7 @@ class DecimalNumGet : public bsl::locale::facet {
         // and optionally specify a 'refs', which will default to 0.
 
     explicit DecimalNumGet(const bsl::locale& b, bsl::size_t refs = 0);
-        // Constructs a 'DecimalNumPut' object, from the specified 'b', as if
+        // Constructs a 'DecimalNumGet' object, from the specified 'b', as if
         //..
         // explicit DecimalNumGet(bsl::size_t refs)
         //    : bsl::locale::facet(refs), baseloc(b) ...
@@ -4220,6 +4220,7 @@ class DecimalNumPut : public bsl::locale::facet {
         // Destroy this object.  Note that the destructor is virtual.
 
     // ACCESSORS
+
     virtual iter_type do_put(iter_type      out,
                              bsl::ios_base& ios_format,
                              char_type      fill,
@@ -4246,11 +4247,23 @@ class DecimalNumPut : public bsl::locale::facet {
         // Also note that these (possibly overridden) 'do_put' virtual function
         // are used by every formatted C++ stream output operator call
         // ('out << aDecNumber').  Note that currently, only the width,
-        // capitalization, and justification formatting flags are supported,
-        // and the operators only support code pages that include the ASCII
-        // sub-range.  Because of potential future improvements to support
-        // additional formatting flags, the operations should not be used for
-        // serialization.
+        // capitalization, justification, fixed and scientific formatting flags
+        // are supported, and the operators only support code pages that
+        // include the ASCII sub-range.  Because of potential future
+        // improvements to support additional formatting flags, the operations
+        // should not be used for serialization.
+
+    template <class DECIMAL>
+    iter_type do_put_impl(iter_type      out,
+                          bsl::ios_base& ios_format,
+                          char_type      fill,
+                          DECIMAL        value) const;
+        // Write characters that represent the specified 'value' into a string
+        // of the specified 'char_type', and output the represented decimal
+        // number to the specified 'out', adjusting for the formatting flags in
+        // the specified 'ios_format' and using the specified 'fill' character.
+        // Currently, formatting for the formatting flags of justification,
+        // width, uppercase, showpos, fixed and scientific are supported.
 };
 
                    // =====================================
@@ -4342,18 +4355,18 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal32, DUMMY_TYPE> {
     static const int min_exponent = -95;
         // The lowest possible negative exponent for the native base of the
         // 'BloombergLP::bdldfp::Decimal32' type that does not yet represent a
-        // denormal number.  Defined to be -94 by IEEE-754.
+        // denormal number.  Defined to be -95 by IEEE-754.
 
     static const int min_exponent10 = min_exponent;
         // The lowest possible negative decimal exponent in the
         // 'BloombergLP::bdldfp::Decimal32' type that does not yet represent a
-        // denormal number.  Defined to be -94 by IEEE-754.  Note that
+        // denormal number.  Defined to be -95 by IEEE-754.  Note that
         // 'min_exponent10' is the same as 'min_exponent' for decimal types.
 
     static const int max_exponent = 96;
         // The highest possible positive exponent for the native base of the
         // 'BloombergLP::bdldfp::Decimal32' type that represents a finite
-        // value.  Defined to be 97 by IEEE-754.
+        // value.  Defined to be 96 by IEEE-754.
 
     static const int max_exponent10 = max_exponent;
         // The highest possible positive decimal exponent of the
@@ -4395,6 +4408,11 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal32, DUMMY_TYPE> {
     static const bool traps = true;
         // Decimal floating-point types implement traps to report arithmetic
         // exceptions (required by IEEE-754).
+
+    static const int max_precision = digits10 - 1 + (-min_exponent10);
+        // The highest possible precision in the
+        // 'BloombergLP::bdldfp::Decimal32' type that is large enough to
+        // output the smallest non-zero denormalized value in fixed notation.
 
                         // Rounding style
 
@@ -4451,10 +4469,10 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal64, DUMMY_TYPE> {
     static const int radix = 10;
         // The base for 'BloombergLP::bdldfp::Decimal64' is decimal or 10.
 
-    static const int min_exponent = -382;
+    static const int min_exponent = -383;
         // The lowest possible negative exponent for the native base of the
         // 'BloombergLP::bdldfp::Decimal64' type that does not yet represent a
-        // denormal number.  Defined to be -382 by IEEE-754.
+        // denormal number.  Defined to be -383 by IEEE-754.
 
     static const int min_exponent10 = min_exponent;
         // The lowest possible negative decimal exponent in the
@@ -4462,15 +4480,15 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal64, DUMMY_TYPE> {
         // denormal number.  Defined to be -382 by IEEE-754.  Note that
         // 'min_exponent10' is the same as 'min_exponent' for decimal types.
 
-    static const int max_exponent = 385;
+    static const int max_exponent = 384;
         // The highest possible positive exponent for the native base of the
         // 'BloombergLP::bdldfp::Decimal64' type that represents a finite
-        // value.  Defined to be 385 by IEEE-754.
+        // value.  Defined to be 384 by IEEE-754.
 
     static const int max_exponent10 = max_exponent;
         // The highest possible positive decimal exponent of the
         // 'BloombergLP::bdldfp::Decimal64' type that represents a finite
-        // value.  Defined to be 385 by IEEE-754.  Note that 'max_exponent10'
+        // value.  Defined to be 384 by IEEE-754.  Note that 'max_exponent10'
         // is the same as 'max_exponent' for decimal types.
 
     static const bool has_infinity = true;
@@ -4507,6 +4525,11 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal64, DUMMY_TYPE> {
     static const bool tinyness_before = true;
         // Decimal floating-point types are able to detect if a value is too
         // small to represent as a normalized value before rounding it.
+
+    static const int max_precision = digits10 - 1 + (-min_exponent10);
+        // The highest possible precision in the
+        // 'BloombergLP::bdldfp::Decimal64' type that is large enough to
+        // output the smallest non-zero denormalized value in fixed notation.
 
     static const std::float_round_style round_style = std::round_indeterminate;
         // Decimal floating-point rounding style is defined to be indeterminate
@@ -4562,10 +4585,10 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal128, DUMMY_TYPE> {
     static const int radix = 10;
         // The base for 'BloombergLP::bdldfp::Decimal128' is decimal or 10.
 
-    static const int min_exponent = -6142;
+    static const int min_exponent = -6143;
         // The lowest possible negative exponent for the native base of the
         // 'BloombergLP::bdldfp::Decimal128' type that does not yet represent a
-        // denormal number.  Defined to be -6142 by IEEE-754.
+        // denormal number.  Defined to be -6143 by IEEE-754.
 
     static const int min_exponent10 = min_exponent;
         // The lowest possible negative decimal exponent in the
@@ -4573,7 +4596,7 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal128, DUMMY_TYPE> {
         // denormal number.  Defined to be -6142 by IEEE-754.  Note that
         // 'min_exponent10' is the same as 'min_exponent' for decimal types.
 
-    static const int max_exponent = 6145;
+    static const int max_exponent = 6144;
         // The highest possible positive exponent for the native base of the
         // 'BloombergLP::bdldfp::Decimal128' type that represents a finite
         // value.  Defined to be 385 by IEEE-754.
@@ -4618,6 +4641,11 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal128, DUMMY_TYPE> {
     static const bool tinyness_before = true;
         // Decimal floating-point types are able to detect if a value is too
         // small to represent as a normalized value before rounding it.
+
+    static const int max_precision = digits10 - 1 + (-min_exponent10);
+        // The highest possible precision in the
+        // 'BloombergLP::bdldfp::Decimal128' type that is large enough to
+        // output the smallest non-zero denormalized value in fixed notation.
 
     static const std::float_round_style round_style = std::round_indeterminate;
         // Decimal floating-point rounding style is defined to be indeterminate
@@ -5018,7 +5046,6 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128>
     static BloombergLP::bdldfp::Decimal128 signaling_NaN() BSLS_CPP11_NOEXCEPT;
         // Return a value that represents signaling NaN for the
         // 'BloombergLP::bdldfp::Decimal128' type.
-
 };
 
 }  // close namespace std

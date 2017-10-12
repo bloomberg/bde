@@ -64,6 +64,7 @@ using bsl::atoi;
 // ----------------------------------------------------------------------------
 // CREATORS
 // [2] bdldfp::DecimalFormatConfig();
+// [7] bdldfp::DecimalFormatConfig(const DecimalFormatConfig&);
 // [3] bdldfp::DecimalFormatConfig(int, Style, Sign, str, str, str, char,char);
 // [2] ~bdldfp::DecimalFormatConfig();
 //

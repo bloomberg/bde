@@ -14,6 +14,7 @@
 #include <bslx_testoutstream.h>
 #include <bslx_versionfunctions.h>
 
+#include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_cstdlib.h>
@@ -1178,6 +1179,8 @@ void TestDriver::testCase5()
         const char*           EXPECTED = DATA[ti].d_expected_p;
 
         bsl::stringstream outdec;
+
+        outdec << bsl::setprecision(2) << bsl::fixed;
         if (-8 != SPL) {
             VALUE.print(outdec, LEVEL, SPL);
         }
@@ -1225,6 +1228,12 @@ void TestDriver::testCase4()
     //:
     //:11 That 'operator<<' sets the fail and errors bit if the memory buffer
     //:   in the supplied output stream is not large enough.
+    //:
+    //:12 That 'operator<<' correctly handles 'bsl::fixed' manipulator.
+    //:
+    //:13 That 'operator<<' correctly handles 'bsl::scientific' manipulator.
+    //:
+    //:14 That 'operator<<' correctly handles 'bsl::setprecision' manipulator.
     //
     // Note that this is not (yet) a complete set of concerns (or test) for
     // this function.
@@ -1257,6 +1266,12 @@ void TestDriver::testCase4()
     //: o Testing a wider array of numbers, including values rendered in
     //:   scientific notation.
 
+    typedef BDEC::DecimalFormatConfig Config;
+    typedef Config::Style             Style;
+
+#define FIXED  Config::e_FIXED
+#define SCIENT Config::e_SCIENTIFIC
+
 #define DFP(X) BDLDFP_DECIMAL_DF(X)
 
     BDEC::Decimal32 INF_P = BDEC::Decimal32(
@@ -1265,163 +1280,234 @@ void TestDriver::testCase4()
                                  -bsl::numeric_limits<double>::infinity());
     BDEC::Decimal32 NAN_Q = BDEC::Decimal32(
                                  bsl::numeric_limits<double>::quiet_NaN());
+
+    BDEC::Decimal32 DEN_N =
+                          -bsl::numeric_limits<BDEC::Decimal32>::denorm_min();
+
     static const struct {
         int              d_line;
         BDEC::Decimal32  d_decimalValue;
+        int              d_precision;
         int              d_width;
         char             d_justification;
         bool             d_capital;
+        Style            d_style;
         const char      *d_expected;
     } DATA[] = {
-        // L   NUMBER    WIDTH   JUST  CAPITAL      EXPECTED
-        // --- ------    -----   ----  -------      --------
-        {  L_, DFP(4.25),  0,     'l', false,         "4.25" },
-        {  L_, DFP(4.25),  1,     'l', false,         "4.25" },
-        {  L_, DFP(4.25),  2,     'l', false,         "4.25" },
-        {  L_, DFP(4.25),  3,     'l', false,         "4.25" },
-        {  L_, DFP(4.25),  4,     'l', false,         "4.25" },
-        {  L_, DFP(4.25),  5,     'l', false,        "4.25 " },
-        {  L_, DFP(4.25),  6,     'l', false,       "4.25  " },
-        {  L_, DFP(4.25),  7,     'l', false,      "4.25   " },
-        {  L_, DFP(4.25),  8,     'l', false,     "4.25    " },
-        {  L_, DFP(4.25),  9,     'l', false,    "4.25     " },
+        // L   NUMBER     PRS  WIDTH  JUST  CAPITAL STYLE    EXPECTED
+        // --- ------     ---  -----  ----  ------- -----    --------
+        {  L_, DFP(4.25),  2,  0,    'l',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  1,    'l',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  2,    'l',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  3,    'l',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  4,    'l',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  5,    'l',   false,  FIXED,       "4.25 " },
+        {  L_, DFP(4.25),  2,  6,    'l',   false,  FIXED,      "4.25  " },
+        {  L_, DFP(4.25),  2,  7,    'l',   false,  FIXED,     "4.25   " },
+        {  L_, DFP(4.25),  2,  8,    'l',   false,  FIXED,    "4.25    " },
+        {  L_, DFP(4.25),  2,  9,    'l',   false,  FIXED,   "4.25     " },
 
-        {  L_, DFP(4.25),  0,     'i', false,         "4.25" },
-        {  L_, DFP(4.25),  1,     'i', false,         "4.25" },
-        {  L_, DFP(4.25),  2,     'i', false,         "4.25" },
-        {  L_, DFP(4.25),  3,     'i', false,         "4.25" },
-        {  L_, DFP(4.25),  4,     'i', false,         "4.25" },
-        {  L_, DFP(4.25),  5,     'i', false,        " 4.25" },
-        {  L_, DFP(4.25),  6,     'i', false,       "  4.25" },
-        {  L_, DFP(4.25),  7,     'i', false,      "   4.25" },
-        {  L_, DFP(4.25),  8,     'i', false,     "    4.25" },
-        {  L_, DFP(4.25),  9,     'i', false,    "     4.25" },
+        {  L_, DFP(4.25),  2,  6,    'l',   false,  SCIENT,    "4.25e+0" },
+        {  L_, DFP(4.25),  2,  7,    'l',   false,  SCIENT,    "4.25e+0" },
+        {  L_, DFP(4.25),  2,  8,    'l',   false,  SCIENT,   "4.25e+0 " },
+        {  L_, DFP(4.25),  2,  9,    'l',   false,  SCIENT,  "4.25e+0  " },
 
-        {  L_, DFP(4.25),  0,     'r', false,         "4.25" },
-        {  L_, DFP(4.25),  1,     'r', false,         "4.25" },
-        {  L_, DFP(4.25),  2,     'r', false,         "4.25" },
-        {  L_, DFP(4.25),  3,     'r', false,         "4.25" },
-        {  L_, DFP(4.25),  4,     'r', false,         "4.25" },
-        {  L_, DFP(4.25),  5,     'r', false,        " 4.25" },
-        {  L_, DFP(4.25),  6,     'r', false,       "  4.25" },
-        {  L_, DFP(4.25),  7,     'r', false,      "   4.25" },
-        {  L_, DFP(4.25),  8,     'r', false,     "    4.25" },
-        {  L_, DFP(4.25),  9,     'r', false,    "     4.25" },
+        {  L_, DFP(4.25),  2,  0,    'i',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  1,    'i',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  2,    'i',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  3,    'i',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  4,    'i',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  5,    'i',   false,  FIXED,       " 4.25" },
+        {  L_, DFP(4.25),  2,  6,    'i',   false,  FIXED,      "  4.25" },
+        {  L_, DFP(4.25),  2,  7,    'i',   false,  FIXED,     "   4.25" },
+        {  L_, DFP(4.25),  2,  8,    'i',   false,  FIXED,    "    4.25" },
+        {  L_, DFP(4.25),  2,  9,    'i',   false,  FIXED,   "     4.25" },
 
-        {  L_, DFP(-4.25), 0,     'l', false,        "-4.25" },
-        {  L_, DFP(-4.25), 1,     'l', false,        "-4.25" },
-        {  L_, DFP(-4.25), 2,     'l', false,        "-4.25" },
-        {  L_, DFP(-4.25), 3,     'l', false,        "-4.25" },
-        {  L_, DFP(-4.25), 4,     'l', false,        "-4.25" },
-        {  L_, DFP(-4.25), 5,     'l', false,        "-4.25" },
-        {  L_, DFP(-4.25), 6,     'l', false,       "-4.25 " },
-        {  L_, DFP(-4.25), 7,     'l', false,      "-4.25  " },
-        {  L_, DFP(-4.25), 8,     'l', false,     "-4.25   " },
-        {  L_, DFP(-4.25), 9,     'l', false,    "-4.25    " },
+        {  L_, DFP(4.25),  2,  6,    'i',   false,  SCIENT,    "4.25e+0" },
+        {  L_, DFP(4.25),  2,  7,    'i',   false,  SCIENT,    "4.25e+0" },
+        {  L_, DFP(4.25),  2,  8,    'i',   false,  SCIENT,   " 4.25e+0" },
+        {  L_, DFP(4.25),  2,  9,    'i',   false,  SCIENT,  "  4.25e+0" },
 
-        {  L_, DFP(-4.25), 0,     'i', false,        "-4.25" },
-        {  L_, DFP(-4.25), 1,     'i', false,        "-4.25" },
-        {  L_, DFP(-4.25), 2,     'i', false,        "-4.25" },
-        {  L_, DFP(-4.25), 3,     'i', false,        "-4.25" },
-        {  L_, DFP(-4.25), 4,     'i', false,        "-4.25" },
-        {  L_, DFP(-4.25), 5,     'i', false,        "-4.25" },
-        {  L_, DFP(-4.25), 6,     'i', false,       "- 4.25" },
-        {  L_, DFP(-4.25), 7,     'i', false,      "-  4.25" },
-        {  L_, DFP(-4.25), 8,     'i', false,     "-   4.25" },
-        {  L_, DFP(-4.25), 9,     'i', false,    "-    4.25" },
+        {  L_, DFP(4.25),  2,  0,    'r',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  1,    'r',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  2,    'r',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  3,    'r',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  4,    'r',   false,  FIXED,        "4.25" },
+        {  L_, DFP(4.25),  2,  5,    'r',   false,  FIXED,       " 4.25" },
+        {  L_, DFP(4.25),  2,  6,    'r',   false,  FIXED,      "  4.25" },
+        {  L_, DFP(4.25),  2,  7,    'r',   false,  FIXED,     "   4.25" },
+        {  L_, DFP(4.25),  2,  8,    'r',   false,  FIXED,    "    4.25" },
+        {  L_, DFP(4.25),  2,  9,    'r',   false,  FIXED,   "     4.25" },
 
-        {  L_, DFP(-4.25), 0,     'r', false,        "-4.25" },
-        {  L_, DFP(-4.25), 1,     'r', false,        "-4.25" },
-        {  L_, DFP(-4.25), 2,     'r', false,        "-4.25" },
-        {  L_, DFP(-4.25), 3,     'r', false,        "-4.25" },
-        {  L_, DFP(-4.25), 4,     'r', false,        "-4.25" },
-        {  L_, DFP(-4.25), 5,     'r', false,        "-4.25" },
-        {  L_, DFP(-4.25), 6,     'r', false,       " -4.25" },
-        {  L_, DFP(-4.25), 7,     'r', false,      "  -4.25" },
-        {  L_, DFP(-4.25), 8,     'r', false,     "   -4.25" },
-        {  L_, DFP(-4.25), 9,     'r', false,    "    -4.25" },
+        {  L_, DFP(4.25),  2,  6,    'r',   false,  SCIENT,    "4.25e+0" },
+        {  L_, DFP(4.25),  2,  7,    'r',   false,  SCIENT,    "4.25e+0" },
+        {  L_, DFP(4.25),  2,  8,    'r',   false,  SCIENT,   " 4.25e+0" },
+        {  L_, DFP(4.25),  2,  9,    'r',   false,  SCIENT,  "  4.25e+0" },
 
-        {  L_, INF_P,      0,     'l', false,     "infinity" },
-        {  L_, INF_P,      1,     'l', false,     "infinity" },
-        {  L_, INF_P,      2,     'l', false,     "infinity" },
-        {  L_, INF_P,      3,     'l', false,     "infinity" },
-        {  L_, INF_P,      4,     'l', false,     "infinity" },
-        {  L_, INF_P,      5,     'l', false,     "infinity" },
-        {  L_, INF_P,      6,     'l', false,     "infinity" },
-        {  L_, INF_P,      7,     'l', false,     "infinity" },
-        {  L_, INF_P,      8,     'l', false,     "infinity" },
-        {  L_, INF_P,      9,     'l', false,    "infinity " },
-        {  L_, INF_P,     10,     'l', false,   "infinity  " },
-        {  L_, INF_P,      0,     'l', true,      "INFINITY" },
+        {  L_, DFP(-4.25), 2,  0,    'l',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  1,    'l',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  2,    'l',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  3,    'l',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  4,    'l',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  5,    'l',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  6,    'l',   false,  FIXED,      "-4.25 " },
+        {  L_, DFP(-4.25), 2,  7,    'l',   false,  FIXED,     "-4.25  " },
+        {  L_, DFP(-4.25), 2,  8,    'l',   false,  FIXED,    "-4.25   " },
+        {  L_, DFP(-4.25), 2,  9,    'l',   false,  FIXED,   "-4.25    " },
 
-        {  L_, INF_N,      0,     'l', false,    "-infinity" },
-        {  L_, INF_N,      1,     'l', false,    "-infinity" },
-        {  L_, INF_N,      2,     'l', false,    "-infinity" },
-        {  L_, INF_N,      3,     'l', false,    "-infinity" },
-        {  L_, INF_N,      4,     'l', false,    "-infinity" },
-        {  L_, INF_N,      5,     'l', false,    "-infinity" },
-        {  L_, INF_N,      6,     'l', false,    "-infinity" },
-        {  L_, INF_N,      7,     'l', false,    "-infinity" },
-        {  L_, INF_N,      8,     'l', false,    "-infinity" },
-        {  L_, INF_N,      9,     'l', false,    "-infinity" },
-        {  L_, INF_N,     10,     'l', false,   "-infinity " },
-        {  L_, INF_N,      0,     'l', true,     "-INFINITY" },
+        {  L_, DFP(-4.25), 2,  7,    'l',   false,  SCIENT,   "-4.25e+0" },
+        {  L_, DFP(-4.25), 2,  8,    'l',   false,  SCIENT,   "-4.25e+0" },
+        {  L_, DFP(-4.25), 2,  9,    'l',   false,  SCIENT,  "-4.25e+0 " },
+        {  L_, DFP(-4.25), 2, 10,    'l',   false,  SCIENT, "-4.25e+0  " },
+
+        {  L_, DFP(-4.25), 2,  0,    'i',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  1,    'i',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  2,    'i',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  3,    'i',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  4,    'i',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  5,    'i',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  6,    'i',   false,  FIXED,      "- 4.25" },
+        {  L_, DFP(-4.25), 2,  7,    'i',   false,  FIXED,     "-  4.25" },
+        {  L_, DFP(-4.25), 2,  8,    'i',   false,  FIXED,    "-   4.25" },
+        {  L_, DFP(-4.25), 2,  9,    'i',   false,  FIXED,   "-    4.25" },
+
+        {  L_, DFP(-4.25), 2,  7,    'i',   false,  SCIENT,   "-4.25e+0" },
+        {  L_, DFP(-4.25), 2,  8,    'i',   false,  SCIENT,   "-4.25e+0" },
+        {  L_, DFP(-4.25), 2,  9,    'i',   false,  SCIENT,  "- 4.25e+0" },
+        {  L_, DFP(-4.25), 2, 10,    'i',   false,  SCIENT, "-  4.25e+0" },
+
+        {  L_, DFP(-4.25), 2,  0,    'r',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  1,    'r',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  2,    'r',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  3,    'r',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  4,    'r',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  5,    'r',   false,  FIXED,       "-4.25" },
+        {  L_, DFP(-4.25), 2,  6,    'r',   false,  FIXED,      " -4.25" },
+        {  L_, DFP(-4.25), 2,  7,    'r',   false,  FIXED,     "  -4.25" },
+        {  L_, DFP(-4.25), 2,  8,    'r',   false,  FIXED,    "   -4.25" },
+        {  L_, DFP(-4.25), 2,  9,    'r',   false,  FIXED,   "    -4.25" },
+
+        {  L_, DFP(-4.25), 2,  7,    'r',   false,  SCIENT,   "-4.25e+0" },
+        {  L_, DFP(-4.25), 2,  8,    'r',   false,  SCIENT,   "-4.25e+0" },
+        {  L_, DFP(-4.25), 2,  9,    'r',   false,  SCIENT,  " -4.25e+0" },
+        {  L_, DFP(-4.25), 2, 10,    'r',   false,  SCIENT, "  -4.25e+0" },
+
+        {  L_, INF_P,      0,  0,    'l',   false,  FIXED,    "inf" },
+        {  L_, INF_P,      0,  1,    'l',   false,  FIXED,    "inf" },
+        {  L_, INF_P,      0,  2,    'l',   false,  FIXED,    "inf" },
+        {  L_, INF_P,      0,  3,    'l',   false,  FIXED,    "inf" },
+        {  L_, INF_P,      0,  4,    'l',   false,  FIXED,   "inf " },
+        {  L_, INF_P,      0,  5,    'l',   false,  FIXED,  "inf  " },
+        {  L_, INF_P,      0,  0,    'l',   true,   FIXED,    "INF" },
+
+        {  L_, INF_N,      0,  0,    'l',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  1,    'l',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  2,    'l',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  3,    'l',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  4,    'l',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  5,    'l',   false,  FIXED,  "-inf " },
+        {  L_, INF_N,      0,  6,    'l',   false,  FIXED, "-inf  " },
+        {  L_, INF_N,      0,  0,    'l',   true,   FIXED,   "-INF" },
 
 
-        {  L_, INF_N,      0,     'i', false,    "-infinity" },
-        {  L_, INF_N,      1,     'i', false,    "-infinity" },
-        {  L_, INF_N,      2,     'i', false,    "-infinity" },
-        {  L_, INF_N,      3,     'i', false,    "-infinity" },
-        {  L_, INF_N,      4,     'i', false,    "-infinity" },
-        {  L_, INF_N,      5,     'i', false,    "-infinity" },
-        {  L_, INF_N,      6,     'i', false,    "-infinity" },
-        {  L_, INF_N,      7,     'i', false,    "-infinity" },
-        {  L_, INF_N,      8,     'i', false,    "-infinity" },
-        {  L_, INF_N,      9,     'i', false,    "-infinity" },
-        {  L_, INF_N,     10,     'i', false,   "- infinity" },
+        {  L_, INF_N,      0,  0,    'i',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  1,    'i',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  2,    'i',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  3,    'i',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  4,    'i',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  5,    'i',   false,  FIXED,  "- inf" },
+        {  L_, INF_N,      0,  6,    'i',   false,  FIXED, "-  inf" },
 
-        {  L_, INF_N,      0,     'r', false,    "-infinity" },
-        {  L_, INF_N,      1,     'r', false,    "-infinity" },
-        {  L_, INF_N,      2,     'r', false,    "-infinity" },
-        {  L_, INF_N,      3,     'r', false,    "-infinity" },
-        {  L_, INF_N,      4,     'r', false,    "-infinity" },
-        {  L_, INF_N,      5,     'r', false,    "-infinity" },
-        {  L_, INF_N,      6,     'r', false,    "-infinity" },
-        {  L_, INF_N,      7,     'r', false,    "-infinity" },
-        {  L_, INF_N,      8,     'r', false,    "-infinity" },
-        {  L_, INF_N,      9,     'r', false,    "-infinity" },
-        {  L_, INF_N,     10,     'r', false,   " -infinity" },
+        {  L_, INF_N,      0,  0,    'r',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  1,    'r',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  2,    'r',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  3,    'r',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  4,    'r',   false,  FIXED,   "-inf" },
+        {  L_, INF_N,      0,  5,    'r',   false,  FIXED,  " -inf" },
+        {  L_, INF_N,      0,  6,    'r',   false,  FIXED, "  -inf" },
 
-        {  L_, NAN_Q,      0,     'l', false,         "nan" },
-        {  L_, NAN_Q,      1,     'l', false,         "nan" },
-        {  L_, NAN_Q,      2,     'l', false,         "nan" },
-        {  L_, NAN_Q,      3,     'l', false,         "nan" },
-        {  L_, NAN_Q,      4,     'l', false,         "nan " },
+        {  L_, NAN_Q,      0,  0,    'l',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  1,    'l',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  2,    'l',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  3,    'l',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  4,    'l',   false,  FIXED,    "nan " },
 
-        {  L_, NAN_Q,      0,     'i', false,         "nan" },
-        {  L_, NAN_Q,      1,     'i', false,         "nan" },
-        {  L_, NAN_Q,      2,     'i', false,         "nan" },
-        {  L_, NAN_Q,      3,     'i', false,         "nan" },
-        {  L_, NAN_Q,      4,     'i', false,         " nan" },
+        {  L_, NAN_Q,      0,  0,    'i',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  1,    'i',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  2,    'i',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  3,    'i',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  4,    'i',   false,  FIXED,   " nan" },
 
-        {  L_, NAN_Q,      0,     'r', false,         "nan" },
-        {  L_, NAN_Q,      1,     'r', false,         "nan" },
-        {  L_, NAN_Q,      2,     'r', false,         "nan" },
-        {  L_, NAN_Q,      3,     'r', false,         "nan" },
-        {  L_, NAN_Q,      4,     'r', false,         " nan" },
+        {  L_, NAN_Q,      0,  0,    'r',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  1,    'r',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  2,    'r',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  3,    'r',   false,  FIXED,    "nan" },
+        {  L_, NAN_Q,      0,  4,    'r',   false,  FIXED,   " nan" },
 
-        {  L_, NAN_Q,      0,     'i', true,          "NAN" },
+        {  L_, NAN_Q,      0,  0,    'i',   true,   FIXED,    "NAN" },
+
+                              //-----------
+                              // Test style
+                              //-----------
+
+        {  L_, DFP(421.0),  2,  0,    'r', false,  FIXED,   "421.00"       },
+        {  L_, DFP(421.0),  6,  0,    'r', false,  FIXED,   "421.000000"   },
+        {  L_, DFP(-0.056), 2,  0,    'r', false,  FIXED,   "-0.06" },
+        {  L_, DFP(-0.056), 6,  0,    'r', false,  FIXED,   "-0.056000" },
+
+
+        {  L_, DFP(-421.0), 2,  0,    'r', false,  SCIENT,  "-4.21e+2" },
+        {  L_, DFP(-421.0), 6,  0,    'r', false,  SCIENT,  "-4.210000e+2" },
+        {  L_, DFP(0.056),  2,  0,    'r', true,   SCIENT,  "5.60E-2" },
+        {  L_, DFP(0.056),  6,  0,    'r', true,   SCIENT,  "5.600000E-2" },
+
+                              //-------------------
+                              // Test justification
+                              //-------------------
+
+        {  L_, DEN_N,     104, 109,   'r', false,  FIXED,
+                                      "  -0.0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""1000" },
+        {  L_, DEN_N,     104, 109,   'i', false,  FIXED,
+                                      "-  0.0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""1000" },
+        {  L_, DEN_N,     104, 109,   'l', false,  FIXED,
+                                        "-0.0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""1000  " },
+        {  L_, DEN_N,     104, 114,   'r', true,  SCIENT,
+                                      "  -1.0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000""E-101" },
+        {  L_, DEN_N,     104, 114,   'i', false,  SCIENT,
+                                      "-  1.0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000""e-101" },
+        {  L_, DEN_N,     104, 114,   'l', false,  SCIENT,
+                                        "-1.0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000""e-101  " }
     };
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int             LINE       = DATA[ti].d_line;
         const BDEC::Decimal32 DECIMAL32  = DATA[ti].d_decimalValue;
+        const int             PRECISION  = DATA[ti].d_precision;
         const int             WIDTH      = DATA[ti].d_width;
         const bool            LEFT       = (DATA[ti].d_justification == 'l');
         const bool            INTERNAL   = (DATA[ti].d_justification == 'i');
         const bool            RIGHT      = (DATA[ti].d_justification == 'r');
         const bool            CAPITAL    = DATA[ti].d_capital;
+        const Style           STYLE      = DATA[ti].d_style;
         const char           *EXPECTED   = DATA[ti].d_expected;
 
         if (veryVerbose) {
@@ -1432,17 +1518,21 @@ void TestDriver::testCase4()
         {
             const BDEC::Decimal32 VALUE(DECIMAL32);
 
-            bsl::stringstream outdec;
+            bsl::ostringstream outdec(pa);
 
+            outdec << bsl::setprecision(PRECISION);
             outdec.width(WIDTH);
-            if (LEFT)     { outdec << bsl::left;        }
-            if (INTERNAL) { outdec << bsl::internal;    }
-            if (RIGHT)    { outdec << bsl::right;       }
-            if (CAPITAL)  { outdec << bsl::uppercase;   }
-            else          { outdec << bsl::nouppercase; }
+            if (STYLE == FIXED)  { outdec << bsl::fixed;       }
+            if (STYLE == SCIENT) { outdec << bsl::scientific;  }
+            if (LEFT)            { outdec << bsl::left;        }
+            if (INTERNAL)        { outdec << bsl::internal;    }
+            if (RIGHT)           { outdec << bsl::right;       }
+            if (CAPITAL)         { outdec << bsl::uppercase;   }
+            else                 { outdec << bsl::nouppercase; }
             outdec << VALUE;
 
-            bsl::string ACTUAL = outdec.str();
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
 
             ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
             ASSERTV(outdec.good());
@@ -1452,17 +1542,21 @@ void TestDriver::testCase4()
         {
             const BDEC::Decimal64 VALUE(DECIMAL32);
 
-            bsl::stringstream outdec;
+            bsl::ostringstream outdec(pa);
 
+            outdec << bsl::setprecision(PRECISION);
             outdec.width(WIDTH);
-            if (LEFT)     { outdec << bsl::left;        }
-            if (INTERNAL) { outdec << bsl::internal;    }
-            if (RIGHT)    { outdec << bsl::right;       }
-            if (CAPITAL)  { outdec << bsl::uppercase;   }
-            else          { outdec << bsl::nouppercase; }
+            if (STYLE == FIXED)  { outdec << bsl::fixed;       }
+            if (STYLE == SCIENT) { outdec << bsl::scientific;  }
+            if (LEFT)            { outdec << bsl::left;        }
+            if (INTERNAL)        { outdec << bsl::internal;    }
+            if (RIGHT)           { outdec << bsl::right;       }
+            if (CAPITAL)         { outdec << bsl::uppercase;   }
+            else                 { outdec << bsl::nouppercase; }
             outdec << VALUE;
 
-            bsl::string ACTUAL = outdec.str();
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
 
             ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
             ASSERTV(outdec.good());
@@ -1472,17 +1566,21 @@ void TestDriver::testCase4()
         {
             const BDEC::Decimal64 VALUE(DECIMAL32);
 
-            bsl::stringstream outdec;
+            bsl::ostringstream outdec(pa);
 
+            outdec << bsl::setprecision(PRECISION);
             outdec.width(WIDTH);
-            if (LEFT)     { outdec << bsl::left;        }
-            if (INTERNAL) { outdec << bsl::internal;    }
-            if (RIGHT)    { outdec << bsl::right;       }
-            if (CAPITAL)  { outdec << bsl::uppercase;   }
-            else          { outdec << bsl::nouppercase; }
+            if (STYLE == FIXED)  { outdec << bsl::fixed;       }
+            if (STYLE == SCIENT) { outdec << bsl::scientific;  }
+            if (LEFT)            { outdec << bsl::left;        }
+            if (INTERNAL)        { outdec << bsl::internal;    }
+            if (RIGHT)           { outdec << bsl::right;       }
+            if (CAPITAL)         { outdec << bsl::uppercase;   }
+            else                 { outdec << bsl::nouppercase; }
             VALUE.print(outdec, 0, -1);
 
-            bsl::string ACTUAL = outdec.str();
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
 
             ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
         }
@@ -1491,23 +1589,531 @@ void TestDriver::testCase4()
         {
             const BDEC::Decimal128 VALUE(DECIMAL32);
 
-            bsl::stringstream outdec;
+            bsl::ostringstream outdec(pa);
 
+            outdec << bsl::setprecision(PRECISION);
             outdec.width(WIDTH);
-            if (LEFT)     { outdec << bsl::left;        }
-            if (INTERNAL) { outdec << bsl::internal;    }
-            if (RIGHT)    { outdec << bsl::right;       }
-            if (CAPITAL)  { outdec << bsl::uppercase;   }
-            else          { outdec << bsl::nouppercase; }
+            if (STYLE == FIXED)  { outdec << bsl::fixed;       }
+            if (STYLE == SCIENT) { outdec << bsl::scientific;  }
+            if (LEFT)            { outdec << bsl::left;        }
+            if (INTERNAL)        { outdec << bsl::internal;    }
+            if (RIGHT)           { outdec << bsl::right;       }
+            if (CAPITAL)         { outdec << bsl::uppercase;   }
+            else                 { outdec << bsl::nouppercase; }
             outdec << VALUE;
 
-            bsl::string ACTUAL = outdec.str();
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
 
             ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
             ASSERTV(outdec.good());
         }
     }
 
+    // Test with Decimal32 denormal and max numbers.
+    {
+        typedef bsl::numeric_limits<BDEC::Decimal32> Limits;
+
+        const BDEC::Decimal32 DENORM_VALUE = Limits::denorm_min();
+
+        {
+            const char *DENORM_STR = "+0.0000000000""0000000000""0000000000"
+                                        "0000000000""0000000000""0000000000"
+                                        "0000000000""0000000000""0000000000"
+                                        "0000000000""1";
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::showpos
+                   << bsl::fixed
+                   << DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__, ACTUAL, DENORM_STR, ACTUAL == DENORM_STR);
+        }
+        {
+            const char *DENORM_STR = "-0.0000000000""0000000000""0000000000"
+                                        "0000000000""0000000000""0000000000"
+                                        "0000000000""0000000000""0000000000"
+                                        "0000000000""10";
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision + 1)
+                   << bsl::fixed
+                   << -DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__, ACTUAL, DENORM_STR, ACTUAL == DENORM_STR);
+        }
+
+        {
+            const char *DENORM_STR = "1.0000000000""0000000000""0000000000"
+                                       "0000000000""0000000000""0000000000"
+                                       "0000000000""0000000000""0000000000"
+                                       "0000000000""0""e-101";
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::scientific
+                   << DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__, ACTUAL, DENORM_STR, ACTUAL == DENORM_STR);
+        }
+        {
+            const char *DENORM_STR = "-1.0000000000""0000000000""0000000000"
+                                        "0000000000""0000000000""0000000000"
+                                        "0000000000""0000000000""0000000000"
+                                        "0000000000""00""e-101";
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision + 1)
+                   << bsl::scientific
+                   << -DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__, ACTUAL, DENORM_STR, ACTUAL == DENORM_STR);
+        }
+
+        const BDEC::Decimal32 MAX_VALUE = Limits::max();
+
+        {
+            const char *MAX_STR = "9999999""0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "."
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0000000000""0000000000"
+                                           "0000000000""0";
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::fixed
+                   << MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__, ACTUAL, MAX_STR, ACTUAL == MAX_STR);
+        }
+        {
+            const char *MAX_STR = "-9999999""0000000000""0000000000""0000000000"
+                                            "0000000000""0000000000""0000000000"
+                                            "0000000000""0000000000""0000000000"
+                                            "."
+                                            "0000000000""0000000000""0000000000"
+                                            "0000000000""0000000000""0000000000"
+                                            "0000000000""0000000000""0000000000"
+                                            "0000000000""00";
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision + 1)
+                   << bsl::fixed
+                   << -MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__, ACTUAL, MAX_STR, ACTUAL == MAX_STR);
+        }
+        {
+            const char *MAX_STR = "9.""9999990000""0000000000""0000000000"
+                                      "0000000000""0000000000""0000000000"
+                                      "0000000000""0000000000""0000000000"
+                                      "0000000000""0""e+96";
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::scientific
+                   << MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__, ACTUAL, MAX_STR, ACTUAL == MAX_STR);
+        }
+        {
+            const char *MAX_STR = "-9.""9999990000""0000000000""0000000000"
+                                       "0000000000""0000000000""0000000000"
+                                       "0000000000""0000000000""0000000000"
+                                       "0000000000""00""e+96";
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision + 1)
+                   << bsl::scientific
+                   << -MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__, ACTUAL, MAX_STR, ACTUAL == MAX_STR);
+        }
+    }
+    // Test with Decimal64 denormal and max numbers.
+    {
+        typedef bsl::numeric_limits<BDEC::Decimal64> Limits;
+
+        const BDEC::Decimal64 DENORM_VALUE = Limits::denorm_min();
+
+        {
+            const int k_EXPECTED_DENORM_LENGTH = 1
+                                               + 1
+                                               + Limits::max_precision;
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::fixed
+                   << DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_DENORM_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_DENORM_LENGTH);
+        }
+
+        {
+            const int k_PRECISION              = Limits::max_precision + 1;
+            const int k_EXPECTED_DENORM_LENGTH = 1
+                                               + 1
+                                               + k_PRECISION;
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(k_PRECISION)
+                   << bsl::fixed
+                   << DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_DENORM_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_DENORM_LENGTH);
+        }
+        {
+            const int k_EXPECTED_DENORM_LENGTH = 1
+                                               + 1
+                                               + Limits::max_precision
+                                               + 5; // exponent
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::scientific
+                   << DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_DENORM_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_DENORM_LENGTH);
+        }
+        {
+            const int k_PRECISION              = Limits::max_precision + 1;
+            const int k_EXPECTED_DENORM_LENGTH = 1
+                                               + 1
+                                               + k_PRECISION
+                                               + 5; // exponent
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(k_PRECISION)
+                   << bsl::scientific
+                   << DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_DENORM_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_DENORM_LENGTH);
+        }
+
+        const BDEC::Decimal64 MAX_VALUE = Limits::max();
+
+        {
+            const int k_EXPECTED_MAX_LENGTH = 1
+                                            + Limits::max_exponent10
+                                            + 1
+                                            + Limits::max_precision;
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::fixed
+                   << MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_MAX_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_MAX_LENGTH);
+        }
+        {
+            const int k_PRECISION           = Limits::max_precision + 1;
+            const int k_EXPECTED_MAX_LENGTH = 1
+                                            + Limits::max_exponent10
+                                            + 1
+                                            + k_PRECISION;
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(k_PRECISION)
+                   << bsl::fixed
+                   << MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_MAX_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_MAX_LENGTH);
+        }
+        {
+            const int k_EXPECTED_MAX_LENGTH = 1
+                                            + 1
+                                            + Limits::max_precision
+                                            + 5;
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::scientific
+                   << MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_MAX_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_MAX_LENGTH);
+        }
+        {
+            const int k_PRECISION           = Limits::max_precision + 1;
+            const int k_EXPECTED_MAX_LENGTH = 1
+                                            + 1
+                                            + k_PRECISION
+                                            + 5; // exponent
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(k_PRECISION)
+                   << bsl::scientific
+                   << MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_MAX_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_MAX_LENGTH);
+        }
+    }
+
+    // Test with Decimal128 denormal and max numbers.
+    {
+        typedef bsl::numeric_limits<BDEC::Decimal128> Limits;
+
+        const BDEC::Decimal128 DENORM_VALUE = Limits::denorm_min();
+
+        {
+            const int k_EXPECTED_DENORM_LENGTH = 1
+                                               + 1
+                                               + Limits::max_precision;
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::fixed
+                   << DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_DENORM_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_DENORM_LENGTH);
+        }
+
+        {
+            const int k_PRECISION              = Limits::max_precision + 1;
+            const int k_EXPECTED_DENORM_LENGTH = 1
+                                               + 1
+                                               + k_PRECISION;
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(k_PRECISION)
+                   << bsl::fixed
+                   << DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_DENORM_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_DENORM_LENGTH);
+        }
+
+        {
+            const int k_EXPECTED_DENORM_LENGTH = 1
+                                               + 1
+                                               + Limits::max_precision
+                                               + 6; // exponent
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::scientific
+                   << DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_DENORM_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_DENORM_LENGTH);
+        }
+        {
+            const int k_PRECISION              = Limits::max_precision + 1;
+            const int k_EXPECTED_DENORM_LENGTH = 1
+                                               + 1
+                                               + k_PRECISION
+                                               + 6; // exponent
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(k_PRECISION)
+                   << bsl::scientific
+                   << DENORM_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_DENORM_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_DENORM_LENGTH);
+        }
+
+        const BDEC::Decimal128 MAX_VALUE = Limits::max();
+
+       {
+           const int k_EXPECTED_MAX_LENGTH = 1
+                                           + Limits::max_exponent10
+                                           + 1
+                                           + Limits::max_precision;
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::fixed
+                   << MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_MAX_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_MAX_LENGTH);
+        }
+        {
+            const int k_PRECISION           = Limits::max_precision + 1;
+            const int k_EXPECTED_MAX_LENGTH = 1
+                                            + Limits::max_exponent10
+                                            + 1
+                                            + k_PRECISION;
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision + 1)
+                   << bsl::fixed
+                   << MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_MAX_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_MAX_LENGTH);
+        }
+        {
+            const int k_EXPECTED_MAX_LENGTH = 1
+                                            + 1
+                                            + Limits::max_precision
+                                            + 6;
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(Limits::max_precision)
+                   << bsl::scientific
+                   << MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_MAX_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_MAX_LENGTH);
+        }
+        {
+            const int k_PRECISION           = Limits::max_precision + 1;
+            const int k_EXPECTED_MAX_LENGTH = 1
+                                            + 1
+                                            + k_PRECISION
+                                            + 6; // exponent
+
+            bsl::ostringstream outdec(pa);
+
+            outdec << bsl::setprecision(k_PRECISION)
+                   << bsl::scientific
+                   << MAX_VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(__LINE__,
+                    ACTUAL.length(),
+                    k_EXPECTED_MAX_LENGTH,
+                    ACTUAL.length() == k_EXPECTED_MAX_LENGTH);
+        }
+    }
     // Bug in Studio Studio's C++ standard library: 'ostreambuf_iterator'
     // doesn't set the 'failed' attribute when the iterator reaches the end of
     // EOF of the 'streambuf'.  Therefore, 'operator<<' for the decimal types
@@ -1526,7 +2132,7 @@ void TestDriver::testCase4()
             bdlsb::FixedMemOutStreamBuf obuf(buffer, 4);
             bsl::ostream out(&obuf);
             BDEC::Decimal64 value = DFP(-1.0);
-            out << value;
+            out << bsl::setprecision(1) << bsl::fixed << value;
             ASSERTV(out.fail(), !out.fail());
             ASSERTV(out.bad(), !out.bad());
         }
@@ -1535,7 +2141,7 @@ void TestDriver::testCase4()
             bdlsb::FixedMemOutStreamBuf obuf(buffer, 3);
             bsl::ostream out(&obuf);
             BDEC::Decimal32 value = DFP(-1.0);
-            out << value;
+            out << bsl::setprecision(1) << bsl::fixed << value;
             ASSERTV(out.fail(), out.fail());
             ASSERTV(out.bad(), out.bad());
         }
@@ -1544,7 +2150,7 @@ void TestDriver::testCase4()
             bdlsb::FixedMemOutStreamBuf obuf(buffer, 3);
             bsl::ostream out(&obuf);
             BDEC::Decimal64 value = DFP(-1.0);
-            out << value;
+            out << bsl::setprecision(1) << bsl::fixed << value;
             ASSERTV(out.fail(), out.fail());
             ASSERTV(out.bad(), out.bad());
         }
@@ -1553,7 +2159,7 @@ void TestDriver::testCase4()
             bdlsb::FixedMemOutStreamBuf obuf(buffer, 3);
             bsl::ostream out(&obuf);
             BDEC::Decimal128 value = DFP(-1.0);
-            out << value;
+            out << bsl::setprecision(1) << bsl::fixed << value;
             ASSERTV(out.fail(), out.fail());
             ASSERTV(out.bad(), out.bad());
         }
@@ -1561,6 +2167,9 @@ void TestDriver::testCase4()
 #endif
 
 #undef DFP
+#undef FIXED
+
+
 }
 
 void TestDriver::testCase3()
@@ -1802,7 +2411,7 @@ void TestDriver::testCase3()
 
         BDEC::Decimal128 d1(BDLDFP_DECIMAL_DL(
                                 -1.234567890123456789012345678901234e-24));
-        out << d1;
+        out << bsl::setprecision(33) << d1;
         bsl::string s(pa);
         getStringFromStream(out, &s);
         LOOP2_ASSERT(
@@ -1821,6 +2430,16 @@ void TestDriver::testCase3()
         in >> d1;
         ASSERT(d1 ==
               BDLDFP_DECIMAL_DL(-1.234567890123456789012345678901234e-24));
+    }
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-123456789012345678901234567890123.4", pa);
+        in.str(ins);
+
+        BDEC::Decimal128 d1;
+        in >> d1;
+        ASSERT(d1 ==
+              BDLDFP_DECIMAL_DL(-123456789012345678901234567890123.4));
     }
 
     // bdldfp does not know how to parse128("NaN") etc.
@@ -1933,7 +2552,7 @@ void TestDriver::testCase3()
         bsl::wostringstream  out(pa);
         BDEC::Decimal128 d1(BDLDFP_DECIMAL_DL(
                                 -1.234567890123456789012345678901234e-24));
-        out << d1;
+        out << bsl::setprecision(33) << d1;
         bsl::wstring s(pa);
         getStringFromStream(out, &s);
         ASSERT(decLower(s) == L"-1.234567890123456789012345678901234e-24");
@@ -2974,7 +3593,7 @@ void TestDriver::testCase2()
         bsl::ostringstream  out(pa);
 
         BDEC::Decimal64 d1(BDLDFP_DECIMAL_DD(-1.234567890123456e-24));
-        out << d1;
+        out << bsl::setprecision(15) << d1;
         bsl::string s(pa);
         getStringFromStream(out, &s);
         LOOP_ASSERT(s, decLower(s) == "-1.234567890123456e-24");
@@ -2989,6 +3608,16 @@ void TestDriver::testCase2()
         BDEC::Decimal64 d1;
         in >> d1;
         ASSERT(d1 == BDLDFP_DECIMAL_DD(-1.234567890123456e-24));
+    }
+
+    {
+        bsl::istringstream  in(pa);
+        bsl::string ins("-123456789012345.6", pa);
+        in.str(ins);
+
+        BDEC::Decimal64 d1;
+        in >> d1;
+        ASSERT(d1 == BDLDFP_DECIMAL_DD(-123456789012345.6));
     }
 
     if (veryVerbose) bsl::cout << "Test stream in NaN" << bsl::endl;
@@ -3028,7 +3657,7 @@ void TestDriver::testCase2()
     {
         bsl::wostringstream  out(pa);
         BDEC::Decimal64 d1(BDLDFP_DECIMAL_DD(-1.234567890123456e-24));
-        out << d1;
+        out << bsl::setprecision(15) << d1;
         bsl::wstring s(pa);
         getStringFromStream(out, &s);
         ASSERT(decLower(s) == L"-1.234567890123456e-24");
@@ -4148,6 +4777,15 @@ void TestDriver::testCase1()
         BDEC::Decimal32 d1;
         in >> d1;
         ASSERT(d1 == BDLDFP_DECIMAL_DF(-8.327457e-24));
+    }
+    {
+        bsl::istringstream in(pa);
+        bsl::string ins("-832745.7", pa);
+        in.str(ins);
+
+        BDEC::Decimal32 d1;
+        in >> d1;
+        ASSERT(d1 == BDLDFP_DECIMAL_DF(-832745.7));
     }
 
     if (veryVerbose) bsl::cout << "Test stream in NaN" << bsl::endl;

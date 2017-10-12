@@ -353,8 +353,7 @@ int formatNatural(char                      *buffer,
     // 'length' is not  positive.  This can be used to determine the necessary
     // buffer size.
 {
-    BSLS_ASSERT(buffer);
-    BSLS_ASSERT(length >= 0);
+    BSLS_ASSERT(buffer || length < 0);
 
     typedef typename DecimalTraits<DECIMAL>::Significand SIGNIFICAND;
 
@@ -384,8 +383,7 @@ int formatSpecial(char        *buffer,
                   const char  *begin,
                   const char  *end)
 {
-    BSLS_ASSERT(buffer);
-    BSLS_ASSERT(length >= 0);
+    BSLS_ASSERT(buffer || length < 0);
 
     const long int len = bsl::distance(begin, end);
 
