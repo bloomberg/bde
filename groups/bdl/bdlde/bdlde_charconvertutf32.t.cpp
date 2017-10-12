@@ -4106,7 +4106,6 @@ int main(int argc, char **argv)
         bsls::AssertFailureHandlerGuard guard(
                                              bsls::AssertTest::failTestDriver);
 
-        const unsigned int    utf32Input[] = { 0x100, 0x1000, 0 };
         const char            utf8Input [] = "woof";
         const PaddedStringRef utf8Sr(utf8Input);
 

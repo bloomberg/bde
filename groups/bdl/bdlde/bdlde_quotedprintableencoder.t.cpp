@@ -561,7 +561,7 @@ bool StateAccessor::isState(State state) const
         bool d5 = '0' == bb[2];
         bool d6 = '0' == bb[1];   // Then the possibility of a tab
         bool d7 = '9' == bb[2];
-        bool d8 = (d4 && d5 || d6 && d7);               ASSERT(d8 || !enabled);
+        bool d8 = (d4 && d5) || (d6 && d7);             ASSERT(d8 || !enabled);
 
         bool d9 = -1  == bb[3];                         ASSERT(d9 || !enabled);
 
@@ -775,7 +775,7 @@ const EquivalenceClass& findEquivalenceClass(char ch)
     else if (ch == '\r') {
         return carriageReturn;                                        // RETURN
     }
-    else if (33 <= ch && ch <= 60 || 62 <= ch && ch <= 126)   {
+    else if ((33 <= ch && ch <= 60) || (62 <= ch && ch <= 126)) {
         return printable;                                             // RETURN
     }
     else {
@@ -804,7 +804,7 @@ bool isHex(char ch)
     // only uppercase letters are allowed since this function is only used to
     // check output from the converter being tested.
 {
-    return '0' <= ch && ch <= '9' || 'A' <= ch && ch <= 'F';
+    return ('0' <= ch && ch <= '9') || ('A' <= ch && ch <= 'F');
 }
 
                            // ===================
@@ -1191,7 +1191,7 @@ bool isState(bdlde::QuotedPrintableEncoder *object, int state)
         bool d5 = '0' == bb[2];
         bool d6 = '0' == bb[1];   // Then the possibility of a tab
         bool d7 = '9' == bb[2];
-        bool d8 = (d4 && d5 || d6 && d7);               ASSERT(d8 || !enabled);
+        bool d8 = (d4 && d5) || (d6 && d7);             ASSERT(d8 || !enabled);
 
         bool d9 = IV  == bb[3];                         ASSERT(d9 || !enabled);
 
@@ -1586,9 +1586,6 @@ int main(int argc, char *argv[])
 
         // Major State Aliases:
         // 0 = STATE_ZERO
-        const int I = INITIAL_STATE;
-        const int R = SAW_RETURN;
-        const int W = SAW_WHITE;
         const int D = DONE_STATE;
         const int E = ERROR_STATE;
 
@@ -4201,19 +4198,19 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
         V("Verify Printable Characters: Entries [33-60], [62-126].");
         {
             const EquivalenceClass &inputType = printable;
-            for (int j = 0; j < inputType.d_ranges.size(); ++j) {
+            for (bsl::size_t j = 0; j < inputType.d_ranges.size(); ++j) {
                 for (int i = inputType.d_ranges[j].start;
                      i <= inputType.d_ranges[j].end;
                      ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    input = i;
+                    input = static_cast<char>(i);
 
                     VVV("Verify printable characters are printed and not \
 encoded.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
-                        input = i;
+                        input = static_cast<char>(i);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 1 == nOut);
@@ -4232,7 +4229,7 @@ encoded.");
                     VVV("Verify if a single char '" << input <<
                         "' can be specified to be encoded");
                     {
-                        encode[0] = i;
+                        encode[0] = static_cast<char>(i);
                         encode[1] = 0;
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
@@ -4256,7 +4253,7 @@ encoded.");
                     VVV("among other chars to be encoded");
                     {
                         encode[0] = 'a';
-                        encode[1] = i;
+                        encode[1] = static_cast<char>(i);
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { IV, IV, IV, IV };
@@ -4281,7 +4278,7 @@ encoded.");
                     VVV("encoded are encoded.");
                     {
                         encode[0] = 'a';
-                        encode[1] = i;
+                        encode[1] = static_cast<char>(i);
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { IV, IV, IV, IV };
@@ -4307,7 +4304,7 @@ encoded.");
                     VVV("encoded are encoded.");
                     {
                         encode[0] = 'a';
-                        encode[1] = i;
+                        encode[1] = static_cast<char>(i);
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { IV, IV, IV, IV };
@@ -4335,12 +4332,12 @@ encoded.");
         V("Verify Whitespace Characters: Entries [9, 32]");
         {
             const EquivalenceClass &inputType = whitespace;
-            for (int j = 0; j < inputType.d_ranges.size(); ++j) {
+            for (bsl::size_t j = 0; j < inputType.d_ranges.size(); ++j) {
                 for (int i = inputType.d_ranges[j].start;
                      i <= inputType.d_ranges[j].end;
                      ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    input = i;
+                    input = static_cast<char>(i);
 
                     VVV("Verify delayed encoding of char '" <<
                         printHex(B, 1) << "'");
@@ -4362,7 +4359,7 @@ encoded.");
                     VVV("Verify if a single char '" << printHex(B, 1) <<
                         "' can be specified to be encoded");
                     {
-                        encode[0] = i;
+                        encode[0] = static_cast<char>(i);
                         encode[1] = 0;
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
@@ -4386,7 +4383,7 @@ encoded.");
                     VVV("specified among other chars to be encoded");
                     {
                         encode[0] = 'a';
-                        encode[1] = i;
+                        encode[1] = static_cast<char>(i);
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { IV, IV, IV, IV };
@@ -4411,7 +4408,7 @@ encoded.");
                     VVV("encoded are encoded.");
                     {
                         encode[0] = 'a';
-                        encode[1] = i;
+                        encode[1] = static_cast<char>(i);
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { IV, IV, IV, IV };
@@ -4437,7 +4434,7 @@ encoded.");
                     VVV("encoded are encoded.");
                     {
                         encode[0] = 'a';
-                        encode[1] = i;
+                        encode[1] = static_cast<char>(i);
                         encode[2] = 'A';
                         encode[3] = 0;
                         char b[4] = { IV, IV, IV, IV };
@@ -4465,18 +4462,18 @@ encoded.");
         V("Verify Carriage Return: Entry [13]");
         {
             const EquivalenceClass &inputType = carriageReturn;
-            for (int j = 0; j < inputType.d_ranges.size(); ++j) {
+            for (bsl::size_t j = 0; j < inputType.d_ranges.size(); ++j) {
                 for (int i = inputType.d_ranges[j].start;
                      i <= inputType.d_ranges[j].end;
                      ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    input = i;
+                    input = static_cast<char>(i);
 
                     VVV("Verify '\\r' is encoded in LF_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_LF_MODE);
-                        input = i;
+                        input = static_cast<char>(i);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4540,14 +4537,14 @@ encoded.");
                     VVV("effect of specifying '\\n' to be encoded at");
                     VVV("construction.");
 
-                    encode[0] = i;
+                    encode[0] = static_cast<char>(i);
                     encode[1] = 0;
 
                     VVV("Verify '\\r' is encoded in LF_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_LF_MODE);
-                        input = i;
+                        input = static_cast<char>(i);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4607,18 +4604,18 @@ encoded.");
         V("Verify Newline: Entry [10]");
         {
             const EquivalenceClass &inputType = newline;
-            for (int j = 0; j < inputType.d_ranges.size(); ++j) {
+            for (bsl::size_t j = 0; j < inputType.d_ranges.size(); ++j) {
                 for (int i = inputType.d_ranges[j].start;
                      i <= inputType.d_ranges[j].end;
                      ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    input = i;
+                    input = static_cast<char>(i);
 
                     VVV("Verify a stand-alone '\\n' is encoded in CRLF_MODE.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
-                        input = i;
+                        input = static_cast<char>(i);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4647,7 +4644,7 @@ encoded.");
                         LOOP_ASSERT(i, IV == b[1]);
                         LOOP_ASSERT(i, IV == b[2]);
                         LOOP_ASSERT(i, IV == b[3]);
-                        input = i;  // i.e., '\n'
+                        input = static_cast<char>(i);  // i.e., '\n'
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
@@ -4705,7 +4702,7 @@ encoded.");
                     VVV("effect of specifying '\\n' to be encoded at");
                     VVV("construction.");
 
-                    encode[0] = i;
+                    encode[0] = static_cast<char>(i);
                     encode[1] = 0;
 
                     VVV("Verify a stand-alone '\\n' is encoded in CRLF_MODE.");
@@ -4740,7 +4737,7 @@ encoded.");
                         LOOP_ASSERT(i, IV == b[1]);
                         LOOP_ASSERT(i, IV == b[2]);
                         LOOP_ASSERT(i, IV == b[3]);
-                        input = i;
+                        input = static_cast<char>(i);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 2 == nOut);
@@ -4801,18 +4798,18 @@ encoded.");
         V("[127-255]");
         {
             const EquivalenceClass &inputType = controlChar;
-            for (int j = 0; j < inputType.d_ranges.size(); ++j) {
+            for (bsl::size_t j = 0; j < inputType.d_ranges.size(); ++j) {
                 for (int i = inputType.d_ranges[j].start;
                      i <= inputType.d_ranges[j].end;
                      ++i) {
                     if (veryVerbose) { T_ T_ P(i) }
-                    input = i;
+                    input = static_cast<char>(i);
 
                     VVV("Verify control characters are encoded.");
                     {
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(Obj::e_CRLF_MODE);
-                        input = i;
+                        input = static_cast<char>(i);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);
@@ -4832,11 +4829,11 @@ encoded.");
                     VVV("Verify there is no effect of specifying character");
                     VVV("to be encoded at construction.");
                     {
-                        encode[0] = i;
+                        encode[0] = static_cast<char>(i);
                         encode[1] = 0;
                         char b[4] = { IV, IV, IV, IV };
                         Obj obj(encode, Obj::e_CRLF_MODE);
-                        input = i;
+                        input = static_cast<char>(i);
                         LOOP_ASSERT(i, 0 == obj.convert(b, &nOut, &nIn, B, E));
                         LOOP_ASSERT(i, 1 == nIn);
                         LOOP_ASSERT(i, 3 == nOut);

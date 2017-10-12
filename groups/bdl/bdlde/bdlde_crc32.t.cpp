@@ -425,7 +425,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                     || ('a' <= spec[i] && spec[i] <= 'f')) {
                 // build the hexadecimal character, add it to 'update_buffer'
 
-                unsigned char hex;
+                unsigned char hex = 0;
 
                 if ('0' <= spec[i] && spec[i] <= '9') {
                     hex = static_cast<unsigned char>((spec[i] - '0') << 4);
@@ -1348,7 +1348,7 @@ int main(int argc, char *argv[])
                 // that the input stream is emptied, but remains valid.
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
-                    In in(OD, LOD);  In &testInStream = in;
+                    In in(OD, LOD);
 
                     // in.setSuppressVersionCheck(1); -- no longer supported
 
@@ -1377,7 +1377,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                In in(OD, LOD);  In& testInStream = in;
+                In in(OD, LOD);
                 LOOP_ASSERT(i, in);
                 LOOP_ASSERT(i, in.isEmpty());
 
@@ -1413,7 +1413,7 @@ int main(int argc, char *argv[])
             const char *const OD = out.data();
 
             for (int i = 0; i < LOD; ++i) {
-                In in(OD, i);  In& testInStream = in;
+                In in(OD, i);
 
                 // in.setSuppressVersionCheck(1); -- no longer supperted
 

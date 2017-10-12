@@ -1188,11 +1188,16 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 //                                TEST CASES
 // ----------------------------------------------------------------------------
 #define DEFINE_TEST_CASE(NUMBER)                                              \
-void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose,   \
-                                                      bool veryVeryVeryVerbose)
+void testCase##NUMBER(bool verbose,                                           \
+                      bool veryVerbose,                                       \
+                      bool veryVeryVerbose,                                   \
+                      bool veryVeryVeryVerbose)
 
 DEFINE_TEST_CASE(11)
 {
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // STRESS TEST
         //   Demonstrate that the encoder/decoder can encode/decode a large
@@ -1661,6 +1666,10 @@ DEFINE_TEST_CASE(11)
 
 DEFINE_TEST_CASE(10)
 {
+        (void)veryVerbose;
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Demonstrate that the example compiles, links, and runs.
@@ -1716,6 +1725,9 @@ DEFINE_TEST_CASE(10)
 
 DEFINE_TEST_CASE(9)
 {
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // RESET STATE
         //   Verify the 'resetState' method.
@@ -1781,6 +1793,8 @@ DEFINE_TEST_CASE(9)
 
 DEFINE_TEST_CASE(8)
 {
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS.
         //   Complete the testing of 'convert' and 'endConvert'.
@@ -3950,6 +3964,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
 DEFINE_TEST_CASE(6)
 {
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // VERIFY INTERNAL TABLES.
         //   Ensure that each internal table has the appropriate entries.
@@ -4427,6 +4443,8 @@ DEFINE_TEST_CASE(6)
 
 DEFINE_TEST_CASE(5)
 {
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // BOOTSTRAP: 'convert' - transitions
         //   Verify 'convert' transitions for all states.
@@ -4677,6 +4695,9 @@ DEFINE_TEST_CASE(5)
 
 DEFINE_TEST_CASE(4)
 {
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // BOOTSTRAP: 'endConvert' - transitions
         //   Verify 'endConvert' transitions for all states.
@@ -4752,6 +4773,8 @@ DEFINE_TEST_CASE(4)
 
 DEFINE_TEST_CASE(3)
 {
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // SET-STATE, IS-STATE, AND BASIC ACCESSORS.
         //   Ensure that we can bring an object to any attainable state.
@@ -5232,6 +5255,10 @@ DEFINE_TEST_CASE(3)
 
 DEFINE_TEST_CASE(2)
 {
+        (void)veryVerbose;
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // PRIMARY CONSTRUCTOR AND CONFIGURATION STATE ACCESSORS
         //   Make sure we can bring the object to any attainable state.
@@ -5287,6 +5314,9 @@ DEFINE_TEST_CASE(2)
 
 DEFINE_TEST_CASE(1)
 {
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This case is available to be used as a developers' sandbox.
