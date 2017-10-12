@@ -5,6 +5,7 @@
 BSLS_IDENT_RCSID(bbldc_periodicmaactualactual_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
 
@@ -59,7 +60,14 @@ double PeriodIcmaActualActual::yearsDiff(
         return 0.0;                                                   // RETURN
     }
 
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VERSION >= 50301)
+    // Storing the result value in a 'volatile double' removes extra-precision
+    // available in floating-point registers.
+
+    volatile double result;
+#else
     double result;
+#endif
 
     // Compute the negation flag and produce sorted dates.
 
@@ -110,7 +118,7 @@ double PeriodIcmaActualActual::yearsDiff(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

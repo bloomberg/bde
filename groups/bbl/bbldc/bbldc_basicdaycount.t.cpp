@@ -105,8 +105,8 @@ class my_Convention : public bbldc::BasicDayCount {
         // 'beginDate' and 'endDate' according to the Actual/360 convention.
         // If 'beginDate <= endDate' then the result is non-negative.  Note
         // that reversing the order of 'beginDate' and 'endDate' negates the
-        // result; specifically
-        // 'yearsDiff(b, e) == -yearsDiff(e, b)' for all dates 'b' and 'e'.
+        // result; specifically 'yearsDiff(b, e) == -yearsDiff(e, b)' for all
+        // dates 'b' and 'e'.
 };
 
 my_Convention::my_Convention()  {
@@ -217,7 +217,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 // calculate day count and year fraction:
 //..
     int my_DayCountConvention::daysDiff(const bdlt::Date& beginDate,
-            const bdlt::Date& endDate) const
+                                        const bdlt::Date& endDate) const
     {
         return endDate - beginDate;
     }
@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
