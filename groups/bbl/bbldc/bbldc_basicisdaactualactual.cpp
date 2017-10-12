@@ -7,6 +7,7 @@ BSLS_IDENT_RCSID(bbldc_basicisdaactualactual_cpp,"$Id$ $CSID$")
 #include <bdlt_serialdateimputil.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 namespace BloombergLP {
 namespace bbldc {
@@ -24,17 +25,28 @@ double BasicIsdaActualActual::yearsDiff(const bdlt::Date& beginDate,
 
     const int daysInBeginYear =
                           365 + bdlt::SerialDateImpUtil::isLeapYear(beginYear);
-    const int daysInEndYear   =
-                          365 + bdlt::SerialDateImpUtil::isLeapYear(endYear);
+    const int daysInEndYear =
+                            365 + bdlt::SerialDateImpUtil::isLeapYear(endYear);
 
-    int numerator = (endYear - beginYear - 1) * daysInBeginYear * daysInEndYear
-                  + (bdlt::Date(beginYear + 1, 1, 1) - beginDate) *
-                                                                  daysInEndYear
-                  + (endDate - bdlt::Date(endYear, 1, 1)) * daysInBeginYear;
+    const int yDiff = endYear - beginYear - 1;
+    const int beginYearDayDiff = bdlt::Date(beginYear + 1, 1, 1) - beginDate;
+    const int endYearDayDiff = endDate - bdlt::Date(endYear, 1, 1);
+    const int numerator = yDiff * daysInBeginYear * daysInEndYear
+                        + beginYearDayDiff * daysInEndYear
+                        + endYearDayDiff * daysInBeginYear;
+    const int denominator = daysInBeginYear * daysInEndYear;
 
-    int denominator = daysInBeginYear * daysInEndYear;
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VERSION >= 50301)
+    // Storing the result value in a 'volatile double' removes extra-precision
+    // available in floating-point registers.
 
-    return static_cast<double>(numerator) / static_cast<double>(denominator);
+    const volatile double rv =
+#else
+    const double rv =
+#endif
+                      numerator / static_cast<double>(denominator);
+
+    return rv;
 }
 
 }  // close package namespace

@@ -116,8 +116,7 @@ class my_Convention : public bbldc::DateRangeDayCount {
         // If 'beginDate <= endDate' then the result is non-negative.  Note
         // that reversing the order of 'beginDate' and 'endDate' negates the
         // result; specifically
-        // '|yearsDiff(b, e) + yearsDiff(e, b)| <= 1.0e-15' for all dates 'b'
-        // and 'e'.
+        // 'yearsDiff(b, e) == -yearsDiff(e, b) for all dates 'b' and 'e'.
 };
 
 my_Convention::my_Convention()  {
