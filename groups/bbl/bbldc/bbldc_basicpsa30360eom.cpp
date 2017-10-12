@@ -8,6 +8,7 @@ BSLS_IDENT_RCSID(bbldc_basicpsa30360eom_cpp,"$Id$ $CSID$")
 #include <bdlt_serialdateimputil.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 namespace BloombergLP {
 namespace bbldc {
@@ -88,14 +89,24 @@ int BasicPsa30360Eom::daysDiff(const bdlt::Date& beginDate,
 double BasicPsa30360Eom::yearsDiff(const bdlt::Date& beginDate,
                                    const bdlt::Date& endDate)
 {
-    return static_cast<double>(computeDaysDiff(beginDate, endDate)) / 360.0;
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VERSION >= 50301)
+    // Storing the result value in a 'volatile double' removes extra-precision
+    // available in floating-point registers.
+
+    const volatile double rv =
+#else
+    const double rv =
+#endif
+              static_cast<double>(computeDaysDiff(beginDate, endDate)) / 360.0;
+
+    return rv;
 }
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
