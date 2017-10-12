@@ -660,20 +660,6 @@ struct DecimalImpUtil_IntelDfp {
         // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
         // intrinsics return a signaling NaN.
 
-                        // Formatting Functions
-
-    static void format(ValueType32  value, char *buffer);
-    static void format(ValueType64  value, char *buffer);
-    static void format(ValueType128 value, char *buffer);
-        // Produce a string representation of the specified decimal 'value', in
-        // the specified 'buffer', which is at least
-        // 'BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE' bytes in length.  The
-        // string will be suitable for use with the 'strtod128' function in
-        // section 9.6 of the ISO/EIC TR 24732 C Decimal Floating-Point
-        // Technical Report, except that it is unspecified whether the NaNs
-        // returned are quiet or signaling.  The behavior is undefined unless
-        // there are 'size' bytes available in 'buffer'.
-
                         // Densely Packed Conversion Functions
 
     static ValueType32  convertFromDPD(
@@ -1496,45 +1482,6 @@ DecimalImpUtil_IntelDfp::parse128(const char *string)
     // because the __bid* interfaces are C interfaces.
     result.d_raw = __bid128_from_string(const_cast<char *>(string), &flags);
     return result;
-}
-
-inline
-void
-DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType32  value,
-                                char                                 *buffer)
-{
-    BSLS_ASSERT(buffer);
-    DecimalImpUtil_IntelDfp::ValueType64 tmp;
-    _IDEC_flags flags(0);
-    tmp.d_raw = __bid32_to_bid64(value.d_raw, &flags);
-
-    return format(tmp, buffer);
-}
-
-inline
-void
-DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType64  value,
-                                char                                 *buffer)
-{
-    BSLS_ASSERT(buffer);
-
-    buffer[0] = 0;
-
-    _IDEC_flags flags(0);
-    __bid64_to_string(buffer, value.d_raw, &flags);
-}
-
-inline
-void
-DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType128  value,
-                                char                                  *buffer)
-{
-    BSLS_ASSERT(buffer);
-
-    buffer[0] = 0;
-
-    _IDEC_flags flags(0);
-    __bid128_to_string(buffer, value.d_raw, &flags);
 }
 
                         // Densely Packed Conversion Functions

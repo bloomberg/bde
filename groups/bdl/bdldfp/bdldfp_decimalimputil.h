@@ -1290,20 +1290,6 @@ class DecimalImpUtil {
         // the behavior of ISO/EIC TR 24732 C when parsing NaN because the AIX
         // compiler intrinsics return a signaling NaN.
 
-                        // Formatting functions
-
-    static void format(ValueType32  value, char *buffer);
-    static void format(ValueType64  value, char *buffer);
-    static void format(ValueType128 value, char *buffer);
-        // Produce a string representation of the specified decimal 'value', in
-        // the specified 'buffer', which is at least
-        // 'BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE' bytes in length.  The
-        // string will be suitable for use with the 'strtod128' function in
-        // section 9.6 of the ISO/EIC TR 24732 C Decimal Floating-Point
-        // Technical Report, except that it is unspecified whether the NaNs
-        // returned are quiet or signaling.  The behavior is undefined unless
-        // there are 'size' bytes available in 'buffer'.
-
                         // Densely Packed Conversion Functions
 
     static ValueType32  convertFromDPD(DenselyPackedDecimalImpUtil::StorageType32  dpd);
@@ -2970,26 +2956,6 @@ DecimalImpUtil::ValueType128
 DecimalImpUtil::parse128(const char *input)
 {
     return Imp::parse128(input);
-}
-
-                        // Format functions
-
-inline
-void DecimalImpUtil::format(DecimalImpUtil::ValueType32 value, char *buffer)
-{
-    return Imp::format(value, buffer);
-}
-
-inline
-void DecimalImpUtil::format(DecimalImpUtil::ValueType64 value, char *buffer)
-{
-    return Imp::format(value, buffer);
-}
-
-inline
-void DecimalImpUtil::format(DecimalImpUtil::ValueType128 value, char *buffer)
-{
-    return Imp::format(value, buffer);
 }
 
                         // Densely Packed Conversion Functions
