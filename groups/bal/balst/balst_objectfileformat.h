@@ -39,20 +39,24 @@ BSLS_IDENT("$Id: $")
 ///-----------------
 // DWARF is a format for detailed debugging information.  It is not a complete
 // format, but is used within other formats.  It is used within ELF on Linux,
-// but not (yet) on Solaris at Bloomberg, which uses STABS instead for the time
-// being.  It is used within the Mach-O format (also known as the 'Dladdr'
-// format in this file) used on Darwin.  It is also used by the Clang compiler.
+// but not (yet) on Solaris at Bloomberg (currently the ELF format on Solaris
+// still uses STABS).  It is used within the Mach-O format (also known as the
+// 'Dladdr' format in this file) used on Darwin.  It is also used by the Clang
+// compiler (which uses ELF).
 //
 // For all these platforms, parsing the DWARF information is necessary for the
 // stack trace to get source file names and line numbers (the ELF format gives
 // source file names, but only in the case of file-scope static functions).
 //
-// We have implemented DWARF resolution for g++ 4.8.1 and before on Linux, but
-// not in later Linux g++ compilers, which are using some user-extended
-// 'DW_LNE_*' opcode that is not defined in 'dwarf.h' and that we don't know
-// how to interpret.  This could be sorted out with a few days effort by
-// finding a more recent DWARF document than what we have been using and
-// supporting that opcode.
+// We have implemented DWARF resolution for g++ 4.8.1 (and earlier) on Linux.
+//
+// DWARF Implementation Notes:
+//
+// DWARF is not supported in Linux g++ compilers later than 4.8.1 because later
+// versions use a user-extended 'DW_LNE_*' opcode that is not defined in
+// 'dwarf.h' and that we don't know how to interpret.  This could be probably
+// be resolved with a few days effort by finding a more recent DWARF document
+// than what we have been using and supporting that opcode.
 //
 // DWARF support on Clang is problematic and not currrently implemented, see
 // the long comment in balst_stacktraceresolverimpl_elf.cpp, which explains
