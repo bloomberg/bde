@@ -1,12 +1,5 @@
 // bdlmt_multiqueuethreadpool.h                                       -*-C++-*-
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BDLMT_MULTIQUEUETHREADPOOL
 #define INCLUDED_BDLMT_MULTIQUEUETHREADPOOL
 
@@ -83,9 +76,9 @@ BSLS_IDENT("$Id: $")
 // contain that word:
 //..
 //  class my_SearchProfile {
-//      // This class defines a search profile consisting of a word
-//      // and a set of files (given by name) that contain the word.
-//      // Here, "word" is defined as any string of characters.
+//      // This class defines a search profile consisting of a word and a set
+//      // of files (given by name) that contain the word.  Here, "word" is
+//      // defined as any string of characters.
 //
 //      bsl::string           d_word;     // word to search for
 //      bsl::set<bsl::string> d_fileSet;  // set of matching files
@@ -100,16 +93,16 @@ BSLS_IDENT("$Id: $")
 //      my_SearchProfile(const char       *word,
 //                       bslma::Allocator *basicAllocator = 0);
 //          // Create a 'my_SearchProfile' with the specified 'word'.
-//          // Optionally specify a 'basicAllocator' used to supply memory.
-//          // If 'basicAllocator' is 0, the default memory allocator is used.
+//          // Optionally specify a 'basicAllocator' used to supply memory.  If
+//          // 'basicAllocator' is 0, the default memory allocator is used.
 //
 //      ~my_SearchProfile();
 //          // Destroy this search profile.
 //
 //      // MANIPULATORS
 //      void insert(const char *file);
-//          // Insert the specified 'file' into the file set maintained
-//          // by this search profile.
+//          // Insert the specified 'file' into the file set maintained by this
+//          // search profile.
 //
 //      // ACCESSORS
 //      bool isMatch(const char *file) const;
@@ -117,20 +110,19 @@ BSLS_IDENT("$Id: $")
 //          // profile.
 //
 //      const bsl::set<bsl::string>& fileSet() const;
-//          // Return a reference to the non-modifiable file set maintained
-//          // by this search profile.
+//          // Return a reference to the non-modifiable file set maintained by
+//          // this search profile.
 //
 //      const bsl::string& word() const;
-//          // Return a reference to the non-modifiable word maintained
-//          // by this search profile.
+//          // Return a reference to the non-modifiable word maintained by this
+//          // search profile.
 //  };
 //..
 // And the implementation:
 //..
-//  // CONSTRUCTORS
-//  my_SearchProfile::my_SearchProfile(
-//          const char       *word,
-//          bslma::Allocator *basicAllocator)
+//  // CREATORS
+//  my_SearchProfile::my_SearchProfile(const char       *word,
+//                                     bslma::Allocator *basicAllocator)
 //  : d_word(basicAllocator)
 //  , d_fileSet(bsl::less<bsl::string>(), basicAllocator)
 //  {
@@ -189,8 +181,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  void my_SearchCb(my_SearchProfile* profile, const char *file)
 //  {
-//      // Insert the specified 'file' to the file set of the specified
-//      // search 'profile' if 'file' matches the 'profile'.
+//      // Insert the specified 'file' to the file set of the specified search
+//      // 'profile' if 'file' matches the 'profile'.
 //
 //      assert(profile);
 //      assert(file);
@@ -213,11 +205,16 @@ BSLS_IDENT("$Id: $")
 //  void fastSearch(const bsl::vector<bsl::string>&  wordList,
 //                  const bsl::vector<bsl::string>&  fileList,
 //                  bsl::set<bsl::string>&           resultSet,
+//                  int                              repetitions = 1,
 //                  bslma::Allocator                *basicAllocator = 0)
 //  {
-//      // Return the set of files, specified by 'fileList', containing
-//      // every word in the specified 'wordList', in the specified
-//      // 'resultSet'.
+//      // Return the set of files, specified by 'fileList', containing every
+//      // word in the specified 'wordList', in the specified 'resultSet'.
+//      // Optionally specify 'repetitions', the number of repetitions to run
+//      // the search jobs (it is used to increase the load for performance
+//      // testing).  Optionally specify a 'basicAllocator' used to supply
+//      // memory.  If 'basicAllocator' is 0, the default memory allocator is
+//      // used.
 //
 //      typedef bsl::vector<bsl::string> ListType;
 //          // This type is defined for notational convenience when iterating
@@ -236,14 +233,16 @@ BSLS_IDENT("$Id: $")
 //
 //      enum {
 //          // thread pool configuration
-//          MIN_THREADS = 4,
-//          MAX_THREADS = 20,
-//          MAX_IDLE    = 100  // use a very short idle time since new jobs
-//                             // arrive only at startup
+//          k_MIN_THREADS = 4,
+//          k_MAX_THREADS = 20,
+//          k_MAX_IDLE    = 100  // use a very short idle time since new jobs
+//                               // arrive only at startup
 //      };
 //      bslmt::ThreadAttributes     defaultAttrs;
 //      bdlmt::MultiQueueThreadPool pool(defaultAttrs,
-//                                       MIN_THREADS, MAX_THREADS, MAX_IDLE,
+//                                       k_MIN_THREADS,
+//                                       k_MAX_THREADS,
+//                                       k_MAX_IDLE,
 //                                       basicAllocator);
 //      RegistryType profileRegistry(bsl::less<bsl::string>(), basicAllocator);
 //
@@ -251,8 +250,8 @@ BSLS_IDENT("$Id: $")
 //      // 'wordList'.
 //
 //      for (ListType::const_iterator it = wordList.begin();
-//           it != wordList.end(); ++it)
-//      {
+//           it != wordList.end();
+//           ++it) {
 //          bslma::Allocator *allocator =
 //                                   bslma::Default::allocator(basicAllocator);
 //
@@ -273,41 +272,44 @@ BSLS_IDENT("$Id: $")
 //      // Start the pool, enabling enqueuing and queue processing.
 //      pool.start();
 //
-//
 //      // Enqueue a job which tries to match each file in 'fileList' with each
 //      // search profile.
 //
 //      for (ListType::const_iterator it = fileList.begin();
-//           it != fileList.end(); ++it)
-//      {
+//           it != fileList.end();
+//           ++it) {
 //          for (ListType::const_iterator jt = wordList.begin();
-//               jt != wordList.end(); ++jt)
-//          {
-//              const bsl::string&        file = *it;
-//              const bsl::string&        word = *jt;
-//              RegistryValue&            rv   = profileRegistry[word];
-//              bsl::function<void()> job  =
-//                 bdlf::BindUtil::bind(&my_SearchCb, rv.second, file.c_str());
-//              int rc = pool.enqueueJob(rv.first, job);
-//              LOOP_ASSERT(word, 0 == rc);
+//               jt != wordList.end();
+//               ++jt) {
+//              const bsl::string& file = *it;
+//              const bsl::string& word = *jt;
+//              RegistryValue&     rv   = profileRegistry[word];
+//              Func               job;
+//              makeFunc(&job, my_SearchCb, rv.second, file.c_str());
+//              for (int i = 0; i < repetitions; ++i) {
+//                  int rc = pool.enqueueJob(rv.first, job);
+//                  LOOP_ASSERT(word, 0 == rc);
+//              }
 //          }
 //      }
 //
 //      // Stop the pool, and wait while enqueued jobs are processed.
 //      pool.stop();
 //
-//      // Construct the 'resultSet' as the intersection of file sets
-//      // collected in each search profile.
+//      // Construct the 'resultSet' as the intersection of file sets collected
+//      // in each search profile.
 //
 //      resultSet.insert(fileList.begin(), fileList.end());
 //      for (RegistryType::iterator it = profileRegistry.begin();
-//           it != profileRegistry.end(); ++it)
-//      {
+//           it != profileRegistry.end();
+//           ++it) {
 //          my_SearchProfile *profile = it->second.second;
 //          const bsl::set<bsl::string>& fileSet = profile->fileSet();
 //          bsl::set<bsl::string> tmpSet;
-//          bsl::set_intersection(fileSet.begin(),   fileSet.end(),
-//                                resultSet.begin(), resultSet.end(),
+//          bsl::set_intersection(fileSet.begin(),
+//                                fileSet.end(),
+//                                resultSet.begin(),
+//                                resultSet.end(),
 //                                bsl::inserter(tmpSet, tmpSet.begin()));
 //          resultSet = tmpSet;
 //          bslma::Default::allocator(basicAllocator)->deleteObjectRaw(
@@ -348,6 +350,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readerwritermutex.h>
 #endif
 
+#ifndef INCLUDED_BSLMT_SEMAPHORE
+#include <bslmt_semaphore.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
 #endif
@@ -371,14 +377,15 @@ namespace bdlmt {
 class MultiQueueThreadPool_Queue {
     // This private class provides a thread-safe, lightweight job queue.
 
-    friend class MultiQueueThreadPool;  // TBD remove
-
   public:
     // PUBLIC TYPES
     typedef bsl::function<void()> Job;
 
   private:
-    // TYPES
+    // FRIENDS
+    friend class MultiQueueThreadPool;
+
+    // PRIVATE TYPES
     enum {
         // enqueue states
         e_ENQUEUING_ENABLED,   // enqueuing is enabled
@@ -392,7 +399,7 @@ class MultiQueueThreadPool_Queue {
         e_PAUSED               // paused
     };
 
-  private:
+    // DATA
     bsl::deque<Job>            d_list;           // queue of jobs to be
                                                  // executed
 
@@ -422,7 +429,6 @@ class MultiQueueThreadPool_Queue {
     bslmt::ThreadUtil::Handle  d_processor;      // current worker thread, or
                                                  // ThreadUtil::invalidHandle()
 
-  private:
     // NOT IMPLEMENTED
     MultiQueueThreadPool_Queue();
     MultiQueueThreadPool_Queue(const MultiQueueThreadPool_Queue&);
@@ -445,22 +451,6 @@ class MultiQueueThreadPool_Queue {
         // Destroy this queue.
 
     // MANIPULATORS
-    void popFront();
-        // Execute the 'Job' at the front of this queue, dequeue the 'Job', and
-        // schedule a callback from the specified 'threadPool'.  TBD The
-        // behavior is undefined if this queue is empty.
-
-    int pushBack(const Job& functor);
-        // Enqueue the specified 'functor' at the end of this queue.  Return 0
-        // on success, and a non-zero value if enqueuing is disabled.
-
-    int pushFront(const Job& functor);
-        // Add the specified 'functor' at the front of this queue.  Return 0 on
-        // success, and a non-zero value if enqueuing is disabled.
-
-    void prepareForDeletion(const Job& functor);
-        // Permanently disable enqueuing to this queue.
-
     int enable();
         // Enable enqueuing to this queue.  Return 0 on success, and a non-zero
         // value otherwise.  It is an error to call 'enable' after a call to
@@ -472,7 +462,6 @@ class MultiQueueThreadPool_Queue {
         // 'prepareForDeletion'.
 
     int pause();
-        // TBD
         // Wait until any currently-executing job on the queue completes, then
         // prevent any more jobs from being executed on that queue.  Return 0
         // on success, and a non-zero value if the queue is already paused or
@@ -482,6 +471,22 @@ class MultiQueueThreadPool_Queue {
         // from 'disable' in that (1) 'pause' stops processing for a queue, and
         // (2) does *not* prevent additional jobs from being enqueued.
 
+    void popFront();
+        // Execute the 'Job' at the front of this queue, dequeue the 'Job', and
+        // if the queue is not paused schedule a callback from the specified
+        // 'threadPool'.  The behavior is undefined if this queue is empty.
+
+    void prepareForDeletion(const Job& functor);
+        // Permanently disable enqueuing to this queue.
+
+    int pushBack(const Job& functor);
+        // Enqueue the specified 'functor' at the end of this queue.  Return 0
+        // on success, and a non-zero value if enqueuing is disabled.
+
+    int pushFront(const Job& functor);
+        // Add the specified 'functor' at the front of this queue.  Return 0 on
+        // success, and a non-zero value if enqueuing is disabled.
+
     void reset();
         // Reset this queue to its initial state.  The behavior is undefined
         // unless this context's lock is in an unlocked state.  After this
@@ -489,9 +494,8 @@ class MultiQueueThreadPool_Queue {
         // object.  Note that this method is not thread-safe.
 
     int resume();
-        // TBD
         // Allow jobs on the queue to begin executing.  Return 0 on success,
-        // and a non-zero value if the queue does not exist or is not paused.
+        // and a non-zero value if the queue is not paused.
 
     // ACCESSORS
     bool isDrained() const;
@@ -516,27 +520,48 @@ class MultiQueueThreadPool {
     // This class implements a dynamic, configurable pool of queues, each of
     // which is processed serially by a thread pool.
 
+    // PRIVATE TYPES
+    typedef bdlcc::ObjectCatalogIter<bdlmt::MultiQueueThreadPool_Queue*>
+                                                              RegistryIterator;
+                                // This type is provided for notational
+                                // convenience when iterating over the queue
+                                // registry.
+
+    typedef bsl::pair<int, bdlmt::MultiQueueThreadPool_Queue*> RegistryValue;
+                                // This type is provided for notational
+                                // convenience when iterating over the queue
+                                // registry.
+
+    enum {
+        // Internal running states.
+        e_STATE_RUNNING,
+        e_STATE_STOPPING,
+        e_STATE_STOPPED
+    };
+
+    enum EnqueueType {
+        e_DELETION,    // enqueue at front and then disable queue permanently
+                       // (for deletion)
+
+        e_BACK,        // enqueue new job at back of queue
+
+        e_FRONT,       // enqueue new job at front of queue
+
+        e_FRONT_FORCE  // enqueue new job at front of queue regardless of
+                       // disabled state
+    };
+
   public:
     // PUBLIC TYPES
     typedef bsl::function<void()> Job;
     typedef bsl::function<void()> CleanupFunctor;
 
   private:
-    // TYPES
-    enum EnqueueType {
-        e_DELETION,    // enqueue at front and then disable queue permanently
-                       // (for deletion)
-
-        e_BACK,        // enqueue new job at back of queue
-        e_FRONT,       // enqueue new job at front of queue
-        e_FRONT_FORCE  // enqueue new job at front of queue regardless of
-                       // disabled state
-    };
-
-  private:
     // DATA
     bslma::Allocator *d_allocator_p;        // memory allocator (held)
+
     ThreadPool       *d_threadPool_p;       // threads for queue processing
+
     bool              d_threadPoolIsOwned;  // 'true' if thread pool is owned
 
     bdlcc::ObjectPool<
@@ -567,9 +592,6 @@ class MultiQueueThreadPool {
                                             // the last time this value was
                                             // reset
   private:
-    MultiQueueThreadPool_Queue *lookupQueue(int id) const;
-       // TBD
-
     // NOT IMPLEMENTED
     MultiQueueThreadPool(const MultiQueueThreadPool&);
     MultiQueueThreadPool& operator=(const MultiQueueThreadPool&);
@@ -578,10 +600,9 @@ class MultiQueueThreadPool {
     void deleteQueueCb(MultiQueueThreadPool_Queue *queue,
                        const CleanupFunctor&       cleanupFunctor,
                        bslmt::Latch               *latch);
-        // TBD
-        // Remove the queue associated with the specified 'id' from the queue
-        // registry, execute the specified 'cleanupFunctor', wait on the
-        // specified 'barrier', and then delete the referenced queue.
+        // If the specified 'latch' is non-null, execute 'latch->arrive()'.
+        // Otherwise, execute the specified 'cleanupFunctor' if it is valid.
+        // Then, delete the specified 'queue'.
 
     void processQueueCb(MultiQueueThreadPool_Queue *queue);
         // If the specified 'queue' is not empty, dequeue the next job, and
@@ -788,15 +809,17 @@ int MultiQueueThreadPool::addJobAtFront(int id, const Job& functor)
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    MultiQueueThreadPool_Queue *queue = lookupQueue(id);
+    MultiQueueThreadPool_Queue *queue;
 
-    if (0 == queue) {
+    if (   e_STATE_RUNNING != d_state
+        ||               0 == d_threadPool_p->enabled()
+        ||               0 != d_queueRegistry.find(id, &queue)) {
         return 1;                                                     // RETURN
     }
 
     if (0 == queue->pushFront(functor)) {
         ++d_numEnqueued;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return 1;
@@ -807,15 +830,17 @@ int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    MultiQueueThreadPool_Queue *queue = lookupQueue(id);
+    MultiQueueThreadPool_Queue *queue;
 
-    if (0 == queue) {
+    if (   e_STATE_RUNNING != d_state
+        ||               0 == d_threadPool_p->enabled()
+        ||               0 != d_queueRegistry.find(id, &queue)) {
         return 1;                                                     // RETURN
     }
 
     if (0 == queue->pushBack(functor)) {
         ++d_numEnqueued;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return 1;
