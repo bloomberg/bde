@@ -1,5 +1,6 @@
 // bdldfp_decimal.t.cpp                                               -*-C++-*-
 #include <bdldfp_decimal.h>
+#include <bdldfp_uint128.h>
 
 #include <bdlb_randomdevice.h>
 
@@ -887,216 +888,661 @@ void TestDriver::testCase6()
     if (verbose) cout << endl
                       << "TESTING BDEX STREAMING" << endl
                       << "======================" << endl;
-
-    // Allocator to use instead of the default allocator.
-    bslma::TestAllocator allocator("bslx", veryVeryVeryVerbose);
-
-    // Scalar obj
-    // ect values used in various stream tests.
-
-    typedef BDEC::Decimal64 Obj;
-    typedef bslx::TestInStream In;
-    typedef bslx::TestOutStream Out;
-
-    const Obj VA(BDLDFP_DECIMAL_DD(1.12));
-    const Obj VB(BDLDFP_DECIMAL_DD(2.55));
-    const Obj VC(BDLDFP_DECIMAL_DD(3.67));
-    const Obj VD(BDLDFP_DECIMAL_DD(5.17));
-    const Obj VE(BDEC::DecimalImpUtil::parse64("Inf"));
-    const Obj VF(BDEC::DecimalImpUtil::parse64("-Inf"));
-    const Obj VG(BDLDFP_DECIMAL_DD(-7.64));
-
-    // Array object used in various stream tests.
-    const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG };
-    const int NUM_VALUES =
-        static_cast<int>(sizeof VALUES / sizeof *VALUES);
-    const int VERSION_SELECTOR = 20151026;
-
-    // Testing maxSupportedBDexVersion
     {
-        ASSERT(1 == Obj::maxSupportedBdexVersion());
-        ASSERT(1 == Obj::maxSupportedBdexVersion(0));
-        ASSERT(1 == Obj::maxSupportedBdexVersion(
-                   VERSION_SELECTOR));
+        // Allocator to use instead of the default allocator.
+        bslma::TestAllocator allocator("bslx", veryVeryVeryVerbose);
 
-        using bslx::VersionFunctions::maxSupportedBdexVersion;
-        ASSERT(1 == maxSupportedBdexVersion(
-                   reinterpret_cast<Obj *>(0), 0));
-        ASSERT(1 == maxSupportedBdexVersion(
-                   reinterpret_cast<Obj *>(0), VERSION_SELECTOR));
-    }
+        // Scalar obj
+        // ect values used in various stream tests.
 
-    // Direct initial trial of 'bdexStreamOut' and (valid) 'bdexStreamIn'
-    // functionality.
-    const int VERSION = Obj::maxSupportedBdexVersion(0);
-    {
-        const Obj X(VC);
-        Out out(VERSION_SELECTOR, &allocator);
+        typedef BDEC::Decimal32     Obj;
+        typedef bslx::TestInStream  In;
+        typedef bslx::TestOutStream Out;
 
-        Out& rvOut = X.bdexStreamOut(out, VERSION);
-        ASSERT(&out == &rvOut);
+        const Obj VA(BDLDFP_DECIMAL_DF(1.12));
+        const Obj VB(BDLDFP_DECIMAL_DF(2.55));
+        const Obj VC(BDLDFP_DECIMAL_DF(3.67));
+        const Obj VD(BDLDFP_DECIMAL_DF(5.17));
+        const Obj VE(BDEC::DecimalImpUtil::parse32("Inf"));
+        const Obj VF(BDEC::DecimalImpUtil::parse32("-Inf"));
+        const Obj VG(BDLDFP_DECIMAL_DF(-7.64));
+        const Obj VH = bsl::numeric_limits<Obj>::min();
+        const Obj VI = bsl::numeric_limits<Obj>::max();
 
-        const char *const OD  = out.data();
-        const int         LOD = static_cast<int>(out.length());
+        // Array object used in various stream tests.
+        const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG, VH, VI };
+        const int NUM_VALUES =
+            static_cast<int>(sizeof VALUES / sizeof *VALUES);
+        const int VERSION_SELECTOR = 20151026;
 
-        In in(OD, LOD);
-        ASSERT(in);
-        ASSERT(!in.isEmpty());
+        // Testing maxSupportedBDexVersion
+        {
+            ASSERT(1 == Obj::maxSupportedBdexVersion());
+            ASSERT(1 == Obj::maxSupportedBdexVersion(0));
+            ASSERT(1 == Obj::maxSupportedBdexVersion(
+                       VERSION_SELECTOR));
 
-        Obj mT(VA);  const Obj& T = mT;
-        ASSERT(X != T);
+            using bslx::VersionFunctions::maxSupportedBdexVersion;
+            ASSERT(1 == maxSupportedBdexVersion(
+                       reinterpret_cast<Obj *>(0), 0));
+            ASSERT(1 == maxSupportedBdexVersion(
+                       reinterpret_cast<Obj *>(0), VERSION_SELECTOR));
+        }
 
-        In& rvIn = mT.bdexStreamIn(in, VERSION);
-        ASSERT(&in == &rvIn);
-        ASSERT(X == T);
-        ASSERT(in);
-        ASSERT(in.isEmpty());
-    }
-
-    // Testing valid streams
-    {
-        for (int i = 0; i < NUM_VALUES; ++i) {
-            const Obj X(VALUES[i]);
-
+        // Direct initial trial of 'bdexStreamOut' and (valid) 'bdexStreamIn'
+        // functionality.
+        const int VERSION = Obj::maxSupportedBdexVersion(0);
+        {
+            const Obj X(VC);
             Out out(VERSION_SELECTOR, &allocator);
 
-            using bslx::OutStreamFunctions::bdexStreamOut;
-            using bslx::InStreamFunctions::bdexStreamIn;
+            Out& rvOut = X.bdexStreamOut(out, VERSION);
+            ASSERT(&out == &rvOut);
 
-            Out& rvOut = bdexStreamOut(out, X, VERSION);
-            LOOP_ASSERT(i, &out == &rvOut);
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
 
-            // Verify that each new value overwrites every old value and
-            // that the input stream is emptied, but remains valid.
+            In in(OD, LOD);
+            ASSERT(in);
+            ASSERT(!in.isEmpty());
 
-            for (int j = 0; j < NUM_VALUES; ++j) {
+            Obj mT(VA);  const Obj& T = mT;
+            ASSERT(X != T);
+
+            In& rvIn = mT.bdexStreamIn(in, VERSION);
+            ASSERT(&in == &rvIn);
+            ASSERT(X == T);
+            ASSERT(in);
+            ASSERT(in.isEmpty());
+        }
+
+        // Testing valid streams
+        {
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const Obj X(VALUES[i]);
+
+                Out out(VERSION_SELECTOR, &allocator);
+
+                using bslx::OutStreamFunctions::bdexStreamOut;
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                Out& rvOut = bdexStreamOut(out, X, VERSION);
+                LOOP_ASSERT(i, &out == &rvOut);
+                const char *const OD  = out.data();
+                const int         LOD = static_cast<int>(out.length());
+
+                // Verify that each new value overwrites every old value and
+                // that the input stream is emptied, but remains valid.
+
+                for (int j = 0; j < NUM_VALUES; ++j) {
+                    In in(OD, LOD);
+                    LOOP2_ASSERT(i, j, in);
+                    LOOP2_ASSERT(i, j, !in.isEmpty());
+
+                    Obj mT(VALUES[j]);  const Obj& T = mT;
+                    LOOP2_ASSERT(i, j, (X == T) == (i == j));
+
+                    BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                        in.reset();
+                        In& rvIn = bdexStreamIn(in, mT, VERSION);
+                        LOOP2_ASSERT(i, j, &in == &rvIn);
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+
+                    LOOP2_ASSERT(i, j, X == T);
+                    LOOP2_ASSERT(i, j, in);
+                    LOOP2_ASSERT(i, j, in.isEmpty());
+                }
+            }
+        }
+
+        // Testing empty streams (valid and invalid).
+        {
+            Out               out(VERSION_SELECTOR, &allocator);
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+            ASSERT(0 == LOD);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
                 In in(OD, LOD);
-                LOOP2_ASSERT(i, j, in);
-                LOOP2_ASSERT(i, j, !in.isEmpty());
+                LOOP_ASSERT(i, in);
+                LOOP_ASSERT(i, in.isEmpty());
 
-                Obj mT(VALUES[j]);  const Obj& T = mT;
-                LOOP2_ASSERT(i, j, (X == T) == (i == j));
+                // Ensure that reading from an empty or invalid input stream
+                // leaves the stream invalid and the target object unchanged.
+
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                const Obj  X(VALUES[i]);
+                Obj        mT(X);
+                const Obj& T = mT;
+                LOOP_ASSERT(i, X == T);
 
                 BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                     in.reset();
-                    In& rvIn = bdexStreamIn(in, mT, VERSION);
-                    LOOP2_ASSERT(i, j, &in == &rvIn);
-                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
 
-                LOOP2_ASSERT(i, j, X == T);
-                LOOP2_ASSERT(i, j, in);
-                LOOP2_ASSERT(i, j, in.isEmpty());
+                    // Stream is valid.
+                    In& rvIn1 = bdexStreamIn(in, mT, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn1);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+
+                    // Stream is invalid.
+                    In& rvIn2 = bdexStreamIn(in, mT, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn2);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
             }
         }
-    }
 
-    // Testing empty streams (valid and invalid).
-    {
-        Out               out(VERSION_SELECTOR, &allocator);
-        const char *const OD  = out.data();
-        const int         LOD = static_cast<int>(out.length());
-        ASSERT(0 == LOD);
+        // Testing non-empty, invalid streams.
 
-        for (int i = 0; i < NUM_VALUES; ++i) {
-            In in(OD, LOD);
-            LOOP_ASSERT(i, in);
-            LOOP_ASSERT(i, in.isEmpty());
+        {
+            Out out(VERSION_SELECTOR, &allocator);
 
-            // Ensure that reading from an empty or invalid input stream
-            // leaves the stream invalid and the target object unchanged.
+            using bslx::OutStreamFunctions::bdexStreamOut;
+            Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
+            ASSERT(&out == &rvOut);
 
-            using bslx::InStreamFunctions::bdexStreamIn;
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+            ASSERT(0 < LOD);
 
-            const Obj  X(VALUES[i]);
-            Obj        mT(X);
-            const Obj& T = mT;
-            LOOP_ASSERT(i, X == T);
-
-            BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
-                in.reset();
-
-                // Stream is valid.
-                In& rvIn1 = bdexStreamIn(in, mT, VERSION);
-                LOOP_ASSERT(i, &in == &rvIn1);
-                LOOP_ASSERT(i, !in);
-                LOOP_ASSERT(i, X == T);
-
-                // Stream is invalid.
-                In& rvIn2 = bdexStreamIn(in, mT, VERSION);
-                LOOP_ASSERT(i, &in == &rvIn2);
-                LOOP_ASSERT(i, !in);
-                LOOP_ASSERT(i, X == T);
-            } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
-        }
-    }
-
-    // Testing non-empty, invalid streams.
-
-    {
-        Out out(VERSION_SELECTOR, &allocator);
-
-        using bslx::OutStreamFunctions::bdexStreamOut;
-        Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
-        ASSERT(&out == &rvOut);
-
-        const char *const OD  = out.data();
-        const int         LOD = static_cast<int>(out.length());
-        ASSERT(0 < LOD);
-
-        for (int i = 0; i < NUM_VALUES; ++i) {
-            In in(OD, LOD);
-            in.invalidate();
-            LOOP_ASSERT(i, !in);
-            LOOP_ASSERT(i, !in.isEmpty());
-
-            // Ensure that reading from a non-empty, invalid input stream
-            // leaves the stream invalid and the target object unchanged.
-
-            using bslx::InStreamFunctions::bdexStreamIn;
-
-            const Obj  X(VALUES[i]);
-            Obj        mT(X);
-            const Obj& T = mT;
-            LOOP_ASSERT(i, X == T);
-
-            BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
-                in.reset();
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                In in(OD, LOD);
                 in.invalidate();
                 LOOP_ASSERT(i, !in);
                 LOOP_ASSERT(i, !in.isEmpty());
 
-                In& rvIn = bdexStreamIn(in, mT, VERSION);
-                LOOP_ASSERT(i, &in == &rvIn);
-                LOOP_ASSERT(i, !in);
+                // Ensure that reading from a non-empty, invalid input stream
+                // leaves the stream invalid and the target object unchanged.
+
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                const Obj  X(VALUES[i]);
+                Obj        mT(X);
+                const Obj& T = mT;
                 LOOP_ASSERT(i, X == T);
-            } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                    in.reset();
+                    in.invalidate();
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, !in.isEmpty());
+
+                    In& rvIn = bdexStreamIn(in, mT, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+            }
+        }
+
+        // Test wire-format
+        {
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const Obj X(VALUES[i]);
+                bslx::ByteOutStream out(VERSION_SELECTOR, &allocator);
+
+                using bslx::OutStreamFunctions::bdexStreamOut;
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                bdexStreamOut(out, X, VERSION);
+                const char *const OD  = out.data();
+                const int         LOD = static_cast<int>(out.length());
+
+                bdldfp::DecimalStorage::Type32 bidVal =
+                       bdldfp::DecimalImpUtil::convertToBID(VALUES[i].value());
+
+                bsl::uint32_t expectedValue = BSLS_BYTEORDER_HTONL(bidVal);
+
+                ASSERTV(i, X, LOD == 4);
+                ASSERT(memcmp(OD, &expectedValue, 4) == 0);
+            }
         }
     }
 
-    // Test wire-format
     {
-        for (int i = 0; i < NUM_VALUES; ++i) {
-            const Obj X(VALUES[i]);
-            bslx::ByteOutStream out(VERSION_SELECTOR, &allocator);
+        // Allocator to use instead of the default allocator.
+        bslma::TestAllocator allocator("bslx", veryVeryVeryVerbose);
 
-            using bslx::OutStreamFunctions::bdexStreamOut;
-            using bslx::InStreamFunctions::bdexStreamIn;
+        // Scalar obj
+        // ect values used in various stream tests.
 
-            bdexStreamOut(out, X, VERSION);
+        typedef BDEC::Decimal64 Obj;
+        typedef bslx::TestInStream In;
+        typedef bslx::TestOutStream Out;
+
+        const Obj VA(BDLDFP_DECIMAL_DD(1.12));
+        const Obj VB(BDLDFP_DECIMAL_DD(2.55));
+        const Obj VC(BDLDFP_DECIMAL_DD(3.67));
+        const Obj VD(BDLDFP_DECIMAL_DD(5.17));
+        const Obj VE(BDEC::DecimalImpUtil::parse64("Inf"));
+        const Obj VF(BDEC::DecimalImpUtil::parse64("-Inf"));
+        const Obj VG(BDLDFP_DECIMAL_DD(-7.64));
+        const Obj VH = bsl::numeric_limits<Obj>::min();
+        const Obj VI = bsl::numeric_limits<Obj>::max();
+
+        // Array object used in various stream tests.
+        const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG, VH, VI };
+        const int NUM_VALUES =
+            static_cast<int>(sizeof VALUES / sizeof *VALUES);
+        const int VERSION_SELECTOR = 20151026;
+
+        // Testing maxSupportedBDexVersion
+        {
+            ASSERT(1 == Obj::maxSupportedBdexVersion());
+            ASSERT(1 == Obj::maxSupportedBdexVersion(0));
+            ASSERT(1 == Obj::maxSupportedBdexVersion(
+                       VERSION_SELECTOR));
+
+            using bslx::VersionFunctions::maxSupportedBdexVersion;
+            ASSERT(1 == maxSupportedBdexVersion(
+                       reinterpret_cast<Obj *>(0), 0));
+            ASSERT(1 == maxSupportedBdexVersion(
+                       reinterpret_cast<Obj *>(0), VERSION_SELECTOR));
+        }
+
+        // Direct initial trial of 'bdexStreamOut' and (valid) 'bdexStreamIn'
+        // functionality.
+        const int VERSION = Obj::maxSupportedBdexVersion(0);
+        {
+            const Obj X(VC);
+            Out out(VERSION_SELECTOR, &allocator);
+
+            Out& rvOut = X.bdexStreamOut(out, VERSION);
+            ASSERT(&out == &rvOut);
+
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
 
-            bdldfp::DecimalStorage::Type64 bidVal =
-                bdldfp::DecimalImpUtil::convertToBID(VALUES[i].value());
-            bsls::Types::Uint64 expectedValue = BSLS_BYTEORDER_HTONLL(bidVal);
+            In in(OD, LOD);
+            ASSERT(in);
+            ASSERT(!in.isEmpty());
 
-            bsl::cout << LOD << bsl::endl;
-            ASSERTV(i, X, LOD == 8);
-            ASSERT(memcmp(OD, &expectedValue, 8) == 0);
+            Obj mT(VA);  const Obj& T = mT;
+            ASSERT(X != T);
+
+            In& rvIn = mT.bdexStreamIn(in, VERSION);
+            ASSERT(&in == &rvIn);
+            ASSERT(X == T);
+            ASSERT(in);
+            ASSERT(in.isEmpty());
+        }
+
+        // Testing valid streams
+        {
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const Obj X(VALUES[i]);
+
+                Out out(VERSION_SELECTOR, &allocator);
+
+                using bslx::OutStreamFunctions::bdexStreamOut;
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                Out& rvOut = bdexStreamOut(out, X, VERSION);
+                LOOP_ASSERT(i, &out == &rvOut);
+                const char *const OD  = out.data();
+                const int         LOD = static_cast<int>(out.length());
+
+                // Verify that each new value overwrites every old value and
+                // that the input stream is emptied, but remains valid.
+
+                for (int j = 0; j < NUM_VALUES; ++j) {
+                    In in(OD, LOD);
+                    LOOP2_ASSERT(i, j, in);
+                    LOOP2_ASSERT(i, j, !in.isEmpty());
+
+                    Obj mT(VALUES[j]);  const Obj& T = mT;
+                    LOOP2_ASSERT(i, j, (X == T) == (i == j));
+
+                    BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                        in.reset();
+                        In& rvIn = bdexStreamIn(in, mT, VERSION);
+                        LOOP2_ASSERT(i, j, &in == &rvIn);
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+
+                    LOOP2_ASSERT(i, j, X == T);
+                    LOOP2_ASSERT(i, j, in);
+                    LOOP2_ASSERT(i, j, in.isEmpty());
+                }
+            }
+        }
+
+        // Testing empty streams (valid and invalid).
+        {
+            Out               out(VERSION_SELECTOR, &allocator);
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+            ASSERT(0 == LOD);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                In in(OD, LOD);
+                LOOP_ASSERT(i, in);
+                LOOP_ASSERT(i, in.isEmpty());
+
+                // Ensure that reading from an empty or invalid input stream
+                // leaves the stream invalid and the target object unchanged.
+
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                const Obj  X(VALUES[i]);
+                Obj        mT(X);
+                const Obj& T = mT;
+                LOOP_ASSERT(i, X == T);
+
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                    in.reset();
+
+                    // Stream is valid.
+                    In& rvIn1 = bdexStreamIn(in, mT, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn1);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+
+                    // Stream is invalid.
+                    In& rvIn2 = bdexStreamIn(in, mT, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn2);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+            }
+        }
+
+        // Testing non-empty, invalid streams.
+
+        {
+            Out out(VERSION_SELECTOR, &allocator);
+
+            using bslx::OutStreamFunctions::bdexStreamOut;
+            Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
+            ASSERT(&out == &rvOut);
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+            ASSERT(0 < LOD);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                In in(OD, LOD);
+                in.invalidate();
+                LOOP_ASSERT(i, !in);
+                LOOP_ASSERT(i, !in.isEmpty());
+
+                // Ensure that reading from a non-empty, invalid input stream
+                // leaves the stream invalid and the target object unchanged.
+
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                const Obj  X(VALUES[i]);
+                Obj        mT(X);
+                const Obj& T = mT;
+                LOOP_ASSERT(i, X == T);
+
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                    in.reset();
+                    in.invalidate();
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, !in.isEmpty());
+
+                    In& rvIn = bdexStreamIn(in, mT, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+            }
+        }
+
+        // Test wire-format
+        {
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const Obj X(VALUES[i]);
+                bslx::ByteOutStream out(VERSION_SELECTOR, &allocator);
+
+                using bslx::OutStreamFunctions::bdexStreamOut;
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                bdexStreamOut(out, X, VERSION);
+                const char *const OD  = out.data();
+                const int         LOD = static_cast<int>(out.length());
+
+                bdldfp::DecimalStorage::Type64 bidVal =
+                    bdldfp::DecimalImpUtil::convertToBID(VALUES[i].value());
+                bsls::Types::Uint64 expectedValue = BSLS_BYTEORDER_HTONLL(bidVal);
+
+                ASSERTV(i, X, LOD == 8);
+                ASSERT(memcmp(OD, &expectedValue, 8) == 0);
+            }
         }
     }
+
+    {
+        // Allocator to use instead of the default allocator.
+        bslma::TestAllocator allocator("bslx", veryVeryVeryVerbose);
+
+        // Scalar obj
+        // ect values used in various stream tests.
+
+        typedef BDEC::Decimal128    Obj;
+        typedef bslx::TestInStream  In;
+        typedef bslx::TestOutStream Out;
+
+        const Obj VA(BDLDFP_DECIMAL_DL(1.12));
+        const Obj VB(BDLDFP_DECIMAL_DL(2.55));
+        const Obj VC(BDLDFP_DECIMAL_DL(3.67));
+        const Obj VD(BDLDFP_DECIMAL_DL(5.17));
+        const Obj VE(BDEC::DecimalImpUtil::parse128("Inf"));
+        const Obj VF(BDEC::DecimalImpUtil::parse128("-Inf"));
+        const Obj VG(BDLDFP_DECIMAL_DL(-7.64));
+        const Obj VH = bsl::numeric_limits<Obj>::min();
+        const Obj VI = bsl::numeric_limits<Obj>::max();
+
+        // Array object used in various stream tests.
+        const Obj VALUES[]   = { VA, VB, VC, VD, VE, VF, VG, VH, VI };
+        const int NUM_VALUES =
+            static_cast<int>(sizeof VALUES / sizeof *VALUES);
+        const int VERSION_SELECTOR = 20151026;
+
+        // Testing maxSupportedBDexVersion
+        {
+            ASSERT(1 == Obj::maxSupportedBdexVersion());
+            ASSERT(1 == Obj::maxSupportedBdexVersion(0));
+            ASSERT(1 == Obj::maxSupportedBdexVersion(
+                       VERSION_SELECTOR));
+
+            using bslx::VersionFunctions::maxSupportedBdexVersion;
+            ASSERT(1 == maxSupportedBdexVersion(
+                       reinterpret_cast<Obj *>(0), 0));
+            ASSERT(1 == maxSupportedBdexVersion(
+                       reinterpret_cast<Obj *>(0), VERSION_SELECTOR));
+        }
+
+        // Direct initial trial of 'bdexStreamOut' and (valid) 'bdexStreamIn'
+        // functionality.
+        const int VERSION = Obj::maxSupportedBdexVersion(0);
+        {
+            const Obj X(VC);
+            Out out(VERSION_SELECTOR, &allocator);
+
+            Out& rvOut = X.bdexStreamOut(out, VERSION);
+            ASSERT(&out == &rvOut);
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+
+            In in(OD, LOD);
+            ASSERT(in);
+            ASSERT(!in.isEmpty());
+
+            Obj mT(VA);  const Obj& T = mT;
+            ASSERT(X != T);
+
+            In& rvIn = mT.bdexStreamIn(in, VERSION);
+            ASSERT(&in == &rvIn);
+            ASSERT(X == T);
+            ASSERT(in);
+            ASSERT(in.isEmpty());
+        }
+
+        // Testing valid streams
+        {
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const Obj X(VALUES[i]);
+
+                Out out(VERSION_SELECTOR, &allocator);
+
+                using bslx::OutStreamFunctions::bdexStreamOut;
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                Out& rvOut = bdexStreamOut(out, X, VERSION);
+                LOOP_ASSERT(i, &out == &rvOut);
+                const char *const OD  = out.data();
+                const int         LOD = static_cast<int>(out.length());
+
+                // Verify that each new value overwrites every old value and
+                // that the input stream is emptied, but remains valid.
+
+                for (int j = 0; j < NUM_VALUES; ++j) {
+                    In in(OD, LOD);
+                    LOOP2_ASSERT(i, j, in);
+                    LOOP2_ASSERT(i, j, !in.isEmpty());
+
+                    Obj mT(VALUES[j]);  const Obj& T = mT;
+                    LOOP2_ASSERT(i, j, (X == T) == (i == j));
+
+                    BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                        in.reset();
+                        In& rvIn = bdexStreamIn(in, mT, VERSION);
+                        LOOP2_ASSERT(i, j, &in == &rvIn);
+                    } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+
+                    LOOP2_ASSERT(i, j, X == T);
+                    LOOP2_ASSERT(i, j, in);
+                    LOOP2_ASSERT(i, j, in.isEmpty());
+                }
+            }
+        }
+
+        // Testing empty streams (valid and invalid).
+        {
+            Out               out(VERSION_SELECTOR, &allocator);
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+            ASSERT(0 == LOD);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                In in(OD, LOD);
+                LOOP_ASSERT(i, in);
+                LOOP_ASSERT(i, in.isEmpty());
+
+                // Ensure that reading from an empty or invalid input stream
+                // leaves the stream invalid and the target object unchanged.
+
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                const Obj  X(VALUES[i]);
+                Obj        mT(X);
+                const Obj& T = mT;
+                LOOP_ASSERT(i, X == T);
+
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                    in.reset();
+
+                    // Stream is valid.
+                    In& rvIn1 = bdexStreamIn(in, mT, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn1);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+
+                    // Stream is invalid.
+                    In& rvIn2 = bdexStreamIn(in, mT, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn2);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+            }
+        }
+
+        // Testing non-empty, invalid streams.
+
+        {
+            Out out(VERSION_SELECTOR, &allocator);
+
+            using bslx::OutStreamFunctions::bdexStreamOut;
+            Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
+            ASSERT(&out == &rvOut);
+
+            const char *const OD  = out.data();
+            const int         LOD = static_cast<int>(out.length());
+            ASSERT(0 < LOD);
+
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                In in(OD, LOD);
+                in.invalidate();
+                LOOP_ASSERT(i, !in);
+                LOOP_ASSERT(i, !in.isEmpty());
+
+                // Ensure that reading from a non-empty, invalid input stream
+                // leaves the stream invalid and the target object unchanged.
+
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                const Obj  X(VALUES[i]);
+                Obj        mT(X);
+                const Obj& T = mT;
+                LOOP_ASSERT(i, X == T);
+
+                BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
+                    in.reset();
+                    in.invalidate();
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, !in.isEmpty());
+
+                    In& rvIn = bdexStreamIn(in, mT, VERSION);
+                    LOOP_ASSERT(i, &in == &rvIn);
+                    LOOP_ASSERT(i, !in);
+                    LOOP_ASSERT(i, X == T);
+                } BSLX_TESTINSTREAM_EXCEPTION_TEST_END;
+            }
+        }
+
+        // Test wire-format
+        {
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const Obj X(VALUES[i]);
+                bslx::ByteOutStream out(VERSION_SELECTOR, &allocator);
+
+                using bslx::OutStreamFunctions::bdexStreamOut;
+                using bslx::InStreamFunctions::bdexStreamIn;
+
+                bdexStreamOut(out, X, VERSION);
+                const char *const OD  = out.data();
+                const int         LOD = static_cast<int>(out.length());
+
+                bdldfp::DecimalStorage::Type128 bidVal =
+                       bdldfp::DecimalImpUtil::convertToBID(VALUES[i].value());
+
+                bdldfp::Uint128 expectedValue;
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+                bsls::Types::Uint64 hi =
+                           reinterpret_cast<bsls::Types::Uint64 *>(&bidVal)[0];
+                bsls::Types::Uint64 lo =
+                           reinterpret_cast<bsls::Types::Uint64 *>(&bidVal)[1];
+#elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+                bsls::Types::Uint64 hi =
+                           reinterpret_cast<bsls::Types::Uint64 *>(&bidVal)[1];
+                bsls::Types::Uint64 lo =
+                           reinterpret_cast<bsls::Types::Uint64 *>(&bidVal)[0];
+#endif
+                expectedValue.setHigh(BSLS_BYTEORDER_HTONLL(hi));
+                expectedValue.setLow( BSLS_BYTEORDER_HTONLL(lo));
+
+                ASSERTV(i, X, LOD == 16);
+                ASSERT(memcmp(OD, &expectedValue, 16) == 0);
+            }
+        }
+    }
+
 }
 
 void TestDriver::testCase5()

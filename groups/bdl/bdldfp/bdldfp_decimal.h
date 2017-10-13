@@ -650,6 +650,22 @@ class Decimal_Type32 {
     DecimalImpUtil::ValueType32 d_value; // The underlying IEEE representation
 
   public:
+    // CLASS METHODS
+
+                                  // Aspects
+
+    static int maxSupportedBdexVersion();
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Decimal_Type32, bsl::is_trivially_copyable);
 
@@ -1151,6 +1167,21 @@ class Decimal_Type32 {
         // Return a pointer providing modifiable access to the underlying
         // implementation.
 
+                                  // Aspects
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported, this object
+        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
+        // If 'version' is supported but 'stream' becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from 'stream'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
     // ACCESSORS
     const DecimalImpUtil::ValueType32 *data() const;
         // Return a pointer providing non-modifiable access to the underlying
@@ -1158,6 +1189,19 @@ class Decimal_Type32 {
 
     DecimalImpUtil::ValueType32 value() const;
         // Return the value of the underlying implementation.
+
+                                  // Aspects
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object, using the specified 'version'
+        // format, to the specified output 'stream', and return a reference to
+        // 'stream'.  If 'stream' is initially invalid, this operation has no
+        // effect.  If 'version' is not supported, 'stream' is invalidated, but
+        // otherwise unmodified.  Note that 'version' is not written to
+        // 'stream'.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 };
 
 // FREE OPERATORS
@@ -1741,7 +1785,6 @@ class Decimal_Type64 {
         // unexternalizer.  See the 'bslx' package-level documentation for more
         // information on BDEX streaming of value-semantic types and
         // containers.
-
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Decimal_Type64, bsl::is_trivially_copyable);
@@ -2934,6 +2977,22 @@ class Decimal_Type128 {
                                           // The underlying IEEE representation
 
   public:
+    // CLASS METHODS
+
+                                  // Aspects
+
+    static int maxSupportedBdexVersion();
+    static int maxSupportedBdexVersion(int versionSelector);
+        // Return the maximum valid BDEX format version, as indicated by the
+        // specified 'versionSelector', to be passed to the 'bdexStreamOut'
+        // method.  Note that it is highly recommended that 'versionSelector'
+        // be formatted as "YYYYMMDD", a date representation.  Also note that
+        // 'versionSelector' should be a *compile*-time-chosen value that
+        // selects a format version supported by both externalizer and
+        // unexternalizer.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Decimal_Type128,
                                    bsl::is_trivially_copyable);
@@ -3343,12 +3402,40 @@ class Decimal_Type128 {
     DecimalImpUtil::ValueType128 *data();
         // Return a modifiable pointer to the underlying implementation.
 
+                                  // Aspects
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format, and return a
+        // reference to 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'version' is not supported, this object
+        // is unaltered and 'stream' is invalidated, but otherwise unmodified.
+        // If 'version' is supported but 'stream' becomes invalid during this
+        // operation, this object has an undefined, but valid, state.  Note
+        // that no version is read from 'stream'.  See the 'bslx' package-level
+        // documentation for more information on BDEX streaming of
+        // value-semantic types and containers.
+
     // ACCESSORS
     const DecimalImpUtil::ValueType128 *data() const;
         // Return a non-modifiable pointer to the underlying implementation.
 
     DecimalImpUtil::ValueType128 value() const;
         // Return the value of the underlying implementation.
+
+                                  // Aspects
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object, using the specified 'version'
+        // format, to the specified output 'stream', and return a reference to
+        // 'stream'.  If 'stream' is initially invalid, this operation has no
+        // effect.  If 'version' is not supported, 'stream' is invalidated, but
+        // otherwise unmodified.  Note that 'version' is not written to
+        // 'stream'.  See the 'bslx' package-level documentation for more
+        // information on BDEX streaming of value-semantic types and
+        // containers.
 };
 
 // FREE OPERATORS
@@ -5068,6 +5155,21 @@ namespace bdldfp {
                             // class Decimal_Type32
                             // --------------------
 
+// CLASS METHODS
+
+                                  // Aspects
+inline
+int Decimal_Type32::maxSupportedBdexVersion()
+{
+    return 1;
+}
+
+inline
+int Decimal_Type32::maxSupportedBdexVersion(int /* versionSelector */)
+{
+    return 1;
+}
+
 // CREATORS
 inline
 Decimal_Type32::Decimal_Type32()
@@ -5354,6 +5456,32 @@ DecimalImpUtil::ValueType32 *Decimal_Type32::data()
     return &d_value;
 }
 
+                                  // Aspects
+
+template <class STREAM>
+STREAM& Decimal_Type32::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            DecimalStorage::Type32 bidVal;
+            stream.getUint32(bidVal);
+
+            if (stream) {
+                d_value = DecimalImpUtil::convertFromBID(bidVal);
+            }
+            else {
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
+
 inline
 const DecimalImpUtil::ValueType32 *Decimal_Type32::data() const
 {
@@ -5364,6 +5492,26 @@ inline
 DecimalImpUtil::ValueType32 Decimal_Type32::value() const
 {
     return d_value;
+}
+
+                                  // Aspects
+
+template <class STREAM>
+STREAM& Decimal_Type32::bdexStreamOut(STREAM& stream, int version) const
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            DecimalStorage::Type32 bidVal = DecimalImpUtil::convertToBID(
+                                                                      d_value);
+            stream.putUint32(bidVal);
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
 }
 
                             // --------------------
@@ -5669,7 +5817,6 @@ inline Decimal_Type64& Decimal_Type64::operator/=(unsigned long long rhs)
     return *this /= Decimal128(rhs);
 }
 
-
                                   // Aspects
 
 template <class STREAM>
@@ -5740,6 +5887,22 @@ STREAM& Decimal_Type64::bdexStreamOut(STREAM& stream, int version) const
                            // class Decimal_Type128
                            // ---------------------
 
+// CLASS METHODS
+
+                                  // Aspects
+inline
+int Decimal_Type128::maxSupportedBdexVersion()
+{
+    return 1;
+}
+
+inline
+int Decimal_Type128::maxSupportedBdexVersion(int /* versionSelector */)
+{
+    return 1;
+}
+
+// CREATORS
 inline
 Decimal_Type128::Decimal_Type128()
 {
@@ -6059,6 +6222,35 @@ DecimalImpUtil::ValueType128 *Decimal_Type128::data()
     return &d_value;
 }
 
+                                  // Aspects
+
+template <class STREAM>
+STREAM& Decimal_Type128::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            DecimalStorage::Type128 bidVal;
+            stream.getArrayUint64(
+                              reinterpret_cast<bsls::Types::Uint64 *>(&bidVal),
+                              sizeof(DecimalStorage::Type128)
+                              / sizeof(bsls::Types::Uint64));
+
+            if (stream) {
+                d_value = DecimalImpUtil::convertFromBID(bidVal);
+            }
+            else {
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
+
 inline
 const DecimalImpUtil::ValueType128 *Decimal_Type128::data() const
 {
@@ -6071,6 +6263,28 @@ DecimalImpUtil::ValueType128 Decimal_Type128::value() const
     return d_value;
 }
 
+                                  // Aspects
+
+template <class STREAM>
+STREAM& Decimal_Type128::bdexStreamOut(STREAM& stream, int version) const
+{
+    if (stream) {
+        switch (version) { // switch on the schema version
+          case 1: {
+            DecimalStorage::Type128 bidVal = DecimalImpUtil::convertToBID(
+                                                                      d_value);
+            stream.putArrayUint64(
+                              reinterpret_cast<bsls::Types::Uint64 *>(&bidVal),
+                              sizeof(DecimalStorage::Type128)
+                              / sizeof(bsls::Types::Uint64));
+          } break;
+          default: {
+            stream.invalidate();  // unrecognized version number
+          }
+        }
+    }
+    return stream;
+}
 }  // close package namespace
 
 // FREE OPERATORS
