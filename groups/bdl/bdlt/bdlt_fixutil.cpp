@@ -1098,7 +1098,7 @@ int FixUtil::parse(Time *result, const char *string, int length)
     Time localTime;
     int tzOffset;
     bool isNextDay;
-    if ( 0 != parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end)) {
+    if (0 != parseTime(&p, &localTime, &tzOffset, &isNextDay, p, end)) {
         return -1;                                                    // RETURN
     }
 
