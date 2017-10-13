@@ -583,12 +583,12 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         if (format.flags() & bsl::ios::fixed) {
             // find the decimal point position
             point = bsl::find(rit, rend, cfg.decimalPoint());
-            BSLS_ASSERT(point == rend);
+            BSLS_ASSERT(point != rend);
         }
         else {
             // find the exponent position
             rit = bsl::find(rit, rend, cfg.exponent());
-            BSLS_ASSERT(rit == rend);
+            BSLS_ASSERT(rit != rend);
             wend = (++rit).base();
         }
         trailingZeros = static_cast<int>(format.precision()
