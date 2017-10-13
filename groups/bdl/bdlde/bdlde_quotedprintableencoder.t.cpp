@@ -4050,7 +4050,7 @@ int main(int argc, char *argv[])
 
                     if (veryVeryVeryVerbose) {
                         cout << "\t\t\t\t\t" << "Input 1: ";
-                        printCharN(cout, B, M - B) << endl;
+                        printCharN(cout, B, static_cast<int>(M - B)) << endl;
                     }
 
                     int res1 = localObj.convert(lb, &localNumOut, &localNumIn,
@@ -4072,7 +4072,7 @@ int main(int argc, char *argv[])
 
                     if (veryVeryVeryVerbose) {
                         cout << "\t\t\t\t\t" << "Input 2: ";
-                        printCharN(cout, M, E - M) << endl;
+                        printCharN(cout, M, static_cast<int>(E - M)) << endl;
                     }
 
                     int res2 = localObj.convert(lb, &localNumOut, &localNumIn,
@@ -5724,7 +5724,7 @@ line of text containing a space at pos=\r\n =3D 76\
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

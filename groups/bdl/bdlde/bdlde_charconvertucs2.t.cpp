@@ -588,7 +588,7 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
 // the respective buffers where this level of the recursion will operate.  The
 // recursion terminates once 'depth <= 0'.
 
-void buildUpAndTestStringsU2ToU8(int             idx,
+void buildUpAndTestStringsU2ToU8(bsl::size_t     idx,
                                  int             depth,
                                  unsigned short *inputBuffer,
                                  char           *outputBuffer,
@@ -684,7 +684,7 @@ void testSingleOctetPerturbation(const char             *input,
 
     int before = perturb.d_extraInvalidBefore;
     int after  = perturb.d_extraInvalidAfter;
-    int pos    = perturbationChar;
+    int pos    = static_cast<int>(perturbationChar);
 
     // Increment characterCount to account for additional error characters
     // before and after 'pos' and for the null terminator.
@@ -1196,7 +1196,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
 // the respective buffers where this level of the recursion will operate.  The
 // recursion terminates once 'depth <= 0'.
 
-void buildUpAndTestStringsU8ToU2(int             idx,
+void buildUpAndTestStringsU8ToU2(bsl::size_t     idx,
                                  int             depth,
                                  char           *inputBuffer,
                                  unsigned short *outputBuffer,
@@ -2775,11 +2775,11 @@ int main(int argc, char**argv)
                     printStr(SPEC);
                     printf("\n");
                     printf("    : EXPECTEDCHARS = %d charsWritten = %d\n",
-                                  EXPECTEDCHARS,
-                                  charsWritten);
+                                  static_cast<int>(EXPECTEDCHARS),
+                                  static_cast<int>(charsWritten));
                     printf("    : EXPECTEDBYTES = %d bytesWritten = %d\n",
-                                  EXPECTEDBYTES,
-                                  bytesWritten);
+                                  static_cast<int>(EXPECTEDBYTES),
+                                  static_cast<int>(bytesWritten));
                     printf("    : RETURN        = %d retVal       = %d\n",
                                   RETURN,
                                   retVal);
@@ -3231,8 +3231,8 @@ int main(int argc, char**argv)
                     printStr(SPEC);
                     printf("\n");
                     printf("    : EXPECTED = %d, charsWritten = %d\n",
-                                  EXPECTED,
-                                  charsWritten);
+                                  static_cast<int>(EXPECTED),
+                                  static_cast<int>(charsWritten));
                     printf("    : RETURN   = %d retVal        = %d\n",
                                   RETURN,
                                   retVal);

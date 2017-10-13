@@ -541,7 +541,7 @@ int main(int argc, char *argv[])
         senderExample(out);
 
         const char *const OD  = out.data();
-        const int         LOD = out.length();
+        const int         LOD = static_cast<int>(out.length());
         In in(OD, LOD);
 
         receiverExample(in);
@@ -1320,7 +1320,7 @@ int main(int argc, char *argv[])
             X.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             In in(OD, LOD);
             ASSERT(in);                         ASSERT(!in.isEmpty());
 
@@ -1342,7 +1342,7 @@ int main(int argc, char *argv[])
                 X.bdexStreamOut(out, VERSION);
 
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -1373,7 +1373,7 @@ int main(int argc, char *argv[])
             // testing empty and invalid streams
             Out out(20150813);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1405,11 +1405,11 @@ int main(int argc, char *argv[])
 
             Out out(20150813);
             X1.bdexStreamOut(out, VERSION);
-            const int LOD1 = out.length();
+            const int LOD1 = static_cast<int>(out.length());
             X2.bdexStreamOut(out, VERSION);
-            const int LOD2 = out.length();
+            const int LOD2 = static_cast<int>(out.length());
             X3.bdexStreamOut(out, VERSION);
-            const int LOD  = out.length();
+            const int LOD  = static_cast<int>(out.length());
             const char *const OD = out.data();
 
             for (int i = 0; i < LOD; ++i) {
@@ -1481,7 +1481,7 @@ int main(int argc, char *argv[])
             out.putUint32(SERIAL_Y);  // stream out "new" value
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X);       ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
             In in(OD, LOD); ASSERT(in);
@@ -1502,7 +1502,7 @@ int main(int argc, char *argv[])
             out.putUint32(SERIAL_Y);  // stream out "new" value
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X);       ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
             In in(OD, LOD); ASSERT(in);
@@ -1518,7 +1518,7 @@ int main(int argc, char *argv[])
             out.putUint32(SERIAL_Y);    // stream out "new" value
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X);       ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
             In in(OD, LOD); ASSERT(in);
@@ -2628,7 +2628,9 @@ int main(int argc, char *argv[])
             const Obj& X = mX;
 
             unsigned int crc32t =
-                          crc32trm(DATA[i], bsl::strlen(DATA[i]), '\0');
+                               crc32trm(DATA[i],
+                                        static_cast<int>(bsl::strlen(DATA[i])),
+                                        '\0');
 
             if (crc32t != X.checksum()) {
                 bsl::cout << "CRC32 different: " << crc32t << "(legacy) != "
@@ -2665,7 +2667,9 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_ITERATIONS; ++i) {
                 for (int j = 0; j < NUM_DATA; ++j) {
                     unsigned int crc32t =
-                          crc32trm(DATA[j], bsl::strlen(DATA[j]), '\0');
+                               crc32trm(DATA[j],
+                                        static_cast<int>(bsl::strlen(DATA[j])),
+                                        '\0');
                     (void)crc32t;
                 }
             }

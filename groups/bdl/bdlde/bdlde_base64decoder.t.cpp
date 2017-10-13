@@ -1049,9 +1049,13 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
             int numOut;
             int numIn;
 
-            int status = converter.convert(output, &numOut, &numIn,
-                                           input,   inputEnd,
-                                           outputEnd - output);
+            int status = converter.convert(
+                                         output,
+                                         &numOut,
+                                         &numIn,
+                                         input,
+                                         inputEnd,
+                                         static_cast<int>(outputEnd - output));
             if (status < 0) {
                 return ENCODE_ERROR;                                  // RETURN
             }
@@ -1073,7 +1077,9 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
 
         int numOut;
 
-        int more = converter.endConvert(output, &numOut, outputEnd-output);
+        int more = converter.endConvert(output,
+                                        &numOut,
+                                        static_cast<int>(outputEnd - output));
         if (more < 0) {
             return ENCODE_ERROR;                                      // RETURN
         }
@@ -1131,9 +1137,13 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
             int numOut;
             int numIn;
 
-            int status = converter.convert(output, &numOut, &numIn,
-                                           input,   inputEnd,
-                                           outputEnd - output);
+            int status = converter.convert(
+                                         output,
+                                         &numOut,
+                                         &numIn,
+                                         input,
+                                         inputEnd,
+                                         static_cast<int>(outputEnd - output));
             if (status < 0) {
                 return DECODE_ERROR;                                  // RETURN
             }
@@ -1155,7 +1165,9 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 
         int numOut;
 
-        int more = converter.endConvert(output, &numOut, outputEnd-output);
+        int more = converter.endConvert(output,
+                                        &numOut,
+                                        static_cast<int>(outputEnd - output));
         if (more < 0) {
             return DECODE_ERROR;                                      // RETURN
         }
@@ -1237,7 +1249,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1291,7 +1303,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1346,7 +1358,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1401,7 +1413,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1455,7 +1467,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1509,7 +1521,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1566,7 +1578,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1619,7 +1631,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder;
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -3711,7 +3723,7 @@ DEFINE_TEST_CASE(7)
                 const int         IN_LEN  = DATA[ti].d_numIn;
                 const char *const OUTPUT  = DATA[ti].d_output_p;
 
-                const int         LENGTH  = strlen(INPUT);
+                const int         LENGTH  = static_cast<int>(strlen(INPUT));
                 const char *const B       = INPUT;
                 const char *const E       = INPUT + LENGTH;
 
@@ -3861,7 +3873,7 @@ DEFINE_TEST_CASE(7)
 
                     if (veryVeryVeryVerbose) {
                         cout << "\t\t\t\t\t" << "Input 1: ";
-                        printCharN(cout, B, M - B) << endl;
+                        printCharN(cout, B, static_cast<int>(M - B)) << endl;
                     }
 
                     localObj.convert(lb, &localNumOut, &localNumIn, B, M);
@@ -3874,7 +3886,7 @@ DEFINE_TEST_CASE(7)
 
                     if (veryVeryVeryVerbose) {
                         cout << "\t\t\t\t\t" << "Input 2: ";
-                        printCharN(cout, M, E - M) << endl;
+                        printCharN(cout, M, static_cast<int>(E - M)) << endl;
                     }
 
                     int res = localObj.convert(lb, &localNumOut, &localNumIn,
@@ -4665,7 +4677,7 @@ DEFINE_TEST_CASE(5)
                 const int         RTN        = ERROR_STATE == END
                                                 ? DONE_STATE == START ? -2 : -1
                                                 : 0;
-                const int         LENGTH     = strlen(INPUT);
+                const int         LENGTH     = static_cast<int>(strlen(INPUT));
                 const char *const B          = INPUT;
                 const char *const E          = B + LENGTH;
 
@@ -5623,7 +5635,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

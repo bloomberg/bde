@@ -4106,6 +4106,7 @@ int main(int argc, char **argv)
         bsls::AssertFailureHandlerGuard guard(
                                              bsls::AssertTest::failTestDriver);
 
+        const unsigned int    utf32Input[] = { 0x100, 0x1000, 0 };
         const char            utf8Input [] = "woof";
         const PaddedStringRef utf8Sr(utf8Input);
 
@@ -4114,6 +4115,8 @@ int main(int argc, char **argv)
 
         const bsl::size_t minus1 = -1;
 
+        (void)utf32Input;
+        
         if (verbose) cout << "All illegal values of utf8 error byte\n";
 
         for (int i = 0x80; i < 0x100; ++i) {
@@ -7112,7 +7115,7 @@ int main(int argc, char **argv)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

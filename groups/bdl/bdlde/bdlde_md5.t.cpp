@@ -193,7 +193,7 @@ void senderExample(Out& output)
     bsl::string message = "This is a test message.";
 
     // Generate a digest for 'message'.
-    bdlde::Md5 digest(message.data(), message.length());
+    bdlde::Md5 digest(message.data(), static_cast<int>(message.length()));
 
     // Write the message to 'output'.
     output << message;
@@ -224,7 +224,7 @@ void receiverExample(In& input)
 
     // Locally compute the digest of the received 'message'.
     bdlde::Md5 digestLocal;
-    digestLocal.update(message.data(), message.length());
+    digestLocal.update(message.data(), static_cast<int>(message.length()));
 
     // Verify that the received and locally-computed digests match.
     ASSERT(digestLocal == digest);
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
         senderExample(out);
 
         const char *const OD  = out.data();
-        const int         LOD = out.length();
+        const int         LOD = static_cast<int>(out.length());
         In in(OD, LOD);
 
         receiverExample(in);
@@ -1019,7 +1019,7 @@ int main(int argc, char *argv[])
             X.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             In in(OD, LOD);
             ASSERT(in);                         ASSERT(!in.isEmpty());
 
@@ -1040,7 +1040,7 @@ int main(int argc, char *argv[])
                 X.bdexStreamOut(out, VERSION);
 
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
@@ -1071,7 +1071,7 @@ int main(int argc, char *argv[])
             // testing empty and invalid streams
             Out out(20150813);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1103,11 +1103,11 @@ int main(int argc, char *argv[])
 
             Out out(20150813);
             X1.bdexStreamOut(out, VERSION);
-            const int LOD1 = out.length();
+            const int LOD1 = static_cast<int>(out.length());
             X2.bdexStreamOut(out, VERSION);
-            const int LOD2 = out.length();
+            const int LOD2 = static_cast<int>(out.length());
             X3.bdexStreamOut(out, VERSION);
-            const int LOD  = out.length();
+            const int LOD  = static_cast<int>(out.length());
             const char *const    OD   = out.data();
 
             for (int i = 0; i < LOD; ++i) {
@@ -1173,7 +1173,7 @@ int main(int argc, char *argv[])
             Y.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X);       ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
             In in(OD, LOD); ASSERT(in);
@@ -1194,7 +1194,7 @@ int main(int argc, char *argv[])
             Y.bdexStreamOut(out, version);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X);       ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
             In in(OD, LOD); ASSERT(in);
@@ -1211,7 +1211,7 @@ int main(int argc, char *argv[])
             Y.bdexStreamOut(out, version);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X);       ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
             In in(OD, LOD); ASSERT(in);
@@ -2407,7 +2407,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
