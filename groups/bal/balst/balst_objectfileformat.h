@@ -48,8 +48,8 @@ BSLS_IDENT("$Id: $")
 //
 // We have implemented DWARF resolution for g++ 4.8.1 (and earlier) on Linux.
 //
-// DWARF Implementation Notes:
-//
+///IMPLEMENTATION NOTE
+///- - - - - - - - - -
 // DWARF is not supported in Linux g++ compilers later than 4.8.1 because later
 // versions use a user-extended 'DW_LNE_*' opcode that is not defined in
 // 'dwarf.h' and that we don't know how to interpret.  This could be probably
