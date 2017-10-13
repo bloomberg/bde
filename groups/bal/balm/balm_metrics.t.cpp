@@ -1605,11 +1605,11 @@ int main(int argc, char *argv[])
         //                                           int         line);
         //
         // --------------------------------------------------------------------
-         
+
         if (verbose) cout << endl
             << "Test logEmptyName" << endl
             << "=================" << endl;
-        
+
         Log::setLogMessageHandler(&LogTestMessageHandler::testMessageHandler);
 
         struct {

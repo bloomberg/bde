@@ -340,7 +340,7 @@ namespace USAGE_EXAMPLES {
 // object implementing an abstract protocol.
 //
 // First we define our protocol, 'Shape', a type of object that knows how to
-// compute its 'area'.  Note that for expository reasons only, we do *nor* give
+// compute its 'area'.  Note that for expository reasons only, we do *not* give
 // 'Shape' a virtual destructor.
 //..
     struct Shape {
@@ -433,7 +433,7 @@ namespace USAGE_EXAMPLES {
     }
 //..
 // Then, we can use our function to create shapes of different kinds, and check
-// that they report the correct area.  Note that are using a radius of '1.0'
+// that they report the correct area.  Note that we are using a radius of '1.0'
 // for the 'Circle' and integral side-length for the 'Square' to support an
 // accurate 'operator==' with floating-point quantities.  Also note that,
 // despite the destructor for 'Shape' being non-virtual, the correct destructor
@@ -578,7 +578,7 @@ namespace USAGE_EXAMPLES {
         ASSERT(1 == ta.numBlocksInUse());
         if (g_verbose) printf("Found quote: %g\n", *result);
 //..
-// Next, We also print the preceding 5 quotes in last-to-first order:
+// Next, we also print the preceding 5 quotes in last-to-first order:
 //..
         if (g_verbose) printf("Preceded by:");
         int i;

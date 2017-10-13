@@ -1,4 +1,4 @@
-// baljsn_encodingstyle.t.cpp                                     -*-C++-*-
+// baljsn_encodingstyle.t.cpp                                         -*-C++-*-
 
 #include <baljsn_encodingstyle.h>
 
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
 
     (void)veryVerbose;
-    
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator defaultAllocator(veryVeryVerbose);

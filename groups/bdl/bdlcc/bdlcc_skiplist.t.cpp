@@ -791,7 +791,7 @@ int main(int argc, char *argv[])
             { L_ , 1, "middle-back  1 ", 0}, //we have to list these backwards
             { L_ , 1, "middle-fwd 1", 0}, // because this list gets inserted
             { L_ , 1, "fwd 1", 0}, // front to back
-            { L_ , 3, "3", 1}, 
+            { L_ , 3, "3", 1},
             { L_ , 0, "0", 2},
             { L_ , 2, "2", 3},
             { L_ , 4, "last 4", 4},
@@ -817,50 +817,50 @@ int main(int argc, char *argv[])
             ASSERT(Obj.findLowerBoundR(&h, 10));
             ASSERT(Obj.findUpperBoundR(&h, 10));
 
-            //validate success when trying to find something smaller 
+            //validate success when trying to find something smaller
             //than min key
             ASSERT(!Obj.findLowerBoundR(&h,-1));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
-            
+            ASSERT(h.data() == "0");
+
             ASSERT(!Obj.findUpperBoundR(&h,-1));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
+            ASSERT(h.data() == "0");
 
             //check front edge
             ASSERT(!Obj.findUpperBoundR(&h, 0));
             ASSERT(h.key() == 1);
-            ASSERT(h.data() == "fwd 1"); 
-            
+            ASSERT(h.data() == "fwd 1");
+
             ASSERT(!Obj.findLowerBoundR(&h, 0));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
-            
+            ASSERT(h.data() == "0");
+
             //check somewhere inside of list
             ASSERT(!Obj.findLowerBoundR(&h,6));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
-            
+            ASSERT(h.data() == "first 8");
+
             ASSERT(!Obj.findUpperBoundR(&h,6));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
+            ASSERT(h.data() == "first 8");
 
             //check back edge
             ASSERT(Obj.findUpperBoundR(&h, 8));
-            
+
             ASSERT(!Obj.findLowerBoundR(&h, 8));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
+            ASSERT(h.data() == "first 8");
 
             //check middle
             ASSERT(!Obj.findUpperBoundR(&h, 4));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
-            
+            ASSERT(h.data() == "first 8");
+
             ASSERT(!Obj.findLowerBoundR(&h, 4));
             ASSERT(h.key() == 4);
-            ASSERT(h.data() == "first 4"); 
-            
+            ASSERT(h.data() == "first 4");
+
             if (veryVerbose) {
                 Obj.print(cout);
             } else if (verbose) Obj.print(cout, 0, -1) << endl;
@@ -879,7 +879,7 @@ int main(int argc, char *argv[])
             { L_ , 1, "middle-back  1 ", 0}, //we have to list these backwards
             { L_ , 1, "middle-fwd 1", 0}, // because this list gets inserted
             { L_ , 1, "fwd 1", 0}, // front to back
-            { L_ , 3, "3", 1}, 
+            { L_ , 3, "3", 1},
             { L_ , 0, "0", 2},
             { L_ , 2, "2", 3},
             { L_ , 4, "last 4", 4},
@@ -905,50 +905,50 @@ int main(int argc, char *argv[])
             ASSERT(Obj.findLowerBound(&h, 10));
             ASSERT(Obj.findUpperBound(&h, 10));
 
-            //validate success when trying to find something smaller 
+            //validate success when trying to find something smaller
             //than min key
             ASSERT(!Obj.findLowerBound(&h,-1));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
-            
+            ASSERT(h.data() == "0");
+
             ASSERT(!Obj.findUpperBound(&h,-1));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
+            ASSERT(h.data() == "0");
 
             //check front edge
             ASSERT(!Obj.findUpperBound(&h, 0));
             ASSERT(h.key() == 1);
-            ASSERT(h.data() == "fwd 1"); 
-            
+            ASSERT(h.data() == "fwd 1");
+
             ASSERT(!Obj.findLowerBound(&h, 0));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
-          
+            ASSERT(h.data() == "0");
+
             //check somewhere inside of list
             ASSERT(!Obj.findLowerBound(&h,6));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
-            
+            ASSERT(h.data() == "first 8");
+
             ASSERT(!Obj.findUpperBound(&h,6));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
+            ASSERT(h.data() == "first 8");
 
             //check back edge
             ASSERT(Obj.findUpperBound(&h, 8));
-            
+
             ASSERT(!Obj.findLowerBound(&h, 8));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
+            ASSERT(h.data() == "first 8");
 
             //check middle
             ASSERT(!Obj.findUpperBound(&h, 4));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
-            
+            ASSERT(h.data() == "first 8");
+
             ASSERT(!Obj.findLowerBound(&h, 4));
             ASSERT(h.key() == 4);
-            ASSERT(h.data() == "first 4"); 
-            
+            ASSERT(h.data() == "first 4");
+
             if (veryVerbose) {
                 Obj.print(cout);
             } else if (verbose) Obj.print(cout, 0, -1) << endl;
@@ -2166,7 +2166,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << endl
                               << "isNewFront Test" << endl
                               << "===============" << endl;
-               
+
             ASSERT(4 == Obj.length());
 
             SkipList::Pair *h;
@@ -2179,11 +2179,11 @@ int main(int argc, char *argv[])
             ASSERT(!Obj.update(h,5,&isNewFront));
             ASSERT(!isNewFront);
             Obj.releaseReferenceRaw(h);
-                
+
             Obj.frontRaw(&h);
             ASSERT(!strcmp("1",h->data()));
             ASSERT(1 == h->key());
-                
+
             SkipList::Pair *h2;
             ASSERT(!Obj.nextRaw(&h2,h));
             Obj.releaseReferenceRaw(h);

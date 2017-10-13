@@ -1171,7 +1171,7 @@ int main(int argc, char *argv[])
                     x.release();
                     y.release();
                 }
-            }            
+            }
 
             for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
                 // Relase the memory allocated in 'DATA'.

@@ -1,4 +1,4 @@
-// bslmt_entrypointfunctoradapter.t.cpp
+// bslmt_entrypointfunctoradapter.t.cpp                               -*-C++-*-
 #include <bslmt_entrypointfunctoradapter.h>
 
 #include <bslma_usesbslmaallocator.h>

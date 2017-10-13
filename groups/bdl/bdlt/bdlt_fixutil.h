@@ -190,11 +190,10 @@ BSLS_IDENT("$Id: $")
 // FIX protocol document, which indicates the fractional second may be
 // unspecified or have a positive multiple of three digits).  Although FIX has
 // provision for picosecond (or finer) time resolution, be aware that 'bdlt' is
-// limited to microsecond resolution ('Datetime', 'DatetimeTz', 'Time',
-// 'TimeTz').  If more than six digits are included in the fractional second,
-// values are rounded to a full microsecond; i.e., values greater than or equal
-// to .5 microseconds are rounded up.  These roundings may incur a carry of one
-// second into the 'second' attribute:
+// limited to microsecond resolution.  If more than six digits are included in
+// the fractional second, values are rounded to a full microsecond; i.e.,
+// values greater than or equal to .5 microseconds are rounded up.  These
+// roundings may incur a carry of one second into the 'second' attribute:
 //..
 //  +--------------------------------------+---------------------------------+
 //  |          Parsed FIX String           |      Result Object Value        |
@@ -505,7 +504,7 @@ struct FixUtil {
         k_DATE_STRLEN       =  8,  // 'bdlt::Date'
         k_DATETZ_STRLEN     = 14,  // 'bdlt::DateTz'
 
-        k_TIME_STRLEN       = 12,  // 'bdlt::Time'
+        k_TIME_STRLEN       = 15,  // 'bdlt::Time'
         k_TIMETZ_STRLEN     = 14,  // 'bdlt::TimeTz'
 
         k_DATETIME_STRLEN   = 24,  // 'bdlt::Datetime'
@@ -1293,7 +1292,7 @@ int FixUtil::parse(DatetimeTz *result, const bslstl::StringRef& string)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -334,6 +334,7 @@ int main(int argc, char *argv[])
 
             bsl::vector<bdlt::Date>        mE1;
             const bsl::vector<bdlt::Date>& E1 = mE1;
+            (void)E1;
             {
                 mE1.push_back(bdlt::Date(2015, 1, 5));
                 mE1.push_back(bdlt::Date(2015, 3, 5));
@@ -346,6 +347,7 @@ int main(int argc, char *argv[])
 
             bsl::vector<bdlt::Date>        mE2;
             const bsl::vector<bdlt::Date>& E2 = mE2;
+            (void)E2;
             {
                 mE2.push_back(bdlt::Date(2015, 1, 5));
                 mE2.push_back(bdlt::Date(2015, 2, 5));
@@ -359,6 +361,7 @@ int main(int argc, char *argv[])
 
             bsl::vector<bdlt::Date>        mE3;
             const bsl::vector<bdlt::Date>& E3 = mE3;
+            (void)E3;
             {
                 mE3.push_back(bdlt::Date(2015, 1, 5));
             }
@@ -367,6 +370,7 @@ int main(int argc, char *argv[])
 
             bsl::vector<bdlt::Date>        mE4;
             const bsl::vector<bdlt::Date>& E4 = mE4;
+            (void)E4;
 
             ASSERT_OPT_PASS(Util::yearsDiff(
                       bdlt::Date(2015, 1, 5),

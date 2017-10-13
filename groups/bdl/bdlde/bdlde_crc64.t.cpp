@@ -393,7 +393,7 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                     || ('a' <= spec[i] && spec[i] <= 'f')) {
                 // build the hexadecimal character, add it to 'update_buffer'
 
-                unsigned char hex;
+                unsigned char hex = 0;
 
                 if ('0' <= spec[i] && spec[i] <= '9') {
                     hex = static_cast<unsigned char>((spec[i] - '0') << 4);

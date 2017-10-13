@@ -336,7 +336,7 @@ void incCallback(BloombergLP::ball::UserFields *list) {
 class CerrBufferGuard {
     // Capture the 'streambuf' used by 'cerr' at this objects creation, and
     // restor that to be the 'cerr' read buffer on this objects destruction.
- 
+
     bsl::streambuf *d_cerrBuf;
 
     // NOT IMPLEMENTED
@@ -350,7 +350,7 @@ class CerrBufferGuard {
     ~CerrBufferGuard() { bsl::cerr.rdbuf(d_cerrBuf); }
         // Restore the 'streambuf' being used by 'cerr' to that which was
         // being used on this objects construction.
-     
+
 };
 
 //=============================================================================
@@ -1635,7 +1635,7 @@ int main(int argc, char *argv[])
 
         using namespace BALL_LOG_TEST_CASE_24;
 
-        CerrBufferGuard cerrBufferGuard; 
+        CerrBufferGuard cerrBufferGuard;
 
         numIterations = 10;
         arg1          = -99.244;

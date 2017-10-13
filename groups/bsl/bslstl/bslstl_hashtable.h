@@ -2877,10 +2877,13 @@ class HashTable {
 
     bslalg::BidirectionalLink *remove(bslalg::BidirectionalLink *node);
         // Remove the specified 'node' from this hash-table, and return the
-        // address of the node immediately after 'node' this hash-table (prior
-        // to its removal), or a null pointer value if 'node' is the last node
-        // in the table.  The behavior is undefined unless 'node' refers to a
-        // node in this hash-table.
+        // address of the node immediately after 'node' in this hash-table
+        // (prior to its removal), or a null pointer value if 'node' is the
+        // last node in the table.  This method invalidates only iterators and
+        // references to the removed node and previously saved values of the
+        // 'end()' iterator, and preserves the relative order of the nodes not
+        // removed.  The behavior is undefined unless 'node' refers to a node
+        // in this hash-table.
 
     void removeAll();
         // Remove all the elements from this hash-table.  Note that this

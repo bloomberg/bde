@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // integer.  Similarly, the field values may be accessed in the canonical
 // representation using the 'days', 'hours', 'minutes', 'seconds',
 // 'milliseconds', and 'microseconds' methods.
-// 
+//
 // The primary accessors for this type are 'days' and
 // 'fractionalDayInMicroseconds'.  In combination, these two methods provide
 // complete and succinct access to the value of a 'DatetimeInterval'.

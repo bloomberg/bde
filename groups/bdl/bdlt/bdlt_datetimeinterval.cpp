@@ -245,7 +245,7 @@ int DatetimeInterval::printToBuffer(char *result,
 
     // Values with a non-negative day component will have the sign
     // "pre-printed".
-    
+
     int printedLength = 0;
 
     if (0 <= d_days) {
@@ -262,7 +262,7 @@ int DatetimeInterval::printToBuffer(char *result,
     }
 
     // Invert the time component values when the value is negative.
-    
+
     if (0 > d_days || 0 > d_microseconds) {
         h  = -h;
         m  = -m;
@@ -316,7 +316,7 @@ int DatetimeInterval::printToBuffer(char *result,
     spec[PRECISION_INDEX] = static_cast<char>('0' + fractionalSecondPrecision);
 
     // Add one for the sign.
-    
+
     return printToBufferFormatted(result,
                                   numBytes,
                                   spec,

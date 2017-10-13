@@ -1,4 +1,4 @@
-// bsltf_nontoptionalalloctesttype.t.cpp                              -*-C++-*-
+// bsltf_nonoptionalalloctesttype.t.cpp                               -*-C++-*-
 #include <bsltf_nonoptionalalloctesttype.h>
 
 #include <bslma_allocator.h>

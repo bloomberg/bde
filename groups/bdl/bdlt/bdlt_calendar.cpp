@@ -419,7 +419,7 @@ Date Calendar::getNextBusinessDay(const Date& initialDate, int nth) const
     }
 
     Date calendarFirstDate = firstDate();
-    
+
     // Every time a new business day is found, 'nth' will be decremented by one
     // until it reaches 0, in which case we return the business day found.
 
@@ -498,7 +498,7 @@ Date Calendar::getNextBusinessDay(const Date& initialDate, int nth) const
 
     return currentDate;
 }
-    
+
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE3.0
 
                    // -----------------------------------

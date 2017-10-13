@@ -909,7 +909,7 @@ bool TcpTimedCbChannel::handleInterruptedWrite(int status)
     d_currentWriteRequest_p = 0;
     return false;
 }
-    
+
 
 void TcpTimedCbChannel::initializeReadBuffer(int size)
 {
@@ -1832,7 +1832,7 @@ void TcpTimedCbChannel::writeCb()
               BSLS_ASSERT(s < 0);
               BSLS_ASSERT(s != btlso::SocketHandle::e_ERROR_INTERRUPTED);
               BSLS_ASSERT(s != btlso::SocketHandle::e_ERROR_WOULDBLOCK);
-              
+
               if (d_writeTimerId) {
                   d_wManager_p->deregisterTimer(d_writeTimerId);
                   d_writeTimerId = NULL;
@@ -4140,7 +4140,7 @@ void TcpTimedCbChannel::cancelRead() {
         bsl::deque<TcpTimedCbChannel_RReg *>::iterator end =
             d_readRequests.begin() +
                 static_cast<int>(d_readRequests.size()) - 1;
-        
+
         bsl::deque<TcpTimedCbChannel_RReg *> toBeCancelled(
                                     d_readRequests.begin(), end);
         d_readRequests.erase(d_readRequests.begin(), end);

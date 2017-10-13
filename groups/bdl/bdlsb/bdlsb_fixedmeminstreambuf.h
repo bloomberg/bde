@@ -308,7 +308,7 @@ bsl::streamsize FixedMemInStreamBuf::xsgetn(char_type       *destination,
 
     bsl::streamsize canCopy = charsLeft < length ? charsLeft : length;
 
-    bsl::memcpy(destination, gptr(), canCopy);
+    bsl::memcpy(destination, gptr(), static_cast<bsl::size_t>(canCopy));
     gbump(static_cast<int>(canCopy));
     return canCopy;
 }

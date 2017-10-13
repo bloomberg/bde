@@ -193,7 +193,7 @@ void senderExample(Out& output)
     bsl::string message = "This is a test message.";
 
     // Generate a digest for 'message'.
-    bdlde::Md5 digest(message.data(), message.length());
+    bdlde::Md5 digest(message.data(), static_cast<int>(message.length()));
 
     // Write the message to 'output'.
     output << message;
@@ -224,7 +224,7 @@ void receiverExample(In& input)
 
     // Locally compute the digest of the received 'message'.
     bdlde::Md5 digestLocal;
-    digestLocal.update(message.data(), message.length());
+    digestLocal.update(message.data(), static_cast<int>(message.length()));
 
     // Verify that the received and locally-computed digests match.
     ASSERT(digestLocal == digest);
@@ -331,21 +331,22 @@ int ggg(Obj *object, const char *spec, int vF = 1)
                     || ('a' <= spec[i] && spec[i] <= 'f')) {
                 // build the hexadecimal character, add it to 'update_buffer'
 
-                unsigned char hex;
+                unsigned char hex = 0;
 
                 if ('0' <= spec[i] && spec[i] <= '9') {
-                    hex = (spec[i] - '0') << 4;
+                    hex = static_cast<unsigned char>((spec[i] - '0') << 4);
                 } else if ('a' <= spec[i] && spec[i] <= 'f') {
-                    hex = (spec[i] - 'a' + 10) << 4;
+                    hex = static_cast<unsigned char>(
+                                                    (spec[i] - 'a' + 10) << 4);
                 }
 
                 // look at the next character
 
                 ++i;
                 if ('0' <= spec[i] && spec[i] <= '9') {
-                    hex |= (spec[i] - '0');
+                    hex |= static_cast<unsigned char>(spec[i] - '0');
                 } else if ('a' <= spec[i] && spec[i] <= 'f') {
-                    hex |= (spec[i] - 'a' + 10);
+                    hex |= static_cast<unsigned char>(spec[i] - 'a' + 10);
                 } else {
                     // syntax error, print an error message if vF != 0
 
@@ -461,7 +462,7 @@ int main(int argc, char *argv[])
         senderExample(out);
 
         const char *const OD  = out.data();
-        const int         LOD = out.length();
+        const int         LOD = static_cast<int>(out.length());
         In in(OD, LOD);
 
         receiverExample(in);
@@ -1018,7 +1019,7 @@ int main(int argc, char *argv[])
             X.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             In in(OD, LOD);
             ASSERT(in);                         ASSERT(!in.isEmpty());
 
@@ -1039,13 +1040,13 @@ int main(int argc, char *argv[])
                 X.bdexStreamOut(out, VERSION);
 
                 const char *const OD  = out.data();
-                const int         LOD = out.length();
+                const int         LOD = static_cast<int>(out.length());
 
                 // Verify that each new value overwrites every old value and
                 // that the input stream is emptied, but remains valid.
 
                 for (int j = 0; j < NUM_VALUES; ++j) {
-                    In in(OD, LOD);  In &testInStream = in;
+                    In in(OD, LOD);
 
 //                  in.setSuppressVersionCheck(1);
 
@@ -1070,11 +1071,11 @@ int main(int argc, char *argv[])
             // testing empty and invalid streams
             Out out(20150813);
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
             ASSERT(0 == LOD);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                In in(OD, LOD);  In& testInStream = in;
+                In in(OD, LOD);
                 LOOP_ASSERT(i, in);
                 LOOP_ASSERT(i, in.isEmpty());
 
@@ -1102,15 +1103,15 @@ int main(int argc, char *argv[])
 
             Out out(20150813);
             X1.bdexStreamOut(out, VERSION);
-            const int LOD1 = out.length();
+            const int LOD1 = static_cast<int>(out.length());
             X2.bdexStreamOut(out, VERSION);
-            const int LOD2 = out.length();
+            const int LOD2 = static_cast<int>(out.length());
             X3.bdexStreamOut(out, VERSION);
-            const int LOD  = out.length();
+            const int LOD  = static_cast<int>(out.length());
             const char *const    OD   = out.data();
 
             for (int i = 0; i < LOD; ++i) {
-                In in(OD, i);  In& testInStream = in;
+                In in(OD, i);
 
 //              in.setSuppressVersionCheck(1);
 
@@ -1172,7 +1173,7 @@ int main(int argc, char *argv[])
             Y.bdexStreamOut(out, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X);       ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
             In in(OD, LOD); ASSERT(in);
@@ -1193,7 +1194,7 @@ int main(int argc, char *argv[])
             Y.bdexStreamOut(out, version);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X);       ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
             In in(OD, LOD); ASSERT(in);
@@ -1210,7 +1211,7 @@ int main(int argc, char *argv[])
             Y.bdexStreamOut(out, version);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const int         LOD = static_cast<int>(out.length());
 
             Obj t(X);       ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
             In in(OD, LOD); ASSERT(in);
@@ -2406,7 +2407,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -473,9 +473,12 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         testMain();
-        myStd::vector<int, DummyAllocator> obj;
-        (void) obj;
 
+        // The following dummy declaration suppresses warnings about
+        // 'myStd::vector' being unused on some compilers.
+
+        myStd::vector<int, DummyAllocator> *pObj = 0;
+        (void)pObj;
       } break;
       case 7: {
         // --------------------------------------------------------------------

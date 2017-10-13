@@ -2334,8 +2334,10 @@ void TestDriver::testCase23()
         // As we can't compare NaNs, we will check combination field and the
         // most significant bit of exponent continuation field.
 
-        bsls::Types::Uint64 QNAN_MASK = 0x7C00000000000000;  // 01111100 00...0
-        bsls::Types::Uint64 SNAN_MASK = 0x7E00000000000000;  // 01111110 00...0
+        bsls::Types::Uint64 QNAN_MASK = 0x7C00000000000000ULL;
+                                                             // 01111100 00...0
+        bsls::Types::Uint64 SNAN_MASK = 0x7E00000000000000ULL;
+                                                             // 01111110 00...0
 
         value = Util::signalingNaN64();
         bsls::Types::Uint64 raw;
@@ -2391,8 +2393,10 @@ void TestDriver::testCase23()
         // As we can't compare NaNs, we will check combination field and the
         // most significant bit of exponent continuation field.
 
-        bsls::Types::Uint64 QNAN_MASK = 0x7C00000000000000;  // 01111100 00...0
-        bsls::Types::Uint64 SNAN_MASK = 0x7E00000000000000;  // 01111110 00...0
+        bsls::Types::Uint64 QNAN_MASK = 0x7C00000000000000ULL;
+                                                             // 01111100 00...0
+        bsls::Types::Uint64 SNAN_MASK = 0x7E00000000000000ULL;
+                                                             // 01111110 00...0
 
         value = Util::signalingNaN128();
         bsls::Types::Uint64 raw;
