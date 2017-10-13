@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::string message = "This is a test message.";
 //
 //      // Generate a digest for 'message'.
-//      bdlde::Md5 digest(message.data(), message.length());
+//      bdlde::Md5 digest(message.data(), static_cast<int>(message.length()));
 //
 //      // Write the message to 'output'.
 //      output << message;
@@ -90,7 +90,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // Locally compute the digest of the received 'message'.
 //      bdlde::Md5 digestLocal;
-//      digestLocal.update(message.data(), message.length());
+//      digestLocal.update(message.data(), static_cast<int>(message.length()));
 //
 //      // Verify that the received and locally-computed digests match.
 //      assert(digestLocal == digest);

@@ -168,7 +168,7 @@ BSLS_IDENT("$Id: $")
 // {
 //     // Would probably do something more reasonable here.
 //
-//     assert(wideStrlen(str) + 1 == strLen);
+//     assert(wideStrlen(str) + 1 == static_cast<int>(strLen));
 // }
 //..
 // Finally, we can take some UTF-8 as an input and call
@@ -263,9 +263,7 @@ BSLS_IDENT("$Id: $")
 // {
 //     bsl::vector<unsigned short> result;
 //
-//     int retCode =
-//               BloombergLP::bdlde::CharConvertUcs2::utf8ToUcs2(&result,
-//                                                              strU8.c_str());
+//     BloombergLP::bdlde::CharConvertUcs2::utf8ToUcs2(&result, strU8.c_str());
 //
 //     return result;
 // }
