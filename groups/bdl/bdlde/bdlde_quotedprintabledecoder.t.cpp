@@ -483,7 +483,7 @@ int hexStrToChar(char* character, char string[2], bool lowercase = false)
     if (d2 == -1)
         return -1;                                                    // RETURN
 
-    *character = (d1 << 4) | d2;
+    *character = static_cast<char>((d1 << 4) | d2);
     return 0;
 }
 
@@ -762,7 +762,9 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
         bool c2 = 1 == numOut;
         bool c3 = c1 || c2;                             ASSERT(c3 || !enabled);
 
-        bool d0, d1, d2;
+        bool d0 = false;
+        bool d1 = false;
+        bool d2 = false;
 
         switch (numOut) {
           case 1: {
@@ -852,7 +854,9 @@ bool isState(bdlde::QuotedPrintableDecoder *object, int state)
         bool c0 = 0 == result;                          ASSERT(c0 || !enabled);
         bool c1 = 2 == numOut;                          ASSERT(c1 || !enabled);
 
-        bool d0, d1, d2;
+        bool d0 = false;
+        bool d1 = false;
+        bool d2 = false;
 
         if (numOut == 6) {
             d0 = '='  == b[0];                          ASSERT(d0 || !enabled);

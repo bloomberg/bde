@@ -1049,9 +1049,13 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
             int numOut;
             int numIn;
 
-            int status = converter.convert(output, &numOut, &numIn,
-                                           input,   inputEnd,
-                                           outputEnd - output);
+            int status = converter.convert(
+                                         output,
+                                         &numOut,
+                                         &numIn,
+                                         input,
+                                         inputEnd,
+                                         static_cast<int>(outputEnd - output));
             if (status < 0) {
                 return ENCODE_ERROR;                                  // RETURN
             }
@@ -1073,7 +1077,9 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
 
         int numOut;
 
-        int more = converter.endConvert(output, &numOut, outputEnd-output);
+        int more = converter.endConvert(output,
+                                        &numOut,
+                                        static_cast<int>(outputEnd - output));
         if (more < 0) {
             return ENCODE_ERROR;                                      // RETURN
         }
@@ -1131,9 +1137,13 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
             int numOut;
             int numIn;
 
-            int status = converter.convert(output, &numOut, &numIn,
-                                           input,   inputEnd,
-                                           outputEnd - output);
+            int status = converter.convert(
+                                         output,
+                                         &numOut,
+                                         &numIn,
+                                         input,
+                                         inputEnd,
+                                         static_cast<int>(outputEnd - output));
             if (status < 0) {
                 return DECODE_ERROR;                                  // RETURN
             }
@@ -1155,7 +1165,9 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 
         int numOut;
 
-        int more = converter.endConvert(output, &numOut, outputEnd-output);
+        int more = converter.endConvert(output,
+                                        &numOut,
+                                        static_cast<int>(outputEnd - output));
         if (more < 0) {
             return DECODE_ERROR;                                      // RETURN
         }
@@ -1188,11 +1200,16 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 //                                TEST CASES
 // ----------------------------------------------------------------------------
 #define DEFINE_TEST_CASE(NUMBER)                                              \
-void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose,   \
-                                                      bool veryVeryVeryVerbose)
+void testCase##NUMBER(bool verbose,                                           \
+                      bool veryVerbose,                                       \
+                      bool veryVeryVerbose,                                   \
+                      bool veryVeryVeryVerbose)
 
 DEFINE_TEST_CASE(11)
 {
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // STRESS TEST
         //   Demonstrate that the encoder/decoder can encode/decode a large
@@ -1232,7 +1249,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1286,7 +1303,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1341,7 +1358,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1396,7 +1413,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1450,7 +1467,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1504,7 +1521,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1561,7 +1578,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder(maxLineLength);
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1614,7 +1631,7 @@ DEFINE_TEST_CASE(11)
             bdlde::Base64Encoder encoder;
             bdlde::Base64Decoder decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1661,6 +1678,10 @@ DEFINE_TEST_CASE(11)
 
 DEFINE_TEST_CASE(10)
 {
+        (void)veryVerbose;
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Demonstrate that the example compiles, links, and runs.
@@ -1716,6 +1737,9 @@ DEFINE_TEST_CASE(10)
 
 DEFINE_TEST_CASE(9)
 {
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // RESET STATE
         //   Verify the 'resetState' method.
@@ -1781,6 +1805,8 @@ DEFINE_TEST_CASE(9)
 
 DEFINE_TEST_CASE(8)
 {
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS.
         //   Complete the testing of 'convert' and 'endConvert'.
@@ -3697,7 +3723,7 @@ DEFINE_TEST_CASE(7)
                 const int         IN_LEN  = DATA[ti].d_numIn;
                 const char *const OUTPUT  = DATA[ti].d_output_p;
 
-                const int         LENGTH  = strlen(INPUT);
+                const int         LENGTH  = static_cast<int>(strlen(INPUT));
                 const char *const B       = INPUT;
                 const char *const E       = INPUT + LENGTH;
 
@@ -3847,7 +3873,7 @@ DEFINE_TEST_CASE(7)
 
                     if (veryVeryVeryVerbose) {
                         cout << "\t\t\t\t\t" << "Input 1: ";
-                        printCharN(cout, B, M - B) << endl;
+                        printCharN(cout, B, static_cast<int>(M - B)) << endl;
                     }
 
                     localObj.convert(lb, &localNumOut, &localNumIn, B, M);
@@ -3860,7 +3886,7 @@ DEFINE_TEST_CASE(7)
 
                     if (veryVeryVeryVerbose) {
                         cout << "\t\t\t\t\t" << "Input 2: ";
-                        printCharN(cout, M, E - M) << endl;
+                        printCharN(cout, M, static_cast<int>(E - M)) << endl;
                     }
 
                     int res = localObj.convert(lb, &localNumOut, &localNumIn,
@@ -3950,6 +3976,8 @@ LOOP4_ASSERT(LINE, index, totalOut, localTotalOut, totalOut == localTotalOut);
 
 DEFINE_TEST_CASE(6)
 {
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // VERIFY INTERNAL TABLES.
         //   Ensure that each internal table has the appropriate entries.
@@ -4427,6 +4455,8 @@ DEFINE_TEST_CASE(6)
 
 DEFINE_TEST_CASE(5)
 {
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // BOOTSTRAP: 'convert' - transitions
         //   Verify 'convert' transitions for all states.
@@ -4647,7 +4677,7 @@ DEFINE_TEST_CASE(5)
                 const int         RTN        = ERROR_STATE == END
                                                 ? DONE_STATE == START ? -2 : -1
                                                 : 0;
-                const int         LENGTH     = strlen(INPUT);
+                const int         LENGTH     = static_cast<int>(strlen(INPUT));
                 const char *const B          = INPUT;
                 const char *const E          = B + LENGTH;
 
@@ -4677,6 +4707,9 @@ DEFINE_TEST_CASE(5)
 
 DEFINE_TEST_CASE(4)
 {
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // BOOTSTRAP: 'endConvert' - transitions
         //   Verify 'endConvert' transitions for all states.
@@ -4752,6 +4785,8 @@ DEFINE_TEST_CASE(4)
 
 DEFINE_TEST_CASE(3)
 {
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // SET-STATE, IS-STATE, AND BASIC ACCESSORS.
         //   Ensure that we can bring an object to any attainable state.
@@ -5232,6 +5267,10 @@ DEFINE_TEST_CASE(3)
 
 DEFINE_TEST_CASE(2)
 {
+        (void)veryVerbose;
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // PRIMARY CONSTRUCTOR AND CONFIGURATION STATE ACCESSORS
         //   Make sure we can bring the object to any attainable state.
@@ -5287,6 +5326,9 @@ DEFINE_TEST_CASE(2)
 
 DEFINE_TEST_CASE(1)
 {
+        (void)veryVeryVerbose;
+        (void)veryVeryVeryVerbose;
+
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This case is available to be used as a developers' sandbox.
@@ -5593,7 +5635,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
