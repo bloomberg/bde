@@ -199,6 +199,11 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STREAMBUF
 #endif
 
+#ifndef INCLUDED_LIMITS_H
+#include <limits.h>      // for 'INT_MAX', 'INT_MIN'
+#define INCLUDED_LIMITS_H
+#endif
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
