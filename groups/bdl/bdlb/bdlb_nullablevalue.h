@@ -633,7 +633,7 @@ bool operator>(const TYPE&                lhs,
                const NullableValue<TYPE>& rhs);
     // Return 'true' if the specified 'lhs' is ordered after the specified
     // 'rhs' nullable object, and 'false' otherwise.  'lhs' is ordered after
-    // 'rhs' if 'rhs' is null or 'lhs' is ordered after 'rhs.value()'. Note
+    // 'rhs' if 'rhs' is null or 'lhs' is ordered after 'rhs.value()'.  Note
     // that this operator returns 'rhs < lhs'.
 
 
@@ -642,7 +642,7 @@ bool operator<=(const NullableValue<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' nullable object is ordered before
     // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
-    // value, and 'false' otherwise. (See 'operator<' and 'operator=='.)  Note
+    // value, and 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note
     // that this operator returns '!(rhs < lhs)'.  Also note that this function
     // will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
@@ -651,7 +651,7 @@ bool operator<=(const NullableValue<TYPE>& lhs,
                 const TYPE&                rhs);
     // Return 'true' if the specified 'lhs' nullable object is ordered before
     // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
-    // otherwise. (See 'operator<' and 'operator=='.)  Note that this operator
+    // otherwise.  (See 'operator<' and 'operator=='.)  Note that this operator
     // returns '!(rhs < lhs)'.
 
 template <class TYPE>
@@ -659,7 +659,7 @@ bool operator<=(const TYPE&                lhs,
                 const NullableValue<TYPE>& rhs);
     // Return 'true' if the specified 'lhs' is ordered before the specified
     // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
-    // 'false' otherwise. (See 'operator<' and 'operator=='.)  Note that this
+    // 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note that this
     // operator returns '!(rhs < lhs)'.
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -667,7 +667,7 @@ bool operator>=(const NullableValue<LHS_TYPE>& lhs,
                 const NullableValue<RHS_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' nullable object is ordered after
     // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
-    // value, and 'false' otherwise. (See 'operator>' and 'operator=='.)  Note
+    // value, and 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note
     // that this operator returns '!(lhs < rhs)'.  Also note that this function
     // will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
 
@@ -676,7 +676,7 @@ bool operator>=(const NullableValue<TYPE>& lhs,
                 const TYPE&                rhs);
     // Return 'true' if the specified 'lhs' nullable object is ordered after
     // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
-    // otherwise. (See 'operator>' and 'operator=='.)  Note that this operator
+    // otherwise.  (See 'operator>' and 'operator=='.)  Note that this operator
     // returns '!(lhs < rhs)'.
 
 template <class TYPE>
@@ -684,7 +684,7 @@ bool operator>=(const TYPE&                lhs,
                 const NullableValue<TYPE>& rhs);
     // Return 'true' if the specified 'lhs' is ordered after the specified
     // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
-    // 'false' otherwise. (See 'operator>' and 'operator=='.)  Note that this
+    // 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note that this
     // operator returns '!(lhs < rhs)'.
 
 template <class TYPE>
