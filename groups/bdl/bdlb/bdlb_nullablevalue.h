@@ -676,7 +676,7 @@ bool operator>=(const NullableValue<TYPE>& lhs,
                 const TYPE&                rhs);
     // Return 'true' if the specified 'lhs' nullable object is ordered after
     // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
-    // otherwise (see 'operator>' and 'operator==').  Note that this operator
+    // otherwise. (See 'operator>' and 'operator=='.)  Note that this operator
     // returns '!(lhs < rhs)'.
 
 template <class TYPE>
