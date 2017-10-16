@@ -27,6 +27,18 @@ namespace {
 void noOp() { }
     // This function does nothing.
 
+void createMultiQueueThreadPool_Queue(
+                             void                        *arena,
+                             bslma::Allocator            *allocator,
+                             bdlmt::MultiQueueThreadPool *multiQueueThreadPool)
+    // Construct at the specified 'arena' a 'bdlmt::MultiQueueThreadPool_Queue'
+    // initialized with the specified 'multiQueueThreadPool' and using the
+    // specified 'allocator'.
+{
+    new (arena) bdlmt::MultiQueueThreadPool_Queue(multiQueueThreadPool,
+                                                  allocator);
+}
+
 }  // close unnamed namespace
 
 namespace bdlmt {
@@ -37,16 +49,17 @@ namespace bdlmt {
 
 // CREATORS
 MultiQueueThreadPool_Queue::MultiQueueThreadPool_Queue(
-                                              bslma::Allocator *basicAllocator)
-: d_list(basicAllocator)
-, d_threadPool_p(0)
-, d_numActiveQueues_p(0)
+                                    MultiQueueThreadPool *multiQueueThreadPool,
+                                    bslma::Allocator     *basicAllocator)
+: d_multiQueueThreadPool_p(multiQueueThreadPool)
+, d_list(basicAllocator)
 , d_enqueueState(e_ENQUEUING_ENABLED)
 , d_runState(e_NOT_SCHEDULED)
 , d_lock()
 , d_pauseBlock()
 , d_pauseCount(0)
-, d_processingCb(bsl::allocator_arg_t(), bsl::allocator<Job>(basicAllocator))
+, d_processingCb(bdlf::BindUtil::bind(&MultiQueueThreadPool_Queue::popFront,
+                                      this))
 , d_processor(bslmt::ThreadUtil::invalidHandle())
 {
 }
@@ -61,7 +74,6 @@ void MultiQueueThreadPool_Queue::reset()
     d_enqueueState = e_ENQUEUING_ENABLED;
     d_runState     = e_NOT_SCHEDULED;
     d_pauseCount   = 0;
-    d_processingCb = Job();
     d_processor    = bslmt::ThreadUtil::invalidHandle();
 }
 
@@ -123,6 +135,8 @@ int MultiQueueThreadPool_Queue::pause()
 
 void MultiQueueThreadPool_Queue::popFront()
 {
+    ++d_multiQueueThreadPool_p->d_numDequeued;
+
     Job functor;
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
@@ -132,7 +146,7 @@ void MultiQueueThreadPool_Queue::popFront()
         if (e_PAUSING == d_runState) {
             d_runState = e_PAUSED;
 
-            --*d_numActiveQueues_p;
+            --d_multiQueueThreadPool_p->d_numActiveQueues;
 
             if (d_pauseCount) {
                 d_pauseBlock.post(d_pauseCount);
@@ -140,7 +154,8 @@ void MultiQueueThreadPool_Queue::popFront()
             }
 
             if (e_DELETING == d_enqueueState) {
-                int status = d_threadPool_p->enqueueJob(d_list.front());
+                int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_list.front());
 
                 BSLS_ASSERT(0 == status);  (void)status;
             }
@@ -162,14 +177,15 @@ void MultiQueueThreadPool_Queue::popFront()
 
         if (e_SCHEDULED == d_runState) {
             if (!d_list.empty()) {
-                int status = d_threadPool_p->enqueueJob(d_processingCb);
+                int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_processingCb);
 
                 BSLS_ASSERT(0 == status);  (void)status;
             }
             else {
                 d_runState = e_NOT_SCHEDULED;
 
-                --*d_numActiveQueues_p;
+                --d_multiQueueThreadPool_p->d_numActiveQueues;
             }
         }
         else {
@@ -177,7 +193,7 @@ void MultiQueueThreadPool_Queue::popFront()
 
             d_runState = e_PAUSED;
 
-            --*d_numActiveQueues_p;
+            --d_multiQueueThreadPool_p->d_numActiveQueues;
 
             if (d_pauseCount) {
                 d_pauseBlock.post(d_pauseCount);
@@ -187,7 +203,8 @@ void MultiQueueThreadPool_Queue::popFront()
             if (e_DELETING == d_enqueueState) {
                 BSLS_ASSERT(!d_list.empty());
 
-                int status = d_threadPool_p->enqueueJob(d_list.front());
+                int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_list.front());
 
                 BSLS_ASSERT(0 == status);  (void)status;
             }
@@ -202,7 +219,8 @@ void MultiQueueThreadPool_Queue::prepareForDeletion(const Job& functor)
     d_enqueueState = e_DELETING;
 
     if (e_NOT_SCHEDULED == d_runState || e_PAUSED == d_runState) {
-        int status = d_threadPool_p->enqueueJob(functor);
+        int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                           enqueueJob(functor);
 
         BSLS_ASSERT(0 == status);  (void)status;
     }
@@ -223,9 +241,10 @@ int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
         if (e_NOT_SCHEDULED == d_runState) {
             d_runState = e_SCHEDULED;
 
-            ++*d_numActiveQueues_p;
+            ++d_multiQueueThreadPool_p->d_numActiveQueues;
 
-            int status = d_threadPool_p->enqueueJob(d_processingCb);
+            int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_processingCb);
 
             BSLS_ASSERT(0 == status);  (void)status;
         }
@@ -246,9 +265,10 @@ int MultiQueueThreadPool_Queue::pushFront(const Job& functor)
         if (e_NOT_SCHEDULED == d_runState) {
             d_runState = e_SCHEDULED;
 
-            ++*d_numActiveQueues_p;
+            ++d_multiQueueThreadPool_p->d_numActiveQueues;
 
-            int status = d_threadPool_p->enqueueJob(d_processingCb);
+            int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_processingCb);
 
             BSLS_ASSERT(0 == status);  (void)status;
         }
@@ -270,9 +290,10 @@ int MultiQueueThreadPool_Queue::resume()
     if (!d_list.empty()) {
         d_runState = e_SCHEDULED;
 
-        ++*d_numActiveQueues_p;
+        ++d_multiQueueThreadPool_p->d_numActiveQueues;
 
-        int status = d_threadPool_p->enqueueJob(d_processingCb);
+        int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_processingCb);
 
         BSLS_ASSERT(0 == status);  (void)status;
     }
@@ -337,14 +358,6 @@ void MultiQueueThreadPool::deleteQueueCb(
     d_queuePool.releaseObject(queue);
 }
 
-void MultiQueueThreadPool::processQueueCb(MultiQueueThreadPool_Queue *queue)
-{
-    BSLS_ASSERT(queue);
-
-    ++d_numDequeued;
-    queue->popFront();
-}
-
 // CREATORS
 MultiQueueThreadPool::MultiQueueThreadPool(
                               const bslmt::ThreadAttributes&  threadAttributes,
@@ -354,7 +367,12 @@ MultiQueueThreadPool::MultiQueueThreadPool(
                               bslma::Allocator               *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_threadPoolIsOwned(true)
-, d_queuePool(-1, basicAllocator)
+, d_queuePool(bdlf::BindUtil::bind(&createMultiQueueThreadPool_Queue,
+                                   bdlf::PlaceHolders::_1,
+                                   bdlf::PlaceHolders::_2,
+                                   this),
+              -1,
+              basicAllocator)
 , d_queueRegistry(basicAllocator)
 , d_state(e_STATE_STOPPED)
 , d_numActiveQueues(0)
@@ -373,7 +391,12 @@ MultiQueueThreadPool::MultiQueueThreadPool(ThreadPool       *threadPool,
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_threadPool_p(threadPool)
 , d_threadPoolIsOwned(false)
-, d_queuePool(-1, basicAllocator)
+, d_queuePool(bdlf::BindUtil::bind(&createMultiQueueThreadPool_Queue,
+                                   bdlf::PlaceHolders::_1,
+                                   bdlf::PlaceHolders::_2,
+                                   this),
+              -1,
+              basicAllocator)
 , d_queueRegistry(basicAllocator)
 , d_state(e_STATE_STOPPED)
 , d_numActiveQueues(0)
@@ -400,13 +423,6 @@ int MultiQueueThreadPool::createQueue()
     bslmt::LockGuard<bslmt::Mutex> guardQueuePool(&d_queuePoolLock);
 
     MultiQueueThreadPool_Queue *queue = d_queuePool.getObject();
-
-    queue->d_threadPool_p      = d_threadPool_p;
-    queue->d_numActiveQueues_p = &d_numActiveQueues;
-    queue->d_processingCb      = bdlf::BindUtil::bind(
-                                         &MultiQueueThreadPool::processQueueCb,
-                                         this,
-                                         queue);
 
     return d_queueRegistry.add(queue);
 }
@@ -476,9 +492,7 @@ int MultiQueueThreadPool::enableQueue(int id)
 
     MultiQueueThreadPool_Queue *queue;
 
-    if (   e_STATE_RUNNING != d_state
-        ||               0 == d_threadPool_p->enabled()
-        ||               0 != d_queueRegistry.find(id, &queue)) {
+    if (findIfUsable(id, &queue)) {
         return 1;                                                     // RETURN
     }
 
@@ -491,9 +505,7 @@ int MultiQueueThreadPool::disableQueue(int id)
 
     MultiQueueThreadPool_Queue *queue;
 
-    if (   e_STATE_RUNNING != d_state
-        ||               0 == d_threadPool_p->enabled()
-        ||               0 != d_queueRegistry.find(id, &queue)) {
+    if (findIfUsable(id, &queue)) {
         return 1;                                                     // RETURN
     }
 
@@ -582,9 +594,7 @@ int MultiQueueThreadPool::pauseQueue(int id)
 
     MultiQueueThreadPool_Queue *queue;
 
-    if (   e_STATE_RUNNING != d_state
-        ||               0 == d_threadPool_p->enabled()
-        ||               0 != d_queueRegistry.find(id, &queue)) {
+    if (findIfUsable(id, &queue)) {
         return 1;                                                     // RETURN
     }
 
@@ -597,9 +607,7 @@ int MultiQueueThreadPool::resumeQueue(int id)
 
     MultiQueueThreadPool_Queue *queue;
 
-    if (   e_STATE_RUNNING != d_state
-        ||               0 == d_threadPool_p->enabled()
-        ||               0 != d_queueRegistry.find(id, &queue)) {
+    if (findIfUsable(id, &queue)) {
         return 1;                                                     // RETURN
     }
 

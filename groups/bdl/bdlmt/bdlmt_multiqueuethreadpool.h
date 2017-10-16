@@ -370,6 +370,8 @@ namespace BloombergLP {
 namespace bslmt { class Latch; }
 namespace bdlmt {
 
+class MultiQueueThreadPool;
+
                      // ================================
                      // class MultiQueueThreadPool_Queue
                      // ================================
@@ -382,9 +384,6 @@ class MultiQueueThreadPool_Queue {
     typedef bsl::function<void()> Job;
 
   private:
-    // FRIENDS
-    friend class MultiQueueThreadPool;
-
     // PRIVATE TYPES
     enum {
         // enqueue states
@@ -400,15 +399,12 @@ class MultiQueueThreadPool_Queue {
     };
 
     // DATA
+    MultiQueueThreadPool      *d_multiQueueThreadPool_p;
+                                                 // the 'MultiQueueThreadPool'
+                                                 // that owns this object
+
     bsl::deque<Job>            d_list;           // queue of jobs to be
                                                  // executed
-
-    ThreadPool                *d_threadPool_p;   // threadpool used for
-                                                 // executing jobs
-
-    bsls::AtomicInt           *d_numActiveQueues_p;
-                                                 // used to track the number of
-                                                 // active queues
 
     int                        d_enqueueState;   // maintains enqueue state
 
@@ -440,12 +436,14 @@ class MultiQueueThreadPool_Queue {
                                    bslma::UsesBslmaAllocator);
 
     // CREATORS
-    MultiQueueThreadPool_Queue(bslma::Allocator *basicAllocator = 0);
+    MultiQueueThreadPool_Queue(MultiQueueThreadPool *multiQueueThreadPool,
+                               bslma::Allocator     *basicAllocator = 0);
         // Create a 'MultiQueueThreadPool_Queue' with an initial capacity of 0
-        // that uses the specified 'threadPool' to execute jobs that are
-        // appended to this queue.  Optionally specify a 'basicAllocator' used
-        // to supply memory If 'basicAllocator' is 0, the default memory
-        // allocator is used.
+        // and initialized to use the specified 'multiQueueThreadPool' to track
+        // aggregate values (e.g., the number of active queues) and to obtain
+        // the thread pool used to execute jobs that are appended to this
+        // queue.  Optionally specify a 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is 0, the default memory allocator is used.
 
     ~MultiQueueThreadPool_Queue();
         // Destroy this queue.
@@ -489,9 +487,9 @@ class MultiQueueThreadPool_Queue {
 
     void reset();
         // Reset this queue to its initial state.  The behavior is undefined
-        // unless this context's lock is in an unlocked state.  After this
-        // method returns, the object is ready for use as though it were a new
-        // object.  Note that this method is not thread-safe.
+        // unless this queue's lock is in an unlocked state.  After this method
+        // returns, the object is ready for use as though it were a new object.
+        // Note that this method is not thread-safe.
 
     int resume();
         // Allow jobs on the queue to begin executing.  Return 0 on success,
@@ -519,6 +517,9 @@ class MultiQueueThreadPool_Queue {
 class MultiQueueThreadPool {
     // This class implements a dynamic, configurable pool of queues, each of
     // which is processed serially by a thread pool.
+
+    // FRIENDS
+    friend class MultiQueueThreadPool_Queue;
 
     // PRIVATE TYPES
     typedef bdlcc::ObjectCatalogIter<bdlmt::MultiQueueThreadPool_Queue*>
@@ -568,12 +569,12 @@ class MultiQueueThreadPool {
           MultiQueueThreadPool_Queue,
           bdlcc::ObjectPoolFunctors::DefaultCreator,
           bdlcc::ObjectPoolFunctors::Reset<MultiQueueThreadPool_Queue>
-    >                 d_queuePool;          // pool of queue contexts
+    >                 d_queuePool;          // pool of queues
 
     bslmt::Mutex      d_queuePoolLock;      // lock for 'd_queuePool'
 
     bdlcc::ObjectCatalog<MultiQueueThreadPool_Queue *>
-                      d_queueRegistry;      // registry of queue contexts
+                      d_queueRegistry;      // registry of queues
 
     int               d_state;              // maintains internal state
 
@@ -604,9 +605,15 @@ class MultiQueueThreadPool {
         // Otherwise, execute the specified 'cleanupFunctor' if it is valid.
         // Then, delete the specified 'queue'.
 
-    void processQueueCb(MultiQueueThreadPool_Queue *queue);
-        // If the specified 'queue' is not empty, dequeue the next job, and
-        // process it.
+    // PRIVATE ACCESSORS
+    int findIfUsable(int id, MultiQueueThreadPool_Queue **queue) const;
+       // Load into the specified '*queue' a pointer to the queue referenced by
+       // the specified 'id' if this 'MultiQueueThreadPool' is in a state where
+       // the 'queue' can be used.  Return 0 on success, and a non-zero value
+       // if the 'id' is not contained in 'd_queueRegistry', this
+       // 'MultiQueueThreadPool' is not in the running state, or
+       // '0 == d_threadPool_p->enabled()'.  The behavior is undefined unless
+       // the invoking thread has a lock, read or write, on 'd_lock'.
 
   public:
     // TRAITS
@@ -802,6 +809,20 @@ class MultiQueueThreadPool {
                         // --------------------------
                         // class MultiQueueThreadPool
                         // --------------------------
+// PRIVATE ACCESSORS
+inline
+int MultiQueueThreadPool::findIfUsable(
+                                      int                          id,
+                                      MultiQueueThreadPool_Queue **queue) const
+{
+    if (   e_STATE_RUNNING != d_state
+        ||               0 == d_threadPool_p->enabled()
+        ||               0 != d_queueRegistry.find(id, queue)) {
+        return 1;                                                     // RETURN
+    }
+
+    return 0;
+}
 
 // MANIPULATORS
 inline
@@ -811,9 +832,7 @@ int MultiQueueThreadPool::addJobAtFront(int id, const Job& functor)
 
     MultiQueueThreadPool_Queue *queue;
 
-    if (   e_STATE_RUNNING != d_state
-        ||               0 == d_threadPool_p->enabled()
-        ||               0 != d_queueRegistry.find(id, &queue)) {
+    if (findIfUsable(id, &queue)) {
         return 1;                                                     // RETURN
     }
 
@@ -832,9 +851,7 @@ int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 
     MultiQueueThreadPool_Queue *queue;
 
-    if (   e_STATE_RUNNING != d_state
-        ||               0 == d_threadPool_p->enabled()
-        ||               0 != d_queueRegistry.find(id, &queue)) {
+    if (findIfUsable(id, &queue)) {
         return 1;                                                     // RETURN
     }
 
