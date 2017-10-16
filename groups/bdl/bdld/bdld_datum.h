@@ -1168,7 +1168,7 @@ class Datum {
 
         e_INTERNAL_DECIMAL64         = 23,  // Decimal64
 
-        e_INTERNAL_INT_MAP           = 24,  // map of datums keyed by 32-bit
+        e_INTERNAL_INT_MAP           = 24   // map of datums keyed by 32-bit
                                             // integer values
     };
 
