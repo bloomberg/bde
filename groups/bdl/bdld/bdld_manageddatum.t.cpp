@@ -1095,7 +1095,7 @@ int main(int argc, char *argv[])
             bdlt::Date udt;
             bdlt::Date udt1;
 
-            struct {
+            static struct {
                 int         d_line;
                 bdld::Datum d_datum;
             } DATA[] = {
