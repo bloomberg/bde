@@ -65,22 +65,27 @@ enum {
 
 #define EXCEPTION_TEST_END  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-#if 0   // bslalg::SwapUtil is our componentized ADL swap-invoker.
-// ============================================================================
-//                          ADL SWAP TEST HELPER
-// ----------------------------------------------------------------------------
+#if defined(BSLS_PLATFORM_CMP_SUN)
+// This test driver instantiates too many templates and runs out of memory.
+// Until we can split the test driver into two (or more), reduce the set of
+// types in the standard 'BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED'
+// macro.
 
-template <class TYPE>
-void invokeAdlSwap(TYPE& a, TYPE& b)
-    // Exchange the values of the specified 'a' and 'b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
-    // is undefined unless 'a' and 'b' were created with the same allocator.
-{
-    BSLS_ASSERT_OPT(a.get_allocator() == b.get_allocator());
+#undef BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED
+#define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED                    \
+    bsltf::EnumeratedTestType::Enum,                                          \
+    bsltf::UnionTestType,                                                     \
+    bsltf::AllocTestType,                                                     \
+    bsltf::BitwiseCopyableTestType,                                           \
+    bsltf::BitwiseMoveableTestType,                                           \
+    bsltf::AllocBitwiseMoveableTestType,                                      \
+    bsltf::MovableAllocTestType,                                              \
+    bsltf::NonTypicalOverloadsTestType
+    // For the short term, the following types have been removed from this list
+    // while testing with the Solaris CC compiler:
+    //  bsltf::SimpleTestType,                                                 
+    //  bsltf::MovableTestType,
 
-    using namespace bsl;
-    swap(a, b);
-}
 #endif
 
 using namespace BloombergLP;

@@ -63,7 +63,6 @@ enum { PLAT_EXC = 0 };
 #define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED                    \
     bsltf::EnumeratedTestType::Enum,                                          \
     bsltf::UnionTestType,                                                     \
-    bsltf::SimpleTestType,                                                    \
     bsltf::AllocTestType,                                                     \
     bsltf::BitwiseCopyableTestType,                                           \
     bsltf::BitwiseMoveableTestType,                                           \
@@ -72,29 +71,8 @@ enum { PLAT_EXC = 0 };
     bsltf::NonTypicalOverloadsTestType
     // For the short term, the following types have been removed from this list
     // while testing with the Solaris CC compiler:
+    //  bsltf::SimpleTestType,                                                 
     //  bsltf::MovableTestType,
-
-#endif
-
-#if 0   // bslalg::SwapUtil is our componentized ADL swap-invoker.
-// ============================================================================
-//                          ADL SWAP TEST HELPER
-// ----------------------------------------------------------------------------
-
-template <class TYPE>
-void invokeAdlSwap(TYPE& a, TYPE& b)
-    // Exchange the values of the specified 'a' and 'b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
-    // is undefined unless 'a' and 'b' were created with the same allocator.
-{
-    BSLS_ASSERT_OPT(a.get_allocator() == b.get_allocator());
-
-    using namespace bsl;
-    swap(a, b);
-}
-
-// The following 'using' directives must come *after* the definition of
-// 'invokeAdlSwap' (above).
 #endif
 
 using namespace BloombergLP;
