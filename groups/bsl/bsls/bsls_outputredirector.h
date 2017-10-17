@@ -14,11 +14,18 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //
-//@DESCRIPTION: This component provides ...
+//@DESCRIPTION: This component provides a mechanism, 'bsls::OutputRedirector',
+// to redirect output sent to either of the standard out or error streams and
+// capture that output so that it can be read back and parsed, such as to allow
+// a test driver to verify the expected output of a streaming operation.
+//
+// THIS COMPONENT IS IN A PREVIEW STATE AND SHOULD NOT BE USED OUTSIDE OF BDE
+// TEST DRIVERS
 //
 ///Usage
 ///-----
-// This section illustrates the intended use of this component.
+// This section illustrates the intended use of this component, or at least, it
+// will once the usage example is written.
 
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -41,7 +48,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_SYS_STAT_H
-#include <sys/stat.h>  // struct stat: required on Sun and Windows only
+#include <sys/stat.h>  // 'struct stat': required on Sun and Windows only
 #define INCLUDED_SYS_STAT_H
 #endif
 
@@ -60,8 +67,8 @@ class OutputRedirector {
     // temporary files, retrieving output from the respective temporary file
     // and comparing the output to user-supplied character buffers.  An
     // 'OutputRedirector' object can be in an un-redirected state or a
-    // redirected state.  If it is a redirected state, it will redirect either
-    // 'stdout' or 'stderr', but not both simultaneously.  An
+    // redirected state.  If the redirector is in a redirected state, it will
+    // redirect either 'stdout' or 'stderr', but not both simultaneously.  An
     // 'OutputRedirector' object has the concept of a scratch buffer, where
     // output captured from the process' 'stdout' or 'stderr' stream is stored
     // when the 'OutputRedirector' object is in the redirected state.

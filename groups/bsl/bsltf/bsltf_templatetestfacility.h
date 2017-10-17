@@ -941,7 +941,7 @@ void debugprint(const UnionTestType& obj);
         // TBD: move-only types should be in a separate movable macro, as many
         //      existing test rely on copying.
         //  bsltf::MoveOnlyAllocTestType
-        // TBD: cannot add following as they supports only 14 valid values, and
+        // TBD: cannot add following as they support only 14 valid values, and
         //      'create'/'getIdentifier' require support for (at least) 128
         //      distinct values.  'bool' has the same issue, as do empty types.
         //  bsltf::AllocEmplacableTestType
@@ -2403,7 +2403,7 @@ void debugprint(const EmplacableTestType& obj)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

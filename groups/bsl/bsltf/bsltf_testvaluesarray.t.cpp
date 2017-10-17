@@ -442,7 +442,17 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase16()
                 // result (as happens for 'const char *').
 
                 char *result = 0;
-                long parsedValue = strtol(printedText, &result, 0);
+
+                // Note that pointer values are usually printed as hex, but IBM
+                // fails to precede the hex-string with '0x', forcing use of
+                // the explicit hexadecimal radix.  Note that 'const char *'
+                // values are actually string representations, holding the
+                // decimal string representation of the corresponding ID.
+
+                const int radix = bsl::is_pointer<VALUE>::value &&
+                                 !bsl::is_same<const char *, VALUE>::value
+                                ? 16  : 0;
+                const long parsedValue = strtol(printedText, &result, radix);
                 if (result == printedText) {
                     if (bsl::is_pointer<VALUE>::value) {
                         ASSERTV(
@@ -458,7 +468,10 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase16()
                     }
                 }
                 else {
-                    ASSERTV(126 - i, parsedValue, printedText,
+                    ASSERTV(NameOf<VALUE>().name(),
+                            126 - i,
+                            parsedValue,
+                            printedText,
                             long(126 - i) == parsedValue);
                 }
             }

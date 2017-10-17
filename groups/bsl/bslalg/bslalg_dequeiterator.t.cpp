@@ -3,6 +3,8 @@
 #include <bslalg_dequeiterator.h>
 #include <bslalg_scalarprimitives.h>
 
+#include <bslma_destructionutil.h>
+
 #include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>

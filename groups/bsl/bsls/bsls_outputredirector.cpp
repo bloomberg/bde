@@ -5,6 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
+#include <bsls_bsltestutil.h>   // for testing only
 
 #include <stdlib.h>
 #include <string.h>
@@ -60,7 +61,7 @@ bool OutputRedirector::generateTempFileName()
     if (fn) {
         strncpy(d_fileName, fn, k_PATH_BUFFER_SIZE);
         free(fn);
-        if(d_fileName[k_PATH_BUFFER_SIZE - 1] != '\0') {
+        if (d_fileName[k_PATH_BUFFER_SIZE - 1] != '\0') {
             // Uh-oh! 'strncpy' didn't pad with zeroes.  Just fail here.
             return false;                                             // RETURN
         }
@@ -102,14 +103,13 @@ OutputRedirector::~OutputRedirector()
 // MANIPULATORS
 void OutputRedirector::disable()
 {
-    if(!d_isRedirectingFlag) {
+    if (!d_isRedirectingFlag) {
         return;                                                       // RETURN
     }
 
     d_isRedirectingFlag = false;
 
     fflush(redirectedStream());
-    //fclose(redirectedStream());
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     const int status = _dup2(d_duplicatedOriginalFd,
@@ -119,7 +119,7 @@ void OutputRedirector::disable()
                             fileno(redirectedStream()));
 #endif
 
-    if(status < 0) {
+    if (status < 0) {
         if (d_veryVerbose) {
             fprintf(nonRedirectedStream(),
                     "Error " __FILE__ "(%d): Bad 'dup2' status.\n",
@@ -132,7 +132,7 @@ void OutputRedirector::disable()
 
 void OutputRedirector::enable()
 {
-    if(d_isRedirectingFlag) {
+    if (d_isRedirectingFlag) {
         if (d_veryVerbose) {
             fprintf(nonRedirectedStream(),
                     "Warning " __FILE__ "(%d): Output already redirected\n",
@@ -150,7 +150,7 @@ void OutputRedirector::enable()
     BSLS_ASSERT(-1 != originalFD);
     BSLS_ASSERT(0 == fstat(originalFD, &d_originalStat));
 
-    if(d_duplicatedOriginalFd == -1) {
+    if (d_duplicatedOriginalFd == -1) {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         d_duplicatedOriginalFd = _dup(originalFD);
 #else
@@ -158,7 +158,7 @@ void OutputRedirector::enable()
 #endif
     }
 
-    if(d_duplicatedOriginalFd < 0) {
+    if (d_duplicatedOriginalFd < 0) {
         if (d_veryVerbose) {
                 fprintf(nonRedirectedStream(),
                         "Error " __FILE__ "(%d): Bad 'dup' value.\n",
@@ -168,7 +168,7 @@ void OutputRedirector::enable()
         abort();
     }
 
-    if(!d_isFileCreatedFlag) {
+    if (!d_isFileCreatedFlag) {
         if (!generateTempFileName()) {
 
             // Get temp file name
@@ -231,7 +231,7 @@ bool OutputRedirector::load()
 {
     BSLS_ASSERT(d_isRedirectingFlag);
 
-    if(ferror(redirectedStream()) != 0) {
+    if (ferror(redirectedStream()) != 0) {
         if (d_veryVerbose) {
             fprintf(nonRedirectedStream(),
                     "Error " __FILE__ "(%d): Stream has an error\n",
@@ -243,7 +243,7 @@ bool OutputRedirector::load()
     const long tempOutputSize = ftell(redirectedStream());
     const long incremented    = tempOutputSize + 1;
 
-    if(tempOutputSize < 0 || incremented < 0) {
+    if (tempOutputSize < 0 || incremented < 0) {
         // Protect against overflow or negative value
         if (d_veryVerbose) {
             fprintf(nonRedirectedStream(),
@@ -254,7 +254,7 @@ bool OutputRedirector::load()
     }
 
     // Conversion to 'unsigned long' is safe because 'incremented' > 0
-    if(static_cast<unsigned long>(incremented) > SIZE_MAX) {
+    if (static_cast<unsigned long>(incremented) > SIZE_MAX) {
         // Our 'incremented' will not fit in a size_t, so it is too big for our
         // buffer.
         if (d_veryVerbose) {
@@ -308,9 +308,9 @@ bool OutputRedirector::load()
                     __LINE__);
         }
 
-        if(charsRead < 0) {
+        if (charsRead < 0) {
             d_outputBuffer[0] = '\0';
-        } else if(static_cast<unsigned long>(charsRead) >= d_outputSize) {
+        } else if (static_cast<unsigned long>(charsRead) >= d_outputSize) {
             // This case should never happen.  This assignment is safe because
             // the total buffer size is enough to hold 'd_outputSize' + 1.
             d_outputBuffer[d_outputSize] = '\0';
@@ -387,7 +387,7 @@ bool OutputRedirector::isRedirecting() const
 FILE *OutputRedirector::nonRedirectedStream() const
 {
     // This should return the opposite values
-    if(d_stream == e_STDOUT_STREAM) {
+    if (d_stream == e_STDOUT_STREAM) {
         return stderr;                                                // RETURN
     } else {
         return stdout;                                                // RETURN
@@ -406,7 +406,7 @@ size_t OutputRedirector::outputSize() const
 
 FILE *OutputRedirector::redirectedStream() const
 {
-    if(d_stream == e_STDOUT_STREAM) {
+    if (d_stream == e_STDOUT_STREAM) {
         return stdout;                                                // RETURN
     } else {
         return stderr;                                                // RETURN

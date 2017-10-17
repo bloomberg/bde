@@ -6,6 +6,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+using namespace BloombergLP;
 
 // ============================================================================
 //                             TEST PLAN
@@ -20,6 +23,30 @@
 //: o By default, the 'platformDefaultMessageHandler' is used.
 //: o Exceptions thrown in a log message handler are propagated.
 //: o Precondition violations are detected in appropriate build modes.
+//
+//-----------------------------------------------------------------------------
+// CREATORS
+// [  ] OutputRedirector(Stream which, bool verbose, bool veryVerbose);
+// [  ] ~OutputRedirector();
+// MANIPULATORS
+// [  ] void clear();
+// [  ] void disable();
+// [  ] void enable();
+// [  ] bool load();
+// ACCESSORS
+// [  ] int compare(const char *expected, size_t expectedLength) const;
+// [  ] int compare(const char *expected) const;
+// [  ] const char *getOutput() const;
+// [  ] bool isOutputReady() const;
+// [  ] bool isRedirecting() const;
+// [  ] FILE *nonRedirectedStream() const;
+// [  ] const struct stat& originalStat() const;
+// [  ] size_t outputSize() const;
+// [  ] FILE *redirectedStream() const;
+// [  ] OutputRedirector::Stream redirectedStreamId() const;
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [  ] USAGE EXAMPLE
 
 
 // ============================================================================
@@ -103,6 +130,43 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        bsls::OutputRedirector redirector(
+                                       bsls::OutputRedirector::e_STDOUT_STREAM,
+                                       verbose,
+                                       veryVerbose);
+
+        if (verbose) printf("Verify by manual inspection: no redirect yet.\n");
+
+        redirector.enable();
+
+        printf("Hello world!");  // note, no '\n'
+
+        // Ensure the redirector is 'disable'd after the call to 'load' so that
+        // 'ASSERT' macros display any errors correctly.
+
+        if (!redirector.load()) {
+            redirector.disable();
+            ASSERT(!"Could not load redirected output into buffer.");
+        }
+        else {
+            redirector.disable();
+
+            if (!redirector.isOutputReady()) {
+                ASSERT(!"Redirected output buffer is empty.");
+                break;
+            }
+
+            if (redirector.outputSize() < 12 ) {
+                ASSERT(!"Redirected output buffer is shorted than expected.");
+                break;
+            }
+
+            const char *printedText = redirector.getOutput();
+            ASSERT(0 == strncmp("Hello world!", printedText, 12));
+        }
+
+        if (verbose) printf(
+                      "Text for manual inspection after redirect disabled.\n");
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

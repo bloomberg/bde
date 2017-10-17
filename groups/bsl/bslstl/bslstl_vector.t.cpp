@@ -5357,7 +5357,7 @@ int main(int argc, char *argv[])
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
                       );
 
-        // Spit additional cover into a separate macro invocation, to avoid
+        // Split additional cover into a separate macro invocation, to avoid
         // breaking the limit of 20 arguments to this macro.
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase8,
