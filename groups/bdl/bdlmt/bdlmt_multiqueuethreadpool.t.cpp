@@ -106,7 +106,9 @@ using namespace BloombergLP;
 // [20] DRQS 99979290
 // [21] DRQS 104502699
 // [22] PAUSE/DELETE INTERACTION
-// [23] USAGE EXAMPLE 1
+// [23] DRQS 107865762: more than one task per queue to thread pool
+// [24] DRQS 107733386: pause queue can be indefinitely deferred
+// [25] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -1401,60 +1403,122 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == ta.numBytesInUse());
       }  break;
       case 24: {
-          Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
-          mX.start();
+        // --------------------------------------------------------------------
+        // DRQS 107733386: pause queue can be indefinitely deferred
+        //
+        // Concerns:
+        //: 1 A call to 'pauseQueue' can not be deferred indefinitely by
+        //:   submitting more jobs at the front of the queue.  This DRQS
+        //:   revealed a scenario where an arbitrary number of tasks for a
+        //:   given queue may be submitted, after a call to 'pauseQueue', that
+        //:   prevent the pause from taking effect.
+        //
+        // Plan:
+        //: 1 Recreate the scenario and verify the pause takes effect.
+        //:   Specifically, a job will be submitted that will recursively
+        //:   submit itself at the front of the queue before exiting; the job
+        //:   will daisy-chain itself.  While this is occurring, the queue will
+        //:   be paused in another thread.  The number of times the recursive
+        //:   submission succeeds will be verified as small, proving the
+        //:   'pauseQueue' can not be indefinitely deferred.
+        //
+        // Testing:
+        //   DRQS 107733386: pause queue can be indefinitely deferred
+        // --------------------------------------------------------------------
 
-          bslmt::Latch waitLatch(1);
+        if (verbose) {
+            cout << "DRQS 107733386: pause queue can be indefinitely deferred"
+                 << endl
+                 << "========================================================"
+                 << endl;
+        }
 
-          int queueId = mX.createQueue();
+        Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
-          mX.enqueueJob(queueId,
-                        bdlf::BindUtil::bind(&startDaisyChain,
-                                             &mX,
-                                             queueId,
-                                             &waitLatch));
+        mX.start();
 
-          waitLatch.wait();
-          mX.pauseQueue(queueId);
+        bslmt::Latch waitLatch(1);
 
-          mX.stop();
+        int queueId = mX.createQueue();
 
-          // While no tasks should be scheduled before the 'pauseQueue'
-          // completes, verify only a few tasks were schedulable before the
-          // 'pauseQueue' completed.  Failure of this assert implies the
-          // 'pauseQueue' can be indefinitely delayed.
+        mX.enqueueJob(queueId,
+                      bdlf::BindUtil::bind(&startDaisyChain,
+                                           &mX,
+                                           queueId,
+                                           &waitLatch));
 
-          ASSERT(100 > s_daisyChainCount);
+        waitLatch.wait();
+        mX.pauseQueue(queueId);
+
+        mX.stop();
+
+        // While no tasks should be scheduled before the 'pauseQueue'
+        // completes, verify only a few tasks were schedulable before the
+        // 'pauseQueue' completed.  Failure of this assert implies the
+        // 'pauseQueue' can be indefinitely delayed.
+
+        ASSERT(100 > s_daisyChainCount);
       }  break;
       case 23: {
-          Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
+        // --------------------------------------------------------------------
+        // DRQS 107865762: more than one task per queue to thread pool
+        //
+        // Concerns:
+        //: 1 A 'MultiQueueThreadPool' may allow at most one task to be
+        //:   submitted to the thread poll for a given queue.  This DRQS
+        //:   revealed a scenario where an arbitrary number of tasks for a
+        //:   given queue may be submitted to the thread pool.
+        //
+        // Plan:
+        //: 1 Recreate the scenario and verify only one task may be submitted
+        //:   to the threadpool for a queue.  Specifically, the queue will be
+        //:   paused from the thread currently executing a callback.  This
+        //:   thread will not be allowed to return from the callback until the
+        //:   queue is resumed from another thread.  By using 'UniqueGuard',
+        //:   we verify than only one task is every submitted to the thread
+        //:   pool.
+        //
+        // Testing:
+        //   DRQS 107865762: more than one task per queue to thread pool
+        // --------------------------------------------------------------------
 
-          mX.start();
+        if (verbose) {
+            cout <<
+                  "DRQS 107865762: more than one task per queue to thread pool"
+                 << endl
+                 <<
+                  "==========================================================="
+                 << endl;
+        }
 
-          bslmt::Latch pauseLatch(1);
-          bslmt::Latch doneLatch(1);
+        Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
-          int queueId = mX.createQueue();
+        mX.start();
 
-          mX.enqueueJob(queueId,
-                        bdlf::BindUtil::bind(&pauseQueueWithUniqueGuard,
-                                             &mX,
-                                             queueId,
-                                             &pauseLatch,
-                                             &doneLatch));
+        bslmt::Latch pauseLatch(1);
+        bslmt::Latch doneLatch(1);
 
-          pauseLatch.wait();
+        int queueId = mX.createQueue();
 
-          mX.enqueueJob(queueId, bdlf::BindUtil::bind(&noopWithUniqueGuard));
+        mX.enqueueJob(queueId,
+                      bdlf::BindUtil::bind(&pauseQueueWithUniqueGuard,
+                                           &mX,
+                                           queueId,
+                                           &pauseLatch,
+                                           &doneLatch));
 
-          mX.resumeQueue(queueId);
+        pauseLatch.wait();
 
-          bslmt::ThreadUtil::microSleep(100000);
+        mX.enqueueJob(queueId, bdlf::BindUtil::bind(&noopWithUniqueGuard));
 
-          doneLatch.arrive();
+        mX.resumeQueue(queueId);
 
-          mX.stop();
+        bslmt::ThreadUtil::microSleep(100000);
+
+        doneLatch.arrive();
+
+        mX.stop();
       }  break;
       case 22: {
         // --------------------------------------------------------------------
