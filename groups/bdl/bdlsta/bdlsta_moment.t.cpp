@@ -1,5 +1,5 @@
-// bdlstat_moment.t.cpp                                               -*-C++-*-
-#include <bdlstat_moment.h>
+// bdlsta_moment.t.cpp                                                -*-C++-*-
+#include <bdlsta_moment.h>
 
 #include <bdlb_float.h>
 
@@ -110,10 +110,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                      GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlstat::Moment<bdlstat::MomentLevel::e_M1> ObjM;
-typedef bdlstat::Moment<bdlstat::MomentLevel::e_M2> ObjV;
-typedef bdlstat::Moment<bdlstat::MomentLevel::e_M3> ObjS;
-typedef bdlstat::Moment<bdlstat::MomentLevel::e_M4> ObjK;
+typedef bdlsta::Moment<bdlsta::MomentLevel::e_M1> ObjM;
+typedef bdlsta::Moment<bdlsta::MomentLevel::e_M2> ObjV;
+typedef bdlsta::Moment<bdlsta::MomentLevel::e_M3> ObjS;
+typedef bdlsta::Moment<bdlsta::MomentLevel::e_M4> ObjK;
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 //..
     double input[] = { 1.0, 2.0, 4.0, 5.0 };
 
-    bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
+    bdlsta::Moment<bdlsta::MomentLevel::e_M3> m3;
 //..
 // Then, we invoke the 'add' routine to accumulate the data:
 //..
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
                                          bsls::AssertTest::failTestDriver);
 
         {
-            bdlstat::Moment<bdlstat::MomentLevel::e_M1> m1;
+            bdlsta::Moment<bdlsta::MomentLevel::e_M1> m1;
             ASSERT(0 == m1.count());
             double result;
             ASSERT(-1 == m1.meanIfValid(&result));
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlstat::Moment<bdlstat::MomentLevel::e_M2> m2;
+            bdlsta::Moment<bdlsta::MomentLevel::e_M2> m2;
             m2.add(1.0);
             ASSERT(1 == m2.count());
             double result;
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
+            bdlsta::Moment<bdlsta::MomentLevel::e_M3> m3;
             m3.add(1.0);
             m3.add(2.0);
             ASSERT(2 == m3.count());
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlstat::Moment<bdlstat::MomentLevel::e_M4> m4;
+            bdlsta::Moment<bdlsta::MomentLevel::e_M4> m4;
             m4.add(1.0);
             m4.add(2.0);
             m4.add(4.0);
@@ -261,23 +261,23 @@ int main(int argc, char *argv[])
         //   added here as well.
         //
         // Concerns:
-        //: 1 All accessors return the expected values after 'bdlstat::Moment'
+        //: 1 All accessors return the expected values after 'bdlsta::Moment'
         //:   loaded with a series of values.
         //:
         //: 2 Different specializations produce the same set of values.
         //
         // Plan:
         //: 1 Using the table method, create
-        //    'bdlstat::Moment<MomentLevel::e_M4>', use
-        //:   'bdlstat::Moment<MomentLevel::e_M4>::add' to load data, and check
+        //    'bdlsta::Moment<MomentLevel::e_M4>', use
+        //:   'bdlsta::Moment<MomentLevel::e_M4>::add' to load data, and check
         //:   the values of mean, variance, skew, and kurtosis.  (C-1)
         //:
         //: 2 Verify that we get the same values from the 'raw' methods.  (C-1)
         //:
         //: 3 Load the same set of data into
-        //:   'bdlstat::Moment<MomentLevel::e_M3>',
-        //:   'bdlstat::Moment<MomentLevel::e_M2>',
-        //:   'bdlstat::Moment<MomentLevel::e_M1>', and verify that we get the
+        //:   'bdlsta::Moment<MomentLevel::e_M3>',
+        //:   'bdlsta::Moment<MomentLevel::e_M2>',
+        //:   'bdlsta::Moment<MomentLevel::e_M1>', and verify that we get the
         //:   same values.  (C-2)
         //
         // Testing:
@@ -674,7 +674,7 @@ int main(int argc, char *argv[])
 
         double input[] = { 1.0, 2.0, 4.0, 5.0 };
 
-        bdlstat::Moment<bdlstat::MomentLevel::e_M1> m1;
+        bdlsta::Moment<bdlsta::MomentLevel::e_M1> m1;
         for(int i = 0; i < 4; ++i) {
             m1.add(input[i]);
             if (veryVerbose) {
@@ -686,7 +686,7 @@ int main(int argc, char *argv[])
         // The below does not compile, as it should
         //ASSERT(fabs(3.33333 - m2.variance()) < 1e-5);
 
-        bdlstat::Moment<bdlstat::MomentLevel::e_M2> m2;
+        bdlsta::Moment<bdlsta::MomentLevel::e_M2> m2;
         for(int i = 0; i < 4; ++i) {
             m2.add(input[i]);
             if (veryVerbose) {
@@ -697,7 +697,7 @@ int main(int argc, char *argv[])
         ASSERT(3.0         == m2.mean());
         ASSERT(fabs(3.33333 - m2.variance()) < 1e-5);
 
-        bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
+        bdlsta::Moment<bdlsta::MomentLevel::e_M3> m3;
         for(int i = 0; i < 4; ++i) {
             m3.add(input[i]);
             if (veryVerbose) {
@@ -712,7 +712,7 @@ int main(int argc, char *argv[])
         // 'e_M3':
         //ASSERT(fabs(644.185 - m3.kurtosis()) < 1e-3);
 
-        bdlstat::Moment<bdlstat::MomentLevel::e_M4> m4;
+        bdlsta::Moment<bdlsta::MomentLevel::e_M4> m4;
         for(int i = 0; i < 4; ++i) {
             m4.add(input[i]);
             if (veryVerbose) {

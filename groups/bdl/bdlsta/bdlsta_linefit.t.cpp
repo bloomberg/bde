@@ -1,5 +1,5 @@
-// bdlstat_linefit.t.cpp                                              -*-C++-*-
-#include <bdlstat_linefit.h>
+// bdlsta_linefit.t.cpp                                               -*-C++-*-
+#include <bdlsta_linefit.h>
 
 #include <bdlb_float.h>
 
@@ -112,7 +112,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlstat::LineFit Obj;
+typedef bdlsta::LineFit Obj;
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -159,9 +159,9 @@ int main(int argc, char *argv[])
 //
 // First, we create example input and instantiate the appropriate mechanism:
 //..
-  double           inputX[] = { 1.0, 2.0, 4.0, 5.0 };
-  double           inputY[] = { 1.0, 2.0, 4.0, 4.5 };
-  bdlstat::LineFit lineFit;
+  double          inputX[] = { 1.0, 2.0, 4.0, 5.0 };
+  double          inputY[] = { 1.0, 2.0, 4.0, 4.5 };
+  bdlsta::LineFit lineFit;
 //..
 // Then, we invoke the 'add' routine to accumulate the data:
 //..
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
                                          bsls::AssertTest::failTestDriver);
 
         {
-            bdlstat::LineFit lf;
+            bdlsta::LineFit lf;
             ASSERT(0 == lf.count());
             double result;
             ASSERT(-1 == lf.xMeanIfValid(&result));
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bdlstat::LineFit lf;
+            bdlsta::LineFit lf;
             lf.add(1.0, 2.0);
             ASSERT(1 == lf.count());
             double result;
@@ -251,12 +251,12 @@ int main(int argc, char *argv[])
         //   expected.
         //
         // Concerns:
-        //: 1 All accessors return the expected values after 'bdlstat::LineFit'
+        //: 1 All accessors return the expected values after 'bdlsta::LineFit'
         //:   loaded with a series of values.
         //
         // Plan:
-        //: 1 Using the table method, create 'bdlstat::LineFit', use
-        //:   'bdlstat::LineFit::add' to load data, and check the values of
+        //: 1 Using the table method, create 'bdlsta::LineFit', use
+        //:   'bdlsta::LineFit::add' to load data, and check the values of
         //:   fitIfValid, xMeanIfValid, yMeanIfValid, and varianceIfValid.
         //:   (C-1)
         //
@@ -437,12 +437,12 @@ int main(int argc, char *argv[])
         //   accessors are working as expected also.
         //
         // Concerns:
-        //: 1 All accessors return the expected values after 'bdlstat::LineFit'
+        //: 1 All accessors return the expected values after 'bdlsta::LineFit'
         //:   loaded with a series of values.
         //:
         // Plan:
-        //: 1 Using the table method, create 'bdlstat::LineFit', use
-        //:   'bdlstat::LineFit::add' to load data, and check the values of
+        //: 1 Using the table method, create 'bdlsta::LineFit', use
+        //:   'bdlsta::LineFit::add' to load data, and check the values of
         //:   xMean, yMean, and variance.  (C-1)
         //
         // Testing:
@@ -622,9 +622,9 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        double           inputX[] = { 1.0, 2.0, 4.0, 5.0 };
-        double           inputY[] = { 1.0, 2.0, 4.0, 4.5 };
-        bdlstat::LineFit lineFit;
+        double          inputX[] = { 1.0, 2.0, 4.0, 5.0 };
+        double          inputY[] = { 1.0, 2.0, 4.0, 4.5 };
+        bdlsta::LineFit lineFit;
 
         for(int i = 0; i < 4; ++i) {
             lineFit.add(inputX[i], inputY[i]);

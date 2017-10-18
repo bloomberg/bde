@@ -1,11 +1,11 @@
-// bdlstat_linefit.cpp                                                -*-C++-*-
-#include <bdlstat_linefit.h>
+// bdlsta_linefit.cpp                                                 -*-C++-*-
+#include <bdlsta_linefit.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
-namespace bdlstat {
+namespace bdlsta {
 // BDE_VERIFY pragma: -LL01 // Link is just too long
 //@IMPLEMENTATION NOTES:
 //
