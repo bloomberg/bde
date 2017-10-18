@@ -599,7 +599,7 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     pos_type outputPos = currentOutputPosition - dataPtr;
     this->setp(dataPtr, dataPtr + dataSize);
     pos_type bumpAmount = outputPos;
-    while (bumpAmount >= INT_MAX) {
+    while (bumpAmount > INT_MAX) {
         this->pbump(INT_MAX);
         bumpAmount -= INT_MAX;
     }
@@ -625,11 +625,11 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
         native_std::size_t dataSize = d_str.size();
         this->setp(dataPtr, dataPtr + dataSize);
         off_type bumpAmount = outputOffset;
-        while (bumpAmount <= INT_MIN) {
+        while (bumpAmount < INT_MIN) {
             this->pbump(INT_MIN);
             bumpAmount -= INT_MIN;
         }
-        while (bumpAmount >= INT_MAX) {
+        while (bumpAmount > INT_MAX) {
             this->pbump(INT_MAX);
             bumpAmount -= INT_MAX;
         }
