@@ -1,0 +1,25 @@
+ bdlsta.txt
+
+@PURPOSE: Provide basic statistical computations.
+
+@MNEMONIC: Basic Development Library STAtistics (bdlsta)
+
+@DESCRIPTION: The 'bdlsta' package provides basic statistical computations.  At
+ the moment, this package contains a component, 'bdlsta_moment', for
+ calculating mean, variance, skew, and kurtosis.  Another component,
+ 'bdlsta_linefit', is for calculating linear sqaures line fit.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlsta' package currently has 2 components.
+..
+  1. bdlsta_linefit
+  2. bdlsta_moment
+..
+
+/Component Synopsis
+/------------------
+: 'bdlsta_linefit':
+:      Provide functions for calculating linear squares line fit.
+: 'bdlsta_moment':
+:      Provide functions for calculating mean, variance, skew, and kurtosis.

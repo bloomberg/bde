@@ -38,7 +38,7 @@
 
   2. bdlf
      bdlsb
-     bdlstat
+     bdlsta
 
   1. bdlscm
 ..
@@ -87,7 +87,7 @@
 : 'bdlscm':
 :      Provide versioning information for BDE library components.
 :
-: 'bdlstat':
+: 'bdlsta':
 :      Provide basic statistics tools.
 :
 : 'bdlt':
