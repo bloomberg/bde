@@ -1,11 +1,11 @@
-// bdlstat_moment.cpp                                                 -*-C++-*-
-#include <bdlstat_moment.h>
+// bdlsta_moment.cpp                                                  -*-C++-*-
+#include <bdlsta_moment.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
-namespace bdlstat {
+namespace bdlsta {
 //@IMPLEMENTATION NOTES:
 //
 // Note that all functions are inlined, and each value added does not take

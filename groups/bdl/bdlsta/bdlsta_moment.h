@@ -1,6 +1,6 @@
-// bdlstat_moment.h                                                   -*-C++-*-
-#ifndef INCLUDED_BDLSTAT_MOMENT
-#define INCLUDED_BDLSTAT_MOMENT
+// bdlsta_moment.h                                                    -*-C++-*-
+#ifndef INCLUDED_BDLSTA_MOMENT
+#define INCLUDED_BDLSTA_MOMENT
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -11,9 +11,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Online algorithm for mean, variance, skew, and kurtosis.
 //
 //@CLASSES:
-//  bdlstat::Moment: online calculation of mean, variance, skew, and kurtosis
+//  bdlsta::Moment: online calculation of mean, variance, skew, and kurtosis
 //
-//@DESCRIPTION: This component provides a mechanism, 'bdlstat::Moment', that
+//@DESCRIPTION: This component provides a mechanism, 'bdlsta::Moment', that
 // provides online calculation of basic statistics: mean, variance, skew, and
 // kurtosis while maintaining accuracy.  Online algorithms process the data in
 // one pass, while keeping good accuracy.  The online algorithms used are
@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  double input[] = { 1.0, 2.0, 4.0, 5.0 };
 //
-//  bdlstat::Moment<bdlstat::MomentLevel::e_M3> m3;
+//  bdlsta::Moment<bdlsta::MomentLevel::e_M3> m3;
 //..
 // Then, we invoke the 'add' routine to accumulate the data:
 //..
@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlstat {
+namespace bdlsta {
 
 struct MomentLevel {
     // TYPES
@@ -241,9 +241,9 @@ class Moment {
 //                               INLINE DEFINITIONS
 // ============================================================================
 
-                        // ---------------------------
-                        // struct bdlstat::Moment_Data
-                        // ---------------------------
+                        // --------------------------
+                        // struct bdlsta::Moment_Data
+                        // --------------------------
 
 // CREATORS
 Moment_Data<MomentLevel::e_M1>::Moment_Data()
@@ -279,9 +279,9 @@ Moment_Data<MomentLevel::e_M4>::Moment_Data()
 {
 }
 
-                        // ---------------------
-                        // class bdlstat::Moment
-                        // ---------------------
+                        // --------------------
+                        // class bdlsta::Moment
+                        // --------------------
 
 // MANIPULATORS
 template<>
