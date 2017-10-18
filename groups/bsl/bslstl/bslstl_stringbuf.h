@@ -199,6 +199,11 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STREAMBUF
 #endif
 
+#ifndef INCLUDED_LIMITS_H
+#include <limits.h>      // for 'INT_MAX', 'INT_MIN'
+#define INCLUDED_LIMITS_H
+#endif
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
@@ -593,7 +598,14 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 
     pos_type outputPos = currentOutputPosition - dataPtr;
     this->setp(dataPtr, dataPtr + dataSize);
-    this->pbump(int(outputPos));
+    pos_type bumpAmount = outputPos;
+    while (bumpAmount > INT_MAX) {
+        this->pbump(INT_MAX);
+        bumpAmount -= INT_MAX;
+    }
+    if (bumpAmount) {
+        this->pbump(int(bumpAmount));
+    }
     return outputPos;
 }
 
@@ -612,8 +624,17 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 
         native_std::size_t dataSize = d_str.size();
         this->setp(dataPtr, dataPtr + dataSize);
-        if (outputOffset) {
-            this->pbump(int(outputOffset));
+        off_type bumpAmount = outputOffset;
+        while (bumpAmount < INT_MIN) {
+            this->pbump(INT_MIN);
+            bumpAmount -= INT_MIN;
+        }
+        while (bumpAmount > INT_MAX) {
+            this->pbump(INT_MAX);
+            bumpAmount -= INT_MAX;
+        }
+        if (bumpAmount) {
+            this->pbump(int(bumpAmount));
         }
     }
 
