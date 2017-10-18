@@ -1,6 +1,6 @@
-// bdlstat_linefit.h                                                  -*-C++-*-
-#ifndef INCLUDED_BDLSTAT_LINEFIT
-#define INCLUDED_BDLSTAT_LINEFIT
+// bdlsta_linefit.h                                                   -*-C++-*-
+#ifndef INCLUDED_BDLSTA_LINEFIT
+#define INCLUDED_BDLSTA_LINEFIT
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -11,11 +11,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Online algorithm for computing the least squares regression line.
 //
 //@CLASSES:
-//  bdlstat::LineFit: online calculation of least squares regression line
+//  bdlsta::LineFit: online calculation of least squares regression line
 //
 //@AUTHOR: Ofer Imanuel (oimanuel@bloomberg.net)
 //
-//@DESCRIPTION: This component provides a mechanism, 'bdlstat::LineFit', that
+//@DESCRIPTION: This component provides a mechanism, 'bdlsta::LineFit', that
 // provides online calculation of the least squares line fit.  Online
 // algorithms process the data in one pass, while maintaining accuracy.  The
 // online algorithm used is developed in the implementation notes (it is
@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  double inputX[] = { 1.0, 2.0, 4.0, 5.0 };
 //  double inputY[] = { 1.0, 2.0, 4.0, 4.5 };
-//  bdlstat::LineFit lineFit;
+//  bdlsta::LineFit lineFit;
 //..
 // Then, we invoke the 'add' routine to accumulate the data:
 //..
@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlstat {
+namespace bdlsta {
 
                             // =============
                             // class LineFit
@@ -157,9 +157,9 @@ class LineFit {
 //                               INLINE DEFINITIONS
 // ============================================================================
 
-                        // ----------------------
-                        // class bdlstat::LineFit
-                        // ----------------------
+                        // ---------------------
+                        // class bdlsta::LineFit
+                        // ---------------------
 
 // CREATORS
 LineFit::LineFit()
