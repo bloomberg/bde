@@ -7,7 +7,7 @@
 @DESCRIPTION: The 'bdlsta' package provides basic statistical computations.  At
  the moment, this package contains a component, 'bdlsta_moment', for
  calculating mean, variance, skew, and kurtosis.  Another component,
- 'bdlsta_linefit', is for calculating linear sqaures line fit.
+ 'bdlsta_linefit', is for calculating linear squares line fit.
 
 /Hierarchical Synopsis                                                          
 /---------------------                                                          
