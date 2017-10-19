@@ -432,8 +432,8 @@ class MultiQueueThreadPool_Queue {
     // PRIVATE MANIPULATORS
     void setPaused();
         // Mark this queue as paused, notify any threads blocked on
-        // 'd_pauseBlock', and schedule the deletion job if this queue is to
-        // be deleted.
+        // 'd_pauseBlock', and schedule the deletion job if this queue is to be
+        // deleted.
 
     // NOT IMPLEMENTED
     MultiQueueThreadPool_Queue();

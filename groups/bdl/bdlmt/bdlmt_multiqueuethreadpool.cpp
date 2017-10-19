@@ -144,15 +144,25 @@ void MultiQueueThreadPool_Queue::popFront()
         d_processor = bslmt::ThreadUtil::self();
     }
 
+    // Note that the appropriate 'd_runState' is a bit ambigoues at this point.
+    // Since there is nothing scheduled in the thread pool, the state should
+    // arguably be 'e_NOT_SCHEDULED'.  However, allowing work to be scheduled
+    // during the execution of the 'functor' would be a bug.  Instead of
+    // creating a new state to reflect this situation while the 'functor' is
+    // executing, we leave 'd_runState' as 'e_SCHEDULED'.
+
     functor();
 
-    // Note that 'pause' might be called while executing the functor since
-    // no lock is held.
-    
+    // Note that 'pause' might be called while executing the functor since no
+    // lock is held.
+
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
         d_processor = bslmt::ThreadUtil::invalidHandle();
+
+        // As per the above, at this point 'e_SCHEDULED' does not imply there
+        // is a job queued in the thread pool.
 
         if (e_SCHEDULED == d_runState) {
             if (!d_list.empty()) {
@@ -204,6 +214,8 @@ int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
     if (e_ENQUEUING_ENABLED == d_enqueueState) {
         d_list.push_back(functor);
 
+        // Note that the following should match what is in 'pushFront'.
+
         if (e_NOT_SCHEDULED == d_runState) {
             d_runState = e_SCHEDULED;
 
@@ -228,7 +240,10 @@ int MultiQueueThreadPool_Queue::pushFront(const Job& functor)
     if (e_ENQUEUING_ENABLED == d_enqueueState) {
         d_list.push_front(functor);
 
+        // Note that the following should match what is in 'pushBack'.
+
         if (e_NOT_SCHEDULED == d_runState) {
+
             d_runState = e_SCHEDULED;
 
             ++d_multiQueueThreadPool_p->d_numActiveQueues;
