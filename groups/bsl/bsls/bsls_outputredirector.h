@@ -52,6 +52,13 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_SYS_STAT_H
 #endif
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+# ifndef INCLUDED_WINDOWS_H
+# include <windows.h>  // Required for 'MAX_PATH' plus a few other names
+# define INCLUDED_WINDWS_H
+# endif
+#endif
+
 namespace BloombergLP {
 namespace bsls {
 

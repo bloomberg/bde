@@ -10,16 +10,15 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <stdlib.h>
 #include <string.h>
 
-#include <sys/types.h> // struct stat: required on Sun and Windows only
-
+#include <sys/types.h> // 'struct stat': required on Sun and Windows only
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-# include <windows.h>
-# include <io.h>       // _dup2, _dup, _close
+# include <fcntl.h>     // '_O_BINARY'
+# include <io.h>        // '_dup2', '_dup', '_close'
 # define snprintf _snprintf
 #else
 # include <unistd.h>
-# include <stdint.h>    // SIZE_MAX.  Cannot include on all Windows platforms.
+# include <stdint.h>    // 'SIZE_MAX', cannot include on all Windows platforms
 #endif
 
 namespace BloombergLP {
