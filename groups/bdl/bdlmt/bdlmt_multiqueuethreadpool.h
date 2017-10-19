@@ -429,6 +429,12 @@ class MultiQueueThreadPool_Queue {
     bslmt::ThreadUtil::Handle  d_processor;      // current worker thread, or
                                                  // ThreadUtil::invalidHandle()
 
+    // PRIVATE MANIPULATORS
+    void setPaused();
+        // Mark this queue as paused, notify any threads blocked on
+        // 'd_pauseBlock', and schedule the deletion job if this queue is to
+        // be deleted.
+
     // NOT IMPLEMENTED
     MultiQueueThreadPool_Queue();
     MultiQueueThreadPool_Queue(const MultiQueueThreadPool_Queue&);
@@ -804,6 +810,27 @@ class MultiQueueThreadPool {
                      // --------------------------------
                      // class MultiQueueThreadPool_Queue
                      // --------------------------------
+
+// PRIVATE MANIPULATORS
+inline
+void MultiQueueThreadPool_Queue::setPaused()
+{
+    d_runState = e_PAUSED;
+
+    --d_multiQueueThreadPool_p->d_numActiveQueues;
+
+    if (d_pauseCount) {
+        d_pauseBlock.post(d_pauseCount);
+        d_pauseCount = 0;
+    }
+
+    if (e_DELETING == d_enqueueState) {
+        int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_list.front());
+
+        BSLS_ASSERT(0 == status);  (void)status;
+    }
+}
 
 // ACCESSORS
 inline

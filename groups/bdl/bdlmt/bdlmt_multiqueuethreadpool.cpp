@@ -134,21 +134,7 @@ void MultiQueueThreadPool_Queue::popFront()
         BSLS_ASSERT(!d_list.empty());
 
         if (e_PAUSING == d_runState) {
-            d_runState = e_PAUSED;
-
-            --d_multiQueueThreadPool_p->d_numActiveQueues;
-
-            if (d_pauseCount) {
-                d_pauseBlock.post(d_pauseCount);
-                d_pauseCount = 0;
-            }
-
-            if (e_DELETING == d_enqueueState) {
-                int status = d_multiQueueThreadPool_p->d_threadPool_p->
-                                                    enqueueJob(d_list.front());
-
-                BSLS_ASSERT(0 == status);  (void)status;
-            }
+            setPaused();
 
             return;                                                   // RETURN
         }
@@ -160,6 +146,9 @@ void MultiQueueThreadPool_Queue::popFront()
 
     functor();
 
+    // Note that 'pause' might be called while executing the functor since
+    // no lock is held.
+    
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
@@ -181,29 +170,16 @@ void MultiQueueThreadPool_Queue::popFront()
         else {
             BSLS_ASSERT(e_PAUSING == d_runState);
 
-            d_runState = e_PAUSED;
-
-            --d_multiQueueThreadPool_p->d_numActiveQueues;
-
-            if (d_pauseCount) {
-                d_pauseBlock.post(d_pauseCount);
-                d_pauseCount = 0;
-            }
-
-            if (e_DELETING == d_enqueueState) {
-                BSLS_ASSERT(!d_list.empty());
-
-                int status = d_multiQueueThreadPool_p->d_threadPool_p->
-                                                    enqueueJob(d_list.front());
-
-                BSLS_ASSERT(0 == status);  (void)status;
-            }
+            setPaused();
         }
     }
 }
 
 void MultiQueueThreadPool_Queue::prepareForDeletion(const Job& functor)
 {
+    // Note that the queue is actually deleted by the thread pool while
+    // executing 'MultiQueueThreadPool::deleteQueueCb'.
+
     bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
     d_enqueueState = e_DELETING;
@@ -311,6 +287,7 @@ int MultiQueueThreadPool_Queue::resume()
                     // ---------------------------------
 
 // PRIVATE MANIPULATORS
+inline
 void MultiQueueThreadPool::deleteQueueCb(
                                     MultiQueueThreadPool_Queue *queue,
                                     const CleanupFunctor&       cleanupFunctor,
