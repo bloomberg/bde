@@ -10,7 +10,6 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 
 #include <bslmt_latch.h>
 #include <bslmt_lockguard.h>
-#include <bslmt_readlockguard.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_writelockguard.h>
 
@@ -66,15 +65,6 @@ MultiQueueThreadPool_Queue::MultiQueueThreadPool_Queue(
 
 MultiQueueThreadPool_Queue::~MultiQueueThreadPool_Queue()
 {
-}
-
-void MultiQueueThreadPool_Queue::reset()
-{
-    d_list.clear();
-    d_enqueueState = e_ENQUEUING_ENABLED;
-    d_runState     = e_NOT_SCHEDULED;
-    d_pauseCount   = 0;
-    d_processor    = bslmt::ThreadUtil::invalidHandle();
 }
 
 // MANIPULATORS
@@ -279,6 +269,16 @@ int MultiQueueThreadPool_Queue::pushFront(const Job& functor)
     return 1;
 }
 
+void MultiQueueThreadPool_Queue::reset()
+{
+    d_list.clear();
+    d_enqueueState = e_ENQUEUING_ENABLED;
+    d_runState     = e_NOT_SCHEDULED;
+    d_pauseCount   = 0;
+    d_processor    = bslmt::ThreadUtil::invalidHandle();
+
+}
+
 int MultiQueueThreadPool_Queue::resume()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
@@ -288,50 +288,22 @@ int MultiQueueThreadPool_Queue::resume()
     }
 
     if (!d_list.empty()) {
-        d_runState = e_SCHEDULED;
-
-        ++d_multiQueueThreadPool_p->d_numActiveQueues;
-
         int status = d_multiQueueThreadPool_p->d_threadPool_p->
                                                     enqueueJob(d_processingCb);
 
-        BSLS_ASSERT(0 == status);  (void)status;
+        if (0 != status) {
+            return 1;
+        }
+
+        d_runState = e_SCHEDULED;
+
+        ++d_multiQueueThreadPool_p->d_numActiveQueues;
     }
     else {
         d_runState = e_NOT_SCHEDULED;
     }
 
     return 0;
-}
-
-// ACCESSORS
-bool MultiQueueThreadPool_Queue::isDrained() const
-{
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
-
-    return 0 == d_list.size() && (   e_NOT_SCHEDULED == d_runState
-                                  || e_PAUSED        == d_runState);
-}
-
-bool MultiQueueThreadPool_Queue::isEnabled() const
-{
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
-
-    return e_ENQUEUING_ENABLED == d_enqueueState;
-}
-
-bool MultiQueueThreadPool_Queue::isPaused() const
-{
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
-
-    return e_PAUSED == d_runState;
-}
-
-int MultiQueueThreadPool_Queue::length() const
-{
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
-
-    return static_cast<int>(d_list.size());
 }
 
                     // ---------------------------------
@@ -353,7 +325,7 @@ void MultiQueueThreadPool::deleteQueueCb(
         cleanupFunctor();
     }
 
-    bslmt::LockGuard<bslmt::Mutex> guardQueuePool(&d_queuePoolLock);
+    // Note that 'd_queuePool' does its own synchronization.
 
     d_queuePool.releaseObject(queue);
 }
@@ -374,6 +346,7 @@ MultiQueueThreadPool::MultiQueueThreadPool(
               -1,
               basicAllocator)
 , d_queueRegistry(basicAllocator)
+, d_nextId(1)
 , d_state(e_STATE_STOPPED)
 , d_numActiveQueues(0)
 , d_numDequeued(0)
@@ -398,6 +371,7 @@ MultiQueueThreadPool::MultiQueueThreadPool(ThreadPool       *threadPool,
               -1,
               basicAllocator)
 , d_queueRegistry(basicAllocator)
+, d_nextId(1)
 , d_state(e_STATE_STOPPED)
 , d_numActiveQueues(0)
 , d_numDequeued(0)
@@ -420,11 +394,13 @@ int MultiQueueThreadPool::createQueue()
 {
     bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    bslmt::LockGuard<bslmt::Mutex> guardQueuePool(&d_queuePoolLock);
+    int id = d_nextId++;
 
-    MultiQueueThreadPool_Queue *queue = d_queuePool.getObject();
+    // Note that 'd_queuePool' does its own synchronization.
 
-    return d_queueRegistry.add(queue);
+    d_queueRegistry[id] = d_queuePool.getObject();
+
+    return id;
 }
 
 int MultiQueueThreadPool::deleteQueue(int                   id,
@@ -432,16 +408,13 @@ int MultiQueueThreadPool::deleteQueue(int                   id,
 {
     bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    if (e_STATE_RUNNING != d_state || 0 == d_threadPool_p->enabled()) {
+    MultiQueueThreadPool_Queue *queue = 0;
+
+    if (findIfUsable(id, &queue)) {
         return 1;                                                     // RETURN
     }
 
-    MultiQueueThreadPool_Queue *queue = 0;
-
-    int rc = d_queueRegistry.remove(id, &queue);
-    if (rc) {
-        return rc;                                                    // RETURN
-    }
+    d_queueRegistry.erase(id);
 
     Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
                                    this,
@@ -461,16 +434,13 @@ int MultiQueueThreadPool::deleteQueue(int id)
     {
         bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-        if (e_STATE_RUNNING != d_state || 0 == d_threadPool_p->enabled()) {
+        MultiQueueThreadPool_Queue *queue = 0;
+
+        if (findIfUsable(id, &queue)) {
             return 1;                                                 // RETURN
         }
 
-        MultiQueueThreadPool_Queue *queue = 0;
-
-        int rc = d_queueRegistry.remove(id, &queue);
-        if (rc) {
-            return rc;                                                // RETURN
-        }
+        d_queueRegistry.erase(id);
 
         Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
                                        this,
@@ -514,21 +484,19 @@ int MultiQueueThreadPool::disableQueue(int id)
 
 int MultiQueueThreadPool::drainQueue(int id)
 {
-    MultiQueueThreadPool_Queue *queue;
-
     while (1) {
         {
             bslmt::ReadLockGuard<bslmt::ReaderWriterMutex>
                                                    guard(&d_lock);
 
-            int rc = d_queueRegistry.find(id, &queue);
-            if (0 == rc) {
-                if (queue->isDrained()) {
-                    return 0;                                         // RETURN
-                }
+            QueueRegistry::iterator iter = d_queueRegistry.find(id);
+
+            if (d_queueRegistry.end() == iter) {
+                return 1;                                             // RETURN
             }
-            else {
-                return rc;                                            // RETURN
+
+            if (iter->second->isDrained()) {
+                return 0;                                             // RETURN
             }
         }
 
@@ -547,9 +515,10 @@ int MultiQueueThreadPool::start()
             return 0;                                                 // RETURN
         }
         else if (e_STATE_STOPPED == d_state) {
-            for (RegistryIterator it(d_queueRegistry); it; ++it) {
-                RegistryValue rv = it();
-                rv.second->enable();
+            for (QueueRegistry::iterator it = d_queueRegistry.begin();
+                 it != d_queueRegistry.end();
+                 ++it) {
+                it->second->enable();
             }
 
             int rc = 0;
@@ -648,15 +617,18 @@ void MultiQueueThreadPool::shutdown()
         bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
         if (e_STATE_STOPPED == d_state || 0 == d_threadPool_p->enabled()) {
-            bslmt::LockGuard<bslmt::Mutex> guardQueuePool(&d_queuePoolLock);
-
             bsl::vector<MultiQueueThreadPool_Queue *> buffer;
 
-            d_queueRegistry.removeAll(&buffer);
+            // Note that 'd_queuePool' does its own synchronization.
 
-            for (bsl::size_t i = 0; i < buffer.size(); ++i) {
-                d_queuePool.releaseObject(buffer[i]);
+            for (QueueRegistry::iterator it = d_queueRegistry.begin();
+                 it != d_queueRegistry.end();
+                 ++it) {
+                d_queuePool.releaseObject(it->second);
             }
+
+            d_queueRegistry.clear();
+            d_nextId = 1;
 
             if (d_threadPoolIsOwned) {
                 d_threadPool_p->stop();
@@ -679,24 +651,14 @@ void MultiQueueThreadPool::shutdown()
     {
         bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-        bsl::vector<int> qids;
-        qids.reserve(d_queueRegistry.length());
-        for (RegistryIterator it(d_queueRegistry); it; ++it) {
-            RegistryValue rv = it();
-            qids.push_back(rv.first);
+        if (d_queueRegistry.size()) {
+            latch = new bslmt::Latch(static_cast<int>(d_queueRegistry.size()));
         }
 
-        if (d_queueRegistry.length()) {
-            latch = new bslmt::Latch(d_queueRegistry.length());
-        }
-
-        for (bsl::vector<int>::iterator it = qids.begin();
-             it != qids.end();
+        for (QueueRegistry::iterator it = d_queueRegistry.begin();
+             it != d_queueRegistry.end();
              ++it) {
-            MultiQueueThreadPool_Queue *queue = 0;
-
-            int rc = d_queueRegistry.remove(*it, &queue);
-            BSLS_ASSERT(0 == rc);  (void)rc;
+            MultiQueueThreadPool_Queue *queue = it->second;
 
             Job job = bdlf::BindUtil::bind(
                                           &MultiQueueThreadPool::deleteQueueCb,
@@ -707,10 +669,15 @@ void MultiQueueThreadPool::shutdown()
 
             queue->prepareForDeletion(job);
         }
+
+        d_queueRegistry.clear();
+        d_nextId = 1;
     }
 
     if (latch) {
         latch->wait();
+
+        delete latch;
     }
 
     {
@@ -722,46 +689,6 @@ void MultiQueueThreadPool::shutdown()
 
         d_state = e_STATE_STOPPED;
     }
-}
-
-// ACCESSORS
-bool MultiQueueThreadPool::isEnabled(int id) const
-{
-    MultiQueueThreadPool_Queue *queue;
-
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
-
-    if (0 == d_queueRegistry.find(id, &queue)) {
-        return queue->isEnabled();                                    // RETURN
-    }
-
-    return false;
-}
-
-bool MultiQueueThreadPool::isPaused(int id) const
-{
-    MultiQueueThreadPool_Queue *queue;
-
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
-
-    if (0 == d_queueRegistry.find(id, &queue)) {
-        return queue->isPaused();                                     // RETURN
-    }
-
-    return false;
-}
-
-int MultiQueueThreadPool::numElements(int id) const
-{
-    MultiQueueThreadPool_Queue *queue;
-
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
-
-    if (0 == d_queueRegistry.find(id, &queue)) {
-        return queue->length();                                       // RETURN
-    }
-
-    return -1;
 }
 
 }  // close package namespace

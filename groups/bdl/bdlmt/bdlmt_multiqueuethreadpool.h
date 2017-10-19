@@ -326,10 +326,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlmt_threadpool.h>
 #endif
 
-#ifndef INCLUDED_BDLCC_OBJECTCATALOG
-#include <bdlcc_objectcatalog.h>
-#endif
-
 #ifndef INCLUDED_BDLCC_OBJECTPOOL
 #include <bdlcc_objectpool.h>
 #endif
@@ -350,6 +346,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readerwritermutex.h>
 #endif
 
+#ifndef INCLUDED_BSLMT_READLOCKGUARD
+#include <bslmt_readlockguard.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_SEMAPHORE
 #include <bslmt_semaphore.h>
 #endif
@@ -364,6 +364,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
+#endif
+
+#ifndef INCLUDED_BSL_MAP
+#include <bsl_map.h>
 #endif
 
 namespace BloombergLP {
@@ -489,11 +493,13 @@ class MultiQueueThreadPool_Queue {
         // Reset this queue to its initial state.  The behavior is undefined
         // unless this queue's lock is in an unlocked state.  After this method
         // returns, the object is ready for use as though it were a new object.
-        // Note that this method is not thread-safe.
+        // Note that this method is not thread-safe and is used by the object
+        // pool contained within '*d_multiQueueThreadPool_p'.
 
     int resume();
         // Allow jobs on the queue to begin executing.  Return 0 on success,
-        // and a non-zero value if the queue is not paused.
+        // and a non-zero value if the queue is not paused or '!d_list.empty()'
+        // and the associated thread pool fails to enqueue a job.
 
     // ACCESSORS
     bool isDrained() const;
@@ -522,17 +528,6 @@ class MultiQueueThreadPool {
     friend class MultiQueueThreadPool_Queue;
 
     // PRIVATE TYPES
-    typedef bdlcc::ObjectCatalogIter<bdlmt::MultiQueueThreadPool_Queue*>
-                                                              RegistryIterator;
-                                // This type is provided for notational
-                                // convenience when iterating over the queue
-                                // registry.
-
-    typedef bsl::pair<int, bdlmt::MultiQueueThreadPool_Queue*> RegistryValue;
-                                // This type is provided for notational
-                                // convenience when iterating over the queue
-                                // registry.
-
     enum {
         // Internal running states.
         e_STATE_RUNNING,
@@ -554,8 +549,9 @@ class MultiQueueThreadPool {
 
   public:
     // PUBLIC TYPES
-    typedef bsl::function<void()> Job;
-    typedef bsl::function<void()> CleanupFunctor;
+    typedef bsl::function<void()>                       Job;
+    typedef bsl::function<void()>                       CleanupFunctor;
+    typedef bsl::map<int, MultiQueueThreadPool_Queue *> QueueRegistry;
 
   private:
     // DATA
@@ -571,15 +567,15 @@ class MultiQueueThreadPool {
           bdlcc::ObjectPoolFunctors::Reset<MultiQueueThreadPool_Queue>
     >                 d_queuePool;          // pool of queues
 
-    bslmt::Mutex      d_queuePoolLock;      // lock for 'd_queuePool'
+    QueueRegistry     d_queueRegistry;      // registry of queues
 
-    bdlcc::ObjectCatalog<MultiQueueThreadPool_Queue *>
-                      d_queueRegistry;      // registry of queues
+    int               d_nextId;             // next id to provide from
+                                            // 'createQueue'
 
     int               d_state;              // maintains internal state
 
-    mutable bslmt::ReaderWriterMutex d_lock;
-                                            // locked for write when deleting
+    mutable bslmt::ReaderWriterMutex
+                      d_lock;               // locked for write when deleting
                                             // queues or changing pool state
 
     bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
@@ -605,8 +601,7 @@ class MultiQueueThreadPool {
         // Otherwise, execute the specified 'cleanupFunctor' if it is valid.
         // Then, delete the specified 'queue'.
 
-    // PRIVATE ACCESSORS
-    int findIfUsable(int id, MultiQueueThreadPool_Queue **queue) const;
+    int findIfUsable(int id, MultiQueueThreadPool_Queue **queue);
        // Load into the specified '*queue' a pointer to the queue referenced by
        // the specified 'id' if this 'MultiQueueThreadPool' is in a state where
        // the 'queue' can be used.  Return 0 on success, and a non-zero value
@@ -779,9 +774,9 @@ class MultiQueueThreadPool {
         // valid queue id).
 
     bool isEnabled(int id) const;
-        // Return 'true' if the queue identified by the specified 'id' is
-        // enabled, or 'false' otherwise (including if 'id' is not a valid
-        // queue id).
+        // Return 'true' if the queue associated with the specified 'id' is
+        // currently enabled, or 'false' otherwise (including if 'id' is not a
+        // valid queue id).
 
     int numQueues() const;
         // Return an instantaneous snapshot of the number of queues managed by
@@ -806,20 +801,65 @@ class MultiQueueThreadPool {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
+                     // --------------------------------
+                     // class MultiQueueThreadPool_Queue
+                     // --------------------------------
+
+// ACCESSORS
+inline
+bool MultiQueueThreadPool_Queue::isDrained() const
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    return 0 == d_list.size() && (   e_NOT_SCHEDULED == d_runState
+                                  || e_PAUSED        == d_runState);
+}
+
+inline
+bool MultiQueueThreadPool_Queue::isEnabled() const
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    return e_ENQUEUING_ENABLED == d_enqueueState;
+}
+
+inline
+bool MultiQueueThreadPool_Queue::isPaused() const
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    return e_PAUSED == d_runState;
+}
+
+inline
+int MultiQueueThreadPool_Queue::length() const
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    return static_cast<int>(d_list.size());
+}
+
                         // --------------------------
                         // class MultiQueueThreadPool
                         // --------------------------
-// PRIVATE ACCESSORS
+
+// PRIVATE MANIPULATORS
 inline
-int MultiQueueThreadPool::findIfUsable(
-                                      int                          id,
-                                      MultiQueueThreadPool_Queue **queue) const
+int MultiQueueThreadPool::findIfUsable(int                          id,
+                                       MultiQueueThreadPool_Queue **queue)
 {
     if (   e_STATE_RUNNING != d_state
-        ||               0 == d_threadPool_p->enabled()
-        ||               0 != d_queueRegistry.find(id, queue)) {
+        ||               0 == d_threadPool_p->enabled()) {
         return 1;                                                     // RETURN
     }
+
+    QueueRegistry::iterator iter = d_queueRegistry.find(id);
+
+    if (d_queueRegistry.end() == iter) {
+        return 1;
+    }
+
+    *queue = iter->second;
 
     return 0;
 }
@@ -877,6 +917,48 @@ void MultiQueueThreadPool::numProcessedReset(int *numDequeued,
 
 // ACCESSORS
 inline
+bool MultiQueueThreadPool::isEnabled(int id) const
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    QueueRegistry::const_iterator iter = d_queueRegistry.find(id);
+
+    if (d_queueRegistry.end() != iter) {
+        return iter->second->isEnabled();                             // RETURN
+    }
+
+    return false;
+}
+
+inline
+bool MultiQueueThreadPool::isPaused(int id) const
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    QueueRegistry::const_iterator iter = d_queueRegistry.find(id);
+
+    if (d_queueRegistry.end() != iter) {
+        return iter->second->isPaused();                              // RETURN
+    }
+
+    return false;
+}
+
+inline
+int MultiQueueThreadPool::numElements(int id) const
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    QueueRegistry::const_iterator iter = d_queueRegistry.find(id);
+
+    if (d_queueRegistry.end() != iter) {
+        return iter->second->length();                                // RETURN
+    }
+
+    return -1;
+}
+
+inline
 void MultiQueueThreadPool::numProcessed(int *numDequeued,
                                         int *numEnqueued) const
 {
@@ -889,7 +971,7 @@ int MultiQueueThreadPool::numQueues() const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    return d_queueRegistry.length();
+    return static_cast<int>(d_queueRegistry.size());
 }
 
 inline
