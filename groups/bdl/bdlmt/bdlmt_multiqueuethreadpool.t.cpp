@@ -2735,11 +2735,20 @@ int main(int argc, char *argv[]) {
                 { L_,   1,           1,           8,          64,     },
                 { L_,   1,           1,           8,          256,    },
 
+                { L_,   1,           1,           128,        1,      },
+                { L_,   1,           1,           128,        2,      },
+                { L_,   1,           1,           128,        8,      },
+                { L_,   1,           1,           128,        64,     },
+                { L_,   1,           1,           128,        256,    },
+
+#if !defined(BSLS_PLATFORM_OS_DARWIN) \
+ || !defined(BSLS_PLATFORM_CMP_CLANG) || BSLS_PLATFORM_CMP_VERSION > 70300
                 { L_,   1,           1,           256,        1,      },
                 { L_,   1,           1,           256,        2,      },
                 { L_,   1,           1,           256,        8,      },
                 { L_,   1,           1,           256,        64,     },
                 { L_,   1,           1,           256,        256,    },
+#endif
 
                 { L_,   1,           2,           1,          1,      },
                 { L_,   2,           2,           1,          2,      },
@@ -2759,11 +2768,20 @@ int main(int argc, char *argv[]) {
                 { L_,   6,           8,           8,          64,     },
                 { L_,   8,           8,           8,          256,    },
 
+                { L_,   1,           16,          128,        1,      },
+                { L_,   2,           16,          128,        2,      },
+                { L_,   4,           16,          128,        8,      },
+                { L_,   8,           16,          128,        64,     },
+                { L_,   16,          16,          128,        256,    },
+
+#if !defined(BSLS_PLATFORM_OS_DARWIN) \
+ || !defined(BSLS_PLATFORM_CMP_CLANG) || BSLS_PLATFORM_CMP_VERSION > 70300
                 { L_,   1,           16,          256,        1,      },
                 { L_,   2,           16,          256,        2,      },
                 { L_,   4,           16,          256,        8,      },
                 { L_,   8,           16,          256,        64,     },
                 { L_,   16,          16,          256,        256,    },
+#endif
             };
             enum { k_DATA_SIZE = sizeof DATA / sizeof *DATA };
 
