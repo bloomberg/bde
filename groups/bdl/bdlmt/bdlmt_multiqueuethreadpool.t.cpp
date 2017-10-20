@@ -2743,6 +2743,9 @@ int main(int argc, char *argv[]) {
 
 #if !defined(BSLS_PLATFORM_OS_DARWIN) \
  || !defined(BSLS_PLATFORM_CMP_CLANG) || BSLS_PLATFORM_CMP_VERSION > 70300
+
+                // Darwin had a problem with creating a lot of semaphores.
+
                 { L_,   1,           1,           256,        1,      },
                 { L_,   1,           1,           256,        2,      },
                 { L_,   1,           1,           256,        8,      },
@@ -2776,6 +2779,9 @@ int main(int argc, char *argv[]) {
 
 #if !defined(BSLS_PLATFORM_OS_DARWIN) \
  || !defined(BSLS_PLATFORM_CMP_CLANG) || BSLS_PLATFORM_CMP_VERSION > 70300
+
+                // Darwin had a problem with creating a lot of semaphores.
+
                 { L_,   1,           16,          256,        1,      },
                 { L_,   2,           16,          256,        2,      },
                 { L_,   4,           16,          256,        8,      },
