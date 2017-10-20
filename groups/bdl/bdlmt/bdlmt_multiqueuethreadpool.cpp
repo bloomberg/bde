@@ -159,6 +159,8 @@ void MultiQueueThreadPool_Queue::popFront()
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
+        BSLS_ASSERT(bslmt::ThreadUtil::self() == d_processor);
+
         d_processor = bslmt::ThreadUtil::invalidHandle();
 
         // As per the above, at this point 'e_SCHEDULED' does not imply there
