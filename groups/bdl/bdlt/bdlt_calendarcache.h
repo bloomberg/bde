@@ -200,7 +200,7 @@ BSLS_IDENT("$Id: $")
 // let the cache use the default allocator:
 //..
 //  MyCalendarLoader           loader;
-//  bdlt::CalendarCache        cache(&loader, bsls::TimeInterval(3));
+//  bdlt::CalendarCache        cache(&loader, bsls::TimeInterval(3, 0));
 //  const bdlt::CalendarCache& readonlyCache = cache;
 //..
 // Next, we retrieve the calendar identified by "DE" from the cache:
@@ -443,8 +443,8 @@ class CalendarCache {
         // into this cache remain valid for retrieval until they have been
         // explicitly invalidated (via either the 'invalidate' or
         // 'invalidateAll' methods), or until this object is destroyed.  The
-        // behavior is undefined unless 'loader' and the indicated allocator
-        // remain valid throughout the lifetime of this cache.
+        // behavior is undefined unless 'loader' remains valid throughout the
+        // lifetime of this cache.
 
     CalendarCache(CalendarLoader            *loader,
                   const bsls::TimeInterval&  timeout,
@@ -455,12 +455,12 @@ class CalendarCache {
         // subsequent retrieval from the cache after they have been loaded.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless 'loader' and the indicated
-        // allocator remain valid throughout the lifetime of this cache, and
-        // 'bsls::TimeInterval(0) <= timeout <= bsls::TimeInterval(INT_MAX)'.
+        // used.  The behavior is undefined unless
+        // 'bsls::TimeInterval() <= timeout <= bsls::TimeInterval(INT_MAX, 0)',
+        // and 'loader' remains valid throughout the lifetime of this cache.
         // Note that a 'timeout' value of 0 indicates that a calendar will be
         // loaded into the cache by *each* (successful) call to the
-        // 'getCalendar' manipulator.
+        // 'getCalendar' method.
 
     ~CalendarCache();
         // Destroy this object.

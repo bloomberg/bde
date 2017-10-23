@@ -902,7 +902,7 @@ int main(int argc, char *argv[])
 // let the cache use the default allocator:
 //..
     MyCalendarLoader           loader;
-    bdlt::CalendarCache        cache(&loader, bsls::TimeInterval(3));
+    bdlt::CalendarCache        cache(&loader, bsls::TimeInterval(3, 0));
     const bdlt::CalendarCache& readonlyCache = cache;
 //..
 // Next, we retrieve the calendar identified by "DE" from the cache:
@@ -986,8 +986,8 @@ int main(int argc, char *argv[])
 
         bslma::DefaultAllocatorGuard dag(&da);
 
-        Obj mX(&loader,              &sa);
-        Obj mY(&loader, Interval(0), &sa);
+        Obj mX(&loader,                 &sa);
+        Obj mY(&loader, Interval(0, 0), &sa);
 
         const int NUM_TEST_ITERATIONS   =   10;
         const int NUM_THREAD_ITERATIONS = 1000;
@@ -1092,7 +1092,7 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj mX(&loader, Interval(0), &sa);  const Obj& X = mX;
+            Obj mX(&loader, Interval(0, 0), &sa);  const Obj& X = mX;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
               Entry e;
@@ -1259,7 +1259,7 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj mX(&loader, Interval(60), &sa);  const Obj& X = mX;
+            Obj mX(&loader, Interval(60, 0), &sa);  const Obj& X = mX;
 
             Entry e;
             int   rc;
@@ -1359,7 +1359,7 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj mX(&loader, Interval(60), &sa);  const Obj& X = mX;
+            Obj mX(&loader, Interval(60, 0), &sa);  const Obj& X = mX;
 
             Entry e;
             int   rc;
@@ -1691,7 +1691,7 @@ int main(int argc, char *argv[])
 
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj mX(&loader, Interval(1), &sa);  const Obj& X = mX;
+            Obj mX(&loader, Interval(1, 0), &sa);  const Obj& X = mX;
 
             Entry    e1;
             Entry    e2;
@@ -1964,15 +1964,15 @@ int main(int argc, char *argv[])
 
             switch (CONFIG) {
               case 'a': {
-                objPtr = new (fa) Obj(&loader, Interval(0));
+                objPtr = new (fa) Obj(&loader, Interval(0, 0));
                 objAllocatorPtr = &da;
               } break;
               case 'b': {
-                objPtr = new (fa) Obj(&loader, Interval(0), 0);
+                objPtr = new (fa) Obj(&loader, Interval(0, 0), 0);
                 objAllocatorPtr = &da;
               } break;
               case 'c': {
-                objPtr = new (fa) Obj(&loader, Interval(0), &sa);
+                objPtr = new (fa) Obj(&loader, Interval(0, 0), &sa);
                 objAllocatorPtr = &sa;
               } break;
               default: {
@@ -2051,11 +2051,11 @@ int main(int argc, char *argv[])
             }
 
             {
-                ASSERT_SAFE_PASS(Obj(&loader, Interval(1), &sa));
-                ASSERT_SAFE_FAIL(Obj(      0, Interval(1), &sa));
+                ASSERT_SAFE_PASS(Obj(&loader, Interval(1,       0), &sa));
+                ASSERT_SAFE_FAIL(Obj(      0, Interval(1,       0), &sa));
 
-                ASSERT_SAFE_PASS(Obj(&loader, Interval(0,  0), &sa));
-                ASSERT_SAFE_FAIL(Obj(&loader, Interval(0, -1), &sa));
+                ASSERT_SAFE_PASS(Obj(&loader, Interval(0,       0), &sa));
+                ASSERT_SAFE_FAIL(Obj(&loader, Interval(0,      -1), &sa));
 
                 ASSERT_SAFE_PASS(Obj(&loader, Interval(INT_MAX, 0), &sa));
                 ASSERT_SAFE_FAIL(Obj(&loader, Interval(INT_MAX, 1), &sa));
@@ -2268,7 +2268,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-        Obj mX(&loader, Interval(30), &sa);  const Obj& X = mX;
+        Obj mX(&loader, Interval(30, 0), &sa);  const Obj& X = mX;
 
         // Observe affects of timeout via 'lookupCalendar' method.
         {

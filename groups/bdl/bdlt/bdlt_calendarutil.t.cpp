@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
                                            calUS,
                                            CalendarUtil::e_MODIFIED_FOLLOWING);
 //..
-// Notice that, 'e_MODIFIED_FOLLOWING' is specified as an argument to
+// Notice that 'e_MODIFIED_FOLLOWING' is specified as an argument to
 // 'shiftIfValid' to indicate that we want to use the modified-following
 // date-shifting convention.
 //
