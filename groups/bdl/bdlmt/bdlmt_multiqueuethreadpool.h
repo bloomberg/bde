@@ -389,13 +389,14 @@ class MultiQueueThreadPool_Queue {
 
   private:
     // PRIVATE TYPES
-    enum {
+    enum EnqueueState {
         // enqueue states
         e_ENQUEUING_ENABLED,   // enqueuing is enabled
         e_ENQUEUING_DISABLED,  // enqueuing is disabled
-        e_DELETING,            // deleting
+        e_DELETING             // deleting
+    };
 
-        // pause states
+    enum RunState {
         e_NOT_SCHEDULED,       // running but not scheduled
         e_SCHEDULED,           // running and scheduled
         e_PAUSING,             // pause requested but not completed yet
@@ -410,9 +411,9 @@ class MultiQueueThreadPool_Queue {
     bsl::deque<Job>            d_list;           // queue of jobs to be
                                                  // executed
 
-    int                        d_enqueueState;   // maintains enqueue state
+    EnqueueState               d_enqueueState;   // maintains enqueue state
 
-    int                        d_runState;       // maintains run state
+    RunState                   d_runState;       // maintains run state
 
     mutable bslmt::Mutex       d_lock;           // protect queue and
                                                  // informational members
@@ -429,16 +430,17 @@ class MultiQueueThreadPool_Queue {
     bslmt::ThreadUtil::Handle  d_processor;      // current worker thread, or
                                                  // ThreadUtil::invalidHandle()
 
-    // PRIVATE MANIPULATORS
-    void setPaused();
-        // Mark this queue as paused, notify any threads blocked on
-        // 'd_pauseBlock', and schedule the deletion job if this queue is to be
-        // deleted.
-
     // NOT IMPLEMENTED
     MultiQueueThreadPool_Queue();
     MultiQueueThreadPool_Queue(const MultiQueueThreadPool_Queue&);
     MultiQueueThreadPool_Queue &operator=(const MultiQueueThreadPool_Queue &);
+
+    // PRIVATE MANIPULATORS
+    void setPaused();
+        // Mark this queue as paused, notify any threads blocked on
+        // 'd_pauseBlock', and schedule the deletion job if this queue is to be
+        // deleted.  The behavior is undefined unless this queue's lock is in a
+        // locked state and 'e_PAUSING == d_runState'.
 
   public:
     // TRAITS
@@ -461,13 +463,13 @@ class MultiQueueThreadPool_Queue {
     // MANIPULATORS
     int enable();
         // Enable enqueuing to this queue.  Return 0 on success, and a non-zero
-        // value otherwise.  It is an error to call 'enable' after a call to
-        // 'prepareForDeletion'.
+        // value otherwise.  This method will fail (with an error) if
+        // 'prepareForDeletion' has already been called on this object.
 
     int disable();
-        // Enable enqueuing to this queue.  Return 0 on success, and a non-zero
-        // value otherwise.  It is an error to call 'disable' after a call to
-        // 'prepareForDeletion'.
+        // Disable enqueuing to this queue.  Return 0 on success, and a
+        // non-zero value otherwise.  This method will fail (with an error) if
+        // 'prepareForDeletion' has already been called on this object.
 
     int pause();
         // Wait until any currently-executing job on the queue completes, then
@@ -479,13 +481,15 @@ class MultiQueueThreadPool_Queue {
         // from 'disable' in that (1) 'pause' stops processing for a queue, and
         // (2) does *not* prevent additional jobs from being enqueued.
 
-    void popFront();
+    void executeFront();
         // Execute the 'Job' at the front of this queue, dequeue the 'Job', and
-        // if the queue is not paused schedule a callback from the specified
-        // 'threadPool'.  The behavior is undefined if this queue is empty.
+        // if the queue is not paused schedule a callback from the associated
+        // thread pool.  The behavior is undefined if this queue is empty.
 
     void prepareForDeletion(const Job& functor);
-        // Permanently disable enqueuing to this queue.
+        // Permanently disable enqueuing to this queue and schedule the
+        // specified 'functor' to be executed by a thread from the associated
+        // thread pool.
 
     int pushBack(const Job& functor);
         // Enqueue the specified 'functor' at the end of this queue.  Return 0
@@ -815,6 +819,8 @@ class MultiQueueThreadPool {
 inline
 void MultiQueueThreadPool_Queue::setPaused()
 {
+    BSLS_ASSERT(e_PAUSING == d_runState);
+
     d_runState = e_PAUSED;
 
     --d_multiQueueThreadPool_p->d_numActiveQueues;
