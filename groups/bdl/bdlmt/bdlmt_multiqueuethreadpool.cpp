@@ -32,7 +32,9 @@ void createMultiQueueThreadPool_Queue(
                              bdlmt::MultiQueueThreadPool *multiQueueThreadPool)
     // Construct at the specified 'arena' a 'bdlmt::MultiQueueThreadPool_Queue'
     // initialized with the specified 'multiQueueThreadPool' and using the
-    // specified 'allocator'.
+    // specified 'allocator'.  Note that this function may be used as the
+    // function required for the non-default object creation in
+    // 'bdlcc::ObjectPool'.
 {
     new (arena) bdlmt::MultiQueueThreadPool_Queue(multiQueueThreadPool,
                                                   allocator);
@@ -189,7 +191,9 @@ void MultiQueueThreadPool_Queue::executeFront()
 void MultiQueueThreadPool_Queue::prepareForDeletion(const Job& functor)
 {
     // Note that the queue is actually deleted by the thread pool while
-    // executing 'MultiQueueThreadPool::deleteQueueCb'.
+    // executing the supplied 'functor' (which is
+    // 'MultiQueueThreadPool::deleteQueueCb' bound with the required
+    // arguments).
 
     bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 

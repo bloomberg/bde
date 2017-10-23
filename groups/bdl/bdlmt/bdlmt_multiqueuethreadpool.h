@@ -538,23 +538,11 @@ class MultiQueueThreadPool {
     friend class MultiQueueThreadPool_Queue;
 
     // PRIVATE TYPES
-    enum {
+    enum State {
         // Internal running states.
         e_STATE_RUNNING,
         e_STATE_STOPPING,
         e_STATE_STOPPED
-    };
-
-    enum EnqueueType {
-        e_DELETION,    // enqueue at front and then disable queue permanently
-                       // (for deletion)
-
-        e_BACK,        // enqueue new job at back of queue
-
-        e_FRONT,       // enqueue new job at front of queue
-
-        e_FRONT_FORCE  // enqueue new job at front of queue regardless of
-                       // disabled state
     };
 
   public:
@@ -582,7 +570,7 @@ class MultiQueueThreadPool {
     int               d_nextId;             // next id to provide from
                                             // 'createQueue'
 
-    int               d_state;              // maintains internal state
+    State             d_state;              // maintains internal state
 
     mutable bslmt::ReaderWriterMutex
                       d_lock;               // locked for write when deleting
@@ -609,7 +597,13 @@ class MultiQueueThreadPool {
                        bslmt::Latch               *latch);
         // If the specified 'latch' is non-null, execute 'latch->arrive()'.
         // Otherwise, execute the specified 'cleanupFunctor' if it is valid.
-        // Then, delete the specified 'queue'.
+        // Then, delete the specified 'queue'.  The behavior is undefined
+        // unless '0 != queue'.  Note that this callback provides a mechanism
+        // for proper lifetime management of the 'queue' by scheduling the
+        // deletion with the associated thread pool since the
+        // 'MultiQueueThreadPool' does not know *when* to delete the queue and
+        // a 'MultiQueueThreadPool_Queue' cannot delete itself at the
+        // appropriate time.
 
     int findIfUsable(int id, MultiQueueThreadPool_Queue **queue);
        // Load into the specified '*queue' a pointer to the queue referenced by
@@ -678,10 +672,12 @@ class MultiQueueThreadPool {
         // Disable enqueuing to the queue associated with the specified 'id',
         // and enqueue the specified 'cleanupFunctor' to the *front* of the
         // queue.  The 'cleanupFunctor' is guaranteed to be the last queue
-        // element processed, after which the queue is destroyed.  The caller
-        // will NOT be blocked until 'cleanupFunctor' executes to completion.
-        // Return 0 on success, and a non-zero value otherwise.  Note that this
-        // function will fail if this pool is stopped.
+        // element processed, after which the queue is destroyed.  This
+        // function does not wait for the 'cleanupFunctor' to be executed
+        // (instead the caller is notified asynchronously through the execution
+        // of the supplied 'cleanupFunctor').  Return 0 on success, and a
+        // non-zero value otherwise.  Note that this function will fail if this
+        // pool is stopped.
 
     int deleteQueue(int id);
         // Disable enqueuing to the queue associated with the specified 'id',
