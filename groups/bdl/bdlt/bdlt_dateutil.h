@@ -92,7 +92,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Schedule Generation
 /// - - - - - - - - - - - - - - -
-// Suppose that given a starting date in the 'YYYYMMDD' format, we want to
+// Suppose that given a starting date in the "YYYYMMDD" format, we want to
 // generate a schedule for an event that occurs on the same day of the month
 // for 12 months.
 //

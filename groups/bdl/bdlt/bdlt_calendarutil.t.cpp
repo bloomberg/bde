@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
         //:   specified number of business days in both forward and backward
         //:   counting directions (C-1), (C-2)
         //:
-        //: 2 Explicitely test situations were the method should be
+        //: 2 Explicitly test situations were the method should be
         //:   unsuccessful.  (C-3)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
@@ -5858,7 +5858,7 @@ int main(int argc, char *argv[])
         //   the calendar relative to the beginning of the month.
         //
         // Concerns:
-        //: 1 Function behaves correctly regardless of wether there are
+        //: 1 Function behaves correctly regardless of whether there are
         //:   business days or non-business days before the month.
         //:
         //: 2 Function returns '999' when the sequence that get passed
@@ -5958,7 +5958,7 @@ int main(int argc, char *argv[])
         static const struct {
             int         d_line;          // source line
             const char *d_input_p;       // input values
-            int         d_lenght;        // length of calendar
+            int         d_length;        // length of calendar
             bdlt::Date  d_start;         // start date
             bdlt::Date  d_end;           // end date
             int         d_businessDays;  // number of business days
@@ -5991,7 +5991,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             const int       LINE   = DATA[i].d_line;
             const char     *INPUT  = DATA[i].d_input_p;
-            const int       LENGTH = DATA[i].d_lenght;
+            const int       LENGTH = DATA[i].d_length;
             bdlt::Date      START  = DATA[i].d_start;
             bdlt::Date      END    = DATA[i].d_end;
             const int       BDAYS  = DATA[i].d_businessDays;

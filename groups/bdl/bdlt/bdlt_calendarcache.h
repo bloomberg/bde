@@ -320,7 +320,7 @@ class CalendarCache_Entry;
 
 // IMPLEMENTATION NOTE: The Sun Studio 12.3 compiler does not support 'map's
 // holding types that are incomplete at the point of declaration of a data
-// member.  Other compilers allow us to complete 'CalendarChache_Entry' at a
+// member.  Other compilers allow us to complete 'CalendarCache_Entry' at a
 // later point in the code, but before any operation (such as 'insert') that
 // would require the type to be complete.  If we did not have to support this
 // compiler, this whole class could be defined in the .cpp file; as it stands,
