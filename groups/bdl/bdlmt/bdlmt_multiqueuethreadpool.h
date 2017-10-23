@@ -342,6 +342,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
+#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmt_mutex.h>
+#endif
+
+#ifndef INCLUDED_BSLMT_MUTEXASSERT
+#include <bslmt_mutexassert.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_READERWRITERMUTEX
 #include <bslmt_readerwritermutex.h>
 #endif
@@ -816,6 +824,8 @@ inline
 void MultiQueueThreadPool_Queue::setPaused()
 {
     BSLS_ASSERT(e_PAUSING == d_runState);
+
+    BSLMT_MUTEXASSERT_IS_LOCKED(&d_lock);
 
     d_runState = e_PAUSED;
 
