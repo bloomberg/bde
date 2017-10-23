@@ -107,8 +107,8 @@ CalendarCache::CalendarCache(CalendarLoader            *loader,
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(loader);
-    BSLS_ASSERT(bsls::TimeInterval(0) <= timeout);
-    BSLS_ASSERT(timeout <= bsls::TimeInterval(INT_MAX));
+    BSLS_ASSERT(bsls::TimeInterval() <= timeout);
+    BSLS_ASSERT(timeout <= bsls::TimeInterval(INT_MAX, 0));
 }
 
 CalendarCache::~CalendarCache()
