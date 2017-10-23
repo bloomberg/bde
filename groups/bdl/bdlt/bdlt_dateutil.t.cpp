@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Schedule Generation
 /// - - - - - - - - - - - - - - -
-// Suppose that given a starting date in the 'YYYYMMDD' format, we want to
+// Suppose that given a starting date in the "YYYYMMDD" format, we want to
 // generate a schedule for an event that occurs on the same day of the month
 // for 12 months.
 //
@@ -1652,7 +1652,7 @@ if (veryVerbose)
         //
         // Concerns:
         //: 1 The function applies the correct formula to convert a 'Date'
-        //:   to an integral value in the 'YYYYMMDD' format.
+        //:   to an integral value in the "YYYYMMDD" format.
         //
         // Plan:
         //: 1 Use the table-driven approach to define a representative set of
@@ -1676,7 +1676,7 @@ if (veryVerbose)
         static const struct {
             int        d_lineNum;   // source line number
             bdlt::Date d_date;      // date value
-            int        d_expected;  // expected result ('YYYYMMDD' format)
+            int        d_expected;  // expected result ("YYYYMMDD" format)
         } DATA[] = {
             //LINE DATE                       EXP
             //---- ----                       ---
@@ -1806,7 +1806,7 @@ if (veryVerbose)
 
         static const struct {
             int        d_lineNum;        // source line number
-            int        d_yyyymmddValue;  // date value ('YYYYMMDD' format)
+            int        d_yyyymmddValue;  // date value ("YYYYMMDD" format)
             bdlt::Date d_exp;            // expected result
 
         } DATA[] = {
@@ -1873,7 +1873,7 @@ if (veryVerbose)
 
         static const struct {
             int  d_lineNum;        // source line number
-            int  d_yyyymmddValue;  // date value ('YYYYMMDD' format)
+            int  d_yyyymmddValue;  // date value ("YYYYMMDD" format)
             bool d_exp;            // expected result
 
         } DATA[] = {
