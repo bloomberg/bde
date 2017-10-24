@@ -1065,7 +1065,6 @@ void Datum::createUninitializedMap(DatumMutableMapRef *result,
     BSLS_ASSERT(basicAllocator);
     BSLS_ASSERT(capacity < bsl::numeric_limits<SizeType>::max()/
                                                       sizeof(DatumMapEntry)-1);
-    BSLMF_ASSERT(sizeof(DatumMapEntry) >= sizeof(Datum_MapHeader));
 
     // Allocate extra elements to store size of the map and a flag to determine
     // if the map is sorted or not.
@@ -1085,20 +1084,22 @@ void Datum::createUninitializedMap(DatumMutableMapRef *result,
                                  &header->d_sorted);
 }
 
-void Datum::createUninitializedIntMap(DatumMutableIntMapRef *result,
-                                      SizeType               capacity,
-                                      bslma::Allocator      *basicAllocator)
+void Datum::createUninitializedIntMap(
+                                  DatumMutableIntMapRef *result,
+                                  SizeType               capacity,
+                                  bslma::Allocator      *basicAllocator)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(basicAllocator);
     BSLS_ASSERT(capacity < bsl::numeric_limits<SizeType>::max() /
                                                  sizeof(DatumIntMapEntry) - 1);
-    BSLMF_ASSERT(sizeof(DatumIntMapEntry) >= sizeof(Datum_IntMapHeader));
 
     // Allocate one extra element to store size of the map and a flag to
     // determine if the map is sorted or not.
-    void * const mem = basicAllocator->allocate(
+    SizeType     bufferSize =
+        bsls::AlignmentUtil::roundUpToMaximalAlignment(
                                     sizeof(DatumIntMapEntry) * (capacity + 1));
+    void * const mem = basicAllocator->allocate(bufferSize);
 
     // Store map header in the front ( 1 DatumMapEntry ).
     Datum_IntMapHeader *header = static_cast<Datum_IntMapHeader *>(mem);
@@ -1121,7 +1122,6 @@ void Datum::createUninitializedMap(
     BSLS_ASSERT(basicAllocator);
     BSLS_ASSERT(capacity < (bsl::numeric_limits<SizeType>::max()-keysCapacity)/
                                                       sizeof(DatumMapEntry)-1);
-    BSLMF_ASSERT(sizeof(DatumMapEntry) >= sizeof(Datum_MapHeader));
 
     // Allocate one extra element to store size of the map and a flag to
     // determine if the map is sorted or not.
