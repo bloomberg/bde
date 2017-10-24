@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: provide a concrete 'baltzo::Loader' for Zoneinfo binary files.
+//@PURPOSE: Provide a concrete 'baltzo::Loader' for Zoneinfo binary files.
 //
 //@CLASSES:
 //  baltzo::DataFileLoader: concrete 'baltzo::Loader' for Zoneinfo binary data
