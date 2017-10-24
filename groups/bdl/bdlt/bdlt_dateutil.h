@@ -317,7 +317,7 @@ struct DateUtil {
         //
         // For example:
         //..
-        //  nthDayOfWeekInMonth(2004, 11, DayOfWeek::k_THURSDAY, 4);
+        //  nthDayOfWeekInMonth(2004, 11, DayOfWeek::e_THURSDAY, 4);
         //..
         // returns November 25, 2004, the fourth Thursday in November, 2004.
 
