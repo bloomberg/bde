@@ -1,12 +1,5 @@
 // bdlmt_multiqueuethreadpool.cpp                                     -*-C++-*-
 
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bdlmt_multiqueuethreadpool.h>
 
 #include <bsls_ident.h>
@@ -15,12 +8,10 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
-#include <bslmt_barrier.h>
+#include <bslmt_latch.h>
 #include <bslmt_lockguard.h>
-#include <bslmt_readlockguard.h>
-#include <bslmt_writelockguard.h>
-#include <bslmt_semaphore.h>
 #include <bslmt_threadutil.h>
+#include <bslmt_writelockguard.h>
 
 #include <bslma_default.h>
 
@@ -30,376 +21,310 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 namespace BloombergLP {
-
 namespace {
-    // Internal helper functions.
 
 void noOp() { }
     // This function does nothing.
 
-void setIntAndPost(bsls::AtomicInt  *intValue,
-                   int               value,
-                   bslmt::Semaphore *semaphore) {
-    // Set the specified 'intValue' to the specified 'value' and post on the
-    // specified 'semaphore'.
-    *intValue = value;
-    semaphore->post();
+void createMultiQueueThreadPool_Queue(
+                             void                        *arena,
+                             bslma::Allocator            *allocator,
+                             bdlmt::MultiQueueThreadPool *multiQueueThreadPool)
+    // Construct at the specified 'arena' a 'bdlmt::MultiQueueThreadPool_Queue'
+    // initialized with the specified 'multiQueueThreadPool' and using the
+    // specified 'allocator'.  Note that this function may be used as the
+    // function required for the non-default object creation in
+    // 'bdlcc::ObjectPool'.
+{
+    new (arena) bdlmt::MultiQueueThreadPool_Queue(multiQueueThreadPool,
+                                                  allocator);
 }
-
 
 }  // close unnamed namespace
 
 namespace bdlmt {
-                      // --------------------------------
-                      // class MultiQueueThreadPool_Queue
-                      // --------------------------------
+
+                     // --------------------------------
+                     // class MultiQueueThreadPool_Queue
+                     // --------------------------------
 
 // CREATORS
-inline
 MultiQueueThreadPool_Queue::MultiQueueThreadPool_Queue(
-                                              bslma::Allocator *basicAllocator)
-: d_list(basicAllocator)
-, d_state(MultiQueueThreadPool_Queue::e_ENQUEUING_ENABLED)
-, d_pauseState(MultiQueueThreadPool_Queue::e_RUNNING)
+                                    MultiQueueThreadPool *multiQueueThreadPool,
+                                    bslma::Allocator     *basicAllocator)
+: d_multiQueueThreadPool_p(multiQueueThreadPool)
+, d_list(basicAllocator)
+, d_enqueueState(e_ENQUEUING_ENABLED)
+, d_runState(e_NOT_SCHEDULED)
+, d_lock()
+, d_pauseBlock()
+, d_pauseCount(0)
+, d_processingCb(bdlf::BindUtil::bind(
+                                     &MultiQueueThreadPool_Queue::executeFront,
+                                     this))
+, d_processor(bslmt::ThreadUtil::invalidHandle())
 {
 }
 
-inline
 MultiQueueThreadPool_Queue::~MultiQueueThreadPool_Queue()
 {
 }
 
-inline
+// MANIPULATORS
+int MultiQueueThreadPool_Queue::enable()
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    if (e_DELETING == d_enqueueState) {
+        return 1;                                                     // RETURN
+    }
+
+    d_enqueueState = e_ENQUEUING_ENABLED;
+    return 0;
+}
+
+int MultiQueueThreadPool_Queue::disable()
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    if (e_DELETING == d_enqueueState) {
+        return 1;                                                     // RETURN
+    }
+
+    d_enqueueState = e_ENQUEUING_DISABLED;
+    return 0;
+}
+
+int MultiQueueThreadPool_Queue::pause()
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+        if (   e_DELETING == d_enqueueState
+            || e_PAUSING  == d_runState
+            || e_PAUSED   == d_runState) {
+            return 1;                                                 // RETURN
+        }
+
+        if (e_NOT_SCHEDULED == d_runState) {
+            d_runState = e_PAUSED;
+
+            return 0;                                                 // RETURN
+        }
+
+        d_runState = e_PAUSING;
+
+        if (bslmt::ThreadUtil::self() == d_processor) {
+            return 0;                                                 // RETURN
+        }
+
+        ++d_pauseCount;
+    }
+
+    d_pauseBlock.wait();
+
+    return 0;
+}
+
+void MultiQueueThreadPool_Queue::executeFront()
+{
+    ++d_multiQueueThreadPool_p->d_numDequeued;
+
+    Job functor;
+    {
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+        BSLS_ASSERT(!d_list.empty());
+
+        if (e_PAUSING == d_runState) {
+            setPaused();
+
+            return;                                                   // RETURN
+        }
+
+        functor = d_list.front();
+        d_list.pop_front();
+        d_processor = bslmt::ThreadUtil::self();
+    }
+
+    // Note that the appropriate 'd_runState' is a bit ambigoues at this point.
+    // Since there is nothing scheduled in the thread pool, the state should
+    // arguably be 'e_NOT_SCHEDULED'.  However, allowing work to be scheduled
+    // during the execution of the 'functor' would be a bug.  Instead of
+    // creating a new state to reflect this situation while the 'functor' is
+    // executing, we leave 'd_runState' as 'e_SCHEDULED'.
+
+    functor();
+
+    // Note that 'pause' might be called while executing the functor since no
+    // lock is held.
+
+    {
+        bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+        BSLS_ASSERT(bslmt::ThreadUtil::self() == d_processor);
+
+        d_processor = bslmt::ThreadUtil::invalidHandle();
+
+        // As per the above, at this point 'e_SCHEDULED' does not imply there
+        // is a job queued in the thread pool.
+
+        if (e_SCHEDULED == d_runState) {
+            if (!d_list.empty()) {
+                int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_processingCb);
+
+                BSLS_ASSERT(0 == status);  (void)status;
+            }
+            else {
+                d_runState = e_NOT_SCHEDULED;
+
+                --d_multiQueueThreadPool_p->d_numActiveQueues;
+            }
+        }
+        else {
+            setPaused();
+        }
+    }
+}
+
+void MultiQueueThreadPool_Queue::prepareForDeletion(const Job& functor)
+{
+    // Note that the queue is actually deleted by the thread pool while
+    // executing the supplied 'functor' (which is
+    // 'MultiQueueThreadPool::deleteQueueCb' bound with the required
+    // arguments).
+
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    d_enqueueState = e_DELETING;
+
+    if (e_NOT_SCHEDULED == d_runState || e_PAUSED == d_runState) {
+        int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                           enqueueJob(functor);
+
+        BSLS_ASSERT(0 == status);  (void)status;
+    }
+    else {
+        d_runState = e_PAUSING;
+
+        d_list.push_front(functor);
+    }
+}
+
+int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    if (e_ENQUEUING_ENABLED == d_enqueueState) {
+        d_list.push_back(functor);
+
+        // Note that the following should match what is in 'pushFront'.
+
+        if (e_NOT_SCHEDULED == d_runState) {
+            d_runState = e_SCHEDULED;
+
+            ++d_multiQueueThreadPool_p->d_numActiveQueues;
+
+            int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_processingCb);
+
+            BSLS_ASSERT(0 == status);  (void)status;
+        }
+
+        return 0;                                                     // RETURN
+    }
+
+    return 1;
+}
+
+int MultiQueueThreadPool_Queue::pushFront(const Job& functor)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    if (e_ENQUEUING_ENABLED == d_enqueueState) {
+        d_list.push_front(functor);
+
+        // Note that the following should match what is in 'pushBack'.
+
+        if (e_NOT_SCHEDULED == d_runState) {
+
+            d_runState = e_SCHEDULED;
+
+            ++d_multiQueueThreadPool_p->d_numActiveQueues;
+
+            int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_processingCb);
+
+            BSLS_ASSERT(0 == status);  (void)status;
+        }
+
+        return 0;                                                     // RETURN
+    }
+
+    return 1;
+}
+
 void MultiQueueThreadPool_Queue::reset()
 {
     d_list.clear();
-    d_numEnqueued    = 0;
-    d_numDequeued    = 0;
-    d_numPendingJobs = 0;
-    d_state.storeRelaxed(e_ENQUEUING_ENABLED);
-    d_pauseState.storeRelaxed(e_RUNNING);
+    d_enqueueState = e_ENQUEUING_ENABLED;
+    d_runState     = e_NOT_SCHEDULED;
+    d_pauseCount   = 0;
+    d_processor    = bslmt::ThreadUtil::invalidHandle();
+
 }
 
-// MANIPULATORS
-inline
-void MultiQueueThreadPool_Queue::popFront(Job *job)
+int MultiQueueThreadPool_Queue::resume()
 {
-    BSLS_ASSERT(job);
-    BSLS_ASSERT(!d_list.empty());
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
-    *job = d_list.front();
-    d_list.pop_front();
-    ++d_numDequeued;
-}
-
-inline
-int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
-{
-    int rc = 1;
-    if (MultiQueueThreadPool_Queue::e_ENQUEUING_ENABLED ==
-        d_state.loadRelaxed()) {
-        d_list.push_back(functor);
-        rc = 0;
-        ++d_numEnqueued;
+    if (e_PAUSED != d_runState) {
+        return 1;                                                     // RETURN
     }
-    return rc;
-}
 
-inline
-int MultiQueueThreadPool_Queue::pushFront(const Job& functor)
-{
-    int rc = 1;
-    if (MultiQueueThreadPool_Queue::e_ENQUEUING_ENABLED ==
-        d_state.loadRelaxed()) {
-        d_list.push_front(functor);
-        rc = 0;
-        ++d_numEnqueued;
+    if (!d_list.empty()) {
+        int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_processingCb);
+
+        if (0 != status) {
+            return 1;
+        }
+
+        d_runState = e_SCHEDULED;
+
+        ++d_multiQueueThreadPool_p->d_numActiveQueues;
     }
-    return rc;
-}
-
-inline
-int MultiQueueThreadPool_Queue::forceFront(const Job& functor)
-{
-    int rc = 1;
-    if (MultiQueueThreadPool_Queue::e_DELETING != d_state.loadRelaxed()) {
-        d_list.push_front(functor);
-        rc = 0;
-        ++d_numEnqueued;
+    else {
+        d_runState = e_NOT_SCHEDULED;
     }
-    return rc;
+
+    return 0;
 }
 
-inline
-void MultiQueueThreadPool_Queue::prepareForDeletion()
-{
-    d_state.storeRelaxed(MultiQueueThreadPool_Queue::e_DELETING);
-}
+                    // ---------------------------------
+                    // class bdlmt::MultiQueueThreadPool
+                    // ---------------------------------
 
-inline
-void MultiQueueThreadPool_Queue::enable()
-{
-    if (MultiQueueThreadPool_Queue::e_DELETING != d_state.loadRelaxed()) {
-        d_state.storeRelaxed(MultiQueueThreadPool_Queue::e_ENQUEUING_ENABLED);
-    }
-}
-
-inline
-void MultiQueueThreadPool_Queue::disable()
-{
-    if (MultiQueueThreadPool_Queue::e_DELETING != d_state.loadRelaxed()) {
-        d_state.storeRelaxed(MultiQueueThreadPool_Queue::e_ENQUEUING_DISABLED);
-    }
-}
-
-inline
-bool MultiQueueThreadPool_Queue::isEnabled() const
-{
-    int state = d_state.loadRelaxed();
-    return (e_DELETING != state && e_ENQUEUING_ENABLED == state);
-}
-
-inline
-void MultiQueueThreadPool_Queue::numProcessedReset(int *numDequeued,
-                                                   int *numEnqueued)
-{
-    // Implementation note: This is not entirely thread-consistent, though
-    // thread safe.  If in between the two 'swap' operations the number
-    // enqueued changes, we can get a slightly inconsistent picture.
-    *numDequeued = d_numDequeued.swap(0);
-    *numEnqueued = d_numEnqueued.swap(0);
-}
-
-// ACCESSORS
-inline
-int MultiQueueThreadPool_Queue::length() const
-{
-    return static_cast<int>(d_list.size());
-}
-
-inline
-void MultiQueueThreadPool_Queue::numProcessed(int *numDequeued,
-                                              int *numEnqueued) const
-{
-    *numDequeued = d_numDequeued;
-    *numEnqueued = d_numEnqueued;
-}
-
-                  // ---------------------------------------
-                  // class MultiQueueThreadPool_QueueContext
-                  // ---------------------------------------
-
-// CREATORS
-inline
-MultiQueueThreadPool_QueueContext::MultiQueueThreadPool_QueueContext(
-                                              bslma::Allocator *basicAllocator)
-: d_queue(basicAllocator)
-, d_isChanging(false)
-, d_processingCb(bsl::allocator_arg_t(),
-                 bsl::allocator<QueueProcessorCb>(basicAllocator))
-, d_destroyFlag(false)
-, d_processor(bslmt::ThreadUtil::invalidHandle())
-{
-    d_lock.initialize();
-}
-
-inline
-void MultiQueueThreadPool_QueueContext::reset()
-{
-   d_queue.reset();
-   d_processingCb = QueueProcessorCb();
-   d_destroyFlag = false;
-   d_isChanging = false;
-   d_processor = bslmt::ThreadUtil::invalidHandle();
-}
-
-inline
-MultiQueueThreadPool_QueueContext::
-    ~MultiQueueThreadPool_QueueContext()
-{
-}
-
-// ACCESSORS
-inline
-bslmt::QLock& MultiQueueThreadPool_QueueContext::mutex() const
-{
-    return d_lock;
-}
-}  // close package namespace
-
-                     // ---------------------------------
-                     // class bdlmt::MultiQueueThreadPool
-                     // ---------------------------------
-
-// TYPES
-typedef bdlcc::ObjectCatalogIter<bdlmt::MultiQueueThreadPool_QueueContext*>
-                    RegistryIterator;
-    // This type is provided for notational convenience when iterating over the
-    // queue registry.
-
-typedef bsl::pair<int, bdlmt::MultiQueueThreadPool_QueueContext*>
-                    RegistryValue;
-    // This type is provided for notational convenience when iterating over the
-    // queue registry.
-
-enum {
-    // Internal running states.
-
-    STATE_STOPPED,
-    STATE_RUNNING
-};
-
-namespace bdlmt {
 // PRIVATE MANIPULATORS
-void MultiQueueThreadPool::createQueueContextCb(void *memory)
+inline
+void MultiQueueThreadPool::deleteQueueCb(
+                                    MultiQueueThreadPool_Queue *queue,
+                                    const CleanupFunctor&       cleanupFunctor,
+                                    bslmt::Latch               *latch)
 {
-    BSLS_ASSERT(memory);
+    BSLS_ASSERT(queue);
 
-    new (memory) MultiQueueThreadPool_QueueContext(d_allocator_p);
-}
-
-void MultiQueueThreadPool::deleteQueueCb(int                    id,
-                                         const CleanupFunctor&  cleanupFunctor,
-                                         bslmt::Barrier        *barrier)
-{
-    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_queueStateLock);
-
-    MultiQueueThreadPool_QueueContext *context = 0;
-    int rc = d_queueRegistry.remove(id, &context);
-    BSLS_ASSERT(0 == rc);
-    (void)rc;
-
-    context->d_destroyFlag = true;
-
-    guard.release()->unlock();
-    --d_numDequeued;
-
-    if (barrier) {
-        barrier->wait();
+    if (latch) {
+        latch->arrive();
     }
     else if (cleanupFunctor) {
         cleanupFunctor();
     }
-}
 
-void MultiQueueThreadPool::processQueueCb(
-                                    MultiQueueThreadPool_QueueContext *context)
-{
-    BSLS_ASSERT(context);
+    // Note that 'd_queuePool' does its own synchronization.
 
-    bslmt::QLockGuard guard(&context->mutex());
-    context->d_processor = bslmt::ThreadUtil::self();
-    BSLS_ASSERT(0 < context->d_queue.d_numPendingJobs);
-    BSLS_ASSERT(!context->d_queue.d_list.empty());
-
-    {
-        Job functor(bsl::allocator_arg_t(), d_allocator_p);
-        context->d_queue.popFront(&functor);
-        guard.unlock();
-        ++d_numDequeued;
-
-        functor();
-        context->d_processor = bslmt::ThreadUtil::invalidHandle();
-    }
-
-    // Other threads may enqueue new jobs between processing the dequeued
-    // functor and re-checking the queue length.
-
-    if (context->d_destroyFlag) {
-        --d_numActiveQueues;
-        d_queuePool.releaseObject(context);
-    }
-    else {
-        // Reduce the number of pending jobs.
-
-        int numPending = --context->d_queue.d_numPendingJobs;
-
-        int pauseState = context->d_queue.d_pauseState.loadRelaxed();
-
-        // If the queue is pausing, mark it paused now. We will not resubmit
-        // the processing callback.
-
-        if (MultiQueueThreadPool_Queue::e_PAUSING == pauseState) {
-            pauseState =               MultiQueueThreadPool_Queue::e_PAUSED;
-            context->d_queue.d_pauseState =
-                                       MultiQueueThreadPool_Queue::e_PAUSED;
-        }
-
-        // If there are now 0 pending jobs, or the queue was paused during the
-        // execution of the user callback, mark the queue deactivated.
-        // Otherwise, re-enqueue the processing callback.
-
-        if (0 == numPending ||
-            MultiQueueThreadPool_Queue::e_PAUSED == pauseState) {
-            --d_numActiveQueues;
-        }
-        else {
-            // Enqueue the processing callback for this queue.
-            int status = d_threadPool_p->enqueueJob(context->d_processingCb);
-            BSLS_ASSERT(0 == status);
-            (void)status;
-        }
-    }
-}
-
-int MultiQueueThreadPool::enqueueJobImpl(int          id,
-                                         const Job   &functor,
-                                         EnqueueType  type)
-{
-    MultiQueueThreadPool_QueueContext *context;
-    int                                     rc = 1;
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_queueStateLock);
-    if (STATE_RUNNING == d_state.loadRelaxed() && d_threadPool_p->enabled() &&
-        0             == d_queueRegistry.find(id, &context)) {
-        bslmt::QLockGuard guard(&context->mutex());
-        int               status = -1;
-        switch (type) {
-          case e_FRONT: {
-              status = context->d_queue.pushFront(functor);
-              break;
-          }
-          case e_FRONT_FORCE: {
-              status = context->d_queue.forceFront(functor);
-              break;
-          }
-          case e_BACK: {
-              status = context->d_queue.pushBack(functor);
-              break;
-          }
-          case e_DELETION: {
-              status = context->d_queue.forceFront(functor);
-              context->d_queue.prepareForDeletion();
-              break;
-          }
-        }
-
-        if (0 == status) {
-            bool isPaused = MultiQueueThreadPool_Queue::e_RUNNING !=
-                context->d_queue.d_pauseState.loadRelaxed();
-            if (isPaused && e_DELETION != type) {
-                // if paused, and not deleting, increment the
-                // number of pending jobs but do not activate the queue
-                ++context->d_queue.d_numPendingJobs;
-            } else {
-                guard.unlock();
-
-                int numPendingJobs = ++context->d_queue.d_numPendingJobs;
-                if ( (isPaused && e_DELETION == type)
-                    || 1 == numPendingJobs) {
-                    ++d_numActiveQueues;
-
-                    BSLS_ASSERT(context->d_processingCb);
-
-                    // Enqueue the processing callback for this queue.
-                    status =
-                        d_threadPool_p->enqueueJob(context->d_processingCb);
-                    BSLS_ASSERT(0 == status);
-                }
-            }
-            rc = 0;
-        }
-    }
-    return rc;
+    d_queuePool.releaseObject(queue);
 }
 
 // CREATORS
@@ -411,11 +336,19 @@ MultiQueueThreadPool::MultiQueueThreadPool(
                               bslma::Allocator               *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_threadPoolIsOwned(true)
-, d_queuePool(-1, basicAllocator)
+, d_queuePool(bdlf::BindUtil::bind(&createMultiQueueThreadPool_Queue,
+                                   bdlf::PlaceHolders::_1,
+                                   bdlf::PlaceHolders::_2,
+                                   this),
+              -1,
+              basicAllocator)
 , d_queueRegistry(basicAllocator)
-, d_state(STATE_STOPPED)
+, d_nextId(1)
+, d_state(e_STATE_STOPPED)
+, d_numActiveQueues(0)
+, d_numDequeued(0)
+, d_numEnqueued(0)
 {
-    // preconditions asserted in 'ThreadPool' constructor
     d_threadPool_p = new (*d_allocator_p) ThreadPool(threadAttributes,
                                                      minThreads,
                                                      maxThreads,
@@ -428,9 +361,18 @@ MultiQueueThreadPool::MultiQueueThreadPool(ThreadPool       *threadPool,
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_threadPool_p(threadPool)
 , d_threadPoolIsOwned(false)
-, d_queuePool(-1, basicAllocator)
+, d_queuePool(bdlf::BindUtil::bind(&createMultiQueueThreadPool_Queue,
+                                   bdlf::PlaceHolders::_1,
+                                   bdlf::PlaceHolders::_2,
+                                   this),
+              -1,
+              basicAllocator)
 , d_queueRegistry(basicAllocator)
-, d_state(STATE_STOPPED)
+, d_nextId(1)
+, d_state(e_STATE_STOPPED)
+, d_numActiveQueues(0)
+, d_numDequeued(0)
+, d_numEnqueued(0)
 {
     BSLS_ASSERT(threadPool);
 }
@@ -447,141 +389,159 @@ MultiQueueThreadPool::~MultiQueueThreadPool()
 // MANIPULATORS
 int MultiQueueThreadPool::createQueue()
 {
-    MultiQueueThreadPool_QueueContext *context = d_queuePool.getObject();
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    context->d_processingCb = bdlf::BindUtil::bind(
-                                      &MultiQueueThreadPool::processQueueCb,
-                                      this,
-                                      context);
+    int id = d_nextId++;
 
-    return d_queueRegistry.add(context);
+    // Note that 'd_queuePool' does its own synchronization.
+
+    d_queueRegistry[id] = d_queuePool.getObject();
+
+    return id;
 }
 
 int MultiQueueThreadPool::deleteQueue(int                   id,
                                       const CleanupFunctor& cleanupFunctor)
 {
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    MultiQueueThreadPool_Queue *queue = 0;
+
+    if (findIfUsable(id, &queue)) {
+        return 1;                                                     // RETURN
+    }
+
+    d_queueRegistry.erase(id);
+
     Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
                                    this,
-                                   id,
+                                   queue,
                                    cleanupFunctor,
-                                   (bslmt::Barrier *)0);
+                                   (bslmt::Latch *)0);
 
-    return enqueueJobImpl(id, job, e_DELETION);
+    queue->prepareForDeletion(job);
+
+    return 0;
 }
 
 int MultiQueueThreadPool::deleteQueue(int id)
 {
-    bslmt::Barrier barrier(2);    // block in calling and execution threads
+    bslmt::Latch latch(1);
 
-    Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
-                                   this,
-                                   id,
-                                   CleanupFunctor(&noOp),
-                                   &barrier);
+    {
+        bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    int rc = enqueueJobImpl(id, job, e_DELETION);
-    if (0 == rc) {
-        barrier.wait();
+        MultiQueueThreadPool_Queue *queue = 0;
+
+        if (findIfUsable(id, &queue)) {
+            return 1;                                                 // RETURN
+        }
+
+        d_queueRegistry.erase(id);
+
+        Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
+                                       this,
+                                       queue,
+                                       CleanupFunctor(&noOp),
+                                       &latch);
+
+        queue->prepareForDeletion(job);
     }
-    return rc;
+
+    latch.wait();
+
+    return 0;
 }
 
 int MultiQueueThreadPool::enableQueue(int id)
 {
-    MultiQueueThreadPool_QueueContext *context;
-    int                                rc = 1;
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_queueStateLock);
-    if (STATE_RUNNING == d_state.loadRelaxed() && d_threadPool_p->enabled() &&
-        0 == d_queueRegistry.find(id, &context)) {
-        context->d_queue.enable();
-        rc = 0;
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    MultiQueueThreadPool_Queue *queue;
+
+    if (findIfUsable(id, &queue)) {
+        return 1;                                                     // RETURN
     }
-    return rc;
+
+    return queue->enable();
 }
 
 int MultiQueueThreadPool::disableQueue(int id)
 {
-    MultiQueueThreadPool_QueueContext *context;
-    int                                     rc = 1;
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_queueStateLock);
-    if (STATE_RUNNING == d_state.loadRelaxed() && d_threadPool_p->enabled() &&
-        0 == d_queueRegistry.find(id, &context)) {
-        context->d_queue.disable();
-        rc = 0;
-    }
-    return rc;
-}
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-bool MultiQueueThreadPool::isEnabled(int id) const
-{
-    MultiQueueThreadPool_QueueContext *context = 0;
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_queueStateLock);
-    return (STATE_RUNNING == d_state.loadRelaxed() && d_threadPool_p->enabled()
-                                 && 0 == d_queueRegistry.find(id, &context) &&
-                                                context->d_queue.isEnabled());
+    MultiQueueThreadPool_Queue *queue;
+
+    if (findIfUsable(id, &queue)) {
+        return 1;                                                     // RETURN
+    }
+
+    return queue->disable();
 }
 
 int MultiQueueThreadPool::drainQueue(int id)
 {
-    int numPendingJobs;
+    while (1) {
+        {
+            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex>
+                                                   guard(&d_lock);
 
-    // Spin-with-yield until the queue is emptied.
-    do {
-        bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(
-                                                             &d_queueStateLock);
-        MultiQueueThreadPool_QueueContext *context;
-        int rc = d_queueRegistry.find(id, &context);
-        if (0 == rc) {
-            numPendingJobs = context->d_queue.d_numPendingJobs;
-            if (numPendingJobs > 0) {
-                // Release the lock before yielding.
-                regGuard.release()->unlock();
-                bslmt::ThreadUtil::yield();
+            QueueRegistry::iterator iter = d_queueRegistry.find(id);
+
+            if (d_queueRegistry.end() == iter) {
+                return 1;                                             // RETURN
             }
-        } else {
-            return rc;
+
+            if (iter->second->isDrained()) {
+                return 0;                                             // RETURN
+            }
         }
-    } while (numPendingJobs > 0);
+
+        bslmt::ThreadUtil::yield();
+    }
 
     return 0;
 }
 
 int MultiQueueThreadPool::start()
 {
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_stateLock);
-    if (STATE_RUNNING == d_state.loadRelaxed()) {
-        return 0;                                                     // RETURN
-    }
+    while (1) {
+        bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    // While changing the state of the pool, acquire a write lock on
-    // d_queueStateLock.
+        if (e_STATE_RUNNING == d_state) {
+            return 0;                                                 // RETURN
+        }
+        else if (e_STATE_STOPPED == d_state) {
+            for (QueueRegistry::iterator it = d_queueRegistry.begin();
+                 it != d_queueRegistry.end();
+                 ++it) {
+                it->second->enable();
+            }
 
-    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_queueStateLock);
-    for (RegistryIterator it(d_queueRegistry); it; ++it) {
-        RegistryValue rv = it();
-        rv.second->d_queue.enable();
-    }
+            int rc = 0;
+            if (d_threadPoolIsOwned) {
+                rc = d_threadPool_p->start() ? -1 : 0;
+            }
 
-    int rc = 0;
-    if (d_threadPoolIsOwned) {
-        rc = d_threadPool_p->start() ? -1 : 0;
-    }
-    if (0 == rc) {
-        d_state.storeRelaxed(STATE_RUNNING);
-    }
+            if (0 == rc) {
+                d_state = e_STATE_RUNNING;
+            }
 
-    return rc;
+            return rc;                                                // RETURN
+        }
+
+        bslmt::ThreadUtil::yield();
+    }
 }
 
 void MultiQueueThreadPool::drain()
 {
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_stateLock);
-    if (STATE_STOPPED == d_state.loadRelaxed() ||
-        0             == d_threadPool_p->enabled()) {
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    if (   e_STATE_RUNNING != d_state
+        || 0               == d_threadPool_p->enabled()) {
         return;                                                       // RETURN
     }
-
-    BSLS_ASSERT(STATE_RUNNING == d_state.loadRelaxed());
 
     // Wait until all queues are emptied.
     while (0 < d_numActiveQueues) {
@@ -590,224 +550,141 @@ void MultiQueueThreadPool::drain()
 
     if (d_threadPoolIsOwned) {
         d_threadPool_p->drain();
-        BSLS_ASSERT(0 <  d_threadPool_p->numWaitingThreads());
-        BSLS_ASSERT(0 == d_threadPool_p->numActiveThreads());
         d_threadPool_p->start();
     }
 }
 
-int MultiQueueThreadPool::changePauseState(int id, bool paused)
+int MultiQueueThreadPool::pauseQueue(int id)
 {
-    MultiQueueThreadPool_QueueContext *context;
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_queueStateLock);
-    if (STATE_RUNNING != d_state.loadRelaxed() ||
-        0 == d_threadPool_p->enabled() ||
-        0 != d_queueRegistry.find(id, &context)) {
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    MultiQueueThreadPool_Queue *queue;
+
+    if (findIfUsable(id, &queue)) {
         return 1;                                                     // RETURN
     }
 
-    bslmt::QLockGuard guard(&context->mutex());
+    return queue->pause();
+}
 
-    bool isPaused = MultiQueueThreadPool_Queue::e_RUNNING !=
-        context->d_queue.d_pauseState.loadRelaxed();
-    if (paused == isPaused || context->d_isChanging) {
-        // Already in the intended state, or another thread is in the process
-        // of changing state. Either represents a failure under the
-        // contract.
+int MultiQueueThreadPool::resumeQueue(int id)
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+    MultiQueueThreadPool_Queue *queue;
+
+    if (findIfUsable(id, &queue)) {
         return 1;                                                     // RETURN
     }
 
-    if (bslmt::ThreadUtil::areEqual(bslmt::ThreadUtil::self(),
-                                    context->d_processor)) {
-        // Invoked from a job within the queue. We can simply set
-        // the paused flag and it will be observed by the processing
-        // function after this job completes.
-        context->d_queue.d_pauseState = paused
-            ? MultiQueueThreadPool_Queue::e_PAUSED
-            : MultiQueueThreadPool_Queue::e_RUNNING;
-        return 0;                                                     // RETURN
-    }
-
-    // The state change needs to happen in the queue processing thread.
-    // In the case of pausing, it needs to happen there because the contract
-    // requires it; in the case of resuming, it needs to happen there to avoid
-    // racing with pausing.  Set a flag to indicating we are waiting for a state
-    // change.
-    context->d_isChanging = true;
-
-    bslmt::Semaphore semaphore;
-    int newState = paused
-        ? MultiQueueThreadPool_Queue::e_PAUSING
-        : MultiQueueThreadPool_Queue::e_RUNNING;
-    Job job = bdlf::BindUtil::bind(&setIntAndPost,
-                                   &context->d_queue.d_pauseState,
-                                   newState,
-                                   &semaphore);
-    if (paused) {
-        // 'enqueueJobImpl' locks the queue state and context locks, so invoke
-        // while both are unlocked.
-
-        guard.unlock();
-        bslmt::ReadLockGuardUnlock<bslmt::ReaderWriterMutex> regUnlock(
-                                                          &d_queueStateLock);
-        if (0 != enqueueJobImpl(id, job, e_FRONT_FORCE)) {
-            // Queue was deleted (no need to reset d_isChanging flag, this queue
-            // is in a terminal state).
-
-            return 1;                                                 // RETURN
-        }
-
-        semaphore.wait();
-    } else {
-        // We can't use enqueueJobImpl, because we need to increment the number
-        // of jobs but unconditionally re-enqueue the processing callback
-        // (to effect the resumption) so we need to do it manually.  At this
-        // point we still hold the queue state and context locks.
-
-        context->d_queue.forceFront(job);
-        ++context->d_queue.d_numPendingJobs;
-        ++d_numActiveQueues;
-
-        int status =
-            d_threadPool_p->enqueueJob(context->d_processingCb);
-        (void)status; BSLS_ASSERT(0 == status);
-
-        // Now unlock the queue state and context locks to wait on the
-        // semaphore.
-
-        guard.unlock();
-        bslmt::ReadLockGuardUnlock<bslmt::ReaderWriterMutex> regUnlock(
-                                                          &d_queueStateLock);
-        semaphore.wait();
-    }
-
-    // We have released the lock protecting 'd_queueRegistry' so the queue may
-    // have been deleted and 'context' must be re-found.  Note we hold a read
-    // lock on d_queueStateLock here.
-
-    if (0 != d_queueRegistry.find(id, &context)) {
-        // queue was deleted from under us
-        return 1;                                                     // RETURN
-    }
-
-    bslmt::QLockGuard stateChangeGuard(&context->mutex());
-
-    // If pausing, additionally wait for the state to change from e_PAUSING to
-    // e_PAUSED; this prevents a thread executing resumeQueue() from enqueing
-    // the processing callback before processQueueCb() has decided not to
-    // resubmit the processing callback.  It is safe to spin here because we're
-    // only waiting for the few instructions in processQueueCb() between
-    // posting the semaphore and updating the pause state.
-    while (paused && MultiQueueThreadPool_Queue::e_PAUSED !=
-           context->d_queue.d_pauseState) ;
-
-    context->d_isChanging = false;
-    return 0;
+    return queue->resume();
 }
 
 void MultiQueueThreadPool::stop()
 {
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_stateLock);
-    if (STATE_STOPPED == d_state.loadRelaxed()) {
-        return;                                                       // RETURN
+    {
+        bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+        if (e_STATE_STOPPED == d_state) {
+            return;                                                   // RETURN
+        }
+
+        d_state = e_STATE_STOPPING;
     }
-
-    // While changing the state of the pool, acquire a write lock on
-    // d_queueStateLock.  This ensures that anyone who acquired
-    // a read lock when the queue was RUNNING completes before we can proceed.
-
-    d_queueStateLock.lockWrite();
-    d_state.storeRelaxed(STATE_STOPPED);    // disables all queues
-    d_queueStateLock.unlock();
 
     // Wait until all queues are emptied.
     while (0 < d_numActiveQueues) {
         bslmt::ThreadUtil::yield();
     }
 
-    if (d_threadPoolIsOwned) {
-        d_threadPool_p->drain();
-        BSLS_ASSERT(0 <  d_threadPool_p->numWaitingThreads());
-        BSLS_ASSERT(0 == d_threadPool_p->numActiveThreads());
+    {
+        bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+        if (d_threadPoolIsOwned) {
+            d_threadPool_p->drain();
+        }
+
+        d_state = e_STATE_STOPPED;
     }
 }
 
 void MultiQueueThreadPool::shutdown()
 {
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_stateLock);
+    {
+        bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    // While changing the state of the pool, acquire a write lock on
-    // d_queueStateLock.  This ensures that anyone who acquired
-    // a read lock when the queue was RUNNING completes before we can proceed.
+        if (e_STATE_STOPPED == d_state || 0 == d_threadPool_p->enabled()) {
+            // Note that 'd_queuePool' does its own synchronization.
 
-    d_queueStateLock.lockWrite();
-    d_state.storeRelaxed(STATE_STOPPED);    // disables all queues
-    d_queueStateLock.unlock();
+            for (QueueRegistry::iterator it = d_queueRegistry.begin();
+                 it != d_queueRegistry.end();
+                 ++it) {
+                d_queuePool.releaseObject(it->second);
+            }
+
+            d_queueRegistry.clear();
+            d_nextId = 1;
+
+            if (d_threadPoolIsOwned) {
+                d_threadPool_p->stop();
+            }
+
+            d_state = e_STATE_STOPPED;
+
+            return;                                                   // RETURN
+        }
+
+        d_state = e_STATE_STOPPING;
+    }
 
     // Wait until all queues are emptied.
     while (0 < d_numActiveQueues) {
-        bslmt::ThreadUtil::yield();                                     // SPIN
+        bslmt::ThreadUtil::yield();
     }
 
-    // Delete all queues.  Since removing queues requires a write lock on the
-    // object catalog, we have to extract the queue IDs, and then delete the
-    // queues using the extracted list.  (RegistryIterator holds a read lock
-    // on the catalog and thus we can't delete within the scope of
-    // a RegistryIterator).
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    bsl::vector<int> qids;
-    qids.reserve(numQueues());
-    for (RegistryIterator it(d_queueRegistry); it; ++it) {
-        RegistryValue rv = it();
-        qids.push_back(rv.first);
+    bsl::size_t latchCount = d_queueRegistry.size();
+
+    bslmt::Latch latch(static_cast<int>(latchCount));
+
+    for (QueueRegistry::iterator it = d_queueRegistry.begin();
+         it != d_queueRegistry.end();
+         ++it) {
+        MultiQueueThreadPool_Queue *queue = it->second;
+
+        Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
+                                       this,
+                                       queue,
+                                       CleanupFunctor(&noOp),
+                                       &latch);
+
+        queue->prepareForDeletion(job);
     }
 
-    for (bsl::vector<int>::iterator it = qids.begin(); it != qids.end();
-                                                                        ++it) {
-        MultiQueueThreadPool_QueueContext *context = 0;
-        int status = d_queueRegistry.remove(*it, &context);
-        (void)status; BSLS_ASSERT(0 == status);
-        BSLS_ASSERT(0 == context->d_queue.d_numPendingJobs ||
-                    context->d_queue.d_pauseState.loadRelaxed());
-        d_queuePool.releaseObject(context);
+    d_queueRegistry.clear();
+    d_nextId = 1;
+
+    guard.ptr()->unlock();
+
+    if (latchCount) {
+        latch.wait();
     }
+
+    guard.ptr()->lockWrite();
 
     if (d_threadPoolIsOwned) {
         d_threadPool_p->stop();
-        BSLS_ASSERT(0 == d_threadPool_p->numWaitingThreads());
-        BSLS_ASSERT(0 == d_threadPool_p->numActiveThreads());
     }
+
+    d_state = e_STATE_STOPPED;
 }
 
-// ACCESSORS
-bool MultiQueueThreadPool::isPaused(int id) const
-{
-    MultiQueueThreadPool_QueueContext *context;
-
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_queueStateLock);
-    if (0 == d_queueRegistry.find(id, &context)) {
-        bslmt::QLockGuard guard(&context->mutex());
-        return context->d_queue.d_pauseState.loadRelaxed();          // RETURN
-    }
-    return false;
-}
-
-int MultiQueueThreadPool::numElements(int id) const
-{
-    MultiQueueThreadPool_QueueContext *context;
-
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> regGuard(&d_queueStateLock);
-    if (0 == d_queueRegistry.find(id, &context)) {
-        return context->d_queue.length();                            // RETURN
-    }
-    return -1;
-}
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
