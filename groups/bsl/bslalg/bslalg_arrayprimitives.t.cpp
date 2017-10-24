@@ -4401,10 +4401,10 @@ bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
         if (verbose) printf("\t...with char.\n");                             \
         func<char>(true, true);                                               \
                                                                               \
-        if (verbose) printf("\t...with char.\n");                             \
+        if (verbose) printf("\t...with signed char.\n");                      \
         func<signed char>(true, true);                                        \
                                                                               \
-        if (verbose) printf("\t...with char.\n");                             \
+        if (verbose) printf("\t...with unsigned char.\n");                    \
         func<unsigned char>(true, true);                                      \
                                                                               \
         if (verbose) printf("\t...with short.\n");                            \
@@ -4452,9 +4452,6 @@ bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
         if (verbose) printf("\t...with 'const int *'.\n");                    \
         func<const int *>(true, true);                                        \
                                                                               \
-        if (verbose) printf("\t...with 'FuncPtrType'.\n");                    \
-        func<FuncPtrType>(true, true);                                        \
-                                                                              \
         if (verbose) printf("\t...with 'FnPtrConvertibleType'.\n");           \
         func<FnPtrConvertibleType>(false, false);                             \
                                                                               \
@@ -4463,6 +4460,12 @@ bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
                                                                               \
         if (verbose) printf("\tException test.\n");                           \
         func<T>(false, false, true);                                          \
+                                                                              \
+        if (verbose) printf("\t...with BitwiseMoveableTestType.\n");          \
+        func<BMT>(true, false, true);                                         \
+                                                                              \
+        if (verbose) printf("\t...with BitwiseCopyableTestType.\n");          \
+        func<BCT>(true, true, true);                                          \
     } while (false)
 
 //=============================================================================
@@ -4855,7 +4858,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'copyConstruct'"
                             "\n=======================\n");
 
+        if (verbose) printf(
+                 "\nTesting 'copyConstruct(T *dstB, T *srcB, T *srcE, *a)'\n");
         GAUNTLET(testCopyConstruct);
+
+        if (verbose) printf(
+               "\nTesting 'copyConstruct(T *dstB, FWD_ITER, FWD_ITER, *a)'\n");
         GAUNTLET(testCopyConstructWithIterators);
       } break;
       case 2: {
