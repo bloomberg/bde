@@ -1092,7 +1092,7 @@ void TestDriver::testCase6()
                 const int         LOD = static_cast<int>(out.length());
 
                 bdldfp::DecimalStorage::Type32 bidVal =
-                       bdldfp::DecimalImpUtil::convertToBID(VALUES[i].value());
+                                                       VALUES[i].value().d_raw;
 
                 bsl::uint32_t expectedValue = BSLS_BYTEORDER_HTONL(bidVal);
 
@@ -1306,8 +1306,9 @@ void TestDriver::testCase6()
                 const int         LOD = static_cast<int>(out.length());
 
                 bdldfp::DecimalStorage::Type64 bidVal =
-                    bdldfp::DecimalImpUtil::convertToBID(VALUES[i].value());
-                bsls::Types::Uint64 expectedValue = BSLS_BYTEORDER_HTONLL(bidVal);
+                                                       VALUES[i].value().d_raw;
+                bsls::Types::Uint64 expectedValue =
+                                                 BSLS_BYTEORDER_HTONLL(bidVal);
 
                 ASSERTV(i, X, LOD == 8);
                 ASSERT(memcmp(OD, &expectedValue, 8) == 0);
@@ -1505,6 +1506,8 @@ void TestDriver::testCase6()
             }
         }
 
+        P(sizeof(BDEC::DecimalStorage::Type128) / sizeof(unsigned char));
+
         // Test wire-format
         {
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1519,26 +1522,29 @@ void TestDriver::testCase6()
                 const int         LOD = static_cast<int>(out.length());
 
                 bdldfp::DecimalStorage::Type128 bidVal =
-                       bdldfp::DecimalImpUtil::convertToBID(VALUES[i].value());
+                                                       VALUES[i].value().d_raw;
 
-                bdldfp::Uint128 expectedValue;
+                const int LEN = static_cast<int>(
+                                          sizeof(BDEC::DecimalStorage::Type128)
+                                          / sizeof(unsigned char));
+
+                ASSERTV(i,   X,   LOD == 16);
+                ASSERTV(LOD, LEN, LOD == LEN);
+
+                unsigned char        expected[LEN];
+                const unsigned char *value_p =
+                                     reinterpret_cast<unsigned char*>(&bidVal);
 
 #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
-                bsls::Types::Uint64 hi =
-                           reinterpret_cast<bsls::Types::Uint64 *>(&bidVal)[0];
-                bsls::Types::Uint64 lo =
-                           reinterpret_cast<bsls::Types::Uint64 *>(&bidVal)[1];
+                for (int i(0); i < LEN; ++i) {
+                    expected[i] = *(value_p + i);
+                }
 #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
-                bsls::Types::Uint64 hi =
-                           reinterpret_cast<bsls::Types::Uint64 *>(&bidVal)[1];
-                bsls::Types::Uint64 lo =
-                           reinterpret_cast<bsls::Types::Uint64 *>(&bidVal)[0];
+                for (int i(0); i < LEN; ++i) {
+                    expected[i] = *(value_p + (LEN - 1) - i);
+                }
 #endif
-                expectedValue.setHigh(BSLS_BYTEORDER_HTONLL(hi));
-                expectedValue.setLow( BSLS_BYTEORDER_HTONLL(lo));
-
-                ASSERTV(i, X, LOD == 16);
-                ASSERT(memcmp(OD, &expectedValue, 16) == 0);
+                ASSERT(memcmp(OD, expected, 16) == 0);
             }
         }
     }

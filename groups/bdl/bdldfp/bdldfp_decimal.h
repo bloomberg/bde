@@ -5468,7 +5468,7 @@ STREAM& Decimal_Type32::bdexStreamIn(STREAM& stream, int version)
             stream.getUint32(bidVal);
 
             if (stream) {
-                d_value = DecimalImpUtil::convertFromBID(bidVal);
+                d_value.d_raw = bidVal;
             }
             else {
                 stream.invalidate();
@@ -5502,9 +5502,7 @@ STREAM& Decimal_Type32::bdexStreamOut(STREAM& stream, int version) const
     if (stream) {
         switch (version) { // switch on the schema version
           case 1: {
-            DecimalStorage::Type32 bidVal = DecimalImpUtil::convertToBID(
-                                                                      d_value);
-            stream.putUint32(bidVal);
+            stream.putUint32(d_value.d_raw);
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
@@ -5829,7 +5827,7 @@ STREAM& Decimal_Type64::bdexStreamIn(STREAM& stream, int version)
             stream.getUint64(bidVal);
 
             if (stream) {
-                d_value = DecimalImpUtil::convertFromBID(bidVal);
+                d_value.d_raw = bidVal;
             }
             else {
                 stream.invalidate();
@@ -5871,9 +5869,7 @@ STREAM& Decimal_Type64::bdexStreamOut(STREAM& stream, int version) const
     if (stream) {
         switch (version) { // switch on the schema version
           case 1: {
-            DecimalStorage::Type64 bidVal = DecimalImpUtil::convertToBID(
-                                                                      d_value);
-            stream.putUint64(bidVal);
+            stream.putUint64(d_value.d_raw);
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
@@ -6231,13 +6227,23 @@ STREAM& Decimal_Type128::bdexStreamIn(STREAM& stream, int version)
         switch (version) { // switch on the schema version
           case 1: {
             DecimalStorage::Type128 bidVal;
-            stream.getArrayUint64(
-                              reinterpret_cast<bsls::Types::Uint64 *>(&bidVal),
-                              sizeof(DecimalStorage::Type128)
-                              / sizeof(bsls::Types::Uint64));
+            const int len = sizeof(DecimalStorage::Type128)
+                            / sizeof(unsigned char);
 
+            unsigned char *value_p =
+                                    reinterpret_cast<unsigned char *>(&bidVal);
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+            for (int i(0); i < len; ++i) {
+                stream.getUint8(*(value_p + i));
+            }
+#elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+            for (int i(len - 1); i >= 0; --i) {
+                stream.getUint8(*(value_p + i));
+            }
+#endif
             if (stream) {
-                d_value = DecimalImpUtil::convertFromBID(bidVal);
+                d_value.d_raw = bidVal;
             }
             else {
                 stream.invalidate();
@@ -6271,12 +6277,21 @@ STREAM& Decimal_Type128::bdexStreamOut(STREAM& stream, int version) const
     if (stream) {
         switch (version) { // switch on the schema version
           case 1: {
-            DecimalStorage::Type128 bidVal = DecimalImpUtil::convertToBID(
-                                                                      d_value);
-            stream.putArrayUint64(
-                              reinterpret_cast<bsls::Types::Uint64 *>(&bidVal),
-                              sizeof(DecimalStorage::Type128)
-                              / sizeof(bsls::Types::Uint64));
+            const int len = sizeof(DecimalStorage::Type128)
+                            / sizeof(unsigned char);
+
+            const unsigned char *value_p =
+                       reinterpret_cast<const unsigned char *>(&d_value.d_raw);
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+            for (int i(0); i < len; ++i) {
+                stream.putUint8(*(value_p + i));
+            }
+#elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+            for (int i(len - 1); i >= 0; --i) {
+                stream.putUint8(*(value_p + i));
+            }
+#endif
           } break;
           default: {
             stream.invalidate();  // unrecognized version number
