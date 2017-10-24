@@ -4126,7 +4126,10 @@ void Datum::apply(BDLD_VISITOR& visitor) const
       case e_INTERNAL_EXTENDED:
         switch (extendedInternalType()) {
           case e_EXTENDED_INTERNAL_INT_MAP:
-            visitor(theIntMap());
+            // *** WARNING***
+            // Put this back when all visitors are implemented properly in
+            // client code.  See DRQS 1007705012
+            // visitor(theIntMap());
             break;
           case e_EXTENDED_INTERNAL_MAP:
           case e_EXTENDED_INTERNAL_OWNED_MAP:  // fall through
@@ -4247,7 +4250,10 @@ void Datum::apply(BDLD_VISITOR& visitor) const
         visitor(theDecimal64());
         break;
       case e_INTERNAL_INT_MAP:
-          visitor(theIntMap());
+          // *** WARNING***
+          // Put this back when all visitors are implemented properly in
+          // client code.  See DRQS 1007705012
+          // visitor(theIntMap());
           break;
       case e_INTERNAL_UNINITIALIZED:
         BSLS_ASSERT(!"Uninitialized Datum!!");
