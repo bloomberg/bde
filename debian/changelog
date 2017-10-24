@@ -1,17 +1,30 @@
-bsl-internal (3.1.12.0) unstable; urgency=low
+bsl-internal (3.1.13.0) unstable; urgency=low
 
+  * 4dc0cd737 Merge pull request #1408 from mgiroux/review/bump-version-to-3.1.13
+  * d236a5e81 Bump bdl version to 3.1.13
 
- -- Jeffrey Mendelsohn <JMENDELSOHN4@bloomberg.net>  Thu, 12 Oct 2017 08:40:54 -0400
+ -- mgiroux <mgiroux@bloomberg.net>  Tue, 24 Oct 2017 12:06:03 -0400
+
+bsl-internal (3.1.12.0) git; urgency=low
+
+  * 708a9726d Changelog for version 3.1.12.0
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 16 Oct 2017 10:56:29 -0400
 
 bsl-internal (3.1.11.1) git; urgency=low
 
   * 03dfd08b9 Changelog for version 3.1.11.1
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 Oct 2017 13:49:47 -0400
+
+bsl-internal (3.1.11.0) git; urgency=low
+
   * 4463a26e2 Changelog for version 3.1.11.0
   * b2fe14426 Merge pull request #1362 from mgiroux/review/bump-bdl-to-3.1.11
   * 711388ddf Bump bdl version to 3.1.11
   * b0f3a0bd0 Merge pull request #1352 from hversche/pr/1307-rebased-releases/3.1.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 Oct 2017 13:49:47 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 Oct 2017 13:36:38 -0400
 
 bsl-internal (3.1.10.0) git; urgency=low
 
