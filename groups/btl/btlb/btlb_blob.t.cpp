@@ -1783,6 +1783,9 @@ int main(int argc, char *argv[])
         for (int numRemoveBuffers = 0;
              numRemoveBuffers <= numBuffers - removePos;
              ++numRemoveBuffers)
+        for (int trimBufferIdx = -1;
+             trimBufferIdx < (dataLength + bufferSize - 1) / bufferSize - 1;
+             ++trimBufferIdx)
         {
             bslma::TestAllocator defaultAlloc(veryVeryVerbose);
             bslma::DefaultAllocatorGuard guard(&defaultAlloc);
@@ -1792,7 +1795,12 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 const int BUFFER_SIZE          = bufferSize;
+                const int TRIM_BUFFER_IDX      = trimBufferIdx;
+                const int TRIM_DELTA           = TRIM_BUFFER_IDX == -1
+                          ? 0
+                          : BUFFER_SIZE - 1;
                 const int DATA_LENGTH          = dataLength;
+                const int TRIMMED_DATA_LENGTH  = dataLength - TRIM_DELTA;
                 const int NUM_BUFFERS          = numBuffers;
                 const int REMOVE_POSITION      = removePos;
                 const int NUM_REMOVE_BUFFERS   = numRemoveBuffers;
@@ -1803,14 +1811,15 @@ int main(int argc, char *argv[])
                        ? DATA_LENGTH - (NUM_DATA_BUFFERS - 1) * BUFFER_SIZE
                        : 0;
 
-                int EXP_DATA_LENGTH  = DATA_LENGTH,
+                int EXP_DATA_LENGTH  = TRIMMED_DATA_LENGTH,
                     EXP_DATA_BUFFERS = NUM_DATA_BUFFERS,
-                    EXP_TOTAL_SIZE   = BUFFER_SIZE * NUM_BUFFERS,
+                    EXP_TOTAL_SIZE   = BUFFER_SIZE * NUM_BUFFERS - TRIM_DELTA,
                     EXP_LAST_DB_LENGTH = LAST_DB_LENGTH;
 
                 if (veryVerbose) {
                     T_; P_(BUFFER_SIZE); P_(DATA_LENGTH); P_(NUM_BUFFERS);
-                          P_(REMOVE_POSITION) P(NUM_REMOVE_BUFFERS);
+                          P_(REMOVE_POSITION); P_(NUM_REMOVE_BUFFERS);
+                          P(TRIM_BUFFER_IDX);
                     T_; P_(NUM_DATA_BUFFERS); P_(EXP_NUM_BUFFERS);
                           P(EXP_LAST_DB_LENGTH);
                 }
@@ -1822,13 +1831,21 @@ int main(int argc, char *argv[])
                 mX.setLength(BUFFER_SIZE * NUM_BUFFERS);
 
                 mX.setLength(DATA_LENGTH);
-                ASSERT(DATA_LENGTH        == X.length());
-                ASSERT(NUM_BUFFERS        == X.numBuffers());
-                ASSERT(NUM_DATA_BUFFERS   == X.numDataBuffers());
-                ASSERT(EXP_LAST_DB_LENGTH == X.lastDataBufferLength());
+
+                if (TRIM_BUFFER_IDX != -1) {
+                    btlb::BlobBuffer buf(
+                                       mX.buffer(TRIM_BUFFER_IDX).buffer(), 1);
+                    mX.removeBuffer(TRIM_BUFFER_IDX);
+                    mX.insertBuffer(TRIM_BUFFER_IDX, buf);
+                }
+
+                ASSERT(TRIMMED_DATA_LENGTH == X.length());
+                ASSERT(NUM_BUFFERS         == X.numBuffers());
+                ASSERT(NUM_DATA_BUFFERS    == X.numDataBuffers());
+                ASSERT(EXP_LAST_DB_LENGTH  == X.lastDataBufferLength());
                 checkNoAliasedBlobBuffers(X);
 
-                int LAST_DATA_BUFFER_IDX = X.numDataBuffers() - 1;
+                const int LAST_DATA_BUFFER_IDX = X.numDataBuffers() - 1;
 
                 for (int idx = REMOVE_POSITION;
                      idx < REMOVE_POSITION + NUM_REMOVE_BUFFERS; ++idx) {
