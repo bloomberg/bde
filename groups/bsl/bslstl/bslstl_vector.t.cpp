@@ -314,14 +314,17 @@ void aSsErT(bool condition, const char *message, int line)
     // This macro refers to all of the user-defined test types defined in this
     // package.  Note that the macro can be used as the last argument to the
     // 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' macro.
-    // For the short term, the following types have been removed from this list
+    // For the short term, the following type has been removed from this list
     // while testing 'vector', as move optimizations on regular types are
-    // throwing up some unexpected issues, but also some bad assumptions for
+    // throwing up some unexpected issues, and also some bad assumptions for
     // test-arithmetic:
-    //  bsltf::MovableAllocTestType,
-    // In practice, these types are creating problems in only test case 7, although at least one case is exposing a real bug in the underlying
-    // 'bslalg_arrayprimitives' component that 'vector' relies on, and the
-    // other is mostly a case of bad test arithmetic.
+    // ..
+    //   bsltf::MovableAllocTestType,
+    // ..
+    // In practice, this type is creating problems in only test case 7,
+    // exposing a real bug in the underlying 'bslalg_arrayprimitives' component
+    // that 'vector' relies on, as well as a case of bad test arithmetic,
+    // assuming copies rather than moves.
 
 // ============================================================================
 //                             SWAP TEST HELPERS

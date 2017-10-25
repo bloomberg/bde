@@ -97,6 +97,13 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -751,11 +758,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
         testDestroy<BCT>(false);
 
-#if 0
-        // Negative testing fails, reporting error in the wrong file, as soon
-        // as a component is reduced to a typedef forwarding to another
-        // component.
-
         if(verbose) printf("\nNegative testing\n");
         {
             bsls::AssertFailureHandlerGuard g(
@@ -764,14 +766,13 @@ int main(int argc, char *argv[])
             int * null = 0;
             (void) null;  // Suppress 'unused variable' warnings
                           // in non-SAFE modes
-            ASSERT_SAFE_FAIL(Obj::destroy(null));
+            ASSERT_SAFE_FAIL_RAW(Obj::destroy(null));
 
             int x = 0;
             (void) x;     // Suppress 'unused variable' warnings
                           // in non-SAFE modes
-            ASSERT_SAFE_PASS(Obj::destroy(&x));
+            ASSERT_SAFE_PASS_RAW(Obj::destroy(&x));
         }
-#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------

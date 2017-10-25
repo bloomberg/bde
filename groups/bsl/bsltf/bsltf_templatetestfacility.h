@@ -1550,7 +1550,6 @@ void TemplateTestFacility::emplace(MethodPtr *address,
     emplace(address, identifier, bsl::allocator<MethodPtr>(allocator));
 }
 
-#if 1
 // TBD: still working on this as part of C++11 project but should not affect
 //      component test drivers
 template <class ALLOCATOR>
@@ -1559,7 +1558,8 @@ void TemplateTestFacility::emplace(EmplacableTestType *address,
                                    int                 identifier,
                                    ALLOCATOR           allocator)
 {
-    BSLS_ASSERT_SAFE(identifier >= 0); BSLS_ASSERT_SAFE(identifier < 128);
+    BSLS_ASSERT_SAFE(identifier >= 0);
+    BSLS_ASSERT_SAFE(identifier < 128);
 
     EmplacableTestType::ArgType01 A01(identifier);
     EmplacableTestType::ArgType02 A02(  20);
@@ -1781,8 +1781,8 @@ void TemplateTestFacility::emplace(AllocEmplacableTestType *address,
                                    int                      identifier,
                                    ALLOCATOR                allocator)
 {
-    const int N_ARGS = 14;
-    BSLS_ASSERT_SAFE(identifier >= 0); BSLS_ASSERT_SAFE(identifier < N_ARGS);
+    BSLS_ASSERT_SAFE(identifier >= 0);
+    BSLS_ASSERT_SAFE(identifier < 128);
 
     AllocEmplacableTestType::ArgType01 A01(identifier, allocator);
     AllocEmplacableTestType::ArgType02 A02(  20, allocator);
@@ -1997,7 +1997,6 @@ void TemplateTestFacility::emplace(AllocEmplacableTestType *address,
             identifier,
             bsl::allocator<EmplacableTestType>(allocator));
 }
-#endif
 
 template <class TYPE>
 inline
