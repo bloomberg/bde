@@ -12,6 +12,7 @@ BSLS_IDENT_RCSID(bdlb_numericparseutil_cpp, "$Id$ $CSID$")
 #include <bslmf_assert.h>
 
 #include <bsl_cstdlib.h>  // strtod
+#include <bsl_clocale.h>  // setlocale
 
 namespace BloombergLP {
 
@@ -43,17 +44,18 @@ int NumericParseUtil::characterToDigit(char character, int base)
     return digit < base ? digit : -1;
 }
 
-int NumericParseUtil::parseDouble(size_type                *endPos,
-                                  double                   *result,
+int NumericParseUtil::parseDouble(double                   *result,
+                                  bslstl::StringRef        *remainder,
                                   const bslstl::StringRef&  inputString)
 {
-    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
+    BSLS_ASSERT(setlocale(0, 0) == bslstl::StringRef("C"));
 
     // An empty string cannot be a number.
 
     if (inputString.empty()) {
-        endPos = 0;
+        *remainder = inputString;
         return -1;                                                    // RETURN
     }
 
@@ -62,7 +64,7 @@ int NumericParseUtil::parseDouble(size_type                *endPos,
     // allow leading whitespace.
 
     if (CharType::isSpace(inputString[0])) {
-        endPos = 0;
+        *remainder = inputString;
         return -2;                                                    // RETURN
     }
 
@@ -86,7 +88,8 @@ int NumericParseUtil::parseDouble(size_type                *endPos,
 
     char         *endPtr;
     const double  rv = strtod(buffer, &endPtr);
-    *endPos = endPtr - buffer;
+    size_type endPos = (endPtr - buffer);
+    remainder->assign(&inputString[0] + endPos, inputString.length() - endPos);
 
     if (!useLocalBuffer) {
         allocator->deallocate(buffer);
@@ -100,19 +103,19 @@ int NumericParseUtil::parseDouble(size_type                *endPos,
     return -3;
 }
 
-int NumericParseUtil::parseInt(size_type                *endPos,
-                               int                      *result,
+int NumericParseUtil::parseInt(int                      *result,
+                               bslstl::StringRef        *remainder,
                                const bslstl::StringRef&  inputString,
                                int                       base)
 {
-    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
 
     Int64 res = *result;
-    int   rv = parseSignedInteger(endPos,
-                                  &res,
+    int   rv = parseSignedInteger(&res,
+                                  remainder,
                                   inputString,
                                   base,
                                   -static_cast<Int64>(0x80000000),
@@ -121,20 +124,20 @@ int NumericParseUtil::parseInt(size_type                *endPos,
     return rv;
 }
 
-int NumericParseUtil::parseInt64(size_type                *endPos,
-                                 bsls::Types::Int64       *result,
+int NumericParseUtil::parseInt64(bsls::Types::Int64       *result,
+                                 bslstl::StringRef        *remainder,
                                  const bslstl::StringRef&  inputString,
                                  int                       base)
 {
-    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
 
     Int64 res = *result;
     int   rv = parseSignedInteger(
-                                endPos,
                                 &res,
+                                remainder,
                                 inputString,
                                 base,
                                 -static_cast<Int64>(0x7FFFFFFFFFFFFFFFuLL) - 1,
@@ -143,17 +146,18 @@ int NumericParseUtil::parseInt64(size_type                *endPos,
     return rv;
 }
 
-int NumericParseUtil::parseUint(size_type                *endPos,
-                                unsigned int             *result,
+int NumericParseUtil::parseUint(unsigned int             *result,
+                                bslstl::StringRef        *remainder,
                                 const bslstl::StringRef&  inputString,
                                 int                       base)
 {
-    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
 
     if (inputString.empty()) {
+        *remainder = inputString;
         return -1;                                                    // RETURN
     }
 
@@ -162,29 +166,27 @@ int NumericParseUtil::parseUint(size_type                *endPos,
     bslstl::StringRef sub(inputString.data() + hasPlus,
                           inputString.length() - hasPlus);
     int               rv = parseUnsignedInteger(
-                                               endPos,
                                                &res,
+                                               remainder,
                                                sub,
                                                base,
                                                static_cast<Int64>(0xFFFFFFFF));
-    if (hasPlus) {
-        ++(*endPos);
-    }
     *result = static_cast<int>(res);
     return rv;
 }
 
-int NumericParseUtil::parseUint64(size_type                *endPos,
-                                  bsls::Types::Uint64      *result,
+int NumericParseUtil::parseUint64(bsls::Types::Uint64      *result,
+                                  bslstl::StringRef        *remainder,
                                   const bslstl::StringRef&  inputString,
                                   int                       base)
 {
-    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
 
     if (inputString.empty()) {
+        *remainder = inputString;
         return -1;                                                    // RETURN
     }
 
@@ -193,31 +195,28 @@ int NumericParseUtil::parseUint64(size_type                *endPos,
     bslstl::StringRef sub(inputString.data() + hasPlus,
                           inputString.length() - hasPlus);
     int               rv = parseUnsignedInteger(
-                                    endPos,
                                     &res,
+                                    remainder,
                                     sub,
                                     base,
                                     static_cast<Int64>(0xFFFFFFFFFFFFFFFFuLL));
-    if (hasPlus) {
-        ++(*endPos);
-    }
     *result = res;
     return rv;
 }
 
-int NumericParseUtil::parseShort(size_type                *endPos,
-                                 short                    *result,
+int NumericParseUtil::parseShort(short                    *result,
+                                 bslstl::StringRef        *remainder,
                                  const bslstl::StringRef&  inputString,
                                  int                       base)
 {
-    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
 
     Int64 res = *result;
-    int   rv = parseSignedInteger(endPos,
-                                  &res,
+    int   rv = parseSignedInteger(&res,
+                                  remainder,
                                   inputString,
                                   base,
                                   -static_cast<Int64>(32768),
@@ -226,14 +225,14 @@ int NumericParseUtil::parseShort(size_type                *endPos,
     return rv;
 }
 
-int NumericParseUtil::parseSignedInteger(size_type                *endPos,
-                                         bsls::Types::Int64       *result,
+int NumericParseUtil::parseSignedInteger(bsls::Types::Int64       *result,
+                                         bslstl::StringRef        *remainder,
                                          const bslstl::StringRef&  inputString,
                                          int                       base,
                                          const bsls::Types::Int64  minValue,
                                          const bsls::Types::Int64  maxValue)
 {
-    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(remainder);
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
     BSLS_ASSERT(minValue <= 0);
@@ -241,6 +240,7 @@ int NumericParseUtil::parseSignedInteger(size_type                *endPos,
 
     if (0 == inputString.length()) {
         // ERROR: The number must have at least one digit.
+        *remainder = inputString;
         return -1;                                                    // RETURN
     }
 
@@ -252,12 +252,11 @@ int NumericParseUtil::parseSignedInteger(size_type                *endPos,
     if ('-' == inputString[0]) {
         bslstl::StringRef sub(inputString.data() + 1,
                               inputString.length() - 1);
-        rv = parseUnsignedInteger(endPos,
-                                  &res,
+        rv = parseUnsignedInteger(&res,
+                                  remainder,
                                   sub,
                                   base,
                                   static_cast<Uint64>(~minValue) + 1);
-        ++(*endPos);
         if (!rv) {
             res = -res;
         }
@@ -267,14 +266,11 @@ int NumericParseUtil::parseSignedInteger(size_type                *endPos,
         const bool        hasPlus = ('+' == inputString[0]);
         bslstl::StringRef sub(inputString.data() + hasPlus,
                               inputString.length() - hasPlus);
-        rv = parseUnsignedInteger(endPos,
-                                  &res,
+        rv = parseUnsignedInteger(&res,
+                                  remainder,
                                   sub,
                                   base,
                                   maxValue);
-        if (hasPlus) {
-            ++(*endPos);
-        }
     }
 
     *result = res;
@@ -282,13 +278,13 @@ int NumericParseUtil::parseSignedInteger(size_type                *endPos,
 }
 
 int NumericParseUtil::parseUnsignedInteger(
-                                         size_type                *endPos,
                                          bsls::Types::Uint64      *result,
+                                         bslstl::StringRef        *remainder,
                                          const bslstl::StringRef&  inputString,
                                          int                       base,
                                          const bsls::Types::Uint64 maxValue)
 {
-    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
@@ -297,12 +293,14 @@ int NumericParseUtil::parseUnsignedInteger(
     const size_type           length   = inputString.length();
     if (0 == length) {
         // ERROR: The number must have at least one digit.
+        *remainder = inputString;
         return -1;                                                    // RETURN
     }
 
     bsls::Types::Uint64 res = 0;
     int                 digit = characterToDigit(inputString[0], base);
     if (digit == -1) {
+        *remainder = inputString;
         // ERROR: The the first character must be a digit.
         return -2;                                                    // RETURN
     }
@@ -327,20 +325,20 @@ int NumericParseUtil::parseUnsignedInteger(
         }
     }
 
-    *endPos = i;
+    remainder->assign(&inputString[0] + i, length - i);
     *result = res;
     return 0;
 }
 
 int NumericParseUtil::parseUnsignedInteger(
-                                        size_type                *endPos,
                                         bsls::Types::Uint64      *result,
+                                        bslstl::StringRef        *remainder,
                                         const bslstl::StringRef&  inputString,
                                         int                       base,
                                         const bsls::Types::Uint64 maxValue,
                                         int                       maxNumDigits)
 {
-    BSLS_ASSERT(endPos);
+    BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
@@ -353,6 +351,7 @@ int NumericParseUtil::parseUnsignedInteger(
     int                       digit = characterToDigit(inputString[0], base);
     if (digit == -1) {
         // ERROR: The number must have at least one digit.
+        *remainder = inputString;
         return -1;                                                    // RETURN
     }
 
@@ -376,7 +375,7 @@ int NumericParseUtil::parseUnsignedInteger(
         }
     }
 
-    *endPos = i;
+    remainder->assign(&inputString[0] + i, length - i);
     *result = res;
     return 0;
 }

@@ -49,15 +49,15 @@ using namespace bdlb;
 //
 //-----------------------------------------------------------------------------
 // [ 1] characterToDigit(char character, int base)
-// [ 2] parseUnsignedInteger(endPos, result, in, base, maxVal)
-// [ 2] parseUnsignedInteger(endPos, result, in, base, maxVal, maxDigit)
-// [ 3] parseSignedInteger(endPos, result, input, base, minVal, maxVal)
-// [ 4] parseDouble(size_type *endPos, double *res, StringRef *in)
-// [ 5] parseInt(endPos, result, input, base = 10)
-// [ 6] parseInt64(endPos, result, input, base = 10)
-// [ 7] parseUint(endPos, result, input, base = 10)
-// [ 8] parseUint64(endPos, result, input, base = 10)
-// [ 9] parseShort(endPos, result, input, base = 10)
+// [ 2] parseUnsignedInteger(result, rest, in, base, maxVal)
+// [ 2] parseUnsignedInteger(result, rest, in, base, maxVal, maxDigit)
+// [ 3] parseSignedInteger(result, rest, input, base, minVal, maxVal)
+// [ 4] parseDouble(double *rest, StringRef *rest, StringRef in)
+// [ 5] parseInt(result, rest, input, base = 10)
+// [ 6] parseInt64(result, rest, input, base = 10)
+// [ 7] parseUint(result, rest, input, base = 10)
+// [ 8] parseUint64(result, rest, input, base = 10)
+// [ 9] parseShort(result, rest input, base = 10)
 //-----------------------------------------------------------------------------
 // [10] USAGE EXAMPLE
 
@@ -130,6 +130,8 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
+    using bslstl::StringRef;
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 10: {
         // --------------------------------------------------------------------
@@ -162,17 +164,18 @@ int main(int argc, char *argv[])
 //..
 // Then we create the output variables for the parser:
 //..
-    int                         result;
-    NumericParseUtil::size_type endPos;
+    int               year;
+    bslstl::StringRef rest;
 //..
 // Next we call the parser function:
 //..
-    int rv = NumericParseUtil::parseInt(&endPos, &result, input);
+    int rv = NumericParseUtil::parseInt(&year, &rest, input);
 //..
-// Finally we verify the results:
+// Then we verify the results:
 //..
-    ASSERT(0 == rv);
-    ASSERT(4 == endPos);
+    ASSERT(0    == rv);
+    ASSERT(2017 == year);
+    ASSERT(rest.empty());
 //..
 
       } break;
@@ -198,7 +201,7 @@ int main(int argc, char *argv[])
         //:   test vectors for an enumerated set of bases.
         //
         // Testing:
-        //   parseShort(endPos, result, input, base = 10)
+        //   parseShort(result, rest, input, base = 10)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -344,21 +347,21 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with first initial value
-                    short  result = INITIAL_VALUE_1;
-                    size_t endPos = 0;
-                    int    rv = NumericParseUtil::
-                                      parseShort(&endPos, &result, SPEC, BASE);
-                    LOOP_ASSERT(LINE, NUM == endPos);
+                    short     result = INITIAL_VALUE_1;
+                    StringRef rest;
+                    int       rv = NumericParseUtil::
+                                        parseShort(&result, &rest, SPEC, BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
                 }
 
                 {  // test with second initial value
-                    short  result = INITIAL_VALUE_2;
-                    size_t endPos = 0;
-                    int    rv = NumericParseUtil::
-                                      parseShort(&endPos, &result, SPEC, BASE);
-                    LOOP_ASSERT(LINE, NUM == endPos);
+                    short     result = INITIAL_VALUE_2;
+                    StringRef rest;
+                    int       rv = NumericParseUtil::
+                                        parseShort(&result, &rest, SPEC, BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
                 }
@@ -387,7 +390,7 @@ int main(int argc, char *argv[])
         //:   test vectors for an enumerated set of bases.
         //
         // Testing:
-        //   parseUint64(endPos, result, input, base = 10)
+        //   parseUint64(result, rest, input, base = 10)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -523,22 +526,22 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with first initial value
-                    Uint64 result = INITIAL_VALUE_1;
-                    size_t endPos = 0;
-                    int    rv = NumericParseUtil::
-                                     parseUint64(&endPos, &result, SPEC, BASE);
-                    LOOP3_ASSERT(LINE, NUM, endPos, NUM == endPos);
+                    Uint64    result = INITIAL_VALUE_1;
+                    StringRef rest;
+                    int       rv = NumericParseUtil::
+                                       parseUint64(&result, &rest, SPEC, BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? (Uint64)INITIAL_VALUE_1
                                                    : VALUE));
                 }
 
                 {  // test with second initial value
-                    Uint64 result = INITIAL_VALUE_2;
-                    size_t endPos = 0;
-                    int    rv = NumericParseUtil::
-                                     parseUint64(&endPos, &result, SPEC, BASE);
-                    LOOP3_ASSERT(LINE, NUM, endPos, NUM == endPos);
+                    Uint64    result = INITIAL_VALUE_2;
+                    StringRef rest;
+                    int       rv = NumericParseUtil::
+                                       parseUint64(&result, &rest, SPEC, BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? (Uint64)INITIAL_VALUE_2
                                                    : VALUE));
@@ -568,7 +571,7 @@ int main(int argc, char *argv[])
         //:   test vectors for an enumerated set of bases.
         //
         // Testing:
-        //   parseUint(endPos, result, input, base = 10)
+        //   parseUint(result, rest, input, base = 10)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -699,21 +702,21 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with first initial value
-                    unsigned result = INITIAL_VALUE_1;
-                    size_t   endPos = 0;
-                    int      rv = NumericParseUtil::
-                                       parseUint(&endPos, &result, SPEC, BASE);
-                    LOOP3_ASSERT(LINE, NUM, endPos, NUM == endPos);
+                    unsigned  result = INITIAL_VALUE_1;
+                    StringRef rest;
+                    int       rv = NumericParseUtil::
+                                         parseUint(&result, &rest, SPEC, BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
                 }
 
                 {  // test with second initial value
-                    unsigned result = INITIAL_VALUE_2;
-                    size_t   endPos = 0;
-                    int      rv = NumericParseUtil::
-                                       parseUint(&endPos, &result, SPEC, BASE);
-                    LOOP_ASSERT(LINE, NUM == endPos);
+                    unsigned  result = INITIAL_VALUE_2;
+                    StringRef rest;
+                    int       rv = NumericParseUtil::
+                                         parseUint(&result, &rest, SPEC, BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
                 }
@@ -742,7 +745,7 @@ int main(int argc, char *argv[])
         //:   test vectors for an enumerated set of bases.
         //
         // Testing:
-        //   parseInt64(endPos, result, input, base = 10)
+        //   parseInt64(result, rest, input, base = 10)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -913,22 +916,22 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with first initial value
-                    Int64  result = INITIAL_VALUE_1;
-                    size_t endPos = 0;
-                    int    rv = NumericParseUtil::
-                                      parseInt64(&endPos, &result, SPEC, BASE);
-                    LOOP_ASSERT(LINE, NUM == endPos);
+                    Int64     result = INITIAL_VALUE_1;
+                    StringRef rest;
+                    int       rv = NumericParseUtil::
+                                        parseInt64(&result, &rest, SPEC, BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP3_ASSERT(LINE, result, VALUE,
                                  result == (rv ? INITIAL_VALUE_1 : VALUE));
                 }
 
                 {  // test with second initial value
-                    Int64  result = INITIAL_VALUE_2;
-                    size_t endPos = 0;
-                    int    rv = NumericParseUtil::
-                                      parseInt64(&endPos, &result, SPEC, BASE);
-                    LOOP_ASSERT(LINE, NUM == endPos);
+                    Int64     result = INITIAL_VALUE_2;
+                    StringRef rest;
+                    int       rv = NumericParseUtil::
+                                        parseInt64(&result, &rest, SPEC, BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP3_ASSERT(LINE, result, VALUE,
                                  result == (rv ? INITIAL_VALUE_2 : VALUE));
@@ -958,7 +961,7 @@ int main(int argc, char *argv[])
         //:   test vectors for an enumerated set of bases.
         //
         // Testing:
-        //   parseInt(endPos, result, input, base = 10)
+        //   parseInt(result, rest, input, base = 10)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1112,21 +1115,21 @@ int main(int argc, char *argv[])
                 }
 
                 {  // test with first initial value
-                    int    result = INITIAL_VALUE_1;
-                    size_t endPos = 0;
-                    int    rv = NumericParseUtil::
-                                        parseInt(&endPos, &result, SPEC, BASE);
-                    LOOP3_ASSERT(LINE, NUM, endPos, NUM == endPos);
+                    int       result = INITIAL_VALUE_1;
+                    StringRef rest;
+                    int       rv = NumericParseUtil::
+                                          parseInt(&result, &rest, SPEC, BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
                 }
 
                 {  // test with second initial value
-                    int    result = INITIAL_VALUE_2;
-                    size_t endPos = 0;
-                    int    rv = NumericParseUtil::
-                                        parseInt(&endPos, &result, SPEC, BASE);
-                    LOOP_ASSERT(LINE, NUM == endPos);
+                    int       result = INITIAL_VALUE_2;
+                    StringRef rest;
+                    int       rv = NumericParseUtil::
+                                          parseInt(&result, &rest, SPEC, BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
                 }
@@ -1157,7 +1160,7 @@ int main(int argc, char *argv[])
         //:   test vectors for an enumerated set of bases.
         //
         // Testing:
-        //   parseDouble(size_type *endPos, double *res, StringRef *in)
+        //   parseDouble(double *res, StringRef *rest, StringRef in)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1325,6 +1328,9 @@ int main(int argc, char *argv[])
                 { L_,   "4.891559871276714924261e243",            27,    0},
                 // TBD more vectors
             };
+
+            typedef bslstl::StringRef SRef;
+
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
             const int SZ = 64;  // maximum length of an input string + 2
             char      buffer[SZ];
@@ -1385,12 +1391,14 @@ int main(int argc, char *argv[])
                         buffer[curLen] = ' ';
                         buffer[curLen + 1] = '\0';
                     }
+                    const int bufLen = strlen(buffer);
 
                     {  // test with first initial value
-                        double result = INITIAL_VALUE_1;
-                        size_t endPos = 0;
-                        int    rv = NumericParseUtil::
-                                         parseDouble(&endPos, &result, buffer);
+                        double    result = INITIAL_VALUE_1;
+                        StringRef rest;
+                        int       rv = NumericParseUtil::parseDouble(&result,
+                                                                     &rest,
+                                                                     buffer);
                         if (veryVerbose) {
                             P_(SPEC);
                             P_(rv);
@@ -1402,7 +1410,7 @@ int main(int argc, char *argv[])
                                 P(VALUE);
                             }
                         }
-                        LOOP4_ASSERT(LINE, si, NUM, endPos, NUM == endPos);
+                        LOOP2_ASSERT(LINE, si, NUM == rest.data() - buffer);
                         LOOP2_ASSERT(LINE, si, FAIL == !!rv);
                         LOOP6_ASSERT(LINE, si,
                                      result, rv, INITIAL_VALUE_1, VALUE,
@@ -1410,10 +1418,11 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with second initial value
-                        double result = INITIAL_VALUE_2;
-                        size_t endPos = 0;
-                        int    rv = NumericParseUtil::
-                                         parseDouble(&endPos, &result, buffer);
+                        double    result = INITIAL_VALUE_2;
+                        StringRef rest;
+                        int       rv = NumericParseUtil::parseDouble(&result,
+                                                                     &rest,
+                                                                     buffer);
                         if (veryVerbose) {
                             P_(SPEC);
                             P_(rv);
@@ -1426,7 +1435,7 @@ int main(int argc, char *argv[])
                             }
                         }
 
-                        LOOP2_ASSERT(LINE, si, NUM == endPos);
+                        LOOP2_ASSERT(LINE, si, NUM == rest.data() - buffer);
                         LOOP2_ASSERT(LINE, si, FAIL == !!rv);
                         LOOP6_ASSERT(LINE, si,
                                      result, rv, INITIAL_VALUE_2, VALUE,
@@ -1458,7 +1467,7 @@ int main(int argc, char *argv[])
         //:   test vectors for an enumerated set of bases.
         //
         // Testing:
-        //   parseSignedInteger(endPos, result, input, base, minVal, maxVal)
+        //   parseSignedInteger(result, rest, input, base, minVal, maxVal)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1680,16 +1689,16 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with first initial value
-                        Int64  result = INITIAL_VALUE_1;
-                        size_t endPos = 0;
-                        int    rv = NumericParseUtil::
-                                                    parseSignedInteger(&endPos,
-                                                                       &result,
+                        Int64     result = INITIAL_VALUE_1;
+                        StringRef rest;
+                        int       rv = NumericParseUtil::
+                                                    parseSignedInteger(&result,
+                                                                       &rest,
                                                                        buffer,
                                                                        BASE,
                                                                        MIN,
                                                                        MAX);
-                        LOOP2_ASSERT(LINE, si, NUM == endPos);
+                        LOOP2_ASSERT(LINE, si, NUM == rest.data() - buffer);
                         LOOP2_ASSERT(LINE, si, FAIL == !!rv);
                         if (veryVeryVerbose) {
                             P(result);
@@ -1702,16 +1711,16 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with second initial value
-                        Int64  result = INITIAL_VALUE_2;
-                        size_t endPos = 0;
-                        int    rv = NumericParseUtil::
-                                                    parseSignedInteger(&endPos,
-                                                                       &result,
+                        Int64     result = INITIAL_VALUE_2;
+                        StringRef rest;
+                        int       rv = NumericParseUtil::
+                                                    parseSignedInteger(&result,
+                                                                       &rest,
                                                                        buffer,
                                                                        BASE,
                                                                        MIN,
                                                                        MAX);
-                        LOOP2_ASSERT(LINE, si, NUM == endPos);
+                        LOOP2_ASSERT(LINE, si, NUM == rest.data() - buffer);
                         LOOP2_ASSERT(LINE, si, FAIL == !!rv);
                         LOOP2_ASSERT(LINE, si,
                                    result == (rv ? INITIAL_VALUE_2 : VALUE));
@@ -1742,8 +1751,8 @@ int main(int argc, char *argv[])
         //:   test vectors for an enumerated set of bases.
         //
         // Testing:
-        //   parseUnsignedInteger(endPos, result, in, base, maxVal)
-        //   parseUnsignedInteger(endPos, result, in, base, maxVal, maxDigit)
+        //   parseUnsignedInteger(result, rest, in, base, maxVal)
+        //   parseUnsignedInteger(result, rest, in, base, maxVal, maxDigit)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1896,30 +1905,30 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with first initial value
-                        Uint64 result = INITIAL_VALUE_1;
-                        size_t endPos = 0;
-                        int    rv = NumericParseUtil::
-                                                  parseUnsignedInteger(&endPos,
-                                                                       &result,
+                        Uint64    result = INITIAL_VALUE_1;
+                        StringRef rest;
+                        int       rv = NumericParseUtil::
+                                                  parseUnsignedInteger(&result,
+                                                                       &rest,
                                                                        buffer,
                                                                        BASE,
                                                                        MAX);
-                        LOOP4_ASSERT(LINE, si, NUM, endPos, NUM == endPos);
+                        LOOP2_ASSERT(LINE, si, NUM == rest.data() - buffer);
                         LOOP2_ASSERT(LINE, si, FAIL == !!rv);
                         LOOP2_ASSERT(LINE, si,
                                      result == (rv ? INITIAL_VALUE_1 : VALUE));
                     }
 
                     {  // test with second initial value
-                        Uint64 result = INITIAL_VALUE_2;
-                        size_t endPos = 0;
-                        int    rv = NumericParseUtil::
-                                                  parseUnsignedInteger(&endPos,
-                                                                       &result,
+                        Uint64    result = INITIAL_VALUE_2;
+                        StringRef rest;
+                        int       rv = NumericParseUtil::
+                                                  parseUnsignedInteger(&result,
+                                                                       &rest,
                                                                        buffer,
                                                                        BASE,
                                                                        MAX);
-                        LOOP2_ASSERT(LINE, si, NUM == endPos);
+                        LOOP2_ASSERT(LINE, si, NUM == rest.data() - buffer);
                         LOOP2_ASSERT(LINE, si, FAIL == !!rv);
                         LOOP2_ASSERT(LINE, si,
                                    result == (rv ? INITIAL_VALUE_2 : VALUE));
@@ -1927,6 +1936,8 @@ int main(int argc, char *argv[])
                 }
             }
         }
+
+
         if (verbose) cout << "\nSpecified maximum number of digits." << endl;
         {
             const Uint64 INITIAL_VALUE_1 = 37;  // first initial value
@@ -2057,32 +2068,32 @@ int main(int argc, char *argv[])
                     }
 
                     {  // test with first initial value
-                        Uint64 result = INITIAL_VALUE_1;
-                        size_t endPos = 0;
-                        int    rv = NumericParseUtil::
-                                                  parseUnsignedInteger(&endPos,
-                                                                       &result,
+                        Uint64    result = INITIAL_VALUE_1;
+                        StringRef rest;
+                        int       rv = NumericParseUtil::
+                                                  parseUnsignedInteger(&result,
+                                                                       &rest,
                                                                        buffer,
                                                                        BASE,
                                                                        MAX,
                                                                        DIGIT);
-                        LOOP2_ASSERT(LINE, si, NUM == endPos);
+                        LOOP2_ASSERT(LINE, si, NUM == rest.data() - buffer);
                         LOOP2_ASSERT(LINE, si, FAIL == !!rv);
                         LOOP2_ASSERT(LINE, si,
                                      result == (rv ? INITIAL_VALUE_1 : VALUE));
                     }
 
                     {  // test with second initial value
-                        Uint64 result = INITIAL_VALUE_2;
-                        size_t endPos = 0;
-                        int    rv = NumericParseUtil::
-                                                  parseUnsignedInteger(&endPos,
-                                                                       &result,
+                        Uint64    result = INITIAL_VALUE_2;
+                        StringRef rest;
+                        int       rv = NumericParseUtil::
+                                                  parseUnsignedInteger(&result,
+                                                                       &rest,
                                                                        buffer,
                                                                        BASE,
                                                                        MAX,
                                                                        DIGIT);
-                        LOOP2_ASSERT(LINE, si, NUM == endPos);
+                        LOOP2_ASSERT(LINE, si, NUM == rest.data() - buffer);
                         LOOP2_ASSERT(LINE, si, FAIL == !!rv);
                         LOOP2_ASSERT(LINE, si,
                                    result == (rv ? INITIAL_VALUE_2 : VALUE));

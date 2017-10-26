@@ -72,16 +72,16 @@ BSLS_IDENT("$Id: $")
 //      <DOUBLE> must be in range [DBL_MIN .. DBL_MAX].
 // <EOS> ::= End of line, or ASCII 0.
 //..
-///ENDING POSITION (endPos)
-///------------------------
-// Each parsing function returns as its first, modifiable argument the
-// character position in the input string immediately following the text of a
+///REMAINDER STRINGREF (remainder)
+///-------------------------------
+// Each parsing function returns as its first, modifiable argument a string
+// reference to the input string immediately following the text of a
 // successfully parsed token, or the position at which the parse failure was
-// detected.  The value returned for '*endPos' will be the address of the
-// character following the maximal prefix for a valid instance of the requested
-// token.  If that prefix is itself valid, the parse function loads its result
-// and returns 0; otherwise, it returns a non-zero value with no effect on the
-// result.
+// detected.  The value returned for '*remainder' will be a string reference
+// starting at the character following the maximal prefix for a valid instance
+// of the requested token.  If that prefix is itself valid, the parse function
+// loads its result and returns 0; otherwise, it returns a non-zero value with
+// no effect on the result.
 //
 ///FLOATING POINT VALUES
 ///---------------------
@@ -108,21 +108,22 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create the string:
 //..
-//  bslstl::StringRef input("20171023", 4);
+//  bslstl::StringRef input("20171024", 4);
 //..
 // Then we create the output variables for the parser:
 //..
-//  int                         result;
-//  NumericParseUtil::size_type endPos;
+//  int               year;
+//  bslstl::StringRef rest;
 //..
 // Next we call the parser function:
 //..
-//  int rv = NumericParseUtil::parseInt(&endPos, &result, input);
+//  int rv = NumericParseUtil::parseInt(&year, &rest, input);
 //..
-// Finally we verify the results:
+// Then we verify the results:
 //..
-//  assert(0 == rv);
-//  assert(4 == endPos);
+//  assert(0    == rv);
+//  assert(2017 == year);
+//  assert(rest.empty());
 //..
 
 
@@ -163,41 +164,41 @@ struct NumericParseUtil {
         // representable by characters in the range ['0'-'9'], ['a'-'z'], or
         // ['A'-'Z']).
 
-    static int parseDouble(size_type                *endPos,
-                           double                   *result,
+    static int parseDouble(double                   *result,
+                           bslstl::StringRef        *remainder,
                            const bslstl::StringRef&  inputString);
         // Parse the specified 'inputString' for a sequence of characters
         // matching the production rule <DOUBLE> (see {GRAMMAR PRODUCTION
         // RULES}) and place into the specified 'result' the corresponding
-        // value.  Store in the specified '*endPos' the position of the
-        // character in 'inputString' immediately following the successfully
-        // parsed text, or the position at which the parse failure was
-        // detected.  Return zero on success, and a non-zero value otherwise.
-        // The value of '*result' is unchanged if a parse failure occurs.  The
-        // behavior is undefined if any argument is 0.  The behavior is also
-        // undefined unless the current locale is the "C" locale, such that
+        // value.  Store in the specified '*remainder' the remainder of the
+        // 'inputString' immediately following the successfully parsed text, or
+        // the position at which the parse failure was detected.  Return zero
+        // on success, and a non-zero value otherwise.  The value of '*result'
+        // is unchanged if a parse failure occurs.  The behavior is undefined
+        // if any argument is 0.  The behavior is also undefined unless the
+        // current locale is the "C" locale, such that
         // 'setlocale(0, 0) == "C"'.
 
-    static int parseInt(size_type                *endPos,
-                        int                      *result,
+    static int parseInt(int                      *result,
+                        bslstl::StringRef        *remainder,
                         const bslstl::StringRef&  inputString,
                         int                       base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming an <INT> (see {GRAMMAR PRODUCTION RULES}) in the
         // optionally specified 'base' or in base 10 if 'base' is not
         // specified, and place into the specified 'result' the corresponding
-        // value.  Store in the specified '*endPos' the position of the
-        // character in 'inputString' immediately following the successfully
-        // parsed text, or the position at which the parse failure was
-        // detected.  If the parsed number is outside of the
-        // '[INT_MIN .. INT_MAX]' range the 'result' will be the longest
-        // number that does not over/underflow and 'endPos' will point to the
-        // first digit that would make the number too large/small.  Return zero
-        // on success, and a non-zero value otherwise.  The value of '*result'
-        // is unchanged if a parse failure occurs.  The behavior is undefined
-        // if any argument is 0 and unless '2 <= base' and 'base <= 36' (i.e.,
-        // bases where digits are representable by characters in the range
-        // ['0'-'9'], ['a'-'z'], or ['A'-'Z']).
+        // value.  Store in the specified '*remainder' the remainder of the
+        // 'inputString' immediately following the successfully parsed text, or
+        // the position at which the parse failure was detected.  If the parsed
+        // number is outside of the '[INT_MIN .. INT_MAX]' range the 'result'
+        // will be the longest number that does not over/underflow and
+        // 'remainder' start at the first digit that would make the number too
+        // large/small.  Return zero on success, and a non-zero value
+        // otherwise.  The value of '*result' is unchanged if a parse failure
+        // occurs.  The behavior is undefined if any argument is 0 and unless
+        // '2 <= base' and 'base <= 36' (i.e., bases where digits are
+        // representable by characters in the range ['0'-'9'], ['a'-'z'], or
+        // ['A'-'Z']).
         //
         // A parse failure can occur for the following reasons:
         //..
@@ -206,21 +207,21 @@ struct NumericParseUtil {
         //      'base', or an optional sign followed by a valid digit.
         //..
 
-    static int parseInt64(size_type                *endPos,
-                          bsls::Types::Int64       *result,
+    static int parseInt64(bsls::Types::Int64       *result,
+                          bslstl::StringRef        *remainder,
                           const bslstl::StringRef&  inputString,
                           int                       base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming a valid <INT64> (see {GRAMMAR PRODUCTION RULES})
         // in the optionally specified 'base' or in base 10 if 'base' is not
         // specified, and place into the specified 'result' the corresponding
-        // value.  Store in the specified '*endPos' the position of the
-        // character in 'inputString' immediately following the successfully
-        // parsed text, or the position at which the parse failure was
-        // detected.  If the parsed number is outside of the
+        // value.  Store in the specified '*remainder' the remainder of the
+        // 'inputString' immediately following the successfully parsed text, or
+        // the position at which the parse failure was detected.  If the parsed
+        // number is outside of the
         // '[-0x8000000000000000uLL .. 0x7FFFFFFFFFFFFFFFull]' range the
         // 'result' will be the longest number that does not over/underflow and
-        // 'endPos' will point to the first digit that would make the number
+        // 'remainder' will start at the first digit that would make the number
         // too large/small.  Return zero on success, and a non-zero value
         // otherwise.  The value of '*result' is unchanged if a parse failure
         // occurs.  The behavior is undefined if any argument is 0 and unless
@@ -235,26 +236,25 @@ struct NumericParseUtil {
         //      'base', or an optional sign followed by a valid digit.
         //..
 
-    static int parseUint(size_type                *endPos,
-                         unsigned int             *result,
+    static int parseUint(unsigned int             *result,
+                         bslstl::StringRef        *remainder,
                          const bslstl::StringRef&  inputString,
                          int                       base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming an <UNSIGNED> (see {GRAMMAR PRODUCTION RULES}) in
         // the optionally specified 'base' or in base 10 if 'base' is not
         // specified, and place into the specified 'result' the corresponding
-        // value.  Store in the specified '*endPos' the position of the
-        // character in 'inputString' immediately following the successfully
-        // parsed text, or the position at which the parse failure was
-        // detected.  If the parsed number is outside of the '[0 .. UINT_MAX]'
-        // range the 'result' will be the longest number that does not
-        // overflow and 'endPos' will point to the first digit that would make
-        // the number too large.  Return zero on success, and a non-zero value
-        // otherwise.  The value of '*result' is unchanged if a parse failure
-        // occurs.  The behavior is undefined if any argument is 0 and unless
-        // '2 <= base' and 'base <= 36' (i.e., bases where digits are
-        // representable by characters in the range ['0'-'9'], ['a'-'z'], or
-        // ['A'-'Z']).
+        // value.  Store in the specified '*remainder' the remainder of the
+        // 'inputString' immediately following the successfully parsed text, or
+        // the position at which the parse failure was detected.  If the parsed
+        // number is outside of the '[0 .. UINT_MAX]' range the 'result' will
+        // be the longest number that does not overflow and 'remainder' will
+        // start at the first digit that would make the number too large.
+        // Return zero on success, and a non-zero value otherwise.  The value
+        // of '*result' is unchanged if a parse failure occurs.  The behavior
+        // is undefined if any argument is 0 and unless '2 <= base' and
+        // 'base <= 36' (i.e., bases where digits are representable by
+        // characters in the range ['0'-'9'], ['a'-'z'], or ['A'-'Z']).
         //
         // A parse failure can occur for the following reasons:
         //..
@@ -263,26 +263,26 @@ struct NumericParseUtil {
         //      'base', or an optional sign followed by a valid digit.
         //..
 
-    static int parseUint64(size_type                *endPos,
-                           bsls::Types::Uint64      *result,
+    static int parseUint64(bsls::Types::Uint64      *result,
+                           bslstl::StringRef        *remainder,
                            const bslstl::StringRef&  inputString,
                            int                       base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming a valid <UNSIGNED64> (see {GRAMMAR PRODUCTION
         // RULES}) in the optionally specified 'base' or in base 10 if 'base'
         // is not specified, and place into the specified 'result' the
-        // corresponding value.  Store in the specified '*endPos' the position
-        // of the character in 'inputString' immediately following the
+        // corresponding value.  Store in the specified '*remainder' the
+        // remainder of the 'inputString' immediately following the
         // successfully parsed text, or the position at which the parse failure
         // was detected.  If the parsed number is outside of the
         // '[0 .. 0XFFFFFFFFFFFFFFFF]' range the 'result' will be the longest
-        // number that does not overflow and 'endPos' will point to the first
-        // digit that would make the number too large.  Return zero on success,
-        // and a non-zero value otherwise.  The value of '*result' is unchanged
-        // if a parse failure occurs.  The behavior is undefined if any
-        // argument is 0 and unless '2 <= base' and 'base <= 36' (i.e., bases
-        // where digits are representable by characters in the range ['0'-'9'],
-        // ['a'-'z'], or ['A'-'Z']).
+        // number that does not overflow and 'remainder' will start at the
+        // first digit that would make the number too large.  Return zero on
+        // success, and a non-zero value otherwise.  The value of '*result' is
+        // unchanged if a parse failure occurs.  The behavior is undefined if
+        // any argument is 0 and unless '2 <= base' and 'base <= 36' (i.e.,
+        // bases where digits are representable by characters in the range
+        // ['0'-'9'], ['a'-'z'], or ['A'-'Z']).
         //
         // A parse failure can occur for the following reasons:
         //..
@@ -291,27 +291,26 @@ struct NumericParseUtil {
         //      'base', or an optional sign followed by a valid digit.
         //..
 
-    static int parseShort(size_type                *endPos,
-                          short                    *result,
+    static int parseShort(short                    *result,
+                          bslstl::StringRef        *remainder,
                           const bslstl::StringRef&  inputString,
                           int                       base = 10);
         // Parse the specified 'inputString' for the maximal sequence of
         // characters forming a valid <SHORT> (see {GRAMMAR PRODUCTION RULES})
         // in the optionally specified 'base' or in base 10 if 'base' is not
         // specified, and place into the specified 'result' the corresponding
-        // value.  Store in the specified '*endPos' the position of the
-        // character in 'inputString' immediately following the successfully
-        // parsed text, or the position at which the parse failure was
-        // detected.  If the parsed number is outside of the
-        // '[SHRT_MIN .. SHRT_MAX]' range the 'result' will be the longest
-        // number that does not over/underflow and 'endPos' will point to the
-        // first digit that would make the number too large/small.  Return zero
-        // on success, and a non-zero value otherwise.  Return zero on success,
-        // and a non-zero value otherwise.  The value of '*result' is unchanged
-        // if a parse failure occurs.  The behavior is undefined if any
-        // argument is 0, and unless '2 <= base' and 'base <= 36' (i.e., bases
-        // where digits are representable by characters in the range ['0'-'9'],
-        // ['a'-'z'] or ['A'-'Z']).
+        // value.  Store in the specified '*remainder' the remainder of the
+        // 'inputString' immediately following the successfully parsed text, or
+        // the position at which the parse failure was detected.  If the parsed
+        // number is outside of the '[SHRT_MIN .. SHRT_MAX]' range the 'result'
+        // will be the longest number that does not over/underflow and
+        // 'remainder' will start at the first digit that would make the number
+        // too large/small.  Return zero on success, and a non-zero value
+        // otherwise.  Return zero on success, and a non-zero value otherwise.
+        // The value of '*result' is unchanged if a parse failure occurs.  The
+        // behavior is undefined if any argument is 0, and unless '2 <= base'
+        // and 'base <= 36' (i.e., bases where digits are representable by
+        // characters in the range ['0'-'9'], ['a'-'z'] or ['A'-'Z']).
         //
         // A parse failure can occur for the following reasons:
         //..
@@ -320,8 +319,8 @@ struct NumericParseUtil {
         //      'base', or an optional sign followed by a valid digit.
         //..
 
-    static int parseSignedInteger(size_type                *endPos,
-                                  bsls::Types::Int64       *result,
+    static int parseSignedInteger(bsls::Types::Int64       *result,
+                                  bslstl::StringRef        *remainder,
                                   const bslstl::StringRef&  inputString,
                                   int                       base,
                                   const bsls::Types::Int64  minValue,
@@ -331,8 +330,8 @@ struct NumericParseUtil {
         // consuming the maximum that will form a number whose value is less
         // than or equal to the specified 'maxValue' and greater than or equal
         // to the specified 'minValue'.  Place into the specified 'result' the
-        // extracted value, and store in the specified '*endPos' the position
-        // of the character in 'inputString' immediately following the
+        // extracted value, and store in the specified '*remainder' the
+        // remainder of the 'inputString' immediately following the
         // successfully parsed text, or the position at which the parse failure
         // was detected.  Return 0 on success, and a non-zero value otherwise.
         // The value of '*result' is unchanged if a parse failure occurs.  The
@@ -352,13 +351,13 @@ struct NumericParseUtil {
         //   3. The first digit is not a valid number for the 'base'.
         //..
 
-    static int parseUnsignedInteger(size_type                 *endPos,
-                                    bsls::Types::Uint64       *result,
+    static int parseUnsignedInteger(bsls::Types::Uint64       *result,
+                                    bslstl::StringRef         *remainder,
                                     const bslstl::StringRef&   inputString,
                                     int                        base,
                                     const bsls::Types::Uint64  maxValue);
-    static int parseUnsignedInteger(size_type                 *endPos,
-                                    bsls::Types::Uint64       *result,
+    static int parseUnsignedInteger(bsls::Types::Uint64       *result,
+                                    bslstl::StringRef         *remainder,
                                     const bslstl::StringRef&   inputString,
                                     int                        base,
                                     const bsls::Types::Uint64  maxValue,
@@ -368,7 +367,7 @@ struct NumericParseUtil {
         // up to the optionally specified 'maxNumDigits' that form a number
         // whose value does not exceed the specified 'maxValue'.  Place into
         // the specified 'result' the extracted value, and store in the
-        // specified '*endPos' the position of the character in 'inputString'
+        // specified '*remainder' the remainder of the 'inputString'
         // immediately following the successfully parsed text, or the position
         // at which the parse failure was detected.  Return 0 on success, and a
         // non-zero value otherwise.  The value of '*result' is unchanged if a
