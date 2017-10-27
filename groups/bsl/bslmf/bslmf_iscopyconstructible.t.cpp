@@ -148,10 +148,8 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(bsl::add_cv<TYPE>::type, IS_PRIMITIVE); \
 }
 
-
 #if defined(BSLS_PLATFORM_CMP_IBM)
 // Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
-
 # define ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)               \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                        \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(bsl::add_pointer<TYPE>::type, true)  \

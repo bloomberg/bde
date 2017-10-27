@@ -69,11 +69,7 @@ BSLS_IDENT("$Id: $")
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                      \
- && (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1700)
-    // The VisualC++ 2010 type traits library does not implement this trait,
-    // while the VC 2012 library does provide the trait, but gives the wrong
-    // answer in several cases.
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 # define BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT 1
 #endif
 

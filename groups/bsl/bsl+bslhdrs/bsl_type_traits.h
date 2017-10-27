@@ -59,27 +59,17 @@ BSLS_IDENT("$Id: $")
     // evolution of C++11.  This macro tracks whether a given library version
     // provides the type.
 
-// BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
-    // This macro is defined for a version of the standard library on Windows
-    // that has very few of the standard traits.
-
 // We then detect specific platforms that may have some elements of support,
 // and define the support macro for just those cases.  We do not redefine the
 // support macros if they are already defined, so that it is possible to define
 // them on the compiler command line to 0 or 1 regardless of platform.
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#  if BSLS_PLATFORM_CMP_VERSION == 1600
-#    ifndef   BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
-#      define BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS   1
-#    endif
-#  else
-#    ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
-#      define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS 1
-#    endif
-#    ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
-#      define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION       1
-#    endif
+#  ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
+#    define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS 1
+#  endif
+#  ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
+#    define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION       1
 #  endif
 #endif
 
@@ -122,13 +112,10 @@ namespace bsl {
     using native_std::is_trivial;
     using native_std::is_standard_layout;
     using native_std::is_pod;
-#if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
     using native_std::is_literal_type;
-#endif
     using native_std::is_abstract;
     using native_std::is_signed;
     using native_std::is_unsigned;
-#if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
     using native_std::is_constructible;
     using native_std::is_default_constructible;
     using native_std::is_move_constructible;
@@ -136,7 +123,6 @@ namespace bsl {
     using native_std::is_copy_assignable;
     using native_std::is_move_assignable;
     using native_std::is_destructible;
-#endif
 #if BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
     using native_std::is_trivially_constructible;
     using native_std::is_trivially_copy_constructible;
@@ -146,16 +132,14 @@ namespace bsl {
     using native_std::is_trivially_move_assignable;
     using native_std::is_trivially_destructible;
 #endif
-#if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
     using native_std::is_nothrow_constructible;
     using native_std::is_nothrow_default_constructible;
     using native_std::is_nothrow_copy_constructible;
     using native_std::is_nothrow_assignable;
     using native_std::is_nothrow_copy_assignable;
     using native_std::is_nothrow_move_assignable;
-# if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION >= 40800
+#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION >= 40800
     using native_std::is_nothrow_destructible;
-# endif
 #endif
     using native_std::has_virtual_destructor;
 
@@ -182,10 +166,8 @@ namespace bsl {
     using native_std::aligned_union;
 #endif
     using native_std::common_type;
-#if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
     using native_std::underlying_type;
     using native_std::result_of;
-#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 template <std::size_t LEN, std::size_t ALIGN> using aligned_storage_t =

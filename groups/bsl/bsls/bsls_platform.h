@@ -834,7 +834,7 @@ struct bsls_Platform_Assert;
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
     // Test MSVC last, as many compilers targeting Windows offer a Microsoft
     // compatibility mode.
-#  if BSLS_PLATFORM_CMP_VERSION < 1600
+#  if BSLS_PLATFORM_CMP_VERSION < 1800
 #    error This early compiler is not supported by BDE
 #  endif
 #else
@@ -851,7 +851,7 @@ struct bsls_Platform_Assert;
 
                         // Miscellaneous Platform Macros
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) && !defined(__GXX_EXPERIMENTAL_CXX0X__)
     #define BSLS_PLATFORM_NO_64_BIT_LITERALS 1
 #endif
 

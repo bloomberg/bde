@@ -639,11 +639,9 @@
 //   simple gcc extension attribute.
 #    define BSLS_DEPRECATE __attribute__ ((deprecated))
 #  elif defined (_MSC_VER)
-//   MSVC supports a 'deprecated' declaration specifier starting with Visual
-//   Studio 2010.
-#    if 1600 <= _MSC_VER
-#      define BSLS_DEPRECATE __declspec(deprecated)
-#    endif
+//   All versions of MSVC supported by BDE provide a 'deprecate' declaration
+//   specifier.
+#    define BSLS_DEPRECATE __declspec(deprecated)
 #  endif
 #endif
 

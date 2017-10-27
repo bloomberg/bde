@@ -192,9 +192,9 @@ typedef balst::StackTracePrintUtil_Test      PrintUtilTest;
 
     enum { e_DEMANGLE_PARENS = 0,
 
-# if  (BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000) \
-    || BSLS_PLATFORM_CMP_VERSION <  1600
-    // Windows cl-15, cl-17, cl-18 & cl-19 don't demangle the '::' part either.
+# if  (BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000)
+    // MSVC cl-18.00, cl-19.00, and cl-19.10 don't demangle the '::' part
+    // either.
 
            e_DEMANGLE_COLONS  = 0 };
 # else

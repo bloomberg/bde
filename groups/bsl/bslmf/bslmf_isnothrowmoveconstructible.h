@@ -66,9 +66,7 @@ namespace bslmf {
                    // struct IsNothrowMoveConstructible_Imp
                    // =====================================
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                      \
- && (!defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1700)
-    // Early MSVC compilers have an incomplete <type_traits> header
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 template <class TYPE>
 struct IsNothrowMoveConstructible_Impl
     : bsl::integral_constant<
