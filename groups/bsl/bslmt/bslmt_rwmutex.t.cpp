@@ -524,7 +524,7 @@ int benchmarkSpeed (LOCK       *lock,
    allThreads.joinAll();
 
    score = (accumulate(readerScores.begin(),
-                       readerScores.end(), 0) / (numReaders * 2.0)
+                       readerScores.end(), 0.0) / (numReaders * 2.0)
             + score/2.0);
    cout << "Lock \"" << lockName << "\": hi-contention score="
         << score << endl;
