@@ -92,8 +92,7 @@ void aSsErT(bool condition, const char *message, int line)
     // reference or pointer.
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_IBM)                                            \
- ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1600)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLMF_ISCONVERTIBLE_NO_ARRAY_OF_UNKNOWN_BOUND_AS_TEMPLATE_PARAMETER
     // The IBM compiler has a bigger problem, where it rejects arrays of
     // unknown bound as template type-parameter arguments.  Older Microsoft

@@ -11,13 +11,7 @@
 #include <unistd.h>
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1600
-// stdint.h is only available starting is VS2010.
-typedef unsigned long long int64_t;
-#else
 #include <stdint.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

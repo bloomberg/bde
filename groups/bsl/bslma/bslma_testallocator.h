@@ -692,15 +692,6 @@ class TestAllocator : public Allocator {
                // macro BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
                // ==============================================
 
-// The following is a workaround for an intermittent Visual Studio 2005
-// exception-handling failure.
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1500
-#define BSLMA_EXCEPTION_TEST_WORKAROUND try {} catch (...) {}
-#else
-#define BSLMA_EXCEPTION_TEST_WORKAROUND
-#endif
-
 #ifdef BDE_BUILD_TARGET_EXC
 
 namespace bslma {
@@ -763,7 +754,6 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 
 #ifndef BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR) {     \
-    BSLMA_EXCEPTION_TEST_WORKAROUND                                         \
     {                                                                       \
         static int firstTime = 1;                                           \
         if (veryVerbose && firstTime) {                                     \
@@ -822,7 +812,6 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
     if (veryVeryVerbose) {                                                  \
         std::puts("\t\tEnd bslma exception test.");                         \
     }                                                                       \
-    BSLMA_EXCEPTION_TEST_WORKAROUND                                         \
 }
 
 #endif  // BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END

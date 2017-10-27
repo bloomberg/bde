@@ -778,13 +778,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("rvalue types\n");
         TEST_ENDTOEND_RVALUE(int      , i);
         TEST_ENDTOEND_RVALUE(Enum     , e);
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 0x1500
-        // Our test harness exposes an MSVC 2008 bug that treats the test code
-        // as ambiguous.
         TEST_ENDTOEND_RVALUE(Struct   , s);
         TEST_ENDTOEND_RVALUE(Union    , u);
         TEST_ENDTOEND_RVALUE(Class    , c);
-#endif
         TEST_ENDTOEND_RVALUE(double   , d);
         TEST_ENDTOEND_RVALUE(double * , p);
         TEST_ENDTOEND_RVALUE(F      * , f_p);
@@ -1139,7 +1135,7 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<Struct  &&>(native_std::move(s));
         testForwardToTargetRef<Union   &&>(native_std::move(u));
         testForwardToTargetRef<Class   &&>(native_std::move(c));
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 0x1800
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1800
         // The following 6 tests fail for MS Visual C++ (tested up to VC 2013).
         // Suspect the optimizer is creating a temporary, rather than truly
         // passing by reference, when given a fundamental/primitive type.
@@ -1298,7 +1294,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("Function types\n");
 
-#if (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION < 0x1700))\
+#if (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION < 1700))  \
  || (!defined(BSLS_PLATFORM_CMP_IBM)  || (BSLS_PLATFORM_CMP_VERSION < 0x0800))
         // xlc-8 seems to have problems with function types.  Similarly, older
         // MS Visual C++ compilers have problem binding functions types to
