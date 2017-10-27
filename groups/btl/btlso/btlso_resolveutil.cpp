@@ -14,12 +14,15 @@ BSLS_IDENT_RCSID(btlso_resolveutil_cpp,"$Id$ $CSID$")
 
 #include <btlso_ipv4address.h>
 
+#include <bdlma_bufferedsequentialallocator.h>
+
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+#include <bslma_deallocatorguard.h>
+
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 
-#include <bdlma_bufferedsequentialallocator.h>
-
-#include <bslma_default.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
@@ -28,22 +31,32 @@ BSLS_IDENT_RCSID(btlso_resolveutil_cpp,"$Id$ $CSID$")
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 
+#include <bsl_c_errno.h>      // errno
+#include <arpa/inet.h>
+#include <netdb.h>            // h_errno and prototype for _AIX, MAXHOSTNAMELEN
+#include <netinet/in.h>
+#include <net/if.h>           // definitions of 'ifconf' and 'ifreq' structures
+#include <sys/ioctl.h>        // declarations of 'ioctl()' and ioctl's requests
+
+#if defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+#include <sys/sockio.h>       // SunOS keeps ioctl's requests apart
+#endif
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/param.h>        // MAXHOSTNAMELEN (ibm and others)
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <unistd.h>           // gethostname()
-#include <bsl_c_errno.h>      // errno
-#include <netdb.h>            // h_errno and prototype for _AIX, MAXHOSTNAMELEN
 
 #else                         // windows
 
 #include <bsl_cstring.h>      // memcpy
 #include <bsl_cstdlib.h>      // atoi()
+#include <iphlpapi.h>         // GetAdaptersAddresses()
 #include <winsock2.h>         // getservbyname()
 #include <ws2tcpip.h>         // getaddrinfo() getnameinfo()
 #define MAXHOSTNAMELEN  256
+
+#pragma comment(lib, "iphlpapi.lib")
 
 #endif
 
@@ -66,6 +79,85 @@ struct IPv4AddressHasher {
                          (static_cast<bsl::size_t>(x.portNumber()) << k_SHIFT);
     }
 };
+
+int getAddressImp(btlso::ResolveUtil::ResolveByNameCallback  cb,
+                  btlso::IPv4Address                        *result,
+                  const char                                *hostName,
+                  int                                       *errorCode)
+    // Use the specified 'cb' to load into the specified 'result' the primary
+    // IPv4 address of the specified 'hostName'.  Return 0, with no effect on
+    // 'errorCode', on success, and return a negative value otherwise.  If an
+    // error occurs, the optionally specified 'errorCode' is set to the native
+    // error code of the operation and 'result' is unchanged.
+{
+    // Avoid dynamic memory allocation.
+
+    bsls::AlignedBuffer<sizeof(btlso::IPv4Address)> bufferStorage;
+    bdlma::BufferedSequentialAllocator              allocator(
+                                                   bufferStorage.buffer(),
+                                                   sizeof(btlso::IPv4Address));
+    bsl::vector<btlso::IPv4Address>                 addresses(&allocator);
+
+    if (cb(&addresses, hostName, 1, errorCode)
+     || addresses.size() < 1) {
+        return -1;                                                    // RETURN
+    }
+
+    result->setIpAddress(addresses.front().ipAddress());
+    return 0;
+}
+
+                         // ======================
+                         // class CloseSocketGuard
+                         // ======================
+
+class CloseSocketGuard {
+    // This class implements a guard that closes an open socket file descriptor
+    // upon destruction.
+
+  private:
+    // PRIVATE TYPES
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    typedef int    SocketFileDescriptor;
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+    typedef SOCKET SocketFileDescriptor;
+#endif
+
+    // DATA
+    SocketFileDescriptor d_sfd;  // socket file descriptor
+
+  public:
+    // CREATORS
+    explicit
+    CloseSocketGuard(SocketFileDescriptor sfd);
+         // Create a guard object that will manage the specified 'sfd', closing
+         // it upon destruction.
+
+    ~CloseSocketGuard();
+        // Close the descriptor, managed by this object.
+};
+
+                         // ----------------------
+                         // class CloseSocketGuard
+                         // ----------------------
+// CREATORS
+inline
+CloseSocketGuard::CloseSocketGuard(CloseSocketGuard::SocketFileDescriptor sfd)
+: d_sfd(sfd)
+{
+}
+
+inline
+CloseSocketGuard::~CloseSocketGuard()
+{
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    int rc = close(d_sfd);
+    BSLS_ASSERT(rc == 0);
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+    int rc = closesocket(d_sfd);
+    BSLS_ASSERT(rc == NO_ERROR);
+#endif
+}
 
 }  // close unnamed namespace
 
@@ -150,9 +242,9 @@ int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
     // addresses that refer to the specifed host 'hostName', but only take the
     // the first 'numAddresses' addresses found.  Return 0 on success and a
     // non-zero value otherwise, and set '*errorCode' to the platform-dependent
-    // error code encountered if the hostname could not be resolve.  On
-    // success, '*errorCode' is not modified.  's_callback_p' is set to this
-    // function by default.
+    // error code encountered if the hostname could not be resolved.  On
+    // success, '*errorCode' is not modified.  's_byNameCallback_p' is set to
+    // this function by default.
 {
     BSLS_ASSERT(hostAddresses);
     BSLS_ASSERT(hostName);
@@ -211,12 +303,334 @@ int defaultResolveByNameImp(bsl::vector<btlso::IPv4Address> *hostAddresses,
     return 0;
 }
 
+#if defined(BSLS_PLATFORM_OS_UNIX)
+static
+int resolveLocalAddrForUnix(bsl::vector<btlso::IPv4Address> *localAddresses,
+                            int                              numAddresses,
+                            int                             *errorCode)
+    // Populate the specified vector 'localAddresses' with the set of IP
+    // addresses that refer to the local Unix-like machine, but only take the
+    // the first 'numAddresses' addresses found.  Return 0 on success and a
+    // non-zero value otherwise, and set '*errorCode' to the platform-dependent
+    // error code encountered if the local address could not be resolved.  On
+    // success, '*errorCode' is not modified.  IP addresses of ethernet and
+    // wireless network interfaces only are loaded to the 'localAddresses'.
+{
+    BSLS_ASSERT(localAddresses);
+    BSLS_ASSERT(0 < numAddresses);
+
+    localAddresses->clear();
+
+    // To obtain a list of local addresses on Unix-like machine, we use 'ioctl'
+    // function. 'ioctl' called with 'SIOCGIFCONF' code fills passed array of
+    // 'ifreq' structures with information about all network interfaces being
+    // presented.  The required size of this array is obtained from another
+    // 'ioctl' call with request code specific for different platforms.
+
+    struct ifconf  ifc;
+    int            sd;
+
+    // Create a socket so we can use ioctl on the file descriptor to retrieve
+    // interfaces info.
+
+    sd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (-1 == sd) {
+        if (errorCode) {
+            *errorCode = errno;
+        }
+        return -1;                                                    // RETURN
+    }
+
+    CloseSocketGuard cld(sd);
+
+    ifc.ifc_len = 0;
+    ifc.ifc_req = 0;
+
+    // Calculating size of buffer for addresses.  There is no universal
+    // solution for all Unix-like platforms, so we use specific ioctl request
+    // code in each case.
+
+    int bufLen = 0;
+    int ret = 0;
+
+#if  defined(BSLS_PLATFORM_OS_AIX)
+    // 'SIOCGSIZIFCONF': Gets the size of memory that is required to get
+    // configuration information for all interfaces returned by 'SIOCGIFCONF'.
+
+    int ifconfSize = 0;
+    ret = ioctl(sd, SIOCGSIZIFCONF, (caddr_t)&ifconfSize);
+    bufLen = ifconfSize;
+#elif defined(BSLS_PLATFORM_OS_SUNOS) || defined (BSLS_PLATFORM_OS_SOLARIS)
+    // 'SIOCGIFNUM': Gets the number of interfaces returned by 'SIOCGIFCONF'.
+
+    int NumberOfInterfaces = 0;
+    ret = ioctl(sd, SIOCGIFNUM, &NumberOfInterfaces);
+    bufLen = NumberOfInterfaces * sizeof(struct ifreq);
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+    // There are not any special ioctls to get neccessary buffer size on
+    // Darwin, so it can be obtained experimentally.  We need to give system
+    // excessive buffer and the required size will be returned through
+    // 'ifc.ifc_len' field.
+
+    const int         MAX_TRIES = 5;
+    int               numReqs = 10;
+    int               numTries = 0;
+    bslma::Allocator *eda = bslma::Default::defaultAllocator();
+
+    do {
+        int   experimentalSize = sizeof(struct ifreq)*numReqs;
+        char *experimentalBuf =
+                          static_cast<char *>(eda->allocate(experimentalSize));
+
+        bslma::DeallocatorGuard<bslma::Allocator> guard(experimentalBuf, eda);
+
+        ifc.ifc_len = experimentalSize;
+        ifc.ifc_buf = experimentalBuf;
+
+        // Keep calling ioctl until we provide it a big enough buffer.
+
+        if (ioctl(sd, SIOCGIFCONF, &ifc) < 0) {
+            if (errorCode) {
+                *errorCode = EFAULT;
+            }
+            return -1;                                                // RETURN
+        }
+
+        if (ifc.ifc_len == bufLen) {
+            // As soon as we reach (or exceed) the requested amount of memory,
+            // system call will return the same value for any excess.
+
+            break;
+        } else {
+            // It is possibly insufficient amout of memory.
+
+            bufLen = ifc.ifc_len;
+            numReqs *= 2;
+        }
+        ++numTries;
+    } while (MAX_TRIES > numTries);
+
+#else
+    // If 'ifc_req' is NULL, 'SIOCGIFCONF' returns the  necessary  buffer size
+    // in bytes  for  receiving  all  available  addresses  in 'ifc_len'.
+
+    ret = ioctl(sd, SIOCGIFCONF, &ifc);
+    bufLen = ifc.ifc_len;
+#endif
+
+    if (ret) {
+        if (errorCode) {
+            *errorCode = EFAULT;
+        }
+        return -1;                                                    // RETURN
+    }
+
+    if (bufLen == 0) {
+        if (errorCode) {
+            *errorCode = ENODATA;
+        }
+        return -1;                                                    // RETURN
+    }
+
+    // Memory allocation.
+
+    bslma::Allocator *da = bslma::Default::defaultAllocator();
+    char             *buf = static_cast<char *>(da->allocate(bufLen));
+    bsl::memset(buf, 0, bufLen);
+
+    bslma::DeallocatorGuard<bslma::Allocator> guard(buf, da);
+
+    // Receiving addresses.
+
+    ifc.ifc_req = reinterpret_cast<struct ifreq *>(buf);
+    ifc.ifc_len = bufLen;
+
+    if (ioctl(sd, SIOCGIFCONF, &ifc) == 0) {
+        int   handledBytesNum = 0;
+        while (handledBytesNum < ifc.ifc_len &&
+               static_cast<int>(localAddresses->size()) < numAddresses) {
+            ifreq *ifr = reinterpret_cast<struct ifreq *>(buf);
+            if (ifr->ifr_addr.sa_family == AF_INET) {
+                const bsl::string LOCALHOST("127.0.0.1");
+                char              host[NI_MAXHOST] = {0};
+                int               rc = getnameinfo(&ifr->ifr_addr,
+                                                   sizeof(struct sockaddr_in),
+                                                   host,
+                                                   sizeof host,
+                                                   0,
+                                                   0,
+                                                   NI_NUMERICHOST);
+                if (0 == rc && LOCALHOST != host) {
+                    sockaddr_in        *saIn = reinterpret_cast<sockaddr_in *>(
+                                                             &ifr->ifr_addr);
+                    btlso::IPv4Address  address(saIn->sin_addr.s_addr, 0);
+                    localAddresses->push_back(address);
+                }
+            }
+
+            size_t delta = 0;
+
+#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_DARWIN)
+            // These platforms store data of interfaces in a different way.
+            // That is why we have to shift pointer manually.
+
+            size_t addrSize = (ifr->ifr_addr.sa_len > sizeof(ifr->ifr_addr)
+                               ? ifr->ifr_addr.sa_len
+                               : sizeof(ifr->ifr_addr));
+            delta = sizeof(ifr->ifr_name) + addrSize;
+#else
+            delta = sizeof(struct ifreq);
+#endif
+
+            buf = buf + delta;
+            handledBytesNum += delta;
+        }
+    } else {
+        if (errorCode) {
+            *errorCode = EFAULT;
+        }
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
+}
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+static
+int resolveLocalAddrForWindows(bsl::vector<btlso::IPv4Address> *localAddresses,
+                               int                              numAddresses,
+                               int                             *errorCode)
+    // Populate the specified vector 'localAddresses' with the set of IP
+    // addresses that refer to the local Windows machine, but only take the
+    // the first 'numAddresses' addresses found.  Return 0 on success and a
+    // non-zero value otherwise, and set '*errorCode' to the platform-dependent
+    // error code encountered if the local address could not be resolved.  On
+    // success, '*errorCode' is not modified.  IP addresses of ethernet and
+    // wireless network interfaces only are loaded to the 'localAddresses'.
+{
+    BSLS_ASSERT(localAddresses);
+    BSLS_ASSERT(0 < numAddresses);
+
+    localAddresses->clear();
+
+    enum {
+        k_WORKING_BUFFER_SIZE = 16*1024,
+        k_MAX_TRIES           = 3
+    };
+
+    PIP_ADAPTER_ADDRESSES        pAddresses = NULL;
+    PIP_ADAPTER_ADDRESSES        pCurrAddresses = 0;
+    PIP_ADAPTER_UNICAST_ADDRESS  pUnicast = 0;
+    ULONG                        outBufLen = k_WORKING_BUFFER_SIZE;
+    DWORD                        retValue = NO_ERROR;
+    int                          iterationsNum = 0;
+    bslma::Allocator            *da = bslma::Default::defaultAllocator();
+
+    // Memory allocation.  To determine the memory needed to return the
+    // IP_ADAPTER_ADDRESSES structures we pre-allocate a 16KB working buffer.
+    // If memory is not enough, the function will fail with
+    // 'ERROR_BUFFER_OVERFLOW' error code. When the return value is
+    // 'ERROR_BUFFER_OVERFLOW', the 'outBufLen' argument contains the required
+    // size of the buffer to hold the adapter information.
+    // msdn.microsoft.com/en-us/library/windows/desktop/aa365915(v=vs.85).aspx
+
+    do {
+        pAddresses =
+                   static_cast<PIP_ADAPTER_ADDRESSES>(da->allocate(outBufLen));
+
+        if (pAddresses == NULL) {
+            if (errorCode) {
+                *errorCode = ERROR_NOT_ENOUGH_MEMORY;
+            }
+            return -1;                                                // RETURN
+        }
+
+        retValue = GetAdaptersAddresses(AF_INET,
+                                        GAA_FLAG_INCLUDE_PREFIX,
+                                        NULL,
+                                        pAddresses,
+                                        &outBufLen);
+
+        if (retValue == ERROR_BUFFER_OVERFLOW) {
+            da->deallocate(pAddresses);
+            pAddresses = NULL;
+        } else {
+            break;
+        }
+
+        iterationsNum++;
+
+    } while (retValue == ERROR_BUFFER_OVERFLOW && iterationsNum < k_MAX_TRIES);
+
+    if(retValue != NO_ERROR) {
+        if (errorCode) {
+            *errorCode = retValue;
+        }
+        return -1;                                                    // RETURN
+    }
+
+    bslma::DeallocatorGuard<bslma::Allocator> guard(
+                                               static_cast<void *>(pAddresses),
+                                               da);
+    // Extracting addresses.
+
+    pCurrAddresses = pAddresses;
+    for (pCurrAddresses = pAddresses;
+         pCurrAddresses &&
+         static_cast<int>(localAddresses->size()) < numAddresses;
+         pCurrAddresses = pCurrAddresses->Next) {
+        if ((pCurrAddresses->IfType == IF_TYPE_ETHERNET_CSMACD) ||
+            (pCurrAddresses->IfType == IF_TYPE_IEEE80211) ) {
+            pUnicast = pCurrAddresses->FirstUnicastAddress;
+            for (pUnicast = pCurrAddresses->FirstUnicastAddress;
+                 pUnicast &&
+                 static_cast<int>(localAddresses->size()) < numAddresses;
+                 pUnicast = pUnicast->Next) {
+                sockaddr_in *saIn = reinterpret_cast<sockaddr_in *>(
+                                                 pUnicast->Address.lpSockaddr);
+                btlso::IPv4Address  address(saIn->sin_addr.s_addr, 0);
+                localAddresses->push_back(address);
+            }
+        }
+    }
+
+    return 0;
+}
+#endif
+
+static
+int defaultResolveLocalAddrImp(bsl::vector<btlso::IPv4Address> *localAddresses,
+                               int                              numAddresses,
+                               int                             *errorCode)
+    // Populate the specified vector 'localAddresses' with the set of IP
+    // addresses that refer to the local machine, but only take the the first
+    // 'numAddresses' addresses found.  Return 0 on success and a non-zero
+    // value otherwise, and set '*errorCode' to the platform-dependent error
+    // code encountered if the local address could not be resolved.  On
+    // success, '*errorCode' is not modified.  IP addresses of ethernet and
+    // wireless network interfaces only are loaded to the 'localAddresses'.
+    // 's_localCallback_p' is set to this function by default.
+{
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    return resolveLocalAddrForUnix(localAddresses, numAddresses, errorCode);
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+    return resolveLocalAddrForWindows(localAddresses, numAddresses, errorCode);
+#endif
+
+}
+
+
 namespace btlso {
                           // ------------------
                           // struct ResolveUtil
                           // ------------------
 
-ResolveUtil::ResolveByNameCallback s_callback_p = &defaultResolveByNameImp;
+ResolveUtil::ResolveByNameCallback    s_byNameCallback_p =
+                                                      &defaultResolveByNameImp;
+ResolveUtil::ResolveLocalAddrCallback s_localCallback_p =
+                                                   &defaultResolveLocalAddrImp;
 
 // CLASS METHODS
 int ResolveUtil::getAddress(IPv4Address *result,
@@ -226,20 +640,10 @@ int ResolveUtil::getAddress(IPv4Address *result,
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostName);
 
-    // Avoid dynamic memory allocation.
-
-    IPv4Address                        stackBuffer;
-    bdlma::BufferedSequentialAllocator allocator(
-                                        reinterpret_cast<char *>(&stackBuffer),
-                                        sizeof stackBuffer);
-    bsl::vector<IPv4Address>           buffer(&allocator);
-
-    if (s_callback_p(&buffer, hostName, 1, errorCode) || buffer.size() < 1) {
-        return -1;                                                    // RETURN
-    }
-
-    result->setIpAddress(buffer.front().ipAddress());
-    return 0;
+    return getAddressImp(s_byNameCallback_p,
+                         result,
+                         hostName,
+                         errorCode);
 }
 
 int ResolveUtil::getAddressDefault(IPv4Address *result,
@@ -249,23 +653,10 @@ int ResolveUtil::getAddressDefault(IPv4Address *result,
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostName);
 
-    // Avoid dynamic memory allocation.
-
-    IPv4Address                        stackBuffer;
-    bdlma::BufferedSequentialAllocator allocator(
-                                        reinterpret_cast<char *>(&stackBuffer),
-                                        sizeof stackBuffer);
-    bsl::vector<IPv4Address>           buffer(&allocator);
-
-    if (defaultResolveByNameImp(&buffer,
-                                hostName,
-                                1,
-                                errorCode) || buffer.size() < 1) {
-        return -1;                                                    // RETURN
-    }
-
-    result->setIpAddress(buffer.front().ipAddress());
-    return 0;
+    return getAddressImp(defaultResolveByNameImp,
+                         result,
+                         hostName,
+                         errorCode);
 }
 
 int ResolveUtil::getAddresses(bsl::vector<IPv4Address> *result,
@@ -275,7 +666,17 @@ int ResolveUtil::getAddresses(bsl::vector<IPv4Address> *result,
     BSLS_ASSERT(result);
     BSLS_ASSERT(hostName);
 
-    return s_callback_p(result, hostName, INT_MAX, errorCode);
+    return s_byNameCallback_p(result, hostName, INT_MAX, errorCode);
+}
+
+int ResolveUtil::getAddressesDefault(bsl::vector<IPv4Address> *result,
+                                     const char               *hostName,
+                                     int                      *errorCode)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(hostName);
+
+    return defaultResolveByNameImp(result, hostName, INT_MAX, errorCode);
 }
 
 int ResolveUtil::getServicePort(IPv4Address *result,
@@ -545,24 +946,60 @@ int ResolveUtil::getLocalHostname(bsl::string *result)
     return rc;
 }
 
+int ResolveUtil::getLocalAddresses(bsl::vector<IPv4Address> *result,
+                                   int                      *errorCode)
+{
+    BSLS_ASSERT(result);
+
+    return s_localCallback_p(result, INT_MAX, errorCode);
+}
+
+int ResolveUtil::getLocalAddressesDefault(bsl::vector<IPv4Address> *result,
+                                          int                      *errorCode)
+{
+    BSLS_ASSERT(result);
+
+    return defaultResolveLocalAddrImp(result, INT_MAX, errorCode);
+}
+
 ResolveUtil::ResolveByNameCallback
 ResolveUtil::setResolveByNameCallback(ResolveByNameCallback callback)
 {
-    ResolveByNameCallback previousCallback = s_callback_p;
-    s_callback_p = callback;
+    ResolveByNameCallback previousCallback = s_byNameCallback_p;
+    s_byNameCallback_p = callback;
     return previousCallback;
 }
 
 ResolveUtil::ResolveByNameCallback
 ResolveUtil::currentResolveByNameCallback()
 {
-    return s_callback_p;
+    return s_byNameCallback_p;
 }
 
 ResolveUtil::ResolveByNameCallback
 ResolveUtil::defaultResolveByNameCallback()
 {
     return &defaultResolveByNameImp;
+}
+
+ResolveUtil::ResolveLocalAddrCallback
+ResolveUtil::setResolveLocalAddrCallback(ResolveLocalAddrCallback callback)
+{
+    ResolveLocalAddrCallback previousCallback = s_localCallback_p;
+    s_localCallback_p = callback;
+    return previousCallback;
+}
+
+ResolveUtil::ResolveLocalAddrCallback
+ResolveUtil::currentResolveLocalAddrCallback()
+{
+    return s_localCallback_p;
+}
+
+ResolveUtil::ResolveLocalAddrCallback
+ResolveUtil::defaultResolveLocalAddrCallback()
+{
+    return &defaultResolveLocalAddrImp;
 }
 
 }  // close package namespace

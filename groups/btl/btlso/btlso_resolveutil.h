@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // this mechanism will be used by all calls to 'getAddress' or 'getAddresses'.
 // Otherwise, the default implementation will be used.  An application can
 // always use the default implementation by calling the 'getAddressDefault' and
-// 'getAddressDefault' methods explicitly.
+// 'getAddressesDefault' methods explicitly.
 //
 ///Usage
 ///-----
@@ -157,17 +157,33 @@ struct ResolveUtil {
         // Invoked by 'getAddress' and 'getAddresses', 'ResolveByNameCallback'
         // is an alias for a pointer to a re-entrant function that returns
         // 'int' and takes as arguments a vector of 'hostAddresses', the
-        // 'hostName', a 'numAddresses' parameter, and an 'errorCode' pointer.
-        // Upon invocation, this function resolves the IP address(es) of the
-        // specified 'hostname' and loads the specified 'hostAddresses' with up
-        // to the specified 'numAddresses' of the resolved IPv4 addresses if
-        // resolution succeeds.  It returns 0 with no effect on 'errorCode'
-        // upon success, and otherwise returns a negative value.  Upon failure
-        // and if 'errorCode' is not 0, it also loads a native error code into
-        // 'errorCode'.  The behavior is undefined unless '0 < numAddresses'.
-        // Note that, in any case, any 'hostAddresses' entry present upon
-        // return must contain a valid IPv4Address corresponding to the
-        // 'hostName', and 'hostAddresses' must be resized accordingly.
+        // 'hostName', a 'numAddresses' parameter, and an 'errorCode'
+        // pointer.  Upon invocation, this function resolves the IP address(es)
+        // of the specified 'hostname' and loads the specified 'hostAddresses'
+        // with up to the specified 'numAddresses' of the resolved IPv4
+        // addresses if resolution succeeds.  Return 0 on success, and a
+        // non-zero value otherwise. 'errorCode' may be 0, but if 'errorCode'
+        // is not 0 and an error occurs, 'errorCode' will be set to a native
+        // platform error status value ('errorCode' is not modified if the
+        // method returns successfully).  The behavior is undefined unless
+        // '0 < numAddresses'.
+
+    typedef int (*ResolveLocalAddrCallback)(
+                                      bsl::vector<IPv4Address> *localAddresses,
+                                      int                       numAddresses,
+                                      int                      *errorCode);
+        // Invoked by 'getLocalAddress' and 'getLocalAddresses',
+        // 'ResolveLocalAddrCallback' is an alias for a pointer to a re-entrant
+        // function that returns 'int' and takes as arguments a vector of
+        // 'localAddresses', a 'numAddresses' parameter, and an 'errorCode'
+        // pointer.  Upon invocation, this function resolves the IP address(es)
+        // of the local machine and loads the specified 'localAddresses' with
+        // up to the specified 'numAddresses' of the resolved IPv4 addresses if
+        // resolution succeeds.  Return 0 on success, and a non-zero value
+        // otherwise. 'errorCode' may be 0, but if 'errorCode' is not 0 and an
+        // error occurs, 'errorCode' will be set to a native platform error
+        // status value ('errorCode' is not modified if the method returns
+        // successfully).  The behavior is undefined unless '0 < numAddresses'.
 
     // CLASS METHODS
     static int getAddress(IPv4Address *result,
@@ -187,21 +203,16 @@ struct ResolveUtil {
     static int getAddresses(bsl::vector<IPv4Address> *result,
                             const char               *hostName,
                             int                      *errorCode = 0);
+    static int getAddressesDefault(bsl::vector<IPv4Address> *result,
+                                   const char               *hostName,
+                                   int                      *errorCode = 0);
         // Load into the specified array 'result' all IPv4 addresses of the
         // specified 'hostName'.  Return 0, with no effect on 'errorCode', on
         // success, and return a negative value otherwise.  If an error occurs,
-        // the optionally specified 'errorCode' is set to the native error code
-        // of the operation.  In any case, any addresses present in 'result'
-        // upon return will contain a valid IPv4Address corresponding to the
-        // 'hostName', and 'hostAddress' will be resized accordingly.  Note
-        // that 'getAddresses' uses the user-installed resolution mechanism; to
-        // use the default resolution mechanism, simply call:
-        //..
-        //  (*defaultResolveByNameCallback())(result,
-        //                                    hostName,
-        //                                    INT_MAX,
-        //                                    errorCode);
-        //..
+        // the optionally specified 'errorCode' is set to the native error
+        // code of the operation.  Note that 'getAddresses' uses the
+        // user-installed resolution mechanism, while 'getAddressesDefault'
+        // uses the default resolution mechanism.
 
     static int getHostnameByAddress(bsl::string        *canonicalHostname,
                                     const IPv4Address&  address,
@@ -234,19 +245,48 @@ struct ResolveUtil {
         // Windows 'SocketImpUtil::startup()' must have been called to
         // initialize the socket layer before calling this method.
 
+    static int getLocalAddresses(bsl::vector<IPv4Address> *result,
+                                 int                      *errorCode = 0);
+    static int getLocalAddressesDefault(
+                                      bsl::vector<IPv4Address> *result,
+                                      int                      *errorCode = 0);
+        // Load into the specified array 'result' all IPv4 addresses of the
+        // local machine.  Optionally supply 'errorCode' in which to load a
+        // native platform error status value (if an error occurs). Return 0 on
+        // sucess, and a non-zero value otherwise.  Note that
+        // 'getLocalAddresses' uses the user-installed resolution mechanism,
+        // while 'getLocalAddressesDefault' uses the default resolution
+        // mechanism.
+
     static ResolveByNameCallback setResolveByNameCallback(
                                                ResolveByNameCallback callback);
         // Install the user-specified custom 'callback' function to resolve an
         // IP address by name.  Return the address of the previously installed
-        // callback.  The behavior of 'getAddress' and 'getAddresses' will be
-        // corrupted unless 'callback' conforms to the contract laid out in the
-        // 'ResolveByNameCallback' type documentation.
+        // callback.  The behavior of 'getAddress' and 'getAddresses' is
+        // undefined unless 'callback' conforms to the contract specified in
+        // the 'ResolveByNameCallback' type documentation.
 
     static ResolveByNameCallback currentResolveByNameCallback();
         // Return the currently installed 'ResolveByNameCallback' function.
 
     static ResolveByNameCallback defaultResolveByNameCallback();
         // Return the default implementation of 'ResolveByNameCallback'
+        // function.
+
+    static ResolveLocalAddrCallback setResolveLocalAddrCallback(
+                                            ResolveLocalAddrCallback callback);
+        // Install the user-specified custom 'callback' function to resolve an
+        // IP address of local machine.  Return the address of the previously
+        // installed callback.  The behavior of 'getLocalAddress' and
+        // 'getLocalAddresses' is undefined unless 'callback' conforms to the
+        // contract specified in the 'ResolveLocalAddrCallback' type
+        // documentation.
+
+    static ResolveLocalAddrCallback currentResolveLocalAddrCallback();
+        // Return the currently installed 'ResolveLocalAddrCallback' function.
+
+    static ResolveLocalAddrCallback defaultResolveLocalAddrCallback();
+        // Return the default implementation of 'ResolveLocalAddrCallback'
         // function.
 };
 
