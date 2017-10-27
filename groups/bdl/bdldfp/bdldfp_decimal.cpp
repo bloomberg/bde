@@ -268,6 +268,37 @@ doGetCommon(ITER_TYPE                    begin,
     return begin;
 }
 
+bool isNegative(const Decimal32& x)
+    // Return 'true' if the specified 'x' is negative and 'false' otherwise.
+{
+    enum { k_SIGN_MASK = 0x80000000ul };
+
+    return x.value().d_raw & k_SIGN_MASK;
+}
+
+bool isNegative(const Decimal64& x)
+    // Return 'true' if the specified 'x' is negative and 'false' otherwise.
+{
+    const bsls::Types::Uint64 k_SIGN_MASK = 0x8000000000000000ull;
+
+    return x.value().d_raw & k_SIGN_MASK;
+}
+
+
+bool isNegative(const Decimal128& x)
+    // Return 'true' if the specified 'x' is negative and 'false' otherwise.
+{
+    const bsls::Types::Uint64 k_SIGN_MASK = 0x8000000000000000ull;
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    bsls::Types::Uint64 xH = x.value().d_raw.w[0];
+#elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+    bsls::Types::Uint64 xH = x.value().d_raw.w[1];
+#endif
+
+    return xH & k_SIGN_MASK;
+}
+
 }  // close unnamed namespace
 
 
@@ -537,7 +568,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         cfg.setSign(DecimalFormatConfig::e_ALWAYS);
     }
 
-    const bool addSign = value < DECIMAL(0) ||
+    const bool addSign = isNegative(value) ||
                          cfg.sign() == DecimalFormatConfig::e_ALWAYS;
     const int  size    = DecimalImpUtil::format(0, -1, *value.data(), cfg);
     const int  surplus = bsl::max(0, width - size);  // Emit this many fillers.
