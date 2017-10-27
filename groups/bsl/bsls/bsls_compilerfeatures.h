@@ -530,13 +530,11 @@ BSLS_IDENT("$Id: $")
 //: * extern template is not supported. It is documented as being
 //:   "supported" but behaves in a non-conforming manner.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#if BSLS_PLATFORM_CMP_VERSION >= 1600  // Microsoft Visual Studio 2010
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#endif
 #if BSLS_PLATFORM_CMP_VERSION >= 1700  // Microsoft Visual Studio 2012
 #define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
 #endif

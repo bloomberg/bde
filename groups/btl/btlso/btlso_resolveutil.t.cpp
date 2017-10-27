@@ -7,14 +7,18 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
+#include <btlso_ipv4address.h>
 #include <btlso_resolveutil.h>
 #include <btlso_sockethandle.h>
 #include <btlso_socketimputil.h>
-#include <btlso_ipv4address.h>
+
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
+
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -70,67 +74,84 @@ using namespace bsl;  // automatically added by script
 // [ 6] ResolveByNameCallback setResolveByNameCallback(callback);
 // [ 6] ResolveByNameCallback currentResolveByNameCallback();
 // [ 6] ResolveByNameCallback defaultResolveByNameCallback();
+// [ 9] int getLocalAddresses(bsl::vector<IPv4Address> *, int);
+// [ 9] int getLocalAddressesDefault(bsl::vector<IPv4Address> *, int);
+// [ 8] ResolveLocalAddrCallback setResolveLocalAddrCallback(cb);
+// [ 8] ResolveLocalAddrCallback currentResolveLocalAddrCallback();
+// [ 7] ResolveLocalAddrCallback defaultResolveLocalAddrCallback();
 // ----------------------------------------------------------------------------
-// [ 7] USAGE example
+// [10] USAGE example
+
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << (I) << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " \
-              << (J) << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) \
-              << "\t"  << #K << ": " << (K) << "\n"; \
-              aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) \
-       << "\t" << #K << ": " << (K) << "\t" << #L << ": " << (L) << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-    if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) \
-       << "\t" << #K << ": " << (K) << "\t" << #L << ": " << (L) << "\t" << \
-       #M << ": " << (M) << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-typedef btlso::ResolveUtil                        Obj;
-typedef btlso::ResolveUtil::ResolveByNameCallback Callback;
-typedef btlso::SocketHandle::Handle               SocketHandle;
+typedef btlso::ResolveUtil                           Obj;
+typedef btlso::ResolveUtil::ResolveByNameCallback    Callback;
+typedef btlso::ResolveUtil::ResolveLocalAddrCallback LocalAddrCallback;
+typedef btlso::SocketHandle::Handle                  SocketHandle;
 
 //=============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
@@ -144,7 +165,7 @@ int myResolveByNameCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
                             const char                      *hostName,
                             int                              numAddresses,
                             int                             *errorCode)
-    // Resolves the IP address(es) of the specified 'hostname' and the
+    // Resolves the IP address(es) of the specified 'hostname' and load the
     // specified 'hostAddresses' with a maximum number equal to the specified
     // 'numAddresses' (or unlimited number if 'numAddresses' is -1) of the IPv4
     // addresses if resolution succeeds.  Resolution is performed by lookup in
@@ -155,7 +176,7 @@ int myResolveByNameCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
     // IPv4Address corresponding to the 'hostName', and 'hostAddresses' will be
     // resized accordingly.
 {
-    enum { NOT_FOUND = -1 };
+    enum { k_NOT_FOUND = -1 };
 
     // Note that we must clear 'hostAddresses' in any case, as per the
     // contract.
@@ -168,7 +189,7 @@ int myResolveByNameCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
 
     if (iter == myCallbackMap.end()) {
         if (errorCode) {
-            *errorCode = NOT_FOUND;
+            *errorCode = k_NOT_FOUND;
         }
         return -1;                                                    // RETURN
     }
@@ -187,6 +208,91 @@ int myResolveByNameCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
                               iter->second.begin() + actualNumAdresses);
     }
     return 0;
+}
+
+int myResolveLocalAddrCallback(bsl::vector<btlso::IPv4Address> *hostAddresses,
+                               int                              numAddresses,
+                               int                             *errorCode)
+    // Populate the specified 'hostAddresses' with a maximum number equal to
+    // the specified 'numAddresses' (or unlimited number if 'numAddresses' is
+    // -1) of the IPv4 addresses taken from the global 'myCallbackMap', if it
+    // is not empty.  Return 0 with no effect on 'errorCode' upon success, and
+    // otherwise returns a negative value.  Upon failure, also load a constant
+    // error code into 'errorCode'.
+{
+    enum { k_NOT_FOUND = -1 };
+
+    // Note that we must clear 'hostAddresses' in any case, as per the
+    // contract.
+
+    hostAddresses->clear();
+
+    if (0 == myCallbackMap.size()) {
+        if (errorCode) {
+            *errorCode = k_NOT_FOUND;
+        }
+        return -1;                                                    // RETURN
+    }
+
+    MyCallbackMap::iterator iter = myCallbackMap.begin();
+
+    // Copy up to 'numAddresses' addresses (or all if 'numAddresses' is -1)
+    // into the output 'hostAddresses'.
+
+    if (numAddresses == -1) {
+        *hostAddresses = iter->second;
+    } else {
+        ASSERT(hostAddresses != 0);
+
+        int actualNumAdresses = bsl::min(numAddresses,
+                                         (int)iter->second.size());
+        hostAddresses->assign(iter->second.begin(),
+                              iter->second.begin() + actualNumAdresses);
+    }
+    return 0;
+}
+
+btlso::IPv4Address getLocalAddress() {
+
+    struct sockaddr_in addr;
+    addr.sin_family      = AF_INET;
+    addr.sin_port        = 80;
+    addr.sin_addr.s_addr = btlso::IPv4Address("10.255.255.255", 1).ipAddress();
+
+    int                rc;
+    struct sockaddr_in res;
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+    int sfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    rc = connect(sfd, (const struct sockaddr *)&addr, sizeof(addr));
+    ASSERTV(rc, rc == 0);
+
+    socklen_t len = sizeof(res);
+    rc = getsockname(sfd, (struct sockaddr *)&res, &len);
+    ASSERTV(rc, rc == 0);
+
+    rc = close(sfd);
+    ASSERTV(rc, rc == 0);
+
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+
+    SOCKET sfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    ASSERTV(sfd != INVALID_SOCKET);
+
+    rc = connect(sfd, (SOCKADDR *)& addr, sizeof(addr));
+    ASSERTV(rc, rc == NO_ERROR);
+
+    int len = sizeof(res);
+    rc = getsockname(sfd, (LPSOCKADDR)&res, &len);
+    ASSERTV(rc, rc == NO_ERROR);
+
+    rc = closesocket(sfd);
+    ASSERTV(rc, rc == NO_ERROR);
+
+#endif
+
+    return btlso::IPv4Address(res.sin_addr.s_addr, 0);
 }
 
 //=============================================================================
@@ -210,7 +316,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // always the leading case.
-        case 7: {
+        case 10: {
             // ----------------------------------------------------------------
             // TESTING USAGE EXAMPLE
             //   The usage example provided in the component header file must
@@ -315,6 +421,400 @@ int main(int argc, char *argv[])
 //..
 
         } break;
+        case 9: {
+            // ----------------------------------------------------------------
+            // TESTING LOCAL ADDRESSES ACQUARING
+            //
+            // Concerns:
+            //: 1 The 'getLocalAddresses' function calls currently installed
+            //:   user-defined callback (or the default one if user has not
+            //:   defined it).
+            //:
+            //: 2 The 'getLocalAddressesDefault' function always calls the
+            //:   default callback.
+            //:
+            //: 3 The functions correctly pass parameters to the callbacks and
+            //:   returned values to the client.
+            //:
+            //: 4 QoI: Asserted precondition violations are detected when
+            //:   enabled.
+            //
+            // Plan:
+            //: 1 Call both functions and verify that they succeed and return
+            //:   the same results.
+            //:
+            //: 2 Install test function which uses a global map (initially
+            //:   empty) as a user-defined callback , and check that the
+            //:   'getLocalAddresses' fails, but 'getLocalAddressesDefault'
+            //:   still succeeds and returns the same results as in P-1.
+            //:
+            //: 3 Add some values to the global map and verify that the
+            //:   'getLocalAddresses' succeeds and return them as a results.
+            //:   Verify that 'getLocalAddressesDefault' still returns the same
+            //:   results as in P-1.
+            //:
+            //: 4 Clear global map and verify that  'getLocalAddresses' fails
+            //:   again, while 'getLocalAddressesDefault' still succeeds and
+            //:   returns the same results as in P-1.
+            //:
+            //: 5 Verify that, in appropriate build modes, defensive checks are
+            //:   triggered for invalid values, but not triggered for adjacent
+            //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-4)
+            //
+            // Testing
+            //   int getLocalAddresses(bsl::vector<IPv4Address> *, int);
+            //   int getLocalAddressesDefault(bsl::vector<IPv4Address> *, int);
+            // ----------------------------------------------------------------
+
+            if (verbose) cout << "\nTESTING LOCAL ADDRESSES ACQUARING"
+                              << "\n=================================" << endl;
+
+            const btlso::IPv4Address FAKE_ADDRESSES[] = {
+                                      btlso::IPv4Address("255.255.255.251", 0),
+                                      btlso::IPv4Address("255.255.255.252", 0),
+                                      btlso::IPv4Address("255.255.255.253", 0),
+                                      btlso::IPv4Address("255.255.255.254", 0),
+                                      btlso::IPv4Address("255.255.255.255", 0),
+                                                        };
+            const bsl::string        FAKE_NAME = "FAKE_HOSTNAME";
+
+            bsl::vector<btlso::IPv4Address> curResult;
+            bsl::vector<btlso::IPv4Address> defResult;
+            int                             curRetCode = 0;
+            int                             defRetCode = 0;
+            int                             curErrorCode = 0;
+            int                             defErrorCode = 0;
+
+            if (verbose) cout << "Testing behavior." << endl;
+            {
+                curRetCode = Obj::getLocalAddresses(&curResult, &curErrorCode);
+                defRetCode = Obj::getLocalAddressesDefault(&defResult,
+                                                           &defErrorCode);
+
+                ASSERTV(curRetCode,   !curRetCode  );
+                ASSERTV(defRetCode,   !defRetCode  );
+                ASSERTV(curErrorCode, !curErrorCode);
+                ASSERTV(defErrorCode, !defErrorCode);
+
+                ASSERTV(0 != curResult.size());
+                ASSERTV(0 != defResult.size());
+
+                ASSERTV(defResult == curResult);
+
+                const bsl::vector<btlso::IPv4Address> EXPECTED_DEFAULT =
+                                                                     defResult;
+
+                // Setting user-defined callback and verify difference in the
+                // behavior of functions.
+
+                Obj::setResolveLocalAddrCallback(&myResolveLocalAddrCallback);
+                ASSERTV(myCallbackMap.empty());
+
+                curRetCode = Obj::getLocalAddresses(&curResult, &curErrorCode);
+                ASSERTV(-1 == curRetCode      );
+                ASSERTV(-1 == curErrorCode    );
+                ASSERTV( 0 == curResult.size());
+
+                defRetCode = Obj::getLocalAddressesDefault(&defResult,
+                                                           &defErrorCode);
+
+                ASSERTV(defRetCode,   !defRetCode  );
+                ASSERTV(defErrorCode, !defErrorCode);
+                ASSERTV(EXPECTED_DEFAULT == defResult);
+
+                // Populate test map to get positive results.
+
+                const int FAKE_ADDRESSES_NUM = static_cast<int>(
+                             sizeof(FAKE_ADDRESSES)/sizeof(FAKE_ADDRESSES[0]));
+                for (int i = 0; i < FAKE_ADDRESSES_NUM; ++i) {
+                    curRetCode   = 0;
+                    defRetCode   = 0;
+                    curErrorCode = 0;
+                    defErrorCode = 0;
+
+                    myCallbackMap[FAKE_NAME].push_back(FAKE_ADDRESSES[i]);
+
+                    curRetCode = Obj::getLocalAddresses(&curResult,
+                                                        &curErrorCode);
+
+                    if (veryVerbose) {
+                        T_ P_(i)
+                           P_(FAKE_ADDRESSES[i])
+                           P_(curRetCode)
+                           P(curErrorCode);
+                    }
+
+                    ASSERTV(curRetCode,   !curRetCode  );
+                    ASSERTV(curErrorCode, !curErrorCode);
+                    ASSERTV(myCallbackMap[FAKE_NAME] == curResult);
+
+                    defRetCode = Obj::getLocalAddressesDefault(&defResult,
+                                                               &defErrorCode);
+
+                    ASSERTV(defRetCode,   !defRetCode  );
+                    ASSERTV(defErrorCode, !defErrorCode);
+                    ASSERTV(EXPECTED_DEFAULT == defResult);
+                }
+
+                // Clear test map.
+
+                myCallbackMap.clear();
+
+                curRetCode   = 0;
+                defRetCode   = 0;
+                curErrorCode = 0;
+                defErrorCode = 0;
+
+                curRetCode = Obj::getLocalAddresses(&curResult, &curErrorCode);
+                ASSERTV(-1 == curRetCode      );
+                ASSERTV(-1 == curErrorCode    );
+                ASSERTV( 0 == curResult.size());
+
+                defRetCode = Obj::getLocalAddressesDefault(&defResult,
+                                                           &defErrorCode);
+
+                ASSERTV(defRetCode,   !defRetCode  );
+                ASSERTV(defErrorCode, !defErrorCode);
+                ASSERTV(EXPECTED_DEFAULT == defResult);
+            }
+
+            if (verbose) cout << "\nNegative Testing." << endl;
+            {
+                bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+                ASSERT_SAFE_FAIL(Obj::getLocalAddresses       (0         ));
+                ASSERT_SAFE_FAIL(Obj::getLocalAddressesDefault(0         ));
+                ASSERT_SAFE_PASS(Obj::getLocalAddresses       (&curResult));
+                ASSERT_SAFE_PASS(Obj::getLocalAddressesDefault(&defResult));
+            }
+        } break;
+        case 8: {
+            // ----------------------------------------------------------------
+            // TESTING USER-INSTALLED LOCAL ADDRESS CALLBACKS
+            //
+            // Concerns:
+            //: 1 The 'setResolveLocalAddrCallback' function replaces current
+            //:   callback with the callback passed as a parameter.
+            //:
+            //: 2 The 'setResolveLocalAddrCallback' function returns previously
+            //:   installed callback (default or user-defined).
+            //:
+            //: 3 The 'currentResolveLocalAddrCallback' function returns
+            //:   current callback (default or user-defined).
+            //
+            // Plan:
+            //: 1 Check initial callback value.
+            //:
+            //: 2 Install test function as a callback and check value, returned
+            //:   by the 'setResolveLocalAddrCallback'.  Verify user-defined
+            //:   callback's installation.
+            //:
+            //: 3 Replace current callback function with the default one.
+            //:   Verify value returned by the 'setResolveLocalAddrCallback'
+            //:   and callback's installation.  (C-1..3)
+            //
+            // Testing
+            //   ResolveLocalAddrCallback setResolveLocalAddrCallback(cb);
+            //   ResolveLocalAddrCallback currentResolveLocalAddrCallback();
+            // ----------------------------------------------------------------
+
+            if (verbose) cout
+                          << "\nTESTING USER-INSTALLED LOCAL ADDRESS CALLBACKS"
+                          << "\n=============================================="
+                          << endl;
+
+            LocalAddrCallback defCb = Obj::defaultResolveLocalAddrCallback();
+            LocalAddrCallback curCb = Obj::currentResolveLocalAddrCallback();
+
+            ASSERTV(defCb, curCb, defCb == curCb);
+
+            LocalAddrCallback preCb = Obj::setResolveLocalAddrCallback(
+                                                  &myResolveLocalAddrCallback);
+            curCb = Obj::currentResolveLocalAddrCallback();
+
+            ASSERTV(defCb, preCb, defCb == preCb);
+            ASSERTV((void *)&myResolveLocalAddrCallback, curCb,
+                    &myResolveLocalAddrCallback == curCb);
+
+            preCb = Obj::setResolveLocalAddrCallback(defCb);
+            curCb = Obj::currentResolveLocalAddrCallback();
+
+            ASSERTV(defCb, curCb, defCb == curCb);
+            ASSERTV((void *)&myResolveLocalAddrCallback, preCb,
+                    &myResolveLocalAddrCallback == preCb);
+        } break;
+        case 7: {
+            // ----------------------------------------------------------------
+            // TESTING 'defaultResolveLocalAddrCallback'
+            //
+            // Concerns:
+            //: 1 The 'defaultResolveLocalAddrCallback' function returns
+            //:   callback that allows to receive IP addresses of the local
+            //:   machine.
+            //:
+            //: 2 The default callback clears vector passed as a parameter.
+            //:
+            //: 3 The default callback stores to vector only the IP addresses
+            //:   that refer to the local machine.
+            //:
+            //: 4 The default callback stores to vector no more than the
+            //:   requested number of IP addresses.
+            //:
+            //: 5 The default callback returns error value and modifies error
+            //:   code parameter (if passed) only in case of failure.
+            //:
+            //: 6 The default callback returns IP addresses of local machine
+            //:   without loopback address (127.0.0.1).
+            //:
+            //: 7 QoI: Asserted precondition violations are detected when
+            //:   enabled.
+            //
+            // Plan:
+            //: 1 Using the 'defaultResolveLocalAddrCallback' function, acquire
+            //:   the default callback.
+            //:
+            //: 2 Using the table-driven technique, specify a set of inputs
+            //:   (number of expeced addresses and pointer to error code
+            //:   storage) for the default callback function.
+            //:
+            //: 3 For each row 'R' in the table of P-1:
+            //:
+            //:   1 Write some dummy address to the vector, that will be passed
+            //:     to the default callback function.
+            //:
+            //:   2 Call the default callback function explicitly and verify
+            //:     returned value.  We are not able to simulate failure
+            //:     intentionally, so we are expecting only successful results.
+            //:     (C-5)
+            //:
+            //:   3 Verify the number of the returned addresses.  We are not
+            //:     able to predict real number of addresses on concrete
+            //:     machine, so we are expecting presence of at least one
+            //:     address.  (C-4)
+            //:
+            //:   4 Check returned addresses for the presence of dummy and
+            //:     loopback addresses.  (C-2,6)
+            //:
+            //:   5 Check returned addresses for the presence of confirmed
+            //:     address, obtained from model function.  (C-1,3)
+            //:
+            //: 4 Verify that, in appropriate build modes, defensive checks are
+            //:   triggered for invalid values, but not triggered for adjacent
+            //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
+            //
+            // Testing
+            //   ResolveLocalAddrCallback defaultResolveLocalAddrCallback();
+            // ----------------------------------------------------------------
+
+            if (verbose) cout << "\nTESTING 'defaultResolveLocalAddrCallback'"
+                              << "\n========================================="
+                              << endl;
+
+            const btlso::IPv4Address FAKE_ADDRESS("255.255.255.255", 1);
+            const btlso::IPv4Address LOOPBACK_ADDRESS("127.0.0.1", 0);
+            const btlso::IPv4Address EXPECTED_ADDRESS = getLocalAddress();
+
+            enum {
+                UNUSED_VALUE = (int)0xDEADBEEF
+            };
+            int  errCode = UNUSED_VALUE;
+
+            LocalAddrCallback defCb = Obj::defaultResolveLocalAddrCallback();
+            ASSERT(defCb);
+
+            static const struct {
+                int  d_lineNum;    // line number
+                int  d_addrNum;    // requested number of addresses
+                int *d_errCode_p;  // NULL or valid address
+            } DATA[] = {
+              // line  addrNum   errCode
+              // ----  -------   --------
+                { L_,  INT_MAX,  &errCode },
+                { L_,  INT_MAX,         0 },
+                { L_,        1,  &errCode },
+                { L_,        1,         0 },
+            };
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            if (verbose) cout << "\nTesting behavior." << endl;
+            {
+
+                for (int i = 0; i < NUM_DATA; ++i) {
+                    const int  LINE     = DATA[i].d_lineNum;
+                    const int  ADDR_NUM = DATA[i].d_addrNum;
+                    int       *errorPtr = DATA[i].d_errCode_p;
+
+                    bsl::vector<btlso::IPv4Address> result;
+                    int                             retCode = 0;
+
+                    result.push_back(FAKE_ADDRESS);
+                    ASSERTV(result.end() != bsl::find(result.begin(),
+                                                      result.end(),
+                                                      FAKE_ADDRESS));
+
+                    retCode = defCb(&result, ADDR_NUM, errorPtr);
+                    int size = static_cast<int>(result.size());
+
+                    if (veryVerbose) {
+                        T_ P_(LINE) P_(retCode) P(size);
+
+                        if (size) {
+                            cout << "\tReceived: ";
+                            copy(result.begin(),
+                                 result.end(),
+                                 ostream_iterator<btlso::IPv4Address>(cout,
+                                                                      ", "));
+                            cout << endl;
+                        }
+                    }
+
+                    ASSERTV(LINE, retCode, 0            == retCode);
+                    ASSERTV(LINE, errCode, UNUSED_VALUE == errCode);
+
+                    if (ADDR_NUM == 1) {
+                        // We can not guarantee, that the EXPECTED_ADDRESS is
+                        // stored in buffer, because the address of another
+                        // interface can be returned first.  But we can get
+                        // evidence that exactly one address returned.
+
+                        ASSERTV(LINE, size, 1 == size);
+                    } else {
+                        // We do not know, how many network interfaces are on
+                        // current machine. But we can get evidence that there
+                        // are some addresses returned and the EXPECTED_ADDRESS
+                        // is presented among them.
+
+                        ASSERTV(LINE,       0 != size);
+
+                        ASSERTV(LINE, EXPECTED_ADDRESS,
+                                result.end() != bsl::find(result.begin(),
+                                                          result.end(),
+                                                          EXPECTED_ADDRESS));
+                    }
+
+                    ASSERTV(LINE, result.end() == bsl::find(result.begin(),
+                                                            result.end(),
+                                                            FAKE_ADDRESS));
+                    ASSERTV(LINE, result.end() == bsl::find(result.begin(),
+                                                            result.end(),
+                                                            LOOPBACK_ADDRESS));
+                }
+            }
+
+            if (verbose) cout << "\nNegative Testing." << endl;
+            {
+                bsls::AssertFailureHandlerGuard hG(
+                                         bsls::AssertTest::failTestDriver);
+
+                bsl::vector<btlso::IPv4Address> result;
+
+                ASSERT_SAFE_FAIL(defCb(0,       0, 0));
+                ASSERT_SAFE_FAIL(defCb(0,       1, 0));
+                ASSERT_SAFE_FAIL(defCb(&result, 0, 0));
+                ASSERT_SAFE_PASS(defCb(&result, 1, 0));
+            }
+        } break;
         case 6: {
             // ----------------------------------------------------------------
             // TESTING USER-INSTALLED CALLBACKS
@@ -333,7 +833,7 @@ int main(int argc, char *argv[])
             //   ResolveByNameCallback currentResolveByNameCallback();
             // ----------------------------------------------------------------
 
-            if (verbose) cout << "\nTesting setResolveByNameCallback"
+            if (verbose) cout << "\nTESTING USER-INSTALLED CALLBACKS"
                               << "\n================================" << endl;
 
             if (verbose) cout << "\n\twith getAddress." << endl;
@@ -363,7 +863,7 @@ int main(int argc, char *argv[])
                     { L_,  "sdv3",              0, "10.122.130.92",  SUCCESS },
                     { L_,  "jlu_wrong",  &errCode, 0,                FAIL    },
                     { L_,  "jlu_wrong",         0, 0,                FAIL    },
-                    { L_,  "n299",       &errCode, "10.126.98.215",  SUCCESS },
+                    { L_,  "n299",       &errCode, "10.126.41.97",   SUCCESS },
                 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
                     { L_,  "bny14",      &errCode, 0,                FAIL    },
                     { L_,  "bny14",             0, 0,                FAIL    },
@@ -375,7 +875,7 @@ int main(int argc, char *argv[])
                     { L_,  "Dgm3w10",           0, "160.43.7.13",    SUCCESS },
                 #endif
                 };
-                const int NUM_DATA = sizeof DATA / sizeof *DATA;
+                enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const int   LINE      = DATA[i].d_lineNum;
@@ -391,7 +891,7 @@ int main(int argc, char *argv[])
                     const btlso::IPv4Address& EXP = expResult;
 
                     if (veryVerbose) {
-                        P_(LINE); P_(HOST_NAME); P_(EXP); P(EXP_RET);
+                        T_ T_ P_(LINE); P_(HOST_NAME); P_(EXP); P(EXP_RET);
                     }
 
                     if (veryVerbose)
@@ -501,7 +1001,7 @@ int main(int argc, char *argv[])
                 const char *badAddr2[] = { "202.217.132.211", 0 };
 
             #ifdef BSLS_PLATFORM_OS_WINDOWS
-                const char* p111[]    = { "10.126.161.151", 0 };
+                const char* p111[]    = { "10.126.193.85", 0 };
             #endif
 
                 struct {
@@ -534,7 +1034,7 @@ int main(int argc, char *argv[])
                     { L_, "p111",               &errCode,     p111,  SUCCESS },
             #endif
                 };
-                const int NUM_DATA = sizeof DATA / sizeof *DATA;
+                enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const int    LINE      = DATA[i].d_lineNum;
@@ -672,7 +1172,9 @@ int main(int argc, char *argv[])
                     else {
                         // Retrieved successfully.
 
-                        int j, k, length = resultArray.size();
+                        int j;
+                        int k;
+                        int length = static_cast<int>(resultArray.size());
                         for (j = 0; j < length; ++j) {
                             for (k = 0; EXP_ADDR[k]; ++k) {
                                 if (btlso::IPv4Address(EXP_ADDR[k], 0) ==
@@ -736,7 +1238,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
 
             if (*buf && !rc) {
-                int len = hnam.size();
+                int len = static_cast<int>(hnam.size());
                 ASSERT(0 == strncmp(buf, hnam.c_str(), len)
                        && (buf[len] == '\n' || buf[len] == '\0'));
             }
@@ -809,7 +1311,7 @@ int main(int argc, char *argv[])
                 { L_, "linxdev27",                 0,     linxdev27 },
         #endif
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE      = DATA[i].d_lineNum;
@@ -851,7 +1353,7 @@ int main(int argc, char *argv[])
                     // qualified domain name.  So a substring match is
                     // used to verify the returned response.
 
-                    int len = strlen(HOST_NAME);
+                    int len = static_cast<int>(strlen(HOST_NAME));
                     LOOP3_ASSERT(LINE, HOST_NAME, result,
                                  HOST_NAME == result.substr(0, len));
                 }
@@ -922,7 +1424,7 @@ int main(int argc, char *argv[])
                 const char *d_serviceName;  // service name string
                 const char *d_protocol;     // protocol level
                 int        *d_errCode_p;    // NULL or valid address
-                short       d_expPort;      // expected port value
+                int         d_expPort;      // expected port value
                 int         d_expRet;       // expected return value
             } DATA[] =
             //  line   serviceName   protocol   errorCode  expPort   expRet
@@ -971,7 +1473,7 @@ int main(int argc, char *argv[])
 //              { L_,  "blp-ctrb",   "tcp",     &errCode,   16654,  SUCCESS },
             #endif
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE         = DATA[i].d_lineNum;
@@ -1058,7 +1560,7 @@ int main(int argc, char *argv[])
             const char *badAddr2[] = { 0 };
 
         #ifdef BSLS_PLATFORM_OS_WINDOWS
-            const char* p111[]    = { "10.126.161.151", 0 };
+            const char* p111[]    = { "10.126.193.85", 0 };
         #endif
 
             struct {
@@ -1095,7 +1597,7 @@ int main(int argc, char *argv[])
                 { L_, "p111",               &errCode,     p111,    SUCCESS }
         #endif
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int    LINE      = DATA[i].d_lineNum;
@@ -1105,9 +1607,15 @@ int main(int argc, char *argv[])
                 const int    EXP_RET   = DATA[i].d_expRet;
 
                 bsl::vector<btlso::IPv4Address> resultArray(16,
-                                                           UNUSED_ADDRESS,
-                                                           &testAllocator);
-                ASSERT(16 == resultArray.size());
+                                                            UNUSED_ADDRESS,
+                                                            &testAllocator);
+                bsl::vector<btlso::IPv4Address> defaultResultArray(
+                                                               16,
+                                                               UNUSED_ADDRESS,
+                                                               &testAllocator);
+                ASSERTV(resultArray.size(), 16 == resultArray.size());
+                ASSERTV(defaultResultArray.size(),
+                       16 == defaultResultArray.size());
 
                 if (veryVerbose) {
                     P_(LINE); P(HOST_NAME);
@@ -1116,42 +1624,82 @@ int main(int argc, char *argv[])
                 int retCode = Obj::getAddresses(&resultArray,
                                                 HOST_NAME,
                                                 errorPtr);
+                if (errorPtr) {
+                    ASSERTV(LINE, *errorPtr, *errorPtr);
+
+                    // Reset result and *errorPtr.
+
+                    *errorPtr = UNUSED_VALUE;
+                }
+
+                int defaultRetCode = Obj::getAddressesDefault(
+                                                           &defaultResultArray,
+                                                           HOST_NAME,
+                                                           errorPtr);
+
+                if (errorPtr) {
+                    ASSERTV(LINE, *errorPtr, *errorPtr);
+                }
 
                 if (verbose) {
                     P_(LINE); P(resultArray.size());
                     copy(resultArray.begin(), resultArray.end(),
                          ostream_iterator<btlso::IPv4Address>(cout, " "));
                     cout << endl;
+
+                    P(defaultResultArray.size());
+                    copy(defaultResultArray.begin(), defaultResultArray.end(),
+                         ostream_iterator<btlso::IPv4Address>(cout, " "));
+                    cout << endl;
                 }
 
-                LOOP3_ASSERT(LINE, EXP_RET, retCode, EXP_RET == retCode);
+                ASSERTV(LINE, EXP_RET, retCode, EXP_RET == retCode);
+                ASSERTV(LINE, EXP_RET, defaultRetCode,
+                        EXP_RET == defaultRetCode);
+
                 if (FAIL == EXP_RET) {
                     // Entries with invalid name.
 
-                    bsl::vector<btlso::IPv4Address> expResultArray;
+                    bsl::vector<btlso::IPv4Address>        expResultArray;
                     const bsl::vector<btlso::IPv4Address>& EXP_RESULT_ARRAY =
                                                                 expResultArray;
 
-                    LOOP_ASSERT(LINE, EXP_RESULT_ARRAY == resultArray);
+                    ASSERTV(LINE, EXP_RESULT_ARRAY == resultArray);
                     if (EXP_RESULT_ARRAY != resultArray) {
                         cout << "Host: " << HOST_NAME << "    Expected: ";
-                        copy(EXP_RESULT_ARRAY.begin(), EXP_RESULT_ARRAY.end(),
-                              ostream_iterator<btlso::IPv4Address>(cout, " "));
+                        copy(EXP_RESULT_ARRAY.begin(),
+                             EXP_RESULT_ARRAY.end(),
+                             ostream_iterator<btlso::IPv4Address>(cout, " "));
                         cout << endl;
                         cout << "Got instead: ";
-                        copy(resultArray.begin(), resultArray.end(),
-                              ostream_iterator<btlso::IPv4Address>(cout, " "));
+                        copy(resultArray.begin(),
+                             resultArray.end(),
+                             ostream_iterator<btlso::IPv4Address>(cout, " "));
                         cout << endl;
+                    }
 
+                    if (EXP_RESULT_ARRAY != defaultResultArray) {
+                        cout << "Host: " << HOST_NAME << "    Expected: ";
+                        copy(EXP_RESULT_ARRAY.begin(),
+                             EXP_RESULT_ARRAY.end(),
+                             ostream_iterator<btlso::IPv4Address>(cout, " "));
+                        cout << endl;
+                        cout << "Got instead (default implementation): ";
+                        copy(defaultResultArray.begin(),
+                             defaultResultArray.end(),
+                             ostream_iterator<btlso::IPv4Address>(cout, " "));
+                        cout << endl;
                     }
-                    if (errorPtr) {
-                        LOOP2_ASSERT(LINE, *errorPtr, *errorPtr);
-                    }
+
+                    ASSERTV(LINE, EXP_RESULT_ARRAY == resultArray);
+                    ASSERTV(LINE, EXP_RESULT_ARRAY == defaultResultArray);
                 }
                 else {
                     // Retrieved successfully.
 
-                    int j, k, length = resultArray.size();
+                    int j;
+                    int k;
+                    int length = static_cast<int>(resultArray.size());
                     for (j = 0; j < length; ++j) {
                         for (k = 0; EXP_ADDR[k]; ++k) {
                             if (btlso::IPv4Address(EXP_ADDR[k], 0) ==
@@ -1159,9 +1707,9 @@ int main(int argc, char *argv[])
                                 break;
                             }
                         }
-                        LOOP4_ASSERT(LINE, j, length, resultArray[j],
-                                     EXP_ADDR[k] &&
-                                     "Too many IP addresses returned");
+                        ASSERTV(LINE, j, length, resultArray[j],
+                                EXP_ADDR[k] &&
+                                "Too many IP addresses returned");
                     }
                     for (j = 0; EXP_ADDR[j]; ++j) {
                         for (k = 0; k < length; ++k) {
@@ -1170,9 +1718,9 @@ int main(int argc, char *argv[])
                                 break;
                             }
                         }
-                        LOOP4_ASSERT(LINE, j, length, EXP_ADDR[j],
-                                     k < length &&
-                                     "Too few IP addresses returned");
+                        ASSERTV(LINE, j, length, EXP_ADDR[j],
+                                k < length &&
+                                "Too few IP addresses returned");
                     }
                 }
             }
@@ -1237,7 +1785,7 @@ int main(int argc, char *argv[])
                 { L_,  "jlu_wrong",  &errCode,  0,                FAIL    },
                 { L_,  "jlu_wrong",         0,  0,                FAIL    },
                 { L_,  "n270",       &errCode,  "10.126.65.245",  SUCCESS },
-                { L_,  "n299",       &errCode,  "10.126.98.215",  SUCCESS },
+                { L_,  "n299",       &errCode,  "10.126.41.97",   SUCCESS },
             #elif defined(BSLS_PLATFORM_OS_WINDOWS)
                 { L_,  "bny14",      &errCode,  0,                FAIL    },
                 { L_,  "bny14",             0,  0,                FAIL    },
@@ -1249,7 +1797,7 @@ int main(int argc, char *argv[])
                 { L_,  "Dgm3w10",           0,  "160.43.7.13",    SUCCESS },
             #endif
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE      = DATA[i].d_lineNum;

@@ -830,7 +830,7 @@ struct bsls_Platform_Assert;
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
     // Test MSVC last, as many compilers targeting Windows offer a Microsoft
     // compatibility mode.
-#  if BSLS_PLATFORM_CMP_VERSION < 1500
+#  if BSLS_PLATFORM_CMP_VERSION < 1600
 #    error This early compiler is not supported by BDE
 #  endif
 #else

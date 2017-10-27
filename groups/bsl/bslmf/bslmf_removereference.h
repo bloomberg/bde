@@ -77,9 +77,7 @@ BSLS_IDENT("$Id: $")
 
 namespace bsl {
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)     \
-   || BSLS_PLATFORM_CMP_VERSION <  1600  \
-   || BSLS_PLATFORM_CMP_VERSION >= 1800
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION >= 1800
 
 template <class TYPE>
 struct remove_reference {
