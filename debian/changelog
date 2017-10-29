@@ -1,12 +1,18 @@
-bsl-internal (3.2.0.9) unstable; urgency=low
+bsl-internal (3.2.0.10) unstable; urgency=low
 
+
+ -- Steven Breitstein <sbreitstein@bloomberg.net>  Tue, 24 Oct 2017 13:51:37 -0400
+
+bsl-internal (3.2.0.9) git; urgency=low
+
+  * 7d88c7a8d Changelog for version 3.2.0.9
   * 168dc7498 Merge pull request #1375 from hversche/pr/1369-rebased-releases/3.2.0.x
   * 05feea169 Merge pull request #1354 from hversche/pr/1307-rebased-releases/3.2.0.x
   * 81e7d52a8 Merge pull request #1344 from hversche/pr/1329-rebased-releases/3.2.0.x
   * 8d77afa03 Merge pull request #1342 from hversche/pr/1340-rebased-releases/3.2.0.x
   * 0e5f4cbef Merge pull request #1302 from hversche/pr/1298-rebased-releases/3.2.0.x
 
- -- Jeffrey Mendelsohn <JMENDELSOHN4@bloomberg.net>  Wed, 18 Oct 2017 14:43:14 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 18 Oct 2017 15:56:42 -0400
 
 bsl-internal (3.2.0.8) git; urgency=low
 
