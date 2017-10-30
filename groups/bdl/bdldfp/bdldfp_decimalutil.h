@@ -83,10 +83,6 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalformatconfig.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_DECNUMBER
-#include <bdldfp_decimalimputil_decnumber.h>
-#endif
-
 #ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #include <bdldfp_decimalplatform.h>
 #endif
@@ -182,15 +178,6 @@ struct DecimalUtil {
 
 
                             // Formatting functions
-
-    static void format(Decimal32  value, bsl::string *out);
-    static void format(Decimal64  value, bsl::string *out);
-    static void format(Decimal128 value, bsl::string *out);
-        // Produce a string representation of the specified decimal 'value', in
-        // the specified 'out' string. The string will be suitable for use with
-        // the 'strtod128' function in section 9.6 of the ISO/EIC TR 24732 C
-        // Decimal Floating-Point Technical Report, except that it is
-        // unspecified whether the NaNs returned are quiet or signaling.
 
                                   // math
     static Decimal32  copySign(Decimal32  x, Decimal32  y);

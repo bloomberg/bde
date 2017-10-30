@@ -60,13 +60,6 @@ BSLS_IDENT("$Id$")
 #include <bsl_cstring.h>
 #endif
 
-#ifndef INCLUDED_DECSINGLE
-extern "C" {
-#include <decnumber/decSingle.h>
-}
-#endif
-
-
 namespace BloombergLP {
 namespace bdldfp {
 
@@ -464,13 +457,7 @@ struct DecimalImpUtil_IntelDfp {
     static ValueType64  convertToDecimal64 (const ValueType128& input);
     static ValueType128 convertToDecimal128(const ValueType32&  input);
     static ValueType128 convertToDecimal128(const ValueType64&  input);
-        // Convert the specified 'input' to the indicated result type.  Note
-        // that a conversion from 'ValueType128' to 'ValueType32' is not
-        // provided (because such a conversion is not provided by the
-        // 'decNumber' library).  A conversion from 128-bit to 32-bit
-        // representations is *not* identical to the composing the conversions
-        // from 128-bit to 64-bit, and 64-bit to 32-bit representations,
-        // because rounding should only be performed once.
+        // Convert the specified 'input' to the indicated result type.
 
                         // Binary floating point conversion functions
 
@@ -670,8 +657,7 @@ struct DecimalImpUtil_IntelDfp {
                               DenselyPackedDecimalImpUtil::StorageType128 dpd);
         // Return a 'ValueTypeXX' representing the specified 'dpd', which is
         // currently in Densely Packed Decimal (DPD) format.  This format is
-        // compatible with the IBM compiler's native type, and the decNumber
-        // library.
+        // compatible with the IBM compiler's native type.
 
     static DenselyPackedDecimalImpUtil::StorageType32  convertToDPD(
                                                            ValueType32  value);
@@ -681,8 +667,7 @@ struct DecimalImpUtil_IntelDfp {
                                                            ValueType128 value);
         // Return a 'DenselyPackedDecimalImpUtil::StorageTypeXX' representing
         // the specified 'value' in Densely Packed Decimal (DPD) format.  This
-        // format is compatible with the IBM compiler's native type, and the
-        // decNumber library.
+        // format is compatible with the IBM compiler's native type.
 
                         // Binary Integral Conversion Functions
 

@@ -1006,36 +1006,38 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                              const EncoderOptions       *,
                                              bdlat_TypeCategory::Simple)
 {
-    if (bdldfp::DecimalUtil::isInf(object)) {
-        if (object < bdldfp::Decimal64()) {
-            stream << "-";
-        }
-        stream << "INF";
-    }
-    else if (bdldfp::DecimalUtil::isNan(object)) {
-        stream << "NaN";
-    }
-    else {
-        char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+    char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE + 1];
 
-        bdldfp::DenselyPackedDecimalImpUtil::StorageType64 dpdStorage;
-        dpdStorage = bdldfp::DecimalImpUtil::convertToDPD(*object.data());
+    const int precision = bsl::numeric_limits<bdldfp::Decimal64>::digits10 - 1;
 
-        bdldfp::DecimalImpUtil_DecNumber::ValueType64 dpdValue;
-        bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+    typedef bdldfp::DecimalFormatConfig Config;
 
-        bdldfp::DecimalImpUtil_DecNumber::format(dpdValue, buffer);
+    Config cfg(stream.precision());
+    cfg.setStyle((stream.flags() & bsl::ios::scientific)
+                 ? Config::e_SCIENTIFIC
+                 : Config::e_FIXED);
+    cfg.setInfinity("INF");
+    cfg.setNan("NaN");
+    cfg.setSNan("sNaN");
+    cfg.setExponent('e');
 
-        int (*tolower) (int) = &bsl::tolower;
+    int len = bdldfp::DecimalUtil::format(
+                               buffer,
+                               BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE,
+                               object,
+                               cfg);
 
-        // The string output provided by decnumber uses capital "E" by default.
-        bsl::transform(buffer,
-                       buffer + bsl::strlen(buffer),
-                       buffer,
-                       tolower);
-
+    if  (len <= BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE) {
+        buffer[len] = 0;
         stream << buffer;
     }
+    else {
+        bsl::vector<char> buffer(len + 1, 0);
+        bdldfp::DecimalUtil::format(&buffer[0], len, object, cfg);
+        buffer[len] = 0;
+        stream << buffer.begin();
+    }
+
     return stream;
 }
 

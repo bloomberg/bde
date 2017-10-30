@@ -9,23 +9,21 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdldfp' package currently has 15 components having 8 levels of physical
+ The 'bdldfp' package currently has 15 components having 7 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  8. bdldfp_decimalconvertutil
+  7. bdldfp_decimalconvertutil
 
-  7. bdldfp_decimalutil
+  6. bdldfp_decimalutil
 
-  6. bdldfp_decimal
+  5. bdldfp_decimal
      bdkdfp_decimalformatconfig
 
-  5. bdldfp_decimalimputil
+  4. bdldfp_decimalimputil
 
-  4. bdldfp_decimalimputil_inteldfp                                   !PRIVATE!
-
-  3. bdldfp_decimalimputil_decnumber                                  !PRIVATE!
+  3. bdldfp_decimalimputil_inteldfp                                   !PRIVATE!
 
   2. bdldfp_denselypackeddecimalimputil
      bdldfp_intelimpwrapper
@@ -48,9 +46,6 @@
 :
 : 'bdldfp_decimalimputil':
 :      Provide a unified low-level interface for decimal floating point.
-:
-: 'bdldfp_decimalimputil_decnumber':                                  !PRIVATE!
-:      Provide utility implementing decimal FP on the decNumber library.
 :
 : 'bdldfp_decimalimputil_inteldfp':                                   !PRIVATE!
 :      Provide utility to implement decimal 'float's on the Intel library.

@@ -13,7 +13,7 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdldfp::DecimalImpUtil: Unified low-level decimal floating point functions.
 //
-//@SEE_ALSO: bdldfp_decimalimputil_inteldfp, bdldfp_decimalimputil_decnumber
+//@SEE_ALSO: bdldfp_decimalimputil_inteldfp
 //
 //@DESCRIPTION: This component provides a namespace, 'bdldfp::DecimalImpUtil',
 // containing primitive utilities used in the implementation of a decimal
@@ -1102,13 +1102,7 @@ class DecimalImpUtil {
     static ValueType64  convertToDecimal64 (const ValueType128& input);
     static ValueType128 convertToDecimal128(const ValueType32&  input);
     static ValueType128 convertToDecimal128(const ValueType64&  input);
-        // Convert the specified 'input' to the indicated result type.  Note
-        // that a conversion from 'ValueType128' to 'ValueType32' is not
-        // provided (because such a conversion is not provided by the
-        // 'decNumber' library).  A conversion from 128-bit to 32-bit
-        // representations is *not* identical to the composing the conversions
-        // from 128-bit to 64-bit, and 64-bit to 32-bit representations,
-        // because rounding should only be performed once.
+        // Convert the specified 'input' to the indicated result type.
 
                         // Binary floating point conversion functions
 
@@ -1302,16 +1296,14 @@ class DecimalImpUtil {
     static ValueType128 convertFromDPD(DenselyPackedDecimalImpUtil::StorageType128 dpd);
         // Return a 'ValueTypeXX' representing the specified 'dpd', which is
         // currently in Densely Packed Decimal (DPD) format.  This format is
-        // compatible with the IBM compiler's native type, and the decNumber
-        // library.
+        // compatible with the IBM compiler's native type.
 
     static DenselyPackedDecimalImpUtil::StorageType32  convertToDPD(ValueType32  value);
     static DenselyPackedDecimalImpUtil::StorageType64  convertToDPD(ValueType64  value);
     static DenselyPackedDecimalImpUtil::StorageType128 convertToDPD(ValueType128 value);
         // Return a 'DenselyPackeDecimalImpUtil::StorageTypeXX' representing
         // the specified 'value' in Densely Packed Decimal (DPD) format.  This
-        // format is compatible with the IBM compiler's native type, and the
-        // decNumber library.
+        // format is compatible with the IBM compiler's native type.
 
                         // Binary Integral Conversion Functions
 

@@ -1,6 +1,5 @@
 // bdldfp_decimalutil.cpp                                             -*-C++-*-
 #include <bdldfp_decimalutil.h>
-#include <bdldfp_decimalimputil_decnumber.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdldfp_decimalutil_cpp,"$Id$ $CSID$")
@@ -134,48 +133,6 @@ int DecimalUtil::parseDecimal128(Decimal128 *out, const bsl::string& str)
     return parseDecimal128(out, str.c_str());
 }
 
-                                // Formatting functions
-
-void DecimalUtil::format(Decimal32 value, bsl::string *out)
-{
-    char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-
-    DenselyPackedDecimalImpUtil::StorageType32 dpdStorage;
-    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
-
-    DecimalImpUtil_DecNumber::ValueType32 dpdValue;
-    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
-
-    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
-    out->assign(buffer);
-}
-
-void DecimalUtil::format(Decimal64 value, bsl::string *out)
-{
-    char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-
-    DenselyPackedDecimalImpUtil::StorageType64 dpdStorage;
-    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
-
-    DecimalImpUtil_DecNumber::ValueType64 dpdValue;
-    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
-
-    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
-    out->assign(buffer);
-}
-
-void DecimalUtil::format(Decimal128 value, bsl::string *out)
-{
-    char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    DenselyPackedDecimalImpUtil::StorageType128 dpdStorage;
-    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
-
-    DecimalImpUtil_DecNumber::ValueType128 dpdValue;
-    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
-
-    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
-    out->assign(buffer);
-}
                         // classification functions
 
 int DecimalUtil::classify(Decimal32 x)
