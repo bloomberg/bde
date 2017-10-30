@@ -15,6 +15,7 @@ BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 #include <bslim_printer.h>
 #include <bslmf_assert.h>
@@ -579,12 +580,11 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         // The size of the buffer sufficient to store max 'DECIMAL' value in
         // fixed notation with the max precision supported by 'DECIMAL' type.
 
-    bsl::string buffer(k_BUFFER_SIZE, 0);
-    const int   len = DecimalImpUtil::format(buffer.begin(),
-                                             k_BUFFER_SIZE,
-                                             *value.data(),
-                                             cfg);
-
+    bsl::vector<char> buffer(k_BUFFER_SIZE);
+    const int         len = DecimalImpUtil::format(buffer.begin(),
+                                                   k_BUFFER_SIZE,
+                                                   *value.data(),
+                                                   cfg);
     BSLS_ASSERT(len <= k_BUFFER_SIZE);
 
     // Emit this many fillers.
