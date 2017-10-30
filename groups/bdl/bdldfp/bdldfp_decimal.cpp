@@ -15,7 +15,6 @@ BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
-#include <bsl_vector.h>
 
 #include <bslim_printer.h>
 #include <bslmf_assert.h>
@@ -580,21 +579,24 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         // The size of the buffer sufficient to store max 'DECIMAL' value in
         // fixed notation with the max precision supported by 'DECIMAL' type.
 
-    bsl::vector<char> buffer(k_BUFFER_SIZE, 0);
-    const int         len = DecimalImpUtil::format(&buffer[0],
-                                                   k_BUFFER_SIZE,
-                                                   *value.data(),
-                                                   cfg);
+    bsl::string buffer(k_BUFFER_SIZE, 0);
+    const int   len = DecimalImpUtil::format(buffer.begin(),
+                                             k_BUFFER_SIZE,
+                                             *value.data(),
+                                             cfg);
 
     BSLS_ASSERT(len <= k_BUFFER_SIZE);
 
     // Emit this many fillers.
     const int surplus  = bsl::max(0, width - (len + trailingZeros));
 
-    bsl::vector<CHARTYPE>  wbuffer(k_BUFFER_SIZE, 0);
-    CHARTYPE              *wbufferPos = wbuffer.begin();
-    CHARTYPE              *wend       = wbufferPos + len;
-    CHARTYPE              *wexp       = wend;
+    typedef bsl::basic_string<CHARTYPE>   widestring;
+    typedef typename widestring::iterator witerator;
+
+    widestring wbuffer(len, 0);
+    witerator  wbufferPos = wbuffer.begin();
+    witerator  wend       = wbuffer.end();
+    witerator  wexp       = wend;
 
     bsl::use_facet<std::ctype<CHARTYPE> >(
                                    format.getloc()).widen(buffer.begin(),
