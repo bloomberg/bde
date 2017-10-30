@@ -7,7 +7,6 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-
 #include <bdlcc_fixedqueue.h>
 
 #include <bdlcc_queue.h>
@@ -35,9 +34,12 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocatormonitor.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
+#include <bsltf_moveonlyalloctesttype.h>
+#include <bsltf_movablealloctesttype.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
@@ -984,6 +986,209 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }  // close namespace zerotst
 
+namespace case18 {
+
+                              // ==========
+                              // MoveTester
+                              // ==========
+
+class MoveTester {
+    // DATA
+    bool  d_moved;
+    int  *d_moveCounter_p;
+    int   d_value;
+
+    // NOT IMPLEMENTED
+    MoveTester(const MoveTester& other);
+    MoveTester& operator=(const MoveTester& other);
+
+  public:
+    // CREATORS
+    explicit MoveTester(int value, int *moveCounter = 0);
+        // Construct a new 'MoveTester' object with the specified 'value'.
+        // Optionally specify a 'moveCounter' that, if specified, will be
+        // incremented when this object is moved from.
+
+    explicit MoveTester(bslmf::MovableRef<MoveTester> other);
+        // Move-construct a new 'MoveTester' object from the specified 'other'.
+
+    // MANIPULATORS
+    MoveTester& operator=(bslmf::MovableRef<MoveTester> other);
+        // Move-assign the value of the specified 'other' object to this one.
+        // Set 'isMoved' to 'true', and if non-null value is specified at
+        // construction time also set '*d_moveCounter_p' to 'true'
+
+    void reset();
+        // Reset 'isMoved' to false.
+
+    // ACCESSORS
+    bool isMoved() const;
+        // Return the value of the moved non-salient attribute.
+
+    int value() const;
+        // Return the value of this object.
+};
+
+                              // ----------
+                              // MoveTester
+                              // ----------
+
+// CREATORS
+MoveTester::MoveTester(int value, int *moveCounter)
+: d_moved(false)
+, d_moveCounter_p(moveCounter)
+, d_value(value)
+{
+}
+
+MoveTester::MoveTester(bslmf::MovableRef<MoveTester> other)
+{
+    typedef bslmf::MovableRefUtil MoveUtil;
+
+    d_value         = MoveUtil::access(other).d_value;
+    d_moved         = false;
+    d_moveCounter_p = MoveUtil::access(other).d_moveCounter_p;
+
+    MoveUtil::access(other).d_moved = true;
+    if (MoveUtil::access(other).d_moveCounter_p) {
+        ++(*MoveUtil::access(other).d_moveCounter_p);
+    }
+}
+
+// MANIPULATORS
+MoveTester& MoveTester::operator=(bslmf::MovableRef<MoveTester> other)
+{
+    typedef bslmf::MovableRefUtil MoveUtil;
+
+    d_value = MoveUtil::access(other).d_value;
+    MoveUtil::access(other).d_moved = true;
+    if (MoveUtil::access(other).d_moveCounter_p) {
+        ++(*MoveUtil::access(other).d_moveCounter_p);
+    }
+
+    return *this;
+}
+
+// ACCESSORS
+bool MoveTester::isMoved() const
+{
+    return d_moved;
+}
+
+int MoveTester::value() const
+{
+    return d_value;
+}
+
+              // ================================================
+              // class IncorrectlyMatchingMoveConstructorTestType
+              // ================================================
+
+class IncorrectlyMatchingMoveConstructorTestType {
+    // This class is convertible from any type that has a 'data' method
+    // returning a 'int' value.  It is used to facilitate testing that the
+    // implementation of 'bdlcc::FixedQueue' does not pass a
+    // 'bslmf::MovableRef<T>' object to a class whose interface does not
+    // support it (in C++03 mode).  For more details, see test case 18.
+
+    // DATA
+    int d_data;  // value not meaningful
+
+  public:
+    // CREATORS
+    IncorrectlyMatchingMoveConstructorTestType();
+        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
+        // the default value.
+
+    explicit IncorrectlyMatchingMoveConstructorTestType(int data);
+        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
+        // the specified 'data' value.
+
+    IncorrectlyMatchingMoveConstructorTestType(
+                   const IncorrectlyMatchingMoveConstructorTestType& original);
+        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
+        // the same value as the specified 'original' object.
+
+    template <class TYPE>
+    IncorrectlyMatchingMoveConstructorTestType(const TYPE& other);  // IMPLICIT
+        // Create a 'IncorrectlyMatchingMoveConstructorTestType' object having
+        // the same value as the specified 'other' object of (template
+        // parameter) 'TYPE'.
+
+    // MANIPULATORS
+    IncorrectlyMatchingMoveConstructorTestType& operator=(
+                        const IncorrectlyMatchingMoveConstructorTestType& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a non-'const' reference to this object.
+
+    template <class TYPE>
+    IncorrectlyMatchingMoveConstructorTestType& operator=(const TYPE& rhs);
+        // Assign to this object the value of the specified 'rhs' object of
+        // (template parameter) 'TYPE', and return a non-'const' reference to
+        // this object.
+
+    // ACCESSORS
+    int data() const;
+        // Return the (meaningless) value held by this object.
+};
+
+
+              // ------------------------------------------------
+              // class IncorrectlyMatchingMoveConstructorTestType
+              // ------------------------------------------------
+
+// CREATORS
+IncorrectlyMatchingMoveConstructorTestType::
+IncorrectlyMatchingMoveConstructorTestType()
+: d_data(0)
+{
+}
+
+IncorrectlyMatchingMoveConstructorTestType::
+IncorrectlyMatchingMoveConstructorTestType(int data)
+: d_data(data)
+{
+}
+
+IncorrectlyMatchingMoveConstructorTestType::
+IncorrectlyMatchingMoveConstructorTestType(
+                const IncorrectlyMatchingMoveConstructorTestType& original)
+: d_data(original.d_data)
+{
+}
+
+template <class TYPE>
+IncorrectlyMatchingMoveConstructorTestType::
+IncorrectlyMatchingMoveConstructorTestType(const TYPE& other)
+: d_data(other.data())
+{
+}
+
+// MANIPULATORS
+IncorrectlyMatchingMoveConstructorTestType&
+IncorrectlyMatchingMoveConstructorTestType::operator=(
+                    const IncorrectlyMatchingMoveConstructorTestType& rhs)
+{
+    d_data = rhs.d_data;
+    return *this;
+}
+
+template <class TYPE>
+IncorrectlyMatchingMoveConstructorTestType&
+IncorrectlyMatchingMoveConstructorTestType::operator=(const TYPE& rhs)
+{
+    d_data = rhs.data();
+    return *this;
+}
+
+// ACCESSORS
+int IncorrectlyMatchingMoveConstructorTestType::data() const
+{
+    return d_data;
+}
+
+}  // close namespace case18
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -1098,7 +1303,7 @@ int main(int argc, char *argv[])
                     bslmt::Configuration::recommendedDefaultThreadStackSize());
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 19: {
         // ---------------------------------------------------------
         // Usage example test
         //
@@ -1113,6 +1318,314 @@ int main(int argc, char *argv[])
         myProducer(k_NUM_THREADS);
         break;
       }
+
+      case 18: {
+          // ---------------------------------------------------------
+          // Moving tests
+          //
+          // Test that the 'pushBack', 'tryPushBack' 'popFront', and
+          // 'tryPopFront' methods of the queue have move semantics in regards
+          // of their arguments.  After pushing back a value it will be in
+          // moved-from state.  After popping a value it increases the global
+          // moved-from counter.  Move-only type is supported in C++11 mode.
+          // Allocating move-only type is supported in C++11 mode.
+          // 'IncorrectlyMatchingMoveConstructorTestType' works in C++03 mode.
+          // ---------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "Moving tests" << endl
+                          << "============" << endl;
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+         && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#    define BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+    // This macro indicates whether the component uses C++11 r-value references
+    // to implement 'bslmf::MovableRef<TYPE>'.  It will evaluate to 'false' for
+    // C++03 implementations and to 'true' for proper C++11 implementations.
+    // For partial C++11 implementations it may evaluate to 'false' because
+    // both r-value reference and alias templates need to be supported.
+#endif
+
+        typedef bslmf::MovableRefUtil MoveUtil;
+
+        if (veryVerbose) cout << "Move-only type" << endl;
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+        // Move-only types are not supported in C++03 mode, only C++11 and
+        // higher.  See internal bug report 99039150.
+        {
+            bslma::TestAllocator ta(veryVeryVerbose);
+
+            using namespace case18;
+
+            bdlcc::FixedQueue<MoveTester> queue(42, &ta);
+
+            int moveCtr = 0;
+
+            queue.pushBack(MoveTester(1, &moveCtr));
+
+            ASSERT(1 == moveCtr);
+
+            moveCtr = 1;
+
+            MoveTester moveTester2(2, &moveCtr);
+            queue.pushBack(MoveUtil::move(moveTester2));
+
+            ASSERT(moveTester2.isMoved());
+
+            ASSERT(queue.tryPushBack(MoveTester(3, &moveCtr)) == 0);
+
+            ASSERT(3 == moveCtr);
+            moveCtr = 3;
+
+            MoveTester moveTester4(4, &moveCtr);
+            ASSERT(queue.tryPushBack(MoveUtil::move(moveTester4)) == 0);
+
+            ASSERT(moveTester4.isMoved());
+
+            ASSERT(4 == moveCtr);
+
+            // Test 'popFront', 'tryPopFront'
+
+            MoveTester popped(42);
+            queue.popFront(&popped);
+
+            ASSERT(5 == moveCtr);
+
+            ASSERT(queue.tryPopFront(&popped) == 0);
+            ASSERT(6 == moveCtr);
+        }
+
+        if (veryVerbose) cout << "Move-only allocating type" << endl;
+        {
+            typedef bsltf::MoveOnlyAllocTestType ValueType;
+
+            bslma::TestAllocator ta(veryVeryVerbose);
+
+            bdlcc::FixedQueue<ValueType> queue(42, &ta);
+
+            bslma::TestAllocatorMonitor tam(&ta);
+
+            queue.pushBack(ValueType(1, &ta));
+
+            ASSERT(tam.isInUseUp());
+            tam.reset();
+
+            ValueType popped1(queue.popFront());
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped1.data() == 1);
+            ASSERT(popped1.allocator() == &ta);
+            tam.reset();
+
+            ValueType value2(2, &ta);
+            tam.reset();
+            queue.pushBack(MoveUtil::move(value2));
+            ASSERT(tam.isInUseSame());
+
+            ValueType popped2(&ta);
+            tam.reset();
+            queue.popFront(&popped2);
+            ASSERT(tam.isInUseDown());
+            ASSERT(popped2.data() == 2);
+            ASSERT(popped2.allocator() == &ta);
+
+            ASSERT(queue.tryPushBack(ValueType(3, &ta)) == 0);
+
+            ASSERT(tam.isInUseSame());
+            tam.reset();
+
+            ValueType popped3(&ta);
+            ASSERT(queue.tryPopFront(&popped3) == 0);
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped3.data() == 3);
+            ASSERT(popped3.allocator() == &ta);
+            tam.reset();
+
+            ValueType value4(4, &ta);
+            tam.reset();
+            ASSERT(queue.tryPushBack(MoveUtil::move(value4)) == 0);
+            ASSERT(tam.isInUseSame());
+
+            ValueType popped4(&ta);
+            queue.popFront(&popped4);
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped4.data() == 4);
+            ASSERT(popped4.allocator() == &ta);
+
+            // Test with different allocator for the value
+
+            bslma::TestAllocator tb(veryVeryVerbose);
+            bslma::TestAllocatorMonitor tbm(&tb);
+
+            ASSERT(queue.tryPushBack(ValueType(5, &tb)) == 0);
+
+            ASSERT(tbm.isInUseSame());
+            tam.reset();
+            tbm.reset();
+
+            ValueType popped5(&tb);
+            ASSERT(queue.tryPopFront(&popped5) == 0);
+            ASSERT(tam.isInUseDown()); // the element in the queue is deleted
+            ASSERT(popped5.data() == 5);
+            ASSERT(popped5.allocator() == &tb);
+            tam.reset();
+
+            ValueType value6(6, &ta);
+            tam.reset();
+            ASSERT(queue.tryPushBack(MoveUtil::move(value6)) == 0);
+            ASSERT(tam.isInUseSame());
+
+            ValueType popped6(&ta);
+            queue.popFront(&popped6);
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped6.data() == 6);
+            ASSERT(popped6.allocator() == &ta);
+        }
+#endif
+
+        if (veryVerbose) cout << "Movable allocating type" << endl;
+        {
+            typedef bsltf::MovableAllocTestType ValueType;
+
+            bslma::TestAllocator ta(veryVeryVerbose);
+
+            bdlcc::FixedQueue<ValueType> queue(42, &ta);
+
+            bslma::TestAllocatorMonitor tam(&ta);
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+            queue.pushBack(ValueType(1, &ta));
+
+            ASSERT(tam.isInUseUp());
+            tam.reset();
+
+            ValueType popped1(queue.popFront());
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped1.data() == 1);
+            ASSERT(popped1.allocator() == &ta);
+            tam.reset();
+#endif
+            ValueType value2(2, &ta);
+            tam.reset();
+            queue.pushBack(MoveUtil::move(value2));
+            ASSERT(tam.isInUseSame());
+
+            ValueType popped2(&ta);
+            tam.reset();
+            queue.popFront(&popped2);
+            ASSERT(tam.isInUseDown());
+            ASSERT(popped2.data() == 2);
+            ASSERT(popped2.allocator() == &ta);
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+            ASSERT(queue.tryPushBack(ValueType(3, &ta)) == 0);
+
+            ASSERT(tam.isInUseSame());
+            tam.reset();
+
+            ValueType popped3(&ta);
+            ASSERT(queue.tryPopFront(&popped3) == 0);
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped3.data() == 3);
+            ASSERT(popped3.allocator() == &ta);
+            tam.reset();
+#endif
+            ValueType value4(4, &ta);
+            tam.reset();
+            ASSERT(queue.tryPushBack(MoveUtil::move(value4)) == 0);
+            ASSERT(tam.isInUseSame());
+
+            ValueType popped4(&ta);
+            queue.popFront(&popped4);
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped4.data() == 4);
+            ASSERT(popped4.allocator() == &ta);
+
+            // Test with different allocator for the value
+
+            bslma::TestAllocator tb(veryVeryVerbose);
+            bslma::TestAllocatorMonitor tbm(&tb);
+
+            ASSERT(queue.tryPushBack(ValueType(5, &tb)) == 0);
+
+            ASSERT(tbm.isInUseSame());
+            tam.reset();
+            tbm.reset();
+
+            ValueType popped5(&tb);
+            ASSERT(queue.tryPopFront(&popped5) == 0);
+            ASSERT(tam.isInUseDown()); // the element in the queue is deleted
+            ASSERT(popped5.data() == 5);
+            ASSERT(popped5.allocator() == &tb);
+            tam.reset();
+
+            ValueType value6(6, &ta);
+            tam.reset();
+            ASSERT(queue.tryPushBack(MoveUtil::move(value6)) == 0);
+            ASSERT(tam.isInUseSame());
+
+            ValueType popped6(&ta);
+            queue.popFront(&popped6);
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped6.data() == 6);
+            ASSERT(popped6.allocator() == &ta);
+        }
+
+        if (veryVerbose) cout << "IncorrectlyMatchingMoveConstructorTestType"
+                              << endl;
+        {
+            typedef case18::IncorrectlyMatchingMoveConstructorTestType
+                                                                     ValueType;
+
+            bslma::TestAllocator ta(veryVeryVerbose);
+
+            bdlcc::FixedQueue<ValueType> queue(42, &ta);
+
+            bslma::TestAllocatorMonitor tam(&ta);
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+            queue.pushBack(ValueType(1));
+
+            ASSERT(tam.isInUseSame());
+            tam.reset();
+
+            ValueType popped1(queue.popFront());
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped1.data() == 1);
+            tam.reset();
+#endif
+            ValueType value2(2);
+            tam.reset();
+            queue.pushBack(value2);
+            ASSERT(tam.isInUseSame());
+
+            ValueType popped2(queue.popFront());
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped2.data() == 2);
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+            ASSERT(queue.tryPushBack(ValueType(3)) == 0);
+
+            ASSERT(tam.isInUseSame());
+            tam.reset();
+
+            ValueType popped3;
+            ASSERT(queue.tryPopFront(&popped3) == 0);
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped3.data() == 3);
+            tam.reset();
+#endif
+            ValueType value4(4);
+            tam.reset();
+            ASSERT(queue.tryPushBack(value4) == 0);
+            ASSERT(tam.isInUseSame());
+
+            ValueType popped4;
+            queue.popFront(&popped4);
+            ASSERT(tam.isInUseSame());
+            ASSERT(popped4.data() == 4);
+        }
+
+      } break;
 
       case 17: {
 #ifdef BDE_BUILD_TARGET_EXC
