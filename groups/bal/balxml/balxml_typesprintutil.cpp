@@ -1006,13 +1006,14 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                              const EncoderOptions       *,
                                              bdlat_TypeCategory::Simple)
 {
-    char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE + 1];
-
-    const int precision = bsl::numeric_limits<bdldfp::Decimal64>::digits10 - 1;
-
+    typedef bsl::numeric_limits<bdldfp::Decimal64> Limits;
     typedef bdldfp::DecimalFormatConfig Config;
 
-    Config cfg(stream.precision());
+    const bsl::streamsize precision =
+                  bsl::min(static_cast<bsl::streamsize>(Limits::max_precision),
+                           stream.precision());
+
+    Config cfg(static_cast<int>(precision));
     cfg.setStyle((stream.flags() & bsl::ios::scientific)
                  ? Config::e_SCIENTIFIC
                  : Config::e_FIXED);
@@ -1021,7 +1022,8 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
     cfg.setSNan("sNaN");
     cfg.setExponent('e');
 
-    int len = bdldfp::DecimalUtil::format(
+    char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE + 1];
+    int  len = bdldfp::DecimalUtil::format(
                                buffer,
                                BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE,
                                object,
@@ -1032,10 +1034,9 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
         stream << buffer;
     }
     else {
-        bsl::vector<char> buffer(len + 1, 0);
-        bdldfp::DecimalUtil::format(&buffer[0], len, object, cfg);
-        buffer[len] = 0;
-        stream << buffer.begin();
+        bsl::string buffer(len + 1, 0);
+        bdldfp::DecimalUtil::format(buffer.begin(), len, object, cfg);
+        stream << buffer;
     }
 
     return stream;
