@@ -605,7 +605,7 @@ extern "C" void *priorityEffectivenessTest(void *arg)
 
     for (int i = 0; i < k_ITER; ++i) {
         s_priorityEffectivenessTest_mutex.lock();
-        bslmt::ThreadUtil::yield();
+        bslmt::ThreadUtil::microSleep(200);
         s_priorityEffectivenessTest_mutex.unlock();
     }
 
