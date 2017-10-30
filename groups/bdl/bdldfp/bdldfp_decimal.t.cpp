@@ -6892,12 +6892,10 @@ int main(int argc, char* argv[])
       }
     }
 
-    // CONCERN: No memory came from the global or default allocator.
+    // CONCERN: No memory came from the global allocator.
 
     LOOP2_ASSERT(test, globalAllocator.numBlocksTotal(),
                  0 == globalAllocator.numBlocksTotal());
-    LOOP2_ASSERT(test, defaultAllocator.numBlocksTotal(),
-                 0 == defaultAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

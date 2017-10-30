@@ -15,6 +15,7 @@ BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 #include <bslim_printer.h>
 #include <bslmf_assert.h>
@@ -552,11 +553,12 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
                   bsl::min(static_cast<bsl::streamsize>(Limits::max_precision),
                            format.precision());
 
-    const CHARTYPE k_ZERO = bsl::use_facet<bsl::ctype<CHARTYPE> >(
+    const int           trailingZeros = static_cast<int>(
+                                               format.precision() - precision);
+    const CHARTYPE      k_ZERO = bsl::use_facet<bsl::ctype<CHARTYPE> >(
                                                    format.getloc()).widen('0');
-    const int      width  = static_cast<int>(format.width());
-
-    DecimalFormatConfig cfg(static_cast<int>(format.precision()));
+    const int           width  = static_cast<int>(format.width());
+    DecimalFormatConfig cfg(static_cast<int>(precision));
 
     if (format.flags() & bsl::ios::fixed) {
         cfg.setStyle(DecimalFormatConfig::e_FIXED);
@@ -570,67 +572,53 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
 
     const bool addSign = isNegative(value) ||
                          cfg.sign() == DecimalFormatConfig::e_ALWAYS;
-    const int  size    = DecimalImpUtil::format(0, -1, *value.data(), cfg);
-    const int  surplus = bsl::max(0, width - size);  // Emit this many fillers.
-
-    cfg.setPrecision(static_cast<int>(precision));
 
     const int k_BUFFER_SIZE = 1                          // sign
                             + 1 + Limits::max_exponent10 // integer part
                             + 1                          // decimal point
-                            + Limits::max_precision      // partial part
-                            + 1;                         // '\0'
+                            + Limits::max_precision;     // partial part
         // The size of the buffer sufficient to store max 'DECIMAL' value in
         // fixed notation with the max precision supported by 'DECIMAL' type.
 
-    char      buffer[k_BUFFER_SIZE];
-    const int len = DecimalImpUtil::format(&buffer[0],
-                                            k_BUFFER_SIZE,
-                                           *value.data(),
-                                            cfg);
-    BSLS_ASSERT(len < k_BUFFER_SIZE);
+    bsl::vector<char> buffer(k_BUFFER_SIZE, 0);
+    const int         len = DecimalImpUtil::format(&buffer[0],
+                                                   k_BUFFER_SIZE,
+                                                   *value.data(),
+                                                   cfg);
 
-    CHARTYPE   wbuffer[k_BUFFER_SIZE];
-    CHARTYPE  *wbufferPos = wbuffer;
-    CHARTYPE  *wend       = wbuffer + len;
-    CHARTYPE  *wexp       = wend;
+    BSLS_ASSERT(len <= k_BUFFER_SIZE);
+
+    // Emit this many fillers.
+    const int surplus  = bsl::max(0, width - (len + trailingZeros));
+
+    bsl::vector<CHARTYPE>  wbuffer(k_BUFFER_SIZE, 0);
+    CHARTYPE              *wbufferPos = wbuffer.begin();
+    CHARTYPE              *wend       = wbufferPos + len;
+    CHARTYPE              *wexp       = wend;
 
     bsl::use_facet<std::ctype<CHARTYPE> >(
-                         format.getloc()).widen(buffer, buffer + len, wbuffer);
+                                   format.getloc()).widen(buffer.begin(),
+                                                          buffer.begin() + len,
+                                                          wbufferPos);
 
-    int trailingZeros(0);
-
-    if (format.precision() > precision) {
-
-        const CHARTYPE pointChar = bsl::use_facet<bsl::ctype<CHARTYPE> >(
-                                    format.getloc()).widen(cfg.decimalPoint());
-        CHARTYPE *wpoint = bsl::find(wbufferPos, wend, pointChar);
-        BSLS_ASSERT(wpoint != wend);
-        ++wpoint;
-
-        if (format.flags() & bsl::ios::scientific) {
-            // find the exponent position
-            const CHARTYPE expChar = bsl::use_facet<bsl::ctype<CHARTYPE> >(
+    if (trailingZeros && (format.flags() & bsl::ios::scientific)) {
+        // find the exponent position
+        const CHARTYPE expChar = bsl::use_facet<bsl::ctype<CHARTYPE> >(
                                         format.getloc()).widen(cfg.exponent());
-            wexp = bsl::find(wpoint, wend, expChar);
-            BSLS_ASSERT(wexp != wend);
-        }
-        trailingZeros = static_cast<int>(format.precision()
-                                         - bsl::distance(wpoint, wexp));
-        BSLS_ASSERT(trailingZeros > 0);
+        wexp = bsl::find(wbufferPos, wend, expChar);
+        BSLS_ASSERT(wexp != wend);
     }
 
     // Make use of the 'uppercase' flag to fix the capitalization of the
     // alphabets in the number.
     if (format.flags() & bsl::ios_base::uppercase) {
         bsl::use_facet<bsl::ctype<CHARTYPE> >(
-                                       format.getloc()).toupper(wbuffer, wend);
+                                    format.getloc()).toupper(wbufferPos, wend);
     }
     else {
         bsl::use_facet<bsl::ctype<CHARTYPE> >(
-                                       format.getloc()).tolower(wbuffer, wend);
+                                    format.getloc()).tolower(wbufferPos, wend);
     }
-
 
     const bsl::ios_base::fmtflags adjustfield =
                                    format.flags() & bsl::ios_base::adjustfield;
