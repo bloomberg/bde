@@ -23,12 +23,6 @@
 
 #include <typeinfo>
 
-// Even in hardware and intel modes, we need decNumber functions.
-
-extern "C" {
-#include <decnumber/decSingle.h>
-}
-
 using namespace BloombergLP;
 using bsl::cout;
 using bsl::cerr;

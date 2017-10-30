@@ -38,10 +38,6 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalstorage.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_DENSELYPACKEDDECIMALIMPUTIL
-#include <bdldfp_denselypackeddecimalimputil.h>
-#endif
-
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
 
 #ifndef INCLUDED_BDLDFP_INTELIMPWRAPPER
@@ -649,22 +645,22 @@ struct DecimalImpUtil_IntelDfp {
 
                         // Densely Packed Conversion Functions
 
-    static ValueType32  convertFromDPD(
-                              DenselyPackedDecimalImpUtil::StorageType32  dpd);
-    static ValueType64  convertFromDPD(
-                              DenselyPackedDecimalImpUtil::StorageType64  dpd);
-    static ValueType128 convertFromDPD(
-                              DenselyPackedDecimalImpUtil::StorageType128 dpd);
+    // static ValueType32  convertFromDPD(
+    //                           DenselyPackedDecimalImpUtil::StorageType32  dpd);
+    // static ValueType64  convertFromDPD(
+    //                           DenselyPackedDecimalImpUtil::StorageType64  dpd);
+    // static ValueType128 convertFromDPD(
+    //                           DenselyPackedDecimalImpUtil::StorageType128 dpd);
         // Return a 'ValueTypeXX' representing the specified 'dpd', which is
         // currently in Densely Packed Decimal (DPD) format.  This format is
         // compatible with the IBM compiler's native type.
 
-    static DenselyPackedDecimalImpUtil::StorageType32  convertToDPD(
-                                                           ValueType32  value);
-    static DenselyPackedDecimalImpUtil::StorageType64  convertToDPD(
-                                                           ValueType64  value);
-    static DenselyPackedDecimalImpUtil::StorageType128 convertToDPD(
-                                                           ValueType128 value);
+    // static DenselyPackedDecimalImpUtil::StorageType32  convertToDPD(
+    //                                                        ValueType32  value);
+    // static DenselyPackedDecimalImpUtil::StorageType64  convertToDPD(
+    //                                                        ValueType64  value);
+    // static DenselyPackedDecimalImpUtil::StorageType128 convertToDPD(
+    //                                                        ValueType128 value);
         // Return a 'DenselyPackedDecimalImpUtil::StorageTypeXX' representing
         // the specified 'value' in Densely Packed Decimal (DPD) format.  This
         // format is compatible with the IBM compiler's native type.
@@ -1470,7 +1466,7 @@ DecimalImpUtil_IntelDfp::parse128(const char *string)
 }
 
                         // Densely Packed Conversion Functions
-
+#if 0
 inline
 DecimalImpUtil_IntelDfp::ValueType32
 DecimalImpUtil_IntelDfp::convertFromDPD(DenselyPackedDecimalImpUtil::StorageType32 dpd)
@@ -1551,6 +1547,7 @@ DecimalImpUtil_IntelDfp::convertToDPD(
 
     return dpd;
 }
+#endif
                         // Binary Integral Conversion Functions
 
 inline

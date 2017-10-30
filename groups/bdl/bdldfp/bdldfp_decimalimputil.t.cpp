@@ -994,6 +994,7 @@ bool nanEqual(Util::ValueType128 lhs, Util::ValueType128 rhs)
         || (Util::notEqual(lhs, lhs) && Util::notEqual(rhs, rhs));
 }
 
+#if 0
 Util::ValueType32 alternateMakeDecimalRaw32(int mantissa, int exponent)
     // Create a 'ValueType32' object representing a decimal floating point
     // number consisting of the specified 'mantissa' and 'exponent', with the
@@ -1228,6 +1229,7 @@ Util::ValueType128 alternateMakeDecimalRaw128(unsigned long long int mantissa,
 
     return result;
 }
+#endif
 
 template <class TYPE>
 bool checkBitsEquality(TYPE lhs, TYPE rhs)
@@ -7095,7 +7097,7 @@ void TestDriver::testCase20()
     //   convertFromDPD(ValueType64)
     //   convertFromDPD(ValueType128)
     // ------------------------------------------------------------------------
-
+#if 0
     if (verbose) cout << endl
                       << "TESTING CONVERSION FROM DENSELY PACKED" << endl
                       << "======================================" << endl;
@@ -7368,6 +7370,7 @@ void TestDriver::testCase20()
 
         ASSERT( Util::equal(testDecimal, specialWitness));
     }
+#endif
 }
 
 void TestDriver::testCase19()
@@ -7405,13 +7408,14 @@ void TestDriver::testCase19()
     if (verbose) cout << endl
                       << "TESTING CONVERSION TO DENSELY PACKED" << endl
                       << "====================================" << endl;
-
+#if 0
     typedef BloombergLP::bdldfp::DenselyPackedDecimalImpUtil DpdUtil;
-
+#endif
     // Test that with any of a set of exponents, we can convert 32-bit
     // values correctly to DPD.
 
     {
+#if 0
            Util::  ValueType32 testDecimal;
         DpdUtil::StorageType32 testConvert;
         DpdUtil::StorageType32 witness;
@@ -7673,6 +7677,7 @@ void TestDriver::testCase19()
         specialWitness = Util::convertFromDPD(testConvert);
 
         ASSERT( Util::equal(testDecimal, specialWitness));
+#endif
     }
 }
 
@@ -14680,7 +14685,7 @@ void TestDriver::testCase2()
     if (verbose) cout << endl
                       << "TESTING 'makeDecimalRaw'" << endl
                       << "========================" << endl;
-
+#if 0
     // Test that with any of a set of exponents, we can create values with
     // mantissas from 1 to 16 digit for 32-bit Decimal values
     {
@@ -14903,7 +14908,7 @@ void TestDriver::testCase2()
             }
         }
     }
-
+#endif
     // Test that with any of a set of exponents, we can create values with
     // mantissas from 1 to 16 digit for 128-bit Decimal values
     {
@@ -15008,7 +15013,7 @@ void TestDriver::testCase2()
         Util::ValueType128 test;
         Util::ValueType128 witnessAlternate;
         Util::ValueType128 witnessParse;
-
+#if 0
 
                     // 0e0
 
@@ -15152,6 +15157,7 @@ void TestDriver::testCase2()
                 }
             }
         }
+#endif
     }
 
 

@@ -144,8 +144,8 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_DENSELYPACKEDDECIMALIMPUTIL
-#include <bdldfp_denselypackeddecimalimputil.h>
+#ifndef INCLUDED_BDLDFP_UINT128
+#include <bdldfp_uint128.h>
 #endif
 
 #ifndef INCLUDED_BDLDFP_UINT128
@@ -1290,7 +1290,7 @@ class DecimalImpUtil {
         // compiler intrinsics return a signaling NaN.
 
                         // Densely Packed Conversion Functions
-
+#if 0
     static ValueType32  convertFromDPD(DenselyPackedDecimalImpUtil::StorageType32  dpd);
     static ValueType64  convertFromDPD(DenselyPackedDecimalImpUtil::StorageType64  dpd);
     static ValueType128 convertFromDPD(DenselyPackedDecimalImpUtil::StorageType128 dpd);
@@ -1304,7 +1304,7 @@ class DecimalImpUtil {
         // Return a 'DenselyPackeDecimalImpUtil::StorageTypeXX' representing
         // the specified 'value' in Densely Packed Decimal (DPD) format.  This
         // format is compatible with the IBM compiler's native type.
-
+#endif
                         // Binary Integral Conversion Functions
 
     static ValueType32  convertFromBID(DecimalStorage::Type32  bid);
@@ -2956,7 +2956,7 @@ DecimalImpUtil::parse128(const char *input)
 }
 
                         // Densely Packed Conversion Functions
-
+#if 0
 inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::convertFromDPD(DenselyPackedDecimalImpUtil::StorageType32 dpd)
@@ -2998,7 +2998,7 @@ DecimalImpUtil::convertToDPD(ValueType128 value)
 {
     return Imp::convertToDPD(value);
 }
-
+#endif
                         // Binary Integral Conversion Functions
 
 inline
