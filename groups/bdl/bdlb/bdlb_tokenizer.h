@@ -520,6 +520,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
 #endif
@@ -631,7 +635,19 @@ class Tokenizer_Proxy {
                         // class TokenizerIterator
                         // =======================
 
-class TokenizerIterator {
+class TokenizerIterator
+#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_SUNOS)
+#if defined(BSLS_PLATFORM_CMP_SUN)
+    : public bsl::iterator<bsl::input_iterator_tag,
+                           bslstl::StringRef,
+                           int,
+                           Tokenizer_Proxy,
+                           const bslstl::StringRef>
+    // On Solaris/SunOS just to keep studio compilers happy, since algorithms
+    // take only iterators inheriting from 'std::iterator'.
+#endif
+#endif
+{
     // This class provides a C++-standards-conforming input iterator over the
     // tokens in the input string suppled at construction (along with the
     // designation of *soft* and *hard* delimiter characters) to a 'Tokenizer'
