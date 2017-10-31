@@ -77,7 +77,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
-//              COMPILER DEFECT MACROS TO GUIDE TESTING 
+//              COMPILER DEFECT MACROS TO GUIDE TESTING
 //-----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_IBM)

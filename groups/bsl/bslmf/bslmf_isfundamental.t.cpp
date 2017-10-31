@@ -104,9 +104,9 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT(result == META_FUNC<                          TYPE       >::VALUE);\
     ASSERT(result == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::VALUE);
 #endif
-    // Lvalue-references are deemd to be fundamental, for purposes of a legacy
+    // Lvalue-references are deemed to be fundamental, for purposes of a legacy
     // trait, as long as they refer to a fundamental types; this macro tests
-    // whether a given 'TYPE' is fundemental according to a legacy METAFUNC
+    // whether a given 'TYPE' is fundamental according to a legacy METAFUNC
     // trait, and whether any kind of reference to that TYPE is fundamental.
 
 # define LEGACY_ASSERT_CVQ(META_FUNC, TYPE, result)                          \
@@ -196,7 +196,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 // This test driver intentional creates types with unusual use of cv-qualifiers
 // in order to confirm that there are no strange corners of the type system
-// that are not addressed by this traits component.  Consquently, we disable
+// that are not addressed by this traits component.  Consequently, we disable
 // certain warnings from common compilers.
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
