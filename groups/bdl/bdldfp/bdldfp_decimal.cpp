@@ -15,9 +15,10 @@ BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
-#include <bsl_vector.h>
 
 #include <bslim_printer.h>
+#include <bslma_deallocatorguard.h>
+#include <bslma_default.h>
 #include <bslmf_assert.h>
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
@@ -580,8 +581,12 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         // The size of the buffer sufficient to store max 'DECIMAL' value in
         // fixed notation with the max precision supported by 'DECIMAL' type.
 
-    bsl::vector<char> buffer(k_BUFFER_SIZE);
-    const int         len = DecimalImpUtil::format(buffer.begin(),
+    bslma::Allocator *allocator = bslma::Default::allocator();
+    char             *buffer    = (char *)allocator->allocate(k_BUFFER_SIZE);
+
+    bslma::DeallocatorGuard<bslma::Allocator> guard(buffer, allocator);
+
+    const int         len = DecimalImpUtil::format(buffer,
                                                    k_BUFFER_SIZE,
                                                    *value.data(),
                                                    cfg);
@@ -599,8 +604,8 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
     witerator  wexp       = wend;
 
     bsl::use_facet<std::ctype<CHARTYPE> >(
-                                   format.getloc()).widen(buffer.begin(),
-                                                          buffer.begin() + len,
+                                   format.getloc()).widen(buffer,
+                                                          buffer + len,
                                                           wbufferPos);
 
     if (trailingZeros && (format.flags() & bsl::ios::scientific)) {
