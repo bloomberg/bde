@@ -119,7 +119,6 @@ namespace BDEC = BloombergLP::bdldfp;
 
 typedef bdldfp::DecimalFormatConfig         Config;
 typedef bdldfp::DecimalUtil                 Util;
-typedef bdldfp::DenselyPackedDecimalImpUtil DpdUtil;
 typedef bdldfp::DecimalImpUtil              ImpUtil;
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(FP_NAN)
@@ -319,51 +318,6 @@ const int exps[] = {
                   321,
 };
 const int numExps = sizeof(exps) / sizeof(*exps);
-namespace {
-
-// Testing apparatus
-
-BDEC::DecimalImpUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
-                                                       int       exponent)
-    // Return a 64-bit decimal floating point value with the specified
-    // 'mantissa' and 'exponent', including for cases in which
-    // 'exponent == 0'.  The behavior is undefined unless
-    // 'abs(mantissa) <= 9,999,999,999,999,999' and '-398 <= exponent <= 369'.
-{
-#if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    // The intel library does not return a canonical 0 (i.e., a 0 exponent)
-    // when creating 0 values.
-
-    if (0 == mantissa) {
-        DpdUtil::StorageType64 value = DpdUtil::makeDecimalRaw64(mantissa,
-                                                                 exponent);
-        return bdldfp::DecimalImpUtil::convertFromDPD(value);         // RETURN
-    }
-
-#endif
-    return BDEC::DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
-
-}
-
-
-BDEC::DecimalImpUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
-                                                         int       exponent)
-    // Return a 128-bit decimal floating point value with the specified
-    // 'mantissa' and 'exponent', including for cases in which
-    // 'exponent == 0'.  The behavior is undefined unless
-    // '-6176 <= exponent <= 6111'.
-{
-#if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    if (0 == mantissa) {
-        DpdUtil::StorageType128 value =
-            DpdUtil::makeDecimalRaw128(mantissa, exponent);
-        return bdldfp::DecimalImpUtil::convertFromDPD(value);         // RETURN
-    }
-#endif
-    return BDEC::DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
-}
-
-}  // close unnamed namespace
 
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
@@ -400,7 +354,7 @@ struct NumberMaker<BDEC::Decimal64>
 {
     BDEC::Decimal64 operator()(long long mantissa, int exponent) const
     {
-        return makeDecimalRaw64Zero(mantissa, exponent);
+        return Util::makeDecimalRaw64(mantissa, exponent);
     }
 };
 
@@ -409,7 +363,7 @@ struct NumberMaker<BDEC::Decimal128>
 {
     BDEC::Decimal128 operator()(long long mantissa, int exponent) const
     {
-        return makeDecimalRaw128Zero(mantissa, exponent);
+        return Util::makeDecimalRaw128(mantissa, exponent);
     }
 };
 
@@ -504,10 +458,7 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
 
-<<<<<<< HEAD
     switch (test) { case 0:  // Zero is always the leading case.
-=======
-    switch (test) { case 0:
       case 17: {
         // --------------------------------------------------------------------
         // TESTING 'format'
@@ -3040,7 +2991,6 @@ int main(int argc, char* argv[])
 #undef DEC
     }
     } break;
->>>>>>> Add math methods to DecimalUtil component. Add test drivers for math methods.
     case 15: {
     // ------------------------------------------------------------------------
     // TESTING decompose

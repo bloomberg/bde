@@ -1290,21 +1290,21 @@ class DecimalImpUtil {
         // compiler intrinsics return a signaling NaN.
 
                         // Densely Packed Conversion Functions
-#if 0
-    static ValueType32  convertFromDPD(DenselyPackedDecimalImpUtil::StorageType32  dpd);
-    static ValueType64  convertFromDPD(DenselyPackedDecimalImpUtil::StorageType64  dpd);
-    static ValueType128 convertFromDPD(DenselyPackedDecimalImpUtil::StorageType128 dpd);
+
+    static ValueType32  convertDPDtoBID(DecimalStorage::Type32  dpd);
+    static ValueType64  convertDPDtoBID(DecimalStorage::Type64  dpd);
+    static ValueType128 convertDPDtoBID(DecimalStorage::Type128 dpd);
         // Return a 'ValueTypeXX' representing the specified 'dpd', which is
         // currently in Densely Packed Decimal (DPD) format.  This format is
         // compatible with the IBM compiler's native type.
 
-    static DenselyPackedDecimalImpUtil::StorageType32  convertToDPD(ValueType32  value);
-    static DenselyPackedDecimalImpUtil::StorageType64  convertToDPD(ValueType64  value);
-    static DenselyPackedDecimalImpUtil::StorageType128 convertToDPD(ValueType128 value);
-        // Return a 'DenselyPackeDecimalImpUtil::StorageTypeXX' representing
-        // the specified 'value' in Densely Packed Decimal (DPD) format.  This
-        // format is compatible with the IBM compiler's native type.
-#endif
+    static DecimalStorage::Type32  convertBIDtoDPD(ValueType32  value);
+    static DecimalStorage::Type64  convertBIDtoDPD(ValueType64  value);
+    static DecimalStorage::Type128 convertBIDtoDPD(ValueType128 value);
+        // Return a 'DecimalStorageT::TypeXX' representing the specified 'value'
+        // in Densely Packed Decimal (DPD) format.  This format is compatible
+        // with the IBM compiler's native type.
+
                         // Binary Integral Conversion Functions
 
     static ValueType32  convertFromBID(DecimalStorage::Type32  bid);
@@ -2956,49 +2956,47 @@ DecimalImpUtil::parse128(const char *input)
 }
 
                         // Densely Packed Conversion Functions
-#if 0
 inline
 DecimalImpUtil::ValueType32
-DecimalImpUtil::convertFromDPD(DenselyPackedDecimalImpUtil::StorageType32 dpd)
+DecimalImpUtil::convertDPDtoBID(DecimalStorage::Type32 dpd)
 {
-    return Imp::convertFromDPD(dpd);
+    return Imp::convertDPDtoBID(dpd);
 }
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::convertFromDPD(DenselyPackedDecimalImpUtil::StorageType64 dpd)
+DecimalImpUtil::convertDPDtoBID(DecimalStorage::Type64 dpd)
 {
-    return Imp::convertFromDPD(dpd);
+    return Imp::convertDPDtoBID(dpd);
 }
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::convertFromDPD(DenselyPackedDecimalImpUtil::StorageType128 dpd)
+DecimalImpUtil::convertDPDtoBID(DecimalStorage::Type128 dpd)
 {
-    return Imp::convertFromDPD(dpd);
+    return Imp::convertDPDtoBID(dpd);
 }
 
 inline
-DenselyPackedDecimalImpUtil::StorageType32
-DecimalImpUtil::convertToDPD(ValueType32 value)
+DecimalStorage::Type32
+DecimalImpUtil::convertBIDtoDPD(ValueType32 value)
 {
-    return Imp::convertToDPD(value);
+    return Imp::convertBIDtoDPD(value);
 }
 
 inline
-DenselyPackedDecimalImpUtil::StorageType64
-DecimalImpUtil::convertToDPD(ValueType64 value)
+DecimalStorage::Type64
+DecimalImpUtil::convertBIDtoDPD(ValueType64 value)
 {
-    return Imp::convertToDPD(value);
+    return Imp::convertBIDtoDPD(value);
 }
 
 inline
-DenselyPackedDecimalImpUtil::StorageType128
-DecimalImpUtil::convertToDPD(ValueType128 value)
+DecimalStorage::Type128
+DecimalImpUtil::convertBIDtoDPD(ValueType128 value)
 {
-    return Imp::convertToDPD(value);
+    return Imp::convertBIDtoDPD(value);
 }
-#endif
                         // Binary Integral Conversion Functions
 
 inline
