@@ -132,6 +132,7 @@ struct RemoveVisitor {
         struct epoll_event event = { 0, { 0 } };
         int ret = epoll_ctl(d_epollFd, EPOLL_CTL_DEL, handle, &event);
         // epoll removes closed file descriptors automatically.
+        (void)ret;  // Supress compiler warning.
 
         BSLS_ASSERT(0 == ret || ENOENT == errno || EBADF == errno);
     }
