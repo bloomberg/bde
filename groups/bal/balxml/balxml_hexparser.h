@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // types, which are 'bsl::vector<char>' and 'bsl::string'.  The 'TYPE'
 // parameter can be one of these two types.
 //
-// Note that if you need for a way to encode binary data into ascii, the
+// Note that if you need a way to encode binary data into ASCII, the
 // 'bdlde_base64encoder' and 'bdlde_base64decoder' components are likely a more
 // efficient solution.
 //
