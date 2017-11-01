@@ -152,9 +152,11 @@ CloseSocketGuard::~CloseSocketGuard()
 {
 #if defined(BSLS_PLATFORM_OS_UNIX)
     int rc = close(d_sfd);
+    (void)rc;  // Supress compiler warning.
     BSLS_ASSERT(rc == 0);
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
     int rc = closesocket(d_sfd);
+    (void)rc;  // Supress compiler warning.
     BSLS_ASSERT(rc == NO_ERROR);
 #endif
 }
@@ -230,7 +232,6 @@ struct servent *getservbyname_r(const char        *name,
 
     return result;
 }
-
 #endif
 
 static
@@ -483,7 +484,7 @@ int resolveLocalAddrForUnix(bsl::vector<btlso::IPv4Address> *localAddresses,
 #endif
 
             buf = buf + delta;
-            handledBytesNum += delta;
+            handledBytesNum += static_cast<int>(delta);
         }
     } else {
         if (errorCode) {
