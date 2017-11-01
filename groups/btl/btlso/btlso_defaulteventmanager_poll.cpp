@@ -433,6 +433,7 @@ void DefaultEventManager<Platform::POLL>::removeFdAtIndex(int index)
     // Delete index information.
 
     int rc = static_cast<int>(d_index.erase(fd));
+    (void)rc;  // Supress compiler warning.
     BSLS_ASSERT(1 == rc);
 }
 
@@ -443,6 +444,7 @@ void DefaultEventManager<Platform::POLL>::deregisterSocketEvent(
     Event  handleEvent(socketHandle, event);
 
     bool removed = d_callbacks.remove(handleEvent);
+    (void)removed;  // Supress compiler warning.
     BSLS_ASSERT(removed);
 
     // Translate the type of event.
