@@ -26,7 +26,7 @@ BSLS_IDENT("$Id$")
 //  style       Style     e_SCIENTIFIC     none
 //  precision   int       15               >= 0
 //  sign        Sign      e_NEGATIVE_ONLY  none
-//  infinity    string    "infinity"       none
+//  infinity    string    "inf"            none
 //  nan         string    "nan"            none
 //  snan        string    "snan"           none
 //  point       char      '.'              none

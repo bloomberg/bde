@@ -1167,8 +1167,6 @@ void TestDriver::testCase5()
         { L_,  DFP(4.25),    -8,  -8,  "4.25\n" },
     };
 
-#undef DFP
-
     const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -1194,6 +1192,7 @@ void TestDriver::testCase5()
 
         ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
     }
+#undef DFP
 }
 
 void TestDriver::testCase4()
@@ -1246,6 +1245,8 @@ void TestDriver::testCase4()
     //:
     //:18 That 'operator<<' sets the fail and errors bit if the memory buffer
     //:   in the supplied output stream is not large enough.
+    //:
+    //:19 That 'operator<<' correctly outputs decimal values to wide stream.
     //
     // Plan:
     //  1 Create a test table, where each element contains a decimal value
@@ -1264,6 +1265,9 @@ void TestDriver::testCase4()
     //    that is not large enough.  Make sure that the bad and fail bits are
     //    set in the output stream.
     //
+    //  4 Stream out arbitrary decimal values to wide stream.  Ensure the
+    //    streamed output matches the expected value.  (C-19)
+    //
     // Testing:
     //   bsl::basic_ostream& operator<<(bsl::basic_ostream& , Decimal32 );
     //   bsl::basic_ostream& operator<<(bsl::basic_ostream& , Decimal64 );
@@ -1273,7 +1277,6 @@ void TestDriver::testCase4()
 #define DFP(X) BDLDFP_DECIMAL_DF(X)
 
     typedef BDEC::DecimalFormatConfig Config;
-    typedef Config::Style             Style;
 
     if (verbose) bsl::cout << "\nTESTING IOSTREAM OPERATORS"
                            << "\n=========================="
@@ -2469,8 +2472,6 @@ void TestDriver::testCase4()
         const int NUM_FIXED_STYLE = static_cast<int>(sizeof FIXED_STYLE
                                                    / sizeof *FIXED_STYLE);
 
-        typedef BDEC::Decimal32 Type32;
-
         for (int tj = 0; tj < NUM_FIXED_STYLE; ++tj) {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int     LINE       = DATA[ti].d_line;
@@ -2972,8 +2973,101 @@ void TestDriver::testCase4()
     }
 #endif
 
-#undef DFP
+    {
+        // Test output to wide stream.  (P-4)
 
+        typedef BDEC::Decimal32      Tested;
+        typedef BDEC::DecimalImpUtil Util;
+
+        const Tested  MAX_P =  Util::max32();
+        const Tested  MAX_N = -Util::max32();
+        const Tested  MIN_P =  Util::min32();
+        const Tested  MIN_N = -Util::min32();
+        const Tested  DEN_P =  Util::denormMin32();
+        const Tested  DEN_N = -Util::denormMin32();
+        const Tested  INF_P =  Util::infinity32();
+        const Tested  INF_N = -Util::infinity32();
+        const Tested  NAN_P =  Util::quietNaN32();
+        const Tested  NAN_N = -Util::quietNaN32();
+        const Tested SNAN_P =  Util::signalingNaN32();
+        const Tested SNAN_N = -Util::signalingNaN32();
+
+        static const struct {
+            int            d_line;
+            Tested         d_decimalValue;
+            char           d_style;
+            int            d_precision;
+            const wchar_t *d_expected;
+        } DATA[] = {
+            //---------------------------------------------------------
+            // L | NUMBER     | STYLE | PRECISION  | EXPECTED
+            //---------------------------------------------------------
+            //---------------------------------------------------------
+            // Fixed notation
+            //---------------------------------------------------------
+            {  L_, DFP(42.5),    'F',      0,        L"43"            },
+            {  L_, DFP(42.5),    'F',      1,        L"42.5"          },
+            {  L_, DFP(42.5),    'F',      2,        L"42.50"         },
+            {  L_, DFP(-0.0425), 'F',      3,        L"-0.043"        },
+            {  L_, DFP(-0.0425), 'F',      4,        L"-0.0425"       },
+            {  L_, DFP(-0.0425), 'F',      5,        L"-0.04250"      },
+
+            {  L_,  INF_P,       'F',      0,         L"inf"          },
+            {  L_,  INF_N,       'F',      0,        L"-inf"          },
+            {  L_,  NAN_P,       'F',      0,         L"nan"          },
+            {  L_,  NAN_N,       'F',      0,        L"-nan"          },
+            {  L_, SNAN_P,       'F',      0,         L"snan"         },
+            {  L_, SNAN_N,       'F',      0,        L"-snan"         },
+            //---------------------------------------------------------
+            // Scientific notation
+            //---------------------------------------------------------
+            {  L_, DFP(42.5),    'S',      0,        L"4e+1"          },
+            {  L_, DFP(42.5),    'S',      1,        L"4.3e+1"        },
+            {  L_, DFP(42.5),    'S',      2,        L"4.25e+1"       },
+            {  L_, DFP(42.5),    'S',      3,        L"4.250e+1"      },
+            {  L_, DFP(-0.0425), 'S',      0,        L"-4e-2"         },
+            {  L_, DFP(-0.0425), 'S',      1,        L"-4.3e-2"       },
+            {  L_, DFP(-0.0425), 'S',      2,        L"-4.25e-2"      },
+            {  L_, DFP(-0.0425), 'S',      3,        L"-4.250e-2"     },
+
+            {  L_,  MAX_P,       'S',      6,         L"9.999999e+96" },
+            {  L_,  MAX_N,       'S',      6,        L"-9.999999e+96" },
+            {  L_,  MIN_P,       'S',      6,         L"1.000000e-95" },
+            {  L_,  MIN_N,       'S',      6,        L"-1.000000e-95" },
+            {  L_,  DEN_P,       'S',      0,         L"1e-101"       },
+            {  L_,  DEN_N,       'S',      0,        L"-1e-101"       },
+
+            {  L_,  INF_P,       'S',      0,         L"inf"          },
+            {  L_,  INF_N,       'S',      0,        L"-inf"          },
+            {  L_,  NAN_P,       'S',      0,         L"nan"          },
+            {  L_,  NAN_N,       'S',      0,        L"-nan"          },
+            {  L_, SNAN_P,       'S',      0,         L"snan"         },
+            {  L_, SNAN_N,       'S',      0,        L"-snan"         },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE      = DATA[ti].d_line;
+            const Tested       VALUE     = DATA[ti].d_decimalValue;
+            const char         STYLE     = DATA[ti].d_style;
+            const int          PRECISION = DATA[ti].d_precision;
+            const bsl::wstring EXPECTED(DATA[ti].d_expected, pa);
+
+            bsl::wostringstream outdec(pa);
+
+            if ('F' == STYLE) { outdec << bsl::fixed;      }
+            if ('S' == STYLE) { outdec << bsl::scientific; }
+
+            outdec << bsl::setprecision(PRECISION) << VALUE;
+
+            bsl::wstring ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(LINE, ACTUAL == EXPECTED);
+            ASSERTV(outdec.good());
+        }
+    }
+#undef DFP
 
 }
 

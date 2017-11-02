@@ -301,6 +301,97 @@ bool isNegative(const Decimal128& x)
     return xH & k_SIGN_MASK;
 }
 
+                    // =======================
+                    // class WideBufferWrapper
+                    // =======================
+
+template <class CHARTYPE>
+class WideBufferWrapper;
+    // This class provides a wrapper around a buffer of the specified
+    // (template parameter) 'CHARTYPE'.  'CHARTYPE' shall be either
+    // plain chararter type 'char' or wide character type 'wchar_t'.  This
+    // class provides accessors to the begging and the end of the buffer of
+    // 'CHARTYPE' characters.
+
+template <>
+class WideBufferWrapper<char> {
+    // This class is specialization of the template
+    // 'WideBufferWrapper<CHARTYPE>' for 'char' type.
+
+    // DATA
+    const char *d_begin;
+    const char *d_end;
+
+    // NOT IMPLEMENTED
+    WideBufferWrapper(const WideBufferWrapper& /*other*/);
+    WideBufferWrapper& operator=(const WideBufferWrapper& /*other*/);
+
+  public:
+    // CREATORS
+    inline
+    WideBufferWrapper<char>(char *buffer, int len, const bsl::locale& /*loc*/)
+        // Create a wide buffer wrapper for the specified 'buffer' of the
+        // specified length 'len'.
+        : d_begin(buffer)
+        , d_end(buffer + len)
+
+    {
+    }
+
+    // ACCESSORS
+    inline const char *begin() const
+        // Return a pointer to the begging.
+    {
+        return d_begin;
+    }
+
+    inline const char *end() const
+        // Return a pointer to the end.
+    {
+        return d_end;
+    }
+};
+
+template <>
+class WideBufferWrapper<wchar_t> {
+    // This class is specialization of the template
+    // 'WideBufferWrapper<CHARTYPE>' for 'wchar_t' type.
+
+    // DATA
+    bsl::wstring d_string;
+
+    // NOT IMPLEMENTED
+    WideBufferWrapper(const WideBufferWrapper& /*other*/);
+    WideBufferWrapper& operator=(const WideBufferWrapper& /*other*/);
+
+  public:
+    // CREATORS
+    inline
+    WideBufferWrapper(char *buffer, int len, const bsl::locale& loc)
+        // Create a wide buffer wrapper for the specified 'buffer' of the
+        // specified length 'len'.  Use the specified locale 'loc' to widen
+        // character in the buffer into wide character representation.
+        : d_string(len, 0)
+    {
+        bsl::use_facet<std::ctype<wchar_t> >(loc).widen(buffer,
+                                                        buffer + len,
+                                                        d_string.begin());
+    }
+
+    // ACCESSORS
+    inline const wchar_t *begin() const
+        // Return a pointer to the begging.
+    {
+        return d_string.begin();
+    }
+
+    inline const wchar_t *end() const
+        // Return a pointer to the end.
+    {
+        return d_string.end();
+    }
+};
+
 }  // close unnamed namespace
 
 
@@ -554,25 +645,26 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
                   bsl::min(static_cast<bsl::streamsize>(Limits::max_precision),
                            format.precision());
 
-    const int           trailingZeros = static_cast<int>(
-                                               format.precision() - precision);
-    const CHARTYPE      k_ZERO = bsl::use_facet<bsl::ctype<CHARTYPE> >(
-                                                   format.getloc()).widen('0');
-    const int           width  = static_cast<int>(format.width());
+    const int trailingZeros = static_cast<int>(format.precision() - precision);
+    const int width         = static_cast<int>(format.width());
+
     DecimalFormatConfig cfg(static_cast<int>(precision));
 
     if (format.flags() & bsl::ios::fixed) {
         cfg.setStyle(DecimalFormatConfig::e_FIXED);
-    } else {
-        cfg.setStyle(DecimalFormatConfig::e_SCIENTIFIC);
-    }
+    };
 
     if (format.flags() & bsl::ios::showpos) {
         cfg.setSign(DecimalFormatConfig::e_ALWAYS);
     }
 
-    const bool addSign = isNegative(value) ||
-                         cfg.sign() == DecimalFormatConfig::e_ALWAYS;
+    if (format.flags() & bsl::ios_base::uppercase) {
+        cfg.setInfinity("INF");
+        cfg.setNan     ("NAN");
+        cfg.setSNan    ("SNAN");
+    } else {
+        cfg.setExponent('e');
+    }
 
     const int k_BUFFER_SIZE = 1                          // sign
                             + 1 + Limits::max_exponent10 // integer part
@@ -586,27 +678,24 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
 
     bslma::DeallocatorGuard<bslma::Allocator> guard(buffer, allocator);
 
-    const int         len = DecimalImpUtil::format(buffer,
-                                                   k_BUFFER_SIZE,
-                                                   *value.data(),
-                                                   cfg);
+    const int len = DecimalImpUtil::format(buffer,
+                                           k_BUFFER_SIZE,
+                                           *value.data(),
+                                           cfg);
     BSLS_ASSERT(len <= k_BUFFER_SIZE);
 
+    WideBufferWrapper<CHARTYPE>  wbuffer(buffer, len, format.getloc());
+    const CHARTYPE              *wbufferPos = wbuffer.begin();
+    const CHARTYPE              *wend       = wbuffer.end();
+
     // Emit this many fillers.
-    const int surplus  = bsl::max(0, width - (len + trailingZeros));
+    const int surplus = bsl::max(0, width - (len + trailingZeros));
 
-    typedef bsl::basic_string<CHARTYPE>   widestring;
-    typedef typename widestring::iterator witerator;
+    if (0 == surplus && 0 == trailingZeros) {
+        return bsl::copy(wbufferPos, wend, out);                      // RETURN
+    }
 
-    widestring wbuffer(len, 0);
-    witerator  wbufferPos = wbuffer.begin();
-    witerator  wend       = wbuffer.end();
-    witerator  wexp       = wend;
-
-    bsl::use_facet<std::ctype<CHARTYPE> >(
-                                   format.getloc()).widen(buffer,
-                                                          buffer + len,
-                                                          wbufferPos);
+    const CHARTYPE *wexp = wend;
 
     if (trailingZeros && (format.flags() & bsl::ios::scientific)) {
         // find the exponent position
@@ -616,16 +705,8 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         BSLS_ASSERT(wexp != wend);
     }
 
-    // Make use of the 'uppercase' flag to fix the capitalization of the
-    // alphabets in the number.
-    if (format.flags() & bsl::ios_base::uppercase) {
-        bsl::use_facet<bsl::ctype<CHARTYPE> >(
-                                    format.getloc()).toupper(wbufferPos, wend);
-    }
-    else {
-        bsl::use_facet<bsl::ctype<CHARTYPE> >(
-                                    format.getloc()).tolower(wbufferPos, wend);
-    }
+    const bool addSign = isNegative(value) ||
+                         cfg.sign() == DecimalFormatConfig::e_ALWAYS;
 
     const bsl::ios_base::fmtflags adjustfield =
                                    format.flags() & bsl::ios_base::adjustfield;
@@ -635,7 +716,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         *out++ = *wbufferPos++;
     }
 
-    if (adjustfield != bsl::ios_base::left) {
+    if (surplus && adjustfield != bsl::ios_base::left) {
         // output the fillers
         out = fillN(out, surplus, fill);
     }
@@ -644,6 +725,8 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
     out = bsl::copy(wbufferPos, wexp, out);
     if (trailingZeros) {
         // output trailing zeros
+        const CHARTYPE k_ZERO = bsl::use_facet<bsl::ctype<CHARTYPE> >(
+                                                   format.getloc()).widen('0');
         out = fillN(out, trailingZeros, k_ZERO);
         if (format.flags() & bsl::ios::scientific) {
             // output the exponent
@@ -651,7 +734,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         }
     }
 
-    if (adjustfield == bsl::ios_base::left) {
+    if (surplus && adjustfield == bsl::ios_base::left) {
         // output the fillers
         out = fillN(out, surplus, fill);
     }
