@@ -329,12 +329,11 @@ class WideBufferWrapper<char> {
   public:
     // CREATORS
     inline
-    WideBufferWrapper<char>(char *buffer, int len, const bsl::locale& /*loc*/)
+    WideBufferWrapper(const char *buffer, int len, const bsl::locale& /*loc*/)
         // Create a wide buffer wrapper for the specified 'buffer' of the
         // specified length 'len'.
         : d_begin(buffer)
         , d_end(buffer + len)
-
     {
     }
 
@@ -367,7 +366,7 @@ class WideBufferWrapper<wchar_t> {
   public:
     // CREATORS
     inline
-    WideBufferWrapper(char *buffer, int len, const bsl::locale& loc)
+    WideBufferWrapper(const char *buffer, int len, const bsl::locale& loc)
         // Create a wide buffer wrapper for the specified 'buffer' of the
         // specified length 'len'.  Use the specified locale 'loc' to widen
         // character in the buffer into wide character representation.
