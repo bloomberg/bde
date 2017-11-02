@@ -771,15 +771,20 @@ const char *bdlat_TypeName_Imp::name(const bsl::vector<TYPE> *)
     static const int MAX_LEN = 100;
     static char name[MAX_LEN + 1];
     static bool initialized = false;
+    static TYPE * volatile pointer;
 
     if (! initialized) {
         // This is thread-safe because even if two threads execute this code
         // simultaneously, the same values will be written on top of each
-        // other (i.e., the operations are idempotent).
+        // other (i.e., the operations are idempotent).  Note that the object
+        // obtained by dereferencing 'pointer' does not exist, since 'pointer'
+        // is null, but since it's just used for static type dispatching, it's
+        // harmless.  This code used to have the more straightforward
+        // '*(TYPE*)0' until compilers started noticing.
 
         const char *segments[3] = {
             (const char*)BDLAT_NAME_VECTOR_BEGIN,
-            bdlat_TypeName::name(*(TYPE*)0),
+            bdlat_TypeName::name(*pointer),
             (const char*)BDLAT_NAME_VECTOR_END,
         };
 
