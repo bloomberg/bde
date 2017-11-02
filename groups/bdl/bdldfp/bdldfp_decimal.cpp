@@ -310,7 +310,7 @@ class WideBufferWrapper;
     // This class provides a wrapper around a buffer of the specified
     // (template parameter) 'CHARTYPE'.  'CHARTYPE' shall be either
     // plain chararter type 'char' or wide character type 'wchar_t'.  This
-    // class provides accessors to the begging and the end of the buffer of
+    // class provides accessors to the beginning and the end of the buffer of
     // 'CHARTYPE' characters.
 
 template <>
@@ -339,7 +339,7 @@ class WideBufferWrapper<char> {
 
     // ACCESSORS
     inline const char *begin() const
-        // Return a pointer to the begging.
+        // Return a pointer to the beginning.
     {
         return d_begin;
     }
@@ -379,7 +379,7 @@ class WideBufferWrapper<wchar_t> {
 
     // ACCESSORS
     inline const wchar_t *begin() const
-        // Return a pointer to the begging.
+        // Return a pointer to the beginning.
     {
         return d_string.begin();
     }
@@ -651,7 +651,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
 
     if (format.flags() & bsl::ios::fixed) {
         cfg.setStyle(DecimalFormatConfig::e_FIXED);
-    };
+    }
 
     if (format.flags() & bsl::ios::showpos) {
         cfg.setSign(DecimalFormatConfig::e_ALWAYS);
@@ -661,8 +661,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         cfg.setInfinity("INF");
         cfg.setNan     ("NAN");
         cfg.setSNan    ("SNAN");
-    } else {
-        cfg.setExponent('e');
+        cfg.setExponent('E');
     }
 
     const int k_BUFFER_SIZE = 1                          // sign

@@ -181,39 +181,39 @@ static const DefaultDataRow DEFAULT_DATA[] = {
 //---- ---  ----- ---- --- --- ---- --- ---
 // default (must be first)
 
-{ L_, 15,      SCI, NEG, "inf", "nan", "snan", '.', 'E'},
+{ L_, 15,      SCI, NEG, "inf", "nan", "snan", '.', 'e'},
 
 // 'precision'
-{ L_, 0,       FXD, ALS, "",    "",    "",     '.', 'E'},
-{ L_, INT_MAX, FXD, ALS, "",    "",    "",     '.', 'E'},
+{ L_, 0,       FXD, ALS, "",    "",    "",     '.', 'e'},
+{ L_, INT_MAX, FXD, ALS, "",    "",    "",     '.', 'e'},
 
 // 'style'
-{ L_, 0,       SCI, NEG, "",    "",    "",     '.', 'E'},
-{ L_, INT_MAX, NAT, ALS, "",    "",    "",     '.', 'E'},
+{ L_, 0,       SCI, NEG, "",    "",    "",     '.', 'e'},
+{ L_, INT_MAX, NAT, ALS, "",    "",    "",     '.', 'e'},
 
 // 'sign'
-{ L_, 0,       SCI, ALS, "",    "",    "",     '.', 'E'},
-{ L_, INT_MAX, NAT, NEG, "",    "",    "",     '.', 'E'},
+{ L_, 0,       SCI, ALS, "",    "",    "",     '.', 'e'},
+{ L_, INT_MAX, NAT, NEG, "",    "",    "",     '.', 'e'},
 
 // 'infinity'
-{ L_, 0,       SCI, ALS, "inf", "",    "",     '.', 'E'},
-{ L_, INT_MAX, NAT, NEG, "INF", "",    "",     '.', 'E'},
+{ L_, 0,       SCI, ALS, "inf", "",    "",     '.', 'e'},
+{ L_, INT_MAX, NAT, NEG, "INF", "",    "",     '.', 'e'},
 
 // 'nan'
-{ L_, 0,       SCI, ALS, "inf", "nan", "",     '.', 'E'},
-{ L_, INT_MAX, NAT, NEG, "INF", "NAN", "",     '.', 'E'},
+{ L_, 0,       SCI, ALS, "inf", "nan", "",     '.', 'e'},
+{ L_, INT_MAX, NAT, NEG, "INF", "NAN", "",     '.', 'e'},
 
 // 'snan'
-{ L_, 0,       SCI, ALS, "inf", "nan", "snan", '.', 'E'},
-{ L_, INT_MAX, SCI, NEG, "INF", "NAN", "SNAN", '.', 'E'},
+{ L_, 0,       SCI, ALS, "inf", "nan", "snan", '.', 'e'},
+{ L_, INT_MAX, SCI, NEG, "INF", "NAN", "SNAN", '.', 'e'},
 
 // 'point'
-{ L_, 0,       FXD, ALS, "inf", "nan", "snan", '.', 'E'},
-{ L_, INT_MAX, FXD, NEG, "INF", "NAN", "SNAN", ',', 'E'},
+{ L_, 0,       FXD, ALS, "inf", "nan", "snan", '.', 'e'},
+{ L_, INT_MAX, FXD, NEG, "INF", "NAN", "SNAN", ',', 'e'},
 
 // 'exponent'
-{ L_, 0,       NAT, ALS, "inf", "nan", "snan", '.', 'E'},
-{ L_, INT_MAX, NAT, NEG, "INF", "NAN", "SNAN", ',', 'e'},
+{ L_, 0,       NAT, ALS, "inf", "nan", "snan", '.', 'e'},
+{ L_, INT_MAX, NAT, NEG, "INF", "NAN", "SNAN", ',', 'E'},
 };
 
 #undef SCI
@@ -760,8 +760,8 @@ int main(int argc, char* argv[])
                  // Attribute 8 Values: 'exponent'
                  // ------------------------------
 
-        const T8 A8 = 'E';             // baseline
-        const T8 B8 = 'e';
+        const T8 A8 = 'e';             // baseline
+        const T8 B8 = 'E';
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
@@ -967,7 +967,7 @@ int main(int argc, char* argv[])
         const char       *D5 = "nan";                 // 'nan'
         const char       *D6 = "snan";                // 'snan'
         const char        D7 = '.';                   // 'point'
-        const char        D8 = 'E';                   // 'exponent
+        const char        D8 = 'e';                   // 'exponent
 
                        // ----------------------------
                        // 'A' values: Boundary values.
@@ -980,7 +980,7 @@ int main(int argc, char* argv[])
         const char       *A5 = "";                    // 'nan'
         const char       *A6 = "";                    // 'snan'
         const char        A7 = ',';                   // 'point'
-        const char        A8 = 'e';                   // 'exponent
+        const char        A8 = 'E';                   // 'exponent
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1148,7 +1148,7 @@ int main(int argc, char* argv[])
         const char       *D5 = "nan";                 // 'nan'
         const char       *D6 = "snan";                // 'snan'
         const char        D7 = '.';                   // 'point'
-        const char        D8 = 'E';                   // 'exponent
+        const char        D8 = 'e';                   // 'exponent
         // 'A' values.
 
         const int         A1 = 0;                     // 'precision'
@@ -1158,7 +1158,7 @@ int main(int argc, char* argv[])
         const char       *A5 = "";                    // 'nan'
         const char       *A6 = "";                    // 'snan'
         const char        A7 = ',';                   // 'point'
-        const char        A8 = 'e';                   // 'exponent
+        const char        A8 = 'E';                   // 'exponent
         // 'B' values.
 
         const int         B1 = INT_MAX;               // 'precision'
@@ -1619,7 +1619,7 @@ int main(int argc, char* argv[])
         const char       *D5 = "nan";                 // 'nan'
         const char       *D6 = "snan";                // 'snan'
         const char        D7 = '.';                   // 'point'
-        const char        D8 = 'E';                   // 'exponent
+        const char        D8 = 'e';                   // 'exponent
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -1670,7 +1670,7 @@ int main(int argc, char* argv[])
         const char       *QNAN      = "nan";
         const char       *SNAN      = "snan";
         const char        POINT     = '.';
-        const char        EXPONENT  = 'E';
+        const char        EXPONENT  = 'e';
 
         Obj mX; const Obj& X = mX;
 

@@ -30,7 +30,7 @@ BSLS_IDENT("$Id$")
 //  nan         string    "nan"            none
 //  snan        string    "snan"           none
 //  point       char      '.'              none
-//  exponent    char      'E'              none
+//  exponent    char      'e'              none
 //
 //..
 //: o 'style': control how the decimal number is written.  If 'style' is
@@ -127,7 +127,7 @@ class DecimalFormatConfig {
         //  nan       == "nan"
         //  snan      == "snan"
         //  point     == '.'
-        //  exponent  == 'E'
+        //  exponent  == 'e'
         //..
 
     explicit
@@ -138,7 +138,7 @@ class DecimalFormatConfig {
                         const char *nan       = "nan",
                         const char *snan      = "snan",
                         char        point     = '.',
-                        char        exponent  = 'E');
+                        char        exponent  = 'e');
         // Create an object of this class havig the specified 'precision' to
         // control how many digits are written after a decimal point.  The
         // behavior is undefined if 'precision' is negative.  Optionally
@@ -254,7 +254,7 @@ DecimalFormatConfig::DecimalFormatConfig()
     , d_nanText("nan")
     , d_sNanText("snan")
     , d_decimalPoint('.')
-    , d_exponent('E')
+    , d_exponent('e')
 {
 }
 
