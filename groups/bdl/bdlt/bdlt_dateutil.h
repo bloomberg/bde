@@ -306,9 +306,9 @@ struct DateUtil {
         // corresponding to the specified 'n'th occurrence of the specified
         // 'dayOfWeek'.  If 'n < 0', return the date corresponding to the
         // '-n'th occurrence of the 'dayOfWeek' counting from the end of the
-        // 'month' towards the first of the 'month'.  If 'n == 5' and a result
+        // 'month' towards the first of the 'month'.  If '5 == n' and a result
         // cannot be found in 'month', then return the date of the first
-        // 'dayOfWeek' in the following month.  If 'n == -5' and a result
+        // 'dayOfWeek' in the following month.  If '-5 == n' and a result
         // cannot be found in 'month', then return the date of the last
         // 'dayOfWeek' in the previous month.  The behavior is undefined unless
         // '1 <= year <= 9999', '1 <= month <= 12', 'n != 0', '-5 <= n <= 5',
