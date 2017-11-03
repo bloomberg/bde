@@ -171,7 +171,7 @@ int NumericParseUtil::parseUint(unsigned int             *result,
                                                sub,
                                                base,
                                                static_cast<Int64>(0xFFFFFFFF));
-    *result = static_cast<int>(res);
+    *result = static_cast<unsigned int>(res);
     return rv;
 }
 
@@ -204,6 +204,35 @@ int NumericParseUtil::parseUint64(bsls::Types::Uint64      *result,
     return rv;
 }
 
+int NumericParseUtil::parseUshort(unsigned short           *result,
+                                  bslstl::StringRef        *remainder,
+                                  const bslstl::StringRef&  inputString,
+                                  int                       base)
+{
+    BSLS_ASSERT(remainder);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(2 <= base);
+    BSLS_ASSERT(     base <= 36);
+
+    if (inputString.empty()) {
+        *remainder = inputString;
+        return -1;                                                    // RETURN
+    }
+
+    Uint64            res = *result;
+    const bool        hasPlus = ('+' == inputString[0]);
+    bslstl::StringRef sub(inputString.data() + hasPlus,
+                          inputString.length() - hasPlus);
+    int               rv = parseUnsignedInteger(
+                                               &res,
+                                               remainder,
+                                               sub,
+                                               base,
+                                               static_cast<Int64>(0xFFFF));
+    *result = static_cast<unsigned short>(res);
+    return rv;
+}
+
 int NumericParseUtil::parseShort(short                    *result,
                                  bslstl::StringRef        *remainder,
                                  const bslstl::StringRef&  inputString,
@@ -232,6 +261,7 @@ int NumericParseUtil::parseSignedInteger(bsls::Types::Int64       *result,
                                          const bsls::Types::Int64  minValue,
                                          const bsls::Types::Int64  maxValue)
 {
+    BSLS_ASSERT(result);
     BSLS_ASSERT(remainder);
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
@@ -284,8 +314,8 @@ int NumericParseUtil::parseUnsignedInteger(
                                          int                       base,
                                          const bsls::Types::Uint64 maxValue)
 {
-    BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
+    BSLS_ASSERT(remainder);
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
 
@@ -338,8 +368,8 @@ int NumericParseUtil::parseUnsignedInteger(
                                         const bsls::Types::Uint64 maxValue,
                                         int                       maxNumDigits)
 {
-    BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
+    BSLS_ASSERT(remainder);
     BSLS_ASSERT(2 <= base);
     BSLS_ASSERT(     base <= 36);
     BSLS_ASSERT(0 <= maxNumDigits);
