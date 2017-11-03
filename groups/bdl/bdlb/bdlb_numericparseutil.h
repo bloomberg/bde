@@ -80,9 +80,9 @@ BSLS_IDENT("$Id: $")
 // successfully parsed token, or the position at which the parse failure was
 // detected.  The value returned for 'remainder' will be a string reference
 // starting at the character following the last character parsed as part of the
-// numeric value.  If there were any characters that were parsed as a valid
-// number, the parse function loads its result and returns 0; otherwise, it
-// returns a non-zero value with no effect on the result.
+// numeric value.  If there were characters that has parsed as a valid number,
+// the parse function loads its result and returns 0; otherwise, it returns a
+// non-zero value with no effect on the result.
 //
 ///Floating Point Values
 ///---------------------
