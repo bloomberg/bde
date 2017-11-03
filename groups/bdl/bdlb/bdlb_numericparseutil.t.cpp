@@ -51,15 +51,26 @@ using namespace bdlb;
 // [ 1] characterToDigit(char character, int base)
 // [ 2] parseUnsignedInteger(result, rest, in, base, maxVal)
 // [ 2] parseUnsignedInteger(result, rest, in, base, maxVal, maxDigit)
+// [ 2] parseUnsignedInteger(result, in, base, maxVal)
+// [ 2] parseUnsignedInteger(result, in, base, maxVal, maxDigit)
 // [ 3] parseSignedInteger(result, rest, input, base, minVal, maxVal)
-// [ 4] parseDouble(double *rest, StringRef *rest, StringRef in)
+// [ 3] parseSignedInteger(result, input, base, minVal, maxVal)
+// [ 4] parseDouble(double *res, StringRef *rest, StringRef in)
+// [ 4] parseDouble(double *res, StringRef in)
 // [ 5] parseInt(result, rest, input, base = 10)
+// [ 5] parseInt(result, input, base = 10)
 // [ 6] parseInt64(result, rest, input, base = 10)
+// [ 6] parseInt64(result, input, base = 10)
 // [ 7] parseUint(result, rest, input, base = 10)
+// [ 7] parseUint(result, input, base = 10)
 // [ 8] parseUint64(result, rest, input, base = 10)
-// [ 9] parseShort(result, rest input, base = 10)
+// [ 8] parseUint64(result, input, base = 10)
+// [ 9] parseShort(result, rest, input, base = 10)
+// [ 9] parseShort(result, input, base = 10)
+// [10] parseUshort(result, rest, input, base = 10)
+// [10] parseUshort(result, input, base = 10)
 //-----------------------------------------------------------------------------
-// [10] USAGE EXAMPLE
+// [11] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -133,7 +144,7 @@ int main(int argc, char *argv[])
     using bslstl::StringRef;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -179,6 +190,200 @@ int main(int argc, char *argv[])
 //..
 
       } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING PARSE USHORT
+        //
+        // Concerns:
+        //:  1 Correct value is returned.
+        //:
+        //:  2 Characters that comprise the legal set varies correctly with
+        //:    'base'.
+        //:
+        //:  3 Corner cases work as expected
+        //:
+        //:    1 The string ends unexpectedly
+        //:    2 The value is as large as representable
+        //:    3 The value is just larger than representable
+        //
+        // Plan:
+        //: 1 Use the table-driven approach with columns for input, base, and
+        //:   expected result.  Use category partitioning to create a suite of
+        //:   test vectors for an enumerated set of bases.
+        //
+        // Testing:
+        //   parseUshort(result, rest, input, base = 10)
+        //   parseUshort(result, input, base = 10)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING PARSE USHORT" << endl
+                          << "====================" << endl;
+
+        {
+            const int INITIAL_VALUE_1 = 3;  // first initial value
+            const int INITIAL_VALUE_2 = 9;  // second initial value
+
+            static const struct {
+                int            d_lineNum;  // source line number
+                const char    *d_spec_p;   // specification string
+                int            d_base;     // specification base
+                ptrdiff_t      d_offset;   // expected number of parsed chars
+                int            d_fail;     // parsing expected to fail flag
+                unsigned short d_value;    // expected return value
+            } DATA[] = {
+                //line  spec            base offset  fail  value
+                //----  --------------  ---- ------  ----  -------
+                { L_,   "",               10,   0,    1,       0 },
+
+                { L_,   "a",              10,   0,    1,       0 },
+                { L_,   "+",              10,   1,    1,       0 },
+                { L_,   "-",              10,   0,    1,       0 },
+                { L_,   "0",              10,   1,    0,       0 },
+                { L_,   "a",              16,   1,    0,      10 },
+                { L_,   "f",              16,   1,    0,      15 },
+                { L_,   "A",              16,   1,    0,      10 },
+                { L_,   "F",              16,   1,    0,      15 },
+                { L_,   "g",              16,   0,    1,       0 },
+                { L_,   "0",               2,   1,    0,       0 },
+                { L_,   "1",               2,   1,    0,       1 },
+                { L_,   "a",              11,   1,    0,      10 },
+                { L_,   "A",              11,   1,    0,      10 },
+                { L_,   "z",              36,   1,    0,      35 },
+                { L_,   "Z",              36,   1,    0,      35 },
+
+                { L_,   "++",             10,   1,    1,       0 },
+                { L_,   "+-",             10,   1,    1,       0 },
+                { L_,   "-+",             10,   0,    1,       0 },
+                { L_,   "--",             10,   0,    1,       0 },
+                { L_,   "+a",             10,   1,    1,       0 },
+                { L_,   "-a",             10,   0,    1,       0 },
+                { L_,   "+0",             10,   2,    0,       0 },
+                { L_,   "+9",             10,   2,    0,       9 },
+                { L_,   "-0",             10,   0,    1,       0 },
+                { L_,   "-9",             10,   0,    1,       0 },
+                { L_,   "0a",             10,   1,    0,       0 },
+                { L_,   "9a",             10,   1,    0,       9 },
+                { L_,   "00",             10,   2,    0,       0 },
+                { L_,   "01",             10,   2,    0,       1 },
+                { L_,   "19",             10,   2,    0,      19 },
+                { L_,   "99",             10,   2,    0,      99 },
+                { L_,   "+g",             16,   1,    1,       0 },
+                { L_,   "+a",             16,   2,    0,      10 },
+                { L_,   "+f",             16,   2,    0,      15 },
+                { L_,   "ff",             16,   2,    0,     255 },
+                { L_,   "FF",             16,   2,    0,     255 },
+                { L_,   "+0",              2,   2,    0,       0 },
+                { L_,   "+1",              2,   2,    0,       1 },
+                { L_,   "00",              2,   2,    0,       0 },
+                { L_,   "01",              2,   2,    0,       1 },
+                { L_,   "10",              2,   2,    0,       2 },
+                { L_,   "11",              2,   2,    0,       3 },
+                { L_,   "+z",             36,   2,    0,      35 },
+                { L_,   "0z",             36,   2,    0,      35 },
+                { L_,   "0Z",             36,   2,    0,      35 },
+                { L_,   "10",             36,   2,    0,      36 },
+                { L_,   "z0",             36,   2,    0,    1260 },
+                { L_,   "Z0",             36,   2,    0,    1260 },
+
+                { L_,   "+0a",            10,   2,    0,       0 },
+                { L_,   "+9a",            10,   2,    0,       9 },
+                { L_,   "+12",            10,   3,    0,      12 },
+                { L_,   "+89",            10,   3,    0,      89 },
+                { L_,   "123",            10,   3,    0,     123 },
+                { L_,   "789",            10,   3,    0,     789 },
+                { L_,   "+fg",            16,   2,    0,      15 },
+                { L_,   "+ff",            16,   3,    0,     255 },
+                { L_,   "+FF",            16,   3,    0,     255 },
+                { L_,   "fff",            16,   3,    0,    4095 },
+                { L_,   "fFf",            16,   3,    0,    4095 },
+                { L_,   "FfF",            16,   3,    0,    4095 },
+                { L_,   "FFF",            16,   3,    0,    4095 },
+
+                { L_,   "1234",           10,   4,    0,    1234 },
+                { L_,   "7FFF",           16,   4,    0,   32767 },
+
+                { L_,   "12345",          10,   5,    0,   12345 },
+                { L_,   "32766",          10,   5,    0,   32766 },
+                { L_,   "32767",          10,   5,    0,   32767 },
+                { L_,   "32768",          10,   5,    0,   32768 },
+                { L_,   "32769",          10,   5,    0,   32769 },
+
+                { L_,   "65535",          10,   5,    0,   65535 },
+                { L_,   "65536",          10,   4,    0,    6553 },
+                { L_,   "123456",         10,   5,    0,   12345 },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            int oldLen = -1;
+            for (int ti = 0; ti < NUM_DATA ; ++ti) {
+                const int            LINE   = DATA[ti].d_lineNum;
+                const char *const    SPEC   = DATA[ti].d_spec_p;
+                const int            BASE   = DATA[ti].d_base;
+                const ptrdiff_t      NUM    = DATA[ti].d_offset;
+                const int            FAIL   = DATA[ti].d_fail;
+                const unsigned short VALUE  = DATA[ti].d_value;
+                const int            curLen = strlen(SPEC);
+
+                if (veryVerbose) {
+                    P(LINE);
+                    P(SPEC);
+                    P(BASE);
+                }
+
+                if (curLen != oldLen) {
+                    if (veryVerbose) cout << "\ton strings of length "
+                                          << curLen << ':' << endl;
+                    LOOP_ASSERT(LINE, oldLen <= curLen);  // non-decreasing
+                    oldLen = curLen;
+                }
+
+                {  // test with first initial value
+                    unsigned short result = INITIAL_VALUE_1;
+                    StringRef      rest;
+                    int            rv = NumericParseUtil::parseUshort(&result,
+                                                                      &rest,
+                                                                      SPEC,
+                                                                      BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
+                }
+
+                {  // test with second initial value
+                    unsigned short result = INITIAL_VALUE_2;
+                    StringRef      rest;
+                    int            rv = NumericParseUtil::parseUshort(&result,
+                                                                      &rest,
+                                                                      SPEC,
+                                                                      BASE);
+                    LOOP_ASSERT(LINE, NUM == rest.data() - SPEC);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
+                }
+
+                // Testing without 'remainder' argument.
+
+                {  // test with first initial value
+                    unsigned short result = INITIAL_VALUE_1;
+                    int            rv = NumericParseUtil::parseUshort(&result,
+                                                                      SPEC,
+                                                                      BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
+                }
+
+                {  // test with second initial value
+                    unsigned short result = INITIAL_VALUE_2;
+                    int            rv = NumericParseUtil::parseUshort(&result,
+                                                                      SPEC,
+                                                                      BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
+                }
+            }
+        }
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // TESTING PARSE SHORT
@@ -202,6 +407,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   parseShort(result, rest, input, base = 10)
+        //   parseShort(result, input, base = 10)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -216,7 +422,7 @@ int main(int argc, char *argv[])
                 int         d_lineNum;  // source line number
                 const char *d_spec_p;   // specification string
                 int         d_base;     // specification base
-                size_t      d_offset;   // expected number of parsed characters
+                ptrdiff_t   d_offset;   // expected number of parsed characters
                 int         d_fail;     // parsing expected to fail indicator
                 short       d_value;    // expected return value
             } DATA[] = {
@@ -328,7 +534,7 @@ int main(int argc, char *argv[])
                 const int         LINE   = DATA[ti].d_lineNum;
                 const char *const SPEC   = DATA[ti].d_spec_p;
                 const int         BASE   = DATA[ti].d_base;
-                const size_t      NUM    = DATA[ti].d_offset;
+                const ptrdiff_t   NUM    = DATA[ti].d_offset;
                 const int         FAIL   = DATA[ti].d_fail;
                 const short       VALUE  = DATA[ti].d_value;
                 const int         curLen = strlen(SPEC);
@@ -365,6 +571,24 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
                 }
+
+                // Test without the 'remainder' argument
+
+                {  // test with first initial value
+                    short     result = INITIAL_VALUE_1;
+                    int       rv = NumericParseUtil::
+                                               parseShort(&result, SPEC, BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
+                }
+
+                {  // test with second initial value
+                    short     result = INITIAL_VALUE_2;
+                    int       rv = NumericParseUtil::
+                                               parseShort(&result, SPEC, BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
+                }
             }
         }
       } break;
@@ -391,6 +615,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   parseUint64(result, rest, input, base = 10)
+        //   parseUint64(result, input, base = 10)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -405,7 +630,7 @@ int main(int argc, char *argv[])
                 int         d_lineNum;  // source line number
                 const char *d_spec_p;   // specification string
                 int         d_base;     // specification base
-                size_t      d_offset;   // expected number of parsed characters
+                ptrdiff_t   d_offset;   // expected number of parsed characters
                 int         d_fail;     // parsing expected to fail indicator
                 Uint64      d_value;    // expected return value
             } DATA[] = {
@@ -507,7 +732,7 @@ int main(int argc, char *argv[])
                 const int         LINE   = DATA[ti].d_lineNum;
                 const char *const SPEC   = DATA[ti].d_spec_p;
                 const int         BASE   = DATA[ti].d_base;
-                const size_t      NUM    = DATA[ti].d_offset;
+                const ptrdiff_t   NUM    = DATA[ti].d_offset;
                 const int         FAIL   = DATA[ti].d_fail;
                 const Uint64      VALUE  = DATA[ti].d_value;
                 const int         curLen = strlen(SPEC);
@@ -546,6 +771,26 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE,result == (rv ? (Uint64)INITIAL_VALUE_2
                                                    : VALUE));
                 }
+
+                // Test without the 'remainder' argument
+
+                {  // test with first initial value
+                    Uint64    result = INITIAL_VALUE_1;
+                    int       rv = NumericParseUtil::
+                                              parseUint64(&result, SPEC, BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? (Uint64)INITIAL_VALUE_1
+                                                   : VALUE));
+                }
+
+                {  // test with second initial value
+                    Uint64    result = INITIAL_VALUE_2;
+                    int       rv = NumericParseUtil::
+                                              parseUint64(&result, SPEC, BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? (Uint64)INITIAL_VALUE_2
+                                                   : VALUE));
+                }
             }
         }
       } break;
@@ -572,6 +817,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   parseUint(result, rest, input, base = 10)
+        //   parseUint(result, input, base = 10)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -586,7 +832,7 @@ int main(int argc, char *argv[])
                 int         d_lineNum;  // source line number
                 const char *d_spec_p;   // specification string
                 int         d_base;     // specification base
-                size_t      d_offset;   // expected number of parsed characters
+                ptrdiff_t   d_offset;   // expected number of parsed characters
                 int         d_fail;     // parsing expected to fail indicator
                 unsigned    d_value;    // expected return value
             } DATA[] = {
@@ -683,7 +929,7 @@ int main(int argc, char *argv[])
                 const int         LINE   = DATA[ti].d_lineNum;
                 const char *const SPEC   = DATA[ti].d_spec_p;
                 const int         BASE   = DATA[ti].d_base;
-                const size_t      NUM    = DATA[ti].d_offset;
+                const ptrdiff_t   NUM    = DATA[ti].d_offset;
                 const int         FAIL   = DATA[ti].d_fail;
                 const unsigned    VALUE  = DATA[ti].d_value;
                 const int         curLen = strlen(SPEC);
@@ -720,6 +966,24 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
                 }
+
+                // Test without the 'remainder' argument
+
+                {  // test with first initial value
+                    unsigned  result = INITIAL_VALUE_1;
+                    int       rv = NumericParseUtil::
+                                                parseUint(&result, SPEC, BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
+                }
+
+                {  // test with second initial value
+                    unsigned  result = INITIAL_VALUE_2;
+                    int       rv = NumericParseUtil::
+                                                parseUint(&result, SPEC, BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
+                }
             }
         }
       } break;
@@ -746,6 +1010,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   parseInt64(result, rest, input, base = 10)
+        //   parseInt64(result, input, base = 10)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -760,7 +1025,7 @@ int main(int argc, char *argv[])
                 int         d_lineNum;  // source line number
                 const char *d_spec_p;   // specification string
                 int         d_base;     // specification base
-                size_t      d_offset;   // expected number of parsed characters
+                ptrdiff_t   d_offset;   // expected number of parsed characters
                 int         d_fail;     // parsing expected to fail indicator
                 Int64       d_value;    // expected return value
             } DATA[] = {
@@ -897,7 +1162,7 @@ int main(int argc, char *argv[])
                 const int         LINE   = DATA[ti].d_lineNum;
                 const char *const SPEC   = DATA[ti].d_spec_p;
                 const int         BASE   = DATA[ti].d_base;
-                const size_t      NUM    = DATA[ti].d_offset;
+                const ptrdiff_t   NUM    = DATA[ti].d_offset;
                 const int         FAIL   = DATA[ti].d_fail;
                 const Int64       VALUE  = DATA[ti].d_value;
                 const int         curLen = strlen(SPEC);
@@ -936,6 +1201,26 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, result, VALUE,
                                  result == (rv ? INITIAL_VALUE_2 : VALUE));
                 }
+
+                // Test without the 'remainder' argument
+
+                {  // test with first initial value
+                    Int64     result = INITIAL_VALUE_1;
+                    int       rv = NumericParseUtil::
+                                               parseInt64(&result, SPEC, BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP3_ASSERT(LINE, result, VALUE,
+                                 result == (rv ? INITIAL_VALUE_1 : VALUE));
+                }
+
+                {  // test with second initial value
+                    Int64     result = INITIAL_VALUE_2;
+                    int       rv = NumericParseUtil::
+                                               parseInt64(&result, SPEC, BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP3_ASSERT(LINE, result, VALUE,
+                                 result == (rv ? INITIAL_VALUE_2 : VALUE));
+                }
             }
         }
       } break;
@@ -962,6 +1247,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   parseInt(result, rest, input, base = 10)
+        //   parseInt(result, input, base = 10)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -976,7 +1262,7 @@ int main(int argc, char *argv[])
                 int         d_lineNum;  // source line number
                 const char *d_spec_p;   // specification string
                 int         d_base;     // specification base
-                size_t      d_offset;   // expected number of parsed characters
+                ptrdiff_t   d_offset;   // expected number of parsed characters
                 int         d_fail;     // parsing expected to fail indicator
                 int         d_value;    // expected return value
             } DATA[] = {
@@ -1096,7 +1382,7 @@ int main(int argc, char *argv[])
                 const int         LINE   = DATA[ti].d_lineNum;
                 const char *const SPEC   = DATA[ti].d_spec_p;
                 const int         BASE   = DATA[ti].d_base;
-                const size_t      NUM    = DATA[ti].d_offset;
+                const ptrdiff_t   NUM    = DATA[ti].d_offset;
                 const int         FAIL   = DATA[ti].d_fail;
                 const int         VALUE  = DATA[ti].d_value;
                 const int         curLen = strlen(SPEC);
@@ -1133,6 +1419,24 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, FAIL == !!rv);
                     LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
                 }
+
+                // Test without the 'remainder' argument
+
+                {  // test with first initial value
+                    int       result = INITIAL_VALUE_1;
+                    int       rv = NumericParseUtil::
+                                                 parseInt(&result, SPEC, BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
+                }
+
+                {  // test with second initial value
+                    int       result = INITIAL_VALUE_2;
+                    int       rv = NumericParseUtil::
+                                                 parseInt(&result, SPEC, BASE);
+                    LOOP_ASSERT(LINE, FAIL == !!rv);
+                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
+                }
             }
         }
       } break;
@@ -1161,6 +1465,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   parseDouble(double *res, StringRef *rest, StringRef in)
+        //   parseDouble(double *res, StringRef in)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1174,7 +1479,7 @@ int main(int argc, char *argv[])
             static const struct {
                 int         d_lineNum;  // source line number
                 const char *d_spec_p;   // specification string
-                size_t      d_offset;   // expected number of parsed characters
+                ptrdiff_t   d_offset;   // expected number of parsed characters
                 int         d_fail;     // parsing expected to fail indicator
             } DATA[] = {
                 //line  spec                                   offset  fail
@@ -1329,8 +1634,6 @@ int main(int argc, char *argv[])
                 // TBD more vectors
             };
 
-            typedef bslstl::StringRef SRef;
-
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
             const int SZ = 64;  // maximum length of an input string + 2
             char      buffer[SZ];
@@ -1339,7 +1642,7 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
                 const int         LINE = DATA[ti].d_lineNum;
                 const char *const SPEC = DATA[ti].d_spec_p;
-                const size_t      NUM  = DATA[ti].d_offset;
+                const ptrdiff_t   NUM  = DATA[ti].d_offset;
                 const int         FAIL = DATA[ti].d_fail;
 
                 if (veryVerbose) {
@@ -1391,7 +1694,6 @@ int main(int argc, char *argv[])
                         buffer[curLen] = ' ';
                         buffer[curLen + 1] = '\0';
                     }
-                    const int bufLen = strlen(buffer);
 
                     {  // test with first initial value
                         double    result = INITIAL_VALUE_1;
@@ -1468,6 +1770,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   parseSignedInteger(result, rest, input, base, minVal, maxVal)
+        //   parseSignedInteger(result, input, base, minVal, maxVal)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1489,7 +1792,7 @@ int main(int argc, char *argv[])
                 int         d_base;     // specification base
                 Int64       d_min;      // specification min
                 Int64       d_max;      // specification max
-                size_t      d_offset;   // expected number of parsed characters
+                ptrdiff_t   d_offset;   // expected number of parsed characters
                 int         d_fail;     // parsing expected to fail indicator
                 Int64       d_value;    // expected return value
             } DATA[] = {
@@ -1651,7 +1954,7 @@ int main(int argc, char *argv[])
                 const int         BASE   = DATA[ti].d_base;
                 const Int64       MIN    = DATA[ti].d_min;
                 const Int64       MAX    = DATA[ti].d_max;
-                const size_t      NUM    = DATA[ti].d_offset;
+                const ptrdiff_t   NUM    = DATA[ti].d_offset;
                 const int         FAIL   = DATA[ti].d_fail;
                 const Int64       VALUE  = DATA[ti].d_value;
                 const int         curLen = bsl::strlen(SPEC);
@@ -1725,6 +2028,40 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(LINE, si,
                                    result == (rv ? INITIAL_VALUE_2 : VALUE));
                     }
+
+                    // Test without the 'remainder' argument
+
+                    {  // test with first initial value
+                        Int64     result = INITIAL_VALUE_1;
+                        int       rv = NumericParseUtil::
+                                                    parseSignedInteger(&result,
+                                                                       buffer,
+                                                                       BASE,
+                                                                       MIN,
+                                                                       MAX);
+                        LOOP2_ASSERT(LINE, si, FAIL == !!rv);
+                        if (veryVeryVerbose) {
+                            P(result);
+                            P(rv);
+                            P(VALUE);
+                            P(INITIAL_VALUE_1);
+                        }
+                        LOOP2_ASSERT(LINE, si,
+                                     result == (rv ? INITIAL_VALUE_1 : VALUE));
+                    }
+
+                    {  // test with second initial value
+                        Int64     result = INITIAL_VALUE_2;
+                        int       rv = NumericParseUtil::
+                                                    parseSignedInteger(&result,
+                                                                       buffer,
+                                                                       BASE,
+                                                                       MIN,
+                                                                       MAX);
+                        LOOP2_ASSERT(LINE, si, FAIL == !!rv);
+                        LOOP2_ASSERT(LINE, si,
+                                   result == (rv ? INITIAL_VALUE_2 : VALUE));
+                    }
                 }
             }
         }
@@ -1753,6 +2090,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   parseUnsignedInteger(result, rest, in, base, maxVal)
         //   parseUnsignedInteger(result, rest, in, base, maxVal, maxDigit)
+        //   parseUnsignedInteger(result, in, base, maxVal)
+        //   parseUnsignedInteger(result, in, base, maxVal, maxDigit)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1771,7 +2110,7 @@ int main(int argc, char *argv[])
                 const char *d_spec_p;   // specification string
                 int         d_base;     // specification base
                 Uint64      d_max;      // specification max
-                size_t      d_offset;   // expected number of parsed characters
+                ptrdiff_t   d_offset;   // expected number of parsed characters
                 int         d_fail;     // parsing expected to fail indicator
                 Uint64      d_value;    // expected return value
             } DATA[] = {
@@ -1873,7 +2212,7 @@ int main(int argc, char *argv[])
                 const char *const SPEC   = DATA[ti].d_spec_p;
                 const int         BASE   = DATA[ti].d_base;
                 const Uint64      MAX    = DATA[ti].d_max;
-                const size_t      NUM    = DATA[ti].d_offset;
+                const ptrdiff_t   NUM    = DATA[ti].d_offset;
                 const int         FAIL   = DATA[ti].d_fail;
                 const Uint64      VALUE  = DATA[ti].d_value;
                 const int         curLen = bsl::strlen(SPEC);
@@ -1933,6 +2272,32 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(LINE, si,
                                    result == (rv ? INITIAL_VALUE_2 : VALUE));
                     }
+
+                    // Test without the 'remainder' argument
+
+                    {  // test with first initial value
+                        Uint64    result = INITIAL_VALUE_1;
+                        int       rv = NumericParseUtil::
+                                                  parseUnsignedInteger(&result,
+                                                                       buffer,
+                                                                       BASE,
+                                                                       MAX);
+                        LOOP2_ASSERT(LINE, si, FAIL == !!rv);
+                        LOOP2_ASSERT(LINE, si,
+                                     result == (rv ? INITIAL_VALUE_1 : VALUE));
+                    }
+
+                    {  // test with second initial value
+                        Uint64    result = INITIAL_VALUE_2;
+                        int       rv = NumericParseUtil::
+                                                  parseUnsignedInteger(&result,
+                                                                       buffer,
+                                                                       BASE,
+                                                                       MAX);
+                        LOOP2_ASSERT(LINE, si, FAIL == !!rv);
+                        LOOP2_ASSERT(LINE, si,
+                                   result == (rv ? INITIAL_VALUE_2 : VALUE));
+                    }
                 }
             }
         }
@@ -1949,7 +2314,7 @@ int main(int argc, char *argv[])
                 int         d_base;     // specification base
                 Uint64      d_max;      // specification max
                 int         d_digit;    // specification number of digits
-                size_t      d_offset;   // expected number of parsed characters
+                ptrdiff_t   d_offset;   // expected number of parsed characters
                 int         d_fail;     // parsing expected to fail indicator
                 Uint64      d_value;    // expected return value
             } DATA[] = {
@@ -2030,7 +2395,7 @@ int main(int argc, char *argv[])
                 const int         BASE   = DATA[ti].d_base;
                 const Uint64      MAX    = DATA[ti].d_max;
                 const int         DIGIT  = DATA[ti].d_digit;
-                const size_t      NUM    = DATA[ti].d_offset;
+                const ptrdiff_t   NUM    = DATA[ti].d_offset;
                 const int         FAIL   = DATA[ti].d_fail;
                 const Uint64      VALUE  = DATA[ti].d_value;
                 const int         curLen = bsl::strlen(SPEC);
@@ -2094,6 +2459,34 @@ int main(int argc, char *argv[])
                                                                        MAX,
                                                                        DIGIT);
                         LOOP2_ASSERT(LINE, si, NUM == rest.data() - buffer);
+                        LOOP2_ASSERT(LINE, si, FAIL == !!rv);
+                        LOOP2_ASSERT(LINE, si,
+                                   result == (rv ? INITIAL_VALUE_2 : VALUE));
+                    }
+
+                    // Test without the 'remainder' argument
+
+                    {  // test with first initial value
+                        Uint64    result = INITIAL_VALUE_1;
+                        int       rv = NumericParseUtil::
+                                                  parseUnsignedInteger(&result,
+                                                                       buffer,
+                                                                       BASE,
+                                                                       MAX,
+                                                                       DIGIT);
+                        LOOP2_ASSERT(LINE, si, FAIL == !!rv);
+                        LOOP2_ASSERT(LINE, si,
+                                     result == (rv ? INITIAL_VALUE_1 : VALUE));
+                    }
+
+                    {  // test with second initial value
+                        Uint64    result = INITIAL_VALUE_2;
+                        int       rv = NumericParseUtil::
+                                                  parseUnsignedInteger(&result,
+                                                                       buffer,
+                                                                       BASE,
+                                                                       MAX,
+                                                                       DIGIT);
                         LOOP2_ASSERT(LINE, si, FAIL == !!rv);
                         LOOP2_ASSERT(LINE, si,
                                    result == (rv ? INITIAL_VALUE_2 : VALUE));
