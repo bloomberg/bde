@@ -17,8 +17,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide push parser for hex types.
 //
-//@DEPRECATED: This functionality will be moved to bdede w/ a new interface.
-//
 //@CLASSES:
 //   balxml::HexParser: push parser for hex types
 //
@@ -28,6 +26,10 @@ BSLS_IDENT("$Id: $")
 // component can be used to parse Hex characters into one of the supported Hex
 // types, which are 'bsl::vector<char>' and 'bsl::string'.  The 'TYPE'
 // parameter can be one of these two types.
+//
+// Note that if you need a way to encode binary data into ASCII, the
+// 'bdlde_base64encoder' and 'bdlde_base64decoder' components are likely a more
+// efficient solution.
 //
 // This class template is a model of the 'PushParser' concept, which contains
 // the following methods:
