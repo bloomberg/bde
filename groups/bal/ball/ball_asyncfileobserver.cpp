@@ -24,15 +24,16 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
-// IMPLEMENTATION NOTE: 'shutdownThread' clears the queue in order to simplify
-// the implementation.  To guarantee that a thread sees the
-// 'd_shuttingDownFlag' a ('ball::Transmission::e_END') record is appended to
-// the queue, otherwise the publication thread may be blocked indefinitely on
-// 'popFront'.  Unfortunately that potentially leaves a bogus record in the
-// queue after the publication thread is shutdown -- to avoid dealing with that
-// record (when the thread is restarted) the queue is cleared.  Alternative
-// designs are possible, but are not perceived to be worth the added
-// complexity.
+///IMPLEMENTATION NOTES
+///--------------------
+// To guarantee that the publication thread sees the 'd_shuttingDownFlag', a
+// ('ball::Transmission::e_END') record is appended to the queue; otherwise,
+// the thread may be blocked indefinitely on 'popFront'.  Unfortunately, that
+// potentially leaves a bogus record in the queue after the publication thread
+// is shut down.  To avoid having to deal with that 'e_END' record when the
+// thread is restarted, 'shutdownThread' clears the queue in order to simplify
+// the implementation.  Alternative designs are possible, but are not perceived
+// to be worth the added complexity.
 
 namespace BloombergLP {
 namespace ball {

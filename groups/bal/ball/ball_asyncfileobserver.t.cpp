@@ -710,8 +710,12 @@ int main(int argc, char *argv[])
         bsl::string fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-///Example 1: Publication Through Logger Manager
-///- - - - - - - - - - - - - - - - - - - - - - -
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Publication Through the Logger Manager
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates using a 'ball::AsyncFileObserver' within the
 // 'ball' logging system.
 //
@@ -725,26 +729,30 @@ int main(int argc, char *argv[])
 //..
 // Note that the application is now prepared to log messages using the 'ball'
 // logging subsystem, but until the application registers an observer, all log
-// messages will be discarded.
+// records will be discarded.
 //
 // Then, we create a shared pointer to a 'ball::AsyncFileObserver' object,
 // 'observerPtr', having default attributes.  Note that a default-constructed
-// async observer has an implementation defined size for the log record queue
-// and will drop incoming log records when that queue is full.
+// async file observer has a maximum (fixed) size of 8192 for its log record
+// queue and will drop incoming log records when that queue is full.  (See
+// {Log Record Queue} for further information.)
 //..
     bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
-
     bsl::shared_ptr<ball::AsyncFileObserver> observerPtr(
                                          new(*alloc) ball::AsyncFileObserver(),
                                          alloc);
 //..
 // Next, we set the required logging format by calling the 'setLogFormat'
 // method.  The statement below outputs timestamps in ISO 8601 format to a log
-// file and in 'bdlt'-style (default) format to 'stdout':
+// file and in 'bdlt'-style (default) format to 'stdout', where timestamps are
+// output with millisecond precision in both cases:
 //..
-    observerPtr->setLogFormat("%i %p:%t %s %f:%l %c %m",
+    observerPtr->setLogFormat("%I %p:%t %s %f:%l %c %m",
                               "%d %p:%t %s %f:%l %c %m");
 //..
+// Note that both of the above format specifications omit user fields ('%u') in
+// the output.
+//
 // Next, we start the publication thread by invoking 'startPublicationThread':
 //..
     observerPtr->startPublicationThread();
@@ -756,20 +764,21 @@ int main(int argc, char *argv[])
     int rc = manager.registerObserver(observerPtr, "asyncObserver");
     ASSERT(0 == rc);
 //..
-// Next, we set the log category and log a few messages with different logging
-// severity.  By default, only the messages with 'WARN', 'ERROR', or 'FATAL'
-// severity will be logged to 'stdout'.  Note that logging to a file is not
-// enabled by default:
+// Next, we set the log category and log a few records with different logging
+// severity.  By default, only the records with 'e_WARN', 'e_ERROR', or
+// 'e_FATAL' severity will be logged to 'stdout'.  Note that logging to a file
+// is not enabled by default:
 //..
     BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
     BALL_LOG_INFO << "Will not be published on 'stdout'.";
     BALL_LOG_WARN << "This warning *will* be published on 'stdout'.";
 //..
-// Then, change the default severity for logging to 'stdout' by calling the
+// Then, we change the default severity for logging to 'stdout' by calling the
 // 'setStdoutThreshold' method:
 //..
     observerPtr->setStdoutThreshold(ball::Severity::e_INFO);
+
     BALL_LOG_DEBUG << "This debug message is not published on 'stdout'.";
     BALL_LOG_INFO  << "This info will be published on 'stdout'.";
     BALL_LOG_WARN  << "This warning will be published on 'stdout'.";
@@ -778,8 +787,9 @@ int main(int argc, char *argv[])
 //..
     observerPtr->setStdoutThreshold(ball::Severity::e_OFF);
 
-    observerPtr->enableFileLogging(fileName.c_str());
-        // Create and log records to a file named "/var/log/task/task.log".
+//  observerPtr->enableFileLogging("/var/log/task/task.log");
+//      // Create and log records to a file named "/var/log/task/task.log".
+    observerPtr->enableFileLogging(fileName.c_str());  // test driver only
 //..
 // Note that logs are now asynchronously written to the file.
 //
@@ -788,7 +798,7 @@ int main(int argc, char *argv[])
 //..
     observerPtr->rotateOnSize(1024 * 32);
         // Rotate the file when its size becomes greater than or equal to 32
-        // mega-bytes.
+        // megabytes.
 
     observerPtr->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
         // Rotate the file every 24 hours.
@@ -796,31 +806,38 @@ int main(int argc, char *argv[])
 // Note that in this configuration the user may end up with multiple log files
 // for a specific day (because of the rotation-on-size rule).
 //
-// Next, we demonstrate how to correctly shutdown the async observer.  We first
-// stop the publication thread by explicitly calling the
+// Next, we demonstrate how to correctly shut down the async file observer.  We
+// first stop the publication thread by explicitly calling the
 // 'stopPublicationThread' method.  This method blocks until all the log
-// records in the record queue have been published:
+// records that were on the record queue on entry to 'stopPublicationThread'
+// have been published:
 //..
     observerPtr->stopPublicationThread();
 //..
-// Then, we disable the log rotation logic that is based on log file size and
+// Then, we disable the log rotation rules established earlier and also
 // completely disable logging to a file:
 //..
     observerPtr->disableSizeRotation();
 
+    observerPtr->disableTimeIntervalRotation();
+
     observerPtr->disableFileLogging();
 //..
 // Note that stopping the publication thread and disabling various features of
-// the async observer is not strictly necessary before object destruction.  All
-// resources managed by the async observer will be correctly released when the
-// object is destroyed.
+// the async file observer is not strictly necessary before object destruction.
+// In particular, if a publication thread is still running when the destructor
+// is invoked, all records on the record queue upon entry are published and
+// then the publication thread is automatically stopped before destroying the
+// async file observer.  In any case, all resources managed by the async file
+// observer will be released when the object is destroyed.
 //
-// Finally, we can deregister our async observer from the 'ball' logging
-// subsystem entirely (and destroy later):
+// Finally, we can deregister our async file observer from the 'ball' logging
+// subsystem entirely (and destroy the observer later):
 //..
     rc = manager.deregisterObserver("asyncObserver");
     ASSERT(0 == rc);
 //..
+
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -1906,14 +1923,14 @@ int main(int argc, char *argv[])
                 // After this code block the logger manager will be destroyed.
             }
 
-            // The 'releaseRecord' method should clear the queue immediately.
+            // The 'releaseRecords' method should clear the queue immediately.
 
             ASSERT(record.use_count() == 1);
 
             mX->stopPublicationThread();
 
-            // Check that the records cleared by the 'releaseRecord' do not
-            // get published.
+            // Check that the records cleared by 'releaseRecords' do not get
+            // published.
 
             ASSERT(countLoggedRecords(stdoutFileName) < logCount);
         }

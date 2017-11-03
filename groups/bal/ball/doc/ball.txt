@@ -149,7 +149,7 @@
 : 'ball_loggermanagerdefaults':
 :      Provide constrained default attributes for the logger manager.
 :
-: 'ball_multiplexobserver':
+: 'ball_multiplexobserver':                             !DEPRECATED!
 :      Provide a multiplexing observer that forwards to other observers.
 :
 : 'ball_observer':
@@ -252,9 +252,9 @@
 :
 : o User can always configure logger to publish every message, if desired
 :
-: o User defines and registers an "observer", which in turn defines the
-:   behavior of the "publish" operation (e.g., write to file, write to console,
-:   process message and take specific action, etc.)
+: o User defines and registers one or more "observers", each of which in turn
+:   defines the behavior of the "publish" operation (e.g., write to file, write
+:   to console, process message and take specific action, etc.)
 :
 : o Convenient logging macros simplify usage for the most common operations
 :
@@ -339,10 +339,10 @@
 
 /Messages, Records, and other 'ball' Terminology
 /-----------------------------------------------
- The entity that the logger logs is called in 'ball' a "log record", which
- consists of a number of fixed and user-defined fields; one of the fixed fields
- is called a "log message" (or "message" for short).  In casual usage, we use
- "record" and "message" interchangeably, but note that they are distinct
+ The entity that the logger logs is called a "log record" in 'ball'.  A log
+ record consists of a number of fixed and user-defined fields; one of the fixed
+ fields is called a "log message" (or "message" for short).  In casual usage,
+ we use "record" and "message" interchangeably, but note that they are distinct
  concepts.  The set of fixed fields that constitute a log record are defined in
  the 'ball_recordattributes' component.  A brief description of the fixed
  fields (or "record attributes") is given in the following table.
@@ -351,7 +351,7 @@
    ----------   --------------  ------------------------------   -------
    timestamp    bdlt::Datetime  creation date and time           (*Note*)
    processID    int             process id of creator              0
-   threadID     int             thread id of creator               0
+   threadID     Uint64          thread id of creator               0
    fileName     bsl::string     file where created  (__FILE__)     ""
    lineNumber   int             line number in file (__LINE__)     0
    category     bsl::string     category of logged record          ""
@@ -451,23 +451,22 @@
  true logging operations can be performed.  The logger manager's main tasks are
  to administer categories and to "allocate" loggers.  If the user has *not*
  allocated and installed any logger instances, then the 'getLogger' method will
- return the "default logger", which is a specific instance of 'ball::Logger'
- that is owned and managed by the logger manager.  This default logger is
- suitable for single-threaded and multi-threaded use, and is used
- "transparently" by users willing to accept default-logger behavior.  See
- {Usage} below.
+ return the "default logger" that is a specific instance of 'ball::Logger'
+ owned and managed by the logger manager.  This default logger is suitable for
+ single-threaded and multi-threaded use, and is used "transparently" by users
+ willing to accept default-logger behavior.  See {Usage} below.
 
  The logger manager maintains an internal broadcast observer (see below) and
  provides the 'registerObserver', 'deregisterObserver', and 'findObserver'
- methods, which register, deregister, and find observers registered with the
- internal broadcast observer.  The internal broadcast observer forwards log
- records to all registered observers.
+ methods that register, deregister, and find observers, respectively.  The
+ internal broadcast observer forwards all log records that it receives to all
+ registered observers.
 
- The logger manager provides the 'allocateLogger' and 'setLogger' methods,
- which allocate arbitrarily many loggers and install (at most) one logger per
- thread, respectively.  Any thread in which the 'setLogger' method was not
- called will use the default logger.  See {Example 6} and {Example 7} below for
- a discussion of how and why to allocate multiple loggers.
+ The logger manager provides the 'allocateLogger' and 'setLogger' methods that
+ allocate arbitrarily many loggers and install (at most) one logger per thread,
+ respectively.  Any thread in which the 'setLogger' method was not called will
+ use the default logger.  See {Example 6} and {Example 7} below for a
+ discussion of how and why to allocate multiple loggers.
 
 /'ball::Logger'
 /- - - - - - -
@@ -526,17 +525,18 @@
 
   logOrder              log message publication order on "trigger" events
 ..
- Note that the configuration object is not value-semantic, because its three
+ Note that the configuration object is not value-semantic because its three
  functor attributes are not value-semantic.  For this reason, the single
- "defaults" attribute, which is a value-semantic constrained-attributes type,
- was factored out from the configuration type.  The defaults object, which
- holds six numerical attributes, is described in the next sub-section below.
+ "defaults" attribute, a value-semantic simply-constrained attribute type, was
+ factored out from the configuration type.  The defaults object holds six
+ numerical attributes and is described next.
 
 /'ball::LoggerManagerDefaults'
 /- - - - - - - - - - - - - - -
- 'ball::LoggerManagerDefaults' is a value-semantic constrained-attributes type
- that is itself an attribute of the above "configuration" object.  The
- "defaults" object contains the following six constrained attributes.
+ 'ball::LoggerManagerDefaults' is a value-semantic simply-constrained
+ attribute type that is itself an attribute of the above "configuration"
+ object.  The "defaults" object contains the following six constrained
+ attributes.
 ..
   TYPE          NAME                DESCRIPTION
   -----------   ----------------    -------------------------------------
@@ -647,8 +647,8 @@
  to supply threshold levels to categories added by 'setCategory(const char *)'.
  Otherwise, default threshold levels maintained by the logger manager for that
  purpose are used.  At initialization, these default threshold levels are given
- the same "factory-supplied" settings as those for the *Default* *Category*,
- which again may be explicitly overridden at construction.
+ the same "factory-supplied" settings as those for the *Default* *Category*
+ that, again, may be explicitly overridden at construction.
 
  The default threshold levels can be adjusted ('setDefaultThresholdLevels') and
  reset to their original values ('resetDefaultThresholdLevels').  Note that if
@@ -686,7 +686,7 @@
 
  Differences in logger usage, or, more precisely, additional options for the
  multi-threaded user, arise when the user wishes to allocate one or more
- loggers beyond the default logger, which is owned by the singleton logger
+ loggers beyond the default logger that is owned by the singleton logger
  manager.  If a user does *not* explicitly allocate a logger (via the logger
  manager instance method 'allocateLogger') and install that logger for a given
  thread (via the manager instance method 'setLogger'), then all records from
@@ -768,7 +768,7 @@
 :   severity; messages at 'e_INFO' severity are ignored by default.
 :
 : o Depending upon a command-line argument, a message is logged at 'e_ERROR'
-:   severity, which will be published as a "pass-through".  If the command-line
+:   severity that will be published as a "pass-through".  If the command-line
 :   argument is absent, the program will succeed with no messages published.
 :   This is the intended behavior.
 
@@ -858,6 +858,12 @@
   27SEP2007_13:26:46.322 6152 1 ERROR logging.m.cpp 33 main category
   Good-bye world!
 ..
+ Note that any number of observers can be registered with a logger manager.
+ Also note that concrete observers that can be configured after their creation
+ (e.g., as to whether log records are published in UTC or local time)
+ generally can have their configuration adjusted at any time, either before
+ or after being registered.  For an example of such an observer, see
+ 'ball_asyncfileobserver'.
 
 /Example 2: Hello World! With Modified Defaults
 / - - - - - - - - - - - - - - - - - - - - - - -
@@ -867,13 +873,13 @@
  {Example 1}, except that attributes of 'ball::LoggerManagerConfiguration' are
  changed from their defaults (in a single line, in this case).
 
- The 'ball::LoggerManagerConfiguration' 'setDefaultThresholdLevelsIfValid'
- method, which we will use to change the default configuration, takes four
- arguments, each in the range '[0 .. 255]'.  The method returns a status, and
- will fail (with no effect) if any argument is not a valid threshold level.
- Note that any 'ball::Severity::Level' enumerator value is valid, and it is
- good practice to limit arguments to one of those enumerators.  The one line
- that effects our change is:
+ The 'setDefaultThresholdLevelsIfValid' method of
+ 'ball::LoggerManagerConfiguration' that we will use to change the default
+ configuration takes four arguments, each in the range '[0 .. 255]'.  The
+ method returns a status, and will fail (with no effect) if any argument is not
+ a valid threshold level.  Note that any 'ball::Severity::Level' enumerator
+ value is valid, and it is good practice to limit arguments to one of those
+ enumerators.  The one line that effects our change is:
 ..
   configuration.setDefaultThresholdLevelsIfValid(
                                ball::Severity::e_TRACE,   // record level
@@ -881,8 +887,8 @@
                                ball::Severity::e_ERROR,   // trigger level
                                ball::Severity::e_FATAL);  // trigger-all level
 ..
- This method call sets the four severity threshold levels as indicated, which
- has the following effect on logging behavior.
+ This method call sets the four severity threshold levels as indicated and has
+ the following effect on logging behavior.
 
 : 1 Any record logged with a severity that is at least that of 'e_TRACE' is
 :   written to the record buffer, but not necessarily published.
@@ -899,7 +905,7 @@
 :   This behavior, among other things, guarantees that the 'e_ERROR' record
 :   will be published twice.  Although this might seem like a bug, it is the
 :   intended behavior.  Each published record is sent to the observer with a
-:   publication cause (a 'ball::Transmission::Cause' value), which the observer
+:   publication cause (a 'ball::Transmission::Cause' value) that the observer
 :   is free to use in filtering and re-routing published records.  Future
 :   examples will illustrate various filtering techniques.
 :
@@ -1028,7 +1034,7 @@
  uses the singleton logger manager instance to obtain the default logger
  instance, and with that logger instance invokes the 'publish' method.  Note
  that the logger's "manual" 'publish' method should not be confused with the
- 'ball::Observer' 'publish' method, which is invoked by all "manual" and
+ 'ball::Observer' 'publish' method that is invoked by all "manual" and
  "automatic" logger "publishing" operations.  Also note that should the
  'manager' instance for some reason not be visible, the class method
  'ball::LoggerManager::singleton()' can be used to obtain a reference to that
@@ -1116,7 +1122,7 @@
  {Example 2}.  First of all, in addition to the file defining 'main', we
  introduce a separate translation unit 'f_log.cpp' that defines a function
  'logThisInfoMsg'.  The 'f_log.cpp' file defines its own category, "function
- category", which is distinct from the "main category" defined in 'main'.  When
+ category", that is distinct from the "main category" defined in 'main'.  When
  'logThisInfoMsg' is invoked, the resulting message is logged to "function
  category".  Note, however, that when the now-familiar logging macros are used
  from 'main' directly, those messages are logged to "main category".
@@ -1135,10 +1141,10 @@
 ..
  The above call has an effect that differs subtly from the configuration
  object's 'setDefaultThresholdLevelsIfValid' method.  The latter sets the
- permanent "factory defaults" as well as the "instantaneous defaults", which
- may be altered as often as desired using the above call.  If, after the above
- call is made, the 'setCategoryThresholdsToFactoryDefaults' method is called,
- the effects of 'setDefaultThresholdLevels' are erased.  This distinction is
+ permanent "factory defaults", as well as the "instantaneous defaults" that may
+ be altered as often as desired using the above call.  If, after the above call
+ is made, the 'setCategoryThresholdsToFactoryDefaults' method is called, the
+ effects of 'setDefaultThresholdLevels' are erased.  This distinction is
  important for more advanced administration, but is not central to this
  example; we offer the alternative to illustrate logger functionality.
 
@@ -1178,9 +1184,7 @@
 
   void logThisInfoMsg(const char *message)
   {
-      // Implementation Note: The uppercase symbols are macros and not
-      // functions.  They do not need the terminal ';', which is provided for
-      // readability only.
+      // Note that the uppercase symbols are macros defined in 'ball_log'.
 
       BALL_LOG_SET_CATEGORY("function category");
           // Set a category -- arbitrary and may be changed.
@@ -1191,7 +1195,7 @@
 
   }  // close enterprise namespace
 ..
- Finally, the 'logging.m.cpp' file, which defines 'main':
+ Finally, the 'logging.m.cpp' file that defines 'main':
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
@@ -1275,7 +1279,7 @@
  Note that this sequence is not in LIFO order since this output is not from the
  message buffer, but rather is direct "Pass-Through" output.
 
- If we provide a command-line argument, which will cause the 'for' loop to
+ If we provide a command-line argument that will cause the 'for' loop to
  execute, we then get the following output (with formats and timestamps altered
  as is now familiar in these examples).
 ..
@@ -1491,9 +1495,9 @@
  Nevertheless, as we use more of the logger's features, we need to become more
  familiar with the details of logger operation.  In this example, we install a
  distinct logger instance (i.e., not the default logger) for one of the
- threads.  (The other thread continues to use the default logger, which is
- shared with 'main', to make clear that the "one-logger-per-thread" usage
- pattern applies on a thread-by-thread basis, and is not "all-or-nothing".)  By
+ threads.  (The other thread continues to use the default logger that is shared
+ with 'main', to make clear that the "one-logger-per-thread" usage pattern
+ applies on a thread-by-thread basis, and is not "all-or-nothing".)  By
  choosing this more sophisticated usage, however, we need to address the
  question of logger resource management and lifetime -- a question that is
  completely avoided by using the default logger.  As is often the case in
@@ -1503,12 +1507,12 @@
  Installing a distinct logger instance in 'threadFunction1' is simple enough to
  do, but a question arises immediately: who should own the logger resources?
  Before we discuss this question, let's look at the specific solution that we
- have chosen, which will clarify the question of what resources a logger needs.
+ have chosen to clarify the question of what resources a logger needs.
 
- We've modified 'threadFunction1' to take as an argument a logger (which is
- passed as a 'void*') and to use the logger manager's 'setLogger' function to
- install the logger as the active logger for that thread.  The code to do this
- in 'threadFunction1' is straightforward:
+ We've modified 'threadFunction1' to take a logger as an argument (passed as a
+ 'void *') and to use the logger manager's 'setLogger' function to install the
+ logger as the active logger for that thread.  The code to do this in
+ 'threadFunction1' is straightforward:
 ..
   extern "C" void *threadFunction1(void *logger)
       // ...
@@ -1732,8 +1736,8 @@
   }
 ..
  Running the above program with no extra command-line argument produces the
- output shown below, which in this example is written to 'outFile'.  Note that,
- except for the timestamps, process id, and file name, the output is the same
+ output shown below that in this example is written to 'outFile'.  Note that,
+ except for the timestamps, process id, and filename, the output is the same
  as for {Example 5} above: only the 'e_WARN' records (from thread 3) are
  published and they are in chronological order.
 ..
@@ -1746,9 +1750,9 @@
  When we supply an additional command-line argument, causing the logging macro
  in 'main' (now 'BALL_LOG_FATAL') to execute, the *initial* output is similar
  to {Example 5}.  Specifically, the three 'e_WARN' records are published in
- chronological order as "Pass-Through" records, as is the 'e_FATAL' record,
- (which now replaces the 'e_ERROR' record).  From here on, however, the
- sequence of events is a bit different.
+ chronological order as "Pass-Through" records, as is the 'e_FATAL' record
+ (that now replaces the 'e_ERROR' record).  From here on, however, the sequence
+ of events is a bit different.
 
  Recall that in this example 'e_FATAL' is the "Trigger-All" threshold level.
  For a "Trigger-All", each record buffer is published in turn.  *Within* a
@@ -1785,8 +1789,8 @@
 /Example 7: A Thread that Owns its Own Logger Resources
 /- - - - - - - - - - - - - - - - - - - - - - - - - - -
  This example is almost identical to {Example 6} above, except that the eight
- lines (as highlighted above) that are needed to manage resources are moved
- from 'main' to 'threadFunction1', which no longer needs an argument.
+ lines (as highlighted above) needed to manage resources are moved from 'main'
+ to 'threadFunction1', so that the latter function no longer needs an argument.
  Therefore, we show only 'threadFunction1' and 'main' explicitly in this
  example.  Refer to the discussion of {Example 6} for details.
 ..
@@ -1896,7 +1900,8 @@
 
 /Appendix: Macro Reference
 /-------------------------
- This section documents the preprocessor macros defined in 'ball_log'.
+ This section documents the preprocessor macros defined in 'ball_log' that are
+ most commonly used.
 
  The following two macros establish the logging context required by the other
  macros.  A use of one of these two macros must be visible from within the
@@ -1931,60 +1936,28 @@
   BALL_LOG_WARN  << X << Y ...;
   BALL_LOG_ERROR << X << Y ...;
   BALL_LOG_FATAL << X << Y ...;
-      where X, Y, ... represents any sequence of values for which
-      'operator<<' is defined.  The resulting formatted message string is
-      logged with the severity indicated by the name of the initial macro
-      (e.g., 'BALL_LOG_TRACE' logs with severity 'ball::Severity::e_TRACE').
-      Note that the formatted string includes the category and filename as
+      where X, Y, ... represents any sequence of values for which 'operator<<'
+      is defined.  The resulting formatted message string is logged with the
+      severity indicated by the name of the initial macro (e.g.,
+      'BALL_LOG_TRACE' logs with severity 'ball::Severity::e_TRACE').  Note
+      that the formatted string includes the category and filename as
       established by the 'BALL_LOG_SET_CATEGORY' (or
       'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
 ..
  The remaining macros are based on 'printf'-style format specifications:
 ..
-  BALL_LOG0_TRACE(MSG)
-  BALL_LOG0_DEBUG(MSG)
-  BALL_LOG0_INFO (MSG)
-  BALL_LOG0_WARN (MSG)
-  BALL_LOG0_ERROR(MSG)
-  BALL_LOG0_FATAL(MSG)
-      Log the specified 'MSG' (assumed to be of type convertible to
-      'const char *') with the severity indicated by the name of the macro
-      (e.g., 'BALL_LOG0_DEBUG' logs with severity 'ball::Severity::e_DEBUG').
-      Note that the formatted message string includes the category and
-      filename as established by the 'BALL_LOG_SET_CATEGORY' (or
-      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
-
-  BALL_LOG1_TRACE(MSG, ARG1)
-  BALL_LOG1_DEBUG(MSG, ARG1)
-  BALL_LOG1_INFO (MSG, ARG1)
-  BALL_LOG1_WARN (MSG, ARG1)
-  BALL_LOG1_ERROR(MSG, ARG1)
-  BALL_LOG1_FATAL(MSG, ARG1)
-      Format the specified 'ARG1' according to the 'printf'-style format
-      specification in the specified 'MSG' (assumed to be of type convertible
-      to 'const char *') and log the resulting formatted message string with
-      the severity indicated by the name of the macro (e.g., 'BALL_LOG1_WARN'
-      logs with severity 'ball::Severity::e_WARN').  Note that the formatted
-      string includes the category and filename as established by the
-      'BALL_LOG_SET_CATEGORY' (or 'BALL_LOG_SET_DYNAMIC_CATEGORY') and
-      '__FILE__' macros, respectively.  The behavior is undefined unless
-      'ARG1' is compatible with its corresponding format specification in
-      'MSG'.
-
-  BALL_LOGn_TRACE(MSG, ARG1, ARG2, ..., ARGn)     2 <= n <= 9
-  BALL_LOGn_DEBUG(MSG, ARG1, ARG2, ..., ARGn)
-  BALL_LOGn_INFO (MSG, ARG1, ARG2, ..., ARGn)
-  BALL_LOGn_WARN (MSG, ARG1, ARG2, ..., ARGn)
-  BALL_LOGn_ERROR(MSG, ARG1, ARG2, ..., ARGn)
-  BALL_LOGn_FATAL(MSG, ARG1, ARG2, ..., ARGn)
-      Format the specified 'ARG1', 'ARG2', ..., 'ARGn' (2 <= n <= 9)
-      according to the 'printf'-style format specification in the specified
-      'MSG' (assumed to be of type convertible to 'const char *') and log the
-      resulting formatted message string with the severity indicated by the
-      name of the macro (e.g., 'BALL_LOG8_FATAL' logs with severity
-      'ball::Severity::e_FATAL').  Note that the formatted string includes the
-      category and filename as established by the 'BALL_LOG_SET_CATEGORY' (or
-      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
-      The behavior is undefined unless each 'ARGn' is compatible with its
-      corresponding format specification in 'MSG'.
+  BALL_LOGVA_TRACE(MSG, ...);
+  BALL_LOGVA_DEBUG(MSG, ...);
+  BALL_LOGVA_INFO( MSG, ...);
+  BALL_LOGVA_WARN( MSG, ...);
+  BALL_LOGVA_ERROR(MSG, ...);
+  BALL_LOGVA_FATAL(MSG, ...);
+      Format the specified '...' optional arguments, if any, according to the
+      'printf'-style format specification in the specified 'MSG' (assumed to be
+      of type convertible to 'const char *') and log the resulting formatted
+      message string with the severity indicated by the name of the macro
+      (e.g., 'BALL_LOGVA_INFO' logs with severity 'ball::Severity::e_INFO').
+      The behavior is undefined unless the number and types of optional
+      arguments are compatible with the format specification in 'MSG'.  Note
+      that each use of these macros must be terminated by a ';'.
 ..

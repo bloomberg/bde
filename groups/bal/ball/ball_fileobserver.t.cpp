@@ -2161,6 +2161,16 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
 
+            // 'setLogFormat' implicitly disables short format.
+            {
+                mX->disableStdoutLoggingPrefix();
+                ASSERT(false == X->isStdoutLoggingPrefixEnabled());
+
+                mX->setLogFormat("%d %p %t %s %l %c %m %u",
+                                 "%i %p %t %s %l %c %m %u");
+                ASSERT(true == X->isStdoutLoggingPrefixEnabled());
+            }
+
             // Deregister here as we used local allocator for the observer.
             ASSERT(0 == manager.deregisterObserver("testObserver"));
             ASSERT(0 == manager.deregisterObserver("refObserver"));
@@ -2692,6 +2702,7 @@ int main(int argc, char *argv[])
 
                 mX->setLogFormat("%d %p %t %s %l %c %m %u",
                                  "%i %p %t %s %l %c %m %u");
+                ASSERT(true == X->isStdoutLoggingPrefixEnabled());
 
                 fileOffset = FsUtil::getFileSize(fileName);
 
@@ -2785,6 +2796,7 @@ int main(int argc, char *argv[])
 
                 mX->setLogFormat("%i %p %t %s %f %l %c %m %u",
                                  "%d %p %t %s %f %l %c %m %u");
+                ASSERT(true == X->isStdoutLoggingPrefixEnabled());
 
                 BALL_LOG_WARN << "log";
 
@@ -2941,6 +2953,8 @@ int main(int argc, char *argv[])
             const char *newStdoutFormat  = "\n%s %f:%l %c %m %u\n";
 
             mX.setLogFormat(newLogFileFormat, newStdoutFormat);
+            ASSERT(true == X.isStdoutLoggingPrefixEnabled());
+
             X.getLogFormat(&logFileFormat, &stdoutFormat);
             ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));

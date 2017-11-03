@@ -29,11 +29,11 @@ BSLS_IDENT("$Id: $")
 //           ball_severity, ball_transmission, ball_log
 //
 //@DESCRIPTION: This component provides the core of the 'ball' logging toolkit:
-// the logger class itself, 'ball::Logger', which manages log record storage
-// and publication control, the logger manager class, 'ball::LoggerManager',
-// which is typically instantiated as a singleton that is both a factory for
-// loggers and a category manager, and the logger manager scoped guard,
-// 'ball::LoggerManagerScopedGuard', which provides a convenient way to
+// the logger class itself, 'ball::Logger', that manages log record storage
+// and publication control; the logger manager class, 'ball::LoggerManager',
+// typically instantiated as a singleton, that is both a factory for loggers
+// and a category manager; and the logger manager scoped guard,
+// 'ball::LoggerManagerScopedGuard', that provides a convenient way to
 // initialize and manage lifetime of the logger manager singleton object.
 //
 ///General Features and Behavior
@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 //
 // A logger can achieve high performance through the use of an in-memory record
 // buffer for storing the records logged by a program.  Each logger is
-// constructed with a record manager, which is an instance of a concrete class
+// constructed with a record manager that is an instance of a concrete class
 // derived from 'ball::RecordBuffer'.  The singleton logger manager supplies a
 // "default" record manager to the default logger; loggers allocated by the
 // logger manager's 'allocateLogger' method use a record manager supplied by
@@ -144,10 +144,10 @@ BSLS_IDENT("$Id: $")
 // names in the 'ball::Severity::Level' enumeration (e.g., 'DEBUG', 'WARN',
 // 'ERROR', etc.) suggest the intended "standard" meanings.
 //
-// Every category has associated with it four "severity threshold levels",
-// which may be set explicitly by the user on category creation/registration
-// (via the 'addCategory' method) or else will default to specific values via
-// one of several mechanisms described below (invoked by the one-argument
+// Every category has associated with it four "severity threshold levels" that
+// may be set explicitly by the user on category creation/registration (via the
+// 'addCategory' method) or else will default to specific values via one of
+// several mechanisms described below (invoked by the one-argument
 // 'setCategory' method).  Category threshold levels may also be changed during
 // program execution via the five-argument 'setCategory' method.
 //
@@ -216,8 +216,8 @@ BSLS_IDENT("$Id: $")
 //
 // In either case, the user can *change* the default values during logger
 // operation via the 'setDefaultThresholdLevels' method.  These threshold
-// levels become the "default" values for new categories, but they are not
-// "factory defaults", which can subsequently be restored via the
+// levels become the "default" values for new categories, but they do not
+// affect the "factory defaults" that subsequently can be restored via the
 // 'resetDefaultThresholdLevels' method.
 //
 // A third mechanism, the 'ball::LoggerManager::DefaultThresholdLevelsCallback'
@@ -317,7 +317,7 @@ BSLS_IDENT("$Id: $")
 //
 // Differences in logger usage, or, more precisely, additional options for the
 // multi-threaded user, arise when the user wishes to allocate one or more
-// loggers beyond the default logger, which is owned by the singleton logger
+// loggers beyond the default logger that is owned by the singleton logger
 // manager.  If a user does *not* explicitly allocate a logger (via the logger
 // manager instance method 'allocateLogger') and install that logger for a
 // given thread (via the manager instance method 'setLogger'), then all
@@ -347,10 +347,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates instantiation of the logger manager singleton,
-// which is required in 'main', and also shows *direct* use of the logger and
-// logger manager interfaces, much of which is actually *not* recommended.  The
-// most basic logger functionality has been wrapped in macros defined in the
+// This section illustrates instantiation of the logger manager singleton that
+// is required in 'main', and also shows *direct* use of the logger and logger
+// manager interfaces, much of which is actually *not* recommended.  The most
+// basic logger functionality has been wrapped in macros defined in the
 // 'ball_log' component.  See the 'ball' package-level documentation and the
 // 'ball_log' component documentation for recommended real-world usage
 // examples.
@@ -409,6 +409,11 @@ BSLS_IDENT("$Id: $")
 //        return 0;
 //    }
 //..
+// Note that concrete observers that can be configured after their creation
+// (e.g., as to whether log records are published in UTC or local time)
+// generally can have their configuration adjusted at any time, either before
+// or after being registered with a logger manager.  For an example of such an
+// observer, see 'ball_asyncfileobserver'.
 //
 ///Example 2: Initialization #2
 /// - - - - - - - - - - - - - -
@@ -749,9 +754,8 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates using a 'ball::Logger' directly to log messages.
 // In practice, clients are encouraged to use the logging macros (see
-// {'ball_log'}, which cannot be shown here for dependency reasons.  The
-// following example assumes logging has been correctly initialized (see prior
-// examples).
+// {'ball_log'}.  The following example assumes logging has been correctly
+// initialized (see prior examples).
 //
 // The following simple 'factorial' function takes and returns values of type
 // 'int'.  Note that this function has a very limited range of input, namely
@@ -1044,28 +1048,27 @@ class Logger {
                     int                        severity,
                     Record                    *record,
                     const ThresholdAggregate&  levels);
-        // Log the specified 'record' after setting its category log field to
-        // the specified 'category', severity log field to the specified
-        // 'severity' and the rest of the log fields (except 'fileName',
-        // 'lineNumber' and 'message', which are assumed to be already set in
-        // 'record'), based on the threshold levels of the specified 'levels'.
+        // Log the specified 'record' after setting its category field to the
+        // specified 'category', severity field to the specified 'severity',
+        // and the rest of the fixed fields (except 'fileName', 'lineNumber',
+        // and 'message', all of which are assumed to be already set in
+        // 'record') based on the threshold levels of the specified 'levels'.
         // (See the component-level documentation of 'ball_record' for more
-        // information on the fields that are logged).  Store the record in the
+        // information on the fields that are logged.)  Store the record in the
         // buffer held by this logger if 'severity' is at least as severe as
-        // the current "Record" threshold level of 'levels'.  Pass the record
-        // directly to the observer registered with this logger if 'severity'
-        // is at least as severe as the current "Pass" threshold level of
-        // 'levels'.  Publish the entire contents of the buffer of this logger
-        // if 'severity' is at least as severe as the current "Trigger"
-        // threshold level of 'levels'.  Publish the entire contents of all
-        // buffers of all active loggers if 'severity' is at least as severe as
-        // the current "Trigger-All" threshold level of 'levels' (i.e., via the
-        // callback supplied at construction).  Note that this method will have
-        // no effect if 'severity' is less severe than all of the threshold
-        // levels of 'levels'.  The behavior is undefined unless 'severity' is
-        // in the range [1 .. 255], 'record' is previously obtained by a call
-        // to 'getRecord', and 'record' is not reused after invoking this
-        // method.
+        // the "Record" threshold level of 'levels'.  Pass the record directly
+        // to the observers registered with this logger if 'severity' is at
+        // least as severe as the "Pass" threshold level of 'levels'.  Publish
+        // the entire contents of the buffer of this logger if 'severity' is at
+        // least as severe as the "Trigger" threshold level of 'levels'.
+        // Publish the entire contents of all buffers of all active loggers if
+        // 'severity' is at least as severe as the "Trigger-All" threshold
+        // level of 'levels' (i.e., via the callback supplied at construction).
+        // This method has no effect if 'severity' is less severe than all of
+        // the threshold levels of 'levels'.  The behavior is undefined unless
+        // 'severity' is in the range '[1 .. 255]', 'record' was previously
+        // obtained via a call to 'getRecord', and 'record' is not reused after
+        // invoking this method.
 
     void publish(Transmission::Cause cause);
         // Publish to the observer held by this logger all records stored in
@@ -1340,9 +1343,9 @@ class LoggerManager {
         // invoked more than once on this logger manager.
 
     void publishAllImp(Transmission::Cause cause);
-        // Transmit to the observer registered with this logger manager all log
-        // records accumulated in the record buffers of all loggers managed by
-        // this logger manager and indicate to the observer the specified
+        // Transmit to the observers registered with this logger manager all
+        // log records accumulated in the record buffers of all loggers managed
+        // by this logger manager and indicate to the observers the specified
         // publication 'cause'.
 
   public:
@@ -1768,9 +1771,9 @@ class LoggerManager {
                              // Miscellaneous
 
     void publishAll();
-        // Transmit to the observer registered with this logger manager all log
-        // records accumulated in the record buffers of all loggers managed by
-        // this logger manager, and indicate the publication cause to be
+        // Transmit to the observers registered with this logger manager all
+        // log records accumulated in the record buffers of all loggers managed
+        // by this logger manager, and indicate the publication cause to be
         // 'MANUAL_PUBLISH_ALL'.
 
     template <class CATEGORY_VISITOR>

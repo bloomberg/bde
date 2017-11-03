@@ -211,10 +211,12 @@ void FileObserver::setLogFormat(const char *logFileFormat,
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    d_stdoutLongFormat = stdoutFormat;
     d_logFileFormatter.setFormat(logFileFormat);
     d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
+
+    d_stdoutLongFormat = stdoutFormat;
     d_stdoutFormatter.setFormat(stdoutFormat);
+    d_useRegularFormatOnStdoutFlag = true;  // enable prefix
 }
 
 void FileObserver::setStdoutThreshold(Severity::Level stdoutThreshold)

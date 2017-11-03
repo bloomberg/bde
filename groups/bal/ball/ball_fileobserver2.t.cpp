@@ -273,8 +273,7 @@ void enableFileLogging(
                     const bool                            addTimestamp = false)
     // Enable file logging for the specified 'observer' to the specified
     // 'fileName'.  Optionally specify 'addTimestamp' to append timestamp to
-    // the filename.  Return '0' if the operation was successfull and non-zero
-    // status otherwise.
+    // the filename.
 {
     ASSERT(false == observer->isFileLoggingEnabled());
 
@@ -737,9 +736,13 @@ int main(int argc, char *argv[])
         bsl::string fileName(tempDirGuard.getTempDirName());
         bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-///Example 1: Publication Through Logger Manager
-///- - - - - - - - - - - - - - - - - - - - - - -
-// The example demonstrates using a 'ball::FileObserver2' within the 'ball'
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Publication Through the Logger Manager
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates using a 'ball::FileObserver2' within the 'ball'
 // logging system.
 //
 // First, we initialize the 'ball' logging subsystem with the default
@@ -752,13 +755,12 @@ int main(int argc, char *argv[])
 //..
 // Note that the application is now prepared to log messages using the 'ball'
 // logging subsystem, but until the application registers an observer, all log
-// messages will be discarded.
+// records will be discarded.
 //
 // Then, we create a shared pointer to a 'ball::FileObserver2' object,
 // 'observerPtr', having default attributes:
 //..
     bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
-
     bsl::shared_ptr<ball::FileObserver2> observerPtr(
                                              new(*alloc) ball::FileObserver2(),
                                              alloc);
@@ -767,7 +769,7 @@ int main(int argc, char *argv[])
 //..
     observerPtr->rotateOnSize(1024 * 128);
         // Rotate the file when its size becomes greater than or equal to 128
-        // mega-bytes.
+        // megabytes.
 
     observerPtr->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
         // Rotate the file every 24 hours.
@@ -777,8 +779,9 @@ int main(int argc, char *argv[])
 //
 // Then, we enable logging to a file:
 //..
-    observerPtr->enableFileLogging(fileName.c_str());
-        // Create and log records to a file named "/var/log/task/task.log".
+//  observerPtr->enableFileLogging("/var/log/task/task.log");
+//      // Create and log records to a file named "/var/log/task/task.log".
+    observerPtr->enableFileLogging(fileName.c_str());  // test driver only
 //..
 // Finally, we register the file observer with the logger manager.  Upon
 // successful registration, the observer will start to receive log records via
@@ -787,6 +790,7 @@ int main(int argc, char *argv[])
     int rc = manager.registerObserver(observerPtr, "fileObserver");
     ASSERT(0 == rc);
 //..
+
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -1499,8 +1503,8 @@ int main(int argc, char *argv[])
         //:
         //: 6 A delay between 'enableFileLogging' and 'rotateOnTimeInterval',
         //:   when 'rotateOnItemInterval' uses the current time as its
-        //:   reference start time, does not incur an errorneous rotation
-        //:   (drqs 87930585).
+        //:   reference start time, does not incur an erroneous rotation
+        //:   (DRQS 87930585).
         //
         // Plan:
         //: 1 Configure rotation for 1 second.  Log a record before 1 second,
@@ -3446,7 +3450,7 @@ int main(int argc, char *argv[])
                 ASSERT(file2 != file3);
 
                 // At this point we have three different logs produced by these
-                // three fileobservers configured with different formats; now
+                // three file observers configured with different formats; now
                 // we are going to reuse one of these fileobserver and change
                 // its functors to see if the resulting log should be identical
                 // to one of those known logs in file1, file2, and file3
