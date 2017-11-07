@@ -1384,6 +1384,129 @@ int main(int argc, char* argv[])
             }
         }
 
+        if (veryVerbose) { T_ T_ bsl::cout << "trunc(x, p)" << bsl::endl; }
+        {
+            struct {
+                int          d_line;
+                Obj          d_x;
+                unsigned int d_precision;
+                Obj          d_expected;
+                unsigned int d_errno;
+            } DATA[] = {
+            //--------------------------------------------------------------
+            // LINE |      X          | PRECISION | EXPECTED        | ERRNO
+            //--------------------------------------------------------------
+            //--------------------------------------------------------------
+            //                          Test normal values
+            //--------------------------------------------------------------
+                { L_, DEC( 1234567e-4),          0, DEC( 123e-0),        0 },
+                { L_, DEC( 1234567e-4),          1, DEC( 1234e-1),       0 },
+                { L_, DEC( 1234567e-4),          2, DEC( 12345e-2),      0 },
+                { L_, DEC( 1234567e-4),          3, DEC( 123456e-3),     0 },
+                { L_, DEC( 1234567e-4),          4, DEC( 1234567e-4),    0 },
+                { L_, DEC( 1234567e-4),          5, DEC( 1234567e-4),    0 },
+                { L_, DEC( 1234567e-4),          6, DEC( 1234567e-4),    0 },
+
+                { L_, DEC(-1234567e-5),          0, DEC(-12e-0),         0 },
+                { L_, DEC(-1234567e-5),          1, DEC(-123e-1),        0 },
+                { L_, DEC(-1234567e-5),          2, DEC(-1234e-2),       0 },
+                { L_, DEC(-1234567e-5),          3, DEC(-12345e-3),      0 },
+                { L_, DEC(-1234567e-5),          4, DEC(-123456e-4),     0 },
+                { L_, DEC(-1234567e-5),          5, DEC(-1234567e-5),    0 },
+                { L_, DEC(-1234567e-5),          6, DEC(-1234567e-5),    0 },
+
+                { L_, DEC( 1234567e-6),          0, DEC( 1e-0),          0 },
+                { L_, DEC( 1234567e-6),          1, DEC( 12e-1),         0 },
+                { L_, DEC( 1234567e-6),          2, DEC( 123e-2),        0 },
+                { L_, DEC( 1234567e-6),          3, DEC( 1234e-3),       0 },
+                { L_, DEC( 1234567e-6),          4, DEC( 12345e-4),      0 },
+                { L_, DEC( 1234567e-6),          5, DEC( 123456e-5),     0 },
+                { L_, DEC( 1234567e-6),          6, DEC( 1234567e-6),    0 },
+
+                { L_, DEC(-1234567e-7),          0, DEC( 0e-0),          0 },
+                { L_, DEC(-1234567e-7),          1, DEC(-1e-1),          0 },
+                { L_, DEC(-1234567e-7),          2, DEC(-12e-2),         0 },
+                { L_, DEC(-1234567e-7),          3, DEC(-123e-3),        0 },
+                { L_, DEC(-1234567e-7),          4, DEC(-1234e-4),       0 },
+                { L_, DEC(-1234567e-7),          5, DEC(-12345e-5),      0 },
+                { L_, DEC(-1234567e-7),          6, DEC(-123456e-6),     0 },
+
+                { L_, DEC( 1234567e-8),          0, DEC( 0e-0),          0 },
+                { L_, DEC( 1234567e-8),          1, DEC( 0e-0),          0 },
+                { L_, DEC( 1234567e-8),          2, DEC( 1e-2),          0 },
+                { L_, DEC( 1234567e-8),          3, DEC( 12e-3),         0 },
+                { L_, DEC( 1234567e-8),          4, DEC( 123e-4),        0 },
+                { L_, DEC( 1234567e-8),          5, DEC( 1234e-5),       0 },
+                { L_, DEC( 1234567e-8),          6, DEC( 12345e-6),      0 },
+
+                { L_, DEC( 3456000e-5),          0, DEC( 34e-0),         0 },
+                { L_, DEC( 3456000e-5),          1, DEC( 345e-1),        0 },
+                { L_, DEC( 3456000e-5),          2, DEC( 3456e-2),       0 },
+                { L_, DEC( 3456000e-5),          3, DEC( 3456e-2),       0 },
+                { L_, DEC( 3456000e-5),          4, DEC( 3456e-2),       0 },
+                { L_, DEC( 3456000e-5),          5, DEC( 3456e-2),       0 },
+
+                { L_, DEC(7654321e-101),       102, DEC( 7654321e-101),  0 },
+                { L_, DEC(7654321e-101),       101, DEC( 7654321e-101),  0 },
+                { L_, DEC(7654321e-101),       100, DEC( 765432e-100),   0 },
+                { L_, DEC(7654321e-101),        99, DEC( 76543e-99),     0 },
+                { L_, DEC(7654321e-101),        98, DEC( 7654e-98),      0 },
+                { L_, DEC(7654321e-101),        97, DEC( 765e-97),       0 },
+                { L_, DEC(7654321e-101),        96, DEC( 76e-96),        0 },
+                { L_, DEC(7654321e-101),        95, DEC( 7e-95),         0 },
+                { L_, DEC(7654321e-101),        94, DEC( 0e-0),          0 },
+                { L_, DEC(7654321e-101),        93, DEC( 0e-0),          0 },
+
+                { L_, DEC( 3456e+0),             0, DEC( 3456e+0),       0 },
+                { L_, DEC( 3456e+1),             0, DEC( 3456e+1),       0 },
+                { L_, DEC( 3456e+2),             0, DEC( 3456e+2),       0 },
+
+                { L_, DEC( 3456e+0),           101, DEC( 3456e+0),       0 },
+                { L_, DEC( 3456e+1),           101, DEC( 3456e+1),       0 },
+                { L_, DEC( 3456e+2),           101, DEC( 3456e+2),       0 },
+            //--------------------------------------------------------------
+            //                          Test subnormal values
+            //--------------------------------------------------------------
+                { L_, DEC(-765432e-101),       102, DEC(-765432e-101),   0 },
+                { L_, DEC(-765432e-101),       101, DEC(-765432e-101),   0 },
+                { L_, DEC(-765432e-101),       100, DEC(-76543e-100),    0 },
+                { L_, DEC(-765432e-101),        99, DEC(-7654e-99),      0 },
+                { L_, DEC(-765432e-101),        98, DEC(-765e-98),       0 },
+                { L_, DEC(-765432e-101),        97, DEC(-76e-97),        0 },
+                { L_, DEC(-765432e-101),        96, DEC(-7e-96),         0 },
+                { L_, DEC(-765432e-101),        95, DEC(-0e-0),          0 },
+                { L_, DEC(-765432e-101),        94, DEC( 0e-0),          0 },
+            //--------------------------------------------------------------
+            //                          Test special values
+            //--------------------------------------------------------------
+                { L_, ZERO_P,                    0, ZERO_P,              0 },
+                { L_, ZERO_N,                    0, ZERO_N,              0 },
+                { L_, INF_P,                     0, INF_P,               0 },
+                { L_, INF_N,                     0, INF_N,               0 },
+                { L_, NAN_P,                     0, NAN_P,               0 },
+                { L_, NAN_N,                     0, NAN_N,               0 },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int           LINE      = DATA[ti].d_line;
+                const Obj&          X         = DATA[ti].d_x;
+                const unsigned int& PRECISION = DATA[ti].d_precision;
+                const Obj&          EXPECTED  = DATA[ti].d_expected;
+                const unsigned int& ERRNO     = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::trunc(X, PRECISION);
+
+                if (Util::isNan(EXPECTED)) {
+                    LOOP2_ASSERT(LINE, RESULT, Util::isNan(RESULT));
+                } else {
+                    LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                }
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
+            }
+        }
+
         if (veryVerbose) { T_ bsl::cout << "sqrt()" << bsl::endl; }
         {
             struct {
@@ -2004,6 +2127,119 @@ int main(int argc, char* argv[])
 
                 errno = 0;
                 const Obj RESULT = Util::round(X, PRECISION);
+
+                if (Util::isNan(EXPECTED)) {
+                    LOOP2_ASSERT(LINE, RESULT, Util::isNan(RESULT));
+                } else {
+                    LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                }
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
+            }
+        }
+
+        if (veryVerbose) { T_ T_ bsl::cout << "trunc(x, p)" << bsl::endl; }
+        {
+            struct {
+                int          d_line;
+                Obj          d_x;
+                unsigned int d_precision;
+                Obj          d_expected;
+                unsigned int d_errno;
+            } DATA[] = {
+            //--------------------------------------------------------------
+            // LINE |      X          | PRECISION | EXPECTED        | ERRNO
+            //--------------------------------------------------------------
+            //--------------------------------------------------------------
+            //                        Test normal values
+            //--------------------------------------------------------------
+                { L_, DEC( 1234567e-4),          0, DEC( 123e-0),        0 },
+                { L_, DEC( 1234567e-4),          1, DEC( 1234e-1),       0 },
+                { L_, DEC( 1234567e-4),          2, DEC( 12345e-2),      0 },
+                { L_, DEC( 1234567e-4),          3, DEC( 123456e-3),     0 },
+                { L_, DEC( 1234567e-4),          4, DEC( 1234567e-4),    0 },
+                { L_, DEC( 1234567e-4),          5, DEC( 1234567e-4),    0 },
+                { L_, DEC( 1234567e-4),          6, DEC( 1234567e-4),    0 },
+
+                { L_, DEC(-1234567e-5),          0, DEC(-12e-0),         0 },
+                { L_, DEC(-1234567e-5),          1, DEC(-123e-1),        0 },
+                { L_, DEC(-1234567e-5),          2, DEC(-1234e-2),       0 },
+                { L_, DEC(-1234567e-5),          3, DEC(-12345e-3),      0 },
+                { L_, DEC(-1234567e-5),          4, DEC(-123456e-4),     0 },
+                { L_, DEC(-1234567e-5),          5, DEC(-1234567e-5),    0 },
+                { L_, DEC(-1234567e-5),          6, DEC(-1234567e-5),    0 },
+
+                { L_, DEC( 1234567e-6),          0, DEC( 1e-0),          0 },
+                { L_, DEC( 1234567e-6),          1, DEC( 12e-1),         0 },
+                { L_, DEC( 1234567e-6),          2, DEC( 123e-2),        0 },
+                { L_, DEC( 1234567e-6),          3, DEC( 1234e-3),       0 },
+                { L_, DEC( 1234567e-6),          4, DEC( 12345e-4),      0 },
+                { L_, DEC( 1234567e-6),          5, DEC( 123456e-5),     0 },
+                { L_, DEC( 1234567e-6),          6, DEC( 1234567e-6),    0 },
+
+                { L_, DEC(-1234567e-7),          0, DEC( 0e-0),          0 },
+                { L_, DEC(-1234567e-7),          1, DEC(-1e-1),          0 },
+                { L_, DEC(-1234567e-7),          2, DEC(-12e-2),         0 },
+                { L_, DEC(-1234567e-7),          3, DEC(-123e-3),        0 },
+                { L_, DEC(-1234567e-7),          4, DEC(-1234e-4),       0 },
+                { L_, DEC(-1234567e-7),          5, DEC(-12345e-5),      0 },
+                { L_, DEC(-1234567e-7),          6, DEC(-123456e-6),     0 },
+
+                { L_, DEC( 1234567e-8),          0, DEC( 0e-0),          0 },
+                { L_, DEC( 1234567e-8),          1, DEC( 0e-0),          0 },
+                { L_, DEC( 1234567e-8),          2, DEC( 1e-2),          0 },
+                { L_, DEC( 1234567e-8),          3, DEC( 12e-3),         0 },
+                { L_, DEC( 1234567e-8),          4, DEC( 123e-4),        0 },
+                { L_, DEC( 1234567e-8),          5, DEC( 1234e-5),       0 },
+                { L_, DEC( 1234567e-8),          6, DEC( 12345e-6),      0 },
+
+                { L_, DEC( 3456000e-5),          0, DEC( 34e-0),         0 },
+                { L_, DEC( 3456000e-5),          1, DEC( 345e-1),        0 },
+                { L_, DEC( 3456000e-5),          2, DEC( 3456e-2),       0 },
+                { L_, DEC( 3456000e-5),          3, DEC( 3456e-2),       0 },
+                { L_, DEC( 3456000e-5),          4, DEC( 3456e-2),       0 },
+                { L_, DEC( 3456000e-5),          5, DEC( 3456e-2),       0 },
+
+                { L_, DEC( 3456e+0),             0, DEC( 3456e+0),       0 },
+                { L_, DEC( 3456e+1),             0, DEC( 3456e+1),       0 },
+                { L_, DEC( 3456e+2),             0, DEC( 3456e+2),       0 },
+
+                { L_, DEC( 3456e+0),           398, DEC( 3456e+0),       0 },
+                { L_, DEC( 3456e+1),           398, DEC( 3456e+1),       0 },
+                { L_, DEC( 3456e+2),           398, DEC( 3456e+2),       0 },
+            //--------------------------------------------------------------
+            //                         Test subnormal values
+            //--------------------------------------------------------------
+                { L_, DEC(7654321e-398),       399, DEC(7654321e-398),   0 },
+                { L_, DEC(7654321e-398),       398, DEC(7654321e-398),   0 },
+                { L_, DEC(7654321e-398),       397, DEC(765432e-397),    0 },
+                { L_, DEC(7654321e-398),       396, DEC(76543e-396),     0 },
+                { L_, DEC(7654321e-398),       395, DEC(7654e-395),      0 },
+                { L_, DEC(7654321e-398),       394, DEC(765e-394),       0 },
+                { L_, DEC(7654321e-398),       393, DEC(76e-393),        0 },
+                { L_, DEC(7654321e-398),       392, DEC(7e-392),         0 },
+                { L_, DEC(7654321e-398),       391, DEC(0e-0),           0 },
+                { L_, DEC(7654321e-398),       390, DEC(0e-0),           0 },
+            //--------------------------------------------------------------
+            //                          Test special values
+            //--------------------------------------------------------------
+                { L_, ZERO_P,                    0, ZERO_P,              0 },
+                { L_, ZERO_N,                    0, ZERO_N,              0 },
+                { L_, INF_P,                     0, INF_P,               0 },
+                { L_, INF_N,                     0, INF_N,               0 },
+                { L_, NAN_P,                     0, NAN_P,               0 },
+                { L_, NAN_N,                     0, NAN_N,               0 },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int           LINE      = DATA[ti].d_line;
+                const Obj&          X         = DATA[ti].d_x;
+                const unsigned int& PRECISION = DATA[ti].d_precision;
+                const Obj&          EXPECTED  = DATA[ti].d_expected;
+                const unsigned int& ERRNO     = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::trunc(X, PRECISION);
 
                 if (Util::isNan(EXPECTED)) {
                     LOOP2_ASSERT(LINE, RESULT, Util::isNan(RESULT));
@@ -2638,6 +2874,118 @@ int main(int argc, char* argv[])
 
                 errno = 0;
                 const Obj RESULT = Util::round(X, PRECISION);
+
+                if (Util::isNan(EXPECTED)) {
+                    LOOP2_ASSERT(LINE, RESULT, Util::isNan(RESULT));
+                } else {
+                    LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                }
+                LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
+            }
+        }
+
+        if (veryVerbose) { T_ T_ bsl::cout << "trunc(x, p)" << bsl::endl; }
+        {
+            struct {
+                int          d_line;
+                Obj          d_x;
+                unsigned int d_precision;
+                Obj          d_expected;
+                unsigned int d_errno;
+            } DATA[] = {
+            //--------------------------------------------------------------
+            // LINE |      X          | PRECISION | EXPECTED        | ERRNO
+            //--------------------------------------------------------------
+            //--------------------------------------------------------------
+            //                          Test normal values
+            //--------------------------------------------------------------
+                { L_, DEC( 1234567e-4),          0, DEC( 123e-0),        0 },
+                { L_, DEC( 1234567e-4),          1, DEC( 1234e-1),       0 },
+                { L_, DEC( 1234567e-4),          2, DEC( 12345e-2),      0 },
+                { L_, DEC( 1234567e-4),          3, DEC( 123456e-3),     0 },
+                { L_, DEC( 1234567e-4),          4, DEC( 1234567e-4),    0 },
+                { L_, DEC( 1234567e-4),          5, DEC( 1234567e-4),    0 },
+                { L_, DEC( 1234567e-4),          6, DEC( 1234567e-4),    0 },
+
+                { L_, DEC(-1234567e-5),          0, DEC(-12e-0),         0 },
+                { L_, DEC(-1234567e-5),          1, DEC(-123e-1),        0 },
+                { L_, DEC(-1234567e-5),          2, DEC(-1234e-2),       0 },
+                { L_, DEC(-1234567e-5),          3, DEC(-12345e-3),      0 },
+                { L_, DEC(-1234567e-5),          4, DEC(-123456e-4),     0 },
+                { L_, DEC(-1234567e-5),          5, DEC(-1234567e-5),    0 },
+                { L_, DEC(-1234567e-5),          6, DEC(-1234567e-5),    0 },
+
+                { L_, DEC( 1234567e-6),          0, DEC( 1e-0),          0 },
+                { L_, DEC( 1234567e-6),          1, DEC( 12e-1),         0 },
+                { L_, DEC( 1234567e-6),          2, DEC( 123e-2),        0 },
+                { L_, DEC( 1234567e-6),          3, DEC( 1234e-3),       0 },
+                { L_, DEC( 1234567e-6),          4, DEC( 12345e-4),      0 },
+                { L_, DEC( 1234567e-6),          5, DEC( 123456e-5),     0 },
+                { L_, DEC( 1234567e-6),          6, DEC( 1234567e-6),    0 },
+
+                { L_, DEC(-1234567e-7),          0, DEC( 0e-0),          0 },
+                { L_, DEC(-1234567e-7),          1, DEC(-1e-1),          0 },
+                { L_, DEC(-1234567e-7),          2, DEC(-12e-2),         0 },
+                { L_, DEC(-1234567e-7),          3, DEC(-123e-3),        0 },
+                { L_, DEC(-1234567e-7),          4, DEC(-1234e-4),       0 },
+                { L_, DEC(-1234567e-7),          5, DEC(-12345e-5),      0 },
+                { L_, DEC(-1234567e-7),          6, DEC(-123456e-6),     0 },
+
+                { L_, DEC( 1234567e-8),          0, DEC( 0e-0),          0 },
+                { L_, DEC( 1234567e-8),          1, DEC( 0e-0),          0 },
+                { L_, DEC( 1234567e-8),          2, DEC( 1e-2),          0 },
+                { L_, DEC( 1234567e-8),          3, DEC( 12e-3),         0 },
+                { L_, DEC( 1234567e-8),          4, DEC( 123e-4),        0 },
+                { L_, DEC( 1234567e-8),          5, DEC( 1234e-5),       0 },
+                { L_, DEC( 1234567e-8),          6, DEC( 12345e-6),      0 },
+
+                { L_, DEC( 3456000e-5),          0, DEC( 34e-0),         0 },
+                { L_, DEC( 3456000e-5),          1, DEC( 345e-1),        0 },
+                { L_, DEC( 3456000e-5),          2, DEC( 3456e-2),       0 },
+                { L_, DEC( 3456000e-5),          3, DEC( 3456e-2),       0 },
+                { L_, DEC( 3456000e-5),          4, DEC( 3456e-2),       0 },
+                { L_, DEC( 3456000e-5),          5, DEC( 3456e-2),       0 },
+
+                { L_, DEC( 3456e+0),             0, DEC( 3456e+0),       0 },
+                { L_, DEC( 3456e+1),             0, DEC( 3456e+1),       0 },
+                { L_, DEC( 3456e+2),             0, DEC( 3456e+2),       0 },
+
+                { L_, DEC( 3456e+0),          6111, DEC( 3456e+0),       0 },
+                { L_, DEC( 3456e+1),          6111, DEC( 3456e+1),       0 },
+                { L_, DEC( 3456e+2),          6111, DEC( 3456e+2),       0 },
+            //--------------------------------------------------------------
+            //                          Test subnormal values
+            //--------------------------------------------------------------
+                { L_, DEC(-765432e-6176),     6177, DEC(-765432e-6176),  0 },
+                { L_, DEC(-765432e-6176),     6176, DEC(-765432e-6176),  0 },
+                { L_, DEC(-765432e-6176),     6175, DEC(-76543e-6175),   0 },
+                { L_, DEC(-765432e-6176),     6174, DEC(-7654e-6174),    0 },
+                { L_, DEC(-765432e-6176),     6173, DEC(-765e-6173),     0 },
+                { L_, DEC(-765432e-6176),     6172, DEC(-76e-6172),      0 },
+                { L_, DEC(-765432e-6176),     6171, DEC(-7e-6171),       0 },
+                { L_, DEC(-765432e-6176),     6170, DEC( 0e-0),          0 },
+                { L_, DEC(-765432e-6176),     6169, DEC( 0e-0),          0 },
+            //--------------------------------------------------------------
+            //                          Test special values
+            //--------------------------------------------------------------
+                { L_, ZERO_P,                    0, ZERO_P,              0 },
+                { L_, ZERO_N,                    0, ZERO_N,              0 },
+                { L_, INF_P,                     0, INF_P,               0 },
+                { L_, INF_N,                     0, INF_N,               0 },
+                { L_, NAN_P,                     0, NAN_P,               0 },
+                { L_, NAN_N,                     0, NAN_N,               0 },
+            };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int           LINE      = DATA[ti].d_line;
+                const Obj&          X         = DATA[ti].d_x;
+                const unsigned int& PRECISION = DATA[ti].d_precision;
+                const Obj&          EXPECTED  = DATA[ti].d_expected;
+                const unsigned int& ERRNO     = DATA[ti].d_errno;
+
+                errno = 0;
+                const Obj RESULT = Util::trunc(X, PRECISION);
 
                 if (Util::isNan(EXPECTED)) {
                     LOOP2_ASSERT(LINE, RESULT, Util::isNan(RESULT));

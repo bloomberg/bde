@@ -366,6 +366,57 @@ int DecimalUtil::format(char                      *buffer,
                                   config);
 }
 
+Decimal32  DecimalUtil::trunc(Decimal32  x, unsigned int precision)
+{
+    int          sign;
+    unsigned int significand;
+    int          exponent;
+    int          cl = decompose(&sign, &significand, &exponent, x);
+
+    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
+        (exponent + static_cast<int>(precision) < 0))
+    {
+        x = multiplyByPowerOf10(x, precision);
+        x = trunc(x);
+        x = multiplyByPowerOf10(x, -precision);
+    }
+    return x;
+}
+
+Decimal64 DecimalUtil::trunc(Decimal64  x, unsigned int precision)
+{
+    int                 sign;
+    bsls::Types::Uint64 significand;
+    int                 exponent;
+    int                 cl = decompose(&sign, &significand, &exponent, x);
+
+    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
+        (exponent + static_cast<int>(precision) < 0))
+    {
+        x = multiplyByPowerOf10(x, precision);
+        x = trunc(x);
+        x = multiplyByPowerOf10(x, -precision);
+    }
+    return x;
+}
+
+Decimal128 DecimalUtil::trunc(Decimal128 x, unsigned int precision)
+{
+    int     sign;
+    Uint128 significand;
+    int     exponent;
+    int     cl = decompose(&sign, &significand, &exponent, x);
+
+    if ((FP_NORMAL == cl || FP_SUBNORMAL == cl) &&
+        (exponent + static_cast<int>(precision) < 0))
+    {
+        x = multiplyByPowerOf10(x, precision);
+        x = trunc(x);
+        x = multiplyByPowerOf10(x, -precision);
+    }
+    return x;
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
