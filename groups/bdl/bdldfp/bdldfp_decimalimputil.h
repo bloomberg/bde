@@ -1301,7 +1301,7 @@ class DecimalImpUtil {
     static DecimalStorage::Type32  convertBIDtoDPD(ValueType32  value);
     static DecimalStorage::Type64  convertBIDtoDPD(ValueType64  value);
     static DecimalStorage::Type128 convertBIDtoDPD(ValueType128 value);
-        // Return a 'DecimalStorageT::TypeXX' representing the specified 'value'
+        // Return a 'DecimalStorage::TypeXX' representing the specified 'value'
         // in Densely Packed Decimal (DPD) format.  This format is compatible
         // with the IBM compiler's native type.
 
