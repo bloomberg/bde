@@ -625,7 +625,8 @@ inline
 balxml::Formatter::ElemContext::ElemContext(const bslstl::StringRef& tag,
                                            WhitespaceType            ws)
 : d_ws(ws)
-, d_tagLen(bsl::min<bsl::size_t>(tag.length(), 255))
+, d_tagLen(static_cast<unsigned char>(bsl::min<bsl::size_t>(tag.length(),
+                                      255)))
 {
     bsl::size_t len = bsl::min<bsl::size_t>(k_TRUNCATED_TAG_LEN, tag.length());
     bsl::memcpy(d_tag, tag.data(), len);
