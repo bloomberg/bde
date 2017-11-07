@@ -22,6 +22,14 @@ BSLS_IDENT("$Id: $")
 // 'isValidHHMMSS') before passing them to the corresponding "convertFrom"
 // method.
 //
+///Converting from Seconds-from-Midnight to 'bdlt::Datetime'
+///---------------------------------------------------------
+// Seconds-from-midnight is a date-time representation used in some financial
+// applications.  Seconds-from-midnight is a lossy representation (using
+// heuristics to determine the date), and conversions for that representation
+// are provided in a higher-level package that is not part of the
+// BDE open-source libraries (see 'bsitzo_secondsfrommidnightutil').
+//
 ///Usage
 ///------
 // Following are examples illustrating basic use of this component.
