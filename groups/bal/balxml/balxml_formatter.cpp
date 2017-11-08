@@ -27,16 +27,16 @@ namespace BloombergLP {
                     // ====================================
 
 // ACCESSORS
-#ifdef BDE_BUILD_TARGET_SAFE2
+#ifdef BDE_BUILD_TARGET_SAFE_2
 bool balxml::Formatter::ElemContext::matchTag(
                                             const bslstl::StringRef& tag) const
 {
-    if (d_tagLen != bsl::min(tag.length(), 255)) {
+    if (d_tagLen != bsl::min<bsl::size_t>(tag.length(), 255)) {
         // Lengths don't match
         return false;
     }
 
-    int len = bsl::min(int(k_TRUNCATED_TAG_LEN), tag.length());
+    int len = bsl::min<bsl::size_t>(k_TRUNCATED_TAG_LEN, tag.length());
     return 0 == bsl::memcmp(d_tag, tag.data(), len);
 }
 #endif
@@ -314,7 +314,7 @@ void Formatter::closeElement(const bslstl::StringRef& name)
 {
     BSLS_ASSERT(e_IN_TAG == d_state || e_BETWEEN_TAGS == d_state);
     BSLS_ASSERT(d_wrapColumn < 0 || ! d_elementNesting.empty());
-#ifdef BDE_BUILD_TARGET_SAFE2
+#ifdef BDE_BUILD_TARGET_SAFE_2
     BSLS_ASSERT(d_wrapColumn < 0 || d_elementNesting.back().matchTag(name));
 #endif
 
