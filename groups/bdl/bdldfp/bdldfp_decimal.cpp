@@ -323,8 +323,8 @@ class WideBufferWrapper<char> {
     // 'WideBufferWrapper<CHARTYPE>' for 'char' type.
 
     // DATA
-    const char *d_begin;
-    const char *d_end;
+    const char *d_begin;  // pointer to the beginning of plain character buffer
+    const char *d_end;    // pointer to the end of plain character buffer
 
     // NOT IMPLEMENTED
     WideBufferWrapper(const WideBufferWrapper& /*other*/);
@@ -334,14 +334,16 @@ class WideBufferWrapper<char> {
     // CREATORS
     WideBufferWrapper(const char *buffer, int len, const bsl::locale& loc);
         // Create a wide buffer wrapper for the specified 'buffer' of the
-        // specified length 'len'.
+        // specified length 'len'.  Note the specified 'loc' is not used.
 
     // ACCESSORS
     const char *begin() const;
-        // Return a pointer to the beginning.
+        // Return a pointer to the beginning of the buffer of plain characters
+        // provided in this class constructor.
 
     const char *end() const;
-        // Return a pointer to the end.
+        // Return a pointer to the end of the buffer of plain characters
+        // provided in this class constructor.
 };
 
                     // ================================
@@ -354,8 +356,8 @@ class WideBufferWrapper<wchar_t> {
     // 'WideBufferWrapper<CHARTYPE>' for 'wchar_t' type.
 
     // DATA
-    wchar_t *d_buffer;
-    size_t   d_len;
+    wchar_t *d_buffer_p;  // Buffer of wide characters
+    size_t   d_len;       // Length of the buffer
 
     // NOT IMPLEMENTED
     WideBufferWrapper(const WideBufferWrapper& /*other*/);
@@ -367,17 +369,17 @@ class WideBufferWrapper<wchar_t> {
     WideBufferWrapper(const char *buffer, int len, const bsl::locale& loc);
         // Create a wide buffer wrapper for the specified 'buffer' of the
         // specified length 'len'.  Use the specified locale 'loc' to widen
-        // character in the buffer into wide character representation.
+        // character in the buffer into wide characters representation.
 
     ~WideBufferWrapper();
         // Destroy this object.
 
     // ACCESSORS
     const wchar_t *begin() const;
-        // Return a pointer to the beginning.
+        // Return a pointer to the beginning of the buffer of wide characters.
 
     const wchar_t *end() const;
-        // Return a pointer to the end.
+        // Return a pointer to the end the buffer of wide characters.
 };
 
                     // -----------------------------
@@ -418,7 +420,7 @@ inline
 WideBufferWrapper<wchar_t>::WideBufferWrapper(const char        *buffer,
                                               int                len,
                                               const bsl::locale& loc)
-    : d_buffer(0)
+    : d_buffer_p(0)
     , d_len(len)
 {
     BSLS_ASSERT(buffer);
@@ -426,31 +428,31 @@ WideBufferWrapper<wchar_t>::WideBufferWrapper(const char        *buffer,
 
     bslma::Allocator *allocator = bslma::Default::allocator();
 
-    d_buffer = (wchar_t *)allocator->allocate(sizeof(wchar_t) * len);
+    d_buffer_p = (wchar_t *)allocator->allocate(sizeof(wchar_t) * len);
 
     bsl::use_facet<std::ctype<wchar_t> >(loc).widen(buffer,
                                                     buffer + len,
-                                                    d_buffer);
+                                                    d_buffer_p);
 }
 
 inline
 WideBufferWrapper<wchar_t>::~WideBufferWrapper()
 {
     bslma::Allocator *allocator = bslma::Default::allocator();
-    allocator->deallocate(d_buffer);
+    allocator->deallocate(d_buffer_p);
 }
 
     // ACCESSORS
 inline
 const wchar_t *WideBufferWrapper<wchar_t>::begin() const
 {
-    return d_buffer;
+    return d_buffer_p;
 }
 
 inline
 const wchar_t *WideBufferWrapper<wchar_t>::end() const
 {
-    return d_buffer + d_len;
+    return d_buffer_p + d_len;
 }
 
 }  // close unnamed namespace
