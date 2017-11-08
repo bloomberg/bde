@@ -545,10 +545,11 @@ struct DecimalUtil {
     static Decimal32  round(Decimal32  x, unsigned int precision);
     static Decimal64  round(Decimal64  x, unsigned int precision);
     static Decimal128 round(Decimal128 x, unsigned int precision);
-        // Return the specified 'x' value rounded to the specified 'precision'.
-        // Round halfway cases away from zero, regardless of the current
-        // decimal floating point rounding mode.  If 'x' is integral, positive
-        // zero, negative zero, NaN, or infinity then return 'x' itself.
+        // Return the specified 'x' value rounded to the specified 'precision'
+        // decimal places.  Round halfway cases away from zero, regardless of
+        // the current decimal floating point rounding mode.  If 'x' is
+        // integral, positive zero, negative zero, NaN, or infinity then return
+        // 'x' itself.
         //
         //  Examples: 'round(3.14159, 3)' ==> 3.142
 
@@ -570,10 +571,10 @@ struct DecimalUtil {
     static Decimal64  trunc(Decimal64  x, unsigned int precision);
     static Decimal128 trunc(Decimal128 x, unsigned int precision);
         // Return the specified 'x' value truncated to the specified
-        // 'precision'.  Round towards zero, regardless of the current decimal
-        // floating point rounding mode.  If precision of 'x' is less or equal
-        // the 'precision' or 'x' is positive zero, negative zero, NaN, or
-        // infinity then return 'x' itself.
+        // 'precision' decimal places.  Round towards zero, regardless of the
+        // current decimal floating point rounding mode.  If precision of 'x'
+        // is less then or equal the 'precision' or 'x' is positive zero,
+        // negative zero, NaN, or infinity then return 'x' itself.
         //
         //  Examples: 'trunc(3.14159, 3)' ==> 3.141
 
