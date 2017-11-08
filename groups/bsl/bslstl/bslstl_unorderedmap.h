@@ -596,7 +596,7 @@ BSLS_IDENT("$Id: $")
 // word count.  That could be eliminated by adding '-' to the set of
 // delimiters; however, that would partition hyphenated words into separate
 // words.  In practice, one defines a "stop list" of common words (e.g., "the",
-// "of", "and", "is") that one does not wish to tally.  We could easily and "-"
+// "of", "and", "is") that one does not wish to tally.  We could easily add "-"
 // to the stop list.
 //
 ///Example 2: Examining and Setting Unordered Map Configuration
