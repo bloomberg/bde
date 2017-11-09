@@ -624,14 +624,19 @@ int defaultResolveLocalAddrImp(bsl::vector<btlso::IPv4Address> *localAddresses,
 
 
 namespace btlso {
+
+                           // ================
+                           // static callbacks
+                           // ================
+
+static ResolveUtil::ResolveByNameCallback    s_byNameCallback_p =
+                                                      &defaultResolveByNameImp;
+static ResolveUtil::ResolveLocalAddrCallback s_localCallback_p =
+                                                   &defaultResolveLocalAddrImp;
+
                           // ------------------
                           // struct ResolveUtil
                           // ------------------
-
-ResolveUtil::ResolveByNameCallback    s_byNameCallback_p =
-                                                      &defaultResolveByNameImp;
-ResolveUtil::ResolveLocalAddrCallback s_localCallback_p =
-                                                   &defaultResolveLocalAddrImp;
 
 // CLASS METHODS
 int ResolveUtil::getAddress(IPv4Address *result,

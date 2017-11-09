@@ -204,13 +204,13 @@ struct ResolveUtil {
     static int getAddressesDefault(bsl::vector<IPv4Address> *result,
                                    const char               *hostName,
                                    int                      *errorCode = 0);
-        // Load into the specified array 'result' all IPv4 addresses of the
-        // specified 'hostName'.  Return 0, with no effect on 'errorCode', on
-        // success, and return a negative value otherwise.  If an error occurs,
-        // the optionally specified 'errorCode' is set to the native error
-        // code of the operation.  Note that 'getAddresses' uses the
-        // user-installed resolution mechanism, while 'getAddressesDefault'
-        // uses the default resolution mechanism.
+        // Load into the specified 'result' all IPv4 addresses of the specified
+        // 'hostName'.  Return 0, with no effect on 'errorCode', on success,
+        // and return a negative value otherwise.  If an error occurs, the
+        // optionally specified 'errorCode' is set to the native error code of
+        // the operation.  Note that 'getAddresses' uses the user-installed
+        // resolution mechanism, while 'getAddressesDefault' uses the default
+        // resolution mechanism.
 
     static int getHostnameByAddress(bsl::string        *canonicalHostname,
                                     const IPv4Address&  address,
@@ -248,9 +248,9 @@ struct ResolveUtil {
     static int getLocalAddressesDefault(
                                       bsl::vector<IPv4Address> *result,
                                       int                      *errorCode = 0);
-        // Load into the specified array 'result' all IPv4 addresses of the
-        // local machine.  Optionally supply 'errorCode' in which to load a
-        // native platform error status value (if an error occurs). Return 0 on
+        // Load into the specified 'result' all IPv4 addresses of the local
+        // machine.  If an error occurs, the optionally specified 'errorCode'
+        // is set to the native error code of the operation.  Return 0 on
         // sucess, and a non-zero value otherwise.  Note that
         // 'getLocalAddresses' uses the user-installed resolution mechanism,
         // while 'getLocalAddressesDefault' uses the default resolution
