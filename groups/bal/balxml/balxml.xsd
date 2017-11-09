@@ -188,7 +188,7 @@
       </xs:element>
       <xs:element name='DatetimeFractionalSecondPrecision' type='xs:int'
             minOccurs='0' maxOccurs='1'
-            default='6'
+            default='3'
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
