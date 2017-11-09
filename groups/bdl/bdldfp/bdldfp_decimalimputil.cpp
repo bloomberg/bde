@@ -371,11 +371,15 @@ int formatNatural(char                      *buffer,
     int maxDigit         = getMostSignificandPlace(s);
     int adjustedExponent = e + maxDigit - 1;
 
+    DecimalFormatConfig config(cfg);
+
     if (e <= 0 && adjustedExponent >= -6) {
-        return formatFixed(buffer, length, value, cfg);               // RETURN
+        config.setPrecision(-e);
+        return formatFixed(buffer, length, value, config);            // RETURN
     }
 
-    return  formatScientific(buffer, length, value, cfg);
+    config.setPrecision(maxDigit - 1);
+    return  formatScientific(buffer, length, value, config);
 }
 
 int formatSpecial(char        *buffer,

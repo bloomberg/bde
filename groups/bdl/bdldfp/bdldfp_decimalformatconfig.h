@@ -155,7 +155,7 @@ class DecimalFormatConfig {
         // Optionally specify 'point' as the character to use for decimal
         // points.  If it is not specified, '.' is used.  Optionally specify
         // 'exponent' as the character to use for exponent.  If it is not
-        // specified, 'E' is used.  See the Attributes section under
+        // specified, 'e' is used.  See the Attributes section under
         // @DESCRIPTION in the component-level documentation for information on
         // the class attributes.
 

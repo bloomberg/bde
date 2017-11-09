@@ -423,6 +423,11 @@ class DecimalImpUtil {
         // precision.  The rounding should be done as "round-half-up", i.e.,
         // round up in magnitude when the first of the discarded digits is
         // between 5 and 9.
+        //
+        // Also note that if the configuration format attribute 'style' is
+        // 'e_NATURAL' then all significand digits of the 'value' are output in
+        // the buffer regardless of the value specified in configuration's
+        // 'precision' attribute.
 
                         // Integer construction
 
