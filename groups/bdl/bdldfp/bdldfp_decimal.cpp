@@ -717,6 +717,10 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
         cfg.setStyle(DecimalFormatConfig::e_FIXED);
     }
 
+    if (format.flags() & bsl::ios::scientific) {
+        cfg.setStyle(DecimalFormatConfig::e_SCIENTIFIC);
+    }
+
     if (format.flags() & bsl::ios::showpos) {
         cfg.setSign(DecimalFormatConfig::e_ALWAYS);
     }

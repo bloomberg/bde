@@ -561,17 +561,17 @@ int main(int argc, char* argv[])
 
             {
                 // Test that 'format' produces the same resultant string
-                // when invoked with 'MAX_DAGIT_CONFIG' configuration.
-                const bsl::string EXPECTED("1.234567e+0", pa);
+                // when invoked with 'MAX_DIGIT_CONFIG' configuration.
+                const bsl::string EXPECTED("1.234567", pa);
 
                 LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
 
-                const Config MAX_DAGIT_CONFIG(
+                const Config MAX_DIGIT_CONFIG(
                     bsl::numeric_limits<Type>::digits10 - 1);
                 len = Util::format(buffer,
                                    k_BUFFER_SIZE,
                                    VALUE,
-                                   MAX_DAGIT_CONFIG);
+                                   MAX_DIGIT_CONFIG);
 
                 const bsl::string RESULT(buffer, len, pa);
                 LOOP3_ASSERT(L_,
@@ -584,34 +584,12 @@ int main(int argc, char* argv[])
                              RESULT == DEFAULT);
             }
             {
-                // Test that 'format' produces a resultant strings
-                // distinct from 'DEFAULT' string when invoked with
-                // precision distinct from the one provided by default
-                // configuration object.
-                const bsl::string EXPECTED("1.23457e+0", pa);
-                const Config CONFIG(5);
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   CONFIG);
-
-                const bsl::string RESULT(buffer, len, pa);
-                LOOP3_ASSERT(L_,
-                             RESULT,
-                             EXPECTED,
-                             RESULT == EXPECTED);
-                LOOP3_ASSERT(L_,
-                             RESULT,
-                             DEFAULT,
-                             RESULT != DEFAULT);
-            }
-            {
                 // Test that 'format' output a decimal value in notation
                 // distinct from to 'DEFAULT' string when invoked with a style
                 // distinct from the one provided by default configuration
                 // object.
-                const bsl::string EXPECTED("1.234567", pa);
-                const Config CONFIG(6, Config::e_FIXED);
+                const bsl::string EXPECTED("1.234567e+0", pa);
+                const Config CONFIG(6, Config::e_SCIENTIFIC);
                 len = Util::format(buffer,
                                    k_BUFFER_SIZE,
                                    VALUE,
@@ -639,8 +617,7 @@ int main(int argc, char* argv[])
 
             const int  k_BUFFER_SIZE = 256;
             char       buffer[k_BUFFER_SIZE];
-            //-----------------------------------------------------------------
-            // C-8,14
+
             const Type  VALUE = DEC(1.234567890123456E+0);
             int         len = Util::format(buffer,
                                            k_BUFFER_SIZE,
@@ -650,7 +627,7 @@ int main(int argc, char* argv[])
             {
                 // Test that 'format' produces the same resultant string
                 // when invoked with 'MAX_DAGIT_CONFIG' configuration.
-                const bsl::string EXPECTED("1.234567890123456e+0", pa);
+                const bsl::string EXPECTED("1.234567890123456", pa);
 
                 LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
 
@@ -672,34 +649,12 @@ int main(int argc, char* argv[])
                              RESULT == DEFAULT);
             }
             {
-                // Test that 'format' produces a resultant strings
-                // distinct from 'DEFAULT' string when invoked with
-                // precision distinct from the one provided by default
-                // configuration object.
-                const bsl::string EXPECTED("1.23457e+0", pa);
-                const Config CONFIG(5);
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   CONFIG);
-
-                const bsl::string RESULT(buffer, len, pa);
-                LOOP3_ASSERT(L_,
-                             RESULT,
-                             EXPECTED,
-                             RESULT == EXPECTED);
-                LOOP3_ASSERT(L_,
-                             RESULT,
-                             DEFAULT,
-                             RESULT != DEFAULT);
-            }
-            {
                 // Test that 'format' output a decimal value in notation
                 // distinct from 'DEFAULT' string when invoked with a style
                 // distinct from the one provided by default configuration
                 // object.
-                const bsl::string EXPECTED("1.234567890123456", pa);
-                const Config CONFIG(15, Config::e_FIXED);
+                const bsl::string EXPECTED("1.234567890123456e+0", pa);
+                const Config CONFIG(15, Config::e_SCIENTIFIC);
                 len = Util::format(buffer,
                                    k_BUFFER_SIZE,
                                    VALUE,
@@ -729,8 +684,6 @@ int main(int argc, char* argv[])
         const int  k_BUFFER_SIZE = 10000;
         char       buffer[k_BUFFER_SIZE];
 
-        //-----------------------------------------------------------------
-        // C-8,14
         {
             const Type  VALUE = DEC(1.234567890123456789012345678901234E+0);
             int         len = Util::format(buffer,
@@ -743,7 +696,7 @@ int main(int argc, char* argv[])
                 // Test that 'format' produces the same resultant string
                 // when invoked with 'MAX_DAGIT_CONFIG' configuration.
                 const bsl::string EXPECTED(
-                                 "1.234567890123456789012345678901234e+0", pa);
+                                 "1.234567890123456789012345678901234", pa);
 
                 LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
 
@@ -765,35 +718,13 @@ int main(int argc, char* argv[])
                              RESULT == DEFAULT);
             }
             {
-                // Test that 'format' produces a resultant strings
-                // distinct from 'DEFAULT' string when invoked with
-                // precision distinct from the one provided by default
-                // configuration object.
-                const bsl::string EXPECTED("1.23457e+0", pa);
-                const Config CONFIG(5);
-                len = Util::format(buffer,
-                                   k_BUFFER_SIZE,
-                                   VALUE,
-                                   CONFIG);
-
-                const bsl::string RESULT(buffer, len, pa);
-                LOOP3_ASSERT(L_,
-                             RESULT,
-                             EXPECTED,
-                             RESULT == EXPECTED);
-                LOOP3_ASSERT(L_,
-                             RESULT,
-                             DEFAULT,
-                             RESULT != DEFAULT);
-            }
-            {
                 // Test that 'format' output a decimal value in notation
                 // distinct from 'DEFAULT' string when invoked with a style
                 // distinct from the one provided by default configuration
                 // object.
                 const bsl::string EXPECTED(
-                                    "1.234567890123456789012345678901234", pa);
-                const Config CONFIG(33, Config::e_FIXED);
+                                 "1.234567890123456789012345678901234e+0", pa);
+                const Config CONFIG(33, Config::e_SCIENTIFIC);
                 len = Util::format(buffer,
                                    k_BUFFER_SIZE,
                                    VALUE,

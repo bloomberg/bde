@@ -181,39 +181,39 @@ static const DefaultDataRow DEFAULT_DATA[] = {
 //---- ---  ----- ---- --- --- ---- --- ---
 // default (must be first)
 
-{ L_, 15,      SCI, NEG, "inf", "nan", "snan", '.', 'e'},
+{ L_, 0,       NAT, NEG, "inf", "nan", "snan", '.', 'e'},
 
 // 'precision'
-{ L_, 0,       FXD, ALS, "",    "",    "",     '.', 'e'},
+{ L_, 1,       FXD, ALS, "",    "",    "",     '.', 'e'},
 { L_, INT_MAX, FXD, ALS, "",    "",    "",     '.', 'e'},
 
 // 'style'
-{ L_, 0,       SCI, NEG, "",    "",    "",     '.', 'e'},
-{ L_, INT_MAX, NAT, ALS, "",    "",    "",     '.', 'e'},
+{ L_, 1,       NAT, NEG, "",    "",    "",     '.', 'e'},
+{ L_, INT_MAX, SCI, ALS, "",    "",    "",     '.', 'e'},
 
 // 'sign'
-{ L_, 0,       SCI, ALS, "",    "",    "",     '.', 'e'},
-{ L_, INT_MAX, NAT, NEG, "",    "",    "",     '.', 'e'},
+{ L_, 1,       NAT, ALS, "",    "",    "",     '.', 'e'},
+{ L_, INT_MAX, SCI, NEG, "",    "",    "",     '.', 'e'},
 
 // 'infinity'
-{ L_, 0,       SCI, ALS, "inf", "",    "",     '.', 'e'},
-{ L_, INT_MAX, NAT, NEG, "INF", "",    "",     '.', 'e'},
+{ L_, 1,       NAT, ALS, "inf", "",    "",     '.', 'e'},
+{ L_, INT_MAX, SCI, NEG, "INF", "",    "",     '.', 'e'},
 
 // 'nan'
-{ L_, 0,       SCI, ALS, "inf", "nan", "",     '.', 'e'},
-{ L_, INT_MAX, NAT, NEG, "INF", "NAN", "",     '.', 'e'},
+{ L_, 1,       NAT, ALS, "inf", "nan", "",     '.', 'e'},
+{ L_, INT_MAX, SCI, NEG, "INF", "NAN", "",     '.', 'e'},
 
 // 'snan'
-{ L_, 0,       SCI, ALS, "inf", "nan", "snan", '.', 'e'},
-{ L_, INT_MAX, SCI, NEG, "INF", "NAN", "SNAN", '.', 'e'},
+{ L_, 1,       NAT, ALS, "inf", "nan", "snan", '.', 'e'},
+{ L_, INT_MAX, NAT, NEG, "INF", "NAN", "SNAN", '.', 'e'},
 
 // 'point'
-{ L_, 0,       FXD, ALS, "inf", "nan", "snan", '.', 'e'},
+{ L_, 1,       FXD, ALS, "inf", "nan", "snan", '.', 'e'},
 { L_, INT_MAX, FXD, NEG, "INF", "NAN", "SNAN", ',', 'e'},
 
 // 'exponent'
-{ L_, 0,       NAT, ALS, "inf", "nan", "snan", '.', 'e'},
-{ L_, INT_MAX, NAT, NEG, "INF", "NAN", "SNAN", ',', 'E'},
+{ L_, 1,       SCI, ALS, "inf", "nan", "snan", '.', 'e'},
+{ L_, INT_MAX, SCI, NEG, "INF", "NAN", "SNAN", ',', 'E'},
 };
 
 #undef SCI
@@ -960,8 +960,8 @@ int main(int argc, char* argv[])
           // 'D' values: These are the default-constructed values.
           // -----------------------------------------------------
 
-        const int         D1 = 15;                    // 'precision'
-        const Obj::Style  D2 = Obj::e_SCIENTIFIC;     // 'style'
+        const int         D1 = 0;                     // 'precision'
+        const Obj::Style  D2 = Obj::e_NATURAL;        // 'style'
         const Obj::Sign   D3 = Obj::e_NEGATIVE_ONLY;  // 'sign'
         const char       *D4 = "inf";                 // 'infinity'
         const char       *D5 = "nan";                 // 'nan'
@@ -974,7 +974,7 @@ int main(int argc, char* argv[])
                        // ----------------------------
 
         const int         A1 = INT_MAX;               // 'precision'
-        const Obj::Style  A2 = Obj::e_NATURAL;        // 'style'
+        const Obj::Style  A2 = Obj::e_SCIENTIFIC;     // 'style'
         const Obj::Sign   A3 = Obj::e_ALWAYS;         // 'sign'
         const char       *A4 = "";                    // 'infinity'
         const char       *A5 = "";                    // 'nan'
@@ -1141,8 +1141,8 @@ int main(int argc, char* argv[])
 
         // 'D' values: These are the default-constructed values.
 
-        const int         D1 = 15;                    // 'precision'
-        const Obj::Style  D2 = Obj::e_SCIENTIFIC;     // 'style'
+        const int         D1 = 0;                     // 'precision'
+        const Obj::Style  D2 = Obj::e_NATURAL;        // 'style'
         const Obj::Sign   D3 = Obj::e_NEGATIVE_ONLY;  // 'sign'
         const char       *D4 = "inf";                 // 'infinity'
         const char       *D5 = "nan";                 // 'nan'
@@ -1151,7 +1151,7 @@ int main(int argc, char* argv[])
         const char        D8 = 'e';                   // 'exponent
         // 'A' values.
 
-        const int         A1 = 0;                     // 'precision'
+        const int         A1 = 15;                     // 'precision'
         const Obj::Style  A2 = Obj::e_FIXED;          // 'style'
         const Obj::Sign   A3 = Obj::e_ALWAYS;         // 'sign'
         const char       *A4 = "";                    // 'infinity'
@@ -1162,7 +1162,7 @@ int main(int argc, char* argv[])
         // 'B' values.
 
         const int         B1 = INT_MAX;               // 'precision'
-        const Obj::Style  B2 = Obj::e_NATURAL;        // 'style'
+        const Obj::Style  B2 = Obj::e_SCIENTIFIC;     // 'style'
         const Obj::Sign   B3 = Obj::e_NEGATIVE_ONLY;  // 'sign'
         const char       *B4 = "Inf";                 // 'infinity'
         const char       *B5 = "NaN";                 // 'nan'
@@ -1612,8 +1612,8 @@ int main(int argc, char* argv[])
 
         // 'D' values: These are the default-constructed values.
 
-        const int         D1 = 15;                    // 'precision'
-        const Obj::Style  D2 = Obj::e_SCIENTIFIC;     // 'style'
+        const int         D1 = 0;                     // 'precision'
+        const Obj::Style  D2 = Obj::e_NATURAL;        // 'style'
         const Obj::Sign   D3 = Obj::e_NEGATIVE_ONLY;  // 'sign'
         const char       *D4 = "inf";                 // 'infinity'
         const char       *D5 = "nan";                 // 'nan'
@@ -1663,8 +1663,8 @@ int main(int argc, char* argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        const int         PRECISION = 15;
-        const Obj::Style  STYLE     = Obj::e_SCIENTIFIC;
+        const int         PRECISION = 0;
+        const Obj::Style  STYLE     = Obj::e_NATURAL;
         const Obj::Sign   SIGN      = Obj::e_NEGATIVE_ONLY;
         const char       *INF       = "inf";
         const char       *QNAN      = "nan";

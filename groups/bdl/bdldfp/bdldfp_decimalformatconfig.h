@@ -23,8 +23,8 @@ BSLS_IDENT("$Id$")
 //..
 //  Name        Type      Default          Simple Constraints
 //  ---------   ------    ---------------  ------------------
-//  style       Style     e_SCIENTIFIC     none
-//  precision   int       15               >= 0
+//  style       Style     e_NATURAL        none
+//  precision   int       0                >= 0
 //  sign        Sign      e_NEGATIVE_ONLY  none
 //  infinity    string    "inf"            none
 //  nan         string    "nan"            none
@@ -120,8 +120,8 @@ class DecimalFormatConfig {
         // Create an object of this class having the (default) attribute
         // values:
         //..
-        //  precision == 15
-        //  style     == e_SCIENTIFIC
+        //  precision == 0
+        //  style     == e_NATURAL
         //  sign      == e_NEGATIVE_ONLY
         //  infinity  == "inf"
         //  nan       == "nan"
@@ -132,7 +132,7 @@ class DecimalFormatConfig {
 
     explicit
     DecimalFormatConfig(int         precision,
-                        Style       style     = e_SCIENTIFIC,
+                        Style       style     = e_NATURAL,
                         Sign        sign      = e_NEGATIVE_ONLY,
                         const char *infinity  = "inf",
                         const char *nan       = "nan",
@@ -143,7 +143,7 @@ class DecimalFormatConfig {
         // control how many digits are written after a decimal point.  The
         // behavior is undefined if 'precision' is negative.  Optionally
         // specify 'style' to control how the number is written.  If it is not
-        // specified, 'e_SCIENTIFIC' is used.  Optionally specify 'sign' to
+        // specified, 'e_NATURAL' is used.  Optionally specify 'sign' to
         // control how the sign is output.  If is not specified,
         // 'e_NEGATIVE_ONLY' is used.  Optionally specify 'inf' as a string to
         // output infinity value.  If it is not specified, "inf" is used.
@@ -247,8 +247,8 @@ bool operator!=(const DecimalFormatConfig& lhs,
 // CREATORS
 inline
 DecimalFormatConfig::DecimalFormatConfig()
-    : d_precision(15)
-    , d_style(e_SCIENTIFIC)
+    : d_precision(0)
+    , d_style(e_NATURAL)
     , d_sign(e_NEGATIVE_ONLY)
     , d_infinityText("inf")
     , d_nanText("nan")

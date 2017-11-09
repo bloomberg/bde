@@ -1247,6 +1247,9 @@ void TestDriver::testCase4()
     //:   in the supplied output stream is not large enough.
     //:
     //:19 That 'operator<<' correctly outputs decimal values to wide stream.
+    //:
+    //:20 That 'operator<<' outputs decimal values in natural notation by
+    //:   default.
     //
     // Plan:
     //  1 Create a test table, where each element contains a decimal value
@@ -1603,7 +1606,7 @@ void TestDriver::testCase4()
      //------------------------------------------------------------------------
      //------------------------------------------------------------------------
      // Test negative and positive decimal rendering with all possible
-     // justification values in fixed notation.
+     // justification values in scientific notation.
      // C-10
      //------------------------------------------------------------------------
      {  L_, DFP( 0.42),  1,    8,   ' ',  false,   false,  'l',  "4.2e-1  "  },
@@ -2918,6 +2921,56 @@ void TestDriver::testCase4()
                                                                ACTUAL.c_str());
             ASSERTV(LINE, ACTUAL, ACTUAL_VALUE, VALUE, ACTUAL_VALUE == VALUE);
 
+        }
+    }
+    { // C-20
+        typedef BDEC::Decimal128 Tested;
+
+        static const struct {
+            int         d_line;
+            Tested      d_decimalValue;
+            const char *d_expected;
+        } DATA[] = {
+            //------------------------------------------
+            // L  | NUMBER           | EXPECTED
+            //------------------------------------------
+            {  L_,  DFP(1234567E+2),  "1.234567e+8"    },
+            {  L_,  DFP(1234567E+1),  "1.234567e+7"    },
+            {  L_,  DFP(1234567E-0),  "1234567"        },
+            {  L_,  DFP(1234567E-1),  "123456.7"       },
+            {  L_,  DFP(1234567E-2),  "12345.67"       },
+            {  L_,  DFP(1234567E-3),  "1234.567"       },
+            {  L_,  DFP(1234567E-4),  "123.4567"       },
+            {  L_,  DFP(1234567E-5),  "12.34567"       },
+            {  L_,  DFP(1234567E-6),  "1.234567"       },
+            {  L_,  DFP(1234567E-7),  "0.1234567"      },
+            {  L_,  DFP(1234567E-8),  "0.01234567"     },
+            {  L_,  DFP(1234567E-9),  "0.001234567"    },
+            {  L_,  DFP(1234567E-10), "0.0001234567"   },
+            {  L_,  DFP(1234567E-11), "0.00001234567"  },
+            {  L_,  DFP(1234567E-12), "0.000001234567" },
+            {  L_,  DFP(1234567E-13), "1.234567e-7"    },
+            {  L_,  DFP(1234567E-14), "1.234567e-8"    },
+        };
+
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        const int k_BUFFER_SIZE = 256;
+        char      buffer[k_BUFFER_SIZE];
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE   = DATA[ti].d_line;
+            const Tested       VALUE  = DATA[ti].d_decimalValue;
+            const bsl::string  EXPECTED(DATA[ti].d_expected, pa);
+            bsl::ostringstream outdec(pa);
+
+            outdec << VALUE;
+
+            bsl::string ACTUAL(pa);
+            getStringFromStream(outdec, &ACTUAL);
+
+            ASSERTV(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
+            ASSERTV(outdec.good());
         }
     }
 
