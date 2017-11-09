@@ -1026,9 +1026,7 @@ class String_ClearProctor {
     // appending to it), while maintaining the strong exceptions guarantee.
 
     // PRIVATE TYPES
-    typedef typename STRING_TYPE::value_type  value_type;
     typedef typename STRING_TYPE::size_type   size_type;
-    typedef typename STRING_TYPE::traits_type traits_type;
 
     // DATA
     STRING_TYPE* d_string_p;          // pointer to the string supplied at
