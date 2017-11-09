@@ -141,6 +141,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_DEPRECATE
+#include <bsls_deprecate.h>
+#endif
+
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
@@ -536,6 +540,9 @@ class NullableValue {
         // otherwise.  Note that this method returns *by* *value*, so may be
         // inefficient in some contexts.
 
+    #if BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 3)
+    BSLS_DEPRECATE
+    #endif
     const TYPE *valueOr(const TYPE *value) const;
         // !DEPRECATED!: Use 'addressOr' instead.
         //
