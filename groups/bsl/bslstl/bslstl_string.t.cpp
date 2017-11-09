@@ -13405,6 +13405,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 
     if (verbose) printf("\nTesting self assignment (Aliasing).\n");
     {
+        enum {
+            SELF_ASSIGN_MODE_FIRST = 0,
+            SELF_ASSIGN_STRING = 0,
+            SELF_ASSIGN_CSTRING = 1,
+            SELF_ASSIGN_STRINGREFDATA = 2,
+            SELF_ASSIGN_MODE_LAST = 2
+        };
+
         static const char *SPECS[] = {
             "",      "A",      "BC",     "CDE",    "DEAB",   "EABCD",
             "ABCDEAB",         "ABCDEABC",         "ABCDEABCD",
@@ -13437,6 +13445,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
             const Obj X = g(SPEC);
             LOOP_ASSERT(ti, curLen == (int)X.size());  // same lengths
 
+            for (int assignMode = SELF_ASSIGN_MODE_FIRST;
+                     assignMode <= SELF_ASSIGN_MODE_LAST;
+                     ++assignMode)
             for (int tj = 0; tj < NUM_EXTEND; ++tj) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const Int64 AL = testAllocator.allocationLimit();
@@ -13455,7 +13466,22 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                     testAllocator.setAllocationLimit(AL);
                     {
                         ExceptionGuard<Obj> guard(Y, L_);
-                        mY = Y; // test assignment here
+                        switch (assignMode) {
+                          case SELF_ASSIGN_STRING: {
+                            mY = Y;
+                          } break;
+                          case SELF_ASSIGN_CSTRING: {
+                            mY = Y.c_str();
+                          } break;
+                          case SELF_ASSIGN_STRINGREFDATA: {
+                            const bslstl::StringRefData<TYPE> srd(
+                                                           Y.begin(), Y.end());
+                            mY = srd;
+                          } break;
+                          default:
+                            printf("***UNKNOWN SELF_ASSIGN MODE***\n");
+                            ASSERT(0);
+                        };
                     }
 
                     LOOP2_ASSERT(SPEC, N, Y == Y);

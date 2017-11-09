@@ -1019,11 +1019,11 @@ class String_Imp {
 
 template<class STRING_TYPE>
 class String_ClearProctor {
-    // This component private 'class' implements a proctor that clears a
-    // string, and, if 'release' is not called, will restore that string upon
-    // it's destruction.  The intended usage is to implement 'assign' methods
-    // in terms of 'append' (by clearing the string before appending to it),
-    // while maintaining the strong exceptions guarantee.
+    // This component private 'class' implements a proctor that sets the length
+    // of a string to zero, and, if 'release' is not called, will restore that
+    // string upon it's destruction.  The intended usage is to implement
+    // 'assign' methods in terms of 'append' (by clearing the string before
+    // appending to it), while maintaining the strong exceptions guarantee.
 
     // PRIVATE TYPES
     typedef typename STRING_TYPE::value_type  value_type;
@@ -1036,9 +1036,6 @@ class String_ClearProctor {
 
     size_type    d_originalLength;    // original length of the string supplied
                                       // at construction
-
-    value_type   d_originalFirstChar; // original first character of the string
-                                      // supplied at construction
 
   public:
     // CREATORS
@@ -3035,10 +3032,8 @@ template <class STRING_TYPE>
 String_ClearProctor<STRING_TYPE>::String_ClearProctor(STRING_TYPE *stringPtr)
 : d_string_p(stringPtr)
 , d_originalLength(stringPtr->d_length)
-, d_originalFirstChar(*stringPtr->dataPtr())
 {
     d_string_p->d_length = 0;
-    traits_type::assign(*(d_string_p->dataPtr()), value_type());
 }
 
 template <class STRING_TYPE>
@@ -3046,7 +3041,6 @@ String_ClearProctor<STRING_TYPE>::~String_ClearProctor()
 {
     if (d_string_p) {
         d_string_p->d_length = d_originalLength;
-        traits_type::assign(*(d_string_p->dataPtr()), d_originalFirstChar);
     }
 }
 
@@ -3238,6 +3232,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
 
         temp.privateReserveRaw(capacity());
         quickSwapRetainAllocators(temp);
+
+#if defined BDE_BUILD_TARGET_SAFE
+        // The invariant of the original string swapped into temp may be
+        // violated by 'String_ClearProctor'.
+        CHAR_TRAITS::assign(*(temp.dataPtr()), CHAR_TYPE());
+#endif
         return *this;                                                 // RETURN
     }
     return privateAppend(temp.data(), temp.length(), message);
