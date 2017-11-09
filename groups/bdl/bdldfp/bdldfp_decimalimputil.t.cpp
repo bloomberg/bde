@@ -7896,7 +7896,7 @@ void TestDriver::testCase18()
         const int NUM_SIGNIFCANDS = static_cast<int>(sizeof SIGNIFICANDS
                                                    / sizeof *SIGNIFICANDS);
 
-        const Config CONFIGURATIONS[] = { F(95),
+        const Config CONFIGURATIONS[] = { F(101),
                                           S(7),
                                           N(12),
         };
@@ -7910,8 +7910,8 @@ void TestDriver::testCase18()
         for (int ci = 0; ci < NUM_CONFIGURATIONS; ++ci) {
 
             const Config& CONFIG       = CONFIGURATIONS[ci];
-            const int     EXPONENT_MIN = -95;
-            const int     EXPONENT_MAX =  96;
+            const int     EXPONENT_MIN = -101;
+            const int     EXPONENT_MAX =   90;
 
             for (int si = 0; si < NUM_SIGNIFCANDS; ++si) {
                 const int SIGNIFICAND = SIGNIFICANDS[si];
@@ -7933,7 +7933,7 @@ void TestDriver::testCase18()
                     LOOP3_ASSERT(L_,
                                  SIGNIFICAND,
                                  EXPONENT,
-                                 Util::equal(VALUE, EXPECTED));
+                                 Util::equal(RESULT, EXPECTED));
                 }
             }
         }
@@ -7988,37 +7988,37 @@ void TestDriver::testCase18()
             // SCIENTIFIC format
             // C-1,5
 
-            {  L_,    SUBN_P,            S(0),    "1E-101"       },
-            {  L_,    SUBN_N,            S(0),   "-1E-101"       },
+            {  L_,    SUBN_P,            S(0),    "1e-101"       },
+            {  L_,    SUBN_N,            S(0),   "-1e-101"       },
             {  L_,    INF_P,             S(0),    "inf"          },
             {  L_,    INF_N,             S(0),   "-inf"          },
             {  L_,    NAN_Q_P,           S(0),    "nan"          },
             {  L_,    NAN_Q_N,           S(0),   "-nan"          },
             {  L_,    NAN_S_P,           S(0),    "snan"         },
             {  L_,    NAN_S_N,           S(0),   "-snan"         },
-            {  L_,    MAX_P,             S(6),    "9.999999E+96" },
-            {  L_,    MAX_N,             S(6),   "-9.999999E+96" },
-            {  L_,    MIN_P,             S(0),    "1E-95"        },
-            {  L_,    MIN_N,             S(0),   "-1E-95"        },
-            {  L_,    DEC(-0.0),         S(0),   "-0E-1"         },
-            {  L_,    DEC(0.0),          S(0),    "0E-1"         },
-            {  L_,    DEC(0.0),          S(1),    "0.0E-1"       },
-            {  L_,    DEC(0.00),         S(2),    "0.00E-2"      },
-            {  L_,    DEC(0.000),        S(3),    "0.000E-3"     },
-            {  L_,    DEC(123.0),        S(2),    "1.23E+2"      },
-            {  L_,    DEC(1230e-1),      S(2),    "1.23E+2"      },
-            {  L_,    DEC(1230e-1),      S(3),    "1.230E+2"     },
+            {  L_,    MAX_P,             S(6),    "9.999999e+96" },
+            {  L_,    MAX_N,             S(6),   "-9.999999e+96" },
+            {  L_,    MIN_P,             S(0),    "1e-95"        },
+            {  L_,    MIN_N,             S(0),   "-1e-95"        },
+            {  L_,    DEC(-0.0),         S(0),   "-0e-1"         },
+            {  L_,    DEC(0.0),          S(0),    "0e-1"         },
+            {  L_,    DEC(0.0),          S(1),    "0.0e-1"       },
+            {  L_,    DEC(0.00),         S(2),    "0.00e-2"      },
+            {  L_,    DEC(0.000),        S(3),    "0.000e-3"     },
+            {  L_,    DEC(123.0),        S(2),    "1.23e+2"      },
+            {  L_,    DEC(1230e-1),      S(2),    "1.23e+2"      },
+            {  L_,    DEC(1230e-1),      S(3),    "1.230e+2"     },
 
             //-------------------------------------------------------------
             // C-6
-            {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
-            {  L_,    DEC(1E-7),         N(0),     "1E-7"           },
+            {  L_,    DEC(1E-8),         N(0),     "1e-8"           },
+            {  L_,    DEC(1E-7),         N(0),     "1e-7"           },
             {  L_,    DEC(1E-6),         N(6),     "0.000001"       },
             {  L_,    DEC(1E-5),         N(5),     "0.00001"        },
             {  L_,    DEC(1E-4),         N(4),     "0.0001"         },
 
-            {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
-            {  L_,    DEC(11E-8),        N(1),     "1.1E-7"         },
+            {  L_,    DEC(1E-8),         N(0),     "1e-8"           },
+            {  L_,    DEC(11E-8),        N(1),     "1.1e-7"         },
             {  L_,    DEC(111E-8),       N(8),     "0.00000111"     },
             {  L_,    DEC(1111E-8),      N(8),     "0.00001111"     },
             {  L_,    DEC(11111E-8),     N(8),     "0.00011111"     },
@@ -8085,9 +8085,9 @@ void TestDriver::testCase18()
                              "",                        \
                              POINT)
 
-            {  L_,    DEC( 123.0),    CONFIG('.'),     "1.23E+2"      },
-            {  L_,    DEC(-123.0),    CONFIG(','),    "-1,23E+2"      },
-            {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23E+2"      },
+            {  L_,    DEC( 123.0),    CONFIG('.'),     "1.23e+2"      },
+            {  L_,    DEC(-123.0),    CONFIG(','),    "-1,23e+2"      },
+            {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23e+2"      },
 #undef CONFIG
                 //-------------------------------------------------------------
                 // Test 'exponent'
@@ -8109,9 +8109,9 @@ void TestDriver::testCase18()
             {  L_,    DEC(1.11),         F(2),      "1.11"       },
             {  L_,    DEC(1.11),         F(3),      "1.110"      },
             {  L_,    DEC(1.11),         F(4),      "1.1100"     },
-            {  L_,    DEC(1.11),         S(2),      "1.11E+0"    },
-            {  L_,    DEC(1.11),         S(3),      "1.110E+0"   },
-            {  L_,    DEC(1.11),         S(4),      "1.1100E+0"  },
+            {  L_,    DEC(1.11),         S(2),      "1.11e+0"    },
+            {  L_,    DEC(1.11),         S(3),      "1.110e+0"   },
+            {  L_,    DEC(1.11),         S(4),      "1.1100e+0"  },
             {  L_,    DEC(1.11),         N(2),      "1.11"       },
             {  L_,    DEC(1.11),         N(3),      "1.110"      },
             {  L_,    DEC(1.11),         N(4),      "1.1100"     },
@@ -8126,15 +8126,15 @@ void TestDriver::testCase18()
             {  L_,    DEC(9.99),         F(2),      "9.99"       },
             {  L_,    DEC(9.99),         F(1),      "10.0"       },
             {  L_,    DEC(9.99),         F(0),      "10"         },
-            {  L_,    DEC(4.44),         S(2),      "4.44E+0"    },
-            {  L_,    DEC(4.44),         S(1),      "4.4E+0"     },
-            {  L_,    DEC(4.44),         S(0),      "4E+0"       },
-            {  L_,    DEC(5.55),         S(2),      "5.55E+0"    },
-            {  L_,    DEC(5.55),         S(1),      "5.6E+0"     },
-            {  L_,    DEC(5.55),         S(0),      "6E+0"       },
-            {  L_,    DEC(9.99),         S(2),      "9.99E+0"    },
-            {  L_,    DEC(9.99),         S(1),      "1.0E+1"     },
-            {  L_,    DEC(9.99),         S(0),      "1E+1"       },
+            {  L_,    DEC(4.44),         S(2),      "4.44e+0"    },
+            {  L_,    DEC(4.44),         S(1),      "4.4e+0"     },
+            {  L_,    DEC(4.44),         S(0),      "4e+0"       },
+            {  L_,    DEC(5.55),         S(2),      "5.55e+0"    },
+            {  L_,    DEC(5.55),         S(1),      "5.6e+0"     },
+            {  L_,    DEC(5.55),         S(0),      "6e+0"       },
+            {  L_,    DEC(9.99),         S(2),      "9.99e+0"    },
+            {  L_,    DEC(9.99),         S(1),      "1.0e+1"     },
+            {  L_,    DEC(9.99),         S(0),      "1e+1"       },
             {  L_,    DEC(4.44),         N(2),      "4.44"       },
             {  L_,    DEC(4.44),         N(1),      "4.4"        },
             {  L_,    DEC(4.44),         N(0),      "4"          },
@@ -8244,30 +8244,6 @@ void TestDriver::testCase18()
                 ASSERT_SAFE_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
                 ASSERT_SAFE_FAIL(Util::format(     0, k_SIZE, V, CFG));
             }
-
-            if (veryVerbose) cout << "\t'Negative buffer size'" << endl;
-            {
-                const int    k_SIZE = 1000;
-                char         BUFFER[k_SIZE];
-                const Type   V = Util::makeDecimalRaw32(0, 0);
-                const Config CFG(6);
-
-                ASSERT_SAFE_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
-                ASSERT_SAFE_FAIL(Util::format(BUFFER,     -1, V, CFG));
-            }
-
-            // if (veryVerbose) cout << "\t'Negative precision'" << endl;
-            // {
-            //     const Config VALID(0);
-            //     const Config INVALID(-1);
-            //     const int                         k_SIZE = 1000;
-            //     char                              BUFFER[k_SIZE];
-            //     const Type                        V = Util::makeDecimalRaw32(0, 0);
-            //     const Config CFG(6);
-
-            //     ASSERT_SAFE_PASS(Util::format(BUFFER, k_SIZE, V, VALID));
-            //     ASSERT_SAFE_FAIL(Util::format(BUFFER,     -1, V, INVALID));
-            // }
         }
     }
 #undef DEC
@@ -8373,7 +8349,7 @@ void TestDriver::testCase18()
                                                    sizeof SIGNIFICANDS
                                                    / sizeof *SIGNIFICANDS);
 
-        const Config CONFIGURATIONS[] = { F(383),
+        const Config CONFIGURATIONS[] = { F(398),
                                           S(15),
                                           N(21),
         };
@@ -8388,8 +8364,8 @@ void TestDriver::testCase18()
         for (int ci = 0; ci < NUM_CONFIGURATIONS; ++ci) {
 
             const Config& CONFIG       =  CONFIGURATIONS[ci];
-            const int     EXPONENT_MIN = -383;
-            const int     EXPONENT_MAX =  384;
+            const int     EXPONENT_MIN = -398;
+            const int     EXPONENT_MAX =  369;
 
             for (int si = 0; si < NUM_SIGNIFCANDS; ++si) {
                 const unsigned long long SIGNIFICAND = SIGNIFICANDS[si];
@@ -8411,7 +8387,7 @@ void TestDriver::testCase18()
                     LOOP3_ASSERT(L_,
                                  SIGNIFICAND,
                                  EXPONENT,
-                                 Util::equal(VALUE, EXPECTED));
+                                 Util::equal(RESULT, EXPECTED));
                 }
             }
         }
@@ -8465,34 +8441,34 @@ void TestDriver::testCase18()
             // -----------------------------------------------------------
             // SCIENTIFIC format
             // C-1,5
-            {  L_,    SUBN_P,          S(0),    "1E-398"                 },
-            {  L_,    SUBN_N,          S(0),   "-1E-398"                 },
+            {  L_,    SUBN_P,          S(0),    "1e-398"                 },
+            {  L_,    SUBN_N,          S(0),   "-1e-398"                 },
             {  L_,    INF_P,           S(0),    "inf"                    },
             {  L_,    INF_N,           S(0),   "-inf"                    },
             {  L_,    NAN_Q_P,         S(0),    "nan"                    },
             {  L_,    NAN_Q_N,         S(0),   "-nan"                    },
             {  L_,    NAN_S_P,         S(0),    "snan"                   },
             {  L_,    NAN_S_N,         S(0),   "-snan"                   },
-            {  L_,    MAX_P,           S(15),   "9.999999999999999E+384" },
-            {  L_,    MAX_N,           S(15),  "-9.999999999999999E+384" },
-            {  L_,    MIN_P,           S(0),    "1E-383"                 },
-            {  L_,    MIN_N,           S(0),   "-1E-383"                 },
-            {  L_,    DEC(-0.0),       S(0),   "-0E-1"                   },
-            {  L_,    DEC(0.0),        S(0),    "0E-1"                   },
-            {  L_,    DEC(0.0),        S(1),    "0.0E-1"                 },
-            {  L_,    DEC(0.00),       S(2),    "0.00E-2"                },
-            {  L_,    DEC(0.000),      S(3),    "0.000E-3"               },
+            {  L_,    MAX_P,           S(15),   "9.999999999999999e+384" },
+            {  L_,    MAX_N,           S(15),  "-9.999999999999999e+384" },
+            {  L_,    MIN_P,           S(0),    "1e-383"                 },
+            {  L_,    MIN_N,           S(0),   "-1e-383"                 },
+            {  L_,    DEC(-0.0),       S(0),   "-0e-1"                   },
+            {  L_,    DEC(0.0),        S(0),    "0e-1"                   },
+            {  L_,    DEC(0.0),        S(1),    "0.0e-1"                 },
+            {  L_,    DEC(0.00),       S(2),    "0.00e-2"                },
+            {  L_,    DEC(0.000),      S(3),    "0.000e-3"               },
 
             //-------------------------------------------------------------
             // C-6
-            {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
-            {  L_,    DEC(1E-7),         N(0),     "1E-7"           },
+            {  L_,    DEC(1E-8),         N(0),     "1e-8"           },
+            {  L_,    DEC(1E-7),         N(0),     "1e-7"           },
             {  L_,    DEC(1E-6),         N(6),     "0.000001"       },
             {  L_,    DEC(1E-5),         N(5),     "0.00001"        },
             {  L_,    DEC(1E-4),         N(4),     "0.0001"         },
 
-            {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
-            {  L_,    DEC(11E-8),        N(1),     "1.1E-7"         },
+            {  L_,    DEC(1E-8),         N(0),     "1e-8"           },
+            {  L_,    DEC(11E-8),        N(1),     "1.1e-7"         },
             {  L_,    DEC(111E-8),       N(8),     "0.00000111"     },
             {  L_,    DEC(1111E-8),      N(8),     "0.00001111"     },
             {  L_,    DEC(11111E-8),     N(8),     "0.00011111"     },
@@ -8559,9 +8535,9 @@ void TestDriver::testCase18()
                              "",                        \
                              POINT)
 
-            {  L_,    DEC( 123.0),    CONFIG('.'),     "1.23E+2"      },
-            {  L_,    DEC(-123.0),    CONFIG(','),    "-1,23E+2"      },
-            {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23E+2"      },
+            {  L_,    DEC( 123.0),    CONFIG('.'),     "1.23e+2"      },
+            {  L_,    DEC(-123.0),    CONFIG(','),    "-1,23e+2"      },
+            {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23e+2"      },
 #undef CONFIG
             //-------------------------------------------------------------
             // Test 'exponent'
@@ -8584,9 +8560,9 @@ void TestDriver::testCase18()
             {  L_,    DEC(1.11),         F(2),      "1.11"       },
             {  L_,    DEC(1.11),         F(3),      "1.110"      },
             {  L_,    DEC(1.11),         F(4),      "1.1100"     },
-            {  L_,    DEC(1.11),         S(2),      "1.11E+0"    },
-            {  L_,    DEC(1.11),         S(3),      "1.110E+0"   },
-            {  L_,    DEC(1.11),         S(4),      "1.1100E+0"  },
+            {  L_,    DEC(1.11),         S(2),      "1.11e+0"    },
+            {  L_,    DEC(1.11),         S(3),      "1.110e+0"   },
+            {  L_,    DEC(1.11),         S(4),      "1.1100e+0"  },
             {  L_,    DEC(1.11),         N(2),      "1.11"       },
             {  L_,    DEC(1.11),         N(3),      "1.110"      },
             {  L_,    DEC(1.11),         N(4),      "1.1100"     },
@@ -8603,15 +8579,15 @@ void TestDriver::testCase18()
             {  L_,    DEC(9.99),         F(1),      "10.0"       },
             {  L_,    DEC(9.99),         F(0),      "10"         },
 
-            {  L_,    DEC(4.44),         S(2),      "4.44E+0"    },
-            {  L_,    DEC(4.44),         S(1),      "4.4E+0"     },
-            {  L_,    DEC(4.44),         S(0),      "4E+0"       },
-            {  L_,    DEC(5.55),         S(2),      "5.55E+0"    },
-            {  L_,    DEC(5.55),         S(1),      "5.6E+0"     },
-            {  L_,    DEC(5.55),         S(0),      "6E+0"       },
-            {  L_,    DEC(9.99),         S(2),      "9.99E+0"    },
-            {  L_,    DEC(9.99),         S(1),      "1.0E+1"     },
-            {  L_,    DEC(9.99),         S(0),      "1E+1"       },
+            {  L_,    DEC(4.44),         S(2),      "4.44e+0"    },
+            {  L_,    DEC(4.44),         S(1),      "4.4e+0"     },
+            {  L_,    DEC(4.44),         S(0),      "4e+0"       },
+            {  L_,    DEC(5.55),         S(2),      "5.55e+0"    },
+            {  L_,    DEC(5.55),         S(1),      "5.6e+0"     },
+            {  L_,    DEC(5.55),         S(0),      "6e+0"       },
+            {  L_,    DEC(9.99),         S(2),      "9.99e+0"    },
+            {  L_,    DEC(9.99),         S(1),      "1.0e+1"     },
+            {  L_,    DEC(9.99),         S(0),      "1e+1"       },
 
             {  L_,    DEC(4.44),         N(2),      "4.44"       },
             {  L_,    DEC(4.44),         N(1),      "4.4"        },
@@ -8722,17 +8698,6 @@ void TestDriver::testCase18()
 
                 ASSERT_SAFE_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
                 ASSERT_SAFE_FAIL(Util::format(     0, k_SIZE, V, CFG));
-            }
-
-            if (veryVerbose) cout << "\t'Negative buffer size'" << endl;
-            {
-                const int    k_SIZE = 1000;
-                char         BUFFER[k_SIZE];
-                const Type   V = Util::makeDecimalRaw64(0, 0);
-                const Config CFG(6);
-
-                ASSERT_SAFE_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
-                ASSERT_SAFE_FAIL(Util::format(BUFFER,     -1, V, CFG));
             }
         }
     }
@@ -8857,7 +8822,7 @@ void TestDriver::testCase18()
                                                    sizeof SIGNIFICANDS
                                                    / sizeof *SIGNIFICANDS);
 
-        const Config CONFIGURATIONS[] = { F(6143),
+        const Config CONFIGURATIONS[] = { F(6176),
                                           S(33),
                                           N(33),
         };
@@ -8872,8 +8837,8 @@ void TestDriver::testCase18()
         for (int ci = 0; ci < NUM_CONFIGURATIONS; ++ci) {
 
             const Config& CONFIG       = CONFIGURATIONS[ci];
-            const int     EXPONENT_MIN = -6143;
-            const int     EXPONENT_MAX =  6144;
+            const int     EXPONENT_MIN = -6176;
+            const int     EXPONENT_MAX =  6111;
 
             for (int si = 0; si < NUM_SIGNIFCANDS; ++si) {
                 const char *SIGNIFICAND = SIGNIFICANDS[si];
@@ -8892,13 +8857,13 @@ void TestDriver::testCase18()
                                            value,
                                            CONFIG);
 
-                    value = Util::parse128(
+                    const Type RESULT = Util::parse128(
                                         bsl::string(BUFFER, len, pa).c_str());
 
                     LOOP3_ASSERT(L_,
                                  SIGNIFICAND,
                                  EXPONENT,
-                                 Util::equal(value, EXPECTED));
+                                 Util::equal(RESULT, EXPECTED));
                 }
             }
         }
@@ -8952,8 +8917,8 @@ void TestDriver::testCase18()
             // -----------------------------------------------------------
             // SCIENTIFIC format
             // C-1,5
-            {  L_,    SUBN_P,            S(0),    "1E-6176"              },
-            {  L_,    SUBN_N,            S(0),   "-1E-6176"              },
+            {  L_,    SUBN_P,            S(0),    "1e-6176"              },
+            {  L_,    SUBN_N,            S(0),   "-1e-6176"              },
             {  L_,    INF_P,             S(0),    "inf"                  },
             {  L_,    INF_N,             S(0),   "-inf"                  },
             {  L_,    NAN_Q_P,           S(0),    "nan"                  },
@@ -8961,27 +8926,27 @@ void TestDriver::testCase18()
             {  L_,    NAN_S_P,           S(0),    "snan"                 },
             {  L_,    NAN_S_N,           S(0),   "-snan"                 },
             {  L_,    MAX_P,             S(33),
-                             "9.999999999999999999999999999999999E+6144" },
+                             "9.999999999999999999999999999999999e+6144" },
             {  L_,    MAX_N,             S(33),
-                            "-9.999999999999999999999999999999999E+6144" },
-            {  L_,    MIN_P,             S(0),    "1E-6143"              },
-            {  L_,    MIN_N,             S(0),   "-1E-6143"              },
-            {  L_,    DEC(-0.0),         S(0),   "-0E-1"                 },
-            {  L_,    DEC(0.0),          S(0),    "0E-1"                 },
-            {  L_,    DEC(0.0),          S(1),    "0.0E-1"               },
-            {  L_,    DEC(0.00),         S(2),    "0.00E-2"              },
-            {  L_,    DEC(0.000),        S(3),    "0.000E-3"             },
+                            "-9.999999999999999999999999999999999e+6144" },
+            {  L_,    MIN_P,             S(0),    "1e-6143"              },
+            {  L_,    MIN_N,             S(0),   "-1e-6143"              },
+            {  L_,    DEC(-0.0),         S(0),   "-0e-1"                 },
+            {  L_,    DEC(0.0),          S(0),    "0e-1"                 },
+            {  L_,    DEC(0.0),          S(1),    "0.0e-1"               },
+            {  L_,    DEC(0.00),         S(2),    "0.00e-2"              },
+            {  L_,    DEC(0.000),        S(3),    "0.000e-3"             },
 
             //-------------------------------------------------------------
             // C-6
-            {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
-            {  L_,    DEC(1E-7),         N(0),     "1E-7"           },
+            {  L_,    DEC(1E-8),         N(0),     "1e-8"           },
+            {  L_,    DEC(1E-7),         N(0),     "1e-7"           },
             {  L_,    DEC(1E-6),         N(6),     "0.000001"       },
             {  L_,    DEC(1E-5),         N(5),     "0.00001"        },
             {  L_,    DEC(1E-4),         N(4),     "0.0001"         },
 
-            {  L_,    DEC(1E-8),         N(0),     "1E-8"           },
-            {  L_,    DEC(11E-8),        N(1),     "1.1E-7"         },
+            {  L_,    DEC(1E-8),         N(0),     "1e-8"           },
+            {  L_,    DEC(11E-8),        N(1),     "1.1e-7"         },
             {  L_,    DEC(111E-8),       N(8),     "0.00000111"     },
             {  L_,    DEC(1111E-8),      N(8),     "0.00001111"     },
             {  L_,    DEC(11111E-8),     N(8),     "0.00011111"     },
@@ -9048,9 +9013,9 @@ void TestDriver::testCase18()
                              "",                        \
                              POINT)
 
-            {  L_,    DEC( 123.0),    CONFIG('.'),     "1.23E+2"      },
-            {  L_,    DEC(-123.0),    CONFIG(','),    "-1,23E+2"      },
-            {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23E+2"      },
+            {  L_,    DEC( 123.0),    CONFIG('.'),     "1.23e+2"      },
+            {  L_,    DEC(-123.0),    CONFIG(','),    "-1,23e+2"      },
+            {  L_,    DEC( 123.0),    CONFIG('_'),     "1_23e+2"      },
 #undef CONFIG
                 //-------------------------------------------------------------
                 // Test 'exponent'
@@ -9072,9 +9037,9 @@ void TestDriver::testCase18()
             {  L_,    DEC(1.11),         F(2),      "1.11"       },
             {  L_,    DEC(1.11),         F(3),      "1.110"      },
             {  L_,    DEC(1.11),         F(4),      "1.1100"     },
-            {  L_,    DEC(1.11),         S(2),      "1.11E+0"    },
-            {  L_,    DEC(1.11),         S(3),      "1.110E+0"   },
-            {  L_,    DEC(1.11),         S(4),      "1.1100E+0"  },
+            {  L_,    DEC(1.11),         S(2),      "1.11e+0"    },
+            {  L_,    DEC(1.11),         S(3),      "1.110e+0"   },
+            {  L_,    DEC(1.11),         S(4),      "1.1100e+0"  },
             {  L_,    DEC(1.11),         N(2),      "1.11"       },
             {  L_,    DEC(1.11),         N(3),      "1.110"      },
             {  L_,    DEC(1.11),         N(4),      "1.1100"     },
@@ -9091,15 +9056,15 @@ void TestDriver::testCase18()
             {  L_,    DEC(9.99),         F(1),      "10.0"       },
             {  L_,    DEC(9.99),         F(0),      "10"         },
 
-            {  L_,    DEC(4.44),         S(2),      "4.44E+0"    },
-            {  L_,    DEC(4.44),         S(1),      "4.4E+0"     },
-            {  L_,    DEC(4.44),         S(0),      "4E+0"       },
-            {  L_,    DEC(5.55),         S(2),      "5.55E+0"    },
-            {  L_,    DEC(5.55),         S(1),      "5.6E+0"     },
-            {  L_,    DEC(5.55),         S(0),      "6E+0"       },
-            {  L_,    DEC(9.99),         S(2),      "9.99E+0"    },
-            {  L_,    DEC(9.99),         S(1),      "1.0E+1"     },
-            {  L_,    DEC(9.99),         S(0),      "1E+1"       },
+            {  L_,    DEC(4.44),         S(2),      "4.44e+0"    },
+            {  L_,    DEC(4.44),         S(1),      "4.4e+0"     },
+            {  L_,    DEC(4.44),         S(0),      "4e+0"       },
+            {  L_,    DEC(5.55),         S(2),      "5.55e+0"    },
+            {  L_,    DEC(5.55),         S(1),      "5.6e+0"     },
+            {  L_,    DEC(5.55),         S(0),      "6e+0"       },
+            {  L_,    DEC(9.99),         S(2),      "9.99e+0"    },
+            {  L_,    DEC(9.99),         S(1),      "1.0e+1"     },
+            {  L_,    DEC(9.99),         S(0),      "1e+1"       },
 
             {  L_,    DEC(4.44),         N(2),      "4.44"       },
             {  L_,    DEC(4.44),         N(1),      "4.4"        },
@@ -9136,7 +9101,7 @@ void TestDriver::testCase18()
 
             //-------------------------------------------------------------
             // C-6
-            {  L_,    DEC(1E-7),         N(0),     "1E-7"           },
+            {  L_,    DEC(1E-7),         N(0),     "1e-7"           },
             {  L_,    DEC(1E-6),         N(6),     "0.000001"       },
             {  L_,    DEC(1.1E-6),       N(7),     "0.0000011"      },
             {  L_,    DEC(1.11E-6),      N(8),     "0.00000111"     },
@@ -9144,6 +9109,7 @@ void TestDriver::testCase18()
             {  L_,    DEC(1.1111E-6),    N(10),    "0.0000011111"   },
             {  L_,    DEC(1.11111E-6),   N(11),    "0.00000111111"  },
             {  L_,    DEC(1.111111E-6),  N(12),    "0.000001111111" },
+            {  L_,    DEC(1.1111111E-6), N(13),    "0.0000011111111" },
 
             {  L_,    DEC(1E+0),         N(0),     "1"              },
             {  L_,    DEC(1.1E+1),       N(0),     "11"             },
@@ -9152,7 +9118,7 @@ void TestDriver::testCase18()
             {  L_,    DEC(1.1111E+4),    N(0),     "11111"          },
             {  L_,    DEC(1.11111E+5),   N(0),     "111111"         },
             {  L_,    DEC(1.111111E+6),  N(0),     "1111111"        },
-            {  L_,    DEC(1.111111E+7),  N(6),     "1.111111E+7"    },
+            {  L_,    DEC(1.111111E+7),  N(6),     "1.111111e+7"    },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -9230,17 +9196,6 @@ void TestDriver::testCase18()
 
                 ASSERT_SAFE_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
                 ASSERT_SAFE_FAIL(Util::format(     0, k_SIZE, V, CFG));
-            }
-
-            if (veryVerbose) cout << "\t'Negative buffer size'" << endl;
-            {
-                const int    k_SIZE = 1000;
-                char         BUFFER[k_SIZE];
-                const Type   V = Util::makeDecimalRaw128(0, 0);
-                const Config CFG(6);
-
-                ASSERT_SAFE_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
-                ASSERT_SAFE_FAIL(Util::format(BUFFER,     -1, V, CFG));
             }
         }
     }

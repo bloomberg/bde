@@ -562,7 +562,7 @@ int main(int argc, char* argv[])
             {
                 // Test that 'format' produces the same resultant string
                 // when invoked with 'MAX_DAGIT_CONFIG' configuration.
-                const bsl::string EXPECTED("1.234567E+0", pa);
+                const bsl::string EXPECTED("1.234567e+0", pa);
 
                 LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
 
@@ -588,7 +588,7 @@ int main(int argc, char* argv[])
                 // distinct from 'DEFAULT' string when invoked with
                 // precision distinct from the one provided by default
                 // configuration object.
-                const bsl::string EXPECTED("1.23457E+0", pa);
+                const bsl::string EXPECTED("1.23457e+0", pa);
                 const Config CONFIG(5);
                 len = Util::format(buffer,
                                    k_BUFFER_SIZE,
@@ -650,7 +650,7 @@ int main(int argc, char* argv[])
             {
                 // Test that 'format' produces the same resultant string
                 // when invoked with 'MAX_DAGIT_CONFIG' configuration.
-                const bsl::string EXPECTED("1.234567890123456E+0", pa);
+                const bsl::string EXPECTED("1.234567890123456e+0", pa);
 
                 LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
 
@@ -676,7 +676,7 @@ int main(int argc, char* argv[])
                 // distinct from 'DEFAULT' string when invoked with
                 // precision distinct from the one provided by default
                 // configuration object.
-                const bsl::string EXPECTED("1.23457E+0", pa);
+                const bsl::string EXPECTED("1.23457e+0", pa);
                 const Config CONFIG(5);
                 len = Util::format(buffer,
                                    k_BUFFER_SIZE,
@@ -743,7 +743,7 @@ int main(int argc, char* argv[])
                 // Test that 'format' produces the same resultant string
                 // when invoked with 'MAX_DAGIT_CONFIG' configuration.
                 const bsl::string EXPECTED(
-                                 "1.234567890123456789012345678901234E+0", pa);
+                                 "1.234567890123456789012345678901234e+0", pa);
 
                 LOOP3_ASSERT(L_, DEFAULT, EXPECTED, DEFAULT == EXPECTED);
 
@@ -769,7 +769,7 @@ int main(int argc, char* argv[])
                 // distinct from 'DEFAULT' string when invoked with
                 // precision distinct from the one provided by default
                 // configuration object.
-                const bsl::string EXPECTED("1.23457E+0", pa);
+                const bsl::string EXPECTED("1.23457e+0", pa);
                 const Config CONFIG(5);
                 len = Util::format(buffer,
                                    k_BUFFER_SIZE,
