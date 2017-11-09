@@ -1281,6 +1281,191 @@ class DeprecatedBdex {
 };
 #endif
 
+                   // ======================================
+                   // class ConvertibleFromAllocatorTestType
+                   // ======================================
+
+class ConvertibleFromAllocatorTestType {
+    // This unconstrained (value-semantic) attribute class uses a
+    // 'bslma::Allocator' to supply memory and defines the type trait
+    // 'bslma::UsesBslmaAllocator'.  Objects of this class are *implictly*
+    // constructible from a 'bslma::Allocator *'.  See DRQS 109738646.
+
+    // DATA
+    int              *d_data_p;       // pointer to the data value
+
+    bslma::Allocator *d_allocator_p;  // allocator used to supply memory (held,
+                                      // not owned)
+
+  public:
+    // CREATORS
+    ConvertibleFromAllocatorTestType(
+                            bslma::Allocator *basicAllocator = 0);  // IMPLICIT
+        // Create a 'ConvertibleFromAllocatorTestTypeAllocTestType' object
+        // having the (default) attribute values:
+        //..
+        //  data() == 0
+        //..
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  Note that 'ConvertibleFromAllocatorTestTypeAllocTestType' is
+        // *implicitly* convertible from 'bslma::Allocator *' by design.
+
+    explicit ConvertibleFromAllocatorTestType(
+                                         int               data,
+                                         bslma::Allocator *basicAllocator = 0);
+        // Create a 'ConvertibleFromAllocatorTestType' object having the
+        // specified 'data' attribute value.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+
+    ConvertibleFromAllocatorTestType(
+                  const ConvertibleFromAllocatorTestType&  original,
+                  bslma::Allocator                        *basicAllocator = 0);
+        // Create a 'ConvertibleFromAllocatorTestType' object having the same
+        // value as the specified 'original' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+
+    ~ConvertibleFromAllocatorTestType();
+        // Destroy this object.
+
+    // MANIPULATORS
+    ConvertibleFromAllocatorTestType& operator=(
+                                  const ConvertibleFromAllocatorTestType& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+    void setData(int value);
+        // Set the 'data' attribute of this object to the specified 'value'.
+
+    // ACCESSORS
+    int data() const;
+        // Return the value of the 'data' attribute of this object.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
+};
+
+// FREE OPERATORS
+bool operator==(const ConvertibleFromAllocatorTestType& lhs,
+                const ConvertibleFromAllocatorTestType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'ConvertibleFromAllocatorTestType'
+    // objects have the same if their 'data' attributes are the same.
+
+bool operator!=(const ConvertibleFromAllocatorTestType& lhs,
+                const ConvertibleFromAllocatorTestType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two
+    // 'ConvertibleFromAllocatorTestType' objects do not have the same value if
+    // their 'data' attributes are not the same.
+
+                   // --------------------------------------
+                   // class ConvertibleFromAllocatorTestType
+                   // --------------------------------------
+
+// CREATORS
+inline
+ConvertibleFromAllocatorTestType::ConvertibleFromAllocatorTestType(
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_data_p  = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = 0;
+}
+
+inline
+ConvertibleFromAllocatorTestType::ConvertibleFromAllocatorTestType(
+                                              int               data,
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_data_p  = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = data;
+}
+
+inline
+ConvertibleFromAllocatorTestType::ConvertibleFromAllocatorTestType(
+                       const ConvertibleFromAllocatorTestType&  original,
+                       bslma::Allocator                        *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_data_p  = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = *original.d_data_p;
+}
+
+inline
+ConvertibleFromAllocatorTestType::~ConvertibleFromAllocatorTestType()
+{
+    d_allocator_p->deallocate(d_data_p);
+}
+
+// MANIPULATORS
+inline
+ConvertibleFromAllocatorTestType&
+ConvertibleFromAllocatorTestType::operator=(
+                                   const ConvertibleFromAllocatorTestType& rhs)
+{
+    if (&rhs != this) {
+        int *newData = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+        d_allocator_p->deallocate(d_data_p);
+        d_data_p  = newData;
+        *d_data_p = *rhs.d_data_p;
+    }
+    return *this;
+}
+
+inline
+void ConvertibleFromAllocatorTestType::setData(int value)
+{
+    *d_data_p = value;
+}
+
+// ACCESSORS
+inline
+int ConvertibleFromAllocatorTestType::data() const
+{
+    return *d_data_p;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *ConvertibleFromAllocatorTestType::allocator() const
+{
+    return d_allocator_p;
+}
+
+// FREE OPERATORS
+inline
+bool operator==(const ConvertibleFromAllocatorTestType& lhs,
+                const ConvertibleFromAllocatorTestType& rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool operator!=(const ConvertibleFromAllocatorTestType& lhs,
+                const ConvertibleFromAllocatorTestType& rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<ConvertibleFromAllocatorTestType> : bsl::true_type {
+
+};
+}  // close namespace bslma
+}  // close enterprise namespace
+
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -5544,11 +5729,15 @@ int main(int argc, char *argv[])
         // TESTING CONVERSION CONSTRUCTORS
         //
         // Concerns:
-        //   - That convertible underlying types convert.
-        //   - That types for which there is no conversion do not compile
-        //     (we will do this test by hand for now, but could use template
-        //     magic later, perhaps, to ensure that non-compile is enforced
-        //     by the compiler).
+        //: 1 That convertible underlying types convert.
+        //:
+        //: 2 That types implicitly convertible from 'bslma::Allocator *' are
+        //:   handled correctly.
+        //:
+        //: 3 That types for which there is no conversion do not compile (we
+        //:   will do this test by hand for now, but could use template magic
+        //:   later, perhaps, to ensure that non-compilation is enforced by the
+        //:   compiler).
         //
         // Plan:
         //   Conduct the regular test using 'int' and 'double'.  Then try
@@ -5683,6 +5872,19 @@ int main(int argc, char *argv[])
                 const ObjType Y(dummyFunction);   // decay
                 ASSERT(!Y.isNull());
 #endif
+            }
+
+            if (verbose) cout <<
+              "\tTest w/type implicitly convertible from 'bslma::Allocator *'."
+                              << endl;
+            {
+                typedef ConvertibleFromAllocatorTestType ValueType;
+                typedef bdlb::NullableValue<ValueType>   ObjType;
+
+                bslma::TestAllocator oa("default", veryVeryVeryVerbose);
+
+                ObjType mX(&oa);  const ObjType& X = mX;
+                ASSERT(X.isNull());
             }
         }
 
