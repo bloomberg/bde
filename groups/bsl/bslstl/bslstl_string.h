@@ -1024,6 +1024,10 @@ class String_ClearProctor {
     // string upon it's destruction.  The intended usage is to implement
     // 'assign' methods in terms of 'append' (by clearing the string before
     // appending to it), while maintaining the strong exceptions guarantee.
+    // Note that after constructing this proctor for a string 's', the
+    // invariant 's[s.length()] == CHAR_TYPE()' is violated for non-empty 's'.
+    // This invariant will be restored by either a successful 'append' or by
+    // the proctor's destructor if an exception is thrown.
 
     // PRIVATE TYPES
     typedef typename STRING_TYPE::size_type   size_type;
@@ -3225,17 +3229,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
     for (; first != last; ++first) {
         temp.push_back(*first);
     }
-    if (length() == 0) {
-        // Note: can potentially shrink the capacity, hence the reserve.
-
-        temp.privateReserveRaw(capacity());
+    if (length() == 0 && capacity() <= temp.capacity()) {
         quickSwapRetainAllocators(temp);
 
-#if defined BDE_BUILD_TARGET_SAFE
-        // The invariant of the original string swapped into temp may be
-        // violated by 'String_ClearProctor'.
+        // This object may not have been null-terminated because of
+        // String_ClearProctor, so force null termination in the swapped-into
+        // temporary.
         CHAR_TRAITS::assign(*(temp.dataPtr()), CHAR_TYPE());
-#endif
         return *this;                                                 // RETURN
     }
     return privateAppend(temp.data(), temp.length(), message);
