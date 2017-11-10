@@ -332,9 +332,9 @@ class WideBufferWrapper<char> {
 
   public:
     // CREATORS
-    WideBufferWrapper(const char *buffer, int len, const bsl::locale& loc);
+    WideBufferWrapper(const char *buffer, int len, const bsl::locale&);
         // Create a wide buffer wrapper for the specified 'buffer' of the
-        // specified length 'len'.  Note the specified 'loc' is not used.
+        // specified length 'len'.
 
     // ACCESSORS
     const char *begin() const;

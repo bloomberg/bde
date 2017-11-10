@@ -711,19 +711,19 @@ struct DecimalUtil {
     int format(char                      *buffer,
                int                        length,
                Decimal32                  value,
-               const DecimalFormatConfig& cfg = DecimalFormatConfig(6));
+               const DecimalFormatConfig& cfg = DecimalFormatConfig());
 
     static
     int format(char                      *buffer,
                int                        length,
                Decimal64                  value,
-               const DecimalFormatConfig& cfg = DecimalFormatConfig(15));
+               const DecimalFormatConfig& cfg = DecimalFormatConfig());
 
     static
     int format(char                      *buffer,
                int                        length,
                Decimal128                 value,
-               const DecimalFormatConfig& cfg = DecimalFormatConfig(33));
+               const DecimalFormatConfig& cfg = DecimalFormatConfig());
         // Format the specified 'value', placing the output in the buffer
         // designated by the specified 'buffer' and 'length', and return the
         // length of the formatted value.  If there is insufficient room in the
@@ -746,6 +746,11 @@ struct DecimalUtil {
         // precision.  The rounding should be done as "round-half-up", i.e.,
         // round up in magnitude when the first of the discarded digits is
         // between 5 and 9.
+        //
+        // Also note that if the configuration format attribute 'style' is
+        // 'e_NATURAL' then all significand digits of the 'value' are output in
+        // the buffer regardless of the value specified in configuration's
+        // 'precision' attribute.
 };
 
 // ============================================================================

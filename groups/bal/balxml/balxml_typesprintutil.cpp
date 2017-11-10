@@ -1009,35 +1009,37 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
     typedef bsl::numeric_limits<bdldfp::Decimal64> Limits;
     typedef bdldfp::DecimalFormatConfig Config;
 
-    const bsl::streamsize precision =
+    Config cfg;
+    if (stream.flags() & bsl::ios::floatfield) {
+        const bsl::streamsize precision =
                   bsl::min(static_cast<bsl::streamsize>(Limits::max_precision),
                            stream.precision());
 
-    Config cfg(static_cast<int>(precision));
-    cfg.setStyle((stream.flags() & bsl::ios::scientific)
-                 ? Config::e_SCIENTIFIC
-                 : Config::e_FIXED);
+        cfg.setPrecision(static_cast<int>(precision));
+        cfg.setStyle((stream.flags() & bsl::ios::scientific)
+                     ? Config::e_SCIENTIFIC
+                     : Config::e_FIXED);
+    }
     cfg.setInfinity("INF");
     cfg.setNan("NaN");
-    cfg.setSNan("sNaN");
-    cfg.setExponent('e');
+    cfg.setSNan("NaN");
 
-    char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE + 1];
-    int  len = bdldfp::DecimalUtil::format(
-                               buffer,
-                               BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE,
-                               object,
-                               cfg);
+    const int k_BUFFER_SIZE = 1                          // sign
+                            + 1 + Limits::max_exponent10 // integer part
+                            + 1                          // decimal point
+                            + Limits::max_precision;     // partial part
+        // The size of the buffer sufficient to store max 'bdldfp::Decimal64'
+        // value in fixed notation with the max precision supported by
+        // 'bdldfp::Decimal64' type.
 
-    if  (len <= BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE) {
-        buffer[len] = 0;
-        stream << buffer;
-    }
-    else {
-        bsl::string buffer(len + 1, 0);
-        bdldfp::DecimalUtil::format(buffer.begin(), len, object, cfg);
-        stream << buffer;
-    }
+    char buffer[k_BUFFER_SIZE + 1];
+    int  len = bdldfp::DecimalUtil::format(buffer,
+                                           k_BUFFER_SIZE,
+                                           object,
+                                           cfg);
+    BSLS_ASSERT(len <= k_BUFFER_SIZE);
+    buffer[len] = 0;
+    stream << buffer;
 
     return stream;
 }
