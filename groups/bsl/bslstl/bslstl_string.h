@@ -977,16 +977,18 @@ class String_Imp {
 
 template<class STRING_TYPE>
 class String_ClearProctor {
-    // This component private 'class' implements a proctor that clears a
-    // string, and, if 'release' is not called, will restore that string upon
-    // it's destruction.  The intended usage is to implement 'assign' methods
-    // in terms of 'append' (by clearing the string before appending to it),
-    // while maintaining the strong exceptions guarantee.
+    // This component private 'class' implements a proctor that sets the length
+    // of a string to zero, and, if 'release' is not called, will restore that
+    // string upon it's destruction.  The intended usage is to implement
+    // 'assign' methods in terms of 'append' (by clearing the string before
+    // appending to it), while maintaining the strong exceptions guarantee.
+    // Note that after constructing this proctor for a string 's', the
+    // invariant 's[s.length()] == CHAR_TYPE()' is violated for non-empty 's'.
+    // This invariant will be restored by either a successful 'append' or by
+    // the proctor's destructor if an exception is thrown.
 
     // PRIVATE TYPES
-    typedef typename STRING_TYPE::value_type  value_type;
     typedef typename STRING_TYPE::size_type   size_type;
-    typedef typename STRING_TYPE::traits_type traits_type;
 
     // DATA
     STRING_TYPE* d_string_p;          // pointer to the string supplied at
@@ -994,9 +996,6 @@ class String_ClearProctor {
 
     size_type    d_originalLength;    // original length of the string supplied
                                       // at construction
-
-    value_type   d_originalFirstChar; // original first character of the string
-                                      // supplied at construction
 
   public:
     // CREATORS
@@ -2993,10 +2992,8 @@ template <class STRING_TYPE>
 String_ClearProctor<STRING_TYPE>::String_ClearProctor(STRING_TYPE *stringPtr)
 : d_string_p(stringPtr)
 , d_originalLength(stringPtr->d_length)
-, d_originalFirstChar(*stringPtr->dataPtr())
 {
     d_string_p->d_length = 0;
-    traits_type::assign(*(d_string_p->dataPtr()), value_type());
 }
 
 template <class STRING_TYPE>
@@ -3004,7 +3001,6 @@ String_ClearProctor<STRING_TYPE>::~String_ClearProctor()
 {
     if (d_string_p) {
         d_string_p->d_length = d_originalLength;
-        traits_type::assign(*(d_string_p->dataPtr()), d_originalFirstChar);
     }
 }
 
@@ -3191,11 +3187,13 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
     for (; first != last; ++first) {
         temp.push_back(*first);
     }
-    if (length() == 0) {
-        // Note: can potentially shrink the capacity, hence the reserve.
-
-        temp.privateReserveRaw(capacity());
+    if (length() == 0 && capacity() <= temp.capacity()) {
         quickSwapRetainAllocators(temp);
+
+        // This object may not have been null-terminated because of
+        // String_ClearProctor, so force null termination in the swapped-into
+        // temporary.
+        CHAR_TRAITS::assign(*(temp.dataPtr()), CHAR_TYPE());
         return *this;                                                 // RETURN
     }
     return privateAppend(temp.data(), temp.length(), message);
