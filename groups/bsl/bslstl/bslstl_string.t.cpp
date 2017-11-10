@@ -13079,8 +13079,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     //   2) The 'rhs' value must not be affected by the operation.
     //   3) 'rhs' going out of scope has no effect on the value of 'lhs'
     //      after the assignment.
-    //   4) Aliasing (x = x): The assignment operator must always work --
-    //      even when the lhs and rhs are identically the same object.
+    //   4) Aliasing (x = x): The assignment operator must always work -- even
+    //      when the lhs and rhs are identically the same object and when the
+    //      object is being assigned the data it owns (x = x.c_str()).
     //   5) The assignment operator must be neutral with respect to memory
     //      allocation exceptions.
     //   6) The copy constructor's internal functionality varies
@@ -13113,10 +13114,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
     //   every permutation is not performed when exceptions are tested.
     //   Every permutation is also tested separately without exceptions.
     //
-    //   As a separate exercise, we address 4 and 5 by constructing tests
-    //   y = y for all y in T.  Using a canonical control X, we will verify
-    //   that X == y before and after the assignment, again within
-    //   the bslma exception testing apparatus.
+    //   As a separate exercise, we address 4 and 5 by constructing tests y =
+    //   y, y = y.c_str(), and y = StringRefData(y.begin(), y.end()) for all y
+    //   in T.  Using a canonical control X, we will verify that X == y before
+    //   and after the assignment.  In addition, we test construct tests y =
+    //   y.c_str() + OFFSET, y = StringRefData(y.begin() + OFFSET, y.end()),
+    //   where OFFSET is either 1 or y.length() - 1, to test partial
+    //   self-assignment for all y in T except empty string. We will verify
+    //   that X == y before the assignment and X.data() + OFFSET == y after the
+    //   assigment. All of the above is done within the bslma exception testing
+    //   apparatus.
     //
     //   To address concern 6, all these tests are performed on user
     //   defined types:
@@ -13405,6 +13412,28 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 
     if (verbose) printf("\nTesting self assignment (Aliasing).\n");
     {
+        enum {
+            SELF_ASSIGN_MODE_FIRST = 0,
+            SELF_ASSIGN_STRING = 0,
+            SELF_ASSIGN_CSTRING = 1,
+            SELF_ASSIGN_STRINGREFDATA = 2,
+            SELF_ASSIGN_MODE_LAST = 2
+        };
+
+        enum {
+            PARTIAL_SELF_ASSIGN_MODE_FIRST = 0,
+            PARTIAL_SELF_ASSIGN_MODE_CSTRING = 0,
+            PARTIAL_SELF_ASSIGN_MODE_STRINGREFDATA = 1,
+            PARTIAL_SELF_ASSIGN_MODE_LAST = 1
+        };
+
+        enum {
+            PARTIAL_SELF_ASSIGN_CONSTRUCT_FIRST = 0,
+            PARTIAL_SELF_ASSIGN_CONSTRUCT_LONG_TAIL = 0,
+            PARTIAL_SELF_ASSIGN_CONSTRUCT_SHORT_TAIL = 1,
+            PARTIAL_SELF_ASSIGN_CONSTRUCT_LAST = 1
+        };
+
         static const char *SPECS[] = {
             "",      "A",      "BC",     "CDE",    "DEAB",   "EABCD",
             "ABCDEAB",         "ABCDEABC",         "ABCDEABCD",
@@ -13437,6 +13466,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
             const Obj X = g(SPEC);
             LOOP_ASSERT(ti, curLen == (int)X.size());  // same lengths
 
+            for (int assignMode = SELF_ASSIGN_MODE_FIRST;
+                     assignMode <= SELF_ASSIGN_MODE_LAST;
+                     ++assignMode)
             for (int tj = 0; tj < NUM_EXTEND; ++tj) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const Int64 AL = testAllocator.allocationLimit();
@@ -13449,17 +13481,101 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 
                     if (veryVerbose) { T_; T_; P_(N); P(Y); }
 
-                    LOOP2_ASSERT(SPEC, N, Y == Y);
-                    LOOP2_ASSERT(SPEC, N, X == Y);
+                    LOOP3_ASSERT(SPEC, N, assignMode, Y == Y);
+                    LOOP3_ASSERT(SPEC, N, assignMode, X == Y);
 
                     testAllocator.setAllocationLimit(AL);
                     {
                         ExceptionGuard<Obj> guard(Y, L_);
-                        mY = Y; // test assignment here
+                        switch (assignMode) {
+                          case SELF_ASSIGN_STRING: {
+                            mY = Y;
+                          } break;
+                          case SELF_ASSIGN_CSTRING: {
+                            mY = Y.c_str();
+                          } break;
+                          case SELF_ASSIGN_STRINGREFDATA: {
+                            const bslstl::StringRefData<TYPE> srd(
+                                                           Y.begin(), Y.end());
+                            mY = srd;
+                          } break;
+                          default:
+                            printf("***UNKNOWN SELF_ASSIGN MODE***\n");
+                            ASSERT(0);
+                        };
                     }
 
-                    LOOP2_ASSERT(SPEC, N, Y == Y);
-                    LOOP2_ASSERT(SPEC, N, X == Y);
+                    LOOP3_ASSERT(SPEC, N, assignMode, Y == Y);
+                    LOOP3_ASSERT(SPEC, N, assignMode, X == Y);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            }
+
+            // Partial self assigment
+            if (X.empty()) {
+                continue;
+            }
+
+            if (veryVerbose) {
+                printf("\nTesting partial self assignment (Aliasing).\n");
+            }
+
+            for (int assignMode = PARTIAL_SELF_ASSIGN_MODE_FIRST;
+                     assignMode <= PARTIAL_SELF_ASSIGN_MODE_LAST;
+                     ++assignMode)
+            for (int constructMode = PARTIAL_SELF_ASSIGN_CONSTRUCT_FIRST;
+                     constructMode <= PARTIAL_SELF_ASSIGN_CONSTRUCT_LAST;
+                     ++constructMode)
+            for (int tj = 0; tj < NUM_EXTEND; ++tj) {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    const Int64 AL = testAllocator.allocationLimit();
+                    testAllocator.setAllocationLimit(-1);
+
+                    const int N = EXTEND[tj];
+                    Obj mY(Z);  const Obj& Y = mY;
+                    stretchRemoveAll(&mY, N, VALUES[0]);
+                    gg(&mY, SPEC);
+
+                    if (veryVerbose) { T_; T_; P_(N); P(Y); }
+
+                    LOOP4_ASSERT(SPEC, N, assignMode, constructMode, Y == Y);
+                    LOOP4_ASSERT(SPEC, N, assignMode, constructMode, X == Y);
+
+                    int OFFSET = 0;
+                    switch (constructMode) {
+                      case PARTIAL_SELF_ASSIGN_CONSTRUCT_LONG_TAIL:
+                        OFFSET = 1;
+                        break;
+                      case PARTIAL_SELF_ASSIGN_CONSTRUCT_SHORT_TAIL:
+                        OFFSET = Y.length() - 1;
+                        break;
+                      default:
+                        printf("***UNKNOWN "
+                                    "PARTIAL_SELF_ASSIGN_CONSTRUCT MODE***\n");
+                        ASSERT(0);
+                    }
+
+                    testAllocator.setAllocationLimit(AL);
+                    {
+                        ExceptionGuard<Obj> guard(Y, L_);
+                        switch (assignMode) {
+                          case PARTIAL_SELF_ASSIGN_MODE_CSTRING: {
+                            mY = Y.c_str() + OFFSET;
+                          } break;
+                          case PARTIAL_SELF_ASSIGN_MODE_STRINGREFDATA: {
+                            const bslstl::StringRefData<TYPE> srd(
+                                                  Y.begin() + OFFSET, Y.end());
+                            mY = srd;
+                          } break;
+                          default:
+                            printf("***UNKNOWN PARTIAL_SELF_ASSIGN MODE***\n");
+                            ASSERT(0);
+                        };
+                        guard.release();
+                    }
+
+                    LOOP4_ASSERT(SPEC, N, assignMode, constructMode, Y == Y);
+                    LOOP4_ASSERT(SPEC, N, assignMode, constructMode,
+                                                      X.begin() + OFFSET == Y);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
