@@ -176,7 +176,13 @@ BSLS_IDENT("$Id$")
 #include <bsl_cmath.h>
 #endif
 
+#ifndef INCLUDED_BSL_C_ERRNO
+#include <bsl_c_errno.h>
+#endif
+
+#ifndef INCLUDED_BSL_IOSTREAM
 #include <bsl_iostream.h>
+#endif
 
 #ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
 
