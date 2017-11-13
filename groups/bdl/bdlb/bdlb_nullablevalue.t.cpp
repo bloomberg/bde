@@ -108,7 +108,23 @@ using namespace bsl;
 //
 // FREE OPERATORS
 // [ 5] bool operator==(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator==(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator==(const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator!=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator!=(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator!=(const TYPE&, const NullableValue<TYPE>&);
+// [ 5] bool operator< (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator< (const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator< (const TYPE&, const NullableValue<TYPE>&);
+// [ 5] bool operator<=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator<=(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator<=(const TYPE&, const NullableValue<TYPE>&);
+// [ 5] bool operator> (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator> (const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator> (const TYPE&, const NullableValue<TYPE>&);
+// [ 5] bool operator>=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator>=(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator>=(const TYPE&, const NullableValue<TYPE>&);
 // [17] bool operator==(const NullableValue<TYPE>&, const TYPE&);
 // [17] bool operator==(const TYPE&, const NullableValue<TYPE>&);
 // [17] bool operator!=(const NullableValue<TYPE>&, const TYPE&);
@@ -244,6 +260,30 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 //      mX.makeValue(ParamUtil::L_SOME_STRING);
 //  ...
 //..
+
+//=============================================================================
+//                      GLOBAL HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+template <class LHS_TYPE, class RHS_TYPE>
+void testRelationalOperations(int             i,
+                              int             j,
+                              const LHS_TYPE& lhs,
+                              const RHS_TYPE& rhs)
+    // Test all the relational operations for the specified 'lhs' and 'rhs'.
+    // The relation between 'lhs' and 'rhs' is expected to be exactly the same
+    // as between the specified 'i' and 'j'.
+{
+    const bool isSame = (i == j);
+    const bool isILess = (i < j);
+    const bool isJLess = (j < i);
+    ASSERTV(lhs, rhs,  isSame  == (lhs == rhs));
+    ASSERTV(lhs, rhs, !isSame  == (lhs != rhs));
+    ASSERTV(lhs, rhs,  isILess == (lhs <  rhs));
+    ASSERTV(lhs, rhs, !isILess == (lhs >= rhs));
+    ASSERTV(lhs, rhs, !isJLess == (lhs <= rhs));
+    ASSERTV(lhs, rhs,  isJLess == (lhs >  rhs));
+}
 
 // ============================================================================
 //                      GLOBAL HELPER CLASSES FOR TESTING
@@ -6598,12 +6638,34 @@ int main(int argc, char *argv[])
         // Plan:
         //   Use 'int' for 'TYPE'.  Construct a set of objects containing
         //   similar but different values.  Loop through the cross product of
-        //   the test data.  For each tuple, use the '==' and '!=' operators
-        //   and check their return value for correctness.
+        //   the test data.  For each tuple, check the correctness of the
+        //   return value of all relational operators (==, !=, <, >, <=, >=).
+        //   Then, use 'int' and 'double' as 'LHS_TYPE' and 'RHS_TYPE'.
+        //   Construct two sets of objects containing similar but different
+        //   values.  Loop through the cross product of the two sets.  For each
+        //   tuple and the tuple where left and right values are swapped, check
+        //   the correctness of the return value of all relational operators
+        //   (==, !=, <, >, <=, >=).
         //
         // Testing:
         //   bool operator==(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator==(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator==(const TYPE&, const NullableValue<TYPE>&);
         //   bool operator!=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator!=(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator!=(const TYPE&, const NullableValue<TYPE>&);
+        //   bool operator< (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator< (const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator< (const TYPE&, const NullableValue<TYPE>&);
+        //   bool operator<=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator<=(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator<=(const TYPE&, const NullableValue<TYPE>&);
+        //   bool operator> (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator> (const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator> (const TYPE&, const NullableValue<TYPE>&);
+        //   bool operator>=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator>=(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator>=(const TYPE&, const NullableValue<TYPE>&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Equality Operators"
@@ -6629,119 +6691,39 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { T_ T_ P_(j) P(V) }
 
-                const bool isSame = (i == j);
-                ASSERTV(U, V,  isSame == (U == V));
-                ASSERTV(U, V, !isSame == (U != V));
+                testRelationalOperations(i, j, U, V);
+
+                if (!U.isNull()) {
+                    testRelationalOperations(i, j, U.value(), V);
+                }
+
+                if (!V.isNull()) {
+                    testRelationalOperations(i, j, U, V.value());
+                }
             }
         }
 
         {
-             const int    I1 = 1;
-             const double D1 = 1;
+            typedef bdlb::NullableValue<int>    Ni;
+            typedef bdlb::NullableValue<double> Nd;
 
-             const int    I2 = 2;
-             const double D2 = 2;
+            Ni niArray[NUM_VALUES] = { Ni(), Ni(1), Ni(2) };
+            Nd ndArray[NUM_VALUES] = { Nd(), Nd(1), Nd(2) };
 
-             typedef bdlb::NullableValue<int>    Ni;
-             typedef bdlb::NullableValue<double> Nd;
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const Ni& ni = niArray[i];
 
-             const Ni ni0;
-             const Ni ni1(I1);
-             const Ni ni2(I2);
+                if (veryVerbose) { T_ P_(i) P(ni) }
 
-             const Nd nd0;
-             const Nd nd1(D1);
-             const Ni nd2(D2);
+                for (int j = 0; j < NUM_VALUES; ++j) {
+                    const Nd& nd = ndArray[j];
 
-             ASSERT(1 == (ni0 == ni0));
-             ASSERT(0 == (ni0 != ni0));
-             ASSERT(1 == (ni0 == nd0));
-             ASSERT(0 == (ni0 != nd0));
+                    if (veryVeryVerbose) { T_ T_ P_(j) P(nd) }
 
-             ASSERT(0 == (ni0 == ni1));
-             ASSERT(1 == (ni0 != ni1));
-             ASSERT(0 == (ni0 == nd1));
-             ASSERT(1 == (ni0 != nd1));
-
-             ASSERT(0 == (ni0 == ni2));
-             ASSERT(1 == (ni0 != ni2));
-             ASSERT(0 == (ni0 == nd2));
-             ASSERT(1 == (ni0 != nd2));
-
-             ASSERT(0 == (ni1 == ni0));
-             ASSERT(1 == (ni1 != ni0));
-             ASSERT(0 == (ni1 == nd0));
-             ASSERT(1 == (ni1 != nd0));
-
-             ASSERT(1 == (ni1 == ni1));
-             ASSERT(0 == (ni1 != ni1));
-             ASSERT(1 == (ni1 == nd1));
-             ASSERT(0 == (ni1 != nd1));
-
-             ASSERT(0 == (ni1 == ni2));
-             ASSERT(1 == (ni1 != ni2));
-             ASSERT(0 == (ni1 == nd2));
-             ASSERT(1 == (ni1 != nd2));
-
-             ASSERT(0 == (ni2 == ni0));
-             ASSERT(1 == (ni2 != ni0));
-             ASSERT(0 == (ni2 == nd0));
-             ASSERT(1 == (ni2 != nd0));
-
-             ASSERT(0 == (ni2 == ni1));
-             ASSERT(1 == (ni2 != ni1));
-             ASSERT(0 == (ni2 == nd1));
-             ASSERT(1 == (ni2 != nd1));
-
-             ASSERT(1 == (ni2 == ni2));
-             ASSERT(0 == (ni2 != ni2));
-             ASSERT(1 == (ni2 == nd2));
-             ASSERT(0 == (ni2 != nd2));
-
-             ASSERT(1 == (nd0 == ni0));
-             ASSERT(0 == (nd0 != ni0));
-             ASSERT(1 == (nd0 == nd0));
-             ASSERT(0 == (nd0 != nd0));
-
-             ASSERT(0 == (nd0 == ni1));
-             ASSERT(1 == (nd0 != ni1));
-             ASSERT(0 == (nd0 == nd1));
-             ASSERT(1 == (nd0 != nd1));
-
-             ASSERT(0 == (nd0 == ni2));
-             ASSERT(1 == (nd0 != ni2));
-             ASSERT(0 == (nd0 == nd2));
-             ASSERT(1 == (nd0 != nd2));
-
-             ASSERT(0 == (nd1 == ni0));
-             ASSERT(1 == (nd1 != ni0));
-             ASSERT(0 == (nd1 == nd0));
-             ASSERT(1 == (nd1 != nd0));
-
-             ASSERT(1 == (nd1 == ni1));
-             ASSERT(0 == (nd1 != ni1));
-             ASSERT(1 == (nd1 == nd1));
-             ASSERT(0 == (nd1 != nd1));
-
-             ASSERT(0 == (nd1 == ni2));
-             ASSERT(1 == (nd1 != ni2));
-             ASSERT(0 == (nd1 == nd2));
-             ASSERT(1 == (nd1 != nd2));
-
-             ASSERT(0 == (nd2 == ni0));
-             ASSERT(1 == (nd2 != ni0));
-             ASSERT(0 == (nd2 == nd0));
-             ASSERT(1 == (nd2 != nd0));
-
-             ASSERT(0 == (nd2 == ni1));
-             ASSERT(1 == (nd2 != ni1));
-             ASSERT(0 == (nd2 == nd1));
-             ASSERT(1 == (nd2 != nd1));
-
-             ASSERT(1 == (nd2 == ni2));
-             ASSERT(0 == (nd2 != ni2));
-             ASSERT(1 == (nd2 == nd2));
-             ASSERT(0 == (nd2 != nd2));
+                    testRelationalOperations(i, j, ni, nd);
+                    testRelationalOperations(j, i, nd, ni);
+                }
+            }
         }
 
       } break;
