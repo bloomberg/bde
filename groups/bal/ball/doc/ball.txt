@@ -27,6 +27,7 @@
   16. ball_asyncfileobserver
 
   15. ball_fileobserver
+      ball_logfilecleanerutil
 
   14. ball_fileobserver2
 
@@ -45,12 +46,14 @@
 
    8. ball_categorymanager
 
-   7. ball_category
+   7. ball_broadcastobserver
+      ball_category
+      ball_filteringobserver
       ball_multiplexobserver                             !DEPRECATED!
-      ball_broadcastobserver
 
    6. ball_observeradapter
       ball_ruleset
+      ball_streamobserver
       ball_testobserver
 
    5. ball_fixedsizerecordbuffer
@@ -128,11 +131,17 @@
 : 'ball_fileobserver2':
 :      Provide a thread-safe observer that emits log records to a file.
 :
+: 'ball_filteringobserver':
+:      Provide an observer that filters log records.
+:
 : 'ball_fixedsizerecordbuffer':
 :      Provide a thread-safe fixed-size buffer of record handles.
 :
 : 'ball_log':
 :      Provide macros and utility functions to facilitate logging.
+:
+: 'ball_logfilecleanerutil':
+:      Provide a utility class for removing log files.
 :
 : 'ball_loggercategoryutil':
 :      Provide a suite of utility functions for category management.
@@ -196,6 +205,9 @@
 :
 : 'ball_severityutil':
 :      Provide a suite of utility functions on 'ball::Severity' levels.
+:
+: 'ball_streamobserver':
+:      Provide an observer that emits log records to a stream.
 :
 : 'ball_testobserver':
 :      Provide an instrumented observer for testing.

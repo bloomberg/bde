@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_logfilecleanerutil_cpp,"$Id$ $CSID$")
 
+#include <ball_fileobserver2.h>    // for testing only
+
 #include <bsls_assert.h>
 
 #include <bsl_cstddef.h>

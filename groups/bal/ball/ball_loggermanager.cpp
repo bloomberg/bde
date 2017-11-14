@@ -493,8 +493,8 @@ char *Logger::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
                            // -------------------
 
 // CLASS DATA
-LoggerManager *LoggerManager::s_singleton_p       = 0;
-bool           LoggerManager::s_doNotOwnSingleton = false;
+LoggerManager *LoggerManager::s_singleton_p      = 0;
+bool           LoggerManager::s_isSingletonOwned = true;
 
 namespace {
 
@@ -732,7 +732,7 @@ LoggerManager& LoggerManager::initSingleton(
 }
 
 int
-LoggerManager::initSingleton(LoggerManager *singleton, bool takeOwnership)
+LoggerManager::initSingleton(LoggerManager *singleton, bool adoptSingleton)
 {
     BSLS_ASSERT(singleton);
 
@@ -741,14 +741,13 @@ LoggerManager::initSingleton(LoggerManager *singleton, bool takeOwnership)
     bslmt::QLockGuard qLockGuard(&singletonQLock);
 
     if (0 == s_singleton_p) {
-        // Parallel what is done in 'initSingletonImpl'.  (The first version of
-        // this function did not call 'AttributeContext::initialize'.)
+        // Parallel what is done in 'initSingletonImpl'.
 
         AttributeContext::initialize(&singleton->d_categoryManager,
                                      bslma::Default::globalAllocator(0));
 
-        s_singleton_p       = singleton;
-        s_doNotOwnSingleton = !takeOwnership;
+        s_singleton_p      = singleton;
+        s_isSingletonOwned = adoptSingleton;
 
         // Configure 'bsls::Log' to publish records using 'ball' via the
         // 'LoggerManager' singleton.
@@ -867,11 +866,11 @@ void LoggerManager::shutDownSingleton()
 
         AttributeContext::reset();
 
-        if (!s_doNotOwnSingleton) {
+        if (s_isSingletonOwned) {
             singleton->allocator()->deleteObjectRaw(singleton);
         }
         else {
-            s_doNotOwnSingleton = false;
+            s_isSingletonOwned = true;
         }
     }
 }

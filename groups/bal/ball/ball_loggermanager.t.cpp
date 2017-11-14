@@ -2434,9 +2434,9 @@ int main(int argc, char *argv[])
         // TESTING EXTERNAL 'initSingleton' W/O OWNERSHIP
         //
         // Concerns:
-        //: 1 When the 'takeOwnership' flag is 'false':
+        //: 1 When the 'adoptSingleton' flag is 'false':
         //:
-        //:   1 The supplied logger manager is adopted as the singleton only if
+        //:   1 The supplied logger manager is used as the singleton only if
         //:     the singleton does not already exist.
         //:
         //:   2 'shutDownSingleton' does not delete the supplied logger manager
@@ -2450,10 +2450,10 @@ int main(int argc, char *argv[])
         //: 1 Create a logger manager using a custom allocator that will notice
         //:   whether it is deleted.  Supply the logger manager to the method:
         //:   (1) when the singleton already exists, and (2) when the singleton
-        //:   does not already exist.  The 'takeOwnership' flag is 'false' in
-        //:   both cases.  Verify that the logger manager is adopted only in
-        //:   the second case.  Call 'shutDownSingleton' and verify that in
-        //:   neither case is the supplied logger manager deleted.  (C-1..2)
+        //:   does not already exist.  The 'adoptSingleton' flag is 'false' in
+        //:   both cases.  Verify that the logger manager is used only in the
+        //:   second case.  Call 'shutDownSingleton' and verify that in neither
+        //:   case is the supplied logger manager deleted.  (C-1..2)
         //:
         //: 2 Repeat the second test from P-1.  (C-3)
         //
@@ -2480,7 +2480,7 @@ int main(int argc, char *argv[])
             ball::LoggerManager *p = mp.ptr();
             ASSERT(0 != ball::LoggerManager::initSingleton(p, false));
             ASSERT(ta.d_tracked_pointer_p            == p);
-            ASSERT(&ball::LoggerManager::singleton() != p);  // not adopted
+            ASSERT(&ball::LoggerManager::singleton() != p);  // not used
             ball::LoggerManager::shutDownSingleton();
             ASSERT(!ta.d_deleted);                           // not deleted
         }
@@ -2495,7 +2495,7 @@ int main(int argc, char *argv[])
             ball::LoggerManager *p = mp.ptr();
             ASSERT(0 == ball::LoggerManager::initSingleton(p));
             ASSERT(ta.d_tracked_pointer_p            == p);
-            ASSERT(&ball::LoggerManager::singleton() == p);  // adopted
+            ASSERT(&ball::LoggerManager::singleton() == p);  // used
             ball::LoggerManager::shutDownSingleton();
             ASSERT(!ta.d_deleted);                           // not deleted
         }
@@ -2510,7 +2510,7 @@ int main(int argc, char *argv[])
             ball::LoggerManager *p = mp.ptr();
             ASSERT(0 == ball::LoggerManager::initSingleton(p));
             ASSERT(ta.d_tracked_pointer_p            == p);
-            ASSERT(&ball::LoggerManager::singleton() == p);  // adopted
+            ASSERT(&ball::LoggerManager::singleton() == p);  // used
             ball::LoggerManager::shutDownSingleton();
             ASSERT(!ta.d_deleted);                           // not deleted
         }
@@ -2521,13 +2521,13 @@ int main(int argc, char *argv[])
         // TESTING EXTERNAL 'initSingleton' W/OWNERSHIP
         //
         // Concerns:
-        //: 1 When the 'takeOwnership' flag is 'true':
+        //: 1 When the 'adoptSingleton' flag is 'true':
         //:
-        //:   1 The supplied logger manager is adopted as the singleton only if
+        //:   1 The supplied logger manager is used as the singleton only if
         //:     the singleton does not already exist.
         //:
         //:   2 'shutDownSingleton' deletes the supplied logger manager only if
-        //:     it has been adopted.
+        //:     it is used.
         //:
         //: 2 The method returns the expected status value.
         //:
@@ -2537,11 +2537,10 @@ int main(int argc, char *argv[])
         //: 1 Create a logger manager using a custom allocator that will notice
         //:   whether it is deleted.  Supply the logger manager to the method:
         //:   (1) when the singleton already exists, and (2) when the singleton
-        //:   does not already exist.  The 'takeOwnership' flag is 'true' in
-        //:   both cases.  Verify that the logger manager is adopted only in
-        //:   the second case.  Call 'shutDownSingleton' and verify that the
-        //:   supplied logger manager is deleted only if it has been adopted.
-        //:   (C-1..2)
+        //:   does not already exist.  The 'adoptSingleton' flag is 'true' in
+        //:   both cases.  Verify that the logger manager is used only in the
+        //:   second case.  Call 'shutDownSingleton' and verify that the
+        //:   supplied logger manager is deleted only if it is used.  (C-1..2)
         //:
         //: 2 Repeat the second test from P-1.  (C-3)
         //
@@ -2568,7 +2567,7 @@ int main(int argc, char *argv[])
             ball::LoggerManager *p = mp.ptr();
             ASSERT(0 != ball::LoggerManager::initSingleton(p, true));
             ASSERT(ta.d_tracked_pointer_p            == p);
-            ASSERT(&ball::LoggerManager::singleton() != p);  // not adopted
+            ASSERT(&ball::LoggerManager::singleton() != p);  // not used
             ball::LoggerManager::shutDownSingleton();
             ASSERT(!ta.d_deleted);                           // not deleted
         }
@@ -2583,7 +2582,7 @@ int main(int argc, char *argv[])
             ball::LoggerManager *p = mp.release().first;
             ASSERT(0 == ball::LoggerManager::initSingleton(p, true));
             ASSERT(ta.d_tracked_pointer_p            == p);
-            ASSERT(&ball::LoggerManager::singleton() == p);  // adopted
+            ASSERT(&ball::LoggerManager::singleton() == p);  // used
             ball::LoggerManager::shutDownSingleton();
             ASSERT(ta.d_deleted);                            // deleted
         }
@@ -2598,7 +2597,7 @@ int main(int argc, char *argv[])
             ball::LoggerManager *p = mp.release().first;
             ASSERT(0 == ball::LoggerManager::initSingleton(p, true));
             ASSERT(ta.d_tracked_pointer_p            == p);
-            ASSERT(&ball::LoggerManager::singleton() == p);  // adopted
+            ASSERT(&ball::LoggerManager::singleton() == p);  // used
             ball::LoggerManager::shutDownSingleton();
             ASSERT(ta.d_deleted);                            // deleted
         }
