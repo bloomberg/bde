@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 // The following two subsections describe the grammar defining the parsing
 // rules.
 //
-///DEFINITION OF SYMBOLS USED IN PRODUCTION RULES
+///Definition of Symbols Used in Production Rules
 ///----------------------------------------------
 //
 // The following grammar is used to specify regular expressions:
@@ -40,7 +40,8 @@ BSLS_IDENT("$Id: $")
 //         +, {}, can work on a single character or on a regular expression
 //         enclosed in parentheses.  For example, (a*(cb+)*)$.
 //..
-///GRAMMAR PRODUCTION RULES
+//
+///Grammar Production Rules
 ///------------------------
 //..
 // <NUMBER> ::= <OPTIONAL_SIGN><DIGIT>+
@@ -70,19 +71,26 @@ BSLS_IDENT("$Id: $")
 // <REAL> ::= <OPTIONAL_SIGN>
 //            (<DECIMAL_DIGIT>+ (. <DECIMAL_DIGIT>*)? | . <DECIMAL_DIGIT>+)
 //            (e|E <DECIMAL_NUMBER>)
-// <DOUBLE> ::= <REAL>
+// <INF>    ::= infinity | inf
+//              case insensitive
+// <NAN-SEQUENCE> ::= [abcdefghijklmnopqrstuvwxyz0123456789_]*
+// <NAN>    ::= nan(<NAN-SEQUENCE>) | nan
+//              case insensitive
+// <DOUBLE> ::= <REAL> | <INF> | <NAN>
 //      <DOUBLE> must be in range [DBL_MIN .. DBL_MAX].
 //..
+//
 ///Remainder Output Parameter
 ///--------------------------
-// Each parsing function returns as its optional, second, modifiable argument a
-// string reference to the input string immediately following the text of a
-// successfully parsed token, or the position at which the parse failure was
-// detected.  The value returned for 'remainder' will be a string reference
-// starting at the character following the last character parsed as part of the
-// numeric value.  If there were characters that has parsed as a valid number,
-// the parse function loads its result and returns 0; otherwise, it returns a
-// non-zero value with no effect on the result.
+// The parsing functions provided by 'NumericParseUtil' typically return an
+// optional, second, output parameter named 'remainder'.  The output parameter
+// 'remainder' is loaded with a string reference starting at the character
+// following the last character successfully parsed as part of the numeric
+// value, and ending at the character one past the end of the input string.  If
+// the entire input string is parsed successfully, 'remainder' is loaded with
+// an empty string reference. However, if the parse function is not successful
+// (i.e., it returns a non-zero error status), then it will not modify the
+// value of 'remainder'.
 //
 ///Floating Point Values
 ///---------------------
@@ -91,12 +99,34 @@ BSLS_IDENT("$Id: $")
 // the standard library function 'strtod'.  For example, the ASCII string
 // "3.14159" is converted, on some platforms, to 3.1415899999999999.
 //
-// Note also that the 'NaN' class of 'double' values is not uniform across all
-// platforms and is therefore not supported by these parsers.  Note also that
-// the 'Inf' (infinity) 'double' values are not uniformly supported across all
-// platforms and is therefore not supported by these parsers.  Note also that
-// the hexadecimal 'double' values are not uniformly supported across all
-// platforms and is therefore not supported by these parsers.
+///Special Floating Point Values
+///- - - - - - - - - - - - - - -
+// The IEEE-754 (double precision) floating point format supports the following
+// special values: Not-a-Number (NaN) and Infinity, both in positive or
+// negative.  'parseDouble' allows expressions for both:
+//
+//: *infinity-expression*: results in negative of positive
+//:       bsl::numeric_limits<double>::infinity() value.  The expresssion
+//:       consists of the following elements:
+//:   o an optional plus ('+') or minus ('-') sign
+//:   o the word "INF" or INFINITY", ignoring case
+//:
+//: *not-a-number-expression*: results in a negative or positive
+//:     bsl::numeric_limits<double>::quiet_NaN() value.  The expresssion
+//:     consists of the following elements:
+//:   o an optional plus ('+') or minus ('-') sign
+//:   o "NAN" or "NAN(char-sequence)" ignoring the case of "NAN".  The
+//:     char-sequence may be empty or contain digits, letters from the Latin
+//:     alphabet and underscores.
+//
+///!Warning!: Microsoft Visual Studio 2013 Output for Infinity and NaN
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Microsoft Visual Studio 2013 generates surprising output text when printing
+// (using 'printf') or streaming (using C++ iostream) the 'double'
+// representations for infinity and NaN.  For example, infinity might be
+// rendered "1.#INF00" and NaN might be rendered "1.#IND00" or "1.#NAN0".
+// 'parseDouble' will successfully parse this text but will not return the
+// result one would naively expect (e.g., returning the value 1.0).
 //
 ///Usage Example
 ///-------------
@@ -180,7 +210,8 @@ struct NumericParseUtil {
         // was detected.  Return zero on success, and a non-zero value
         // otherwise.  The value of 'result' is unchanged if a parse failure
         // occurs.  The behavior is undefined unless the current locale is the
-        // "C" locale, such that 'strcmp(setlocale(0, 0), "C") == 0'.
+        // "C" locale, such that 'strcmp(setlocale(0, 0), "C") == 0'.  For more
+        // information see {Floating Point Values}.
 
     static int parseInt(int                      *result,
                         const bslstl::StringRef&  inputString,

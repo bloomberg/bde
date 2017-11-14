@@ -9,14 +9,146 @@ BSLS_IDENT_RCSID(bdlb_numericparseutil_cpp, "$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 #include <bslmf_assert.h>
 
 #include <bsl_cstdlib.h>  // strtod
 #include <bsl_clocale.h>  // setlocale
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+// Needed for fixing the broken 'strtod', see below.
+#include <bdlb_string.h>
+#include <bdlb_chartype.h>
+#include <bsl_limits.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bdlb {
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+// 'strtod' is broken in Visual Studio up to (including) Visual Studio 2013.
+// The function does not parse the special 'double' values NaN and Infinity as
+// specified on http://en.cppreference.com/w/cpp/string/byte/strtof.  When
+// Microsoft's 'strod' reports that it could not parse its input string the
+// following functions are used to attempt to parse them as NaN or Infinity.
+
+namespace {
+
+static bool isPrefixCaseless(const bslstl::StringRef& inputString,
+                             const bslstl::StringRef& prefix)
+    // Check if the specified 'inputString' has the specified 'prefix' with
+    // case insensitive comparison.  Return 'true' if the prefix matches and
+    // 'false' otherwise.
+{
+    if (inputString.length() < prefix.length()) {
+        return false;                                                 // RETURN
+    }
+
+    return String::areEqualCaseless(inputString.data(), prefix.length(),
+                                    prefix.data(),      prefix.length());
+}
+
+static bool safeCheck(const bslstl::StringRef&     inputString,
+                      bslstl::StringRef::size_type pos,
+                      char                         ch)
+    // Check in the specified 'inputString', if the characters at the specified
+    // 'pos', if such position exists, equals to the specified 'ch'.
+{
+    return (inputString.length() > pos) && inputString[pos] == ch;
+}
+
+static bool isNanString(bslstl::StringRef        *remainder,
+                        const bslstl::StringRef&  inputString)
+    // Check the specified 'inputString' if its prefix is a "NaN" string
+    // representation (see
+    // http://en.cppreference.com/w/cpp/string/byte/strtof).  If it is, load
+    // the rest of the 'inputString' into the specified 'remainder' and return
+    // 'true'; otherwise do not change 'remainder' and return 'false'.
+{
+
+    if (!isPrefixCaseless(inputString, "NaN")) {
+        return false;                                                 // RETURN
+    }
+
+    if (!safeCheck(inputString, 3, '(')) {
+        remainder->assign(inputString.data() + 3, inputString.length() - 3);
+        return true;                                                  // RETURN
+    }
+
+    typedef bslstl::StringRef::size_type size_type;
+    for (size_type i = 4; i < inputString.length(); ++i) {
+        const char ch = inputString[i];
+
+        if (ch == ')') {
+            ++i; // Include the ')'
+            remainder->assign(inputString.data() + i,
+                              inputString.length() - i);
+            return true;                                              // RETURN
+        }
+
+        if (ch != '_' && !CharType::isAlnum(ch)) {
+            break;
+        }
+    }
+
+    return false;
+}
+
+static int parseNanAndInf(double            *result,
+                          bslstl::StringRef *remainder,
+                          bslstl::StringRef  inputString)
+    // Check the specified 'inputString' if its prefix is a "NaN" or Infinity
+    // string representation
+    // (see http://en.cppreference.com/w/cpp/string/byte/strtof).  If it is,
+    // load the result of the conversion into the specified 'result', load the
+    // rest of the 'inputString' into the specified 'remainder' and return
+    // zero; otherwise do not change 'remainder' and return a non-zero value.
+{
+    int sign = 1;
+
+    if (inputString[0] == '+' || inputString[0] == '-') {
+        if (inputString[0] == '-') {
+            sign = -1;
+        }
+        if (inputString.size() == 1) {
+            return -4;                                                // RETURN
+        }
+        inputString.assign(inputString.data() + 1, inputString.length() - 1);
+    }
+
+    if (isPrefixCaseless(inputString, "INFINITY")) {
+        *result = sign * bsl::numeric_limits<double>::infinity();
+        remainder->assign(inputString.data() + 8, inputString.length() - 8);
+        return 0;                                                     // RETURN
+    }
+
+    if (isPrefixCaseless(inputString, "INF")) {
+        *result = sign * bsl::numeric_limits<double>::infinity();
+        remainder->assign(inputString.data() + 3, inputString.length() - 3);
+        return 0;                                                     // RETURN
+    }
+
+    if (isNanString(remainder, inputString)) {
+        // This is the only way of making a negative quiet NaN on Microsoft
+        // Visual C++.  Multiplying with -1 does not work, it remains positive.
+        // Assigning first positive then negating changes the value from QNAN
+        // to something called IND.
+        if (sign == -1) {
+            *result = -bsl::numeric_limits<double>::quiet_NaN();
+        }
+        else {
+            *result = bsl::numeric_limits<double>::quiet_NaN();
+        }
+        return 0;                                                     // RETURN
+    }
+
+    return -3;
+}
+
+}  // close unnamed namespace
+
+#endif  // End of Microsoft Visual Studio 2013 and lower specific code
 
 typedef bsls::Types::Int64  Int64;
 typedef bsls::Types::Uint64 Uint64;
@@ -100,7 +232,17 @@ int NumericParseUtil::parseDouble(double                   *result,
         return 0;                                                     // RETURN
     }
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+    // 'strtod' is broken in Visual Studio up to (including) Visual Studio
+    // 2013.  The 'strtod' function does not parse the special 'double' values
+    // NaN and Infinity as specified on
+    // http://en.cppreference.com/w/cpp/string/byte/strtof.  We are here when
+    // Microsoft's 'strod' reports that it could not parse the input string so
+    // we call following function to attempt to parse them as NaN or Infinity.
+    return parseNanAndInf(result, remainder, inputString);
+#else
     return -3;
+#endif
 }
 
 int NumericParseUtil::parseInt(int                      *result,
