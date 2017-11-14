@@ -20,8 +20,11 @@
 #include <bsl_vector.h>
 
 #include <bsl_climits.h>
+#include <bsl_limits.h>
 
 #include <bsl_c_stdlib.h>
+
+#include <math.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -1476,6 +1479,9 @@ int main(int argc, char *argv[])
             const double INITIAL_VALUE_1 =  37.0;  // first initial value
             const double INITIAL_VALUE_2 = -58.0;  // second initial value
 
+            const double inf = bsl::numeric_limits<double>::infinity();
+            const double NaN = bsl::numeric_limits<double>::quiet_NaN();
+
             static const struct {
                 int         d_lineNum;  // source line number
                 const char *d_spec_p;   // specification string
@@ -1632,6 +1638,52 @@ int main(int argc, char *argv[])
                 { L_,   "8.36168422905420598437e-214",            27,    0},
                 { L_,   "4.891559871276714924261e243",            27,    0},
                 // TBD more vectors
+
+                // Test of the special values NaN and Infinity
+                { L_,   "inf",                                     3,    0},
+                { L_,   "-inf",                                    4,    0},
+                { L_,   "INF",                                     3,    0},
+                { L_,   "-INF",                                    4,    0},
+                { L_,   "Inf",                                     3,    0},
+                { L_,   "-Inf",                                    4,    0},
+                { L_,   "InF",                                     3,    0},
+                { L_,   "-InF",                                    4,    0},
+
+                { L_,   "infinity",                                8,    0},
+                { L_,   "-infinity",                               9,    0},
+                { L_,   "INFINITY",                                8,    0},
+                { L_,   "-INFINITY",                               9,    0},
+                { L_,   "Infinity",                                8,    0},
+                { L_,   "-Infinity",                               9,    0},
+                { L_,   "InFiNiTy",                                8,    0},
+                { L_,   "-InFiNiTy",                               9,    0},
+
+                { L_,   "nan",                                     3,    0},
+                { L_,   "-nan",                                    4,    0},
+                { L_,   "NAN",                                     3,    0},
+                { L_,   "-NAN",                                    4,    0},
+                { L_,   "Nan",                                     3,    0},
+                { L_,   "-Nan",                                    4,    0},
+                { L_,   "NaN",                                     3,    0},
+                { L_,   "-NaN",                                    4,    0},
+
+                { L_,   "nan()",                                   5,    0},
+                { L_,   "-nan()",                                  6,    0},
+                { L_,   "NAN()",                                   5,    0},
+                { L_,   "-NAN()",                                  6,    0},
+                { L_,   "Nan()",                                   5,    0},
+                { L_,   "-Nan()",                                  6,    0},
+                { L_,   "NaN()",                                   5,    0},
+                { L_,   "-NaN()",                                  6,    0},
+
+                { L_,   "nan(ananana_batmaaan)",                  21,    0},
+                { L_,   "-nan(ananana_batmaaan)",                 22,    0},
+                { L_,   "NAN(ananana_batmaaan)",                  21,    0},
+                { L_,   "-NAN(ananana_batmaaan)",                 22,    0},
+                { L_,   "Nan(ananana_batmaaan)",                  21,    0},
+                { L_,   "-Nan(ananana_batmaaan)",                 22,    0},
+                { L_,   "NaN(ananana_batmaaan)",                  21,    0},
+                { L_,   "-NaN(ananana_batmaaan)",                 22,    0},
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1664,6 +1716,136 @@ int main(int argc, char *argv[])
                     spec.resize(spec.size() - 1);
                 }
                 sscanf(spec.c_str(), "%lf", &VALUE);
+#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+
+                // [s]scanf is broken in the MSVC standard C library up to
+                // including Visual Studio 2013 (fixed in 2015 and later).  It
+                // fails to scan strings that contain the "special" values of
+                // 'double': infinity and NaN.
+
+                if (bslstl::StringRef("inf") == SPEC) {
+                    VALUE = inf;
+                }
+                else if (bslstl::StringRef("-inf") == SPEC) {
+                    VALUE = -inf;
+                }
+                else if (bslstl::StringRef("INF") == SPEC) {
+                    VALUE = inf;
+                }
+                else if (bslstl::StringRef("-INF") == SPEC) {
+                    VALUE = -inf;
+                }
+                else if (bslstl::StringRef("Inf") == SPEC) {
+                    VALUE = inf;
+                }
+                else if (bslstl::StringRef("-Inf") == SPEC) {
+                    VALUE = -inf;
+                }
+                else if (bslstl::StringRef("InF") == SPEC) {
+                    VALUE = inf;
+                }
+                else if (bslstl::StringRef("-InF") == SPEC) {
+                    VALUE = -inf;
+                }
+                else if (bslstl::StringRef("infinity") == SPEC) {
+                    VALUE = inf;
+                }
+                else if (bslstl::StringRef("-infinity") == SPEC) {
+                    VALUE = -inf;
+                }
+                else if (bslstl::StringRef("INFINITY") == SPEC) {
+                    VALUE = inf;
+                }
+                else if (bslstl::StringRef("-INFINITY") == SPEC) {
+                    VALUE = -inf;
+                }
+                else if (bslstl::StringRef("Infinity") == SPEC) {
+                    VALUE = inf;
+                }
+                else if (bslstl::StringRef("-Infinity") == SPEC) {
+                    VALUE = -inf;
+                }
+                else if (bslstl::StringRef("InFiNiTy") == SPEC) {
+                    VALUE = inf;
+                }
+                else if (bslstl::StringRef("-InFiNiTy") == SPEC) {
+                    VALUE = -inf;
+                }
+                else if (bslstl::StringRef("nan") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-nan") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else if (bslstl::StringRef("NAN") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-NAN") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else if (bslstl::StringRef("Nan") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-Nan") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else if (bslstl::StringRef("NaN") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-NaN") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else if (bslstl::StringRef("nan()") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-nan()") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else if (bslstl::StringRef("NAN()") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-NAN()") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else if (bslstl::StringRef("Nan()") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-Nan()") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else if (bslstl::StringRef("NaN()") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-NaN()") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else if (bslstl::StringRef("nan(ananana_batmaaan)") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-nan(ananana_batmaaan)") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else if (bslstl::StringRef("NAN(ananana_batmaaan)") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-NAN(ananana_batmaaan)") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else if (bslstl::StringRef("Nan(ananana_batmaaan)") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-Nan(ananana_batmaaan)") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else if (bslstl::StringRef("NaN(ananana_batmaaan)") == SPEC) {
+                    VALUE = NaN;
+                }
+                else if (bslstl::StringRef("-NaN(ananana_batmaaan)") == SPEC) {
+                    VALUE = -NaN;
+                }
+                else {
+                    sscanf(SPEC, "%lf", &VALUE);
+                }
 #else
                 sscanf(SPEC, "%lf", &VALUE);
 #endif
@@ -1712,11 +1894,31 @@ int main(int argc, char *argv[])
                                 P(VALUE);
                             }
                         }
-                        LOOP2_ASSERT(LINE, si, NUM == rest.data() - buffer);
-                        LOOP2_ASSERT(LINE, si, FAIL == !!rv);
-                        LOOP6_ASSERT(LINE, si,
+                        LOOP4_ASSERT(LINE, si,
+                                     NUM, rest.data() - buffer,
+                                     NUM == rest.data() - buffer);
+                        LOOP4_ASSERT(LINE, si, FAIL, rv, FAIL == !!rv);
+                        const bool isNaN = VALUE != VALUE;
+                        if (!isNaN) {
+                            LOOP6_ASSERT(LINE, si,
                                      result, rv, INITIAL_VALUE_1, VALUE,
                                      result == (rv ? INITIAL_VALUE_1 : VALUE));
+                        }
+                        else {
+                            LOOP2_ASSERT(LINE, si, result != result);
+                            LOOP3_ASSERT(LINE, si, rv, 0 == rv);
+
+                            // 'signbit' macro/function does not exist on SunOS
+                            // so I need to do this hackery.  May be removed
+                            // once SunOS supports C99 or C++11.
+                            double resultSign;
+                            double valueSign;
+
+                            resultSign  = copysign(42, result);
+                            valueSign   = copysign(42, VALUE);
+                            LOOP4_ASSERT(LINE, si, resultSign, valueSign,
+                                         resultSign == valueSign);
+                        }
                     }
 
                     {  // test with second initial value
@@ -1739,9 +1941,27 @@ int main(int argc, char *argv[])
 
                         LOOP2_ASSERT(LINE, si, NUM == rest.data() - buffer);
                         LOOP2_ASSERT(LINE, si, FAIL == !!rv);
-                        LOOP6_ASSERT(LINE, si,
-                                     result, rv, INITIAL_VALUE_2, VALUE,
-                                     result == (rv ? INITIAL_VALUE_2 : VALUE));
+                        const bool isNaN = VALUE != VALUE;
+                        if (!isNaN) {
+                            LOOP6_ASSERT(LINE, si,
+                                result, rv, INITIAL_VALUE_2, VALUE,
+                                result == (rv ? INITIAL_VALUE_2 : VALUE));
+                        }
+                        else {
+                            LOOP2_ASSERT(LINE, si, result != result);
+                            LOOP3_ASSERT(LINE, si, rv, 0 == rv);
+
+                            // 'signbit' macro/function does not exist on SunOS
+                            // so I need to do this hackery.  May be removed
+                            // once SunOS supports C99 or C++11.
+                            double resultSign;
+                            double valueSign;
+
+                            resultSign = copysign(42, result);
+                            valueSign = copysign(42, VALUE);
+                            LOOP4_ASSERT(LINE, si, resultSign, valueSign,
+                                resultSign == valueSign);
+                        }
                     }
                 } // end for si....
             }
