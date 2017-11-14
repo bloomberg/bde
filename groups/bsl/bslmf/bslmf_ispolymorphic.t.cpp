@@ -83,7 +83,7 @@ void aSsErT(bool condition, const char *message, int line)
 // throwing, so we need to declare a throwing exception specification.
 // Conversely, for a C++03 compiler, the default exception specification
 // potentially throws anything, so we want to set up the most restrictive
-// excpetion specification for the alternative test path.  However, if we are
+// exception specification for the alternative test path.  However, if we are
 // building with exceptions entirely disabled, then we should remove any notion
 // of testing with an exception specification.  The macro
 // 'EXCEPTION_SPECIFICATION' is defined appropriately within this test driver

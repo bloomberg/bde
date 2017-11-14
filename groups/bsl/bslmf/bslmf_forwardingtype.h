@@ -297,6 +297,16 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_STDDEF_H
 #endif
 
+
+#if defined(BSLS_PLATFORM_CMP_IBM) &&                                         \
+    ((BSLS_PLATFORM_CMP_VERSION  < 0x0c10) ||                                 \
+     (BSLS_PLATFORM_CMP_VERSION == 0x0c10  && __xlC_ver__ < 0x00000013))
+# define BSLMF_FORWARDINGTYPE_NO_INLINE
+// THe IBM xlC compiler trips an ICE or infinite compile loop when certain
+// functions are inlined for optimized builds.  This is resolved by the August
+// 2017 PTF release, 12.1.0.19.
+#endif
+
 namespace BloombergLP {
 
 
@@ -419,7 +429,7 @@ struct ConstForwardingType : public ForwardingType<TYPE> {
 // BDE_VERIFY pragma: -CD01 // Member function defined in class definition
 
 template <class TYPE>
-#ifndef BSLS_PLATFORM_CMP_IBM
+#ifndef BSLMF_FORWARDINGTYPE_NO_INLINE
 inline  // Trips an ICE or infinite compile loop with xlC optimized builds.
 #endif
 typename ForwardingTypeUtil<TYPE>::TargetType

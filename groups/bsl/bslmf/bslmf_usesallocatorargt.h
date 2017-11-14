@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //
 // The idiom adopted is to pass an object of the empty tag class
 // 'std::allocator_arg_t' (or 'bsl::allocator_arg_t', within the BSL library)
-// as the first argument in the constuctor, followed immediately by the
+// as the first argument in the constructor, followed immediately by the
 // allocator argument.
 //
 // The 'UsesAllocatorArgT<T>' metafunction inherits from 'true_type' of 'T' is
