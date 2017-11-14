@@ -33,14 +33,14 @@ BSLS_IDENT("$Id: $")
 // result for 'bsl::is_fundamental' is indicated by the class member 'value',
 // while the result for 'bslmf::Fundamental' is indicated by the class member
 // 'VALUE'.  In practice, both traits support both names of the result value,
-// althoug the all-caps 'VALUE' form is deprecated.
+// although the all-caps 'VALUE' form is deprecated.
 //
 // Note that 'bsl::is_fundamental' should be preferred over
 // 'bslmf::Fundamental', and in general, should be used by new components.
 //
 // The C++ fundamental types are described in the C++ standard
 // [basic.fundamental], and consist of the following distinct types, and
-// cv-qualified veriations of these types:
+// cv-qualified variations of these types:
 //..
 //  bool
 //  char

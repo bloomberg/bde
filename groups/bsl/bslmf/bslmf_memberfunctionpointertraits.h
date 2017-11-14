@@ -1249,10 +1249,9 @@ struct MemberFunctionPointerTraits_Imp {
     // Implementation of 'MemberFunctionPointerTraits', containing the actual
     // traits types.  This primary template is instantiated when 'PROTOTYPE'
     // does not match a pointer-to-member-function type. In actual use,
-    // 'PROTOTYPE' and 'TEST_PROTOTYPE' are the same, but specializations
-    // treat 'PROTOTYPE' as an opaque type and 'TEST_PROTOTYPE' as a pattern
-    // match. Thiis redundancy is needed to work around some old compiler
-    // bugs.
+    // 'PROTOTYPE' and 'TEST_PROTOTYPE' are the same, but specializations treat
+    // 'PROTOTYPE' as an opaque type and 'TEST_PROTOTYPE' as a pattern match.
+    // This redundancy is needed to work around some old compiler bugs.
 
     enum {
         IS_MEMBER_FUNCTION_PTR = 0

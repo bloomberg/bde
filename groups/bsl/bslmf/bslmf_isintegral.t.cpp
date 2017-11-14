@@ -93,7 +93,7 @@ void aSsErT(bool condition, const char *message, int line)
     // of a type.  Note the 'typename' is NOT missing from the invocations of
     // the 'add_qualifier' traits, as 'TYPE' will be textually substituted as
     // the exact type, rather than a type parameter, so this is NOT a dependant
-    // contextt.  Conforming C++03 compilers would be required to reject this
+    // context.  Conforming C++03 compilers would be required to reject this
     // code if the 'typename' were present; C++11 compilers should quietly
     // ignore it.
 

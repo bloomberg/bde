@@ -280,12 +280,26 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_const<const int[5][2][3]>::type,
                                            int[5][2][3]>::value));
 
+        ASSERT((is_same<remove_const<const volatile int[5]>::type,
+                                           volatile int[5]>::value));
+        ASSERT((is_same<remove_const<const volatile int[5][2]>::type,
+                                           volatile int[5][2]>::value));
+        ASSERT((is_same<remove_const<const volatile int[5][2][3]>::type,
+                                           volatile int[5][2][3]>::value));
+
         ASSERT((is_same<remove_const<const int[]>::type,
                                            int[]>::value));
         ASSERT((is_same<remove_const<const int[][2]>::type,
                                            int[][2]>::value));
         ASSERT((is_same<remove_const<const int[][2][3]>::type,
                                            int[][2][3]>::value));
+
+        ASSERT((is_same<remove_const<const volatile int[]>::type,
+                                           volatile int[]>::value));
+        ASSERT((is_same<remove_const<const volatile int[][2]>::type,
+                                           volatile int[][2]>::value));
+        ASSERT((is_same<remove_const<const volatile int[][2][3]>::type,
+                                           volatile int[][2][3]>::value));
 
         ASSERT((is_same<remove_const<const void>::type,
                                            void>::value));

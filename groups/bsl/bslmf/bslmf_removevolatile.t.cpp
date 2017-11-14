@@ -293,12 +293,26 @@ int main(int argc, char *argv[])
         ASSERT((is_same<remove_volatile<volatile int[5][2][3]>::type,
                                                  int[5][2][3]>::value));
 
+        ASSERT((is_same<remove_volatile<volatile const int[5]>::type,
+                                                 const int[5]>::value));
+        ASSERT((is_same<remove_volatile<volatile const int[5][2]>::type,
+                                                 const int[5][2]>::value));
+        ASSERT((is_same<remove_volatile<volatile const int[5][2][3]>::type,
+                                                 const int[5][2][3]>::value));
+
         ASSERT((is_same<remove_volatile<volatile int[]>::type,
                                                  int[]>::value));
         ASSERT((is_same<remove_volatile<volatile int[][2]>::type,
                                                  int[][2]>::value));
         ASSERT((is_same<remove_volatile<volatile int[][2][3]>::type,
                                                  int[][2][3]>::value));
+
+        ASSERT((is_same<remove_volatile<volatile const int[]>::type,
+                                                 const int[]>::value));
+        ASSERT((is_same<remove_volatile<volatile const int[][2]>::type,
+                                                 const int[][2]>::value));
+        ASSERT((is_same<remove_volatile<volatile const int[][2][3]>::type,
+                                                 const int[][2][3]>::value));
 
         ASSERT((is_same<remove_volatile<volatile void>::type,
                                                  void>::value));
