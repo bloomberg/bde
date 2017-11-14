@@ -86,7 +86,7 @@ class DecimalFormatConfig {
     // TYPES
     enum Sign {
         e_NEGATIVE_ONLY,  // no sign output when sign bit is not set
-        e_ALWAYS,         // output '+' when sign bit is not set
+        e_ALWAYS          // output '+' when sign bit is not set
     };
 
     enum Style {

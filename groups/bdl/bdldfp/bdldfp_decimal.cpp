@@ -20,6 +20,7 @@ BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 #include <bslma_deallocatorguard.h>
 #include <bslma_default.h>
 #include <bslmf_assert.h>
+#include <bslmf_issame.h>
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 #include <math.h>
@@ -305,7 +306,7 @@ bool isNegative(const Decimal128& x)
                     // class WideBufferWrapper
                     // =======================
 
-template <class CHARTYPE>
+template <class CHARTYPE, bool PLAIN_CHAR>
 class WideBufferWrapper;
     // This class provides a wrapper around a buffer of the specified
     // (template parameter) 'CHARTYPE'.  'CHARTYPE' shall be either
@@ -317,8 +318,8 @@ class WideBufferWrapper;
                     // class WideBufferWrapper<char>
                     // =============================
 
-template <>
-class WideBufferWrapper<char> {
+template <bool PLAIN_CHAR>
+class WideBufferWrapper<char, PLAIN_CHAR> {
     // This class is specialization of the template
     // 'WideBufferWrapper<CHARTYPE>' for 'char' type.
 
@@ -351,7 +352,7 @@ class WideBufferWrapper<char> {
                     // ================================
 
 template <>
-class WideBufferWrapper<wchar_t> {
+class WideBufferWrapper<wchar_t, false> {
     // This class is specialization of the template
     // 'WideBufferWrapper<CHARTYPE>' for 'wchar_t' type.
 
@@ -387,10 +388,12 @@ class WideBufferWrapper<wchar_t> {
                     // -----------------------------
 
 //CREATORS
+template <bool PLAIN_CHAR>
 inline
-WideBufferWrapper<char>::WideBufferWrapper(const char        *buffer,
-                                           int                len,
-                                           const bsl::locale& /*loc*/)
+WideBufferWrapper<char, PLAIN_CHAR>::WideBufferWrapper(
+                                                    const char        *buffer,
+                                                    int                len,
+                                                    const bsl::locale& /*loc*/)
     : d_begin(buffer)
     , d_end(buffer + len)
 {
@@ -399,14 +402,16 @@ WideBufferWrapper<char>::WideBufferWrapper(const char        *buffer,
 }
 
 // ACCESSORS
+template <bool PLAIN_CHAR>
 inline
-const char *WideBufferWrapper<char>::begin() const
+const char *WideBufferWrapper<char, PLAIN_CHAR>::begin() const
 {
     return d_begin;
 }
 
+template <bool PLAIN_CHAR>
 inline
-const char *WideBufferWrapper<char>::end() const
+const char *WideBufferWrapper<char, PLAIN_CHAR>::end() const
 {
     return d_end;
 }
@@ -417,9 +422,9 @@ const char *WideBufferWrapper<char>::end() const
 
 //CREATORS
 inline
-WideBufferWrapper<wchar_t>::WideBufferWrapper(const char        *buffer,
-                                              int                len,
-                                              const bsl::locale& loc)
+WideBufferWrapper<wchar_t, false>::WideBufferWrapper(const char        *buffer,
+                                                     int                len,
+                                                     const bsl::locale& loc)
     : d_buffer_p(0)
     , d_len(len)
 {
@@ -436,7 +441,7 @@ WideBufferWrapper<wchar_t>::WideBufferWrapper(const char        *buffer,
 }
 
 inline
-WideBufferWrapper<wchar_t>::~WideBufferWrapper()
+WideBufferWrapper<wchar_t, false>::~WideBufferWrapper()
 {
     bslma::Allocator *allocator = bslma::Default::allocator();
     allocator->deallocate(d_buffer_p);
@@ -444,13 +449,13 @@ WideBufferWrapper<wchar_t>::~WideBufferWrapper()
 
     // ACCESSORS
 inline
-const wchar_t *WideBufferWrapper<wchar_t>::begin() const
+const wchar_t *WideBufferWrapper<wchar_t, false>::begin() const
 {
     return d_buffer_p;
 }
 
 inline
-const wchar_t *WideBufferWrapper<wchar_t>::end() const
+const wchar_t *WideBufferWrapper<wchar_t, false>::end() const
 {
     return d_buffer_p + d_len;
 }
@@ -750,9 +755,11 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
                                            cfg);
     BSLS_ASSERT(len <= k_BUFFER_SIZE);
 
-    WideBufferWrapper<CHARTYPE>  wbuffer(buffer, len, format.getloc());
-    const CHARTYPE              *wbufferPos = wbuffer.begin();
-    const CHARTYPE              *wend       = wbuffer.end();
+    typedef WideBufferWrapper<CHARTYPE,
+                              bsl::is_same<char, wchar_t>::value > WBuffer;
+    WBuffer         wbuffer(buffer, len, format.getloc());
+    const CHARTYPE *wbufferPos = wbuffer.begin();
+    const CHARTYPE *wend       = wbuffer.end();
 
     // Emit this many fillers.
     const int surplus = bsl::max(0, width - (len + trailingZeros));

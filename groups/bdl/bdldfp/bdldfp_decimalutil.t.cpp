@@ -1876,6 +1876,10 @@ int main(int argc, char* argv[])
         if (veryVerbose) { T_ bsl::cout << "nextafter()" << bsl::endl; }
         {
             const Obj SUBN_P =  bsl::numeric_limits<Obj>::denorm_min();
+            const Obj MAX_P  =  bdldfp::DecimalImpUtil::parse64(
+                                                     "9.999999999999999e+384");
+            const Obj MAX_N  =  bdldfp::DecimalImpUtil::parse64(
+                                                    "-9.999999999999999e+384");
 
             struct {
                 int d_line;
@@ -1894,8 +1898,8 @@ int main(int argc, char* argv[])
                 { L_, NAN_N,     NAN_N,    NAN_N                        },
                 { L_, INF_P,     INF_P,    INF_P                        },
                 { L_, INF_N,     INF_N,    INF_N                        },
-                { L_, INF_P,     DEC(2.0), DEC( 9.999999999999999e+384) },
-                { L_, INF_N,     DEC(2.0), DEC(-9.999999999999999e+384) },
+                { L_, INF_P,     DEC(2.0), MAX_P                        },
+                { L_, INF_N,     DEC(2.0), MAX_N                        },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 

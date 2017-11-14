@@ -11,7 +11,6 @@
 #include <bsls_stopwatch.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cfenv.h>
 #include <bsl_climits.h>
 #include <bsl_cmath.h>
 #include <bsl_cstdlib.h>
@@ -1856,34 +1855,6 @@ void TestDriver::testCase28()
 
     if (veryVeryVerbose) T_ bsl::cout << "ValueType128" << bsl::endl;
     testFma<Util::ValueType128>();
-}
-
-void testException(int LINE)
-{
-    if (bsl::fetestexcept(FE_INEXACT))
-    {
-        T_ T_ P_(LINE) bsl::cout << "FE_INEXACT" << bsl::endl;
-    }
-
-    if (bsl::fetestexcept(FE_INVALID))
-    {
-        T_ T_ P_(LINE) bsl::cout << "FE_INVALID" << bsl::endl;
-    }
-
-    if (bsl::fetestexcept(FE_DIVBYZERO))
-    {
-        T_ T_ P_(LINE) bsl::cout << "FE_DIVBYZERO" << bsl::endl;
-    }
-
-    if (bsl::fetestexcept(FE_OVERFLOW))
-    {
-        T_ T_ P_(LINE) bsl::cout << "FE_OVERFLOW" << bsl::endl;
-    }
-
-    if (bsl::fetestexcept(FE_UNDERFLOW))
-    {
-        T_ T_ P_(LINE) bsl::cout << "FE_UNDERFLOW" << bsl::endl;
-    }
 }
 
 void TestDriver::testCase27()
