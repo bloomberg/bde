@@ -1052,7 +1052,7 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-            const long int NaN = 0x8000000000000000l;
+            const long int NaN = ~(-1ul >> 1);
             struct {
                 int      d_line;
                 Obj      d_x;
