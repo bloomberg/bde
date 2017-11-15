@@ -804,7 +804,6 @@ int main(int argc, char* argv[])
             };
 
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int  LINE     = DATA[ti].d_line;
                 const Obj& X        = DATA[ti].d_x;
@@ -1052,7 +1051,11 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lrint()" << bsl::endl; }
         {
+#if defined(BSLS_PLATFORM_OS_AIX)
+            const      int NaN = ~(-1u  >> 1);
+#else
             const long int NaN = ~(-1ul >> 1);
+#endif
             struct {
                 int      d_line;
                 Obj      d_x;
@@ -1088,7 +1091,7 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "llrint()" << bsl::endl; }
         {
-            const long long int NaN = 0x8000000000000000ll;
+            const long long int NaN = ~(-1ull >> 1);
             struct {
                 int           d_line;
                 Obj           d_x;
@@ -1252,7 +1255,11 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lround()" << bsl::endl; }
         {
-            const long int NaN = 0x8000000000000000l;
+#if defined(BSLS_PLATFORM_OS_AIX)
+            const      int NaN = ~(-1u >> 1);
+#else
+            const long int NaN = ~(-1ul >> 1);
+#endif
             struct {
                 int      d_line;
                 Obj      d_x;
@@ -1799,7 +1806,7 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-            const long long int NaN = 0x8000000000000000ll;
+            const long long int NaN = ~(-1ull >> 1);
 
             struct {
                 int      d_line;
@@ -1837,7 +1844,7 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "llrint()" << bsl::endl; }
         {
-            const long long int NaN = 0x8000000000000000ll;
+            const long long int NaN = ~(-1ull >> 1);
 
             struct {
                 int           d_line;
@@ -2010,7 +2017,7 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lround()" << bsl::endl; }
         {
-            const long int NaN = 0x8000000000000000l;
+            const long int NaN = ~(-1ul >> 1);
             struct {
                 int      d_line;
                 Obj      d_x;
@@ -2555,7 +2562,7 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-            const long int NaN = 0x8000000000000000l;
+            const long int NaN = ~(-1ul >> 1);
             struct {
                 int      d_line;
                 Obj      d_x;
@@ -2592,7 +2599,7 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "llrint()" << bsl::endl; }
         {
-            const long long int NaN = 0x8000000000000000ll;
+            const long long int NaN = ~(-1ull >> 1);
             struct {
                 int           d_line;
                 Obj           d_x;
@@ -2755,7 +2762,7 @@ int main(int argc, char* argv[])
         }
         if (veryVerbose) { T_ bsl::cout << "lround()" << bsl::endl; }
         {
-            const long int NaN   = 0x8000000000000000l;
+            const long int NaN = ~(-1ul >> 1);
             const Obj      DEC_1 = DEC(2.4999999999999999);
 
             struct {

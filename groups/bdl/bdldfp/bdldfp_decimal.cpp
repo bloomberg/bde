@@ -302,26 +302,31 @@ bool isNegative(const Decimal128& x)
     return xH & k_SIGN_MASK;
 }
 
-                    // =======================
+                    // ============================================
+                    // template <class CHARTYPE, bool WCHAR_8_BITS>
                     // class WideBufferWrapper
-                    // =======================
+                    // ============================================
 
-template <class CHARTYPE, bool PLAIN_CHAR>
+template <class CHARTYPE, bool WCHAR_8_BITS>
 class WideBufferWrapper;
-    // This class provides a wrapper around a buffer of the specified
-    // (template parameter) 'CHARTYPE'.  'CHARTYPE' shall be either
-    // plain chararter type 'char' or wide character type 'wchar_t'.  This
-    // class provides accessors to the beginning and the end of the buffer of
-    // 'CHARTYPE' characters.
+    // This class provides a wrapper around a buffer of the specified (template
+    // parameter) 'CHARTYPE'.  'CHARTYPE' shall be either plain character type
+    // 'char' or wide character type 'wchar_t'.  The width of 'wchar_t' is
+    // compiler-specific and can be as small as 8 bits.  The template parameter
+    // 'WCHAR_8_BITS' shall be 'true' if 'wchar_t' and 'char' widths are the
+    // same, i.e. 8 bits, and 'false' otherwise.  This class provides accessors
+    // to the beginning and the end of the buffer of 'CHARTYPE' characters.
 
-                    // =============================
-                    // class WideBufferWrapper<char>
-                    // =============================
+                    // ==========================================
+                    // template <bool WCHAR_8_BIT>
+                    // class WideBufferWrapper<char, WCHAR_8_BIT>
+                    // ==========================================
 
-template <bool PLAIN_CHAR>
-class WideBufferWrapper<char, PLAIN_CHAR> {
+template <bool WCHAR_8_BIT>
+class WideBufferWrapper<char, WCHAR_8_BIT> {
     // This class is specialization of the template
-    // 'WideBufferWrapper<CHARTYPE>' for 'char' type.
+    // 'WideBufferWrapper<CHARTYPE, WCHAR_8_BITS>' for 'char' type and
+    // 'wchar_t' type which width is 8 bits.
 
     // DATA
     const char *d_begin;  // pointer to the beginning of plain character buffer
@@ -347,14 +352,16 @@ class WideBufferWrapper<char, PLAIN_CHAR> {
         // provided in this class constructor.
 };
 
-                    // ================================
-                    // class WideBufferWrapper<wchar_t>
-                    // ================================
+                    // =======================================
+                    // template <>
+                    // class WideBufferWrapper<wchar_t, false>
+                    // =======================================
 
 template <>
 class WideBufferWrapper<wchar_t, false> {
     // This class is specialization of the template
-    // 'WideBufferWrapper<CHARTYPE>' for 'wchar_t' type.
+    // 'WideBufferWrapper<CHARTYPE, WCHAR_8_BIT>' for 'wchar_t' type which
+    // width exceeds 8 bits.
 
     // DATA
     wchar_t *d_buffer_p;  // Buffer of wide characters
@@ -388,9 +395,9 @@ class WideBufferWrapper<wchar_t, false> {
                     // -----------------------------
 
 //CREATORS
-template <bool PLAIN_CHAR>
+template <bool WCHAR_8_BIT>
 inline
-WideBufferWrapper<char, PLAIN_CHAR>::WideBufferWrapper(
+WideBufferWrapper<char, WCHAR_8_BIT>::WideBufferWrapper(
                                                     const char        *buffer,
                                                     int                len,
                                                     const bsl::locale& /*loc*/)
@@ -402,16 +409,16 @@ WideBufferWrapper<char, PLAIN_CHAR>::WideBufferWrapper(
 }
 
 // ACCESSORS
-template <bool PLAIN_CHAR>
+template <bool WCHAR_8_BIT>
 inline
-const char *WideBufferWrapper<char, PLAIN_CHAR>::begin() const
+const char *WideBufferWrapper<char, WCHAR_8_BIT>::begin() const
 {
     return d_begin;
 }
 
-template <bool PLAIN_CHAR>
+template <bool WCHAR_8_BIT>
 inline
-const char *WideBufferWrapper<char, PLAIN_CHAR>::end() const
+const char *WideBufferWrapper<char, WCHAR_8_BIT>::end() const
 {
     return d_end;
 }

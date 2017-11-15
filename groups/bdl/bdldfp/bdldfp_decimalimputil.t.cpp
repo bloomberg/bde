@@ -2322,8 +2322,11 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
+#if defined(BSLS_PLATFORM_OS_AIX)
+            const      int NaN = ~(-1u >> 1);
+#else
             const long int NaN = ~(-1ul >> 1);
-
+#endif
             struct {
                 int          d_line;
                 Obj          d_x;
@@ -2367,8 +2370,11 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
         {
+#if defined(BSLS_PLATFORM_OS_AIX)
+            const long long int NaN = 0;
+#else
             const long long int NaN = ~(-1ull >> 1);
-
+#endif
             struct {
                 int           d_line;
                 Obj           d_x;
@@ -2403,7 +2409,7 @@ void TestDriver::testCase27()
                 const unsigned int   ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
-                const long int  RESULT   = Util::llrint(X);
+                const long int RESULT = Util::llrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
                 LOOP3_ASSERT(LINE, ERRNO,    errno,  ERRNO    == errno);
@@ -2543,7 +2549,11 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
+#if defined(BSLS_PLATFORM_OS_AIX)
+            const      int NaN = ~(-1u  >> 1);
+#else
             const long int NaN = ~(-1ul >> 1);
+#endif
             struct {
                 int          d_line;
                 Obj          d_x;
@@ -3355,7 +3365,7 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-            const long int NaN   = 0x8000000000000000l;
+            const long int NaN = ~(-1ul >> 1);
 
             struct {
                 int          d_line;
@@ -3401,7 +3411,7 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
         {
-            const long long int NaN   = 0x8000000000000000ll;
+            const long long int NaN = ~(-1ull >> 1);
 
             struct {
                 int           d_line;
@@ -3577,7 +3587,7 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
-            const long int NaN = 0x8000000000000000l;
+            const long int NaN = ~(-1ul >> 1);
             struct {
                 int          d_line;
                 Obj          d_x;
@@ -4274,7 +4284,7 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-            const long int NaN = 0x8000000000000000l;
+            const long int NaN = ~(-1ul >> 1);
             const Obj           DEC_X = DEC(-9223372036854775808.0);
 
             struct {
@@ -4288,7 +4298,7 @@ void TestDriver::testCase27()
             //---------------------------------------------------------------
                 { L_, ZERO_P,                    0,                      0  },
                 { L_, ZERO_N,                    0,                      0  },
-                { L_, DEC_X,                     0x8000000000000000ll,   0  },
+                { L_, DEC_X,                    NaN,                     0  },
                 { L_, DEC( 2.3),                 2,                      0  },
                 { L_, DEC( 2.5),                 2,                      0  },
                 { L_, DEC( 3.5),                 4,                      0  },
@@ -4323,7 +4333,7 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
         {
-            const long long int NaN   = 0x8000000000000000ll;
+            const long long int NaN = ~(-1ull >> 1);
             const Obj           DEC_X = DEC(-9223372036854775808.0);
 
             struct {
@@ -4507,7 +4517,7 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
-            const long int NaN   = 0x8000000000000000l;
+            const long int NaN   = ~(-1ul >> 1);
             const Obj      DEC_X = DEC(2.4999999999999999);
 
             struct {
