@@ -234,7 +234,7 @@ bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
     // corresponds to a set bit, and return false otherwise.  The behavior is
     // undefined unless 'expected' has at least 'N' characters.
 {
-    for (unsigned int i = 0; i < N; ++i) {
+    for (size_t i = 0; i != N; ++i) {
         ASSERT(expected[i] == '1' || expected[i] == '0');
         if ((expected[i] == '1') != obj[N - i - 1]) {
             return false;                                             // RETURN
@@ -248,10 +248,12 @@ bool verifyBitset(const bsl::bitset<N> obj,
                   size_t               expected,
                   bool                 verbose)
 {
-    for (size_t bitIndex = 0; bitIndex < N; ++bitIndex) {
+    (void)verbose;  // not clear why this is passed but not used
+
+    for (size_t bitIndex = 0; bitIndex != N; ++bitIndex) {
         size_t expectedBit = 0;
 
-        if (bitIndex < sizeof(unsigned long) * CHAR_BIT) {
+        if (bitIndex < sizeof(size_t) * CHAR_BIT) {
             expectedBit = ((expected >> bitIndex) & 1);
         }
 
@@ -367,7 +369,7 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         ASSERT(!v.any());
         ASSERT(0 == TESTSIZE || !v.all());
 
-        for (int i = 0; i < TESTSIZE; ++i) {
+        for (size_t i = 0; i != TESTSIZE; ++i) {
             v[i] = 1;
             ASSERT(i + 1 == v.count());
         }
@@ -375,7 +377,7 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         ASSERT(v.all());
         ASSERT(TESTSIZE == v.count());
 
-        for (int i = 1; i < TESTSIZE; ++i) {
+        for (size_t i = 1; i != TESTSIZE; ++i) {
             LOOP2_ASSERT(i, TESTSIZE, v.all());
             v[i] = 0;
             LOOP2_ASSERT(i, TESTSIZE, !v.all());
@@ -752,14 +754,6 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator ta("general", veryVeryVeryVerbose);
 
-    bsls::Types::Int64 numDeallocations;
-    bsls::Types::Int64 numAllocations;
-    bsls::Types::Int64 numDeletes = 0;
-
-    bsls::Types::Int64 numDefaultDeallocations =
-                                           defaultAllocator.numDeallocations();
-    bsls::Types::Int64 numDefaultAllocations =
-                                             defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
       case 34: {
         // --------------------------------------------------------------------
