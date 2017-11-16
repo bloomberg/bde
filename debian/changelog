@@ -1,8 +1,15 @@
-bsl-internal (3.2.0.11) unstable; urgency=low
+bsl-internal (3.2.0.12) unstable; urgency=low
 
+  * 92944ff7f Merge pull request #1460 from cwilson/pr/1457-rebased-releases/3.2.0.x
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Thu, 16 Nov 2017 12:15:40 -0500
+
+bsl-internal (3.2.0.11) git; urgency=low
+
+  * f2cfccb0d Changelog for version 3.2.0.11
   * 67bd530a1 Merge pull request #1436 from mgiroux/pr/1428-rebased-releases/3.2.0.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Thu, 9 Nov 2017 10:55:31 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 14 Nov 2017 10:17:42 -0500
 
 bsl-internal (3.2.0.10) git; urgency=low
 
