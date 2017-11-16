@@ -605,6 +605,14 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::sleepUntil(
     return 0;
 }
 
+unsigned int
+bslmt::ThreadUtilImpl<bslmt::Platform::Win32Threads>::hardwareConcurrency()
+{
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    return sysinfo.dwNumberOfProcessors;
+}
+
 }  // close enterprise namespace
 
 #endif  // BSLMT_PLATFORM_WIN32_THREADS

@@ -747,6 +747,22 @@ struct ThreadUtil {
         // thread key cleanup function associated with any key by 'createKey',
         // 'key' was obtained from a successful call to 'createKey', and 'key'
         // has not been deleted.
+
+    static unsigned int hardwareConcurrency();
+        // Return the number of concurrent threads supported by the
+        // implementation on success, and 0 otherwise.
+        // Function uses following system calls to obtain result:
+        //   Linux
+        //   AIX
+        //   Solaris
+        //   SunOS
+        //   Cygwin
+        //     sysconf(_SC_NPROCESSORS_ONLN)
+        //   FreeBSD
+        //   Darwin
+        //     sysctl(HW_AVAILCPU, ...)
+        //   Windows
+        //     GetSystemInfo(...)
 };
 
 }  // close package namespace
@@ -1047,6 +1063,12 @@ inline
 int bslmt::ThreadUtil::setSpecific(const Key& key, const void *value)
 {
     return Imp::setSpecific(key, value);
+}
+
+inline
+unsigned int bslmt::ThreadUtil::hardwareConcurrency()
+{
+    return Imp::hardwareConcurrency();
 }
 
 }  // close enterprise namespace
