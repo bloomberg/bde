@@ -284,14 +284,17 @@ class NullableValue {
     template <class BDE_OTHER_TYPE>
     NullableValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
                   typename bsl::enable_if<
-                      bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
+                      bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value
+                      &&
+                      !bsl::is_convertible<BDE_OTHER_TYPE,
+                                           bslma::Allocator *>::value,
                       void>::type * = 0);                           // IMPLICIT
         // Create a nullable object having the specified 'value' (of
         // 'BDE_OTHER_TYPE') converted to 'TYPE'.  If 'TYPE' takes an optional
         // allocator at construction, use the currently installed default
         // allocator to supply memory.  Note that this constructor does not
         // participate in overload resolution unless 'BDE_OTHER_TYPE' is
-        // convertible to 'TYPE'.
+        // convertible to 'TYPE' and not convertible to 'bslma::Allocator *'.
 
     template <class BDE_OTHER_TYPE>
     NullableValue(
@@ -1006,7 +1009,10 @@ template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
     BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
-    typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
+    typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value
+                            &&
+                            !bsl::is_convertible<BDE_OTHER_TYPE,
+                                                 bslma::Allocator *>::value,
                             void>::type *)
 {
     d_imp.makeValueRaw(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
