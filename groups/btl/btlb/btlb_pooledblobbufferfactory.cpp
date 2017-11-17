@@ -28,6 +28,27 @@ PooledBlobBufferFactory::PooledBlobBufferFactory(
 {
 }
 
+PooledBlobBufferFactory::PooledBlobBufferFactory(
+                                int                          bufferSize,
+                                bsls::BlockGrowth::Strategy  growthStrategy,
+                                bslma::Allocator            *basicAllocator)
+: d_bufferSize(bufferSize)
+, d_spPool(growthStrategy, basicAllocator)
+{
+    BSLS_ASSERT(0 < bufferSize);
+}
+
+PooledBlobBufferFactory::PooledBlobBufferFactory(
+                                int                          bufferSize,
+                                bsls::BlockGrowth::Strategy  growthStrategy,
+                                int                          maxBlocksPerChunk,
+                                bslma::Allocator            *basicAllocator)
+: d_bufferSize(bufferSize)
+, d_spPool(growthStrategy, maxBlocksPerChunk, basicAllocator)
+{
+    BSLS_ASSERT(0 < bufferSize);
+}
+
 PooledBlobBufferFactory::~PooledBlobBufferFactory()
 {
 }
