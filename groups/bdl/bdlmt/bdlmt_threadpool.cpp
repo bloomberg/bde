@@ -96,6 +96,17 @@ ThreadPoolWaitNode::ThreadPoolWaitNode()
 void ThreadPool::doEnqueueJob(const Job& job)
 {
     d_queue.push_back(job);
+    wakeThreadIfNeeded();
+}
+
+void ThreadPool::doEnqueueJob(bslmf::MovableRef<Job> job)
+{
+    d_queue.push_back(bslmf::MovableRefUtil::move(job));
+    wakeThreadIfNeeded();
+}
+
+void ThreadPool::wakeThreadIfNeeded()
+{
     if (d_waitHead) {
         // Signal this thread (used in 'bdlmt::ThreadPool::workerThread'
         // below).
@@ -111,6 +122,36 @@ void ThreadPool::doEnqueueJob(const Job& job)
         }
     }
 }
+
+int ThreadPool::startThreadIfNeeded()
+{
+    if (static_cast<int>(d_queue.size()) + d_numActiveThreads > d_threadCount
+       && d_threadCount < d_maxThreads) {
+        int rc = startNewThread();
+        (void)rc;  // Suppress unused variable warning.
+
+        if (0 == d_threadCount) {
+            // We are unable to spawn the first thread.  The enqueued job will
+            // never be processed.  Return error.
+
+            return -1;                                                // RETURN
+        }
+
+        // In our existing code base, many Linux users unknowingly configure
+        // thread stack size to be 64 megabytes by default.  If they ask for a
+        // lot of threads, they run out of RAM and thread creation eventually
+        // fails.  But by then they have many threads and their jobs get
+        // processed and things work.  To avoid disturbing such jobs in
+        // production, work if 'startNewThread' failed as long as
+        // '0 != d_threadCount'.  The following safe assert will alert clients
+        // in development to the problem.
+
+        BSLS_ASSERT_SAFE(0 == rc && "Client is not getting as many threads as"
+            "requested, check thread stack size.");
+    }
+    return 0;
+}
+
 }  // close package namespace
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
@@ -369,31 +410,28 @@ int ThreadPool::enqueueJob(const Job& functor)
 
     doEnqueueJob(functor);
 
-    if ((int) d_queue.size() + d_numActiveThreads > d_threadCount &&
-        d_threadCount < d_maxThreads ) {
-        int rc = startNewThread();
-        (void)rc;  // Suppress unused variable warning.
+    return startThreadIfNeeded();
+}
 
-        if (0 == d_threadCount) {
-            // We are unable to spawn the first thread.  The enqueued job will
-            // never be processed.  Return error.
+int ThreadPool::enqueueJob(bslmf::MovableRef<Job> functor)
+{
+    if (!bslmf::MovableRefUtil::access(functor)) {
+        // Abort here if the 'functor' is "unset".  This prevents a crash
+        // inside 'workerThread' (where the context of 'functor' would be
+        // lost).
 
-            return -1;                                                // RETURN
-        }
-
-        // In our existing code base, many Linux users unknowingly configure
-        // thread stack size to be 64 megabytes by default.  If they ask for a
-        // lot of threads, they run out of RAM and thread creation eventually
-        // fails.  But by then they have many threads and their jobs get
-        // processed and things work.  To avoid disturbing such jobs in
-        // production, work if 'startNewThread' failed as long as
-        // '0 != d_threadCount'.  The following safe assert will alert clients
-        // in development to the problem.
-
-        BSLS_ASSERT_SAFE(0 == rc && "Client is not getting as many threads as"
-                                    "requested, check thread stack size.");
+        BSLS_ASSERT(0);
+        bsl::abort();  // abort (for when 'assert' is removed by optimization)
     }
-    return 0;
+
+    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    if (!d_enabled) {
+        return -1;                                                    // RETURN
+    }
+
+    doEnqueueJob(bslmf::MovableRefUtil::move(functor));
+
+    return startThreadIfNeeded();
 }
 
 void ThreadPool::shutdown()
