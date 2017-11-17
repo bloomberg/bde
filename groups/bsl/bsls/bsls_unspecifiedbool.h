@@ -26,8 +26,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Relationship to C++11
 ///---------------------
-// This component will become redundant when all of Bloomberg production
-// compilers support "explicit conversion operators", a feature of C++11.  An
+// This component will become redundant when all Bloomberg production compilers
+// support "explicit conversion operators", a feature of C++11.  An
 // 'explicit operator bool()' conversion operator is superior to this C++98
 // idiom in all ways.
 //
