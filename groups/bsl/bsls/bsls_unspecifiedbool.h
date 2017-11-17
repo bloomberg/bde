@@ -12,21 +12,22 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::UnspecifiedBool: class template for the 'unspecified bool' idiom.
 //
-//@DESCRIPTION: This component should *not* be used outside of the 'bsl'
-// package at this time.
+//@DESCRIPTION: This component provides a class template that can be used to
+// manufacture an "unspecified boolean type" that is distinct for each class
+// that instantiates it.  Note that classes supplying an implicit conversion to
+// an unspecified bool type will be equality comparable (using 'operator==' and
+// 'operator!=') through this conversion.  Private equality and inequality
+// operators should be added to the class definition unless this comparison is
+// desired.  It is important that each class produces a distinct unspecified
+// bool type, as otherwise objects of different class types would compare equal
+// through this same conversion.
 //
-// This component provides a class template that can be used to manufacture an
-// "unspecified boolean type" that is distinct for each class that instantiates
-// it.  Note that classes supplying an implicit conversion to an unspecified
-// bool type will be equality comparable (using 'operator==' and 'operator!=')
-// through this conversion.  Private equality and inequality operators should
-// be added to the class definition unless this comparison is desired.  It is
-// important that each class produces a distinct unspecified bool type, as
-// otherwise objects of different class types would compare equal through this
-// same conversion.  Note that this component should become redundant when all
-// of our compilers support "explicit conversion operators", a new feature of
-// C++11.  An 'explicit operator bool()' conversion operator is superior to
-// this C++98 idiom in all ways.
+///Relationship to C++11
+///---------------------
+// This component will become redundant when all Bloomberg production compilers
+// support "explicit conversion operators", a feature of C++11.  An
+// 'explicit operator bool()' conversion operator is superior to this C++98
+// idiom in all ways.
 //
 ///Usage
 ///-----
