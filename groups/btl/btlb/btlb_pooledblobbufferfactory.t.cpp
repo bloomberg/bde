@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        if (verbose) cout << "\nTesting bcema_PooledBlobBufferFactory."
+        if (verbose) cout << "\nTesting btlb::PooledBlobBufferFactory."
                           << "\n--------------------------------------\n";
         for (int bufferSize = 1;
              bufferSize < static_cast<int>(32 * sizeof(void*));
@@ -145,9 +145,9 @@ int main(int argc, char *argv[]) {
 
             {
                 int maxLength = 0;
-                Obj fa(bufferSize, &ta);
+                Obj factory(bufferSize, &ta);
 
-                btlb::Blob mX(&fa, &ta);  const btlb::Blob& X = mX;
+                btlb::Blob mX(&factory, &ta);  const btlb::Blob& X = mX;
                 ASSERT(0 == X.length());
                 ASSERT(0 == X.totalSize());
                 ASSERT(0 == X.numBuffers());
@@ -202,7 +202,7 @@ int main(int argc, char *argv[]) {
                 checkBlob(L_, bufferSize, 1, maxLength, mX);
 
                 btlb::BlobBuffer buf;
-                fa.allocate(&buf);
+                factory.allocate(&buf);
                 mX.appendBuffer(buf);
                 maxLength += bufferSize;
                 checkBlob(L_, bufferSize, 1, maxLength, mX);
@@ -210,12 +210,12 @@ int main(int argc, char *argv[]) {
                 mX.setLength(bufferSize+3);
                 checkBlob(L_, bufferSize, bufferSize+3, maxLength, mX);
 
-                fa.allocate(&buf);
+                factory.allocate(&buf);
                 mX.insertBuffer(1, buf);
                 maxLength += bufferSize;
                 checkBlob(L_, bufferSize, 2*bufferSize+3, maxLength, mX);
 
-                fa.allocate(&buf);
+                factory.allocate(&buf);
                 mX.insertBuffer(50, buf);
                 maxLength += bufferSize;
                 checkBlob(L_, bufferSize, 2*bufferSize+3, maxLength, mX);
@@ -224,6 +224,19 @@ int main(int argc, char *argv[]) {
             }
             ASSERT(0 <  ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
+        }
+
+        if (veryVerbose) cout << "\nChecking additional constructors.\n";
+        bslma::TestAllocator  ta(veryVeryVerbose);
+        const int             bufferSize = 42;
+        using bsls::BlockGrowth;
+        BlockGrowth::Strategy growthStrategy = BlockGrowth::BSLS_GEOMETRIC;
+        {
+            Obj factory(bufferSize, growthStrategy, &ta);
+        }
+        int maxBlocksPerChunk = 5;
+        {
+            Obj factory(bufferSize, growthStrategy, maxBlocksPerChunk, &ta);
         }
 
       } break;
