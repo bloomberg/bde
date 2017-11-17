@@ -555,6 +555,98 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 }  // close namespace THREADPOOL_USAGE_EXAMPLE
 
 // ============================================================================
+//                         CASE 14 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace case14 {
+
+                            // ===================
+                            // CopyCountingFunctor
+                            // ===================
+
+class CopyCountingFunctor {
+  private:
+    // DATA
+    int *d_counter_p; // Pointer to the counter of copy-constructions
+
+    char foo[1024];
+
+  public:
+    // CREATORS
+    explicit CopyCountingFunctor(int *counter);
+        // Create a new 'CopyCountingFunctor' object that has the specified
+        // 'counter', and set the counter to 0.
+
+    CopyCountingFunctor(const CopyCountingFunctor& other);
+        // Create a new 'CopyCountingFunctor' object that has the same counter
+        // as the specified 'other'; and also increase the counter by one.
+
+    CopyCountingFunctor(bslmf::MovableRef<CopyCountingFunctor> other);
+        // Create a new 'CopyCountingFunctor' object that has the same counter
+        // as the specified 'other'.
+
+    // MANIPULATORS
+    CopyCountingFunctor& operator=(const CopyCountingFunctor& other);
+        // Overwrite this object that has the same counter as the specified
+        // 'other'; and also increase that counter by one.
+
+    CopyCountingFunctor& operator=(
+                                 bslmf::MovableRef<CopyCountingFunctor> other);
+        // Overwrite this object that has the same counter as the specified
+        // 'other'.
+
+    // ACCESSORS
+    void operator()();
+        // Do noting.
+};
+
+                            // -------------------
+                            // CopyCountingFunctor
+                            // -------------------
+
+// CREATORS
+CopyCountingFunctor::CopyCountingFunctor(int *counter)
+: d_counter_p(counter)
+{
+    *d_counter_p = 0;
+}
+
+CopyCountingFunctor::CopyCountingFunctor(const CopyCountingFunctor& other)
+: d_counter_p(other.d_counter_p)
+{
+    ++*d_counter_p;
+}
+
+CopyCountingFunctor::CopyCountingFunctor(
+                                  bslmf::MovableRef<CopyCountingFunctor> other)
+: d_counter_p(static_cast<CopyCountingFunctor&>(other).d_counter_p)
+{
+}
+
+// MANIPULATORS
+CopyCountingFunctor& CopyCountingFunctor::operator=(
+                                              const CopyCountingFunctor& other)
+{
+    d_counter_p = other.d_counter_p;
+    ++*d_counter_p;
+    return *this;
+}
+
+CopyCountingFunctor& CopyCountingFunctor::operator=(
+                                  bslmf::MovableRef<CopyCountingFunctor> other)
+{
+    d_counter_p = static_cast<CopyCountingFunctor&>(other).d_counter_p;
+    return *this;
+}
+
+// ACCESSORS
+void CopyCountingFunctor::operator()()
+{
+}
+
+}  // close namespace case14
+
+// ============================================================================
 //                          CASE 8 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
@@ -690,6 +782,71 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0: // 0 is always the first test case
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING MOVING ENQUEUEJOB METHOD
+        //   Verify that the moving 'enqueueJob' method really moves.
+        //
+        // Plan:
+        //   Create a functor that is copyable and movable, and it counts how
+        //   many times it was copied.  Then create a 'Job' (bsl::function) out
+        //   of the functor.  Next use 'bslmf::MovableRef' to move the 'Job'
+        //   into the 'ThreadPool' and verify that no copy happens.
+        //
+        // Testing:
+        //   int enqueueJob(bslmf::MovableRef<Job> functor)
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "TESTING MOVING ENQUEUEJOB METHOD" << endl
+                 << "================================" << endl;
+
+        {
+            enum {
+                NUM_ITERATIONS = 1000,
+                MIN_THREADS    = 1,
+                MAX_THREADS    = 10000, // should not matter
+                IDLE_TIME      = 0
+
+            };
+            bslmt::ThreadAttributes attributes;
+            Obj                     mX(attributes,
+                                       MIN_THREADS,
+                                       MAX_THREADS,
+                                       IDLE_TIME,
+                                       &testAllocator);
+            mX.start();
+
+            int counter = 0;
+
+            case14::CopyCountingFunctor f(&counter);
+
+            LOOP_ASSERT(counter, 0 == counter);
+
+            Obj::Job job(bsl::allocator_arg_t(), &testAllocator, f);
+
+            LOOP_ASSERT(counter, counter > 0);
+
+            const int buildCopyCounter = counter;
+
+            counter = 0;
+
+            ASSERT(0 == mX.enqueueJob(bslmf::MovableRefUtil::move(job)));
+
+            LOOP_ASSERT(counter, 0 == counter);
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+            // Moving of rvalues are only supported in C++11 mode.
+
+            ASSERT(0 == mX.enqueueJob(Obj::Job(bsl::allocator_arg_t(),
+                                          &testAllocator,
+                                          f)));
+
+            LOOP2_ASSERT(buildCopyCounter, counter,
+                         buildCopyCounter == counter);
+#endif
+        }
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // VERIFY that functor are destroyed when the thread pool is not
