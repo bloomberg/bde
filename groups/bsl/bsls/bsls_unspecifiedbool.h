@@ -24,10 +24,10 @@ BSLS_IDENT("$Id: $")
 // bool type, as otherwise objects of different class types would compare equal
 // through this same conversion.
 //
-///Lifetime
-///--------
-// This component should become redundant when all of our compilers support
-// "explicit conversion operators", a new feature of C++11.  An
+///Relationship to C++11
+///---------------------
+// This component will become redundant when all of Bloomberg production
+// compilers support "explicit conversion operators", a feature of C++11.  An
 // 'explicit operator bool()' conversion operator is superior to this C++98
 // idiom in all ways.
 //
