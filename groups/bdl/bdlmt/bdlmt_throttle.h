@@ -25,10 +25,10 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a mechanism, 'bdlmt::Throttle', that
 // can be used by clients to regulate the frequency at which actions can be
 // taken.  Clients initialize a 'Throttle' with configuration values for
-// 'nanosecondsPerAction' and 'maxBurstSize'.  Then clients request permission
-// from this component to execute actions.  The component keeps track of the
-// number of actions requested, and over time throttles the average number of
-// actions permitted to a rate of '1 / nanosecondsPerAction'
+// 'nanosecondsPerAction' and 'maxSimultaneousActions'.  Then clients request
+// permission from this component to execute actions.  The component keeps
+// track of the number of actions requested, and over time throttles the
+// average number of actions permitted to a rate of '1 / nanosecondsPerAction'
 // (actions-per-nanosecond).  So, for example, to limit the average rate of
 // actions permitted to 10 actions per second (10 actions / one billion
 // nanoseconds), the value for 'nanosecondsPerAction' would be 100000000 (which
@@ -36,9 +36,10 @@ BSLS_IDENT("$Id: $")
 //
 // As clients request permission to perform actions the component accumulates a
 // time debt for those actions that dissipates over time.  The maximum value
-// for this time debt is given by 'maxBurstSize * nanosecondsPerAction'.  The
-// 'maxBurstSize' configuration parameter thereby limits the maximum number of
-// actions that can be simultaneously permitted.
+// for this time debt is given by
+// 'maxSimultaneousActions * nanosecondsPerAction'.  The
+// 'maxSimultaneousActions' configuration parameter thereby limits the maximum
+// number of actions that can be simultaneously permitted.
 //
 // This behavior is known as a "leaky-bucket" algorithm: actions permitted
 // place water in the bucket, the passage of time drains water from the bucket,
@@ -84,35 +85,39 @@ BSLS_IDENT("$Id: $")
 // objects that have static storage duration -- the values are guaranteed to be
 // evaluated at compile-time, avoiding race conditions.
 //
-//   BDLMT_THROTTLE_INIT(maxBurstSize,
+//   BDLMT_THROTTLE_INIT(maxSimultaneousActions,
 //                       nanosecondsPerAction)
 //       Initialize this 'Throttle' to limit the average period of actions
 //       permitted to the specified 'nanosecondsPerAction', and the maximum
 //       number of actions allowed in a very short time to the specified
-//       'maxBurstSize', where time is measured according to the monotonic
-//       system clock.  If 'maxBurstSize' is 0, the throttle will be
-//       configured to permit no actions.  If 'nanosecondsPerAction' is 0, the
-//       throttle will be configured to permit all actions.  The behavior is
-//       undefined unless '0 <= maxBurstSize', '0 <= nanosecondsPerAction',
-//       '0 < maxBurstSize || 0 < nanosecondsPerAction', and
-//       'maxBurstSize * nanosecondsPerAction <= LLONG_MAX'.  Note that
-//       floating-point expressions are not allowed in any of the arguments, as
-//       they cannot be evaluated at compile-time on some platforms.
+//       'maxSimultaneousActions', where time is measured according to the
+//       monotonic system clock.  If 'maxSimultaneousActions' is 0, the
+//       throttle will be configured to permit no actions.  If
+//       'nanosecondsPerAction' is 0, the throttle will be configured to permit
+//       all actions.  The behavior is undefined unless
+//       '0 <= maxSimultaneousActions', '0 <= nanosecondsPerAction',
+//       '0 < maxSimultaneousActions || 0 < nanosecondsPerAction', and
+//       'maxSimultaneousActions * nanosecondsPerAction <= LLONG_MAX'.  Note
+//       that floating-point expressions are not allowed in any of the
+//       arguments, as they cannot be evaluated at compile-time on some
+//       platforms.
 //
-//   BDLMT_THROTTLE_INIT_REALTIME(maxBurstSize,
+//   BDLMT_THROTTLE_INIT_REALTIME(maxSimultaneousActions,
 //                                nanosecondsPerAction)
 //       Initialize this 'Throttle' to limit the average period of actions
 //       permitted to the specified 'nanosecondsPerAction', and the maximum
 //       number of actions allowed in a very short time to the specified
-//       'maxBurstSize', where time is measured according to the realtime
-//       system clock.  If 'maxBurstSize' is 0, the throttle will be
-//       configured to permit no actions.  If 'nanosecondsPerAction' is 0, the
-//       throttle will be configured to permit all actions.  The behavior is
-//       undefined unless '0 <= maxBurstSize', '0 <= nanosecondsPerAction',
-//       '0 < maxBurstSize || 0 < nanosecondsPerAction', and
-//       'maxBurstSize * nanosecondsPerAction <= LLONG_MAX'.  Note that
-//       floating-point expressions are not allowed in any of the arguments, as
-//       they cannot be evaluated at compile-time on some platforms.
+//       'maxSimultaneousActions', where time is measured according to the
+//       realtime system clock.  If 'maxSimultaneousActions' is 0, the throttle
+//       will be configured to permit no actions.  If 'nanosecondsPerAction' is
+//       0, the throttle will be configured to permit all actions.  The
+//       behavior is undefined unless '0 <= maxSimultaneousActions',
+//       '0 <= nanosecondsPerAction',
+//       '0 < maxSimultaneousActions || 0 < nanosecondsPerAction', and
+//       'maxSimultaneousActions * nanosecondsPerAction <= LLONG_MAX'.  Note
+//       that floating-point expressions are not allowed in any of the
+//       arguments, as they cannot be evaluated at compile-time on some
+//       platforms.
 //
 //   BDLMT_THROTTLE_INIT_ALLOW_ALL
 //       Initialize this 'Throttle' to allow all actions.
@@ -124,39 +129,41 @@ BSLS_IDENT("$Id: $")
 //                          // BDLMT_THROTTLE_IF* macros
 //                          // -------------------------
 //
-//   BDLMT_THROTTLE_IF(maxBurstSize,
+//   BDLMT_THROTTLE_IF(maxSimultaneousActions,
 //                     nanosecondsPerAction)
 //       Create a throttled 'if' statement limiting execution of the statement
 //       following it (and controlling execution of any 'else' clause present).
 //       Limit the average period of actions permitted to the specified
 //       'nanosecondsPerAction', and the maximum number of actions allowed in a
-//       very short time to the specified 'maxBurstSize', where time is
-//       measured according to the monotonic system clock.  If 'maxBurstSize'
-//       is 0, the 'if' will be configured to permit no actions.  If
-//       'nanosecondsPerAction' is 0, the 'if' will be configured to permit all
-//       actions.  The behavior is undefined unless '0 <= maxBurstSize',
-//       '0 <= nanosecondsPerAction',
-//       '0 < maxBurstSize || 0 < nanosecondsPerAction', and
-//       'maxBurstSize * nanosecondsPerAction <= LLONG_MAX'.  Note that
-//       floating-point expressions are not allowed in any of the arguments, as
-//       they cannot be evaluated at compile-time on some platforms.
+//       very short time to the specified 'maxSimultaneousActions', where time
+//       is measured according to the monotonic system clock.  If
+//       'maxSimultaneousActions' is 0, the 'if' will be configured to permit
+//       no actions.  If 'nanosecondsPerAction' is 0, the 'if' will be
+//       configured to permit all actions.  The behavior is undefined unless
+//       '0 <= maxSimultaneousActions', '0 <= nanosecondsPerAction',
+//       '0 < maxSimultaneousActions || 0 < nanosecondsPerAction', and
+//       'maxSimultaneousActions * nanosecondsPerAction <= LLONG_MAX'.  Note
+//       that floating-point expressions are not allowed in any of the
+//       arguments, as they cannot be evaluated at compile-time on some
+//       platforms.
 //
-//   BDLMT_THROTTLE_IF_REALTIME(maxBurstSize,
+//   BDLMT_THROTTLE_IF_REALTIME(maxSimultaneousActions,
 //                              nanosecondsPerAction)
 //       Create a throttled 'if' statement limiting execution of the statement
 //       following it (and controlling execution of any 'else' clause present).
 //       Limit the average period of actions permitted to the specified
 //       'nanosecondsPerAction', and the maximum number of actions allowed in a
-//       very short time to the specified 'maxBurstSize', where time is
-//       measured according to the realtime system clock.  If 'maxBurstSize' is
-//       0, the 'if' will be configured to permit no actions.  If
-//       'nanosecondsPerAction' is 0, the 'if' will be configured to permit all
-//       actions.  The behavior is undefined unless '0 <= maxBurstSize',
-//       '0 <= nanosecondsPerAction',
-//       '0 < maxBurstSize || 0 < nanosecondsPerAction', and
-//       'maxBurstSize * nanosecondsPerAction <= LLONG_MAX'.  Note that
-//       floating-point expressions are not allowed in any of the arguments, as
-//       they cannot be evaluated at compile-time on some platforms.
+//       very short time to the specified 'maxSimultaneousActions', where time
+//       is measured according to the realtime system clock.  If
+//       'maxSimultaneousActions' is 0, the 'if' will be configured to permit
+//       no actions.  If 'nanosecondsPerAction' is 0, the 'if' will be
+//       configured to permit all actions.  The behavior is undefined unless
+//       '0 <= maxSimultaneousActions', '0 <= nanosecondsPerAction',
+//       '0 < maxSimultaneousActions || 0 < nanosecondsPerAction', and
+//       'maxSimultaneousActions * nanosecondsPerAction <= LLONG_MAX'.  Note
+//       that floating-point expressions are not allowed in any of the
+//       arguments, as they cannot be evaluated at compile-time on some
+//       platforms.
 //
 //   BDLMT_THROTTLE_IF_ALLOW_ALL
 //       Create an 'if' statement whose condition is always 'true', always
@@ -240,36 +247,38 @@ class Throttle {
     AtomicTypes::Int64          d_prevLeakTime;
     Int64                       d_nanosecondsPerAction;
     Int64                       d_nanosecondsPerTotalReset;
-    int                         d_maxBurstSize;
+    int                         d_maxSimultaneousActions;
     bsls::SystemClockType::Enum d_clockType;
 
   private:
     // FRIENDS
-    template <int MAX_BURST_SIZE, bsls::Types::Int64 NANOSECONDS_PER_ACTION>
+    template <int                MAX_SIMULTANEOUS_ACTIONS,
+              bsls::Types::Int64 NANOSECONDS_PER_ACTION>
     friend struct Throttle_ArgFilter_Imp;
 
   public:
     // MANIPULATORS
-    void initialize(int                         maxBurstSize,
+    void initialize(int                         maxSimultaneousActions,
                     Int64                       nanosecondsPerAction,
                     bsls::SystemClockType::Enum clockType =
                                            bsls::SystemClockType::e_MONOTONIC);
         // Initialize this 'Throttle' to limit the average period of actions
         // permitted to the specified 'nanosecondsPerAction', and the maximum
         // number of actions allowed in a very short timespan to
-        // 'maxBurstSize'.  Optionally specify 'clockType' to indicate which
-        // system clock will be used to measure time.  If 'clockType' is not
-        // supplied the monotonic system clock is used.  The configured
-        // throttle will over time limit the average number of actions
-        // permitted to a rate of '1 / nanosecondsPerAction'.  If
-        // 'maxBurstSize' is 0, the throttle will be configured to permit no
-        // actions, otherwise if 'nanosecondsPerAction' is 0, the throttle will
-        // be configured to permit all actions.  The behavior is undefined
-        // unless '0 <= nanosecondsPerAction', '0 <= maxBurstSize', unless
-        // '0 < nanosecondsPerAction || 0 < maxBurstSize', and unless
-        // 'maxBurstSize * nanosecondsPerActionLeak <= LLONG_MAX'.  Note that
-        // the behavior for other methods is undefined unless this 'Throttle'
-        // is initialized (either using this function, or a
+        // 'maxSimultaneousActions'.  Optionally specify 'clockType' to
+        // indicate which system clock will be used to measure time.  If
+        // 'clockType' is not supplied the monotonic system clock is used.  The
+        // configured throttle will over time limit the average number of
+        // actions permitted to a rate of '1 / nanosecondsPerAction'.  If
+        // 'maxSimultaneousActions' is 0, the throttle will be configured to
+        // permit no actions, otherwise if 'nanosecondsPerAction' is 0, the
+        // throttle will be configured to permit all actions.  The behavior is
+        // undefined unless '0 <= nanosecondsPerAction',
+        // '0 <= maxSimultaneousActions',
+        // '0 < nanosecondsPerAction || 0 < maxSimultaneousActions', and
+        // 'maxSimultaneousActions * nanosecondsPerActionLeak <= LLONG_MAX'.
+        // Note that the behavior for other methods is undefined unless this
+        // 'Throttle' is initialized (either using this function, or a
         // 'BDLMT_THROTTLE_INIT' macro) prior to being called.
 
     bool requestPermission();
@@ -280,19 +289,20 @@ class Throttle {
         // Return 'true' if the time debt incurred by taking the indicated
         // action(s) would *not* exceed the maximum allowed time debt
         // configured for this 'Throttle' object
-        // ('nanosecondsPerAction * maxBurstSize'), and 'false' otherwise.
-        // Optionally specificy 'now' indicating the current time of the system
-        // clock for which this object is configured ('now' is a offset from
-        // that clocks epoch).  If 'now' is not supplied, the current time is
-        // obtained from the configured system clock.  Optionally specify
-        // 'numActions' indicating the number of actions requested.  If
-        // 'numActions' is not supplied, one action is requested.  If this
-        // function returns 'true' then 'numActions * nanosecondsPerActions' is
-        // added to the time debt accumulated by this component.  The behavior
-        // is undefined unless this throttle has been initialized (either by
-        // calling 'initialize' or using one of the 'BDLMT_THROTTLE_INIT*'
-        // macros), '0 < numActions', and
-        // 'numActions <= maxBurstSize || 0 == maxBurstSize'.  Note that
+        // ('nanosecondsPerAction * maxSimultaneousActions'), and 'false'
+        // otherwise.  Optionally specificy 'now' indicating the current time
+        // of the system clock for which this object is configured ('now' is a
+        // offset from that clocks epoch).  If 'now' is not supplied, the
+        // current time is obtained from the configured system clock.
+        // Optionally specify 'numActions' indicating the number of actions
+        // requested.  If 'numActions' is not supplied, one action is
+        // requested.  If this function returns 'true' then
+        // 'numActions * nanosecondsPerActions' is added to the time debt
+        // accumulated by this component.  The behavior is undefined unless
+        // this throttle has been initialized (either by calling 'initialize'
+        // or using one of the 'BDLMT_THROTTLE_INIT*' macros),
+        // '0 < numActions', and ('numActions <= maxSimultaneousActions' or
+        // '0 == maxSimultaneousActions').  Note that
         // 'requestPerimissionIfValid', unlike these methods, does not have any
         // preconditions on the value of 'numActions'.
 
@@ -304,22 +314,23 @@ class Throttle {
         // Set '*result' to 'true' if the time debt incurred by taking the
         // specified 'numActions' would *not* exceed the maximum allowed time
         // debt configured for this 'Throttle' object
-        // ('nanosecondsPerAction * maxBurstSize'), and 'false' otherwise.
-        // Optionally specificy 'now' indicating the current time of the system
-        // clock for which this object is configured ('now' is a offset from
-        // that clocks epoch).  If 'now' is not supplied, the current time is
-        // obtained from the configured system clock.  If '*result' is set to
-        // 'true' then 'numActions * nanosecondsPerActions' is added to the
-        // time debt accumulated by this component.  Return 0 if
-        // '0 <= numActions' and 'numActions <= maxBurstSize' or
-        // '0 == maxBurstSize', and a non-zero value otherwise.  The behavior
-        // is undefined unless this throttle has been initialized (either by
-        // calling 'initialize' or using one of the 'BDLMT_THROTTLE_INIT*'
-        // macros).  Note that unless 0 is returned, '*result' is unaffected.
+        // ('nanosecondsPerAction * maxSimultaneousActions'), and 'false'
+        // otherwise.  Optionally specificy 'now' indicating the current time
+        // of the system clock for which this object is configured ('now' is a
+        // offset from that clocks epoch).  If 'now' is not supplied, the
+        // current time is obtained from the configured system clock.  If
+        // '*result' is set to 'true' then 'numActions * nanosecondsPerActions'
+        // is added to the time debt accumulated by this component.  Return 0
+        // if '0 <= numActions' and ('numActions <= maxSimultaneousActions' or
+        // '0 == maxSimultaneousActions'), and a non-zero value otherwise.  The
+        // behavior is undefined unless this throttle has been initialized
+        // (either by calling 'initialize' or using one of the
+        // 'BDLMT_THROTTLE_INIT*' macros).  Note that unless 0 is returned,
+        // '*result' is unaffected.
 
     // ACCESSOR
-    int maxBurstSize() const;
-        // Return the 'maxBurstSize' value with which this object was
+    int maxSimultaneousActions() const;
+        // Return the 'maxSimultaneousActions' value with which this object was
         // configured.
 
     Int64 nanosecondsPerAction() const;
@@ -332,35 +343,52 @@ class Throttle {
         // specified 'numActions' will next be permitted.  Return 0 on success,
         // and a non-zero value (with no effect on 'result') if this throttle
         // is configured such that 'numActions' will never be permitted (i.e.,
-        // return an error if 'numActions > maxBurstSize').  The returned
-        // 'result' is an offset from the epoch of the system clock for which
-        // this throttle is configured.  The behavior is undefined unless this
-        // throttle has been initialized (either by calling 'initialize' or
-        // using a 'BDLMT_THROTTLE_INIT*' macro).  Note that 'result' may be in
-        // the past, and this function does *not* obtain the current time from
-        // the system clock.
+        // return an error if 'numActions > maxSimultaneousActions').  The
+        // returned 'result' is an offset from the epoch of the system clock
+        // for which this throttle is configured.  The behavior is undefined
+        // unless this throttle has been initialized (either by calling
+        // 'initialize' or using a 'BDLMT_THROTTLE_INIT*' macro).  Note that
+        // 'result' may be in the past, and this function does *not* obtain the
+        // current time from the system clock.
 };
 
-template <int MAX_BURST_SIZE, bsls::Types::Int64 NANOSECONDS_PER_ACTION>
+template <int                MAX_SIMULTANEOUS_ACTIONS,
+          bsls::Types::Int64 NANOSECONDS_PER_ACTION>
 class Throttle_ArgFilter_Imp {
     // Passing both args through this 'struct' achieves two goals:
     //: o It ensures that both are evaluated at compile time, which won't be
     //:   the case if either contains any floating point.
     //:
     //: o It enables us to do compile-time checks with 'BSLMF_ASSERT'.
+    //:
+    //: o If 0 is passed to 'NANOSECONDS_PER_ACTION', that indicates
+    //:   'allow all', in which case the 'd_maxSimultaneousActions' (or
+    //:   'msaValue') should be 'INT_MAX' and the 'd_nanosecondsPerAction' (or
+    //:   'npaValue') should be 'k_ALLOW_ALL', regardless of the value of
+    //:   'max_simultaneous_actions'.
+    //:
+    //: o If 0 is passed to 'MAX_SIMULTANEOUS_ACTIONS', that indicates
+    //:   'allow none', in which case 'd_nanosecondsPerAction' (or 'nsaValue')
+    //:   should be 'k_ALLOW_NONE' and 'd_maxSimultaneousActions' (or
+    //:   'msaValue') should be 0.
 
-    BSLMF_ASSERT(0 <= MAX_BURST_SIZE);
+    BSLMF_ASSERT(0 <= MAX_SIMULTANEOUS_ACTIONS);
     BSLMF_ASSERT(0 <= NANOSECONDS_PER_ACTION);
-    BSLMF_ASSERT(MAX_BURST_SIZE || NANOSECONDS_PER_ACTION);
-    BSLMF_ASSERT(LLONG_MAX / (MAX_BURST_SIZE ? MAX_BURST_SIZE : 1) >=
-                                                  NANOSECONDS_PER_ACTION);
+    BSLMF_ASSERT(MAX_SIMULTANEOUS_ACTIONS || NANOSECONDS_PER_ACTION);
+    BSLMF_ASSERT(LLONG_MAX /
+                   (MAX_SIMULTANEOUS_ACTIONS ? MAX_SIMULTANEOUS_ACTIONS : 1) >=
+                                                       NANOSECONDS_PER_ACTION);
 
   public:
-    static const bsls::Types::Int64 value = 0 == MAX_BURST_SIZE
-                                          ? Throttle::k_ALLOW_NONE
-                                          : NANOSECONDS_PER_ACTION
-                                          ? NANOSECONDS_PER_ACTION
-                                          : Throttle::k_ALLOW_ALL;
+    static const bsls::Types::Int64 npaValue = 0 == MAX_SIMULTANEOUS_ACTIONS
+                                             ? Throttle::k_ALLOW_NONE
+                                             : NANOSECONDS_PER_ACTION
+                                             ? NANOSECONDS_PER_ACTION
+                                             : Throttle::k_ALLOW_ALL;
+
+    static const int                msaValue = 0 == NANOSECONDS_PER_ACTION
+                                             ? INT_MAX
+                                             : MAX_SIMULTANEOUS_ACTIONS;
 };
 
 template <int clockType>
@@ -403,8 +431,8 @@ inline
 int Throttle::requestPermissionIfValid(bool                      *result,
                                        int                        numActions)
 {
-    if (numActions <= 0 ||
-                        (d_maxBurstSize < numActions && 0 != d_maxBurstSize)) {
+    if (numActions <= 0 || (d_maxSimultaneousActions < numActions &&
+                                              0 != d_maxSimultaneousActions)) {
         return -1;                                                    // RETURN
     }
 
@@ -418,8 +446,8 @@ int Throttle::requestPermissionIfValid(bool                      *result,
                                        int                        numActions,
                                        const bsls::TimeInterval&  now)
 {
-    if (numActions <= 0 ||
-                        (d_maxBurstSize < numActions && 0 != d_maxBurstSize)) {
+    if (numActions <= 0 || (d_maxSimultaneousActions < numActions &&
+                                              0 != d_maxSimultaneousActions)) {
         return -1;                                                    // RETURN
     }
 
@@ -429,9 +457,9 @@ int Throttle::requestPermissionIfValid(bool                      *result,
 
 // ACCESSORS
 inline
-int Throttle::maxBurstSize() const
+int Throttle::maxSimultaneousActions() const
 {
-    return d_maxBurstSize;
+    return d_maxSimultaneousActions;
 }
 
 inline
@@ -444,61 +472,65 @@ bsls::Types::Int64 Throttle::nanosecondsPerAction() const
                           // BDLMT_THROTTLE_INIT* macros
                           // ---------------------------
 
-#define BDLMT_THROTTLE_INIT(maxBurstSize,                                     \
+#define BDLMT_THROTTLE_INIT(maxSimultaneousActions,                           \
                             nanosecondsPerAction) {                           \
     -BloombergLP::bdlmt::Throttle::k_TEN_YEARS_NANOSECONDS,                   \
-    BloombergLP::bdlmt::Throttle_ArgFilter_Imp<(maxBurstSize),                \
+    BloombergLP::bdlmt::Throttle_ArgFilter_Imp<(maxSimultaneousActions),      \
                                                (nanosecondsPerAction)         \
-                                                                    >::value, \
+                                                                 >::npaValue, \
     bsl::integral_constant<BloombergLP::bsls::Types::Int64,                   \
-                   1LL * (maxBurstSize) * (nanosecondsPerAction)>::value,     \
-    bsl::integral_constant<int, (maxBurstSize)>::value,                       \
+         1LL * (maxSimultaneousActions) * (nanosecondsPerAction)>::value,     \
+    BloombergLP::bdlmt::Throttle_ArgFilter_Imp<(maxSimultaneousActions),      \
+                                               (nanosecondsPerAction)         \
+                                                                 >::msaValue, \
     BloombergLP::bsls::SystemClockType::e_MONOTONIC                           \
  }
 
-#define BDLMT_THROTTLE_INIT_REALTIME(maxBurstSize,                            \
+#define BDLMT_THROTTLE_INIT_REALTIME(maxSimultaneousActions,                  \
                                      nanosecondsPerAction) {                  \
     -BloombergLP::bdlmt::Throttle::k_TEN_YEARS_NANOSECONDS,                   \
-    BloombergLP::bdlmt::Throttle_ArgFilter_Imp<(maxBurstSize),                \
+    BloombergLP::bdlmt::Throttle_ArgFilter_Imp<(maxSimultaneousActions),      \
                                                (nanosecondsPerAction)         \
-                                                                    >::value, \
+                                                                 >::npaValue, \
     bsl::integral_constant<BloombergLP::bsls::Types::Int64,                   \
-                   1LL * (maxBurstSize) * (nanosecondsPerAction)>::value,     \
-    bsl::integral_constant<int, (maxBurstSize)>::value,                       \
+         1LL * (maxSimultaneousActions) * (nanosecondsPerAction)>::value,     \
+    BloombergLP::bdlmt::Throttle_ArgFilter_Imp<(maxSimultaneousActions),      \
+                                               (nanosecondsPerAction)         \
+                                                                 >::msaValue, \
     BloombergLP::bsls::SystemClockType::e_REALTIME                            \
  }
 
-#define BDLMT_THROTTLE_INIT_ALLOW_ALL  BDLMT_THROTTLE_INIT(INT_MAX, 0)
-#define BDLMT_THROTTLE_INIT_ALLOW_NONE BDLMT_THROTTLE_INIT(0,       1)
+#define BDLMT_THROTTLE_INIT_ALLOW_ALL  BDLMT_THROTTLE_INIT(1, 0)
+#define BDLMT_THROTTLE_INIT_ALLOW_NONE BDLMT_THROTTLE_INIT(0, 1)
 
                         // ---------------------------
                         // 'BDLMT_THROTTLE_IF*' macros
                         // ---------------------------
 
-#define BDLMT_THROTTLE_IF(maxBurstSize,                                       \
+#define BDLMT_THROTTLE_IF(maxSimultaneousActions,                             \
                           nanosecondsPerAction)                               \
     if (bool bdlmt_throttle_iFsToP = false) {}                                \
     else                                                                      \
         for (static BloombergLP::bdlmt::Throttle bdlmt_throttle_iFtHrOtTlE =  \
-                                BDLMT_THROTTLE_INIT((maxBurstSize),           \
+                                BDLMT_THROTTLE_INIT((maxSimultaneousActions), \
                                                     (nanosecondsPerAction));  \
              !bdlmt_throttle_iFsToP;                                          \
              bdlmt_throttle_iFsToP = true)                                    \
             if (bdlmt_throttle_iFtHrOtTlE.requestPermission())
 
-#define BDLMT_THROTTLE_IF_REALTIME(maxBurstSize,                              \
+#define BDLMT_THROTTLE_IF_REALTIME(maxSimultaneousActions,                    \
                                    nanosecondsPerAction)                      \
     if (bool bdlmt_throttle_iFsToP = false) {}                                \
     else                                                                      \
         for (static BloombergLP::bdlmt::Throttle bdlmt_throttle_iFtHrOtTlE =  \
-                       BDLMT_THROTTLE_INIT_REALTIME((maxBurstSize),           \
+                       BDLMT_THROTTLE_INIT_REALTIME((maxSimultaneousActions), \
                                                     (nanosecondsPerAction));  \
              !bdlmt_throttle_iFsToP;                                          \
              bdlmt_throttle_iFsToP = true)                                    \
             if (bdlmt_throttle_iFtHrOtTlE.requestPermission())
 
-#define BDLMT_THROTTLE_IF_ALLOW_ALL    BDLMT_THROTTLE_IF(INT_MAX, 0)
-#define BDLMT_THROTTLE_IF_ALLOW_NONE   BDLMT_THROTTLE_IF(0,       1)
+#define BDLMT_THROTTLE_IF_ALLOW_ALL    BDLMT_THROTTLE_IF(1, 0)
+#define BDLMT_THROTTLE_IF_ALLOW_NONE   BDLMT_THROTTLE_IF(0, 1)
 
 }  // close package namespace
 }  // close enterprise namespace

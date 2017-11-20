@@ -23,21 +23,21 @@ namespace BloombergLP {
 namespace bdlmt {
 
 // MANIPULATORS
-void Throttle::initialize(int                         maxBurstSize,
+void Throttle::initialize(int                         maxSimultaneousActions,
                           Int64                       nanosecondsPerAction,
                           bsls::SystemClockType::Enum clockType)
 {
-    BSLS_ASSERT(0 <= maxBurstSize);
+    BSLS_ASSERT(0 <= maxSimultaneousActions);
     BSLS_ASSERT(0 <= nanosecondsPerAction);
-    BSLS_ASSERT(maxBurstSize || nanosecondsPerAction);
-    BSLS_ASSERT(LLONG_MAX / bsl::max(maxBurstSize, 1) >=
+    BSLS_ASSERT(maxSimultaneousActions || nanosecondsPerAction);
+    BSLS_ASSERT(LLONG_MAX / bsl::max(maxSimultaneousActions, 1) >=
                                                      nanosecondsPerAction);
 
     BSLS_ASSERT(bsls::SystemClockType::e_MONOTONIC == clockType ||
                 bsls::SystemClockType::e_REALTIME  == clockType);
 
     AtomicOps::setInt64(&d_prevLeakTime, -k_TEN_YEARS_NANOSECONDS);
-    d_nanosecondsPerAction = 0 == maxBurstSize
+    d_nanosecondsPerAction = 0 == maxSimultaneousActions
                            ? k_ALLOW_NONE
                            : nanosecondsPerAction
                            ? nanosecondsPerAction
@@ -46,8 +46,10 @@ void Throttle::initialize(int                         maxBurstSize,
     // If 'd_nanosecondsPerAction' is set to 'allow all' or 'allow none',
     // then it doesn't matter what 'd_nanosecondsPerTotalReset' is.
 
-    d_nanosecondsPerTotalReset = maxBurstSize * nanosecondsPerAction;
-    d_maxBurstSize             = maxBurstSize;
+    d_nanosecondsPerTotalReset = maxSimultaneousActions * nanosecondsPerAction;
+    d_maxSimultaneousActions             = 0 == nanosecondsPerAction
+                               ? INT_MAX
+                               : maxSimultaneousActions;
     d_clockType                = clockType;
 }
 
@@ -88,14 +90,14 @@ bool Throttle::requestPermission(int                       numActions,
 {
     BSLS_ASSERT(0 < numActions);
 
-    if (d_maxBurstSize < numActions) {
-        BSLS_ASSERT(0 == d_maxBurstSize);
+    if (d_maxSimultaneousActions < numActions) {
+        BSLS_ASSERT(0 == d_maxSimultaneousActions);
 
         // It is best to deal with the 'allow none' case here.  We have to do
         // the above two conditions just for asserts on our way into the
-        // method, and if we don't handle the 'd_maxBurstSize < numActions'
-        // case here we risk undefined behavior due to signed arithmetic
-        // overflow later on.
+        // method, and if we don't handle the
+        // 'd_maxSimultaneousActions < numActions' case here we risk undefined
+        // behavior due to signed arithmetic overflow later on.
 
         return false;                                                 // RETURN
     }
@@ -135,7 +137,7 @@ bool Throttle::requestPermission(int                       numActions,
 // ACCESSOR
 int Throttle::nextPermit(bsls::TimeInterval *result, int numActions) const
 {
-    if (numActions <= 0 || d_maxBurstSize < numActions) {
+    if (numActions <= 0 || d_maxSimultaneousActions < numActions) {
         return -1;                                                    // RETURN
     }
 
