@@ -56,10 +56,8 @@ using bsl::flush;
 // [ 7] BDLMT_THROTTLE_INIT_ALLOW_ALL
 // [ 6] BDLMT_THROTTLE_IF_ALLOW_ALL
 // [ 5] BDLMT_THROTTLE_IF -- high contention
-// [ 5] BDLMT_THROTTLE_IF_MONOTONIC -- high contention
 // [ 5] BDLMT_THROTTLE_IF_REALTIME -- high contention
 // [ 4] BDLMT_THROTTLE_IF -- low contention
-// [ 4] BDLMT_THROTTLE_IF_MONOTONIC -- low contention
 // [ 4] BDLMT_THROTTLE_IF_REALTIME -- low contention
 // ----------------------------------------------------------------------------
 // [-1] SPEED TEST: PERMISSION GRANTED
@@ -254,20 +252,19 @@ bsls::AtomicInt64 start(0);
 bsls::AtomicInt64 eventsSoFar;
 bsls::AtomicInt64 rejectedSoFar;
 int               initMode;
-const int         numModes        = 12;
+const int         numModes        = 8;
 bool              lastDone = false;
 bsls::AtomicInt   atomicBarrier(-1);
 bslmt::Barrier    barrier(u::numThreads + 1);
 
-Obj throttleDefault   = BDLMT_THROTTLE_INIT(          burst, leakPeriod);
-Obj throttleMonotonic = BDLMT_THROTTLE_INIT_MONOTONIC(burst, leakPeriod);
-Obj throttleRealtime  = BDLMT_THROTTLE_INIT_REALTIME( burst, leakPeriod);
+Obj throttleDefault   = BDLMT_THROTTLE_INIT(         burst, leakPeriod);
+Obj throttleRealtime  = BDLMT_THROTTLE_INIT_REALTIME(burst, leakPeriod);
 Obj throttles[numModes];
 
 void threadJob()
 {
     const bsls::SystemClockType::Enum clockType =
-                                          2 == initMode % 3
+                                          initMode % 2
                                           ? bsls::SystemClockType::e_REALTIME
                                           : bsls::SystemClockType::e_MONOTONIC;
     Obj& throttle = throttles[initMode];
@@ -285,32 +282,24 @@ void threadJob()
             bool permitted = false;
             switch (initMode) {
               case 0:
-              case 1:
-              case 2: {
+              case 1: {
                 permitted = throttle.requestPermission();
               } break;
-              case 3:
-              case 4:
-              case 5: {
+              case 2:
+              case 3: {
                 permitted = throttle.requestPermission(1);
               } break;
-              case 6:
-              case 7:
-              case 8: {
+              case 4:
+              case 5: {
                 permitted = throttle.requestPermission(
                                                      1, u::tiClock(clockType));
               } break;
-              case 9: {
+              case 6: {
                 BDLMT_THROTTLE_IF(burst, leakPeriod) {
                   permitted = true;
                 }
               } break;
-              case 10: {
-                BDLMT_THROTTLE_IF_MONOTONIC(burst, leakPeriod) {
-                  permitted = true;
-                }
-              } break;
-              case 11: {
+              case 7: {
                 lastDone = true;
                 BDLMT_THROTTLE_IF_REALTIME(burst, leakPeriod) {
                   permitted = true;
@@ -350,22 +339,18 @@ bsls::AtomicInt   atomicBarrier;
 int               initMode;
 bslmt::Barrier    barrier(u::numThreads + 1);
 
-Obj throttleDefault   = BDLMT_THROTTLE_INIT(          burst, leakPeriod);
-Obj throttleMonotonic = BDLMT_THROTTLE_INIT_MONOTONIC(burst, leakPeriod);
-Obj throttleRealtime  = BDLMT_THROTTLE_INIT_REALTIME( burst, leakPeriod);
+Obj throttleDefault   = BDLMT_THROTTLE_INIT(         burst, leakPeriod);
+Obj throttleRealtime  = BDLMT_THROTTLE_INIT_REALTIME(burst, leakPeriod);
 
 void threadJob()
 {
-    const int                         ti = initMode % 3;
-    const bsls::SystemClockType::Enum clockType =
-                                          2 == ti
-                                          ? bsls::SystemClockType::e_REALTIME
-                                          : bsls::SystemClockType::e_MONOTONIC;
-    Obj&                              throttle = 0 == ti
+    Obj&                              throttle = 0 == initMode % 2
                                                ? throttleDefault
-                                               : 1 == ti
-                                               ? throttleMonotonic
                                                : throttleRealtime;
+    const bsls::SystemClockType::Enum clockType =
+                                           &throttle == &throttleDefault
+                                           ? bsls::SystemClockType::e_MONOTONIC
+                                           : bsls::SystemClockType::e_REALTIME;
 
     for (int ii = 0; ii < trials; ++ii) {
         barrier.wait();
@@ -445,21 +430,17 @@ bool              lastDone = false;
 bslmt::Barrier    barrier(u::numThreads + 1);
 
 Obj throttleDefault   = BDLMT_THROTTLE_INIT(          burst, leakPeriod);
-Obj throttleMonotonic = BDLMT_THROTTLE_INIT_MONOTONIC(burst, leakPeriod);
 Obj throttleRealtime  = BDLMT_THROTTLE_INIT_REALTIME( burst, leakPeriod);
 
 void threadJob()
 {
-    const int                         ti = initMode % 3;
-    const bsls::SystemClockType::Enum clockType =
-                                          2 == ti
-                                          ? bsls::SystemClockType::e_REALTIME
-                                          : bsls::SystemClockType::e_MONOTONIC;
-    Obj&                              throttle = 0 == ti
+    Obj&                              throttle = 0 == initMode % 2
                                                ? throttleDefault
-                                               : 1 == ti
-                                               ? throttleMonotonic
                                                : throttleRealtime;
+    const bsls::SystemClockType::Enum clockType =
+                                           &throttle == &throttleDefault
+                                           ? bsls::SystemClockType::e_MONOTONIC
+                                           : bsls::SystemClockType::e_REALTIME;
 
     for (int ii = 0; ii < trials; ++ii) {
         barrier.wait();
@@ -473,32 +454,24 @@ void threadJob()
                 bool permitted = false;
                 switch (initMode) {
                   case 0:
-                  case 1:
-                  case 2: {
+                  case 1: {
                     permitted = throttle.requestPermission();
                   } break;
-                  case 3:
-                  case 4:
-                  case 5: {
+                  case 2:
+                  case 3: {
                     permitted = throttle.requestPermission(1);
                   } break;
-                  case 6:
-                  case 7:
-                  case 8: {
+                  case 4:
+                  case 5: {
                     permitted = throttle.requestPermission(
                                                      1, u::tiClock(clockType));
                   } break;
-                  case 9: {
+                  case 6: {
                     BDLMT_THROTTLE_IF(burst, leakPeriod) {
                       permitted = true;
                     }
                   } break;
-                  case 10: {
-                    BDLMT_THROTTLE_IF_MONOTONIC(burst, leakPeriod) {
-                      permitted = true;
-                    }
-                  } break;
-                  case 11: {
+                  case 7: {
                     lastDone = true;
                     BDLMT_THROTTLE_IF_REALTIME(burst, leakPeriod) {
                       permitted = true;
@@ -730,7 +703,7 @@ void threadJob()
 {
     barrier.wait();
 
-    switch (initMode + 3 * u::isHighContention) {
+    switch (initMode + 2 * u::isHighContention) {
       case 0: {
         while (eventsSoFar < totalEvents) {
             u::sleep(sleepPeriod);
@@ -745,7 +718,7 @@ void threadJob()
       case 1: {
         while (eventsSoFar < totalEvents) {
             u::sleep(sleepPeriod);
-            BDLMT_THROTTLE_IF_MONOTONIC(burst, leakPeriod) {
+            BDLMT_THROTTLE_IF_REALTIME(burst, leakPeriod) {
                 ++eventsSoFar;
             }
             else {
@@ -755,17 +728,6 @@ void threadJob()
       } break;
       case 2: {
         while (eventsSoFar < totalEvents) {
-            u::sleep(sleepPeriod);
-            BDLMT_THROTTLE_IF_REALTIME(burst, leakPeriod) {
-                ++eventsSoFar;
-            }
-            else {
-                ++eventsMissed;
-            }
-        }
-      } break;
-      case 3: {
-        while (eventsSoFar < totalEvents) {
             BDLMT_THROTTLE_IF(burst, leakPeriod) {
                 ++eventsSoFar;
             }
@@ -774,17 +736,7 @@ void threadJob()
             }
         }
       } break;
-      case 4: {
-        while (eventsSoFar < totalEvents) {
-            BDLMT_THROTTLE_IF_MONOTONIC(burst, leakPeriod) {
-                ++eventsSoFar;
-            }
-            else {
-                ++eventsMissed;
-            }
-        }
-      } break;
-      case 5: {
+      case 3: {
         while (eventsSoFar < totalEvents) {
             BDLMT_THROTTLE_IF_REALTIME(burst, leakPeriod) {
                 ++eventsSoFar;
@@ -820,7 +772,6 @@ bsls::AtomicInt eventsSoFar(0);
 bslmt::Barrier  barrier(u::numThreads + 1);
 
 Obj throttleDefault   = BDLMT_THROTTLE_INIT(          burstSize, leakPeriod);
-Obj throttleMonotonic = BDLMT_THROTTLE_INIT_MONOTONIC(burstSize, leakPeriod);
 Obj throttleRealtime  = BDLMT_THROTTLE_INIT_REALTIME( burstSize, leakPeriod);
 
 void threadJob()
@@ -829,8 +780,6 @@ void threadJob()
 
     Obj& throttle = 0 == initMode
                   ? throttleDefault
-                  : 1 == initMode
-                  ? throttleMonotonic
                   : throttleRealtime;
 
     if (u::isHighContention) {
@@ -972,12 +921,10 @@ int main(int argc, char *argv[])
         double totalTime     = 0;
 
         for (int jj = 0; jj < TC::numModes; ++jj) {
-            int kk = jj % 3;
+            int kk = jj % 2;
             bsl::memcpy(&TC::throttles[jj],
                         &(  0 == kk
                           ? TC::throttleDefault
-                          : 1 == kk
-                          ? TC::throttleMonotonic
                           : TC::throttleRealtime),
                         sizeof(bdlmt::Throttle));
         }
@@ -1056,7 +1003,7 @@ int main(int argc, char *argv[])
 
         bslmt::ThreadGroup tg(&u::ta);
 
-        for (TC::initMode = 0; TC::initMode < 3; ++TC::initMode) {
+        for (TC::initMode = 0; TC::initMode < 2; ++TC::initMode) {
             tg.addThreads(&TC::threadJob, u::numThreads);
 
 
@@ -1129,7 +1076,7 @@ int main(int argc, char *argv[])
 
         bslmt::ThreadGroup tg(&u::ta);
 
-        for (TC::initMode = 0; TC::initMode < 12; ++TC::initMode) {
+        for (TC::initMode = 0; TC::initMode < 8; ++TC::initMode) {
             tg.addThreads(&TC::threadJob, u::numThreads);
 
 
@@ -1296,7 +1243,7 @@ int main(int argc, char *argv[])
 
         u::isHighContention = true;
 
-        for (TC::initMode = 0; TC::initMode < 3; ++TC::initMode) {
+        for (TC::initMode = 0; TC::initMode < 2; ++TC::initMode) {
             if (veryVerbose) P(TC::initMode);
 
             TC::eventsSoFar = 0;
@@ -1333,7 +1280,7 @@ int main(int argc, char *argv[])
 
         u::isHighContention = false;
 
-        for (TC::initMode = 0; TC::initMode < 3; ++TC::initMode) {
+        for (TC::initMode = 0; TC::initMode < 2; ++TC::initMode) {
             if (veryVerbose) P(TC::initMode);
 
             TC::eventsSoFar = 0;
@@ -1367,7 +1314,7 @@ int main(int argc, char *argv[])
 
         u::isHighContention = true;
 
-        for (TC::initMode = 0; TC::initMode < 3; ++TC::initMode) {
+        for (TC::initMode = 0; TC::initMode < 2; ++TC::initMode) {
             if (veryVerbose) P(TC::initMode);
 
             TC::eventsSoFar = 0;
@@ -1399,7 +1346,7 @@ int main(int argc, char *argv[])
 
         u::isHighContention = false;
 
-        for (TC::initMode = 0; TC::initMode < 3; ++TC::initMode) {
+        for (TC::initMode = 0; TC::initMode < 2; ++TC::initMode) {
             if (veryVerbose) P(TC::initMode);
 
             TC::eventsSoFar = 0;
@@ -1470,7 +1417,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 P_(burst);    P(leakPeriod);
                 P(u::nanoClock(clockType));    P(u::get(&mX.d_prevLeakTime));
-                P_(mX.d_nanosecondsPerActionLeak);
+                P_(mX.d_nanosecondsPerAction);
                 P(mX.d_nanosecondsPerTotalReset);
             }
 
@@ -1509,7 +1456,7 @@ int main(int argc, char *argv[])
         testStatus = saveTestStatus;
 
         if (verbose) "1 millsecond leak time, burst 10, 20 periods\n";
-        for (int mm = 0; mm < 3; ++mm) {
+        for (int mm = 0; mm < 2; ++mm) {
             static const Int64    leakPeriod      = 1 * u::k_MILLISECOND;
             static const unsigned burst           = 10;
             const unsigned        numLeakPeriods  = 20;
@@ -1525,12 +1472,6 @@ int main(int argc, char *argv[])
                 clockType = bsls::SystemClockType::e_MONOTONIC;
               } break;
               case 1: {
-                static Obj mX = BDLMT_THROTTLE_INIT_MONOTONIC(burst,
-                                                              leakPeriod);
-                pMx = &mX;
-                clockType = bsls::SystemClockType::e_MONOTONIC;
-              } break;
-              case 2: {
                 static Obj mX = BDLMT_THROTTLE_INIT_REALTIME(burst,
                                                              leakPeriod);
                 pMx = &mX;
@@ -1543,7 +1484,7 @@ int main(int argc, char *argv[])
             if (verbose) {
                 P_(burst);    P(leakPeriod);
                 P(u::nanoClock(clockType));    P(u::get(&pMx->d_prevLeakTime));
-                P_(pMx->d_nanosecondsPerActionLeak);
+                P_(pMx->d_nanosecondsPerAction);
                 P(pMx->d_nanosecondsPerTotalReset);
             }
 
