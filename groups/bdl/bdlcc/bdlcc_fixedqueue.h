@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // the queue and popping it from the queue.  In case of overflow (queue full
 // when pushing), or underflow (queue empty when popping), the methods block
 // until data or free space in the queue appears.  Non-blocking methods
-// 'tryPushBack' and 'tryPushFront' are also provided, which fail immediately
+// 'tryPushBack' and 'tryPopFront' are also provided, which fail immediately
 // returning a non-zero value in case of overflow or underflow.
 //
 // The queue may be placed into a "disabled" state using the 'disable' method.
@@ -74,6 +74,16 @@ BSLS_IDENT("$Id: $")
 //
 // Note that the implementation of 'bdlcc::FixedQueue' currently creates a
 // fixed size array of the contained object type.
+//
+///Move Semantics in C++03
+///-----------------------
+// Unfortunately, in C++03, there are user types where a 'bslmf::MovableRef'
+// will not safely degrade to a lvalue reference when a move constructor is not
+// available (types providing a constructor template taking any type), so
+// 'bslmf::MovableRefUtil::move' cannot be used directly on a user supplied
+// type.  This means that move-only types are not supported by 'FixedQueue' in
+// C++03 mode, only in C++11 mode ('BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES').
+// See internal bug report 99039150 for more information.
 //
 ///Usage
 ///-----
@@ -204,6 +214,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
@@ -319,9 +333,22 @@ class FixedQueue {
         // disabled.  Return 0 on success, and a nonzero value if the queue is
         // disabled.
 
+    int pushBack(bslmf::MovableRef<TYPE> value);
+        // Append the specified move-insertable 'value' to the back of this
+        // queue, blocking until either space is available - if necessary - or
+        // the queue is disabled.  'value' is left in a valid but unspecified
+        // state.  Return 0 on success, and a nonzero value if the queue is
+        // disabled.
+
     int tryPushBack(const TYPE& value);
         // Attempt to append the specified 'value' to the back of this queue
         // without blocking.  Return 0 on success, and a non-zero value if the
+        // queue is full or disabled.
+
+    int tryPushBack(bslmf::MovableRef<TYPE> value);
+        // Attempt to append the specified move-insertable 'value' to the back
+        // of this queue without blocking.  'value' is left in a valid but
+        // unspecified state.  Return 0 on success, and a non-zero value if the
         // queue is full or disabled.
 
     void popFront(TYPE* value);
@@ -529,7 +556,7 @@ int FixedQueue<TYPE>::tryPushBack(const TYPE& value)
     // The following call to 'reservePushIndex' writes
     // 'FixedQueueIndexManaged::d_pushIndex' with full sequential consistency,
     // which guarantees the subsequent (relaxed) read from
-    // 'd_numWaitingPoppers' sees any waiting pointers from SYNCHRONIZATION
+    // 'd_numWaitingPoppers' sees any waiting poppers from SYNCHRONIZATION
     // POINT 1-Prime.
 
     int retval = d_impl.reservePushIndex(&generation, &index);
@@ -541,12 +568,53 @@ int FixedQueue<TYPE>::tryPushBack(const TYPE& value)
     // Copy the element into the cell.  If an exception is thrown by the copy
     // constructor, PushProctor will pop and discard items until reaching this
     // cell, then mark this cell empty (without regard to its current state,
-    // which is WRITING (i.e., reserved).  That will leave the queue in a valid
-    // empty state.
+    // which is WRITING (i.e., reserved)).  That will leave the queue in a
+    // valid empty state.
 
     FixedQueue_PushProctor<TYPE> guard(this, generation, index);
     bslalg::ScalarPrimitives::copyConstruct(&d_elements[index],
                                             value,
+                                            d_allocator_p);
+    guard.release();
+    d_impl.commitPushIndex(generation, index);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_numWaitingPoppers)) {
+        d_popControlSema.post();
+    }
+
+    return 0;
+}
+
+template <class TYPE>
+int FixedQueue<TYPE>::tryPushBack(bslmf::MovableRef<TYPE> value)
+{
+    unsigned int generation;
+    unsigned int index;
+
+    // SYNCHRONIZATION POINT 1
+    //
+    // The following call to 'reservePushIndex' writes
+    // 'FixedQueueIndexManaged::d_pushIndex' with full sequential consistency,
+    // which guarantees the subsequent (relaxed) read from
+    // 'd_numWaitingPoppers' sees any waiting poppers from SYNCHRONIZATION
+    // POINT 1-Prime.
+
+    int retval = d_impl.reservePushIndex(&generation, &index);
+
+    if (0 != retval) {
+        return retval;                                                // RETURN
+    }
+
+    // Move the element into the cell.  If an exception is thrown by the move
+    // constructor, PushProctor will pop and discard items until reaching this
+    // cell, then mark this cell empty (without regard to its current state,
+    // which is WRITING (i.e., reserved)).  That will leave the queue in a
+    // valid empty state.
+
+    FixedQueue_PushProctor<TYPE> guard(this, generation, index);
+    TYPE& dummy = value;
+    bslalg::ScalarPrimitives::moveConstruct(&d_elements[index],
+                                            dummy,
                                             d_allocator_p);
     guard.release();
     d_impl.commitPushIndex(generation, index);
@@ -569,7 +637,7 @@ int FixedQueue<TYPE>::tryPopFront(TYPE *value)
     // The following call to 'reservePopIndex' writes
     // 'FixedQueueIndexManaged::d_popIndex' with full sequential consistency,
     // which guarantees the subsequent (relaxed) read from
-    // 'd_numWaitingPoppers' sees any waiting pointers from SYNCHRONIZATION
+    // 'd_numWaitingPoppers' sees any waiting poppers from SYNCHRONIZATION
     // POINT 2-Prime.
 
     int retval = d_impl.reservePopIndex(&generation, &index);
@@ -578,12 +646,20 @@ int FixedQueue<TYPE>::tryPopFront(TYPE *value)
         return retval;                                                // RETURN
     }
 
-    // Copy the element.  'FixedQueue_PopGuard' will destroy original object,
-    // update the queue, and release a waiting pusher, even if the assignment
-    // operator throws.
+    // Copy or move the element.  'FixedQueue_PopGuard' will destroy original
+    // object, update the queue, and release a waiting pusher, even if the
+    // assignment operator throws.
 
     FixedQueue_PopGuard<TYPE> guard(this, generation, index);
+    // Unfortunately, in C++03, there are user types where a MovableRef will
+    // not safely degrade to a lvalue reference when a move constructor is not
+    // available, so 'move' cannot be used directly on a user supplied type.
+    // See internal bug report 99039150.
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    *value = bslmf::MovableRefUtil::move(d_elements[index]);
+#else
     *value = d_elements[index];
+#endif
     return 0;
 }
 
@@ -593,6 +669,37 @@ int FixedQueue<TYPE>::pushBack(const TYPE& value)
 {
     int retval;
     while (0 != (retval = tryPushBack(value))) {
+        if (retval < 0) {
+            // The queue is disabled.
+
+            return retval;                                            // RETURN
+        }
+
+        d_numWaitingPushers.addRelaxed(1);
+
+        // SYNCHRONIZATION POINT 1-Prime
+        //
+        // The following call to 'isFull' loads
+        // 'FixedQueueIndexManager::d_pushIndex' with full sequential
+        // consistency, which is required to ensure the visibility of the
+        // preceding change to 'd_numWaitingPushers' to SYNCHRONIZATION POINT
+        // 2.
+
+        if (isFull() && isEnabled()) {
+            d_pushControlSema.wait();
+        }
+
+        d_numWaitingPushers.addRelaxed(-1);
+    }
+
+    return 0;
+}
+
+template <class TYPE>
+int FixedQueue<TYPE>::pushBack(bslmf::MovableRef<TYPE> value)
+{
+    int retval;
+    while (0 != (retval = tryPushBack(bslmf::MovableRefUtil::move(value)))) {
         if (retval < 0) {
             // The queue is disabled.
 
@@ -662,7 +769,15 @@ TYPE FixedQueue<TYPE>::popFront()
     // constructor throws.
 
     FixedQueue_PopGuard<TYPE> guard(this, generation, index);
+    // Unfortunately, in C++03, there are user types where a MovableRef will
+    // not safely degrade to a lvalue reference when a move constructor is not
+    // available, so 'move' cannot be used directly on a user supplied type.
+    // See internal bug report 99039150.
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    return TYPE(bslmf::MovableRefUtil::move(d_elements[index]));
+#else
     return TYPE(d_elements[index]);
+#endif
 }
 
 template <class TYPE>
