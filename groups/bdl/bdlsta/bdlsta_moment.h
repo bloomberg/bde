@@ -179,9 +179,13 @@ class Moment {
     // The formula for sample excess kurtosis is taken from:
     // http://www.macroption.com/kurtosis-formula/
     // BDE_VERIFY pragma: +LL01
+
   private:
+    // PRIVATE TYPES
+    typedef struct Moment_Data<ML> Moment_Data_t;
+
     // DATA
-    struct Moment_Data<ML> d_data;
+    Moment_Data_t d_data;
 
   public:
     // CONSTANTS

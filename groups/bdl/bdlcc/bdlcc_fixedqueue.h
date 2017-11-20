@@ -75,13 +75,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Move Semantics in C++03
 ///-----------------------
-// Unfortunately, in C++03, there are user types where a 'bslmf::MovableRef'
-// will not safely degrade to a lvalue reference when a move constructor is not
-// available (types providing a constructor template taking any type), so
-// 'bslmf::MovableRefUtil::move' cannot be used directly on a user supplied
-// type.  This means that move-only types are not supported by 'FixedQueue' in
-// C++03 mode, only in C++11 mode ('BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES').
-// See internal bug report 99039150 for more information.
+// Move-only types are supported by 'FixedQueue' on C++11 platforms only (where
+// 'BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES' is defined), and are not supported
+// on C++03 platforms.  Unfortunately, in C++03, there are user types where a
+// 'bslmf::MovableRef' will not safely degrade to a lvalue reference when a
+// move constructor is not available (types providing a constructor template
+// taking any type), so 'bslmf::MovableRefUtil::move' cannot be used directly
+// on a user supplied template type. See internal bug report 99039150 for more
+// information.
 //
 ///Usage
 ///-----
