@@ -2367,7 +2367,7 @@ int main(int argc, char *argv[])
 
         btlmt::ChannelPoolConfiguration config;
         config.setMaxThreads(3);
-        config.setWriteCacheWatermarks(0, 1024 * 1024 * 100);  // 100 Mb
+        config.setWriteQueueWatermarks(0, 1024 * 1024 * 100);  // 100 Mb
         config.setMetricsInterval(.1);
 
         btlso::InetStreamSocketFactory<IPAddress> socketFactory;
