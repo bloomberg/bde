@@ -177,7 +177,83 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Ensure the usage example makes use of bdlt::TimeUnitRatio.
+// In this section we show intended usage of this component.
+//
+// Suppose we have an error reporting function 'reportError', that prints an
+// error message.  There is a possibility that 'reportError' will be called
+// very frequently and spew, so we want to throttle the error messages.  If
+// many happen in a short time, we want to see the first 10, but we don't want
+// them spewing at a sustained rate of more than one message every five
+// seconds.
+//
+// First, we begin our routine:
+//..
+//  void reportError(bsl::ostream& stream)
+//  {
+//..
+// Then, we define the maximum number of traces that can happen in a short
+// time, provided that there have been no preceding traces for a long time:
+//..
+//      static const int                maxSimultaneousTraces = 10;
+//..
+// Next, we define the minimum nanoseconds per trace if sustained traces are
+// being attempted to print as five seconds.  Note that since this is in
+// nanoseconds, a 64-bit value is going to be needed to represent it:
+//..
+//      static const bsls::Types::Int64 nanosecondsPerSustainedTrace =
+//                          5 * bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND;
+//..
+// Then, we declare our 'throttle' object and use the 'BDLMT_THROTTLE_INIT'
+// macro to initialize it, using the two above constants.  Note that the two
+// above constants *MUST* be calculated at compile-time, which means, among
+// other things, that they can't contain any floating point sub-expressions:
+//..
+//      static bdlmt::Throttle throttle = BDLMT_THROTTLE_INIT(
+//                        maxSimultaneousTraces, nanosecondsPerSustainedTrace);
+//..
+// Next, we call 'requestPermission' at run-time to determine whether we've
+// been spewing too much to allow the next trace:
+//..
+//      if (throttle.requestPermission()) {
+//..
+// Then, we do the error message controlled by the throttle:
+//..
+//          stream << "Help!  I'm being held prisoner in a microprocessor!\n";
+//      }
+//  }
+//..
+// Next, in 'main', we create an output 'bsl::ostream' object that writes to a
+// RAM buffer:
+//..
+//  char                        buffer[10 * 1024];
+//  bdlsb::FixedMemOutStreamBuf streamBuf(buffer, sizeof(buffer));
+//  bsl::ostream                ostr(&streamBuf);
+//..
+// Then, we create a stopwatch and start it running:
+//..
+//  bsls::Stopwatch stopwatch;
+//  stopwatch.start();
+//..
+// Now, we cycle for seven seconds, calling the above-defined 'reportError'
+// every hundredth of a second.  This should result in ten traces being logged
+// in the first tenth of a second, and one more trace being logged five seconds
+// later, with all other requests for permission from the throttle being
+// refused:
+//..
+//  while (stopwatch.accumulatedWallTime() < 7.0) {
+//      reportError(ostr);
+//      bslmt::ThreadUtil::microSleep(10 * 1000);
+//  }
+//..
+// Finally, we count the number of traces that were logged and verify that the
+// number is eleven, as anticipated:
+//..
+//  const bsl::size_t numLines = bsl::count(streamBuf.data(),
+//                                          streamBuf.data() +
+//                                                          streamBuf.length(),
+//                                          '\n');
+//  assert(11 == numLines);
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -223,9 +299,9 @@ namespace BloombergLP {
 namespace bdlmt {
 
 class Throttle {
-    // This class provides a mechanism that can be used by clients to regulate
-    // the frequency at which actions can be taken.  The data members of
-    // 'Throttle' are currently public to allow for compile-time (aggregate)
+    // This 'class' provides a mechanism that can be used by clients to
+    // regulate the frequency at which actions can be taken.  The data members
+    // of 'Throttle' are currently public to allow for compile-time (aggregate)
     // initialization of 'Throttle' objects having static storage duration (for
     // C++03 compilers that do not provide 'constexpr').
 
