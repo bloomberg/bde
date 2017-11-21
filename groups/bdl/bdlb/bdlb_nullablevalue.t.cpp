@@ -92,8 +92,9 @@ using namespace bsl;
 // [ 8] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [10] void reset();
 // [10] TYPE& value();
-// [14] TYPE valueOr(const TYPE& ) const;
-// [15] const TYPE *valueOr(const TYPE *) const;
+// [14] TYPE valueOr(const TYPE& value) const;
+// [15] const TYPE *valueOr(const TYPE *value) const;
+// [26] const TYPE *addressOr(const TYPE *address) const;
 // [16] const TYPE *valueOrNull() const;
 //
 // ACCESSORS
@@ -134,7 +135,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [26] USAGE EXAMPLE
+// [27] USAGE EXAMPLE
 // [25] Concern: Types that are not copy-assignable can be used.
 // ----------------------------------------------------------------------------
 
@@ -1777,6 +1778,9 @@ class TestDriver {
     static void testCase24_withAllocator();
         // Test value move-assignment using a contained 'TYPE' that has the
         // 'bslma::UsesBslmaAllocator' trait.
+
+    static void testCase26();
+        // Test 'const T *addressOr(const T *)'.
 };
 
 // PRIVATE CLASS METHODS
@@ -2734,9 +2738,6 @@ void TestDriver<TEST_TYPE>::testCase22_withoutAllocator()
                 // Create target object.
                 Obj mX;  const Obj& X = gg(&mX, SPEC1);
 
-                // Alias source object to target object.
-                const Obj& Y = mX;
-
                 ASSERTV(SPEC1, X == Z);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
@@ -2955,9 +2956,6 @@ void TestDriver<TEST_TYPE>::testCase22_withAllocator()
                 // Create target object.
                 Obj mX(&oa);  const Obj& X = gg(&mX,  SPEC1);
 
-                // Alias source object to target object.
-                const Obj& Y = mX;
-
                 ASSERTV(SPEC1, X == Z);
 
                 bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
@@ -2993,7 +2991,7 @@ void TestDriver<TEST_TYPE>::testCase22_withAllocator()
 
             // Create control object 'W' and alternate value 'Z'.
             Obj mW;  const Obj& W = gg(&mW, SPEC1);
-            Obj mZ;  const Obj& Z = gg(&mZ, "Z");
+            Obj mZ;  gg(&mZ, "Z");
 
             for (int tj = 0; tj < NUM_SPECS; ++tj) {
                 const char *const SPEC2 = SPECS[tj];
@@ -3809,7 +3807,7 @@ void TestDriver<TEST_TYPE>::testCase14()
     //:   (C-2, C-4)
     //
     // Testing:
-    //   TYPE valueOr(const TYPE&) const;
+    //   TYPE valueOr(const TYPE& value) const;
     // ------------------------------------------------------------------------
 
     const TestValues VALUES;
@@ -3916,7 +3914,7 @@ void TestDriver<TEST_TYPE>::testCase15()
     //:   the contained value.  (C-2, C-4)
     //
     // Testing:
-    //   const TYPE *valueOr(const TYPE *) const;
+    //   const TYPE *valueOr(const TYPE *value) const;
     // ------------------------------------------------------------------------
 
     const TestValues VALUES;
@@ -4203,6 +4201,126 @@ void TestDriver<TEST_TYPE>::testCase17()
     }
 }
 
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase26()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'const T *addressOr(const T *)'
+    //
+    // Concerns:
+    //: 1 'addressOr' returns the supplied value if the nullable value is null.
+    //:
+    //: 2 'addressOr' returns the contained value if the nullable value is
+    //:   non-null.
+    //:
+    //: 3 'addressOr' returns an address.
+    //:
+    //: 4 'addressOr' can be called on a 'const' object.
+    //:
+    //: 5 No memory is requested of any allocator (global, default, this
+    //:   object, supplied object).
+    //
+    // Plan:
+    //: 1 Create a member-function pointer matching the expected signature,
+    //:   and assign 'addressOr' to the function.  (C-3)
+    //:
+    //: 2 Call 'addressOr' for a null nullable value and verify that it
+    //:   returns a reference to the supplied value.  (C-2)
+    //:
+    //: 3 For a series of test values, assign the nullable value to the test
+    //:   value, call 'addressOr', and verify the return value is a reference
+    //:   to the contained value.  (C-2, C-4)
+    //
+    // Testing:
+    //   const TYPE *addressOr(const TYPE *address) const;
+    // ------------------------------------------------------------------------
+
+    const TestValues VALUES;
+    const int        NUM_VALUES = static_cast<int>(VALUES.size());
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (veryVerbose) {
+        cout << "\tCompile-time verify the function returns an address.\n";
+    }
+    {
+        typedef const TEST_TYPE *
+                               (Obj::*MemberFunction)(const TEST_TYPE *) const;
+        MemberFunction memberFunction = &Obj::addressOr;
+        (void)&memberFunction;
+    }
+
+    if (veryVerbose) cout << "\tVerify null nullable values return 0.\n";
+    {
+        ObjWithAllocator object(&oa);
+        Obj&             x = object.object();
+        const Obj&       X = x;
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+
+            ASSERT(VALUES[i] == *x.addressOr(&VALUES[i]));
+            ASSERT(VALUES[i] == *X.addressOr(&VALUES[i]));
+
+            ASSERT(&VALUES[i] == x.addressOr(&VALUES[i]));
+            ASSERT(&VALUES[i] == X.addressOr(&VALUES[i]));
+
+            ASSERT(true == X.isNull());
+
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+    }
+
+    if (veryVerbose) {
+        cout << "\tVerify non-null nullable values return underlying value.\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj&             x = object.object();
+        const Obj&       X = x;
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            ASSERT(0 == oa.numBlocksInUse());
+            ASSERT(0 == da.numBlocksInUse());
+
+            ASSERT(VALUES[i] == *x.addressOr(&VALUES[i]));
+            ASSERT(VALUES[i] == *X.addressOr(&VALUES[i]));
+
+            ASSERT(&VALUES[i] == x.addressOr(&VALUES[i]));
+            ASSERT(&VALUES[i] == X.addressOr(&VALUES[i]));
+
+            x = VALUES[0];
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            ASSERT(VALUES[0] == *x.addressOr(&VALUES[i]));
+            ASSERT(VALUES[0] == *X.addressOr(&VALUES[i]));
+
+            ASSERT(i == 0 || VALUES[i] != *x.addressOr(&VALUES[i]));
+            ASSERT(i == 0 || VALUES[i] != *X.addressOr(&VALUES[i]));
+
+            ASSERT(&VALUES[i] != x.addressOr(&VALUES[i]));
+            ASSERT(&VALUES[i] != X.addressOr(&VALUES[i]));
+
+            ASSERT(&X.value() == x.addressOr(&VALUES[i]));
+            ASSERT(&X.value() == X.addressOr(&VALUES[i]));
+
+            ASSERT(oam.isInUseSame());
+            ASSERT(0 == da.numBlocksInUse());
+
+            x.reset();
+        }
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+    }
+}
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -4227,7 +4345,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -4270,6 +4388,16 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING 'addressOr'
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'addressOr"
+                             "\n==================\n";
+
+        RUN_EACH_TYPE(TestDriver, testCase26, TEST_TYPES);
       } break;
       case 25: {
         // --------------------------------------------------------------------
@@ -5369,8 +5497,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'double' and 'int'." << endl;
         {
-            typedef double ValueType1;
-            typedef int    ValueType2;
+            typedef int    ValueType1;
+            typedef double ValueType2;
 
             typedef bdlb::NullableValue<ValueType1> ObjType1;
             typedef bdlb::NullableValue<ValueType2> ObjType2;
@@ -5830,8 +5958,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tUsing 'double' and 'int'." << endl;
             {
-                typedef double                          ValueType1;
-                typedef int                             ValueType2;
+                typedef int                             ValueType1;
+                typedef double                          ValueType2;
 
                 typedef bdlb::NullableValue<ValueType2> ObjType2;
 
@@ -5972,8 +6100,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tUsing 'double' and 'int'." << endl;
             {
-                typedef double                          ValueType1;
-                typedef int                             ValueType2;
+                typedef int                             ValueType1;
+                typedef double                          ValueType2;
 
                 typedef bdlb::NullableValue<ValueType1> ObjType1;
                 typedef bdlb::NullableValue<ValueType2> ObjType2;
@@ -6796,7 +6924,7 @@ int main(int argc, char *argv[])
 
             Obj mX;  const Obj& X = mX;  mX.makeValue(N);
 
-            const Obj U(mX);
+            const Obj U(X);
             ASSERT(N == U.value());
 
             Obj& rmX = mX;
@@ -6813,7 +6941,7 @@ int main(int argc, char *argv[])
 
             Obj mX;  const Obj& X = mX;  mX.makeValue(S);
 
-            const Obj U(mX);
+            const Obj U(X);
             ASSERT(S == U.value());
 
             Obj& rmX = mX;

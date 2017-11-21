@@ -141,6 +141,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_DEPRECATE
+#include <bsls_deprecate.h>
+#endif
+
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
@@ -528,22 +532,34 @@ class NullableValue {
 
     const TYPE& value() const;
         // Return a reference providing non-modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined unless this object is
-        // non-null.
+        // object of a (template parameter) 'TYPE'.  The behavior is undefined
+        // unless this object is non-null.
 
     TYPE valueOr(const TYPE& value) const;
-        // Return the value of the underlying 'TYPE' object if this object is
-        // non-null, and the specified 'value' otherwise.  Note that this
-        // method returns *by* *value*, so may be inefficient in some contexts.
+        // Return the value of the underlying object of a (template parameter)
+        // 'TYPE' if this object is non-null, and the specified 'value'
+        // otherwise.  Note that this method returns *by* *value*, so may be
+        // inefficient in some contexts.
 
+    #if BSLS_DEPRECATE_IS_ACTIVE(BDL, 3, 3)
+    BSLS_DEPRECATE
+    #endif
     const TYPE *valueOr(const TYPE *value) const;
+        // !DEPRECATED!: Use 'addressOr' instead.
+        //
         // Return an address providing non-modifiable access to the underlying
-        // 'TYPE' object if this object is non-null, and the specified 'value'
-        // otherwise.
+        // object of a (template parameter) 'TYPE' if this object is non-null,
+        // and the specified 'value' otherwise.
+
+    const TYPE *addressOr(const TYPE *address) const;
+        // Return an address providing non-modifiable access to the underlying
+        // object of a (template parameter) 'TYPE' if this object is non-null,
+        // and the specified 'address' otherwise.
 
     const TYPE *valueOrNull() const;
         // Return an address providing non-modifiable access to the underlying
-        // 'TYPE' object if this object is non-null, and 0 otherwise.
+        // object of a (template parameter) 'TYPE' if this object is non-null,
+        // and 0 otherwise.
 };
 
 // FREE OPERATORS
@@ -1498,6 +1514,13 @@ TYPE NullableValue<TYPE>::valueOr(const TYPE& value) const
 template <class TYPE>
 inline
 const TYPE *NullableValue<TYPE>::valueOr(const TYPE *value) const
+{
+    return d_imp.isNull() ? value : &d_imp.value();
+}
+
+template <class TYPE>
+inline
+const TYPE *NullableValue<TYPE>::addressOr(const TYPE *value) const
 {
     return d_imp.isNull() ? value : &d_imp.value();
 }
