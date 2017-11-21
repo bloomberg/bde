@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 // bulky to transmit.  It is more efficient to use a binary encoding (such as
 // BER) if the encoding format is under your control (see 'balber_berencoder').
 //
-// Refer to the details of the JSON encoding format supported by this decoder
+// Refer to the details of the JSON encoding format supported by this encoder
 // in the package documentation file (doc/baljsn.txt).
 //
 ///Usage

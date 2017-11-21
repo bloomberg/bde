@@ -34,7 +34,7 @@ Encoder_Formatter::Encoder_Formatter(bsl::ostream&         stream,
 // MANIPULATORS
 void Encoder_Formatter::openObject()
 {
-    indent();
+//    indent();
 
     d_outputStream << '{';
 
