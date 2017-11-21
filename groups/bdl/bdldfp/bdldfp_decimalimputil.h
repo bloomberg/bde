@@ -1214,16 +1214,6 @@ class DecimalImpUtil {
         //: o Otherwise if 'value' is a zero value, then return an object equal
         //:   to zero with the same sign.
         //:
-        //: o Otherwise if 'value' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then store the value of
-        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
-        //:   sign as 'value'.
-        //:
-        //: o Otherwise if 'value' has an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal64>::min()' then store the value of
-        //:   the macro 'ERANGE' into 'errno' and return a zero with the same
-        //:   sign as 'value'.
-        //:
         //: o Otherwise if 'value' needs more than
         //:   'std::numeric_limits<Decimal64>::max_digit' significant decimal
         //:   digits to represent then return the 'value' rounded according to
@@ -1320,15 +1310,22 @@ class DecimalImpUtil {
                         // Parsing functions
 
     static ValueType32 parse32(const char *input);
-        // Parse the specified 'input' string as a 32 bit decimal floating-
-        // point value and return the result.  The parsing is as specified for
-        // the 'strtod32' function in section 9.6 of the ISO/EIC TR 24732 C
-        // Decimal Floating-Point Technical Report, except that it is
-        // unspecified whether the NaNs returned are quiet or signaling.  If
-        // 'input' does not represent a valid 32 bit decimal floating-point
-        // number, then return NaN.  Note that this method does not guarantee
-        // the behavior of ISO/EIC TR 24732 C when parsing NaN because the AIX
-        // compiler intrinsics return a signaling NaN.
+        // Parse the specified 'input' as a 32 bit decimal floating-point
+        // value and return the result.  The parsing is as specified for the
+        // 'strtod32' function in section 9.6 of the ISO/EIC TR 24732 C Decimal
+        // Floating-Point Technical Report, except that it is unspecified
+        // whether the NaNs returned are quiet or signaling.  If 'string'
+        // represents a value that absolute value exceeds the maximum value or
+        // is less than the smallest value supported by 'ValueType32' type then
+        // store the value of the macro 'ERANGE' into 'errno' and return the
+        // value initialized to infinity or zero respectively with the same
+        // sign as specified in 'string'.  The behavior is undefined unless
+        // 'input' represents a valid 32 bit decimalfloating-point number in
+        // scientific or fixed notation, and no unrelated characters precede
+        // (not even whitespace) that textual representation and a terminating
+        // nul character immediately follows it.  Note that this method does
+        // not guarantee the behavior of ISO/EIC TR 24732 C when parsing NaN
+        // because the AIX compiler intrinsics return a signaling NaN.
 
     static ValueType64 parse64(const char *input);
         // Parse the specified 'input' string as a 64 bit decimal floating-
@@ -1336,10 +1333,18 @@ class DecimalImpUtil {
         // the 'strtod64' function in section 9.6 of the ISO/EIC TR 24732 C
         // Decimal Floating-Point Technical Report, except that it is
         // unspecified whether the NaNs returned are quiet or signaling.  If
-        // 'input' does not represent a valid 64 bit decimal floating-point
-        // number, then return NaN.  Note that this method does not guarantee
-        // the behavior of ISO/EIC TR 24732 C when parsing NaN because the AIX
-        // compiler intrinsics return a signaling NaN.
+        // 'string' represents a value that absolute value exceeds the maximum
+        // value or is less than the smallest value supported by 'ValueType63'
+        // type then store the value of the macro 'ERANGE' into 'errno' and
+        // return the value initialized to infinity or zero respectively with
+        // the same sign as specified in 'string'.  The behavior is undefined
+        // unless 'input' represents a valid 64 bit decimal floating-point
+        // number in scientific or fixed notation, and no unrelated characters
+        // precede (not even whitespace) that textual representation and a
+        // terminating nul character immediately follows it.  Note that this
+        // method does not guarantee the behavior of ISO/EIC TR 24732 C when
+        // parsing NaN because the AIX compiler intrinsics return a signaling
+        // NaN.
 
     static ValueType128 parse128(const char *input);
         // Parse the specified 'input' string as a 128 bit decimal floating-
@@ -1347,10 +1352,18 @@ class DecimalImpUtil {
         // the 'strtod128' function in section 9.6 of the ISO/EIC TR 24732 C
         // Decimal Floating-Point Technical Report, except that it is
         // unspecified whether the NaNs returned are quiet or signaling.  If
-        // 'input' does not represent a valid 128 bit decimal floating-point
-        // number, then return NaN.  Note that this method does not guarantee
-        // the behavior of ISO/EIC TR 24732 C when parsing NaN because the AIX
-        // compiler intrinsics return a signaling NaN.
+        // 'string' represents a value that absolute value exceeds the maximum
+        // value or is less than the smallest value supported by 'ValueType128'
+        // type then store the value of the macro 'ERANGE' into 'errno' and
+        // return the value initialized to infinity or zero respectively with
+        // the same sign as specified in 'string'.  The behavior is undefined
+        // unless 'input' represents a valid 128 bit decimal floating-point
+        // number in scientific or fixed notation, and no unrelated characters
+        // precede (not even whitespace) that textual representation and a
+        // terminating nul character immediately follows it.  Note that this
+        // method does not guarantee the behavior of ISO/EIC TR 24732 C when
+        // parsing NaN because the AIX compiler intrinsics return a signaling
+        // NaN.
 
                         // Densely Packed Conversion Functions
 

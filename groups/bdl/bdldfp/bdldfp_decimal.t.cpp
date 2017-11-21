@@ -113,6 +113,7 @@ using bsl::atoi;
 //: o 'operator>='
 //: o 'operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream...'
 //: o 'operator>> (bsl::basic_ostream<CHARTYPE, TRAITS>& stream...'
+//: o 'operator""
 //
 // FREE FUNCTIONS
 //: o void hashAppend(HASHALG& hashAlg, const Decimal32& object);
@@ -123,7 +124,7 @@ using bsl::atoi;
 // [ 1] Decimal32 Type
 // [ 2] Decimal64 Type
 // [ 3] Decimal128 Type
-// [ 8] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
@@ -336,6 +337,15 @@ bdldfp::Decimal128 randomDecimal128()
     return BDEC::DecimalImpUtil::makeDecimalRaw128(significand, exponent);
 }
 
+template <class DECIMAL>
+bool nanEqual(DECIMAL lhs, DECIMAL rhs)
+    // Return true if the specified 'lhs' and 'rhs' are the same value, even in
+    // the case of 'NaN'.  Two 'DECIMAL' objects are considered equal if either
+    // 'lhs' and 'rhs' are the same value, or both 'lhs' and 'rhs' are not
+    // equal to themselves (implying them both to be 'NaN').
+{
+    return lhs == rhs || (lhs != lhs && rhs != rhs);
+}
 
 //=============================================================================
 //                      TEST DRIVER NAMESPACE CLASS
@@ -346,6 +356,7 @@ struct TestDriver {
     // the test driver main program.  This class is necessitated by
     // compile-time performance issues on some platforms.
 
+    static void testCase9();
     static void testCase8();
     static void testCase7();
     static void testCase6();
@@ -357,7 +368,7 @@ struct TestDriver {
 
 };
 
-void TestDriver::testCase8()
+void TestDriver::testCase9()
 {
     // ------------------------------------------------------------------------
     // USAGE EXAMPLE
@@ -423,6 +434,327 @@ void TestDriver::testCase8()
         ASSERT(BDLDFP_DECIMAL_DD(0.1) +  BDLDFP_DECIMAL_DD(0.2) ==
                BDLDFP_DECIMAL_DD(0.3));
         //..
+    }
+}
+
+void TestDriver::testCase8()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'operator""'
+    //
+    // Concerns:
+    //: 1 That call of user-defined literal operators are properly forwarded to
+    //:   appropriate implementation.
+    //:
+    //: 2 That if argument value has an absolute value that exceeds maximum
+    //:   value supported by tested type then the value of the macro 'ERANGE'
+    //:   is stored into 'errno' and the resultant value is initialized to
+    //:   infinity with the same sign as argument.
+    //:
+    //: 3 That if argument value has an absolute value that is less than the
+    //:   smallest value supported by tested type then the value of the macro
+    //:   'ERANGE' is stored into 'errno' and the resultant value is
+    //:   initialized to zero with the same sign as argument.
+    //
+    // Plan:
+    //: 1 A set of representative values for 32, 64, and 128-bit types will be
+    //:   created using user-defined literal operators and each compared
+    //:   against expected value.  (C-1..3)
+    //
+    // Testing:
+    //   bdldfp::Decimal32  operator""  _d32(const char *, unsigned int);
+    //   bdldfp::Decimal32  operator""  _d64(const char *, unsigned int);
+    //   bdldfp::Decimal32  operator"" _d128(const char *, unsigned int);
+    // ------------------------------------------------------------------------
+
+    if (verbose) bsl::cout << bsl::endl
+                           << "Testing 'operator\"\"'" << bsl::endl
+                           << "======================" << bsl::endl;
+    {
+#define DFP(X) BDLDFP_DECIMAL_DF(X)
+        using namespace bdldfp;
+
+        typedef Decimal32 Tested;
+
+        const Tested  NaN = BDEC::DecimalImpUtil::quietNaN32();
+        const Tested sNaN = BDEC::DecimalImpUtil::signalingNaN32();
+        const Tested  Inf = BDEC::DecimalImpUtil::infinity32();
+
+        struct {
+            int          d_line;
+            Tested       d_x;
+            Tested       d_expected;
+        } DATA[] = {
+            //-------------------------------------------
+            // LINE |     X            | EXPECTED
+            //-------------------------------------------
+            //-------------------------------------------
+            // Fixed notation
+            { L_,    "0.0"_d32,           DFP( 0.0)      },
+            { L_,   "-0.0"_d32,           DFP(-0.0)      },
+            { L_,   "+0.0"_d32,           DFP( 0.0)      },
+
+            { L_,    "4.2"_d32,           DFP( 4.2)      },
+            { L_,  "-42.0"_d32,           DFP(-42.0)     },
+            { L_,  "-0.42"_d32,           DFP(-0.42)     },
+            { L_,   "1.23456789"_d32,     DFP( 1.234568) },
+            //-------------------------------------------
+            // Scientific notation
+            { L_,    "4.2e+0"_d32,        DFP( 4.2)      },
+            { L_,   "-4.2e+1"_d32,        DFP(-42.0)     },
+            { L_,   "-4.2e-1"_d32,        DFP(-0.42)     },
+            { L_,    "1.23456789e+0"_d32, DFP( 1.234568) },
+            //-------------------------------------------
+            // Special values
+            { L_,    "1e+200"_d32,        Inf            },
+            { L_,   "-1e+200"_d32,       -Inf            },
+            { L_,    "1e-200"_d32,        DFP( 0.0)      },
+            { L_,   "-1e-200"_d32,        DFP(-0.0)      },
+
+            { L_,      "nan"_d32,         NaN            },
+            { L_,     "-nan"_d32,        -NaN            },
+            { L_,     "snan"_d32,        sNaN            },
+            { L_,    "-snan"_d32,       -sNaN            },
+
+            { L_,      "inf"_d32,         Inf            },
+            { L_,     "-inf"_d32,        -Inf            },
+
+            { L_,     "ABCDEF"_d32,       NaN            },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE     = DATA[ti].d_line;
+            const Tested& X        = DATA[ti].d_x;
+            const Tested& EXPECTED = DATA[ti].d_expected;
+
+            LOOP3_ASSERT(LINE, X, EXPECTED, nanEqual(X, EXPECTED));
+        }
+
+        { // C-2
+            errno = 0;
+            const Tested  X1       = "1.0e+200"_d32;
+            const Tested &EXPECTED = Inf;
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+        { // C-2
+            errno = 0;
+            const Tested& EXPECTED = -Inf;
+            const Tested  X1       = "-1.0e+200"_d32;
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+        { // C-3
+            errno = 0;
+            const Tested  X1       = "1.0e-200"_d32;
+            const Tested& EXPECTED = DFP(0.0);
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+        { // C-3
+            errno = 0;
+            const Tested  X1       = "-1.0e-200"_d32;
+            const Tested& EXPECTED = DFP(-0.0);
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+#undef DFP
+    }
+    {
+#define DFP(X) BDLDFP_DECIMAL_DD(X)
+        using namespace bdldfp;
+
+        typedef Decimal64 Tested;
+
+        const Tested  NaN = BDEC::DecimalImpUtil::quietNaN64();
+        const Tested sNaN = BDEC::DecimalImpUtil::signalingNaN64();
+        const Tested  Inf = BDEC::DecimalImpUtil::infinity64();
+
+        struct {
+            int          d_line;
+            Tested       d_x;
+            Tested       d_expected;
+        } DATA[] = {
+            //------------------------------------------------------------
+            // LINE |     X                   | EXPECTED
+            //------------------------------------------------------------
+            //------------------------------------------------------------
+            // Fixed notation
+            { L_,     "0.0"_d64,                 DFP( 0.0)                },
+            { L_,    "-0.0"_d64,                 DFP(-0.0)                },
+            { L_,    "+0.0"_d64,                 DFP( 0.0)                },
+
+            { L_,     "4.2"_d64,                 DFP( 4.2)                },
+            { L_,   "-42.0"_d64,                 DFP(-42.0)               },
+            { L_,   "-0.42"_d64,                 DFP(-0.42)               },
+            { L_,    "1.2345678901234567"_d64,   DFP( 1.234567890123457)  },
+            //------------------------------------------------------------
+            // Scientific notation
+            { L_,   "4.2e+0"_d64,                DFP( 4.2)                },
+            { L_,  "-4.2e+1"_d64,                DFP(-42.0)               },
+            { L_,  "-4.2e-1"_d64,                DFP(-0.42)               },
+            { L_,   "1.2345678901234567e+0"_d64, DFP( 1.2345678901234567) },
+            //------------------------------------------------------------
+            // Special values
+            { L_,    "1e+400"_d64,               Inf                      },
+            { L_,   "-1e+400"_d64,              -Inf                      },
+            { L_,    "1e-400"_d64,               DFP( 0.0)                },
+            { L_,   "-1e-400"_d64,               DFP(-0.0)                },
+
+            { L_,      "nan"_d64,                NaN                      },
+            { L_,     "-nan"_d64,               -NaN                      },
+            { L_,     "snan"_d64,               sNaN                      },
+            { L_,    "-snan"_d64,              -sNaN                      },
+
+            { L_,      "inf"_d64,                Inf                      },
+            { L_,     "-inf"_d64,               -Inf                      },
+
+            { L_,     "ABCDEF"_d64,              NaN                      },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE     = DATA[ti].d_line;
+            const Tested& X        = DATA[ti].d_x;
+            const Tested& EXPECTED = DATA[ti].d_expected;
+
+            LOOP3_ASSERT(LINE, X, EXPECTED, nanEqual(X, EXPECTED));
+        }
+
+        { // C-2
+            errno = 0;
+            const Tested& X1       = "1.0e+400"_d64;
+            const Tested& EXPECTED = Inf;
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+        { // C-2
+            errno = 0;
+            const Tested  X1       = "-1.0e+400"_d64;
+            const Tested& EXPECTED = -Inf;
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+        { // C-3
+            errno = 0;
+            const Tested  X1       = "1.0e-400"_d64;
+            const Tested& EXPECTED = DFP(0.0);
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+        { // C-3
+            errno = 0;
+            const Tested  X1       = "-1.0e-400"_d64;
+            const Tested& EXPECTED = DFP(-0.0);
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+#undef DFP
+    }
+    {
+#define DFP(X) BDLDFP_DECIMAL_DL(X)
+        using namespace bdldfp;
+
+        typedef Decimal128 Tested;
+
+        const Tested  NaN = BDEC::DecimalImpUtil::quietNaN128();
+        const Tested sNaN = BDEC::DecimalImpUtil::signalingNaN128();
+        const Tested  Inf = BDEC::DecimalImpUtil::infinity128();
+
+        struct {
+            int          d_line;
+            Tested       d_x;
+            Tested       d_expected;
+        } DATA[] = {
+            //-----------------------------------------------------------
+            // LINE |     X                   | EXPECTED
+            //-----------------------------------------------------------
+            // Fixed notation
+            { L_,     "0.0"_d128,                DFP( 0.0)                },
+            { L_,    "-0.0"_d128,                DFP(-0.0)                },
+            { L_,    "+0.0"_d128,                DFP( 0.0)                },
+
+            { L_,     "4.2"_d128,                DFP( 4.2)                },
+            { L_,   "-42.0"_d128,                DFP(-42.0)               },
+            { L_,   "-0.42"_d128,                DFP(-0.42)               },
+            { L_,    "1.234567890123456789012345678901234567"_d128,
+                               DFP( 1.234567890123456789012345678901235)  },
+            //-----------------------------------------------------------
+            // Scientific notation
+            { L_,   "4.2e+0"_d128,               DFP( 4.2)                },
+            { L_,  "-4.2e+1"_d128,               DFP(-42.0)               },
+            { L_,  "-4.2e-1"_d128,               DFP(-0.42)               },
+            { L_,   "1.234567890123456789012345678901234567e+0"_d128,
+                                DFP( 1.234567890123456789012345678901235) },
+            //-----------------------------------------------------------
+            // Special values
+            { L_,    "1e+7000"_d128,             Inf                      },
+            { L_,   "-1e+7000"_d128,            -Inf                      },
+            { L_,    "1e-7000"_d128,             DFP( 0.0)                },
+            { L_,   "-1e-7000"_d128,             DFP(-0.0)                },
+
+            { L_,      "nan"_d128,               NaN                      },
+            { L_,     "-nan"_d128,              -NaN                      },
+            { L_,     "snan"_d128,              sNaN                      },
+            { L_,    "-snan"_d128,             -sNaN                      },
+
+            { L_,      "inf"_d128,               Inf                      },
+            { L_,     "-inf"_d128,              -Inf                      },
+
+            { L_,     "ABCDEF"_d128,             NaN                      },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE     = DATA[ti].d_line;
+            const Tested& X        = DATA[ti].d_x;
+            const Tested& EXPECTED = DATA[ti].d_expected;
+
+            LOOP3_ASSERT(LINE, X, EXPECTED, nanEqual(X, EXPECTED));
+        }
+
+        { // C-2
+            errno = 0;
+            const Tested& X1       = "1.0e+7000"_d128;
+            const Tested& EXPECTED = Inf;
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+        { // C-2
+            errno = 0;
+            const Tested  X1       = "-1.0e+7000"_d128;
+            const Tested& EXPECTED = -Inf;
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+        { // C-3
+            errno = 0;
+            const Tested  X1       = "1.0e-7000"_d128;
+            const Tested& EXPECTED = DFP(0.0);
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+        { // C-3
+            errno = 0;
+            const Tested  X1       = "-1.0e-7000"_d128;
+            const Tested& EXPECTED = DFP(-0.0);
+
+            LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
+            LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+#undef DFP
     }
 }
 
@@ -898,6 +1230,8 @@ void TestDriver::testCase6()
         typedef BDEC::Decimal32     Obj;
         typedef bslx::TestInStream  In;
         typedef bslx::TestOutStream Out;
+
+        using namespace bdldfp;
 
         const Obj VA(BDLDFP_DECIMAL_DF(1.12));
         const Obj VB(BDLDFP_DECIMAL_DF(2.55));
@@ -7458,6 +7792,12 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
+      case 9: {
+        TestDriver::testCase9();
+      } break;
+      case 8: {
+        TestDriver::testCase8();
+      } break;
       case 7: {
         TestDriver::testCase7();
       } break;

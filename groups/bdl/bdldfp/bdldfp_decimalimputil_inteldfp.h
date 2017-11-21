@@ -60,7 +60,6 @@ BSLS_IDENT("$Id$")
 #include <bsl_c_errno.h>
 #endif
 
-
 namespace BloombergLP {
 namespace bdldfp {
 
@@ -543,16 +542,6 @@ struct DecimalImpUtil_IntelDfp {
         //: o Otherwise if 'value' is a zero value, then return an object equal
         //:   to zero with the same sign.
         //:
-        //: o Otherwise if 'value' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then store the value of
-        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
-        //:   sign as 'value'.
-        //:
-        //: o Otherwise if 'value' has an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal64>::min()' then store the value of
-        //:   the macro 'ERANGE' into 'errno' and return a zero with the same
-        //:   sign as 'value'.
-        //:
         //: o Otherwise if 'value' needs more than
         //:   'std::numeric_limits<Decimal64>::max_digit' significant decimal
         //:   digits to represent then return the 'value' rounded according to
@@ -573,16 +562,6 @@ struct DecimalImpUtil_IntelDfp {
         //:
         //: o Otherwise if 'value' is a zero value, then return an object equal
         //:   to zero with the same sign.
-        //:
-        //: o Otherwise if 'value' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then store the value of
-        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
-        //:   sign as 'value'.
-        //:
-        //: o Otherwise if 'value' has an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal128>::min()' then store the value of
-        //:   the macro 'ERANGE' into 'errno' and return a zero with the same
-        //:   sign as 'value'.
         //:
         //: o Otherwise if 'value' needs more than
         //:   'std::numeric_limits<Decimal128>::max_digit' significant decimal
@@ -640,46 +619,60 @@ struct DecimalImpUtil_IntelDfp {
                         // Parsing functions
 
     static ValueType32 parse32 (const char *string);
-        // Parse the specified 'string' as a 32 bit decimal floating- point
+        // Parse the specified 'string' as a 32 bit decimal floating-point
         // value and return the result.  The parsing is as specified for the
         // 'strtod32' function in section 9.6 of the ISO/EIC TR 24732 C Decimal
         // Floating-Point Technical Report, except that it is unspecified
-        // whether the NaNs returned are quiet or signaling.  The behavior is
-        // undefined unless 'input' represents a valid 32 bit decimal
-        // floating-point number in scientific or fixed notation, and no
-        // unrelated characters precede (not even whitespace) that textual
-        // representation and a terminating nul character immediately follows
-        // it.  Note that this method does not guarantee the behavior of
-        // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
-        // intrinsics return a signaling NaN.
+        // whether the NaNs returned are quiet or signaling.  If 'string'
+        // represents a value that absolute value exceeds the maximum value or
+        // is less than the smallest value supported by 'ValueType32' type then
+        // store the value of the macro 'ERANGE' into 'errno' and return the
+        // value initialized to infinity or zero respectively with the same
+        // sign as specified in 'string'.  The behavior is undefined unless
+        // 'input' represents a valid 32 bit decimalfloating-point number in
+        // scientific or fixed notation, and no unrelated characters precede
+        // (not even whitespace) that textual representation and a terminating
+        // nul character immediately follows it.  Note that this method does
+        // not guarantee the behavior of ISO/EIC TR 24732 C when parsing NaN
+        // because the AIX compiler intrinsics return a signaling NaN.
 
     static ValueType64 parse64(const char *string);
         // Parse the specified 'string' string as a 64 bit decimal floating-
         // point value and return the result.  The parsing is as specified for
         // the 'strtod64' function in section 9.6 of the ISO/EIC TR 24732 C
         // Decimal Floating-Point Technical Report, except that it is
-        // unspecified whether the NaNs returned are quiet or signaling.  The
-        // behavior is undefined unless 'input' represents a valid 64 bit
-        // decimal floating-point number in scientific or fixed notation, and
-        // no unrelated characters precede (not even whitespace) that textual
-        // representation and a terminating nul character immediately follows
-        // it.  Note that this method does not guarantee the behavior of
-        // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
-        // intrinsics return a signaling NaN.
+        // unspecified whether the NaNs returned are quiet or signaling.  If
+        // 'string' represents a value that absolute value exceeds the maximum
+        // value or is less than the smallest value supported by 'ValueType63'
+        // type then store the value of the macro 'ERANGE' into 'errno' and
+        // return the value initialized to infinity or zero respectively with
+        // the same sign as specified in 'string'.  The behavior is undefined
+        // unless 'input' represents a valid 64 bit decimal floating-point
+        // number in scientific or fixed notation, and no unrelated characters
+        // precede (not even whitespace) that textual representation and a
+        // terminating nul character immediately follows it.  Note that this
+        // method does not guarantee the behavior of ISO/EIC TR 24732 C when
+        // parsing NaN because the AIX compiler intrinsics return a signaling
+        // NaN.
 
     static ValueType128 parse128(const char *string);
         // Parse the specified 'string' string as a 128 bit decimal floating-
         // point value and return the result.  The parsing is as specified for
         // the 'strtod128' function in section 9.6 of the ISO/EIC TR 24732 C
         // Decimal Floating-Point Technical Report, except that it is
-        // unspecified whether the NaNs returned are quiet or signaling.  The
-        // behavior is undefined unless 'input' represents a valid 128 bit
-        // decimal floating-point number in scientific or fixed notation, and
-        // no unrelated characters precede (not even whitespace) that textual
-        // representation and a terminating nul character immediately follows
-        // it.  Note that this method does not guarantee the behavior of
-        // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
-        // intrinsics return a signaling NaN.
+        // unspecified whether the NaNs returned are quiet or signaling. If
+        // 'string' represents a value that absolute value exceeds the maximum
+        // value or is less than the smallest value supported by 'ValueType128'
+        // type then store the value of the macro 'ERANGE' into 'errno' and
+        // return the value initialized to infinity or zero respectively with
+        // the same sign as specified in 'string'.  The behavior is undefined
+        // unless 'input' represents a valid 128 bit decimal floating-point
+        // number in scientific or fixed notation, and no unrelated characters
+        // precede (not even whitespace) that textual representation and a
+        // terminating nul character immediately follows it.  Note that this
+        // method does not guarantee the behavior of ISO/EIC TR 24732 C when
+        // parsing NaN because the AIX compiler intrinsics return a signaling
+        // NaN.
 
                         // Densely Packed Conversion Functions
 
@@ -1545,8 +1538,16 @@ DecimalImpUtil_IntelDfp::parse32(const char *string)
     // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
     // because the __bid* interfaces are C interfaces.
     result.d_raw = __bid32_from_string(const_cast<char *>(string), &flags);
+
+    if (BID_OVERFLOW_EXCEPTION  & flags ||
+        BID_UNDERFLOW_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
+
     return result;
 }
+
 
 inline
 DecimalImpUtil_IntelDfp::ValueType64
@@ -1557,6 +1558,13 @@ DecimalImpUtil_IntelDfp::parse64(const char *string)
     // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
     // because the __bid* interfaces are C interfaces.
     result.d_raw = __bid64_from_string(const_cast<char *>(string), &flags);
+
+    if (BID_OVERFLOW_EXCEPTION  & flags ||
+        BID_UNDERFLOW_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
+
     return result;
 }
 
@@ -1569,6 +1577,13 @@ DecimalImpUtil_IntelDfp::parse128(const char *string)
     // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
     // because the __bid* interfaces are C interfaces.
     result.d_raw = __bid128_from_string(const_cast<char *>(string), &flags);
+
+    if (BID_OVERFLOW_EXCEPTION  & flags ||
+        BID_UNDERFLOW_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
+
     return result;
 }
 

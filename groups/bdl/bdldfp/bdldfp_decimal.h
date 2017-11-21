@@ -1792,6 +1792,47 @@ operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
 
+#if __cplusplus >= 201103L
+bdldfp::Decimal32 operator"" _d32(const char *str, unsigned);
+    // Parse the specified 'str' string as a 32 bit decimal floating-point
+    // and return the result.  The parsing follows the rules as specified for
+    // the 'strtod32' function in section 9.6 of the ISO/EIC TR 24732 C Decimal
+    // Floating-Point Technical Report, except that it is unspecified whether
+    // the NaNs returned are quiet or signaling:
+    //
+    //: o If 'str' represents NaN, then return 'Decimal32' object initialized
+    //:    to a NaN.
+    //:
+    //: o Otherwise if 'str' represents infinity (positive or negative), then
+    //:   return 'Decimal32' object initialized to infinity value with the same
+    //:   sign.
+    //:
+    //: o Otherwise if 'str' represents a zero value, then return 'Decimal32'
+    //:   object initialized to zero with the same sign.
+    //:
+    //: o Otherwise if 'str' represents a value that an absolute value is
+    //:   larger than 'std::numeric_limits<Decimal32>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return 'Decimal32'
+    //:   object initialized to infinity with the same sign as specified in
+    //:   'str'.
+    //:
+    //: o Otherwise if 'str' represents a value that an absolute value is
+    //:   smaller than 'std::numeric_limits<Decimal32>::min()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return 'Decimal32'
+    //:   object initialized to zero with the same sign as specified in 'str'.
+    //:
+    //: o Otherwise if 'str' represents a value that needs more than
+    //:   'std::numeric_limits<Decimal32>::max_digit' significant decimal
+    //:   digits to represent then return decimal value initialized to the
+    //:   value of decimal representation of 'str' rounded according to the
+    //:   rounding direction.
+    //:
+    //: o Otherwise return 'Decimal32' object initialized to the value of
+    //:   decimal representation of 'str'.
+
+#endif
+
+
 // FREE FUNCTIONS
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const Decimal32& object);
@@ -3045,6 +3086,47 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal64 object);
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
 
+#if __cplusplus >= 201103L
+
+bdldfp::Decimal64 operator"" _d64(const char *str, unsigned int len);
+    // Parse the specified 'str' string as a 64 bit decimal floating-point
+    // and return the result.  The parsing follows the rules as specified for
+    // the 'strtod64' function in section 9.6 of the ISO/EIC TR 24732 C Decimal
+    // Floating-Point Technical Report, except that it is unspecified whether
+    // the NaNs returned are quiet or signaling:
+    //
+    //: o If 'str' represents NaN, then return 'Decimal64' object initialized
+    //:    to a NaN.
+    //:
+    //: o Otherwise if 'str' represents infinity (positive or negative), then
+    //:   return 'Decimal64' object initialized to infinity value with the same
+    //:   sign.
+    //:
+    //: o Otherwise if 'str' represents a zero value, then return 'Decimal64'
+    //:   object initialized to zero with the same sign.
+    //:
+    //: o Otherwise if 'str' represents a value that an absolute value is
+    //:   larger than 'std::numeric_limits<Decimal64>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return 'Decimal64'
+    //:   object initialized to infinity with the same sign as specified in
+    //:   'str'.
+    //:
+    //: o Otherwise if 'str' represents a value that an absolute value is
+    //:   smaller than 'std::numeric_limits<Decimal64>::min()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return 'Decimal64'
+    //:   object initialized to zero with the same sign as specified in 'str'.
+    //:
+    //: o Otherwise if 'str' represents a value that needs more than
+    //:   'std::numeric_limits<Decimal64>::max_digit' significant decimal
+    //:   digits to represent then return decimal value initialized to the
+    //:   value of decimal representation of 'str' rounded according to the
+    //:   rounding direction.
+    //:
+    //: o Otherwise return 'Decimal64' object initialized to the value of
+    //:   decimal representation of 'str'.
+
+#endif
+
                            // =====================
                            // class Decimal_Type128
                            // =====================
@@ -4241,6 +4323,45 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal128 object);
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
 
+#if __cplusplus >= 201103L
+
+bdldfp::Decimal128 operator"" _d128(const char *str, unsigned int len);
+    // Parse the specified 'str' string as a 128 bit decimal floating-point
+    // and return the result.  The parsing follows the rules as specified for
+    // the 'strtod128' function in section 9.6 of the ISO/EIC TR 24732 C
+    // Decimal Floating-Point Technical Report, except that it is unspecified
+    // whether the NaNs returned are quiet or signaling:
+    //
+    //: o If 'str' represents NaN, then return 'Decimal128' object initialized
+    //:    to a NaN.
+    //:
+    //: o Otherwise if 'str' represents infinity (positive or negative), then
+    //:   return 'Decimal128' object initialized to infinity value with the
+    //:   same sign.
+    //:
+    //: o Otherwise if 'str' represents a zero value, then return 'Decimal128'
+    //:   object initialized to zero with the same sign.
+    //:
+    //: o Otherwise if 'str' represents a value that an absolute value is
+    //:   larger than 'std::numeric_limits<Decimal128>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return 'Decimal128'
+    //:   object initialized to infinity with the same sign as specified in
+    //:   'str'.
+    //:
+    //: o Otherwise if 'str' represents a value that an absolute value is
+    //:   smaller than 'std::numeric_limits<Decimal128>::min()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return 'Decimal128'
+    //:   object initialized to zero with the same sign as specified in 'str'.
+    //:
+    //: o Otherwise if 'str' represents a value that needs more than
+    //:   'std::numeric_limits<Decimal128>::max_digit' significant decimal
+    //:   digits to represent then return decimal value initialized to the
+    //:   value of decimal representation of 'str' rounded according to the
+    //:   rounding direction.
+    //:
+    //: o Otherwise return 'Decimal128' object initialized to the value of
+    //:   decimal representation of 'str'.
+#endif
 
                         // MISCELLANEOUS RELATED TYPES
 
@@ -6599,6 +6720,7 @@ STREAM& Decimal_Type128::bdexStreamOut(STREAM& stream, int version) const
 }
 }  // close package namespace
 
+
 // FREE OPERATORS
 
 inline
@@ -7037,6 +7159,15 @@ bool bdldfp::operator>=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
 {
     return DecimalImpUtil::greaterEqual(*lhs.data(), *rhs.data());
 }
+
+#if __cplusplus >= 201103L
+inline
+bdldfp::Decimal32 bdldfp::operator"" _d32(const char *str, unsigned int)
+{
+    return DecimalImpUtil::parse32(str);
+}
+
+#endif
 
 // FREE OPERATORS
 inline
@@ -7566,6 +7697,15 @@ inline bool bdldfp::operator>=(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
 {
     return lhs >= Decimal64(rhs);
 }
+
+#if __cplusplus >= 201103L
+inline
+bdldfp::Decimal64 bdldfp::operator"" _d64(const char *str, unsigned int)
+{
+    return DecimalImpUtil::parse64(str);
+}
+
+#endif
 
 // FREE OPERATORS
 
@@ -8272,6 +8412,14 @@ bool bdldfp::operator>=(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
 {
     return lhs >= Decimal128(rhs);
 }
+
+#if __cplusplus >= 201103L
+inline
+bdldfp::Decimal128 bdldfp::operator"" _d128(const char *str, unsigned int)
+{
+    return DecimalImpUtil::parse128(str);
+}
+#endif
 
 // FREE FUNCTIONS
 template <class HASHALG>
