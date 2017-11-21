@@ -636,7 +636,6 @@ class Tokenizer_Proxy {
                         // =======================
 
 class TokenizerIterator
-#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_SUNOS)
 #if defined(BSLS_PLATFORM_CMP_SUN)
     : public bsl::iterator<bsl::input_iterator_tag,
                            bslstl::StringRef,
@@ -645,8 +644,7 @@ class TokenizerIterator
                            const bslstl::StringRef>
     // On Solaris/SunOS just to keep studio compilers happy, since algorithms
     // take only iterators inheriting from 'std::iterator'.
-#endif
-#endif
+#endif  // BSLS_PLATFORM_CMP_SUN
 {
     // This class provides a C++-standards-conforming input iterator over the
     // tokens in the input string suppled at construction (along with the
