@@ -128,7 +128,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      const char softDelimiters[] = " \t\n";  // whitespace
 //
-//      for (bslstl::StringRef token : bdlb_Tokenizer(input, softDelimiters)) {
+//      for (bslstl::StringRef token : bdlb::Tokenizer(input, softDelimiters)) {
 //          bsl::cout << "| " << token << bsl::endl;
 //      }
 //  }
@@ -165,16 +165,16 @@ BSLS_IDENT("$Id: $")
 //      // with a vertical bar ('|') followed by a tab ('\t') character.
 //  {
 //      const char softDelimiters[] = " ";
-//      const char hardDelimiters[] = ":/"
+//      const char hardDelimiters[] = ":/";
 //
-//      bdlb_Tokenizer it(input, softDelimiters, hardDelimiters);
+//      bdlb::Tokenizer it(input, softDelimiters, hardDelimiters);
 //      bsl::cout << "| " << '"' << it.previousDelimiter() << '"' << bsl::endl;
 //
-//      for (; it; ++it) {
+//      for (; it.isValid(); ++it) {
 //          bsl::cout << "|\t"
 //                    << '"' << it.token() << '"'
 //                    << "\t"
-//                    << '"' << it.delimiter() '"'
+//                    << '"' << it.trailingDelimiter() '"'
 //                    << bsl::endl;
 //      }
 //..
