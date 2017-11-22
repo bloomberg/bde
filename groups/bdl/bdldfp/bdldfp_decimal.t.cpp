@@ -1731,8 +1731,6 @@ void TestDriver::testCase4()
 
 #define DFP(X) BDLDFP_DECIMAL_DF(X)
 
-    typedef BDEC::DecimalFormatConfig Config;
-
     if (verbose) bsl::cout << "\nTESTING IOSTREAM OPERATORS"
                            << "\n=========================="
                            << bsl::endl;
@@ -3406,9 +3404,6 @@ void TestDriver::testCase4()
         };
 
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-
-        const int k_BUFFER_SIZE = 256;
-        char      buffer[k_BUFFER_SIZE];
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int          LINE   = DATA[ti].d_line;

@@ -775,7 +775,6 @@ int main(int argc, char* argv[])
     {
         typedef BDEC::Decimal32 Obj;
 
-        const Obj DECIMAL = DEC(1234567.0);
         const Obj NAN_P   = bsl::numeric_limits<Obj>::quiet_NaN();
         const Obj NAN_N   = -NAN_P;
         const Obj INF_P   = bsl::numeric_limits<Obj>::infinity();
@@ -1116,10 +1115,10 @@ int main(int argc, char* argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE     = DATA[ti].d_line;
-                const Obj&      X        = DATA[ti].d_x;
-                const long int& EXPECTED = DATA[ti].d_expected;
-                const long int  RESULT   = Util::llrint(X);
+                const int            LINE     = DATA[ti].d_line;
+                const Obj&           X        = DATA[ti].d_x;
+                const long long int& EXPECTED = DATA[ti].d_expected;
+                const long long int  RESULT   = Util::llrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
             }
@@ -1806,7 +1805,7 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-            const long long int NaN = ~(-1ull >> 1);
+            const long int NaN = ~(-1ul >> 1);
 
             struct {
                 int      d_line;
@@ -1871,10 +1870,10 @@ int main(int argc, char* argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE     = DATA[ti].d_line;
-                const Obj&      X        = DATA[ti].d_x;
-                const long int& EXPECTED = DATA[ti].d_expected;
-                const long int  RESULT   = Util::llrint(X);
+                const int            LINE     = DATA[ti].d_line;
+                const Obj&           X        = DATA[ti].d_x;
+                const long long int& EXPECTED = DATA[ti].d_expected;
+                const long long int  RESULT   = Util::llrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
             }
@@ -2165,22 +2164,23 @@ int main(int argc, char* argv[])
                 { L_, DEC( 3456e+1),             0, DEC( 3456e+1),       0 },
                 { L_, DEC( 3456e+2),             0, DEC( 3456e+2),       0 },
 
-                { L_, DEC( 3456e+0),           398, DEC( 3456e+0),       0 },
-                { L_, DEC( 3456e+1),           398, DEC( 3456e+1),       0 },
-                { L_, DEC( 3456e+2),           398, DEC( 3456e+2),       0 },
+
+                { L_, DEC( 3456e+0),           101, DEC( 3456e+0),       0 },
+                { L_, DEC( 3456e+1),           101, DEC( 3456e+1),       0 },
+                { L_, DEC( 3456e+2),           101, DEC( 3456e+2),       0 },
             //--------------------------------------------------------------
-            //                         Test subnormal values
+            //                          Test subnormal values
             //--------------------------------------------------------------
-                { L_, DEC(7654321e-398),       399, DEC(7654321e-398),   0 },
-                { L_, DEC(7654321e-398),       398, DEC(7654321e-398),   0 },
-                { L_, DEC(7654321e-398),       397, DEC(765432e-397),    0 },
-                { L_, DEC(7654321e-398),       396, DEC(76543e-396),     0 },
-                { L_, DEC(7654321e-398),       395, DEC(7654e-395),      0 },
-                { L_, DEC(7654321e-398),       394, DEC(765e-394),       0 },
-                { L_, DEC(7654321e-398),       393, DEC(76e-393),        0 },
-                { L_, DEC(7654321e-398),       392, DEC(7e-392),         0 },
-                { L_, DEC(7654321e-398),       391, DEC(0e-0),           0 },
-                { L_, DEC(7654321e-398),       390, DEC(0e-0),           0 },
+                { L_, DEC(-7654321e-101),      102, DEC(-7654321e-101),  0 },
+                { L_, DEC(-7654321e-101),      101, DEC(-7654321e-101),  0 },
+                { L_, DEC(-7654321e-101),      100, DEC(-765432e-100),   0 },
+                { L_, DEC(-7654321e-101),       99, DEC(-76543e-99),     0 },
+                { L_, DEC(-7654321e-101),       98, DEC(-7654e-98),      0 },
+                { L_, DEC(-7654321e-101),       97, DEC(-765e-97),       0 },
+                { L_, DEC(-7654321e-101),       96, DEC(-76e-96),        0 },
+                { L_, DEC(-7654321e-101),       95, DEC(-7e-95),         0 },
+                { L_, DEC(-7654321e-101),       94, DEC(-0e-0),          0 },
+                { L_, DEC(-7654321e-101),       93, DEC(-0e-0),          0 },
             //--------------------------------------------------------------
             //                          Test special values
             //--------------------------------------------------------------
@@ -2256,21 +2256,19 @@ int main(int argc, char* argv[])
 
 #undef DEC
     }
-#define DEC(X) BDLDFP_DECIMAL_DL(X)
+#define DEC(X) ImpUtil::parse128(#X)
     if (veryVerbose) bsl::cout << "\nDecimal128"
                                << "\n----------"
                                << bsl::endl;
     {
         typedef BDEC::Decimal128 Obj;
 
-        const Obj DECIMAL = DEC(1234567890123456789012345678901234.0);
         const Obj NAN_P   = bsl::numeric_limits<Obj>::quiet_NaN();
         const Obj NAN_N   = -NAN_P;
         const Obj INF_P   = bsl::numeric_limits<Obj>::infinity();
         const Obj INF_N   = -INF_P;
         const Obj ZERO_P  = DEC( 0.0);
         const Obj ZERO_N  = DEC(-0.0);
-        const Obj MAX_P   = bsl::numeric_limits<Obj>::max();
 
         if (veryVerbose) { T_ bsl::cout << "copySign()" << bsl::endl; }
         {
@@ -2625,10 +2623,10 @@ int main(int argc, char* argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE     = DATA[ti].d_line;
-                const Obj&      X        = DATA[ti].d_x;
-                const long int& EXPECTED = DATA[ti].d_expected;
-                const long int  RESULT   = Util::llrint(X);
+                const int            LINE     = DATA[ti].d_line;
+                const Obj&           X        = DATA[ti].d_x;
+                const long long int& EXPECTED = DATA[ti].d_expected;
+                const long long int  RESULT   = Util::llrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
             }

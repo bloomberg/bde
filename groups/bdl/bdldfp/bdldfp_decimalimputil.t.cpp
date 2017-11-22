@@ -2409,7 +2409,7 @@ void TestDriver::testCase27()
                 const unsigned int   ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
-                const long int RESULT = Util::llrint(X);
+                const long long int RESULT = Util::llrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
                 LOOP3_ASSERT(LINE, ERRNO,    errno,  ERRNO    == errno);
@@ -2779,22 +2779,22 @@ void TestDriver::testCase27()
                 { L_, DEC( 3456e+1),             0, DEC( 3456e+1),       0 },
                 { L_, DEC( 3456e+2),             0, DEC( 3456e+2),       0 },
 
-                { L_, DEC( 3456e+0),           398, DEC( 3456e+0),       0 },
-                { L_, DEC( 3456e+1),           398, DEC( 3456e+1),       0 },
-                { L_, DEC( 3456e+2),           398, DEC( 3456e+2),       0 },
+                { L_, DEC( 3456e+0),           101, DEC( 3456e+0),       0 },
+                { L_, DEC( 3456e+1),           101, DEC( 3456e+1),       0 },
+                { L_, DEC( 3456e+2),           101, DEC( 3456e+2),       0 },
             //--------------------------------------------------------------
             //                         Test subnormal values
             //--------------------------------------------------------------
-                { L_, DEC(7654321e-398),       399, DEC(7654321e-398),   0 },
-                { L_, DEC(7654321e-398),       398, DEC(7654321e-398),   0 },
-                { L_, DEC(7654321e-398),       397, DEC(765432e-397),    0 },
-                { L_, DEC(7654321e-398),       396, DEC(76543e-396),     0 },
-                { L_, DEC(7654321e-398),       395, DEC(7654e-395),      0 },
-                { L_, DEC(7654321e-398),       394, DEC(765e-394),       0 },
-                { L_, DEC(7654321e-398),       393, DEC(77e-393),        0 },
-                { L_, DEC(7654321e-398),       392, DEC(8e-392),         0 },
-                { L_, DEC(7654321e-398),       391, DEC(1e-391),         0 },
-                { L_, DEC(7654321e-398),       390, DEC(0e-0),           0 },
+                { L_, DEC(7654321e-101),       102, DEC(7654321e-101),   0 },
+                { L_, DEC(7654321e-101),       101, DEC(7654321e-101),   0 },
+                { L_, DEC(7654321e-101),       100, DEC(765432e-100),    0 },
+                { L_, DEC(7654321e-101),        99, DEC(76543e-99),      0 },
+                { L_, DEC(7654321e-101),        98, DEC(7654e-98),       0 },
+                { L_, DEC(7654321e-101),        97, DEC(765e-97),        0 },
+                { L_, DEC(7654321e-101),        96, DEC(77e-96),         0 },
+                { L_, DEC(7654321e-101),        95, DEC(8e-95),          0 },
+                { L_, DEC(7654321e-101),        94, DEC(1e-94),          0 },
+                { L_, DEC(7654321e-101),        93, DEC(0e-0),           0 },
 
             //--------------------------------------------------------------
             //                          Test special values
@@ -2976,7 +2976,7 @@ void TestDriver::testCase27()
     {
         typedef Util::ValueType64 Obj;
 
-#define DEC(X) BDLDFP_DECIMALIMPUTIL_DD(X)
+#define DEC(X) Util::parse64(#X)
 
         const Obj DECIMAL = DEC(1234567890123456.0);
         const Obj NAN_P   =              Util::quietNaN64();
@@ -3442,13 +3442,13 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int       LINE     = DATA[ti].d_line;
-                const Obj&      X        = DATA[ti].d_x;
-                const long int& EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO = DATA[ti].d_errno;
+                const int            LINE     = DATA[ti].d_line;
+                const Obj&           X        = DATA[ti].d_x;
+                const long long int& EXPECTED = DATA[ti].d_expected;
+                const unsigned int   ERRNO = DATA[ti].d_errno;
 
                 errno = 0;
-                const long int  RESULT   = Util::llrint(X);
+                const long long int  RESULT   = Util::llrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
                 LOOP3_ASSERT(LINE, ERRNO,    errno,  ERRNO    == errno);
@@ -4298,7 +4298,7 @@ void TestDriver::testCase27()
             //---------------------------------------------------------------
                 { L_, ZERO_P,                    0,                      0  },
                 { L_, ZERO_N,                    0,                      0  },
-                { L_, DEC_X,                    NaN,                     0  },
+                { L_, DEC_X,                    NaN,                  EDOM  },
                 { L_, DEC( 2.3),                 2,                      0  },
                 { L_, DEC( 2.5),                 2,                      0  },
                 { L_, DEC( 3.5),                 4,                      0  },
@@ -4366,13 +4366,13 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE     = DATA[ti].d_line;
-                const Obj&         X        = DATA[ti].d_x;
-                const long int&    EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO    = DATA[ti].d_errno;
+                const int            LINE     = DATA[ti].d_line;
+                const Obj&           X        = DATA[ti].d_x;
+                const long long int& EXPECTED = DATA[ti].d_expected;
+                const unsigned int   ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
-                const long int     RESULT   = Util::llrint(X);
+                const long long int  RESULT   = Util::llrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
                 LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
@@ -9182,14 +9182,6 @@ void TestDriver::testCase17()
             errno = 0;
             const Obj RESULT = Util::scaleB(X, EXPONENT);
 
-            int                 sign;
-            bsls::Types::Uint64 s;
-            int                 e;
-            int                 cl;
-
-            cl = Util::decompose(&sign, &s, &e, RESULT);
-            // P_(cl) P_(s) P(e);
-
             LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
             LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
         }
@@ -9229,7 +9221,7 @@ void TestDriver::testCase17()
             { L_, DEC(1e-6176),  6176 + 6144, DEC(1e+6144),         0 },
             { L_, DEC(1e+6144), -6144 - 6176, DEC(1e-6176),         0 },
             { L_, DEC(1),        INT_MAX,     INF_P,           ERANGE },
-            { L_, DEC(1),       -INT_MAX,     0,                    0 },
+            { L_, DEC(1),       -INT_MAX,     DEC( 0),              0 },
 
         //--------------------------------------------------------------
         // LINE |                 X                        | EXP |
@@ -9347,7 +9339,7 @@ void TestDriver::testCase17()
       { L_, MAX_P, -12320, DEC(                                10e-6176),  0 },
       { L_, MAX_P, -12321, DEC(                                 1e-6176),  0 },
       { L_, MAX_P, -12322, DEC(                                 0      ),  0 },
-        };
+      };
 
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 

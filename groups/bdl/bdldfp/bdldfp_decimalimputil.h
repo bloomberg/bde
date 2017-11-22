@@ -1770,7 +1770,7 @@ inline
 long long int DecimalImpUtil::llrint(ValueType32  x)
 {
     _IDEC_flags flags(0);
-    long int ret =  __bid32_llrint(x.d_raw, &flags);
+    long long int ret =  __bid32_llrint(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
         errno = EDOM;
     }
@@ -1781,7 +1781,7 @@ inline
 long long int DecimalImpUtil::llrint(ValueType64  x)
 {
     _IDEC_flags flags(0);
-    long int ret =  __bid64_llrint(x.d_raw, &flags);
+    long long int ret =  __bid64_llrint(x.d_raw, &flags);
     if (BID_INVALID_EXCEPTION & flags) {
         errno = EDOM;
     }
