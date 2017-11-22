@@ -48,7 +48,7 @@ namespace BloombergLP {
 const char *balscm::Version::s_ident = "$Id: " BALSCM_VERSION_STRING " $";
 const char *balscm::Version::s_what  = "@(#)" BALSCM_VERSION_STRING;
 
-const char *balscm::Version::s_version           = BALSCM_VERSION_STRING;
+const char *balscm::Version::BALSCM_S_VERSION    = BALSCM_VERSION_STRING;
 const char *balscm::Version::s_dependencies      =
                                BSLSCM_VERSION_STRING " " BDLSCM_VERSION_STRING;
 const char *balscm::Version::s_buildInfo         = "";

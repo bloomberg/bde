@@ -36,7 +36,7 @@ namespace BloombergLP {
 const char *btlscm::Version::s_ident = "$Id: " BTLSCM_VERSION_STRING " $";
 const char *btlscm::Version::s_what  = "@(#)" BTLSCM_VERSION_STRING;
 
-const char *btlscm::Version::s_version           = BTLSCM_VERSION_STRING;
+const char *btlscm::Version::BTLSCM_S_VERSION    = BTLSCM_VERSION_STRING;
 const char *btlscm::Version::s_dependencies      = BDLSCM_VERSION_STRING;
 const char *btlscm::Version::s_buildInfo         = "";
 const char *btlscm::Version::s_timestamp         = "";
