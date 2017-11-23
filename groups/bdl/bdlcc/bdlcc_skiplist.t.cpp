@@ -920,49 +920,49 @@ int main(int argc, char *argv[])
             ASSERT(Obj.findLowerBoundR(&h, 10));
             ASSERT(Obj.findUpperBoundR(&h, 10));
 
-            //validate success when trying to find something smaller 
+            //validate success when trying to find something smaller
             //than min key
             ASSERT(!Obj.findLowerBoundR(&h,-1));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
-            
+            ASSERT(h.data() == "0");
+
             ASSERT(!Obj.findUpperBoundR(&h,-1));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
+            ASSERT(h.data() == "0");
 
             //check front edge
             ASSERT(!Obj.findUpperBoundR(&h, 0));
             ASSERT(h.key() == 1);
-            ASSERT(h.data() == "fwd 1"); 
-            
+            ASSERT(h.data() == "fwd 1");
+
             ASSERT(!Obj.findLowerBoundR(&h, 0));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
-            
+            ASSERT(h.data() == "0");
+
             //check somewhere inside of list
             ASSERT(!Obj.findLowerBoundR(&h,6));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
-            
+            ASSERT(h.data() == "first 8");
+
             ASSERT(!Obj.findUpperBoundR(&h,6));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
+            ASSERT(h.data() == "first 8");
 
             //check back edge
             ASSERT(Obj.findUpperBoundR(&h, 8));
             
             ASSERT(!Obj.findLowerBoundR(&h, 8));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
+            ASSERT(h.data() == "first 8");
 
             //check middle
             ASSERT(!Obj.findUpperBoundR(&h, 4));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
+            ASSERT(h.data() == "first 8");
             
             ASSERT(!Obj.findLowerBoundR(&h, 4));
             ASSERT(h.key() == 4);
-            ASSERT(h.data() == "first 4"); 
+            ASSERT(h.data() == "first 4");
             
             if (veryVerbose) {
                 Obj.print(cout);
@@ -1015,45 +1015,45 @@ int main(int argc, char *argv[])
             //than min key
             ASSERT(!Obj.findLowerBound(&h,-1));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
+            ASSERT(h.data() == "0");
             
             ASSERT(!Obj.findUpperBound(&h,-1));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
+            ASSERT(h.data() == "0");
 
             //check front edge
             ASSERT(!Obj.findUpperBound(&h, 0));
             ASSERT(h.key() == 1);
-            ASSERT(h.data() == "fwd 1"); 
+            ASSERT(h.data() == "fwd 1");
             
             ASSERT(!Obj.findLowerBound(&h, 0));
             ASSERT(h.key() == 0);
-            ASSERT(h.data() == "0"); 
+            ASSERT(h.data() == "0");
           
             //check somewhere inside of list
             ASSERT(!Obj.findLowerBound(&h,6));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
+            ASSERT(h.data() == "first 8");
             
             ASSERT(!Obj.findUpperBound(&h,6));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
+            ASSERT(h.data() == "first 8");
 
             //check back edge
             ASSERT(Obj.findUpperBound(&h, 8));
             
             ASSERT(!Obj.findLowerBound(&h, 8));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
+            ASSERT(h.data() == "first 8");
 
             //check middle
             ASSERT(!Obj.findUpperBound(&h, 4));
             ASSERT(h.key() == 8);
-            ASSERT(h.data() == "first 8"); 
+            ASSERT(h.data() == "first 8");
             
             ASSERT(!Obj.findLowerBound(&h, 4));
             ASSERT(h.key() == 4);
-            ASSERT(h.data() == "first 4"); 
+            ASSERT(h.data() == "first 4");
             
             if (veryVerbose) {
                 Obj.print(cout);
