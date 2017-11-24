@@ -158,7 +158,7 @@ BSLS_IDENT("$Id: $")
 // to the previous and current (trailing) delimiters as well as the current
 // token:
 //..
-//  void parse_2(bsl::outstream& output, const char *input)
+//  void parse_2(bsl::ostream& output, const char *input)
 //      // Print, to the specified 'output' stream the leader of the specified
 //      // 'input', on a singly line, followed by subsequent current token and
 //      // (trailing) delimiter pairs on successive lines, each line beginning
@@ -174,7 +174,7 @@ BSLS_IDENT("$Id: $")
 //          output << "|\t"
 //                 << '"' << it.token() << '"'
 //                 << "\t"
-//                 << '"' << it.trailingDelimiter() '"'
+//                 << '"' << it.trailingDelimiter() << '"'
 //                 << "\n";
 //      }
 //  }
