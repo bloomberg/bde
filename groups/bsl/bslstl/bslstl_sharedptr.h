@@ -1622,7 +1622,7 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDDEF_H
 #endif
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
         // Here and throughout the file wherever 'auto_ptr' is used, suspend
         // GCC reporting of deprecated declarations since the use of 'auto_ptr'
         // in this standard interface is required.
@@ -9402,7 +9402,7 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 
 }  // close enterprise namespace
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 # pragma GCC diagnostic pop
 #endif
 
