@@ -189,7 +189,7 @@ BSLS_IDENT("$Id: $")
 // a *new* database connection, calls its 'executeQuery' method to execute the
 // query and finally closes the connection.
 //..
-//  void queryHandler1(Query *query)
+//  extern "C" void queryHandler1(Query *query)
 //      // Handle the specified 'query' without using an objectpool.
 //  {
 //      bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
