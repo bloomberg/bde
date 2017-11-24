@@ -85,11 +85,11 @@ int sleep(int                       *resultErrno,
     return 0;
 }
 
-const uint32_t k_POLLIN_EVENTS = bdlb::BitMaskUtil::eq(EventType::e_READ) |
-                                 bdlb::BitMaskUtil::eq(EventType::e_ACCEPT);
+const uint32_t k_POLLIN_EVENTS =
+    (1u << EventType::e_READ)  | (1u << EventType::e_ACCEPT);
+const uint32_t k_POLLOUT_EVENTS =
+    (1u << EventType::e_WRITE) | (1u << EventType::e_CONNECT);
 
-const uint32_t k_POLLOUT_EVENTS = bdlb::BitMaskUtil::eq(EventType::e_WRITE) |
-                                  bdlb::BitMaskUtil::eq(EventType::e_CONNECT);
 static
 struct epoll_event makeEvent(uint32_t eventMask, int fd)
 {
@@ -108,6 +108,8 @@ struct epoll_event makeEvent(uint32_t eventMask, int fd)
         bdlb::BitUtil::numBitsSet(eventMask & k_POLLIN_EVENTS);
     int polloutEvents =
         bdlb::BitUtil::numBitsSet(eventMask & k_POLLOUT_EVENTS);
+    BSLS_ASSERT(2 == bdlb::BitUtil::numBitsSet(k_POLLIN_EVENTS));
+    BSLS_ASSERT(2 == bdlb::BitUtil::numBitsSet(k_POLLOUT_EVENTS));
     BSLS_ASSERT(2 > pollinEvents);
     BSLS_ASSERT(2 > polloutEvents);
     BSLS_ASSERT(!(pollinEvents && polloutEvents) ||
