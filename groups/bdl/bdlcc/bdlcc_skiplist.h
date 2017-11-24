@@ -1833,7 +1833,7 @@ void SkipList<KEY, DATA>::addNodeImpR(bool *newFrontFlag,
     BSLS_ASSERT(0 == newNode->d_ptrs[0].d_next_p);
 
     Node *location[k_MAX_NUM_LEVELS];
-    lookupImpLowerBoundR(location, newNode->d_key);
+    lookupImpUpperBoundR(location, newNode->d_key);
 
     insertImp(newFrontFlag, location, newNode);
 }
