@@ -1,8 +1,15 @@
-bsl-internal (3.2.0.12) unstable; urgency=low
+bsl-internal (3.2.1.0) unstable; urgency=low
 
+  * a1015b864 Bump bde repo version to 3.2.1
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 24 Nov 2017 08:44:44 -0500
+
+bsl-internal (3.2.0.12) git; urgency=low
+
+  * df3f8f173 Changelog for version 3.2.0.12
   * 92944ff7f Merge pull request #1460 from cwilson/pr/1457-rebased-releases/3.2.0.x
 
- -- Henry Verschell <hverschell@bloomberg.net>  Thu, 16 Nov 2017 12:15:40 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 16 Nov 2017 12:40:57 -0500
 
 bsl-internal (3.2.0.11) git; urgency=low
 
