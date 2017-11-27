@@ -282,13 +282,13 @@ static unsigned int Decode(const unsigned char *input)
 
 static void append(unsigned int *state, const unsigned char *data)
 {
-    register unsigned int a = state[0];
-    register unsigned int b = state[1];
-    register unsigned int c = state[2];
-    register unsigned int d = state[3];
+    unsigned int a = state[0];
+    unsigned int b = state[1];
+    unsigned int c = state[2];
+    unsigned int d = state[3];
 
-    unsigned int xArray[16];
-    register unsigned int *const x = xArray;
+    unsigned int        xArray[16];
+    unsigned int *const x = xArray;
 
     // Round 1
     //
