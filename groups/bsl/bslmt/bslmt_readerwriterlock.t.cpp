@@ -671,7 +671,7 @@ extern "C" void *case11ThreadRO(void *arg)
     bsls::AtomicInt&      k(*a.d_shared_p);
 
     a.d_barrier_p->wait();
-    register int v;
+    int v;
 
     enum { k_NUM_ITERATIONS = 2000 };
 
