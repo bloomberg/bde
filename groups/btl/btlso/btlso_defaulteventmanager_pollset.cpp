@@ -66,8 +66,8 @@ namespace BloombergLP {
 
 namespace btlso {
 
-const uint32_t k_POLLIN_EVENTS = bdlb::BitMaskUtil::eq(EventType::e_READ) |
-                                 bdlb::BitMaskUtil::eq(EventType::e_ACCEPT);
+const uint32_t k_POLLIN_EVENTS =
+    (1u << EventType::e_READ) | (1u << EventType::e_ACCEPT);
 
 // This struct (initialized to 0 as a static) is used to grow the 'd_signaled'
 // working array when needed to avoid UMR-type errors from Purify and similar
@@ -378,6 +378,7 @@ void DefaultEventManager<Platform::POLLSET>::deregisterSocketEvent(
     // such event).
     uint32_t newMask = d_callbacks.getRegisteredEventMask(socketHandle);
     BSLS_ASSERT(1 >= bdlb::BitUtil::numBitsSet(newMask));
+    BSLS_ASSERT(2 == bdlb::BitUtil::numBitsSet(k_POLLIN_EVENTS));
 
     // Passing 'PS_DELETE' to 'pollset_ctl' will erase the 'fd' entirely. If
     // there is an event remaining, we need to add it back.
