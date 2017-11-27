@@ -1,3 +1,33 @@
+bsl-internal (3.3.0.0) unstable; urgency=low
+
+  * 5ca3494f6 Merge pull request #1499 from hrosen4/pr/1498-rebased-releases/3.3.x
+  * 53a04ddfa Merge pull request #1508 from hversche/pr/1487-rebased-releases/3.3.x
+  * 4f04592b2 Merge pull request #1489 from mgiroux/review/set-non-bsl-versions-to-3.3
+  * 3be4f52cf BDE 3.3: Decouple bsl version from others
+  * eaa923189 Merge pull request #1486 from hversche/pr/1446-rebased-releases/3.2.x
+  * 397a84c11 Merge pull request #1485 from hversche/pr/1484-rebased-releases/3.2.x
+  * 86677df1c drqs-110829374: 'bdlstat_moment.h': Small rework for 'bdedox' conversion.
+  * 62cb42a9a Merge pull request #1481 from hversche/pr/1424-rebased-releases/3.2.x
+  * dc1fed439 Merge pull request #1479 from hversche/pr/1397-rebased-releases/3.2.x
+  * f8d23b36a Merge pull request #1475 from hversche/pr/1473-rebased-releases/3.2.x
+  * d1518a9f6 Merge pull request #1474 from afeher/drqs-101897172-pooledblobbufferfactory-rebased-releases/3.2.x
+  * d1c9f11f5 Merge pull request #1471 from hversche/pr/1304-rebased-releases/3.2.x
+  * e066e8540 Merge pull request #1470 from hversche/pr/1465-rebased-releases/3.2.x
+  * f7a87fad8 Merge pull request #1459 from cwilson/pr/1457-rebased-releases/3.2.x
+  * ecec7a8fd Merge pull request #1448 from hversche/pr/1447-rebased-releases/3.2.x
+  * e32476f3e Merge pull request #1445 from osubbotin/pr/1441-rebased-releases/3.2.x
+  * 3430a42a1 Merge pull request #1437 from mgiroux/pr/1428-rebased-releases/3.2.x
+  * 635d05052 Merge pull request #1353 from hversche/pr/1307-rebased-releases/3.2.x
+  * 787dd2403 Merge pull request #1343 from hversche/pr/1329-rebased-releases/3.2.x
+  * 2429e1a33 Merge pull request #1341 from hversche/pr/1340-rebased-releases/3.2.x
+  * 179e8894c Merge pull request #1330 from hversche/pr/1327-rebased-releases/3.2.x
+  * ba01ed418 Merge pull request #1321 from hversche/pr/1162-rebased-releases/3.2.x
+  * 756c310b1 Merge pull request #1301 from hversche/pr/1298-rebased-releases/3.2.x
+  * 0f72c3706 Merge pull request #1295 from hversche/pr/1293-rebased-releases/3.2.x
+  * 097f484dd DRQS 104502699 for releases/3.2.x
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Mon, 27 Nov 2017 16:20:05 -0500
+
 bsl-internal (3.2.0.7) unstable; urgency=low
 
   * 34a49b7be Merge pull request #1289 from hversche/pr/1288-rebased-releases/3.2.x
