@@ -306,7 +306,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P16(dstType, x)                    \
     {                                                                         \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(2 == sizeof *x);          \
-        register unsigned int y;                                              \
+        unsigned int y;                                                       \
         asm("lduha [%1] %2, %0"                                               \
           : "=r" (y)                                                          \
           : "r" (x), "i"(0x88), "m" (                                         \
@@ -326,7 +326,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P32(dstType, x)                    \
     {                                                                         \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(4 == sizeof *x);          \
-        register unsigned int y;                                              \
+        unsigned int y;                                                       \
         asm("lduwa [%1] %2, %0"                                               \
           : "=r" (y)                                                          \
           : "r" (x), "i"(0x88), "m" (                                         \
@@ -347,7 +347,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(dstType, x)                    \
     {                                                                         \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof *x);          \
-        register BloombergLP::bsls::Types::Uint64 y;                          \
+        BloombergLP::bsls::Types::Uint64 y;                                   \
         asm("ldxa [%1] %2, %0"                                                \
           : "=r" (y)                                                          \
           : "r" (x), "i"(0x88), "m" (                                         \
@@ -376,7 +376,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(dstType, x)                    \
     {                                                                         \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof *x);          \
-        register BloombergLP::bsls::Types::Uint64 y;                          \
+        BloombergLP::bsls::Types::Uint64 y;                                   \
         asm("ldxa [%1] %2, %0\n\t"                                            \
             "srl   %0, 0, %R0\n\t"                                            \
             "srlx  %0, 32, %0"                                                \
@@ -431,7 +431,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_16(dstType, x)                     \
     {                                                                         \
-        register unsigned short y;                                            \
+        unsigned short y;                                                     \
         __asm__ ("xchg %b0, %h0" : "=Q" (y) : "0" (                           \
                                         static_cast<unsigned short>(x)));     \
                                                                               \
@@ -449,7 +449,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_32(dstType, x)                     \
     {                                                                         \
-        register unsigned int y;                                              \
+        unsigned int y;                                                       \
         __asm__ ("bswap %0" : "=r" (y) : "0" (static_cast<unsigned int>(x))); \
                                                                               \
         return static_cast<dstType>(y);                                       \
@@ -465,7 +465,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
                                                                               \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof x);           \
                                                                               \
-        register unsigned int res, tmp;                                       \
+        unsigned int res, tmp;                                                \
         __asm__ ("bswap %0\n\t"                                               \
                  "bswap %1\n\t"                                               \
                : "=r" (res), "=r" (tmp)                                       \
@@ -484,7 +484,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
                                                                               \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof x);           \
                                                                               \
-        register Uint64 y;                                                    \
+        Uint64 y;                                                             \
         __asm__ ("bswap %0" : "=r" (y) : "0" (x));                            \
                                                                               \
         return static_cast<dstType>(y);                                       \
