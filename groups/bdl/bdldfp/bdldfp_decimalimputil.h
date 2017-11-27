@@ -339,6 +339,36 @@ class DecimalImpUtil {
         // than the type would allow, return a NaN.  The returned value is
         // unspecified if either operand is NaN or infinity of either sign.
 
+    static ValueType32  quantize(ValueType32  value, int exponent);
+    static ValueType64  quantize(ValueType64  value, int exponent);
+    static ValueType128 quantize(ValueType128 value, int exponent);
+        // Return a number that is equal in value (except for any rounding) and
+        // sign to the specified 'value', and which has the exponent of the
+        // specified 'exponent'.  If the 'exponent' needs to be increased,
+        // round the value according to the current decimal floating point
+        // rounding mode.  If the exponent needs to be decreased and the
+        // significant of the result has more digits than the type would allow,
+        // return NaN.  The returned value is unspecified if the 'value' is NaN
+        // infinity of either sign.  Behavior is undefined unless the
+        // 'exponent' value satisfies the following conditions
+        //: o for 'ValueType32'  type:  '-101 <= exponent <=   90'
+        //: o for 'ValueType64'  type:  '-398 <= exponent <=  369'
+        //: o for 'ValueType128' type: '-6176 <= exponent <= 6111'
+
+    static int quantize(ValueType32  *value, int exponent);
+    static int quantize(ValueType64  *value, int exponent);
+    static int quantize(ValueType128 *value, int exponent);
+        // Set the exponent of the specified 'value' to the specified
+        // 'exponent' and scale the significand of the value so that resultant
+        // value remains exactly equal to the 'value'.  Return 0 on success,
+        // and non-zero value with no effect on the 'value' otherwise.  Also
+        // return non-zero value if the 'value' is NaN or infinity of either
+        // sign.  Behavior is undefined unless the 'exponent' value satisfies
+        // the following conditions
+        //: o for 'ValueType32'  type:  '-101 <= exponent <=   90'
+        //: o for 'ValueType64'  type:  '-398 <= exponent <=  369'
+        //: o for 'ValueType128' type: '-6176 <= exponent <= 6111'
+
     static bool sameQuantum(ValueType32  x, ValueType32  y);
     static bool sameQuantum(ValueType64  x, ValueType64  y);
     static bool sameQuantum(ValueType128 x, ValueType128 y);
@@ -1731,6 +1761,113 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::quantize(ValueType128 value,
                                      exponent.d_raw,
                                      &flags);
     return retval;
+}
+
+inline
+DecimalImpUtil::ValueType32  DecimalImpUtil::quantize(ValueType32  value,
+                                                      int          exponent)
+{
+    BSLS_ASSERT(-101 <= exponent);
+    BSLS_ASSERT(        exponent <= 90);
+
+    DecimalImpUtil::ValueType32 retval;
+    DecimalImpUtil::ValueType32 exp = DecimalImpUtil::makeDecimalRaw32(
+                                                                     1,
+                                                                     exponent);
+    _IDEC_flags flags(0);
+    retval.d_raw = __bid32_quantize(value.d_raw, exp.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType64  DecimalImpUtil::quantize(ValueType64  value,
+                                                      int          exponent)
+{
+    BSLS_ASSERT(-398 <= exponent);
+    BSLS_ASSERT(        exponent <= 369);
+
+    DecimalImpUtil::ValueType64 retval;
+    DecimalImpUtil::ValueType64 exp = DecimalImpUtil::makeDecimalRaw64(
+                                                                     1,
+                                                                     exponent);
+    _IDEC_flags flags(0);
+    retval.d_raw = __bid64_quantize(value.d_raw, exp.d_raw, &flags);
+    return retval;
+}
+
+inline
+DecimalImpUtil::ValueType128 DecimalImpUtil::quantize(ValueType128 value,
+                                                      int          exponent)
+{
+    BSLS_ASSERT(-6176 <= exponent);
+    BSLS_ASSERT(         exponent <= 6111);
+
+    DecimalImpUtil::ValueType128 retval;
+    DecimalImpUtil::ValueType128 exp = DecimalImpUtil::makeDecimalRaw128(
+                                                                     1,
+                                                                     exponent);
+    _IDEC_flags flags(0);
+    retval.d_raw = __bid128_quantize(value.d_raw, exp.d_raw, &flags);
+    return retval;
+}
+
+inline
+int DecimalImpUtil::quantize(ValueType32 *value, int exponent)
+{
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(-101 <= exponent);
+    BSLS_ASSERT(        exponent <= 90);
+
+    DecimalImpUtil::ValueType32 retval;
+    DecimalImpUtil::ValueType32 exp = DecimalImpUtil::makeDecimalRaw32(
+                                                                     1,
+                                                                     exponent);
+    _IDEC_flags flags(0);
+    retval.d_raw = __bid32_quantize(value->d_raw, exp.d_raw, &flags);
+    if (DecimalImpUtil::equal(retval, *value)) {
+        *value = retval;
+        return 0;
+    }
+    return -1;
+}
+
+inline
+int DecimalImpUtil::quantize(ValueType64 *value, int exponent)
+{
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(-398 <= exponent);
+    BSLS_ASSERT(        exponent <= 369);
+    DecimalImpUtil::ValueType64 retval;
+    DecimalImpUtil::ValueType64 exp = DecimalImpUtil::makeDecimalRaw64(
+                                                                     1,
+                                                                     exponent);
+    _IDEC_flags flags(0);
+    retval.d_raw = __bid64_quantize(value->d_raw, exp.d_raw, &flags);
+    if (DecimalImpUtil::equal(retval, *value)) {
+        *value = retval;
+        return 0;
+    }
+    return -1;
+}
+
+inline
+int DecimalImpUtil::quantize(ValueType128 *value, int exponent)
+{
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(-6176 <= exponent);
+    BSLS_ASSERT(         exponent <= 6111);
+
+    DecimalImpUtil::ValueType128 retval;
+    DecimalImpUtil::ValueType128 exp = DecimalImpUtil::makeDecimalRaw128(
+                                                                     1,
+                                                                     exponent);
+    _IDEC_flags flags(0);
+    retval.d_raw = __bid128_quantize(value->d_raw, exp.d_raw, &flags);
+    if (DecimalImpUtil::equal(retval, *value)) {
+        *value = retval;
+        return 0;
+    }
+    return -1;
 }
 
 inline

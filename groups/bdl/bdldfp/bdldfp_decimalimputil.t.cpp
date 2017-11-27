@@ -225,9 +225,15 @@ using bsl::atoi;
 // [28] fma(ValueType32,  ValueType32,  ValueType32);
 // [28] fma(ValueType64,  ValueType64,  ValueType64);
 // [28] fma(ValueType128, ValueType128, ValueType128);
-// [29] quantize(ValueType32,  ValueType32);
-// [29] quantize(ValueType64,  ValueType64);
-// [29] quantize(ValueType128, ValueType128);
+// [29] quantize(ValueType32,    ValueType32);
+// [29] quantize(ValueType64,    ValueType64);
+// [29] quantize(ValueType128,   ValueType128);
+// [29] quantize(ValueType32,    int);
+// [29] quantize(ValueType64,    int);
+// [29] quantize(ValueType128,   int);
+// [29] quantize(ValueType32, *  int);
+// [29] quantize(ValueType64, *  int);
+// [29] quantize(ValueType128 *, int);
 // [30] sameQuantum(ValueType32,  ValueType32);
 // [30] sameQuantum(ValueType64,  ValueType64);
 // [30] sameQuantum(ValueType128, ValueType128);
@@ -1492,7 +1498,7 @@ void TestDriver::testCase30()
     //:  1 Using table-driven technique:
     //:
     //:    1 Specify a set of arguments representing distinct decimal type
-    //:      values and expected result of 'quantize()' method.
+    //:      values and expected result of 'sameQuantum()' method.
     //:
     //:    2 Exercise 'sameQuantum()' using the arguments from (P-1.1) and
     //:      ensure that the result of execution equals the expected value.
@@ -1659,183 +1665,443 @@ void TestDriver::testCase29()
     //:      ensure that the result of execution equals the expected value.
     //
     // Testing:
-    //   ValueType32  quantize(ValueType32,  ValueType32);
-    //   ValueType64  quantize(ValueType64,  ValueType64);
-    //   ValueType128 quantize(ValueType128, ValueType128);
+    //   ValueType32  quantize(ValueType32,    ValueType32);
+    //   ValueType64  quantize(ValueType64,    ValueType64);
+    //   ValueType128 quantize(ValueType128,   ValueType128);
+    //   ValueType32  quantize(ValueType32,    int);
+    //   ValueType64  quantize(ValueType64,    int);
+    //   ValueType128 quantize(ValueType128,   int);
+    //   int          quantize(ValueType32  *, int);
+    //   int          quantize(ValueType64  *, int);
+    //   int          quantize(ValueType128 *, int);
     // ------------------------------------------------------------------------
 
     if (verbose) bsl::cout << "\nTESTING 'quantize' METHOD"
                            << "\n========================="
                            << bsl::endl;
 
+
     if (veryVeryVerbose) { T_ bsl::cout << "ValueType32" << bsl::endl; }
     {
-        typedef Util::ValueType32 Obj;
-
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DF(X)
 
-        const Obj NAN_P   =              Util::quietNaN32();
-        const Obj NAN_N   = Util::negate(Util::quietNaN32());
-        const Obj INF_P   =              Util::infinity32();
-        const Obj INF_N   = Util::negate(Util::infinity32());
+        typedef Util::ValueType32 Obj;
+
+        const Obj NAN_P =              Util::quietNaN32();
+        const Obj NAN_N = Util::negate(Util::quietNaN32());
+        const Obj INF_P =              Util::infinity32();
+        const Obj INF_N = Util::negate(Util::infinity32());
 
         struct {
             int d_line;
-            Obj d_x;
-            Obj d_exponent;
+            int d_significand;
+            int d_exponent;
+            int d_quantum;
             Obj d_expected;
+            int d_retValue;
         } DATA[] = {
-        //------------------------------------------------------
-        // LINE |      X     |    EXPONENT     | EXPECTED
-        //------------------------------------------------------
-        { L_,    DEC(1.23456),    DEC(0.1),      DEC(1.2)      },
-        { L_,    DEC(1.23456),    DEC(0.01),     DEC(1.23)     },
-        { L_,    DEC(1.23456),    DEC(0.001),    DEC(1.235)    },
-        { L_,    DEC(1.23456),    DEC(0.0001),   DEC(1.2346)   },
-        { L_,    DEC(1.23456),    DEC(0.00001),  DEC(1.23456)  },
-        { L_,    DEC(1.23456),    DEC(0.000001), DEC(1.234560) },
-        { L_,    DEC(1.23456e+5), DEC(1e+2),     DEC(1.235e+5) },
-
-        { L_,    DEC(1.23456e+5), DEC(0.1),      DEC(1.23456e+5) },
-        { L_,    DEC(1.23456e+5), DEC(1.0),      DEC(1.23456e+5) },
-        { L_,    DEC(1.23456e+5), DEC(1e+1),     DEC(1.2346e+5) },
-        { L_,    DEC(1.23456e+5), DEC(1e+2),     DEC(1.235e+5) },
-        { L_,    DEC(1.23456e+5), DEC(1e+3),     DEC(1.23e+5) },
-        { L_,    DEC(1.23456e+5), DEC(1e+4),     DEC(1.2e+5) },
-        { L_,    DEC(1.23456e+5), DEC(1e+5),     DEC(1.0e+5) },
-        { L_,    DEC(1.23456e+5), DEC(1e+6),     DEC(0.0) },
-
-        { L_,    DEC(1.23456e-5), DEC(1e-4),     DEC(0.0) },
-        { L_,    DEC(1.23456e-5), DEC(1e-5),     DEC(1.0e-5) },
-        { L_,    DEC(1.23456e-5), DEC(1e-6),     DEC(1.2e-5) },
-        { L_,    DEC(1.23456e-5), DEC(1e-7),     DEC(1.23e-5) },
-        { L_,    DEC(1.23456e-5), DEC(1e-8),     DEC(1.235e-5) },
-        { L_,    DEC(1.23456e-5), DEC(1e-9),     DEC(1.2346e-5) },
-        { L_,    DEC(1.23456e-5), DEC(1e-10),    DEC(1.23456e-5) },
-        { L_,    DEC(1.23456e-5), DEC(1e-11),    DEC(1.23456e-5) },
-
-        { L_,    DEC(1.23456),    INF_P,         NAN_P         },
-        { L_,    DEC(1.23456),    INF_N,         NAN_P         },
-        { L_,    DEC(1.23456),    NAN_P,         NAN_P         },
-        { L_,    DEC(1.23456),    NAN_N,         NAN_P         },
-        { L_,    INF_P,           DEC(0.1),      NAN_P         },
-        { L_,    INF_N,           DEC(0.1),      NAN_P         },
+        //--------------------------------------------------------------
+        // LINE | SIGNIFICAND | EXP | QUANTUM | EXPECTED      | RETVALUE
+        //--------------------------------------------------------------
+            { L_,    123456,     0,     -2,     NAN_P,            -1   },
+            { L_,    123456,     0,     -1,     DEC(123456e+0),    0   },
+            { L_,    123456,     0,      0,     DEC(123456e+0),    0   },
+            { L_,    123456,     0,      1,     DEC(123460e+0),   -1   },
+            { L_,    123456,     0,      2,     DEC(123500e+0),   -1   },
+            { L_,    123456,     0,      3,     DEC(123000e+0),   -1   },
+            { L_,    123456,     0,      4,     DEC(120000e+0),   -1   },
+            { L_,    123456,     0,      5,     DEC(100000e+0),   -1   },
+            { L_,    123456,     0,      6,     DEC(0e+0),        -1   },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE     = DATA[ti].d_line;
-            const Obj& X        = DATA[ti].d_x;
-            const Obj& EXPONENT = DATA[ti].d_exponent;
-            const Obj& EXPECTED = DATA[ti].d_expected;
-            const Obj  RESULT   = Util::quantize(X, EXPONENT);
+            const int  LINE        = DATA[ti].d_line;
+            const int& SIGNIFICAND = DATA[ti].d_significand;
+            const int& EXPONENT    = DATA[ti].d_exponent;
+            const int& QUANTUM     = DATA[ti].d_quantum;
 
-            LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            const Obj  X = Util::makeDecimalRaw32(SIGNIFICAND, EXPONENT);
+            const Obj  E = Util::makeDecimalRaw32(          1, QUANTUM);
+
+            {  //: o ValueType32 quantize(ValueType32, ValueType32);
+
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::quantize(X, E);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                if (Util::equal(RESULT, EXPECTED)) {
+                    LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                }
+
+                ASSERT(nanEqual(Util::quantize(    X, NAN_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    X, NAN_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(    X, INF_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    X, INF_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(NAN_P,     E), NAN_P));
+                ASSERT(nanEqual(Util::quantize(NAN_N,     E), NAN_N));
+                ASSERT(nanEqual(Util::quantize(INF_P,     E), NAN_P));
+                ASSERT(nanEqual(Util::quantize(INF_N,     E), NAN_N));
+            }
+
+            {  //: o ValueType32 quantize(ValueType32, int);
+
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::quantize(X, QUANTUM);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                if (Util::equal(RESULT, EXPECTED)) {
+                    LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                }
+
+                ASSERT(nanEqual(Util::quantize(NAN_P, 0), NAN_P));
+                ASSERT(nanEqual(Util::quantize(NAN_N, 0), NAN_N));
+                ASSERT(nanEqual(Util::quantize(INF_P, 0), NAN_P));
+                ASSERT(nanEqual(Util::quantize(INF_N, 0), NAN_N));
+
+                if (verbose) cout << "\tNegative Testing." << endl;
+                {
+                    bsls::AssertTestHandlerGuard hG;
+
+                    const int   VALID_EXPONENT1 = -101;
+                    const int   VALID_EXPONENT2 =   90;
+                    const int INVALID_EXPONENT1 = -102;
+                    const int INVALID_EXPONENT2 =   91;
+
+                    Obj X;
+
+                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT1));
+                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT2));
+                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT1));
+                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT2));
+                }
+            }
+
+            {  //: o int quantize(ValueType32, int);
+
+                Obj O(X); Obj *O_P(&O);
+
+                const int& EXPECTED = DATA[ti].d_retValue;
+                const int  RESULT   = Util::quantize(O_P, QUANTUM);
+
+                LOOP_ASSERT(LINE, RESULT == EXPECTED);
+                LOOP_ASSERT(LINE, Util::equal(O, X));
+                if (0 == RESULT) {
+                    LOOP_ASSERT(LINE, Util::sameQuantum(O, E));
+                }
+
+                O = NAN_P; ASSERT(-1 == Util::quantize(O_P, 0));
+                O = NAN_N; ASSERT(-1 == Util::quantize(O_P, 0));
+                O = INF_P; ASSERT(-1 == Util::quantize(O_P, 0));
+                O = INF_N; ASSERT(-1 == Util::quantize(O_P, 0));
+
+                if (verbose) cout << "\tNegative Testing." << endl;
+                {
+                    bsls::AssertTestHandlerGuard hG;
+
+                    const int   VALID_EXPONENT1 = -101;
+                    const int   VALID_EXPONENT2 =   90;
+                    const int INVALID_EXPONENT1 = -102;
+                    const int INVALID_EXPONENT2 =   91;
+
+                    Obj O; Obj *O_P(&O);
+
+                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
+                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
+                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
+                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
+                }
+            }
         }
 #undef DEC
     }
 
     if (veryVeryVerbose) { T_ bsl::cout << "ValueType64" << bsl::endl; }
     {
-        typedef Util::ValueType64 Obj;
-
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DD(X)
 
-        const Obj NAN_P   =              Util::quietNaN64();
-        const Obj NAN_N   = Util::negate(Util::quietNaN64());
-        const Obj INF_P   =              Util::infinity64();
-        const Obj INF_N   = Util::negate(Util::infinity64());
+        typedef Util::ValueType64 Obj;
+
+        const Obj NAN_P =              Util::quietNaN64();
+        const Obj NAN_N = Util::negate(Util::quietNaN64());
+        const Obj INF_P =              Util::infinity64();
+        const Obj INF_N = Util::negate(Util::infinity64());
 
         struct {
-            int d_line;
-            Obj d_x;
-            Obj d_exponent;
-            Obj d_expected;
+            int           d_line;
+            long long int d_significand;
+            int           d_exponent;
+            int           d_quantum;
+            Obj           d_expected;
+            int           d_retValue;
         } DATA[] = {
-        //---------------------------------------------------
-        // LINE |      X       | EXPONENT | EXPECTED
-        //---------------------------------------------------
-        { L_,    DEC(1.2345678), DEC(1e-1), DEC(1.2)        },
-        { L_,    DEC(1.2345678), DEC(1e-2), DEC(1.23)       },
-        { L_,    DEC(1.2345678), DEC(1e-3), DEC(1.235)      },
-        { L_,    DEC(1.2345678), DEC(1e-4), DEC(1.2346)     },
-        { L_,    DEC(1.2345678), DEC(1e-5), DEC(1.23457)    },
-        { L_,    DEC(1.2345678), DEC(1e-6), DEC(1.234568)   },
-        { L_,    DEC(1.2345678), DEC(1e-7), DEC(1.2345678)  },
-        { L_,    DEC(1.2345678), DEC(1e-8), DEC(1.23456780) },
-        { L_,    DEC(1.2345678), INF_P,     NAN_P           },
-        { L_,    DEC(1.2345678), INF_N,     NAN_P           },
-        { L_,    DEC(1.2345678), NAN_P,     NAN_P           },
-        { L_,    DEC(1.2345678), NAN_N,     NAN_N           },
-        { L_,    DEC(1.2345678), NAN_P,     NAN_P           },
-        { L_,    DEC(1.2345678), NAN_N,     NAN_N           },
-        { L_,    INF_P,          DEC(0.1),  NAN_P           },
-        { L_,    INF_N,          DEC(0.1),  NAN_P           },
+      //----------------------------------------------------------------------
+      // LINE |  SIGNIFICAND    | EXP | QUANTUM | EXPECTED              | RV
+      //----------------------------------------------------------------------
+          { L_, 12345678901234ll,  0,     -3,     NAN_P,                  -1 },
+          { L_, 12345678901234ll,  0,     -2,     DEC(12345678901234e+0),  0 },
+          { L_, 12345678901234ll,  0,     -1,     DEC(12345678901234e+0),  0 },
+          { L_, 12345678901234ll,  0,      0,     DEC(12345678901234e+0),  0 },
+          { L_, 12345678901234ll,  0,      1,     DEC(12345678901230e+0), -1 },
+          { L_, 12345678901234ll,  0,      2,     DEC(12345678901200e+0), -1 },
+          { L_, 12345678901234ll,  0,      3,     DEC(12345678901000e+0), -1 },
+          { L_, 12345678901234ll,  0,      4,     DEC(12345678900000e+0), -1 },
+          { L_, 12345678901234ll,  0,      5,     DEC(12345678900000e+0), -1 },
+          { L_, 12345678901234ll,  0,      6,     DEC(12345679000000e+0), -1 },
+          { L_, 12345678901234ll,  0,      7,     DEC(12345680000000e+0), -1 },
+          { L_, 12345678901234ll,  0,      8,     DEC(12345700000000e+0), -1 },
+          { L_, 12345678901234ll,  0,      9,     DEC(12346000000000e+0), -1 },
+          { L_, 12345678901234ll,  0,     10,     DEC(12350000000000e+0), -1 },
+          { L_, 12345678901234ll,  0,     11,     DEC(12300000000000e+0), -1 },
+          { L_, 12345678901234ll,  0,     12,     DEC(12000000000000e+0), -1 },
+          { L_, 12345678901234ll,  0,     13,     DEC(10000000000000e+0), -1 },
+          { L_, 12345678901234ll,  0,     14,     DEC(0e+0),              -1 },
         };
-
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE     = DATA[ti].d_line;
-            const Obj& X        = DATA[ti].d_x;
-            const Obj& EXPONENT = DATA[ti].d_exponent;
-            const Obj& EXPECTED = DATA[ti].d_expected;
-            const Obj  RESULT   = Util::quantize(X, EXPONENT);
+            const int            LINE        = DATA[ti].d_line;
+            const long long int& SIGNIFICAND = DATA[ti].d_significand;
+            const int&           EXPONENT    = DATA[ti].d_exponent;
+            const int&           QUANTUM     = DATA[ti].d_quantum;
 
-            LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            const Obj  X = Util::makeDecimalRaw64(SIGNIFICAND, EXPONENT);
+            const Obj  E = Util::makeDecimalRaw64(          1, QUANTUM);
+
+            {  //: o ValueType64 quantize(ValueType64, ValueType64);
+
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::quantize(X, E);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                if (Util::equal(RESULT, EXPECTED)) {
+                    LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                }
+
+                ASSERT(nanEqual(Util::quantize(    X, NAN_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    X, NAN_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(    X, INF_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    X, INF_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(NAN_P,     E), NAN_P));
+                ASSERT(nanEqual(Util::quantize(NAN_N,     E), NAN_N));
+                ASSERT(nanEqual(Util::quantize(INF_P,     E), NAN_P));
+                ASSERT(nanEqual(Util::quantize(INF_N,     E), NAN_N));
+            }
+
+            {  //: o ValueType64 quantize(ValueType64, int);
+
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::quantize(X, QUANTUM);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                if (Util::equal(RESULT, EXPECTED)) {
+                    LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                }
+
+                ASSERT(nanEqual(Util::quantize(NAN_P, 0), NAN_P));
+                ASSERT(nanEqual(Util::quantize(NAN_N, 0), NAN_N));
+                ASSERT(nanEqual(Util::quantize(INF_P, 0), NAN_P));
+                ASSERT(nanEqual(Util::quantize(INF_N, 0), NAN_N));
+
+                if (verbose) cout << "\tNegative Testing." << endl;
+                {
+                    bsls::AssertTestHandlerGuard hG;
+
+                    const int   VALID_EXPONENT1 = -398;
+                    const int   VALID_EXPONENT2 =  369;
+                    const int INVALID_EXPONENT1 = -399;
+                    const int INVALID_EXPONENT2 =  370;
+
+                    Obj X;
+
+                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT1));
+                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT2));
+                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT1));
+                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT2));
+                }
+            }
+
+            {  //: o int quantize(ValueType64, int);
+
+                Obj O(X); Obj *O_P(&O);
+
+                const int& EXPECTED = DATA[ti].d_retValue;
+                const int  RESULT   = Util::quantize(O_P, QUANTUM);
+
+                LOOP_ASSERT(LINE, RESULT == EXPECTED);
+                LOOP_ASSERT(LINE, Util::equal(O, X));
+                if (0 == RESULT) {
+                    LOOP_ASSERT(LINE, Util::sameQuantum(O, E));
+                }
+
+                O = NAN_P; ASSERT(-1 == Util::quantize(O_P, 0));
+                O = NAN_N; ASSERT(-1 == Util::quantize(O_P, 0));
+                O = INF_P; ASSERT(-1 == Util::quantize(O_P, 0));
+                O = INF_N; ASSERT(-1 == Util::quantize(O_P, 0));
+
+                if (verbose) cout << "\tNegative Testing." << endl;
+                {
+                    bsls::AssertTestHandlerGuard hG;
+
+                    const int   VALID_EXPONENT1 = -398;
+                    const int   VALID_EXPONENT2 =  369;
+                    const int INVALID_EXPONENT1 = -399;
+                    const int INVALID_EXPONENT2 =  370;
+
+                    Obj O; Obj *O_P(&O);
+
+                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
+                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
+                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
+                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
+                }
+            }
         }
 #undef DEC
     }
 
     if (veryVeryVerbose) { T_ bsl::cout << "ValueType128" << bsl::endl; }
     {
-        typedef Util::ValueType128 Obj;
-
 #define DEC(X) BDLDFP_DECIMALIMPUTIL_DL(X)
 
-        const Obj NAN_P   =              Util::quietNaN128();
-        const Obj NAN_N   = Util::negate(Util::quietNaN128());
-        const Obj INF_P   =              Util::infinity128();
-        const Obj INF_N   = Util::negate(Util::infinity128());
-        const Obj DEC_NUM = DEC(1.23456789012345678901);
+        typedef Util::ValueType128 Obj;
+
+        const Obj NAN_P =              Util::quietNaN128();
+        const Obj NAN_N = Util::negate(Util::quietNaN128());
+        const Obj INF_P =              Util::infinity128();
+        const Obj INF_N = Util::negate(Util::infinity128());
 
         struct {
-            int d_line;
-            Obj d_x;
-            Obj d_exponent;
-            Obj d_expected;
+            int           d_line;
+            long long int d_significand;
+            int           d_exponent;
+            int           d_quantum;
+            Obj           d_expected;
+            int           d_retValue;
         } DATA[] = {
-        //---------------------------------------------------
-        // LINE |   X   | EXPONENT | EXPECTED
-        //---------------------------------------------------
-        { L_,    DEC_NUM, DEC(1e-10), DEC(1.2345678901)         },
-        { L_,    DEC_NUM, DEC(1e-11), DEC(1.23456789012)        },
-        { L_,    DEC_NUM, DEC(1e-12), DEC(1.234567890123)       },
-        { L_,    DEC_NUM, DEC(1e-13), DEC(1.2345678901235)      },
-        { L_,    DEC_NUM, DEC(1e-14), DEC(1.23456789012346)     },
-        { L_,    DEC_NUM, DEC(1e-15), DEC(1.234567890123457)    },
-        { L_,    DEC_NUM, DEC(1e-16), DEC(1.2345678901234568)   },
-        { L_,    DEC_NUM, DEC(1e-17), DEC(1.23456789012345679)  },
-        { L_,    DEC_NUM, DEC(1e-18), DEC(1.234567890123456789) },
-        { L_,    DEC_NUM, INF_P,      NAN_P                     },
-        { L_,    DEC_NUM, INF_N,      NAN_P                     },
-        { L_,    DEC_NUM, NAN_P,      NAN_P                     },
-        { L_,    DEC_NUM, NAN_N,      NAN_N                     },
-        { L_,    DEC_NUM, NAN_P,      NAN_P                     },
-        { L_,    DEC_NUM, NAN_N,      NAN_N                     },
-        { L_,    INF_P,   DEC(0.1),   NAN_P                     },
-        { L_,    INF_N,   DEC(0.1),   NAN_P                     },
+        //-----------------------------------------------------------------
+        // LINE | SIGNIFICAND | EXP | QUANTUM | EXPECTED              | RV
+        //-----------------------------------------------------------------
+            { L_, 123456789ll,     0,     -26,     NAN_P,             -1 },
+            { L_, 123456789ll,     0,     -25,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,     -24,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,     -20,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,     -16,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,     -14,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,     -10,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,      -6,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,      -2,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,      -1,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,       0,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,       1,     DEC(123456790e+0), -1 },
+            { L_, 123456789ll,     0,       2,     DEC(123456800e+0), -1 },
+            { L_, 123456789ll,     0,       3,     DEC(123457000e+0), -1 },
+            { L_, 123456789ll,     0,       4,     DEC(123460000e+0), -1 },
+            { L_, 123456789ll,     0,       5,     DEC(123500000e+0), -1 },
+            { L_, 123456789ll,     0,       6,     DEC(123000000e+0), -1 },
+            { L_, 123456789ll,     0,       7,     DEC(120000000e+0), -1 },
+            { L_, 123456789ll,     0,       8,     DEC(100000000e+0), -1 },
+            { L_, 123456789ll,     0,       9,     DEC(0.0),          -1 },
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int  LINE     = DATA[ti].d_line;
-            const Obj& X        = DATA[ti].d_x;
-            const Obj& EXPONENT = DATA[ti].d_exponent;
-            const Obj& EXPECTED = DATA[ti].d_expected;
-            const Obj  RESULT   = Util::quantize(X, EXPONENT);
+            const int            LINE        = DATA[ti].d_line;
+            const long long int& SIGNIFICAND = DATA[ti].d_significand;
+            const int&           EXPONENT    = DATA[ti].d_exponent;
+            const int&           QUANTUM     = DATA[ti].d_quantum;
 
-            LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+            const Obj  X = Util::makeDecimalRaw128(SIGNIFICAND, EXPONENT);
+            const Obj  E = Util::makeDecimalRaw128(          1, QUANTUM);
+
+            {  //: o ValueType128 quantize(ValueType128, ValueType128);
+
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::quantize(X, E);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                if (Util::equal(RESULT, EXPECTED)) {
+                    LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                }
+
+                ASSERT(nanEqual(Util::quantize(    X, NAN_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    X, NAN_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(    X, INF_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    X, INF_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(NAN_P,     E), NAN_P));
+                ASSERT(nanEqual(Util::quantize(NAN_N,     E), NAN_N));
+                ASSERT(nanEqual(Util::quantize(INF_P,     E), NAN_P));
+                ASSERT(nanEqual(Util::quantize(INF_N,     E), NAN_N));
+            }
+
+            {  //: o ValueType128 quantize(ValueType128, int);
+
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const Obj  RESULT   = Util::quantize(X, QUANTUM);
+
+                LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
+                if (Util::equal(RESULT, EXPECTED)) {
+                    LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                }
+
+                ASSERT(nanEqual(Util::quantize(NAN_P, 0), NAN_P));
+                ASSERT(nanEqual(Util::quantize(NAN_N, 0), NAN_N));
+                ASSERT(nanEqual(Util::quantize(INF_P, 0), NAN_P));
+                ASSERT(nanEqual(Util::quantize(INF_N, 0), NAN_N));
+
+                if (verbose) cout << "\tNegative Testing." << endl;
+                {
+                    bsls::AssertTestHandlerGuard hG;
+
+                    const int   VALID_EXPONENT1 = -6176;
+                    const int   VALID_EXPONENT2 =  6111;
+                    const int INVALID_EXPONENT1 = -6177;
+                    const int INVALID_EXPONENT2 =  6112;
+
+                    Obj X;
+
+                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT1));
+                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT2));
+                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT1));
+                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT2));
+                }
+            }
+
+            {  //: o int quantize(ValueType128 *, int);
+
+                Obj O(X); Obj *O_P(&O);
+
+                const int& EXPECTED = DATA[ti].d_retValue;
+                const int  RESULT   = Util::quantize(O_P, QUANTUM);
+
+                LOOP_ASSERT(LINE, RESULT == EXPECTED);
+                LOOP_ASSERT(LINE, Util::equal(O, X));
+                if (0 == RESULT) {
+                    LOOP_ASSERT(LINE, Util::sameQuantum(O, E));
+                }
+
+                O = NAN_P; ASSERT(-1 == Util::quantize(O_P, 0));
+                O = NAN_N; ASSERT(-1 == Util::quantize(O_P, 0));
+                O = INF_P; ASSERT(-1 == Util::quantize(O_P, 0));
+                O = INF_N; ASSERT(-1 == Util::quantize(O_P, 0));
+
+                if (verbose) cout << "\tNegative Testing." << endl;
+                {
+                    bsls::AssertTestHandlerGuard hG;
+
+                    const int   VALID_EXPONENT1 = -6176;
+                    const int   VALID_EXPONENT2 =  6111;
+                    const int INVALID_EXPONENT1 = -6177;
+                    const int INVALID_EXPONENT2 =  6112;
+
+                    Obj O; Obj *O_P(&O);
+
+                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
+                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
+                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
+                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
+                }
+            }
         }
 #undef DEC
     }

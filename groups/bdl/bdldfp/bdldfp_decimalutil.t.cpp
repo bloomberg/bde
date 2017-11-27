@@ -300,7 +300,8 @@ const long long mantissas[] = {
                               2345678901234567ll,
 //                             12345678901234567ll,
                         };
-const int numMantissas = sizeof(mantissas) / sizeof(*mantissas);
+const int numMantissas = static_cast<int>(sizeof(mantissas) /
+                                          sizeof(*mantissas));
 
 const int exps[] = {
                  -321,
@@ -317,7 +318,7 @@ const int exps[] = {
                   129,
                   321,
 };
-const int numExps = sizeof(exps) / sizeof(*exps);
+const int numExps = static_cast<int>(sizeof(exps) / sizeof(*exps));
 
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
@@ -348,6 +349,15 @@ void checkType(const RECEIVED&)
 
 template <class TYPE>
 struct NumberMaker;
+
+template <>
+struct NumberMaker<BDEC::Decimal32>
+{
+    BDEC::Decimal32 operator()(long long mantissa, int exponent) const
+    {
+        return Util::makeDecimalRaw32(static_cast<int>(mantissa), exponent);
+    }
+};
 
 template <>
 struct NumberMaker<BDEC::Decimal64>
@@ -425,6 +435,104 @@ extern "C" void doRound()
         if (d_1_01 != r) {
             ASSERTV(repetition, d_1_01, r, d_1_01 == r);
             break;
+        }
+    }
+}
+
+template <class DECIMAL, class DATA>
+void testQuantize(const DATA *data, int num_data)
+    // Iterate over the specified 'data' array of the specified 'num_data'
+    // size and test 'quantize' functions using data items as input and output
+    // arguments of the tested functions.  Ensure that the result of executing
+    // 'quantize' function with the arguments from the data item is equal to
+    // the expected value in the same data item.
+    //
+    // Testing:
+    //   Decimal32  quantize(Decimal32,    Decimal32);
+    //   Decimal64  quantize(Decimal64,    Decimal64);
+    //   Decimal128 quantize(Decimal128,   Decimal128);
+    //   Decimal32  quantize(Decimal32,    int);
+    //   Decimal64  quantize(Decimal64,    int);
+    //   Decimal128 quantize(Decimal128,   int);
+    //   int        quantize(Decimal32  *, int);
+    //   int        quantize(Decimal64  *, int);
+    //   int        quantize(Decimal128 *, int);
+{
+    typedef bsl::numeric_limits<DECIMAL> NumLim;
+    NumberMaker<DECIMAL> makeDecimal;
+
+    // All special case values:
+    const DECIMAL sNaN(NumLim::signaling_NaN());
+    const DECIMAL qNaN(NumLim::quiet_NaN());
+    const DECIMAL pInf(NumLim::infinity());
+    const DECIMAL nInf(-pInf);
+
+    for (int ti = 0; ti < num_data; ++ti) {
+        const int            LINE        = data[ti].d_line;
+        const long long int& SIGNIFICAND = data[ti].d_significand;
+        const int&           EXPONENT    = data[ti].d_exponent;
+        const int&           QUANTUM     = data[ti].d_quantum;
+
+        const DECIMAL X = makeDecimal(SIGNIFICAND, EXPONENT);
+        const DECIMAL E = makeDecimal(          1, QUANTUM);
+
+        {  //: o DECIMAL quantize(DECIMAL, DECIMAL);
+
+            const DECIMAL EXPECTED = data[ti].d_expected;
+            const DECIMAL RESULT   = Util::quantize(X, E);
+
+            if (Util::isNan(EXPECTED)) {
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
+            } else {
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+            }
+
+            ASSERT(Util::isNan(Util::quantize(    X, sNaN)));
+            ASSERT(Util::isNan(Util::quantize(    X, qNaN)));
+            ASSERT(Util::isNan(Util::quantize(    X, pInf)));
+            ASSERT(Util::isNan(Util::quantize(    X, nInf)));
+            ASSERT(Util::isNan(Util::quantize(sNaN,     E)));
+            ASSERT(Util::isNan(Util::quantize(qNaN,     E)));
+            ASSERT(Util::isNan(Util::quantize(pInf,     E)));
+            ASSERT(Util::isNan(Util::quantize(nInf,     E)));
+        }
+
+        {  //: o DECIMAL quantize(DECIMAL, int);
+
+            const DECIMAL& EXPECTED = data[ti].d_expected;
+            const DECIMAL  RESULT   = Util::quantize(X, QUANTUM);
+
+            if (Util::isNan(EXPECTED)) {
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
+            } else {
+                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+            }
+
+            ASSERT(Util::isNan(Util::quantize(sNaN, 0)));
+            ASSERT(Util::isNan(Util::quantize(qNaN, 0)));
+            ASSERT(Util::isNan(Util::quantize(pInf, 0)));
+            ASSERT(Util::isNan(Util::quantize(nInf, 0)));
+        }
+
+        {  //: o int quantize(DECIMAL *, int);
+
+            DECIMAL O(X); DECIMAL *O_P(&O);
+
+            const int& EXPECTED = data[ti].d_retValue;
+            const int  RESULT   = Util::quantize(O_P, QUANTUM);
+
+            LOOP_ASSERT(LINE, RESULT == EXPECTED);
+            LOOP_ASSERT(LINE, O == X);
+            if (0 == RESULT) {
+                LOOP_ASSERT(LINE, Util::sameQuantum(O, E));
+            }
+
+            O = sNaN; ASSERT(-1 == Util::quantize(O_P, 0));
+            O = qNaN; ASSERT(-1 == Util::quantize(O_P, 0));
+            O = pInf; ASSERT(-1 == Util::quantize(O_P, 0));
+            O = nInf; ASSERT(-1 == Util::quantize(O_P, 0));
         }
     }
 }
@@ -3100,7 +3208,7 @@ int main(int argc, char* argv[])
             {  L_,   DEC( 4.25), FP_NORMAL,     1,         425,   -2 },
             {  L_,   DEC(-4.25), FP_NORMAL,    -1,         425,   -2 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int           LINE        = DATA[ti].d_line;
@@ -3219,7 +3327,7 @@ int main(int argc, char* argv[])
             {  L_,   DEC( 4.25), FP_NORMAL,  1,                  425,     -2 },
             {  L_,   DEC(-4.25), FP_NORMAL, -1,                  425,     -2 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                LINE         = DATA[ti].d_line;
@@ -3360,7 +3468,7 @@ int main(int argc, char* argv[])
                            FP_NORMAL,    -1,                  0x10,
                                                               0x50,        0 },
         };
-        const int NUM_DATA = sizeof DATA / sizeof * DATA;
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof * DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int                 LINE          = DATA[ti].d_line;
@@ -3765,7 +3873,8 @@ int main(int argc, char* argv[])
                 {  L_,  "DEADBEEF",   ERROR_VALUE,  false },
                 {  L_,      "JUNK",   ERROR_VALUE,  false },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = static_cast<int>(sizeof(DATA) /
+                                                  sizeof(*DATA));
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE     = DATA[i].d_line;
@@ -3839,7 +3948,8 @@ int main(int argc, char* argv[])
                 {  L_,  "DEADBEEF",   ERROR_VALUE,  false },
                 {  L_,      "JUNK",   ERROR_VALUE,  false },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = static_cast<int>(sizeof(DATA) /
+                                                  sizeof(*DATA));
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE     = DATA[i].d_line;
@@ -3911,7 +4021,8 @@ int main(int argc, char* argv[])
                 {  L_,  "DEADBEEF",   ERROR_VALUE,  false },
                 {  L_,      "JUNK",   ERROR_VALUE,  false },
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = static_cast<int>(sizeof(DATA) /
+                                                  sizeof(*DATA));
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE     = DATA[i].d_line;
@@ -4088,150 +4199,209 @@ int main(int argc, char* argv[])
         // Plan: Try with several variations and combinations of
         //       decimal floats (different mantissas and exponents, both
         //       positive and negative.)
-        // Testing: quantize
+        //
+        // Testing:
+        //   Decimal32  quantize(Decimal32,    Decimal32);
+        //   Decimal64  quantize(Decimal64,    Decimal64);
+        //   Decimal128 quantize(Decimal128,   Decimal128);
+        //   Decimal32  quantize(Decimal32,    int);
+        //   Decimal64  quantize(Decimal64,    int);
+        //   Decimal128 quantize(Decimal128,   int);
+        //   int        quantize(Decimal32  *, int);
+        //   int        quantize(Decimal64  *, int);
+        //   int        quantize(Decimal128 *, int);
         // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "quantize Decimal32 tests..." << bsl::endl;
+        {
+#define DEC(X) BDLDFP_DECIMAL_DF(X)
+
+            typedef BDEC::Decimal32 TYPE;
+            typedef bsl::numeric_limits<TYPE> NumLim;
+
+            const TYPE qNaN(NumLim::quiet_NaN());
+
+            struct {
+                int  d_line;
+                int  d_significand;
+                int  d_exponent;
+                int  d_quantum;
+                TYPE d_expected;
+                int  d_retValue;
+            } DATA[] = {
+        //--------------------------------------------------------------
+        // LINE | SIGNIFICAND | EXP | QUANTUM | EXPECTED      | RETVALUE
+        //--------------------------------------------------------------
+            { L_,    123456,     0,     -2,     qNaN,             -1   },
+            { L_,    123456,     0,     -1,     DEC(123456e+0),    0   },
+            { L_,    123456,     0,      0,     DEC(123456e+0),    0   },
+            { L_,    123456,     0,      1,     DEC(123460e+0),   -1   },
+            { L_,    123456,     0,      2,     DEC(123500e+0),   -1   },
+            { L_,    123456,     0,      3,     DEC(123000e+0),   -1   },
+            { L_,    123456,     0,      4,     DEC(120000e+0),   -1   },
+            { L_,    123456,     0,      5,     DEC(100000e+0),   -1   },
+            { L_,    123456,     0,      6,     DEC(0e+0),        -1   },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+            testQuantize<TYPE>(DATA, NUM_DATA);
+
+            if (verbose) cout << "\tNegative Testing." << endl;
+            {
+                bsls::AssertTestHandlerGuard hG;
+
+                const int   VALID_EXPONENT1 = -101;
+                const int   VALID_EXPONENT2 =   90;
+                const int INVALID_EXPONENT1 = -102;
+                const int INVALID_EXPONENT2 =   91;
+
+                TYPE O; TYPE *O_P(&O);
+
+                ASSERT_PASS(Util::quantize(O,     VALID_EXPONENT1));
+                ASSERT_PASS(Util::quantize(O,     VALID_EXPONENT2));
+                ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT1));
+                ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT2));
+
+                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
+                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
+                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
+                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
+            }
+#undef  DEC
+        }
 
         if (verbose) bsl::cout << "quantize Decimal64 tests..." << bsl::endl;
         {
+#define DEC(X) BDLDFP_DECIMAL_DD(X)
             typedef BDEC::Decimal64 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
-            NumberMaker<TYPE> makeNumber;
 
-            // Test for quantize, which depends upon the strict, narrow
-            // contract for makeDecimalRaw.
-
-
-            // All special case values:
-            // o signaling NaN     (sNaN)
-            const TYPE sNaN(NumLim::signaling_NaN());
-            // o quiet NaN         (qNaN)
             const TYPE qNaN(NumLim::quiet_NaN());
-            // o positive Infinity (+Inf)
-            const TYPE pInf(NumLim::infinity());
-            // o negative Infinity (-Inf)
-            const TYPE nInf(-pInf);
 
-            // Test all special cases with each other,
-            // organized by LHS.
+            struct {
+                int           d_line;
+                long long int d_significand;
+                int           d_exponent;
+                int           d_quantum;
+                TYPE          d_expected;
+                int           d_retValue;
+            } DATA[] = {
+      //----------------------------------------------------------------------
+      // LINE |  SIGNIFICAND    | EXP | QUANTUM | EXPECTED              | RV
+      //----------------------------------------------------------------------
+          { L_, 12345678901234ll,  0,     -3,     qNaN,                   -1 },
+          { L_, 12345678901234ll,  0,     -2,     DEC(12345678901234e+0),  0 },
+          { L_, 12345678901234ll,  0,     -1,     DEC(12345678901234e+0),  0 },
+          { L_, 12345678901234ll,  0,      0,     DEC(12345678901234e+0),  0 },
+          { L_, 12345678901234ll,  0,      1,     DEC(12345678901230e+0), -1 },
+          { L_, 12345678901234ll,  0,      2,     DEC(12345678901200e+0), -1 },
+          { L_, 12345678901234ll,  0,      3,     DEC(12345678901000e+0), -1 },
+          { L_, 12345678901234ll,  0,      4,     DEC(12345678900000e+0), -1 },
+          { L_, 12345678901234ll,  0,      5,     DEC(12345678900000e+0), -1 },
+          { L_, 12345678901234ll,  0,      6,     DEC(12345679000000e+0), -1 },
+          { L_, 12345678901234ll,  0,      7,     DEC(12345680000000e+0), -1 },
+          { L_, 12345678901234ll,  0,      8,     DEC(12345700000000e+0), -1 },
+          { L_, 12345678901234ll,  0,      9,     DEC(12346000000000e+0), -1 },
+          { L_, 12345678901234ll,  0,     10,     DEC(12350000000000e+0), -1 },
+          { L_, 12345678901234ll,  0,     11,     DEC(12300000000000e+0), -1 },
+          { L_, 12345678901234ll,  0,     12,     DEC(12000000000000e+0), -1 },
+          { L_, 12345678901234ll,  0,     13,     DEC(10000000000000e+0), -1 },
+          { L_, 12345678901234ll,  0,     14,     DEC(0e+0),              -1 },
+          };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+            testQuantize<TYPE>(DATA, NUM_DATA);
 
-            // o sNaN
-            // Concern: quantize with NaN in either parameter must return a
-            // NaN.
-            // Concern: quantize of NaN and Inf must set the invalid exception
-            // bit in the flags.  The Invalid bit must not be set for NaN/NaN
-            // cases.  This concern isn't presently tested.
-            ASSERT(Util::isNan(Util::quantize(sNaN, sNaN)));
-            ASSERT(Util::isNan(Util::quantize(sNaN, qNaN)));
-            ASSERT(Util::isNan(Util::quantize(sNaN, pInf)));
-            ASSERT(Util::isNan(Util::quantize(sNaN, nInf)));
+            if (verbose) cout << "\tNegative Testing." << endl;
+            {
+                bsls::AssertTestHandlerGuard hG;
 
-            // o qNaN
-            // Concern: quantize with NaN in either parameter must return a
-            // NaN.
-            // Concern: quantize of NaN and Inf must set the invalid exception
-            // bit in the flags.  The Invalid bit must not be set for NaN/NaN
-            // cases.  This concern isn't presently tested.
-            ASSERT(Util::isNan(Util::quantize(qNaN, sNaN)));
-            ASSERT(Util::isNan(Util::quantize(qNaN, qNaN)));
-            ASSERT(Util::isNan(Util::quantize(qNaN, pInf)));
-            ASSERT(Util::isNan(Util::quantize(qNaN, nInf)));
+                const int   VALID_EXPONENT1 = -398;
+                const int   VALID_EXPONENT2 =  369;
+                const int INVALID_EXPONENT1 = -399;
+                const int INVALID_EXPONENT2 =  370;
 
-            // o +Inf
-            // Concern: quantize with NaN in either parameter must return a
-            // NaN.
-            // Concern: quantize of NaN and Inf must set the invalid exception
-            // bit in the flags.  The Invalid bit must not be set for NaN/NaN
-            // cases.  This concern isn't presently tested.
-            // Concern: Infinity by infinity must return an infinity with
-            // the sign of the first argument
-            ASSERT(Util::isNan(Util::quantize(pInf, sNaN)));
-            ASSERT(Util::isNan(Util::quantize(pInf, qNaN)));
-            ASSERT(pInf ==     Util::quantize(pInf, pInf));
-            ASSERT(pInf ==     Util::quantize(pInf, nInf));
+                TYPE O; TYPE *O_P(&O);
 
-            // o -Inf
-            // Concern: quantize with NaN in either parameter must return a
-            // NaN.
-            // Concern: quantize of NaN and Inf must set the invalid exception
-            // bit in the flags.  The Invalid bit must not be set for NaN/NaN
-            // cases.  This concern isn't presently tested.
-            // Concern: Infinity by infinity must return an infinity with
-            // the sign of the first argument
-            ASSERT(Util::isNan(Util::quantize(nInf, sNaN)));
-            ASSERT(Util::isNan(Util::quantize(nInf, qNaN)));
-            ASSERT(nInf ==     Util::quantize(nInf, pInf));
-            ASSERT(nInf ==     Util::quantize(nInf, nInf));
+                ASSERT_PASS(Util::quantize(O,     VALID_EXPONENT1));
+                ASSERT_PASS(Util::quantize(O,     VALID_EXPONENT2));
+                ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT1));
+                ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT2));
 
-
-            // Iterate through all possible pairings of mantissa and
-            // exponent, and build Decimal64 values for each of them.
-            for (long long tiM = 0; tiM < numMantissas; ++tiM) {
-                for (  int tiE = 0; tiE < numExps;      ++tiE) {
-                    const TYPE value =
-                            makeNumber(mantissas[tiM], exps[tiE]);
-
-                    // Test all special cases on both sides:
-                    //
-                    //: o sNaN
-                    //: o qNaN
-                    //: o +Inf
-                    //: o -Inf
-                    //
-                    // Concern: quantize with NaN in either parameter must
-                    // return a NaN.
-                    //
-                    // Concern: quantize of NaN and Inf must set the invalid
-                    // exception bit in the flags.  The Invalid bit must not be
-                    // set for NaN/NaN cases.  This concern isn't presently
-                    // tested.
-                    //
-                    // Concern: Infinity by infinity must return an infinity
-                    // with the sign of the first argument
-
-                    ASSERT(Util::isNan(Util::quantize(value, sNaN)));
-                    ASSERT(Util::isNan(Util::quantize(value, qNaN)));
-                    ASSERT(Util::isNan(Util::quantize(value, pInf)));
-                    ASSERT(Util::isNan(Util::quantize(value, nInf)));
-
-                    ASSERT(Util::isNan(Util::quantize(value, sNaN)));
-                    ASSERT(Util::isNan(Util::quantize(value, qNaN)));
-                    ASSERT(Util::isNan(Util::quantize(value, pInf)));
-                    ASSERT(Util::isNan(Util::quantize(value, nInf)));
-                }
+                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
+                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
+                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
+                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
             }
-
-            // Iterate through all possible pairings of mantissa and
-            // exponent, and build Decimal64 values for each of them.
-            // These will be compared with other values created from
-            // the same table, in the same way.  Quantize will
-            // produce things which have the same quantum.
-            for (long long tiM = 0; tiM < numMantissas; ++tiM) {
-                for (  int tiE = 0; tiE < numExps;      ++tiE) {
-                    const TYPE lhs =
-                        makeNumber(mantissas[tiM], exps[tiE]);
-
-                    for (long long tjM = 0; tjM < numMantissas; ++tjM) {
-                        for (  int tjE = 0; tjE < numExps;      ++tjE) {
-                            const TYPE rhs =
-                                makeNumber(mantissas[tjM], exps[tjE]);
-
-                            (void) rhs;
-                            (void) lhs;
-
-                            #if 0
-                            LOOP4_ASSERT(mantissas[tiM], exps[tiE],
-                                         mantissas[tjM], exps[tjE],
-                                         Util::sameQuantum(
-                                             Util::quantize(lhs, rhs),
-                                             rhs));
-                            #endif
-                        }
-                    }
-                }
-            }
+#undef DEC
         }
 
-        // TODO: Make the Decimal128 variant.
+        if (verbose) bsl::cout << "quantize Decimal128 tests..." << bsl::endl;
+        {
+#define DEC(X) BDLDFP_DECIMAL_DL(X)
+            typedef BDEC::Decimal128 TYPE;
+            typedef bsl::numeric_limits<TYPE> NumLim;
+
+            const TYPE qNaN(NumLim::quiet_NaN());
+
+            struct {
+                int           d_line;
+                long long int d_significand;
+                int           d_exponent;
+                int           d_quantum;
+                TYPE          d_expected;
+                int           d_retValue;
+            } DATA[] = {
+      //----------------------------------------------------------------------
+      // LINE |  SIGNIFICAND    | EXP | QUANTUM | EXPECTED              | RV
+      //----------------------------------------------------------------------
+            { L_, 123456789ll,     0,     -26,     qNaN,              -1 },
+            { L_, 123456789ll,     0,     -25,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,     -24,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,     -20,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,     -16,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,     -14,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,     -10,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,      -6,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,      -2,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,      -1,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,       0,     DEC(123456789e+0),  0 },
+            { L_, 123456789ll,     0,       1,     DEC(123456790e+0), -1 },
+            { L_, 123456789ll,     0,       2,     DEC(123456800e+0), -1 },
+            { L_, 123456789ll,     0,       3,     DEC(123457000e+0), -1 },
+            { L_, 123456789ll,     0,       4,     DEC(123460000e+0), -1 },
+            { L_, 123456789ll,     0,       5,     DEC(123500000e+0), -1 },
+            { L_, 123456789ll,     0,       6,     DEC(123000000e+0), -1 },
+            { L_, 123456789ll,     0,       7,     DEC(120000000e+0), -1 },
+            { L_, 123456789ll,     0,       8,     DEC(100000000e+0), -1 },
+            { L_, 123456789ll,     0,       9,     DEC(0.0),          -1 },
+        };
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+            testQuantize<TYPE>(DATA, NUM_DATA);
+
+            if (verbose) cout << "\tNegative Testing." << endl;
+            {
+                bsls::AssertTestHandlerGuard hG;
+
+                const int   VALID_EXPONENT1 = -6176;
+                const int   VALID_EXPONENT2 =  6111;
+                const int INVALID_EXPONENT1 = -6177;
+                const int INVALID_EXPONENT2 =  6112;
+
+                TYPE O; TYPE *O_P(&O);
+
+                ASSERT_PASS(Util::quantize(O,     VALID_EXPONENT1));
+                ASSERT_PASS(Util::quantize(O,     VALID_EXPONENT2));
+                ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT1));
+                ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT2));
+
+                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
+                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
+                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
+                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
+            }
+
+#undef DEC
+        }
     } break;
     case 8: {
         // --------------------------------------------------------------------

@@ -579,6 +579,36 @@ struct DecimalUtil {
         // The returned value is unspecified if either operand is NaN or
         // infinity of either sign.
 
+    static Decimal32  quantize(Decimal32  value, int exponent);
+    static Decimal64  quantize(Decimal64  value, int exponent);
+    static Decimal128 quantize(Decimal128 value, int exponent);
+        // Return a number that is equal in value (except for any rounding) and
+        // sign to the specified 'value', and which has the exponent of the
+        // specified 'exponent'.  If the 'exponent' needs to be increased,
+        // round the value according to the current decimal floating point
+        // rounding mode.  If the exponent needs to be decreased and the
+        // significant of the result has more digits than the type would allow,
+        // return NaN.  The returned value is unspecified if the 'value' is NaN
+        // infinity of either sign.  Behavior is undefined unless the
+        // 'exponent' value satisfies the following conditions
+        //: o for 'Decimal32'  type:  '-101 <= exponent <=   90'
+        //: o for 'Decimal64'  type:  '-398 <= exponent <=  369'
+        //: o for 'Decimal128' type: '-6176 <= exponent <= 6111'
+
+    static int quantize(Decimal32  *value, int exponent);
+    static int quantize(Decimal64  *value, int exponent);
+    static int quantize(Decimal128 *value, int exponent);
+        // Set the exponent of the specified 'value' to the specified
+        // 'exponent' and scale the significand of the value so that resultant
+        // value remains exactly equal to the 'value'.  Return 0 on success,
+        // and non-zero value with no effect on the 'value' otherwise.  Also
+        // return non-zero value if the 'value' is NaN or infinity of either
+        // sign.  Behavior is undefined unless the 'exponent' value satisfies
+        // the following conditions
+        //: o for 'Decimal32'  type:  '-101 <= exponent <=   90'
+        //: o for 'Decimal64'  type:  '-398 <= exponent <=  369'
+        //: o for 'Decimal128' type: '-6176 <= exponent <= 6111'
+
     static int quantum(Decimal32  value);
     static int quantum(Decimal64  value);
     static int quantum(Decimal128 value);
@@ -793,6 +823,57 @@ inline
 Decimal128 DecimalUtil::quantize(Decimal128 value, Decimal128 exponent)
 {
     return DecimalImpUtil::quantize(*value.data(), *exponent.data());
+}
+
+inline
+Decimal32 DecimalUtil::quantize(Decimal32 value, int exponent)
+{
+    BSLS_ASSERT(-101 <= exponent);
+    BSLS_ASSERT(        exponent <= 90);
+    return DecimalImpUtil::quantize(*value.data(), exponent);
+}
+
+inline
+Decimal64 DecimalUtil::quantize(Decimal64 value, int exponent)
+{
+    BSLS_ASSERT(-398 <= exponent);
+    BSLS_ASSERT(        exponent <= 369);
+    return DecimalImpUtil::quantize(*value.data(), exponent);
+}
+
+inline
+Decimal128 DecimalUtil::quantize(Decimal128 value, int exponent)
+{
+    BSLS_ASSERT(-6176 <= exponent);
+    BSLS_ASSERT(         exponent <= 6111);
+    return DecimalImpUtil::quantize(*value.data(), exponent);
+}
+
+inline
+int DecimalUtil::quantize(Decimal32 *value, int exponent)
+{
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(-101 <= exponent);
+    BSLS_ASSERT(        exponent <= 90);
+    return DecimalImpUtil::quantize(value->data(), exponent);
+}
+
+inline
+int DecimalUtil::quantize(Decimal64 *value, int exponent)
+{
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(-398 <= exponent);
+    BSLS_ASSERT(        exponent <= 369);
+    return DecimalImpUtil::quantize(value->data(), exponent);
+}
+
+inline
+int DecimalUtil::quantize(Decimal128 *value, int exponent)
+{
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(-6176 <= exponent);
+    BSLS_ASSERT(         exponent <= 6111);
+    return DecimalImpUtil::quantize(value->data(), exponent);
 }
 
 inline
