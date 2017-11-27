@@ -713,7 +713,7 @@ int main(int argc, char *argv[])
                 cout << "\t\tSignalling and verifying correctness." << endl;
             }
             for (int i = 0; i < NUM_PAIRS; ++i) {
-                const char controlByte = 0xAB;
+                const char controlByte = '\xAB';
                 LOOP_ASSERT(i, sizeof(char) ==
                             write(testPairs[i].controlFd(), &controlByte,
                                   sizeof(char)));
@@ -756,7 +756,7 @@ int main(int argc, char *argv[])
                 cout << "\t\tSignalling and verifying correctness." << endl;
             }
             for (int i = 0; i < NUM_PAIRS; ++i) {
-                const char controlByte = 0xAB;
+                const char controlByte = '\xAB';
                 LOOP_ASSERT(i, sizeof(char) ==
                             write(testPairs[i].controlFd(), &controlByte,
                                   sizeof(char)));
