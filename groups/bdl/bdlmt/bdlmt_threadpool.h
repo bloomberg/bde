@@ -382,6 +382,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_functionpointertraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BDLF_BIND
 #include <bdlf_bind.h>
 #endif
@@ -517,9 +521,18 @@ class ThreadPool {
 
     // PRIVATE MANIPULATORS
     void doEnqueueJob(const Job& job);
+    void doEnqueueJob(bslmf::MovableRef<Job> job);
         // Internal method used to push the specified 'job' onto 'd_queue' and
         // signal the next waiting thread if any.  Note that this method must
         // be called with 'd_mutex' locked.
+
+    void wakeThreadIfNeeded();
+        // Signal this thread and pop the current thread from the wait list.
+
+    int startThreadIfNeeded();
+        // Start a new thread if needed and the maximum number of threads are
+        // not yet running.  Return 0 if at least one thread is running, and a
+        // non-zero value otherwise.
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     void initBlockSet();
@@ -567,6 +580,7 @@ class ThreadPool {
         // complete.  Use 'start' to re-enable queuing.
 
     int enqueueJob(const Job& functor);
+    int enqueueJob(bslmf::MovableRef<Job> functor);
         // Enqueue the specified 'functor' to be executed by the next available
         // thread.  Return 0 if enqueued successfully, and a non-zero value if
         // queuing is currently disabled.  The behavior is undefined unless
