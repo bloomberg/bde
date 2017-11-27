@@ -304,6 +304,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlcc_fixedqueue.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MOVABLEREF
+#include <bslmf_movableref.h>
+#endif
+
 #ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
 #endif
@@ -502,6 +506,7 @@ class FixedThreadPool {
         // Enable queuing into this pool.
 
     int enqueueJob(const Job& functor);
+    int enqueueJob(bslmf::MovableRef<Job> functor);
         // Enqueue the specified 'functor' to be executed by the next available
         // thread.  Return 0 if enqueued successfully, and a non-zero value if
         // queuing is currently disabled.  Note that this function can block if
@@ -517,6 +522,7 @@ class FixedThreadPool {
         // successfully, and a non-zero value if queuing is currently disabled.
 
     int tryEnqueueJob(const Job& functor);
+    int tryEnqueueJob(bslmf::MovableRef<Job> functor);
         // Attempt to enqueue the specified 'functor' to be executed by the
         // next available thread.  Return 0 if enqueued successfully, and a
         // nonzero value if queuing is currently disabled or the queue is full.
