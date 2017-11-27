@@ -64,6 +64,13 @@ BSLS_IDENT("$Id: $")
 //  toFixedLength(...)            fixed-length copy with padding character
 //  pad(...)                      append padding char.  up to specified length
 //..
+//
+///UTF-8
+///------
+// Note that functions involving case and classification deal with base ASCII
+// characters *only*. So, for example, for UTF-8 encoding they will behave as
+// expected for the ASCII subset of UTF-8 but will *not* provide full unicode
+// support.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
