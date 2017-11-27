@@ -128,7 +128,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      const char softDelimiters[] = " \t\n";  // whitespace
 //
-//      for (bslstl::StringRef token : bdlb_Tokenizer(input, softDelimiters)) {
+//      for (bslstl::StringRef token : bdlb::Tokenizer(input, softDelimiters)) {
 //          bsl::cout << "| " << token << bsl::endl;
 //      }
 //  }
@@ -158,25 +158,26 @@ BSLS_IDENT("$Id: $")
 // to the previous and current (trailing) delimiters as well as the current
 // token:
 //..
-//  void parse_2(bsl::outstream, const char *input)
+//  void parse_2(bsl::ostream& output, const char *input)
 //      // Print, to the specified 'output' stream the leader of the specified
 //      // 'input', on a singly line, followed by subsequent current token and
 //      // (trailing) delimiter pairs on successive lines, each line beginning
 //      // with a vertical bar ('|') followed by a tab ('\t') character.
 //  {
 //      const char softDelimiters[] = " ";
-//      const char hardDelimiters[] = ":/"
+//      const char hardDelimiters[] = ":/";
 //
-//      bdlb_Tokenizer it(input, softDelimiters, hardDelimiters);
-//      bsl::cout << "| " << '"' << it.previousDelimiter() << '"' << bsl::endl;
+//      bdlb::Tokenizer it(input, softDelimiters, hardDelimiters);
+//      output << "| " << '"' << it.previousDelimiter() << '"' << "\n";
 //
-//      for (; it; ++it) {
-//          bsl::cout << "|\t"
-//                    << '"' << it.token() << '"'
-//                    << "\t"
-//                    << '"' << it.delimiter() '"'
-//                    << bsl::endl;
+//      for (; it.isValid(); ++it) {
+//          output << "|\t"
+//                 << '"' << it.token() << '"'
+//                 << "\t"
+//                 << '"' << it.trailingDelimiter() << '"'
+//                 << "\n";
 //      }
+//  }
 //..
 // The parse_2 function above produces the *leader* on the first line,
 // followed by each *token* along with its current (trailing) delimiter on
