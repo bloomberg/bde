@@ -10,6 +10,7 @@
 #include <bslma_testallocator.h>                // for testing only
 
 #include <bdlma_bufferedsequentialallocator.h>  // for testing only
+#include <bdlsb_memoutstreambuf.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeinterval.h>
 #include <bdlt_currenttime.h>
@@ -28,6 +29,7 @@
 #include <bsl_limits.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
+#include <bsl_unordered_set.h>
 #include <bsl_vector.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
@@ -82,7 +84,7 @@ using bdldfp::Decimal64;
 // Because the 'Datum' is implemented as a POD-type, our primary testing
 // concerns will be limited to creating 'Datum' object with different types,
 // retrieving the type and value from constructed 'Datum' objects, validating
-// the compiler generated copy construction and assignement operator and
+// the compiler generated copy construction and assignment operator and
 // finally verifying that all the memory allocated by 'Datum' objects is
 // deallocated when the 'Datum' object is destroyed (except references to
 // external data).
@@ -131,6 +133,7 @@ using bdldfp::Decimal64;
 //: o Primary Manipulators for aggregate data types:
 //:   - createArrayReference(const Datum *, SizeType, bslma::Allocator *);
 //:   - adoptArray(const DatumMutableArrayRef&);
+//:   - adoptIntMap(const DatumMutableMapRef&);
 //:   - adoptMap(const DatumMutableMapRef&);
 //:   - adoptMap(const DatumMutableMapOwningKeysRef&);
 //
@@ -159,8 +162,8 @@ using bdldfp::Decimal64;
 // [ 5] Datum(const Datum& original) = default;
 //
 // CLASS METHODS
-// [14] Datum createArrayReference(const Datum *, SizeType, Allocator *);
-// [14] Datum createArrayReference(const DatumArrayRef&, Allocator *);
+// [15] Datum createArrayReference(const Datum *, SizeType, Allocator *);
+// [15] Datum createArrayReference(const DatumArrayRef&, Allocator *);
 // [ 3] Datum createBoolean(bool);
 // [ 3] Datum createDate(const bdlt::Date&);
 // [ 3] Datum createDatetime(const bdlt::Datetime&, bslma::Allocator *);
@@ -181,26 +184,27 @@ using bdldfp::Decimal64;
 // [ 3] Datum copyString(const char *, bslma::Allocator *);
 // [ 3] Datum copyString(const char *, SizeType, bslma::Allocator *);
 // [ 3] Datum copyString(const bslstl::StringRef&, bslma::Allocator *);
-// [14] Datum adoptArray(const DatumMutableArrayRef&);
-// [15] Datum adoptMap(const DatumMutableMapRef& map);
-// [15] Datum adoptMap(const DatumMutableMapOwningKeysRef& map);
-// [14] Datum createArrayReference(const Datum *, SizeType, Allocator *);
-// [14] void createUninitializedArray(DatumMutableArrayRef*,SizeType,...);
-// [15] void createUninitializedMap(DatumMutableMapRef*, SizeType, ...);
-// [15] void createUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
-// [16] char* createUninitializedString(Datum&, SizeType, Allocator *);
-// [26] const char* dataTypeToAscii(Datum::DataType);
+// [15] Datum adoptArray(const DatumMutableArrayRef&);
+// [16] Datum adoptIntMap(const DatumMutableIntMapRef& map);
+// [17] Datum adoptMap(const DatumMutableMapRef& map);
+// [17] Datum adoptMap(const DatumMutableMapOwningKeysRef& map);
+// [15] Datum createArrayReference(const Datum *, SizeType, Allocator *);
+// [15] void createUninitializedArray(DatumMutableArrayRef*,SizeType,...);
+// [17] void createUninitializedMap(DatumMutableMapRef*, SizeType, ...);
+// [17] void createUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
+// [18] char* createUninitializedString(Datum&, SizeType, Allocator *);
+// [28] const char* dataTypeToAscii(Datum::DataType);
 // [ 3] void destroy(const Datum&, bslma::Allocator *);
-// [24] void disposeUninitializedArray(Datum *, basicAllocator *);
-// [25] void disposeUninitializedMap(DatumMutableMapRef *, ...);
-// [25] void disposeUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
+// [26] void disposeUninitializedArray(Datum *, basicAllocator *);
+// [27] void disposeUninitializedMap(DatumMutableMapRef *, ...);
+// [27] void disposeUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
 //
 // MANIPULATORS
 // [ 7] Datum& operator=(const Datum& rhs) = default;
 //
 // ACCESSORS
-// [21] Datum clone(bslma::Allocator *basicAllocator) const;
-// [14] bool isArray() const;
+// [22] Datum clone(bslma::Allocator *basicAllocator) const;
+// [15] bool isArray() const;
 // [ 3] bool isBoolean() const;
 // [ 3] bool isBinary() const;
 // [ 3] bool isDate() const;
@@ -209,15 +213,16 @@ using bdldfp::Decimal64;
 // [ 3] bool isDecimal64() const;
 // [ 3] bool isDouble() const;
 // [ 3] bool isError() const;
-// [18] bool isExternalReference() const;
+// [20] bool isExternalReference() const;
 // [ 3] bool isInteger() const;
 // [ 3] bool isInteger64() const;
-// [15] bool isMap() const;
+// [16] bool isIntMap() const;
+// [17] bool isMap() const;
 // [ 3] bool isNull() const;
 // [ 3] bool isString() const;
 // [ 3] bool isTime() const;
 // [ 3] bool isUdt() const;
-// [14] DatumArrayRef theArray() const;
+// [15] DatumArrayRef theArray() const;
 // [ 3] DatumBinaryRef theBinary() const;
 // [ 3] bool theBoolean() const;
 // [ 3] bdlt::Date theDate() const;
@@ -231,20 +236,21 @@ using bdldfp::Decimal64;
 // [ 3] bslstl::StringRef theString() const;
 // [ 3] bdlt::Time theTime() const;
 // [ 3] DatumUdt theUdt() const;
-// [15] DatumMapRef theMap() const;
-// [19] DataType::Enum type() const;
-// [20] template <class BDLD_VISITOR> void apply(BDLD_VISITOR&) const;
+// [16] DatumIntMapRef theIntMap() const;
+// [17] DatumMapRef theMap() const;
+// [21] DataType::Enum type() const;
+// [22] template <class BDLD_VISITOR> void apply(BDLD_VISITOR&) const;
 // [ 4] bsl::ostream& print(ostream&, int, int) const; // non-aggregate
-// [17] bsl::ostream& print(ostream&, int, int) const; // aggregate
+// [19] bsl::ostream& print(ostream&, int, int) const; // aggregate
 //
 // FREE OPERATORS
 // [ 6] bool operator==(const Datum&, const Datum&);  // non-aggregate
 // [ 6] bool operator!=(const Datum&, const Datum&);  // non-aggregate
-// [23] bool operator==(const Datum&, const Datum&);  // aggregate
-// [23] bool operator!=(const Datum&, const Datum&);  // aggregate
+// [25] bool operator==(const Datum&, const Datum&);  // aggregate
+// [25] bool operator!=(const Datum&, const Datum&);  // aggregate
 // [ 4] bsl::ostream& operator<<(ostream&, const Datum&); // non-aggregate
-// [17] bsl::ostream& operator<<(ostream&, const Datum&); // aggregate
-// [27] bsl::ostream& operator<<(ostream&, const Datum::DataType);
+// [19] bsl::ostream& operator<<(ostream&, const Datum&); // aggregate
+// [29] bsl::ostream& operator<<(ostream&, const Datum::DataType);
 //
 //                            // -------------------
 //                            // class DatumMapEntry
@@ -322,31 +328,50 @@ using bdldfp::Decimal64;
 // [12] bool operator!=(const DatumArrayRef&, const DatumArrayRef&);
 // [12] bsl::ostream& operator<<(bsl::ostream&, const DatumArrayRef&);
 //
+//                         // --------------------
+//                         // class DatumIntMapRef
+//                         // --------------------
+// CREATORS
+// [13] DatumIntMapRef(const DatumIntMapEntry *, SizeType, bool);
+//
+// ACCESSORS
+// [13] const DatumIntMapEntry& operator[](SizeType index) const;
+// [13] const DatumIntMapEntry *data() const;
+// [13] bool isSorted() const;
+// [13] SizeType size() const;
+// [13] const Datum *find(int key) const;
+// [13] bsl::ostream& print(bsl::ostream&, int,int) const;
+//
+// FREE OPERATORS
+// [13] bool operator==(const DatumIntMapRef&, const DatumIntMapRef&);
+// [13] bool operator!=(const DatumIntMapRef&, const DatumIntMapRef&);
+// [13] bsl::ostream& operator<<(bsl::ostream&, const DatumIntMapRef&);
+//
 //                            // -----------------
 //                            // class DatumMapRef
 //                            // -----------------
 // CREATORS
-// [13] DatumMapRef(const DatumMapEntry *, SizeType, bool, bool);
+// [14] DatumMapRef(const DatumMapEntry *, SizeType, bool, bool);
 //
 // ACCESSORS
-// [13] const DatumMapEntry& operator[](SizeType index) const;
-// [13] const DatumMapEntry *data() const;
-// [13] bool isSorted() const;
-// [13] SizeType size() const;
-// [13] const Datum *find(const bslstl::StringRef& key) const;
-// [13] bsl::ostream& print(bsl::ostream&, int,int) const;
+// [14] const DatumMapEntry& operator[](SizeType index) const;
+// [14] const DatumMapEntry *data() const;
+// [14] bool isSorted() const;
+// [14] SizeType size() const;
+// [14] const Datum *find(const bslstl::StringRef& key) const;
+// [14] bsl::ostream& print(bsl::ostream&, int,int) const;
 //
 // FREE OPERATORS
-// [13] bool operator==(const DatumMapRef& lhs, const DatumMapRef& rhs);
-// [13] bool operator!=(const DatumMapRef& lhs, const DatumMapRef& rhs);
-// [13] bsl::ostream& operator<<(bsl::ostream&, const DatumMapRef&);
+// [14] bool operator==(const DatumMapRef& lhs, const DatumMapRef& rhs);
+// [14] bool operator!=(const DatumMapRef& lhs, const DatumMapRef& rhs);
+// [14] bsl::ostream& operator<<(bsl::ostream&, const DatumMapRef&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [31] USAGE EXAMPLE
-// [22] Datum_ArrayProctor
-// [30] MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
-// [29] COMPRESSIBILITY OF DECIMAL64
-// [28] TYPE TRAITS
+// [33] USAGE EXAMPLE
+// [24] Datum_ArrayProctor
+// [32] MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
+// [31] COMPRESSIBILITY OF DECIMAL64
+// [30] TYPE TRAITS
 // [-2] EFFICIENCY TEST
 // ----------------------------------------------------------------------------
 
@@ -651,6 +676,12 @@ class TestVisitor {
     void operator()(DatumArrayRef v);
         // Store the specified 'v' of 'Datum::e_ARRAY' type in 'd_type'.
 
+    // *** WARNING***
+    // Put this back when all visitors are implemented properly in client code.
+    // See DRQS 1007705012
+    // void operator()(DatumIntMapRef v);
+        // Store the specified 'v' of 'Datum::e_INT_MAP' type in 'd_type'.
+
     void operator()(DatumMapRef v);
         // Store the specified 'v' of 'Datum::e_MAP' type in 'd_type'.
 
@@ -776,6 +807,16 @@ void TestVisitor::operator()(DatumMapRef v)
     d_visitedFlag = true;
 }
 
+// *** WARNING***
+// Put this back when all visitors are implemented properly in
+// client code.  See DRQS 1007705012
+//void TestVisitor::operator()(DatumIntMapRef v)
+//{
+//    (void)v;
+//    d_type = Datum::e_INT_MAP;
+//    d_visitedFlag = true;
+//}
+
 void TestVisitor::operator()(DatumBinaryRef v)
 {
     (void) v;
@@ -823,33 +864,33 @@ class Stopwatch {
   public:
     // CREATORS
     Stopwatch()
-        // See bsls::Stopwtach.
+        // See bsls::Stopwatch.
     {
         reset();
     }
 
     // MANIPULATORS
     void reset()
-        // See bsls::Stopwtach.
+        // See bsls::Stopwatch.
     {
         d_accumulatedUserTime = 0;
     }
 
     void start(bool)
-        // See bsls::Stopwtach.
+        // See bsls::Stopwatch.
     {
         d_userTime = getCPUTime();
     }
 
     void stop()
-        // See bsls::Stopwtach.
+        // See bsls::Stopwatch.
     {
         d_accumulatedUserTime += getCPUTime() - d_userTime;
     }
 
     // ACCESSORS
     double accumulatedUserTime() const
-        // See bsls::Stopwtach.
+        // See bsls::Stopwatch.
     {
         return d_accumulatedUserTime;
     }
@@ -1573,7 +1614,7 @@ int main(int argc, char *argv[])
     srand(static_cast<unsigned int>(time(static_cast<time_t *>(0))));
 
     switch (test) { case 0:
-      case 32: {
+      case 34: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1620,7 +1661,7 @@ int main(int argc, char *argv[])
     ASSERT(3    == number.theInteger());
 //..
 // Note that this object does not allocate any dynamic memory on any supported
-// platforms and thus we do not need to explicitely destroy this object to
+// platforms and thus we do not need to explicitly destroy this object to
 // release any dynamic memory.
 //
 // Then, we create a 'Datum', 'cityName', having the string value "Boston":
@@ -1796,9 +1837,9 @@ int main(int argc, char *argv[])
         *maggieArray.length() = 2;
         Datum maggie = Datum::adoptArray(maggieArray);
 
-        (void) patty;   // supress compiler warning
-        (void) selma;   // supress compiler warning
-        (void) maggie;  // supress compiler warning
+        (void) patty;   // suppress compiler warning
+        (void) selma;   // suppress compiler warning
+        (void) maggie;  // suppress compiler warning
     } // end of scope
 //..
 // Here all the allocated memory is lodged in the 'arena' allocator. At the end
@@ -1864,8 +1905,7 @@ int main(int argc, char *argv[])
 //..
 // Note, that the bytes have been copied.
       } break;
-
-      case 31: {
+      case 33: {
         // --------------------------------------------------------------------
         // DATETIME ALLOCATION TESTS
         //
@@ -1957,8 +1997,7 @@ int main(int argc, char *argv[])
                           << endl;
 #endif
       } break;
-
-      case 30: {
+      case 32: {
         // --------------------------------------------------------------------
         // MISALIGNED MEMORY ACCESS TEST
         //
@@ -1999,7 +2038,7 @@ int main(int argc, char *argv[])
                           << endl;
 #endif
       } break;
-      case 29: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING COMPRESSIBILITY OF DECIMAL64
         //    Check that 'Decimal64' fit in 6 bytes or not (as expected).
@@ -2042,10 +2081,10 @@ int main(int argc, char *argv[])
             ASSERT(variable2 > buffer + 6);
         }
       } break;
-      case 28: {
+      case 30: {
         // --------------------------------------------------------------------
         // TESTING TYPE TRAITS
-        //   The object is trivially copyable, default constructable and
+        //   The object is trivially copyable, default constructible and
         //   bitwise copyable and should have appropriate bsl type traits to
         //   reflect this.
         //
@@ -2078,7 +2117,7 @@ int main(int argc, char *argv[])
         ASSERT(!(bslmf::IsBitwiseEqualityComparable<Datum>::value));
 
       } break;
-      case 27: {
+      case 29: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT ('<<') OPERATOR
         //
@@ -2198,7 +2237,7 @@ int main(int argc, char *argv[])
             (void)FP;   // silence potential compiler warning
         }
       } break;
-      case 26: {
+      case 28: {
         // -------------------------------------------------------------------
         // TESTING ENUMERATIONS AND 'dataTypeToAscii'
         //
@@ -2271,6 +2310,7 @@ int main(int argc, char *argv[])
             {  L_,   Datum::e_MAP,                "MAP"               },
             {  L_,   Datum::e_BINARY,             "BINARY"            },
             {  L_,   Datum::e_DECIMAL64,          "DECIMAL64"         },
+            {  L_,   Datum::e_INT_MAP,            "INT_MAP"           },
         };
 
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -2278,7 +2318,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nVerify 'k_NUM_TYPES' enumerator's value."
                           << endl;
         {
-            const int NUM_TYPES = 16;  // expected number of types
+            const int NUM_TYPES = 17;  // expected number of types
 
             ASSERT(NUM_TYPES          == Datum::k_NUM_TYPES);
             ASSERT(Datum::k_NUM_TYPES == NUM_DATA);
@@ -2320,7 +2360,7 @@ int main(int argc, char *argv[])
             (void) FP;   // silence potential compiler warning
         }
       } break;
-      case 25: {
+      case 27: {
         // --------------------------------------------------------------------
         // TESTING 'disposeUninitializedMap'
         //
@@ -2387,7 +2427,7 @@ int main(int argc, char *argv[])
             bslma::Allocator     *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
 
-            (void) nullAllocPtr;  // supress compiler warning
+            (void) nullAllocPtr;  // suppress compiler warning
 
             if (verbose) cout << "\tTesting 'DatumMutableMapRef'."
                               << endl;
@@ -2413,7 +2453,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
          }
       } break;
-      case 24: {
+      case 26: {
         // --------------------------------------------------------------------
         // TESTING 'disposeUninitializedArray'
         //
@@ -2464,7 +2504,7 @@ int main(int argc, char *argv[])
                                             static_cast<bslma::Allocator *>(0);
             DatumMutableArrayRef  array;
 
-            (void) nullAllocPtr;  // supress compiler warning
+            (void) nullAllocPtr;  // suppress compiler warning
 
             Datum::createUninitializedArray(&array, 0, &oa);
 
@@ -2475,7 +2515,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
          }
       } break;
-      case 23: {
+      case 25: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
         //   Ensure that '==' and '!=' are the operational definition of value.
@@ -2484,7 +2524,7 @@ int main(int argc, char *argv[])
         //   that for 'double' and 'Decimal64' values of 'NaN', the identity
         //   property of the quality is violated ( i.e. two 'NaN' objects never
         //   compare equal). Also note, that this test covers 'Datum's holding
-        //   all possible data type ( including aggregated data tyapes)
+        //   all possible data type ( including aggregated data types)
         //
         // Concerns:
         //: 1 Two objects, 'X' and 'Y', compare equal if and only if their
@@ -2588,10 +2628,25 @@ int main(int argc, char *argv[])
                                            Datum::adoptArray(array));
             *(map1.size()) = mapSize;
 
+            const SizeType     intMapSize = 5;
+            DatumMutableIntMapRef intMap1;
+            Datum::createUninitializedIntMap(&intMap1, intMapSize, &oa);
+            intMap1.data()[0] = DatumIntMapEntry(1, Datum::createInteger(0));
+            intMap1.data()[1] = DatumIntMapEntry(2,
+                                                 Datum::createDouble(-3.1416));
+            intMap1.data()[2] = DatumIntMapEntry(3,
+                                      Datum::copyString("A long string", &oa));
+            intMap1.data()[3] = DatumIntMapEntry(4,
+                                                Datum::copyString("Abc", &oa));
+            intMap1.data()[4] = DatumIntMapEntry(5,
+                                      Datum::createDate(bdlt::Date(2010,1,5)));
+            *(intMap1.size()) = intMapSize;
+
             // Create an array out of all the previously created map.
-            Datum::createUninitializedArray(&array, 1, &oa);
+            Datum::createUninitializedArray(&array, 2, &oa);
             array.data()[0] = Datum::adoptMap(map1);
-            *(array.length()) = 1;
+            array.data()[1] = Datum::adoptIntMap(intMap1);
+            *(array.length()) = 2;
             vector1.push_back(Datum::adoptArray(array));
 
             // Create second vector with map owning keys instead of map
@@ -2648,10 +2703,24 @@ int main(int argc, char *argv[])
                        Datum::adoptArray(array));
             *(map2.size()) = mapSize;
 
+            DatumMutableIntMapRef intMap2;
+            Datum::createUninitializedIntMap(&intMap2, intMapSize, &oa);
+            intMap2.data()[0] = DatumIntMapEntry(1, Datum::createInteger(0));
+            intMap2.data()[1] = DatumIntMapEntry(2,
+                                                 Datum::createDouble(-3.1416));
+            intMap2.data()[2] = DatumIntMapEntry(3,
+                                      Datum::copyString("A long string", &oa));
+            intMap2.data()[3] = DatumIntMapEntry(4,
+                                                Datum::copyString("Abc", &oa));
+            intMap2.data()[4] = DatumIntMapEntry(5,
+                                      Datum::createDate(bdlt::Date(2010,1,5)));
+            *(intMap2.size()) = intMapSize;
+
             // Create an array out of all the previously created map.
-            Datum::createUninitializedArray(&array, 1, &oa);
+            Datum::createUninitializedArray(&array, 2, &oa);
             array.data()[0] = Datum::adoptMap(map2);
-            *(array.length()) = 1;
+            array.data()[1] = Datum::adoptIntMap(intMap2);
+            *(array.length()) = 2;
             vector2.push_back(Datum::adoptArray(array));
 
             ASSERT(vector1.size() == vector2.size());
@@ -2692,7 +2761,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
       } break;
-      case 22: {
+      case 24: {
         // ------------------------------------------------------------------
         // TESTING PROCTOR
         //
@@ -2903,7 +2972,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &ta);
         }
       } break;
-      case 21: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING 'clone' METHOD
         //
@@ -4068,7 +4137,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
          }
       } break;
-      case 20: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING 'apply' METHOD
         //
@@ -4297,8 +4366,48 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
             ASSERT( 0 == oa.status());
         }
+
+// *** WARNING***
+// Put this back when all visitors are implemented properly in client code.
+// See DRQS 1007705012
+#if 0
+        if (verbose) cout <<
+            "\tTesting 'apply' with Datum having empty int-map value." << endl;
+        {
+            DatumMutableIntMapRef map;
+            Datum                 D = Datum::adoptIntMap(map);
+
+            TestVisitor visitor;
+            D.apply(visitor);
+
+            ASSERT(visitor.objectVisited());
+            ASSERT(Datum::e_INT_MAP == visitor.type());
+
+            Datum::destroy(D, &oa);
+            ASSERT( 0 == oa.status());
+        }
+        if (verbose) cout <<
+                 "\tTesting 'apply' with Datum having non-empty int-map value."
+                 << endl;
+        {
+            DatumMutableIntMapRef map;
+            Datum::createUninitializedIntMap(&map, 1, &oa);
+            map.data()[0] = DatumIntMapEntry(1, Datum::createInteger(1));
+            *(map.size()) = 1;
+            Datum D = Datum::adoptIntMap(map);
+
+            TestVisitor visitor;
+            D.apply(visitor);
+
+            ASSERT(visitor.objectVisited());
+            ASSERT(Datum::e_INT_MAP == visitor.type());
+
+            Datum::destroy(D, &oa);
+            ASSERT( 0 == oa.status());
+        }
+#endif
       } break;
-      case 19: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING 'type' METHOD
         //
@@ -4496,7 +4605,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
       } break;
-      case 18: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING 'isExternalReference' METHOD
         //
@@ -4687,7 +4796,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
       } break;
-      case 17: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING PRINT AND OPERATOR<<
         //   Ensure that the value of the 'Datum' holding an aggregate value
@@ -5001,7 +5110,7 @@ int main(int argc, char *argv[])
             Datum::destroy(DM4, &oa);
         }
       } break;
-      case 16: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING STRING CONSTRUCTION
         //    Verify that user can construct 'Datum' holding uninitialized
@@ -5077,6 +5186,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(D.isString());               // *
@@ -5101,12 +5211,12 @@ int main(int argc, char *argv[])
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
 
-            (void) nullAllocPtr;  // supress compiler warning
+            (void) nullAllocPtr;  // suppress compiler warning
 
             Datum  mD;
             Datum *nullDatumPtr = static_cast<Datum *>(0);
 
-            (void) nullDatumPtr;  // supress compiler warning
+            (void) nullDatumPtr;  // suppress compiler warning
 
             ASSERT_SAFE_FAIL(Datum::createUninitializedString(nullDatumPtr,
                                                               0,
@@ -5119,7 +5229,7 @@ int main(int argc, char *argv[])
             Datum::destroy(mD, &oa);
         }
       } break;
-      case 15: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING MAP CONSTRUCTION
         //
@@ -5186,6 +5296,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(D.isMap());              // *
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -5239,6 +5350,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(D.isMap());              // *
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -5293,6 +5405,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(D.isMap());              // *
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -5358,6 +5471,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(D.isMap());              // *
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -5397,6 +5511,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(D.isMap());              // *
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -5472,6 +5587,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(D.isMap());              // *
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -5546,6 +5662,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(D.isMap());              // *
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -5620,6 +5737,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(D.isMap());              // *
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -5646,7 +5764,7 @@ int main(int argc, char *argv[])
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
 
-            (void) nullAllocPtr;  // supress compiler warning
+            (void) nullAllocPtr;  // suppress compiler warning
 
             if (verbose) cout << "\tTesting 'createUninitializedMap'"
                               << " for map with external keys"
@@ -5656,7 +5774,7 @@ int main(int argc, char *argv[])
                 DatumMutableMapRef *nullRefPtr =
                                           static_cast<DatumMutableMapRef *>(0);
 
-                (void) nullRefPtr;  // supress compiler warning
+                (void) nullRefPtr;  // suppress compiler warning
 
                 ASSERT_SAFE_FAIL(Datum::createUninitializedMap(nullRefPtr,
                                                                0,
@@ -5679,7 +5797,7 @@ int main(int argc, char *argv[])
                 DatumMutableMapOwningKeysRef *nullRefPtr =
                                 static_cast<DatumMutableMapOwningKeysRef *>(0);
 
-                (void) nullRefPtr;  // supress compiler warning
+                (void) nullRefPtr;  // suppress compiler warning
 
                 ASSERT_SAFE_FAIL(Datum::createUninitializedMap(nullRefPtr,
                                                                0,
@@ -5712,7 +5830,295 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 14: {
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING INTEGER MAP CONSTRUCTION
+        //
+        // Concerns:
+        //: 1 'Datum' object holding a integer map of 'Datum's can be created.
+        //:
+        //: 2 Destroying adopted map releases all memory allocated by Datums in
+        //:   that map.
+        //
+        //: 3 All object memory comes from the supplied allocator.
+        //:
+        //: 4 All allocated memory is released when the 'Datum' object is
+        //:   destroyed.
+        //:
+        //: 5 'theIntMap' accessor is a constant method.
+        //:
+        //: 6 QoI: asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Create 'Datum' object holding an integer map.  Verify the type
+        //:   and the value of the created 'Datum' object.  (C-1..3)
+        //:
+        //: 2 Verify that all object memory is released when the object is
+        //:   destroyed.  (C-4)
+        //:
+        //: 3 Invoke 'theIntMap' via a reference providing non-modifiable
+        //:   access to the object.  Compilation of this test driver confirms
+        //:   that accessor is 'const'-qualified.  (C-5)
+        //
+        // Testing:
+        //   void createUninitializedIntMap(DatumMutableIntMapRef*, size, ...);
+        //   Datum adoptIntMap(const DatumMutableIntMapRef& map);
+        //   bool isIntMap() const;
+        //   DatumMapRef theIntMap() const;
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING INTEGER MAP CONSTRUCTION" << endl
+                          << "================================" << endl;
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
+
+        if (verbose)
+            cout << "\nTesting creation of an integer map with external keys."
+                 << endl;
+        {
+            if (veryVerbose) cout << "\tCreating an empty map." << endl;
+            {
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                DatumMutableIntMapRef map;
+                Datum                 mD = Datum::adoptIntMap(map);
+                const Datum&          D = mD;
+
+                ASSERT(!D.isArray());
+                ASSERT(!D.isBoolean());
+                ASSERT(!D.isBinary());
+                ASSERT(!D.isDate());
+                ASSERT(!D.isDatetime());
+                ASSERT(!D.isDatetimeInterval());
+                ASSERT(!D.isDecimal64());
+                ASSERT(!D.isDouble());
+                ASSERT(!D.isError());
+                ASSERT(!D.isInteger());
+                ASSERT(!D.isInteger64());
+                ASSERT(D.isIntMap());              // *
+                ASSERT(!D.isMap());
+                ASSERT(!D.isNull());
+                ASSERT(!D.isString());
+                ASSERT(!D.isTime());
+                ASSERT(!D.isUdt());
+                ASSERT(!D.isExternalReference());
+
+                ASSERT(false == D.theIntMap().isSorted());
+
+                DatumIntMapEntry *mp = 0;
+                DatumIntMapRef    mapRef(mp, 0, false);
+                ASSERT(mapRef == D.theIntMap());
+
+                Datum::destroy(D, &oa);
+                ASSERT(0 == oa.status());
+            }
+
+            if (veryVerbose)
+                cout << "\tCreating Datum holding an unsorted map." << endl;
+            {
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                const SizeType        capacity = 4;
+                DatumMutableIntMapRef map;
+                Datum::createUninitializedIntMap(&map, capacity, &oa);
+
+                map.data()[0] = DatumIntMapEntry(1, Datum::createInteger(0));
+                map.data()[1] = DatumIntMapEntry(2, Datum::createDouble(-3.1));
+                map.data()[2] = DatumIntMapEntry(3,
+                                      Datum::createDate(bdlt::Date(2010,1,5)));
+                map.data()[3] = DatumIntMapEntry(4, Datum::createNull());
+
+                *(map.size()) = capacity;
+                *(map.sorted()) = false;
+                Datum        mD = Datum::adoptIntMap(map);
+                const Datum& D = mD;
+
+                ASSERT(!D.isArray());
+                ASSERT(!D.isBoolean());
+                ASSERT(!D.isBinary());
+                ASSERT(!D.isDate());
+                ASSERT(!D.isDatetime());
+                ASSERT(!D.isDatetimeInterval());
+                ASSERT(!D.isDecimal64());
+                ASSERT(!D.isDouble());
+                ASSERT(!D.isError());
+                ASSERT(!D.isInteger());
+                ASSERT(!D.isInteger64());
+                ASSERT(D.isIntMap());              // *
+                ASSERT(!D.isMap());
+                ASSERT(!D.isNull());
+                ASSERT(!D.isString());
+                ASSERT(!D.isTime());
+                ASSERT(!D.isUdt());
+                ASSERT(!D.isExternalReference());
+
+                ASSERT(false == D.theIntMap().isSorted());
+
+                DatumIntMapRef mapRef(map.data(), capacity, false);
+                ASSERT(mapRef == D.theIntMap());
+
+                Datum::destroy(D, &oa);
+                ASSERT(0 == oa.status());
+            }
+
+            if (veryVerbose)
+                cout << "\tCreating Datum holding a sorted map." << endl;
+            {
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                const SizeType        capacity = 4;
+                DatumMutableIntMapRef map;
+                Datum::createUninitializedIntMap(&map, capacity, &oa);
+
+                map.data()[0] = DatumIntMapEntry(1, Datum::createInteger(0));
+                map.data()[1] = DatumIntMapEntry(2, Datum::createDouble(-3.1));
+                map.data()[2] = DatumIntMapEntry(3,
+                                      Datum::createDate(bdlt::Date(2010,1,5)));
+                map.data()[3] = DatumIntMapEntry(4, Datum::createNull());
+
+                *(map.size()) = capacity;
+                *(map.sorted()) = true;
+
+                Datum        mD = Datum::adoptIntMap(map);
+                const Datum& D = mD;
+
+                ASSERT(!D.isArray());
+                ASSERT(!D.isBoolean());
+                ASSERT(!D.isBinary());
+                ASSERT(!D.isDate());
+                ASSERT(!D.isDatetime());
+                ASSERT(!D.isDatetimeInterval());
+                ASSERT(!D.isDecimal64());
+                ASSERT(!D.isDouble());
+                ASSERT(!D.isError());
+                ASSERT(!D.isInteger());
+                ASSERT(!D.isInteger64());
+                ASSERT(D.isIntMap());              // *
+                ASSERT(!D.isMap());
+                ASSERT(!D.isNull());
+                ASSERT(!D.isString());
+                ASSERT(!D.isTime());
+                ASSERT(!D.isUdt());
+                ASSERT(!D.isExternalReference());
+
+                ASSERT(true == D.theIntMap().isSorted());
+
+                DatumIntMapRef mapRef(map.data(), capacity, true);
+                ASSERT(mapRef == D.theIntMap());
+
+                Datum::destroy(D, &oa);
+                ASSERT(0 == oa.status());
+            }
+
+            if (veryVerbose)
+                cout << "\tInitial capacity more than length." << endl;
+            {
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                const SizeType        capacity = 6;
+                DatumMutableIntMapRef map;
+                Datum::createUninitializedIntMap(&map, capacity+16, &oa);
+
+                map.data()[0] = DatumIntMapEntry(1, Datum::createInteger(0));
+                map.data()[1] = DatumIntMapEntry(2,
+                                                 Datum::createDouble(-3.1416));
+                map.data()[2] = DatumIntMapEntry(3,
+                                      Datum::copyString("A long string", &oa));
+                map.data()[3] = DatumIntMapEntry(4,
+                                                Datum::copyString("Abc", &oa));
+                map.data()[4] = DatumIntMapEntry(5,
+                                      Datum::createDate(bdlt::Date(2010,1,5)));
+                map.data()[5] = DatumIntMapEntry(6,
+                                      Datum::createDatetime(
+                                         bdlt::Datetime(2010,1,5, 16,45,32,12),
+                                         &oa));
+                *(map.size()) = capacity;
+                *(map.sorted()) = false;
+
+                Datum        mD = Datum::adoptIntMap(map);
+                const Datum& D = mD;
+
+                ASSERT(!D.isArray());
+                ASSERT(!D.isBoolean());
+                ASSERT(!D.isBinary());
+                ASSERT(!D.isDate());
+                ASSERT(!D.isDatetime());
+                ASSERT(!D.isDatetimeInterval());
+                ASSERT(!D.isDecimal64());
+                ASSERT(!D.isDouble());
+                ASSERT(!D.isError());
+                ASSERT(!D.isInteger());
+                ASSERT(!D.isInteger64());
+                ASSERT(D.isIntMap());              // *
+                ASSERT(!D.isMap());
+                ASSERT(!D.isNull());
+                ASSERT(!D.isString());
+                ASSERT(!D.isTime());
+                ASSERT(!D.isUdt());
+                ASSERT(!D.isExternalReference());
+
+                ASSERT(false == D.theIntMap().isSorted());
+
+                DatumIntMapRef mapRef(map.data(), capacity, false);
+                ASSERT(mapRef == D.theIntMap());
+
+                Datum::destroy(D, &oa);
+                ASSERT(0 == oa.status());
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bslma::TestAllocator            oa("object", veryVeryVeryVerbose);
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            bslma::Allocator *nullAllocPtr =
+                                            static_cast<bslma::Allocator *>(0);
+
+            (void) nullAllocPtr;  // suppress compiler warning
+
+            if (verbose) cout << "\tTesting 'createUninitializedIntMap'"
+                              << " for map with external keys"
+                              << endl;
+            {
+                DatumMutableIntMapRef  map;
+                DatumMutableIntMapRef *nullRefPtr =
+                                       static_cast<DatumMutableIntMapRef *>(0);
+
+                (void) nullRefPtr;  // suppress compiler warning
+
+                ASSERT_SAFE_FAIL(Datum::createUninitializedIntMap(nullRefPtr,
+                                                                  0,
+                                                                  &oa));
+                ASSERT_SAFE_FAIL(Datum::createUninitializedIntMap(
+                                                                &map,
+                                                                0,
+                                                                nullAllocPtr));
+                ASSERT_SAFE_PASS(Datum::createUninitializedIntMap(&map,
+                                                                  0,
+                                                                  &oa));
+                Datum mD = Datum::adoptIntMap(map);
+                Datum::destroy(mD, &oa);
+            }
+
+            if (verbose) cout << "\tTesting 'theIntMap'" << endl;
+            {
+                DatumMutableIntMapRef map;
+
+                const Datum fakeMap = Datum::createNull();
+                const Datum realMap = Datum::adoptIntMap(map);
+
+                ASSERT_SAFE_FAIL(fakeMap.theIntMap());
+                ASSERT_SAFE_PASS(realMap.theIntMap());
+
+                Datum::destroy(fakeMap, &oa);
+                Datum::destroy(realMap, &oa);
+            }
+        }
+      } break;
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING ARRAY CONSTRUCTION
         //
@@ -5785,6 +6191,7 @@ int main(int argc, char *argv[])
                     ASSERTV(i, !D.isError());
                     ASSERTV(i, !D.isInteger());
                     ASSERTV(i, !D.isInteger64());
+                    ASSERTV(i, !D.isIntMap());
                     ASSERTV(i, !D.isMap());
                     ASSERTV(i, !D.isNull());
                     ASSERTV(i, !D.isString());
@@ -5830,6 +6237,7 @@ int main(int argc, char *argv[])
                     ASSERTV(i, !DC.isError());
                     ASSERTV(i, !DC.isInteger());
                     ASSERTV(i, !DC.isInteger64());
+                    ASSERTV(i, !DC.isIntMap());
                     ASSERTV(i, !DC.isMap());
                     ASSERTV(i, !DC.isNull());
                     ASSERTV(i, !DC.isString());
@@ -5873,6 +6281,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -5977,8 +6386,8 @@ int main(int argc, char *argv[])
             const Datum  D            = Datum::createNull();
             const Datum *nullDatumPtr = static_cast<Datum *>(0);
 
-            (void) nullAllocPtr;  // supress compiler warning
-            (void) nullDatumPtr;  // supress compiler warning
+            (void) nullAllocPtr;  // suppress compiler warning
+            (void) nullDatumPtr;  // suppress compiler warning
 
             if (verbose) cout << "\tTesting 'createArrayReference"
                               << "(const Datum *, SizeType, Allocator *)'."
@@ -6016,7 +6425,7 @@ int main(int argc, char *argv[])
                 DatumMutableArrayRef *nullRefPtr =
                                         static_cast<DatumMutableArrayRef *>(0);
 
-                (void) nullRefPtr;  // supress compiler warning
+                (void) nullRefPtr;  // suppress compiler warning
 
                 ASSERT_SAFE_FAIL(Datum::createUninitializedArray(nullRefPtr,
                                                                  0,
@@ -6048,7 +6457,7 @@ int main(int argc, char *argv[])
 
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING 'DatumMapRef'
         //
@@ -6563,6 +6972,498 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'DatumIntMapRef'
+        //
+        // Concerns:
+        //: 1 Exercise a broad cross-section of value-semantic functionality.
+        //
+        // Plan:
+        //: 1 Create a 'DatumIntMapRef' object and verify that values
+        //:   were correctly passed down to the 'd_data_p' and 'd_size' data
+        //:   members. Also exercise the copy construction functionality and
+        //:   verify using the equality operators that these objects have the
+        //:   same value. Verify that streaming operator outputs the correctly
+        //:   formatted value. Also verify that accessors return the correct
+        //:   value.  Verify that 'find' returns the expected result for both
+        //:   sorted and unsorted maps.
+        //
+        // Testing:
+        //   DatumIntMapRef(const DatumIntMapEntry *, SizeType, bool);
+        //   const DatumIntMapEntry& operator[](SizeType index) const;
+        //   const DatumIntMapEntry *data() const;
+        //   bool isSorted() const;
+        //   SizeType size() const;
+        //   const Datum *find(int key) const;
+        //   bsl::ostream& print(bsl::ostream&, int,int) const;
+        //   bool operator==(const DatumIntMapRef&, const DatumIntMapRef&);
+        //   bool operator!=(const DatumIntMapRef&, const DatumIntMapRef&);
+        //   bsl::ostream& operator<<(bsl::ostream&, const DatumIntMapRef&);
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING 'DatumIntMapRef'" << endl
+                          << "========================" << endl;
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
+
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+        const SizeType      size = 3;
+        const DatumIntMapEntry map[size] = {
+            DatumIntMapEntry(1, Datum::createInteger(3)),
+            DatumIntMapEntry(2, Datum::createDouble(3.75)),
+            DatumIntMapEntry(3, Datum::copyString("A String", &oa))
+        };
+
+        // remember how many is allocated by Datums
+        Int64 bytesInUse = oa.numBytesInUse();
+
+        if (verbose) cout << "\nTesting value constructor." << endl;
+        {
+            const DatumIntMapRef obj(map, size, false);
+
+            ASSERT(bytesInUse == oa.numBytesInUse());
+            ASSERT(size       == obj.size());
+            ASSERT(false      == obj.isSorted());
+            for (size_t i = 0; i < obj.size(); ++i) {
+                if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
+
+                ASSERTV(i, map[i] == obj.data()[i]);
+                ASSERTV(i, map[i] == obj[i]);
+            }
+        }
+        {
+            const DatumIntMapRef obj(map, size, true);
+            ASSERT(bytesInUse == oa.numBytesInUse());
+            ASSERT(size       == obj.size());
+            ASSERT(true       == obj.isSorted());
+            for (size_t i = 0; i < obj.size(); ++i) {
+                if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
+
+                ASSERTV(i, map[i] == obj.data()[i]);
+                ASSERTV(i, map[i] == obj[i]);
+            }
+        }
+
+        if (verbose) cout << "\nTesting copy constructor for non-sorted map."
+                          << endl;
+        {
+            const DatumIntMapRef obj(map, size, false);
+
+            ASSERT(bytesInUse == oa.numBytesInUse());
+
+            const DatumIntMapRef objCopy(obj);
+
+            ASSERT(size  == objCopy.size());
+            ASSERT(false == objCopy.isSorted());
+            for (size_t i = 0; i < objCopy.size(); ++i) {
+                if (veryVerbose) { T_ P_(i) P_(map[i]) P(objCopy[i]) }
+
+                ASSERTV(i, map[i] == objCopy.data()[i]);
+                ASSERTV(i, map[i] == objCopy[i]);
+            }
+
+            ASSERT(size  == obj.size());
+            ASSERT(false == obj.isSorted());
+            for (size_t i = 0; i < obj.size(); ++i) {
+                if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
+
+                ASSERTV(i, map[i] == obj.data()[i]);
+                ASSERTV(i, map[i] == obj[i]);
+            }
+        }
+
+        if (verbose) cout << "\nTesting copy constructor for sorted map."
+                          << endl;
+        {
+            const DatumIntMapRef obj(map, size, true);
+
+            ASSERT(bytesInUse == oa.numBytesInUse());
+
+            const DatumIntMapRef objCopy(obj);
+
+            ASSERT(size  == objCopy.size());
+            ASSERT(true  == objCopy.isSorted());
+
+            for (size_t i = 0; i < objCopy.size(); ++i) {
+                if (veryVerbose) { T_ P_(i) P_(map[i]) P(objCopy[i]) }
+
+                ASSERTV(i, map[i] == objCopy.data()[i]);
+                ASSERTV(i, map[i] == objCopy[i]);
+            }
+
+            ASSERT(size  == obj.size());
+            ASSERT(true  == obj.isSorted());
+
+            for (size_t i = 0; i < obj.size(); ++i) {
+                if (veryVerbose) { T_ P_(i) P_(map[i]) P(obj[i]) }
+
+                ASSERTV(i, map[i] == obj.data()[i]);
+                ASSERTV(i, map[i] == obj[i]);
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'print'." << endl;
+        {
+            const DatumIntMapRef obj(map, size, false);
+
+            if (verbose) cout << "\tTesting single-line format." << endl;
+            {
+                ostringstream objStr;
+                ostringstream expObjStr;
+
+                expObjStr << "[ [ 1 = 3 ] "
+                          << "[ 2 = 3.75 ] "
+                          << "[ 3 = \"A String\" ] ]";
+
+                obj.print(objStr, 0, -1);
+
+                ASSERT(expObjStr.str() == objStr.str());
+            }
+
+            if (verbose) cout << "\tTesting multi-line format." << endl;
+            {
+                ostringstream objStr;
+                ostringstream expObjStr;
+
+                expObjStr << "["                << "\n"
+                          << "["                << "\n"
+                          << "1 = 3"            << "\n"
+                          << "]"                << "\n"
+                          << "["                << "\n"
+                          << "2 = 3.75"         << "\n"
+                          << "]"                << "\n"
+                          << "["                << "\n"
+                          << "3 = \"A String\"" << "\n"
+                          << "]"                << "\n"
+                          << "]"                << "\n";
+
+                obj.print(objStr, 0, 0);
+
+                ASSERTV(expObjStr.str(), objStr.str(),
+                        expObjStr.str() == objStr.str());
+
+                // Clearing streams.
+
+                expObjStr.str("");
+                objStr.str("");
+
+                // 4 spaces per level.
+
+                expObjStr << "["                        << "\n"
+                          << "    ["                    << "\n"
+                          << "        1 = 3"            << "\n"
+                          << "    ]"                    << "\n"
+                          << "    ["                    << "\n"
+                          << "        2 = 3.75"         << "\n"
+                          << "    ]"                    << "\n"
+                          << "    ["                    << "\n"
+                          << "        3 = \"A String\"" << "\n"
+                          << "    ]"                    << "\n"
+                          << "]"                        << "\n";
+
+                obj.print(objStr);
+
+                ASSERT(expObjStr.str() == objStr.str());
+            }
+
+            if (verbose) cout << "\tTesting level adjustment." << endl;
+            {
+                ostringstream objStr;
+                ostringstream expObjStr;
+
+                // Level 0.
+
+                expObjStr << "["                  << "\n"
+                          << " ["                 << "\n"
+                          << "  1 = 3"            << "\n"
+                          << " ]"                 << "\n"
+                          << " ["                 << "\n"
+                          << "  2 = 3.75"         << "\n"
+                          << " ]"                 << "\n"
+                          << " ["                 << "\n"
+                          << "  3 = \"A String\"" << "\n"
+                          << " ]"                 << "\n"
+                          << "]"                  << "\n";
+
+                obj.print(objStr, 0, 1);
+
+                ASSERT(expObjStr.str() == objStr.str());
+
+                // Clearing streams.
+
+                expObjStr.str("");
+                objStr.str("");
+
+                // Level 4.
+
+                expObjStr << "    ["                  << "\n"
+                          << "     ["                 << "\n"
+                          << "      1 = 3"            << "\n"
+                          << "     ]"                 << "\n"
+                          << "     ["                 << "\n"
+                          << "      2 = 3.75"         << "\n"
+                          << "     ]"                 << "\n"
+                          << "     ["                 << "\n"
+                          << "      3 = \"A String\"" << "\n"
+                          << "     ]"                 << "\n"
+                          << "    ]"                  << "\n";
+
+                obj.print(objStr, 4, 1);
+
+                ASSERT(expObjStr.str() == objStr.str());
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'operator<<'." << endl;
+        {
+            const DatumIntMapRef obj(map, size, false);
+
+            bsl::ostringstream os;
+            os << obj;
+
+            const char* EXP = "[ [ 1 = 3 ] " \
+                                "[ 2 = 3.75 ] " \
+                                "[ 3 = \"A String\" ] ]";
+            ASSERTV(EXP, os.str(),  EXP == os.str());
+        }
+
+        for(SizeType i = 0; i < size; ++i) {
+            Datum:: destroy(map[i].value(), &oa);
+        }
+        ASSERT(0 == oa.status());
+
+        // Creating test values
+
+        const SizeType      SIZE1 = 3;
+        const DatumIntMapEntry map1[SIZE1] = {
+            DatumIntMapEntry(2, Datum::createDate(Date(2003, 10, 15))),
+            DatumIntMapEntry(3, Datum::createError(3, "error", &oa)),
+            DatumIntMapEntry(4, Datum::copyString("A String", &oa))
+        };
+
+        const DatumIntMapEntry map1c[SIZE1] = {
+            DatumIntMapEntry(2, Datum::createDate(Date(2003, 10, 15))),
+            DatumIntMapEntry(3, Datum::createError(3, "error", &oa)),
+            DatumIntMapEntry(4, Datum::copyString("A String", &oa))
+        };
+
+        const SizeType      SIZE2 = 3;
+        const DatumIntMapEntry map2[SIZE2] = {
+            DatumIntMapEntry(1, Datum::createDate(Date(2003, 10, 15))),
+            DatumIntMapEntry(3, Datum::createError(3, "error", &oa)),
+            DatumIntMapEntry(4, Datum::copyString("A String", &oa))
+        };
+
+        const DatumIntMapEntry map2c[SIZE2] = {
+            DatumIntMapEntry(1, Datum::createDate(Date(2003, 10, 15))),
+            DatumIntMapEntry(3, Datum::createError(3, "error", &oa)),
+            DatumIntMapEntry(4, Datum::copyString("A String", &oa))
+        };
+
+        const SizeType      SIZE3 = 2;
+        const DatumIntMapEntry map3[SIZE3] = {
+            DatumIntMapEntry(2, Datum::createDate(Date(2003, 10, 15))),
+            DatumIntMapEntry(3, Datum::createError(3, "error", &oa)),
+        };
+
+        const DatumIntMapEntry map3c[SIZE3] = {
+            DatumIntMapEntry(2, Datum::createDate(Date(2003, 10, 15))),
+            DatumIntMapEntry(3, Datum::createError(3, "error", &oa)),
+        };
+
+        if (verbose) cout << "\nTesting equality operators." << endl;
+        {
+            if (verbose) cout << "\tTesting operators format." << endl;
+            {
+                typedef bool (*operatorPtr)(const DatumMapRef&,
+                                            const DatumMapRef&);
+
+                // Verify that the signatures and return types are standard.
+
+                operatorPtr operatorEq = bdld::operator==;
+                operatorPtr operatorNe = bdld::operator!=;
+
+                (void)operatorEq;  // quash potential compiler warnings
+                (void)operatorNe;
+            }
+
+            if (verbose) cout << "\nTesting operators correctness." << endl;
+            {
+                const static struct {
+                    int             d_line;    // line number
+                    DatumIntMapRef  d_value1;  // 'DatumMapRef' value1
+                    DatumIntMapRef  d_value2;  // 'DatumMapRef' value2
+                } DATA[] = {
+     //LINE VALUE
+     //---- -------------------
+     { L_,  DatumIntMapRef(map1, SIZE1, true),
+                                         DatumIntMapRef(map1c, SIZE1, false) },
+     { L_,  DatumIntMapRef(map2, SIZE2, true),
+                                         DatumIntMapRef(map2c, SIZE2, false) },
+     { L_,  DatumIntMapRef(map3, SIZE3, true),
+                                         DatumIntMapRef(map3c, SIZE3, false) },
+     };
+
+                const size_t DATA_LEN = sizeof(DATA)/sizeof(*DATA);
+
+                for (size_t i = 0; i< DATA_LEN; ++i) {
+                    const int            LINE  = DATA[i].d_line;
+                    const DatumIntMapRef X     = DATA[i].d_value1;
+                    const DatumIntMapRef Z     = DATA[i].d_value2;
+
+                    if (veryVerbose) { T_ P_(LINE) P_(X) P(Z) }
+
+                    ASSERTV(X, X == X);
+                    ASSERTV(Z, Z == Z);
+                    ASSERTV(X, !(X != X));
+                    ASSERTV(Z, !(Z != Z));
+
+                    for (size_t j = 0; j< DATA_LEN; ++j) {
+                        const DatumIntMapRef Y = DATA[j].d_value1;
+                        const DatumIntMapRef T = DATA[j].d_value2;
+                        const bool           EXP = (i == j);
+
+                        if (veryVerbose) { T_ T_ P_(Y) P(T) }
+
+                        ASSERTV(EXP, X, Y, EXP == (X == Y));
+                        ASSERTV(EXP, Y, X, EXP == (Y == X));
+                        ASSERTV(EXP, X, T, EXP == (X == T));
+                        ASSERTV(EXP, T, X, EXP == (T == X));
+                        ASSERTV(EXP, Z, Y, EXP == (Z == Y));
+                        ASSERTV(EXP, Y, Z, EXP == (Y == Z));
+                        ASSERTV(EXP, Z, T, EXP == (Z == T));
+                        ASSERTV(EXP, T, Z, EXP == (T == Z));
+                        ASSERTV(EXP, X, T, EXP == (X == T));
+                        ASSERTV(EXP, T, X, EXP == (T == X));
+
+                        ASSERTV(EXP, X, Y, EXP != (X != Y));
+                        ASSERTV(EXP, Y, X, EXP != (Y != X));
+                        ASSERTV(EXP, X, T, EXP != (X != T));
+                        ASSERTV(EXP, T, X, EXP != (T != X));
+                        ASSERTV(EXP, Z, Y, EXP != (Z != Y));
+                        ASSERTV(EXP, Y, Z, EXP != (Y != Z));
+                        ASSERTV(EXP, Z, T, EXP != (Z != T));
+                        ASSERTV(EXP, T, Z, EXP != (T != Z));
+                    }
+                }
+
+                for(SizeType i = 0; i < SIZE1; ++i) {
+                    Datum:: destroy(map1[i].value(), &oa);
+                    Datum:: destroy(map1c[i].value(), &oa);
+                }
+                for(SizeType i = 0; i < SIZE2; ++i) {
+                    Datum:: destroy(map2[i].value(), &oa);
+                    Datum:: destroy(map2c[i].value(), &oa);
+                }
+                for(SizeType i = 0; i < SIZE3; ++i) {
+                    Datum:: destroy(map3[i].value(), &oa);
+                    Datum:: destroy(map3c[i].value(), &oa);
+                }
+                ASSERT(0 == oa.status());
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'find'." << endl;
+        {
+            // Create a unique set of key
+
+            const int notInMapLess    = INT_MIN;
+            const int notInMapGreater = INT_MAX;
+
+            const int               NUM_ENTRIES = 100;
+            bsl::vector<int>        keys(NUM_ENTRIES);
+            bsl::unordered_set<int> uKeys;
+            uKeys.insert(notInMapLess);
+            uKeys.insert(notInMapGreater);
+            for (bsls::Types::size_type i = 0; i < NUM_ENTRIES; ++i) {
+                do {
+                    keys[i] = rand();
+                } while (uKeys.find(keys[i]) != uKeys.end());
+                uKeys.insert(keys[i]);
+            }
+
+            // Unsorted map.
+            {
+                bsl::vector<DatumIntMapEntry> entries(NUM_ENTRIES);
+                for (size_t i = 0; i < NUM_ENTRIES; ++i) {
+                    Datum value = Datum::createInteger(
+                                                      static_cast<int>(i) + 1);
+                    entries[i] = DatumIntMapEntry(keys[i], value);
+                }
+                const DatumIntMapRef obj(entries.data(), NUM_ENTRIES, false);
+
+                for (size_t i = 0; i < NUM_ENTRIES; ++i) {
+                    const Datum *value = obj.find(entries[i].key());
+
+                    if (veryVerbose) { T_ P_(*value) P(entries[i].value()) }
+
+                    ASSERTV(i, *value, entries[i].value(),
+                            *value == entries[i].value());
+                }
+                ASSERT(0 == obj.find(notInMapLess));
+                ASSERT(0 == obj.find(notInMapGreater));
+            }
+
+            // Sorted map.
+            {
+                bsl::sort(keys.begin(), keys.end());
+                bsl::vector<DatumIntMapEntry> entries(NUM_ENTRIES);
+                for (size_t i = 0; i < NUM_ENTRIES; ++i) {
+                    Datum value = Datum::createInteger(
+                                                      static_cast<int>(i) + 1);
+                    entries[i] = DatumIntMapEntry(keys[i], value);
+                }
+                const DatumIntMapRef obj(entries.data(), NUM_ENTRIES, true);
+
+                for (size_t i = 0; i < NUM_ENTRIES; ++i) {
+                    const Datum *value = obj.find(entries[i].key());
+
+                    if (veryVerbose) { T_ P_(*value) P(entries[i].value()) }
+
+                    ASSERTV(i, *value == entries[i].value());
+                }
+                ASSERT(0 == obj.find(notInMapLess));
+                ASSERT(0 == obj.find(notInMapGreater));
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            if (verbose) cout << "\tTesting constructor." << endl;
+            {
+                const DatumIntMapEntry  TEMP(1, Datum::createNull());
+                const DatumIntMapEntry *NULL_DME_PTR =
+                                            static_cast<DatumIntMapEntry *>(0);
+
+                ASSERT_SAFE_PASS(DatumIntMapRef(NULL_DME_PTR, 0, false));
+                ASSERT_SAFE_FAIL(DatumIntMapRef(NULL_DME_PTR, 1, false));
+                ASSERT_SAFE_PASS(DatumIntMapRef(&TEMP,        0, false));
+                ASSERT_SAFE_PASS(DatumIntMapRef(&TEMP,        1, false));
+            }
+
+            if (verbose) cout << "\tTesting 'operator[]'." << endl;
+            {
+                const int           SIZE = 3;
+                const DatumIntMapEntry MAP[SIZE] = {
+                    DatumIntMapEntry(1, Datum::createNull()),
+                    DatumIntMapEntry(2, Datum::createNull()),
+                    DatumIntMapEntry(3, Datum::createNull())
+                };
+
+                const DatumIntMapRef obj(MAP, SIZE, false);
+
+                ASSERT_SAFE_FAIL(obj[SIZE   ]);
+                ASSERT_SAFE_PASS(obj[SIZE - 1]);
+                ASSERT_SAFE_PASS(obj[0      ]);
+            }
+        }
+      } break;
       case 12: {
         // --------------------------------------------------------------------
         // TESTING 'DatumArrayRef'
@@ -7015,7 +7916,7 @@ int main(int argc, char *argv[])
         //:   correctly passed down to the data members using accessors.
         //:
         //: 2 Change the existing 'DatumMapEntry" object using manipulators and
-        //:   verify that the values were corectly passed doen to the data
+        //:   verify that the values were correctly passed down to the data
         //:   members.
         //:
         //: 3 Test equality operators for 'DatumMapEntry' objects.
@@ -7247,7 +8148,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 Any object must be assignable to itself.
         //:
-        //: 4 No memory is allocated by an assignement operator.
+        //: 4 No memory is allocated by an assignment operator.
         //
         // Plan:
         //: 1 Construct and initialize a set S of (unique) objects with
@@ -7258,7 +8159,7 @@ int main(int argc, char *argv[])
         //: 2 Test aliasing by assigning (a temporary copy of) each u to itself
         //:   and verifying that its value remains unchanged.  (C-3)
         //:
-        //: 3 Verify that no additional memory was allocated by an assignement
+        //: 3 Verify that no additional memory was allocated by an assignment
         //:   operator.  (C-4)
         //
         // Testing:
@@ -7293,7 +8194,7 @@ int main(int argc, char *argv[])
                     for (size_t j = 0; j < vector2.size(); ++j) {
                         const Datum& X = vector2[j];
 
-                        // Setting expected compare value after assignement
+                        // Setting expected compare value after assignment
                         bool  expected = true; // expected to be equal
 
                         // Handling NaNs cases - NaNs do not compare equal
@@ -8790,6 +9691,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -8838,6 +9740,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -8888,6 +9791,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -8945,6 +9849,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -9007,6 +9912,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -9075,6 +9981,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -9134,6 +10041,7 @@ int main(int argc, char *argv[])
                 ASSERT(D.isError());                // *
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -9173,6 +10081,7 @@ int main(int argc, char *argv[])
                     ASSERT(D.isError());                // *
                     ASSERT(!D.isInteger());
                     ASSERT(!D.isInteger64());
+                    ASSERT(!D.isIntMap());
                     ASSERT(!D.isMap());
                     ASSERT(!D.isNull());
                     ASSERT(!D.isString());
@@ -9227,6 +10136,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(D.isInteger());              // *
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -9285,6 +10195,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(D.isInteger64());            // *
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -9318,6 +10229,7 @@ int main(int argc, char *argv[])
             ASSERT(!D.isError());
             ASSERT(!D.isInteger());
             ASSERT(!D.isInteger64());
+            ASSERT(!D.isIntMap());
             ASSERT(!D.isMap());
             ASSERT(D.isNull());                 // *
             ASSERT(!D.isString());
@@ -9374,6 +10286,7 @@ int main(int argc, char *argv[])
                     ASSERT(!D.isError());
                     ASSERT(!D.isInteger());
                     ASSERT(!D.isInteger64());
+                    ASSERT(!D.isIntMap());
                     ASSERT(!D.isMap());
                     ASSERT(!D.isNull());
                     ASSERT(D.isString());               // *
@@ -9414,6 +10327,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(D.isString());               // *
@@ -9452,6 +10366,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(D.isString());               // *
@@ -9527,6 +10442,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -9565,6 +10481,7 @@ int main(int argc, char *argv[])
             ASSERT(!D.isError());
             ASSERT(!D.isInteger());
             ASSERT(!D.isInteger64());
+            ASSERT(!D.isIntMap());
             ASSERT(!D.isMap());
             ASSERT(!D.isNull());
             ASSERT(!D.isString());
@@ -9612,6 +10529,7 @@ int main(int argc, char *argv[])
                 ASSERT(!D.isError());
                 ASSERT(!D.isInteger());
                 ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
                 ASSERT(!D.isMap());
                 ASSERT(!D.isNull());
                 ASSERT(!D.isString());
@@ -9669,6 +10587,7 @@ int main(int argc, char *argv[])
                     ASSERT(!D.isError());
                     ASSERT(!D.isInteger());
                     ASSERT(!D.isInteger64());
+                    ASSERT(!D.isIntMap());
                     ASSERT(!D.isMap());
                     ASSERT(!D.isNull());
                     ASSERT(D.isString());               // *
@@ -9692,7 +10611,7 @@ int main(int argc, char *argv[])
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
 
-            (void) nullAllocPtr;  // supress compiler warning
+            (void) nullAllocPtr;  // suppress compiler warning
 
             if (verbose) cout << "\tTesting 'createDatetime'." << endl;
             {
@@ -9763,7 +10682,7 @@ int main(int argc, char *argv[])
                 const char *temp = "temp";
                 const char *nullCharPtr = static_cast<const char *>(0);
 
-                (void) nullCharPtr;  // supress compiler warning
+                (void) nullCharPtr;  // suppress compiler warning
 
                 ASSERT_SAFE_FAIL(Datum::createStringRef(nullCharPtr, &ta));
                 ASSERT_SAFE_PASS(Datum::createStringRef(temp,        &ta));
