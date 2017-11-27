@@ -657,7 +657,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -680,6 +680,65 @@ int main(int argc, char *argv[])
 //
     ASSERT(orig == result);
 //..
+
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING MODIFYING BUFFER POINTERS VIA BASE CLASS INTERFACE
+        //
+        // Concerns:
+        //: 1 The class functions correctly even when the base class functions
+        //    'setg' and 'setp' are used to set buffer pointers to 0.
+        //
+        // Plan:
+        //: 1 Ensure that the object's destructor validation works with
+        // pointers equal to 0.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING MODIFYING BUFFER POINTERS VIA BASE"
+                            "\n======================================\n");
+
+        class DerivedStringBuf : bsl::stringbuf {
+          public:
+            DerivedStringBuf()
+            : bsl::stringbuf()
+            {
+            }
+            DerivedStringBuf(const bsl::string &initialString)
+            : bsl::stringbuf(initialString)
+            {
+            }
+
+            using bsl::stringbuf::setg;
+            using bsl::stringbuf::setp;
+        };
+
+        {
+            DerivedStringBuf buf;
+            buf.setg(0, 0, 0);
+        }
+        {
+            DerivedStringBuf buf("abc");
+            buf.setg(0, 0, 0);
+        }
+        {
+            DerivedStringBuf buf;
+            buf.setp(0, 0, 0);
+        }
+        {
+            DerivedStringBuf buf("abc");
+            buf.setp(0, 0, 0);
+        }
+        {
+            DerivedStringBuf buf;
+            buf.setg(0, 0, 0);
+            buf.setp(0, 0, 0);
+        }
+        {
+            DerivedStringBuf buf("abc");
+            buf.setg(0, 0, 0);
+            buf.setp(0, 0, 0);
+        }
 
       } break;
       case 13: {
