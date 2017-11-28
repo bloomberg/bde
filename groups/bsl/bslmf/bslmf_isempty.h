@@ -110,7 +110,25 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_TYPE_TRAITS
+# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
+# include <type_traits>
+#endif
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+# define BSLS_ISEMPTY_USE_NATIVE_TRAIT 1
+#endif
+
 namespace bsl {
+#if !defined(BSLS_ISEMPTY_USE_NATIVE_TRAIT)
 
                         // ============================
                         // class template Is_Empty_Size
@@ -210,6 +228,21 @@ struct is_empty : Is_Empty_Imp<typename remove_cv<TYPE>::type>::type
     // 'false_type'.  Note that this metafunction will fail to compile for a
     // union that is the same size as an empty class in C++03
 };
+
+#else
+
+                    // ===============================
+                    // class template is_empty (C++11)
+                    // ===============================
+
+template <class TYPE>
+struct is_empty
+    : bsl::integral_constant<bool, ::native_std::is_empty<TYPE>::value>
+{
+    // Defer entirely to the native trait on supported C++11 compilers.
+};
+
+#endif // ! defined(BSLS_ISEMPTY_USE_NATIVE_TRAIT)
 
 }  // close namespace bsl
 
