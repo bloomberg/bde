@@ -4285,7 +4285,7 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
             const long int NaN = ~(-1ul >> 1);
-            const Obj           DEC_X = DEC(-9223372036854775808.0);
+            const Obj           DEC_X = DEC(-9223372036854775809.0);
 
             struct {
                 int          d_line;
@@ -4298,7 +4298,7 @@ void TestDriver::testCase27()
             //---------------------------------------------------------------
                 { L_, ZERO_P,                    0,                      0  },
                 { L_, ZERO_N,                    0,                      0  },
-                { L_, DEC_X,                    NaN,                     0  },
+                { L_, DEC_X,                    NaN,                  EDOM  },
                 { L_, DEC( 2.3),                 2,                      0  },
                 { L_, DEC( 2.5),                 2,                      0  },
                 { L_, DEC( 3.5),                 4,                      0  },
