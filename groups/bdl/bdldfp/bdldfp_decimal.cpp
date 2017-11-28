@@ -20,7 +20,6 @@ BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 #include <bslma_deallocatorguard.h>
 #include <bslma_default.h>
 #include <bslmf_assert.h>
-#include <bslmf_issame.h>
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 #include <math.h>
@@ -763,7 +762,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
     BSLS_ASSERT(len <= k_BUFFER_SIZE);
 
     typedef WideBufferWrapper<CHARTYPE,
-                              bsl::is_same<char, wchar_t>::value > WBuffer;
+                              sizeof(char) == sizeof(wchar_t) > WBuffer;
     WBuffer         wbuffer(buffer, len, format.getloc());
     const CHARTYPE *wbufferPos = wbuffer.begin();
     const CHARTYPE *wend       = wbuffer.end();

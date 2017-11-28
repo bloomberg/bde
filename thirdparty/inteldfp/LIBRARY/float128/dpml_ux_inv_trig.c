@@ -202,7 +202,7 @@
 #   define UX_ATAN2	__INTERNAL_NAME(ux_atan2__)
 #endif
 
-#define DEGREE_EVALUATION	((WORD) 1 << (BITS_PER_WORD - 1))
+#define DEGREE_EVALUATION	((WORD) ((U_WORD)1 << (BITS_PER_WORD - 1)))
 #define RADIAN_EVALUATION	0
 
 #define ATAN_MAP_WIDTH		4

@@ -1894,7 +1894,7 @@ DECLSPEC_OPT      type0                                     \
 
 // BID args and result
 #define       BID_TYPE_FUNCTION_ARG2(type0, fn_name, arg_name1, arg_name2)\
-	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, bidsize(type0), bidsize(type0));                 \
+	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, bidsize(type0), bidsize(type0))                 \
 DECLSPEC_OPT      type0                                     \
      fn_name (type0 bid_##arg_name1,      \
             type0 bid_##arg_name2 _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
