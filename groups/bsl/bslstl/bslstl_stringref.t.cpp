@@ -3371,7 +3371,6 @@ int main(int argc, char *argv[])
           TEST_INT_TYPE(T##N, L##N, T0, L0)
 
           enum Enum { k_LOCAL_ENUM_ZERO_VALUE, k_LOCAL_ENUM_MAX = 0xFFFF };
-          enum      { k_LOCAL_ZERO_VALUE,      k_LOCAL_MAX      = 0xFFFF };
 
           TEST_N(1)
           TEST_N(2)
