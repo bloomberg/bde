@@ -2519,11 +2519,11 @@ int main(int argc, char *argv[])
                 static_cast<INT_TYPE>(std::strlen(NON_EMPTY_STRING)));        \
           const Obj& Y = y;                                                   \
           ASSERT(!Y.isEmpty());                                               \
-          ASSERT(Y.length()  == 30);                                          \
+          ASSERT(Y.length()  == std::strlen(NON_EMPTY_STRING));               \
           ASSERT(Y.begin()   != Y.end());                                     \
           ASSERT(Y.begin()   == NON_EMPTY_STRING);                            \
           ASSERT(Y.end()     == NON_EMPTY_STRING +                            \
-                                 std::strlen(NON_EMPTY_STRING));              \
+                                std::strlen(NON_EMPTY_STRING));               \
         }
 
 #define TEST_INT_TYPE(INT_TYPE, LITERAL_ZERO)                                 \
@@ -3115,7 +3115,7 @@ int main(int argc, char *argv[])
                  NON_EMPTY_STRING + std::strlen(NON_EMPTY_STRING));
           const Obj& X2 = x2;
           ASSERT(!X2.isEmpty());
-          ASSERT(X2.length()  == 30);
+          ASSERT(X2.length()  == std::strlen(NON_EMPTY_STRING));
           ASSERT(X2.begin()   != X2.end());
           ASSERT(X2.begin()   == NON_EMPTY_STRING);
           ASSERT(X2.end()     == NON_EMPTY_STRING +
@@ -3143,7 +3143,7 @@ int main(int argc, char *argv[])
           Obj x2(NON_EMPTY_STRING, std::strlen(NON_EMPTY_STRING));
           const Obj& X2 = x2;
           ASSERT(!X2.isEmpty());
-          ASSERT(X2.length()  == 30);
+          ASSERT(X2.length()  == std::strlen(NON_EMPTY_STRING));
           ASSERT(X2.begin()   != X2.end());
           ASSERT(X2.begin()   == NON_EMPTY_STRING);
           ASSERT(X2.end()     == NON_EMPTY_STRING +
@@ -3173,7 +3173,7 @@ int main(int argc, char *argv[])
                 static_cast<INT_TYPE>(std::strlen(NON_EMPTY_STRING)));        \
           const Obj& X = x;                                                   \
           ASSERT(!X.isEmpty());                                               \
-          ASSERT(X.length()  == 30);                                          \
+          ASSERT(X.length()  == std::strlen(NON_EMPTY_STRING));               \
           ASSERT(X.begin()   != X.end());                                     \
           ASSERT(X.begin()   == NON_EMPTY_STRING);                            \
           ASSERT(X.end()     == NON_EMPTY_STRING +                            \
@@ -3227,6 +3227,9 @@ int main(int argc, char *argv[])
           ASSERT(X1.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));
 
           for (size_t start = 0, length = 0; length <= 2; ++length) {
+              if (veryVeryVerbose) {
+                  std::cout << "SR(\"\", " << start << ", 0)\n";
+              }
               Obj x3(x1, start, length);
               const Obj& X3 = x3;
               ASSERT(X3.isEmpty());
@@ -3240,7 +3243,7 @@ int main(int argc, char *argv[])
           Obj x2(NON_EMPTY_STRING, std::strlen(NON_EMPTY_STRING));
           const Obj& X2 = x2;
           ASSERT(!X2.isEmpty());
-          ASSERT(X2.length()  == 30);
+          ASSERT(X2.length()  == std::strlen(NON_EMPTY_STRING));
           ASSERT(X2.begin()   != X2.end());
           ASSERT(X2.begin()   == NON_EMPTY_STRING);
           ASSERT(X2.end()     == NON_EMPTY_STRING +
@@ -3248,8 +3251,11 @@ int main(int argc, char *argv[])
 
           for (size_t start = 0;
                       start < std::strlen(NON_EMPTY_STRING);
-                      start++) {
+                    ++start) {
               {
+                  if (veryVeryVerbose) {
+                      std::cout << "SR(SR, " << start << ", 0)\n";
+                  }
                   Obj x3(x2, start, 0);
                   const Obj& X3 = x3;
                   ASSERT(X3.isEmpty());
@@ -3260,7 +3266,11 @@ int main(int argc, char *argv[])
               }
               for (size_t length = 1;
                           length <= std::strlen(NON_EMPTY_STRING) - start;
-                          length++) {
+                        ++length) {
+                  if (veryVeryVerbose) {
+                      std::cout << "SR(SR, " << start << ", " << length
+                                << ")\n";
+                  }
                   Obj x3(x2, start, length);
                   const Obj& X3 = x3;
                   LOOP2_ASSERT(start, length, !X3.isEmpty());
@@ -3273,7 +3283,11 @@ int main(int argc, char *argv[])
               }
               for (size_t length = std::strlen(NON_EMPTY_STRING) - start + 1;
                           length <= 2 * std::strlen(NON_EMPTY_STRING);
-                          length++) {
+                        ++length) {
+                  if (veryVeryVerbose) {
+                      std::cout << "SR(SR, " << start << ", " << length
+                                << ")\n";
+                  }
                   Obj x3(x2, start, length);
                   const Obj& X3 = x3;
                   ASSERT(!X3.isEmpty());
@@ -3286,7 +3300,10 @@ int main(int argc, char *argv[])
           }
           for (size_t length = 0;
                       length <= 2 * std::strlen(NON_EMPTY_STRING);
-                      length++) {
+                    ++length) {
+              if (veryVeryVerbose) {
+                  std::cout << "SR(SR, end, " << length << ")\n";
+              }
               Obj x3(x2, std::strlen(NON_EMPTY_STRING), length);
               const Obj& X3 = x3;
               ASSERT(X3.isEmpty());
@@ -3326,10 +3343,12 @@ int main(int argc, char *argv[])
                                         std::strlen(NON_EMPTY_STRING) / 3));  \
           const Obj& X = x;                                                   \
           ASSERT(!X.isEmpty());                                               \
-          LOOP_ASSERT(X.length(), X.length()  == 10);                         \
+          ASSERT(X.length()  == std::strlen(NON_EMPTY_STRING) / 3);           \
           ASSERT(X.begin()   != X.end());                                     \
-          ASSERT(X.begin()   == NON_EMPTY_STRING + 10);                       \
-          ASSERT(X.end()     == NON_EMPTY_STRING + 20);                       \
+          ASSERT(X.begin()   == NON_EMPTY_STRING +                            \
+                                std::strlen(NON_EMPTY_STRING) / 3);           \
+          ASSERT(X.end()     == NON_EMPTY_STRING +                            \
+                                2 * std::strlen(NON_EMPTY_STRING) / 3);       \
         }
 
 #define TEST_INT_TYPE(INT_TYPE_START, LITERAL_ZERO_START,                     \
@@ -3426,7 +3445,7 @@ int main(int argc, char *argv[])
           // Non-empty string
           Obj x2(NON_EMPTY_STRING);  const Obj& X2 = x2;
           ASSERT(!X2.isEmpty());
-          ASSERT(X2.length()  == 30);
+          ASSERT(X2.length()  == std::strlen(NON_EMPTY_STRING));
           ASSERT(X2.begin()   != X2.end());
           ASSERT(X2.begin()   == NON_EMPTY_STRING);
           ASSERT(X2.end()     == NON_EMPTY_STRING +
@@ -3452,7 +3471,7 @@ int main(int argc, char *argv[])
           bsl::string nonEmptyString(NON_EMPTY_STRING);
           Obj x2(nonEmptyString);  const Obj& X2 = x2;
           ASSERT(!X2.isEmpty());
-          ASSERT(X2.length()  == 30);
+          ASSERT(X2.length()  == std::strlen(NON_EMPTY_STRING));
           ASSERT(X2.begin()   != X2.end());
           ASSERT(&*X2.begin()   == &*nonEmptyString.begin());
           ASSERT((&*X2.begin() + (X2.end() - X2.begin())) ==
@@ -3487,7 +3506,7 @@ int main(int argc, char *argv[])
           native_std::string nonEmptyString(NON_EMPTY_STRING);
           Obj x2(nonEmptyString);  const Obj& X2 = x2;
           ASSERT(!X2.isEmpty());
-          ASSERT(X2.length()  == 30);
+          ASSERT(X2.length()  == std::strlen(NON_EMPTY_STRING));
           ASSERT(X2.begin()   != X2.end());
           ASSERT(&*X2.begin()   == &*nonEmptyString.begin());
           ASSERT((&*X2.begin() + (X2.end() - X2.begin())) ==
@@ -3519,7 +3538,7 @@ int main(int argc, char *argv[])
                                              const Obj& X2  = x2;
           Obj xc2(X2);                       const Obj& XC2 = xc2;
           ASSERT(!XC2.isEmpty());
-          ASSERT(XC2.length()  == 30);
+          ASSERT(XC2.length()  == std::strlen(NON_EMPTY_STRING));
           ASSERT(XC2.begin()   != XC2.end());
           ASSERT(XC2.begin()   == NON_EMPTY_STRING);
           ASSERT(XC2.end()     == NON_EMPTY_STRING
