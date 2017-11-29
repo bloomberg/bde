@@ -261,6 +261,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isintegral.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -364,7 +368,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     StringRefImp(const CHAR_TYPE *data,
                  INT_TYPE         length,
                  typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
-                                         INT_TYPE>::type = 0);
+                                         bslmf::Nil>::type = bslmf::Nil());
     StringRefImp(const CHAR_TYPE *data, size_type length);
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation begins at the specified 'data' address
@@ -438,7 +442,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     template <class INT_TYPE>
     void assign(const CHAR_TYPE *data, INT_TYPE length,
                  typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
-                                         INT_TYPE>::type = 0);
+                                         bslmf::Nil>::type = bslmf::Nil());
     void assign(const CHAR_TYPE *data, size_type length);
         // Bind this string reference to the string at the specified 'data'
         // address and extending for the specified 'length' characters.  The
@@ -800,7 +804,8 @@ inline
 StringRefImp<CHAR_TYPE>::StringRefImp(
     const CHAR_TYPE *data,
     INT_TYPE         length,
-    typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value, INT_TYPE>::type)
+    typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
+                            bslmf::Nil>::type)
 : Base(data, data + length)
 {
     BSLS_ASSERT_SAFE(0 <= length);
@@ -876,7 +881,7 @@ template <class INT_TYPE>
 inline
 void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data, INT_TYPE length,
                  typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
-                                         INT_TYPE>::type)
+                                         bslmf::Nil>::type)
 {
     BSLS_ASSERT_SAFE(data || 0 == length);
 
