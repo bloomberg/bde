@@ -1,12 +1,19 @@
-bsl-internal (3.3.1.0) unstable; urgency=low
+bsl-internal (3.3.1.1) unstable; urgency=low
 
+  * 1d5827444 Merge pull request #1521 from hversche/pr/1519-rebased-releases/3.3.x
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Wed, 29 Nov 2017 15:38:34 -0500
+
+bsl-internal (3.3.1.0) git; urgency=low
+
+  * b1c8f6a5f Changelog for version 3.3.1.0
   * 10e453e57 Merge pull request #1520 from mgiroux/review/bump-version-to-3.3.2
   * 3dd998ff2 reset bdl version to 3.3.1
   * a7131c3bc bump versions: bsl->3.2.2, bdl->3.3.2
   * cd752f988 Merge pull request #1514 from hrosen4/pr/1513-rebased-releases/3.3.x
   * 9c9f90041 Merge pull request #1511 from hversche/pr/1472-rebased-releases/3.3.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Wed, 29 Nov 2017 12:04:58 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 29 Nov 2017 12:44:37 -0500
 
 bsl-internal (3.3.0.0) git; urgency=low
 
