@@ -1,5 +1,16 @@
-bsl-internal (3.3.0.0) unstable; urgency=low
+bsl-internal (3.3.1.0) unstable; urgency=low
 
+  * 10e453e57 Merge pull request #1520 from mgiroux/review/bump-version-to-3.3.2
+  * 3dd998ff2 reset bdl version to 3.3.1
+  * a7131c3bc bump versions: bsl->3.2.2, bdl->3.3.2
+  * cd752f988 Merge pull request #1514 from hrosen4/pr/1513-rebased-releases/3.3.x
+  * 9c9f90041 Merge pull request #1511 from hversche/pr/1472-rebased-releases/3.3.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Wed, 29 Nov 2017 12:04:58 -0500
+
+bsl-internal (3.3.0.0) git; urgency=low
+
+  * 5e8b1b4c6 Changelog for version 3.3.0.0
   * 5ca3494f6 Merge pull request #1499 from hrosen4/pr/1498-rebased-releases/3.3.x
   * 53a04ddfa Merge pull request #1508 from hversche/pr/1487-rebased-releases/3.3.x
   * 4f04592b2 Merge pull request #1489 from mgiroux/review/set-non-bsl-versions-to-3.3
@@ -24,18 +35,20 @@ bsl-internal (3.3.0.0) unstable; urgency=low
   * ba01ed418 Merge pull request #1321 from hversche/pr/1162-rebased-releases/3.2.x
   * 756c310b1 Merge pull request #1301 from hversche/pr/1298-rebased-releases/3.2.x
   * 0f72c3706 Merge pull request #1295 from hversche/pr/1293-rebased-releases/3.2.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 27 Nov 2017 17:12:29 -0500
+
+bsl-internal (3.2.0.7) git; urgency=low
+
+  * 6177c82dd Changelog for version 3.2.0.7
+  * 34a49b7be Merge pull request #1289 from hversche/pr/1288-rebased-releases/3.2.x
   * 097f484dd DRQS 104502699 for releases/3.2.x
 
- -- Henry Verschell <hverschell@bloomberg.net>  Mon, 27 Nov 2017 16:20:05 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 31 Aug 2017 09:37:52 -0400
 
-bsl-internal (3.2.0.7) unstable; urgency=low
+bsl-internal (3.2.0.6) git; urgency=low
 
-  * 34a49b7be Merge pull request #1289 from hversche/pr/1288-rebased-releases/3.2.x
-
- -- Henry Verschell <hverschell@bloomberg.net>  Tue, 29 Aug 2017 13:21:40 -0400
-
-bsl-internal (3.2.0.6) unstable; urgency=low
-
+  * 25756b8d7 Changelog for version 3.2.0.6
   * 59ffd7d2f Merge pull request #1276 from hversche/pr/1271-rebased-releases/3.2.x
   * 892c7cd6d Merge pull request #1273 from osubbotin/pr/1214-rebased-releases/3.2.x
   * 8d14d6f8c Merge pull request #1268 from hversche/pr/1236-rebased-releases/3.2.x
@@ -43,29 +56,33 @@ bsl-internal (3.2.0.6) unstable; urgency=low
   * 49e71faf0 Merge pull request #1266 from hversche/pr/1180-rebased-releases/3.2.x
   * bee809955 Merge pull request #1264 from hversche/pr/1263-rebased-releases/3.2.x
 
- -- Henry Verschell <hverschell@bloomberg.net>  Thu, 24 Aug 2017 00:17:01 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Aug 2017 09:07:40 -0400
 
-bsl-internal (3.2.0.5) unstable; urgency=low
+bsl-internal (3.2.0.5) git; urgency=low
 
+  * b9947a4f7 Changelog for version 3.2.0.5
 
- -- mgiroux <mgiroux@bloomberg.net>  Thu, 17 Aug 2017 11:09:28 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 17 Aug 2017 12:13:19 -0400
 
-bsl-internal (3.2.0.4) unstable; urgency=low
+bsl-internal (3.2.0.4) git; urgency=low
 
+  * c550ec384 Changelog for version 3.2.0.4
 
- -- Henry Verschell <hverschell@bloomberg.net>  Fri, 11 Aug 2017 13:00:44 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 11 Aug 2017 13:02:21 -0400
 
-bsl-internal (3.2.0.3) unstable; urgency=low
+bsl-internal (3.2.0.3) git; urgency=low
 
+  * 50f559d38 Changelog for version 3.2.0.3
   * 195e6a4ba Merge pull request #1250 from cwilson/pr/1249-rebased-releases/3.2.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Fri, 11 Aug 2017 09:47:36 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 11 Aug 2017 09:49:30 -0400
 
-bsl-internal (3.2.0.2) unstable; urgency=low
+bsl-internal (3.2.0.2) git; urgency=low
 
+  * 6a86f2868 Changelog for version 3.2.0.2
   * fd687430a Merge pull request #1248 from mgiroux/pr/1246-rebased-releases/3.2.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Wed, 9 Aug 2017 09:13:16 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 9 Aug 2017 09:38:38 -0400
 
 bsl-internal (3.2.0.1) git; urgency=low
 
