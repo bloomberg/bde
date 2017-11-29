@@ -2322,7 +2322,7 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-            const long int NaN = ~(-1ull >> 1);
+            const long int NaN = ~(-1ul >> 1);
 
             struct {
                 int          d_line;
@@ -2543,7 +2543,7 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
-            const long int NaN = ~(-1ull >> 1);
+            const long int NaN = ~(-1ul >> 1);
 
             struct {
                 int          d_line;
