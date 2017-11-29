@@ -2322,11 +2322,8 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_OS_AIX)
-            const      int NaN = ~(-1u >> 1);
-#else
-            const long int NaN = ~(-1ul >> 1);
-#endif
+            const long int NaN = ~(-1ull >> 1);
+
             struct {
                 int          d_line;
                 Obj          d_x;
@@ -2370,11 +2367,8 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "llrint()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_OS_AIX)
-            const long long int NaN = 0;
-#else
             const long long int NaN = ~(-1ull >> 1);
-#endif
+
             struct {
                 int           d_line;
                 Obj           d_x;
@@ -2549,11 +2543,8 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_OS_AIX)
-            const      int NaN = ~(-1u  >> 1);
-#else
-            const long int NaN = ~(-1ul >> 1);
-#endif
+            const long int NaN = ~(-1ull >> 1);
+
             struct {
                 int          d_line;
                 Obj          d_x;
@@ -8091,22 +8082,22 @@ void TestDriver::testCase18()
 
         typedef Util::ValueType64 Type;
 
-        const unsigned long long SIGNIFICANDS[] = {       1,
-                                                         22,
-                                                        333,
-                                                       4444,
-                                                      55555,
-                                                     666666,
-                                                    7777777,
-                                                   88888888,
-                                                  999999999,
-                                                 1111111111,
-                                                22222222222,
-                                               333333333333,
-                                              4444444444444,
-                                             55555555555555,
-                                            666666666666666,
-                                           7777777777777777,
+        const unsigned long long SIGNIFICANDS[] = {       1ull,
+                                                         22ull,
+                                                        333ull,
+                                                       4444ull,
+                                                      55555ull,
+                                                     666666ull,
+                                                    7777777ull,
+                                                   88888888ull,
+                                                  999999999ull,
+                                                 1111111111ull,
+                                                22222222222ull,
+                                               333333333333ull,
+                                              4444444444444ull,
+                                             55555555555555ull,
+                                            666666666666666ull,
+                                           7777777777777777ull,
         };
         const int NUM_SIGNIFCANDS = static_cast<int>(
                                                    sizeof SIGNIFICANDS
