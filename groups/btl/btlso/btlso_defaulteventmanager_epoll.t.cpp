@@ -12,6 +12,7 @@
 #include <btlso_socketoptutil.h>
 #include <btlso_timemetrics.h>
 #include <btlso_eventmanagertester.h>
+#include <btlso_ioutil.h>
 #include <btlso_platform.h>
 #include <btlso_flags.h>
 #include <bdlf_bind.h>
@@ -164,6 +165,13 @@ enum {
 //                              HELPER CLASSES
 //-----------------------------------------------------------------------------
 
+void callbackInvoked(bool *invoked)
+    // Load into the specified 'invoked' the value 'true' to signify that this
+    // callback was invoked.
+{
+    *invoked = true;
+}
+
 static void genericCb(btlso::EventType::Type       event,
                       btlso::SocketHandle::Handle  socket,
                       int                          bytes,
@@ -310,7 +318,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -414,6 +422,101 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.isRegistered(socket[0], btlso::EventType::e_READ));
         ASSERT(0 == mX.isRegistered(socket[0], btlso::EventType::e_WRITE));
         ASSERT(0 == mX.isRegistered(socket[1], btlso::EventType::e_WRITE));
+      } break;
+      case 15: {
+        // -----------------------------------------------------------------
+        // Test that writes on failed connections invoke callback
+        //
+        // Concern:
+        //: 1 Registered callbacks are invoked for failed/blocked
+        //:   connections.
+        //
+        // Plan:
+        //: 1 Register an event having a callback functor that sets a boolean
+        //:   flag when called.
+        //:
+        //: 2 Create a socket and call connect on a port that should fail.
+        //:
+        //: 3 Confirm that the registered callback is invoked.
+        // -----------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING failed connections invoke callback"
+                          << endl
+                          << "=========================================="
+                          << endl;
+        {
+            btlso::SocketHandle::Handle handle;
+
+            int rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
+                                    &handle,
+                                    btlso::SocketImpUtil::k_SOCKET_STREAM);
+            ASSERT(0 == rc);
+
+            rc = btlso::IoUtil::setBlockingMode(handle,
+                                                btlso::IoUtil::e_NONBLOCKING);
+            ASSERT(0 == rc);
+
+            btlso::IPv4Address address("127.0.0.1", 65534);
+
+            rc = btlso::SocketImpUtil::connect(handle, address);
+            ASSERT(rc == btlso::SocketHandle::e_ERROR_WOULDBLOCK);
+
+            Obj mX;
+            ASSERT(0 == mX.numEvents());
+
+            bool invoked = false;
+            btlso::EventManager::Callback cb = bdlf::BindUtil::bind(
+                                                             &callbackInvoked,
+                                                             &invoked);
+
+            rc = mX.registerSocketEvent(handle,
+                                        btlso::EventType::e_WRITE,
+                                        cb);
+            ASSERT(0 == rc);
+            ASSERT(1 == mX.numEvents());
+
+            mX.dispatch(bsls::TimeInterval(1, 0), 0);
+
+            ASSERT(invoked == true);
+        }
+
+        {
+            btlso::SocketHandle::Handle handles[2];
+            int rc = btlso::SocketImpUtil::socketPair<btlso::IPv4Address>(
+                           handles, btlso::SocketImpUtil::k_SOCKET_STREAM);
+            ASSERT(0 == rc);
+
+            rc = btlso::IoUtil::setBlockingMode(
+                                             handles[0],
+                                             btlso::IoUtil::e_NONBLOCKING);
+            ASSERT(0 == rc);
+            rc = btlso::IoUtil::setBlockingMode(
+                                             handles[1],
+                                             btlso::IoUtil::e_NONBLOCKING);
+            ASSERT(0 == rc);
+
+            Obj mX;
+            ASSERT(0 == mX.numEvents());
+
+            bool invoked = false;
+            btlso::EventManager::Callback cb = bdlf::BindUtil::bind(
+                                                             &callbackInvoked,
+                                                             &invoked);
+
+            rc = mX.registerSocketEvent(handles[0],
+                                        btlso::EventType::e_WRITE,
+                                        cb);
+            ASSERT(0 == rc);
+            ASSERT(1 == mX.numEvents());
+
+            rc = btlso::SocketImpUtil::close(handles[1]);
+            ASSERT(0 == rc);
+
+            mX.dispatch(bsls::TimeInterval(1, 0), 0);
+
+            ASSERT(invoked == true);
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
