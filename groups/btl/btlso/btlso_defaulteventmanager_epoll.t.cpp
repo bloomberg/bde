@@ -13,6 +13,7 @@
 #include <btlso_timemetrics.h>
 #include <btlso_eventmanagertester.h>
 #include <btlso_ioutil.h>
+#include <btlso_ipv4address.h>
 #include <btlso_platform.h>
 #include <btlso_flags.h>
 #include <bdlf_bind.h>
@@ -79,7 +80,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] numEvents
 // [ 3] isRegistered
 //-----------------------------------------------------------------------------
-// [14] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 // [13] Testing TRAITS
 // [10] SYSTEM INTERFACES ASSUMPTIONS
 // [ 1] Breathing test
@@ -425,7 +426,7 @@ int main(int argc, char *argv[])
       } break;
       case 15: {
         // -----------------------------------------------------------------
-        // Test that writes on failed connections invoke callback
+        // TESTING THAT WRITES ON FAILED CONNECTIONS INVOKE CALLBACK
         //
         // Concern:
         //: 1 Registered callbacks are invoked for failed/blocked
@@ -441,10 +442,10 @@ int main(int argc, char *argv[])
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING failed connections invoke callback"
-                          << endl
-                          << "=========================================="
-                          << endl;
+                << "TESTING THAT WRITES ON FAILED CONNECTIONS INVOKE CALLBACK"
+                << endl
+                << "========================================================="
+                << endl;
         {
             btlso::SocketHandle::Handle handle;
 
