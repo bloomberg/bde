@@ -1014,6 +1014,9 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::CustomizedType)
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuninitialized"
+#ifndef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #endif
 
     BaseType base;
