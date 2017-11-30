@@ -678,7 +678,7 @@ C_UX_MOD(_X_FLOAT * packed_x, _X_FLOAT * packed_y, U_WORD bit_vector,
 */
 
 #define R_minus_2B(B,i)		\
-		((2 + ((i & 1) - (((2*B) >> i) & 2))) << (i * FLAGS_BIT_WIDTH))
+		((2u + ((i & 1) - (((2*B) >> i) & 2))) << (i * FLAGS_BIT_WIDTH))
 
 #define CVT_B_TO_B_PRIME(B)	( R_minus_2B(B, 0) | R_minus_2B(B, 1) | \
 				  R_minus_2B(B, 2) | R_minus_2B(B, 3) | \

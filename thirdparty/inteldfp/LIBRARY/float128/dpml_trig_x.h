@@ -83,7 +83,7 @@
 	/* 208 */ DATA_1x2( 0x0000001f, 0x00000000 ),
 
 	/* Unpacked constants pi/180 */
-	/* 216 */ POS, 00-5, DATA_2x2( 0x94e9c8ae, 0x8efa3512, 0x9485c4d9, 0x0ec5f66e ),
+	/* 216 */ POS, -5u, DATA_2x2( 0x94e9c8ae, 0x8efa3512, 0x9485c4d9, 0x0ec5f66e ),
 
 	/* Packed constants 1 */
 	/* 240 */ DATA_4( 0x00000000, 0x00000000, 0x00000000, 0x3fff0000 ),

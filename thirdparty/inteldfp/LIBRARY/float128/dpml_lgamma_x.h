@@ -46,7 +46,7 @@
 	/* 104 */ POS, 0000, DATA_2x2( 0xd1cf79ab, 0xb17217f7, 0x03f2f6af, 0xc9e3b398 ),
 	/* 128 */ POS, 0001, DATA_2x2( 0x2168c234, 0xc90fdaa2, 0x80dc1cd1, 0xc4c6628b ),
 	/* 152 */ POS, 0000, DATA_2x2( 0x25f5a534, 0xeb3f8e43, 0x44192023, 0x94bc9001 ),
-	/* 176 */ NEG, 00-2, DATA_2x2( 0x5098ae23, 0xe735d92d, 0x0098a5d2, 0x2b6371a5 ),
+	/* 176 */ NEG, -2u, DATA_2x2( 0x5098ae23, 0xe735d92d, 0x0098a5d2, 0x2b6371a5 ),
 
 	/* Fixed point coefficients for lgamma on [1,2) */
 	/* 200 */ DATA_2x2( 0x00000000, 0x00000000, 0x00000000, 0x00000000 ),
@@ -64,7 +64,7 @@
 	/* 392 */ DATA_4( 0x9081feb0, 0x99782df4, 0x590f0953, 0x85d5f505 ),
 	/* 408 */ DATA_4( 0x6c10b7f7, 0x1b6c7514, 0x39f9e37e, 0x88814a09 ),
 	/* 424 */ DATA_4( 0x83a6a3c6, 0x3431fac5, 0x2983229a, 0x3dd72b61 ),
-	/* 440 */ DATA_1x2( 0x000000-1, 0x00000000 ),
+	/* 440 */ DATA_1x2( -1u, 0x00000000 ),
 	/* 448 */ DATA_4( 0xc67ddea9, 0x27e51e40, 0x0000731a, 0x00000000 ),
 	/* 464 */ DATA_4( 0x5b1c0e74, 0xc97fab18, 0x0115d73c, 0x00000000 ),
 	/* 480 */ DATA_4( 0x1d79d56f, 0x6e9d2e49, 0xa6315e07, 0x00000000 ),
@@ -91,7 +91,7 @@
 	/* 776 */ DATA_4( 0x229f11bd, 0x77235e20, 0x430459cf, 0x30a1be32 ),
 	/* 792 */ DATA_4( 0x257c5853, 0x5544fc19, 0x91178da0, 0x9d3bed71 ),
 	/* 808 */ DATA_4( 0xaaaaaaab, 0xaaaaaaaa, 0xaaaaaaaa, 0xaaaaaaaa ),
-	/* 824 */ DATA_1x2( 0x000000-6, 0x00000000 ),
+	/* 824 */ DATA_1x2( -6u, 0x00000000 ),
 	/* 832 */ DATA_4( 0xef3685a9, 0xb0eb5698, 0xbfa75404, 0x00000000 ),
 	/* 848 */ DATA_4( 0xad31e3f2, 0xf0e52018, 0x3c335fc5, 0x00000284 ),
 	/* 864 */ DATA_4( 0x13d425ca, 0x21bf8b59, 0x77594c75, 0x000173e1 ),

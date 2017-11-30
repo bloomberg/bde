@@ -345,7 +345,7 @@ bid32_abs (BID_UINT32 x _EXC_MASKS_PARAM _EXC_INFO_PARAM) {
 
 // copies operand x to destination in the same format as x, but 
 // with the sign of y
-DFP_WRAPFN_DFP_DFP(32, bid32_copySign, 32, 32);   
+DFP_WRAPFN_DFP_DFP(32, bid32_copySign, 32, 32)
 
 #if DECIMAL_CALL_BY_REFERENCE
 void
@@ -957,7 +957,7 @@ BID_UINT32 bid32_inf (void) {
 }
 
 
-DFP_WRAPFN_OTHERTYPE(32, bid32_nan, const char *);
+DFP_WRAPFN_OTHERTYPE(32, bid32_nan, const char *)
 
 #if DECIMAL_CALL_BY_REFERENCE
 void bid32_nan (BID_UINT32 *pres, const char *tagp) {

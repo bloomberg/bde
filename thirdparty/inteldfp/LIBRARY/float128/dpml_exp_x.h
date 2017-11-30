@@ -61,7 +61,7 @@
 	/* 080 */ DATA_1x2( 0x00000000, 0x00000000 ),
 
 	/* ln2_lo = ln2 - ln2_hi in unpacked form */
-	/* 088 */ NEG, 0-66, DATA_2x2( 0xf0342542, 0xd871319f, 0x359d2749, 0xfc32f366 ),
+	/* 088 */ NEG, -66u, DATA_2x2( 0xf0342542, 0xd871319f, 0x359d2749, 0xfc32f366 ),
 
 	/* Polynomial degree */
 	/* 112 */ DATA_1x2( 0x00000016, 0x00000000 ),
@@ -100,10 +100,10 @@
 	/* High digits of ln10/ln2, ln2/ln10 and binary exponent of ln2/ln10 */
 	/* 520 */ DATA_1x2( 0xcd1b8afe, 0xd49a784b ),
 	/* 528 */ DATA_1x2( 0xfbcff799, 0x9a209a84 ),
-	/* 536 */ DATA_1x2( 0x000000-1, 0x00000000 ),
+	/* 536 */ DATA_1x2( -1u, 0x00000000 ),
 
 	/* ln2_ov_ln10_lo = ln2 - ln2_ov_ln10__hi in unpacked form */
-	/* 544 */ NEG, 0-66, DATA_2x2( 0xe906dd0f, 0xe0ed4ca7, 0x785c196c, 0xb2a59e75 ),
+	/* 544 */ NEG, -66u, DATA_2x2( 0xe906dd0f, 0xe0ed4ca7, 0x785c196c, 0xb2a59e75 ),
 
 	/* Polynomial degree */
 	/* 568 */ DATA_1x2( 0x00000016, 0x00000000 ),
