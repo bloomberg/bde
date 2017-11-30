@@ -189,6 +189,7 @@ BSLS_IDENT("$Id: $")
 // First, we begin our routine:
 //..
 //  void reportError(bsl::ostream& stream)
+//      // Report an error to the specified 'stream'.
 //  {
 //..
 // Then, we define the maximum number of traces that can happen in a short
@@ -340,7 +341,7 @@ class Throttle {
                                            bsls::SystemClockType::e_MONOTONIC);
         // Initialize this 'Throttle' to limit the average period of actions
         // permitted to the specified 'nanosecondsPerAction', and the maximum
-        // number of actions allowed in a very short timespan to
+        // number of actions allowed in a very short timespan to the specified
         // 'maxSimultaneousActions'.  Optionally specify 'clockType' to
         // indicate which system clock will be used to measure time.  If
         // 'clockType' is not supplied the monotonic system clock is used.  The
@@ -366,8 +367,8 @@ class Throttle {
         // action(s) would *not* exceed the maximum allowed time debt
         // configured for this 'Throttle' object
         // ('nanosecondsPerAction * maxSimultaneousActions'), and 'false'
-        // otherwise.  Optionally specificy 'now' indicating the current time
-        // of the system clock for which this object is configured ('now' is a
+        // otherwise.  Optionally specify 'now' indicating the current time of
+        // the system clock for which this object is configured ('now' is a
         // offset from that clocks epoch).  If 'now' is not supplied, the
         // current time is obtained from the configured system clock.
         // Optionally specify 'numActions' indicating the number of actions
@@ -387,12 +388,12 @@ class Throttle {
     int requestPermissionIfValid(bool                      *result,
                                  int                        numActions,
                                  const bsls::TimeInterval&  now);
-        // Set '*result' to 'true' if the time debt incurred by taking the
-        // specified 'numActions' would *not* exceed the maximum allowed time
-        // debt configured for this 'Throttle' object
+        // Set the specified '*result' to 'true' if the time debt incurred by
+        // taking the specified 'numActions' would *not* exceed the maximum
+        // allowed time debt configured for this 'Throttle' object
         // ('nanosecondsPerAction * maxSimultaneousActions'), and 'false'
-        // otherwise.  Optionally specificy 'now' indicating the current time
-        // of the system clock for which this object is configured ('now' is a
+        // otherwise.  Optionally specify 'now' indicating the current time of
+        // the system clock for which this object is configured ('now' is a
         // offset from that clocks epoch).  If 'now' is not supplied, the
         // current time is obtained from the configured system clock.  If
         // '*result' is set to 'true' then 'numActions * nanosecondsPerActions'
@@ -405,6 +406,9 @@ class Throttle {
         // '*result' is unaffected.
 
     // ACCESSOR
+    bsls::SystemClockType::Enum clockType() const;
+        // Return the system clock type with which this object was configured.
+
     int maxSimultaneousActions() const;
         // Return the 'maxSimultaneousActions' value with which this object was
         // configured.
@@ -456,15 +460,16 @@ class Throttle_ArgFilter_Imp {
                                                        NANOSECONDS_PER_ACTION);
 
   public:
-    static const bsls::Types::Int64 npaValue = 0 == MAX_SIMULTANEOUS_ACTIONS
-                                             ? Throttle::k_ALLOW_NONE
-                                             : NANOSECONDS_PER_ACTION
-                                             ? NANOSECONDS_PER_ACTION
-                                             : Throttle::k_ALLOW_ALL;
+    // PUBLIC CONSTANTS
+    static const bsls::Types::Int64 k_npaValue = 0 == MAX_SIMULTANEOUS_ACTIONS
+                                               ? Throttle::k_ALLOW_NONE
+                                               : NANOSECONDS_PER_ACTION
+                                               ? NANOSECONDS_PER_ACTION
+                                               : Throttle::k_ALLOW_ALL;
 
-    static const int                msaValue = 0 == NANOSECONDS_PER_ACTION
-                                             ? INT_MAX
-                                             : MAX_SIMULTANEOUS_ACTIONS;
+    static const int                k_msaValue = 0 == NANOSECONDS_PER_ACTION
+                                               ? INT_MAX
+                                               : MAX_SIMULTANEOUS_ACTIONS;
 };
 
 template <int clockType>
@@ -475,6 +480,7 @@ class Throttle_ClockTypeFilter_Imp {
     //: o It enables us to do a compile-time check of the validity of
     //:   'clockType'.
 
+    // PRIVATE TYPES
     typedef bsls::SystemClockType  SystemClockType;
     typedef SystemClockType::Enum  ClockEnum;
 
@@ -482,6 +488,7 @@ class Throttle_ClockTypeFilter_Imp {
                  SystemClockType::e_REALTIME  == clockType);
 
   public:
+    // PUBLIC CONSTANTS
     static const ClockEnum value = static_cast<ClockEnum>(clockType);
 };
 
@@ -533,6 +540,12 @@ int Throttle::requestPermissionIfValid(bool                      *result,
 
 // ACCESSORS
 inline
+bsls::SystemClockType::Enum Throttle::clockType() const
+{
+    return d_clockType;
+}
+
+inline
 int Throttle::maxSimultaneousActions() const
 {
     return d_maxSimultaneousActions;
@@ -553,12 +566,12 @@ bsls::Types::Int64 Throttle::nanosecondsPerAction() const
     -BloombergLP::bdlmt::Throttle::k_TEN_YEARS_NANOSECONDS,                   \
     BloombergLP::bdlmt::Throttle_ArgFilter_Imp<(maxSimultaneousActions),      \
                                                (nanosecondsPerAction)         \
-                                                                 >::npaValue, \
+                                                               >::k_npaValue, \
     bsl::integral_constant<BloombergLP::bsls::Types::Int64,                   \
          1LL * (maxSimultaneousActions) * (nanosecondsPerAction)>::value,     \
     BloombergLP::bdlmt::Throttle_ArgFilter_Imp<(maxSimultaneousActions),      \
                                                (nanosecondsPerAction)         \
-                                                                 >::msaValue, \
+                                                               >::k_msaValue, \
     BloombergLP::bsls::SystemClockType::e_MONOTONIC                           \
  }
 
@@ -567,12 +580,12 @@ bsls::Types::Int64 Throttle::nanosecondsPerAction() const
     -BloombergLP::bdlmt::Throttle::k_TEN_YEARS_NANOSECONDS,                   \
     BloombergLP::bdlmt::Throttle_ArgFilter_Imp<(maxSimultaneousActions),      \
                                                (nanosecondsPerAction)         \
-                                                                 >::npaValue, \
+                                                               >::k_npaValue, \
     bsl::integral_constant<BloombergLP::bsls::Types::Int64,                   \
          1LL * (maxSimultaneousActions) * (nanosecondsPerAction)>::value,     \
     BloombergLP::bdlmt::Throttle_ArgFilter_Imp<(maxSimultaneousActions),      \
                                                (nanosecondsPerAction)         \
-                                                                 >::msaValue, \
+                                                               >::k_msaValue, \
     BloombergLP::bsls::SystemClockType::e_REALTIME                            \
  }
 

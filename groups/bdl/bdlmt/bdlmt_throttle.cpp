@@ -43,11 +43,11 @@ void Throttle::initialize(int                         maxSimultaneousActions,
                            ? nanosecondsPerAction
                            : k_ALLOW_ALL;
 
-    // If 'd_nanosecondsPerAction' is set to 'allow all' or 'allow none',
-    // then it doesn't matter what 'd_nanosecondsPerTotalReset' is.
+    // If 'd_nanosecondsPerAction' is set to 'allow all' or 'allow none', then
+    // it doesn't matter what 'd_nanosecondsPerTotalReset' is.
 
     d_nanosecondsPerTotalReset = maxSimultaneousActions * nanosecondsPerAction;
-    d_maxSimultaneousActions             = 0 == nanosecondsPerAction
+    d_maxSimultaneousActions   = 0 == nanosecondsPerAction
                                ? INT_MAX
                                : maxSimultaneousActions;
     d_clockType                = clockType;
@@ -102,8 +102,8 @@ bool Throttle::requestPermission(int                       numActions,
         return false;                                                 // RETURN
     }
 
-    // Testing for 'k_ALLOW_ALL' here prevents undefined behavior later in
-    // the function due to overflowing signed arithmetic.
+    // Testing for 'k_ALLOW_ALL' here prevents undefined behavior later in the
+    // function due to overflowing signed arithmetic.
 
     if (k_ALLOW_ALL == d_nanosecondsPerAction) {
         return true;                                                  // RETURN
