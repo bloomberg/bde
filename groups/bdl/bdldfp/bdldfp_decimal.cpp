@@ -270,6 +270,7 @@ doGetCommon(ITER_TYPE                    begin,
     return begin;
 }
 
+inline
 bool isNegative(const Decimal32& x)
     // Return 'true' if the specified 'x' is negative and 'false' otherwise.
 {
@@ -278,6 +279,7 @@ bool isNegative(const Decimal32& x)
     return x.value().d_raw & k_SIGN_MASK;
 }
 
+inline
 bool isNegative(const Decimal64& x)
     // Return 'true' if the specified 'x' is negative and 'false' otherwise.
 {
@@ -287,6 +289,7 @@ bool isNegative(const Decimal64& x)
 }
 
 
+inline
 bool isNegative(const Decimal128& x)
     // Return 'true' if the specified 'x' is negative and 'false' otherwise.
 {
@@ -300,172 +303,6 @@ bool isNegative(const Decimal128& x)
 
     return xH & k_SIGN_MASK;
 }
-
-                    // ============================================
-                    // template <class CHARTYPE, bool WCHAR_8_BITS>
-                    // class WideBufferWrapper
-                    // ============================================
-
-template <class CHARTYPE, bool WCHAR_8_BITS>
-class WideBufferWrapper;
-    // This class provides a wrapper around a buffer of the specified (template
-    // parameter) 'CHARTYPE'.  'CHARTYPE' shall be either plain character type
-    // 'char' or wide character type 'wchar_t'.  The width of 'wchar_t' is
-    // compiler-specific and can be as small as 8 bits.  The template parameter
-    // 'WCHAR_8_BITS' shall be 'true' if 'wchar_t' and 'char' widths are the
-    // same, i.e. 8 bits, and 'false' otherwise.  This class provides accessors
-    // to the beginning and the end of the buffer of 'CHARTYPE' characters.
-
-                    // ==========================================
-                    // template <bool WCHAR_8_BIT>
-                    // class WideBufferWrapper<char, WCHAR_8_BIT>
-                    // ==========================================
-
-template <bool WCHAR_8_BIT>
-class WideBufferWrapper<char, WCHAR_8_BIT> {
-    // This class is specialization of the template
-    // 'WideBufferWrapper<CHARTYPE, WCHAR_8_BITS>' for 'char' type and
-    // 'wchar_t' type which width is 8 bits.
-
-    // DATA
-    const char *d_begin;  // pointer to the beginning of plain character buffer
-    const char *d_end;    // pointer to the end of plain character buffer
-
-    // NOT IMPLEMENTED
-    WideBufferWrapper(const WideBufferWrapper& /*other*/);
-    WideBufferWrapper& operator=(const WideBufferWrapper& /*other*/);
-
-  public:
-    // CREATORS
-    WideBufferWrapper(const char *buffer, int len, const bsl::locale&);
-        // Create a wide buffer wrapper for the specified 'buffer' of the
-        // specified length 'len'.
-
-    // ACCESSORS
-    const char *begin() const;
-        // Return a pointer to the beginning of the buffer of plain characters
-        // provided in this class constructor.
-
-    const char *end() const;
-        // Return a pointer to the end of the buffer of plain characters
-        // provided in this class constructor.
-};
-
-                    // =======================================
-                    // template <>
-                    // class WideBufferWrapper<wchar_t, false>
-                    // =======================================
-
-template <>
-class WideBufferWrapper<wchar_t, false> {
-    // This class is specialization of the template
-    // 'WideBufferWrapper<CHARTYPE, WCHAR_8_BIT>' for 'wchar_t' type which
-    // width exceeds 8 bits.
-
-    // DATA
-    wchar_t *d_buffer_p;  // Buffer of wide characters
-    size_t   d_len;       // Length of the buffer
-
-    // NOT IMPLEMENTED
-    WideBufferWrapper(const WideBufferWrapper& /*other*/);
-    WideBufferWrapper& operator=(const WideBufferWrapper& /*other*/);
-
-  public:
-    // CREATORS
-    inline
-    WideBufferWrapper(const char *buffer, int len, const bsl::locale& loc);
-        // Create a wide buffer wrapper for the specified 'buffer' of the
-        // specified length 'len'.  Use the specified locale 'loc' to widen
-        // character in the buffer into wide characters representation.
-
-    ~WideBufferWrapper();
-        // Destroy this object.
-
-    // ACCESSORS
-    const wchar_t *begin() const;
-        // Return a pointer to the beginning of the buffer of wide characters.
-
-    const wchar_t *end() const;
-        // Return a pointer to the end the buffer of wide characters.
-};
-
-                    // -----------------------------
-                    // class WideBufferWrapper<char>
-                    // -----------------------------
-
-//CREATORS
-template <bool WCHAR_8_BIT>
-inline
-WideBufferWrapper<char, WCHAR_8_BIT>::WideBufferWrapper(
-                                                    const char        *buffer,
-                                                    int                len,
-                                                    const bsl::locale& /*loc*/)
-    : d_begin(buffer)
-    , d_end(buffer + len)
-{
-    BSLS_ASSERT(buffer);
-    BSLS_ASSERT(len >= 0);
-}
-
-// ACCESSORS
-template <bool WCHAR_8_BIT>
-inline
-const char *WideBufferWrapper<char, WCHAR_8_BIT>::begin() const
-{
-    return d_begin;
-}
-
-template <bool WCHAR_8_BIT>
-inline
-const char *WideBufferWrapper<char, WCHAR_8_BIT>::end() const
-{
-    return d_end;
-}
-
-                    // --------------------------------
-                    // class WideBufferWrapper<wchar_t>
-                    // --------------------------------
-
-//CREATORS
-inline
-WideBufferWrapper<wchar_t, false>::WideBufferWrapper(const char        *buffer,
-                                                     int                len,
-                                                     const bsl::locale& loc)
-    : d_buffer_p(0)
-    , d_len(len)
-{
-    BSLS_ASSERT(buffer);
-    BSLS_ASSERT(len >= 0);
-
-    bslma::Allocator *allocator = bslma::Default::allocator();
-
-    d_buffer_p = (wchar_t *)allocator->allocate(sizeof(wchar_t) * len);
-
-    bsl::use_facet<std::ctype<wchar_t> >(loc).widen(buffer,
-                                                    buffer + len,
-                                                    d_buffer_p);
-}
-
-inline
-WideBufferWrapper<wchar_t, false>::~WideBufferWrapper()
-{
-    bslma::Allocator *allocator = bslma::Default::allocator();
-    allocator->deallocate(d_buffer_p);
-}
-
-    // ACCESSORS
-inline
-const wchar_t *WideBufferWrapper<wchar_t, false>::begin() const
-{
-    return d_buffer_p;
-}
-
-inline
-const wchar_t *WideBufferWrapper<wchar_t, false>::end() const
-{
-    return d_buffer_p + d_len;
-}
-
 }  // close unnamed namespace
 
 
@@ -761,8 +598,9 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
                                            cfg);
     BSLS_ASSERT(len <= k_BUFFER_SIZE);
 
-    typedef WideBufferWrapper<CHARTYPE,
-                              sizeof(char) == sizeof(wchar_t) > WBuffer;
+    typedef DecimalNumPut_WideBufferWrapper<CHARTYPE,
+                                            sizeof(char) == sizeof(wchar_t)>
+        WBuffer;
     WBuffer         wbuffer(buffer, len, format.getloc());
     const CHARTYPE *wbufferPos = wbuffer.begin();
     const CHARTYPE *wend       = wbuffer.end();

@@ -1677,9 +1677,9 @@ int main(int argc, char* argv[])
         ASSERT(PRECISION == X.precision());
         ASSERT(STYLE     == X.style());
         ASSERT(SIGN      == X.sign());
-        ASSERT(INF       == X.infinity());
-        ASSERT(QNAN      == X.nan());
-        ASSERT(SNAN      == X.sNan());
+        ASSERT(0 == strcmp(INF, X.infinity()));
+        ASSERT(0 == strcmp(QNAN, X.nan()));
+        ASSERT(0 == strcmp(SNAN, X.sNan()));
         ASSERT(POINT     == X.decimalPoint());
         ASSERT(EXPONENT  == X.exponent());
 
