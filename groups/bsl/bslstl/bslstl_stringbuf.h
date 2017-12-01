@@ -1023,7 +1023,7 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
         const char_type *first       = this->eback();
         const char_type *middle      = this->gptr();
         const char_type *last        = this->egptr();
-		const bool       isNull      = first == 0;
+        const bool       isNull      = first == 0;
         const char_type *bufferBegin = isNull ? 0 : d_str.data();
         const char_type *bufferEnd   = isNull ? 0 : d_str.data() + d_str.size();
         BSLS_ASSERT(first  == bufferBegin);
@@ -1036,7 +1036,7 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
         const char_type *first       = this->pbase();
         const char_type *middle      = this->pptr();
         const char_type *last        = this->epptr();
-		const bool       isNull      = first == 0;
+        const bool       isNull      = first == 0;
         const char_type *bufferBegin = isNull ? 0 : d_str.data();
         const char_type *bufferEnd   = isNull ? 0 : d_str.data() + d_str.size();
         BSLS_ASSERT(first  == bufferBegin);
