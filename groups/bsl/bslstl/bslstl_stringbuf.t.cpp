@@ -723,21 +723,21 @@ int main(int argc, char *argv[])
         }
         {
             DerivedStringBuf buf;
-            buf.setp(0, 0, 0);
+            buf.setp(0, 0);
         }
         {
             DerivedStringBuf buf("abc");
-            buf.setp(0, 0, 0);
+            buf.setp(0, 0);
         }
         {
             DerivedStringBuf buf;
             buf.setg(0, 0, 0);
-            buf.setp(0, 0, 0);
+            buf.setp(0, 0);
         }
         {
             DerivedStringBuf buf("abc");
             buf.setg(0, 0, 0);
-            buf.setp(0, 0, 0);
+            buf.setp(0, 0);
         }
 
       } break;
