@@ -8,6 +8,7 @@
 BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -LL01 // Link is just too long
+
 //@PURPOSE: Online algorithm for computing the least squares regression line.
 //
 //@CLASSES:
@@ -25,8 +26,6 @@ BSLS_IDENT("$Id: $")
 //
 // Note that the behavior is undefined if there are less than 2 data points, or
 // if all the X's (dependent variable) are the same.
-// BDE_VERIFY pragma: +LL01
-//..
 //
 ///Usage
 ///-----
@@ -61,6 +60,8 @@ BSLS_IDENT("$Id: $")
 //  ASSERT(1e-3 >  fabs(0.175 - alpha));
 //  ASSERT(1e-3 >  fabs(0.9   - beta ));
 //..
+
+// BDE_VERIFY pragma: +LL01
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
