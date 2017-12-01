@@ -8,6 +8,7 @@
 BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -LL01 // Link is just too long
+
 //@PURPOSE: Online algorithm for mean, variance, skew, and kurtosis.
 //
 //@CLASSES:
@@ -64,6 +65,7 @@ BSLS_IDENT("$Id: $")
 //  ASSERT(1e-5 > fabs(3.33333 - m3.variance()));
 //  ASSERT(1e-5 > fabs(0.0     - m3.skew()));
 //..
+
 // BDE_VERIFY pragma: +LL01
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -165,9 +167,10 @@ struct Moment_Data<MomentLevel::e_M4> {
                             // class Moment
                             // ============
 
+// BDE_VERIFY pragma: -LL01 // Link is just too long
+
 template <MomentLevel::Enum ML>
 class Moment {
-    // BDE_VERIFY pragma: -LL01 // Link is just too long
     // This class provides efficient and accurate online algorithms for
     // calculating mean, variance, skew, and kurtosis.  The class provides
     // template specializations, so that no unnecessary data members will be
@@ -180,6 +183,7 @@ class Moment {
     //
     // The formula for sample excess kurtosis is taken from:
     // http://www.macroption.com/kurtosis-formula/
+
     // BDE_VERIFY pragma: +LL01
 
   private:

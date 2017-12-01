@@ -146,7 +146,7 @@
 //..
 //  namespace {
 //  balb::AssertionTracker theTracker;
-//  #define TRACK_ASSERT(condition) do { if (!(condition)) { \{{ Remove This }}
+//  #define TRACK_ASSERT(condition) do { if (!(condition)) { \  /*Squash Warn*/
 //  theTracker.assertionDetected(#condition, __FILE__, __LINE__); } } while (0)
 //  }  // close unnamed namespace
 //..
@@ -273,7 +273,7 @@ class AssertionTracker {
                                // sequence of addresses
 
     // The following two types can use unordered_map instead of map once
-    // {DRQS 102622326} (compilation failure on AIX) is fixed.
+    // DRQS 102622326 (compilation failure on AIX) is fixed.
     typedef bsl::map<StackTrace, int> AssertionCounts;
                                // a type for keeping a count per stack trace
 
