@@ -877,6 +877,8 @@ native_std::streamsize
     if ((d_mode & ios_base::out) == 0) {
         return 0;                                                     // RETURN
     }
+    BSLS_ASSERT(this->pptr());
+    BSLS_ASSERT(this->pbase());
 
     // Compute the space required.
 
@@ -1018,17 +1020,29 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     ~basic_stringbuf()
 {
     if (d_mode & ios_base::in) {
-        BSLS_ASSERT(this->eback() == d_str.data());
-        BSLS_ASSERT(this->egptr() <= d_str.data() + d_str.size());
-        BSLS_ASSERT(this->eback() <= this->gptr());
-        BSLS_ASSERT(this->gptr()  <= this->egptr());
+        const char_type *first       = this->eback();
+        const char_type *middle      = this->gptr();
+        const char_type *last        = this->egptr();
+		const bool       isNull      = first == 0;
+        const char_type *bufferBegin = isNull ? 0 : d_str.data();
+        const char_type *bufferEnd   = isNull ? 0 : d_str.data() + d_str.size();
+        BSLS_ASSERT(first  == bufferBegin);
+        BSLS_ASSERT(last   <= bufferEnd);
+        BSLS_ASSERT(first  <= middle);
+        BSLS_ASSERT(middle <= last);
     }
 
     if (d_mode & ios_base::out) {
-        BSLS_ASSERT(this->pbase() == d_str.data());
-        BSLS_ASSERT(this->epptr() == d_str.data() + d_str.size());
-        BSLS_ASSERT(this->pbase() <= this->pptr());
-        BSLS_ASSERT(this->pptr()  <= this->epptr());
+        const char_type *first       = this->pbase();
+        const char_type *middle      = this->pptr();
+        const char_type *last        = this->epptr();
+		const bool       isNull      = first == 0;
+        const char_type *bufferBegin = isNull ? 0 : d_str.data();
+        const char_type *bufferEnd   = isNull ? 0 : d_str.data() + d_str.size();
+        BSLS_ASSERT(first  == bufferBegin);
+        BSLS_ASSERT(last   <= bufferEnd);
+        BSLS_ASSERT(first  <= middle);
+        BSLS_ASSERT(middle <= last);
     }
 }
 
