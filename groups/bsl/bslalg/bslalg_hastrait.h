@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 // this way, 'bslalg::HasTrait' provides a "bridge" between legacy 'bslalg'
 // type traits and their replacements that facilitates the migration to the
 // newer traits.
-//..
+//
 ///Usage
 ///-----
 // No Usage example is provided since this component is deprecated.
