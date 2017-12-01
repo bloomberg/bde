@@ -598,8 +598,7 @@ bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::hardwareConcurrency()
 {
     int result = 0;
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_AIX)          \
- || defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_SUNOS)     \
- || defined(BSLS_PLATFORM_OS_CYGWIN)
+ || defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
     result = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
 

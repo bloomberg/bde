@@ -749,20 +749,8 @@ struct ThreadUtil {
         // has not been deleted.
 
     static unsigned int hardwareConcurrency();
-        // Return the number of concurrent threads supported by the
-        // implementation on success, and 0 otherwise.
-        // Function uses following system calls to obtain result:
-        //   Linux
-        //   AIX
-        //   Solaris
-        //   SunOS
-        //   Cygwin
-        //     sysconf(_SC_NPROCESSORS_ONLN)
-        //   FreeBSD
-        //   Darwin
-        //     sysctl(HW_AVAILCPU, ...)
-        //   Windows
-        //     GetSystemInfo(...)
+        // Return a *hint* at the number of concurrent threads supported by
+        // this platform on success, and 0 otherwise.
 };
 
 }  // close package namespace
