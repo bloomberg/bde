@@ -229,6 +229,17 @@ int NumericParseUtil::parseDouble(double                   *result,
 
     if (endPtr != buffer) {
         *result = rv;
+#if defined(BSLS_PLATFORM_OS_LINUX)
+        // 'strtod' is broken in libstdc++, parsing negative NaN into positive
+        // NaN.  We are not checking for compilers because both clang and g++
+        // exhibit the fault on Linux.
+        if (*result != *result && inputString[0] == '-') {
+            double sign  = copysign(42, *result);
+            if (sign > 0) {
+                *result = -*result;
+            }
+        }
+#endif
         return 0;                                                     // RETURN
     }
 
