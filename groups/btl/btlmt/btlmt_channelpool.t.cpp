@@ -165,7 +165,7 @@ using namespace bdlf::PlaceHolders;
 // [28] TESTING: 'busyMetrics' and time metrics collection.
 // [28] CONCERN: Event Manager Allocation
 // [30] Implementing a QueueProcessor
-// [41] USAGE EXAMPLE
+// [42] USAGE EXAMPLE
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -8103,8 +8103,12 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase41();
+    static void testCase42();
         // Test usage example.
+
+    static void testCase41();
+        // Test that 'reuseAddress' option passed to 'listen' works as
+        // expected.
 
     static void testCase40();
         // Test the 'isRunning' accessor.
@@ -8244,7 +8248,7 @@ class TestDriver {
                                // TEST APPARATUS
                                // --------------
 
-void TestDriver::testCase41()
+void TestDriver::testCase42()
 {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -8279,6 +8283,87 @@ void TestDriver::testCase41()
             MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
         }
         monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR);
+}
+
+void TestDriver::testCase41()
+{
+    // --------------------------------------------------------------------
+    // TESTING that 'reuseAddress' 'listen' option works as expected
+    //
+    // Concerns:
+    //: 1 When the 'reuseAddress' option is specified as 'false' then trying to
+    //:   establish multiple connections to the same port should fail.
+    //:
+    //: 2 When the 'reuseAddress' option is specified as 'true' then trying to
+    //:   establish multiple connections to the same port should succeed.
+    //
+    // Plan:
+    //: 1 Create a channel pool object.  Identify the different network
+    //:   interfaces on the local machine.
+    //:
+    //: 2 Bind a port number to the address "0.0.0.0".  Then 'listen' on that
+    //:   IP address and confirm that that operation succeeds.  Then try to
+    //:   'listen' on a local IP address for that machine and the previously
+    //:   bound IP address.
+    //:
+    //: 3 Confirm that the second 'listen' succeeds when 'true' is specified
+    //:   and fails when it is 'false'
+    //
+    // Testing:
+    // --------------------------------------------------------------------
+
+    if (verbose) cout << "TESTING that 'reuseAddress' option works as expected"
+                      << endl
+                      << "===================================================="
+                      << endl;
+
+    for (int i = 0; i < 2; ++i) {
+        btlmt::ChannelPoolConfiguration config;
+
+        Obj::ChannelStateChangeCallback channelCb;
+        Obj::PoolStateChangeCallback    poolCb;
+        Obj::BlobBasedReadCallback      dataCb;
+
+        Obj pool(channelCb, dataCb, poolCb, config);
+
+        ASSERT(0 == pool.start());
+
+        const int SERVER_PORT = 35000;
+        const int SERVER_ID   = 100;
+
+        bsl::vector<IPAddress> localAddrs;
+        int errCode = 0;
+        int rc = btlso::ResolveUtil::getLocalAddresses(&localAddrs, &errCode);
+        LOOP2_ASSERT(rc, errCode, 0 == rc);
+
+        if (localAddrs.size() > 1) {
+            IPAddress serverAddr1("0.0.0.0", SERVER_PORT);
+            IPAddress serverAddr2(localAddrs[0]);
+            serverAddr2.setPortNumber(SERVER_PORT);
+
+            const bool reuseAddress = static_cast<bool>(i);
+
+            rc = pool.listen(serverAddr1,
+                             5,
+                             SERVER_ID,
+                             bsls::TimeInterval(1),
+                             reuseAddress);
+            ASSERT(0 == rc);
+
+            rc = pool.listen(serverAddr2,
+                             5,
+                             SERVER_ID + 1,
+                             bsls::TimeInterval(1),
+                             reuseAddress);
+
+            if (reuseAddress) {
+                LOOP_ASSERT(rc, 0 == rc);
+            }
+            else {
+                LOOP_ASSERT(rc, 0 != rc);
+            }
+        }
+    }
 }
 
 void TestDriver::testCase40()
@@ -16606,6 +16691,7 @@ int main(int argc, char **argv)
 
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
+      CASE(42);
       CASE(41);
       CASE(40);
       CASE(39);

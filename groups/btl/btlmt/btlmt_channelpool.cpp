@@ -4878,8 +4878,8 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     btlso::SocketOptions updatedSocketOptions;
     if (socketOptions) {
         updatedSocketOptions = *socketOptions;
-        updatedSocketOptions.setReuseAddress(reuseAddress);
     }
+    updatedSocketOptions.setReuseAddress(reuseAddress);
     listenOptions.setSocketOptions(updatedSocketOptions);
 
     return listenImp(serverId, listenOptions, platformErrorCode);
@@ -4919,8 +4919,8 @@ int ChannelPool::listen(const btlso::IPv4Address&   endpoint,
     btlso::SocketOptions updatedSocketOptions;
     if (socketOptions) {
         updatedSocketOptions = *socketOptions;
-        updatedSocketOptions.setReuseAddress(reuseAddress);
     }
+    updatedSocketOptions.setReuseAddress(reuseAddress);
     listenOptions.setSocketOptions(updatedSocketOptions);
 
     return listenImp(serverId, listenOptions, platformErrorCode);
