@@ -1,8 +1,20 @@
-bsl-internal (3.3.1.1) unstable; urgency=low
+bsl-internal (3.3.2.0) unstable; urgency=low
 
+  * c28674aaf Merge pull request #1534 from mgiroux/review/bump-versions-to-3.3.2
+  * 0a8f26983 Bump bdl, bal, and btl versions to 3.3.2
+  * 178469c73 Merge pull request #1527 from hversche/pr/1522-rebased-releases/3.3.x
+  * 54620d790 Merge pull request #1533 from hversche/pr/1517-rebased-releases/3.3.x
+  * a4613a393 drqs-111740206: 3.3.x: Format fixes for 'bdedox' conversion.
+  * 2521da1c6 Merge pull request #1526 from hversche/pr/1525-rebased-releases/3.3.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 4 Dec 2017 13:50:15 -0500
+
+bsl-internal (3.3.1.1) git; urgency=low
+
+  * 686bfe7c8 Changelog for version 3.3.1.1
   * 1d5827444 Merge pull request #1521 from hversche/pr/1519-rebased-releases/3.3.x
 
- -- Henry Verschell <hverschell@bloomberg.net>  Wed, 29 Nov 2017 15:38:34 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 29 Nov 2017 17:56:53 -0500
 
 bsl-internal (3.3.1.0) git; urgency=low
 
