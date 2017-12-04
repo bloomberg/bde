@@ -1479,8 +1479,10 @@ int main(int argc, char *argv[])
             const double INITIAL_VALUE_1 =  37.0;  // first initial value
             const double INITIAL_VALUE_2 = -58.0;  // second initial value
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
             const double inf = bsl::numeric_limits<double>::infinity();
             const double NaN = bsl::numeric_limits<double>::quiet_NaN();
+#endif
 
             static const struct {
                 int         d_lineNum;  // source line number
