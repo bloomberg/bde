@@ -18,7 +18,6 @@ BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 #include <bslma_deallocatorguard.h>
-#include <bslma_default.h>
 #include <bslmf_assert.h>
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
