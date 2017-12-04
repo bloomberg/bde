@@ -176,7 +176,7 @@ int EventManagerName::dispatchCallbacks(int numReady)
 
         // Write/Connect.
 
-        if (curEvent->events & EPOLLOUT) {
+        if (curEvent->events & (EPOLLOUT | EPOLLERR | EPOLLHUP)) {
             if (eventMask & bdlb::BitMaskUtil::eq(EventType::e_WRITE)) {
                 numCallbacks += !d_callbacks.invoke(Event(fd,
                                                           EventType::e_WRITE));
