@@ -8301,10 +8301,10 @@ void TestDriver::testCase41()
     //: 1 Create a channel pool object.  Identify the different network
     //:   interfaces on the local machine.
     //:
-    //: 2 Bind a port number to the address "0.0.0.0".  Then 'listen' on that
-    //:   IP address and confirm that that operation succeeds.  Then try to
-    //:   'listen' on a local IP address for that machine and the previously
-    //:   bound IP address.
+    //: 2 Bind a port number to the wildcard address ("0.0.0.0").  Then
+    //:   'listen' on that IP address and confirm that that operation succeeds.
+    //:   Then try to 'listen' on a local IP address for that machine and the
+    //:   previously bound IP address.
     //:
     //: 3 Confirm that the second 'listen' succeeds when 'true' is specified
     //:   and fails when it is 'false'
@@ -8356,12 +8356,19 @@ void TestDriver::testCase41()
                              bsls::TimeInterval(1),
                              reuseAddress);
 
+#ifndef BSLS_PLATFORM_OS_LINUX
+           // Linux does not allow rebinding to a port number that was
+           // previously bound to the wildcard address.
+
+                LOOP_ASSERT(rc, 0 != rc);
+#else
             if (reuseAddress) {
                 LOOP_ASSERT(rc, 0 == rc);
             }
             else {
                 LOOP_ASSERT(rc, 0 != rc);
             }
+#endif
         }
     }
 }
