@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDESi
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 
 namespace BloombergLP {
