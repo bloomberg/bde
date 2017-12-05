@@ -275,27 +275,31 @@ namespace Case_Usage {
 ///-----
 // In this section we show intended usage of this component.
 //
+///Example 1: Error Reporting
+/// - - - - - - - - - - - - -
 // Suppose we have an error reporting function 'reportError', that prints an
-// error message.  There is a possibility that 'reportError' will be called
-// very frequently and spew, so we want to throttle the error messages.  If
-// many happen in a short time, we want to see the first 10, but we don't want
-// them spewing at a sustained rate of more than one message every five
-// seconds.
+// error message to a log stream.  There is a possibility that 'reportError'
+// will be called very frequently, and that reports of this error will
+// overwhelm the other contents of the log, so we want to throttle the number
+// of times this error will be reported.  For our application we decide that we
+// want to see at most 10 reports of the error at any given time, and that if
+// the error is occurring continuously, that we want a maximum sustained rate
+// of one error report every five seconds.
 //
-// First, we begin our routine:
+// First, we declare the signature of our 'reportError' function:
 //..
     void reportError(bsl::ostream& stream)
         // Report an error to the specified 'stream'.
     {
 //..
-// Then, we define the maximum number of traces that can happen in a short
-// time, provided that there have been no preceding traces for a long time:
+// Then, we define the maximum number of traces that can happen at a time:
 //..
-        static const int                maxSimultaneousTraces = 10;
+        static const int maxSimultaneousTraces = 10;
 //..
-// Next, we define the minimum nanoseconds per trace if sustained traces are
-// being attempted to print as five seconds.  Note that since this is in
-// nanoseconds, a 64-bit value is going to be needed to represent it:
+// Next, we define the minimum interval between subsequent reported errors, if
+// errors are being continuously reported to be one report every 5 seconds.
+// Note that the units are nanoseconds, which must be represented using a 64
+// bit integral value:
 //..
         static const bsls::Types::Int64 nanosecondsPerSustainedTrace =
                             5 * bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND;
@@ -308,12 +312,12 @@ namespace Case_Usage {
         static bdlmt::Throttle throttle = BDLMT_THROTTLE_INIT(
                           maxSimultaneousTraces, nanosecondsPerSustainedTrace);
 //..
-// Next, we call 'requestPermission' at run-time to determine whether we've
-// been spewing too much to allow the next trace:
+// Now, we call 'requestPermission' at run-time to determine whether to report
+// the next error to the log:
 //..
         if (throttle.requestPermission()) {
 //..
-// Then, we do the error message controlled by the throttle:
+// Finally, we write the message to the log:
 //..
             stream << "Help!  I'm being held prisoner in a microprocessor!\n";
         }
@@ -321,8 +325,6 @@ namespace Case_Usage {
 //..
 
 }  // close namespace Case_Usage
-
-
 
                                 // --------------
                                 // Case_Allow_Few
@@ -995,7 +997,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 15: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1013,45 +1015,30 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-    if (verbose) cout << "USAGE EXAMPLE\n"
-                         "=============\n";
+        if (verbose) cout << "USAGE EXAMPLE\n"
+                             "=============\n";
 
-    using namespace Case_Usage;
+        using namespace Case_Usage;
 
-// Next, in 'main', we create an output 'bsl::ostream' object that writes to a
-// RAM buffer:
-//..
-    char                        buffer[10 * 1024];
-    bdlsb::FixedMemOutStreamBuf streamBuf(buffer, sizeof(buffer));
-    bsl::ostream                ostr(&streamBuf);
-//..
-// Then, we create a stopwatch and start it running:
-//..
-    bsls::Stopwatch stopwatch;
-    stopwatch.start();
-//..
-// Now, we cycle for seven seconds, calling the above-defined 'reportError'
-// every hundredth of a second.  This should result in ten traces being logged
-// in the first tenth of a second, and one more trace being logged five seconds
-// later, with all other requests for permission from the throttle being
-// refused:
-//..
-    while (stopwatch.accumulatedWallTime() < 7.0) {
-        reportError(ostr);
-        bslmt::ThreadUtil::microSleep(10 * 1000);
-    }
-//..
-// Finally, we count the number of traces that were logged and verify that the
-// number is eleven, as anticipated:
-//..
-    const bsl::size_t numLines = bsl::count(streamBuf.data(),
-                                            streamBuf.data() +
+        char                        buffer[10 * 1024];
+        bdlsb::FixedMemOutStreamBuf streamBuf(buffer, sizeof(buffer));
+        bsl::ostream                ostr(&streamBuf);
+
+        bsls::Stopwatch stopwatch;
+        stopwatch.start();
+
+        while (stopwatch.accumulatedWallTime() < 7.0) {
+            reportError(ostr);
+            bslmt::ThreadUtil::microSleep(10 * 1000);
+        }
+
+        const bsl::size_t numLines = bsl::count(streamBuf.data(),
+                                                streamBuf.data() +
                                                             streamBuf.length(),
-                                            '\n');
-    ASSERT(11 == numLines);
-//..
+                                                '\n');
+        ASSERT(11 == numLines);
       } break;
-      case 14: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING NEXTPERMIT
         //
@@ -1180,7 +1167,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 13: {
+      case 11: {
         // --------------------------------------------------------------------
         // SPEED TEST: FEW ALLOWED
         //
@@ -1263,7 +1250,7 @@ int main(int argc, char *argv[])
             cout << "Rejected / sec = " << (totalRejected / totalTime) << endl;
         }
       } break;
-      case 12: {
+      case 10: {
         // --------------------------------------------------------------------
         // SPEED TEST: PERMISSION GRANTED: MULTIPLE ACTION
         //
@@ -1336,7 +1323,7 @@ int main(int argc, char *argv[])
             cout << "Rejected / sec = " << (totalRejected / totalTime) << endl;
         }
       } break;
-      case 11: {
+      case 9: {
         // --------------------------------------------------------------------
         // SPEED TEST: PERMISSION GRANTED: SINGLE ACTION
         //
@@ -1410,8 +1397,7 @@ int main(int argc, char *argv[])
             cout << "Rejected / sec = " << (totalRejected / totalTime) << endl;
         }
       } break;
-      case 9:
-      case 10: {
+      case 8: {
         // --------------------------------------------------------------------
         // ALLOW_NONE TEST
         //
@@ -1434,22 +1420,40 @@ int main(int argc, char *argv[])
         if (verbose) cout << "ALLOW_NONE\n"
                              "==========\n";
 
-        if (verbose) {
-            if (9 == test) cout << "BDLMT_THROTTLE_IF_ALLOW_NONE\n"
-                                   "============================\n";
-            if (10 == test) cout << "BDLMT_THROTTLE_INIT_ALLOW_NONE\n"
-                                    "==============================\n";
-        }
+        if (verbose) cout << "BDLMT_THROTTLE_IF_ALLOW_NONE\n"
+                             "============================\n";
 
         namespace TC = Case_Allow_None;
 
         bslmt::ThreadGroup tg(&u::ta);
-        tg.addThreads((9 == test ? &TC::threadJobIf
-                                 : &TC::threadJobInit),
-                      u::numThreads);
+        tg.addThreads(&TC::threadJobIf, u::numThreads);
+
+        {
+            u::sleep(0.01);
+            const Uint64 start = u::nanoClock();
+            TC::atomicBarrier = 0;
+            u::sleep(0.1);
+            TC::atomicBarrier = 1;
+            const double elapsed     = 1e-9 * static_cast<double>(
+                                                       u::nanoClock() - start);
+            const double events      = static_cast<double>(TC::eventsSoFar);
+            const double eventsPerSecond = events / elapsed / u::numThreads;
+
+            tg.joinAll();
+
+            if (verbose) cout << "Events per sec: " << eventsPerSecond << endl;
+        }
+        if (verbose) P(TC::eventsSoFar);
+
+        if (verbose) cout << "BDLMT_THROTTLE_INIT_ALLOW_NONE\n"
+                             "==============================\n";
+        TC::eventsSoFar = 0;
+        TC::atomicBarrier = -1;
+
+        tg.addThreads(&TC::threadJobInit, u::numThreads);
 
         u::sleep(0.01);
-        const Uint64 start   = u::nanoClock();
+        const Uint64 start = u::nanoClock();
         TC::atomicBarrier = 0;
         u::sleep(0.1);
         TC::atomicBarrier = 1;
@@ -1463,8 +1467,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Events per sec: " << eventsPerSecond << endl;
         if (verbose) P(TC::eventsSoFar);
       } break;
-      case 7:
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // ALLOW_ALL TEST
         //
@@ -1487,19 +1490,38 @@ int main(int argc, char *argv[])
         if (verbose) cout << "ALLOW_ALL TEST\n"
                              "==============\n";
 
-        if (verbose) {
-            if (7 == test) cout << "BDLMT_THROTTLE_IF_ALLOW_ALL\n"
-                                   "===========================\n";
-            if (8 == test) cout << "BDLMT_THROTTLE_INIT_ALLOW_ALL\n"
-                                   "=============================\n";
-        }
+        if (verbose) cout << "BDLMT_THROTTLE_IF_ALLOW_ALL\n"
+                             "===========================\n";
 
         namespace TC = Case_Allow_All;
 
         bslmt::ThreadGroup tg(&u::ta);
-        tg.addThreads((7 == test ? &TC::threadJobIf
-                                 : &TC::threadJobInit),
-                      u::numThreads);
+        tg.addThreads(&TC::threadJobIf, u::numThreads);
+
+        {
+            u::sleep(0.01);
+            const Int64 start   = u::nanoClock();
+            TC::atomicBarrier = 0;
+            u::sleep(0.1);
+            TC::atomicBarrier = 1;
+            const double elapsed     = 1e-9 * static_cast<double>(
+                                                       u::nanoClock() - start);
+            const double events      = static_cast<double>(TC::eventsSoFar);
+            const double eventsPerSecond = events / elapsed / u::numThreads;
+
+            tg.joinAll();
+
+            if (verbose) cout << "Events per sec: " << eventsPerSecond << endl;
+        }
+
+        if (verbose) P(TC::eventsSoFar);
+
+        if (verbose) cout << "BDLMT_THROTTLE_INIT_ALLOW_ALL\n"
+                             "=============================\n";
+        TC::eventsSoFar = 0;
+        TC::atomicBarrier = -1;
+
+        tg.addThreads(&TC::threadJobInit, u::numThreads);
 
         u::sleep(0.01);
         const Int64 start   = u::nanoClock();

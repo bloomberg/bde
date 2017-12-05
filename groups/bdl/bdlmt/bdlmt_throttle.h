@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a mechanism for throttling actions.
+//@PURPOSE: Provide mechanism for limiting the rate at which actions may occur.
 //
 //@CLASSES:
-//   bdlmt::Throttle: throttle mechanism
+//   bdlmt::Throttle: a mechanism for limiting the rate at which actions occur
 //
 //@MACROS:
 //   BDLMT_THROTTLE_INIT, BDLMT_THROTTLE_INIT_REALTIME,
@@ -51,15 +51,16 @@ BSLS_IDENT("$Id: $")
 ///Supported Clock-Types
 ///---------------------
 // The component 'bsls::SystemClockType' supplies the enumeration indicating
-// the system clock by which this component measures time.  There are two clock
-// types, real time and monotonic, where real time time is an absolute offset
-// since 00:00:00 UTC, January 1, 1970 (which matches the epoch used in
-// 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.  The default
-// clock type used is 'bsls::SystemClockType::e_MONOTONIC', the timeout should
-// be expressed as an absolute offset since the epoch of this clock (which
-// matches the epoch used in
-// 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)', usually the
-// absolute time since system boot time.
+// the system clock by which this component measures time.  By default, this
+// component uses 'bsls::SystemClock::e_MONOTONIC'.  If the clock type
+// indicated at initialization is 'bsls::SystemClockType::e_MONOTONIC', the
+// timeout should be expressed as an absolute offset since the epoch of this
+// clock (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_MONOTONIC)'.  If the clock
+// type indicated at initialization is 'bsls::SystemClockType::e_REALTIME', the
+// time should be expressed as an absolute offset since 00:00:00 UTC, January
+// 1, 1970 (which matches the epoch used in
+// 'bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)'.
 //
 ///Thread Safety
 ///-------------
@@ -77,42 +78,29 @@ BSLS_IDENT("$Id: $")
 ///Macro Reference
 ///---------------
 //
-//                      // ---------------------------
-//                      // BLDMT_THROTTLE_INIT* macros
-//                      // ---------------------------
-//
+///- - - - - - - - - - - - - -
+///BLDMT_THROTTLE_INIT* macros
+///- - - - - - - - - - - - - -
 // One of these macros must be used to aggregate initialize 'bdlmt::Throttle'
 // objects that have static storage duration -- the values are guaranteed to be
 // evaluated at compile-time, avoiding race conditions.
-//
+//..
 //   BDLMT_THROTTLE_INIT(maxSimultaneousActions,
 //                       nanosecondsPerAction)
-//       Initialize this 'Throttle' to limit the average period of actions
-//       permitted to the specified 'nanosecondsPerAction', and the maximum
-//       number of actions allowed in a very short time to the specified
-//       'maxSimultaneousActions', where time is measured according to the
-//       monotonic system clock.  If 'maxSimultaneousActions' is 0, the
-//       throttle will be configured to permit no actions.  If
-//       'nanosecondsPerAction' is 0, the throttle will be configured to permit
-//       all actions.  The behavior is undefined unless
-//       '0 <= maxSimultaneousActions', '0 <= nanosecondsPerAction',
-//       '0 < maxSimultaneousActions || 0 < nanosecondsPerAction', and
-//       'maxSimultaneousActions * nanosecondsPerAction <= LLONG_MAX'.  Note
-//       that floating-point expressions are not allowed in any of the
-//       arguments, as they cannot be evaluated at compile-time on some
-//       platforms.
-//
 //   BDLMT_THROTTLE_INIT_REALTIME(maxSimultaneousActions,
 //                                nanosecondsPerAction)
 //       Initialize this 'Throttle' to limit the average period of actions
 //       permitted to the specified 'nanosecondsPerAction', and the maximum
 //       number of actions allowed in a very short time to the specified
 //       'maxSimultaneousActions', where time is measured according to the
-//       realtime system clock.  If 'maxSimultaneousActions' is 0, the throttle
-//       will be configured to permit no actions.  If 'nanosecondsPerAction' is
-//       0, the throttle will be configured to permit all actions.  The
-//       behavior is undefined unless '0 <= maxSimultaneousActions',
-//       '0 <= nanosecondsPerAction',
+//       monotonic system clock.  These macros must be used for 'Throttle'
+//       objects having static storage duration.  If 'maxSimultaneousActions'
+//       is 0, the throttle will be configured to permit no actions.  If
+//       'nanosecondsPerAction' is 0, the throttle will be configured to permit
+//       all actions.  Use the '_REALTIME' variant of this macro to use the
+//       real-time system clock to measure time, otherwise (by default) use the
+//       monotonic clock is used.  The behavior is undefined unless
+//       '0 <= maxSimultaneousActions', '0 <= nanosecondsPerAction',
 //       '0 < maxSimultaneousActions || 0 < nanosecondsPerAction', and
 //       'maxSimultaneousActions * nanosecondsPerAction <= LLONG_MAX'.  Note
 //       that floating-point expressions are not allowed in any of the
@@ -124,46 +112,34 @@ BSLS_IDENT("$Id: $")
 //
 //   BDLMT_THROTTLE_INIT_ALLOW_NONE
 //       Initialize this 'Throttle' to allow no actions.
-//
-//                          // -------------------------
-//                          // BDLMT_THROTTLE_IF* macros
-//                          // -------------------------
-//
+//..
+///- - - - - - - - - - - - -
+///BDLMT_THROTTLE_IF* macros
+///- - - - - - - - - - - - -
+//..
 //   BDLMT_THROTTLE_IF(maxSimultaneousActions,
 //                     nanosecondsPerAction)
-//       Create a throttled 'if' statement limiting execution of the statement
-//       following it (and controlling execution of any 'else' clause present).
-//       Limit the average period of actions permitted to the specified
-//       'nanosecondsPerAction', and the maximum number of actions allowed in a
-//       very short time to the specified 'maxSimultaneousActions', where time
-//       is measured according to the monotonic system clock.  If
-//       'maxSimultaneousActions' is 0, the 'if' will be configured to permit
-//       no actions.  If 'nanosecondsPerAction' is 0, the 'if' will be
-//       configured to permit all actions.  The behavior is undefined unless
-//       '0 <= maxSimultaneousActions', '0 <= nanosecondsPerAction',
-//       '0 < maxSimultaneousActions || 0 < nanosecondsPerAction', and
-//       'maxSimultaneousActions * nanosecondsPerAction <= LLONG_MAX'.  Note
-//       that floating-point expressions are not allowed in any of the
-//       arguments, as they cannot be evaluated at compile-time on some
-//       platforms.
-//
 //   BDLMT_THROTTLE_IF_REALTIME(maxSimultaneousActions,
 //                              nanosecondsPerAction)
-//       Create a throttled 'if' statement limiting execution of the statement
-//       following it (and controlling execution of any 'else' clause present).
-//       Limit the average period of actions permitted to the specified
-//       'nanosecondsPerAction', and the maximum number of actions allowed in a
-//       very short time to the specified 'maxSimultaneousActions', where time
-//       is measured according to the realtime system clock.  If
-//       'maxSimultaneousActions' is 0, the 'if' will be configured to permit
-//       no actions.  If 'nanosecondsPerAction' is 0, the 'if' will be
-//       configured to permit all actions.  The behavior is undefined unless
-//       '0 <= maxSimultaneousActions', '0 <= nanosecondsPerAction',
-//       '0 < maxSimultaneousActions || 0 < nanosecondsPerAction', and
-//       'maxSimultaneousActions * nanosecondsPerAction <= LLONG_MAX'.  Note
-//       that floating-point expressions are not allowed in any of the
-//       arguments, as they cannot be evaluated at compile-time on some
-//       platforms.
+//       This macro behaves like an 'if' clause, executing the subsequent
+//       statement or block if the time debt incurred by taking a single action
+//       would *not* exceed the maximum allowed time debt indicated by the
+//       specified 'nanosecondsPerAction' and 'maxSimultaneousActions'.  If
+//       this 'if' clause is 'true' (and the subsequent statement or block is
+//       executed), then 'nanosecondsPerAction' is added to the time debt
+//       accumulated by this macro instantiation.  'nanosecondsPerAction' is
+//       the minimum average period between actions permitted by this macro
+//       instantiation, and 'nanosecondsPerAction' is the maximum number of
+//       simultaneous actions permitted by this macro instantiation.  If
+//       'maxSimultaneousActions' is 0, the 'if' clause will evaluate to
+//       'false'.  If 'nanosecondsPerAction' is 0, the 'if' clause will
+//       evaluate to 'true'.  Use the '_REALTIME' variant of this macro to use
+//       the real-time system clock to measure time, otherwise (by default) use
+//       the monotonic clock is used.  The behavior is undefined unless
+//       '0 <= maxSimultaneousActions', '0 <= nanosecondsPerAction', and
+//       '0 < maxSimultaneousActions || 0 < nanosecondsPerAction'.  Note that
+//       floating-point expressions are not allowed in any of the arguments, as
+//       they cannot be evaluated at compile-time on some platforms.
 //
 //   BDLMT_THROTTLE_IF_ALLOW_ALL
 //       Create an 'if' statement whose condition is always 'true', always
@@ -174,32 +150,36 @@ BSLS_IDENT("$Id: $")
 //       Create an 'if' statement whose condition is always 'false', never
 //       allowing execution of the statement controlled by it and always
 //       allowing execution of any 'else' clause present.
-//
+//..
 ///Usage
 ///-----
 // In this section we show intended usage of this component.
 //
+///Example 1: Error Reporting
+/// - - - - - - - - - - - - -
 // Suppose we have an error reporting function 'reportError', that prints an
-// error message.  There is a possibility that 'reportError' will be called
-// very frequently and spew, so we want to throttle the error messages.  If
-// many happen in a short time, we want to see the first 10, but we don't want
-// them spewing at a sustained rate of more than one message every five
-// seconds.
+// error message to a log stream.  There is a possibility that 'reportError'
+// will be called very frequently, and that reports of this error will
+// overwhelm the other contents of the log, so we want to throttle the number
+// of times this error will be reported.  For our application we decide that we
+// want to see at most 10 reports of the error at any given time, and that if
+// the error is occurring continuously, that we want a maximum sustained rate
+// of one error report every five seconds.
 //
-// First, we begin our routine:
+// First, we declare the signature of our 'reportError' function:
 //..
 //  void reportError(bsl::ostream& stream)
 //      // Report an error to the specified 'stream'.
 //  {
 //..
-// Then, we define the maximum number of traces that can happen in a short
-// time, provided that there have been no preceding traces for a long time:
+// Then, we define the maximum number of traces that can happen at a time:
 //..
-//      static const int                maxSimultaneousTraces = 10;
+//      static const int maxSimultaneousTraces = 10;
 //..
-// Next, we define the minimum nanoseconds per trace if sustained traces are
-// being attempted to print as five seconds.  Note that since this is in
-// nanoseconds, a 64-bit value is going to be needed to represent it:
+// Next, we define the minimum interval between subsequent reported errors, if
+// errors are being continuously reported to be one report every 5 seconds.
+// Note that the units are nanoseconds, which must be represented using a 64
+// bit integral value:
 //..
 //      static const bsls::Types::Int64 nanosecondsPerSustainedTrace =
 //                          5 * bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND;
@@ -212,48 +192,16 @@ BSLS_IDENT("$Id: $")
 //      static bdlmt::Throttle throttle = BDLMT_THROTTLE_INIT(
 //                        maxSimultaneousTraces, nanosecondsPerSustainedTrace);
 //..
-// Next, we call 'requestPermission' at run-time to determine whether we've
-// been spewing too much to allow the next trace:
+// Now, we call 'requestPermission' at run-time to determine whether to report
+// the next error to the log:
 //..
 //      if (throttle.requestPermission()) {
 //..
-// Then, we do the error message controlled by the throttle:
+// Finally, we write the message to the log:
 //..
 //          stream << "Help!  I'm being held prisoner in a microprocessor!\n";
 //      }
 //  }
-//..
-// Next, in 'main', we create an output 'bsl::ostream' object that writes to a
-// RAM buffer:
-//..
-//  char                        buffer[10 * 1024];
-//  bdlsb::FixedMemOutStreamBuf streamBuf(buffer, sizeof(buffer));
-//  bsl::ostream                ostr(&streamBuf);
-//..
-// Then, we create a stopwatch and start it running:
-//..
-//  bsls::Stopwatch stopwatch;
-//  stopwatch.start();
-//..
-// Now, we cycle for seven seconds, calling the above-defined 'reportError'
-// every hundredth of a second.  This should result in ten traces being logged
-// in the first tenth of a second, and one more trace being logged five seconds
-// later, with all other requests for permission from the throttle being
-// refused:
-//..
-//  while (stopwatch.accumulatedWallTime() < 7.0) {
-//      reportError(ostr);
-//      bslmt::ThreadUtil::microSleep(10 * 1000);
-//  }
-//..
-// Finally, we count the number of traces that were logged and verify that the
-// number is eleven, as anticipated:
-//..
-//  const bsl::size_t numLines = bsl::count(streamBuf.data(),
-//                                          streamBuf.data() +
-//                                                          streamBuf.length(),
-//                                          '\n');
-//  assert(11 == numLines);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -312,20 +260,31 @@ class Throttle {
     typedef AtomicOps::AtomicTypes          AtomicTypes;
 
     // PRIVATE CONSTANTS
-    static const Int64          k_ALLOW_ALL  = LLONG_MIN;
-    static const Int64          k_ALLOW_NONE = LLONG_MAX;
+    static const Int64 k_ALLOW_ALL  = LLONG_MIN;
+    static const Int64 k_ALLOW_NONE = LLONG_MAX;
 
   public:
     // PUBLIC CONSTANTS
-    static const Int64          k_TEN_YEARS_NANOSECONDS = 10 * 366 *
+    static const Int64 k_TEN_YEARS_NANOSECONDS = 10 * 366 *
                                     bdlt::TimeUnitRatio::k_NANOSECONDS_PER_DAY;
 
     // PUBLIC DATA
-    AtomicTypes::Int64          d_prevLeakTime;
-    Int64                       d_nanosecondsPerAction;
-    Int64                       d_nanosecondsPerTotalReset;
-    int                         d_maxSimultaneousActions;
-    bsls::SystemClockType::Enum d_clockType;
+    AtomicTypes::Int64 d_prevLeakTime;                  // effective time of
+                                                        // previous leak
+
+    Int64              d_nanosecondsPerAction;          // nanoseconds per
+                                                        // sustained action
+
+    Int64              d_nanosecondsPerTotalReset;      // total bucket
+                                                        // capacity in time
+
+    int                d_maxSimultaneousActions;        // total bucket
+                                                        // capacity in actions
+
+    bsls::SystemClockType::Enum
+                       d_clockType;                     // clock type --
+                                                        // monotonic or
+                                                        // realtime
 
   private:
     // FRIENDS
@@ -341,7 +300,7 @@ class Throttle {
                                            bsls::SystemClockType::e_MONOTONIC);
         // Initialize this 'Throttle' to limit the average period of actions
         // permitted to the specified 'nanosecondsPerAction', and the maximum
-        // number of actions allowed in a very short timespan to the specified
+        // number of simultaneous actions allowed to the specified
         // 'maxSimultaneousActions'.  Optionally specify 'clockType' to
         // indicate which system clock will be used to measure time.  If
         // 'clockType' is not supplied the monotonic system clock is used.  The
@@ -391,14 +350,15 @@ class Throttle {
         // Set the specified '*result' to 'true' if the time debt incurred by
         // taking the specified 'numActions' would *not* exceed the maximum
         // allowed time debt configured for this 'Throttle' object
-        // ('nanosecondsPerAction * maxSimultaneousActions'), and 'false'
-        // otherwise.  Optionally specify 'now' indicating the current time of
-        // the system clock for which this object is configured ('now' is a
-        // offset from that clocks epoch).  If 'now' is not supplied, the
-        // current time is obtained from the configured system clock.  If
-        // '*result' is set to 'true' then 'numActions * nanosecondsPerActions'
-        // is added to the time debt accumulated by this component.  Return 0
-        // if '0 <= numActions' and ('numActions <= maxSimultaneousActions' or
+        // ('nanosecondsPerAction * maxSimultaneousActions'), and set '*result'
+        // to 'false' otherwise.  Optionally specify 'now' indicating the
+        // current time of the system clock for which this object is configured
+        // ('now' is a offset from that clocks epoch).  If 'now' is not
+        // supplied, the current time is obtained from the configured system
+        // clock.  If '*result' is set to 'true' then
+        // 'numActions * nanosecondsPerActions' is added to the time debt
+        // accumulated by this component.  Return 0 if '0 <= numActions' and
+        // ('numActions <= maxSimultaneousActions' or
         // '0 == maxSimultaneousActions'), and a non-zero value otherwise.  The
         // behavior is undefined unless this throttle has been initialized
         // (either by calling 'initialize' or using one of the
@@ -407,15 +367,16 @@ class Throttle {
 
     // ACCESSOR
     bsls::SystemClockType::Enum clockType() const;
-        // Return the system clock type with which this object was configured.
+        // Return the system clock type with which this 'Throttle' is
+        // configured to observe the passage of time.
 
     int maxSimultaneousActions() const;
-        // Return the 'maxSimultaneousActions' value with which this object was
-        // configured.
+        // Return the maximum number of simultaneous actions with which this
+        // 'Throttle' is configured to permit.
 
     Int64 nanosecondsPerAction() const;
-        // Return the 'nanosecondsPerAction' value with which this object was
-        // configured.
+        // Return the time debt, in nanoseconds, that this 'Throttle is
+        // configured to incur for each action permitted.
 
     int nextPermit(bsls::TimeInterval *result, int numActions) const;
         // Load into the specified 'result' the earliest *absolute* *time*
@@ -432,25 +393,22 @@ class Throttle {
         // current time from the system clock.
 };
 
+                          // ----------------------------
+                          // class Throttle_ArgFilter_Imp
+                          // ----------------------------
+
 template <int                MAX_SIMULTANEOUS_ACTIONS,
           bsls::Types::Int64 NANOSECONDS_PER_ACTION>
 class Throttle_ArgFilter_Imp {
-    // Passing both args through this 'struct' achieves two goals:
-    //: o It ensures that both are evaluated at compile time, which won't be
-    //:   the case if either contains any floating point.
+    // [!PRIVATE!] This component private meta-function is used to implement
+    // the initialization macros.  This type provides the following:
+    //: o Ensures arguments are evaluated at compile time (which won't be
+    //:    the case for floating point arguments)
     //:
-    //: o It enables us to do compile-time checks with 'BSLMF_ASSERT'.
+    //: o Enables compile time checkes with BSLMF_ASSERT
     //:
-    //: o If 0 is passed to 'NANOSECONDS_PER_ACTION', that indicates
-    //:   'allow all', in which case the 'd_maxSimultaneousActions' (or
-    //:   'msaValue') should be 'INT_MAX' and the 'd_nanosecondsPerAction' (or
-    //:   'npaValue') should be 'k_ALLOW_ALL', regardless of the value of
-    //:   'max_simultaneous_actions'.
-    //:
-    //: o If 0 is passed to 'MAX_SIMULTANEOUS_ACTIONS', that indicates
-    //:   'allow none', in which case 'd_nanosecondsPerAction' (or 'nsaValue')
-    //:   should be 'k_ALLOW_NONE' and 'd_maxSimultaneousActions' (or
-    //:   'msaValue') should be 0.
+    //: o Handles special cases if 0 is passed for
+    //:   'MAX_SIMULTANEOUS_ACTIONS' or NANOSECONDS_PER_ACTION'
 
     BSLMF_ASSERT(0 <= MAX_SIMULTANEOUS_ACTIONS);
     BSLMF_ASSERT(0 <= NANOSECONDS_PER_ACTION);
@@ -470,26 +428,6 @@ class Throttle_ArgFilter_Imp {
     static const int                k_msaValue = 0 == NANOSECONDS_PER_ACTION
                                                ? INT_MAX
                                                : MAX_SIMULTANEOUS_ACTIONS;
-};
-
-template <int clockType>
-class Throttle_ClockTypeFilter_Imp {
-    // Passing 'clcokType' through this 'struct' achieves two goals:
-    //: o It ensures that its value is computed at compile time.
-    //:
-    //: o It enables us to do a compile-time check of the validity of
-    //:   'clockType'.
-
-    // PRIVATE TYPES
-    typedef bsls::SystemClockType  SystemClockType;
-    typedef SystemClockType::Enum  ClockEnum;
-
-    BSLMF_ASSERT(SystemClockType::e_MONOTONIC == clockType ||
-                 SystemClockType::e_REALTIME  == clockType);
-
-  public:
-    // PUBLIC CONSTANTS
-    static const ClockEnum value = static_cast<ClockEnum>(clockType);
 };
 
 //=============================================================================
