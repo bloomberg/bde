@@ -1028,8 +1028,8 @@ class String_ClearProctor {
     // invariant 's[s.length()] == CHAR_TYPE()' is violated for non-empty 's'.
     // This invariant will be restored by either a successful 'append' or by
     // the proctor's destructor if an exception is thrown.  Note that the
-    // template parameter was renamed from STRING_TYPE to FULL_STRING_TYPE
-    // due to a name clash with a define elsewhere in the codebase (see DRQS 
+    // template parameter was renamed from STRING_TYPE to FULL_STRING_TYPE due
+    // to a name clash with a define elsewhere in the code base (see DRQS
     // 112049582).
 
     // PRIVATE TYPES
