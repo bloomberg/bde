@@ -10,25 +10,25 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide raw buffer with size and alignment of user-specified type.
 //
 //@CLASSES:
-//  bsls::ObjectBuffer: templatized buffer aligned to hold specified type
+//  bsls::ObjectBuffer: parameterized buffer aligned to hold specified type
 //
 //@SEE_ALSO: bsls_alignmentfromtype
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component provides a templated buffer type,
-// 'bsls::ObjectBuffer', which is compile-time sized and aligned to hold a
-// specified object type.  Defining a 'bsls::ObjectBuffer<T>' object does not
-// cause the constructor for 'T' to be called.  Similarly, destroying the
-// object buffer does not call the destructor for 'T'.  Instead, the user
-// instantiates 'bsls::ObjectBuffer' with a specific type, then constructs an
-// object of that type within that buffer.  When the object is no longer
+// 'bsls::ObjectBuffer', that is compile-time sized and aligned to hold a
+// specified object type.  Defining a 'bsls::ObjectBuffer<TYPE>' object does
+// not cause the constructor for 'TYPE' to be called.  Similarly, destroying
+// the object buffer does not call the destructor for 'TYPE'.  Instead, the
+// user instantiates 'bsls::ObjectBuffer' with a specific type, then constructs
+// an object of that type within that buffer.  When the object is no longer
 // needed, the user must explicitly call its destructor.  A
 // 'bsls::ObjectBuffer' can reside on the stack or within another object,
 // including within a 'union'.
 //
 // Typically, a 'bsls::ObjectBuffer' is used in situations where efficient
-// (e.g., stack-based) storage is required but where straight-forward
+// (e.g., stack-based) storage is required but where straightforward
 // initialization or destruction of an object is not possible.  For example,
 // 'bsls::ObjectBuffer' can be used to construct an array where the number of
 // used elements varies at run-time or where the element type does not have a
@@ -37,9 +37,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The examples below use a value-semantic string class, 'my_String' which can
-// be constructed from a null-terminated string and contains a member, 'c_str'
-// which returns a null-terminated string.  'my_String' does not have a default
+// The examples below use a value-semantic string class, 'my_String', that can
+// be constructed from a null-terminated string and contains a member, 'c_str',
+// that returns a null-terminated string.  'my_String' does not have a default
 // constructor and thus cannot be used in C-style arrays or unions.
 //
 ///Example 1: Creating a Dynamic Array of Objects
@@ -56,9 +56,9 @@ BSLS_IDENT("$Id: $")
 // If an exception is thrown anywhere within the function (e.g., from a
 // constructor call), the destructor will not be called on the constructed
 // string objects.  This logic would typically be augmented with guard objects
-// that call destructors in case of exception.
+// that call destructors in case of an exception.
 //..
-//  void manipulateStrings(const my_String* stringArray, int len)
+//  void manipulateStrings(const my_String *stringArray, int len)
 //  {
 //      assert(len <= 10);
 //
@@ -103,8 +103,7 @@ BSLS_IDENT("$Id: $")
 // Here we use 'bsls::ObjectBuffer' to compose a variable-type object capable
 // of holding a string or an integer:
 //..
-//  class my_Union
-//  {
+//  class my_Union {
 //    public:
 //      enum TypeTag { INT, STRING };
 //
@@ -116,10 +115,10 @@ BSLS_IDENT("$Id: $")
 //      };
 //
 //    public:
-//      my_Union(int i = 0) : d_type(INT) { d_int = i; }            // IMLPICIT
-//      my_Union(const my_String& s) : d_type(STRING) {             // IMLPICIT
+//      my_Union(int i = 0) : d_type(INT) { d_int = i; }            // IMPLICIT
+//      my_Union(const my_String& s) : d_type(STRING) {             // IMPLICIT
 //          new (d_string.buffer()) my_String(s); }
-//      my_Union(const char *s) : d_type(STRING) {                  // IMLPICIT
+//      my_Union(const char *s) : d_type(STRING) {                  // IMPLICIT
 //          new (d_string.buffer()) my_String(s); }
 //      my_Union(const my_Union& rhs) : d_type(rhs.d_type) {
 //          if (INT == d_type) {
@@ -230,18 +229,18 @@ union ObjectBuffer {
     // An instance of this union is a raw block of memory suitable for storing
     // an object of type 'TYPE'.  Specifically, the size and alignment of this
     // union exactly matches that of 'TYPE'.  A 'TYPE' object can be
-    // constructed into a 'ObjectBuffer' using the placement 'new'
-    // operator and can be destroyed by explicitly calling its destructor,
-    // '~TYPE()'.  It is the user's responsibility to perform this
-    // construction and destruction; a 'AlignedBuffer' object does not
-    // manage the construction or destruction of any other objects.
+    // constructed into an 'ObjectBuffer' using the placement 'new' operator
+    // and can be destroyed by explicitly calling its destructor, '~TYPE()'.
+    // It is the user's responsibility to perform this construction and
+    // destruction; an 'ObjectBuffer' object does not manage the construction
+    // or destruction of any other objects.
     //
-    // Note that a collaboration is implied between 'ObjectBuffer' and
-    // the user.  A 'ObjectBuffer' provides aligned memory and the user
-    // handles construction and destruction of the object contained within
-    // that memory.
+    // Note that a collaboration is implied between 'ObjectBuffer' and the
+    // user.  An 'ObjectBuffer' provides aligned memory and the user handles
+    // construction and destruction of the object contained within that memory.
 
   private:
+    // DATA
     // Buffer correctly sized and aligned for object of type 'TYPE'.
     char                                   d_buffer[sizeof(TYPE)];
     typename AlignmentFromType<TYPE>::Type d_align;
@@ -249,45 +248,47 @@ union ObjectBuffer {
   public:
     // CREATORS
     // Note that we deliberately omit defining constructors and destructors in
-    // order to keep this union "POD-like".  In particular, a
-    // 'ObjectBuffer' may be used as a member in another 'union'.
-    // Copying a 'ObjectBuffer' by assignment or copy construction will
-    // result in a bit-wise copy and will not invoke 'TYPE's assignment
-    // operator or copy constructor.
+    // order to keep this union "POD-like".  In particular, an 'ObjectBuffer'
+    // may be used as a member in another 'union'.  Copying an 'ObjectBuffer'
+    // by assignment or copy construction will result in a bit-wise copy and
+    // will not invoke 'TYPE's assignment operator or copy constructor.
 
     // MANIPULATORS
     TYPE *address();
-        // Return a the address of the first byte of this object, cast to a
-        // 'TYPE*' pointer.
+        // Return the address of the first byte of this object, cast to a
+        // 'TYPE *' pointer.
 
     char *buffer();
-        // Return a the address of the first byte of this object, cast to a
-        // 'char*' pointer.
+        // Return the address of the first byte of this object, cast to a
+        // 'char *' pointer.
 
     TYPE& object();
         // Return a modifiable reference to the 'TYPE' object occupying this
         // buffer.  The referenced object has undefined state unless a valid
-        // 'T' object has been constructed in this buffer.
+        // 'TYPE' object has been constructed in this buffer.
 
     // ACCESSORS
     const TYPE *address() const;
-        // Return a the address of the first byte of this object, cast to a
-        // 'const TYPE*' pointer.
-
+        // Return the address of the first byte of this object, cast to a
+        // 'const TYPE *' pointer.
 
     const char *buffer() const;
-        // Return a the address of the first byte of this object, cast to a
-        // 'const char*' pointer.
+        // Return the address of the first byte of this object, cast to a
+        // 'const char *' pointer.
 
     const TYPE& object() const;
-        // Return a const reference to the 'TYPE' object occupying this
+        // Return a 'const' reference to the 'TYPE' object occupying this
         // buffer.  The referenced object has undefined state unless a valid
-        // 'T' object has been constructed in this buffer.
+        // 'TYPE' object has been constructed in this buffer.
 };
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+
+                        // ------------------
+                        // union ObjectBuffer
+                        // ------------------
 
 // MANIPULATORS
 template <class TYPE>
@@ -311,7 +312,7 @@ template <class TYPE>
 inline
 TYPE& ObjectBuffer<TYPE>::object()
 {
-    return *reinterpret_cast<TYPE*>(this);
+    return *reinterpret_cast<TYPE *>(this);
 }
 
 // ACCESSORS
@@ -336,7 +337,7 @@ template <class TYPE>
 inline
 const TYPE& ObjectBuffer<TYPE>::object() const
 {
-    return *reinterpret_cast<const TYPE*>(this);
+    return *reinterpret_cast<const TYPE *>(this);
 }
 
 }  // close package namespace
