@@ -330,44 +330,57 @@ class DecimalImpUtil {
     static ValueType32  quantize(ValueType32  value, ValueType32  exponent);
     static ValueType64  quantize(ValueType64  value, ValueType64  exponent);
     static ValueType128 quantize(ValueType128 value, ValueType128 exponent);
-        // Return a number that is equal in value (except for any rounding) and
-        // sign to the specified 'value', and which has the exponent of the
-        // specified 'exponent'.  If the exponent needs to be increased, round
-        // the value according to the current decimal floating point rounding
-        // mode.  If the exponent needs to be decreased, multiply the value by
-        // power of ten and if the significand of the result has more digits
-        // than the type would allow, return a NaN.  The returned value is
-        // unspecified if either operand is NaN or infinity of either sign.
+        // Return a number equal to the specified 'value' (except for possible
+        // rounding) having the exponent equal to the exponent of the specified
+        // 'exponent'.  Rounding may occur when the exponent is greater than
+        // the quantum of 'value'.  E.g., 'quantize(147e-2_d32, 1e-1_d32)'
+        // yields '15e-1_d32'.  In the opposite direction, if 'exponent' is
+        // sufficiently less than the quantum of 'value', it may not be
+        // possible to construct the requested result, and if so, 'NaN' is
+        // returned.  E.g., 'quantize(1234567e0_d32, 1e-1_d32)' returns 'NaN'.
 
     static ValueType32  quantize(ValueType32  value, int exponent);
     static ValueType64  quantize(ValueType64  value, int exponent);
     static ValueType128 quantize(ValueType128 value, int exponent);
-        // Return a number that is equal in value (except for any rounding) and
-        // sign to the specified 'value', and which has the exponent of the
-        // specified 'exponent'.  If the 'exponent' needs to be increased,
-        // round the value according to the current decimal floating point
-        // rounding mode.  If the exponent needs to be decreased and the
-        // significant of the result has more digits than the type would allow,
-        // return NaN.  The returned value is unspecified if the 'value' is NaN
-        // infinity of either sign.  Behavior is undefined unless the
-        // 'exponent' value satisfies the following conditions
-        //: o for 'ValueType32'  type:  '-101 <= exponent <=   90'
-        //: o for 'ValueType64'  type:  '-398 <= exponent <=  369'
-        //: o for 'ValueType128' type: '-6176 <= exponent <= 6111'
+        // Return a number equal to the specified 'value' (except for possible
+        // rounding) having the specified 'exponent'.  Rounding may occur when
+        // 'exponent' is greater than the quantum of 'value'.  E.g.,
+        // 'quantize(147e-2_d32, -1)' yields '15e-1_d32'.  In the opposite
+        // direction, if 'exponent' is sufficiently less than the quantum of
+        // 'value', it may not be possible to construct the requested result,
+        // and if so, 'NaN' is returned.  E.g., 'quantize(1234567e0_d32, -1)'
+        // returns 'NaN'.  Behavior is undefined unless the 'exponent'
+        // satisfies the following conditions
+        //: o for 'Decimal32'  type:  '-101 <= exponent <=   90'
+        //: o for 'Decimal64'  type:  '-398 <= exponent <=  369'
+        //: o for 'Decimal128' type: '-6176 <= exponent <= 6111'
 
-    static int quantize(ValueType32  *value, int exponent);
-    static int quantize(ValueType64  *value, int exponent);
-    static int quantize(ValueType128 *value, int exponent);
-        // Set the exponent of the specified 'value' to the specified
-        // 'exponent' and scale the significand of the value so that resultant
-        // value remains exactly equal to the 'value'.  Return 0 on success,
-        // and non-zero value with no effect on the 'value' otherwise.  Also
-        // return non-zero value if the 'value' is NaN or infinity of either
-        // sign.  Behavior is undefined unless the 'exponent' value satisfies
-        // the following conditions
-        //: o for 'ValueType32'  type:  '-101 <= exponent <=   90'
-        //: o for 'ValueType64'  type:  '-398 <= exponent <=  369'
-        //: o for 'ValueType128' type: '-6176 <= exponent <= 6111'
+    static int quantizeEqual(ValueType32  *x, ValueType32  y, int exponent);
+    static int quantizeEqual(ValueType64  *x, ValueType64  y, int exponent);
+    static int quantizeEqual(ValueType128 *x, ValueType128 y, int exponent);
+        // Create a decimal floating-point number equal to the specified 'y'
+        // (except for possible rounding) having the specified 'exponent'.
+        // Rounding may occur when 'exponent' is greater than the quantum of
+        // 'y'.  E.g., if 'y == 147e-2_d32' and 'exponent == -1' then created
+        // number is equal to 15e-1_d32.  In the opposite direction, if
+        // 'exponent' is sufficiently less than the quantum of 'y', it may not
+        // be possible to construct the requested result.  E.g., if
+        // 'y == 1234567e0_d32' and 'exponent == -1' then 'NaN' is created.
+        // Return 0 if created number equals to 'y' loading the number into the
+        // specified 'x', and  non-zero value with no effect on 'x' otherwise.
+        // Also return non-zero value if 'y' is 'NaN' or infinity of either the
+        // sign.  Behavior is undefined unless 'exponent' satisfies the
+        // following conditions
+        //: o for 'Decimal32'  type:  '-101 <= exponent <=   90'
+        //: o for 'Decimal64'  type:  '-398 <= exponent <=  369'
+        //: o for 'Decimal128' type: '-6176 <= exponent <= 6111'
+        //
+        // Example:
+        //     'Decimal32 x;'
+        //     'BSLS_ASSERT(0 == quantizeEqual(&x, 123e+3_d32, 2);'
+        //     'BSLS_ASSERT(1230e+2_d32 == x);'
+        //     'BSLS_ASSERT(0 != quantizeEqual(&x, 123e+3_d32, -2);'
+        //     'BSLS_ASSERT(1230e+2_d32 == x);'
 
     static bool sameQuantum(ValueType32  x, ValueType32  y);
     static bool sameQuantum(ValueType64  x, ValueType64  y);
@@ -1812,9 +1825,9 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::quantize(ValueType128 value,
 }
 
 inline
-int DecimalImpUtil::quantize(ValueType32 *value, int exponent)
+int DecimalImpUtil::quantizeEqual(ValueType32 *x, ValueType32 y, int exponent)
 {
-    BSLS_ASSERT(value);
+    BSLS_ASSERT(x);
     BSLS_ASSERT(-101 <= exponent);
     BSLS_ASSERT(        exponent <= 90);
 
@@ -1823,18 +1836,18 @@ int DecimalImpUtil::quantize(ValueType32 *value, int exponent)
                                                                      1,
                                                                      exponent);
     _IDEC_flags flags(0);
-    retval.d_raw = __bid32_quantize(value->d_raw, exp.d_raw, &flags);
-    if (DecimalImpUtil::equal(retval, *value)) {
-        *value = retval;
+    retval.d_raw = __bid32_quantize(y.d_raw, exp.d_raw, &flags);
+    if (DecimalImpUtil::equal(retval, y)) {
+        *x = retval;
         return 0;
     }
     return -1;
 }
 
 inline
-int DecimalImpUtil::quantize(ValueType64 *value, int exponent)
+int DecimalImpUtil::quantizeEqual(ValueType64 *x, ValueType64 y, int exponent)
 {
-    BSLS_ASSERT(value);
+    BSLS_ASSERT(x);
     BSLS_ASSERT(-398 <= exponent);
     BSLS_ASSERT(        exponent <= 369);
     DecimalImpUtil::ValueType64 retval;
@@ -1842,18 +1855,18 @@ int DecimalImpUtil::quantize(ValueType64 *value, int exponent)
                                                                      1,
                                                                      exponent);
     _IDEC_flags flags(0);
-    retval.d_raw = __bid64_quantize(value->d_raw, exp.d_raw, &flags);
-    if (DecimalImpUtil::equal(retval, *value)) {
-        *value = retval;
+    retval.d_raw = __bid64_quantize(y.d_raw, exp.d_raw, &flags);
+    if (DecimalImpUtil::equal(retval, y)) {
+        *x = retval;
         return 0;
     }
     return -1;
 }
 
 inline
-int DecimalImpUtil::quantize(ValueType128 *value, int exponent)
+int DecimalImpUtil::quantizeEqual(ValueType128 *x, ValueType128 y, int exponent)
 {
-    BSLS_ASSERT(value);
+    BSLS_ASSERT(x);
     BSLS_ASSERT(-6176 <= exponent);
     BSLS_ASSERT(         exponent <= 6111);
 
@@ -1862,9 +1875,9 @@ int DecimalImpUtil::quantize(ValueType128 *value, int exponent)
                                                                      1,
                                                                      exponent);
     _IDEC_flags flags(0);
-    retval.d_raw = __bid128_quantize(value->d_raw, exp.d_raw, &flags);
-    if (DecimalImpUtil::equal(retval, *value)) {
-        *value = retval;
+    retval.d_raw = __bid128_quantize(y.d_raw, exp.d_raw, &flags);
+    if (DecimalImpUtil::equal(retval, y)) {
+        *x = retval;
         return 0;
     }
     return -1;

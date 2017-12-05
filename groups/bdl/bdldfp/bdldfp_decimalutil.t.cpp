@@ -473,13 +473,13 @@ void testQuantize(const DATA *data, int num_data)
         const int&           EXPONENT    = data[ti].d_exponent;
         const int&           QUANTUM     = data[ti].d_quantum;
 
-        const DECIMAL X = makeDecimal(SIGNIFICAND, EXPONENT);
+        const DECIMAL V = makeDecimal(SIGNIFICAND, EXPONENT);
         const DECIMAL E = makeDecimal(          1, QUANTUM);
 
         {  //: o DECIMAL quantize(DECIMAL, DECIMAL);
 
             const DECIMAL EXPECTED = data[ti].d_expected;
-            const DECIMAL RESULT   = Util::quantize(X, E);
+            const DECIMAL RESULT   = Util::quantize(V, E);
 
             if (Util::isNan(EXPECTED)) {
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
@@ -488,10 +488,10 @@ void testQuantize(const DATA *data, int num_data)
                 LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
             }
 
-            ASSERT(Util::isNan(Util::quantize(    X, sNaN)));
-            ASSERT(Util::isNan(Util::quantize(    X, qNaN)));
-            ASSERT(Util::isNan(Util::quantize(    X, pInf)));
-            ASSERT(Util::isNan(Util::quantize(    X, nInf)));
+            ASSERT(Util::isNan(Util::quantize(    V, sNaN)));
+            ASSERT(Util::isNan(Util::quantize(    V, qNaN)));
+            ASSERT(Util::isNan(Util::quantize(    V, pInf)));
+            ASSERT(Util::isNan(Util::quantize(    V, nInf)));
             ASSERT(Util::isNan(Util::quantize(sNaN,     E)));
             ASSERT(Util::isNan(Util::quantize(qNaN,     E)));
             ASSERT(Util::isNan(Util::quantize(pInf,     E)));
@@ -501,7 +501,7 @@ void testQuantize(const DATA *data, int num_data)
         {  //: o DECIMAL quantize(DECIMAL, int);
 
             const DECIMAL& EXPECTED = data[ti].d_expected;
-            const DECIMAL  RESULT   = Util::quantize(X, QUANTUM);
+            const DECIMAL  RESULT   = Util::quantize(V, QUANTUM);
 
             if (Util::isNan(EXPECTED)) {
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
@@ -516,23 +516,24 @@ void testQuantize(const DATA *data, int num_data)
             ASSERT(Util::isNan(Util::quantize(nInf, 0)));
         }
 
-        {  //: o int quantize(DECIMAL *, int);
+        {  //: o int quantizeEqual(DECIMAL *, DECIMAL, int);
 
-            DECIMAL O(X); DECIMAL *O_P(&O);
+            DECIMAL X(V); DECIMAL *X_P(&X);
+            DECIMAL Y(V);
 
             const int& EXPECTED = data[ti].d_retValue;
-            const int  RESULT   = Util::quantize(O_P, QUANTUM);
+            const int  RESULT   = Util::quantizeEqual(X_P, Y, QUANTUM);
 
             LOOP_ASSERT(LINE, RESULT == EXPECTED);
-            LOOP_ASSERT(LINE, O == X);
+            LOOP_ASSERT(LINE, X == V);
             if (0 == RESULT) {
-                LOOP_ASSERT(LINE, Util::sameQuantum(O, E));
+                LOOP_ASSERT(LINE, Util::sameQuantum(X, E));
             }
 
-            O = sNaN; ASSERT(-1 == Util::quantize(O_P, 0));
-            O = qNaN; ASSERT(-1 == Util::quantize(O_P, 0));
-            O = pInf; ASSERT(-1 == Util::quantize(O_P, 0));
-            O = nInf; ASSERT(-1 == Util::quantize(O_P, 0));
+            ASSERT(-1 == Util::quantizeEqual(X_P, sNaN, 0));
+            ASSERT(-1 == Util::quantizeEqual(X_P, qNaN, 0));
+            ASSERT(-1 == Util::quantizeEqual(X_P, pInf, 0));
+            ASSERT(-1 == Util::quantizeEqual(X_P, nInf, 0));
         }
     }
 }
@@ -4262,10 +4263,10 @@ int main(int argc, char* argv[])
                 ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT1));
                 ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT2));
 
-                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
-                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
-                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
-                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
+                ASSERT_PASS(Util::quantizeEqual(O_P, O,   VALID_EXPONENT1));
+                ASSERT_PASS(Util::quantizeEqual(O_P, O,   VALID_EXPONENT2));
+                ASSERT_FAIL(Util::quantizeEqual(O_P, O, INVALID_EXPONENT1));
+                ASSERT_FAIL(Util::quantizeEqual(O_P, O, INVALID_EXPONENT2));
             }
 #undef  DEC
         }
@@ -4327,10 +4328,10 @@ int main(int argc, char* argv[])
                 ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT1));
                 ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT2));
 
-                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
-                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
-                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
-                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
+                ASSERT_PASS(Util::quantizeEqual(O_P, O,   VALID_EXPONENT1));
+                ASSERT_PASS(Util::quantizeEqual(O_P, O,   VALID_EXPONENT2));
+                ASSERT_FAIL(Util::quantizeEqual(O_P, O, INVALID_EXPONENT1));
+                ASSERT_FAIL(Util::quantizeEqual(O_P, O, INVALID_EXPONENT2));
             }
 #undef DEC
         }
@@ -4394,10 +4395,10 @@ int main(int argc, char* argv[])
                 ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT1));
                 ASSERT_FAIL(Util::quantize(O,   INVALID_EXPONENT2));
 
-                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
-                ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
-                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
-                ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
+                ASSERT_PASS(Util::quantizeEqual(O_P, O,   VALID_EXPONENT1));
+                ASSERT_PASS(Util::quantizeEqual(O_P, O,   VALID_EXPONENT2));
+                ASSERT_FAIL(Util::quantizeEqual(O_P, O, INVALID_EXPONENT1));
+                ASSERT_FAIL(Util::quantizeEqual(O_P, O, INVALID_EXPONENT2));
             }
 
 #undef DEC

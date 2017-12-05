@@ -231,9 +231,9 @@ using bsl::atoi;
 // [29] quantize(ValueType32,    int);
 // [29] quantize(ValueType64,    int);
 // [29] quantize(ValueType128,   int);
-// [29] quantize(ValueType32, *  int);
-// [29] quantize(ValueType64, *  int);
-// [29] quantize(ValueType128 *, int);
+// [29] quantizeEqual(ValueType32  *, ValueType32,  int);
+// [29] quantizeEqual(ValueType64  *, ValueType64,  int);
+// [29] quantizeEqual(ValueType128 *, ValueType128, int);
 // [30] sameQuantum(ValueType32,  ValueType32);
 // [30] sameQuantum(ValueType64,  ValueType64);
 // [30] sameQuantum(ValueType128, ValueType128);
@@ -1671,9 +1671,9 @@ void TestDriver::testCase29()
     //   ValueType32  quantize(ValueType32,    int);
     //   ValueType64  quantize(ValueType64,    int);
     //   ValueType128 quantize(ValueType128,   int);
-    //   int          quantize(ValueType32  *, int);
-    //   int          quantize(ValueType64  *, int);
-    //   int          quantize(ValueType128 *, int);
+    //   int          quantize(ValueType32  *, ValueType32,  int);
+    //   int          quantize(ValueType64  *, ValueType64,  int);
+    //   int          quantize(ValueType128 *, ValueType128, int);
     // ------------------------------------------------------------------------
 
     if (verbose) bsl::cout << "\nTESTING 'quantize' METHOD"
@@ -1721,23 +1721,23 @@ void TestDriver::testCase29()
             const int& EXPONENT    = DATA[ti].d_exponent;
             const int& QUANTUM     = DATA[ti].d_quantum;
 
-            const Obj  X = Util::makeDecimalRaw32(SIGNIFICAND, EXPONENT);
+            const Obj  V = Util::makeDecimalRaw32(SIGNIFICAND, EXPONENT);
             const Obj  E = Util::makeDecimalRaw32(          1, QUANTUM);
 
             {  //: o ValueType32 quantize(ValueType32, ValueType32);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::quantize(X, E);
+                const Obj  RESULT   = Util::quantize(V, E);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
                 if (Util::equal(RESULT, EXPECTED)) {
                     LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
                 }
 
-                ASSERT(nanEqual(Util::quantize(    X, NAN_P), NAN_P));
-                ASSERT(nanEqual(Util::quantize(    X, NAN_N), NAN_N));
-                ASSERT(nanEqual(Util::quantize(    X, INF_P), NAN_P));
-                ASSERT(nanEqual(Util::quantize(    X, INF_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(    V, NAN_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    V, NAN_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(    V, INF_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    V, INF_N), NAN_N));
                 ASSERT(nanEqual(Util::quantize(NAN_P,     E), NAN_P));
                 ASSERT(nanEqual(Util::quantize(NAN_N,     E), NAN_N));
                 ASSERT(nanEqual(Util::quantize(INF_P,     E), NAN_P));
@@ -1747,7 +1747,7 @@ void TestDriver::testCase29()
             {  //: o ValueType32 quantize(ValueType32, int);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::quantize(X, QUANTUM);
+                const Obj  RESULT   = Util::quantize(V, QUANTUM);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
                 if (Util::equal(RESULT, EXPECTED)) {
@@ -1759,7 +1759,7 @@ void TestDriver::testCase29()
                 ASSERT(nanEqual(Util::quantize(INF_P, 0), NAN_P));
                 ASSERT(nanEqual(Util::quantize(INF_N, 0), NAN_N));
 
-                if (verbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing." << endl;
                 {
                     bsls::AssertTestHandlerGuard hG;
 
@@ -1768,48 +1768,49 @@ void TestDriver::testCase29()
                     const int INVALID_EXPONENT1 = -102;
                     const int INVALID_EXPONENT2 =   91;
 
-                    Obj X;
+                    Obj O;
 
-                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT1));
-                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT2));
-                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT1));
-                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT2));
+                    ASSERT_PASS(Util::quantize(O,   VALID_EXPONENT1));
+                    ASSERT_PASS(Util::quantize(O,   VALID_EXPONENT2));
+                    ASSERT_FAIL(Util::quantize(O, INVALID_EXPONENT1));
+                    ASSERT_FAIL(Util::quantize(O, INVALID_EXPONENT2));
                 }
             }
 
-            {  //: o int quantize(ValueType32, int);
+            {  //: o int quantizeEqual(ValueType32 *, ValueType32, int);
 
-                Obj O(X); Obj *O_P(&O);
+                Obj X(V); Obj *X_P(&X);
+                Obj Y(V);
 
                 const int& EXPECTED = DATA[ti].d_retValue;
-                const int  RESULT   = Util::quantize(O_P, QUANTUM);
+                const int  RESULT   = Util::quantizeEqual(X_P, Y, QUANTUM);
 
                 LOOP_ASSERT(LINE, RESULT == EXPECTED);
-                LOOP_ASSERT(LINE, Util::equal(O, X));
+                LOOP_ASSERT(LINE, Util::equal(X, V));
                 if (0 == RESULT) {
-                    LOOP_ASSERT(LINE, Util::sameQuantum(O, E));
+                    LOOP_ASSERT(LINE, Util::sameQuantum(X, E));
                 }
 
-                O = NAN_P; ASSERT(-1 == Util::quantize(O_P, 0));
-                O = NAN_N; ASSERT(-1 == Util::quantize(O_P, 0));
-                O = INF_P; ASSERT(-1 == Util::quantize(O_P, 0));
-                O = INF_N; ASSERT(-1 == Util::quantize(O_P, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, NAN_P, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, NAN_N, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, INF_P, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, INF_N, 0));
 
-                if (verbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing." << endl;
                 {
                     bsls::AssertTestHandlerGuard hG;
 
-                    const int   VALID_EXPONENT1 = -101;
-                    const int   VALID_EXPONENT2 =   90;
-                    const int INVALID_EXPONENT1 = -102;
-                    const int INVALID_EXPONENT2 =   91;
+                    const int   VALID_EXP1 = -101;
+                    const int   VALID_EXP2 =   90;
+                    const int INVALID_EXP1 = -102;
+                    const int INVALID_EXP2 =   91;
 
-                    Obj O; Obj *O_P(&O);
+                    Obj X; Obj *X_P(&X);
 
-                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
-                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
-                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
-                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
+                    ASSERT_PASS(Util::quantizeEqual(X_P, X,   VALID_EXP1));
+                    ASSERT_PASS(Util::quantizeEqual(X_P, X,   VALID_EXP2));
+                    ASSERT_FAIL(Util::quantizeEqual(X_P, X, INVALID_EXP1));
+                    ASSERT_FAIL(Util::quantizeEqual(X_P, X, INVALID_EXP2));
                 }
             }
         }
@@ -1865,23 +1866,23 @@ void TestDriver::testCase29()
             const int&           EXPONENT    = DATA[ti].d_exponent;
             const int&           QUANTUM     = DATA[ti].d_quantum;
 
-            const Obj  X = Util::makeDecimalRaw64(SIGNIFICAND, EXPONENT);
+            const Obj  V = Util::makeDecimalRaw64(SIGNIFICAND, EXPONENT);
             const Obj  E = Util::makeDecimalRaw64(          1, QUANTUM);
 
             {  //: o ValueType64 quantize(ValueType64, ValueType64);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::quantize(X, E);
+                const Obj  RESULT   = Util::quantize(V, E);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
                 if (Util::equal(RESULT, EXPECTED)) {
                     LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
                 }
 
-                ASSERT(nanEqual(Util::quantize(    X, NAN_P), NAN_P));
-                ASSERT(nanEqual(Util::quantize(    X, NAN_N), NAN_N));
-                ASSERT(nanEqual(Util::quantize(    X, INF_P), NAN_P));
-                ASSERT(nanEqual(Util::quantize(    X, INF_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(    V, NAN_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    V, NAN_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(    V, INF_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    V, INF_N), NAN_N));
                 ASSERT(nanEqual(Util::quantize(NAN_P,     E), NAN_P));
                 ASSERT(nanEqual(Util::quantize(NAN_N,     E), NAN_N));
                 ASSERT(nanEqual(Util::quantize(INF_P,     E), NAN_P));
@@ -1891,7 +1892,7 @@ void TestDriver::testCase29()
             {  //: o ValueType64 quantize(ValueType64, int);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::quantize(X, QUANTUM);
+                const Obj  RESULT   = Util::quantize(V, QUANTUM);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
                 if (Util::equal(RESULT, EXPECTED)) {
@@ -1903,7 +1904,7 @@ void TestDriver::testCase29()
                 ASSERT(nanEqual(Util::quantize(INF_P, 0), NAN_P));
                 ASSERT(nanEqual(Util::quantize(INF_N, 0), NAN_N));
 
-                if (verbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing." << endl;
                 {
                     bsls::AssertTestHandlerGuard hG;
 
@@ -1921,39 +1922,40 @@ void TestDriver::testCase29()
                 }
             }
 
-            {  //: o int quantize(ValueType64, int);
+            {  //: o int quantize(ValueType64 *, ValueType64, int);
 
-                Obj O(X); Obj *O_P(&O);
+                Obj X(V); Obj *X_P(&X);
+                Obj Y(V);
 
                 const int& EXPECTED = DATA[ti].d_retValue;
-                const int  RESULT   = Util::quantize(O_P, QUANTUM);
+                const int  RESULT   = Util::quantizeEqual(X_P, Y, QUANTUM);
 
                 LOOP_ASSERT(LINE, RESULT == EXPECTED);
-                LOOP_ASSERT(LINE, Util::equal(O, X));
+                LOOP_ASSERT(LINE, Util::equal(X, V));
                 if (0 == RESULT) {
-                    LOOP_ASSERT(LINE, Util::sameQuantum(O, E));
+                    LOOP_ASSERT(LINE, Util::sameQuantum(X, E));
                 }
 
-                O = NAN_P; ASSERT(-1 == Util::quantize(O_P, 0));
-                O = NAN_N; ASSERT(-1 == Util::quantize(O_P, 0));
-                O = INF_P; ASSERT(-1 == Util::quantize(O_P, 0));
-                O = INF_N; ASSERT(-1 == Util::quantize(O_P, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, NAN_P, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, NAN_N, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, INF_P, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, INF_N, 0));
 
-                if (verbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing." << endl;
                 {
                     bsls::AssertTestHandlerGuard hG;
 
-                    const int   VALID_EXPONENT1 = -398;
-                    const int   VALID_EXPONENT2 =  369;
-                    const int INVALID_EXPONENT1 = -399;
-                    const int INVALID_EXPONENT2 =  370;
+                    const int   VALID_EXP1 = -398;
+                    const int   VALID_EXP2 =  369;
+                    const int INVALID_EXP1 = -399;
+                    const int INVALID_EXP2 =  370;
 
-                    Obj O; Obj *O_P(&O);
+                    Obj X; Obj *X_P(&X);
 
-                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
-                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
-                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
-                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
+                    ASSERT_PASS(Util::quantizeEqual(X_P, X,   VALID_EXP1));
+                    ASSERT_PASS(Util::quantizeEqual(X_P, X,   VALID_EXP2));
+                    ASSERT_FAIL(Util::quantizeEqual(X_P, X, INVALID_EXP1));
+                    ASSERT_FAIL(Util::quantizeEqual(X_P, X, INVALID_EXP2));
                 }
             }
         }
@@ -2011,23 +2013,23 @@ void TestDriver::testCase29()
             const int&           EXPONENT    = DATA[ti].d_exponent;
             const int&           QUANTUM     = DATA[ti].d_quantum;
 
-            const Obj  X = Util::makeDecimalRaw128(SIGNIFICAND, EXPONENT);
+            const Obj  V = Util::makeDecimalRaw128(SIGNIFICAND, EXPONENT);
             const Obj  E = Util::makeDecimalRaw128(          1, QUANTUM);
 
             {  //: o ValueType128 quantize(ValueType128, ValueType128);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::quantize(X, E);
+                const Obj  RESULT   = Util::quantize(V, E);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
                 if (Util::equal(RESULT, EXPECTED)) {
                     LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
                 }
 
-                ASSERT(nanEqual(Util::quantize(    X, NAN_P), NAN_P));
-                ASSERT(nanEqual(Util::quantize(    X, NAN_N), NAN_N));
-                ASSERT(nanEqual(Util::quantize(    X, INF_P), NAN_P));
-                ASSERT(nanEqual(Util::quantize(    X, INF_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(    V, NAN_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    V, NAN_N), NAN_N));
+                ASSERT(nanEqual(Util::quantize(    V, INF_P), NAN_P));
+                ASSERT(nanEqual(Util::quantize(    V, INF_N), NAN_N));
                 ASSERT(nanEqual(Util::quantize(NAN_P,     E), NAN_P));
                 ASSERT(nanEqual(Util::quantize(NAN_N,     E), NAN_N));
                 ASSERT(nanEqual(Util::quantize(INF_P,     E), NAN_P));
@@ -2037,7 +2039,7 @@ void TestDriver::testCase29()
             {  //: o ValueType128 quantize(ValueType128, int);
 
                 const Obj& EXPECTED = DATA[ti].d_expected;
-                const Obj  RESULT   = Util::quantize(X, QUANTUM);
+                const Obj  RESULT   = Util::quantize(V, QUANTUM);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
                 if (Util::equal(RESULT, EXPECTED)) {
@@ -2049,7 +2051,7 @@ void TestDriver::testCase29()
                 ASSERT(nanEqual(Util::quantize(INF_P, 0), NAN_P));
                 ASSERT(nanEqual(Util::quantize(INF_N, 0), NAN_N));
 
-                if (verbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing." << endl;
                 {
                     bsls::AssertTestHandlerGuard hG;
 
@@ -2067,39 +2069,40 @@ void TestDriver::testCase29()
                 }
             }
 
-            {  //: o int quantize(ValueType128 *, int);
+            {  //: o int quantize(ValueType128 *, ValueType128, int);
 
-                Obj O(X); Obj *O_P(&O);
+                Obj X(V); Obj *X_P(&X);
+                Obj Y(V);
 
                 const int& EXPECTED = DATA[ti].d_retValue;
-                const int  RESULT   = Util::quantize(O_P, QUANTUM);
+                const int  RESULT   = Util::quantizeEqual(X_P, Y, QUANTUM);
 
                 LOOP_ASSERT(LINE, RESULT == EXPECTED);
-                LOOP_ASSERT(LINE, Util::equal(O, X));
+                LOOP_ASSERT(LINE, Util::equal(X, V));
                 if (0 == RESULT) {
-                    LOOP_ASSERT(LINE, Util::sameQuantum(O, E));
+                    LOOP_ASSERT(LINE, Util::sameQuantum(X, E));
                 }
 
-                O = NAN_P; ASSERT(-1 == Util::quantize(O_P, 0));
-                O = NAN_N; ASSERT(-1 == Util::quantize(O_P, 0));
-                O = INF_P; ASSERT(-1 == Util::quantize(O_P, 0));
-                O = INF_N; ASSERT(-1 == Util::quantize(O_P, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, NAN_P, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, NAN_N, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, INF_P, 0));
+                ASSERT(-1 == Util::quantizeEqual(X_P, INF_N, 0));
 
-                if (verbose) cout << "\tNegative Testing." << endl;
+                if (veryVerbose) cout << "\tNegative Testing." << endl;
                 {
                     bsls::AssertTestHandlerGuard hG;
 
-                    const int   VALID_EXPONENT1 = -6176;
-                    const int   VALID_EXPONENT2 =  6111;
-                    const int INVALID_EXPONENT1 = -6177;
-                    const int INVALID_EXPONENT2 =  6112;
+                    const int   VALID_EXP1 = -6176;
+                    const int   VALID_EXP2 =  6111;
+                    const int INVALID_EXP1 = -6177;
+                    const int INVALID_EXP2 =  6112;
 
-                    Obj O; Obj *O_P(&O);
+                    Obj X; Obj *X_P(&X);
 
-                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT1));
-                    ASSERT_PASS(Util::quantize(O_P,   VALID_EXPONENT2));
-                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT1));
-                    ASSERT_FAIL(Util::quantize(O_P, INVALID_EXPONENT2));
+                    ASSERT_PASS(Util::quantizeEqual(X_P, X,   VALID_EXP1));
+                    ASSERT_PASS(Util::quantizeEqual(X_P, X,   VALID_EXP2));
+                    ASSERT_FAIL(Util::quantizeEqual(X_P, X, INVALID_EXP1));
+                    ASSERT_FAIL(Util::quantizeEqual(X_P, X, INVALID_EXP2));
                 }
             }
         }
