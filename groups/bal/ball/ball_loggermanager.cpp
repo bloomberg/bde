@@ -509,7 +509,7 @@ void LoggerManager::initSingletonImpl(
                             const LoggerManagerConfiguration&  configuration,
                             bslma::Allocator                  *globalAllocator)
 {
-    // !WARNING!: 'singletonQLock' must be acquired before calling this method.
+    BSLS_ASSERT(singletonQLock.isLocked());
 
     if (0 == s_singleton_p) {
 

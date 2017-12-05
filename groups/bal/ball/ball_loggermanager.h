@@ -1318,7 +1318,10 @@ class LoggerManager {
         // the currently installed global allocator is used.  This method has
         // no effect (aside from logging a warning) if the logger manager
         // singleton already exists.  The behavior is undefined unless the lock
-        // guarding the singleton is acquired before calling this method.
+        // guarding the singleton is acquired before calling this method.  Note
+        // that 'singletonQLock', an instance of 'bslmt::QLock' local to the
+        // implementation file, enforces exclusive access to 's_singleton_p'
+        // during initialization and shutdown of the logger manager singleton.
 
     // PRIVATE CREATORS
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
