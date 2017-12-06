@@ -1793,7 +1793,8 @@ operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
     // decimal floating point exception context.
 
 #if __cplusplus >= 201103L
-bdldfp::Decimal32 operator"" _d32(const char *str, unsigned);
+bdldfp::Decimal32 operator "" _d32(const char *str);
+bdldfp::Decimal32 operator "" _d32(const char *str, size_t);
     // Parse the specified 'str' string as a 32 bit decimal floating-point
     // and return the result.  The parsing follows the rules as specified for
     // the 'strtod32' function in section 9.6 of the ISO/EIC TR 24732 C Decimal
@@ -3088,7 +3089,7 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal64 object);
 
 #if __cplusplus >= 201103L
 
-bdldfp::Decimal64 operator"" _d64(const char *str, unsigned int len);
+bdldfp::Decimal64 operator "" _d64(const char *str, size_t);
     // Parse the specified 'str' string as a 64 bit decimal floating-point
     // and return the result.  The parsing follows the rules as specified for
     // the 'strtod64' function in section 9.6 of the ISO/EIC TR 24732 C Decimal
@@ -4325,7 +4326,7 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal128 object);
 
 #if __cplusplus >= 201103L
 
-bdldfp::Decimal128 operator"" _d128(const char *str, unsigned int len);
+bdldfp::Decimal128 operator"" _d128(const char *str, size_t);
     // Parse the specified 'str' string as a 128 bit decimal floating-point
     // and return the result.  The parsing follows the rules as specified for
     // the 'strtod128' function in section 9.6 of the ISO/EIC TR 24732 C
@@ -7162,7 +7163,13 @@ bool bdldfp::operator>=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
 
 #if __cplusplus >= 201103L
 inline
-bdldfp::Decimal32 bdldfp::operator"" _d32(const char *str, unsigned int)
+bdldfp::Decimal32 bdldfp::operator "" _d32(const char *str)
+{
+    return DecimalImpUtil::parse32(str);
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator "" _d32(const char *str, size_t)
 {
     return DecimalImpUtil::parse32(str);
 }
@@ -7700,7 +7707,7 @@ inline bool bdldfp::operator>=(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
 
 #if __cplusplus >= 201103L
 inline
-bdldfp::Decimal64 bdldfp::operator"" _d64(const char *str, unsigned int)
+bdldfp::Decimal64 bdldfp::operator "" _d64(const char *str, size_t)
 {
     return DecimalImpUtil::parse64(str);
 }
@@ -8415,7 +8422,7 @@ bool bdldfp::operator>=(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
 
 #if __cplusplus >= 201103L
 inline
-bdldfp::Decimal128 bdldfp::operator"" _d128(const char *str, unsigned int)
+bdldfp::Decimal128 bdldfp::operator "" _d128(const char *str, size_t)
 {
     return DecimalImpUtil::parse128(str);
 }

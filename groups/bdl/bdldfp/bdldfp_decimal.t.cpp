@@ -480,6 +480,9 @@ void TestDriver::testCase8()
         const Tested sNaN = BDEC::DecimalImpUtil::signalingNaN32();
         const Tested  Inf = BDEC::DecimalImpUtil::infinity32();
 
+        Tested d  = 1.42_d32;
+        Tested d1 = "nan"_d32;
+
         struct {
             int          d_line;
             Tested       d_x;
