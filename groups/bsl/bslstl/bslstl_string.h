@@ -1017,7 +1017,7 @@ class String_Imp {
         // the string defined by the return value of 'isShortString'.
 };
 
-template<class STRING_TYPE>
+template<class FULL_STRING_TYPE>
 class String_ClearProctor {
     // This component private 'class' implements a proctor that sets the length
     // of a string to zero, and, if 'release' is not called, will restore that
@@ -1027,13 +1027,16 @@ class String_ClearProctor {
     // Note that after constructing this proctor for a string 's', the
     // invariant 's[s.length()] == CHAR_TYPE()' is violated for non-empty 's'.
     // This invariant will be restored by either a successful 'append' or by
-    // the proctor's destructor if an exception is thrown.
+    // the proctor's destructor if an exception is thrown.  Note that the
+    // template parameter was renamed from STRING_TYPE to FULL_STRING_TYPE due
+    // to a name clash with a define elsewhere in the code base (see DRQS
+    // 112049582).
 
     // PRIVATE TYPES
-    typedef typename STRING_TYPE::size_type   size_type;
+    typedef typename FULL_STRING_TYPE::size_type size_type;
 
     // DATA
-    STRING_TYPE* d_string_p;          // pointer to the string supplied at
+    FULL_STRING_TYPE* d_string_p;     // pointer to the string supplied at
                                       // construction (held, not owned)
 
     size_type    d_originalLength;    // original length of the string supplied
@@ -1041,7 +1044,7 @@ class String_ClearProctor {
 
   public:
     // CREATORS
-    explicit String_ClearProctor(STRING_TYPE *stringPtr);
+    explicit String_ClearProctor(FULL_STRING_TYPE *stringPtr);
         // Create a 'String_ClearProctor' for the specified 'stringPtr', and
         // set both the length of 'stringPtr' to 0 and the first character of
         // 'stringPtr' to 'CHAR_TYPE()'.
@@ -3030,16 +3033,17 @@ const CHAR_TYPE *String_Imp<CHAR_TYPE, SIZE_TYPE>::dataPtr() const
                     // ------------------------------
 
 // CREATORS
-template <class STRING_TYPE>
-String_ClearProctor<STRING_TYPE>::String_ClearProctor(STRING_TYPE *stringPtr)
+template <class FULL_STRING_TYPE>
+String_ClearProctor<FULL_STRING_TYPE>::String_ClearProctor(
+                                                   FULL_STRING_TYPE *stringPtr)
 : d_string_p(stringPtr)
 , d_originalLength(stringPtr->d_length)
 {
     d_string_p->d_length = 0;
 }
 
-template <class STRING_TYPE>
-String_ClearProctor<STRING_TYPE>::~String_ClearProctor()
+template <class FULL_STRING_TYPE>
+String_ClearProctor<FULL_STRING_TYPE>::~String_ClearProctor()
 {
     if (d_string_p) {
         d_string_p->d_length = d_originalLength;
@@ -3047,8 +3051,8 @@ String_ClearProctor<STRING_TYPE>::~String_ClearProctor()
 }
 
 // MANIPULATORS
-template <class STRING_TYPE>
-void String_ClearProctor<STRING_TYPE>::release()
+template <class FULL_STRING_TYPE>
+void String_ClearProctor<FULL_STRING_TYPE>::release()
 {
     d_string_p = 0;
 }
