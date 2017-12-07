@@ -149,38 +149,40 @@ class RWMutex {
 
     // MANIPULATORS
     void lockRead();
-        // Lock this RW mutex for reading.  If there are no pending or active
-        // write locks, this method will return immediately; otherwise, it will
-        // block until all write locks have been released.  'unlock' must be
-        // called to release the lock.  The behavior is undefined if this
-        // method is called from a thread that already has a lock on this RW
-        // mutex.
+        // Lock this reader-writer mutex for reading.  If there are no active
+        // or pending write locks, lock this mutex for reading and return
+        // immediately.  Otherwise, block until the read lock on this mutex is
+        // acquired.  Use 'unlock' to release the lock on this mutex.  The
+        // behavior is undefined if this method is called from a thread that
+        // already has a lock on this mutex.
 
     void lockWrite();
-        // Lock this RW mutex for writing.  This method will block until all
-        // active read locks, and all pending or active write locks, have been
-        // released.  When this RW mutex is locked for writing, all lock
-        // attempts will either fail ('tryLockRead', 'tryLockWrite') or block
-        // ('lockRead', 'lockWrite') until the lock is released.  'unlock' must
-        // be called to release the lock.  The behavior is undefined if this
-        // method is called from a thread that already has a lock on this RW
-        // mutex.
+        // Lock this reader-writer mutex for writing.  If there are no active
+        // or pending locks on this mutex, lock this mutex for writing and
+        // return immediately.  Otherwise, block until the write lock on this
+        // mutex is acquired.  Use 'unlock' to release the lock on this mutex.
+        // The behavior is undefined if this method is called from a thread
+        // that already has a lock on this mutex.
 
     int tryLockRead();
-        // Attempt to lock this RW mutex for reading.  Return 0 on success, and
-        // a non-zero value if this RW mutex is currently locked for writing,
-        // or if there are writers waiting for this lock.  If successful,
-        // 'unlock' must be called to release the lock.
+        // Attempt to lock this reader-writer mutex for reading.  Immediately
+        // return 0 on success, and a non-zero value if there are active or
+        // pending writers.  If successful, 'unlock' must be used to release
+        // the lock on this mutex.  The behavior is undefined if this method is
+        // called from a thread that already has a lock on this mutex.
 
     int tryLockWrite();
-        // Attempt to lock this RW mutex for writing.  Return 0 on success, and
-        // a non-zero value if this RW mutex is already locked.  If successful,
-        // 'unlock' must be called to release the lock.
+        // Attempt to lock this reader-writer mutex for writing.  Immediately
+        // return 0 on success, and a non-zero value if there are active or
+        // pending locks on this mutex.  If successful, 'unlock' must be used
+        // to release the lock on this mutex.  The behavior is undefined if
+        // this method is called from a thread that already has a lock on this
+        // mutex.
 
     void unlock();
-        // Release the lock that the calling thread holds on this RW mutex.
-        // The behavior is undefined unless the calling thread currently has a
-        // lock on this RW mutex.
+        // Release the lock that the calling thread holds on this reader-writer
+        // mutex.  The behavior is undefined unless the calling thread
+        // currently has a lock on this mutex.
 };
 
 }  // close package namespace
@@ -317,7 +319,7 @@ void bslmt::RWMutex::unlock()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
