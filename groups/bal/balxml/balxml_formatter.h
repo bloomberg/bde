@@ -467,8 +467,8 @@ class Formatter {
     void addAttribute(const bslstl::StringRef& name,
                       const TYPE&              value,
                       int                      formattingMode = 0);
-        // Add an attribute the specified 'name' and specified 'value' to the
-        // currently open element.  'value' can be of the following types:
+        // Add an attribute of the specified 'name' and specified 'value' to
+        // the currently open element.  'value' can be of the following types:
         // 'char', 'short', 'int', 'bsls::Types::Int64', 'float', 'double',
         // 'bsl::string', 'bdlt::Datetime', 'bdlt::Date', and 'bdlt::Time'.
         // Precede this name="value" pair with a single space.  Wrap line
@@ -476,11 +476,13 @@ class Formatter {
         // length of name="value" is too long.  The behavior is undefined
         // unless the last manipulator was 'openElement' or 'addAttribute'.  If
         // 'value' is of type 'bsl::string', it is truncated at any invalid
-        // UTF-8 byte-sequence or any control character '[0x00, 0x20)' except
-        // '0x9', '0xA', and '0x0D', and escaped for five special characters:
-        // apostrophe, double quote, ampersand, less than, and greater than.
-        // If 'value' is of type 'char', it is cast to a signed byte value with
-        // a range '[ -128 .. 127 ]'.
+        // UTF-8 byte-sequence or any control character.  The list of invalid
+        // control characters includes characters in the range '[0x00, 0x20)'
+        // and '0x7F' (DEL) but does not include '0x9', '0xA', and '0x0D'.  The
+        // five special characters: apostrophe, double quote, ampersand, less
+        // than, and greater than are escaped in the output XML.  If 'value' is
+        // of type 'char', it is cast to a signed byte value with a range
+        // '[ -128 .. 127 ]'.
 
     void addBlankLine();
         // Insert one or two newline characters into the output stream such
@@ -519,7 +521,6 @@ class Formatter {
 
     template <class TYPE>
     void addData(const TYPE& value, int formattingMode = 0);
-
     template <class TYPE>
     void addListData(const TYPE& value, int formattingMode = 0);
         // Add the specified 'value' as the data content, where 'value' can be
@@ -537,13 +538,15 @@ class Formatter {
         // indentation as determined by the whitespace constraint used when the
         // current element is opened with 'openElement'.  Behavior is undefined
         // if the call is made when there are no opened elements.  If 'value'
-        // is of type 'bsl::string', it is truncated at invalid UTF-8
-        // byte-sequence or any control character '[0x00, 0x20)' except '0x9',
-        // '0xA', and '0xD', and escaped for five special characters:
-        // apostrophe, double quote, ampersand, less than, and greater than.
-        // If 'value' is of type 'char', it is cast to a signed byte value with
-        // a range of '[ -128 .. 127 ]'.  Optionally specify the
-        // 'formattingMode'.
+        // is of type 'bsl::string', it is truncated at any invalid UTF-8
+        // byte-sequence or any control character.  The list of invalid
+        // control characters includes characters in the range '[0x00, 0x20)'
+        // and '0x7F' (DEL) but does not include '0x9', '0xA', and '0x0D'.  The
+        // five special characters: apostrophe, double quote, ampersand, less
+        // than, and greater than are escaped in the output XML.  If 'value' is
+        // of type 'char', it is cast to a signed byte value with a range of '[
+        // -128 .. 127 ]'.  Optionally specify the 'formattingMode' to specify
+        // the format used to encode 'value'.
 
     template <class TYPE>
     void addElementAndData(const bslstl::StringRef& name,
