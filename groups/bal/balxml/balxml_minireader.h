@@ -31,6 +31,18 @@ BSLS_IDENT("$Id: $")
 // This provides a far more standard, easy to use and powerful API than the
 // existing SAX.
 //
+// Data Validation
+// - - - - - - - -
+// The 'balxml::MiniReader' 'class' is not a validating reader
+// ('balxml::ValidatingReader').  As a result while parsing data it does not
+// make an attempt to ensure the correctness of either the data or the
+// structure of the incoming XML.  The 'class' accepts characters as element
+// data that the XML standard considers invalid.  For example the '&' and '<'
+// characters in element data will parse without error.  Similarly, it does not
+// return an error if the read data does not conform to its specified schema.
+// To get stricter data validation, clients should use a concrete
+// implementation of a validating reader (such as 'a_xercesc::Reader') instead.
+//
 ///Usage
 ///-----
 // For this example, we will use 'balxml::MiniReader' to read each node in an
