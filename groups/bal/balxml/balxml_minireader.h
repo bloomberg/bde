@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // structure of the incoming XML.  The 'class' accepts characters as element
 // data that the XML standard considers invalid.  For example the '&' and '<'
 // characters in element data will parse without error.  Similarly, it does not
-// return an error if the read data does not conform to it's specified schema.
+// return an error if the read data does not conform to its specified schema.
 // To get stricter data validation, clients should use a concrete
 // implementation of a validating reader (such as 'a_xercesc::Reader') instead.
 //
