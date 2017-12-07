@@ -8356,7 +8356,7 @@ void TestDriver::testCase41()
                              bsls::TimeInterval(1),
                              reuseAddress);
 
-#ifndef BSLS_PLATFORM_OS_LINUX
+#ifdef BSLS_PLATFORM_OS_LINUX
            // Linux does not allow rebinding to a port number that was
            // previously bound to the wildcard address.
 
