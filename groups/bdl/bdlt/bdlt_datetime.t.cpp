@@ -526,7 +526,7 @@ int main(int argc, char *argv[])
       } break;
       case 76: {
         // --------------------------------------------------------------------
-        // TESTING INDIVIDUAL TIME-'set'-ING MANIPULATORS
+        // TEST INDIVIDUAL TIME-'set*IfValid' MANIPULATORS
         //
         // Concerns:
         //: 1 Each of the time-only manipulators correctly forwards its
@@ -591,8 +591,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                    << endl
-                   << "TESTING INDIVIDUAL TIME-'set'-ING MANIPULATORS" << endl
-                   << "==============================================" << endl;
+                   << "TEST INDIVIDUAL TIME-'set*IfValid' MANIPULATORS" << endl
+                   << "===============================================" << endl;
 
         const Date RD(2000, 2, 3);       // Ref date (02FEB2000)
         const Time RT(23, 22, 21, 209);  // Ref time (21:22:21.209)

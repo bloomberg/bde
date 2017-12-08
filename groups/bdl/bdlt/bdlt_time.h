@@ -356,15 +356,33 @@ class Time {
         // 'hour'; if 'hour' is 24, set the remaining attributes of this object
         // to 0.  The behavior is undefined unless '0 <= hour <= 24'.
 
+    int setHourIfValid(int hour);
+        // Set the "hour" attribute of this time object to the specified 'hour'
+        // value *if* '0 <= hour <= 24'.  If '24 == hour', set the remaining
+        // attributes to 0.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.
+
     void setMinute(int minute);
         // Set the "minute" attribute of this time object to the specified
         // 'minute'; if the 'hour' attribute is 24, set the 'hour' attribute to
         // 0.  The behavior is undefined unless '0 <= minute < 60'.
 
+    int setMinuteIfValid(int minute);
+        // Set the "minute" attribute of this time object to the specified
+        // 'minute' *if* '0 <= minute < 60'; if the 'hour' attribute is 24, set
+        // the 'hour' attribute to 0.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.
+
     void setSecond(int second);
         // Set the "second" attribute of this time object to the specified
         // 'second'; if the 'hour' attribute is 24, set the 'hour' attribute to
         // 0.  The behavior is undefined unless '0 <= second < 60'.
+
+    int setSecondIfValid(int second);
+        // Set the "second" attribute of this time object to the specified
+        // 'second' *if* '0 <= second < 60'; if the 'hour' attribute is 24, set
+        // the 'hour' attribute to 0.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.
 
     void setMillisecond(int millisecond);
         // Set the "millisecond" attribute of this time object to the specified
@@ -372,11 +390,23 @@ class Time {
         // attribute to 0.  The behavior is undefined unless
         // '0 <= millisecond < 1000'.
 
+    int setMillisecondIfValid(int millisecond);
+        // Set the "millisecond" attribute of this time object to the specified
+        // 'millisecond' *if* '0 <= millisecond < 1000'; if the 'hour'
+        // attribute is 24, set the 'hour' attribute to 0.  Return 0 on
+        // success, and a non-zero value (with no effect) otherwise.
+
     void setMicrosecond(int microsecond);
         // Set the "microsecond" attribute of this time object to the specified
         // 'microsecond'; if the 'hour' attribute is 24, set the 'hour'
         // attribute to 0.  The behavior is undefined unless
         // '0 <= microsecond < 1000'.
+
+    int setMicrosecondIfValid(int microsecond);
+        // Set the "microsecond" attribute of this time object to the specified
+        // 'microsecond' *if* '0 <= microsecond < 1000'; if the 'hour'
+        // attribute is 24, set the 'hour' attribute to 0.  Return 0 on
+        // success, and a non-zero value (with no effect) otherwise.
 
     void setTime(int hour,
                  int minute = 0,
@@ -732,6 +762,66 @@ Time& Time::operator-=(const DatetimeInterval& rhs)
 {
     addInterval(-rhs);
     return *this;
+}
+
+inline
+int Time::setHourIfValid(int hour)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (0 <= hour && hour <= 24) {
+        setHour(hour);
+        return k_SUCCESS;                                             // RETURN
+    }
+    return k_FAILURE;
+}
+
+inline
+int Time::setMicrosecondIfValid(int microsecond)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (0 <= microsecond && microsecond <= 999) {
+        setMicrosecond(microsecond);
+        return k_SUCCESS;                                             // RETURN
+    }
+    return k_FAILURE;
+}
+
+inline
+int Time::setMillisecondIfValid(int millisecond)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (0 <= millisecond && millisecond <= 999) {
+        setMillisecond(millisecond);
+        return k_SUCCESS;                                             // RETURN
+    }
+    return k_FAILURE;
+}
+
+inline
+int Time::setMinuteIfValid(int minute)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (0 <= minute && minute <= 59) {
+        setMinute(minute);
+        return k_SUCCESS;                                             // RETURN
+    }
+    return k_FAILURE;
+}
+
+inline
+int Time::setSecondIfValid(int second)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (0 <= second && second <= 59) {
+        setSecond(second);
+        return k_SUCCESS;                                             // RETURN
+    }
+    return k_FAILURE;
 }
 
 inline
