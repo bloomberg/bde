@@ -8,6 +8,7 @@ bdlt_date
 bdlt_datetime
 bdlt_datetimeimputil
 bdlt_datetimeinterval
+bdlt_datetimeintervalutil
 bdlt_datetimetz
 bdlt_datetimeutil
 bdlt_datetz
