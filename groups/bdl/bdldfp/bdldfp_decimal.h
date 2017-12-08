@@ -429,7 +429,7 @@ BSLS_IDENT("$Id$")
 // Comparing decimal types to those other types is still possible, it just
 // requires explicit casting/conversion from the user code.
 //
-///No Arithmetic Or Computing Support For 'Decimal32'
+///Arithmetic And Computing Support For 'Decimal32'
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // IEEE-754 designates the 32 bit floating-point types "interchange formats"
 // and does not require or recommend arithmetic or computing support of any
@@ -438,13 +438,13 @@ BSLS_IDENT("$Id$")
 // support, however, in a twist, allows it to be performed using one of the
 // larger types (64 or 128 bits).  The rationale from the C committee is that
 // small embedded systems may need to do their calculations using the small
-// type (so they have made it mandatory for everyone).  Industry experience
-// with the 'float' C type (32bit floating-point type, usually binary) has
-// shown that enabling computing using small floating-point types are a mistake
-// that causes novice programmers to write calculations that are very slow and
-// inaccurate.  There we have decided that unless a compelling use case
-// presents itself we are not going to make it easy to write slow and
-// inaccurate programs using our implementation.
+// type (so they have made it mandatory for everyone).  To conform the
+// requirement we provide arithmetic and computing support for Decimal32 type
+// but users need to be aware of the drawbacks of calculations using the small
+// type. Industry experience with the 'float' C type (32bit floating-point
+// type, usually binary) has shown that enabling computing using small
+// floating-point types are a mistake that causes novice programmers to write
+// calculations that are very slow and inaccurate.
 //
 // We recommend what IEEE recommends: convert your 32 bit types on receipt to a
 // type with higher precision (usually 64 bit will suffice), so you
@@ -463,11 +463,11 @@ BSLS_IDENT("$Id$")
 //
 ///'Decimal32' Type
 ///----------------
-// An interchange format type that supports input, output, relational operators
-// construction from the TR mandates data types but no arithmetic or other
-// computing operations.  The type has the size of exactly 32 bits.  It
-// supports 7 significant decimal digits and an exponent range of -95 to 96.
-// The smallest non-zero value that can be represented is 1e-101.
+// A basic format type that supports input, output, relational operators
+// construction from the TR mandates data types and arithmetic or operations.
+// The type has the size of exactly 32 bits.  It supports 7 significant decimal
+// digits and an exponent range of -95 to 96.  The smallest non-zero value that
+// can be represented is 1e-101.
 //
 // Portable 'Decimal32' literals are created using the 'BDLDFP_DECIMAL_DF'
 // macro.
@@ -496,16 +496,12 @@ BSLS_IDENT("$Id$")
 //
 ///Decimal Number Formatting
 ///-------------------------
-// Streaming decimal floating point numbers to an output stream currently
-// supports formatting flags for width, capitalization, and justification.
-// Because of potential for future improvements in format handling, the
-// operations should not be used for serialization.
-//
-///Preliminary Release: Known Bugs
-///-------------------------------
-// Stream output operators do not obey formatting flags or the precision
-// algorithm as required by the TR; they instead print all significant digits
-// all the time.
+// Streaming decimal floating point numbers to an output stream supports
+// formatting flags for width, capitalization and justification and flags used
+// to output numbers in natural, scientific and fixed notations.  When
+// scientific or fixed flags are set then the precision manipulator specifies
+// how many digits of the decimal number are to be printed, otherwise all
+// significant digits of the decimal number are output using native notation.
 //
 ///Usage
 ///-----
@@ -685,7 +681,7 @@ class Decimal_Type32 {
     explicit Decimal_Type32(Decimal_Type64  other);
     explicit Decimal_Type32(Decimal_Type128 other);
         // Create a 'Decimal32_Type' object having the value closest to the
-        // value of the specified 'other' following the conversion rules
+        // value of the specified 'other' following the conversion rules as
         // defined by IEEE-754:
         //
         //: o If 'other' is NaN, initialize this object to a NaN.
@@ -697,19 +693,19 @@ class Decimal_Type32 {
         //:   object to zero with the same sign.
         //:
         //: o Otherwise if 'other' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-        //:   floating-point exception and initialize this object to infinity
-        //:   with the same sign as 'other'.
+        //:   'std::numeric_limits<Decimal32>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and initialize this object to
+        //:   infinity with the same sign as 'other'.
         //:
         //: o Otherwise if 'other' has an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal32>::min()' then raise the
-        //:   "underflow" floating-point exception and initialize this object
-        //:   to zero with the same sign as 'other'.
+        //:   'std::numeric_limits<Decimal32>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and initialize this object to
+        //:   zero with the same sign as 'other'.
         //:
         //: o Otherwise if 'other' has a value that has more significant digits
-        //:   than 'std::numeric_limits<Decimal32>::max_digit' then raise the
-        //:   "inexact" floating-point exception and initialize this object to
-        //:   the value of 'other' rounded according to the rounding direction.
+        //:   than 'std::numeric_limits<Decimal32>::max_digit' then initialize
+        //:   this object to the value of 'other' rounded according to the
+        //:   rounding direction.
         //:
         //: o Otherwise initialize this object to the value of the 'other'.
 
@@ -731,20 +727,19 @@ class Decimal_Type32 {
         //:   object to zero with the same sign.
         //:
         //: o Otherwise if 'other' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-        //:   floating-point exception and initialize this object to infinity
-        //:   with the same sign as 'other'.
+        //:   'std::numeric_limits<Decimal32>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and initialize this object to
+        //:   infinity with the same sign as 'other'.
         //:
         //: o Otherwise if 'other' has an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal32>::min()' then raise the
-        //:   "underflow" floating-point exception and initialize this object
-        //:   to zero with the same sign as 'other'.
+        //:   'std::numeric_limits<Decimal32>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and initialize this object to
+        //:   zero with the same sign as 'other'.
         //:
-        //: o Otherwise if 'other' has a value that needs more than
-        //:   'std::numeric_limits<Decimal32>::max_digit' significant decimal
-        //:   digits to represent then raise the "inexact" floating-point
-        //:   exception and initialize this object to the value of 'other'
-        //:   rounded according to the rounding direction.
+        //: o Otherwise if 'other' has a value that has more significant digits
+        //:   than 'std::numeric_limits<Decimal32>::max_digit' then initialize
+        //:   this object to the value of 'other' rounded according to the
+        //:   rounding direction.
         //:
         //: o Otherwise initialize this object to the value of the 'other'.
 
@@ -758,16 +753,13 @@ class Decimal_Type32 {
         // value of the specified 'other' following the conversion rules as
         // defined by IEEE-754:
         //
-        //: o If 'other' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-        //:   floating-point exception and initialize this object to infinity
-        //:   with the same sign as 'other'.
+        //: o If 'value' is zero then initialize this object to a zero with an
+        //:   unspecified sign and an unspecified exponent.
         //:
         //: o Otherwise if 'other' has a value that is not exactly
         //:   representable using 'std::numeric_limits<Decimal32>::max_digit'
-        //:   decimal digits then raise the "inexact" floating-point exception
-        //:   and initialize this object to the value of 'other' rounded
-        //:   according to the rounding direction.
+        //:   decimal digits then initialize this object to the value of
+        //:   'other' rounded according to the rounding direction.
         //:
         //: o Otherwise initialize this object to the value of 'other' with
         //:   exponent 0.
@@ -822,12 +814,16 @@ class Decimal_Type32 {
         // described by IEEE-754, store the result in this object, and return a
         // reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
-        //:   floating-point exception and set this object to a NaN.
+        //: o If either of this object or 'rhs' is signaling NaN, then store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
         //:
-        //: o Otherwise if this object and 'rhs' have infinite values of
-        //:   differing signs, then raise the "invalid" floating-point
-        //:   exception and set this object to a NaN.
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
+        //:
+        //: o Otherwise if this object and 'rhs' have infinity value of
+        //:   differing signs, store the value of the macro 'EDOM' into 'errno'
+        //:   and set this object to a NaN.
         //:
         //: o Otherwise if this object and 'rhs' have infinite values of the
         //:   same sign, then do not change this object.
@@ -837,8 +833,8 @@ class Decimal_Type32 {
         //:
         //: o Otherwise if the sum of this object and 'rhs' has an absolute
         //:   value that is larger than 'std::numeric_limits<Decimal32>::max()'
-        //:   then raise the "overflow" floating-point exception and set this
-        //:   object to infinity value with the same sign as that result.
+        //:   then store the value of the macro 'ERANGE' into 'errno' and
+        //:   set this object to infinity with the same sign as that result.
         //:
         //: o Otherwise set this object to the sum of the number represented by
         //:   'rhs' and the number represented by this object.
@@ -872,15 +868,17 @@ class Decimal_Type32 {
         // IEEE-754, store the result in this object, and return a reference to
         // this object.
         //
-        //: o If this object is NaN, then raise the "invalid" floating-point
-        //:   exception and do not change this object.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is NaN, then do not change this object.
         //:
         //: o Otherwise if this object is infinity, then do not change it.
         //:
         //: o Otherwise if the sum of this object and 'rhs' has an absolute
         //:   value that is larger than 'std::numeric_limits<Decimal32>::max()'
-        //:   then raise the "overflow" floating-point exception and set this
-        //:   object to infinity with the same sign as that result.
+        //:   then store the value of the macro 'ERANGE' into 'errno' and
+        //:   set this object to infinity with the same sign as that result.
         //:
         //: o Otherwise set this object to sum of adding 'rhs' and the number
         //:   represented by this object.
@@ -904,12 +902,15 @@ class Decimal_Type32 {
         // object as described by IEEE-754, store the result in this object,
         // and return a reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
-        //:   floating-point exception and set this object to a NaN.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
         //:
-        //: o Otherwise if this object and the 'rhs' have infinite values of
-        //:   the same sign, raise the "invalid" floating-point exception and
-        //:   set this object to a NaN.
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
+        //:
+        //: o Otherwise if this object and 'rhs' have infinity value of the
+        //:   same signs, store the value of the macro 'EDOM' into 'errno'
+        //:   and set this object to a NaN.
         //:
         //: o Otherwise if this object and the 'rhs' have infinite values of
         //:   differing signs, then do not change this object.
@@ -919,9 +920,9 @@ class Decimal_Type32 {
         //:
         //: o Otherwise if subtracting the value of the 'rhs' object from this
         //:   results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-        //:   floating-point exception and set this object to infinity with the
-        //:   same sign as that result.
+        //:   'std::numeric_limits<Decimal32>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign as that result.
         //:
         //: o Otherwise set this object to the result of subtracting the value
         //:   of 'rhs' from the value of this object.
@@ -955,16 +956,18 @@ class Decimal_Type32 {
         // described by IEEE-754, store the result in this object, and return a
         // reference to this object.
         //
-        //: o If this object is NaN, raise the "invalid" floating-point
-        //:   exception and do not change this object.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is NaN, then do not change this object.
         //:
         //: o Otherwise if this object is infinity, then do not change it.
         //:
         //: o Otherwise if subtracting 'rhs' from this object's value results
         //:   in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-        //:   floating-point exception and set this object to infinity with the
-        //:   same sign as that result.
+        //:   'std::numeric_limits<Decimal32>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign as that result.
         //:
         //: o Otherwise set this object to the result of subtracting 'rhs' from
         //:   the value of this object.
@@ -987,13 +990,17 @@ class Decimal_Type32 {
         // this as described by IEEE-754, store the result in this object, and
         // return a reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, raise the "invalid"
-        //:   floating-point exception and set this object to NaN.
+        //: o If either of this object or 'rhs' is signaling NaN, then store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
+        //:
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
         //:
         //: o Otherwise, if one of this object and 'rhs' is zero (positive or
-        //:   negative) and the other is infinity (positive or negative), raise
-        //:   the "invalid" floating-point exception and set this object to a
-        //:   NaN.
+        //:   negative) and the other is infinity (positive or negative), store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
         //:
         //: o Otherwise, if either this object or 'rhs' is positive or negative
         //:   infinity, set this object to infinity.  The sign of this object
@@ -1005,15 +1012,15 @@ class Decimal_Type32 {
         //:   object and 'rhs' had the same sign, and negative otherwise.
         //:
         //: o Otherwise if the product of this object and 'rhs' has an absolute
-        //:   value that is larger than 'std::numeric_limits<Decimal64>::max()'
-        //:   then raise the "overflow" floating-point exception and set this
-        //:   object to infinity with the same sign of that result.
+        //:   value that is larger than 'std::numeric_limits<Decimal32>::max()'
+        //:   then store the value of the macro 'ERANGE' into 'errno' and set
+        //:   this object to infinity with the same sign of that result.
         //:
         //: o Otherwise if the product of this object and 'rhs' has an absolute
         //:   value that is smaller than
-        //:   'std::numeric_limits<Decimal32>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   value with the same sign as that result.
+        //:   'std::numeric_limits<Decimal32>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to zero value
+        //:   with the same sign as that result.
         //:
         //: o Otherwise set this object to the product of the value of 'rhs'
         //:   and the value of this object.
@@ -1041,12 +1048,14 @@ class Decimal_Type32 {
         // described by IEEE-754, store the result in this object, and return a
         // reference to this object.
         //
-        //: o If this object is NaN, raise the "invalid" floating-point
-        //:   exception and set this object to a NaN.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is NaN, then do not change this object.
         //:
         //: o Otherwise if this object is infinity (positive or negative), and
-        //:   'rhs' is zero, then raise the "invalid" floating-point exception
-        //:   and set this object to a NaN.
+        //:   'rhs' is zero, then store the value of the macro 'EDOM' into
+        //:   'errno' and set this object to a NaN.
         //:
         //: o Otherwise if this object is infinity (positive or negative), then
         //:   do not change it.
@@ -1056,15 +1065,15 @@ class Decimal_Type32 {
         //:
         //: o Otherwise if the product of 'rhs' and the value of this object
         //:   results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-        //:   floating-point exception and set this object to infinity with the
-        //:   same sign as that result.
+        //:   'std::numeric_limits<Decimal32>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign as that result.
         //:
         //: o Otherwise if the product of 'rhs' and the value of this object
         //:   results in an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal64>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   with the same sign as that result.
+        //:   'std::numeric_limits<Decimal32>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to zero with
+        //:   the same sign as that result.
         //:
         //: o Otherwise set this object to the product of the value of this
         //:   object and the value 'rhs'.
@@ -1081,32 +1090,36 @@ class Decimal_Type32 {
         // as described by IEEE-754, store the result in this object, and
         // return a reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
-        //:   floating-point exception and set this object to a NaN.
+        //: o If either of this object or 'rhs' is signaling NaN, then store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
         //:
-        //: o Otherwise if this object and 'rhs' are infinity (positive or
-        //:   negative) or zero (positive or negative), then raise the
-        //:   "invalid" floating-point exception and set this object to a NaN.
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
         //:
-        //: o Otherwise if 'rhs' has a positive zero value, then raise the
-        //:   "overflow" floating-point exception and set this object to
+        //: o Otherwise if this object and 'rhs' are both infinity (positive or
+        //:   negative) or both zero (positive or negative) then store the
+        //:   value of the macro 'EDOM' into 'errno' and return a NaN.
+        //:
+        //: o Otherwise if 'rhs' has a positive zero value, then store the
+        //:   value of the macro 'ERANGE' into 'errno' and set this object to
         //:   infinity with the same sign as its original value.
         //:
-        //: o Otherwise if 'rhs' has a negative zero value, then raise the
-        //:   "overflow" floating-point exception and set this object to
+        //: o Otherwise if 'rhs' has a negative zero value, then store the
+        //:   value of the macro 'ERANGE' into 'errno' and set this object to
         //:   infinity with the opposite sign as its original value.
         //:
         //: o Otherwise if dividing the value of this object with the value of
         //:   'rhs' results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-        //:   floating-point exception and set this object to infinity value
-        //:   with the same sign as that result.
+        //:   'std::numeric_limits<Decimal32>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
+        //:   sign as that result.
         //:
         //: o Otherwise if dividing the value of this object with the value of
         //:   'rhs' results in an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal32>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   with the same sign as that result.
+        //:   'std::numeric_limits<Decimal32>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
+        //:   as that result.
         //:
         //: o Otherwise set this object to the result of dividing the value of
         //:   this object with the value of 'rhs'.
@@ -1134,30 +1147,34 @@ class Decimal_Type32 {
         // by IEEE-754, store the result in this object, and return a reference
         // to this object.
         //
-        //: o If this object is NaN, raise the "invalid" floating-point
-        //:   exception and set this object to a NaN.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
         //:
-        //: o Otherwise if this object is infinity (positive or negative), and
-        //:   'rhs' is zero, raise the "invalid" floating-point exception and
-        //:   set this object to a NaN.
+        //: o Otherwise if this object is NaN then set this object to a NaN.
         //:
-        //: o Otherwise if this object is infinity, then do not change it.
+        //: o Otherwise if this object is infinity (positive or negative) and
+        //:   'rhs' is positive value then set this object to infinity value
+        //:   with the same sign as its original value.
         //:
-        //: o Otherwise if 'rhs' is zero, raise the "overflow" floating-point
-        //:   exception and then set this object to infinity with the same sign
+        //: o Otherwise if this object is infinity (positive or negative) and
+        //:   'rhs' is negative value then set this object to infinity value
+        //:   with the opposite sign as its original value.
+        //:
+        //: o Otherwise if 'rhs' is zero, store the value of the macro 'ERANGE'
+        //:   into 'errno' and set this object to infinity with the same sign
         //:   it had prior to this operation.
         //:
-        //: o Otherwise if the quotient of the value of this object and 'rhs'
-        //:   results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-        //:   floating-point exception and set this object to infinity with the
-        //:   same sign as that result.
+        //: o Otherwise if dividing the value of this object with the value of
+        //:   'rhs' results in an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal32>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
+        //:   sign as that result.
         //:
-        //: o Otherwise if the quotient of the value of this object and 'rhs'
-        //:   results in an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal32>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   with the same sign as that result.
+        //: o Otherwise if dividing the value of this object with the value of
+        //:   'rhs' results in an absolute value that is smaller than
+        //:   'std::numeric_limits<Decimal32>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
+        //:   as that result.
         //:
         //: o Otherwise set this object to the result of dividing the number
         //:   represented by this object by 'rhs'.
@@ -1236,21 +1253,21 @@ Decimal32 operator+(Decimal32 lhs, Decimal32 rhs);
     // Add the value of the specified 'rhs' to the value of the specified 'lhs'
     // as described by IEEE-754 and return the result.
     //
-    //: o If either of 'lhs' or 'rhs' is NaN, then raise the "invalid"
-    //:   floating-point exception and return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' and 'rhs' are infinities of differing signs, raise
-    //:   the "invalid" floating-point exception and return a NaN.
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
+    //:
+    //: o Otherwise if 'lhs' and 'rhs' are infinities of differing signs, store
+    //:   the value of the macro 'EDOM' into 'errno' and return a NaN.
     //:
     //: o Otherwise if 'lhs' and 'rhs' are infinities of the same sign then
     //:   return infinity of that sign.
     //:
-    //: o Otherwise if 'rhs' is zero (positive or negative), return 'lhs'.
-    //:
     //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value that is
-    //:   larger than 'std::numeric_limits<Decimal32>::max()' then raise the
-    //:   "overflow" floating-point exception and return infinity with the same
-    //:   sign as that result.
+    //:   larger than 'std::numeric_limits<Decimal32>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and set this object to
+    //:   infinity with the same sign as that result.
     //:
     //: o Otherwise return the sum of the number represented by 'lhs' and the
     //:   number represented by 'rhs'.
@@ -1264,15 +1281,17 @@ Decimal32 operator+(Decimal32 lhs, unsigned long long rhs);
     // Add the specified 'rhs' to the value of the specified 'lhs' as described
     // by IEEE-754 and return the result.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity, then return that infinity.
+    //: o Otherwise if 'lhs' object is NaN, then return a NaN.
+    //:
+    //: o Otherwise if 'lhs' is infinity, then return infinity.
     //:
     //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value that is
-    //:   larger than 'std::numeric_limits<Decimal32>::max()' then raise the
-    //:   "overflow" floating-point exception and return infinity with the same
-    //:   sign as that result.
+    //:   larger than 'std::numeric_limits<Decimal32>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return infinity with the
+    //:   same sign as that result.
     //:
     //: o Otherwise return the sum of 'rhs' and the number represented by
     //:   'lhs'.
@@ -1286,15 +1305,17 @@ Decimal32 operator+(unsigned long long lhs, Decimal32 rhs);
     // Add the specified 'lhs' to the value of the specified 'rhs' as described
     // by IEEE-754 and return the result.
     //
-    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'rhs' is infinity, then return that infinity.
+    //: o Otherwise if 'rhs' object is NaN, then return a NaN.
     //:
-    //: o Otherwise if the sum of the value of 'rhs' and 'lhs' has an absolute
-    //:   value that is larger than 'std::numeric_limits<Decimal32>::max()'
-    //:   then raise the "overflow" floating-point exception and return
-    //:   infinity with the same sign as that result.
+    //: o Otherwise if 'rhs' is infinity, then return infinity.
+    //:
+    //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value that is
+    //:   larger than 'std::numeric_limits<Decimal32>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return infinity with the
+    //:   same sign as that result.
     //:
     //: o Otherwise return the sum of 'lhs' and the number represented by
     //:   'rhs'.
@@ -1303,24 +1324,22 @@ Decimal32 operator-(Decimal32 lhs, Decimal32 rhs);
     // Subtract the value of the specified 'rhs' from the value of the
     // specified 'lhs' as described by IEEE-754 and return the result.
     //
-    //: o If either 'lhs' or 'rhs' is NaN, then raise the "invalid"
-    //:   floating-point exception and return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
     //:
     //: o Otherwise if 'lhs' and the 'rhs' have infinity values of the same
-    //:   sign, then raise the "invalid" floating-point exception and return a
+    //:   sign, store the value of the macro 'EDOM' into 'errno' and return a
     //:   NaN.
     //:
     //: o Otherwise if 'lhs' and the 'rhs' have infinity values of differing
     //:   signs, then return 'lhs'.
     //:
-    //: o Otherwise if 'rhs' has a zero value (positive or negative), then
-    //:   return 'lhs'.
-    //:
-    //: o Otherwise if subtracting the value of the 'rhs' object from the value
-    //:   of 'lhs' results in an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
-    //:   that result.
+    //: o Otherwise if the subtracting of 'lhs' and 'rhs' has an absolute value
+    //:   that is larger than 'std::numeric_limits<Decimal32>::max()' then
+    //:   store the value of the macro 'ERANGE' into 'errno' and return
+    //:   infinity with the same sign as that result.
     //:
     //: o Otherwise return the result of subtracting the value of 'rhs' from
     //:   the value of 'lhs'.
@@ -1334,15 +1353,17 @@ Decimal32 operator-(Decimal32 lhs, unsigned long long rhs);
     // Subtract the specified 'rhs' from the value of the specified 'lhs' as
     // described by IEEE-754 and return a reference to this object.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity, then return 'lhs'.
+    //: o Otherwise if 'lhs' is NaN, then return a NaN.
     //:
-    //: o Otherwise if subtracting 'rhs' from the value of 'lhs' results in an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if 'lhs' is infinity, then return infinity.
+    //:
+    //: o Otherwise if subtracting 'rhs' from 'lhs' object's value results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
     //: o Otherwise return the result of subtracting 'rhs' from the value of
@@ -1357,31 +1378,34 @@ Decimal32 operator-(unsigned long long lhs, Decimal32 rhs);
     // Subtract the specified 'rhs' from the value of the specified 'lhs' as
     // described by IEEE-754 and return a reference to this object.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception return
-    //:   a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity, then return 'lhs'.
+    //: o Otherwise if 'rhs' is NaN, then return a NaN.
     //:
-    //: o Otherwise if 'rhs' is zero (positive or negative), then return 'lhs'.
+    //: o Otherwise if 'rhs' is infinity, then return infinity.
     //:
-    //: o Otherwise if subtracting 'rhs' from the value of 'lhs' results in an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if subtracting 'rhs' from 'lhs' object's value results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise return the result of subtracting the value of 'rhs'
-    // from the number 'lhs'.
+    //: o Otherwise return the result of subtracting the value of 'rhs' from
+    //:   the number 'lhs'.
 
 Decimal32 operator*(Decimal32 lhs, Decimal32 rhs);
     // Multiply the value of the specified 'lhs' object by the value of the
     // specified 'rhs' as described by IEEE-754 and return the result.
     //
-    //: o If either of 'lhs' or 'rhs' is NaN, return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
     //:
     //: o Otherwise if one of the operands is infinity (positive or negative)
-    //:   and the other is zero (positive or negative), then raise the
-    //:   "invalid" floating-point exception raised and return a NaN.
+    //:   and the other is zero (positive or negative), then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
     //:
     //: o Otherwise if both 'lhs' and 'rhs' are infinity (positive or
     //:   negative), return infinity.  The sign of the returned value will be
@@ -1394,13 +1418,13 @@ Decimal32 operator*(Decimal32 lhs, Decimal32 rhs);
     //:
     //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
     //:   that is larger than 'std::numeric_limits<Decimal32>::max()' then
-    //:   raise the "overflow" floating-point exception and return infinity
-    //:   with the same sign as that result.
+    //:   store the value of the macro 'ERANGE' into 'errno' and return
+    //:   infinity with the same sign as that result.
     //:
     //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
     //:   that is smaller than 'std::numeric_limits<Decimal32>::min()' then
-    //:   raise the "underflow" floating-point exception and return zero with
-    //:   the same sign as that result.
+    //:   store the value of the macro 'ERANGE' into 'errno' and return zero
+    //:   with the same sign as that result.
     //:
     //: o Otherwise return the product of the value of 'rhs' and the number
     //:   represented by 'rhs'.
@@ -1414,29 +1438,31 @@ Decimal32 operator*(Decimal32 lhs, unsigned long long rhs);
     // Multiply the specified 'rhs' by the value of the specified 'lhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if 'lhs' is NaN, then return a NaN.
     //:
     //: o Otherwise if 'lhs' is infinity (positive or negative), and 'rhs' is
-    //:   zero, then raise the "invalid" floating-point exception and return a
-    //:   NaN.
+    //:   zero, then store the value of the macro 'EDOM' into 'errno' and
+    //:   return a NaN.
     //:
     //: o Otherwise if 'lhs' is infinity (positive or negative), then return
     //:   'lhs'.
     //:
     //: o Otherwise if 'rhs' is zero, then return zero with the sign of 'lhs'.
     //:
-    //: o Otherwise if the product of 'rhs' and the value of 'lhs' has an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if the product of 'rhs' and the value of 'lhs' results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the product of 'rhs' and the value of 'lhs' has an
-    //:   absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal32>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if the product of 'rhs' and the value of 'lhs' results in
+    //:   an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal32>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
     //: o Otherwise return the product of the value of 'lhs' and value 'rhs'.
 
@@ -1449,61 +1475,72 @@ Decimal32 operator*(unsigned long long lhs, Decimal32 rhs);
     // Multiply the specified 'lhs' by the value of the specified 'rhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if 'rhs' is NaN, then return a NaN.
     //:
     //: o Otherwise if 'rhs' is infinity (positive or negative), and 'lhs' is
-    //:   zero, then raise the "invalid" floating-point exception and return a
-    //:   NaN.
+    //:   zero, then store the value of the macro 'EDOM' into 'errno' and
+    //:   return a NaN.
     //:
     //: o Otherwise if 'rhs' is infinity (positive or negative), then return
     //:   'rhs'.
     //:
     //: o Otherwise if 'lhs' is zero, then return zero with the sign of 'rhs'.
     //:
-    //: o Otherwise if the product of 'lhs' and the value of 'rhs' has an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if the product of 'lhs' and the value of 'rhs' results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the product of 'lhs' and the value of 'rhs' has an
-    //:   absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal32>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if the product of 'lhs' and the value of 'rhs' results in
+    //:   an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal32>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
-    //: o Otherwise return the product of the value of 'rhs' and value 'lhs'.
+    //: o Otherwise return the product of the value of 'lhs' and value 'rhs'.
 
 Decimal32 operator/(Decimal32 lhs, Decimal32 rhs);
     // Divide the value of the specified 'lhs' by the value of the specified
     // 'rhs' as described by IEEE-754, and return the result.
     //
-    //: o If 'lhs' or 'rhs' is NaN, raise the "invalid" floating-point
-    //:   exception and return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
     //:
     //: o Otherwise if 'lhs' and 'rhs' are both infinity (positive or negative)
-    //:   or both zero (positive or negative), raise the "invalid"
-    //:   floating-point exception and return a NaN.
+    //:   or both zero (positive or negative) then store the value of the macro
+    //:   'EDOM' into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'rhs' has a positive zero value, raise the "overflow"
-    //:   floating-point exception and return infinity with the sign of 'lhs'.
+    //: o Otherwise if 'lhs' has a normal value and 'rhs' has a positive zero
+    //:   value, store the value of the macro 'ERANGE' into 'errno' and return
+    //:   infinity with the sign of 'lhs'.
     //:
-    //: o Otherwise if 'rhs' has a negative zero value, raise the "overflow"
-    //:   floating-point exception and return infinity with the opposite sign
-    //:   as 'lhs'.
+    //: o Otherwise if 'lhs' has a normal value and 'rhs' has a negative zero
+    //:   value, store the value of the macro 'ERANGE' into 'errno' and return
+    //:   infinity with the opposite sign as 'lhs'.
+    //:
+    //: o Otherwise if 'lhs' has infinity value and 'rhs' has a positive zero
+    //:   value, return infinity with the sign of 'lhs'.
+    //:
+    //: o Otherwise if 'lhs' has infinity value and 'rhs' has a negative zero
+    //:   value, return infinity with the opposite sign as 'lhs'.
     //:
     //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
     //:   results in an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //:   'std::numeric_limits<Decimal32>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
     //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
     //:   results in an absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal32>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //:   'std::numeric_limits<Decimal32>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
     //: o Otherwise return the result of dividing the value of 'lhs' with the
     //:   value of 'rhs'.
@@ -1517,29 +1554,34 @@ Decimal32 operator/(Decimal32 lhs, unsigned long long rhs);
     // Divide the value of the specified 'lhs' by the specified 'rhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity (positive or negative), and 'rhs' is
-    //:   zero, raise the "invalid" floating-point exception and return a NaN.
+    //: o Otherwise if 'lhs' is NaN then return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity (positive or negative), then return
-    //:   'lhs'.
+    //: o Otherwise if 'lhs' is infinity (positive or negative) and 'rhs' is
+    //:   positive value then return infinity value with the same sign as its
+    //:   original value.
     //:
-    //: o Otherwise if 'rhs' is zero, raise the "overflow" floating-point
-    //:   exception return zero with the sign of 'lhs'.
+    //: o Otherwise if 'lhs' is infinity (positive or negative) and 'rhs' is
+    //:   negative value then return infinity value with the opposite sign as
+    //:   its original value.
     //:
-    //: o Otherwise if the quotient of the value of 'lhs' and 'rhs' results in
-    //:   an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if 'rhs' is zero, store the value of the macro 'ERANGE'
+    //:   into 'errno' and return infinity with the same sign it had prior to
+    //:   this operation.
+    //:
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the quotient of the value of 'lhs' and 'rhs' results in
-    //:   an absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal32>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal32>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
     //: o Otherwise return the result of dividing the value of 'lhs' by the
     //:   value 'rhs'.
@@ -1553,30 +1595,34 @@ Decimal32 operator/(unsigned long long lhs, Decimal32 rhs);
     // Divide the specified 'lhs' by the value of the specified 'rhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if 'rhs' is NaN then return a NaN.
     //:
     //: o Otherwise if 'rhs' is infinity (positive or negative), and 'lhs' is
-    //:   zero, raise the "invalid" floating-point exception and return a NaN.
+    //:   zero, store the value of the macro 'ERANGE' into 'errno' and return a
+    //:   NaN.
     //:
-    //: o Otherwise if 'rhs' is zero (positive or negative), raise the
-    //:   "overflow" floating-point exception return zero with the sign of
+    //: o Otherwise if 'rhs' is zero (positive or negative), store the value of
+    //:   the macro 'ERANGE' into 'errno' and return infinity with the sign of
     //:   'lhs'.
     //:
-    //: o Otherwise if the quotient of 'rhs' and the value of 'rhs' results in
-    //:   an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the quotient of 'lhs' and the value of 'rhs' results in
-    //:   an absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal32>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal32>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
-    //: o Otherwise return the result of dividing the value 'lhs' by the value
-    //:   of 'rhs'.  Note that this is a floating-point operation, not integer.
+    //: o Otherwise return the result of dividing the value of 'lhs' by the
+    //:   value 'rhs'.  Note that this is a floating-point operation, not
+    //:   integer.
 
 bool operator==(Decimal32 lhs, Decimal32 rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
@@ -1590,8 +1636,8 @@ bool operator==(Decimal32 lhs, Decimal32 rhs);
     //: o both have the value of a real number that are equal, even if they are
     //:   represented differently (cohorts have the same value)
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
     //
     // Note that a NaN is never equal to anything, including itself:
     //..
@@ -1614,8 +1660,8 @@ bool operator!=(Decimal32 lhs, Decimal32 rhs);
     //: o both have the value of a real number that are not equal, regardless
     //:   of their representation (cohorts are equal)
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
     //
     // Note that a NaN is never equal to anything, including itself:
     //..
@@ -1639,8 +1685,8 @@ bool operator<(Decimal32 lhs, Decimal32 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is less than that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator<=(Decimal32 lhs, Decimal32 rhs);
     // Return 'true' if the specified 'lhs' has a value less than or equal the
@@ -1658,8 +1704,8 @@ bool operator<=(Decimal32 lhs, Decimal32 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is less or equal to that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator>(Decimal32 lhs, Decimal32 rhs);
     // Return 'true' if the specified 'lhs' has a greater value than the
@@ -1677,8 +1723,8 @@ bool operator>(Decimal32 lhs, Decimal32 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is greater than that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator>=(Decimal32 lhs, Decimal32 rhs);
     // Return 'true' if the specified 'lhs' has a value greater than or equal
@@ -1696,8 +1742,8 @@ bool operator>=(Decimal32 lhs, Decimal32 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is greater or equal to that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
@@ -1719,17 +1765,16 @@ operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal32& object);
     // representation of a floating-point value (e.g., 12e or e12 or 1*2) the
     // 'stream.fail()' is set to true and 'object' will remain unchanged.  If a
     // real number value is represented by the character sequence but it is a
-    // large positive or negative value that cannot be stored into 'object' the
-    // "overflow" floating-point exception is raised and positive or negative
-    // infinity is stored into 'object', respectively.  If a real number value
-    // is represented by the character sequence but it is a small positive or
-    // negative value that cannot be stored into 'object' the "underflow"
-    // floating-point exception is raised and positive or negative zero is
-    // stored into 'object', respectively.  If a real number value is
-    // represented by the character sequence but it cannot be stored exactly
-    // into 'object' the "inexact" floating-point exception is raised, the
-    // value is rounded according to the current rounding direction (of the
-    // environment) and then stored into 'object.'
+    // large positive or negative value that cannot be stored into 'object'
+    // then store the value of the macro 'ERANGE' into 'errno' and positive or
+    // negative infinity is stored into 'object', respectively.  If a real
+    // number value is represented by the character sequence but it is a small
+    // positive or negative value that cannot be stored into 'object' then
+    // store the value of the macro 'ERANGE' into 'errno' and positive or
+    // negative zero is stored into 'object', respectively.  If a real number
+    // value is represented by the character sequence but it cannot be stored
+    // exactly into 'object', the value is rounded according to the current
+    // rounding direction (of the environment) and then stored into 'object'.
     //
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
@@ -1804,7 +1849,7 @@ class Decimal_Type64 {
 
     Decimal_Type64(Decimal32 other);                                // IMPLICIT
         // Create a 'Decimal64_Type' object having the value of the specified
-        // 'other' following the conversion rules defined by IEEE-754:
+        // 'other' following the conversion rules as defined by IEEE-754:
         //
         //: o If 'other' is NaN, initialize this object to a NaN.
         //:
@@ -1818,7 +1863,7 @@ class Decimal_Type64 {
 
     explicit Decimal_Type64(Decimal128 other);
         // Create a 'Decimal64_Type' object having the value closest to the
-        // value of the specified 'other' following the conversion rules
+        // value of the specified 'other' following the conversion rules as
         // defined by IEEE-754:
         //
         //: o If 'other' is NaN, initialize this object to a NaN.
@@ -1829,21 +1874,20 @@ class Decimal_Type64 {
         //: o Otherwise if 'other' is zero, then initialize this object to
         //:   zero with the same sign.
         //:
-        //: o Otherwise if 'other' has an absolute value that is larger
-        //:   than 'std::numeric_limits<Decimal64>::max()' then raise the
-        //:   "overflow" floating-point exception and initialize this
-        //:   object to infinity with the same sign as 'other'.
+        //: o Otherwise if 'other' has an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal64>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and initialize this object to
+        //:   infinity with the same sign as 'other'.
         //:
-        //: o Otherwise if 'other' has an absolute value that is smaller
-        //:   than 'std::numeric_limits<Decimal64>::min()' then raise the
-        //:   "underflow" floating-point exception and initialize this
-        //:   object to zero with the same sign as 'other'.
+        //: o Otherwise if 'other' has an absolute value that is smaller than
+        //:   'std::numeric_limits<Decimal64>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and initialize this object to
+        //:   zero with the same sign as 'other'.
         //:
         //: o Otherwise if 'other' has a value that has more significant
         //:   digits than 'std::numeric_limits<Decimal64>::max_digit' then
-        //:   raise the "inexact" floating-point exception and initialize
-        //:   this object to the value of 'other' rounded according to the
-        //:   rounding direction.
+        //:   initialize this object to the value of 'other' rounded according
+        //:   to the rounding direction.
         //:
         //: o Otherwise initialize this object to the value as the 'other'.
 
@@ -1864,21 +1908,10 @@ class Decimal_Type64 {
         //: o Otherwise if 'other' has a zero value, then initialize this
         //:   object to zero with the same sign.
         //:
-        //: o Otherwise if 'other' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and initialize this object to infinity
-        //:   with the same sign as 'other'.
-        //:
-        //: o Otherwise if 'other' has an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal64>::min()' then raise the
-        //:   "underflow" floating-point exception and initialize this object
-        //:   to zero with the same sign as 'other'.
-        //:
         //: o Otherwise if 'other' has a value that needs more than
         //:   'std::numeric_limits<Decimal64>::max_digit' significant decimal
-        //:   digits to represent then raise the "inexact" floating-point
-        //:   exception and initialize this object to the value of 'other'
-        //:   rounded according to the rounding direction.
+        //:   digits to represent then initialize this object to the value of
+        //:   'other' rounded according to the rounding direction.
         //:
         //: o Otherwise initialize this object to the value of the 'other'.
 
@@ -1892,16 +1925,10 @@ class Decimal_Type64 {
         // value of the specified 'other' following the conversion rules as
         // defined by IEEE-754:
         //
-        //: o If 'other' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and initialize this object to infinity
-        //:   with the same sign as 'other'.
-        //:
         //: o Otherwise if 'other' has a value that is not exactly
         //:   representable using 'std::numeric_limits<Decimal64>::max_digit'
-        //:   decimal digits then raise the "inexact" floating-point exception
-        //:   and initialize this object to the value of 'other' rounded
-        //:   according to the rounding direction.
+        //:   decimal digits then initialize this object to the value of
+        //:   'other' rounded according to the rounding direction.
         //:
         //: o Otherwise initialize this object to the value of 'other' with
         //:   exponent 0.
@@ -1956,12 +1983,16 @@ class Decimal_Type64 {
         // described by IEEE-754, store the result in this object, and return a
         // reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
-        //:   floating-point exception and set this object to a NaN.
+        //: o If either of this object or 'rhs' is signaling NaN, then store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
+        //:
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
         //:
         //: o Otherwise if this object and 'rhs' have infinite values of
-        //:   differing signs, then raise the "invalid" floating-point
-        //:   exception and set this object to a NaN.
+        //:   differing signs, store the value of the macro 'EDOM' into 'errno'
+        //:   and set this object to a NaN.
         //:
         //: o Otherwise if this object and 'rhs' have infinite values of the
         //:   same sign, then do not change this object.
@@ -1971,8 +2002,8 @@ class Decimal_Type64 {
         //:
         //: o Otherwise if the sum of this object and 'rhs' has an absolute
         //:   value that is larger than 'std::numeric_limits<Decimal64>::max()'
-        //:   then raise the "overflow" floating-point exception and set this
-        //:   object to infinity value with the same sign as that result.
+        //:   then store the value of the macro 'ERANGE' into 'errno' and
+        //:   set this object to infinity with the same sign as that result.
         //:
         //: o Otherwise set this object to the sum of the number represented by
         //:   'rhs' and the number represented by this object.
@@ -1998,15 +2029,17 @@ class Decimal_Type64 {
         // IEEE-754, store the result in this object, and return a reference to
         // this object.
         //
-        //: o If this object is NaN, then raise the "invalid" floating-point
-        //:   exception and do not change this object.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is NaN, then do not change this object.
         //:
         //: o Otherwise if this object is infinity, then do not change it.
         //:
         //: o Otherwise if the sum of this object and 'rhs' has an absolute
         //:   value that is larger than 'std::numeric_limits<Decimal64>::max()'
-        //:   then raise the "overflow" floating-point exception and set this
-        //:   object to infinity with the same sign as that result.
+        //:   then store the value of the macro 'ERANGE' into 'errno' and
+        //:   set this object to infinity with the same sign as that result.
         //:
         //: o Otherwise set this object to sum of adding 'rhs' and the number
         //:   represented by this object.
@@ -2023,12 +2056,15 @@ class Decimal_Type64 {
         // object as described by IEEE-754, store the result in this object,
         // and return a reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
-        //:   floating-point exception and set this object to a NaN.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
         //:
-        //: o Otherwise if this object and the 'rhs' have infinite values of
-        //:   the same sign, raise the "invalid" floating-point exception and
-        //:   set this object to a NaN.
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
+        //:
+        //: o Otherwise if this object and 'rhs' have infinity value of the
+        //:   same signs, store the value of the macro 'EDOM' into 'errno'
+        //:   and set this object to a NaN.
         //:
         //: o Otherwise if this object and the 'rhs' have infinite values of
         //:   differing signs, then do not change this object.
@@ -2038,9 +2074,9 @@ class Decimal_Type64 {
         //:
         //: o Otherwise if subtracting the value of the 'rhs' object from this
         //:   results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and set this object to infinity with the
-        //:   same sign as that result.
+        //:   'std::numeric_limits<Decimal64>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign as that result.
         //:
         //: o Otherwise set this object to the result of subtracting the value
         //:   of 'rhs' from the value of this object.
@@ -2066,16 +2102,18 @@ class Decimal_Type64 {
         // described by IEEE-754, store the result in this object, and return a
         // reference to this object.
         //
-        //: o If this object is NaN, raise the "invalid" floating-point
-        //:   exception and do not change this object.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is NaN, then do not change this object.
         //:
         //: o Otherwise if this object is infinity, then do not change it.
         //:
         //: o Otherwise if subtracting 'rhs' from this object's value results
         //:   in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and set this object to infinity with the
-        //:   same sign as that result.
+        //:   'std::numeric_limits<Decimal64>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign as that result.
         //:
         //: o Otherwise set this object to the result of subtracting 'rhs' from
         //:   the value of this object.
@@ -2092,13 +2130,17 @@ class Decimal_Type64 {
         // this as described by IEEE-754, store the result in this object, and
         // return a reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, raise the "invalid"
-        //:   floating-point exception and set this object to NaN.
+        //: o If either of this object or 'rhs' is signaling NaN, then store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
+        //:
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
         //:
         //: o Otherwise, if one of this object and 'rhs' is zero (positive or
-        //:   negative) and the other is infinity (positive or negative), raise
-        //:   the "invalid" floating-point exception and set this object to a
-        //:   NaN.
+        //:   negative) and the other is infinity (positive or negative), store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
         //:
         //: o Otherwise, if either this object or 'rhs' is positive or negative
         //:   infinity, set this object to infinity.  The sign of this object
@@ -2111,14 +2153,14 @@ class Decimal_Type64 {
         //:
         //: o Otherwise if the product of this object and 'rhs' has an absolute
         //:   value that is larger than 'std::numeric_limits<Decimal64>::max()'
-        //:   then raise the "overflow" floating-point exception and set this
-        //:   object to infinity with the same sign of that result.
+        //:   then store the value of the macro 'ERANGE' into 'errno' and set
+        //:   this object to infinity with the same sign of that result.
         //:
         //: o Otherwise if the product of this object and 'rhs' has an absolute
         //:   value that is smaller than
-        //:   'std::numeric_limits<Decimal64>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   value with the same sign as that result.
+        //:   'std::numeric_limits<Decimal64>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to zero value
+        //:   with the same sign as that result.
         //:
         //: o Otherwise set this object to the product of the value of 'rhs'
         //:   and the value of this object.
@@ -2139,12 +2181,14 @@ class Decimal_Type64 {
         // described by IEEE-754, store the result in this object, and return a
         // reference to this object.
         //
-        //: o If this object is NaN, raise the "invalid" floating-point
-        //:   exception and set this object to a NaN.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is NaN, then do not change this object.
         //:
         //: o Otherwise if this object is infinity (positive or negative), and
-        //:   'rhs' is zero, then raise the "invalid" floating-point exception
-        //:   and set this object to a NaN.
+        //:   'rhs' is zero, then store the value of the macro 'EDOM' into
+        //:   'errno' and set this object to a NaN.
         //:
         //: o Otherwise if this object is infinity (positive or negative), then
         //:   do not change it.
@@ -2154,18 +2198,15 @@ class Decimal_Type64 {
         //:
         //: o Otherwise if the product of 'rhs' and the value of this object
         //:   results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and set this object to infinity with the
-        //:   same sign as that result.
+        //:   'std::numeric_limits<Decimal64>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign as that result.
         //:
         //: o Otherwise if the product of 'rhs' and the value of this object
         //:   results in an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal64>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   with the same sign as that result.
-        //:
-        //: o Otherwise set this object to the product of the value of this
-        //:   object and the value 'rhs'.
+        //:   'std::numeric_limits<Decimal64>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to zero with
+        //:   the same sign as that result.
 
     Decimal_Type64& operator/=(Decimal32  rhs);
     Decimal_Type64& operator/=(Decimal64  rhs);
@@ -2174,32 +2215,36 @@ class Decimal_Type64 {
         // as described by IEEE-754, store the result in this object, and
         // return a reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
-        //:   floating-point exception and set this object to a NaN.
+        //: o If either of this object or 'rhs' is signaling NaN, then store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
         //:
-        //: o Otherwise if this object and 'rhs' are infinity (positive or
-        //:   negative) or zero (positive or negative), then raise the
-        //:   "invalid" floating-point exception and set this object to a NaN.
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
         //:
-        //: o Otherwise if 'rhs' has a positive zero value, then raise the
-        //:   "overflow" floating-point exception and set this object to
+        //: o Otherwise if this object and 'rhs' are both infinity (positive or
+        //:   negative) or both zero (positive or negative), then store the
+        //:   value of the macro 'EDOM' into 'errno' and return a NaN.
+        //:
+        //: o Otherwise if 'rhs' has a positive zero value, then store the
+        //:   value of the macro 'ERANGE' into 'errno' and set this object to
         //:   infinity with the same sign as its original value.
         //:
-        //: o Otherwise if 'rhs' has a negative zero value, then raise the
-        //:   "overflow" floating-point exception and set this object to
+        //: o Otherwise if 'rhs' has a negative zero value, then store the
+        //:   value of the macro 'ERANGE' into 'errno' and set this object to
         //:   infinity with the opposite sign as its original value.
         //:
         //: o Otherwise if dividing the value of this object with the value of
         //:   'rhs' results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and set this object to infinity value
-        //:   with the same sign as that result.
+        //:   'std::numeric_limits<Decimal64>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
+        //:   sign as that result.
         //:
         //: o Otherwise if dividing the value of this object with the value of
         //:   'rhs' results in an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal64>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   with the same sign as that result.
+        //:   'std::numeric_limits<Decimal64>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
+        //:   as that result.
         //:
         //: o Otherwise set this object to the result of dividing the value of
         //:   this object with the value of 'rhs'.
@@ -2220,30 +2265,34 @@ class Decimal_Type64 {
         // by IEEE-754, store the result in this object, and return a reference
         // to this object.
         //
-        //: o If this object is NaN, raise the "invalid" floating-point
-        //:   exception and set this object to a NaN.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
         //:
-        //: o Otherwise if this object is infinity (positive or negative), and
-        //:   'rhs' is zero, raise the "invalid" floating-point exception and
-        //:   set this object to a NaN.
+        //: o Otherwise if this object is NaN then set this object to a NaN.
         //:
-        //: o Otherwise if this object is infinity, then do not change it.
+        //: o Otherwise if this object is infinity (positive or negative) and
+        //:   'rhs' is positive value then set this object to infinity value
+        //:   with the same sign as its original value.
         //:
-        //: o Otherwise if 'rhs' is zero, raise the "overflow" floating-point
-        //:   exception and then set this object to infinity with the same sign
+        //: o Otherwise if this object is infinity (positive or negative) and
+        //:   'rhs' is negative value then set this object to infinity value
+        //:   with the opposite sign as its original value.
+        //:
+        //: o Otherwise if 'rhs' is zero, store the value of the macro 'ERANGE'
+        //:   into 'errno' and set this object to infinity with the same sign
         //:   it had prior to this operation.
         //:
-        //: o Otherwise if the quotient of the value of this object and 'rhs'
-        //:   results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and set this object to infinity with the
-        //:   same sign as that result.
+        //: o Otherwise if dividing the value of this object with the value of
+        //:   'rhs' results in an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal64>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
+        //:   sign as that result.
         //:
-        //: o Otherwise if the quotient of the value of this object and 'rhs'
-        //:   results in an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal64>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   with the same sign as that result.
+        //: o Otherwise if dividing the value of this object with the value of
+        //:   'rhs' results in an absolute value that is smaller than
+        //:   'std::numeric_limits<Decimal64>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
+        //:   as that result.
         //:
         //: o Otherwise set this object to the result of dividing the number
         //:   represented by this object by 'rhs'.
@@ -2332,11 +2381,13 @@ Decimal64 operator+(Decimal64 lhs, Decimal32 rhs);
     // Add the value of the specified 'rhs' to the value of the specified 'lhs'
     // as described by IEEE-754 and return the result.
     //
-    //: o If either of 'lhs' or 'rhs' is NaN, then raise the "invalid"
-    //:   floating-point exception and return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' and 'rhs' are infinities of differing signs, raise
-    //:   the "invalid" floating-point exception and return a NaN.
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
+    //:
+    //: o Otherwise if 'lhs' and 'rhs' are infinities of differing signs, store
+    //:   the value of the macro 'EDOM' into 'errno' and return a NaN.
     //:
     //: o Otherwise if 'lhs' and 'rhs' are infinities of the same sign then
     //:   return infinity of that sign.
@@ -2344,9 +2395,9 @@ Decimal64 operator+(Decimal64 lhs, Decimal32 rhs);
     //: o Otherwise if 'rhs' is zero (positive or negative), return 'lhs'.
     //:
     //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value that is
-    //:   larger than 'std::numeric_limits<Decimal64>::max()' then raise the
-    //:   "overflow" floating-point exception and return infinity with the same
-    //:   sign as that result.
+    //:   larger than 'std::numeric_limits<Decimal64>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and set this object to
+    //:   infinity with the same sign as that result.
     //:
     //: o Otherwise return the sum of the number represented by 'lhs' and the
     //:   number represented by 'rhs'.
@@ -2360,15 +2411,17 @@ Decimal64 operator+(Decimal64 lhs, unsigned long long rhs);
     // Add the specified 'rhs' to the value of the specified 'lhs' as described
     // by IEEE-754 and return the result.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity, then return that infinity.
+    //: o Otherwise if 'lhs' object is NaN, then return a NaN.
+    //:
+    //: o Otherwise if 'lhs' is infinity, then return infinity.
     //:
     //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value that is
-    //:   larger than 'std::numeric_limits<Decimal64>::max()' then raise the
-    //:   "overflow" floating-point exception and return infinity with the same
-    //:   sign as that result.
+    //:   larger than 'std::numeric_limits<Decimal64>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return infinity with the
+    //:   same sign as that result.
     //:
     //: o Otherwise return the sum of 'rhs' and the number represented by
     //:   'lhs'.
@@ -2382,15 +2435,17 @@ Decimal64 operator+(unsigned long long lhs, Decimal64 rhs);
     // Add the specified 'lhs' to the value of the specified 'rhs' as described
     // by IEEE-754 and return the result.
     //
-    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'rhs' is infinity, then return that infinity.
+    //: o Otherwise if 'rhs' object is NaN, then return a NaN.
     //:
-    //: o Otherwise if the sum of the value of 'rhs' and 'lhs' has an absolute
-    //:   value that is larger than 'std::numeric_limits<Decimal64>::max()'
-    //:   then raise the "overflow" floating-point exception and return
-    //:   infinity with the same sign as that result.
+    //: o Otherwise if 'rhs' is infinity, then return infinity.
+    //:
+    //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value that is
+    //:   larger than 'std::numeric_limits<Decimal64>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return infinity with the
+    //:   same sign as that result.
     //:
     //: o Otherwise return the sum of 'lhs' and the number represented by
     //:   'rhs'.
@@ -2401,27 +2456,25 @@ Decimal64 operator-(Decimal64 lhs, Decimal32 rhs);
     // Subtract the value of the specified 'rhs' from the value of the
     // specified 'lhs' as described by IEEE-754 and return the result.
     //
-    //: o If either 'lhs' or 'rhs' is NaN, then raise the "invalid"
-    //:   floating-point exception and return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
     //:
     //: o Otherwise if 'lhs' and the 'rhs' have infinity values of the same
-    //:   sign, then raise the "invalid" floating-point exception and return a
+    //:   sign, store the value of the macro 'EDOM' into 'errno' and return a
     //:   NaN.
     //:
     //: o Otherwise if 'lhs' and the 'rhs' have infinity values of differing
     //:   signs, then return 'lhs'.
     //:
-    //: o Otherwise if 'rhs' has a zero value (positive or negative), then
-    //:   return 'lhs'.
+    //: o Otherwise if the subtracting of 'lhs' and 'rhs' has an absolute value
+    //:   that is larger than 'std::numeric_limits<Decimal64>::max()' then
+    //:   store the value of the macro 'ERANGE' into 'errno' and return
+    //:   infinity with the same sign as that result.
     //:
-    //: o Otherwise if subtracting the value of the 'rhs' object from the value
-    //:   of 'lhs' results in an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
-    //:   that result.
-    //:
-    //: o Otherwise return the result of subtracting the value of 'rhs' from
-    //:   the value of 'lhs'.
+    //: o Otherwise return the result of subtracting the value of 'rhs'from the
+    //:   value of 'lhs'.
 
 Decimal64 operator-(Decimal64 lhs, int                rhs);
 Decimal64 operator-(Decimal64 lhs, unsigned int       rhs);
@@ -2432,15 +2485,17 @@ Decimal64 operator-(Decimal64 lhs, unsigned long long rhs);
     // Subtract the specified 'rhs' from the value of the specified 'lhs' as
     // described by IEEE-754 and return a reference to this object.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity, then return 'lhs'.
+    //: o Otherwise if 'lhs' is NaN, then return a NaN.
     //:
-    //: o Otherwise if subtracting 'rhs' from the value of 'lhs' results in an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if 'lhs' is infinity, then return infinity.
+    //:
+    //: o Otherwise if subtracting 'rhs' from 'lhs' object's value results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal32>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
     //: o Otherwise return the result of subtracting 'rhs' from the value of
@@ -2455,21 +2510,21 @@ Decimal64 operator-(unsigned long long lhs, Decimal64 rhs);
     // Subtract the specified 'rhs' from the value of the specified 'lhs' as
     // described by IEEE-754 and return a reference to this object.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception return
-    //:   a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity, then return 'lhs'.
+    //: o Otherwise if 'rhs' is NaN, then return a NaN.
     //:
-    //: o Otherwise if 'rhs' is zero (positive or negative), then return 'lhs'.
+    //: o Otherwise if 'rhs' is infinity, then return infinity.
     //:
-    //: o Otherwise if subtracting 'rhs' from the value of 'lhs' results in an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if subtracting 'rhs' from 'lhs' object's value results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal64>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise return the result of subtracting the value of 'rhs'
-    // from the number 'lhs'.
+    //: o Otherwise return the result of subtracting the value of 'rhs' from
+    //:   the number 'lhs'.
 
 Decimal64 operator*(Decimal64 lhs, Decimal64 rhs);
 Decimal64 operator*(Decimal32 lhs, Decimal64 rhs);
@@ -2477,11 +2532,14 @@ Decimal64 operator*(Decimal64 lhs, Decimal32 rhs);
     // Multiply the value of the specified 'lhs' object by the value of the
     // specified 'rhs' as described by IEEE-754 and return the result.
     //
-    //: o If either of 'lhs' or 'rhs' is NaN, return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
     //:
     //: o Otherwise if one of the operands is infinity (positive or negative)
-    //:   and the other is zero (positive or negative), then raise the
-    //:   "invalid" floating-point exception raised and return a NaN.
+    //:   and the other is zero (positive or negative), then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
     //:
     //: o Otherwise if both 'lhs' and 'rhs' are infinity (positive or
     //:   negative), return infinity.  The sign of the returned value will be
@@ -2494,13 +2552,13 @@ Decimal64 operator*(Decimal64 lhs, Decimal32 rhs);
     //:
     //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
     //:   that is larger than 'std::numeric_limits<Decimal64>::max()' then
-    //:   raise the "overflow" floating-point exception and return infinity
-    //:   with the same sign as that result.
+    //:   store the value of the macro 'ERANGE' into 'errno' and return an
+    //:   infinity with the same sign as that result.
     //:
     //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
     //:   that is smaller than 'std::numeric_limits<Decimal64>::min()' then
-    //:   raise the "underflow" floating-point exception and return zero with
-    //:   the same sign as that result.
+    //:   store the value of the macro 'ERANGE' into 'errno' and return zero
+    //:   with the same sign as that result.
     //:
     //: o Otherwise return the product of the value of 'rhs' and the number
     //:   represented by 'rhs'.
@@ -2514,29 +2572,31 @@ Decimal64 operator*(Decimal64 lhs, unsigned long long rhs);
     // Multiply the specified 'rhs' by the value of the specified 'lhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if 'lhs' is NaN, then return a NaN.
     //:
     //: o Otherwise if 'lhs' is infinity (positive or negative), and 'rhs' is
-    //:   zero, then raise the "invalid" floating-point exception and return a
-    //:   NaN.
+    //:   zero, then store the value of the macro 'EDOM' into'errno' and return
+    //:   a NaN.
     //:
     //: o Otherwise if 'lhs' is infinity (positive or negative), then return
     //:   'lhs'.
     //:
     //: o Otherwise if 'rhs' is zero, then return zero with the sign of 'lhs'.
     //:
-    //: o Otherwise if the product of 'rhs' and the value of 'lhs' has an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if the product of 'rhs' and the value of 'lhs' results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal64>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the product of 'rhs' and the value of 'lhs' has an
-    //:   absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal64>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if the product of 'rhs' and the value of 'lhs' results in
+    //:   an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal64>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
     //: o Otherwise return the product of the value of 'lhs' and value 'rhs'.
 
@@ -2549,31 +2609,33 @@ Decimal64 operator*(unsigned long long lhs, Decimal64 rhs);
     // Multiply the specified 'lhs' by the value of the specified 'rhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if 'rhs' is NaN, then return a NaN.
     //:
     //: o Otherwise if 'rhs' is infinity (positive or negative), and 'lhs' is
-    //:   zero, then raise the "invalid" floating-point exception and return a
-    //:   NaN.
+    //:   zero, then store the value of the macro 'EDOM' into'errno' and return
+    //:   a NaN.
     //:
     //: o Otherwise if 'rhs' is infinity (positive or negative), then return
     //:   'rhs'.
     //:
     //: o Otherwise if 'lhs' is zero, then return zero with the sign of 'rhs'.
     //:
-    //: o Otherwise if the product of 'lhs' and the value of 'rhs' has an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if the product of 'lhs' and the value of 'rhs' results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal64>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the product of 'lhs' and the value of 'rhs' has an
-    //:   absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal64>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if the product of 'lhs' and the value of 'rhs' results in
+    //:   an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal64>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
-    //: o Otherwise return the product of the value of 'rhs' and value 'lhs'.
+    //: o Otherwise return the product of the value of 'lhs' and value 'rhs'.
 
 Decimal64 operator/(Decimal64 lhs, Decimal64 rhs);
 Decimal64 operator/(Decimal32 lhs, Decimal64 rhs);
@@ -2581,31 +2643,40 @@ Decimal64 operator/(Decimal64 lhs, Decimal32 rhs);
     // Divide the value of the specified 'lhs' by the value of the specified
     // 'rhs' as described by IEEE-754, and return the result.
     //
-    //: o If 'lhs' or 'rhs' is NaN, raise the "invalid" floating-point
-    //:   exception and return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
     //:
     //: o Otherwise if 'lhs' and 'rhs' are both infinity (positive or negative)
-    //:   or both zero (positive or negative), raise the "invalid"
-    //:   floating-point exception and return a NaN.
+    //:   or both zero (positive or negative) then store the value of the macro
+    //:   'EDOM' into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'rhs' has a positive zero value, raise the "overflow"
-    //:   floating-point exception and return infinity with the sign of 'lhs'.
+    //: o Otherwise if 'lhs' has a normal value and 'rhs' has a positive zero
+    //:   value, store the value of the macro 'ERANGE' into 'errno' and return
+    //:   infinity with the sign of 'lhs'.
     //:
-    //: o Otherwise if 'rhs' has a negative zero value, raise the "overflow"
-    //:   floating-point exception and return infinity with the opposite sign
-    //:   as 'lhs'.
+    //: o Otherwise if 'lhs' has a normal value and 'rhs' has a negative zero
+    //:   value, store the value of the macro 'ERANGE' into 'errno' and return
+    //:   infinity with the opposite sign as 'lhs'.
+    //:
+    //: o Otherwise if 'lhs' has infinity value and 'rhs' has a positive zero
+    //:   value, return infinity with the sign of 'lhs'.
+    //:
+    //: o Otherwise if 'lhs' has infinity value and 'rhs' has a negative zero
+    //:   value, return infinity with the opposite sign as 'lhs'.
     //:
     //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
     //:   results in an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //:   'std::numeric_limits<Decimal64>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
     //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
     //:   results in an absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal64>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //:   'std::numeric_limits<Decimal64>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
     //: o Otherwise return the result of dividing the value of 'lhs' with the
     //:   value of 'rhs'.
@@ -2619,29 +2690,34 @@ Decimal64 operator/(Decimal64 lhs, unsigned long long rhs);
     // Divide the value of the specified 'lhs' by the specified 'rhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity (positive or negative), and 'rhs' is
-    //:   zero, raise the "invalid" floating-point exception and return a NaN.
+    //: o Otherwise if 'lhs' is NaN then return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity (positive or negative), then return
-    //:   'lhs'.
+    //: o Otherwise if 'lhs' is infinity (positive or negative) and 'rhs' is
+    //:   positive value then return infinity value with the same sign as its
+    //:   original value.
     //:
-    //: o Otherwise if 'rhs' is zero, raise the "overflow" floating-point
-    //:   exception return zero with the sign of 'lhs'.
+    //: o Otherwise if 'lhs' is infinity (positive or negative) and 'rhs' is
+    //:   negative value then return infinity value with the opposite sign as
+    //:   its original value.
     //:
-    //: o Otherwise if the quotient of the value of 'lhs' and 'rhs' results in
-    //:   an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if 'rhs' is zero, store the value of the macro 'ERANGE'
+    //:   into 'errno' and return infinity with the same sign it had prior to
+    //:   this operation.
+    //:
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal64>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the quotient of the value of 'lhs' and 'rhs' results in
-    //:   an absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal64>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal64>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
     //: o Otherwise return the result of dividing the value of 'lhs' by the
     //:   value 'rhs'.
@@ -2655,30 +2731,34 @@ Decimal64 operator/(unsigned long long lhs, Decimal64 rhs);
     // Divide the specified 'lhs' by the value of the specified 'rhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if 'rhs' is NaN then return a NaN.
     //:
     //: o Otherwise if 'rhs' is infinity (positive or negative), and 'lhs' is
-    //:   zero, raise the "invalid" floating-point exception and return a NaN.
+    //:   zero, store the value of the macro 'ERANGE' into 'errno' and return a
+    //:   NaN.
     //:
-    //: o Otherwise if 'rhs' is zero (positive or negative), raise the
-    //:   "overflow" floating-point exception return zero with the sign of
+    //: o Otherwise if 'rhs' is zero (positive or negative), store the value of
+    //:   the macro 'ERANGE' into 'errno' and return infinity with the sign of
     //:   'lhs'.
     //:
-    //: o Otherwise if the quotient of 'rhs' and the value of 'rhs' results in
-    //:   an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal64>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the quotient of 'lhs' and the value of 'rhs' results in
-    //:   an absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal64>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal64>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
-    //: o Otherwise return the result of dividing the value 'lhs' by the value
-    //:   of 'rhs'.  Note that this is a floating-point operation, not integer.
+    //: o Otherwise return the result of dividing the value of 'lhs' by the
+    //:   value 'rhs'.  Note that this is a floating-point operation, not
+    //:   integer.
 
 bool operator==(Decimal64 lhs, Decimal64 rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
@@ -2692,8 +2772,8 @@ bool operator==(Decimal64 lhs, Decimal64 rhs);
     //: o both have the value of a real number that are equal, even if they are
     //:   represented differently (cohorts have the same value)
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
     //
     // Note that a NaN is never equal to anything, including itself:
     //..
@@ -2714,8 +2794,8 @@ bool operator==(Decimal64 lhs, Decimal32 rhs);
     //: o both have the value of a real number that are equal, even if they are
     //:   represented differently (cohorts have the same value)
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator!=(Decimal64 lhs, Decimal64 rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' do not have the same
@@ -2732,8 +2812,8 @@ bool operator!=(Decimal64 lhs, Decimal64 rhs);
     //: o both have the value of a real number that are not equal, regardless
     //:   of their representation (cohorts are equal)
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
     //
     // Note that a NaN is never equal to anything, including itself:
     //..
@@ -2757,8 +2837,8 @@ bool operator!=(Decimal64 lhs, Decimal32 rhs);
     //: o both have the value of a real number that are not equal, regardless
     //:   of their representation (cohorts are equal)
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator<(Decimal64 lhs, Decimal64 rhs);
     // Return 'true' if the specified 'lhs' has a value less than the specified
@@ -2776,8 +2856,8 @@ bool operator<(Decimal64 lhs, Decimal64 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is less than that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator<(Decimal32 lhs, Decimal64 rhs);
 bool operator<(Decimal64 lhs, Decimal32 rhs);
@@ -2796,8 +2876,8 @@ bool operator<(Decimal64 lhs, Decimal32 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is less than that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator<=(Decimal64 lhs, Decimal64 rhs);
     // Return 'true' if the specified 'lhs' has a value less than or equal the
@@ -2815,8 +2895,8 @@ bool operator<=(Decimal64 lhs, Decimal64 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is less or equal to that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator<=(Decimal32 lhs, Decimal64 rhs);
 bool operator<=(Decimal64 lhs, Decimal32 rhs);
@@ -2835,8 +2915,8 @@ bool operator<=(Decimal64 lhs, Decimal32 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is less or equal to that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator>(Decimal64 lhs, Decimal64 rhs);
     // Return 'true' if the specified 'lhs' has a greater value than the
@@ -2855,8 +2935,8 @@ bool operator>(Decimal64 lhs, Decimal64 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is greater than that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator>(Decimal32 lhs, Decimal64 rhs);
 bool operator>(Decimal64 lhs, Decimal32 rhs);
@@ -2876,8 +2956,8 @@ bool operator>(Decimal64 lhs, Decimal32 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is greater than that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator>=(Decimal64 lhs, Decimal64 rhs);
     // Return 'true' if the specified 'lhs' has a value greater than or equal
@@ -2895,8 +2975,8 @@ bool operator>=(Decimal64 lhs, Decimal64 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is greater or equal to that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator>=(Decimal32 lhs, Decimal64 rhs);
 bool operator>=(Decimal64 lhs, Decimal32 rhs);
@@ -2915,8 +2995,8 @@ bool operator>=(Decimal64 lhs, Decimal32 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is greater or equal to that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
@@ -2938,17 +3018,16 @@ operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal64& object);
     // representation of a floating-point value (e.g., 12e or e12 or 1*2) the
     // 'stream.fail()' is set to true and 'object' will remain unchanged.  If a
     // real number value is represented by the character sequence but it is a
-    // large positive or negative value that cannot be stored into 'object' the
-    // "overflow" floating-point exception is raised and positive or negative
-    // infinity is stored into 'object', respectively.  If a real number value
-    // is represented by the character sequence but it is a small positive or
-    // negative value that cannot be stored into 'object' the "underflow"
-    // floating-point exception is raised and positive or negative zero is
-    // stored into 'object', respectively.  If a real number value is
-    // represented by the character sequence but it cannot be stored exactly
-    // into 'object' the "inexact" floating-point exception is raised, the
-    // value is rounded according to the current rounding direction (of the
-    // environment) and then stored into 'object.'
+    // large positive or negative value that cannot be stored into 'object'
+    // then store the value of the macro 'ERANGE' into 'errno' and positive or
+    // negative infinity is stored into 'object', respectively.  If a real
+    // number value is represented by the character sequence but it is a small
+    // positive or negative value that cannot be stored into 'object' then
+    // store the value of the macro 'ERANGE' into 'errno' and positive or
+    // negative zero is stored into 'object', respectively.  If a real number
+    // value is represented by the character sequence but it cannot be stored
+    // exactly into 'object', the value is rounded according to the current
+    // rounding direction (of the environment) and then stored into 'object'.
     //
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
@@ -3012,7 +3091,7 @@ class Decimal_Type128 {
     Decimal_Type128(Decimal32 value);                               // IMPLICIT
     Decimal_Type128(Decimal64 value);                               // IMPLICIT
         // Create a 'Decimal128_Type' object having the specified 'value',
-        // subject to the conversion rules defined by IEEE-754:
+        // subject to the conversion rules as defined by IEEE-754:
         //
         //: o If 'value' is NaN, initialize this object to a NaN.
         //:
@@ -3040,22 +3119,6 @@ class Decimal_Type128 {
         //: o Otherwise if 'value' has a zero value, then initialize this
         //:   object to zero with the same sign.
         //:
-        //: o Otherwise if 'value' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and initialize this object to
-        //:   infinity with the same sign as 'value'.
-        //:
-        //: o Otherwise if 'value' has an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal128>::min()' then raise the
-        //:   "underflow" floating-point exception and initialize this object
-        //:   to zero with the same sign as 'value'.
-        //:
-        //: o Otherwise if 'value' has a value that needs more than
-        //:   'std::numeric_limits<Decimal128>::max_digit' significant decimal
-        //:   digits to represent then raise the "inexact" floating-point
-        //:   exception and initialize this object to the value of 'value'
-        //:   rounded according to the rounding direction.
-        //:
         //: o Otherwise initialize this object to 'value'.
 
     explicit Decimal_Type128(int                value);
@@ -3069,15 +3132,14 @@ class Decimal_Type128 {
         // IEEE-754:
         //
         //: o If 'value' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and initialize this object to
+        //:   'std::numeric_limits<Decimal128>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and initialize this object to
         //:   infinity with the same sign as 'other'.
         //:
         //: o Otherwise if 'value' has a value that is not exactly
         //:   representable using 'std::numeric_limits<Decimal128>::max_digit'
-        //:   decimal digits then raise the "inexact" floating-point exception
-        //:   and initialize this object to the value of 'value' rounded
-        //:   according to the rounding direction.
+        //:   decimal digits then initialize this object to the value of
+        //:   'value' rounded according to the rounding direction.
         //:
         //: o Otherwise initialize this object to 'value' with exponent 0.
 
@@ -3131,12 +3193,16 @@ class Decimal_Type128 {
         // described by IEEE-754, store the result in this object, and return a
         // reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
-        //:   floating-point exception and set this object to a NaN.
+        //: o If either of this object or 'rhs' is signaling NaN, then store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
         //:
-        //: o Otherwise if this object and 'rhs' have infinite values of
-        //:   differing signs, then raise the "invalid" floating-point
-        //:   exception and set this object to a NaN.
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
+        //:
+        //: o Otherwise if this object and 'rhs' have infinity value of
+        //:   differing signs, store the value of the macro 'EDOM' into 'errno'
+        //:   and set this object to a NaN.
         //:
         //: o Otherwise if this object and 'rhs' have infinite values of the
         //:   same sign, then do not change this object.
@@ -3146,9 +3212,9 @@ class Decimal_Type128 {
         //:
         //: o Otherwise if the sum of this object and 'rhs' has an absolute
         //:   value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and set this object to
-        //:   infinity value with the same sign as that result.
+        //:   'std::numeric_limits<Decimal128>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign as that result.
         //:
         //: o Otherwise set this object to the sum of the number represented by
         //:   'rhs' and the number represented by this object.
@@ -3168,16 +3234,18 @@ class Decimal_Type128 {
         // IEEE-754, store the result in this object, and return a reference to
         // this object.
         //
-        //: o If this object is NaN, then raise the "invalid" floating-point
-        //:   exception and do not change this object.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is NaN, then do not change this object.
         //:
         //: o Otherwise if this object is infinity, then do not change it.
         //:
         //: o Otherwise if the sum of this object and 'rhs' has an absolute
         //:   value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and set this object to
-        //:   infinity with the same sign as that result.
+        //:   'std::numeric_limits<Decimal128>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign as that result.
         //:
         //: o Otherwise set this object to sum of adding 'rhs' and the number
         //:   represented by this object.
@@ -3194,12 +3262,15 @@ class Decimal_Type128 {
         // object as described by IEEE-754, store the result in this object,
         // and return a reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
-        //:   floating-point exception and set this object to a NaN.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
         //:
-        //: o Otherwise if this object and the 'rhs' have infinite values of
-        //:   the same sign, raise the "invalid" floating-point exception and
-        //:   set this object to a NaN.
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
+        //:
+        //: o Otherwise if this object and 'rhs' have infinity value of the
+        //:   same signs, store the value of the macro 'EDOM' into 'errno'
+        //:   and set this object to a NaN.
         //:
         //: o Otherwise if this object and the 'rhs' have infinite values of
         //:   differing signs, then do not change this object.
@@ -3209,9 +3280,9 @@ class Decimal_Type128 {
         //:
         //: o Otherwise if subtracting the value of the 'rhs' object from this
         //:   results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and set this object to
-        //:   infinity with the same sign as that result.
+        //:   'std::numeric_limits<Decimal128>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign as that result.
         //:
         //: o Otherwise set this object to the result of subtracting the value
         //:   of 'rhs' from the value of this object.
@@ -3231,16 +3302,18 @@ class Decimal_Type128 {
         // described by IEEE-754, store the result in this object, and return a
         // reference to this object.
         //
-        //: o If this object is NaN, raise the "invalid" floating-point
-        //:   exception and do not change this object.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is NaN, then do not change this object.
         //:
         //: o Otherwise if this object is infinity, then do not change it.
         //:
         //: o Otherwise if subtracting 'rhs' from this object's value results
         //:   in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and set this object to
-        //:   infinity with the same sign as that result.
+        //:   'std::numeric_limits<Decimal128>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign as that result.
         //:
         //: o Otherwise set this object to the result of subtracting 'rhs' from
         //:   the value of this object.
@@ -3257,13 +3330,17 @@ class Decimal_Type128 {
         // this as described by IEEE-754, store the result in this object, and
         // return a reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, raise the "invalid"
-        //:   floating-point exception and set this object to NaN.
+        //: o If either of this object or 'rhs' is signaling NaN, then store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
+        //:
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
         //:
         //: o Otherwise, if one of this object and 'rhs' is zero (positive or
-        //:   negative) and the other is infinity (positive or negative), raise
-        //:   the "invalid" floating-point exception and set this object to a
-        //:   NaN.
+        //:   negative) and the other is infinity (positive or negative), store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
         //:
         //: o Otherwise, if either this object or 'rhs' is positive or negative
         //:   infinity, set this object to infinity.  The sign of this object
@@ -3276,15 +3353,15 @@ class Decimal_Type128 {
         //:
         //: o Otherwise if the product of this object and 'rhs' has an absolute
         //:   value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and set this object to
-        //:   infinity with the same sign of that result.
+        //:   'std::numeric_limits<Decimal128>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign of that result.
         //:
         //: o Otherwise if the product of this object and 'rhs' has an absolute
         //:   value that is smaller than
-        //:   'std::numeric_limits<Decimal128>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   value with the same sign as that result.
+        //:   'std::numeric_limits<Decimal128>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to zero value
+        //:   with the same sign as that result.
         //:
         //: o Otherwise set this object to the product of the value of 'rhs'
         //:   and the value of this object.
@@ -3299,12 +3376,14 @@ class Decimal_Type128 {
         // described by IEEE-754, store the result in this object, and return a
         // reference to this object.
         //
-        //: o If this object is NaN, raise the "invalid" floating-point
-        //:   exception and set this object to a NaN.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
+        //:
+        //: o Otherwise if this object is NaN, then do not change this object.
         //:
         //: o Otherwise if this object is infinity (positive or negative), and
-        //:   'rhs' is zero, then raise the "invalid" floating-point exception
-        //:   and set this object to a NaN.
+        //:   'rhs' is zero, then store the value of the macro 'EDOM' into
+        //:   'errno' and set this object to a NaN.
         //:
         //: o Otherwise if this object is infinity (positive or negative), then
         //:   do not change it.
@@ -3314,15 +3393,15 @@ class Decimal_Type128 {
         //:
         //: o Otherwise if the product of 'rhs' and the value of this object
         //:   results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and set this object to
-        //:   infinity with the same sign as that result.
+        //:   'std::numeric_limits<Decimal128>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to infinity
+        //:   with the same sign as that result.
         //:
         //: o Otherwise if the product of 'rhs' and the value of this object
         //:   results in an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal128>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   with the same sign as that result.
+        //:   'std::numeric_limits<Decimal128>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and set this object to zero with
+        //:   the same sign as that result.
         //:
         //: o Otherwise set this object to the product of the value of this
         //:   object and the value 'rhs'.
@@ -3334,32 +3413,36 @@ class Decimal_Type128 {
         // as described by IEEE-754, store the result in this object, and
         // return a reference to this object.
         //
-        //: o If either this object or 'rhs' is NaN, then raise the "invalid"
-        //:   floating-point exception and set this object to a NaN.
+        //: o If either of this object or 'rhs' is signaling NaN, then store
+        //:   the value of the macro 'EDOM' into 'errno' and set this object to
+        //:   a NaN.
         //:
-        //: o Otherwise if this object and 'rhs' are infinity (positive or
-        //:   negative) or zero (positive or negative), then raise the
-        //:   "invalid" floating-point exception and set this object to a NaN.
+        //: o Otherwise if either of this object or 'rhs' is NaN then set this
+        //:   object to a NaN.
         //:
-        //: o Otherwise if 'rhs' has a positive zero value, then raise the
-        //:   "overflow" floating-point exception and set this object to
+        //: o Otherwise if this object and 'rhs' are both infinity (positive or
+        //:   negative) or both zero (positive or negative) then store the
+        //:   value of the macro 'EDOM' into 'errno' and return a NaN.
+        //:
+        //: o Otherwise if 'rhs' has a positive zero value, then store the
+        //:   value of the macro 'ERANGE' into 'errno' and set this object to
         //:   infinity with the same sign as its original value.
         //:
-        //: o Otherwise if 'rhs' has a negative zero value, then raise the
-        //:   "overflow" floating-point exception and set this object to
+        //: o Otherwise if 'rhs' has a negative zero value, then store the
+        //:   value of the macro 'ERANGE' into 'errno' and set this object to
         //:   infinity with the opposite sign as its original value.
         //:
         //: o Otherwise if dividing the value of this object with the value of
         //:   'rhs' results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and set this object to
-        //:   infinity value with the same sign as that result.
+        //:   'std::numeric_limits<Decimal128>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
+        //:   sign as that result.
         //:
         //: o Otherwise if dividing the value of this object with the value of
         //:   'rhs' results in an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal128>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   with the same sign as that result.
+        //:   'std::numeric_limits<Decimal128>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
+        //:   as that result.
         //:
         //: o Otherwise set this object to the result of dividing the value of
         //:   this object with the value of 'rhs'.
@@ -3374,31 +3457,34 @@ class Decimal_Type128 {
         // by IEEE-754, store the result in this object, and return a reference
         // to this object.
         //
-        //: o If this object is NaN, raise the "invalid" floating-point
-        //:   exception and set this object to a NaN.
+        //: o If this object is signaling NaN, then store the value of the
+        //:   macro 'EDOM' into 'errno' and set this object to a NaN.
         //:
-        //: o Otherwise if this object is infinity (positive or negative), and
-        //:   'rhs' is zero, raise the "invalid" floating-point exception and
-        //:   set this object to a NaN.
+        //: o Otherwise if this object is NaN then set this object to a NaN.
         //:
-        //: o Otherwise if this object is infinity (positive or negative), then
-        //:   do not change it.
+        //: o Otherwise if this object is infinity (positive or negative) and
+        //:   'rhs' is positive value then set this object to infinity value
+        //:   with the same sign as its original value.
         //:
-        //: o Otherwise if 'rhs' is zero, raise the "overflow" floating-point
-        //:   exception and then set this object to infinity with the same sign
+        //: o Otherwise if this object is infinity (positive or negative) and
+        //:   'rhs' is negative value then set this object to infinity value
+        //:   with the opposite sign as its original value.
+        //:
+        //: o Otherwise if 'rhs' is zero, store the value of the macro 'ERANGE'
+        //:   into 'errno' and set this object to infinity with the same sign
         //:   it had prior to this operation.
         //:
-        //: o Otherwise if the quotient of the value of this object and 'rhs'
-        //:   results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and set this object to
-        //:   infinity with the same sign as that result.
+        //: o Otherwise if dividing the value of this object with the value of
+        //:   'rhs' results in an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal128>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
+        //:   sign as that result.
         //:
-        //: o Otherwise if the quotient of the value of this object and 'rhs'
-        //:   results in an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal128>::min()' then raise the
-        //:   "underflow" floating-point exception and set this object to zero
-        //:   with the same sign as that result.
+        //: o Otherwise if dividing the value of this object with the value of
+        //:   'rhs' results in an absolute value that is smaller than
+        //:   'std::numeric_limits<Decimal128>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
+        //:   as that result.
         //:
         //: o Otherwise set this object to the result of dividing the number
         //:   represented by this object by 'rhs'.
@@ -3473,11 +3559,13 @@ Decimal128 operator+(Decimal128 lhs, Decimal64  rhs);
     // Add the value of the specified 'rhs' to the value of the specified 'lhs'
     // as described by IEEE-754 and return the result.
     //
-    //: o If either of 'lhs' or 'rhs' is NaN, then raise the "invalid"
-    //:   floating-point exception and return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' and 'rhs' are infinities of differing signs, raise
-    //:   the "invalid" floating-point exception and return a NaN.
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
+    //:
+    //: o Otherwise if 'lhs' and 'rhs' are infinities of differing signs, store
+    //:   the value of the macro 'EDOM' into 'errno' and return a NaN.
     //:
     //: o Otherwise if 'lhs' and 'rhs' are infinities of the same sign then
     //:   return infinity of that sign.
@@ -3485,9 +3573,9 @@ Decimal128 operator+(Decimal128 lhs, Decimal64  rhs);
     //: o Otherwise if 'rhs' is zero (positive or negative), return 'lhs'.
     //:
     //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value that is
-    //:   larger than 'std::numeric_limits<Decimal128>::max()' then raise the
-    //:   "overflow" floating-point exception and return infinity with the same
-    //:   sign as that result.
+    //:   larger than 'std::numeric_limits<Decimal128>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and set this object to
+    //:   infinity with the same sign as that result.
     //:
     //: o Otherwise return the sum of the number represented by 'lhs' and the
     //:   number represented by 'rhs'.
@@ -3501,15 +3589,17 @@ Decimal128 operator+(Decimal128 lhs, unsigned long long rhs);
     // Add the specified 'rhs' to the value of the specified 'lhs' as described
     // by IEEE-754 and return the result.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity, then return that infinity.
+    //: o Otherwise if 'lhs' object is NaN, then return a NaN.
+    //:
+    //: o Otherwise if 'lhs' is infinity, then return infinity.
     //:
     //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value that is
-    //:   larger than 'std::numeric_limits<Decimal128>::max()' then raise the
-    //:   "overflow" floating-point exception and return infinity with the same
-    //:   sign as that result.
+    //:   larger than 'std::numeric_limits<Decimal128>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return infinity with the
+    //:   same sign as that result.
     //:
     //: o Otherwise return the sum of 'rhs' and the number represented by
     //:   'lhs'.
@@ -3523,15 +3613,17 @@ Decimal128 operator+(unsigned long long lhs, Decimal128 rhs);
     // Add the specified 'lhs' to the value of the specified 'rhs' as described
     // by IEEE-754 and return the result.
     //
-    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'rhs' is infinity, then return that infinity.
+    //: o Otherwise if 'rhs' object is NaN, then return a NaN.
     //:
-    //: o Otherwise if the sum of the value of 'rhs' and 'lhs' has an absolute
-    //:   value that is larger than 'std::numeric_limits<Decimal128>::max()'
-    //:   then raise the "overflow" floating-point exception and return
-    //:   infinity with the same sign as that result.
+    //: o Otherwise if 'rhs' is infinity, then return infinity.
+    //:
+    //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value that is
+    //:   larger than 'std::numeric_limits<Decimal128>::max()' then store the
+    //:   value of the macro 'ERANGE' into 'errno' and return infinity with the
+    //:   same sign as that result.
     //:
     //: o Otherwise return the sum of 'lhs' and the number represented by
     //:   'rhs'.
@@ -3544,27 +3636,25 @@ Decimal128 operator-(Decimal128 lhs, Decimal64  rhs);
     // Subtract the value of the specified 'rhs' from the value of the
     // specified 'lhs' as described by IEEE-754 and return the result.
     //
-    //: o If either 'lhs' or 'rhs' is NaN, then raise the "invalid"
-    //:   floating-point exception and return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
     //:
     //: o Otherwise if 'lhs' and the 'rhs' have infinity values of the same
-    //:   sign, then raise the "invalid" floating-point exception and return a
+    //:   sign, store the value of the macro 'EDOM' into 'errno' and return a
     //:   NaN.
     //:
     //: o Otherwise if 'lhs' and the 'rhs' have infinity values of differing
     //:   signs, then return 'lhs'.
     //:
-    //: o Otherwise if 'rhs' has a zero value (positive or negative), then
-    //:   return 'lhs'.
+    //: o Otherwise if the subtracting of 'lhs' and 'rhs' has an absolute value
+    //:   that is larger than 'std::numeric_limits<Decimal128>::max()' then
+    //:   store the value of the macro 'ERANGE' into 'errno' and return
+    //:   infinity with the same sign as that result.
     //:
-    //: o Otherwise if subtracting the value of the 'rhs' object from the value
-    //:   of 'lhs' results in an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal128>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
-    //:   that result.
-    //:
-    //: o Otherwise return the result of subtracting the value of 'rhs' from
-    //:   the value of 'lhs'.
+    //: o Otherwise return the result of subtracting the value of 'rhs'from the
+    //:   value of 'lhs'.
 
 Decimal128 operator-(Decimal128 lhs, int                rhs);
 Decimal128 operator-(Decimal128 lhs, unsigned int       rhs);
@@ -3575,15 +3665,17 @@ Decimal128 operator-(Decimal128 lhs, unsigned long long rhs);
     // Subtract the specified 'rhs' from the value of the specified 'lhs' as
     // described by IEEE-754 and return a reference to this object.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity, then return 'lhs'.
+    //: o Otherwise if 'lhs' is NaN, then return a NaN.
     //:
-    //: o Otherwise if subtracting 'rhs' from the value of 'lhs' results in an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal128>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if 'lhs' is infinity, then return infinity.
+    //:
+    //: o Otherwise if subtracting 'rhs' from 'lhs' object's value results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal128>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
     //: o Otherwise return the result of subtracting 'rhs' from the value of
@@ -3598,21 +3690,21 @@ Decimal128 operator-(unsigned long long lhs, Decimal128 rhs);
     // Subtract the specified 'rhs' from the value of the specified 'lhs' as
     // described by IEEE-754 and return a reference to this object.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception return
-    //:   a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity, then return 'lhs'.
+    //: o Otherwise if 'rhs' is NaN, then return a NaN.
     //:
-    //: o Otherwise if 'rhs' is zero (positive or negative), then return 'lhs'.
+    //: o Otherwise if 'rhs' is infinity, then return infinity.
     //:
-    //: o Otherwise if subtracting 'rhs' from the value of 'lhs' results in an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal128>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if subtracting 'rhs' from 'lhs' object's value results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal128>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise return the result of subtracting the value of 'rhs'
-    // from the number 'lhs'.
+    //: o Otherwise return the result of subtracting the value of 'rhs' from
+    //:   the number 'lhs'.
 
 Decimal128 operator*(Decimal128 lhs, Decimal128 rhs);
 Decimal128 operator*(Decimal32  lhs, Decimal128 rhs);
@@ -3622,11 +3714,14 @@ Decimal128 operator*(Decimal128 lhs, Decimal64  rhs);
     // Multiply the value of the specified 'lhs' object by the value of the
     // specified 'rhs' as described by IEEE-754 and return the result.
     //
-    //: o If either of 'lhs' or 'rhs' is NaN, return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
     //:
     //: o Otherwise if one of the operands is infinity (positive or negative)
-    //:   and the other is zero (positive or negative), then raise the
-    //:   "invalid" floating-point exception raised and return a NaN.
+    //:   and the other is zero (positive or negative), then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
     //:
     //: o Otherwise if both 'lhs' and 'rhs' are infinity (positive or
     //:   negative), return infinity.  The sign of the returned value will be
@@ -3639,13 +3734,13 @@ Decimal128 operator*(Decimal128 lhs, Decimal64  rhs);
     //:
     //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
     //:   that is larger than 'std::numeric_limits<Decimal128>::max()' then
-    //:   raise the "overflow" floating-point exception and return infinity
-    //:   with the same sign as that result.
+    //:   store the value of the macro 'ERANGE' into 'errno' and return an
+    //:   infinity with the same sign as that result.
     //:
     //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
     //:   that is smaller than 'std::numeric_limits<Decimal128>::min()' then
-    //:   raise the "underflow" floating-point exception and return zero with
-    //:   the same sign as that result.
+    //:   store the value of the macro 'ERANGE' into 'errno' and return zero
+    //:   with the same sign as that result.
     //:
     //: o Otherwise return the product of the value of 'rhs' and the number
     //:   represented by 'rhs'.
@@ -3659,29 +3754,31 @@ Decimal128 operator*(Decimal128 lhs, unsigned long long rhs);
     // Multiply the specified 'rhs' by the value of the specified 'lhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if 'lhs' is NaN, then return a NaN.
     //:
     //: o Otherwise if 'lhs' is infinity (positive or negative), and 'rhs' is
-    //:   zero, then raise the "invalid" floating-point exception and return a
-    //:   NaN.
+    //:   zero, then store the value of the macro 'EDOM' into'errno' and return
+    //:   a NaN.
     //:
     //: o Otherwise if 'lhs' is infinity (positive or negative), then return
     //:   'lhs'.
     //:
     //: o Otherwise if 'rhs' is zero, then return zero with the sign of 'lhs'.
     //:
-    //: o Otherwise if the product of 'rhs' and the value of 'lhs' has an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal128>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if the product of 'rhs' and the value of 'lhs' results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal128>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the product of 'rhs' and the value of 'lhs' has an
-    //:   absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal128>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if the product of 'rhs' and the value of 'lhs' results in
+    //:   an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal128>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
     //: o Otherwise return the product of the value of 'lhs' and value 'rhs'.
 
@@ -3694,31 +3791,33 @@ Decimal128 operator*(unsigned long long lhs, Decimal128 rhs);
     // Multiply the specified 'lhs' by the value of the specified 'rhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if 'rhs' is NaN, then return a NaN.
     //:
     //: o Otherwise if 'rhs' is infinity (positive or negative), and 'lhs' is
-    //:   zero, then raise the "invalid" floating-point exception and return a
-    //:   NaN.
+    //:   zero, then store the value of the macro 'EDOM' into'errno' and return
+    //:   a NaN.
     //:
     //: o Otherwise if 'rhs' is infinity (positive or negative), then return
     //:   'rhs'.
     //:
     //: o Otherwise if 'lhs' is zero, then return zero with the sign of 'rhs'.
     //:
-    //: o Otherwise if the product of 'lhs' and the value of 'rhs' has an
-    //:   absolute value that is larger than
-    //:   'std::numeric_limits<Decimal128>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if the product of 'lhs' and the value of 'rhs' results in
+    //:   an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal128>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the product of 'lhs' and the value of 'rhs' has an
-    //:   absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal128>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if the product of 'lhs' and the value of 'rhs' results in
+    //:   an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal128>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
-    //: o Otherwise return the product of the value of 'rhs' and value 'lhs'.
+    //: o Otherwise return the product of the value of 'lhs' and value 'rhs'.
 
 Decimal128 operator/(Decimal128 lhs, Decimal128 rhs);
 Decimal128 operator/(Decimal32  lhs, Decimal128 rhs);
@@ -3728,31 +3827,40 @@ Decimal128 operator/(Decimal128 lhs, Decimal64  rhs);
     // Divide the value of the specified 'lhs' by the value of the specified
     // 'rhs' as described by IEEE-754, and return the result.
     //
-    //: o If 'lhs' or 'rhs' is NaN, raise the "invalid" floating-point
-    //:   exception and return a NaN.
+    //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the value of
+    //:   the macro 'EDOM' into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
     //:
     //: o Otherwise if 'lhs' and 'rhs' are both infinity (positive or negative)
-    //:   or both zero (positive or negative), raise the "invalid"
-    //:   floating-point exception and return a NaN.
+    //:   or both zero (positive or negative) then store the value of the macro
+    //:   'EDOM' into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'rhs' has a positive zero value, raise the "overflow"
-    //:   floating-point exception and return infinity with the sign of 'lhs'.
+    //: o Otherwise if 'lhs' has a normal value and 'rhs' has a positive zero
+    //:   value, store the value of the macro 'ERANGE' into 'errno' and return
+    //:   infinity with the sign of 'lhs'.
     //:
-    //: o Otherwise if 'rhs' has a negative zero value, raise the "overflow"
-    //:   floating-point exception and return infinity with the opposite sign
-    //:   as 'lhs'.
+    //: o Otherwise if 'lhs' has a normal value and 'rhs' has a negative zero
+    //:   value, store the value of the macro 'ERANGE' into 'errno' and return
+    //:   infinity with the opposite sign as 'lhs'.
+    //:
+    //: o Otherwise if 'lhs' has infinity value and 'rhs' has a positive zero
+    //:   value, return infinity with the sign of 'lhs'.
+    //:
+    //: o Otherwise if 'lhs' has infinity value and 'rhs' has a negative zero
+    //:   value, return infinity with the opposite sign as 'lhs'.
     //:
     //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
     //:   results in an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal128>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //:   'std::numeric_limits<Decimal128>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
     //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
     //:   results in an absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal128>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //:   'std::numeric_limits<Decimal128>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
     //: o Otherwise return the result of dividing the value of 'lhs' with the
     //:   value of 'rhs'.
@@ -3766,29 +3874,34 @@ Decimal128 operator/(Decimal128 lhs, unsigned long long rhs);
     // Divide the value of the specified 'lhs' by the specified 'rhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'lhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'lhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity (positive or negative), and 'rhs' is
-    //:   zero, raise the "invalid" floating-point exception and return a NaN.
+    //: o Otherwise if 'lhs' is NaN then return a NaN.
     //:
-    //: o Otherwise if 'lhs' is infinity (positive or negative), then return
-    //:   'lhs'.
+    //: o Otherwise if 'lhs' is infinity (positive or negative) and 'rhs' is
+    //:   positive value then return infinity value with the same sign as its
+    //:   original value.
     //:
-    //: o Otherwise if 'rhs' is zero, raise the "overflow" floating-point
-    //:   exception return zero with the sign of 'lhs'.
+    //: o Otherwise if 'lhs' is infinity (positive or negative) and 'rhs' is
+    //:   negative value then return infinity value with the opposite sign as
+    //:   its original value.
     //:
-    //: o Otherwise if the quotient of the value of 'lhs' and 'rhs' results in
-    //:   an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal128>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if 'rhs' is zero, store the value of the macro 'ERANGE'
+    //:   into 'errno' and return infinity with the same sign it had prior to
+    //:   this operation.
+    //:
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal128>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the quotient of the value of 'lhs' and 'rhs' results in
-    //:   an absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal128>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal128>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
     //: o Otherwise return the result of dividing the value of 'lhs' by the
     //:   value 'rhs'.
@@ -3802,30 +3915,34 @@ Decimal128 operator/(unsigned long long lhs, Decimal128 rhs);
     // Divide the specified 'lhs' by the value of the specified 'rhs' as
     // described by IEEE-754, and return the result.
     //
-    //: o If 'rhs' is NaN, raise the "invalid" floating-point exception and
-    //:   return a NaN.
+    //: o If 'rhs' is signaling NaN, then store the value of the macro 'EDOM'
+    //:   into 'errno' and return a NaN.
+    //:
+    //: o Otherwise if 'rhs' is NaN then return a NaN.
     //:
     //: o Otherwise if 'rhs' is infinity (positive or negative), and 'lhs' is
-    //:   zero, raise the "invalid" floating-point exception and return a NaN.
+    //:   zero, store the value of the macro 'ERANGE' into 'errno' and return a
+    //:   NaN.
     //:
-    //: o Otherwise if 'rhs' is zero (positive or negative), raise the
-    //:   "overflow" floating-point exception return zero with the sign of
+    //: o Otherwise if 'rhs' is zero (positive or negative), store the value of
+    //:   the macro 'ERANGE' into 'errno' and return infinity with the sign of
     //:   'lhs'.
     //:
-    //: o Otherwise if the quotient of 'rhs' and the value of 'rhs' results in
-    //:   an absolute value that is larger than
-    //:   'std::numeric_limits<Decimal128>::max()' then raise the "overflow"
-    //:   floating-point exception and return infinity with the same sign as
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is larger than
+    //:   'std::numeric_limits<Decimal128>::max()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if the quotient of 'lhs' and the value of 'rhs' results in
-    //:   an absolute value that is smaller than
-    //:   'std::numeric_limits<Decimal128>::min()' then raise the "underflow"
-    //:   floating-point exception and return zero with the same sign as that
-    //:   result.
+    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //:   results in an absolute value that is smaller than
+    //:   'std::numeric_limits<Decimal128>::min()' then store the value of the
+    //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
+    //:   that result.
     //:
-    //: o Otherwise return the result of dividing the value 'lhs' by the value
-    //:   of 'rhs'.  Note that this is a floating-point operation, not integer.
+    //: o Otherwise return the result of dividing the value of 'lhs' by the
+    //:   value 'rhs'.  Note that this is a floating-point operation, not
+    //:   integer.
 
 bool operator==(Decimal128 lhs, Decimal128 rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
@@ -3839,8 +3956,8 @@ bool operator==(Decimal128 lhs, Decimal128 rhs);
     //: o both have the value of a real number that are equal, even if they are
     //:   represented differently (cohorts have the same value)
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
     //
     // Note that a NaN is never equal to anything, including itself:
     //..
@@ -3863,8 +3980,8 @@ bool operator==(Decimal128 lhs, Decimal64  rhs);
     //: o both have the value of a real number that are equal, even if they are
     //:   represented differently (cohorts have the same value)
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator!=(Decimal128 lhs, Decimal128 rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' do not have the same
@@ -3881,8 +3998,8 @@ bool operator!=(Decimal128 lhs, Decimal128 rhs);
     //: o both have the value of a real number that are not equal, regardless
     //:   of their representation (cohorts are equal)
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
     //
     // Note that a NaN is never equal to anything, including itself:
     //..
@@ -3908,8 +4025,8 @@ bool operator!=(Decimal128 lhs, Decimal64  rhs);
     //: o both have the value of a real number that are not equal, regardless
     //:   of their representation (cohorts are equal)
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator<(Decimal128 lhs, Decimal128 rhs);
     // Return 'true' if the specified 'lhs' has a value less than the specified
@@ -3927,8 +4044,8 @@ bool operator<(Decimal128 lhs, Decimal128 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is less than that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator<(Decimal32  lhs, Decimal128 rhs);
 bool operator<(Decimal128 lhs, Decimal32  rhs);
@@ -3949,8 +4066,8 @@ bool operator<(Decimal128 lhs, Decimal64  rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs'is less than that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator<=(Decimal128 lhs, Decimal128 rhs);
     // Return 'true' if the specified 'lhs' has a value less than or equal the
@@ -3968,8 +4085,8 @@ bool operator<=(Decimal128 lhs, Decimal128 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is less or equal to that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator<=(Decimal32  lhs, Decimal128 rhs);
 bool operator<=(Decimal128 lhs, Decimal32  rhs);
@@ -3990,8 +4107,8 @@ bool operator<=(Decimal128 lhs, Decimal64  rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is less or equal to that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator>(Decimal128 lhs, Decimal128 rhs);
     // Return 'true' if the specified 'lhs' has a greater value than the
@@ -4010,8 +4127,8 @@ bool operator>(Decimal128 lhs, Decimal128 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is greater than that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator>(Decimal32  lhs, Decimal128 rhs);
 bool operator>(Decimal128 lhs, Decimal32  rhs);
@@ -4033,8 +4150,8 @@ bool operator>(Decimal128 lhs, Decimal64  rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is greater than that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator>=(Decimal128 lhs, Decimal128 rhs);
     // Return 'true' if the specified 'lhs' has a value greater than or equal
@@ -4052,8 +4169,8 @@ bool operator>=(Decimal128 lhs, Decimal128 rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is greater or equal to that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 bool operator>=(Decimal32  lhs, Decimal128 rhs);
 bool operator>=(Decimal128 lhs, Decimal32  rhs);
@@ -4074,8 +4191,8 @@ bool operator>=(Decimal128 lhs, Decimal64  rhs);
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
     //:   'lhs' is greater or equal to that of 'rhs'
     //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+    // This operation stores the value of the macro 'EDOM' into 'errno' if
+    // either or both operands are signaling NaN.
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
@@ -4097,17 +4214,16 @@ operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal128& object);
     // representation of a floating-point value (e.g., 12e or e12 or 1*2) the
     // 'stream.fail()' is set to true and 'object' will remain unchanged.  If a
     // real number value is represented by the character sequence but it is a
-    // large positive or negative value that cannot be stored into 'object' the
-    // "overflow" floating-point exception is raised and positive or negative
-    // infinity is stored into 'object', respectively.  If a real number value
-    // is represented by the character sequence but it is a small positive or
-    // negative value that cannot be stored into 'object' the "underflow"
-    // floating-point exception is raised and positive or negative zero is
-    // stored into 'object', respectively.  If a real number value is
-    // represented by the character sequence but it cannot be stored exactly
-    // into 'object' the "inexact" floating-point exception is raised, the
-    // value is rounded according to the current rounding direction (of the
-    // environment) and then stored into 'object.'
+    // large positive or negative value that cannot be stored into 'object'
+    // then store the value of the macro 'ERANGE' into 'errno' and positive or
+    // negative infinity is stored into 'object', respectively.  If a real
+    // number value is represented by the character sequence but it is a small
+    // positive or negative value that cannot be stored into 'object' then
+    // store the value of the macro 'ERANGE' into 'errno' and positive or
+    // negative zero is stored into 'object', respectively.  If a real number
+    // value is represented by the character sequence but it cannot be stored
+    // exactly into 'object', the value is rounded according to the current
+    // rounding direction (of the environment) and then stored into 'object'.
     //
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.

@@ -161,7 +161,7 @@ struct DecimalUtil {
                                    int                exponent);
         // Return a 'DecimalNN' object that has the specified 'significand' and
         // 'exponent', rounded according to the current decimal rounding mode,
-        // if necessary.  If an overflow condition occurs. store the value of
+        // if necessary.  If an overflow condition occurs, store the value of
         // the macro 'ERANGE' into 'errno' and return infinity with the
         // appropriate sign.
 
@@ -176,10 +176,8 @@ struct DecimalUtil {
         // successful and non-zero otherwise.  The value of 'out' is
         // unspecified if the function returns a non-zero value.
 
-
-                            // Formatting functions
-
                                   // math
+
     static Decimal32  copySign(Decimal32  x, Decimal32  y);
     static Decimal64  copySign(Decimal64  x, Decimal64  y);
     static Decimal128 copySign(Decimal128 x, Decimal128 y);
@@ -391,23 +389,6 @@ struct DecimalUtil {
         //:   macro 'EDOM' is stored into 'errno'.
         //: o If 'x' is +/-infinity or +/-0, it is returned unmodified.
 
-    // TODO TBD priority 2
-    // static Decimal32 fmax(Decimal32 x, Decimal32 y);
-        // Return the larger value of the specified 'x' and 'y'.  If one
-        // argument is NaN, return the other argument.  If both arguments are
-        // NaN, return NaN.
-
-    // TODO TBD priority 2
-    // static Decimal32 fmin(Decimal32 x, Decimal32 y);
-        // Return the smaller value of the specified 'x' and 'y'.  If one
-        // argument is NaN, return the other argument.  If both arguments are
-        // NaN, return NaN.
-
-    // TODO TBD priority N static Decimal32 copysign(Decimal32 x, Decimal32 y);
-        // Return a value whose absolute value matches that of the specified
-        // 'x' and whose sign bit matches that of the specified 'y'.  If 'x' is
-        // NaN, a NaN with the sign bit of 'y' is returned.
-
                                // classification
 
     // Names are camelCase so they do not collide with macros of 'math.h'.
@@ -560,7 +541,7 @@ struct DecimalUtil {
         // Return the specified 'x' value truncated to the specified
         // 'precision' decimal places.  Round towards zero, regardless of the
         // current decimal floating point rounding mode.  If precision of 'x'
-        // is less then or equal the 'precision' or 'x' is positive zero,
+        // is less than or equal the 'precision' or 'x' is positive zero,
         // negative zero, NaN, or infinity then return 'x' itself.
         //
         //  Examples: 'trunc(3.14159, 3)' ==> 3.141
@@ -615,58 +596,6 @@ struct DecimalUtil {
         // or both arguments are infinity, they have the same quantum
         // exponents.  Note that if exactly one operand is NaN or exactly one
         // operand is infinity, they do not have the same quantum exponents.
-        // Also note that this function will raise no exceptions.
-
-    // TBD: The following functions would be logically consistent, but are not
-    // provided since there its not clear whether there is a demand for them.
-
-    //static int parseDecimal32(const wchar_t      *str, Decimal32 *out);
-    //static int parseDecimal32(const bsl::wstring& str, Decimal32 *out);
-
-    // static Decimal32 nextafter(Decimal32 x, Decimal32 y);
-        // Return the next representable floating point value following the
-        // specified 'x' in the direction of the specified 'y'.  If 'x' or 'y'
-        // is NaN, NaN is returned.  If 'x' and 'y' are equal, 'y' is returned.
-        // If 'x' is finite and the result would overflow an
-        // 'overflow exception' is raised and the function will return
-        // 'HUGE_VAL_D32'.  If 'x' is not equal to 'y' and the correct result
-        // would be subnormal, zero or underflow a 'range error' occurs and the
-        // correct value - if representable -- or 0.0 is returned.
-
-    // static Decimal32 remainder(Decimal32 x, Decimal32 y);
-        // Return the next remainder of dividing of the specified 'x' with the
-        // specified 'y' such as that the return value is 'x-n*y', where 'n' is
-        // the nearest integer of the value of 'x/y'.  If the absolute value of
-        // the return value ('x-n*y') is 0.5, 'n' is chosen to be even.  If 'x'
-        // or 'y' is NaN, NaN is returned.  If 'x' is infinity and 'y' is not
-        // NaN, the 'invalid floating point expection' is raised and NaN is
-        // returned.  If 'y' is zero and 'x' is not NaN, the
-        // 'invalid floating point expection' is raised and NaN is returned.
-
-    // static Decimal32 rint(Decimal32 x);
-        // Return the integral value nearest to the specified 'x'.  Round
-        // halfway according to the current decimal floating point rounding
-        // mode.  Raise the 'inexact exception' if the return value differs
-        // from the argument 'x' in value.  If 'x' is integral, plus zero,
-        // minus zero, NaN, or infinity then return 'x' itself.
-
-    // static long int lround(Decimal32 x);
-    // static long long int llround(Decimal32 x);
-        // Return the integral value nearest to the specified 'x', rounding away
-        // from zero regardless of the current decimal floating point rounding
-        // mode.  If the specified 'x' is NaN, infinity, or too large a value
-        // to be stored in the return type raise a 'domain exception', the
-        // return value in such case is unspecified.  Note that these
-        // functions, unlike the other rounding functions, return different
-        // types than their argument type.
-
-    // static bool isGreater(Decimal32 x, Decimal32 y);
-    // static bool isGreaterEqual(Decimal32 x, Decimal32 y);
-    // static bool isLess(Decimal32 x, Decimal32 y);
-    // static bool isEqual(Decimal32 x, Decimal32 y);
-    // static bool isLessEqual(Decimal32 x, Decimal32 y);
-        // Compare the specified 'x' and 'y' value without setting any floating
-        // point exceptions.  Return false if either of the arguments is a NaN.
 
                              // Decompose functions
 

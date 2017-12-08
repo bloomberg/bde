@@ -2098,6 +2098,7 @@ void TestDriver::testCase27()
                 const Obj&          EXPECTED = DATA[ti].d_expected;
                 const unsigned int& ERRNO    = DATA[ti].d_errno;
 
+
                 errno = 0;
                 const Obj  RESULT = Util::exp(X);
 
@@ -9397,6 +9398,7 @@ void TestDriver::testCase16()
                       << "TESTING COMPARISON FUNCTIONS" << endl
                       << "============================" << endl;
 
+    Util::ValueType32 snan32  = Util::parse32("sNaN");
     Util::ValueType32  nan32  = Util::parse32( "NaN");
     Util::ValueType64  nan64  = Util::parse64( "NaN");
     Util::ValueType128 nan128 = Util::parse128("NaN");
@@ -9451,6 +9453,15 @@ void TestDriver::testCase16()
         Util::ValueType128 lhs128 = Util::parse128(lhsValue);
 
         // Test 'NaN' against these values...
+
+        errno = 0;
+        ASSERT(        !Util::less(snan32, snan32)); ASSERT(EDOM == errno);
+        errno = 0;
+        ASSERT(     !Util::greater(snan32, snan32)); ASSERT(EDOM == errno);
+        errno = 0;
+        ASSERT(   !Util::lessEqual(snan32, snan32)); ASSERT(EDOM == errno);
+        errno = 0;
+        ASSERT(!Util::greaterEqual(snan32, snan32)); ASSERT(EDOM == errno);
 
         ASSERT(!Util::less( nan32, lhs32));
         ASSERT(!Util::less(lhs32,  nan32));
@@ -9627,6 +9638,14 @@ void TestDriver::testCase15()
         value32 = Util::parse32(         "-0.25");
          test32 = Util::binaryToDecimal32(-0.25f);
         ASSERT(Util::equal(value32, test32));
+
+        errno   = 0;
+        value32 = Util::parse32(         "sNaN");
+        test32  = Util::binaryToDecimal32(
+                                  bsl::numeric_limits<float>::signaling_NaN());
+        ASSERT(!Util::equal(value32, test32));
+        ASSERT(!Util::equal(test32,  test32));
+        ASSERT(EDOM == errno);
     }
 
     // binaryToDecimal32(double)
@@ -9634,6 +9653,18 @@ void TestDriver::testCase15()
     {
         Util::ValueType32 value32;
         Util::ValueType32  test32;
+
+        value32 = Util::parse32(         "nan");
+        test32 = Util::binaryToDecimal32(
+                                      bsl::numeric_limits<float>::quiet_NaN());
+        ASSERT(!Util::equal(value32, test32));
+        ASSERT(!Util::equal(test32,  test32));
+
+        value32 = Util::parse32(        "-nan");
+        test32 = Util::binaryToDecimal32(
+                                     -bsl::numeric_limits<float>::quiet_NaN());
+        ASSERT(!Util::equal(value32, test32));
+        ASSERT(!Util::equal(test32,  test32));
 
         value32 = Util::parse32(         "0.0");
          test32 = Util::binaryToDecimal32(0.0);
@@ -9678,6 +9709,30 @@ void TestDriver::testCase15()
         value32 = Util::parse32(         "-0.25");
          test32 = Util::binaryToDecimal32(-0.25);
         ASSERT(Util::equal(value32, test32));
+
+        errno = 0;
+        value32 = Util::parse32(          "Inf");
+         test32 = Util::binaryToDecimal32(1e+100);
+        ASSERT(Util::equal(value32, test32));
+        ASSERT(ERANGE == errno);
+
+        errno = 0;
+        value32 = Util::parse32(          "-Inf");
+         test32 = Util::binaryToDecimal32(-1e+100);
+        ASSERT(Util::equal(value32, test32));
+        ASSERT(ERANGE == errno);
+
+        errno = 0;
+        value32 = Util::parse32(          "0.0");
+         test32 = Util::binaryToDecimal32(1e-200);
+        ASSERT(Util::equal(value32, test32));
+        ASSERT(ERANGE == errno);
+
+        errno = 0;
+        value32 = Util::parse32(          "-0.0");
+         test32 = Util::binaryToDecimal32(-1e-200);
+        ASSERT(Util::equal(value32, test32));
+        ASSERT(ERANGE == errno);
     }
 
 
@@ -10666,6 +10721,7 @@ void TestDriver::testCase10()
         Util::ValueType32  test32;
         Util::ValueType32 value32;
 
+         errno  = 0;
          test32 = Util::convertToDecimal32(
                                          Util::makeDecimalRaw64(  0,   0));
         value32 = Util::makeDecimalRaw32(                         0,   0);
@@ -10701,29 +10757,44 @@ void TestDriver::testCase10()
         value32 = Util::makeDecimalRaw32(                       -42, -17);
         ASSERT(Util::equal(test32, value32));
 
-         test32 = Util::convertToDecimal32(
+        ASSERT(0 == errno);
+
+        test32  = Util::convertToDecimal32(
                                    Util::makeDecimalRaw64( 1048576,  300));
         value32 = Util::parse32("Inf");
         ASSERT(Util::equal(test32, value32));
+        ASSERT(ERANGE == errno);
 
-         test32 = Util::convertToDecimal32(
+        errno   = 0;
+        test32  = Util::convertToDecimal32(
                                    Util::makeDecimalRaw64(-1048576,  300));
         value32 = Util::parse32("-Inf");
         ASSERT(Util::equal(test32, value32));
+        ASSERT(ERANGE == errno);
 
-         test32 = Util::convertToDecimal32(
+        bsl::feclearexcept(FE_ALL_EXCEPT);
+        errno   = 0;
+        test32  = Util::convertToDecimal32(
                                    Util::makeDecimalRaw64( 1048576, -300));
         value32 = Util::parse32("0");
         ASSERT(Util::equal(test32, value32));
+        ASSERT(ERANGE == errno);
+        P(bsl::fetestexcept(FE_ALL_EXCEPT));
 
-         test32 = Util::convertToDecimal32(
+        errno   = 0;
+        test32  = Util::convertToDecimal32(
                                    Util::makeDecimalRaw64(-1048576, -300));
         value32 = Util::parse32("-0");
         ASSERT(Util::equal(test32, value32));
+        ASSERT(ERANGE == errno);
 
-
-         test32 = Util::convertToDecimal32(Util::parse64("NaN"));
+        test32  = Util::convertToDecimal32(Util::parse64("NaN"));
         ASSERT(!Util::equal(test32, test32));
+
+        errno   = 0;
+        test32  = Util::convertToDecimal32(Util::parse64("sNaN"));
+        ASSERT(!Util::equal(test32, test32));
+        ASSERT(EDOM == errno);
     }
 
     // Testing 'convertToDecimal32( const ValueType128&)'
@@ -10732,6 +10803,7 @@ void TestDriver::testCase10()
         Util::ValueType32  test32;
         Util::ValueType32 value32;
 
+        errno  = 0;
         test32 = Util::convertToDecimal32(
                                          Util::makeDecimalRaw128(  0,   0));
         value32 = Util::makeDecimalRaw32(                          0,   0);
@@ -10767,25 +10839,34 @@ void TestDriver::testCase10()
         value32 = Util::makeDecimalRaw32(                        -42, -17);
         ASSERT(Util::equal(test32, value32));
 
+        ASSERT(0 == errno);
+
         test32 = Util::convertToDecimal32(
                                    Util::makeDecimalRaw128( 1048576,  300));
         value32 = Util::parse32("Inf");
         ASSERT(Util::equal(test32, value32));
+        ASSERT(ERANGE == errno);
 
+        errno  = 0;
         test32 = Util::convertToDecimal32(
                                    Util::makeDecimalRaw128(-1048576,  300));
         value32 = Util::parse32("-Inf");
         ASSERT(Util::equal(test32, value32));
+        ASSERT(ERANGE == errno);
 
+        errno  = 0;
         test32 = Util::convertToDecimal32(
                                    Util::makeDecimalRaw128( 1048576, -300));
         value32 = Util::parse32("0");
         ASSERT(Util::equal(test32, value32));
+        ASSERT(ERANGE == errno);
 
+        errno  = 0;
         test32 = Util::convertToDecimal32(
                                    Util::makeDecimalRaw128(-1048576, -300));
         value32 = Util::parse32("-0");
         ASSERT(Util::equal(test32, value32));
+        ASSERT(ERANGE == errno);
 
 
         test32 = Util::convertToDecimal32(Util::parse128("NaN"));
@@ -10847,6 +10928,7 @@ void TestDriver::testCase10()
         Util::ValueType64  test64;
         Util::ValueType64 value64;
 
+         errno  = 0;
          test64 = Util::convertToDecimal64(
                                         Util::makeDecimalRaw128(  0,   0));
         value64 = Util::makeDecimalRaw64(                         0,   0);
@@ -10882,26 +10964,34 @@ void TestDriver::testCase10()
         value64 = Util::makeDecimalRaw64(                       -42, -17);
         ASSERT(Util::equal(test64, value64));
 
+        ASSERT(0 == errno);
+
          test64 = Util::convertToDecimal64(
                                  Util::makeDecimalRaw128( 1048576,  6000));
         value64 = Util::parse64("Inf");
         ASSERT(Util::equal(test64, value64));
+        ASSERT(ERANGE == errno);
 
+         errno  = 0;
          test64 = Util::convertToDecimal64(
                                  Util::makeDecimalRaw128(-1048576,  6000));
         value64 = Util::parse64("-Inf");
         ASSERT(Util::equal(test64, value64));
+        ASSERT(ERANGE == errno);
 
+         errno  = 0;
          test64 = Util::convertToDecimal64(
                                  Util::makeDecimalRaw128( 1048576, -6000));
         value64 = Util::parse64("0");
         ASSERT(Util::equal(test64, value64));
+        ASSERT(ERANGE == errno);
 
+         errno  = 0;
          test64 = Util::convertToDecimal64(
                                  Util::makeDecimalRaw128(-1048576, -6000));
         value64 = Util::parse64("-0");
         ASSERT(Util::equal(test64, value64));
-
+        ASSERT(ERANGE == errno);
 
          test64 = Util::convertToDecimal64(Util::parse128("NaN"));
         ASSERT(!Util::equal(test64, test64));
@@ -11161,6 +11251,7 @@ void TestDriver::testCase8()
     //:    (C-4,6)
     //
     // Testing:
+    //   divide(ValueType32,  ValueType32)
     //   divide(ValueType64,  ValueType64)
     //   divide(ValueType128, ValueType128)
     // ------------------------------------------------------------------------
@@ -11281,19 +11372,22 @@ void TestDriver::testCase8()
 
                     // Testing for 'NaN'/'Inf' special cases:
     {
-        //:             L / R|-Inf|Normal|+Inf|NaN|
-        //:            ------+----+------+----+---+
-        //:             -Inf | NaN|+/-Inf| NaN|NaN|
-        //:            ------+----+------+----+---+
-        //:            Normal|+/-0|Normal|+/-0|NaN|
-        //:            ------+----+------+----+---+
-        //:             +Inf | NaN|+/-Inf| NaN|NaN|
-        //:            ------+----+------+----+---+
-        //:              NaN | NaN|  NaN | NaN|NaN|
+        //:             L / R|-Inf|Normal|+Inf|NaN|Zero|
+        //:            ------+----+------+----+---+----+
+        //:             -Inf | NaN|+/-Inf| NaN|NaN|-Inf|
+        //:            ------+----+------+----+---+----+
+        //:            Normal|+/-0|Normal|+/-0|NaN| Inf|
+        //:            ------+----+------+----+---+----+
+        //:             +Inf | NaN|+/-Inf| NaN|NaN| Inf|
+        //:            ------+----+------+----+---+----+
+        //:              NaN | NaN|  NaN | NaN|NaN| NaN|
+        //:            ------+----+------+----+---+----+
+        //:             Zero |+/-0| +/-0 |+/-0|NaN| NaN|
 
         Util::ValueType32   ninf32 = Util::parse32("-Inf");
         Util::ValueType32   pinf32 = Util::parse32("+Inf");
         Util::ValueType32    nan32 = Util::parse32( "NaN");
+        Util::ValueType32   snan32 = Util::parse32("sNaN");
         Util::ValueType32   zero32 = Util::parse32(   "0");
         Util::ValueType32 normal32 = Util::makeDecimalRaw32(42, 1);
 
@@ -11301,33 +11395,41 @@ void TestDriver::testCase8()
         ASSERT(nanEqual(ninf32, Util::divide(  ninf32, normal32)));
         ASSERT(nanEqual( nan32, Util::divide(  ninf32,   pinf32)));
         ASSERT(nanEqual( nan32, Util::divide(  ninf32,    nan32)));
+        ASSERT(nanEqual(ninf32, Util::divide(  ninf32,   zero32)));
 
         ASSERT(nanEqual(zero32, Util::divide(normal32,   ninf32)));
         ASSERT(nanEqual(        Util::divide(normal32, normal32),
                         Util::makeDecimalRaw32(1, 0)));
         ASSERT(nanEqual(zero32, Util::divide(normal32,   pinf32)));
         ASSERT(nanEqual( nan32, Util::divide(normal32,    nan32)));
+        ASSERT(nanEqual(pinf32, Util::divide(normal32,   zero32)));
 
         ASSERT(nanEqual( nan32, Util::divide(  pinf32,   ninf32)));
         ASSERT(nanEqual(pinf32, Util::divide(  pinf32, normal32)));
         ASSERT(nanEqual( nan32, Util::divide(  pinf32,   pinf32)));
         ASSERT(nanEqual( nan32, Util::divide(  pinf32,    nan32)));
+        ASSERT(nanEqual(pinf32, Util::divide(  pinf32,   zero32)));
 
         ASSERT(nanEqual( nan32, Util::divide(   nan32,   ninf32)));
         ASSERT(nanEqual( nan32, Util::divide(   nan32, normal32)));
         ASSERT(nanEqual( nan32, Util::divide(   nan32,   pinf32)));
         ASSERT(nanEqual( nan32, Util::divide(   nan32,    nan32)));
+        ASSERT(nanEqual( nan32, Util::divide(   nan32,   zero32)));
 
-        // Zero checks:
+        ASSERT(nanEqual(zero32, Util::divide(  zero32,   ninf32)));
+        ASSERT(nanEqual(zero32, Util::divide(  zero32, normal32)));
+        ASSERT(nanEqual(zero32, Util::divide(  zero32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::divide(  zero32,    nan32)));
+        ASSERT(nanEqual( nan32, Util::divide(  zero32,   zero32)));
 
-        ASSERT(nanEqual( nan32, Util::divide(  zero32, zero32)));
-        ASSERT(nanEqual(pinf32, Util::divide(normal32, zero32)));
-        ASSERT(nanEqual(ninf32, Util::divide(Util::makeDecimalRaw32(-1, 0),
-                                zero32)));
+        errno = 0;
+        ASSERT(nanEqual( nan32, Util::divide(  snan32,   snan32)));
+        ASSERT(EDOM == errno);
 
         Util::ValueType64   ninf64 = Util::parse64("-Inf");
         Util::ValueType64   pinf64 = Util::parse64("+Inf");
         Util::ValueType64    nan64 = Util::parse64( "NaN");
+        Util::ValueType64   snan64 = Util::parse64("sNaN");
         Util::ValueType64   zero64 = Util::parse64(   "0");
         Util::ValueType64 normal64 = Util::makeDecimalRaw64(42, 1);
 
@@ -11352,17 +11454,20 @@ void TestDriver::testCase8()
         ASSERT(nanEqual( nan64, Util::divide(   nan64,   pinf64)));
         ASSERT(nanEqual( nan64, Util::divide(   nan64,    nan64)));
 
-        // Zero checks:
+        ASSERT(nanEqual(zero64, Util::divide(  zero64,   ninf64)));
+        ASSERT(nanEqual(zero64, Util::divide(  zero64, normal64)));
+        ASSERT(nanEqual(zero64, Util::divide(  zero64,   pinf64)));
+        ASSERT(nanEqual( nan64, Util::divide(  zero64,    nan64)));
+        ASSERT(nanEqual( nan64, Util::divide(  zero64,   zero64)));
 
-        ASSERT(nanEqual( nan64, Util::divide(  zero64, zero64)));
-        ASSERT(nanEqual(pinf64, Util::divide(normal64, zero64)));
-        ASSERT(nanEqual(ninf64, Util::divide(Util::makeDecimalRaw64(-1, 0),
-                                zero64)));
-
+        errno = 0;
+        ASSERT(nanEqual( nan64, Util::divide(  snan64,   snan64)));
+        ASSERT(EDOM == errno);
 
         Util::ValueType128   ninf128 = Util::parse128("-Inf");
         Util::ValueType128   pinf128 = Util::parse128("+Inf");
         Util::ValueType128    nan128 = Util::parse128( "NaN");
+        Util::ValueType128   snan128 = Util::parse128("sNaN");
         Util::ValueType128   zero128 = Util::parse128(   "0");
         Util::ValueType128 normal128 = Util::makeDecimalRaw128(42,1);
 
@@ -11386,6 +11491,10 @@ void TestDriver::testCase8()
         ASSERT(nanEqual( nan128, Util::divide(   nan128, normal128)));
         ASSERT(nanEqual( nan128, Util::divide(   nan128,   pinf128)));
         ASSERT(nanEqual( nan128, Util::divide(   nan128,    nan128)));
+
+        errno = 0;
+        ASSERT(nanEqual( nan128, Util::divide(  snan128,   snan128)));
+        ASSERT(EDOM == errno);
 
         // Zero checks:
 
@@ -11500,7 +11609,7 @@ void TestDriver::testCase7()
                               << "and 'multiply(ValueType128,"
                               << " ValueType128)' on" << endl
                               << lhsMantissa << "e" << lhsExponent
-                              << " + "
+                              << " * "
                               << rhsMantissa << "e" << rhsExponent
                               << " == "
                               << resMantissa << "e" << resExponent << endl;
@@ -11564,97 +11673,160 @@ void TestDriver::testCase7()
 
                     // Testing for 'NaN'/'Inf' special cases:
     {
-        //:             L * R|-Inf|Normal|+Inf|NaN|
-        //:            ------+----+------+----+---+
-        //:             -Inf |+Inf|+/-Inf|-Inf|NaN|
-        //:            ------+----+------+----+---+
-        //:            Normal| Inf|Normal| Inf|NaN|
-        //:            ------+----+------+----+---+
-        //:             +Inf |-Inf|+/-Inf|+Inf|NaN|
-        //:            ------+----+------+----+---+
-        //:              NaN | NaN|  NaN | NaN|NaN|
+        //:             L * R|-Inf|Normal|+Inf|NaN|Zero|
+        //:            ------+----+------+----+---+----+
+        //:             -Inf |+Inf|+/-Inf|-Inf|NaN| NaN|
+        //:            ------+----+------+----+---+----+
+        //:            Normal| Inf|Normal| Inf|NaN|+/-0|
+        //:            ------+----+------+----+---+----+
+        //:             +Inf |-Inf|+/-Inf|+Inf|NaN| NaN|
+        //:            ------+----+------+----+---+----+
+        //:              NaN | NaN|  NaN | NaN|NaN| NaN|
+        //:            ------+----+------+----+---+----+
+        //:             Zero | NaN| +/-0 | NaN|NaN|+/-0|
 
 
+        Util::ValueType32    max32 = Util::max32();
+        Util::ValueType32    min32 = Util::min32();
+        Util::ValueType32   zero32 = Util::parse32("+0.0");
         Util::ValueType32   ninf32 = Util::parse32("-Inf");
         Util::ValueType32   pinf32 = Util::parse32("+Inf");
         Util::ValueType32    nan32 = Util::parse32( "NaN");
+        Util::ValueType32   snan32 = Util::parse32("sNaN");
         Util::ValueType32 normal32 = Util::makeDecimalRaw32(42,1);
 
-        ASSERT(nanEqual( nan32, Util::subtract(  ninf32,   ninf32)));
-        ASSERT(nanEqual(ninf32, Util::subtract(  ninf32, normal32)));
-        ASSERT(nanEqual(ninf32, Util::subtract(  ninf32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::subtract(  ninf32,    nan32)));
+        ASSERT(nanEqual(pinf32, Util::multiply(  ninf32,   ninf32)));
+        ASSERT(nanEqual(ninf32, Util::multiply(  ninf32, normal32)));
+        ASSERT(nanEqual(ninf32, Util::multiply(  ninf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::multiply(  ninf32,    nan32)));
+        ASSERT(nanEqual( nan32, Util::multiply(  ninf32,   zero32)));
 
-        ASSERT(nanEqual(pinf32, Util::subtract(normal32,   ninf32)));
-        ASSERT(nanEqual(        Util::subtract(normal32, normal32),
-                        Util::makeDecimalRaw32( 0, 1)));
-        ASSERT(nanEqual(ninf32, Util::subtract(normal32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::subtract(normal32,    nan32)));
+        ASSERT(nanEqual(ninf32, Util::multiply(normal32,   ninf32)));
+        ASSERT(nanEqual(        Util::multiply(normal32, normal32),
+                        Util::makeDecimalRaw32(42*42,2)));
+        ASSERT(nanEqual(pinf32, Util::multiply(normal32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::multiply(normal32,    nan32)));
+        ASSERT(nanEqual(zero32, Util::multiply(normal32,   zero32)));
 
-        ASSERT(nanEqual(pinf32, Util::subtract(  pinf32,   ninf32)));
-        ASSERT(nanEqual(pinf32, Util::subtract(  pinf32, normal32)));
-        ASSERT(nanEqual( nan32, Util::subtract(  pinf32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::subtract(  pinf32,    nan32)));
+        ASSERT(nanEqual(ninf32, Util::multiply(  pinf32,   ninf32)));
+        ASSERT(nanEqual(pinf32, Util::multiply(  pinf32, normal32)));
+        ASSERT(nanEqual(pinf32, Util::multiply(  pinf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::multiply(  pinf32,    nan32)));
+        ASSERT(nanEqual( nan32, Util::multiply(  pinf32,   zero32)));
 
-        ASSERT(nanEqual( nan32, Util::subtract(   nan32,   ninf32)));
-        ASSERT(nanEqual( nan32, Util::subtract(   nan32, normal32)));
-        ASSERT(nanEqual( nan32, Util::subtract(   nan32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::subtract(   nan32,    nan32)));
+        ASSERT(nanEqual( nan32, Util::multiply(   nan32,   ninf32)));
+        ASSERT(nanEqual( nan32, Util::multiply(   nan32, normal32)));
+        ASSERT(nanEqual( nan32, Util::multiply(   nan32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::multiply(   nan32,    nan32)));
+        ASSERT(nanEqual( nan32, Util::multiply(   nan32,   zero32)));
 
+        ASSERT(nanEqual( nan32, Util::multiply(  zero32,   ninf32)));
+        ASSERT(nanEqual(zero32, Util::multiply(  zero32, normal32)));
+        ASSERT(nanEqual( nan32, Util::multiply(  zero32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::multiply(  zero32,    nan32)));
+        ASSERT(nanEqual(zero32, Util::multiply(  zero32,   zero32)));
 
+        ASSERT(nanEqual(pinf32, Util::multiply(   max32,    max32)));
+        ASSERT(nanEqual(zero32, Util::multiply(   min32,    min32)));
+
+        errno = 0;
+        ASSERT(nanEqual( nan32, Util::multiply(  snan32,   snan32)));
+        ASSERT(EDOM == errno);
+
+        Util::ValueType64    max64 = Util::max64();
+        Util::ValueType64    min64 = Util::min64();
+        Util::ValueType64   zero64 = Util::parse64("+0.0");
         Util::ValueType64   ninf64 = Util::parse64("-Inf");
         Util::ValueType64   pinf64 = Util::parse64("+Inf");
         Util::ValueType64    nan64 = Util::parse64( "NaN");
+        Util::ValueType64   snan64 = Util::parse64("sNaN");
         Util::ValueType64 normal64 = Util::makeDecimalRaw64(42,1);
 
         ASSERT(nanEqual(pinf64, Util::multiply(  ninf64,   ninf64)));
         ASSERT(nanEqual(ninf64, Util::multiply(  ninf64, normal64)));
         ASSERT(nanEqual(ninf64, Util::multiply(  ninf64,   pinf64)));
         ASSERT(nanEqual( nan64, Util::multiply(  ninf64,    nan64)));
+        ASSERT(nanEqual( nan64, Util::multiply(  ninf64,   zero64)));
 
         ASSERT(nanEqual(ninf64, Util::multiply(normal64,   ninf64)));
         ASSERT(nanEqual(        Util::multiply(normal64, normal64),
                         Util::makeDecimalRaw64(42*42,2)));
         ASSERT(nanEqual(pinf64, Util::multiply(normal64,   pinf64)));
         ASSERT(nanEqual( nan64, Util::multiply(normal64,    nan64)));
+        ASSERT(nanEqual(zero64, Util::multiply(normal64,   zero64)));
 
         ASSERT(nanEqual(ninf64, Util::multiply(  pinf64,   ninf64)));
         ASSERT(nanEqual(pinf64, Util::multiply(  pinf64, normal64)));
         ASSERT(nanEqual(pinf64, Util::multiply(  pinf64,   pinf64)));
         ASSERT(nanEqual( nan64, Util::multiply(  pinf64,    nan64)));
+        ASSERT(nanEqual( nan64, Util::multiply(  pinf64,   zero64)));
 
         ASSERT(nanEqual( nan64, Util::multiply(   nan64,   ninf64)));
         ASSERT(nanEqual( nan64, Util::multiply(   nan64, normal64)));
         ASSERT(nanEqual( nan64, Util::multiply(   nan64,   pinf64)));
         ASSERT(nanEqual( nan64, Util::multiply(   nan64,    nan64)));
+        ASSERT(nanEqual( nan64, Util::multiply(   nan64,   zero64)));
 
+        ASSERT(nanEqual( nan64, Util::multiply(  zero64,   ninf64)));
+        ASSERT(nanEqual(zero64, Util::multiply(  zero64, normal64)));
+        ASSERT(nanEqual( nan64, Util::multiply(  zero64,   pinf64)));
+        ASSERT(nanEqual( nan64, Util::multiply(  zero64,    nan64)));
+        ASSERT(nanEqual(zero64, Util::multiply(  zero64,   zero64)));
 
+        ASSERT(nanEqual(pinf64, Util::multiply(   max64,    max64)));
+        ASSERT(nanEqual(zero64, Util::multiply(   min64,    min64)));
+
+        errno = 0;
+        ASSERT(nanEqual( nan64, Util::multiply(  snan64,   snan64)));
+        ASSERT(EDOM == errno);
+
+        Util::ValueType128   max128  = Util::max128();
+        Util::ValueType128   min128  = Util::min128();
+        Util::ValueType128   zero128 = Util::parse128("+0.0");
         Util::ValueType128   ninf128 = Util::parse128("-Inf");
         Util::ValueType128   pinf128 = Util::parse128("+Inf");
         Util::ValueType128    nan128 = Util::parse128( "NaN");
+        Util::ValueType128   snan128 = Util::parse128("sNaN");
         Util::ValueType128 normal128 = Util::makeDecimalRaw128(42,1);
 
         ASSERT(nanEqual(pinf128, Util::multiply(  ninf128,   ninf128)));
         ASSERT(nanEqual(ninf128, Util::multiply(  ninf128, normal128)));
         ASSERT(nanEqual(ninf128, Util::multiply(  ninf128,   pinf128)));
         ASSERT(nanEqual( nan128, Util::multiply(  ninf128,    nan128)));
+        ASSERT(nanEqual( nan128, Util::multiply(  ninf128,   zero128)));
 
         ASSERT(nanEqual(ninf128, Util::multiply(normal128,   ninf128)));
         ASSERT(nanEqual(         Util::multiply(normal128, normal128),
                         Util::makeDecimalRaw128(42*42, 2)));
         ASSERT(nanEqual(pinf128, Util::multiply(normal128,   pinf128)));
         ASSERT(nanEqual( nan128, Util::multiply(normal128,    nan128)));
+        ASSERT(nanEqual(zero128, Util::multiply(normal128,   zero128)));
 
         ASSERT(nanEqual(ninf128, Util::multiply(  pinf128,   ninf128)));
         ASSERT(nanEqual(pinf128, Util::multiply(  pinf128, normal128)));
         ASSERT(nanEqual(pinf128, Util::multiply(  pinf128,   pinf128)));
         ASSERT(nanEqual( nan128, Util::multiply(  pinf128,    nan128)));
+        ASSERT(nanEqual( nan128, Util::multiply(  pinf128,   zero128)));
 
         ASSERT(nanEqual( nan128, Util::multiply(   nan128,   ninf128)));
         ASSERT(nanEqual( nan128, Util::multiply(   nan128, normal128)));
         ASSERT(nanEqual( nan128, Util::multiply(   nan128,   pinf128)));
         ASSERT(nanEqual( nan128, Util::multiply(   nan128,    nan128)));
-    }
+        ASSERT(nanEqual( nan128, Util::multiply(   nan128,   zero128)));
+
+        ASSERT(nanEqual( nan128, Util::multiply(  zero128,   ninf128)));
+        ASSERT(nanEqual(zero128, Util::multiply(  zero128, normal128)));
+        ASSERT(nanEqual( nan128, Util::multiply(  zero128,   pinf128)));
+        ASSERT(nanEqual( nan128, Util::multiply(  zero128,    nan128)));
+        ASSERT(nanEqual(zero128, Util::multiply(  zero128,   zero128)));
+
+        ASSERT(nanEqual(pinf128, Util::multiply(   max128,    max128)));
+        ASSERT(nanEqual(zero128, Util::multiply(   min128,    min128)));
+
+        errno = 0;
+        ASSERT(nanEqual( nan128, Util::multiply(  snan128,   snan128)));
+        ASSERT(EDOM == errno);
+   }
 }
 
 void TestDriver::testCase6()
@@ -11700,6 +11872,7 @@ void TestDriver::testCase6()
     //:    (C-4,6)
     //
     // Testing:
+    //   subtract(ValueType32,  ValueType32)
     //   subtract(ValueType64,  ValueType64)
     //   subtract(ValueType128, ValueType128)
     // ------------------------------------------------------------------------
@@ -11757,7 +11930,7 @@ void TestDriver::testCase6()
                               << "and 'subtract(ValueType128,"
                               << " ValueType128)' on" << endl
                               << lhsMantissa << "e" << lhsExponent
-                              << " + "
+                              << " - "
                               << rhsMantissa << "e" << rhsExponent
                               << " == "
                               << resMantissa << "e" << resExponent << endl;
@@ -11841,33 +12014,38 @@ void TestDriver::testCase6()
         Util::ValueType32   ninf32 = Util::parse32("-Inf");
         Util::ValueType32   pinf32 = Util::parse32("+Inf");
         Util::ValueType32    nan32 = Util::parse32( "NaN");
+        Util::ValueType32   snan32 = Util::parse32("sNaN");
         Util::ValueType32 normal32 = Util::makeDecimalRaw32(42,1);
 
-        ASSERT(nanEqual(pinf32, Util::multiply(  ninf32,   ninf32)));
-        ASSERT(nanEqual(ninf32, Util::multiply(  ninf32, normal32)));
-        ASSERT(nanEqual(ninf32, Util::multiply(  ninf32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::multiply(  ninf32,    nan32)));
+        ASSERT(nanEqual( nan32, Util::subtract(  ninf32,   ninf32)));
+        ASSERT(nanEqual(ninf32, Util::subtract(  ninf32, normal32)));
+        ASSERT(nanEqual(ninf32, Util::subtract(  ninf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::subtract(  ninf32,    nan32)));
 
-        ASSERT(nanEqual(ninf32, Util::multiply(normal32,   ninf32)));
-        ASSERT(nanEqual(        Util::multiply(normal32, normal32),
-                        Util::makeDecimalRaw32(42*42,2)));
-        ASSERT(nanEqual(pinf32, Util::multiply(normal32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::multiply(normal32,    nan32)));
+        ASSERT(nanEqual(pinf32, Util::subtract(normal32,   ninf32)));
+        ASSERT(nanEqual(        Util::subtract(normal32, normal32),
+                        Util::makeDecimalRaw32( 0, 1)));
+        ASSERT(nanEqual(ninf32, Util::subtract(normal32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::subtract(normal32,    nan32)));
 
-        ASSERT(nanEqual(ninf32, Util::multiply(  pinf32,   ninf32)));
-        ASSERT(nanEqual(pinf32, Util::multiply(  pinf32, normal32)));
-        ASSERT(nanEqual(pinf32, Util::multiply(  pinf32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::multiply(  pinf32,    nan32)));
+        ASSERT(nanEqual(pinf32, Util::subtract(  pinf32,   ninf32)));
+        ASSERT(nanEqual(pinf32, Util::subtract(  pinf32, normal32)));
+        ASSERT(nanEqual( nan32, Util::subtract(  pinf32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::subtract(  pinf32,    nan32)));
 
-        ASSERT(nanEqual( nan32, Util::multiply(   nan32,   ninf32)));
-        ASSERT(nanEqual( nan32, Util::multiply(   nan32, normal32)));
-        ASSERT(nanEqual( nan32, Util::multiply(   nan32,   pinf32)));
-        ASSERT(nanEqual( nan32, Util::multiply(   nan32,    nan32)));
+        ASSERT(nanEqual( nan32, Util::subtract(   nan32,   ninf32)));
+        ASSERT(nanEqual( nan32, Util::subtract(   nan32, normal32)));
+        ASSERT(nanEqual( nan32, Util::subtract(   nan32,   pinf32)));
+        ASSERT(nanEqual( nan32, Util::subtract(   nan32,    nan32)));
 
+        errno = 0;
+        ASSERT(nanEqual( nan32, Util::subtract(  snan32,   snan32)));
+        ASSERT(EDOM == errno);
 
         Util::ValueType64   ninf64 = Util::parse64("-Inf");
         Util::ValueType64   pinf64 = Util::parse64("+Inf");
         Util::ValueType64    nan64 = Util::parse64( "NaN");
+        Util::ValueType64   snan64 = Util::parse64("sNaN");
         Util::ValueType64 normal64 = Util::makeDecimalRaw64(42,1);
 
         ASSERT(nanEqual( nan64, Util::subtract(  ninf64,   ninf64)));
@@ -11891,10 +12069,14 @@ void TestDriver::testCase6()
         ASSERT(nanEqual( nan64, Util::subtract(   nan64,   pinf64)));
         ASSERT(nanEqual( nan64, Util::subtract(   nan64,    nan64)));
 
+        errno = 0;
+        ASSERT(nanEqual( nan64, Util::subtract(  snan64,   snan64)));
+        ASSERT(EDOM == errno);
 
         Util::ValueType128   ninf128 = Util::parse128("-Inf");
         Util::ValueType128   pinf128 = Util::parse128("+Inf");
         Util::ValueType128    nan128 = Util::parse128( "NaN");
+        Util::ValueType128   snan128 = Util::parse128("sNaN");
         Util::ValueType128 normal128 = Util::makeDecimalRaw128(42,1);
 
         ASSERT(nanEqual( nan128, Util::subtract(  ninf128,   ninf128)));
@@ -11917,6 +12099,10 @@ void TestDriver::testCase6()
         ASSERT(nanEqual( nan128, Util::subtract(   nan128, normal128)));
         ASSERT(nanEqual( nan128, Util::subtract(   nan128,   pinf128)));
         ASSERT(nanEqual( nan128, Util::subtract(   nan128,    nan128)));
+
+        errno = 0;
+        ASSERT(nanEqual( nan128, Util::subtract(  snan128,   snan128)));
+        ASSERT(EDOM == errno);
     }
 }
 
@@ -12105,6 +12291,7 @@ void TestDriver::testCase5()
         Util::ValueType32   ninf32 = Util::parse32("-Inf");
         Util::ValueType32   pinf32 = Util::parse32("+Inf");
         Util::ValueType32    nan32 = Util::parse32( "NaN");
+        Util::ValueType32   snan32 = Util::parse32("sNaN");
         ASSERT( Util::equal(pinf32, pinf32));
         ASSERT( Util::equal(ninf32, ninf32));
         ASSERT( Util::notEqual(pinf32, ninf32));
@@ -12133,10 +12320,14 @@ void TestDriver::testCase5()
         ASSERT(nanEqual( nan32, Util::add(   nan32,   pinf32)));
         ASSERT(nanEqual( nan32, Util::add(   nan32,    nan32)));
 
+        errno = 0;
+        ASSERT(nanEqual( nan32, Util::add(  snan32,   snan32)));
+        ASSERT(EDOM == errno);
 
         Util::ValueType64   ninf64 = Util::parse64("-Inf");
         Util::ValueType64   pinf64 = Util::parse64("+Inf");
         Util::ValueType64    nan64 = Util::parse64( "NaN");
+        Util::ValueType64   snan64 = Util::parse64("sNaN");
         ASSERT( Util::equal(pinf64, pinf64));
         ASSERT( Util::equal(ninf64, ninf64));
         ASSERT( Util::notEqual(pinf64, ninf64));
@@ -12165,10 +12356,14 @@ void TestDriver::testCase5()
         ASSERT(nanEqual( nan64, Util::add(   nan64,   pinf64)));
         ASSERT(nanEqual( nan64, Util::add(   nan64,    nan64)));
 
+        errno = 0;
+        ASSERT(nanEqual( nan64, Util::add(  snan64,   snan64)));
+        ASSERT(EDOM == errno);
 
         Util::ValueType128   ninf128 = Util::parse128("-Inf");
         Util::ValueType128   pinf128 = Util::parse128("+Inf");
         Util::ValueType128    nan128 = Util::parse128( "NaN");
+        Util::ValueType128   snan128 = Util::parse128("sNaN");
         Util::ValueType128 normal128 = Util::makeDecimalRaw128(42,1);
 
         ASSERT(nanEqual(  ninf128, Util::add(  ninf128,   ninf128)));
@@ -12191,6 +12386,10 @@ void TestDriver::testCase5()
         ASSERT(nanEqual(   nan128, Util::add(   nan128, normal128)));
         ASSERT(nanEqual(   nan128, Util::add(   nan128,   pinf128)));
         ASSERT(nanEqual(   nan128, Util::add(   nan128,    nan128)));
+
+        errno = 0;
+        ASSERT(nanEqual( nan128, Util::add(  snan128,   snan128)));
+        ASSERT(EDOM == errno);
     }
 }
 
@@ -13162,15 +13361,21 @@ void TestDriver::testCase4()
 
         ASSERT( Util::notEqual( nan32,   nan32));
         ASSERT( Util::notEqual(qnan32,  qnan32));
+        errno = 0;
         ASSERT( Util::notEqual(snan32,  snan32));
+        ASSERT(EDOM == errno);
 
         ASSERT( Util::notEqual( nan64,   nan64));
         ASSERT( Util::notEqual(qnan64,  qnan64));
+        errno = 0;
         ASSERT( Util::notEqual(snan64,  snan64));
+        ASSERT(EDOM == errno);
 
         ASSERT( Util::notEqual( nan128,  nan128));
         ASSERT( Util::notEqual(qnan128, qnan128));
+        errno = 0;
         ASSERT( Util::notEqual(snan128, snan128));
+        ASSERT(EDOM == errno);
 
         // Cross 'NaN' comparisons should all be inequal.
 
@@ -14228,15 +14433,21 @@ void TestDriver::testCase3()
 
         ASSERT(!Util::equal( nan32,   nan32));
         ASSERT(!Util::equal(qnan32,  qnan32));
+        errno = 0;
         ASSERT(!Util::equal(snan32,  snan32));
+        ASSERT(EDOM == errno);
 
         ASSERT(!Util::equal( nan64,   nan64));
         ASSERT(!Util::equal(qnan64,  qnan64));
+        errno = 0;
         ASSERT(!Util::equal(snan64,  snan64));
+        ASSERT(EDOM == errno);
 
         ASSERT(!Util::equal( nan128,  nan128));
         ASSERT(!Util::equal(qnan128, qnan128));
+        errno = 0;
         ASSERT(!Util::equal(snan128, snan128));
+        ASSERT(EDOM == errno);
 
         // Cross 'NaN' comparisons should all be false.
 
@@ -14977,7 +15188,6 @@ void TestDriver::testCase1()
     Util::checkLiteral(0.0);
 #endif
 }
-
 
 //=============================================================================
 //                              MAIN PROGRAM

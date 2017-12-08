@@ -56,6 +56,11 @@ BSLS_IDENT("$Id$")
 #include <bsl_cstring.h>
 #endif
 
+#ifndef INCLUDED_BSL_C_ERRNO
+#include <bsl_c_errno.h>
+#endif
+
+
 namespace BloombergLP {
 namespace bdldfp {
 
@@ -73,6 +78,18 @@ struct DecimalImpUtil_IntelDfp {
     struct ValueType64  { BID_UINT64  d_raw; };
     struct ValueType128 { BID_UINT128 d_raw; };
 
+  private:
+    // CLASS METHODS
+    static void setErrno(_IDEC_flags flags);
+        // Convert bit flags from the specified 'flags' into error codes as
+        // follows and load the result into a prepocessor macro 'errno':
+        //
+        //: o flag BID_INVALID_EXCEPTION     => 'errno = EDOM'
+        //: o flag BID_OVERFLOW_EXCEPTION    => 'errno = ERANGE'
+        //: o flag BID_UNDERFLOW_EXCEPTION   => 'errno = ERANGE'
+        //: o flag BID_ZERO_DIVIDE_EXCEPTION => 'errno = ERANGE'
+
+  public:
     // CLASS METHODS
 
                         // Integer construction (32-bit)
@@ -88,16 +105,10 @@ struct DecimalImpUtil_IntelDfp {
         //: o If 'value' is zero then initialize this object to a zero with an
         //:   unspecified sign and an unspecified exponent.
         //:
-        //: o Otherwise if 'value' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-        //:   floating-point exception and initialize this object to infinity
-        //:   with the same sign as 'other'.
-        //:
         //: o Otherwise if 'value' has a value that is not exactly
         //:   representable using 'std::numeric_limits<Decimal32>::max_digit'
-        //:   decimal digits then raise the "inexact" floating-point exception
-        //:   and initialize this object to the value of 'other' rounded
-        //:   according to the rounding direction.
+        //:   decimal digits then return the value rounded according to the
+        //:   rounding direction.
         //:
         //: o Otherwise initialize this object to the value of the 'value'.
         //
@@ -117,16 +128,10 @@ struct DecimalImpUtil_IntelDfp {
         //: o If 'value' is zero then initialize this object to a zero with an
         //:   unspecified sign and an unspecified exponent.
         //:
-        //: o Otherwise if 'value' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and initialize this object to infinity
-        //:   with the same sign as 'other'.
-        //:
         //: o Otherwise if 'value' has a value that is not exactly
         //:   representable using 'std::numeric_limits<Decimal64>::max_digit'
-        //:   decimal digits then raise the "inexact" floating-point exception
-        //:   and initialize this object to the value of 'other' rounded
-        //:   according to the rounding direction.
+        //:   decimal digits then return 'value' rounded according to the
+        //:   rounding direction.
         //:
         //: o Otherwise initialize this object to the value of the 'value'.
         //
@@ -146,16 +151,10 @@ struct DecimalImpUtil_IntelDfp {
         //: o If 'value' is zero then initialize this object to a zero with an
         //:   unspecified sign and an unspecified exponent.
         //:
-        //: o Otherwise if 'value' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and initialize this object to
-        //:   infinity with the same sign as 'other'.
-        //:
         //: o Otherwise if 'value' has a value that is not exactly
         //:   representable using 'std::numeric_limits<Decimal128>::max_digit'
-        //:   decimal digits then raise the "inexact" floating-point exception
-        //:   and initialize this object to the value of 'value' rounded
-        //:   according to the rounding direction.
+        //:   decimal digits then return 'value' rounded according to the
+        //:   rounding direction.
         //:
         //: o Otherwise initialize this object to 'value'.
         //
@@ -172,11 +171,14 @@ struct DecimalImpUtil_IntelDfp {
         // Add the value of the specified 'rhs' to the value of the specified
         // 'lhs' as described by IEEE-754 and return the result.
         //
-        //: o If either of 'lhs' or 'rhs' is NaN, then raise the "invalid"
-        //:   floating-point exception and return a NaN.
+        //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the
+        //:   value of the macro 'EDOM' into 'errno' and return a NaN.
+        //:
+        //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
         //:
         //: o Otherwise if 'lhs' and 'rhs' are infinities of differing signs,
-        //:   raise the "invalid" floating-point exception and return a NaN.
+        //:   store the value of the macro 'EDOM' into 'errno' and return a
+        //:   NaN.
         //:
         //: o Otherwise if 'lhs' and 'rhs' are infinities of the same sign then
         //:   return infinity of that sign.
@@ -184,9 +186,9 @@ struct DecimalImpUtil_IntelDfp {
         //: o Otherwise if 'rhs' is zero (positive or negative), return 'lhs'.
         //:
         //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value
-        //:   that is larger than 'std::numeric_limits<Decimal64>::max()' then
-        //:   raise the "overflow" floating-point exception and return infinity
-        //:   with the same sign as that result.
+        //:   that is larger than max value supported by indicated result type
+        //:   then store the value of the macro 'ERANGE' into 'errno' and
+        //:   return infinity with the same sign as that result.
         //:
         //: o Otherwise return the sum of the number represented by 'lhs' and
         //:   the number represented by 'rhs'.
@@ -199,12 +201,14 @@ struct DecimalImpUtil_IntelDfp {
         // Subtract the value of the specified 'rhs' from the value of the
         // specified 'lhs' as described by IEEE-754 and return the result.
         //
-        //: o If either 'lhs' or 'rhs' is NaN, then raise the "invalid"
-        //:   floating-point exception and return a NaN.
+        //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the
+        //:   value of the macro 'EDOM' into 'errno' and return a NaN.
+        //:
+        //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
         //:
         //: o Otherwise if 'lhs' and the 'rhs' have infinity values of the same
-        //:   sign, then raise the "invalid" floating-point exception and
-        //:   return a NaN.
+        //:   sign, store the value of the macro 'EDOM' into 'errno' and return
+        //:   a NaN.
         //:
         //: o Otherwise if 'lhs' and the 'rhs' have infinity values of
         //:   differing signs, then return 'lhs'.
@@ -212,11 +216,10 @@ struct DecimalImpUtil_IntelDfp {
         //: o Otherwise if 'rhs' has a zero value (positive or negative), then
         //:   return 'lhs'.
         //:
-        //: o Otherwise if subtracting the value of the 'rhs' object from the
-        //:   value of 'lhs' results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and return infinity with the same sign
-        //:   as that result.
+        //: o Otherwise if the subtracting of 'lhs' and 'rhs' has an absolute
+        //:   value that is larger than max value supported by indicated result
+        //:   type then store the value of the macro 'ERANGE' into 'errno' and
+        //:   return infinity with the same sign as that result.
         //:
         //: o Otherwise return the result of subtracting the value of 'rhs'
         //:   from the value of 'lhs'.
@@ -229,11 +232,14 @@ struct DecimalImpUtil_IntelDfp {
         // Multiply the value of the specified 'lhs' object by the value of the
         // specified 'rhs' as described by IEEE-754 and return the result.
         //
-        //: o If either of 'lhs' or 'rhs' is NaN, return a NaN.
+        //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the
+        //:   value of the macro 'EDOM' into 'errno' and return a NaN.
+        //:
+        //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
         //:
         //: o Otherwise if one of the operands is infinity (positive or
         //:   negative) and the other is zero (positive or negative), then
-        //:   raise the "invalid" floating-point exception raised and return a
+        //:   store the value of the macro 'EDOM' into 'errno' and return a
         //:   NaN.
         //:
         //: o Otherwise if both 'lhs' and 'rhs' are infinity (positive or
@@ -246,14 +252,14 @@ struct DecimalImpUtil_IntelDfp {
         //:   have the same sign, and negative otherwise.
         //:
         //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
-        //:   that is larger than 'std::numeric_limits<Decimal64>::max()' then
-        //:   raise the "overflow" floating-point exception and return infinity
-        //:   with the same sign as that result.
+        //:   that is larger than max value of the indicated result type then
+        //:   store the value of the macro 'ERANGE' into 'errno' and return
+        //:   infinity with the same sign as that result.
         //:
         //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
-        //:   that is smaller than 'std::numeric_limits<Decimal64>::min()' then
-        //:   raise the "underflow" floating-point exception and return zero
-        //:   with the same sign as that result.
+        //:   that is smaller than min value of the indicated result type then
+        //:   store the value of the macro 'ERANGE' into 'errno' and return
+        //:   zero with the same sign as that result.
         //:
         //: o Otherwise return the product of the value of 'rhs' and the number
         //:   represented by 'rhs'.
@@ -266,32 +272,40 @@ struct DecimalImpUtil_IntelDfp {
         // Divide the value of the specified 'lhs' by the value of the
         // specified 'rhs' as described by IEEE-754, and return the result.
         //
-        //: o If 'lhs' or 'rhs' is NaN, raise the "invalid" floating-point
-        //:   exception and return a NaN.
+        //: o If either of 'lhs' or 'rhs' is signaling NaN, then store the
+        //:   value of the macro 'EDOM' into 'errno' and return a NaN.
+        //:
+        //: o Otherwise if either of 'lhs' or 'rhs' is NaN, return a NaN.
         //:
         //: o Otherwise if 'lhs' and 'rhs' are both infinity (positive or
-        //:   negative) or both zero (positive or negative), raise the
-        //:   "invalid" floating-point exception and return a NaN.
+        //:   negative) or both zero (positive or negative) then store the
+        //:   value of the macro 'EDOM' into 'errno' and return a NaN.
         //:
-        //: o Otherwise if 'rhs' has a positive zero value, raise the
-        //:   "overflow" floating-point exception and return infinity with the
-        //:   sign of 'lhs'.
+        //: o Otherwise if 'lhs' has a normal value and 'rhs' has a positive
+        //:   zero value, store the value of the macro 'ERANGE' into 'errno'
+        //:   and return infinity with the sign of 'lhs'.
         //:
-        //: o Otherwise if 'rhs' has a negative zero value, raise the
-        //:   "overflow" floating-point exception and return infinity with the
-        //:   opposite sign as 'lhs'.
+        //: o Otherwise if 'lhs' has a normal value and 'rhs' has a negative
+        //:   zero value, store the value of the macro 'ERANGE' into 'errno'
+        //:   and return infinity with the opposite sign as 'lhs'.
+        //:
+        //: o Otherwise if 'lhs' has infinity value and 'rhs' has a positive
+        //:   zero value, return infinity with the sign of 'lhs'.
+        //:
+        //: o Otherwise if 'lhs' has infinity value and 'rhs' has a negative
+        //:   zero value, return infinity with the opposite sign as 'lhs'.
         //:
         //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
-        //:   results in an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and return infinity with the same sign
-        //:   as that result.
+        //:   results in an absolute value that is larger than max value
+        //:   supported by the return type then store the value of the macro
+        //:   'ERANGE' into 'errno' and return infinity with the same sign as
+        //:   that result.
         //:
         //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
-        //:   results in an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal64>::min()' then raise the
-        //:   "underflow" floating-point exception and return zero with the
-        //:   same sign as that result.
+        //:   results in an absolute value that is smaller than min value
+        //:   supported by indicated result type then store the value of the
+        //:   macro 'ERANGE' into 'errno'and return zero with the same sign as
+        //:   that result.
         //:
         //: o Otherwise return the result of dividing the value of 'lhs' with
         //:   the value of 'rhs'.
@@ -329,8 +343,8 @@ struct DecimalImpUtil_IntelDfp {
         //: o 'lhs' and 'rhs' both represent a real number and the real number
         //:   of 'lhs' is less than that of 'rhs'
         //
-        // This operation raises the "invalid" floating-point exception if
-        // either or both operands are NaN.
+        // If either or both operands are signaling NaN, store the value of the
+        // macro 'EDOM' into 'errno' and return 'false'.
 
                         // Greater Than functions
 
@@ -353,8 +367,8 @@ struct DecimalImpUtil_IntelDfp {
         //: o 'lhs' and 'rhs' both represent a real number and the real number
         //:   of 'lhs' is greater than that of 'rhs'
         //
-        // This operation raises the "invalid" floating-point exception if
-        // either or both operands are NaN.
+        // If either or both operands are signaling NaN, store the value of the
+        // macro 'EDOM' into 'errno' and return 'false'.
 
                         // Less Or Equal functions
 
@@ -376,8 +390,8 @@ struct DecimalImpUtil_IntelDfp {
         //: o 'lhs' and 'rhs' both represent a real number and the real number
         //:   of 'lhs' is less or equal to that of 'rhs'
         //
-        // This operation raises the "invalid" floating-point exception if
-        // either or both operands are NaN.
+        // If either or both operands are signaling NaN, store the value of the
+        // macro 'EDOM' into 'errno' and return 'false'.
 
                         // Greater Or Equal functions
 
@@ -400,8 +414,8 @@ struct DecimalImpUtil_IntelDfp {
         //: o 'lhs' and 'rhs' both represent a real number and the real number
         //:   of 'lhs' is greater or equal to that of 'rhs'
         //
-        // This operation raises the "invalid" floating-point exception if
-        // either or both operands are NaN.
+        // If either or both operands are signaling NaN, store the value of the
+        // macro 'EDOM' into 'errno' and return 'false'.
 
                         // Equality functions
 
@@ -421,8 +435,8 @@ struct DecimalImpUtil_IntelDfp {
         //: o both have the value of a real number that are equal, even if they
         //:   are represented differently (cohorts have the same value)
         //
-        // This operation raises the "invalid" floating-point exception if
-        // either or both operands are NaN.
+        // If either or both operands are signaling NaN, store the value of the
+        // macro 'EDOM' into 'errno' and return 'false'.
 
                         // Inequality functions
 
@@ -442,8 +456,8 @@ struct DecimalImpUtil_IntelDfp {
         //: o both have the value of a real number that are equal, even if they
         //:   are represented differently (cohorts have the same value)
         //
-        // This operation raises the "invalid" floating-point exception if
-        // either or both operands are NaN.
+        // If either or both operands are signaling NaN, store the value of the
+        // macro 'EDOM' into 'errno' and return 'false'.
 
                         // Inter-type Conversion functions
 
@@ -453,7 +467,31 @@ struct DecimalImpUtil_IntelDfp {
     static ValueType64  convertToDecimal64 (const ValueType128& input);
     static ValueType128 convertToDecimal128(const ValueType32&  input);
     static ValueType128 convertToDecimal128(const ValueType64&  input);
-        // Convert the specified 'input' to the indicated result type.
+        // Convert the specified 'input' to the closest value of indicated
+        // result type following the conversion rules:
+        //
+        //: o If 'input' is signaling NaN, store the value of the macro 'EDOM'
+        //:   into 'errno' and return signaling NaN value.
+        //:
+        //: o If 'input' is NaN, return NaN value.
+        //:
+        //: o Otherwise if 'input' is infinity (positive or negative), then
+        //:   return infinity with the same sign.
+        //:
+        //: o Otherwise if 'input' is zero (positive or negative), then
+        //:   return zero with the same sign.
+        //:
+        //: o Otherwise if 'input' has an absolute value that is larger than
+        //:   maximum or is smaller than minimum value supported by the result
+        //:   type, store the value of the macro 'ERANGE' into 'errno' and
+        //:   return infinity or zero with the same sign respectively.
+        //:
+        //: o Otherwise if 'input' has a value that is not exactly
+        //:   representable using maximum digit number supported by indicated
+        //:   result type then return the 'input' rounded according to the
+        //:   rounding direction.
+        //:
+        //: o Otherwise return 'input' value of the result type.
 
                         // Binary floating point conversion functions
 
@@ -463,6 +501,9 @@ struct DecimalImpUtil_IntelDfp {
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
         //
+        //: o If 'value' is signaling NaN, store the value of the macro 'EDOM'
+        //:   into 'errno' and return signaling NaN value.
+        //:
         //: o If 'value' is NaN, return a NaN.
         //:
         //: o Otherwise if 'value' is infinity (positive or negative), then
@@ -472,20 +513,19 @@ struct DecimalImpUtil_IntelDfp {
         //:   to zero with the same sign.
         //:
         //: o Otherwise if 'value' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
-        //:   floating-point exception and return an infinity with the same
+        //:   'std::numeric_limits<Decimal32>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
         //:   sign as 'value'.
         //:
         //: o Otherwise if 'value' has an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal32>::min()' then raise the
-        //:   "underflow" floating-point exception and return a zero with the
-        //:   same sign as 'value'.
+        //:   'std::numeric_limits<Decimal32>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return a zero with the same
+        //:   sign as 'value'.
         //:
         //: o Otherwise if 'value' needs more than
         //:   'std::numeric_limits<Decimal32>::max_digit' significant decimal
-        //:   digits to represent then raise the "inexact" floating-point
-        //:   exception and return the 'value' rounded according to the
-        //:   rounding direction.
+        //:   digits to represent then return the 'value' rounded according to
+        //:   the rounding direction.
         //:
         //: o Otherwise return a 'Decimal32' object representing 'value'.
 
@@ -504,20 +544,19 @@ struct DecimalImpUtil_IntelDfp {
         //:   to zero with the same sign.
         //:
         //: o Otherwise if 'value' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and return an infinity with the same
+        //:   'std::numeric_limits<Decimal64>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
         //:   sign as 'value'.
         //:
         //: o Otherwise if 'value' has an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal64>::min()' then raise the
-        //:   "underflow" floating-point exception and return a zero with the
-        //:   same sign as 'value'.
+        //:   'std::numeric_limits<Decimal64>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return a zero with the same
+        //:   sign as 'value'.
         //:
         //: o Otherwise if 'value' needs more than
         //:   'std::numeric_limits<Decimal64>::max_digit' significant decimal
-        //:   digits to represent then raise the "inexact" floating-point
-        //:   exception and return the 'value' rounded according to the
-        //:   rounding direction.
+        //:   digits to represent then return the 'value' rounded according to
+        //:   the rounding direction.
         //:
         //: o Otherwise return a 'Decimal64' object representing 'value'.
 
@@ -536,20 +575,19 @@ struct DecimalImpUtil_IntelDfp {
         //:   to zero with the same sign.
         //:
         //: o Otherwise if 'value' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal128>::max()' then raise the
-        //:   "overflow" floating-point exception and return an infinity with
-        //:   the same sign as 'value'.
+        //:   'std::numeric_limits<Decimal128>::max()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return infinity with the same
+        //:   sign as 'value'.
         //:
         //: o Otherwise if 'value' has an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal128>::min()' then raise the
-        //:   "underflow" floating-point exception and return a zero with the
-        //:   same sign as 'value'.
+        //:   'std::numeric_limits<Decimal128>::min()' then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return a zero with the same
+        //:   sign as 'value'.
         //:
         //: o Otherwise if 'value' needs more than
         //:   'std::numeric_limits<Decimal128>::max_digit' significant decimal
-        //:   digits to represent then raise the "inexact" floating-point
-        //:   exception and return the 'value' rounded according to the
-        //:   rounding direction.
+        //:   digits to represent then return the 'value' rounded according to
+        //:   the rounding direction.
         //:
         //: o Otherwise return a 'Decimal128' object representing 'value'.
 
@@ -688,6 +726,21 @@ struct DecimalImpUtil_IntelDfp {
                           // -----------------------------
 
 // CLASS METHODS
+inline
+void DecimalImpUtil_IntelDfp::setErrno(_IDEC_flags flags)
+{
+    if (BID_INVALID_EXCEPTION  & flags) {
+        errno = EDOM;
+    }
+    else if (BID_OVERFLOW_EXCEPTION    & flags ||
+             BID_UNDERFLOW_EXCEPTION   & flags ||
+             BID_ZERO_DIVIDE_EXCEPTION & flags)
+    {
+        errno = ERANGE;
+    }
+}
+
+// CLASS METHODS
 
                         // Integer construction
 
@@ -820,6 +873,7 @@ DecimalImpUtil_IntelDfp::add(DecimalImpUtil_IntelDfp::ValueType32 lhs,
     DecimalImpUtil_IntelDfp::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_add(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -831,6 +885,7 @@ DecimalImpUtil_IntelDfp::add(DecimalImpUtil_IntelDfp::ValueType64 lhs,
     DecimalImpUtil_IntelDfp::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_add(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -842,6 +897,7 @@ DecimalImpUtil_IntelDfp::add(DecimalImpUtil_IntelDfp::ValueType128 lhs,
     DecimalImpUtil_IntelDfp::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_add(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -855,6 +911,7 @@ DecimalImpUtil_IntelDfp::subtract(DecimalImpUtil_IntelDfp::ValueType32 lhs,
     DecimalImpUtil_IntelDfp::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_sub(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -866,6 +923,7 @@ DecimalImpUtil_IntelDfp::subtract(DecimalImpUtil_IntelDfp::ValueType64 lhs,
     DecimalImpUtil_IntelDfp::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_sub(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -877,6 +935,7 @@ DecimalImpUtil_IntelDfp::subtract(DecimalImpUtil_IntelDfp::ValueType128 lhs,
     DecimalImpUtil_IntelDfp::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_sub(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -890,6 +949,7 @@ DecimalImpUtil_IntelDfp::multiply(DecimalImpUtil_IntelDfp::ValueType32 lhs,
     DecimalImpUtil_IntelDfp::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_mul(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -901,6 +961,7 @@ DecimalImpUtil_IntelDfp::multiply(DecimalImpUtil_IntelDfp::ValueType64 lhs,
     DecimalImpUtil_IntelDfp::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_mul(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -912,6 +973,7 @@ DecimalImpUtil_IntelDfp::multiply(DecimalImpUtil_IntelDfp::ValueType128 lhs,
     DecimalImpUtil_IntelDfp::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_mul(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -925,6 +987,7 @@ DecimalImpUtil_IntelDfp::divide(DecimalImpUtil_IntelDfp::ValueType32 lhs,
     DecimalImpUtil_IntelDfp::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_div(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -936,6 +999,7 @@ DecimalImpUtil_IntelDfp::divide(DecimalImpUtil_IntelDfp::ValueType64 lhs,
     DecimalImpUtil_IntelDfp::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_div(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -947,6 +1011,7 @@ DecimalImpUtil_IntelDfp::divide(DecimalImpUtil_IntelDfp::ValueType128 lhs,
     DecimalImpUtil_IntelDfp::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_div(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -989,7 +1054,9 @@ DecimalImpUtil_IntelDfp::less(DecimalImpUtil_IntelDfp::ValueType32 lhs,
                               DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid32_quiet_less(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid32_quiet_less(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -998,7 +1065,9 @@ DecimalImpUtil_IntelDfp::less(DecimalImpUtil_IntelDfp::ValueType64 lhs,
                               DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid64_quiet_less(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid64_quiet_less(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -1007,7 +1076,9 @@ DecimalImpUtil_IntelDfp::less(DecimalImpUtil_IntelDfp::ValueType128 lhs,
                               DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid128_quiet_less(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid128_quiet_less(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
                         // Greater Than Functions
@@ -1018,7 +1089,9 @@ DecimalImpUtil_IntelDfp::greater(DecimalImpUtil_IntelDfp::ValueType32 lhs,
                                  DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid32_quiet_greater(lhs.d_raw, rhs.d_raw, &flags);
+    bool res =  __bid32_quiet_greater(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -1026,7 +1099,9 @@ bool DecimalImpUtil_IntelDfp::greater(DecimalImpUtil_IntelDfp::ValueType64 lhs,
                                       DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid64_quiet_greater(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid64_quiet_greater(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -1035,7 +1110,9 @@ DecimalImpUtil_IntelDfp::greater(DecimalImpUtil_IntelDfp::ValueType128 lhs,
                                  DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid128_quiet_greater(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid128_quiet_greater(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
                         // Less Or Equal Functions
@@ -1046,7 +1123,9 @@ DecimalImpUtil_IntelDfp::lessEqual(DecimalImpUtil_IntelDfp::ValueType32 lhs,
                                    DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid32_quiet_less_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid32_quiet_less_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -1055,7 +1134,9 @@ DecimalImpUtil_IntelDfp::lessEqual(DecimalImpUtil_IntelDfp::ValueType64 lhs,
                                    DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid64_quiet_less_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid64_quiet_less_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -1064,7 +1145,9 @@ DecimalImpUtil_IntelDfp::lessEqual(DecimalImpUtil_IntelDfp::ValueType128 lhs,
                                    DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid128_quiet_less_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid128_quiet_less_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
                         // Greater Or Equal Functions
@@ -1075,7 +1158,9 @@ DecimalImpUtil_IntelDfp::greaterEqual(DecimalImpUtil_IntelDfp::ValueType32 lhs,
                                       DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid32_quiet_greater_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid32_quiet_greater_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -1084,7 +1169,9 @@ DecimalImpUtil_IntelDfp::greaterEqual(DecimalImpUtil_IntelDfp::ValueType64 lhs,
                                       DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid64_quiet_greater_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid64_quiet_greater_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -1094,7 +1181,9 @@ DecimalImpUtil_IntelDfp::greaterEqual(
                                      DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid128_quiet_greater_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid128_quiet_greater_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
                         // Equality Functions
@@ -1105,7 +1194,9 @@ DecimalImpUtil_IntelDfp::equal(DecimalImpUtil_IntelDfp::ValueType32 lhs,
                                DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid32_quiet_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid32_quiet_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -1114,7 +1205,9 @@ DecimalImpUtil_IntelDfp::equal(DecimalImpUtil_IntelDfp::ValueType64 lhs,
                                DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid64_quiet_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid64_quiet_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -1123,7 +1216,9 @@ DecimalImpUtil_IntelDfp::equal(DecimalImpUtil_IntelDfp::ValueType128 lhs,
                                DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid128_quiet_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid128_quiet_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
                         // Inequality Functions
@@ -1134,7 +1229,9 @@ DecimalImpUtil_IntelDfp::notEqual(DecimalImpUtil_IntelDfp::ValueType32 lhs,
                                   DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid32_quiet_not_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid32_quiet_not_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -1143,7 +1240,9 @@ DecimalImpUtil_IntelDfp::notEqual(DecimalImpUtil_IntelDfp::ValueType64 lhs,
                                   DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid64_quiet_not_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid64_quiet_not_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
 inline
@@ -1152,7 +1251,9 @@ DecimalImpUtil_IntelDfp::notEqual(DecimalImpUtil_IntelDfp::ValueType128 lhs,
                                   DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     _IDEC_flags flags(0);
-    return __bid128_quiet_not_equal(lhs.d_raw, rhs.d_raw, &flags);
+    bool res = __bid128_quiet_not_equal(lhs.d_raw, rhs.d_raw, &flags);
+    setErrno(flags);
+    return res;
 }
 
                         // Inter-type Conversion functions
@@ -1165,6 +1266,7 @@ DecimalImpUtil_IntelDfp::convertToDecimal32(
     DecimalImpUtil_IntelDfp::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_to_bid32(input.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -1176,6 +1278,7 @@ DecimalImpUtil_IntelDfp::convertToDecimal32(
     DecimalImpUtil_IntelDfp::ValueType32 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_to_bid32(input.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -1187,6 +1290,7 @@ DecimalImpUtil_IntelDfp::convertToDecimal64(
     DecimalImpUtil_IntelDfp::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_to_bid64(input.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -1198,6 +1302,7 @@ DecimalImpUtil_IntelDfp::convertToDecimal64(
     DecimalImpUtil_IntelDfp::ValueType64 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid128_to_bid64(input.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -1209,6 +1314,7 @@ DecimalImpUtil_IntelDfp::convertToDecimal128(
     DecimalImpUtil_IntelDfp::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid32_to_bid128(input.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -1220,6 +1326,7 @@ DecimalImpUtil_IntelDfp::convertToDecimal128(
     DecimalImpUtil_IntelDfp::ValueType128 retval;
     _IDEC_flags flags(0);
     retval.d_raw = __bid64_to_bid128(input.d_raw, &flags);
+    setErrno(flags);
     return retval;
 }
 
@@ -1232,6 +1339,7 @@ DecimalImpUtil_IntelDfp::binaryToDecimal32(float value)
     ValueType32 result;
     _IDEC_flags flags(0);
     result.d_raw = __binary32_to_bid32(value, &flags);
+    setErrno(flags);
     return result;
 }
 
@@ -1242,6 +1350,7 @@ DecimalImpUtil_IntelDfp::binaryToDecimal32(double value)
     ValueType32 result;
     _IDEC_flags flags(0);
     result.d_raw = __binary64_to_bid32(value, &flags);
+    setErrno(flags);
     return result;
 }
 
@@ -1252,6 +1361,7 @@ DecimalImpUtil_IntelDfp::binaryToDecimal64(float value)
     ValueType64 result;
     _IDEC_flags flags(0);
     result.d_raw = __binary32_to_bid64(value, &flags);
+    setErrno(flags);
     return result;
 }
 
@@ -1262,6 +1372,7 @@ DecimalImpUtil_IntelDfp::binaryToDecimal64(double value)
     ValueType64 result;
     _IDEC_flags flags(0);
     result.d_raw = __binary64_to_bid64(value, &flags);
+    setErrno(flags);
     return result;
 }
 
@@ -1272,6 +1383,7 @@ DecimalImpUtil_IntelDfp::binaryToDecimal128(float value)
     ValueType128 result;
     _IDEC_flags flags(0);
     result.d_raw = __binary32_to_bid128(value, &flags);
+    setErrno(flags);
     return result;
 }
 
@@ -1282,6 +1394,7 @@ DecimalImpUtil_IntelDfp::binaryToDecimal128(double value)
     ValueType128 result;
     _IDEC_flags flags(0);
     result.d_raw = __binary64_to_bid128(value, &flags);
+    setErrno(flags);
     return result;
 }
 
