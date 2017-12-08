@@ -27,8 +27,8 @@ namespace BloombergLP {
                                              "." STRINGIFY(BDL_VERSION_MINOR) \
                                              "." STRINGIFY(REQUIRED_BDL_PATCH)
 
-// For the 3.3.x release series, 'btl' is versioned independently of 'bsl'.
-#define BTL_VERSION_PATCH 2
+// For the 3.4.x release series, 'btl' is versioned independently of 'bsl'.
+#define BTL_VERSION_PATCH 0
 #define BTLSCM_VERSION_STRING "BLP_LIB_BDE_BTL_" STRINGIFY(BTL_VERSION_MAJOR) \
                                              "." STRINGIFY(BTL_VERSION_MINOR) \
                                              "." STRINGIFY(BTL_VERSION_PATCH)
