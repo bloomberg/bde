@@ -494,10 +494,13 @@ class MultiQueueThreadPool_Queue {
         // if the queue is not paused schedule a callback from the associated
         // thread pool.  The behavior is undefined if this queue is empty.
 
-    void prepareForDeletion(const Job& functor);
-        // Permanently disable enqueuing to this queue and schedule the
-        // specified 'functor' to be executed by a thread from the associated
-        // thread pool.
+    bool prepareForDeletion(const Job& functor, const Job& functorIfProcessor);
+        // Permanently disable enqueuing to this queue.  If the calling thread
+        // is not the current thread processing a job, return 'false' and
+        // schedule the specified 'functor' to be executed by a thread from the
+        // associated thread pool.  Otherwise, return 'true' and schedule the
+        // specified 'functorIfProcessor' to be executed by a thread from the
+        // associated thread pool
 
     int pushBack(const Job& functor);
         // Enqueue the specified 'functor' at the end of this queue.  Return 0
@@ -747,39 +750,33 @@ class MultiQueueThreadPool {
         // pool is owned by this object, and ensure that at least the minimum
         // number of processing threads are started.  Return 0 on success, and
         // a non-zero value otherwise.  This method will block if any thread is
-        // executing 'drain', 'stop', or 'shutdown' at the time of the call.
-        // This method has no effect if this thread pool has already been
-        // started.  Note that any paused queues remain paused.
+        // executing 'stop' or 'shutdown' at the time of the call.  This method
+        // has no effect if this thread pool has already been started.  Note
+        // that any paused queues remain paused.
 
     void drain();
         // Wait until all queues are empty.  This method waits until all
         // non-paused queues are empty without disabling the queues (and may
         // thus wait indefinitely).  The queues and/or the thread pool may be
         // either enabled or disabled when this method is called.  This method
-        // may be called on a stopped or started thread pool.  This method will
-        // block if any thread is executing 'start', 'stop', or 'shutdown' at
-        // the time of the call.  Note that 'drain' does not attempt to delete
-        // queues directly.  However, as a side-effect of emptying all queues,
-        // any queue for which 'deleteQueue' was called previously will be
-        // deleted before 'drain' returns.  Note also that this method waits by
-        // repeatedly yielding.
+        // may be called on a stopped or started thread pool.  Note that
+        // 'drain' does not attempt to delete queues directly.  However, as a
+        // side-effect of emptying all queues, any queue for which
+        // 'deleteQueue' was called previously will be deleted before 'drain'
+        // returns.  Note also that this method waits by repeatedly yielding.
 
     void stop();
         // Disable queuing on all queues and wait until all non-paused queues
         // are empty.  Then, stop the thread pool if the thread pool is owned
-        // by this object.  This method will block if any thread is executing
-        // 'start' or 'drain' or 'shutdown' at the time of the call.  Note that
-        // 'stop' does not attempt to delete queues directly.  However, as a
-        // side-effect of emptying all queues, any queue for which
-        // 'deleteQueue' was called previously will be deleted before 'stop'
-        // unblocks.
+        // by this object.  Note that 'stop' does not attempt to delete queues
+        // directly.  However, as a side-effect of emptying all queues, any
+        // queue for which 'deleteQueue' was called previously will be deleted
+        // before 'stop' unblocks.
 
     void shutdown();
         // Disable queuing on all queues, and wait until all non-paused queues
         // are empty.  Then, delete all queues, and shut down the thread pool
-        // if the thread pool is owned by this object.  This method will block
-        // if any thread is executing 'start' or 'drain' or 'stop' at the time
-        // of the call.
+        // if the thread pool is owned by this object.
 
     // ACCESSORS
     bool isPaused(int id) const;
@@ -829,8 +826,6 @@ void MultiQueueThreadPool_Queue::setPaused()
 
     d_runState = e_PAUSED;
 
-    --d_multiQueueThreadPool_p->d_numActiveQueues;
-
     if (d_pauseCount) {
         d_pauseBlock.post(d_pauseCount);
         d_pauseCount = 0;
@@ -842,6 +837,11 @@ void MultiQueueThreadPool_Queue::setPaused()
 
         BSLS_ASSERT(0 == status);  (void)status;
     }
+
+    // Note that decreasing the number of active queues must be done last to
+    // ensure the 'enqueueJob' above will always succeed.
+
+    --d_multiQueueThreadPool_p->d_numActiveQueues;
 }
 
 // ACCESSORS
