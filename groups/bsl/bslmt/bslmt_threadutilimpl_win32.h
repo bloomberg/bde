@@ -371,6 +371,10 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
     static int setSpecific(const Key& key, const void *value);
         // Associate the specified 'value' with the specified thread-specific
         // 'key'.  Return 0 on success, and a non-zero value otherwise.
+
+    static unsigned int hardwareConcurrency();
+        // Return the number of concurrent threads supported by the
+        // implementation on success, and 0 otherwise.
 };
 
 // FREE OPERATORS

@@ -367,6 +367,10 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
         // Associate the specified 'value' with the specified thread-specific
         // 'key'.  Return 0 on success, and a non-zero value otherwise.  TBD
         // elaborate on what 'value' represents
+
+    static unsigned int hardwareConcurrency();
+        // Return the number of concurrent threads supported by the
+        // implementation on success, and 0 otherwise.
 };
 
 }  // close package namespace

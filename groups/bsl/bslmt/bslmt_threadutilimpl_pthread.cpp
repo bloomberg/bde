@@ -33,18 +33,20 @@ BSLS_IDENT_RCSID(bslmt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 #include <bsl_c_limits.h>
 
 #include <pthread.h>
+#include <unistd.h>        // sysconf, geteuid
 
 #if   defined(BSLS_PLATFORM_OS_AIX)
 # include <sys/types.h>    // geteuid
-# include <unistd.h>       // geteuid
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
-# include <unistd.h>       // sysconf
 # include <mach/mach.h>    // clock_sleep
 # include <mach/clock.h>   // clock_sleep
+# include <sys/sysctl.h>   // sysctl
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
 # include <sys/utsname.h>
 #elif defined(BSLS_PLATFORM_OS_LINUX)
 # include <sys/prctl.h>
+#elif defined(BSLS_PLATFORM_OS_HPUX)
+# include <sys/mpctl.h>
 #endif
 
 #include <errno.h>         // constant 'EINTR'
@@ -590,6 +592,45 @@ int bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::sleepUntil(
     return result == EINTR ? 0 : result;
 #endif
 }
+
+unsigned int
+bslmt::ThreadUtilImpl<bslmt::Platform::PosixThreads>::hardwareConcurrency()
+{
+    int result = 0;
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_AIX)          \
+ || defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_CYGWIN)
+
+    result = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
+
+#elif defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN)
+
+    int         mib[2];
+    bsl::size_t len = sizeof(result);
+
+    // set the mib for hw.ncpu.
+
+    mib[0] = CTL_HW;
+    mib[1] = HW_AVAILCPU;  // alternatively, try HW_NCPU
+
+    // Get the number of CPUs from the system.
+
+    sysctl(mib, 2, &result, &len, NULL, 0);
+
+    if (result < 1)
+    {
+        mib[1] = HW_NCPU;
+        sysctl(mib, 2, &result, &len, NULL, 0);
+    }
+
+#else
+
+    BSLMF_ASSERT(!"Unsupported platform");
+
+#endif
+
+    return 0 > result ? 0 : static_cast<unsigned int>(result);
+}
+
 
 }  // close enterprise namespace
 
