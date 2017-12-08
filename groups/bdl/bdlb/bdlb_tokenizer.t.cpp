@@ -170,7 +170,8 @@ using namespace bsl;
 // [  ] CONSTRUCTOR OF TOKENIZER WARNS IN DEBUG MODE ON DUPLICATE CHARACTERS
 // [ 9] DRQS 101217017
 // [10] STANDARD INPUT ITERATOR INTERFACE
-// [11] USAGE EXAMPLE
+// [11] STANDARD ALGORITHMS
+// [12] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -376,7 +377,7 @@ int main(int argc, char **argv)
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -519,6 +520,38 @@ int main(int argc, char **argv)
     ASSERT(EXPECTED3 == result3);
 //..
       } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // Testing support for 'advance' algorithm.
+        //
+        // Concerns:
+        //: 1 Iterators can be used with standard algorithms.
+        //
+        // Plan:
+        //: 1 Call 'advance' algorithm and verify that it compiles and works.
+        //    (C-1)
+        //
+        // Testing:
+        //   STANDARD ALGORITHMS
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTest 'bsl::advance'\n";
+        {
+            bsl::string data = "foo bar baz boo bee";
+            Obj         testData(data, " ");
+
+            ObjIt it = testData.begin();
+            ASSERTV(*it, "foo" == *it);
+
+            bsl::advance(it, 1);
+            ASSERTV(*it, "bar" == *it);
+
+            bsl::advance(it, 2);
+            ASSERTV(*it, "boo" == *it);
+
+            bsl::advance(it, 2);
+            ASSERTV(testData.end() == it);
+        }
+        } break;
       case 10: {
         // --------------------------------------------------------------------
         // Testing standard input iterator interface
@@ -586,8 +619,8 @@ int main(int argc, char **argv)
                  << "TESTING STANDARD INPUT OPERATOR INTEFACE" << endl
                  << "========================================" << endl;
 
-        //  Assert iterator_traits instantiates for Tokenizer::iterator
-        //  Assert iterator_traits finds the expected typedefs
+        // Assert iterator_traits instantiates for Tokenizer::iterator
+        // Assert iterator_traits finds the expected typedefs
         typedef bsl::iterator_traits<ObjIt>  IterTraits;
         ASSERT((bsl::is_same<IterTraits::difference_type, int>::value));
         ASSERT((bsl::is_same<IterTraits::value_type,
@@ -601,7 +634,7 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "\nTest operator*\n";
         {
-            //  Declare test data and types
+            // Declare test data and types
             bsl::string data = "foo bar baz";
             Obj         testData(data, " ");
 
@@ -620,7 +653,7 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "\nTest operator->\n";
         {
-            //  Declare test data and types
+            // Declare test data and types
             bsl::string data = "foo bar baz";
             Obj         testData(data, " ");
 
