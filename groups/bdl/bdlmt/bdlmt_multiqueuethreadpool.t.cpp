@@ -108,7 +108,8 @@ using namespace BloombergLP;
 // [22] PAUSE/DELETE INTERACTION
 // [23] DRQS 107865762: more than one task per queue to thread pool
 // [24] DRQS 107733386: pause queue can be indefinitely deferred
-// [25] USAGE EXAMPLE 1
+// [25] DRQS 112259433: 'drain' and 'deleteQueue' can deadlock
+// [26] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -393,6 +394,13 @@ void pauseQueueWithUniqueGuard(Obj          *pObj,
 void noopWithUniqueGuard()
 {
     UniqueGuard guard;
+}
+
+void deferredDeleteQueue(Obj *pObj, int id, bslmt::Latch *waitLatch)
+{
+    waitLatch->wait();
+    bslmt::ThreadUtil::microSleep(100000);
+    pObj->deleteQueue(id);
 }
 
 double now() {
@@ -1321,7 +1329,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1402,8 +1410,51 @@ int main(int argc, char *argv[]) {
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
-      case 24: {
+      case 25: {
+        // --------------------------------------------------------------------
+        // DRQS 112259433: 'drain' and 'deleteQueue' can deadlock
+        //
+        // Concerns:
+        //: 1 The 'drain' and 'deleteQueue' methods should not allow a
+        //:   deadlock.  This DRQS revealed a scenario where, if a thread is
+        //:   waiting on 'drain' and 'deleteQueue' is called from an executing
+        //:   job, a deadlock occurs.
+        //
+        // Plan:
+        //: 1 Recreate the scenario and verify the deadlock no longer occurs.
+        //
+        // Testing:
+        //   DRQS 112259433: 'drain' and 'deleteQueue' can deadlock
+        // --------------------------------------------------------------------
 
+        if (verbose) {
+            cout << "DRQS 112259433: 'drain' and 'deleteQueue' can deadlock"
+                 << endl
+                 << "======================================================"
+                 << endl;
+        }
+
+        Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
+
+        mX.start();
+
+        bslmt::Latch waitLatch(1);
+
+        int queueId = mX.createQueue();
+
+        mX.enqueueJob(queueId,
+                      bdlf::BindUtil::bind(&deferredDeleteQueue,
+                                           &mX,
+                                           queueId,
+                                           &waitLatch));
+
+        waitLatch.arrive();
+
+        mX.drain();
+
+        mX.stop();
+      }  break;
+      case 24: {
         // --------------------------------------------------------------------
         // DRQS 107733386: pause queue can be indefinitely deferred
         //
