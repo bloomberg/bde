@@ -414,14 +414,15 @@ class ObjectCatalog {
 
     struct Node {
         // PUBLIC DATA
-        union {
+        typedef union {
             // PUBLIC DATA
             bsls::ObjectBuffer<TYPE>            d_value;
 
             Node                               *d_next_p; // when free, pointer
                                                           // to next free node
-        }    d_payload;
-        int  d_handle;
+        } Payload;
+        Payload d_payload;
+        int     d_handle;
     };
 
     // DATA
