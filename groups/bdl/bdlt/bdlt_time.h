@@ -352,28 +352,28 @@ class Time {
         // Unspecified arguments default to 0.
 
     void setHour(int hour);
-        // Set the 'hour' attribute of this time object to the specified
+        // Set the "hour" attribute of this time object to the specified
         // 'hour'; if 'hour' is 24, set the remaining attributes of this object
         // to 0.  The behavior is undefined unless '0 <= hour <= 24'.
 
     void setMinute(int minute);
-        // Set the 'minute' attribute of this time object to the specified
+        // Set the "minute" attribute of this time object to the specified
         // 'minute'; if the 'hour' attribute is 24, set the 'hour' attribute to
         // 0.  The behavior is undefined unless '0 <= minute < 60'.
 
     void setSecond(int second);
-        // Set the 'second' attribute of this time object to the specified
+        // Set the "second" attribute of this time object to the specified
         // 'second'; if the 'hour' attribute is 24, set the 'hour' attribute to
         // 0.  The behavior is undefined unless '0 <= second < 60'.
 
     void setMillisecond(int millisecond);
-        // Set the 'millisecond' attribute of this time object to the specified
+        // Set the "millisecond" attribute of this time object to the specified
         // 'millisecond'; if the 'hour' attribute is 24, set the 'hour'
         // attribute to 0.  The behavior is undefined unless
         // '0 <= millisecond < 1000'.
 
     void setMicrosecond(int microsecond);
-        // Set the 'microsecond' attribute of this time object to the specified
+        // Set the "microsecond" attribute of this time object to the specified
         // 'microsecond'; if the 'hour' attribute is 24, set the 'hour'
         // attribute to 0.  The behavior is undefined unless
         // '0 <= microsecond < 1000'.
@@ -801,6 +801,21 @@ int Time::hour() const
 }
 
 inline
+int Time::microsecond() const
+{
+    return static_cast<int>(  microsecondsFromMidnight()
+                            % TimeUnitRatio::k_US_PER_MS);
+}
+
+inline
+int Time::millisecond() const
+{
+    return static_cast<int>(  microsecondsFromMidnight()
+                            / TimeUnitRatio::k_US_PER_MS
+                            % TimeUnitRatio::k_MS_PER_S);
+}
+
+inline
 int Time::minute() const
 {
     return static_cast<int>(  microsecondsFromMidnight()
@@ -814,21 +829,6 @@ int Time::second() const
     return static_cast<int>(  microsecondsFromMidnight()
                             / TimeUnitRatio::k_US_PER_S
                             % TimeUnitRatio::k_S_PER_M);
-}
-
-inline
-int Time::millisecond() const
-{
-    return static_cast<int>(  microsecondsFromMidnight()
-                            / TimeUnitRatio::k_US_PER_MS
-                            % TimeUnitRatio::k_MS_PER_S);
-}
-
-inline
-int Time::microsecond() const
-{
-    return static_cast<int>(  microsecondsFromMidnight()
-                            % TimeUnitRatio::k_US_PER_MS);
 }
 
                                   // Aspects
