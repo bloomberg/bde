@@ -292,7 +292,8 @@ namespace Case_Usage {
         // Report an error to the specified 'stream'.
     {
 //..
-// Then, we define the maximum number of traces that can happen at a time:
+// Then, we define the maximum number of traces that can happen at a time to be
+// 10:
 //..
         static const int maxSimultaneousTraces = 10;
 //..
@@ -1063,6 +1064,13 @@ int main(int argc, char *argv[])
         //:   requested in a single request at a specific time, and observe the
         //:   results, which for low values of actions requested, will be
         //:   *BEFORE* the time of the request.
+        //:
+        //: 4 Test passing invalid inputs to 'nextPermit' and verify that a
+        //:   non-zero value is returned with no modification to the passed
+        //:   'TimeInterval'.
+        //:
+        //: 5 Test 'nextPermit' on 'Throttle' objects configured as 'allow all'
+        //:   and 'allow none'.
         //
         // Testing:
         //   int nextPermit(bsls::TimeInterval *, int) const;
@@ -1072,52 +1080,60 @@ int main(int argc, char *argv[])
                              "==================\n";
 
         typedef bdlt::TimeUnitRatio TUR;
+        int rc;
 
         if (verbose) cout << "burst size == 1, not pre-consumed\n";
         {
-            Obj throttle = BDLMT_THROTTLE_INIT(
+            Obj mX = BDLMT_THROTTLE_INIT(
                                         1, TUR::k_NANOSECONDS_PER_MILLISECOND);
+            const Obj& X = mX;
 
             const bsls::TimeInterval start(
                 -Obj::k_TEN_YEARS_NANOSECONDS / TUR::k_NANOSECONDS_PER_SECOND);
 
             bsls::TimeInterval ti;
-            throttle.nextPermit(&ti, 1);
+            rc = X.nextPermit(&ti, 1);
+            ASSERTV(rc, 0 == rc);
             const Int64 microSecs = (ti - start).totalMicroseconds();
             ASSERTV(microSecs, 1000 == microSecs);
         }
 
         if (verbose) cout << "burst size == 1, 1 pre-consumed\n";
         {
-            Obj throttle = BDLMT_THROTTLE_INIT(
+            Obj mX = BDLMT_THROTTLE_INIT(
                                         1, TUR::k_NANOSECONDS_PER_MILLISECOND);
+            const Obj& X = mX;
 
             const bsls::TimeInterval start = u::clockTi();
-            ASSERT(throttle.requestPermission(1, start));
+            ASSERT(mX.requestPermission(1, start));
 
             bsls::TimeInterval ti;
-            throttle.nextPermit(&ti, 1);
+            rc = X.nextPermit(&ti, 1);
+            ASSERTV(rc, 0 == rc);
             const Int64 microSecs = (ti - start).totalMicroseconds();
             ASSERTV(microSecs, 1000 == microSecs);
         }
 
         if (verbose) cout << "burst size == 10, not pre-consumed\n";
         {
-            Obj throttle = BDLMT_THROTTLE_INIT(
+            Obj mX = BDLMT_THROTTLE_INIT(
                                        10, TUR::k_NANOSECONDS_PER_MILLISECOND);
+            const Obj& X = mX;
 
             const bsls::TimeInterval start(
                 -Obj::k_TEN_YEARS_NANOSECONDS / TUR::k_NANOSECONDS_PER_SECOND);
 
             for (int ii = 1; ii <= 10; ++ii) {
                 bsls::TimeInterval ti;
-                throttle.nextPermit(&ti, ii);
+                rc = X.nextPermit(&ti, ii);
+                ASSERTV(rc, 0 == rc);
                 const Int64 microSecs = (ti - start).totalMicroseconds();
                 ASSERTV(microSecs, ii * 1000 == microSecs);
             }
             for (int ii = 10; 1 <= ii; --ii) {
                 bsls::TimeInterval ti;
-                throttle.nextPermit(&ti, ii);
+                rc = X.nextPermit(&ti, ii);
+                ASSERTV(rc, 0 == rc);
                 const Int64 microSecs = (ti - start).totalMicroseconds();
                 ASSERTV(microSecs, ii * 1000 == microSecs);
             }
@@ -1125,21 +1141,24 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "burst size == 10, 10 pre-consumed\n";
         {
-            Obj throttle = BDLMT_THROTTLE_INIT(
+            Obj mX = BDLMT_THROTTLE_INIT(
                                        10, TUR::k_NANOSECONDS_PER_MILLISECOND);
+            const Obj& X = mX;
 
             const bsls::TimeInterval start = u::clockTi();
-            ASSERT(throttle.requestPermission(10, start));
+            ASSERT(mX.requestPermission(10, start));
 
             for (int ii = 1; ii <= 10; ++ii) {
                 bsls::TimeInterval ti;
-                throttle.nextPermit(&ti, ii);
+                rc = X.nextPermit(&ti, ii);
+                ASSERTV(rc, 0 == rc);
                 const Int64 microSecs = (ti - start).totalMicroseconds();
                 ASSERTV(microSecs, ii * 1000 == microSecs);
             }
             for (int ii = 10; 1 <= ii; --ii) {
                 bsls::TimeInterval ti;
-                throttle.nextPermit(&ti, ii);
+                rc = X.nextPermit(&ti, ii);
+                ASSERTV(rc, 0 == rc);
                 const Int64 microSecs = (ti - start).totalMicroseconds();
                 ASSERTV(microSecs, ii * 1000 == microSecs);
             }
@@ -1147,24 +1166,103 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "burst size == 10, 5 pre-consumed\n";
         {
-            Obj throttle = BDLMT_THROTTLE_INIT(
+            Obj mX = BDLMT_THROTTLE_INIT(
                                        10, TUR::k_NANOSECONDS_PER_MILLISECOND);
+            const Obj& X = mX;
 
             const bsls::TimeInterval start = u::clockTi();
-            ASSERT(throttle.requestPermission(5, start));
+            ASSERT(mX.requestPermission(5, start));
 
             for (int ii = 1; ii <= 10; ++ii) {
                 bsls::TimeInterval ti;
-                throttle.nextPermit(&ti, ii);
+                rc = X.nextPermit(&ti, ii);
+                ASSERTV(rc, 0 == rc);
                 const Int64 microSecs = (ti - start).totalMicroseconds();
                 ASSERTV(ii, microSecs, (-5 + ii) * 1000 == microSecs);
             }
             for (int ii = 10; 1 <= ii; --ii) {
                 bsls::TimeInterval ti;
-                throttle.nextPermit(&ti, ii);
+                rc = X.nextPermit(&ti, ii);
+                ASSERTV(rc, 0 == rc);
                 const Int64 microSecs = (ti - start).totalMicroseconds();
                 ASSERTV(ii, microSecs, (-5 + ii) * 1000 == microSecs);
             }
+        }
+
+        if (verbose) cout << "allow all, not preconsumed\n";
+        {
+            Obj mX = BDLMT_THROTTLE_INIT_ALLOW_ALL;
+            const Obj& X = mX;
+
+            const bsls::TimeInterval start(
+                -Obj::k_TEN_YEARS_NANOSECONDS / TUR::k_NANOSECONDS_PER_SECOND);
+
+            bsls::TimeInterval ti;
+
+            for (int ii = 1; ii <= 1000 * 1000 * 1000; ii *= 10) {
+                rc = X.nextPermit(&ti, ii);
+                ASSERTV(rc, 0 == rc);
+                ASSERT(start == ti);
+            }
+            for (int ii = 1000 * 1000 * 1000; 1 <= ii; ii /= 10) {
+                rc = X.nextPermit(&ti, ii);
+                ASSERTV(rc, 0 == rc);
+                ASSERT(start == ti);
+            }
+
+            rc = X.nextPermit(&ti, INT_MAX);
+            ASSERTV(rc, 0 == rc);
+            ASSERT(start == ti);
+        }
+
+        if (verbose) cout << "invalid input, not pre-consumed\n";
+        {
+            const Obj mX = BDLMT_THROTTLE_INIT(
+                                       10, TUR::k_NANOSECONDS_PER_MILLISECOND);
+            const Obj& X = mX;
+
+            const bsls::TimeInterval cmpTi(-55, 100);    // random value
+            bsls::TimeInterval       ti(cmpTi);
+
+            rc = X.nextPermit(&ti, 0);
+            ASSERT(0 != rc);
+            ASSERT(cmpTi == ti);
+            rc = X.nextPermit(&ti, -1);
+            ASSERT(0 != rc);
+            ASSERT(cmpTi == ti);
+            rc = X.nextPermit(&ti, -1000);
+            ASSERT(0 != rc);
+            ASSERT(cmpTi == ti);
+            rc = X.nextPermit(&ti, INT_MIN);
+            ASSERT(0 != rc);
+            ASSERT(cmpTi == ti);
+
+            rc = X.nextPermit(&ti, 11);
+            ASSERT(0 != rc);
+            ASSERT(cmpTi == ti);
+            rc = X.nextPermit(&ti, 100);
+            ASSERT(0 != rc);
+            ASSERT(cmpTi == ti);
+            rc = X.nextPermit(&ti, 10 * 1000);
+            ASSERT(0 != rc);
+            ASSERT(cmpTi == ti);
+            rc = X.nextPermit(&ti, INT_MAX);
+            ASSERT(0 != rc);
+            ASSERT(cmpTi == ti);
+
+            const Obj noneX = BDLMT_THROTTLE_INIT_ALLOW_NONE;
+            for (int ii = -10; ii <= 100; ++ii) {
+                rc = noneX.nextPermit(&ti, ii);
+                ASSERT(0 != rc);
+                ASSERT(cmpTi == ti);
+            }
+
+            rc = noneX.nextPermit(&ti, INT_MIN);
+            ASSERT(0 != rc);
+            ASSERT(cmpTi == ti);
+            rc = noneX.nextPermit(&ti, INT_MAX);
+            ASSERT(0 != rc);
+            ASSERT(cmpTi == ti);
         }
       } break;
       case 11: {

@@ -37,20 +37,27 @@ void Throttle::initialize(int                         maxSimultaneousActions,
                 bsls::SystemClockType::e_REALTIME  == clockType);
 
     AtomicOps::setInt64(&d_prevLeakTime, -k_TEN_YEARS_NANOSECONDS);
-    d_nanosecondsPerAction = 0 == maxSimultaneousActions
-                           ? k_ALLOW_NONE
-                           : nanosecondsPerAction
-                           ? nanosecondsPerAction
-                           : k_ALLOW_ALL;
+    if      (0 == maxSimultaneousActions) {
+        d_nanosecondsPerAction = k_ALLOW_NONE;
+    }
+    else if (0 == nanosecondsPerAction) {
+        d_nanosecondsPerAction = k_ALLOW_ALL;
+    }
+    else {
+        d_nanosecondsPerAction = nanosecondsPerAction;
+    }
 
     // If 'd_nanosecondsPerAction' is set to 'allow all' or 'allow none', then
     // it doesn't matter what 'd_nanosecondsPerTotalReset' is.
 
     d_nanosecondsPerTotalReset = maxSimultaneousActions * nanosecondsPerAction;
-    d_maxSimultaneousActions   = 0 == nanosecondsPerAction
-                               ? INT_MAX
-                               : maxSimultaneousActions;
-    d_clockType                = clockType;
+    if (0 == nanosecondsPerAction) {
+        d_maxSimultaneousActions = INT_MAX;
+    }
+    else {
+        d_maxSimultaneousActions = maxSimultaneousActions;
+    }
+    d_clockType = clockType;
 }
 
 bool Throttle::requestPermission(const bsls::TimeInterval& now)
@@ -69,10 +76,10 @@ bool Throttle::requestPermission(const bsls::TimeInterval& now)
         if (timeDiff < d_nanosecondsPerAction) {
             return false;                                             // RETURN
         }
-        const Int64 nextLeakTime = d_nanosecondsPerTotalReset <= timeDiff
-                                 ? currentTime - d_nanosecondsPerTotalReset +
-                                                         d_nanosecondsPerAction
-                                 : prevLeakTime + d_nanosecondsPerAction;
+        const Int64 nextLeakTime =
+            d_nanosecondsPerTotalReset <= timeDiff
+            ? currentTime - d_nanosecondsPerTotalReset + d_nanosecondsPerAction
+            : prevLeakTime + d_nanosecondsPerAction;
         const Int64 swappedLeakTime = AtomicOps::testAndSwapInt64AcqRel(
                                                                &d_prevLeakTime,
                                                                prevLeakTime,
@@ -137,13 +144,16 @@ bool Throttle::requestPermission(int                       numActions,
 // ACCESSOR
 int Throttle::nextPermit(bsls::TimeInterval *result, int numActions) const
 {
-    if (numActions <= 0 || d_maxSimultaneousActions < numActions) {
+    if (numActions <= 0 || d_maxSimultaneousActions < numActions ||
+                                      k_ALLOW_NONE == d_nanosecondsPerAction) {
         return -1;                                                    // RETURN
     }
 
+    // Note that 'k_ALLOW_ALL < 0', otherwise '0 < d_nanosecondsPerAction'.
+
     result->setTotalNanoseconds(AtomicOps::getInt64Acquire(
-                           const_cast<AtomicTypes::Int64 *>(&d_prevLeakTime)) +
-                                          numActions * d_nanosecondsPerAction);
+               const_cast<AtomicTypes::Int64 *>(&d_prevLeakTime)) +
+                      numActions * bsl::max<Int64>(0, d_nanosecondsPerAction));
     return 0;
 }
 
