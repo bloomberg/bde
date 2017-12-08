@@ -38,18 +38,20 @@ EventCallbackRegistry::EventCallbackRegistry(bslma::Allocator *basicAllocator)
 // MANIPULATORS
 int EventCallbackRegistry::invoke(const Event& event) const
 {
-    CallbackMap::const_iterator it = d_callbacks.find(event.handle());
-    if (d_callbacks.end() == it) {
+    CallbackMap::const_iterator handleIter = d_callbacks.find(event.handle());
+    if (d_callbacks.end() == handleIter) {
         return 1;                                                     // RETURN
     }
 
-    for (EventCallbackVector::const_iterator jt = it->second.begin();
-         jt != it->second.end(); ++jt) {
-        if (jt->first == event.type()) {
+    const EventCallbackVector&               eventsVec = handleIter->second;
+    for (EventCallbackVector::const_iterator eventIter = eventsVec.begin();
+         eventIter != eventsVec.end(); ++eventIter) {
+        if (eventIter->first == event.type()) {
             // Keep a copy of the shared pointer in scope while the callback is
             // executing so the one in the map can be removed or replaced.
 
-            bsl::shared_ptr<EventManager::Callback> callback = jt->second;
+            bsl::shared_ptr<EventManager::Callback> callback =
+                                                             eventIter->second;
             (*callback)();
             return 0;                                                 // RETURN
         }
@@ -67,50 +69,54 @@ uint32_t EventCallbackRegistry::registerCallback(
     managedCallback.createInplace(d_allocator_p, bsl::allocator_arg_t(),
                                   d_allocator_p, callback);
 
-    CallbackMap::iterator it = d_callbacks.find(event.handle());
-    if (d_callbacks.end() == it) {
+    CallbackMap::iterator handleIter = d_callbacks.find(event.handle());
+    if (d_callbacks.end() == handleIter) {
         // This is a new callback for this socket.
-        it = d_callbacks.insert(bsl::make_pair(event.handle(),
+        handleIter = d_callbacks.insert(bsl::make_pair(event.handle(),
                                                EventCallbackVector())).first;
     }
 
-    uint32_t existingMask = 0;
-    for (EventCallbackVector::iterator jt = it->second.begin();
-         jt != it->second.end();
-         ++jt) {
-        existingMask |= bdlb::BitMaskUtil::eq(jt->first);
-        if (event.type() == jt->first) {
+    uint32_t             existingMask = 0;
+    EventCallbackVector& eventsVec = handleIter->second;
+    for (EventCallbackVector::iterator eventIter = eventsVec.begin();
+         eventIter != eventsVec.end();
+         ++eventIter) {
+        existingMask |= bdlb::BitMaskUtil::eq(eventIter->first);
+        if (event.type() == eventIter->first) {
             // Replace the previous callback
-            jt->second.swap(managedCallback);
+            eventIter->second.swap(managedCallback);
             return 0;                                                 // RETURN
         }
     }
 
     // This is a new callback for this event.
-    it->second.emplace_back(event.type(), managedCallback);
+    eventsVec.emplace_back(event.type(), managedCallback);
     ++d_size;
     return existingMask | bdlb::BitMaskUtil::eq(event.type());
 }
 
 bool EventCallbackRegistry::remove(const Event& event)
 {
-    CallbackMap::iterator it = d_callbacks.find(event.handle());
-    if (d_callbacks.end() == it) {
+    CallbackMap::iterator handleIter = d_callbacks.find(event.handle());
+    if (d_callbacks.end() == handleIter) {
         return false;                                                 // RETURN
     }
 
-    EventCallbackVector::iterator jt;
-    for (jt = it->second.begin();
-         jt != it->second.end() && jt->first != event.type();
-         ++jt) ;
+    EventCallbackVector&          eventsVec = handleIter->second;
+    EventCallbackVector::iterator eventIter;
+    for (eventIter = eventsVec.begin();
+         eventIter != eventsVec.end() && eventIter->first != event.type();
+         ++eventIter) ;
 
-    if (it->second.end() == jt) {
+    if (eventsVec.end() == eventIter) {
         return false;                                                 // RETURN
     }
 
-    if (it->second.end() == it->second.erase(jt)) {
+    eventsVec.erase(eventIter);
+
+    if (eventsVec.empty()) {
         // Last event for this socket removed
-        d_callbacks.erase(it);
+        d_callbacks.erase(handleIter);
     }
     --d_size;
     return true;
@@ -124,13 +130,13 @@ void EventCallbackRegistry::removeAll()
 
 int EventCallbackRegistry::removeSocket(const SocketHandle::Handle& socket)
 {
-    CallbackMap::iterator it = d_callbacks.find(socket);
-    if (d_callbacks.end() == it) {
+    CallbackMap::iterator handleIter = d_callbacks.find(socket);
+    if (d_callbacks.end() == handleIter) {
         return 0;                                                     // RETURN
     }
 
-    int numRemoved = static_cast<int>(it->second.size());
-    d_callbacks.erase(it);
+    int numRemoved = static_cast<int>(handleIter->second.size());
+    d_callbacks.erase(handleIter);
     d_size -= numRemoved;
     return numRemoved;
 }
@@ -138,29 +144,31 @@ int EventCallbackRegistry::removeSocket(const SocketHandle::Handle& socket)
 // ACCESSORS
 bool EventCallbackRegistry::contains(const Event& event) const
 {
-    CallbackMap::const_iterator it = d_callbacks.find(event.handle());
-    if (d_callbacks.end() == it) {
+    CallbackMap::const_iterator handleIter = d_callbacks.find(event.handle());
+    if (d_callbacks.end() == handleIter) {
         return false;                                                 // RETURN
     }
 
-    EventCallbackVector::const_iterator jt;
-    for (jt = it->second.begin();
-         jt != it->second.end() && jt->first != event.type();
-         ++jt) ;
+    const EventCallbackVector&          eventsVec = handleIter->second;
+    EventCallbackVector::const_iterator eventIter;
+    for (eventIter = eventsVec.begin();
+         eventIter != eventsVec.end() && eventIter->first != event.type();
+         ++eventIter) ;
 
-    return it->second.end() != jt;
+    return eventsVec.end() != eventIter;
 }
 
 uint32_t EventCallbackRegistry::getRegisteredEventMask(
                                    const SocketHandle::Handle& socket) const
 {
     uint32_t mask = 0;
-    CallbackMap::const_iterator it = d_callbacks.find(socket);
-    if (d_callbacks.end() != it) {
-        for (EventCallbackVector::const_iterator jt = it->second.begin();
-             jt != it->second.end();
-             ++jt) {
-            mask |= bdlb::BitMaskUtil::eq(jt->first);
+    CallbackMap::const_iterator handleIter = d_callbacks.find(socket);
+    if (d_callbacks.end() != handleIter) {
+        const EventCallbackVector& eventsVec = handleIter->second;
+        for (EventCallbackVector::const_iterator eventIter = eventsVec.begin();
+             eventIter != eventsVec.end();
+             ++eventIter) {
+            mask |= bdlb::BitMaskUtil::eq(eventIter->first);
         }
     }
 

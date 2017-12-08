@@ -653,18 +653,25 @@ int main(int argc, char *argv[])
         //:
         //: 3 After removeAll(), no callback is executed for any event.
         //:
-        //: 4 The specified allocator, and not the default allocator, is
+        //: 4 Calling 'remove' for a specified event on a specified handle
+        //:   removes only that event on that handle.  Any other events
+        //:   associated with that handle remain unchanged.  The handle itself
+        //:   is removed only if the event being removed is the last registered
+        //:   event for that handle.
+        //:
+        //: 5 The specified allocator, and not the default allocator, is
         //:   used for all operations.
         //
         // Plan:
         //: 1 This is a simple direct test of the specified methods. Use two
         //:   arbitrary integers to represent "sockets" and register a write
         //:   event for each, asserting that the specific callback is invoked
-        //:   as appropriate. (C-1..3)
+        //:   as appropriate. Additionally, use the accessor methods to confirm
+        //:   that the object state is as expected. (C-1..4)
         //:
         //: 2 Install a test allocator as the default allocator, supply a
         //:   different test allocator to the registry, and assert that the
-        //:   supplied allocator is used rather than the default allocator (C4)
+        //:   supplied allocator is used rather than the default allocator (C5)
         //
         // Testing:
         //   EventCallbackRegistry(bslma::Allocator *ba = 0);
@@ -672,22 +679,17 @@ int main(int argc, char *argv[])
         //   uint32_t remove(const Event& event);
         //   void     removeAll();
         //   bool     contains(const Event& event) const;
-
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Register/Remove"
-                          << "\n=====================" << endl;
+                          << "\n=======================" << endl;
 
         bslma::TestAllocator da("default", veryVeryVerbose);
         bslma::TestAllocator ta("test", veryVeryVerbose);
         {
-            // Create the callbacks prior to setting the default allocator,
-            // since there isn't a good way to get an ordinary (non-shared)
-            // Bind object without using the default allocator.  The
-            // temporaries used below will use the ordinary (non-test) default
-            // allocator.
             bsltf::AllocTestType arg1(1, &ta);
             bsltf::AllocTestType arg2(2, &ta);
+
             EventManager::Callback callback1(
                                        bsl::allocator_arg_t(),
                                        &ta,
@@ -699,41 +701,96 @@ int main(int argc, char *argv[])
                                        bdlf::BindUtil::bind(&checkArgument,
                                                             arg2));
 
-            // Nothing after this point should require the use of the default
-            // allocator, so install a test allocator to assert that.
-            bslma::DefaultAllocatorGuard guard(&da);
-            EventCallbackRegistry mX(&ta);
+            SocketHandle::Handle handle1 = (SocketHandle::Handle) 123;
+            SocketHandle::Handle handle2 = (SocketHandle::Handle) 456;
 
-            SocketHandle::Handle handle1 = (SocketHandle::Handle)123;
-            SocketHandle::Handle handle2 = (SocketHandle::Handle)456;
+            EventType::Type read  = EventType::e_READ;
             EventType::Type write = EventType::e_WRITE;
 
             Event event1(handle1, write);
             Event event2(handle2, write);
+            Event event3(handle1, read);
 
-            mX.registerCallback(event1, callback1);
-            mX.registerCallback(event2, callback2);
+            {
+                EventCallbackRegistry mX;
+                ASSERTV(mX.numSockets(),   0 == mX.numSockets());
+                ASSERTV(mX.numCallbacks(), 0 == mX.numCallbacks());
 
-            expectedArgument = 2;
-            int rc = mX.invoke(event2);
-            ASSERT(0 == rc);
-            ASSERT(mX.contains(event2));
+                mX.registerCallback(event1, callback1);
+                ASSERTV(mX.numSockets(),   1 == mX.numSockets());
+                ASSERTV(mX.numCallbacks(), 1 == mX.numCallbacks());
 
-            expectedArgument = 1;
-            rc = mX.invoke(event1);
-            ASSERT(0 == rc);
-            ASSERT(mX.contains(event1));
+                mX.remove(event1);
+                int rc = mX.invoke(event1);
+                ASSERT(0 != rc);
+                ASSERT(!mX.contains(event1));
+                ASSERTV(mX.numSockets(),   0 == mX.numSockets());
+                ASSERTV(mX.numCallbacks(), 0 == mX.numCallbacks());
+            }
+            {
+                EventCallbackRegistry mX;
+                ASSERTV(mX.numSockets(),   0 == mX.numSockets());
+                ASSERTV(mX.numCallbacks(), 0 == mX.numCallbacks());
 
-            mX.remove(event1);
-            rc = mX.invoke(event1);
-            ASSERT(0 != rc);
-            ASSERT(!mX.contains(event1));
-            ASSERT(mX.contains(event2));
+                mX.registerCallback(event1, callback1);
+                mX.registerCallback(event3, callback2);
+                ASSERTV(mX.numSockets(),   1 == mX.numSockets());
+                ASSERTV(mX.numCallbacks(), 2 == mX.numCallbacks());
 
-            mX.removeAll();
-            rc = mX.invoke(event2);
-            ASSERT(0 != rc);
-            ASSERT(!mX.contains(event2));
+                mX.remove(event3);
+                int rc = mX.invoke(event3);
+                ASSERT(0 != rc);
+                ASSERT( mX.contains(event1));
+                ASSERT(!mX.contains(event3));
+                ASSERTV(mX.numSockets(),   1 == mX.numSockets());
+                ASSERTV(mX.numCallbacks(), 1 == mX.numCallbacks());
+
+                expectedArgument = 1;
+                rc = mX.invoke(event1);
+                ASSERT(0 == rc);
+                ASSERT( mX.contains(event1));
+                ASSERT(!mX.contains(event3));
+                ASSERTV(mX.numSockets(),   1 == mX.numSockets());
+                ASSERTV(mX.numCallbacks(), 1 == mX.numCallbacks());
+
+                mX.remove(event1);
+                rc = mX.invoke(event1);
+                ASSERT(0 != rc);
+                ASSERT(!mX.contains(event1));
+                ASSERT(!mX.contains(event3));
+                ASSERTV(mX.numSockets(),   0 == mX.numSockets());
+                ASSERTV(mX.numCallbacks(), 0 == mX.numCallbacks());
+            }
+            {
+                // Nothing after this point should require the use of the default
+                // allocator, so install a test allocator to assert that.
+                bslma::DefaultAllocatorGuard guard(&da);
+                EventCallbackRegistry mX(&ta);
+
+                mX.registerCallback(event1, callback1);
+                mX.registerCallback(event2, callback2);
+
+                expectedArgument = 2;
+                int rc = mX.invoke(event2);
+                ASSERT(0 == rc);
+                ASSERT(mX.contains(event2));
+
+                expectedArgument = 1;
+                rc = mX.invoke(event1);
+                ASSERT(0 == rc);
+                ASSERT(mX.contains(event1));
+
+                mX.remove(event1);
+                rc = mX.invoke(event1);
+                ASSERT(0 != rc);
+                ASSERT(!mX.contains(event1));
+                ASSERT(mX.contains(event2));
+
+                mX.removeAll();
+                rc = mX.invoke(event2);
+                ASSERT(0 != rc);
+                ASSERT(!mX.contains(event2));
+            }
         }
         ASSERT(0 == da.numAllocations());
         ASSERT(0 <  ta.numAllocations());
