@@ -1,5 +1,17 @@
-bsl-internal (3.3.2.0) unstable; urgency=low
+bsl-internal (3.4.0.0) unstable; urgency=low
 
+  * b34426a7a Merge pull request #1561 from mgiroux/bump-version-to-3.4.0
+  * 71987d129 Bump all non-bsl versions to 3.4.0
+  * c544cea39 Merge pull request #1557 from hversche/pr/1553-rebased-releases/3.3.x
+  * 37f7c6da8 Merge pull request #1556 from hversche/pr/1555-rebased-releases/3.3.x
+  * 0a9aa82bb drqs-111478499: 'bdlcc_objectcatalog.h': Recode for 'bdedox' conversion.
+  * 8d223f134 drqs-112068578: 3.3.x: Format fixes for 'bdedox' conversion.
+
+ -- mgiroux <mgiroux@bloomberg.net>  Fri, 8 Dec 2017 12:42:24 -0500
+
+bsl-internal (3.3.2.0) git; urgency=low
+
+  * 0cd0d9fc0 Changelog for version 3.3.2.0
   * c28674aaf Merge pull request #1534 from mgiroux/review/bump-versions-to-3.3.2
   * 0a8f26983 Bump bdl, bal, and btl versions to 3.3.2
   * 178469c73 Merge pull request #1527 from hversche/pr/1522-rebased-releases/3.3.x
@@ -7,7 +19,7 @@ bsl-internal (3.3.2.0) unstable; urgency=low
   * a4613a393 drqs-111740206: 3.3.x: Format fixes for 'bdedox' conversion.
   * 2521da1c6 Merge pull request #1526 from hversche/pr/1525-rebased-releases/3.3.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 4 Dec 2017 13:50:15 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 4 Dec 2017 14:02:49 -0500
 
 bsl-internal (3.3.1.1) git; urgency=low
 
