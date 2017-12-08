@@ -38,9 +38,9 @@ namespace BloombergLP {
                                              "." STRINGIFY(BDL_VERSION_MINOR) \
                                              "." STRINGIFY(REQUIRED_BDL_PATCH)
 
-// For the 3.3.x release series, 'bal' is versioned independently of 'bsl'.
+// For the 3.4.x release series, 'bal' is versioned independently of 'bsl'.
 
-#define BAL_VERSION_PATCH 2
+#define BAL_VERSION_PATCH 0
 #define BALSCM_VERSION_STRING "BLP_LIB_BDE_BAL_" STRINGIFY(BAL_VERSION_MAJOR) \
                                              "." STRINGIFY(BAL_VERSION_MINOR) \
                                              "." STRINGIFY(BAL_VERSION_PATCH)
