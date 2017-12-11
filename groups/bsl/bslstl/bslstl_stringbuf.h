@@ -1066,7 +1066,7 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     }
 
     if (d_mode & ios_base::out) {
-        validatePointers(this->pbase(), this->pptr(), this->pptr());
+        validatePointers(this->pbase(), this->pptr(), this->epptr());
     }
 }
 
