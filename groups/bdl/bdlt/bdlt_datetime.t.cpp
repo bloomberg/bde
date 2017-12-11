@@ -403,7 +403,7 @@ int main(int argc, char *argv[])
         //:   Use 'setTimeIfValid' to set its value, and the basic accessors to
         //:   verify its value.  (C-1,3)
         //:
-    	//: 2 Define a sequence of independent test values that has "time"
+        //: 2 Define a sequence of independent test values that has "time"
         //:   parts set to zero, or left as default, and verify that the
         //:   objects are equal.  (C-2)
         //
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
                         P_(SECOND)
                         P_(MSEC)
                         P_(USEC)
-				  P(VALID)
+                    P(VALID)
                 }
 
                 Obj x;  const Obj& X = x;
@@ -479,6 +479,7 @@ int main(int argc, char *argv[])
                 }
                 else {
                     ASSERT(0 != rc);
+                    LOOP_ASSERT(i, bdlt::Datetime() == X);
                 }
             }
         }
@@ -591,8 +592,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout
                    << endl
-                   << "TEST INDIVIDUAL TIME-'set*IfValid' MANIPULATORS" << endl
-                   << "===============================================" << endl;
+                   << "TEST INDIVIDUAL TIME-'set*IfValid' MANIPULATORS\n"
+                   << "===============================================\n";
 
         const Date RD(2000, 2, 3);       // Ref date (02FEB2000)
         const Time RT(23, 22, 21, 209);  // Ref time (21:22:21.209)
@@ -801,10 +802,12 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t'setHourIfValid'" << endl;
             {
                 Obj x0; ASSERT(0 != x0.setHourIfValid(-1));
+                ASSERT(bdlt::Datetime() == x0);
                 Obj x1; ASSERT(0 == x1.setHourIfValid( 0));
                 Obj x2; ASSERT(0 == x2.setHourIfValid(23));
-                Obj x3; ASSERT(0 == x3.setHourIfValid(24)); // Is default object.
+                Obj x3; ASSERT(0 == x3.setHourIfValid(24)); // default object?
                 Obj x4; ASSERT(0 != x4.setHourIfValid(25));
+                ASSERT(bdlt::Datetime() == x4);
 
                 Obj nonDefault(1, 1, 2);  const Obj& nD = nonDefault;
 
@@ -815,33 +818,41 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t'setMinuteIfValid'" << endl;
             {
                 Obj x0; ASSERT(0 != x0.setMinuteIfValid(-1));
+                ASSERT(bdlt::Datetime() == x0);
                 Obj x1; ASSERT(0 == x1.setMinuteIfValid( 0));
                 Obj x2; ASSERT(0 == x2.setMinuteIfValid(59));
                 Obj x4; ASSERT(0 != x4.setMinuteIfValid(60));
+                ASSERT(bdlt::Datetime() == x4);
             }
 
             if (veryVerbose) cout << "\t'setSecondIfValid'" << endl;
             {
                 Obj x0; ASSERT(0 != x0.setSecondIfValid(-1));
+                ASSERT(bdlt::Datetime() == x0);
                 Obj x1; ASSERT(0 == x1.setSecondIfValid( 0));
                 Obj x2; ASSERT(0 == x2.setSecondIfValid(59));
                 Obj x4; ASSERT(0 != x4.setSecondIfValid(60));
+                ASSERT(bdlt::Datetime() == x4);
             }
 
             if (veryVerbose) cout << "\t'setMillisecondIfValid'" << endl;
             {
                 Obj x0; ASSERT(0 != x0.setMillisecondIfValid(  -1));
+                ASSERT(bdlt::Datetime() == x0);
                 Obj x1; ASSERT(0 == x1.setMillisecondIfValid(   0));
                 Obj x2; ASSERT(0 == x2.setMillisecondIfValid( 999));
                 Obj x4; ASSERT(0 != x4.setMillisecondIfValid(1000));
+                ASSERT(bdlt::Datetime() == x4);
             }
 
             if (veryVerbose) cout << "\t'setMicrosecondIfValid'" << endl;
             {
                 Obj x0; ASSERT(0 != x0.setMicrosecondIfValid(  -1));
+                ASSERT(bdlt::Datetime() == x0);
                 Obj x1; ASSERT(0 == x1.setMicrosecondIfValid(   0));
                 Obj x2; ASSERT(0 == x2.setMicrosecondIfValid( 999));
                 Obj x4; ASSERT(0 != x4.setMicrosecondIfValid(1000));
+                ASSERT(bdlt::Datetime() == x4);
             }
         }
       } break;
@@ -859,24 +870,25 @@ int main(int argc, char *argv[])
         //: 3 The 'addTimeIfValid' method can be used as an oracle for testing
         //:   the other 'add' methods.
         //:
-        //: 3 The optional arguments to 'addTimeIfValid' have the expected
+        //: 4 The optional arguments to 'addTimeIfValid' have the expected
         //:   default values.
         //:
-        //: 4 Invocations of these methods on default constructed objects
+        //: 5 Invocations of these methods on default constructed objects
         //:   behave as if the object had been constructed with a 'Time' value
         //:   of 00:00:00.000.
         //:
-        //: 5 These methods have no effect on the object if the supplied
+        //: 6 These methods have no effect on the object if the supplied
         //:   "time" value added to the object's "time" part results in an
         //:   invalid date.
         //:
-        //: 6 'add*IfValid' returns 0 on success, and a non-zero value on
+        //: 7 'add*IfValid' returns 0 on success, and a non-zero value on
         //:   failure.
         //
         // Plan:
-        //: 1 Thoroughly test the 'addTimeIfValid' method, then use that method as an
-        //:   oracle for tests of 'addHoursIfValid', 'addMinutesIfValid', 'addSecondsIfValid',
-        //:   'addMillisecondsIfValid', and 'addMicrosecondsIfValid' methods.  (C-1,3)
+        //: 1 Thoroughly test the 'addTimeIfValid' method, then use that method
+        //:   as an oracle for tests of 'addHoursIfValid', 'addMinutesIfValid',
+        //:   'addSecondsIfValid', 'addMillisecondsIfValid', and
+        //:   'addMicrosecondsIfValid' methods.  (C-1,3)
         //:
         //:   1 Using a table-driven test, perform a series of 'addTimeIfValid'
         //:     invocations on a object created from a single, reference date,
@@ -888,17 +900,21 @@ int main(int argc, char *argv[])
         //:     to demonstrate propagation of changes to the other "time"
         //:     fields and, in some cases, to the "date" part.
         //:
-        //: 2 Using loop-based tests: (C-1,2)
+        //: 2 Using loop-based tests: (C-1,2,7)
         //:
         //:   1 Apply equivalent time adjustments to two newly constructed
         //:     objects having the same reference datetime value.  Use
-        //:     'addTimeIfValid' method for one object and the 'addHoursIfValid' method for
-        //:     the other then compare for equality.  The set of time
-        //:     adjustments include positive, negative, and 0 values, and are
-        //:     of sufficient magnitude to cross date boundaries.
+        //:     'addTimeIfValid' method for one object and the
+        //:     'addHoursIfValid' method for the other then compare for
+        //:     equality.  The set of time adjustments include positive,
+        //:     negative, and 0 values, and are of sufficient magnitude to
+        //:     cross date boundaries.
         //:
         //:   2 Perform tests analogous to P-1.1 for the 'addMinutesIfValid',
-        //:     'addSecondsIfValid', 'addMillisecondsIfValid', and 'addMicrosecondsIfValid' methods.
+        //:     'addSecondsIfValid', 'addMillisecondsIfValid', and
+        //:     'addMicrosecondsIfValid' methods.
+        //:
+        //:   3 Verify that the resulting return code is 0.
         //:
         //: 4 Create a series of object pairs having the same reference
         //:   datetime value and identically adjust the time value of each of
@@ -1032,7 +1048,8 @@ int main(int argc, char *argv[])
                 Obj mX(INITIAL_DATE, INITIAL_TIME);  const Obj& X = mX;
                 if (veryVerbose) { T_  P_(X) }
 
-                int rc = mX.addTimeIfValid(HOURS, MINUTES, SECONDS, MSECS, USECS);
+                int rc = mX.addTimeIfValid(HOURS, MINUTES, SECONDS, MSECS,
+                                                                        USECS);
                 LOOP2_ASSERT(LINE, rc, 0 == rc);
 
                 const Obj EXP(REFERENCE_YEAR,
@@ -1051,8 +1068,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout
-                  << "\nCheck 'addTimeIfValid' default values of optional parameters."
-                  << endl;
+           << "\nCheck 'addTimeIfValid' default values of optional parameters."
+           << endl;
         {
             // Reference 'Datetime'
 
@@ -1116,7 +1133,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout
-             << "\nTest 'add*IfValid' methods on default constructed objects." << endl;
+             << "\nTest 'add*IfValid' methods on default constructed objects."
+             << endl;
         {
             // Adjustment Values, none corresponding to the default values.
             const int HOURS   = 100;
@@ -1563,7 +1581,7 @@ int main(int argc, char *argv[])
       } break;
       case 73: {
         // --------------------------------------------------------------------
-        // 'isValidYear*' METHODS AND CONDITIONAL SETTERS
+        // CONDITIONAL 'setYear*IfValid' SETTERS
         //   Ensure that the methods correctly discriminate between valid and
         //   invalid date representations.
         //
@@ -1658,14 +1676,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "'isValidYear*' METHODS AND CONDITIONAL SETTERS"
-                          << endl
-                          << "=============================================="
-                          << endl;
+                          << "CONDITIONAL 'setYear*IfValid' SETTERS" << endl
+                          << "=====================================" << endl;
 
         if (verbose)
-            cout << "\nTesting 'isValidYearDay(year, dayOfYear)'"
-                    " and 'setYearDayIfValid'."
+            cout << "\nTesting 'setYearDayIfValid'."
                  << endl;
         {
             static const struct {
@@ -1744,8 +1759,6 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(LINE) P_(YEAR) P_(DAY) P(EXP) }
 
-                LOOP_ASSERT(LINE, EXP == Obj::isValidYearDay(YEAR, DAY));
-
                 Obj mX;  const Obj& X = mX;
                 mX.setYearDay(1133, 275);
 
@@ -1770,8 +1783,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'isValidYearMonthDay(year, month, day)'"
-                    " and 'setYearMonthDayIfValid'."
+            cout << "\nTesting 'setYearMonthDayIfValid'."
                  << endl;
         {
             static const struct {
@@ -1915,9 +1927,6 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P(EXP)
                 }
-
-                LOOP_ASSERT(LINE,
-                              EXP == Obj::isValidYearMonthDay(YEAR, MONTH, DAY));
 
                 Obj mX(1133, 10, 2);  const Obj& X = mX;
 
@@ -3458,8 +3467,8 @@ if (veryVerbose)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'setDatetimeIfValid' x 2" << endl
-                          << "================================" << endl;
+                          << "TESTING 'setDatetimeIfValid' x2" << endl
+                          << "===============================" << endl;
 
         const Date RD(2000, 2, 3);       // Ref date (02FEB2000)
         const Time RT(23, 22, 21, 209);  // Ref time (21:22:21.209)
@@ -3601,7 +3610,7 @@ if (veryVerbose)
                                                            USEC));
 
                     // We can't test invalid date here, only invalid time.
-                    if (Obj::isValidYearMonthDay(YEAR, MONTH, DAY)) {
+                    if (Date::isValidYearMonthDay(YEAR, MONTH, DAY)) {
                         LOOP_ASSERT(LINE,
                                     0 != mX.setDatetimeIfValid(
                                                         Date(YEAR, MONTH, DAY),

@@ -403,22 +403,6 @@ class Datetime {
         // Additionally, a valid 'year', 'month', 'day' with the time portion
         // equal to 24:00:00.000000 also represents a valid 'Datetime' value.
 
-    static bool isValidYearDay(int year, int dayOfYear);
-        // Return 'true' if the specified 'year' and 'dayOfYear' represent a
-        // valid value for a 'Date' object, and 'false' otherwise.  'year' and
-        // 'dayOfYear' represent a valid 'Date' value if they correspond to a
-        // valid date as defined by the Unix (POSIX) calendar confined to the
-        // year range '[1 .. 9999]' inclusive.  See {Valid Date Values and
-        // Their Representations} for details.
-
-    static bool isValidYearMonthDay(int year, int month, int day);
-        // Return 'true' if the specified 'year', 'month', and 'day' represent
-        // a valid value for a 'Date' object, and 'false' otherwise.  'year',
-        // 'month', and 'day' represent a valid 'Date' value if they correspond
-        // to a valid date as defined by the Unix (POSIX) calendar confined to
-        // the year range '[1 .. 9999]' inclusive.  See {Valid Date Values and
-        // Their Representations} for details.
-
                                   // Aspects
 
     static int maxSupportedBdexVersion(int versionSelector);
@@ -550,7 +534,7 @@ class Datetime {
         // the specified 'year', 'month', and 'day' attributes, and set the
         // "time" part to have the value represented by the optionally
         // specified 'hour', 'minute', 'second', 'millisecond', and
-        // 'microsecond' attributes, *if* the eight attribute values
+        // 'microsecond' attributes, if the eight attribute values
         // (collectively) represent a valid 'Datetime' value (see 'isValid').
         // Unspecified trailing optional parameters default to 0.  Return 0 on
         // success, and a non-zero value (with no effect) otherwise.
@@ -564,10 +548,10 @@ class Datetime {
         // Set the value of this object to a 'Datetime' whose "date" part has
         // the value represented by the specified 'date', and whose "time" part
         // has the value represented by the optionally specified 'hour',
-        // 'minute', 'second', 'millisecond', and 'microsecond' attributes.
-        // Unspecified trailing optional parameters default to 0, *if* the
-        // attribute values (collectively) represent a valid 'Datetime' value
-        // (see 'isValid').  Return 0 on success, and a non-zero value (with no
+        // 'minute', 'second', 'millisecond', and 'microsecond' attributes, if
+        // the attribute values (collectively) represent a valid 'Datetime'
+        // value (see 'isValid').  Unspecified trailing optional parameters
+        // default to 0.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.
 
     void setDate(const Date& date);
@@ -585,8 +569,8 @@ class Datetime {
     int setYearDayIfValid(int year, int dayOfYear);
         // Set this object to have the value represented by the specified
         // 'year' and 'dayOfYear' if they comprise a valid 'Date' value (see
-        // 'isValidYearDay').  Return 0 on success, and a non-zero value (with
-        // no effect) otherwise.
+        // 'Date::isValidYearDay').  Return 0 on success, and a non-zero value
+        // (with no effect) otherwise.
 
     void setYearMonthDay(int year, int month, int day);
         // Set the "date" part of this object to have the value represented by
@@ -599,8 +583,8 @@ class Datetime {
     int setYearMonthDayIfValid(int year, int month, int day);
         // Set this object to have the value represented by the specified
         // 'year', 'month', and 'day' if they comprise a valid 'Date' value
-        // (see 'isValidYearMonthDay').  Return 0 on success, and a non-zero
-        // value (with no effect) otherwise.
+        // (see 'Date::isValidYearMonthDay').  Return 0 on success, and a
+        // non-zero value (with no effect) otherwise.
 
     void setTime(const Time& time);
         // Set the "time" part of this object to have the value of the
@@ -629,7 +613,7 @@ class Datetime {
         // Set the "time" part of this object to have the value represented by
         // the specified 'hour' attribute value and the optionally specified
         // 'minute', 'second', 'millisecond', and 'microsecond' attribute
-        // values "if" they comprise a valid "time" portion of a 'DateTime'
+        // values if they comprise a valid "time" portion of a 'DateTime'
         // value.  Unspecified trailing optional parameters default to 0.
         // Return 0 on success, and a non-zero value (with no effect)
         // otherwise.  Note that this method has no effect on the "date" part
@@ -644,7 +628,7 @@ class Datetime {
 
     int setHourIfValid(int hour);
         // Set the "hour" attribute of this object to the specified 'hour'
-        // value *if* '0 <= hour <= 24'.  If '24 == hour', set the 'minute',
+        // value if '0 <= hour <= 24'.  If '24 == hour', set the 'minute',
         // 'second', and 'millisecond' attributes to 0.  Return 0 on success,
         // and a non-zero value (with no effect) otherwise.  Note that this
         // method has no effect on the "date" part of this object.
@@ -657,7 +641,7 @@ class Datetime {
 
     int setMinuteIfValid(int minute);
         // Set the "minute" attribute of this object to the specified 'minute'
-        // value *if* '0 <= minute <= 59'.  If '24 == hour()', set the 'hour'
+        // value if '0 <= minute <= 59'.  If '24 == hour()', set the 'hour'
         // attribute to 0.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.  Note that this method has no effect on the
         // "date" part of this object.
@@ -684,7 +668,7 @@ class Datetime {
 
     int setMillisecondIfValid(int millisecond);
         // Set the "millisecond" attribute of this object to the specified
-        // 'millisecond' value *if* '0 <= millisecond <= 999'.  If
+        // 'millisecond' value if '0 <= millisecond <= 999'.  If
         // '24 == hour()', set the 'hour' attribute to 0.  Return 0 on success,
         // and a non-zero value (with no effect) otherwise.  Note that this
         // method has no effect on the "date" part of this object.
@@ -698,7 +682,7 @@ class Datetime {
 
     int setMicrosecondIfValid(int microsecond);
         // Set the "microsecond" attribute of this object to the specified
-        // 'microsecond' value *if* '0 <= microsecond <= 999'.  If
+        // 'microsecond' value if '0 <= microsecond <= 999'.  If
         // '24 == hour()', set the 'hour' attribute to 0.  Return 0 on success,
         // and a non-zero value (with no effect) otherwise.  Note that this
         // method has no effect on the "date" part of this object.
@@ -1219,18 +1203,6 @@ bool Datetime::isValid(int year,
                 0                                 == microsecond));
 }
 
-inline
-bool Datetime::isValidYearDay(int year, int dayOfYear)
-{
-    return SerialDateImpUtil::isValidYearDay(year, dayOfYear);
-}
-
-inline
-bool Datetime::isValidYearMonthDay(int year, int month, int day)
-{
-    return SerialDateImpUtil::isValidYearMonthDay(year, month, day);
-}
-
                                   // Aspects
 
 inline
@@ -1533,7 +1505,7 @@ int Datetime::setYearDayIfValid(int year, int dayOfYear)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    if (isValidYearDay(year, dayOfYear)) {
+    if (Date::isValidYearDay(year, dayOfYear)) {
         setDate(Date(year, dayOfYear));
         return k_SUCCESS;                                             // RETURN
     }
@@ -1553,7 +1525,7 @@ int Datetime::setYearMonthDayIfValid(int year, int month, int day)
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    if (isValidYearMonthDay(year, month, day)) {
+    if (Date::isValidYearMonthDay(year, month, day)) {
         setDate(Date(year, month, day));
         return k_SUCCESS;                                             // RETURN
     }
