@@ -307,9 +307,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout
-                   << endl
-                   << "TEST INDIVIDUAL TIME-'set*IfValid' MANIPULATORS" << endl
-                   << "===============================================" << endl;
+                  << endl
+                  << "TEST INDIVIDUAL TIME-'set*IfValid' MANIPULATORS" << endl
+                  << "===============================================" << endl;
 
         const Obj RT(23, 22, 21, 209);  // Ref time (21:22:21.209)
 
@@ -493,10 +493,12 @@ int main(int argc, char *argv[])
            if (veryVerbose) cout << "\t'setHourIfValid'" << endl;
             {
                 Obj x0; ASSERT(0 != x0.setHourIfValid(-1));
+                ASSERT(x0 == Obj());
                 Obj x1; ASSERT(0 == x1.setHourIfValid( 0));
                 Obj x2; ASSERT(0 == x2.setHourIfValid(23));
-                Obj x3; ASSERT(0 == x3.setHourIfValid(24)); // Is default object.
+                Obj x3; ASSERT(0 == x3.setHourIfValid(24)); // Default object?
                 Obj x4; ASSERT(0 != x4.setHourIfValid(25));
+                ASSERT(x4 == Obj());
 
                 Obj nonDefault(1, 1, 2);  const Obj& nD = nonDefault;
 
@@ -507,33 +509,41 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t'setMinuteIfValid'" << endl;
             {
                 Obj x0; ASSERT(0 != x0.setMinuteIfValid(-1));
+                ASSERT(x0 == Obj());
                 Obj x1; ASSERT(0 == x1.setMinuteIfValid( 0));
                 Obj x2; ASSERT(0 == x2.setMinuteIfValid(59));
                 Obj x4; ASSERT(0 != x4.setMinuteIfValid(60));
+                ASSERT(x4 == Obj());
             }
 
             if (veryVerbose) cout << "\t'setSecondIfValid'" << endl;
             {
                 Obj x0; ASSERT(0 != x0.setSecondIfValid(-1));
+                ASSERT(x0 == Obj());
                 Obj x1; ASSERT(0 == x1.setSecondIfValid( 0));
                 Obj x2; ASSERT(0 == x2.setSecondIfValid(59));
                 Obj x4; ASSERT(0 != x4.setSecondIfValid(60));
+                ASSERT(x4 == Obj());
             }
 
             if (veryVerbose) cout << "\t'setMillisecondIfValid'" << endl;
             {
                 Obj x0; ASSERT(0 != x0.setMillisecondIfValid(  -1));
+                ASSERT(x0 == Obj());
                 Obj x1; ASSERT(0 == x1.setMillisecondIfValid(   0));
                 Obj x2; ASSERT(0 == x2.setMillisecondIfValid( 999));
                 Obj x4; ASSERT(0 != x4.setMillisecondIfValid(1000));
+                ASSERT(x4 == Obj());
             }
 
             if (veryVerbose) cout << "\t'setMicrosecondIfValid'" << endl;
             {
                 Obj x0; ASSERT(0 != x0.setMicrosecondIfValid(  -1));
+                ASSERT(x0 == Obj());
                 Obj x1; ASSERT(0 == x1.setMicrosecondIfValid(   0));
                 Obj x2; ASSERT(0 == x2.setMicrosecondIfValid( 999));
                 Obj x4; ASSERT(0 != x4.setMicrosecondIfValid(1000));
+                ASSERT(x4 == Obj());
             }
         }
       } break;
