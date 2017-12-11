@@ -26,6 +26,27 @@ namespace BloombergLP {
 
 namespace bdlb {
 
+namespace {
+
+static
+int doubleSign(double number)
+    // Return 0 if the specified 'number' is positive, and a non-zero value
+    // otherwise.  This function is needed only until we have all platforms
+    // updated to C++11 that supports the 'signbit' function.
+{
+    const unsigned char *bytes = reinterpret_cast<unsigned char *>(&number);
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    static bsl::size_t pos = 0;
+#elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+    static bsl::size_t pos = sizeof(double) - 1;
+#endif
+    return bytes[pos] & 0x80;
+}
+
+}  // close unnamed namespace
+
+
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
 // 'strtod' is broken in Visual Studio up to (including) Visual Studio 2013.
 // The function does not parse the special 'double' values NaN and Infinity as
@@ -234,8 +255,9 @@ int NumericParseUtil::parseDouble(double                   *result,
         // NaN.  We are not checking for compilers because both clang and g++
         // exhibit the fault on Linux.
         if (*result != *result && inputString[0] == '-') {
-            double sign  = copysign(42, *result);
-            if (sign > 0) {
+            if (!doubleSign(*result)) {
+                // If 'result' is (incorrectly) a positive NaN value, reverse
+                // the sign
                 *result = -*result;
             }
         }
