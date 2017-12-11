@@ -302,6 +302,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#include <bsls_stackaddressutil.h>
+
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
 #endif
@@ -313,6 +315,9 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
+
+#include <bsl_cstring.h> // memset
+#include <bsl_sstream.h>
 
 namespace BloombergLP {
 namespace bdlt {
@@ -379,6 +384,10 @@ class Datetime {
         // to the datetime implied by assuming the value in 'd_value' is the
         // concatenation of a 'Date' and a 'Time', and log or assert the
         // detection of an invalid date.
+
+    bool validateAndTraceLogRepresentation() const;
+        // Return 'true' if the representation is valid, and 'false' otherwise.
+        // If invalid, provide simplified stack trace through BSLS_LOG.
 
   public:
     // CLASS METHODS
@@ -1105,7 +1114,7 @@ void Datetime::setMicrosecondsFromEpoch(bsls::Types::Uint64 totalMicroseconds)
 inline
 bsls::Types::Uint64 Datetime::microsecondsFromEpoch() const
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
+    if (validateAndTraceLogRepresentation()) {
         int h = hour();
 
         bsls::Types::Uint64 value = d_value & (~k_REP_MASK);
@@ -1117,18 +1126,6 @@ bsls::Types::Uint64 Datetime::microsecondsFromEpoch() const
 
         return (value >> k_NUM_TIME_BITS)
                                         * TimeUnitRatio::k_US_PER_D;  // RETURN
-    }
-
-    BSLS_ASSERT_SAFE(
-                 0 && "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
-
-    // Log detection of invalid format with logarithmic back-off.
-
-    bdlb::BitUtil::uint64_t count =
-          static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
-    if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-        BSLS_LOG_ERROR(
-                      "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
     }
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
@@ -1148,20 +1145,8 @@ bsls::Types::Uint64 Datetime::microsecondsFromEpoch() const
 inline
 bsls::Types::Uint64 Datetime::updatedRepresentation() const
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
+    if (validateAndTraceLogRepresentation()) {
         return d_value;                                               // RETURN
-    }
-
-    BSLS_ASSERT_SAFE(
-                 0 && "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
-
-    // Log detection of invalid format with logarithmic back-off.
-
-    bdlb::BitUtil::uint64_t count =
-          static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
-    if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-        BSLS_LOG_ERROR(
-                      "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
     }
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
@@ -1175,6 +1160,38 @@ bsls::Types::Uint64 Datetime::updatedRepresentation() const
     return (days << k_NUM_TIME_BITS)
          | (TimeUnitRatio::k_US_PER_MS * milliseconds)
          | k_REP_MASK;
+}
+
+inline
+bool Datetime::validateAndTraceLogRepresentation() const
+{
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
+        return true;                                                  // RETURN
+    }
+    BSLS_ASSERT_SAFE(
+                 0 && "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+
+    // Log detection of invalid format with logarithmic back-off.
+    bdlb::BitUtil::uint64_t count =
+          static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
+    if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
+        enum { k_BUFFER_LENGTH = 20 };
+        void *buffer[k_BUFFER_LENGTH];
+        bsl::memset(buffer, 0, sizeof(buffer));
+        int numAddresses = bsls::StackAddressUtil::getStackAddresses(
+                                                              buffer,
+                                                              k_BUFFER_LENGTH);
+        int stackIdx = bsls::StackAddressUtil::k_IGNORE_FRAMES;
+
+        bsl::stringstream ss;
+        ss << "detected invalid 'bdlt::Time'; see TEAM 579660115; numAddr="
+           << numAddresses << "\n";
+        for (; stackIdx < numAddresses; ++stackIdx) {
+            ss << "#" << stackIdx << "," << buffer[stackIdx] << "\n";
+        }
+        BSLS_LOG_ERROR(ss.str().c_str());
+    }
+    return false;
 }
 
 // CLASS METHODS

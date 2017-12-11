@@ -155,6 +155,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#include <bsls_stackaddressutil.h>
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -162,6 +164,9 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
+
+#include <bsl_cstring.h> // memset
+#include <bsl_sstream.h>
 
 namespace BloombergLP {
 namespace bdlt {
@@ -665,7 +670,21 @@ bsls::Types::Int64 Time::microsecondsFromMidnight() const
     bdlb::BitUtil::uint64_t count =
           static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
     if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-        BSLS_LOG_ERROR("detected invalid 'bdlt::Time'; see TEAM 579660115");
+        enum { k_BUFFER_LENGTH = 20 };
+        void *buffer[k_BUFFER_LENGTH];
+        bsl::memset(buffer, 0, sizeof(buffer));
+        int numAddresses = bsls::StackAddressUtil::getStackAddresses(
+                                                              buffer,
+                                                              k_BUFFER_LENGTH);
+        int stackIdx = bsls::StackAddressUtil::k_IGNORE_FRAMES;
+
+        bsl::stringstream ss;
+        ss << "detected invalid 'bdlt::Time'; see TEAM 579660115; numAddr="
+           << numAddresses << "\n";
+        for (; stackIdx < numAddresses; ++stackIdx) {
+            ss << "#" << stackIdx << "," << buffer[stackIdx] << "\n";
+        }
+        BSLS_LOG_ERROR(ss.str().c_str());
     }
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN

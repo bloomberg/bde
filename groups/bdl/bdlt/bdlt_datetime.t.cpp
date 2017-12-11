@@ -8583,9 +8583,11 @@ if (veryVerbose)
       }
     }
 
-    // CONCERN: In no case does memory come from the default allocator.
+    // CONCERN: In no case that does not contain invalid state does memory come
+    // from the default allocator.
 
-    ASSERT(dam.isTotalSame());
+    if (test <= 24 || 72 <= test)
+        ASSERT(dam.isTotalSame());
 
     // CONCERN: In no case does memory come from the global allocator.
 
