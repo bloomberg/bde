@@ -273,7 +273,7 @@ struct is_empty : Is_Empty_Imp<typename remove_cv<TYPE>::type>::type
 
 }  // close namespace bsl
 
-#endif // ! defined(INCLUDED_BSLMF_ISEMPTY)
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

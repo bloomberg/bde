@@ -271,7 +271,7 @@ struct is_copy_constructible<const volatile TYPE[]> : false_type
 
 #endif  // defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
 
-#endif  // !defined(INCLUDED_BSLMF_ISCOPYCONSTRUCTIBLE)
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2016 Bloomberg Finance L.P.
