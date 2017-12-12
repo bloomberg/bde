@@ -19868,30 +19868,30 @@ int main(int argc, char *argv[])
                             int value = bsl::stoi(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
-                          }
+                          } break;
                           case e_LONG_INT : {
                             long value = bsl::stol(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
-                          }
+                          } break;
                           case e_UNSIGNED_LONG_INT : {
                             unsigned long value =
                                           bsl::stoul(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
-                          }
+                          } break;
                           case e_LONG_LONG_INT : {
                             long long value =
                                           bsl::stoll(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
-                          }
+                          } break;
                           case e_UNSIGNEDLONG_LONG_INT : {
                             unsigned long long value =
                                          bsl::stoull(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
-                          }
+                          } break;
                         }
                     }
                     catch(const std::invalid_argument&) {
@@ -19911,34 +19911,34 @@ int main(int argc, char *argv[])
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
                             ASSERTV(next, 0 != next);
-                          }
+                          } break;
                           case e_LONG_INT : {
                             long value = bsl::stol(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
                             ASSERTV(next, 0 != next);
-                          }
+                          } break;
                           case e_UNSIGNED_LONG_INT : {
                             unsigned long value =
                                          bsl::stoul(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
                             ASSERTV(next, 0 != next);
-                          }
+                          } break;
                           case e_LONG_LONG_INT : {
                             long long value =
                                          bsl::stoll(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
                             ASSERTV(next, 0 != next);
-                          }
+                          } break;
                           case e_UNSIGNEDLONG_LONG_INT : {
                             unsigned long long value =
                                         bsl::stoull(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
                             ASSERTV(next, 0 != next);
-                          }
+                          } break;
                         }
                     }
                     catch(const std::invalid_argument&) {
@@ -20069,30 +20069,30 @@ int main(int argc, char *argv[])
                             int value = bsl::stoi(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, INPUT, intType, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
-                          }
+                          } break;
                           case e_LONG_INT : {
                             long value = bsl::stol(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, INPUT, intType, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
-                          }
+                          } break;
                           case e_UNSIGNED_LONG_INT : {
                             unsigned long value =
                                           bsl::stoul(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, INPUT, intType, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
-                          }
+                          } break;
                           case e_LONG_LONG_INT : {
                             long long value =
                                           bsl::stoll(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, intType, INPUT, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
-                          }
+                          } break;
                           case e_UNSIGNEDLONG_LONG_INT : {
                             unsigned long long value =
                                          bsl::stoull(STRING_VALUE, NULL, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
-                          }
+                          } break;
                         }
                     }
                     catch(const std::invalid_argument&) {
@@ -20112,34 +20112,34 @@ int main(int argc, char *argv[])
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
                             ASSERTV(next, 0 != next);
-                          }
+                          } break;
                           case e_LONG_INT : {
                             long value = bsl::stol(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
                             ASSERTV(next, 0 != next);
-                          }
+                          } break;
                           case e_UNSIGNED_LONG_INT : {
                             unsigned long value =
                                          bsl::stoul(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
                             ASSERTV(next, 0 != next);
-                          }
+                          } break;
                           case e_LONG_LONG_INT : {
                             long long value =
                                          bsl::stoll(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
                             ASSERTV(next, 0 != next);
-                          }
+                          } break;
                           case e_UNSIGNEDLONG_LONG_INT : {
                             unsigned long long value =
                                         bsl::stoull(STRING_VALUE, &next, BASE);
                             ASSERTV(LINE, STRING_VALUE, value, (int)ERROR,
                                     e_PASS == ERROR || !"Did not throw");
                             ASSERTV(next, 0 != next);
-                          }
+                          } break;
                         }
                     }
                     catch(const std::invalid_argument&) {
