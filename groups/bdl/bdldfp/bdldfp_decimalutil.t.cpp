@@ -454,9 +454,9 @@ void testQuantize(const DATA *data, int num_data)
     //   Decimal32  quantize(Decimal32,    int);
     //   Decimal64  quantize(Decimal64,    int);
     //   Decimal128 quantize(Decimal128,   int);
-    //   int        quantize(Decimal32  *, int);
-    //   int        quantize(Decimal64  *, int);
-    //   int        quantize(Decimal128 *, int);
+    //   int        quantizeEqual(Decimal32  *, Decimal32,  int);
+    //   int        quantizeEqual(Decimal64  *, Decimal64,  int);
+    //   int        quantizeEqual(Decimal128 *, Decimal128, int);
 {
     typedef bsl::numeric_limits<DECIMAL> NumLim;
     NumberMaker<DECIMAL> makeDecimal;
