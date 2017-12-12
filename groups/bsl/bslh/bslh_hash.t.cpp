@@ -1245,10 +1245,12 @@ int main(int argc, char *argv[])
             MockHashingAlgorithm defaultAlg;
             hashAppend(defaultAlg, true);
 
+#if __cplusplus <= 201402L
             bool incrementedBool = true;
             incrementedBool++;
             MockHashingAlgorithm incrementedAlg;
             hashAppend(incrementedAlg, incrementedBool);
+#endif
 
             unsigned short uShort = 219;
             const bool assignedBool = uShort;
@@ -1257,11 +1259,13 @@ int main(int argc, char *argv[])
 
             // All various 'true's are the same
             ASSERT(defaultAlg.getLength() == sizeof(bool));
+#if __cplusplus <= 201402L
             ASSERT(defaultAlg.getLength() == incrementedAlg.getLength());
 
             ASSERT(binaryCompare(defaultAlg.getData(),
                                  incrementedAlg.getData(),
                                  defaultAlg.getLength()));
+#endif
 
             ASSERT(defaultAlg.getLength() == assignedAlg.getLength());
             ASSERT(binaryCompare(defaultAlg.getData(),
