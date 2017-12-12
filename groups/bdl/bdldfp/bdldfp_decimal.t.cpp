@@ -23,6 +23,8 @@
 #include <bsl_climits.h> // CHAR_BIT
 #include <bsl_limits.h>
 
+#include <bsl_cfenv.h>
+
 #include <typeinfo>
 
 using namespace BloombergLP;

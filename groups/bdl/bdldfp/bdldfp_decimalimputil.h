@@ -256,7 +256,7 @@ class DecimalImpUtil {
         // appropriate sign.
 
     static ValueType64 makeInfinity64(bool isNegative = false);
-        // Return a 'ValueType64' representing an infinity.  Optionally specify
+        // Return a 'ValueType64' representing infinity.  Optionally specify
         // whether the infinity 'isNegative'.  If 'isNegative' is 'false' or is
         // is not supplied, the returned value will be infinity, and negative
         // infinity otherwise.
@@ -336,7 +336,7 @@ class DecimalImpUtil {
         // the value according to the current decimal floating point rounding
         // mode.  If the exponent needs to be decreased, multiply the value by
         // power of ten and if the significand of the result has more digits
-        // than the type would allow, return NaN.  The returned value is
+        // than the type would allow, return a NaN.  The returned value is
         // unspecified if either operand is NaN or infinity of either sign.
 
     static bool sameQuantum(ValueType32  x, ValueType32  y);
@@ -450,8 +450,8 @@ class DecimalImpUtil {
         //:
         //: o Otherwise if 'value' has a value that is not exactly
         //:   representable using 'std::numeric_limits<Decimal32>::max_digit'
-        //:   decimal digits then return decimal value initialized to the value
-        //:   of 'value' rounded according to the rounding direction.
+        //:   decimal digits then return a decimal value initialized to the
+        //:   value of 'value' rounded according to the rounding direction.
         //:
         //: o Otherwise initialize this object to the value of the 'value'.
         //
@@ -471,8 +471,8 @@ class DecimalImpUtil {
         //:
         //: o Otherwise if 'value' has a value that is not exactly
         //:   representable using 'std::numeric_limits<Decimal64>::max_digit'
-        //:   decimal digits then return decimal value initialized to the value
-        //:   of 'value' rounded according to the rounding direction.
+        //:   decimal digits then return a decimal value initialized to the
+        //:   value of 'value' rounded according to the rounding direction.
         //:
         //: o Otherwise initialize this object to the value of the 'value'.
         //
@@ -492,8 +492,8 @@ class DecimalImpUtil {
         //:
         //: o Otherwise if 'value' has a value that is not exactly
         //:   representable using 'std::numeric_limits<Decimal128>::max_digit'
-        //:   decimal digits then return decimal value initialized to the value
-        //:   of 'value' rounded according to the rounding direction.
+        //:   decimal digits then return a decimal value initialized to the
+        //:   value of 'value' rounded according to the rounding direction.
         //:
         //: o Otherwise initialize this object to 'value'.
         //
@@ -525,9 +525,9 @@ class DecimalImpUtil {
         //: o Otherwise if 'rhs' is zero (positive or negative), return 'lhs'.
         //:
         //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value
-        //:   that is larger than max value supported by indicated result type
-        //:   then store the value of the macro 'ERANGE' into 'errno' and
-        //:   return a infinity with the same sign as that result.
+        //:   that is larger than the maximum value supported by the indicated
+        //:   result type then store the value of the macro 'ERANGE' into
+        //:   'errno' and return infinity with the same sign as that result.
         //:
         //: o Otherwise return the sum of the number represented by 'lhs' and
         //:   the number represented by 'rhs'.
@@ -556,9 +556,10 @@ class DecimalImpUtil {
         //:   return 'lhs'.
         //:
         //: o Otherwise if the subtracting of 'lhs' and 'rhs' has an absolute
-        //:   value that is larger than max value supported by indicated result
-        //:   type then store the value of the macro 'ERANGE' into 'errno' and
-        //:   return an infinity with the same sign as that result.
+        //:   value that is larger than the maximum value supported by the
+        //:   indicated result type then store the value of the macro 'ERANGE'
+        //:   into 'errno' and return infinity with the same sign as that
+        //:   result.
         //:
         //: o Otherwise return the result of subtracting the value of 'rhs'
         //:   from the value of 'lhs'.
@@ -591,9 +592,9 @@ class DecimalImpUtil {
         //:   have the same sign, and negative otherwise.
         //:
         //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
-        //:   that is larger than max value of the indicated result type then
-        //:   store the value of the macro 'ERANGE' into 'errno' and return
-        //:   infinity with the same sign as that result.
+        //:   that is larger than the maximum value of the indicated result
+        //:   type then store the value of the macro 'ERANGE' into 'errno' and
+        //:   return infinity with the same sign as that result.
         //:
         //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
         //:   that is smaller than min value of the indicated result type then
@@ -628,20 +629,20 @@ class DecimalImpUtil {
         //:   zero value, store the value of the macro 'ERANGE' into 'errno'
         //:   and return infinity with the opposite sign as 'lhs'.
         //:
-        //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
-        //:   results in an absolute value that is larger than max value
-        //:   supported by the return type then store the value of the macro
-        //:   'ERANGE' into 'errno' and return infinity with the same sign as
-        //:   that result.
+        //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
+        //:   results in an absolute value that is larger than the maximum
+        //:   value supported by the result type then store the value of the
+        //:   macro 'ERANGE' into 'errno' and return infinity with the same
+        //:   sign as that result.
         //:
-        //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+        //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
         //:   results in an absolute value that is smaller than min value
-        //:   supported by indicated result type then store the value of the
-        //:   macro 'ERANGE' into 'errno'and return zero with the same sign as
-        //:   that result.
+        //:   supported by the indicated result type then store the value of
+        //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
+        //:   as that result.
         //:
-        //: o Otherwise return the result of dividing the value of 'lhs' with
-        //:   the value of 'rhs'.
+        //: o Otherwise return the result of dividing the value of 'lhs' by the
+        //:   value of 'rhs'.
 
                         // Math functions
 
@@ -788,7 +789,7 @@ class DecimalImpUtil {
         //: o If either argument is quiet NaN, quiet NaN is returned.
         //: o If either argument is signaling NaN, quiet NaN is returned and
         //:   the value of the macro 'EDOM' is stored into 'errno'.
-        //: o If 'from' is finite, but the expected result is an infinity,
+        //: o If 'from' is finite, but the expected result is infinity,
         //:   infinity is returned and the value of the macro 'ERANGE' is
         //:   stored into 'errno'.
         //: o If 'from' does not equal 'to' and the result is subnormal or
@@ -910,7 +911,7 @@ class DecimalImpUtil {
         //: o If 'x' or 'y' are quiet NaN, quiet NaN is returned.
         //: o If any argument is signaling NaN, quiet NaN is returned and the
         //:   value of the macro 'EDOM' is stored into 'errno'.
-        //: o If 'x*y' is an exact infinity and 'z' is an infinity with the
+        //: o If 'x*y' is an exact infinity and 'z' is infinity with the
         //:   opposite sign, quiet NaN is returned and the value of the macro
         //:   'EDOM' is stored into 'errno'.
         //: o If 'x' is zero and 'y' is infinite or if 'x' is infinite and 'y'
@@ -1098,8 +1099,8 @@ class DecimalImpUtil {
     static ValueType64  convertToDecimal64 (const ValueType128& input);
     static ValueType128 convertToDecimal128(const ValueType32&  input);
     static ValueType128 convertToDecimal128(const ValueType64&  input);
-        // Convert the specified 'input' to the closest value of indicated
-        // result type following the conversion rules as  defined by IEEE-754:
+        // Convert the specified 'input' to the closest value of the indicated
+        // result type following the conversion rules as defined by IEEE-754:
         //
         //: o If 'input' is signaling NaN, store the value of the macro 'EDOM'
         //:   into 'errno' and return signaling NaN value.
@@ -1118,9 +1119,9 @@ class DecimalImpUtil {
         //:   return infinity or zero with the same sign respectively.
         //:
         //: o Otherwise if 'input' has a value that is not exactly
-        //:   representable using maximum digit number supported by indicated
-        //:   result type then return the 'input' rounded according to the
-        //:   rounding direction.
+        //:   representable using maximum digit number supported by the
+        //:   indicated result type then return the 'input' rounded according
+        //:   to the rounding direction.
         //:
         //: o Otherwise return 'input' value of the result type.
 

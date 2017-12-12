@@ -1109,20 +1109,20 @@ class Decimal_Type32 {
         //:   value of the macro 'ERANGE' into 'errno' and set this object to
         //:   infinity with the opposite sign as its original value.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is larger than
         //:   'std::numeric_limits<Decimal32>::max()' then store the value of
         //:   the macro 'ERANGE' into 'errno' and return infinity with the same
         //:   sign as that result.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is smaller than
         //:   'std::numeric_limits<Decimal32>::min()' then store the value of
         //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
         //:   as that result.
         //:
         //: o Otherwise set this object to the result of dividing the value of
-        //:   this object with the value of 'rhs'.
+        //:   this object by the value of 'rhs'.
         //
         // Note that when 'rhs' is a 'Decimal64', this operation is always
         // performed with 64 bits precision to prevent loss of precision of the
@@ -1164,20 +1164,20 @@ class Decimal_Type32 {
         //:   into 'errno' and set this object to infinity with the same sign
         //:   it had prior to this operation.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is larger than
         //:   'std::numeric_limits<Decimal32>::max()' then store the value of
         //:   the macro 'ERANGE' into 'errno' and return infinity with the same
         //:   sign as that result.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is smaller than
         //:   'std::numeric_limits<Decimal32>::min()' then store the value of
         //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
         //:   as that result.
         //:
-        //: o Otherwise set this object to the result of dividing the number
-        //:   represented by this object by 'rhs'.
+        //: o Otherwise set this object to the result of dividing the value of
+        //:   this object by the value of 'rhs'.
         //
         // Note that this operation is always performed with 64 bits precision
         // to prevent loss of precision of the 'rhs' operand (prior to the
@@ -1530,19 +1530,19 @@ Decimal32 operator/(Decimal32 lhs, Decimal32 rhs);
     //: o Otherwise if 'lhs' has infinity value and 'rhs' has a negative zero
     //:   value, return infinity with the opposite sign as 'lhs'.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is larger than
     //:   'std::numeric_limits<Decimal32>::max()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is smaller than
     //:   'std::numeric_limits<Decimal32>::min()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
     //:   that result.
     //:
-    //: o Otherwise return the result of dividing the value of 'lhs' with the
+    //: o Otherwise return the result of dividing the value of 'lhs' by the
     //:   value of 'rhs'.
 
 Decimal32 operator/(Decimal32 lhs, int                rhs);
@@ -1571,13 +1571,13 @@ Decimal32 operator/(Decimal32 lhs, unsigned long long rhs);
     //:   into 'errno' and return infinity with the same sign it had prior to
     //:   this operation.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is larger than
     //:   'std::numeric_limits<Decimal32>::max()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is smaller than
     //:   'std::numeric_limits<Decimal32>::min()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
@@ -1608,13 +1608,13 @@ Decimal32 operator/(unsigned long long lhs, Decimal32 rhs);
     //:   the macro 'ERANGE' into 'errno' and return infinity with the sign of
     //:   'lhs'.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is larger than
     //:   'std::numeric_limits<Decimal32>::max()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is smaller than
     //:   'std::numeric_limits<Decimal32>::min()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
@@ -2234,20 +2234,20 @@ class Decimal_Type64 {
         //:   value of the macro 'ERANGE' into 'errno' and set this object to
         //:   infinity with the opposite sign as its original value.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is larger than
         //:   'std::numeric_limits<Decimal64>::max()' then store the value of
         //:   the macro 'ERANGE' into 'errno' and return infinity with the same
         //:   sign as that result.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is smaller than
         //:   'std::numeric_limits<Decimal64>::min()' then store the value of
         //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
         //:   as that result.
         //:
         //: o Otherwise set this object to the result of dividing the value of
-        //:   this object with the value of 'rhs'.
+        //:   this object by the value of 'rhs'.
         //
         // Note that when 'rhs' is a 'Decimal128', this operation is always
         // performed with 128 bits precision to prevent loss of precision of
@@ -2282,20 +2282,20 @@ class Decimal_Type64 {
         //:   into 'errno' and set this object to infinity with the same sign
         //:   it had prior to this operation.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is larger than
         //:   'std::numeric_limits<Decimal64>::max()' then store the value of
         //:   the macro 'ERANGE' into 'errno' and return infinity with the same
         //:   sign as that result.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is smaller than
         //:   'std::numeric_limits<Decimal64>::min()' then store the value of
         //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
         //:   as that result.
         //:
-        //: o Otherwise set this object to the result of dividing the number
-        //:   represented by this object by 'rhs'.
+        //: o Otherwise set this object to the result of dividing the value of
+        //:   this object by the value of 'rhs'.
 
     DecimalImpUtil::ValueType64 *data();
         // Return a modifiable pointer to the underlying implementation.
@@ -2666,19 +2666,19 @@ Decimal64 operator/(Decimal64 lhs, Decimal32 rhs);
     //: o Otherwise if 'lhs' has infinity value and 'rhs' has a negative zero
     //:   value, return infinity with the opposite sign as 'lhs'.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is larger than
     //:   'std::numeric_limits<Decimal64>::max()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is smaller than
     //:   'std::numeric_limits<Decimal64>::min()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
     //:   that result.
     //:
-    //: o Otherwise return the result of dividing the value of 'lhs' with the
+    //: o Otherwise return the result of dividing the value of 'lhs' by the
     //:   value of 'rhs'.
 
 Decimal64 operator/(Decimal64 lhs, int                rhs);
@@ -2707,13 +2707,13 @@ Decimal64 operator/(Decimal64 lhs, unsigned long long rhs);
     //:   into 'errno' and return infinity with the same sign it had prior to
     //:   this operation.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is larger than
     //:   'std::numeric_limits<Decimal64>::max()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is smaller than
     //:   'std::numeric_limits<Decimal64>::min()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
@@ -2744,20 +2744,20 @@ Decimal64 operator/(unsigned long long lhs, Decimal64 rhs);
     //:   the macro 'ERANGE' into 'errno' and return infinity with the sign of
     //:   'lhs'.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is larger than
     //:   'std::numeric_limits<Decimal64>::max()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is smaller than
     //:   'std::numeric_limits<Decimal64>::min()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
     //:   that result.
     //:
     //: o Otherwise return the result of dividing the value of 'lhs' by the
-    //:   value 'rhs'.  Note that this is a floating-point operation, not
+    //:   value of 'rhs'.  Note that this is a floating-point operation, not
     //:   integer.
 
 bool operator==(Decimal64 lhs, Decimal64 rhs);
@@ -3432,20 +3432,20 @@ class Decimal_Type128 {
         //:   value of the macro 'ERANGE' into 'errno' and set this object to
         //:   infinity with the opposite sign as its original value.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is larger than
         //:   'std::numeric_limits<Decimal128>::max()' then store the value of
         //:   the macro 'ERANGE' into 'errno' and return infinity with the same
         //:   sign as that result.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is smaller than
         //:   'std::numeric_limits<Decimal128>::min()' then store the value of
         //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
         //:   as that result.
         //:
         //: o Otherwise set this object to the result of dividing the value of
-        //:   this object with the value of 'rhs'.
+        //:   this object by the value of 'rhs'.
 
     Decimal_Type128& operator/=(int                rhs);
     Decimal_Type128& operator/=(unsigned int       rhs);
@@ -3474,20 +3474,20 @@ class Decimal_Type128 {
         //:   into 'errno' and set this object to infinity with the same sign
         //:   it had prior to this operation.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is larger than
         //:   'std::numeric_limits<Decimal128>::max()' then store the value of
         //:   the macro 'ERANGE' into 'errno' and return infinity with the same
         //:   sign as that result.
         //:
-        //: o Otherwise if dividing the value of this object with the value of
+        //: o Otherwise if dividing the value of this object by the value of
         //:   'rhs' results in an absolute value that is smaller than
         //:   'std::numeric_limits<Decimal128>::min()' then store the value of
         //:   the macro 'ERANGE' into 'errno'and return zero with the same sign
         //:   as that result.
         //:
-        //: o Otherwise set this object to the result of dividing the number
-        //:   represented by this object by 'rhs'.
+        //: o Otherwise set this object to the result of dividing the value of
+        //:   this object by the value of 'rhs'.
 
     DecimalImpUtil::ValueType128 *data();
         // Return a modifiable pointer to the underlying implementation.
@@ -3850,19 +3850,19 @@ Decimal128 operator/(Decimal128 lhs, Decimal64  rhs);
     //: o Otherwise if 'lhs' has infinity value and 'rhs' has a negative zero
     //:   value, return infinity with the opposite sign as 'lhs'.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is larger than
     //:   'std::numeric_limits<Decimal128>::max()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is smaller than
     //:   'std::numeric_limits<Decimal128>::min()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
     //:   that result.
     //:
-    //: o Otherwise return the result of dividing the value of 'lhs' with the
+    //: o Otherwise return the result of dividing the value of 'lhs' by the
     //:   value of 'rhs'.
 
 Decimal128 operator/(Decimal128 lhs, int                rhs);
@@ -3891,20 +3891,20 @@ Decimal128 operator/(Decimal128 lhs, unsigned long long rhs);
     //:   into 'errno' and return infinity with the same sign it had prior to
     //:   this operation.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is larger than
     //:   'std::numeric_limits<Decimal128>::max()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is smaller than
     //:   'std::numeric_limits<Decimal128>::min()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
     //:   that result.
     //:
     //: o Otherwise return the result of dividing the value of 'lhs' by the
-    //:   value 'rhs'.
+    //:   value of 'rhs'.
 
 Decimal128 operator/(int                lhs, Decimal128 rhs);
 Decimal128 operator/(unsigned int       lhs, Decimal128 rhs);
@@ -3928,20 +3928,20 @@ Decimal128 operator/(unsigned long long lhs, Decimal128 rhs);
     //:   the macro 'ERANGE' into 'errno' and return infinity with the sign of
     //:   'lhs'.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is larger than
     //:   'std::numeric_limits<Decimal128>::max()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return infinity with the same sign as
     //:   that result.
     //:
-    //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+    //: o Otherwise if dividing the value of 'lhs' by the value of 'rhs'
     //:   results in an absolute value that is smaller than
     //:   'std::numeric_limits<Decimal128>::min()' then store the value of the
     //:   macro 'ERANGE' into 'errno' and return zero with the same sign as
     //:   that result.
     //:
     //: o Otherwise return the result of dividing the value of 'lhs' by the
-    //:   value 'rhs'.  Note that this is a floating-point operation, not
+    //:   value of 'rhs'.  Note that this is a floating-point operation, not
     //:   integer.
 
 bool operator==(Decimal128 lhs, Decimal128 rhs);

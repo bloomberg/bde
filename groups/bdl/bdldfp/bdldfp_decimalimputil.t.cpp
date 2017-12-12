@@ -10772,14 +10772,12 @@ void TestDriver::testCase10()
         ASSERT(Util::equal(test32, value32));
         ASSERT(ERANGE == errno);
 
-        bsl::feclearexcept(FE_ALL_EXCEPT);
         errno   = 0;
         test32  = Util::convertToDecimal32(
                                    Util::makeDecimalRaw64( 1048576, -300));
         value32 = Util::parse32("0");
         ASSERT(Util::equal(test32, value32));
         ASSERT(ERANGE == errno);
-        P(bsl::fetestexcept(FE_ALL_EXCEPT));
 
         errno   = 0;
         test32  = Util::convertToDecimal32(
