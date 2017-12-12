@@ -358,18 +358,11 @@ class DecimalImpUtil {
     static int quantizeEqual(ValueType32  *x, ValueType32  y, int exponent);
     static int quantizeEqual(ValueType64  *x, ValueType64  y, int exponent);
     static int quantizeEqual(ValueType128 *x, ValueType128 y, int exponent);
-        // Create a decimal floating-point number equal to the specified 'y'
-        // (except for possible rounding) having the specified 'exponent'.
-        // Rounding may occur when 'exponent' is greater than the quantum of
-        // 'y'.  E.g., if 'y == 147e-2_d32' and 'exponent == -1' then created
-        // number is equal to 15e-1_d32.  In the opposite direction, if
-        // 'exponent' is sufficiently less than the quantum of 'y', it may not
-        // be possible to construct the requested result.  E.g., if
-        // 'y == 1234567e0_d32' and 'exponent == -1' then 'NaN' is created.
-        // Return 0 if created number equals to 'y' loading the number into the
-        // specified 'x', and  non-zero value with no effect on 'x' otherwise.
-        // Also return non-zero value if 'y' is 'NaN' or infinity of either the
-        // sign.  Behavior is undefined unless 'exponent' satisfies the
+        // If a floating-point number equal to the specified 'y' and having the
+        // specified 'exponent' can be constructed, set that value into the
+        // specified 'x' and return 0.  Otherwise, or if 'y' is NaN or
+        // infinity, leave the contents of 'x' unchanged and return a non-zero
+        // value.  The behavior is undefined unless 'exponent' satisfies the
         // following conditions
         //: o for 'Decimal32'  type:  '-101 <= exponent <=   90'
         //: o for 'Decimal64'  type:  '-398 <= exponent <=  369'
