@@ -688,13 +688,13 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The class functions correctly even when the base class functions
-        //    'setg' and 'setp' are used to set buffer pointers to 0.
+        //:   'setg' and 'setp' are used to set buffer pointers to 0.
         //
         // Plan:
         //: 1 Ensure that the object's destructor validation works with
-        // pointers equal to 0.
+        //:   pointers equal to 0.
         // --------------------------------------------------------------------
-
+#ifdef BSLS_ASSERT_LEVEL_ASSERT
         if (verbose) printf("\nTESTING MODIFYING BUFFER POINTERS VIA BASE"
                             "\n======================================\n");
 
@@ -739,7 +739,7 @@ int main(int argc, char *argv[])
             buf.setg(0, 0, 0);
             buf.setp(0, 0);
         }
-
+#endif
       } break;
       case 13: {
         // --------------------------------------------------------------------

@@ -1019,6 +1019,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     ~basic_stringbuf()
 {
+#ifdef BSLS_ASSERT_LEVEL_ASSERT
     if (d_mode & ios_base::in) {
         const char_type *first       = this->eback();
         const char_type *middle      = this->gptr();
@@ -1044,6 +1045,7 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
         BSLS_ASSERT(first  <= middle);
         BSLS_ASSERT(middle <= last);
     }
+#endif
 }
 
 // MANIPULATORS
