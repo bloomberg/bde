@@ -462,11 +462,13 @@ void TestDriver::testCase8()
     //:   against expected value.  (C-1..3)
     //
     // Testing:
-    //   bdldfp::Decimal32  operator""  _d32(const char *, unsigned int);
-    //   bdldfp::Decimal32  operator""  _d64(const char *, unsigned int);
-    //   bdldfp::Decimal32  operator"" _d128(const char *, unsigned int);
+    //   bdldfp::Decimal32  operator""  _d32(const char *);
+    //   bdldfp::Decimal64  operator""  _d64(const char *);
+    //   bdldfp::Decimal128 operator"" _d128(const char *);
     // ------------------------------------------------------------------------
 
+
+#if __cplusplus >= 201103L
     if (verbose) bsl::cout << bsl::endl
                            << "Testing 'operator\"\"'" << bsl::endl
                            << "======================" << bsl::endl;
@@ -480,9 +482,6 @@ void TestDriver::testCase8()
         const Tested sNaN = BDEC::DecimalImpUtil::signalingNaN32();
         const Tested  Inf = BDEC::DecimalImpUtil::infinity32();
 
-        Tested d  = 1.42_d32;
-        Tested d1 = "nan"_d32;
-
         struct {
             int          d_line;
             Tested       d_x;
@@ -493,36 +492,41 @@ void TestDriver::testCase8()
             //-------------------------------------------
             //-------------------------------------------
             // Fixed notation
-            { L_,    "0.0"_d32,           DFP( 0.0)      },
-            { L_,   "-0.0"_d32,           DFP(-0.0)      },
-            { L_,   "+0.0"_d32,           DFP( 0.0)      },
+            { L_,     0_d32,             DFP( 0.0)      },
+            { L_,    +0_d32,             DFP( 0.0)      },
+            { L_,    -0_d32,             DFP( 0.0)      },
 
-            { L_,    "4.2"_d32,           DFP( 4.2)      },
-            { L_,  "-42.0"_d32,           DFP(-42.0)     },
-            { L_,  "-0.42"_d32,           DFP(-0.42)     },
-            { L_,   "1.23456789"_d32,     DFP( 1.234568) },
+            { L_,     4.2_d32,           DFP( 4.2)      },
+            { L_,   -42.0_d32,           DFP(-42.0)     },
+            { L_,    -0.42_d32,          DFP(-0.42)     },
+            { L_,     1.23456789_d32,    DFP( 1.234568) },
             //-------------------------------------------
             // Scientific notation
-            { L_,    "4.2e+0"_d32,        DFP( 4.2)      },
-            { L_,   "-4.2e+1"_d32,        DFP(-42.0)     },
-            { L_,   "-4.2e-1"_d32,        DFP(-0.42)     },
-            { L_,    "1.23456789e+0"_d32, DFP( 1.234568) },
+            { L_,     4.2e+0_d32,        DFP( 4.2)      },
+            { L_,    -4.2e+1_d32,        DFP(-42.0)     },
+            { L_,    -4.2e-1_d32,        DFP(-0.42)     },
+            { L_,     1.23456789e+0_d32, DFP( 1.234568) },
             //-------------------------------------------
             // Special values
-            { L_,    "1e+200"_d32,        Inf            },
-            { L_,   "-1e+200"_d32,       -Inf            },
-            { L_,    "1e-200"_d32,        DFP( 0.0)      },
-            { L_,   "-1e-200"_d32,        DFP(-0.0)      },
+            { L_,     1e+200_d32,        Inf            },
+            { L_,    -1e+200_d32,       -Inf            },
+            { L_,     1e-200_d32,        DFP( 0.0)      },
+            { L_,    -1e-200_d32,        DFP(-0.0)      },
 
-            { L_,      "nan"_d32,         NaN            },
-            { L_,     "-nan"_d32,        -NaN            },
-            { L_,     "snan"_d32,        sNaN            },
-            { L_,    "-snan"_d32,       -sNaN            },
+            { L_,      "nan"_d32,         NaN           },
+            { L_,     "-nan"_d32,        -NaN           },
+            { L_,     -"nan"_d32,        -NaN           },
 
-            { L_,      "inf"_d32,         Inf            },
-            { L_,     "-inf"_d32,        -Inf            },
+            { L_,     "snan"_d32,        sNaN           },
+            { L_,    "-snan"_d32,       -sNaN           },
+            { L_,    -"snan"_d32,       -sNaN           },
 
-            { L_,     "ABCDEF"_d32,       NaN            },
+            { L_,      "inf"_d32,         Inf           },
+            { L_,     "-inf"_d32,        -Inf           },
+            { L_,     -"inf"_d32,        -Inf           },
+
+            { L_,     "ABCDEF"_d32,       NaN           },
+
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -536,7 +540,7 @@ void TestDriver::testCase8()
 
         { // C-2
             errno = 0;
-            const Tested  X1       = "1.0e+200"_d32;
+            const Tested  X1       = 1.0e+200_d32;
             const Tested &EXPECTED = Inf;
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
@@ -545,14 +549,14 @@ void TestDriver::testCase8()
         { // C-2
             errno = 0;
             const Tested& EXPECTED = -Inf;
-            const Tested  X1       = "-1.0e+200"_d32;
+            const Tested  X1       = -1.0e+200_d32;
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
             LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
         }
         { // C-3
             errno = 0;
-            const Tested  X1       = "1.0e-200"_d32;
+            const Tested  X1       = 1.0e-200_d32;
             const Tested& EXPECTED = DFP(0.0);
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
@@ -560,7 +564,7 @@ void TestDriver::testCase8()
         }
         { // C-3
             errno = 0;
-            const Tested  X1       = "-1.0e-200"_d32;
+            const Tested  X1       = -1.0e-200_d32;
             const Tested& EXPECTED = DFP(-0.0);
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
@@ -588,37 +592,42 @@ void TestDriver::testCase8()
             //------------------------------------------------------------
             //------------------------------------------------------------
             // Fixed notation
-            { L_,     "0.0"_d64,                 DFP( 0.0)                },
-            { L_,    "-0.0"_d64,                 DFP(-0.0)                },
-            { L_,    "+0.0"_d64,                 DFP( 0.0)                },
+            { L_,     0.0_d64,                 DFP( 0.0)                },
+            { L_,    -0.0_d64,                 DFP(-0.0)                },
+            { L_,    +0.0_d64,                 DFP( 0.0)                },
 
-            { L_,     "4.2"_d64,                 DFP( 4.2)                },
-            { L_,   "-42.0"_d64,                 DFP(-42.0)               },
-            { L_,   "-0.42"_d64,                 DFP(-0.42)               },
-            { L_,    "1.2345678901234567"_d64,   DFP( 1.234567890123457)  },
+            { L_,     4.2_d64,                 DFP( 4.2)                },
+            { L_,   -42.0_d64,                 DFP(-42.0)               },
+            { L_,   -0.42_d64,                 DFP(-0.42)               },
+            { L_,    1.2345678901234567_d64,   DFP( 1.234567890123457)  },
             //------------------------------------------------------------
             // Scientific notation
-            { L_,   "4.2e+0"_d64,                DFP( 4.2)                },
-            { L_,  "-4.2e+1"_d64,                DFP(-42.0)               },
-            { L_,  "-4.2e-1"_d64,                DFP(-0.42)               },
-            { L_,   "1.2345678901234567e+0"_d64, DFP( 1.2345678901234567) },
+            { L_,   4.2e+0_d64,                DFP( 4.2)                },
+            { L_,  -4.2e+1_d64,                DFP(-42.0)               },
+            { L_,  -4.2e-1_d64,                DFP(-0.42)               },
+            { L_,   1.2345678901234567e+0_d64, DFP( 1.2345678901234567) },
             //------------------------------------------------------------
             // Special values
-            { L_,    "1e+400"_d64,               Inf                      },
-            { L_,   "-1e+400"_d64,              -Inf                      },
-            { L_,    "1e-400"_d64,               DFP( 0.0)                },
-            { L_,   "-1e-400"_d64,               DFP(-0.0)                },
+            { L_,    1e+400_d64,               Inf                      },
+            { L_,   -1e+400_d64,              -Inf                      },
+            { L_,    1e-400_d64,               DFP( 0.0)                },
+            { L_,   -1e-400_d64,               DFP(-0.0)                },
 
-            { L_,      "nan"_d64,                NaN                      },
-            { L_,     "-nan"_d64,               -NaN                      },
-            { L_,     "snan"_d64,               sNaN                      },
-            { L_,    "-snan"_d64,              -sNaN                      },
+            { L_,     "nan"_d64,               NaN                      },
+            { L_,    "-nan"_d64,              -NaN                      },
+            { L_,    -"nan"_d64,              -NaN                      },
 
-            { L_,      "inf"_d64,                Inf                      },
-            { L_,     "-inf"_d64,               -Inf                      },
+            { L_,    "snan"_d64,              sNaN                      },
+            { L_,   "-snan"_d64,             -sNaN                      },
+            { L_,   -"snan"_d64,             -sNaN                      },
 
-            { L_,     "ABCDEF"_d64,              NaN                      },
+            { L_,     "inf"_d64,               Inf                      },
+            { L_,    "-inf"_d64,              -Inf                      },
+            { L_,    -"inf"_d64,              -Inf                      },
+
+            { L_,    "ABCDEF"_d64,             NaN                      }
         };
+
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -631,7 +640,7 @@ void TestDriver::testCase8()
 
         { // C-2
             errno = 0;
-            const Tested& X1       = "1.0e+400"_d64;
+            const Tested& X1       = 1.0e+400_d64;
             const Tested& EXPECTED = Inf;
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
@@ -639,7 +648,7 @@ void TestDriver::testCase8()
         }
         { // C-2
             errno = 0;
-            const Tested  X1       = "-1.0e+400"_d64;
+            const Tested  X1       = -1.0e+400_d64;
             const Tested& EXPECTED = -Inf;
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
@@ -647,7 +656,7 @@ void TestDriver::testCase8()
         }
         { // C-3
             errno = 0;
-            const Tested  X1       = "1.0e-400"_d64;
+            const Tested  X1       = 1.0e-400_d64;
             const Tested& EXPECTED = DFP(0.0);
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
@@ -655,7 +664,7 @@ void TestDriver::testCase8()
         }
         { // C-3
             errno = 0;
-            const Tested  X1       = "-1.0e-400"_d64;
+            const Tested  X1       = -1.0e-400_d64;
             const Tested& EXPECTED = DFP(-0.0);
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
@@ -682,38 +691,42 @@ void TestDriver::testCase8()
             // LINE |     X                   | EXPECTED
             //-----------------------------------------------------------
             // Fixed notation
-            { L_,     "0.0"_d128,                DFP( 0.0)                },
-            { L_,    "-0.0"_d128,                DFP(-0.0)                },
-            { L_,    "+0.0"_d128,                DFP( 0.0)                },
+            { L_,     0.0_d128,                DFP( 0.0)                },
+            { L_,    -0.0_d128,                DFP(-0.0)                },
+            { L_,    +0.0_d128,                DFP( 0.0)                },
 
-            { L_,     "4.2"_d128,                DFP( 4.2)                },
-            { L_,   "-42.0"_d128,                DFP(-42.0)               },
-            { L_,   "-0.42"_d128,                DFP(-0.42)               },
-            { L_,    "1.234567890123456789012345678901234567"_d128,
-                               DFP( 1.234567890123456789012345678901235)  },
+            { L_,     4.2_d128,                DFP( 4.2)                },
+            { L_,   -42.0_d128,                DFP(-42.0)               },
+            { L_,   -0.42_d128,                DFP(-0.42)               },
+            { L_,    1.234567890123456789012345678901234567_d128,
+                             DFP( 1.234567890123456789012345678901235)  },
             //-----------------------------------------------------------
             // Scientific notation
-            { L_,   "4.2e+0"_d128,               DFP( 4.2)                },
-            { L_,  "-4.2e+1"_d128,               DFP(-42.0)               },
-            { L_,  "-4.2e-1"_d128,               DFP(-0.42)               },
-            { L_,   "1.234567890123456789012345678901234567e+0"_d128,
-                                DFP( 1.234567890123456789012345678901235) },
+            { L_,   4.2e+0_d128,               DFP( 4.2)                },
+            { L_,  -4.2e+1_d128,               DFP(-42.0)               },
+            { L_,  -4.2e-1_d128,               DFP(-0.42)               },
+            { L_,   1.234567890123456789012345678901234567e+0_d128,
+                              DFP( 1.234567890123456789012345678901235) },
             //-----------------------------------------------------------
             // Special values
-            { L_,    "1e+7000"_d128,             Inf                      },
-            { L_,   "-1e+7000"_d128,            -Inf                      },
-            { L_,    "1e-7000"_d128,             DFP( 0.0)                },
-            { L_,   "-1e-7000"_d128,             DFP(-0.0)                },
+            { L_,    1e+7000_d128,             Inf                      },
+            { L_,   -1e+7000_d128,            -Inf                      },
+            { L_,    1e-7000_d128,             DFP( 0.0)                },
+            { L_,   -1e-7000_d128,             DFP(-0.0)                },
 
-            { L_,      "nan"_d128,               NaN                      },
-            { L_,     "-nan"_d128,              -NaN                      },
-            { L_,     "snan"_d128,              sNaN                      },
-            { L_,    "-snan"_d128,             -sNaN                      },
+            { L_,      "nan"_d128,             NaN                      },
+            { L_,     "-nan"_d128,            -NaN                      },
+            { L_,     -"nan"_d128,            -NaN                      },
 
-            { L_,      "inf"_d128,               Inf                      },
-            { L_,     "-inf"_d128,              -Inf                      },
+            { L_,     "snan"_d128,            sNaN                      },
+            { L_,    "-snan"_d128,           -sNaN                      },
+            { L_,    -"snan"_d128,           -sNaN                      },
 
-            { L_,     "ABCDEF"_d128,             NaN                      },
+            { L_,      "inf"_d128,             Inf                      },
+            { L_,     "-inf"_d128,            -Inf                      },
+            { L_,     -"inf"_d128,            -Inf                      },
+
+            { L_,     "ABCDEF"_d128,           NaN                      }
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -727,7 +740,7 @@ void TestDriver::testCase8()
 
         { // C-2
             errno = 0;
-            const Tested& X1       = "1.0e+7000"_d128;
+            const Tested& X1       = 1.0e+7000_d128;
             const Tested& EXPECTED = Inf;
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
@@ -735,7 +748,7 @@ void TestDriver::testCase8()
         }
         { // C-2
             errno = 0;
-            const Tested  X1       = "-1.0e+7000"_d128;
+            const Tested  X1       = -1.0e+7000_d128;
             const Tested& EXPECTED = -Inf;
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
@@ -743,7 +756,7 @@ void TestDriver::testCase8()
         }
         { // C-3
             errno = 0;
-            const Tested  X1       = "1.0e-7000"_d128;
+            const Tested  X1       = 1.0e-7000_d128;
             const Tested& EXPECTED = DFP(0.0);
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
@@ -751,7 +764,7 @@ void TestDriver::testCase8()
         }
         { // C-3
             errno = 0;
-            const Tested  X1       = "-1.0e-7000"_d128;
+            const Tested  X1       = -1.0e-7000_d128;
             const Tested& EXPECTED = DFP(-0.0);
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
@@ -759,6 +772,7 @@ void TestDriver::testCase8()
         }
 #undef DFP
     }
+#endif
 }
 
 void TestDriver::testCase7()
