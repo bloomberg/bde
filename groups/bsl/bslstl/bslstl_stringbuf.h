@@ -340,11 +340,16 @@ class basic_stringbuf
         // parent 'basic_streambuf' type without calling a method on this
         // object).
 
-    void validatePointers(const char_type *first,
+    bool pointersAreValid(const char_type *first,
                           const char_type *middle,
                           const char_type *last) const;
-        // The behavior is undefined unless first <= middle <= last and all
-        // arguments are 0 or all arguments point into d_str.
+        // Return 'true' if pointers form a valid range
+        // ('first <= middle <= last') and 'first == d_str.data()' and
+        // 'middle' and  'last' are in the range
+        // '[d_str.data() .. d_str.data() + d_str.size()]', or all arguments
+        // are 0, and 'false' otherwise.  Note that this function encapsulates
+        // defensive checks and is called in defensive (i.e., "DEBUG" or
+        // "SAFE") build modes only.
 
   protected:
     // PROTECTED MANIPULATORS
@@ -681,7 +686,7 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::validatePointers(
+bool basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pointersAreValid(
                                                   const char_type *first,
                                                   const char_type *middle,
                                                   const char_type *last) const
@@ -689,10 +694,10 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::validatePointers(
     const bool isNull            = first == 0;
     const char_type *bufferBegin = isNull ? 0 : d_str.data();
     const char_type *bufferEnd   = isNull ? 0 : d_str.data() + d_str.size();
-    BSLS_ASSERT(first  == bufferBegin);
-    BSLS_ASSERT(last   <= bufferEnd);
-    BSLS_ASSERT(first  <= middle);
-    BSLS_ASSERT(middle <= last);
+    return first  == bufferBegin
+        && last   <= bufferEnd
+        && first  <= middle
+        && middle <= last;
 }
 
 // PROTECTED MANIPULATORS
@@ -1062,11 +1067,15 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     ~basic_stringbuf()
 {
     if (d_mode & ios_base::in) {
-        validatePointers(this->eback(), this->gptr(), this->egptr());
+        BSLS_ASSERT(pointersAreValid(this->eback(),
+                                     this->gptr(),
+                                     this->egptr()));
     }
 
     if (d_mode & ios_base::out) {
-        validatePointers(this->pbase(), this->pptr(), this->epptr());
+        BSLS_ASSERT(pointersAreValid(this->pbase(),
+                                     this->pptr(),
+                                     this->epptr()));
     }
 }
 
