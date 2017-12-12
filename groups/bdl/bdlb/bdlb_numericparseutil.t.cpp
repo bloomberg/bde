@@ -129,6 +129,22 @@ typedef bsls::Types::Uint64 Uint64;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+static
+int doubleSign(double number)
+    // Return 0 if the specified 'number' is positive, and a non-zero value
+    // otherwise.  This function is needed only until we have all platforms
+    // updated to C++11 that supports the 'signbit' function.
+{
+    const unsigned char *bytes = reinterpret_cast<unsigned char *>(&number);
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    static bsl::size_t pos = 0;
+#elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+    static bsl::size_t pos = sizeof(double) - 1;
+#endif
+    return bytes[pos] & 0x80;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1910,14 +1926,9 @@ int main(int argc, char *argv[])
                             LOOP2_ASSERT(LINE, si, result != result);
                             LOOP3_ASSERT(LINE, si, rv, 0 == rv);
 
-                            // 'signbit' macro/function does not exist on SunOS
-                            // so I need to do this hackery.  May be removed
-                            // once SunOS supports C99 or C++11.
-                            double resultSign;
-                            double valueSign;
+                            int resultSign = doubleSign(result);
+                            int valueSign  = doubleSign(VALUE);
 
-                            resultSign  = copysign(42, result);
-                            valueSign   = copysign(42, VALUE);
                             LOOP4_ASSERT(LINE, si, resultSign, valueSign,
                                          resultSign == valueSign);
                         }
@@ -1953,14 +1964,8 @@ int main(int argc, char *argv[])
                             LOOP2_ASSERT(LINE, si, result != result);
                             LOOP3_ASSERT(LINE, si, rv, 0 == rv);
 
-                            // 'signbit' macro/function does not exist on SunOS
-                            // so I need to do this hackery.  May be removed
-                            // once SunOS supports C99 or C++11.
-                            double resultSign;
-                            double valueSign;
-
-                            resultSign = copysign(42, result);
-                            valueSign = copysign(42, VALUE);
+                            int resultSign = doubleSign(result);
+                            int valueSign = doubleSign(VALUE);
                             LOOP4_ASSERT(LINE, si, resultSign, valueSign,
                                 resultSign == valueSign);
                         }
