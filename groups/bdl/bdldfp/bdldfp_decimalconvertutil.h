@@ -347,10 +347,6 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalutil.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
-#include <bslmf_assert.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
 #endif
@@ -379,7 +375,7 @@ struct DecimalConvertUtil {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     typedef DecimalConvertUtil_IntelDfp  Imp;
 #else
-    BSLMF_ASSERT(false);
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
 #endif
 
     // PRIVATE CLASS DATA

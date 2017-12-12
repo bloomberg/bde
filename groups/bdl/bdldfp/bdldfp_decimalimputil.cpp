@@ -669,7 +669,7 @@ int DecimalImpUtil::classify(ValueType32 x)
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return canonicalizeDecimalValueClassification(__bid32_class(x.d_raw));
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -678,7 +678,7 @@ int DecimalImpUtil::classify(ValueType64 x)
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return canonicalizeDecimalValueClassification(__bid64_class(x.d_raw));
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -687,7 +687,7 @@ int DecimalImpUtil::classify(ValueType128 x)
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return canonicalizeDecimalValueClassification(__bid128_class(x.d_raw));
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1128,7 +1128,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::min32() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw32(1, -95);
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1137,7 +1137,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::max32() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse32("9.999999e96");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1146,7 +1146,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::epsilon32() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw32(1, -6);
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1155,7 +1155,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::roundError32() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw32(1, 0);
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1164,7 +1164,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::denormMin32() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse32("0.000001E-95");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1173,7 +1173,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::infinity32() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse32("INF");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1182,7 +1182,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::quietNaN32() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse32("NaN");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1192,7 +1192,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::signalingNaN32()
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse32("sNaN");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1201,7 +1201,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::min64() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw64(1, -383);
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1210,7 +1210,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::max64() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("9.999999999999999e384");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1219,7 +1219,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::epsilon64() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("1e-15");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1228,7 +1228,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::roundError64() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw64(1, 0);
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1237,7 +1237,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::denormMin64() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("0.000000000000001e-383");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1246,7 +1246,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::infinity64() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("INF");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1255,7 +1255,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::quietNaN64() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("NaN");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1265,7 +1265,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::signalingNaN64()
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("sNaN");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1274,7 +1274,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::min128() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw128(1, -6143);
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1283,7 +1283,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::max128() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse128("9.999999999999999999999999999999999e6144");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1292,7 +1292,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::epsilon128() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw128(1, -33);
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1302,7 +1302,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::roundError128()
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw128(1, 0);
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1311,7 +1311,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::denormMin128() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse128("0.000000000000000000000000000000001e-6143");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1320,7 +1320,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::infinity128() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse128("INF");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1329,7 +1329,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::quietNaN128() BSLS_CPP11_NOEXCEPT
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse128("NaN");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 
@@ -1339,7 +1339,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::signalingNaN128()
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse128("sNaN");
 #else
-BSLMF_ASSERT(false);; // Unsupported platform
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR; // Unsupported platform
 #endif
 }
 

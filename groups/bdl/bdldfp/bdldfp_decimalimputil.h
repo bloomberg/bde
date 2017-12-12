@@ -231,7 +231,7 @@ class DecimalImpUtil {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     typedef DecimalImpUtil_IntelDfp  Imp;
 #else
-    BSLMF_ASSERT(false);
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
 #endif
 
   public:

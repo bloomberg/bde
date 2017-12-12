@@ -24,8 +24,6 @@ BSLS_IDENT_RCSID(bdldfp_decimalutil_cpp,"$Id$ $CSID$")
 #  endif
 #endif
 
-#define BDLDFP_DISABLE_COMPILE BSLMF_ASSERT(false)
-
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
 #include <bdldfp_intelimpwrapper.h>
 #endif
