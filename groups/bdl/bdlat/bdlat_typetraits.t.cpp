@@ -88,7 +88,7 @@ namespace BloombergLP {
 
 // traitless class
 
-class my_NonPOD {
+class NonPod {
     bool d_data;
 
     virtual bool memberFunction() { return !d_data; }
@@ -96,30 +96,30 @@ class my_NonPOD {
 
 struct my_ClassWithNoTraits {
     // Class with no declared traits.
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 
 // choice types
 
 struct my_ClassWithBasicChoiceTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_CHOICE_TRAITS(my_ClassWithBasicChoiceTraits)
 
 struct my_ClassWithBasicChoiceAllocTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_TRAITS(
                          my_ClassWithBasicChoiceAllocTraits)
 
 struct my_ClassWithBasicChoiceBitwiseTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_CHOICE_WITH_BITWISEMOVEABLE_TRAITS(
                          my_ClassWithBasicChoiceBitwiseTraits)
 
 struct my_ClassWithBasicChoiceAllocBitwiseTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
                          my_ClassWithBasicChoiceAllocBitwiseTraits)
@@ -127,24 +127,24 @@ BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
 // sequence types
 
 struct my_ClassWithBasicSequenceTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_SEQUENCE_TRAITS(my_ClassWithBasicSequenceTraits)
 
 struct my_ClassWithBasicSequenceAllocTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(
                            my_ClassWithBasicSequenceAllocTraits)
 
 struct my_ClassWithBasicSequenceBitwiseTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(
                            my_ClassWithBasicSequenceBitwiseTraits)
 
 struct my_ClassWithBasicSequenceAllocBitwiseTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
                            my_ClassWithBasicSequenceAllocBitwiseTraits)
@@ -152,13 +152,13 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
 // enumeration types
 
 struct my_EnumWithNoTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
     enum Value { enumerator };
     // Enumeration with no declared traits.
 };
 
 struct my_EnumWithBasicEnumTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
     enum Value { enumerator };
 };
 BDLAT_DECL_ENUMERATION_TRAITS(my_EnumWithBasicEnumTraits)
@@ -166,24 +166,24 @@ BDLAT_DECL_ENUMERATION_TRAITS(my_EnumWithBasicEnumTraits)
 // customized types
 
 struct my_ClassWithBasicCustomizedTypeTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_CUSTOMIZEDTYPE_TRAITS(my_ClassWithBasicCustomizedTypeTraits)
 
 struct my_ClassWithBasicCustomizedTypeAllocTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_TRAITS(
                                  my_ClassWithBasicCustomizedTypeAllocTraits)
 
 struct my_ClassWithBasicCustomizedTypeBitwiseTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_CUSTOMIZEDTYPE_WITH_BITWISEMOVEABLE_TRAITS(
                            my_ClassWithBasicCustomizedTypeBitwiseTraits)
 
 struct my_ClassWithBasicCustomizedTypeAllocBitwiseTraits {
-    my_NonPOD d_data;
+    NonPod d_data;
 };
 BDLAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(
                            my_ClassWithBasicCustomizedTypeAllocBitwiseTraits)
