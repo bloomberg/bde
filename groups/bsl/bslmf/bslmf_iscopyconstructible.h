@@ -120,7 +120,26 @@ struct is_copy_constructible;
 //                          CLASS TEMPLATE DEFINITIONS
 // ============================================================================
 
-#if !defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
+#if defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
+namespace bsl {
+
+                        // ====================================
+                        // struct is_copy_constructible (C++11)
+                        // ====================================
+
+template <class TYPE>
+struct is_copy_constructible
+    : bsl::integral_constant<bool,
+                             ::native_std::is_copy_constructible<TYPE>::value>
+{
+    // This specialization defers entirely to the native trait on supported
+    // C++11 compilers.
+};
+
+}  // close namespace bsl
+
+#else
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -249,23 +268,8 @@ struct is_copy_constructible<const volatile TYPE[]> : false_type
 #endif  // defined(BSLS_PLATFORM_CMP_IBM)
 
 }  // close namespace bsl
-#else
-namespace bsl {
 
-                        // ====================================
-                        // struct is_copy_constructible (C++11)
-                        // ====================================
-
-template <class TYPE>
-struct is_copy_constructible
-    : bsl::integral_constant<bool,
-                             ::native_std::is_copy_constructible<TYPE>::value>
-{
-    // Defer entirely to the native trait on supported C++11 compilers.
-};
-
-}  // close namespace bsl
-#endif  // !defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
+#endif  // defined(BSLS_ISCOPYCONSTRUCTIBLE_USE_NATIVE_TRAIT)
 
 #endif
 

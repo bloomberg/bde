@@ -14,12 +14,12 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_isclass.h
 //
-//@DESCRIPTION: This component defines a metafunction, 'bsl::is_empty', which
+//@DESCRIPTION: This component defines a meta-function, 'bsl::is_empty', which
 // may be used to determine whether a type is a 'class' or 'struct' with no
 // non-static data members other than bit-fields of length 0, no virtual member
 // functions, no virtual base classes, and no base class 'B' for which
-// 'is_empty<B>::value' is 'false'.  This metafunction conforms to the
-// definition of the C++11 standard 'is_empty metafunction in section
+// 'is_empty<B>::value' is 'false'.  This meta-function conforms to the
+// definition of the C++11 standard 'is_empty meta-function in section
 // [meta.unary.prop].
 //
 // An empty class type type is *usually* stateless and, can be "stored" in a
@@ -108,11 +108,69 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
+#endif
+
+#ifndef INCLUDED_TYPE_TRAITS
+# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
+# include <type_traits>
+#endif
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+# define BSLS_ISEMPTY_USE_NATIVE_TRAIT 1
+#endif
+
 namespace bsl {
 
-                        // ============================
-                        // class template Is_Empty_Size
-                        // ============================
+                       // ===============
+                       // struct is_empty
+                       // ===============
+
+template <class TYPE>
+struct is_empty;
+    // This 'struct' is a meta-function to determine whether the (template
+    // parameter) 'TYPE' is an empty class type.  This 'struct' derives from
+    // 'bsl::true_type' if the 'TYPE' is empty, and from 'bsl::false_type'
+    // otherwise.  This meta-function has the same syntax as the 'is_empty'
+    // meta-function defined in the C++11 standard [meta.unary.prop]; on C++03
+    // platforms, however, this meta-function defaults to 'true_type' if 'TYPE'
+    // is a 'class' or 'struct' with no non-static data members other than
+    // bit-fields of length 0, no virtual member functions, no virtual base
+    // classes, and no base class 'B' for which 'is_empty<B>::value' is
+    // 'false'; otherwise 'is_empty' defaults to 'false_type'.  Note that this
+    // meta-function will fail to compile for a union that is the same size as
+    // an empty class in C++03.
+
+}  // close namespace bsl
+
+// ============================================================================
+//                          CLASS TEMPLATE DEFINITIONS
+// ============================================================================
+namespace bsl {
+#if defined(BSLS_ISEMPTY_USE_NATIVE_TRAIT)
+
+                    // =======================
+                    // struct is_empty (C++11)
+                    // =======================
+
+template <class TYPE>
+struct is_empty
+    : bsl::integral_constant<bool, ::native_std::is_empty<TYPE>::value>
+{
+    // This specification defers to the native trait on supported C++11
+    // compilers.
+};
+
+#else
+
+                        // ====================
+                        // struct Is_Empty_Size
+                        // ====================
 
 struct Is_Empty_Size {
     // Private class: do not use outside of 'bslmf_isempty' component.  This
@@ -126,15 +184,15 @@ struct Is_Empty_Size {
     // member has more than the smallest permissible size on the current ABI.
 };
 
-                // =================================
-                // class template Is_Empty_Class_Imp
-                // =================================
+                     // =========================
+                     // struct Is_Empty_Class_Imp
+                     // =========================
 
 template <class TYPE,
           bool  IS_CLASS = sizeof(TYPE) == sizeof(Is_Empty_Size)>
 struct Is_Empty_Class_Imp : false_type {
     // Private class: do not use outside of 'bslmf_isempty' component.  This
-    // metafunction derives from 'false_type' unless (the template parameter)
+    // meta-function derives from 'false_type' unless (the template parameter)
     // 'TYPE' is exactly the same size as a known empty type, in which case
     // the following partial specialization is chosen.  This test filters out
     // the majority of problems with 'union' types that are classes, and would
@@ -167,14 +225,14 @@ struct Is_Empty_Class_Imp<TYPE, true> {
         // and 'false_type' otherwise.
 };
 
-                        // ===========================
-                        // class template Is_Empty_Imp
-                        // ===========================
+                        // ===================
+                        // struct Is_Empty_Imp
+                        // ===================
 
 template <class TYPE, bool IS_CLASS = bsl::is_class<TYPE>::value>
 struct Is_Empty_Imp : false_type {
     // Private class: do not use outside of 'bslmf_isempty' component.  This
-    // metafunction provides an initial dispatch that always derives from
+    // meta-function provides an initial dispatch that always derives from
     // 'false_type' unless the template parameter 'TYPE' is a class type, as
     // only class types can be empty.  The following partial specialization
     // forwards all class types to a final test.  This two-phase dispatch is
@@ -187,31 +245,33 @@ template <class TYPE>
 struct Is_Empty_Imp<TYPE, true> : Is_Empty_Class_Imp<TYPE>::type {
     // Private class: do not use outside of 'bslmf_isempty' component.
     // Implementation of 'bsl::is_empty'.  This partial specialization derives
-    // from the nested 'type' member of the 'Is_Empty_Class_Imp' metafunction,
+    // from the nested 'type' member of the 'Is_Empty_Class_Imp' meta-function,
     // which must be 'true_type' if (the template parameter) 'TYPE' is an
     // empty class, and 'false_type' otherwise.
 };
 
                         // =======================
-                        // class template is_empty
+                        // struct is_empty (C++03)
                         // =======================
 
 template <class TYPE>
 struct is_empty : Is_Empty_Imp<typename remove_cv<TYPE>::type>::type
 {
-    // This 'struct' is a metafunction to determine whether the (template
+    // This 'struct' is a meta-function to determine whether the (template
     // parameter) 'TYPE' is an empty class type.  'is_empty' inherits from
     // 'true_type' if 'TYPE' is a 'class' or 'struct' with no non-static data
     // members other than bit-fields of length 0, no virtual member functions,
     // no virtual base classes, and no base class 'B' for which
     // 'is_empty<B>::value' is 'false'; otherwise 'is_empty' inherits from
-    // 'false_type'.  Note that this metafunction will fail to compile for a
-    // union that is the same size as an empty class in C++03
+    // 'false_type'.  Note that this meta-function will fail to compile for a
+    // union that is the same size as an empty class in C++03.
 };
+
+#endif  // defined(BSLS_ISEMPTY_USE_NATIVE_TRAIT)
 
 }  // close namespace bsl
 
-#endif // ! defined(INCLUDED_BSLMF_ISEMPTY)
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

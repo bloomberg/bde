@@ -148,7 +148,26 @@ struct IsEnum : bsl::is_enum<TYPE>::type {
 //                          CLASS TEMPLATE DEFINITIONS
 // ============================================================================
 
-#if !defined(BSLS_ISENUM_USE_NATIVE_TRAIT)
+#if defined(BSLS_ISENUM_USE_NATIVE_TRAIT)
+
+namespace bsl {
+
+                        // ======================
+                        // struct is_enum (C++11)
+                        // ======================
+
+template <class TYPE>
+struct is_enum
+    : bsl::integral_constant<bool, ::native_std::is_enum<TYPE>::value>
+{
+    // This specialisation defers entirely to the native trait on supported
+    // C++11 compilers.
+};
+
+} // namespace bsl
+
+#else
+
 namespace BloombergLP {
 namespace bslmf {
 
@@ -250,22 +269,8 @@ struct is_enum<const volatile TYPE>
 };
 
 }  // close namespace bsl
-#else
-namespace bsl {
 
-                        // ======================
-                        // struct is_enum (C++11)
-                        // ======================
-
-template <class TYPE>
-struct is_enum
-    : bsl::integral_constant<bool, ::native_std::is_enum<TYPE>::value>
-{
-    // Defer entirely to the native trait on supported C++11 compilers.
-};
-
-} // namespace bsl
-#endif
+#endif  // BSLS_ISENUM_USE_NATIVE_TRAIT
 
 
 #endif
