@@ -238,31 +238,6 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 49: {
-        // --------------------------------------------------------------------
-        // TEST STACK TRACE IN 'microsecondsFromMidnight'
-          //
-          // Concerns:
-          //: 1 If 'microsecondsFromMidnight' gets to an invalid state,
-          //:   the stack trace call dumps the stack calls.
-          //
-          // Plan:
-          //: 1 Create a valid 'Time' object.  Check its validity by calling an
-          //:   accessor (which then call the private
-          //:   'microsecondsFromMidnight').  Memset the object to 0, thus
-          //:   invalidating it. Call the accessor again, capturing
-          //:   BSLS_ASSERT_SAFE failures.  (C-1)
-          // --------------------------------------------------------------------
-        Obj t(0, 0, 0, 0, 20);
-        int micros = t.microsecond();
-        ASSERT(20 == micros);
-        bsl::memset(&t, 0, sizeof(Obj));
-#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
-        bsls::Log::setLogMessageHandler(countingLogMessageHandler);
-        micros = t.microsecond();
-        ASSERT(1 == s_countingLogMessageHandlerCount);
-#endif
-      } break;
       // --------------------------------------------------------------------
       // VERIFYING HANDLING OF INVALID INTERNAL REPRESENTATIONS
       // --------------------------------------------------------------------
@@ -521,7 +496,7 @@ int main(int argc, char *argv[])
                 ASSERT(x0 == Obj());
                 Obj x1; ASSERT(0 == x1.setHourIfValid( 0));
                 Obj x2; ASSERT(0 == x2.setHourIfValid(23));
-                Obj x3; ASSERT(0 == x3.setHourIfValid(24)); // Default object?
+                Obj x3; ASSERT(0 == x3.setHourIfValid(24)); // Default object
                 Obj x4; ASSERT(0 != x4.setHourIfValid(25));
                 ASSERT(x4 == Obj());
 

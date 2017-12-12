@@ -805,7 +805,7 @@ int main(int argc, char *argv[])
                 ASSERT(bdlt::Datetime() == x0);
                 Obj x1; ASSERT(0 == x1.setHourIfValid( 0));
                 Obj x2; ASSERT(0 == x2.setHourIfValid(23));
-                Obj x3; ASSERT(0 == x3.setHourIfValid(24)); // default object?
+                Obj x3; ASSERT(0 == x3.setHourIfValid(24)); // default object
                 Obj x4; ASSERT(0 != x4.setHourIfValid(25));
                 ASSERT(bdlt::Datetime() == x4);
 
@@ -8586,8 +8586,9 @@ if (veryVerbose)
     // CONCERN: In no case that does not contain invalid state does memory come
     // from the default allocator.
 
-    if (test <= 24 || 72 <= test)
+    if (test <= 24 || 72 <= test) {
         ASSERT(dam.isTotalSame());
+    }
 
     // CONCERN: In no case does memory come from the global allocator.
 

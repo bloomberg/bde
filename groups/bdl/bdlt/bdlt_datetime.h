@@ -663,7 +663,7 @@ class Datetime {
 
     int setSecondIfValid(int second);
         // Set the "second" attribute of this object to the specified 'second'
-        // value "if* '0 <= second <= 59'.  If '24 == hour()', set the 'hour'
+        // value if '0 <= second <= 59'.  If '24 == hour()', set the 'hour'
         // attribute to 0.  Return 0 on success, and a non-zero value (with no
         // effect) otherwise.  Note that this method has no effect on the
         // "date" part of this object.
@@ -1175,7 +1175,7 @@ bool Datetime::validateAndTraceLogRepresentation() const
     bdlb::BitUtil::uint64_t count =
           static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
     if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-        enum { k_BUFFER_LENGTH = 20 };
+        enum { k_BUFFER_LENGTH = 50 };
         void *buffer[k_BUFFER_LENGTH];
         bsl::memset(buffer, 0, sizeof(buffer));
         int numAddresses = bsls::StackAddressUtil::getStackAddresses(
@@ -1187,7 +1187,7 @@ bool Datetime::validateAndTraceLogRepresentation() const
         ss << "detected invalid 'bdlt::Time'; see TEAM 579660115; numAddr="
            << numAddresses << "\n";
         for (; stackIdx < numAddresses; ++stackIdx) {
-            ss << "#" << stackIdx << "," << buffer[stackIdx] << "\n";
+            ss << "#" << stackIdx << ":" << buffer[stackIdx] << "\n";
         }
         BSLS_LOG_ERROR(ss.str().c_str());
     }
