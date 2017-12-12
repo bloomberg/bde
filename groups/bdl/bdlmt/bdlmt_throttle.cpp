@@ -37,7 +37,7 @@ void Throttle::initialize(int                         maxSimultaneousActions,
                 bsls::SystemClockType::e_REALTIME  == clockType);
 
     AtomicOps::setInt64(&d_prevLeakTime, -k_TEN_YEARS_NANOSECONDS);
-    if      (0 == maxSimultaneousActions) {
+    if (0 == maxSimultaneousActions) {
         d_nanosecondsPerAction = k_ALLOW_NONE;
     }
     else if (0 == nanosecondsPerAction) {
@@ -51,12 +51,9 @@ void Throttle::initialize(int                         maxSimultaneousActions,
     // it doesn't matter what 'd_nanosecondsPerTotalReset' is.
 
     d_nanosecondsPerTotalReset = maxSimultaneousActions * nanosecondsPerAction;
-    if (0 == nanosecondsPerAction) {
-        d_maxSimultaneousActions = INT_MAX;
-    }
-    else {
-        d_maxSimultaneousActions = maxSimultaneousActions;
-    }
+    d_maxSimultaneousActions   = 0 == nanosecondsPerAction
+                               ? INT_MAX
+                               : maxSimultaneousActions;
     d_clockType = clockType;
 }
 
@@ -149,7 +146,8 @@ int Throttle::nextPermit(bsls::TimeInterval *result, int numActions) const
         return -1;                                                    // RETURN
     }
 
-    // Note that 'k_ALLOW_ALL < 0', otherwise '0 < d_nanosecondsPerAction'.
+    // Note that we use 'max' to handle when 'd_nanoSecondsPerAction' is
+    // 'k_ALLOW_ALL', which is defined as a negative value.
 
     result->setTotalNanoseconds(AtomicOps::getInt64Acquire(
                const_cast<AtomicTypes::Int64 *>(&d_prevLeakTime)) +

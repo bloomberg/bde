@@ -246,9 +246,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlmt {
 
-                               // --------------
+                               // ==============
                                // class Throttle
-                               // --------------
+                               // ==============
 
 class Throttle {
     // This 'class' provides a mechanism that can be used by clients to
@@ -396,9 +396,9 @@ class Throttle {
         // does *not* obtain the current time from the system clock.
 };
 
-                          // ----------------------------
+                          // =========================
                           // class Throttle_InitHelper
-                          // ----------------------------
+                          // =========================
 
 template <int                MAX_SIMULTANEOUS_ACTIONS,
           bsls::Types::Int64 NANOSECONDS_PER_ACTION>
@@ -499,47 +499,34 @@ bsls::Types::Int64 Throttle::nanosecondsPerAction() const
 }
 
                           // ---------------------------
-                          // '_InitHelper' access macros
-                          // ---------------------------
-
-        // These 2 macros are not to be used directly by clients of this
-        // component.
-
-#define BDLMT_NANOSECONDS_PER_ACTION_IMPL(maxSimultaneousActions,             \
-                                          nanosecondsPerAction)               \
-    BloombergLP::bdlmt::Throttle_InitHelper<(maxSimultaneousActions),         \
-                                            (nanosecondsPerAction)>::k_npaValue
-
-#define BDLMT_MAX_SIMULTANEOUS_ACTIONS_IMPL(maxSimultaneousActions,           \
-                                            nanosecondsPerAction)             \
-    BloombergLP::bdlmt::Throttle_InitHelper<(maxSimultaneousActions),         \
-                                            (nanosecondsPerAction)>::k_msaValue
-
-                          // ---------------------------
                           // BDLMT_THROTTLE_INIT* macros
                           // ---------------------------
 
 #define BDLMT_THROTTLE_INIT(maxSimultaneousActions,                           \
                             nanosecondsPerAction) {                           \
     -BloombergLP::bdlmt::Throttle::k_TEN_YEARS_NANOSECONDS,                   \
-    BDLMT_NANOSECONDS_PER_ACTION_IMPL((maxSimultaneousActions),               \
-                                      (nanosecondsPerAction)),                \
+    BloombergLP::bdlmt::Throttle_InitHelper<                                  \
+                                         (maxSimultaneousActions),            \
+                                         (nanosecondsPerAction)>::k_npaValue, \
     bsl::integral_constant<BloombergLP::bsls::Types::Int64,                   \
          1LL * (maxSimultaneousActions) * (nanosecondsPerAction)>::value,     \
-    BDLMT_MAX_SIMULTANEOUS_ACTIONS_IMPL((maxSimultaneousActions),             \
-                                        (nanosecondsPerAction)),              \
+    BloombergLP::bdlmt::Throttle_InitHelper<                                  \
+                                         (maxSimultaneousActions),            \
+                                         (nanosecondsPerAction)>::k_msaValue, \
     BloombergLP::bsls::SystemClockType::e_MONOTONIC                           \
  }
 
 #define BDLMT_THROTTLE_INIT_REALTIME(maxSimultaneousActions,                  \
                                      nanosecondsPerAction) {                  \
     -BloombergLP::bdlmt::Throttle::k_TEN_YEARS_NANOSECONDS,                   \
-    BDLMT_NANOSECONDS_PER_ACTION_IMPL((maxSimultaneousActions),               \
-                                      (nanosecondsPerAction)),                \
+    BloombergLP::bdlmt::Throttle_InitHelper<                                  \
+                                         (maxSimultaneousActions),            \
+                                         (nanosecondsPerAction)>::k_npaValue, \
     bsl::integral_constant<BloombergLP::bsls::Types::Int64,                   \
          1LL * (maxSimultaneousActions) * (nanosecondsPerAction)>::value,     \
-    BDLMT_MAX_SIMULTANEOUS_ACTIONS_IMPL((maxSimultaneousActions),             \
-                                        (nanosecondsPerAction)),              \
+    BloombergLP::bdlmt::Throttle_InitHelper<                                  \
+                                         (maxSimultaneousActions),            \
+                                         (nanosecondsPerAction)>::k_msaValue, \
     BloombergLP::bsls::SystemClockType::e_REALTIME                            \
  }
 
