@@ -1296,7 +1296,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
         // Attribute Values
 
-        const char *str = "abced";
+        const char str[] = "abced";
 
         const T1 D1 = 0;                // default value
         const T1 A1 = str;
