@@ -461,7 +461,11 @@ struct ForwardingType_Imp<UNREF_TYPE,
         // is a const reference, then the constness will be reinstated on
         // return.
 
-        return static_cast<TargetType>(const_cast<UNREF_TYPE&>(v));
+        // We split this cast up into two lines because Visual Studio 2015 and
+        // early versions of Visual Studio 2017 create a temporary in the
+        // one-liner.
+        UNREF_TYPE& result = const_cast<UNREF_TYPE&>(v);
+        return static_cast<TargetType>(result);
     }
 #endif
 };
@@ -552,7 +556,11 @@ struct ForwardingType_Imp<UNREF_TYPE,
         // is a const reference, then the constness will be reinstated on
         // return.
 
-        return static_cast<TargetType>(const_cast<UNREF_TYPE&>(v));
+        // We split this cast up into two lines because Visual Studio 2015 and
+        // early versions of Visual Studio 2017 create a temporary in the
+        // one-liner.
+        UNREF_TYPE& result = const_cast<UNREF_TYPE&>(v);
+        return static_cast<TargetType>(result);
     }
 #else
     typedef const UNREF_TYPE& TargetType;
