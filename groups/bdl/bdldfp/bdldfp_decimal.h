@@ -1797,40 +1797,49 @@ bdldfp::Decimal32 operator "" _d32(const char *str);
 bdldfp::Decimal32 operator "" _d32(const char *str, bsl::size_t len);
     // Produce an object of 'Decimal32' type by parsing the specified 'str'
     // having the specified 'len' excluding the terminating null character that
-    // represents floating-point number written in both fixed and scientific
-    // notations.  The resulting decimal object will be initialized as follows:
+    // represents a floating-point number written in both fixed and scientific
+    // notations.  This user-defined literal suffix can be applied to both
+    // numeric and string literals, (i.e., 1.2_d32, "1.2"_d32 or "inf"_d32).
+    // The resulting decimal object is initialized as follows:
     //
-    //: o If 'str' does not represent floating-point value, then return
+    //: o If 'str' does not represent a floating-point value, then return a
     //:   'Decimal32' object initialized to a NaN.
     //:
     //: o Otherwise if 'str' represents infinity (positive or negative), then
-    //:   return 'Decimal32' object initialized to infinity value with the same
-    //:   sign.
+    //:   return a 'Decimal32' object initialized to infinity value with the
+    //:   same sign.
     //:
-    //: o Otherwise if 'str' represents zero value (positive or negative), then
-    //:   return 'Decimal32' object initialized to zero with the same sign.
+    //: o Otherwise if 'str' represents zero (positive or negative), then
+    //:   return a 'Decimal32' object initialized to zero with the same sign.
     //:
     //: o Otherwise if 'str' represents a value that has an absolute value that
     //:   is larger than 'std::numeric_limits<Decimal32>::max()' then store the
-    //:   value of the macro 'ERANGE' into 'errno' and return 'Decimal32'
+    //:   value of the macro 'ERANGE' into 'errno' and return a 'Decimal32'
     //:   object initialized to infinity with the same sign.
     //:
     //: o Otherwise if 'str' represents a value that has an absolute value that
     //:   is smaller than 'std::numeric_limits<Decimal32>::min()' then store
-    //    the value of the macro 'ERANGE' into 'errno' and return 'Decimal32'
+    //    the value of the macro 'ERANGE' into 'errno' and return a 'Decimal32'
     //:   object initialized to zero with the same sign.
     //:
     //: o Otherwise if 'str' has a value that is not exactly representable
-    //:   using 'std::numeric_limits<Decimal32>::max_digit' decimal digits then
-    //:   return 'Decimal32' object initialized to the value represented by
-    //:   'str' rounded according to the rounding direction.
+    //:   using 'std::numeric_limits<Decimal32>::max_digits10' decimal digits
+    //:   then return a 'Decimal32' object initialized to the value represented
+    //:   by 'str' rounded according to the rounding direction.
     //:
-    //: o Otherwise return 'Decimal32' object initialized to the decimal value
-    //:   representation of 'str'.
+    //: o Otherwise return a 'Decimal32' object initialized to the decimal
+    //:   value representation of 'str'.
     //
     // Note that the parsing follows the rules as specified for the 'strtod32'
     // function in section 9.6 of the ISO/EIC TR 24732 C Decimal Floating-Point
     // Technical Report.
+    //
+    // Also note that the numeric literal version omits the optional leading
+    // sign in 'str'.  For example, if the string is -1.2_d32 then the string
+    // "1.2" is passed to the one-argument form, not "-1.2", because leading
+    // signs are operators, not parts of literals.  On the other hand, the
+    // string literal version does not omit leading sign and if the string is
+    // "-1.2"_d32 then the string "-1.2" is passed to the two-argument form.
     //
     // Example:
     //   'Decimal32 d    = 42.014_d32;'
@@ -3098,40 +3107,49 @@ bdldfp::Decimal64 operator "" _d64(const char *str);
 bdldfp::Decimal64 operator "" _d64(const char *str, bsl::size_t len);
     // Produce an object of 'Decimal64' type by parsing the specified 'str'
     // having the specified 'len' excluding the terminating null character that
-    // represents floating-point number written in both fixed and scientific
-    // notations.  The resulting decimal object will be initialized as follows:
+    // represents a floating-point number written in both fixed and scientific
+    // notations.  This user-defined literal suffix can be applied to both
+    // numeric and string literals, (i.e., 1.2_d64, "1.2"_d64 or "inf"_d64).
+    // The resulting decimal object is initialized as follows:
     //
-    //: o If 'str' does not represent floating-point value, then return
+    //: o If 'str' does not represent a floating-point value, then return a
     //:   'Decimal64' object initialized to a NaN.
     //:
     //: o Otherwise if 'str' represents infinity (positive or negative), then
-    //:   return 'Decimal64' object initialized to infinity value with the same
-    //:   sign.
+    //:   return a 'Decimal64' object initialized to infinity value with the
+    //:   same sign.
     //:
-    //: o Otherwise if 'str' represents zero value (positive or negative), then
-    //:   return 'Decimal64' object initialized to zero with the same sign.
+    //: o Otherwise if 'str' represents zero (positive or negative), then
+    //:   return a 'Decimal64' object initialized to zero with the same sign.
     //:
     //: o Otherwise if 'str' represents a value that has an absolute value that
     //:   is larger than 'std::numeric_limits<Decimal64>::max()' then store the
-    //:   value of the macro 'ERANGE' into 'errno' and return 'Decimal64'
+    //:   value of the macro 'ERANGE' into 'errno' and return a 'Decimal64'
     //:   object initialized to infinity with the same sign.
     //:
     //: o Otherwise if 'str' represents a value that has an absolute value that
     //:   is smaller than 'std::numeric_limits<Decimal64>::min()' then store
-    //    the value of the macro 'ERANGE' into 'errno' and return 'Decimal64'
+    //    the value of the macro 'ERANGE' into 'errno' and return a 'Decimal64'
     //:   object initialized to zero with the same sign.
     //:
     //: o Otherwise if 'str' has a value that is not exactly representable
-    //:   using 'std::numeric_limits<Decimal64>::max_digit' decimal digits then
-    //:   return 'Decimal64' object initialized to the value represented by
-    //:   'str' rounded according to the rounding direction.
+    //:   using 'std::numeric_limits<Decimal64>::max_digits10' decimal digits
+    //:   then return a 'Decimal64' object initialized to the value represented
+    //:   by 'str' rounded according to the rounding direction.
     //:
-    //: o Otherwise return 'Decimal64' object initialized to the decimal value
-    //:   representation of 'str'.
+    //: o Otherwise return a 'Decimal64' object initialized to the decimal
+    //:   value representation of 'str'.
     //
     // Note that the parsing follows the rules as specified for the 'strtod64'
     // function in section 9.6 of the ISO/EIC TR 24764 C Decimal Floating-Point
     // Technical Report.
+    //
+    // Also note that the numeric literal version omits the optional leading
+    // sign in 'str'.  For example, if the string is -1.2_d64 then the string
+    // "1.2" is passed to the one-argument form, not "-1.2", because leading
+    // signs are operators, not parts of literals.  On the other hand, the
+    // string literal version does not omit leading sign and if the string is
+    // "-1.2"_d64 then the string "-1.2" is passed to the two-argument form.
     //
     // Example:
     //   'Decimal64 d    = 42.014_d64;'
@@ -4337,45 +4355,53 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal128 object);
     // decimal floating point exception context.
 
 #if __cplusplus >= 201103L
-
 bdldfp::Decimal128 operator "" _d128(const char *decimal);
 bdldfp::Decimal128 operator "" _d128(const char *decimal, bsl::size_t len);
     // Produce an object of 'Decimal128' type by parsing the specified 'str'
     // having the specified 'len' excluding the terminating null character that
-    // represents floating-point number written in both fixed and scientific
-    // notations.  The resulting decimal object will be initialized as follows:
+    // represents a floating-point number written in both fixed and scientific
+    // notations.  This user-defined literal suffix can be applied to both
+    // numeric and string literals, (i.e., 1.2_d128, "1.2"_d128 or "inf"_d128).
+    // The resulting decimal object is initialized as follows:
     //
-    //: o If 'str' does not represent floating-point value, then return
+    //: o If 'str' does not represent a floating-point value, then return a
     //:   'Decimal128' object initialized to a NaN.
     //:
     //: o Otherwise if 'str' represents infinity (positive or negative), then
-    //:   return 'Decimal128' object initialized to infinity value with the
+    //:   return a 'Decimal128' object initialized to infinity value with the
     //:   same sign.
     //:
-    //: o Otherwise if 'str' represents zero value (positive or negative), then
-    //:   return 'Decimal128' object initialized to zero with the same sign.
+    //: o Otherwise if 'str' represents zero (positive or negative), then
+    //:   return a 'Decimal128' object initialized to zero with the same sign.
     //:
     //: o Otherwise if 'str' represents a value that has an absolute value that
     //:   is larger than 'std::numeric_limits<Decimal128>::max()' then store
-    //:   the value of the macro 'ERANGE' into 'errno' and return 'Decimal128'
-    //:   object initialized to infinity with the same sign.
+    //:   the value of the macro 'ERANGE' into 'errno' and return a
+    //:   'Decimal128' object initialized to infinity with the same sign.
     //:
     //: o Otherwise if 'str' represents a value that has an absolute value that
     //:   is smaller than 'std::numeric_limits<Decimal128>::min()' then store
-    //    the value of the macro 'ERANGE' into 'errno' and return 'Decimal128'
-    //:   object initialized to zero with the same sign.
+    //    the value of the macro 'ERANGE' into 'errno' and return a
+    //:   'Decimal128' object initialized to zero with the same sign.
     //:
     //: o Otherwise if 'str' has a value that is not exactly representable
-    //:   using 'std::numeric_limits<Decimal128>::max_digit' decimal digits
-    //:   then return 'Decimal128' object initialized to the value represented
-    //:   by 'str' rounded according to the rounding direction.
+    //:   using 'std::numeric_limits<Decimal128>::max_digits10' decimal digits
+    //:   then return a 'Decimal128' object initialized to the value
+    //:   represented by 'str' rounded according to the rounding direction.
     //:
-    //: o Otherwise return 'Decimal128' object initialized to the decimal value
-    //:   representation of 'str'.
+    //: o Otherwise return a 'Decimal128' object initialized to the decimal
+    //:   value representation of 'str'.
     //
     // Note that the parsing follows the rules as specified for the 'strtod128'
-    // function in section 9.6 of the ISO/EIC TR 24764 C Decimal Floating-Point
-    // Technical Report.
+    // function in section 9.6 of the ISO/EIC TR 247128 C Decimal
+    // Floating-Point Technical Report.
+    //
+    // Also note that the numeric literal version omits the optional leading
+    // sign in 'str'.  For example, if the string is -1.2_d128 then the string
+    // "1.2" is passed to the one-argument form, not "-1.2", because leading
+    // signs are operators, not parts of literals.  On the other hand, the
+    // string literal version does not omit leading sign and if the string is
+    // "-1.2"_d128 then the string "-1.2" is passed to the two-argument form.
     //
     // Example:
     //   'Decimal128 d    = 42.014_d128;'

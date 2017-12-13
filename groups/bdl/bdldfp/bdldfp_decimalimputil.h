@@ -1309,61 +1309,62 @@ class DecimalImpUtil {
 
                         // Parsing functions
 
-    static ValueType32 parse32(const char *input);
-        // Parse the specified 'input' as a 32 bit decimal floating-point
-        // value and return the result.  The parsing is as specified for the
-        // 'strtod32' function in section 9.6 of the ISO/EIC TR 24732 C Decimal
-        // Floating-Point Technical Report, except that it is unspecified
-        // whether the NaNs returned are quiet or signaling.  If 'string'
-        // represents a value that absolute value exceeds the maximum value or
-        // is less than the smallest value supported by 'ValueType32' type then
-        // store the value of the macro 'ERANGE' into 'errno' and return the
-        // value initialized to infinity or zero respectively with the same
-        // sign as specified in 'string'.  The behavior is undefined unless
-        // 'input' represents a valid 32 bit decimalfloating-point number in
-        // scientific or fixed notation, and no unrelated characters precede
-        // (not even whitespace) that textual representation and a terminating
-        // nul character immediately follows it.  Note that this method does
-        // not guarantee the behavior of ISO/EIC TR 24732 C when parsing NaN
-        // because the AIX compiler intrinsics return a signaling NaN.
-
-    static ValueType64 parse64(const char *input);
-        // Parse the specified 'input' string as a 64 bit decimal floating-
-        // point value and return the result.  The parsing is as specified for
-        // the 'strtod64' function in section 9.6 of the ISO/EIC TR 24732 C
-        // Decimal Floating-Point Technical Report, except that it is
-        // unspecified whether the NaNs returned are quiet or signaling.  If
-        // 'string' represents a value that absolute value exceeds the maximum
-        // value or is less than the smallest value supported by 'ValueType63'
-        // type then store the value of the macro 'ERANGE' into 'errno' and
-        // return the value initialized to infinity or zero respectively with
-        // the same sign as specified in 'string'.  The behavior is undefined
-        // unless 'input' represents a valid 64 bit decimal floating-point
-        // number in scientific or fixed notation, and no unrelated characters
-        // precede (not even whitespace) that textual representation and a
-        // terminating nul character immediately follows it.  Note that this
-        // method does not guarantee the behavior of ISO/EIC TR 24732 C when
-        // parsing NaN because the AIX compiler intrinsics return a signaling
-        // NaN.
-
+    static ValueType32  parse32( const char *input);
+    static ValueType64  parse64( const char *input);
     static ValueType128 parse128(const char *input);
-        // Parse the specified 'input' string as a 128 bit decimal floating-
-        // point value and return the result.  The parsing is as specified for
-        // the 'strtod128' function in section 9.6 of the ISO/EIC TR 24732 C
-        // Decimal Floating-Point Technical Report, except that it is
-        // unspecified whether the NaNs returned are quiet or signaling.  If
-        // 'string' represents a value that absolute value exceeds the maximum
-        // value or is less than the smallest value supported by 'ValueType128'
-        // type then store the value of the macro 'ERANGE' into 'errno' and
-        // return the value initialized to infinity or zero respectively with
-        // the same sign as specified in 'string'.  The behavior is undefined
-        // unless 'input' represents a valid 128 bit decimal floating-point
-        // number in scientific or fixed notation, and no unrelated characters
-        // precede (not even whitespace) that textual representation and a
-        // terminating nul character immediately follows it.  Note that this
-        // method does not guarantee the behavior of ISO/EIC TR 24732 C when
-        // parsing NaN because the AIX compiler intrinsics return a signaling
-        // NaN.
+        // Produce an object of the indicated return type by parsing the
+        // specified 'input' string that represents a floating-point number
+        // written in both fixed or scientific notation.  The resulting decimal
+        // object is initialized as follows:
+        //
+        //: o If 'input' does not represent a floating-point value, then return
+        //:   a decimal object of the indicated return type initialized to a
+        //:   NaN.
+        //:
+        //: o Otherwise if 'input' represents infinity (positive or negative),
+        //:   as case-insensitive "Inf" or "Infinity" string, then return a
+        //:   decimal object of the indicated return type initialized to
+        //:   infinity value with the same sign.
+        //:
+        //: o Otherwise if 'input' represents zero (positive or negative), then
+        //:   return a decimal object of the indicated return type initialized
+        //:   to zero with the same sign.
+        //:
+        //: o Otherwise if 'str' represents a value that has an absolute value
+        //:   that is larger than 'std::numeric_limits<Decimal32>::max()' then
+        //:   store the value of the macro 'ERANGE' into 'errno' and return a
+        //:   decimal object of the indicated return type initialized to
+        //:   infinity with the same sign.
+        //:
+        //: o Otherwise if 'input' represents a value that has an absolute
+        //:   value that is smaller than
+        //:   'std::numeric_limits<Decimal32>::min()', then store the value of
+        //:   the macro 'ERANGE' into 'errno' and return a decimal object of
+        //:   the indicated return type initialized to zero with the same sign.
+        //:
+        //: o Otherwise if 'input' has a value that is not exactly
+        //:   representable using 'std::numeric_limits<Decimal32>::max_digit'
+        //:   decimal digits then return a decimal object of the indicated
+        //:   return type initialized to the value represented by 'input'
+        //:   rounded according to the rounding direction.
+        //:
+        //: o Otherwise return a decimal object of the indicated return type
+        //:   initialized to the decimal value representation of 'input'.
+        //
+        // Note that the parsing follows the rules as specified for the
+        // 'strtod32' function in section 9.6 of the ISO/EIC TR 24732 C Decimal
+        // Floating-Point Technical Report.
+        //
+        // Also note that the quanta of the resultant value is determined by
+        // the number of decimal places starting with the most significand
+        // digit in 'input' string and cannot exceed the maximum number of
+        // digits necessary to differentiate all values of the indicated return
+        // type, for example:
+        //
+        // 'parse32("0.015")    => 15e-3'
+        // 'parse32("1.5")      => 15e-1'
+        // 'parse32("1.500")    => 1500e-3'
+        // 'parse32("1.2345678) => 1234568e-6'
 
                         // Densely Packed Conversion Functions
 

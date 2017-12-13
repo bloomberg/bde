@@ -10704,24 +10704,36 @@ void TestDriver::testCase11()
     //:  3 Alternate creation strings work correctly.
     //:
     //:  4 Signs are interpretted correctly.
+    //:
+    //:  5 That the quanta of the resultant value equals the number of decimal
+    //:    places in input string and does exceed the maximum digits necessary
+    //:    to differentiate all values of tested decimal type.
+    //:
+    //:  6 That if the value produced by parsing input string is not exactly
+    //:    representable using the maximum digits supported by tested type,
+    //:    then the resultant value is rounded according the rounding
+    //:    direction.
     //
     // Plan:
     //:  1 Test a series of strings versus their expected values.
     //:
     //:  2 Test the non-numerical state-values by alternate means of
     //:    generation, such as '1.0/0.0' and '0.0/0.0'.
+    //:
+    //:  3 Using table technique test that tested functions produce the
+    //:    expected values having expected decimal class, sign, significand
+    //:    and exponent values.  (C5-6).
     //
     // Testing:
-    //   parse32 (const char *)
-    //   parse64 (const char *)
-    //   parse128(const char *)
+    //   parse32 (const char *);
+    //   parse64 (const char *);
+    //   parse128(const char *);
     // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "PARSING 'parse32', 'parse64', AND 'parse128'"
               << endl << "============================================"
               << endl;
-
 
     // Testing 'parse32 (const char *)'
 
@@ -11122,6 +11134,202 @@ void TestDriver::testCase11()
         ASSERT(Util::equal(test128, value128));
         test128  = Util::parse128("-inF");
         ASSERT(Util::equal(test128, value128));
+    }
+
+    {
+        static const struct {
+            int           d_line;
+            const char   *d_input;
+            int           d_class;
+            int           d_sign;
+            unsigned int  d_significand;
+            int           d_exponent;
+        } DATA[] = {
+            { L_, "1",          FP_NORMAL, 1,       1,  0 },
+            { L_, "1.2",        FP_NORMAL, 1,      12, -1 },
+            { L_, "1.23",       FP_NORMAL, 1,     123, -2 },
+            { L_, "1.234",      FP_NORMAL, 1,    1234, -3 },
+            { L_, "1.2345",     FP_NORMAL, 1,   12345, -4 },
+            { L_, "1.23456",    FP_NORMAL, 1,  123456, -5 },
+            { L_, "1.234567",   FP_NORMAL, 1, 1234567, -6 },
+            { L_, "1.2345678",  FP_NORMAL, 1, 1234568, -6 },
+            { L_, "1.23456789", FP_NORMAL, 1, 1234568, -6 },
+
+            { L_, "123456",     FP_NORMAL, 1,  123456,  0 },
+            { L_, "1234567",    FP_NORMAL, 1, 1234567,  0 },
+            { L_, "12345678",   FP_NORMAL, 1, 1234568,  1 },
+            { L_, "123456789",  FP_NORMAL, 1, 1234568,  2 },
+
+            { L_, "100000000",  FP_NORMAL, 1, 1000000,  2 },
+            { L_, "10000000",   FP_NORMAL, 1, 1000000,  1 },
+            { L_, "1000000.0",  FP_NORMAL, 1, 1000000,  0 },
+            { L_, "100000.00",  FP_NORMAL, 1, 1000000, -1 },
+            { L_, "10000.000",  FP_NORMAL, 1, 1000000, -2 },
+            { L_, "1000.0000",  FP_NORMAL, 1, 1000000, -3 },
+            { L_, "100.00000",  FP_NORMAL, 1, 1000000, -4 },
+            { L_, "10.000000",  FP_NORMAL, 1, 1000000, -5 },
+            { L_, "1.0000000",  FP_NORMAL, 1, 1000000, -6 },
+            { L_, "0.1000000",  FP_NORMAL, 1, 1000000, -7 },
+            { L_, "0.0100000",  FP_NORMAL, 1,  100000, -7 },
+            { L_, "0.0010000",  FP_NORMAL, 1,   10000, -7 },
+            { L_, "0.0001000",  FP_NORMAL, 1,    1000, -7 },
+            { L_, "0.0000100",  FP_NORMAL, 1,     100, -7 },
+            { L_, "0.0000010",  FP_NORMAL, 1,      10, -7 },
+            { L_, "0.0000001",  FP_NORMAL, 1,       1, -7 },
+            { L_, "0.00000001", FP_NORMAL, 1,       1, -8 },
+        };
+
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int&          LINE            = DATA[ti].d_line;
+            const char         *INPUT           = DATA[ti].d_input;
+            const int&          EXP_CLASS       = DATA[ti].d_class;
+            const int&          EXP_SIGN        = DATA[ti].d_sign;
+            const unsigned int& EXP_SIGNIFICAND = DATA[ti].d_significand;
+            const int&          EXP_EXPONENT    = DATA[ti].d_exponent;
+
+            int           SIGN;
+            unsigned int  SIGNIFICAND;
+            int           EXPONENT;
+
+            const Util::ValueType32 RESULT = Util::parse32(INPUT);
+
+            const int CLASS = Util::decompose(&SIGN,
+                                              &SIGNIFICAND,
+                                              &EXPONENT,
+                                              RESULT);
+
+            LOOP3_ASSERT(LINE, CLASS, EXP_CLASS, CLASS == EXP_CLASS);
+
+            LOOP3_ASSERT(LINE, SIGN,          EXP_SIGN,
+                               SIGN        == EXP_SIGN);
+            LOOP3_ASSERT(LINE, SIGNIFICAND,   EXP_SIGNIFICAND,
+                               SIGNIFICAND == EXP_SIGNIFICAND);
+            LOOP3_ASSERT(LINE, EXPONENT,      EXP_EXPONENT,
+                               EXPONENT    == EXP_EXPONENT);
+        }
+    }
+    {
+        typedef bsls::Types::Uint64 UINT_64;
+
+        static const struct {
+            int         d_line;
+            const char *d_input;
+            UINT_64     d_significand;
+            int         d_exponent;
+        } DATA[] = {
+        //------------------------------------------------------------
+        // LINE | INPUT               | SIGNFICAND        | EXPONENT
+        //------------------------------------------------------------
+            { L_, "1",                                 1ll,        0 },
+            { L_, "1.2",                              12ll,       -1 },
+            { L_, "1.234",                          1234ll,       -3 },
+            { L_, "1.23456",                      123456ll,       -5 },
+            { L_, "1.2345678",                  12345678ll,       -7 },
+            { L_, "1.234567890",              1234567890ll,       -9 },
+            { L_, "1.23456789012",          123456789012ll,      -11 },
+            { L_, "1.2345678901234",      12345678901234ll,      -13 },
+            { L_, "1.234567890123456",  1234567890123456ll,      -15 },
+            { L_, "1.2345678901234567", 1234567890123457ll,      -15 },
+
+            { L_, "123456789012345",     123456789012345ll,        0 },
+            { L_, "1234567890123456",   1234567890123456ll,        0 },
+            { L_, "12345678901234567",  1234567890123457ll,        1 },
+            { L_, "123456789012345678", 1234567890123457ll,        2 },
+
+            { L_, "100000000000000000", 1000000000000000ll,        2 },
+            { L_, "10000000000000000",  1000000000000000ll,        1 },
+            { L_, "1000000000000000",   1000000000000000ll,        0 },
+            { L_, "100000000000000.0",  1000000000000000ll,       -1 },
+            { L_, "10000000000000.00",  1000000000000000ll,       -2 },
+            { L_, "10.00000000000000",  1000000000000000ll,      -14 },
+            { L_, "1.000000000000000",  1000000000000000ll,      -15 },
+            { L_, "0.100000000000000",   100000000000000ll,      -15 },
+            { L_, "0.010000000000000",    10000000000000ll,      -15 },
+            { L_, "0.000000000000100",               100ll,      -15 },
+            { L_, "0.000000000000010",                10ll,      -15 },
+            { L_, "0.000000000000001",                 1ll,      -15 },
+            { L_, "0.0000000000000001",                1ll,      -16 },
+        };
+
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int&     LINE            = DATA[ti].d_line;
+            const char    *INPUT           = DATA[ti].d_input;
+            const UINT_64& EXP_SIGNIFICAND = DATA[ti].d_significand;
+            const int&     EXP_EXPONENT    = DATA[ti].d_exponent;
+
+            int      SIGN;
+            UINT_64  SIGNIFICAND;
+            int      EXPONENT;
+
+            const Util::ValueType64 RESULT = Util::parse64(INPUT);
+
+            const int CLASS = Util::decompose(&SIGN,
+                                              &SIGNIFICAND,
+                                              &EXPONENT,
+                                              RESULT);
+
+            LOOP2_ASSERT(LINE, CLASS, CLASS == FP_NORMAL);
+
+            LOOP2_ASSERT(LINE, SIGN, SIGN  == 1);
+            LOOP3_ASSERT(LINE, SIGNIFICAND,   EXP_SIGNIFICAND,
+                               SIGNIFICAND == EXP_SIGNIFICAND);
+            LOOP3_ASSERT(LINE, EXPONENT,      EXP_EXPONENT,
+                               EXPONENT    == EXP_EXPONENT);
+        }
+    }
+
+    {
+        static const struct {
+            int         d_line;
+            const char *d_input;
+            int         d_exponent;
+        } DATA[] = {
+        //---------------------------------------------------------
+        // LINE | INPUT                                 | EXPONENT
+        //---------------------------------------------------------
+            { L_, "100000000000000000000000000000000000",      2 },
+            { L_, "10000000000000000000000000000000000",       1 },
+            { L_, "1000000000000000000000000000000000",        0 },
+            { L_, "100000000000000000000000000000000.0",      -1 },
+            { L_, "10000000000000000000000000000000.00",      -2 },
+            { L_, "10.00000000000000000000000000000000",     -32 },
+            { L_, "1.000000000000000000000000000000000",     -33 },
+            { L_, "0.100000000000000000000000000000000",     -33 },
+            { L_, "0.010000000000000000000000000000000",     -33 },
+            { L_, "0.001000000000000000000000000000000",     -33 },
+            { L_, "0.000000000000000000000000000000010",     -33 },
+            { L_, "0.000000000000000000000000000000001",     -33 },
+            { L_, "0.0000000000000000000000000000000001",    -34 },
+        };
+
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int&     LINE            = DATA[ti].d_line;
+            const char    *INPUT           = DATA[ti].d_input;
+            const int&     EXP_EXPONENT    = DATA[ti].d_exponent;
+
+            int            SIGN;
+            BDEC::Uint128  SIGNIFICAND;
+            int            EXPONENT;
+
+            const Util::ValueType128 RESULT = Util::parse128(INPUT);
+
+            const int CLASS = Util::decompose(&SIGN,
+                                              &SIGNIFICAND,
+                                              &EXPONENT,
+                                              RESULT);
+
+            LOOP2_ASSERT(LINE, CLASS, CLASS == FP_NORMAL);
+
+            LOOP2_ASSERT(LINE, SIGN, SIGN == 1);
+            LOOP3_ASSERT(LINE, EXPONENT,     EXP_EXPONENT,
+                               EXPONENT   == EXP_EXPONENT);
+        }
     }
 }
 

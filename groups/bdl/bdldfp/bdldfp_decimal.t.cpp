@@ -113,7 +113,12 @@ using bsl::atoi;
 //: o 'operator>='
 //: o 'operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream...'
 //: o 'operator>> (bsl::basic_ostream<CHARTYPE, TRAITS>& stream...'
-//: o 'operator""
+//: o 'operator"" _d32 (const char *)
+//: o 'operator"" _d64 (const char *)
+//: o 'operator"" _d128(const char *)
+//: o 'operator"" _d32 (const char *, size_t)
+//: o 'operator"" _d64 (const char *, size_t)
+//: o 'operator"" _d128(const char *, size_t)
 //
 // FREE FUNCTIONS
 //: o void hashAppend(HASHALG& hashAlg, const Decimal32& object);
@@ -455,6 +460,11 @@ void TestDriver::testCase8()
     //:   smallest value supported by tested type then the value of the macro
     //:   'ERANGE' is stored into 'errno' and the resultant value is
     //:   initialized to zero with the same sign as argument.
+    //:
+    //: 4 That the quanta of the resultant value equals the number of decimal
+    //:   places in input string and does exceed the maximum digits necessary
+    //:   to differentiate all values of tested decimal type.
+    //:
     //
     // Plan:
     //: 1 A set of representative values for 32, 64, and 128-bit types will be
@@ -462,16 +472,20 @@ void TestDriver::testCase8()
     //:   against expected value.  (C-1..3)
     //
     // Testing:
-    //   bdldfp::Decimal32  operator""  _d32(const char *);
-    //   bdldfp::Decimal64  operator""  _d64(const char *);
-    //   bdldfp::Decimal128 operator"" _d128(const char *);
+    //   bdldfp::Decimal32  operator ""  _d32(const char *);
+    //   bdldfp::Decimal64  operator ""  _d64(const char *);
+    //   bdldfp::Decimal128 operator "" _d128(const char *);
+    //   bdldfp::Decimal32  operator ""  _d32(const char *, size_t);
+    //   bdldfp::Decimal64  operator ""  _d64(const char *, size_t);
+    //   bdldfp::Decimal128 operator "" _d128(const char *, size_t);
     // ------------------------------------------------------------------------
 
 
 #if __cplusplus >= 201103L
-    if (verbose) bsl::cout << bsl::endl
-                           << "Testing 'operator\"\"'" << bsl::endl
-                           << "======================" << bsl::endl;
+    if (verbose) bsl::cout
+                     << bsl::endl
+                     << "TESTING DECIMAL USER-DEFINED LITERALS" << bsl::endl
+                     << "=====================================" << bsl::endl;
     {
 #define DFP(X) BDLDFP_DECIMAL_DF(X)
         using namespace bdldfp;
@@ -492,41 +506,56 @@ void TestDriver::testCase8()
             //-------------------------------------------
             //-------------------------------------------
             // Fixed notation
-            { L_,     0_d32,             DFP( 0.0)      },
-            { L_,    +0_d32,             DFP( 0.0)      },
-            { L_,    -0_d32,             DFP( 0.0)      },
+            { L_,     0_d32,              DFP( 0.0)      },
+            { L_,    +0_d32,              DFP( 0.0)      },
+            { L_,    -0_d32,              DFP( 0.0)      },
+            { L_,   "0"_d32,              DFP( 0.0)      },
+            { L_,  "+0"_d32,              DFP( 0.0)      },
+            { L_,  "-0"_d32,              DFP( 0.0)      },
 
-            { L_,     4.2_d32,           DFP( 4.2)      },
-            { L_,   -42.0_d32,           DFP(-42.0)     },
-            { L_,    -0.42_d32,          DFP(-0.42)     },
-            { L_,     1.23456789_d32,    DFP( 1.234568) },
+            { L_,     4.2_d32,            DFP( 4.2)      },
+            { L_,   -42.0_d32,            DFP(-42.0)     },
+            { L_,    -0.42_d32,           DFP(-0.42)     },
+            { L_,     1.23456789_d32,     DFP( 1.234568) },
+            { L_,    "4.2"_d32,           DFP( 4.2)      },
+            { L_,  "-42.0"_d32,           DFP(-42.0)     },
+            { L_,   "-0.42"_d32,          DFP(-0.42)     },
+            { L_,    "1.23456789"_d32,    DFP( 1.234568) },
             //-------------------------------------------
             // Scientific notation
-            { L_,     4.2e+0_d32,        DFP( 4.2)      },
-            { L_,    -4.2e+1_d32,        DFP(-42.0)     },
-            { L_,    -4.2e-1_d32,        DFP(-0.42)     },
-            { L_,     1.23456789e+0_d32, DFP( 1.234568) },
+            { L_,     4.2e+0_d32,         DFP( 4.2)      },
+            { L_,    -4.2e+1_d32,         DFP(-42.0)     },
+            { L_,    -4.2e-1_d32,         DFP(-0.42)     },
+            { L_,     1.23456789e+0_d32,  DFP( 1.234568) },
+            { L_,    "4.2e+0"_d32,        DFP( 4.2)      },
+            { L_,   "-4.2e+1"_d32,        DFP(-42.0)     },
+            { L_,   "-4.2e-1"_d32,        DFP(-0.42)     },
+            { L_,    "1.23456789e+0"_d32, DFP( 1.234568) },
             //-------------------------------------------
             // Special values
-            { L_,     1e+200_d32,        Inf            },
-            { L_,    -1e+200_d32,       -Inf            },
-            { L_,     1e-200_d32,        DFP( 0.0)      },
-            { L_,    -1e-200_d32,        DFP(-0.0)      },
+            { L_,     1e+200_d32,         Inf            },
+            { L_,    -1e+200_d32,        -Inf            },
+            { L_,     1e-200_d32,         DFP( 0.0)      },
+            { L_,    -1e-200_d32,         DFP(-0.0)      },
+            { L_,    "1e+200"_d32,        Inf            },
+            { L_,   -"1e+200"_d32,       -Inf            },
+            { L_,    "1e-200"_d32,        DFP( 0.0)      },
+            { L_,   -"1e-200"_d32,        DFP(-0.0)      },
 
-            { L_,      "nan"_d32,         NaN           },
-            { L_,     "-nan"_d32,        -NaN           },
-            { L_,     -"nan"_d32,        -NaN           },
+            { L_,      "nan"_d32,         NaN            },
+            { L_,     "-nan"_d32,        -NaN            },
+            { L_,     -"nan"_d32,        -NaN            },
 
-            { L_,     "snan"_d32,        sNaN           },
-            { L_,    "-snan"_d32,       -sNaN           },
-            { L_,    -"snan"_d32,       -sNaN           },
+            { L_,     "snan"_d32,        sNaN            },
+            { L_,    "-snan"_d32,       -sNaN            },
+            { L_,    -"snan"_d32,       -sNaN            },
 
-            { L_,      "inf"_d32,         Inf           },
-            { L_,     "-inf"_d32,        -Inf           },
-            { L_,     -"inf"_d32,        -Inf           },
+            { L_,      "inf"_d32,         Inf            },
+            { L_,     "-inf"_d32,        -Inf            },
+            { L_,     -"inf"_d32,        -Inf            },
 
-            { L_,     "ABCDEF"_d32,       NaN           },
-
+            { L_,     "ABCDEF"_d32,       NaN            },
+            //
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -570,6 +599,34 @@ void TestDriver::testCase8()
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
             LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
         }
+        { // C-4
+            const Tested  X1 = -1.000_d32;
+            const Tested  X2 = "2.000e-4"_d32;
+
+            int           SIGN;
+            unsigned int  SIGNIFICAND;
+            int           EXPONENT;
+            int           CLASS = BDEC::DecimalImpUtil::decompose(&SIGN,
+                                                                  &SIGNIFICAND,
+                                                                  &EXPONENT,
+                                                                  X1.value());
+
+            ASSERTV(L_, CLASS,       FP_NORMAL == CLASS);
+            ASSERTV(L_, SIGN,               -1 == SIGN);
+            ASSERTV(L_, SIGNIFICAND,      1000 == SIGNIFICAND);
+            ASSERTV(L_, EXPONENT,           -3 == EXPONENT);
+
+            CLASS = BDEC::DecimalImpUtil::decompose(&SIGN,
+                                                    &SIGNIFICAND,
+                                                    &EXPONENT,
+                                                    X2.value());
+
+            ASSERTV(L_, CLASS,       FP_NORMAL == CLASS);
+            ASSERTV(L_, SIGN,                1 == SIGN);
+            ASSERTV(L_, SIGNIFICAND,      2000 == SIGNIFICAND);
+            ASSERTV(L_, EXPONENT,           -7 == EXPONENT);
+        }
+
 #undef DFP
     }
     {
@@ -592,40 +649,55 @@ void TestDriver::testCase8()
             //------------------------------------------------------------
             //------------------------------------------------------------
             // Fixed notation
-            { L_,     0.0_d64,                 DFP( 0.0)                },
-            { L_,    -0.0_d64,                 DFP(-0.0)                },
-            { L_,    +0.0_d64,                 DFP( 0.0)                },
+            { L_,     0.0_d64,                  DFP( 0.0)                },
+            { L_,    -0.0_d64,                  DFP(-0.0)                },
+            { L_,    +0.0_d64,                  DFP( 0.0)                },
+            { L_,     "0"_d64,                  DFP( 0.0)                },
+            { L_,    "+0"_d64,                  DFP( 0.0)                },
+            { L_,    "-0"_d64,                  DFP( 0.0)                },
 
-            { L_,     4.2_d64,                 DFP( 4.2)                },
-            { L_,   -42.0_d64,                 DFP(-42.0)               },
-            { L_,   -0.42_d64,                 DFP(-0.42)               },
-            { L_,    1.2345678901234567_d64,   DFP( 1.234567890123457)  },
+            { L_,     4.2_d64,                  DFP( 4.2)                },
+            { L_,   -42.0_d64,                  DFP(-42.0)               },
+            { L_,   -0.42_d64,                  DFP(-0.42)               },
+            { L_,    1.2345678901234567_d64,    DFP( 1.234567890123457)  },
+            { L_,   "4.2"_d64,                  DFP( 4.2)                },
+            { L_, "-42.0"_d64,                  DFP(-42.0)               },
+            { L_, "-0.42"_d64,                  DFP(-0.42)               },
+            { L_,   "1.2345678901234567"_d64,   DFP( 1.234567890123457)  },
             //------------------------------------------------------------
             // Scientific notation
-            { L_,   4.2e+0_d64,                DFP( 4.2)                },
-            { L_,  -4.2e+1_d64,                DFP(-42.0)               },
-            { L_,  -4.2e-1_d64,                DFP(-0.42)               },
-            { L_,   1.2345678901234567e+0_d64, DFP( 1.2345678901234567) },
+            { L_,   4.2e+0_d64,                 DFP( 4.2)                },
+            { L_,  -4.2e+1_d64,                 DFP(-42.0)               },
+            { L_,  -4.2e-1_d64,                 DFP(-0.42)               },
+            { L_,   1.2345678901234567e+0_d64,  DFP( 1.2345678901234567) },
+            { L_,  "4.2e+0"_d64,                DFP( 4.2)                },
+            { L_, "-4.2e+1"_d64,                DFP(-42.0)               },
+            { L_, "-4.2e-1"_d64,                DFP(-0.42)               },
+            { L_,  "1.2345678901234567e+0"_d64, DFP( 1.2345678901234567) },
             //------------------------------------------------------------
             // Special values
-            { L_,    1e+400_d64,               Inf                      },
-            { L_,   -1e+400_d64,              -Inf                      },
-            { L_,    1e-400_d64,               DFP( 0.0)                },
-            { L_,   -1e-400_d64,               DFP(-0.0)                },
+            { L_,    1e+400_d64,                Inf                      },
+            { L_,   -1e+400_d64,               -Inf                      },
+            { L_,    1e-400_d64,                DFP( 0.0)                },
+            { L_,   -1e-400_d64,                DFP( 0.0)                },
+            { L_,   "1e+400"_d64,               Inf                      },
+            { L_,  -"1e+400"_d64,              -Inf                      },
+            { L_,   "1e-400"_d64,               DFP( 0.0)                },
+            { L_,  -"1e-400"_d64,               DFP(-0.0)                },
 
-            { L_,     "nan"_d64,               NaN                      },
-            { L_,    "-nan"_d64,              -NaN                      },
-            { L_,    -"nan"_d64,              -NaN                      },
+            { L_,     "nan"_d64,                NaN                      },
+            { L_,    "-nan"_d64,               -NaN                      },
+            { L_,    -"nan"_d64,               -NaN                      },
 
-            { L_,    "snan"_d64,              sNaN                      },
-            { L_,   "-snan"_d64,             -sNaN                      },
-            { L_,   -"snan"_d64,             -sNaN                      },
+            { L_,    "snan"_d64,               sNaN                      },
+            { L_,   "-snan"_d64,              -sNaN                      },
+            { L_,   -"snan"_d64,              -sNaN                      },
 
-            { L_,     "inf"_d64,               Inf                      },
-            { L_,    "-inf"_d64,              -Inf                      },
-            { L_,    -"inf"_d64,              -Inf                      },
+            { L_,     "inf"_d64,                Inf                      },
+            { L_,    "-inf"_d64,               -Inf                      },
+            { L_,    -"inf"_d64,               -Inf                      },
 
-            { L_,    "ABCDEF"_d64,             NaN                      }
+            { L_,    "ABCDEF"_d64,              NaN                      }
         };
 
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -670,6 +742,35 @@ void TestDriver::testCase8()
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
             LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
         }
+        { // C-4
+            const Tested  X1 = -1.000_d64;
+            const Tested  X2 = "2.000e-4"_d64;
+
+            int                 SIGN;
+            bsls::Types::Uint64 SIGNIFICAND;
+            int                 EXPONENT;
+
+            int CLASS = BDEC::DecimalImpUtil::decompose(&SIGN,
+                                                        &SIGNIFICAND,
+                                                        &EXPONENT,
+                                                        X1.value());
+
+            ASSERTV(L_, CLASS,       FP_NORMAL == CLASS);
+            ASSERTV(L_, SIGN,               -1 == SIGN);
+            ASSERTV(L_, SIGNIFICAND,      1000 == SIGNIFICAND);
+            ASSERTV(L_, EXPONENT,           -3 == EXPONENT);
+
+            CLASS = BDEC::DecimalImpUtil::decompose(&SIGN,
+                                                    &SIGNIFICAND,
+                                                    &EXPONENT,
+                                                    X2.value());
+
+            ASSERTV(L_, CLASS,       FP_NORMAL == CLASS);
+            ASSERTV(L_, SIGN,                1 == SIGN);
+            ASSERTV(L_, SIGNIFICAND,      2000 == SIGNIFICAND);
+            ASSERTV(L_, EXPONENT,           -7 == EXPONENT);
+        }
+
 #undef DFP
     }
     {
@@ -694,11 +795,19 @@ void TestDriver::testCase8()
             { L_,     0.0_d128,                DFP( 0.0)                },
             { L_,    -0.0_d128,                DFP(-0.0)                },
             { L_,    +0.0_d128,                DFP( 0.0)                },
+            { L_,     "0"_d128,                 DFP( 0.0)               },
+            { L_,    "+0"_d128,                 DFP( 0.0)               },
+            { L_,    "-0"_d128,                 DFP( 0.0)               },
 
             { L_,     4.2_d128,                DFP( 4.2)                },
             { L_,   -42.0_d128,                DFP(-42.0)               },
             { L_,   -0.42_d128,                DFP(-0.42)               },
             { L_,    1.234567890123456789012345678901234567_d128,
+                             DFP( 1.234567890123456789012345678901235)  },
+            { L_,   "4.2"_d128,                 DFP( 4.2)               },
+            { L_, "-42.0"_d128,                 DFP(-42.0)              },
+            { L_, "-0.42"_d128,                 DFP(-0.42)              },
+            { L_,  "1.234567890123456789012345678901234567"_d128,
                              DFP( 1.234567890123456789012345678901235)  },
             //-----------------------------------------------------------
             // Scientific notation
@@ -713,6 +822,10 @@ void TestDriver::testCase8()
             { L_,   -1e+7000_d128,            -Inf                      },
             { L_,    1e-7000_d128,             DFP( 0.0)                },
             { L_,   -1e-7000_d128,             DFP(-0.0)                },
+            { L_,   "1e+7000"_d128,            Inf                      },
+            { L_,  -"1e+7000"_d128,           -Inf                      },
+            { L_,   "1e-7000"_d128,            DFP( 0.0)                },
+            { L_,  -"1e-7000"_d128,            DFP(-0.0)                },
 
             { L_,      "nan"_d128,             NaN                      },
             { L_,     "-nan"_d128,            -NaN                      },
@@ -769,6 +882,34 @@ void TestDriver::testCase8()
 
             LOOP3_ASSERT(L_, X1, EXPECTED, X1 == EXPECTED);
             LOOP3_ASSERT(L_, errno, ERANGE, errno == ERANGE);
+        }
+        { // C-4
+            const Tested  X1 = -1.000_d128;
+            const Tested  X2 = "2.000e-4"_d128;
+
+            int            SIGN;
+            BDEC::Uint128  SIGNIFICAND;
+            int            EXPONENT;
+
+            int CLASS = BDEC::DecimalImpUtil::decompose(&SIGN,
+                                                        &SIGNIFICAND,
+                                                        &EXPONENT,
+                                                        X1.value());
+
+            ASSERTV(L_, CLASS,             FP_NORMAL == CLASS);
+            ASSERTV(L_, SIGN,                     -1 == SIGN);
+            ASSERTV(L_, SIGNIFICAND.low(),      1000 == SIGNIFICAND);
+            ASSERTV(L_, EXPONENT,                 -3 == EXPONENT);
+
+            CLASS = BDEC::DecimalImpUtil::decompose(&SIGN,
+                                                    &SIGNIFICAND,
+                                                    &EXPONENT,
+                                                    X2.value());
+
+            ASSERTV(L_, CLASS,             FP_NORMAL == CLASS);
+            ASSERTV(L_, SIGN,                      1 == SIGN);
+            ASSERTV(L_, SIGNIFICAND.low(),      2000 == SIGNIFICAND);
+            ASSERTV(L_, EXPONENT,                 -7 == EXPONENT);
         }
 #undef DFP
     }
