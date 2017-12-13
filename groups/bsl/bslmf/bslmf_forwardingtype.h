@@ -463,7 +463,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
         // is a const reference, then the constness will be reinstated on
         // return.
 
-        // We split this cast up in to two lines because Visual Studio 2015 and
+        // We split this cast up into two lines because Visual Studio 2015 and
         // early versions of Visual Studio 2017 create a temporary in the
         // one-liner.
         UNREF_TYPE& result = const_cast<UNREF_TYPE&>(v);
@@ -558,7 +558,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
         // is a const reference, then the constness will be reinstated on
         // return.
 
-        // We split this cast up in to two lines because Visual Studio 2015 and
+        // We split this cast up into two lines because Visual Studio 2015 and
         // early versions of Visual Studio 2017 create a temporary in the
         // one-liner.
         UNREF_TYPE& result = const_cast<UNREF_TYPE&>(v);
