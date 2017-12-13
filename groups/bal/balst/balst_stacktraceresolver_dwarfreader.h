@@ -57,6 +57,10 @@ BSLS_IDENT("$Id: $")
 #include <balst_stacktraceresolver_filehelper.h>
 #endif
 
+#ifndef INCLUDED_BDLB_BITUTIL
+#include <bdlb_bitutil.h>
+#endif
+
 #ifndef INCLUDED_BDLS_FILESYSTEMUTIL
 #include <bdls_filesystemutil.h>
 #endif
@@ -149,7 +153,7 @@ class StackTraceResolver_DwarfReader {
   private:
     // DATA
     balst::StackTraceResolver_FileHelper
-                                   *d_helper_p;      // filehelper for currentt
+                                   *d_helper_p;      // filehelper for current
                                                      // segment
 
     char                           *d_buffer_p;      // buffer.
@@ -403,17 +407,14 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 
     unsigned shift = -7;
     do {
-        shift += 7;
-        if (shift >= k_MAX_SHIFT) {
-            return -1;                                                // RETURN
-        }
-
         rc = readValue(&u);
         if (rc) {
             return -1;                                                // RETURN
         }
 
-        *dst |= static_cast<TYPE>(static_cast<TYPE>(u & 0x7f) << shift);
+        const unsigned char masked = 0x7f & u;
+        shift += 7;
+        *dst |= static_cast<TYPE>(static_cast<TYPE>(masked) << shift);
     } while (0x80 & u);
 
     if (static_cast<TYPE>(-1) < 0) {
@@ -442,16 +443,13 @@ int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
 
     unsigned shift = 0;
     for (; (0x80 & u); shift += 7) {
-        if (shift >= k_MAX_SHIFT) {
-            return -1;                                                // RETURN
-        }
-
         rc = readValue(&u);
         if (0 != rc) {
             return -1;                                                // RETURN
         }
 
-        *dst |= static_cast<TYPE>(static_cast<TYPE>(u & 0x7f) << shift);
+        const unsigned char masked = 0x7f & u;
+        *dst |= static_cast<TYPE>(static_cast<TYPE>(masked) << shift);
     }
 
     return 0;

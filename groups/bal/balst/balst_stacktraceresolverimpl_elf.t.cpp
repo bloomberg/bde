@@ -403,7 +403,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < (int) stackTrace.length(); ++i) {
                 if (veryVerbose) {
                     cout << "stackTrace[" << i << "].address() = " <<
-                                     (UintPtr) stackTrace[i].address() << endl;
+                                               stackTrace[i].address() << endl;
                 }
 
                 LOOP_ASSERT(i, stackTrace[i].address());
@@ -458,16 +458,7 @@ int main(int argc, char *argv[])
                              stackTrace[3].libraryFileName().c_str(), libName);
 #undef  GOOD_LIBNAME
 
-            // frame[1] was pointing to a static, the ELF resolver should have
-            // found this source file name.
-
             for (int i = 0; i < stackTrace.length(); ++i) {
-                if (!e_IS_DWARF && 1 != i) {
-                    continue;
-                }
-
-                LOOP_ASSERT(i, stackTrace[i].isSourceFileNameKnown());
-
                 const char *sym = stackTrace[i].symbolName().c_str();
 
                 const char *name = stackTrace[i].sourceFileName().c_str();
@@ -481,14 +472,27 @@ int main(int argc, char *argv[])
                 }
 
                 int line = stackTrace[i].lineNumber();
+                ASSERT(!e_IS_DWARF || 0 < line);
 
                 if (veryVerbose) cout << i << ", " << sym << ", " << name <<
                                                            ':' << line << endl;
 
-                LOOP2_ASSERT(i, pc, !bsl::strcmp(pc,
+                // frame[1] and frame[2] point to a statics, the ELF resolver
+                // should have found this source file name, even without DWARF.
+
+                if (e_IS_DWARF || 1 == i || 2 == i) {
+                    LOOP_ASSERT(i, stackTrace[i].isSourceFileNameKnown());
+
+                    LOOP2_ASSERT(i, pc, !bsl::strcmp(
+                         pc,
                            3 == i ? "balst_stacktraceresolverimpl_elf.cpp"
                          : 4 == i ? "balst_stacktraceresolverimpl_elf.h"
-                                  : "balst_stacktraceresolverimpl_elf.t.cpp"));
+                         :          "balst_stacktraceresolverimpl_elf.t.cpp"));
+                }
+                else {
+                    LOOP2_ASSERT(i, name,
+                                       !stackTrace[i].isSourceFileNameKnown());
+                }
             }
 
 #undef  SM

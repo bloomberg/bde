@@ -48,15 +48,12 @@ BSLS_IDENT("$Id: $")
 // stack trace to get source file names and line numbers (the ELF format gives
 // source file names, but only in the case of file-scope static functions).
 //
-// We have implemented DWARF resolution for g++ 4.8.1 (and earlier) on Linux.
+// DWARF is implemented for g++ versions earlier than 7.1.0 on Linux.
 //
 ///IMPLEMENTATION NOTE
 ///- - - - - - - - - -
-// DWARF is not supported in Linux g++ compilers later than 4.8.1 because later
-// versions use a user-extended 'DW_LNE_*' opcode that is not defined in
-// 'dwarf.h' and that we don't know how to interpret.  This could be probably
-// be resolved with a few days effort by finding a more recent DWARF document
-// than what we have been using and supporting that opcode.
+// Linux g++ 7.1.0 uses DWARF version 4, while g++ 5.4.0 and before use DWARF
+// version 3.  Some work will be needed to support 7.1.0.
 //
 // DWARF support on Clang is problematic and not currrently implemented, see
 // the long comment in balst_stacktraceresolverimpl_elf.cpp, which explains
@@ -160,9 +157,9 @@ struct ObjectFileFormat {
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_ELF 1
 
 # if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)        \
-    && BSLS_PLATFORM_CMP_VERSION <= 40801
+    && BSLS_PLATFORM_CMP_VERSION < 70100
 
-    // DWARF is supported only for Linux g++ <= 4.8.1 (see DWARF section in
+    // DWARF is supported only for Linux g++ < 7.1.0 (see DWARF section in
     // component doc).
 
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1

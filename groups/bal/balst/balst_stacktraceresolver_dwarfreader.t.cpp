@@ -264,10 +264,12 @@ void writeLEB128(FD fd, Int64 value)
 {
     BSLMF_ASSERT((static_cast<Offset>(-1) >> 7) == -1);
 
+    int numBits = 0;
     const char extBit = static_cast<char>(0x80);
     signed char byte;
     do {
         byte = static_cast<char>(value & 0x7f);
+        numBits += 7;
         value >>= 7;
         if ((0 == value && !(byte & 0x40)) || (-1 == value && (byte & 0x40))) {
             ;   // No more bytes are necessary after this one, don't set
@@ -992,7 +994,7 @@ int main(int argc, char *argv[])
                 firstTime = false;
                 rc = mX.readLEB128(&x);
                 ASSERT(0 == rc);
-                ASSERT(o == x);
+                ASSERTV(o, x, o == x);
             }
         }
         rc = mX.readLEB128(&x);
