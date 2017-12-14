@@ -694,7 +694,7 @@ int main(int argc, char *argv[])
         //: 1 Ensure that the object's destructor validation works with
         //:   pointers equal to 0.
         // --------------------------------------------------------------------
-#ifdef BSLS_ASSERT_LEVEL_ASSERT
+
         if (verbose) printf("\nTESTING MODIFYING BUFFER POINTERS VIA BASE"
                             "\n======================================\n");
 
@@ -739,7 +739,6 @@ int main(int argc, char *argv[])
             buf.setg(0, 0, 0);
             buf.setp(0, 0);
         }
-#endif
       } break;
       case 13: {
         // --------------------------------------------------------------------
