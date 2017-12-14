@@ -193,10 +193,12 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
         // occur.  The behavior is undefined unless all the 'address' field in
         // '*stackTrace' are valid and other fields are invalid.
 
-    static void test();
+    static int test();
         // This function is just there to test how code deals with inline
         // functions in an include file.  It does not provide any otherwise
-        // useful functionality.
+        // useful functionality.  Return a line number near the beginning of
+        // the function in the low-order 14 bits of the result.  Other bits of
+        // the result are to be considered garbage.
 
     // MANIPULATOR
     int processLoadedImage(const char *fileName,
@@ -224,12 +226,15 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
 };
 
 inline
-void StackTraceResolverImpl<ObjectFileFormat::Elf>::test()
+int StackTraceResolverImpl<ObjectFileFormat::Elf>::test()
 {
+
     StackTrace st;
+
+    int ret = __LINE__;
     StackTraceResolverImpl<ObjectFileFormat::Elf> resolver(&st, true);
 
-    (void) resolver.numUnmatchedFrames();
+    return (resolver.numUnmatchedFrames() << 14) | ret;
 }
 
 }  // close package namespace

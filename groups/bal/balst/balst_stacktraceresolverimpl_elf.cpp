@@ -1898,7 +1898,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadAranges()
                 u_TRACES && u_zprintf("%s%s range [0x%lx, 0x%lx) size 0x%lx"
                              " matches frame %d, address: %p, offset 0x%llx\n",
                                            rn, isRedundant ? " redundant" : "",
-                            u::l(addressRange.d_address), 
+                            u::l(addressRange.d_address),
                             u::l(addressRange.d_address + addressRange.d_size),
                                                      u::l(addressRange.d_size),
                                                                    it->index(),
@@ -2769,7 +2769,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 #else
             if (5 == opcode) {                // Not in spec
 #endif
-                u_TRACES && u_zprintf("%s glitch: %u\n", rn, opcode);
+                u_TRACES && u_zprintf("%s glitch: %u -- ignored\n", rn,opcode);
 
                 rc = d_lineReader.readValue(&opcode);
                 u_ASSERT_BAIL(0 == rc);
@@ -2777,11 +2777,33 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
             if (DW_LNE_set_address == opcode &&
                      statementsSinceSetFile > 1 && statementsSinceEndSeq > 1) {
+                // We were getting non-spec 'DW_LNE_set_address' opcodes
+                // inserted into the state machine stream, but the address arg
+                // following them didn't make sense.
+                //
+                // That opcode makes sense after a 'DW_LNS_set_file', or
+                // immediately after a 'DW_LNE_end_sequence', but the ones in
+                // other contexts did not make sense, and when ignored in those
+                // other contexts, DWARF resolution worked.
+                //
+                // None of this was described in the spec.  I don't understand
+                // what these useless bytes are doing in the state machine
+                // instruction stream, it's just wasted data.
+
                 u_TRACES && u_zprintf("%s glitch: DW_LNE_set_address"
                                                           " -- ignored\n", rn);
 
                 rc = d_lineReader.readValue(&opcode);
                 u_ASSERT_BAIL(0 == rc);
+
+                // Apparently, this phenomenon always precedes a
+                // 'u::e_DW_LNE_set_discriminator' opcode.
+
+                // u_ASSERT_BAIL(u::e_DW_LNE_set_discriminator == opcode);
+
+                u_TRACES && u::e_DW_LNE_set_discriminator != opcode &&
+                              u_eprintf("%s unexpected opcode %u after strange"
+                                          " DW_LNE_set_address\n", rn, opcode);
             }
 
             if (u_TRACES && DW_LNE_set_address != opcode) {
@@ -2807,25 +2829,17 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 statement = true;
               } break;
               case DW_LNE_set_address: {    // 2
-                UintPtr newAddress;
-                rc = d_lineReader.readValue(&newAddress);
-                newAddress += d_adjustment;
+                rc = d_lineReader.readValue(&address);
+                address += d_adjustment;
                 u_ASSERT_BAIL(0 == rc);
-                if (statementsSinceSetFile <= 1 || statementsSinceEndSeq <= 1){
-                    // Apparently, unless this statement immediately follows a
-                    // 'set file' or 'end of sequece', it is to be ignored.
+                u_ASSERT_BAIL(statementsSinceSetFile <= 1 ||
+                                                   statementsSinceEndSeq <= 1);
 
-                    address = newAddress;
-                    u_TRACES && u_zprintf("%s DW_LNE_set_address: addr:"
+                u_TRACES && u_zprintf("%s DW_LNE_set_address: addr:"
                                                 " 0x%lx\n", rn, u::l(address));
-                    line = prevLine = 1;
+                line = prevLine = 1;
 
-                    nullPrevStatement = true;
-                }
-                else {
-                    u_TRACES && u_zprintf("%s DW_LNE_set_address: addr:"
-                                   " 0x%lx - ignored\n", rn, u::l(newAddress));
-                }
+                nullPrevStatement = true;
                 opIndex = 0;
               } break;
               case DW_LNE_define_file: {    // 3
@@ -2844,6 +2858,9 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
                 fileIdx = -1;
 
+                statementsSinceSetFile = 0;
+                nullPrevStatement = true;
+                opIndex = 0;
                 line = prevLine = 1;
               } break;
               case u::e_DW_LNE_set_discriminator: {
