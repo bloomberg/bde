@@ -11378,7 +11378,7 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
     //:   memory is requested from the default allocator.
     //: 6 No memory leaks if an exception is thrown during construction.
     //: 7 The requested element value might, or might not, have the same value
-    //:   a the requested size.
+    //:   as the requested size.
     //: 8 Where representable, requesting more than 'max_size()' elements will
     //:   throw a 'std::length_error' exception.
     //: 9 QoI TBD: For a type that is neither integral nor an iterator, but is
@@ -11560,9 +11560,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                         T_; T_; P_(X); P(X.capacity());
                     }
 
-                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH, X.size(),
+                            static_cast<size_t>(LENGTH) == X.size());
                     ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
-                                       LENGTH == X.capacity());
+                            static_cast<size_t>(LENGTH) == X.capacity());
 
                     // Use 'x.size()' rather than 'LENGTH' to ensure there is
                     // no out-of-contract 'operator[]' call in the case that a
@@ -11591,9 +11592,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                         T_; T_; P_(X); P(X.capacity());
                     }
 
-                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH, X.size(),
+                            static_cast<size_t>(LENGTH) == X.size());
                     ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
-                                       LENGTH == X.capacity());
+                            static_cast<size_t>(LENGTH) == X.capacity());
 
                     // Use 'x.size()' rather than 'LENGTH' to ensure there is
                     // no out-of-contract 'operator[]' call in the case that a
@@ -11623,9 +11625,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                         T_; T_; P_(X); P(X.capacity());
                     }
 
-                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH, X.size(),
+                            static_cast<size_t>(LENGTH) == X.size());
                     ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
-                                       LENGTH == X.capacity());
+                            static_cast<size_t>(LENGTH) == X.capacity());
 
                     // Use 'x.size()' rather than 'LENGTH' to ensure there is
                     // no out-of-contract 'operator[]' call in the case that a
@@ -11786,9 +11789,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                         T_; T_; P_(X); P(X.capacity());
                     }
 
-                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH, X.size(),
+                            static_cast<size_t>(LENGTH) == X.size());
                     ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
-                                       LENGTH == X.capacity());
+                            static_cast<size_t>(LENGTH) == X.capacity());
 
                     // Use 'x.size()' rather than 'LENGTH' to ensure there is
                     // no out-of-contract 'operator[]' call in the case that a
@@ -11828,9 +11832,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                         T_; T_; P_(X); P(X.capacity());
                     }
 
-                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH, X.size(),
+                            static_cast<size_t>(LENGTH) == X.size());
                     ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
-                                       LENGTH == X.capacity());
+                            static_cast<size_t>(LENGTH) == X.capacity());
 
                     // Use 'x.size()' rather than 'LENGTH' to ensure there is
                     // no out-of-contract 'operator[]' call in the case that a
@@ -11870,9 +11875,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                         T_; T_; P_(X); P(X.capacity());
                     }
 
-                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH, X.size(),
+                            static_cast<size_t>(LENGTH) == X.size());
                     ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
-                                       LENGTH == X.capacity());
+                            static_cast<size_t>(LENGTH) == X.capacity());
 
                     // Use 'x.size()' rather than 'LENGTH' to ensure there is
                     // no out-of-contract 'operator[]' call in the case that a
@@ -11938,10 +11944,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                             T_; T_; P_(X); P(X.capacity());
                         }
 
-                        ASSERTV(LINE2, ti, LENGTH,   X.size(),
-                                           LENGTH == X.size());
+                        ASSERTV(LINE2, ti, LENGTH, X.size(),
+                                static_cast<size_t>(LENGTH) == X.size());
                         ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
-                                           LENGTH == X.capacity());
+                                static_cast<size_t>(LENGTH) == X.capacity());
 
                         // Use 'x.size()' rather than 'LENGTH' to ensure there
                         // is no out-of-contract 'operator[]' call in the case
@@ -11996,9 +12002,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                         T_; T_; P_(X); P(X.capacity());
                     }
 
-                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH, X.size(),
+                            static_cast<size_t>(LENGTH) == X.size());
                     ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
-                                       LENGTH == X.capacity());
+                            static_cast<size_t>(LENGTH) == X.capacity());
 
                     // Use 'x.size()' rather than 'LENGTH' to ensure there is
                     // no out-of-contract 'operator[]' call in the case that a
@@ -12038,9 +12045,10 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
                         T_; T_; P_(X); P(X.capacity());
                     }
 
-                    ASSERTV(LINE2, ti, LENGTH, X.size(), LENGTH == X.size());
+                    ASSERTV(LINE2, ti, LENGTH, X.size(),
+                            static_cast<size_t>(LENGTH) == X.size());
                     ASSERTV(LINE2, ti, LENGTH,   X.capacity(),
-                                       LENGTH == X.capacity());
+                            static_cast<size_t>(LENGTH) == X.capacity());
 
                     // Use 'x.size()' rather than 'LENGTH' to ensure there is
                     // no out-of-contract 'operator[]' call in the case that a
