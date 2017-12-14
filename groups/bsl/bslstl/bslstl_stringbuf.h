@@ -340,16 +340,15 @@ class basic_stringbuf
         // parent 'basic_streambuf' type without calling a method on this
         // object).
 
-    bool pointersAreValid(const char_type *first,
+    bool arePointersValid(const char_type *first,
                           const char_type *middle,
                           const char_type *last) const;
         // Return 'true' if pointers form a valid range
         // ('first <= middle <= last') and 'first == d_str.data()' and
         // 'middle' and  'last' are in the range
         // '[d_str.data() .. d_str.data() + d_str.size()]', or all arguments
-        // are 0, and 'false' otherwise.  Note that this function encapsulates
-        // defensive checks and is called in defensive (i.e., "DEBUG" or
-        // "SAFE") build modes only.
+        // are 0, and 'false' otherwise.  Note that this function is called in
+        // defensive (i.e., "DEBUG" or "SAFE") build modes only.
 
   protected:
     // PROTECTED MANIPULATORS
@@ -686,7 +685,7 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-bool basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pointersAreValid(
+bool basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::arePointersValid(
                                                   const char_type *first,
                                                   const char_type *middle,
                                                   const char_type *last) const
@@ -1067,13 +1066,13 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     ~basic_stringbuf()
 {
     if (d_mode & ios_base::in) {
-        BSLS_ASSERT(pointersAreValid(this->eback(),
+        BSLS_ASSERT(arePointersValid(this->eback(),
                                      this->gptr(),
                                      this->egptr()));
     }
 
     if (d_mode & ios_base::out) {
-        BSLS_ASSERT(pointersAreValid(this->pbase(),
+        BSLS_ASSERT(arePointersValid(this->pbase(),
                                      this->pptr(),
                                      this->epptr()));
     }
