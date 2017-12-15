@@ -365,14 +365,14 @@ struct ConstructibleFromPointerToSelf {
     }
 };
 
-                        // =======================
-                        // class NotBitwiseMovable
-                        // =======================
+                        // ========================
+                        // class NotBitwiseMoveable
+                        // ========================
 
-struct NotBitwiseMovable {
+struct NotBitwiseMoveable {
     int d_data;
 
-    bool memberFunction() const
+    virtual bool memberFunction() const
     {
         return !d_data;
     }
@@ -609,15 +609,15 @@ DEFINE_TEST_CASE(10) {
 
         if (verbose) cout << "Check !bw movable 'bdlf::MemFnInstance':\n";
         {
-            typedef bdlf::MemFnInstance<bool (NotBitwiseMovable::*)() const,
-                                                   NotBitwiseMovable> MFITypeB;
+            typedef bdlf::MemFnInstance<bool (NotBitwiseMoveable::*)() const,
+                                                  NotBitwiseMoveable> MFITypeB;
 
             ASSERT(true  == bslma::UsesBslmaAllocator<MFITypeB>::value);
             ASSERT(false == bslmf::IsBitwiseMoveable<MFITypeB>::value);
             ASSERT(false == bsl::is_trivially_copyable<MFITypeB>::value);
 
-            NotBitwiseMovable nbm;    nbm.d_data = 0;
-            MFITypeB func(&NotBitwiseMovable::memberFunction, nbm);
+            NotBitwiseMoveable nbm;    nbm.d_data = 0;
+            MFITypeB func(&NotBitwiseMoveable::memberFunction, nbm);
 
             ASSERT(func());
         }
