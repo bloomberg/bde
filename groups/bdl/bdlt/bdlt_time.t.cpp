@@ -83,6 +83,11 @@ using namespace bsl;
 // [12] void setSecond(int second);
 // [12] void setMillisecond(int millisecond);
 // [12] void setMicrosecond(int microsecond);
+// [48] int setHourIfValid(int hour);
+// [48] int setMinuteIfValid(int minute);
+// [48] int setSecondIfValid(int second);
+// [48] int setMillisecondIfValid(int millisecond);
+// [48] int setMicrosecondIfValid(int microsecond);
 // [ 2] void setTime(int h, int m = 0, int s = 0, int ms = 0, int us = 0);
 // [17] int setTimeIfValid(h, m = 0, s = 0, ms = 0, us = 0);
 // [10] STREAM& bdexStreamIn(STREAM& stream, int version);
@@ -227,6 +232,312 @@ int main(int argc, char *argv[])
       // --------------------------------------------------------------------
       // VERIFYING HANDLING OF INVALID INTERNAL REPRESENTATIONS
       // --------------------------------------------------------------------
+      case 48: {
+        // --------------------------------------------------------------------
+        // TEST INDIVIDUAL TIME-'set*IfValid' MANIPULATORS
+        //
+        // Concerns:
+        //: 1 Each of the time-only manipulators correctly forwards its
+        //:   arguments to the appropriate manipulator of the constituent
+        //:   'Time' object.
+        //:
+        //:   1 When the "time" part has a non-default value, each of the time-
+        //:     setting manipulators changes it's intended time field (e.g.,
+        //:     hours, milliseconds) and no other (see C-2)
+        //:
+        //:   2 None of the time-setting manipulators change the "date" part.
+        //:
+        //: 2 None of these manipulators, alters the "date" part of the object.
+        //:
+        //: 3 The methods have the same effect regardless of the object's
+        //:   initial value.
+        //:
+        //: 4 These methods have no effect on the object if the supplied
+        //:   "time" value is out of the valid range.
+        //:
+        //: 5 'set*IfValid' returns 0 on success, and a non-zero value on
+        //:   failure.
+        //
+        // Plan:
+        //: 1 For a set of independent test values that do not include the
+        //:   default 'Time' value (24:00:00.000), use the default constructor
+        //:   to create an object and use the time-only "set" manipulators to
+        //:   set its value.  Verify the value using the basic accessors after
+        //:   each individual "time" field is set.  Repeat the tests for a
+        //:   series of objects that span the range of valid 'Datetime' values,
+        //:   but excluding the default constructed object (see P-2).
+        //:
+        //: 2 Create a series of objects having a time "part" equal to 'Time()'
+        //:   (24:00:00.000) and confirm using values from the valid bounding
+        //:   range of each "time" field that using any of the individual
+        //:   time-setting manipulators both sets the specified value (e.g.,
+        //:   minute, second) *and* sets the hour field to 0.  Then create an
+        //:   object having non-zero values for "time" fields and confirm that
+        //:   'setHour(24)' sets that specified value *and* sets all other
+        //:   fields to 0.  (C-1..2)
+        //:
+        //: 3 For each set of values used in testing the seven-argument value
+        //:   constructor, create and compare two objects for equality.  One is
+        //:   created by the value constructor (proven earlier), the other by
+        //:   using the seven-argument 'setDatetime' method of a test object.
+        //:   Use a series of test objects that span the range of valid
+        //:   'Datetime' values, *including* the default constructed object.
+        //:   (C-3)
+        //:
+        //: 5 Verify that, when an attempt is made to invoke methods with
+        //:   arguments that are outside the valid ranges defined in the
+        //:   contracts, the object is unchanged, and the return code is
+        //:   non-zero.  (C-4..5)
+        //
+        // Testing:
+        //   int setHourIfValid(int hour);
+        //   int setMinuteIfValid(int minute);
+        //   int setSecondIfValid(int second);
+        //   int setMillisecondIfValid(int millisecond);
+        //   int setMicrosecondIfValid(int microsecond);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout
+                  << endl
+                  << "TEST INDIVIDUAL TIME-'set*IfValid' MANIPULATORS" << endl
+                  << "===============================================" << endl;
+
+        const Obj RT(23, 22, 21, 209);  // Ref time (21:22:21.209)
+
+        Obj ARRAY1[] = {  // default value excluded
+                    Obj(  0,  0,  0,   0,   0), // start of epoch
+                    RT,                         // arbitrary value
+                    Obj( 23, 59, 59, 999, 999)  // end of epoch
+                       };
+        const int NUM_ARRAY1 =
+                              static_cast<int>(sizeof ARRAY1 / sizeof *ARRAY1);
+
+        if (verbose) cout << "\nTesting time-'set*IfValid' methods." << endl;
+        if (verbose) cout << "\tFor ordinary computational values." << endl;
+
+        for (int i = 0; i < NUM_ARRAY1; ++i) {
+            const Obj OBJ = ARRAY1[i];
+
+            if (veryVerbose) { T_ P(OBJ) }
+
+            static const struct {
+                int d_hour;
+                int d_minute;
+                int d_second;
+                int d_msec;
+                int d_usec;
+            } VALUES[] = {
+                {  0,  0,  0,   0,   0  },
+                {  0,  0,  0,   0, 999  },
+                {  0,  0,  0, 999,   0  },
+                {  0,  0, 59,   0,   0  },
+                {  0, 59,  0,   0,   0  },
+                { 23,  0,  0,   0,   0  },
+                { 23, 22, 21, 209,   0  },  // an ad-hoc value
+                { 23, 59, 59, 999, 999  },  // 24:00:00.000 NOT tested here
+            };
+
+            const int NUM_VALUES =
+                              static_cast<int>(sizeof VALUES / sizeof *VALUES);
+
+            for (int j = 0; i < NUM_VALUES; ++i) {
+                const int HOUR   = VALUES[j].d_hour;
+                const int MINUTE = VALUES[j].d_minute;
+                const int SECOND = VALUES[j].d_second;
+                const int MSEC   = VALUES[j].d_msec;
+                const int USEC   = VALUES[j].d_usec;
+
+                Obj x(OBJ);  const Obj& X = x;
+
+                if (veryVerbose) {
+                    T_ T_ P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC) P_(USEC) P(X)
+                }
+
+                ASSERT(0 == x.setHourIfValid(HOUR));
+                LOOP2_ASSERT(i, j, HOUR              == X.hour());
+                LOOP2_ASSERT(i, j, OBJ.minute()      == X.minute());
+                LOOP2_ASSERT(i, j, OBJ.second()      == X.second());
+                LOOP2_ASSERT(i, j, OBJ.millisecond() == X.millisecond());
+                LOOP2_ASSERT(i, j, OBJ.microsecond() == X.microsecond());
+
+                ASSERT(0 == x.setMinuteIfValid(MINUTE));
+                LOOP2_ASSERT(i, j, HOUR              == X.hour());
+                LOOP2_ASSERT(i, j, MINUTE            == X.minute());
+                LOOP2_ASSERT(i, j, OBJ.second()      == X.second());
+                LOOP2_ASSERT(i, j, OBJ.millisecond() == X.millisecond());
+                LOOP2_ASSERT(i, j, OBJ.microsecond() == X.microsecond());
+
+                ASSERT(0 == x.setSecondIfValid(SECOND));
+                LOOP2_ASSERT(i, j, HOUR              == X.hour());
+                LOOP2_ASSERT(i, j, MINUTE            == X.minute());
+                LOOP2_ASSERT(i, j, SECOND            == X.second());
+                LOOP2_ASSERT(i, j, OBJ.millisecond() == X.millisecond());
+                LOOP2_ASSERT(i, j, OBJ.microsecond() == X.microsecond());
+
+                ASSERT(0 == x.setMillisecondIfValid(MSEC));
+                LOOP2_ASSERT(i, j, HOUR              == X.hour());
+                LOOP2_ASSERT(i, j, MINUTE            == X.minute());
+                LOOP2_ASSERT(i, j, SECOND            == X.second());
+                LOOP2_ASSERT(i, j, MSEC              == X.millisecond());
+                LOOP2_ASSERT(i, j, OBJ.microsecond() == X.microsecond());
+
+                ASSERT(0 == x.setMicrosecondIfValid(USEC));
+                LOOP2_ASSERT(i, j, HOUR              == X.hour());
+                LOOP2_ASSERT(i, j, MINUTE            == X.minute());
+                LOOP2_ASSERT(i, j, SECOND            == X.second());
+                LOOP2_ASSERT(i, j, MSEC              == X.millisecond());
+                LOOP2_ASSERT(i, j, USEC              == X.microsecond());
+            }
+        }
+
+        if (verbose) cout << "\tSetting from value 24:00:00.000." << endl;
+        {
+            const Obj R24;   // Reference object, time = 24:00:00.000
+            ASSERT( 24 == R24.hour());
+            ASSERT(  0 == R24.minute());
+            ASSERT(  0 == R24.second());
+            ASSERT(  0 == R24.millisecond());
+            ASSERT(  0 == R24.microsecond());
+
+            Obj x;  const Obj& X = x;    if (veryVerbose) { T_  P_(X) }
+
+            x = R24;                     if (veryVerbose) { T_  P_(X) }
+            ASSERT(        24 == X.hour());
+            ASSERT(0 == x.setMinuteIfValid(0));       if (veryVerbose) P(X);
+            ASSERT(         0 == X.hour());     // Now 0.
+            ASSERT(         0 == X.minute());
+            ASSERT(         0 == X.second());
+            ASSERT(         0 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
+
+            x = R24;                     if (veryVerbose) { T_  P_(X) }
+            ASSERT(        24 == X.hour());
+            ASSERT(0 == x.setMinuteIfValid(59));      if (veryVerbose) P(X);
+            ASSERT(         0 == X.hour());     // Now 0.
+            ASSERT(        59 == X.minute());
+            ASSERT(         0 == X.second());
+            ASSERT(         0 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
+
+            x = R24;                     if (veryVerbose) { T_ P_(X) }
+            ASSERT(        24 == X.hour());
+            ASSERT(0 == x.setSecondIfValid(0));       if (veryVerbose) P(X);
+            ASSERT(         0 == X.hour());     // Now 0.
+            ASSERT(         0 == X.minute());
+            ASSERT(         0 == X.second());
+            ASSERT(         0 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
+
+            x = R24;                     if (veryVerbose) { T_ P_(X) }
+            ASSERT(        24 == X.hour());
+            ASSERT(0 == x.setSecondIfValid(59));      if (veryVerbose) P(X);
+            ASSERT(         0 == X.hour());     // Now 0.
+            ASSERT(         0 == X.minute());
+            ASSERT(        59 == X.second());
+            ASSERT(         0 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
+
+            x = R24;                     if (veryVerbose) { T_ P_(X) }
+            ASSERT(        24 == X.hour());
+            ASSERT(0 == x.setMillisecondIfValid(0));  if (veryVerbose) P(X);
+            ASSERT(         0 == X.hour());     // Now 0.
+            ASSERT(         0 == X.minute());
+            ASSERT(         0 == X.second());
+            ASSERT(         0 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
+
+            x = R24;                      if (veryVerbose) { T_ P_(X) }
+            ASSERT(        24 == X.hour());
+            ASSERT(0 == x.setMillisecondIfValid(999)); if (veryVerbose) P(X);
+            ASSERT(         0 == X.hour());     // Now 0.
+            ASSERT(         0 == X.minute());
+            ASSERT(         0 == X.second());
+            ASSERT(       999 == X.millisecond());
+            ASSERT(         0 == X.microsecond());
+
+            x = R24;                      if (veryVerbose) { T_ P_(X) }
+            ASSERT(        24 == X.hour());
+            ASSERT(0 == x.setMicrosecondIfValid(999)); if (veryVerbose) P(X);
+            ASSERT(         0 == X.hour());     // Now 0.
+            ASSERT(         0 == X.minute());
+            ASSERT(         0 == X.second());
+            ASSERT(         0 == X.millisecond());
+            ASSERT(       999 == X.microsecond());
+        }
+
+        if (verbose) cout << "\tSetting to value 24:00:00.000." << endl;
+        {
+            Obj mX(RT);  const Obj& X = mX;
+
+            if (veryVerbose) { T_;  P_(X); }
+            ASSERT(0 == mX.setHourIfValid(24));
+            if (veryVerbose) { P(X); cout << endl; }
+            ASSERT(24   == X.hour());
+            ASSERT( 0   == X.minute());
+            ASSERT( 0   == X.second());
+            ASSERT( 0   == X.millisecond());
+            ASSERT( 0   == X.microsecond());
+        }
+
+        if (verbose) cout << "\nInvalid Testing." << endl;
+        {
+           if (veryVerbose) cout << "\t'setHourIfValid'" << endl;
+            {
+                Obj x0; ASSERT(0 != x0.setHourIfValid(-1));
+                ASSERT(x0 == Obj());
+                Obj x1; ASSERT(0 == x1.setHourIfValid( 0));
+                Obj x2; ASSERT(0 == x2.setHourIfValid(23));
+                Obj x3; ASSERT(0 == x3.setHourIfValid(24)); // Default object
+                Obj x4; ASSERT(0 != x4.setHourIfValid(25));
+                ASSERT(x4 == Obj());
+
+                Obj nonDefault(1, 1, 2);  const Obj& nD = nonDefault;
+
+                Obj y0(nD); ASSERT(0 == y0.setHourIfValid(23));
+                Obj y1(nD); ASSERT(0 == y1.setHourIfValid(24));
+            }
+
+            if (veryVerbose) cout << "\t'setMinuteIfValid'" << endl;
+            {
+                Obj x0; ASSERT(0 != x0.setMinuteIfValid(-1));
+                ASSERT(x0 == Obj());
+                Obj x1; ASSERT(0 == x1.setMinuteIfValid( 0));
+                Obj x2; ASSERT(0 == x2.setMinuteIfValid(59));
+                Obj x4; ASSERT(0 != x4.setMinuteIfValid(60));
+                ASSERT(x4 == Obj());
+            }
+
+            if (veryVerbose) cout << "\t'setSecondIfValid'" << endl;
+            {
+                Obj x0; ASSERT(0 != x0.setSecondIfValid(-1));
+                ASSERT(x0 == Obj());
+                Obj x1; ASSERT(0 == x1.setSecondIfValid( 0));
+                Obj x2; ASSERT(0 == x2.setSecondIfValid(59));
+                Obj x4; ASSERT(0 != x4.setSecondIfValid(60));
+                ASSERT(x4 == Obj());
+            }
+
+            if (veryVerbose) cout << "\t'setMillisecondIfValid'" << endl;
+            {
+                Obj x0; ASSERT(0 != x0.setMillisecondIfValid(  -1));
+                ASSERT(x0 == Obj());
+                Obj x1; ASSERT(0 == x1.setMillisecondIfValid(   0));
+                Obj x2; ASSERT(0 == x2.setMillisecondIfValid( 999));
+                Obj x4; ASSERT(0 != x4.setMillisecondIfValid(1000));
+                ASSERT(x4 == Obj());
+            }
+
+            if (veryVerbose) cout << "\t'setMicrosecondIfValid'" << endl;
+            {
+                Obj x0; ASSERT(0 != x0.setMicrosecondIfValid(  -1));
+                ASSERT(x0 == Obj());
+                Obj x1; ASSERT(0 == x1.setMicrosecondIfValid(   0));
+                Obj x2; ASSERT(0 == x2.setMicrosecondIfValid( 999));
+                Obj x4; ASSERT(0 != x4.setMicrosecondIfValid(1000));
+                ASSERT(x4 == Obj());
+            }
+        }
+      } break;
       case 47: {
 #ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         bsls::Log::setLogMessageHandler(countingLogMessageHandler);
