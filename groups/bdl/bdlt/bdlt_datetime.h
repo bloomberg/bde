@@ -1187,7 +1187,7 @@ bool Datetime::validateAndTraceLogRepresentation() const
         ss << "detected invalid 'bdlt::Time'; see TEAM 579660115; numAddr="
            << numAddresses << "\n";
         for (; stackIdx < numAddresses; ++stackIdx) {
-            ss << "#" << stackIdx << ":" << buffer[stackIdx] << "\n";
+            ss << "#" << stackIdx << ": " << buffer[stackIdx] << "\n";
         }
         BSLS_LOG_ERROR(ss.str().c_str());
     }
