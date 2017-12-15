@@ -386,7 +386,7 @@ int QuotedPrintableDecoder::endConvert(char *out,
     BSLS_ASSERT(numOut);
 
     (void)out;
-    
+
     if (e_ERROR_STATE == d_state || e_DONE_STATE == d_state ||
                                                               d_bufferLength) {
         d_state = e_ERROR_STATE;

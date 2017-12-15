@@ -2097,7 +2097,7 @@ void appendRand1Byte(bsl::string *dst)
     BSLS_ASSERT_SAFE(val <= k_HIGH_BOUND);
 
     unsigned char buf[2];
-    buf[0] = (unsigned char) val;
+    buf[0] = static_cast<unsigned char>(val);
     buf[1] = 0;
 
     *dst += (const char *) &buf[0];
@@ -2116,8 +2116,8 @@ void appendRand2Byte(bsl::string *dst)
     BSLS_ASSERT_SAFE(val <= k_HIGH_BOUND);
 
     unsigned char buf[3];
-    buf[0] = (unsigned char) ((val & 0x7c0) >> 6) | 0xc0;
-    buf[1] = (unsigned char) ((val &  0x3f)       | 0x80);
+    buf[0] = static_cast<unsigned char>(((val & 0x7c0) >> 6) | 0xc0);
+    buf[1] = static_cast<unsigned char> ((val &  0x3f)       | 0x80);
     buf[2] = 0;
 
     *dst += (const char *) &buf[0];
@@ -2139,9 +2139,9 @@ void appendRand3Byte(bsl::string *dst)
     BSLS_ASSERT_SAFE(val <= k_HIGH_BOUND);
 
     unsigned char buf[4];
-    buf[0] = (unsigned char) ((val & 0xf000) >> 12) | 0xe0;
-    buf[1] = (unsigned char) ((val &  0xfc0) >>  6) | 0x80;
-    buf[2] = (unsigned char) ((val &   0x3f)        | 0x80);
+    buf[0] = static_cast<unsigned char>(((val & 0xf000) >> 12) | 0xe0);
+    buf[1] = static_cast<unsigned char>(((val &  0xfc0) >>  6) | 0x80);
+    buf[2] = static_cast<unsigned char> ((val &   0x3f)        | 0x80);
     buf[3] = 0;
 
     *dst += (const char *) &buf[0];
@@ -2160,10 +2160,10 @@ void appendRand4Byte(bsl::string *dst)
     BSLS_ASSERT_SAFE(val <= k_HIGH_BOUND);
 
     unsigned char buf[5];
-    buf[0] = (unsigned char) ((val & 0x1c0000) >> 18) | 0xf0;
-    buf[1] = (unsigned char) ((val &  0x3f000) >> 12) | 0x80;
-    buf[2] = (unsigned char) ((val &    0xfc0) >>  6) | 0x80;
-    buf[3] = (unsigned char) ((val &     0x3f)        | 0x80);
+    buf[0] = static_cast<unsigned char>(((val & 0x1c0000) >> 18) | 0xf0);
+    buf[1] = static_cast<unsigned char>(((val &  0x3f000) >> 12) | 0x80);
+    buf[2] = static_cast<unsigned char>(((val &    0xfc0) >>  6) | 0x80);
+    buf[3] = static_cast<unsigned char> ((val &     0x3f)        | 0x80);
     buf[4] = 0;
 
     *dst += (const char *) &buf[0];
@@ -2215,8 +2215,8 @@ bsl::string code16(int b)
     ASSERT(0 == (b & ~0x7ff));
 
     unsigned char buf[3];
-    buf[0] = (unsigned char) ((b & 0x7c0) >> 6) | 0xc0;
-    buf[1] = (unsigned char) ((b &  0x3f)       | 0x80);
+    buf[0] = static_cast<unsigned char>(((b & 0x7c0) >> 6) | 0xc0);
+    buf[1] = static_cast<unsigned char> ((b &  0x3f)       | 0x80);
     buf[2] = 0;
 
     return (char *) buf;
@@ -2228,9 +2228,9 @@ bsl::string code24(int b)
     ASSERT(0 == (b & ~0xffff));
 
     unsigned char buf[4];
-    buf[0] = (unsigned char) ((b & 0xf000) >> 12) | 0xe0;
-    buf[1] = (unsigned char) ((b &  0xfc0) >>  6) | 0x80;
-    buf[2] = (unsigned char) ((b &   0x3f)        | 0x80);
+    buf[0] = static_cast<unsigned char>(((b & 0xf000) >> 12) | 0xe0);
+    buf[1] = static_cast<unsigned char>(((b &  0xfc0) >>  6) | 0x80);
+    buf[2] = static_cast<unsigned char> ((b &   0x3f)        | 0x80);
     buf[3] = 0;
 
     return (char *) buf;
@@ -2242,10 +2242,10 @@ bsl::string code32(int b)
     ASSERT(static_cast<unsigned>(b) <= 0x10ffff);
 
     unsigned char buf[5];
-    buf[0] = (unsigned char) ((b & 0x1c0000) >> 18) | 0xf0;
-    buf[1] = (unsigned char) ((b &  0x3f000) >> 12) | 0x80;
-    buf[2] = (unsigned char) ((b &    0xfc0) >>  6) | 0x80;
-    buf[3] = (unsigned char) ((b &     0x3f)        | 0x80);
+    buf[0] = static_cast<unsigned char>(((b & 0x1c0000) >> 18) | 0xf0);
+    buf[1] = static_cast<unsigned char>(((b &  0x3f000) >> 12) | 0x80);
+    buf[2] = static_cast<unsigned char>(((b &    0xfc0) >>  6) | 0x80);
+    buf[3] = static_cast<unsigned char> ((b &     0x3f)        | 0x80);
     buf[4] = 0;
 
     return (char *) buf;
