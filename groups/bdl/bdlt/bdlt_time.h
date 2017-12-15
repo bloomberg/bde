@@ -155,6 +155,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#include <bsls_stackaddressutil.h>
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -162,6 +164,9 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
+
+#include <bsl_cstring.h> // memset
+#include <bsl_sstream.h>
 
 namespace BloombergLP {
 namespace bdlt {
@@ -352,31 +357,61 @@ class Time {
         // Unspecified arguments default to 0.
 
     void setHour(int hour);
-        // Set the 'hour' attribute of this time object to the specified
+        // Set the "hour" attribute of this time object to the specified
         // 'hour'; if 'hour' is 24, set the remaining attributes of this object
         // to 0.  The behavior is undefined unless '0 <= hour <= 24'.
 
+    int setHourIfValid(int hour);
+        // Set the "hour" attribute of this time object to the specified 'hour'
+        // value *if* '0 <= hour <= 24'.  If '24 == hour', set the remaining
+        // attributes to 0.  Return 0 on success, and a non-zero value (with no
+        // effect) otherwise.
+
     void setMinute(int minute);
-        // Set the 'minute' attribute of this time object to the specified
+        // Set the "minute" attribute of this time object to the specified
         // 'minute'; if the 'hour' attribute is 24, set the 'hour' attribute to
         // 0.  The behavior is undefined unless '0 <= minute < 60'.
 
+    int setMinuteIfValid(int minute);
+        // Set the "minute" attribute of this time object to the specified
+        // 'minute' *if* '0 <= minute < 60'; if the 'hour' attribute is 24, set
+        // the 'hour' attribute to 0.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.
+
     void setSecond(int second);
-        // Set the 'second' attribute of this time object to the specified
+        // Set the "second" attribute of this time object to the specified
         // 'second'; if the 'hour' attribute is 24, set the 'hour' attribute to
         // 0.  The behavior is undefined unless '0 <= second < 60'.
 
+    int setSecondIfValid(int second);
+        // Set the "second" attribute of this time object to the specified
+        // 'second' *if* '0 <= second < 60'; if the 'hour' attribute is 24, set
+        // the 'hour' attribute to 0.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.
+
     void setMillisecond(int millisecond);
-        // Set the 'millisecond' attribute of this time object to the specified
+        // Set the "millisecond" attribute of this time object to the specified
         // 'millisecond'; if the 'hour' attribute is 24, set the 'hour'
         // attribute to 0.  The behavior is undefined unless
         // '0 <= millisecond < 1000'.
 
+    int setMillisecondIfValid(int millisecond);
+        // Set the "millisecond" attribute of this time object to the specified
+        // 'millisecond' *if* '0 <= millisecond < 1000'; if the 'hour'
+        // attribute is 24, set the 'hour' attribute to 0.  Return 0 on
+        // success, and a non-zero value (with no effect) otherwise.
+
     void setMicrosecond(int microsecond);
-        // Set the 'microsecond' attribute of this time object to the specified
+        // Set the "microsecond" attribute of this time object to the specified
         // 'microsecond'; if the 'hour' attribute is 24, set the 'hour'
         // attribute to 0.  The behavior is undefined unless
         // '0 <= microsecond < 1000'.
+
+    int setMicrosecondIfValid(int microsecond);
+        // Set the "microsecond" attribute of this time object to the specified
+        // 'microsecond' *if* '0 <= microsecond < 1000'; if the 'hour'
+        // attribute is 24, set the 'hour' attribute to 0.  Return 0 on
+        // success, and a non-zero value (with no effect) otherwise.
 
     void setTime(int hour,
                  int minute = 0,
@@ -635,7 +670,21 @@ bsls::Types::Int64 Time::microsecondsFromMidnight() const
     bdlb::BitUtil::uint64_t count =
           static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
     if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-        BSLS_LOG_ERROR("detected invalid 'bdlt::Time'; see TEAM 579660115");
+        enum { k_BUFFER_LENGTH = 50 };
+        void *buffer[k_BUFFER_LENGTH];
+        bsl::memset(buffer, 0, sizeof(buffer));
+        int numAddresses = bsls::StackAddressUtil::getStackAddresses(
+                                                              buffer,
+                                                              k_BUFFER_LENGTH);
+        int stackIdx = bsls::StackAddressUtil::k_IGNORE_FRAMES;
+
+        bsl::stringstream ss;
+        ss << "detected invalid 'bdlt::Time'; see TEAM 579660115; numAddr="
+           << numAddresses << "\n";
+        for (; stackIdx < numAddresses; ++stackIdx) {
+            ss << "#" << stackIdx << ": " << buffer[stackIdx] << "\n";
+        }
+        BSLS_LOG_ERROR(ss.str().c_str());
     }
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
@@ -735,6 +784,66 @@ Time& Time::operator-=(const DatetimeInterval& rhs)
 }
 
 inline
+int Time::setHourIfValid(int hour)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (0 <= hour && hour <= 24) {
+        setHour(hour);
+        return k_SUCCESS;                                             // RETURN
+    }
+    return k_FAILURE;
+}
+
+inline
+int Time::setMicrosecondIfValid(int microsecond)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (0 <= microsecond && microsecond <= 999) {
+        setMicrosecond(microsecond);
+        return k_SUCCESS;                                             // RETURN
+    }
+    return k_FAILURE;
+}
+
+inline
+int Time::setMillisecondIfValid(int millisecond)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (0 <= millisecond && millisecond <= 999) {
+        setMillisecond(millisecond);
+        return k_SUCCESS;                                             // RETURN
+    }
+    return k_FAILURE;
+}
+
+inline
+int Time::setMinuteIfValid(int minute)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (0 <= minute && minute <= 59) {
+        setMinute(minute);
+        return k_SUCCESS;                                             // RETURN
+    }
+    return k_FAILURE;
+}
+
+inline
+int Time::setSecondIfValid(int second)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    if (0 <= second && second <= 59) {
+        setSecond(second);
+        return k_SUCCESS;                                             // RETURN
+    }
+    return k_FAILURE;
+}
+
+inline
 int Time::setTimeIfValid(int hour,
                          int minute,
                          int second,
@@ -801,6 +910,21 @@ int Time::hour() const
 }
 
 inline
+int Time::microsecond() const
+{
+    return static_cast<int>(  microsecondsFromMidnight()
+                            % TimeUnitRatio::k_US_PER_MS);
+}
+
+inline
+int Time::millisecond() const
+{
+    return static_cast<int>(  microsecondsFromMidnight()
+                            / TimeUnitRatio::k_US_PER_MS
+                            % TimeUnitRatio::k_MS_PER_S);
+}
+
+inline
 int Time::minute() const
 {
     return static_cast<int>(  microsecondsFromMidnight()
@@ -814,21 +938,6 @@ int Time::second() const
     return static_cast<int>(  microsecondsFromMidnight()
                             / TimeUnitRatio::k_US_PER_S
                             % TimeUnitRatio::k_S_PER_M);
-}
-
-inline
-int Time::millisecond() const
-{
-    return static_cast<int>(  microsecondsFromMidnight()
-                            / TimeUnitRatio::k_US_PER_MS
-                            % TimeUnitRatio::k_MS_PER_S);
-}
-
-inline
-int Time::microsecond() const
-{
-    return static_cast<int>(  microsecondsFromMidnight()
-                            % TimeUnitRatio::k_US_PER_MS);
 }
 
                                   // Aspects
