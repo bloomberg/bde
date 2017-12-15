@@ -1244,6 +1244,7 @@ struct AddressRange {
         // count as an overlap.
 };
 
+#if defined(u_DWARF)
                                 // ------------
                                 // AddressRange
                                 // ------------
@@ -1266,6 +1267,7 @@ bool u::AddressRange::overlaps(const AddressRange& other) const
            ? d_address + d_size > other.d_address
            : other.d_address + other.d_size > d_address;
 }
+#endif
 
                               // ===============
                               // class FreeGuard

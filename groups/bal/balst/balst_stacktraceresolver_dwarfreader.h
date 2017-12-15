@@ -104,6 +104,7 @@ class StackTraceResolver_DwarfReader {
     typedef bdls::FilesystemUtil::Offset Offset;
     typedef bsls::Types::UintPtr         UintPtr;
     typedef bsls::Types::IntPtr          IntPtr;
+    typedef bsls::Types::Uint64          Uint64;
 
     struct Section {
         // Refers to one section of a segment.
@@ -399,7 +400,7 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 
     int rc;
 
-    *dst = 0;
+    Uint64 tmpDst = 0;                // workaround to silence warnings
 
     unsigned char u = 0x80;
 
@@ -412,20 +413,21 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
             return -1;                                                // RETURN
         }
 
-        const unsigned char masked = 0x7f & u;
+        const Uint64 masked = 0x7f & u;
         shift += 7;
-        *dst |= static_cast<TYPE>(static_cast<TYPE>(masked) << shift);
+        tmpDst |= masked << shift;
     } while (0x80 & u);
 
     if (static_cast<TYPE>(-1) < 0) {
         // signed type, extend sign
 
-        const TYPE negFlag = static_cast<TYPE>(
-                                             static_cast<TYPE>(0x40) << shift);
-        if (negFlag & *dst) {
-            *dst |= static_cast<TYPE>(~(negFlag - 1));
+        const Uint64 negFlag = static_cast<Uint64>(0x40) << shift;
+        if (negFlag & tmpDst) {
+            tmpDst |= ~(negFlag - 1);
         }
     }
+
+    *dst = static_cast<TYPE>(tmpDst);
 
     return 0;
 }
@@ -435,7 +437,7 @@ int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
 {
     int rc;
 
-    *dst = 0;
+    Uint64 tmpDst = 0;                // workaround to silence warnings
 
     unsigned char u = 0x80;
 
@@ -448,9 +450,11 @@ int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
             return -1;                                                // RETURN
         }
 
-        const unsigned char masked = 0x7f & u;
-        *dst |= static_cast<TYPE>(static_cast<TYPE>(masked) << shift);
+        const Uint64 masked = 0x7f & u;
+        tmpDst |= masked << shift;
     }
+
+    *dst = static_cast<TYPE>(tmpDst);
 
     return 0;
 }
