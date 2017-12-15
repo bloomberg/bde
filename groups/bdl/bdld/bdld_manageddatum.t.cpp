@@ -1095,7 +1095,7 @@ int main(int argc, char *argv[])
             bdlt::Date udt;
             bdlt::Date udt1;
 
-            struct {
+            static struct {
                 int         d_line;
                 bdld::Datum d_datum;
             } DATA[] = {
@@ -1171,7 +1171,7 @@ int main(int argc, char *argv[])
                     x.release();
                     y.release();
                 }
-            }            
+            }
 
             for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
                 // Relase the memory allocated in 'DATA'.
