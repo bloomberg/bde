@@ -36,7 +36,7 @@ bsls::Types::Int64 fastMod(int *number, int base)
     // store the result back into 'number'; return the value of the original
     // 'number' divided by 'base'.  The behavior is undefined unless
     // '1 <= base'.  Note that, for efficiency, this function uses the native
-    // '%' operator which, for an initially negative '*number' may, depending
+    // '%' operator that, for an initially negative '*number' may, depending
     // on the platform, have a positive or negative result (whose absolute
     // value is less then 'base'), but in either case will satisfy the
     // constraint:
@@ -63,7 +63,7 @@ bsls::Types::Int64 fastMod(bsls::Types::Int64 *number, bsls::Types::Int64 base)
     // store the result back into 'number'; return the value of the original
     // 'number' divided by 'base'.  The behavior is undefined unless
     // '1 <= base'.  Note that, for efficiency, this function uses the native
-    // '%' operator which, for an initially negative '*number' may, depending
+    // '%' operator that, for an initially negative '*number' may, depending
     // on the platform, have a positive or negative result (whose absolute
     // value is less then 'base'), but in either case will satisfy the
     // constraint:
@@ -350,6 +350,49 @@ void Time::setHour(int hour)
     }
 }
 
+void Time::setMicrosecond(int microsecond)
+{
+    BSLS_ASSERT(0 <= microsecond);
+    BSLS_ASSERT(     microsecond < TimeUnitRatio::k_US_PER_MS_32);
+
+    bsls::Types::Int64 totalMicroseconds = microsecondsFromMidnight();
+
+    if (totalMicroseconds < TimeUnitRatio::k_US_PER_D) {
+        bsls::Types::Int64 milliseconds =
+                                totalMicroseconds / TimeUnitRatio::k_US_PER_MS;
+
+        totalMicroseconds = TimeUnitRatio::k_US_PER_MS * milliseconds
+                          + microsecond;
+
+        setMicrosecondsFromMidnight(totalMicroseconds);
+    }
+    else {
+        setMicrosecondsFromMidnight(microsecond);
+    }
+}
+
+void Time::setMillisecond(int millisecond)
+{
+    BSLS_ASSERT(0 <= millisecond);
+    BSLS_ASSERT(     millisecond < TimeUnitRatio::k_MS_PER_S_32);
+
+    bsls::Types::Int64 totalMicroseconds = microsecondsFromMidnight();
+
+    if (totalMicroseconds < TimeUnitRatio::k_US_PER_D) {
+        bsls::Types::Int64 seconds =
+                                 totalMicroseconds / TimeUnitRatio::k_US_PER_S;
+
+        totalMicroseconds %= TimeUnitRatio::k_US_PER_MS;
+        totalMicroseconds += TimeUnitRatio::k_US_PER_S  * seconds
+                          +  TimeUnitRatio::k_US_PER_MS * millisecond;
+
+        setMicrosecondsFromMidnight(totalMicroseconds);
+    }
+    else {
+        setMicrosecondsFromMidnight(TimeUnitRatio::k_US_PER_MS * millisecond);
+    }
+}
+
 void Time::setMinute(int minute)
 {
     BSLS_ASSERT(0 <= minute);
@@ -391,49 +434,6 @@ void Time::setSecond(int second)
     }
     else {
         setMicrosecondsFromMidnight(TimeUnitRatio::k_US_PER_S * second);
-    }
-}
-
-void Time::setMillisecond(int millisecond)
-{
-    BSLS_ASSERT(0 <= millisecond);
-    BSLS_ASSERT(     millisecond < TimeUnitRatio::k_MS_PER_S_32);
-
-    bsls::Types::Int64 totalMicroseconds = microsecondsFromMidnight();
-
-    if (totalMicroseconds < TimeUnitRatio::k_US_PER_D) {
-        bsls::Types::Int64 seconds =
-                                 totalMicroseconds / TimeUnitRatio::k_US_PER_S;
-
-        totalMicroseconds %= TimeUnitRatio::k_US_PER_MS;
-        totalMicroseconds += TimeUnitRatio::k_US_PER_S  * seconds
-                          +  TimeUnitRatio::k_US_PER_MS * millisecond;
-
-        setMicrosecondsFromMidnight(totalMicroseconds);
-    }
-    else {
-        setMicrosecondsFromMidnight(TimeUnitRatio::k_US_PER_MS * millisecond);
-    }
-}
-
-void Time::setMicrosecond(int microsecond)
-{
-    BSLS_ASSERT(0 <= microsecond);
-    BSLS_ASSERT(     microsecond < TimeUnitRatio::k_US_PER_MS_32);
-
-    bsls::Types::Int64 totalMicroseconds = microsecondsFromMidnight();
-
-    if (totalMicroseconds < TimeUnitRatio::k_US_PER_D) {
-        bsls::Types::Int64 milliseconds =
-                                totalMicroseconds / TimeUnitRatio::k_US_PER_MS;
-
-        totalMicroseconds = TimeUnitRatio::k_US_PER_MS * milliseconds
-                          + microsecond;
-
-        setMicrosecondsFromMidnight(totalMicroseconds);
-    }
-    else {
-        setMicrosecondsFromMidnight(microsecond);
     }
 }
 
@@ -547,9 +547,9 @@ int Time::printToBuffer(char *result,
 
     char spec[] = "%02d:%02d:%02d.%0Xd";
 
-    const int PRECISION_INDEX = sizeof spec - 3;
+    const int k_PRECISION_IDX = sizeof spec - 3;
 
-    spec[PRECISION_INDEX] = static_cast<char>('0' + fractionalSecondPrecision);
+    spec[k_PRECISION_IDX] = static_cast<char>('0' + fractionalSecondPrecision);
 
     return printToBufferFormatted(result,
                                   numBytes,
