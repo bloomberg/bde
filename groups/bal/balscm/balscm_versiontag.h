@@ -70,6 +70,11 @@ BSLS_IDENT("$Id: $")
     // intentionally not included.  For example, 'BAL_VERSION' produces 10300
     // (decimal) for BAL version 1.3.1.
 
+#define BAL_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(3, 1)
+    // Define the deprecation threshold for 'bal' at the lowest level possible.
+    // This macro should only ever be expanded in bsls_deprecate.h, so don't
+    // include that header here.
+
 #endif
 
 // ----------------------------------------------------------------------------
