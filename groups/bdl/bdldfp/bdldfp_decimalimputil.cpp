@@ -460,7 +460,7 @@ int DecimalImpUtil::decompose(int          *sign,
         k_EXPONENT_MASK         = 0xff,
         k_EXPONENT_SHIFT_LARGE  = 21,
         k_EXPONENT_SHIFT_SMALL  = 23,
-        k_DECIMAL_EXPONENT_BIAS = 101,
+        k_DECIMAL_EXPONENT_BIAS = 101
     };
 
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
