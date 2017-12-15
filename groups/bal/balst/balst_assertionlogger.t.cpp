@@ -243,9 +243,8 @@ void getDayAndDate(char *buf, const struct tm *datetime)
 void getLateSummerDate(bsl::string *date)
     // "Try to remember a time in ..."
 {
-# if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)        \
-    && BSLS_PLATFORM_CMP_VERSION >= 50000
-
+# if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)
+ 
     struct tm datetime = { 0, 0, 0, 11, 8, 113, 3, 0, 1, 0, 0 };
 
 #else
