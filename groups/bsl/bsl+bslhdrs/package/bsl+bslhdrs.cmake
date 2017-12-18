@@ -1,10 +1,10 @@
-function(process_package outName list_file uorName)
+function(process outInfoTarget list_file uorName)
     get_filename_component(packageName ${list_file} NAME_WE)
     get_filename_component(list_dir ${list_file} DIRECTORY)
     get_filename_component(root_dir ${list_dir} DIRECTORY)
 
     bde_add_info_target(${packageName})
-    set(${outName} ${packageName} PARENT_SCOPE)
+    set(${outInfoTarget} ${packageName} PARENT_SCOPE)
 
     # Sources and headers
     bde_utils_add_meta_file("${list_dir}/${packageName}.pub" headers_list TRACK)
