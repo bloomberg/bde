@@ -1,41 +1,41 @@
-function(process_uor outName list_file)
-    get_filename_component(list_dir ${list_file} DIRECTORY)
-    get_filename_component(root_dir ${list_dir} DIRECTORY)
+function(process outInfoTarget listFile)
+    get_filename_component(listDir ${listFile} DIRECTORY)
+    get_filename_component(rootDir ${listDir} DIRECTORY)
 
     set(TARGET decnumber)
 
     bde_add_info_target(${TARGET})
-    set(${outName} ${TARGET} PARENT_SCOPE)
+    set(${outInfoTarget} ${TARGET} PARENT_SCOPE)
     bde_info_target_set_property(${TARGET} TARGET "${TARGET}")
-    
+
     # Standard CMake modules.
     include (TestBigEndian)
 
     set(headers
-        ${root_dir}/decContext.h
-        ${root_dir}/decDouble.h
-        ${root_dir}/decDPD.h
-        ${root_dir}/decimal32.h
-        ${root_dir}/decimal64.h
-        ${root_dir}/decimal128.h
-        ${root_dir}/decNumber.h
-        ${root_dir}/decNumberLocal.h
-        ${root_dir}/decPacked.h
-        ${root_dir}/decQuad.h
-        ${root_dir}/decSingle.h
+        ${rootDir}/decContext.h
+        ${rootDir}/decDouble.h
+        ${rootDir}/decDPD.h
+        ${rootDir}/decimal32.h
+        ${rootDir}/decimal64.h
+        ${rootDir}/decimal128.h
+        ${rootDir}/decNumber.h
+        ${rootDir}/decNumberLocal.h
+        ${rootDir}/decPacked.h
+        ${rootDir}/decQuad.h
+        ${rootDir}/decSingle.h
     )
 
     add_library(
         ${TARGET}
-        ${root_dir}/decContext.c
-        ${root_dir}/decDouble.c
-        ${root_dir}/decimal32.c
-        ${root_dir}/decimal64.c
-        ${root_dir}/decimal128.c
-        ${root_dir}/decNumber.c
-        ${root_dir}/decPacked.c
-        ${root_dir}/decQuad.c
-        ${root_dir}/decSingle.c
+        ${rootDir}/decContext.c
+        ${rootDir}/decDouble.c
+        ${rootDir}/decimal32.c
+        ${rootDir}/decimal64.c
+        ${rootDir}/decimal128.c
+        ${rootDir}/decNumber.c
+        ${rootDir}/decPacked.c
+        ${rootDir}/decQuad.c
+        ${rootDir}/decSingle.c
         ${headers}
     )
 
@@ -85,13 +85,13 @@ function(process_uor outName list_file)
 
     get_filename_component(
         EXTERNAL_INCLUDE_DIR
-        ${root_dir} DIRECTORY
+        ${rootDir} DIRECTORY
     )
 
     target_include_directories(
         ${TARGET}
         PUBLIC
-            $<BUILD_INTERFACE:${root_dir}>
+            $<BUILD_INTERFACE:${rootDir}>
             $<BUILD_INTERFACE:${EXTERNAL_INCLUDE_DIR}>
             $<INSTALL_INTERFACE:include>
     )
@@ -116,12 +116,6 @@ function(process_uor outName list_file)
             COMPONENT "${TARGET}-symlinks"
             EXCLUDE_FROM_ALL
         )
-
-        install(
-            CODE "message(\" -- ${symlink_val} ${symlink_file}\")"
-            COMPONENT "${TARGET}-symlinks"
-            EXCLUDE_FROM_ALL
-        )
     endif()
 
     install(
@@ -133,7 +127,7 @@ function(process_uor outName list_file)
     set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/..")
 
     configure_file(
-        "${root_dir}/${TARGET}Config.cmake.in"
+        "${rootDir}/${TARGET}Config.cmake.in"
         "${PROJECT_BINARY_DIR}/${TARGET}Config.cmake"
         @ONLY
     )
