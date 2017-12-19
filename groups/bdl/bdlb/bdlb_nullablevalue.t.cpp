@@ -6922,7 +6922,7 @@ int main(int argc, char *argv[])
 
             const ValueType N = 77;
 
-            Obj mX;
+            Obj mX;  const Obj& X = mX; 
             mX.makeValue(N);
 
             const Obj U(X);
@@ -6940,7 +6940,7 @@ int main(int argc, char *argv[])
 
             const ValueType S = "abc";
 
-            Obj mX;
+            Obj mX;  const Obj& X = mX; 
             mX.makeValue(S);
 
             const Obj U(X);
