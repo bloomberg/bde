@@ -1469,8 +1469,8 @@ class basic_string
         //               const ALLOCATOR&    basicAllocator = ALLOCATOR());
         //..
         // When the copy constructor with the default allocator is used, xlC10
-        // get confused and refuses to use the return value optimization, which
-        // then causes extra allocations when returning by value in
+        // gets confused and refuses to use the return value optimization,
+        // which then causes extra allocations when returning by value in
         // 'operator+'.
 
     basic_string(BloombergLP::bslmf::MovableRef<basic_string> original)
