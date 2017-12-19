@@ -78,12 +78,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLB_PRINTMETHODS
-#include <bdlb_printmethods.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
+#endif
+
+#ifndef INCLUDED_BSLIM_PRINTER
+#include <bslim_printer.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -171,6 +171,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BDLB_PRINTMETHODS
+#include <bdlb_printmethods.h>
+#endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
@@ -518,7 +522,9 @@ class NullableValue {
         // suppress indentation of the first line.  If 'spacesPerLevel' is
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.
+        // not valid on entry, this operation has no effect.  Note that the
+        // string "NULL" (without quotation marks) is printed if this object is
+        // null.
 
     const TYPE& value() const;
         // Return a reference providing non-modifiable access to the underlying
@@ -1453,17 +1459,14 @@ bsl::ostream& NullableValue<TYPE>::print(bsl::ostream& stream,
                                          int           level,
                                          int           spacesPerLevel) const
 {
+    bslim::Printer printer(&stream, level, spacesPerLevel);
     if (d_imp.isNull()) {
-        return bdlb::PrintMethods::print(stream,
-                                         "NULL",
-                                         level,
-                                         spacesPerLevel);             // RETURN
+        printer.printValue(static_cast<void *>(0));
+    } else {
+        printer.printValue(d_imp.value());
     }
 
-    return bdlb::PrintMethods::print(stream,
-                                     d_imp.value(),
-                                     level,
-                                     spacesPerLevel);
+    return stream;
 }
 
 template <class TYPE>
