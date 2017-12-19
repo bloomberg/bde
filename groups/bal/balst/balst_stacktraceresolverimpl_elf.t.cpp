@@ -15,6 +15,8 @@
 
 #include <bdls_filesystemutil.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_types.h>
@@ -43,47 +45,53 @@ using bsl::flush;
 //-----------------------------------------------------------------------------
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+bsls::AtomicInt testStatus(0);
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
+#define TAB cout << '\t';
 
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define PP(X) (cout << #X " = " << (X) << endl, false) // Print identifier and
+                                         // value, return false, as expression.
 
 // ============================================================================
 //                    GLOBAL HELPER #DEFINES FOR TESTING
@@ -96,6 +104,7 @@ static void aSsErT(int c, const char *s, int i)
 typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf> Obj;
 typedef balst::StackTraceFrame                                      Frame;
 typedef bsls::Types::UintPtr                                        UintPtr;
+typedef bsls::Types::Int64                                          Int64;
 
 #if defined(BSLS_PLATFORM_OS_LINUX)
 enum { e_IS_LINUX = 1 };
@@ -151,40 +160,47 @@ static TYPE abs(TYPE num)
     return num >= 0 ? num : -num;
 }
 
+const Int64 mask32 = 0xffffffffLL;
+
 static
 int funcStaticOne(int i)
     // Target function to be resolved.  Never called.  Do some arbitary
     // arithmetic so there will be some length of code in this routine.
 {
+    Int64 ret = L_;
     for (int j = 0; j < 2; ++j) {
         i = i * i * i;
     }
 
-    return 5 * i;
+    ret |= static_cast<Int64>(5 * i) << 14;
+    return static_cast<int>(ret & mask32);
 }
 
 int funcGlobalOne(int i)
     // Target function to be resolved.  Never called.  Do some arbitary
     // arithmetic so there will be some length of code in this routine.
 {
+    Int64 ret = L_;
     for (int j = 0; j < 2; ++j) {
         i = i * i * i * i;
     }
 
-    return 6 * i;
+    ret |= static_cast<Int64>(6 * i) << 14;
+    return static_cast<int>(ret & mask32);
 }
-
 
 static inline
 int funcStaticInlineOne(int i)
     // Target function to be resolved.  Never called.  Do some arbitary
     // arithmetic so there will be some length of code in this routine.
 {
+    Int64 ret = L_;
     for (int j = 0; j < 5; ++j) {
         i = 75 * i * i + i / (j + 1);
     }
 
-    return 5 * i;
+    ret |= (5 * i) << 14;
+    return static_cast<int>(ret & mask32);
 }
 
 static
@@ -357,6 +373,16 @@ int main(int argc, char *argv[])
 
         typedef bsls::Types::UintPtr UintPtr;
 
+        Int64 lineResults[5];
+        {
+            const Int64 lineResultsMask = (1 << 14) - 1;
+            lineResults[0] = funcGlobalOne(3) & lineResultsMask;
+            lineResults[1] = funcStaticOne(3) & lineResultsMask;
+            lineResults[2] = funcStaticInlineOne(3) & lineResultsMask;
+            lineResults[3] = -5000;
+            lineResults[4] = Obj::test() & lineResultsMask;
+        }
+
         for (int demangle = 0; demangle < 2; ++demangle) {
             balst::StackTrace stackTrace;
             stackTrace.resize(5);
@@ -403,12 +429,12 @@ int main(int argc, char *argv[])
             for (int i = 0; i < (int) stackTrace.length(); ++i) {
                 if (veryVerbose) {
                     cout << "stackTrace[" << i << "].address() = " <<
-                                     (UintPtr) stackTrace[i].address() << endl;
+                                               stackTrace[i].address() << endl;
                 }
 
-                LOOP_ASSERT(i, stackTrace[i].address());
+                ASSERTV(i, stackTrace[i].address());
 #undef  IS_UNKNOWN
-#define IS_UNKNOWN(name) LOOP_ASSERT(i, !stackTrace[i].is ## name ## Known());
+#define IS_UNKNOWN(name) ASSERTV(i, !stackTrace[i].is ## name ## Known());
                 IS_UNKNOWN(LibraryFileName);
                 IS_UNKNOWN(LineNumber);
                 IS_UNKNOWN(MangledSymbolName);
@@ -430,12 +456,12 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < stackTrace.length(); ++i) {
 #undef  IS_KNOWN
-#define IS_KNOWN(name) LOOP_ASSERT(i, stackTrace[i].is ## name ## Known());
+#define IS_KNOWN(name) ASSERTV(i, stackTrace[i].is ## name ## Known());
                 IS_KNOWN(Address);
                 IS_KNOWN(LibraryFileName);
                 IS_KNOWN(MangledSymbolName);
                 IS_KNOWN(OffsetFromSymbol);
-                if (1 == i || 2 == i) {
+                if (e_IS_DWARF || 1 == i || 2 == i) {
                     IS_KNOWN(SourceFileName);    // static symbols only
                 }
                 IS_KNOWN(SymbolName);
@@ -446,7 +472,7 @@ int main(int argc, char *argv[])
             const char *thisLib = "balst_stacktraceresolverimpl_elf.t";
 #undef  GOOD_LIBNAME
 #define GOOD_LIBNAME(func, exp, match) \
-            LOOP3_ASSERT(#func, exp, ng(match), func(ng(exp), match));
+            ASSERTV(#func, exp, ng(match), func(ng(exp), match));
 
             GOOD_LIBNAME(safeStrStr,
                              stackTrace[0].libraryFileName().c_str(), thisLib);
@@ -458,21 +484,12 @@ int main(int argc, char *argv[])
                              stackTrace[3].libraryFileName().c_str(), libName);
 #undef  GOOD_LIBNAME
 
-            // frame[1] was pointing to a static, the ELF resolver should have
-            // found this source file name.
-
             for (int i = 0; i < stackTrace.length(); ++i) {
-                if (!e_IS_DWARF && 1 != i) {
-                    continue;
-                }
-
-                LOOP_ASSERT(i, stackTrace[i].isSourceFileNameKnown());
-
                 const char *sym = stackTrace[i].symbolName().c_str();
 
                 const char *name = stackTrace[i].sourceFileName().c_str();
-                LOOP2_ASSERT(i, name, !e_IS_DWARF || '/' == *name);
-                LOOP2_ASSERT(i, name, !e_IS_DWARF ||
+                ASSERTV(i, name, !e_IS_DWARF || '/' == *name);
+                ASSERTV(i, name, !e_IS_DWARF ||
                                            bdls::FilesystemUtil::exists(name));
 
                 const char *pc = name + bsl::strlen(name);
@@ -481,28 +498,52 @@ int main(int argc, char *argv[])
                 }
 
                 int line = stackTrace[i].lineNumber();
+                ASSERTV(line, e_IS_DWARF ? 0 < line : -1 == line);
+
+                if (e_IS_DWARF) {
+                    if (3 == i) {
+                        ASSERTV(line, 1000 < line);
+                        ASSERTV(line, line < 10 * 1000);
+                    }
+                    else {
+                        ASSERTV(i, lineResults[i], line,
+                                              abs(lineResults[i] - line) <= 2);
+                    }
+                }
 
                 if (veryVerbose) cout << i << ", " << sym << ", " << name <<
                                                            ':' << line << endl;
 
-                LOOP2_ASSERT(i, pc, !bsl::strcmp(pc,
+                // frame[1] and frame[2] point to a statics, the ELF resolver
+                // should have found this source file name, even without DWARF.
+
+                if (e_IS_DWARF || 1 == i || 2 == i) {
+                    ASSERTV(i, stackTrace[i].isSourceFileNameKnown());
+
+                    ASSERTV(i, pc, !bsl::strcmp(
+                         pc,
                            3 == i ? "balst_stacktraceresolverimpl_elf.cpp"
                          : 4 == i ? "balst_stacktraceresolverimpl_elf.h"
-                                  : "balst_stacktraceresolverimpl_elf.t.cpp"));
+                         :          "balst_stacktraceresolverimpl_elf.t.cpp"));
+                }
+                else {
+                    ASSERTV(i, name, !stackTrace[i].isSourceFileNameKnown());
+                }
             }
 
 #undef  SM
 #define SM(ii, match) {                                                       \
                 const char *msn = stackTrace[ii].mangledSymbolName().c_str(); \
-                LOOP2_ASSERT(msn, match, safeStrStr(msn, match));             \
+                ASSERTV(msn, match, safeStrStr(msn, match));                  \
                 const char *sn = stackTrace[ii].symbolName().c_str();         \
-                LOOP2_ASSERT(sn, match, safeStrStr(sn, match));               \
+                ASSERTV(sn, match, safeStrStr(sn, match));                    \
             }
 
             SM(0, "funcGlobalOne");
             SM(1, "funcStaticOne");
             SM(2, "funcStaticInlineOne");
             SM(3, "resolve");
+            SM(4, "test");
 #undef  SM
 
             // Note that we skip after the first space in 'name', if any is
@@ -516,7 +557,7 @@ int main(int argc, char *argv[])
                     if (sp) {                                                 \
                         name = sp + 1;                                        \
                     }                                                         \
-                    LOOP_ASSERT(name, safeCmp(name, match));                  \
+                    ASSERTV(name, match, safeCmp(name, match));               \
                 }
 
                 SM(0, "funcGlobalOne(int)");
@@ -526,6 +567,9 @@ int main(int argc, char *argv[])
 
                     SM(1, "funcStaticOne(int)");
                     SM(2, "funcStaticInlineOne(int)");
+                    SM(4, "BloombergLP::balst::StackTraceResolverImpl"
+                          "<BloombergLP::balst::ObjectFileFormat::Elf>::"
+                          "test()");
                 }
 #undef  SM
                 const char resName[] = { "BloombergLP::"
@@ -544,7 +588,7 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                LOOP2_ASSERT(name3, resName,
+                ASSERTV(name3, resName,
                                       safeCmp(name3, resName, k_RES_NAME_LEN));
             }
         }

@@ -320,7 +320,7 @@ const DefaultDataRow DEFAULT_DATA[] =
     },
 
     // 'address'
-    { L_,  'N', (T1)UINT_MAX,
+    { L_,  'N', (T1)(UintPtr)UINT_MAX,
                 "",
                 -1,
                 "",
@@ -2189,8 +2189,8 @@ int main(int argc, char *argv[])
 
         // Attribute 1 Values: 'address'
 
-        const T1 A1 = (T1) (unsigned int) 0xbeefbeee;   // baseline
-        const T1 B1 = (T1) (unsigned int) 0xbeefbeef;
+        const T1 A1 = (T1) (UintPtr) (unsigned int) 0xbeefbeee;   // baseline
+        const T1 B1 = (T1) (UintPtr) (unsigned int) 0xbeefbeef;
 
         // Attribute 2 Values: 'libraryFileName'
 
