@@ -588,7 +588,7 @@ class FixedThreadPool {
         // processing a job for this threadpool.
 
     int numPendingJobs() const;
-        // Return a snapshot of the number of threads currently enqueued to be
+        // Return a snapshot of the number of jobs currently enqueued to be
         // processed by thread pool.
 
     int numThreads() const;
