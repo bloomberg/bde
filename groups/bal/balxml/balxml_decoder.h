@@ -684,7 +684,7 @@ class Decoder {
 
     ErrorInfo::Severity  errorSeverity() const;
         // Return the severity of the most severe warning or error encountered
-        // during the last call to the 'encode' method.  The severity is reset
+        // during the last call to the 'decode' method.  The severity is reset
         // each time 'decode' is called.
 
     bslstl::StringRef loggedMessages() const;
