@@ -57,6 +57,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 #elif defined(BSLS_PLATFORM_OS_LINUX)
 
 # include <cxxabi.h>
+
 # include <dlfcn.h>
 # include <execinfo.h>
 # include <link.h>
@@ -1243,6 +1244,7 @@ struct AddressRange {
         // count as an overlap.
 };
 
+#if defined(u_DWARF)
                                 // ------------
                                 // AddressRange
                                 // ------------
@@ -1265,6 +1267,7 @@ bool u::AddressRange::overlaps(const AddressRange& other) const
            ? d_address + d_size > other.d_address
            : other.d_address + other.d_size > d_address;
 }
+#endif
 
                               // ===============
                               // class FreeGuard
@@ -1894,10 +1897,12 @@ int u::StackTraceResolver::HiddenRec::dwarfReadAranges()
                                   addressRange.contains(it->address()); ++it) {
                 const bool isRedundant =
                                        u::maxOffset != it->compileUnitOffset();
-                u_TRACES && u_zprintf("%s%s range (0x%lx, 0x%lx) matches"
-                                     " frame %d, address: %p, offset 0x%llx\n",
+                u_TRACES && u_zprintf("%s%s range [0x%lx, 0x%lx) size 0x%lx"
+                             " matches frame %d, address: %p, offset 0x%llx\n",
                                            rn, isRedundant ? " redundant" : "",
-                       u::l(addressRange.d_address), u::l(addressRange.d_size),
+                            u::l(addressRange.d_address),
+                            u::l(addressRange.d_address + addressRange.d_size),
+                                                     u::l(addressRange.d_size),
                                                                    it->index(),
                                         it->address(), u::ll(debugInfoOffset));
                 if (isRedundant) {
@@ -2246,6 +2251,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
             rc = d_infoReader.readValue(&version);
             u_ASSERT_BAIL(0 == rc && "read version failed");
             u_ASSERT_BAIL((2 <= version && version <= 4) || u_P(version));
+
+            u_TRACES && u_zprintf("%s DWARF version: %u\n", rn, version);
         }
 
         // This is the compilation unit headers as outlined in 7.5.1.1
@@ -2274,14 +2281,14 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
 
             rc = d_infoReader.readULEB128(&readTagIdx);
             u_ASSERT_BAIL(0 == rc);
-            (1 != readTagIdx && u_TRACES) && u_eprintf( // we don't care much
-                                       "%s strange .debug_info tag idx %llx\n",
+            (1 != readTagIdx && u_TRACES) && u_zprintf( // we don't care much
+                                     "%s strange .debug_info tag idx 0x%llx\n",
                                                         rn, u::ll(readTagIdx));
 
             rc = d_abbrevReader.readULEB128(&readTagIdx);
             u_ASSERT_BAIL(0 == rc);
-            (1 != readTagIdx && u_TRACES) && u_eprintf( // we don't care much
-                                     "%s strange .debug_abbrev tag idx %llx\n",
+            (1 != readTagIdx && u_TRACES) && u_zprintf( // we don't care much
+                                   "%s strange .debug_abbrev tag idx 0x%llx\n",
                                                         rn, u::ll(readTagIdx));
         }
 
@@ -2403,7 +2410,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         rc = d_lineReader.readSectionOffset(&endOfHeader);
         u_ASSERT_BAIL(0 == rc);
 
-        u_TRACES && u_zprintf("%s version: %u, header len: %llu\n",
+        u_TRACES && u_zprintf("%s line version: %u, header len: %llu\n",
                                               rn, version, u::ll(endOfHeader));
 
         endOfHeader += d_lineReader.offset();
@@ -2423,6 +2430,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
     0 && u::dumpBinary(&d_lineReader, 8);
 
+    bool defaultIsStatement;
 #if 0
     // In section 6.2.4.5, the DWARF docs (versions 2, 3 and 4) say this field
     // should be there, but it's not in the binary.
@@ -2432,7 +2440,10 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         rc = d_lineReader.readValue(&isStmt);
         u_ASSERT_BAIL(0 == rc);
         u_ASSERT_BAIL(isStmt <= 1 || u_P(isStmt));
+        defaultIsStatement = false;
     }
+#else
+    defaultIsStatement = false;
 #endif
 
     int lineBase;
@@ -2514,7 +2525,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
             dirPaths.push_back(dir);
         }
 
-        if (0 && u_TRACES) {
+        if (u_TRACES) {
             for (unsigned int ii = 0; ii < dirPaths.size(); ++ii) {
                 u_zprintf("%s dirPaths[%u]: %s\n",
                                                  rn, ii, dirPaths[ii].c_str());
@@ -2527,37 +2538,38 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     bsl::deque<unsigned int> dirIndexes(d_allocator_p);
     dirIndexes.push_back(0);
 
-    for (unsigned int ii = 1;; ++ii) {
-        fileNames.push_back(nullString);
+    for (unsigned int ii = 0;; ++ii) {
+        if (ii) {
+            fileNames.push_back(nullString);
 
-        BSLS_ASSERT_SAFE(ii + 1 == fileNames.size());
+            BSLS_ASSERT_SAFE(ii + 1 == fileNames.size());
 
-        rc = d_lineReader.readString(&fileNames[ii]);
-        u_ASSERT_BAIL(0 == rc);
+            rc = d_lineReader.readString(&fileNames[ii]);
+            u_ASSERT_BAIL(0 == rc);
 
-        if (fileNames[ii].empty()) {
-            break;
+            if (fileNames[ii].empty()) {
+                break;
+            }
+
+            dirIndexes.push_back(-1);
+
+            BSLS_ASSERT_SAFE(dirIndexes.size() == fileNames.size());
+
+            rc = d_lineReader.readULEB128(&dirIndexes[ii]);
+            u_ASSERT_BAIL(0 == rc);
+            u_ASSERT_BAIL(dirIndexes[ii] < dirPaths.size());
+
+            rc = d_lineReader.skipULEB128();    // mod time, ignored
+            u_ASSERT_BAIL(0 == rc);
+
+            rc = d_lineReader.skipULEB128();    // file length, ignored
+            u_ASSERT_BAIL(0 == rc);
         }
 
-
-        dirIndexes.push_back(-1);
-
-        BSLS_ASSERT_SAFE(dirIndexes.size() == fileNames.size());
-
-        rc = d_lineReader.readULEB128(&dirIndexes[ii]);
-        u_ASSERT_BAIL(0 == rc);
-        u_ASSERT_BAIL(dirIndexes[ii] < dirPaths.size());
-
-        if (0 && u_TRACES) {
+        if (u_TRACES) {
             u_zprintf("%s fileNames[%u]: %s dirIdx %lld:\n", rn, ii,
                                  fileNames[ii].c_str(), u::ll(dirIndexes[ii]));
         }
-
-        rc = d_lineReader.skipULEB128();    // mod time, ignored
-        u_ASSERT_BAIL(0 == rc);
-
-        rc = d_lineReader.skipULEB128();    // file length, ignored
-        u_ASSERT_BAIL(0 == rc);
     }
     u_ASSERT_BAIL(2 <= fileNames.size());
     fileNames.resize(fileNames.size() - 1);    // chomp empty entry
@@ -2582,12 +2594,12 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         u_TRACES && u_zprintf("%s Symbol %s, %ld dirs, %ld files, skip: %lld,"
                                " addrToMatch: 0x%lx, minLength: %u, maxOps: %u"
                                  " lineBase: %d, lineRange: %d, initLen: %lld,"
-                                                               " opBase: %u\n",
+                                                 " opBase: %u, toSkip: %llu\n",
              rn, frameRec->frame().symbolName().c_str(), u::l(dirPaths.size()),
                    u::l(fileNames.size()), u::ll(toSkip), u::l(addressToMatch),
                               minInstructionLength, maxOperationsPerInsruction,
                                    lineBase, lineRange, u::ll(debugLineLength),
-                                                                   opcodeBase);
+                                                    opcodeBase, u::ll(toSkip));
 
         u_ASSERT_BAIL(0 <= toSkip);
         d_lineReader.skipBytes(toSkip);
@@ -2597,9 +2609,10 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
     bool nullPrevStatement = true;
     bool endOfSequence = false;
-    int statementsSinceSetFile = 100;
+    int statementsSinceSetFile = 100, statementsSinceEndSeq = 0;
 
-    for (; !d_lineReader.atEndOfSection(); ++statementsSinceSetFile) {
+    for (; !d_lineReader.atEndOfSection(); ++statementsSinceSetFile,
+                                                     ++statementsSinceEndSeq) {
         unsigned char opcode;
         rc = d_lineReader.readValue(&opcode);
         u_ASSERT_BAIL(0 == rc);
@@ -2611,19 +2624,20 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
             const int          opAdjust = opcode - opcodeBase;
             const unsigned int opAdvance = opAdjust / lineRange;
-            const u::UintPtr    addressAdvance = minInstructionLength *
+            const u::UintPtr   addressAdvance = minInstructionLength *
                           ((opIndex + opAdvance) / maxOperationsPerInsruction);
             const int          lineAdvance = lineBase + opAdjust % lineRange;
 
+            opIndex = (opIndex + opAdvance) % maxOperationsPerInsruction;
+
             u_TRACES && u_zprintf("%s special opcode %u, opAdj: %u, opAdv: %u,"
-                                            " addrAdv: %lu, lineAdv: %d\n", rn,
-                                                   opcode, opAdjust, opAdvance,
+                                 " opIdx: %u, addrAdv: %lu, lineAdv: %d\n", rn,
+                                          opcode, opAdjust, opAdvance, opIndex,
                                             u::l(addressAdvance), lineAdvance);
 
             statement = true;
 
             address += addressAdvance;
-            opIndex = (opIndex + opAdvance) % maxOperationsPerInsruction;
             line += lineAdvance;
 
             u_ASSERT_BAIL(line >= 0);
@@ -2631,12 +2645,17 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         else if (0 < opcode) {
             // standard opcode          // DWARF doc 6.2.5.2
 
-            if (opcode <= DW_LNS_set_isa) {
-                u_zprintf("%s standard opcode %s\n", rn,
+            if (u_TRACES) {
+                if (opcode <= DW_LNS_set_isa) {
+                    if (DW_LNS_negate_stmt != opcode) {
+                        u_zprintf("%s standard opcode %s\n", rn,
                                               u::Reader::stringForLNS(opcode));
-            }
-            else {
-                u_zprintf("%s unrecognized standard opcode %u\n", rn, opcode);
+                    }
+                }
+                else {
+                    u_eprintf("%s unrecognized standard opcode %u\n", rn,
+                                                                       opcode);
+                }
             }
 
             switch (opcode) {
@@ -2651,7 +2670,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 u::UintPtr advanceBy = minInstructionLength *
                           ((opIndex + opAdvance) / maxOperationsPerInsruction);
 
-                u_TRACES && u_zprintf("%s advance@By: %lu\n",
+                u_TRACES && u_zprintf("%s advance@By: 0x%lx\n",
                                                           rn, u::l(advanceBy));
 
                 statement = true;
@@ -2676,8 +2695,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 rc = d_lineReader.readULEB128(&fileIdx);
                 u_ASSERT_BAIL(0 == rc);
                 u_ASSERT_BAIL(0 <= fileIdx);
-                u_ASSERT_BAIL(     fileIdx <
-                                           static_cast<int>(fileNames.size()));
+                u_ASSERT_BAIL(fileIdx < static_cast<int>(fileNames.size()) ||
+                                        u_P(fileIdx) || u_P(fileNames.size()));
 
                 nullPrevStatement = true;
                 statementsSinceSetFile = 0;
@@ -2691,7 +2710,9 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 u_ASSERT_BAIL(0 == rc);
               } break;
               case DW_LNS_negate_stmt: {    // 6
-                ;    // no args, ignored
+                defaultIsStatement = !defaultIsStatement;
+                u_TRACES && u_zprintf("%s DW_LNS_negate_stmt: default = %s\n",
+                                  rn, (defaultIsStatement ? "true" : "false"));
               } break;
               case DW_LNS_set_basic_block: {    // 7
                 ;    // no args, ignored
@@ -2750,12 +2771,47 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 #else
             if (5 == opcode) {                // Not in spec
 #endif
+                u_TRACES && u_zprintf("%s glitch: %u -- ignored\n", rn,opcode);
+
                 rc = d_lineReader.readValue(&opcode);
                 u_ASSERT_BAIL(0 == rc);
             }
 
-            u_zprintf("%s extended opcode %s\n",
+            if (DW_LNE_set_address == opcode &&
+                     statementsSinceSetFile > 1 && statementsSinceEndSeq > 1) {
+                // We were getting non-spec 'DW_LNE_set_address' opcodes
+                // inserted into the state machine stream, but the address arg
+                // following them didn't make sense.
+                //
+                // That opcode makes sense after a 'DW_LNS_set_file', or
+                // immediately after a 'DW_LNE_end_sequence', but the ones in
+                // other contexts did not make sense, and when ignored in those
+                // other contexts, DWARF resolution worked.
+                //
+                // None of this was described in the spec.  I don't understand
+                // what these useless bytes are doing in the state machine
+                // instruction stream, it's just wasted data.
+
+                u_TRACES && u_zprintf("%s glitch: DW_LNE_set_address"
+                                                          " -- ignored\n", rn);
+
+                rc = d_lineReader.readValue(&opcode);
+                u_ASSERT_BAIL(0 == rc);
+
+                // Apparently, this phenomenon always precedes a
+                // 'u::e_DW_LNE_set_discriminator' opcode.
+
+                // u_ASSERT_BAIL(u::e_DW_LNE_set_discriminator == opcode);
+
+                u_TRACES && u::e_DW_LNE_set_discriminator != opcode &&
+                              u_eprintf("%s unexpected opcode %u after strange"
+                                          " DW_LNE_set_address\n", rn, opcode);
+            }
+
+            if (u_TRACES && DW_LNE_set_address != opcode) {
+                u_zprintf("%s extended opcode %s\n",
                                           rn, u::Reader::stringForLNE(opcode));
+            }
 
             switch (opcode) {
               case DW_LNE_end_sequence: {    // 1
@@ -2776,17 +2832,17 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
               } break;
               case DW_LNE_set_address: {    // 2
                 rc = d_lineReader.readValue(&address);
-                u_ASSERT_BAIL(0 == rc);
                 address += d_adjustment;
-                opIndex = 0;
-                if (statementsSinceSetFile <= 1) {
-                    // Apparently, if this statement immediately follows a
-                    // 'set file', we are to reset the line #, otherwise leave
-                    // it alone.
+                u_ASSERT_BAIL(0 == rc);
+                u_ASSERT_BAIL(statementsSinceSetFile <= 1 ||
+                                                   statementsSinceEndSeq <= 1);
 
-                    line = prevLine = 1;
-                }
+                u_TRACES && u_zprintf("%s DW_LNE_set_address: addr:"
+                                                " 0x%lx\n", rn, u::l(address));
+                line = prevLine = 1;
+
                 nullPrevStatement = true;
+                opIndex = 0;
               } break;
               case DW_LNE_define_file: {    // 3
                 rc = d_lineReader.readString(&definedFile);
@@ -2804,6 +2860,9 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
                 fileIdx = -1;
 
+                statementsSinceSetFile = 0;
+                nullPrevStatement = true;
+                opIndex = 0;
                 line = prevLine = 1;
               } break;
               case u::e_DW_LNE_set_discriminator: {
@@ -2878,6 +2937,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 fileIdx = 0;
                 line = 1, prevLine = 1;
                 nullPrevStatement = true;
+                defaultIsStatement = false;
+                statementsSinceEndSeq = 0;
             }
             else {
                 prevLine    = line;

@@ -1679,6 +1679,9 @@ int main(int argc, char *argv[])
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
         if (verbose) cout << "Memory Leak Test is Performed on Unix Only\n"
                              "==========================================\n";
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+        if (verbose) cout << "Test Disabled: 'sbrk' Deprecated on Darwin\n"
+                             "==========================================\n";
 #else
         if (verbose) cout << "Memory Leak Test\n"
                              "================\n";
