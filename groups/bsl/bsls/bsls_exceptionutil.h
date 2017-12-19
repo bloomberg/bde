@@ -222,6 +222,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
                         // ======
                         // macros
                         // ======
@@ -265,13 +269,17 @@ BSLS_IDENT("$Id: $")
         // Exceptions enabled: 'throw SPEC'
         // Exceptions disabled: empty
 
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+#   define BSLS_NOTHROW_SPEC noexcept
+#   else
 #   define BSLS_NOTHROW_SPEC throw ()
+#   endif
         // Declare that a function does not throw any exceptions:
         // Usage:
         //..
         //  void f() BSLS_NOTHROW_SPEC;
         //..
-        // Exceptions enabled: 'throw ()'
+        // Exceptions enabled: 'throw ()' or 'noexcept'
         // Exceptions disabled: empty
 
 #else // If exceptions are disabled
