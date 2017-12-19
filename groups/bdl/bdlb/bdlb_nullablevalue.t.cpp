@@ -2991,7 +2991,7 @@ void TestDriver<TEST_TYPE>::testCase22_withAllocator()
 
             // Create control object 'W' and alternate value 'Z'.
             Obj mW;  const Obj& W = gg(&mW, SPEC1);
-            Obj mZ;  gg(&mZ, "Z");
+            Obj mZ;                 gg(&mZ, "Z");
 
             for (int tj = 0; tj < NUM_SPECS; ++tj) {
                 const char *const SPEC2 = SPECS[tj];
@@ -5135,7 +5135,7 @@ int main(int argc, char *argv[])
                 { L_,   A,   true             },
                 { L_,   B,   false            }
             };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int  LINE                = DATA[ti].d_line;
@@ -6922,7 +6922,8 @@ int main(int argc, char *argv[])
 
             const ValueType N = 77;
 
-            Obj mX;  const Obj& X = mX;  mX.makeValue(N);
+            Obj mX;  const Obj& X = mX; 
+            mX.makeValue(N);
 
             const Obj U(X);
             ASSERT(N == U.value());
@@ -6939,7 +6940,8 @@ int main(int argc, char *argv[])
 
             const ValueType S = "abc";
 
-            Obj mX;  const Obj& X = mX;  mX.makeValue(S);
+            Obj mX;  const Obj& X = mX; 
+            mX.makeValue(S);
 
             const Obj U(X);
             ASSERT(S == U.value());
@@ -7063,13 +7065,64 @@ int main(int argc, char *argv[])
         //   We need to test the 'print' method and the '<<' operator.
         //
         // Concerns:
-        //   The print method and output (<<) operator must work.
+        //: 1 The 'print' method writes the value to the specified 'ostream'.
+        //:
+        //: 2 The 'print' method writes the value in the intended format.
+        //:
+        //: 3 The 'print' method returns the supplied 'ostream'.
+        //:
+        //: 4 The optional 'level' and 'spacesPerLevel' parameters have the
+        //:   correct default values (0 and 4, respectively).
+        //:
+        //: 5 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
+        //:
+        //: 6 The output 'operator<<' returns the destination 'ostream'.
         //
         // Plan:
-        //   Conduct the test using 'int' for 'TYPE'.
-        //
-        //   For a set of values, check that the 'print' method and output (<<)
-        //   operator work as expected.
+        //: 1 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) parameter collections for stream
+        //:     formatting.valid object values.
+        //:
+        //: 2 For each row (representing a distinct parameter collection, 'V')
+        //:   in the table described in P-1:
+        //:
+        //:   1 Create two objects, having 'int' and 'bsl::string' types and
+        //:     create a separate stream for each object. Assign to these
+        //:     objects some constant values.
+        //:
+        //:   2 Using parameters from the table format the objects to the
+        //:     streams and verify return values and content of streams
+        //:     afterwards.
+        //:
+        //: 3 Create two objects, having 'int' and 'bsl::string' types and
+        //:     create a separate stream for each object.
+        //:
+        //: 4 Using some constant formatting parameters, format the objects
+        //:   described in P-3 to the streams described in P-3, and verify
+        //:   return values and content of streams afterwards.
+        //:
+        //: 5 Create two objects, having 'int' and 'bsl::string' types and
+        //:   create a separate stream for each object.
+        //:
+        //: 6 Using the default parameters format the objects described
+        //:   in P-5 to the streams described in P-5 and verify return values
+        //:   and contents of streams values afterwards.
+        //:
+        //: 7 Assign to these objects some constant values and format them
+        //:   again.  Verify return values and contents of streams afterwards.
+        //:   (C-1..4)
+        //:
+        //: 8 Create two objects, having 'int' and 'bsl::string' types and
+        //:     create a separate stream for each object.
+        //:
+        //: 9 Using the 'operator<<' write the values of the objects described
+        //:   in P-8 to the streams described in P-8 and verify return values
+        //:   and contents of streams values afterwards.
+        //:
+        //:10 Assign to these objects some constant values and write them
+        //:   again.  Verify return values and contents of streams afterwards.
+        //:   (C-5..6)
         //
         // Testing:
         //   ostream& print(ostream& s, int l=0, int spl=4) const;
@@ -7080,47 +7133,158 @@ int main(int argc, char *argv[])
                              "\n==========================================="
                           << endl;
 
-        typedef int                            ValueType;
-        typedef bdlb::NullableValue<ValueType> Obj;
+        typedef bdlb::NullableValue<int>         IntObj;
+        typedef bdlb::NullableValue<bsl::string> StrObj;
 
-        const ValueType VALUE1          = 123;
-        const char      NULL_RESULT[]   = "NULL";
-        const char      VALUE1_RESULT[] = "123";
+        const int         INT_VALUE        =  123;
+        const bsl::string STR_VALUE        = "123";
+
+        const bsl::string INT_RESULT_0_M1  = " 123";
+        const bsl::string STR_RESULT_0_M1  = " \"123\"";
+        const bsl::string INT_RESULT_0_4   = "    123\n";
+        const bsl::string STR_RESULT_0_4   = "    \"123\"\n";
+
+        const bsl::string NULL_RESULT_0_M1 = " NULL";
+        const bsl::string NULL_RESULT_2_3  = "         NULL\n";
+        const bsl::string NULL_RESULT_0_4  = "    NULL\n";
+
+#define NL "\n"
+        static const struct {
+            int         d_lineNum;         // source line number
+            int         d_level;           // indentation level
+            int         d_spacesPerLevel;  // spaces per indentation level
+            bsl::string d_intExpected;     // expected output for int value
+            bsl::string d_strExpected;     // expected output for string value
+        } DATA[] = {
+            //LINE  LEVEL SPL INT EXPECTED OUTPUT  STR EXPECTED OUTPUT
+            //----  ----- --- -------------------  ----------------------
+            { L_,    0,    0, "123"           NL,  "\"123\""          NL },
+            { L_,    0,    2, "  123"         NL,  "  \"123\""        NL },
+            { L_,    2,    0, "123"           NL,  "\"123\""          NL },
+            { L_,    2,    3, "         123"  NL,  "         \"123\"" NL },
+            { L_,    2,   -3, " 123"            ,  " \"123\""            },
+            { L_,   -2,    3, "         123"  NL,  "         \"123\"" NL },
+            { L_,   -2,   -3, " 123"            ,  " \"123\""            },
+        };
+#undef NL
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nTesting 'print' Method." << endl;
         {
+            if (verbose) cout << "\tTesting null objects." << endl;
             {
-                Obj mX;  const Obj& X = mX;
-                bsl::stringstream ss;
-                ASSERT(&ss == &X.print(ss, 0, -1));
-                ASSERTV(ss.str(), NULL_RESULT == ss.str());
+                IntObj            mIX;
+                const IntObj&     IX = mIX;
+                bsl::stringstream iss;
+                StrObj            mSX;
+                const StrObj&     SX = mSX;
+                bsl::stringstream sss;
+
+                ASSERT(&iss == &IX.print(iss, 0, -1));
+                ASSERT(&sss == &SX.print(sss, 0, -1));
+                ASSERTV(iss.str(), NULL_RESULT_0_M1 == iss.str());
+                ASSERTV(sss.str(), NULL_RESULT_0_M1 == sss.str());
+
+                iss.str(bsl::string());
+                sss.str(bsl::string());
+
+                ASSERT(&iss == &IX.print(iss, 2, 3));
+                ASSERT(&sss == &SX.print(sss, 2, 3));
+                ASSERTV(iss.str(), NULL_RESULT_2_3 == iss.str());
+                ASSERTV(sss.str(), NULL_RESULT_2_3 == sss.str());
             }
+
+            if (verbose) cout << "\tTesting non-null objects." << endl;
             {
-                Obj mX;  const Obj& X = mX;
-                mX.makeValue(VALUE1);
-                bsl::stringstream ss;
-                ASSERT(&ss == &X.print(ss, 0, -1));
-                ASSERTV(ss.str(), VALUE1_RESULT == ss.str());
+                for (int i = 0; i < NUM_DATA;  ++i) {
+                    const int       LINE     = DATA[i].d_lineNum;
+                    const int       LEVEL    = DATA[i].d_level;
+                    const int       SPL      = DATA[i].d_spacesPerLevel;
+                    bsl::string INT_EXPECTED = DATA[i].d_intExpected;
+                    bsl::string STR_EXPECTED = DATA[i].d_strExpected;
+
+                    if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
+
+                    IntObj            mIX;
+                    const IntObj&     IX = mIX;
+                    StrObj            mSX;
+                    const StrObj&     SX = mSX;
+                    bsl::stringstream iss;
+                    bsl::stringstream sss;
+
+                    mIX.makeValue(INT_VALUE);
+                    mSX.makeValue(STR_VALUE);
+
+                    ASSERT(&iss == &IX.print(iss, LEVEL, SPL));
+                    ASSERT(&sss == &SX.print(sss, LEVEL, SPL));
+                    ASSERTV(iss.str(), INT_EXPECTED == iss.str());
+                    ASSERTV(sss.str(), STR_EXPECTED == sss.str());
+                }
+            }
+
+            if (verbose) cout << "\tTesting default parameters." << endl;
+            {
+                // Testing null objects.
+
+                IntObj            mIX;
+                const IntObj&     IX = mIX;
+                bsl::stringstream iss;
+                StrObj            mSX;
+                const StrObj&     SX = mSX;
+                bsl::stringstream sss;
+
+                ASSERT(&iss == &IX.print(iss));
+                ASSERT(&sss == &SX.print(sss));
+                ASSERTV(iss.str(), NULL_RESULT_0_4 == iss.str());
+                ASSERTV(sss.str(), NULL_RESULT_0_4 == sss.str());
+
+                // Testing non-null objects.
+
+                iss.str(bsl::string());
+                sss.str(bsl::string());
+
+                mIX.makeValue(INT_VALUE);
+                mSX.makeValue(STR_VALUE);
+
+                ASSERT(&iss == &IX.print(iss));
+                ASSERT(&sss == &SX.print(sss));
+                ASSERTV(iss.str(), INT_RESULT_0_4 == iss.str());
+                ASSERTV(sss.str(), STR_RESULT_0_4 == sss.str());
             }
         }
 
         if (verbose) cout << "\nTesting Output (<<) Operator." << endl;
         {
-            {
-                Obj mX;  const Obj& X = mX;
-                bsl::stringstream ss;
-                ASSERT(&ss == &(ss << X));
-                ASSERTV(ss.str(), NULL_RESULT == ss.str());
-            }
-            {
-                Obj mX;  const Obj& X = mX;
-                mX.makeValue(VALUE1);
-                bsl::stringstream ss;
-                ASSERT(&ss == &(ss << X));
-                ASSERTV(ss.str(), VALUE1_RESULT == ss.str());
-            }
-        }
+            if (verbose) cout << "\tTesting null objects." << endl;
 
+            IntObj            mIX;
+            const IntObj&     IX = mIX;
+            bsl::stringstream iss;
+            StrObj            mSX;
+            const StrObj&     SX = mSX;
+            bsl::stringstream sss;
+
+            ASSERT(&iss == &(iss << IX));
+            ASSERT(&sss == &(sss << SX));
+            ASSERTV(iss.str(), NULL_RESULT_0_M1 == iss.str());
+            ASSERTV(sss.str(), NULL_RESULT_0_M1 == sss.str());
+
+            if (verbose) cout << "\tTesting non-null objects." << endl;
+
+            bsl::string INT_EXPECTED = " 123";
+            bsl::string STR_EXPECTED = " \"123\"";
+
+            iss.str(bsl::string());
+            sss.str(bsl::string());
+
+            mIX.makeValue(INT_VALUE);
+            mSX.makeValue(STR_VALUE);
+
+            ASSERT(&iss == &(iss << IX));
+            ASSERT(&sss == &(sss << SX));
+            ASSERTV(iss.str(), INT_RESULT_0_M1 == iss.str());
+            ASSERTV(sss.str(), STR_RESULT_0_M1 == sss.str());
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
