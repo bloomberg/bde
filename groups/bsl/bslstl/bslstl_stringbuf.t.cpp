@@ -698,7 +698,7 @@ int main(int argc, char *argv[])
                             "\n======================================\n");
 
         class DerivedStringBuf
-            : public bsl::stringbuf {
+            : private bsl::stringbuf {
           public:
             DerivedStringBuf()
             : bsl::stringbuf()
@@ -709,8 +709,14 @@ int main(int argc, char *argv[])
             {
             }
 
-            using bsl::stringbuf::setg;
-            using bsl::stringbuf::setp;
+            void setg(char_type *gbeg, char_type *gcurr, char_type *gend)
+            {
+                bsl::stringbuf::setg(gbeg, gcurr, gend);
+            }
+            void setp(char_type *pbeg, char_type *pend)
+            {
+                bsl::stringbuf::setp(pbeg, pend);
+            }
         };
 
         {
