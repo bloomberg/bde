@@ -698,7 +698,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING MODIFYING BUFFER POINTERS VIA BASE"
                             "\n======================================\n");
 
-        class DerivedStringBuf : bsl::stringbuf {
+        class DerivedStringBuf
+            : public bsl::stringbuf {
           public:
             DerivedStringBuf()
             : bsl::stringbuf()
