@@ -36,7 +36,10 @@ BSLS_IDENT("$Id: $")
 // 'bdlmt::EventSchedulerRecurringEventHandle' objects, which clean up after
 // themselves when they go out of scope, or by 'Event' and 'RecurringEvent'
 // pointers, which must be released using 'releaseEventRaw'.  Such pointers are
-// used in the "Raw" API of this class and must be used carefully.
+// used in the "Raw" API of this class and must be used carefully.  Note that
+// the Handle objects have an implicit conversion to the corresponding 'Event'
+// or 'RecurringEvent' pointer types, effectively providing extra overloads
+// for methods which take a 'const Event*' to also take a 'const EventHandle&'.
 //
 ///Comparison to 'bdlmt::TimerEventScheduler'
 /// - - - - - - - - - - - - - - - - - - - - -
@@ -633,6 +636,15 @@ class EventScheduler {
         // Cancel the event having the specified 'handle'.  Return 0 on
         // successful cancellation, and a non-zero value if the 'handle' is
         // invalid *or* if the event has already been dispatched or canceled.
+        // Note that due to the implicit conversion from Handle types, these
+        // methods also match the following:
+        //..
+        //  int cancelEvent(const EventHandle&          handle);
+        //  int cancelEvent(const RecurringEventHandle& handle);
+        //..
+        // Compared to the version taking a pointer to Handle, the managed
+        // reference to the event is not released until the Handle goes out of
+        // scope.
 
     int cancelEvent(EventHandle          *handle);
     int cancelEvent(RecurringEventHandle *handle);
