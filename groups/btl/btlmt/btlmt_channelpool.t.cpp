@@ -8337,30 +8337,35 @@ void TestDriver::testCase41()
         LOOP2_ASSERT(rc, errCode, 0 == rc);
 
         if (localAddrs.size() > 1) {
+            const bool reuseAddress = static_cast<bool>(i);
+
             IPAddress serverAddr1("0.0.0.0", SERVER_PORT);
             IPAddress serverAddr2(localAddrs[0]);
             serverAddr2.setPortNumber(SERVER_PORT);
 
-            const bool reuseAddress = static_cast<bool>(i);
+            btlso::SocketOptions socketOptions;
+            socketOptions.setReuseAddress(reuseAddress);
 
-            rc = pool.listen(serverAddr1,
-                             5,
-                             SERVER_ID,
-                             bsls::TimeInterval(1),
-                             reuseAddress);
+            btlmt::ListenOptions listenOptions1;
+            listenOptions1.setBacklog(5);
+            listenOptions1.setServerAddress(serverAddr1);
+            listenOptions1.setTimeout(bsls::TimeInterval(1));
+            listenOptions1.setSocketOptions(socketOptions);
+
+            rc = pool.listen(SERVER_ID, listenOptions1);
             ASSERT(0 == rc);
 
-            rc = pool.listen(serverAddr2,
-                             5,
-                             SERVER_ID + 1,
-                             bsls::TimeInterval(1),
-                             reuseAddress);
+            btlmt::ListenOptions listenOptions2(listenOptions1);
+            listenOptions2.setServerAddress(serverAddr2);
+            listenOptions2.setSocketOptions(socketOptions);
+
+            rc = pool.listen(SERVER_ID + 1, listenOptions2);
 
 #ifdef BSLS_PLATFORM_OS_LINUX
-           // Linux does not allow rebinding to a port number that was
-           // previously bound to the wildcard address.
+            // Linux does not allow rebinding to a port number that was
+            // previously bound to the wildcard address.
 
-                LOOP_ASSERT(rc, 0 != rc);
+            LOOP_ASSERT(rc, 0 != rc);
 #else
             if (reuseAddress) {
                 LOOP_ASSERT(rc, 0 == rc);
