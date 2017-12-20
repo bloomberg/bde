@@ -1,0 +1,141 @@
+ bdlma.txt
+
+@PURPOSE: Provide allocators, pools, and other memory-management tools.
+
+@MNEMONIC: Basic Development Library Memory Allocators (bdlma)
+
+@DESCRIPTION: The 'bdlma' package provides concrete allocators derived from the
+ 'bslma::Allocator' protocol.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlma' package currently has 29 components having 7 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  7. bdlma_multipoolallocator
+
+  6. bdlma_localsequentialallocator
+     bdlma_multipool
+
+  5. bdlma_bufferedsequentialallocator
+
+  4. bdlma_bufferedsequentialpool
+     bdlma_concurrentmultipoolallocator
+     bdlma_sequentialallocator
+
+  3. bdlma_concurrentfixedpool
+     bdlma_concurrentmultipool
+     bdlma_concurrentpoolallocator
+     bdlma_sequentialpool
+
+  2. bdlma_buffermanager
+     bdlma_concurrentpool
+     bdlma_defaultdeleter
+     bdlma_factory
+     bdlma_pool
+
+  1. bdlma_alignedallocator
+     bdlma_aligningallocator
+     bdlma_autoreleaser
+     bdlma_blocklist
+     bdlma_bufferimputil
+     bdlma_concurrentallocatoradapter
+     bdlma_countingallocator
+     bdlma_deleter
+     bdlma_guardingallocator
+     bdlma_heapbypassallocator
+     bdlma_infrequentdeleteblocklist
+     bdlma_managedallocator
+     bdlma_memoryblockdescriptor
+..
+
+/Component Synopsis
+/------------------
+: 'bdlma_alignedallocator':
+:      Provide a protocol for memory allocators that support alignment.
+:
+: 'bdlma_aligningallocator':
+:      Provide an allocator-wrapper to allocate with a minimum alignment.
+:
+: 'bdlma_autoreleaser':
+:      Release memory to a managed allocator or pool at destruction.
+:
+: 'bdlma_blocklist':
+:      Provide allocation and management of a sequence of memory blocks.
+:
+: 'bdlma_bufferedsequentialallocator':
+:      Provide an efficient managed allocator using an external buffer.
+:
+: 'bdlma_bufferedsequentialpool':
+:      Provide sequential memory using an external buffer and a fallback.
+:
+: 'bdlma_bufferimputil':
+:      Provide pure procedures for allocating memory from a buffer.
+:
+: 'bdlma_buffermanager':
+:      Provide a memory manager that manages an external buffer.
+:
+: 'bdlma_concurrentallocatoradapter':
+:      Provide a thread-enabled adapter for the allocator protocol.
+:
+: 'bdlma_concurrentfixedpool':
+:      Provide thread-safe pool of limited # of blocks of uniform size.
+:
+: 'bdlma_concurrentmultipool':
+:      Provide a memory manager to manage pools of varying block sizes.
+:
+: 'bdlma_concurrentmultipoolallocator':
+:      Provide an allocator to manage pools of varying object sizes.
+:
+: 'bdlma_concurrentpool':
+:      Provide thread-safe allocation of memory blocks of uniform size.
+:
+: 'bdlma_concurrentpoolallocator':
+:      Provide thread-safe memory-pooling allocator of fixed-size blocks.
+:
+: 'bdlma_countingallocator':
+:      Provide a memory allocator that counts allocated bytes.
+:
+: 'bdlma_defaultdeleter':
+:      Provide a concrete default deleter w/optionally-supplied allocator.
+:
+: 'bdlma_deleter':
+:      Provide a protocol for deleting objects of parameterized type.
+:
+: 'bdlma_factory':
+:      Provide a protocol for creator/deleter of parameterized objects.
+:
+: 'bdlma_guardingallocator':
+:      Provide a memory allocator that guards against buffer overruns.
+:
+: 'bdlma_heapbypassallocator':
+:      Support memory allocation directly from virtual memory.
+:
+: 'bdlma_infrequentdeleteblocklist':
+:      Provide allocation and management of infrequently deleted blocks.
+:
+: 'bdlma_localsequentialallocator':
+:      Provide an efficient managed allocator using a local buffer.
+:
+: 'bdlma_managedallocator':
+:      Provide a protocol for memory allocators that support 'release'.
+:
+: 'bdlma_memoryblockdescriptor':
+:      Provide a class describing a block of memory.
+:
+: 'bdlma_multipool':
+:      Provide a memory manager to manage pools of varying block sizes.
+:
+: 'bdlma_multipoolallocator':
+:      Provide a memory-pooling allocator of heterogeneous block sizes.
+:
+: 'bdlma_pool':
+:      Provide efficient allocation of memory blocks of uniform size.
+:
+: 'bdlma_sequentialallocator':
+:      Provide a managed allocator using dynamically-allocated buffers.
+:
+: 'bdlma_sequentialpool':
+:      Provide sequential memory using dynamically-allocated buffers.

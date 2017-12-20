@@ -1,0 +1,17 @@
+# BSL overrides for default.opts
+
+*-                      _       OPTS_FILE       = bsl.opts
+
+# Internal location of 'bsl+stdhdrs' directory, used by builds of BSL prior
+# to the group install stage
+#!! *			_	STL_INCLUDE	= -I$(BSL_LOCN)/bsl+stdhdrs/include/$(UPLID)/$(UFID)
+
+*			_	BDE_CINCLUDE	= $(STL_INCLUDE)
+
+-- unix-SunOS-*-*-cc	_	AR_PACKAGE	= $(SET_TEMPLATE_CACHE_DIR)
+-- unix-SunOS-*-*-cc	_	AR_INSTALL	= $(SET_TEMPLATE_CACHE_DIR)
+
+!! unix-SunOS-*-*-*        shr SHR_SHLIB_DEPS  = -lCstd -lCrun -lc -lm -lsunmath -lpthread
+!! unix-Linux-*-*-*        shr SHR_SHLIB_DEPS  = -lrt
+
+#windows             _       BDE_CXXFLAGS     = /DBDE_OMIT_INTERNAL_DEPRECATED

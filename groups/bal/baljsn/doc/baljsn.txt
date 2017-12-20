@@ -1,0 +1,232 @@
+ baljsn.txt
+
+@PURPOSE: Provide components for encoding/decoding in the JSON format.
+
+@MNEMONIC: Basic Application Environment JSoN (baljsn)
+
+@DESCRIPTION: The 'baljsn' package provides facilities for encoding and
+ decoding value-semantic objects in the JSON encoding format.  Currently, the
+ encoder and decoder provided in this package work with types that support the
+ 'bdeat' framework (see the {'bdlat'} package for details), which is a
+ compile-time interface for manipulating struct-like and union-like objects.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'baljsn' package currently has 7 components having 3 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  3. baljsn_decoder
+     baljsn_encoder
+
+  2. baljsn_printutil
+     baljsn_tokenizer
+
+  1. baljsn_decoderoptions
+     baljsn_encoderoptions
+     baljsn_parserutil
+..
+
+/Component Synopsis
+/------------------
+: 'baljsn_decoder':
+:      Provide a JSON decoder for 'bdeat' compatible types.
+:
+: 'baljsn_decoderoptions':
+:      Provide an attribute class for specifying JSON decoding options.
+:
+: 'baljsn_encoder':
+:      Provide a JSON encoder for 'bdeat' compatible types.
+:
+: 'baljsn_encoderoptions':
+:      Provide an attribute class for specifying JSON encoding options.
+:
+: 'baljsn_parserutil':
+:      Provide a utility for decoding JSON data into simple types.
+:
+: 'baljsn_printutil':
+:      Provide a utility for encoding simple types in the JSON format.
+:
+: 'baljsn_tokenizer':
+:      Provide a tokenizer for extracting JSON data from a 'streambuf'.
+
+/Encoding Format
+/---------------
+
+The following table provides a mapping between an element's 'bdem' elem type
+(as specified in 'bdem_elemtype'), its XSD type, its C++ type, its
+corresponding JSON type, and the encoding used.
+
+BDEM type         XSD type      C++ Type        JSON type       Format
+---------         --------      --------        ---------       ------
+BDEM_VOID         N/A           N/A             null            Encoding error
+
+BDEM_BOOL         boolean       bool            true/false      <BOOLEAN>
+
+BDEM_CHAR         byte          char            number          <NUMBER>
+
+BDEM_SHORT        short         short           number          <NUMBER>
+
+                  unsignedByte  unsigned char   number          <NUMBER>
+
+BDEM_INT          int           int             number          <NUMBER>
+
+                  unsignedShort unsigned short  number          <NUMBER>
+
+BDEM_INT64        integer       Int64           number          <NUMBER>
+
+                  long          Int64           number          <NUMBER>
+
+                  unsignedInt   unsigned int    number          <NUMBER>
+
+                  unsignedLong  unsigned Uint64 number          <NUMBER>
+
+BDEM_FLOAT        float         float           number/string   <DOUBLE>
+
+BDEM_DOUBLE       decimal       double          number/string   <DOUBLE>
+
+                  double        double          number/string   <DOUBLE>
+
+BDEM_STRING       string        bsl::string     string          <STRING>  
+
+BDEM_DATETIME     dateTime      bdet_Datetime   string          "<DATETIME>"
+
+BDEM_DATETIMETZ   dateTime      bdet_DatetimeTz string          "<DATETIMETZ>"
+
+BDEM_DATE         date          bdet_Date       string          "<DATE>"
+
+BDEM_DATETZ       date          bdet_DateTz     string          "<DATETZ>"
+
+BDEM_TIME         time          bdet_Time       string          "<TIME>"
+
+BDEM_TIMETZ       time          bdet_TimeTz     string          "<TIMETZ>"
+
+BDEM_CHAR_ARRAY   base64Binary  vector<char>    string          "<BASE64STR>"
+
+                  hexBinary     vector<char>    string          "<BASE64STR>"
+
+BDEM_TYPE_ARRAY   maxOccurs > 1 vector<TYPE>    array           <SIMPLE_ARRAY>
+
+BDEM_LIST         sequence      bcem_Aggregate  object          <SEQUENCE>
+
+BDEM_TABLE        maxOccurs > 1 bcem_Aggregate  array of objs   <SEQ_ARRAY>
+
+BDEM_CHOICE       choice        bcem_Aggregate  object          <CHOICE>
+
+BDEM_CHOICE_ARRAY maxOccurs > 1 bcem_Aggregate  array of objs   <CHOICE_ARRAY>
+
+BDEM_INT/STRING   enumeration   C++ enumeration string          <STRING>
+
+BDEM_*            minOccurs = 0 NullableValue   null            <NULL_VALUE>
+
+* The exact syntax of the format is specified below.
+
+* BDEM_TYPE_ARRAY refers to all the types supported by bdem (such as
+BDEM_INT_ARRAY, BDEM_STRING_ARRAY etc) including BDEM_CHAR_ARRAY. A
+'vector<char>' that is not specified with the 'xs:base64Binary' or
+'xs:hexBinary' is treated similarly to vector of any scalar type. Vectors of
+nullable scalar types (specified via the 'xs:nillable' attribute) are encoded
+similar to their vector of non-nullable scalar types except that their
+elements could also be specified as 'null'.
+
+The format grammar specified below uses the Extended BNF notation (except that
+',' is not used for concatenation to enhance readability). A quick reference
+of EBNF is provided below (refer here for more details):
+
+|       is used to select between alternate options
+[ ... ] (square brackets) are used to specify an optional item
+{ ... } (curly brackets) are used to specify an item that can be repeated zero
+         or more times
+( ... ) (parenthesis) are used to group elements
+
+<VOID>            Results in an encoding error 
+
+<BOOLEAN>         'true' | 'false';
+
+<STRING>          Same as the spec for 'string' on http://www.json.org;
+
+<NUMBER>          Same as the spec for 'number' on http://www.json.org;
+
+<DOUBLE_STRING>   "NaN" | "+INF" | "-INF";
+
+<DOUBLE>          <NUMBER> | <DOUBLE_STRING>; (1)
+
+<DATE>            <YEAR>'-'<MONTH>'-'<DAY>; (2)
+
+<DATETZ>          <DATE><TZ>;
+
+<TIME>            <HOUR>':'<MINUTES>':'<SECONDS>[<MILLISEC>]; (2)
+
+<TIMETZ>          <TIME><TZ>;
+
+<DATETIME>        <DATE>'T'<TIME>; (2)
+
+<DATETIMETZ>      <DATETIME><TZ>;
+
+<BASE64STR>       Strings encoded in base 64 encoding;
+
+<SEQUENCE>        '{' '}' | '{' <MEMBER> {',' <MEMBER> } '}';
+
+<CHOICE>          '{' <MEMBER> '}';
+
+<SIMPLE_ARRAY>    '[' ']' | '[' <VALUE> {',' <VALUE> } ']';
+
+<SEQ_ARRAY>       '[' ']' | '[' <SEQUENCE> {',' <SEQUENCE> } ']';
+
+<CHOICE_ARRAY>    '[' ']' | '[' <CHOICE> {',' <CHOICE> } ']';
+
+<NULL>            'null';
+
+<NULL_VALUE>      <NULL> | ''; (3)
+
+<NAME>            <STRING>; (4)
+
+<SIMPLE>          <NUMBER> | <STRING> | '"' <DATE> '"' | '"' <DATETZ> '"'
+                           | '"' <TIME> '"' | '"' <TIMETZ> '"'
+                           | '"' <DATETIME> '"' | '"' <DATETIMETZ> '"'
+                           | '"' <BASE64STR> '"';
+
+<VALUE>           <NULL> | <SIMPLE> | <SEQUENCE> | <CHOICE> | <SIMPLE_ARRAY>
+                         | <COMPLEX_ARRAY>;
+
+<MEMBER>          <NAME>':'<VALUE>;
+
+<SIGN>            '+' | '-';
+
+<POSITIVE_DIGIT>  '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
+
+<DIGIT>           '0' | <POSITIVE_DIGIT>;
+
+<YEAR>            <DIGIT><DIGIT><DIGIT><POSITIVE_DIGIT>;
+
+<MONTH>           '0' <POSITIVE_DIGIT> | '1' ( '0' | '1' | '2' );
+
+<DAY>             ( '0' | '1' | '2' ) <POSITIVE_DIGIT> | '3' ( '0' | '1' );
+
+<HOUR>            ( '0' | '1' ) <DIGIT> | '2' ( '0' | '1' | '2' | '3');
+
+<MINUTES>         ( '0' | '1' | '2' | '3' | '4' | '5' ) <DIGIT>;
+
+<SECONDS>         ( '0' | '1' | '2' | '3' | '4' | '5' ) <DIGIT>;
+
+<MILLISEC>        '.' <DIGIT> { <DIGIT> };
+
+<TZ>              <SIGN><HOUR>':'<MINUTES> | 'Z' | 'z';
+
+(1) Double types (float, decimal, and double) are encoded in the number format
+by default with the values NaN, +INF and -INF resulting in an encoding error.
+These values can be printed as strings by setting the
+'encodeInfAndNaNAsStrings' encoder option to 'true'.
+
+(2) In practice only the timezone-enabled components are used by
+bcem_Aggregate and generated types. The supported format is a subset of the
+ISO 8601 standard. For further details refer to the 'bdepu_iso8601'
+component.
+
+(3) Null values are not encoded on the wire by default.  The
+'encodeNullElements' options can be set to 'true' to ensure that null values
+are encoded.
+
+(4) The name of an element corresponds to that element's name in the provided
+xsd.

@@ -1,0 +1,378 @@
+ bslmf.txt
+
+@PURPOSE: Provide meta-function versions of useful coding constructs.
+
+@MNEMONIC: Basic Standard Library Meta-Functions (bslmf)
+
+@DESCRIPTION: The 'bdemf' package provides meta-function equivalents of certain
+ useful coding constructs.  A meta-function is a template-based, compile-time
+ construct that behaves like a (runtime) function in that it "evaluates"
+ arguments and does something different based on the input it is passed (in the
+ case of templates, the input it is instantiated with).  'bslmf' provides
+ metafunctions to evaluate (at compile time) constructs such as the following:
+ an 'if'-statement equivalent, whether a (template) argument is a fundamental
+ type, whether an argument is an 'enum' type, whether two arguments have the
+ same type, and more.
+
+ The "return value" of that function is generally a compile-time constant under
+ the form of a nested 'enum' 'VALUE', or in some cases a nested 'Type', or
+ both.  For instance, in order to evaluate whether two types are the same, one
+ could write a meta-function predicate (evaluating to 0 or 1) as follows:
+..
+  template <class U, class V>
+  struct IsSame {
+      // This 'struct' provides a meta function parameterized by two types 'U'
+      // and 'V', that takes 'VALUE == 0' unless 'U' and 'V' are the same type,
+      // in which case it takes 'VALUE == 1'.
+
+      // PUBLIC TYPES
+      enum { VALUE = 0 };
+      typedef bslmf_MetaInt<VALUE>  Type;
+  };
+
+  // SPECIALIZATIONS
+  template <class T>
+  struct IsSame<T, T> {
+      // This specialization of the 'IsSame' meta function is parameterized by
+      // a single type 'T' and is selected if the two parameters of 'IsSame',
+      // 'U' and 'V', are both equal to 'T'.  It takes 'VALUE == 1'.
+
+      // PUBLIC TYPES
+      enum { VALUE = 1 };
+      typedef bslmf_MetaInt<VALUE>  Type;
+  };
+..
+ Note the use of a 'bslmf_MetaInt' nested type usually employed for function
+ dispatching.  See the 'bslmf_issame' component-level documentation for a more
+ thorough usage example.
+
+ Other meta-functions don't have a 'VALUE', but apply some type of
+ transformation (e.g., removing top-level 'const' qualifiers, decaying array
+ and function types to pointer types).  Those usually have a nested 'Type'.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslmf' package currently has 74 components having 21 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  21. bslmf_util
+
+  20. bslmf_movableref
+
+  19. bslmf_isbitwisemoveable
+      bslmf_iscopyconstructible
+      bslmf_isnothrowmoveconstructible
+
+  18. bslmf_forwardingtype
+      bslmf_haspointersemantics
+      bslmf_isbitwiseequalitycomparable
+      bslmf_istriviallycopyable
+      bslmf_istriviallydefaultconstructible
+      bslmf_usesallocatorargt
+
+  17. bslmf_detectnestedtrait
+      bslmf_isenum
+
+  16. bslmf_isconvertibletoany
+      bslmf_matcharithmetictype
+      bslmf_nestedtraitdeclaration
+      bslmf_usesallocator
+
+  15. bslmf_isconvertible
+
+  14. bslmf_enableif
+
+  13. bslmf_isfundamental
+
+  12. bslmf_isarithmetic
+
+  11. bslmf_isintegral
+
+  10. bslmf_addcv
+      bslmf_ispointertomember
+
+   9. bslmf_addvolatile
+      bslmf_ismemberpointer
+
+   8. bslmf_addconst
+      bslmf_decay
+      bslmf_isempty
+      bslmf_ismemberobjectpointer
+      bslmf_ispolymorphic
+      bslmf_isvolatile
+      bslmf_removepointer
+
+   7. bslmf_isclass
+      bslmf_isfloatingpoint
+      bslmf_isfunction
+      bslmf_ismemberfunctionpointer
+      bslmf_ispointer
+      bslmf_isvoid
+      bslmf_memberfunctionpointertraits
+      bslmf_removecvq
+
+   6. bslmf_addpointer
+      bslmf_addreference
+      bslmf_functionpointertraits
+      bslmf_if
+      bslmf_removecv
+      bslmf_resulttype
+
+   5. bslmf_addlvaluereference
+      bslmf_addrvaluereference
+      bslmf_arraytopointer
+      bslmf_conditional
+      bslmf_isconst
+      bslmf_nthparameter
+      bslmf_removeconst
+      bslmf_removeextent
+      bslmf_removereference
+      bslmf_removevolatile
+      bslmf_typelist
+      bslmf_voidtype
+
+   4. bslmf_issame
+      bslmf_selecttrait
+
+   3. bslmf_isreference
+      bslmf_metaint                                      !DEPRECATED!
+      bslmf_switch
+
+   2. bslmf_isarray
+      bslmf_islvaluereference
+      bslmf_ispair
+      bslmf_isrvaluereference
+      bslmf_nil
+      bslmf_tag
+
+   1. bslmf_allocatorargt
+      bslmf_assert
+      bslmf_integralconstant
+      bslmf_matchanytype
+..
+
+/Component Synopsis
+/------------------
+: 'bslmf_addconst':
+:      Provide a meta-function for adding a top-level 'const'-qualifier.
+:
+: 'bslmf_addcv':
+:      Provide a meta-function for adding top-level cv-qualifiers.
+:
+: 'bslmf_addlvaluereference':
+:      Provide a compile-time type transformation to lvalue reference.
+:
+: 'bslmf_addpointer':
+:      Provide meta-function to transform a type to pointer to that type.
+:
+: 'bslmf_addreference':
+:      Provide a meta-function for adding "reference-ness" to a type.
+:
+: 'bslmf_addrvaluereference':
+:      Provide a compile-time type transformation to rvalue reference.
+:
+: 'bslmf_addvolatile':
+:      Provide a meta-function for adding a 'volatile'-qualifier.
+:
+: 'bslmf_allocatorargt':
+:      Provide a tag type to precede allocator arguments.
+:
+: 'bslmf_arraytopointer':
+:      Provide a meta-function to convert array types to pointer types.
+:
+: 'bslmf_assert':
+:      Provide a compile-time assertion facility.
+:
+: 'bslmf_conditional':
+:      Provide a compile-time conditional type selector.
+:
+: 'bslmf_decay':
+:      Convert a type to the type used for pass-by-value.
+:
+: 'bslmf_detectnestedtrait':
+:      Provide a facility for defining traits and detecting legacy traits.
+:
+: 'bslmf_enableif':
+:      Provide a utility to set up SFINAE conditions in type deduction.
+:
+: 'bslmf_forwardingtype':
+:      Provide a meta-function for determining an optimal forwarding type.
+:
+: 'bslmf_functionpointertraits':
+:      Provide a meta-function for determining function pointer traits.
+:
+: 'bslmf_haspointersemantics':
+:      Provide a type trait for pointer semantics.
+:
+: 'bslmf_if':
+:      Provide a compile-time 'if/else' (conditional) meta-function.
+:
+: 'bslmf_integralconstant':
+:      Provide a mapping from integral constants to unique types.
+:
+: 'bslmf_isarithmetic':
+:      Provide a compile-time check for determining arithmetic types.
+:
+: 'bslmf_isarray':
+:      Provide a compile-time check for array types.
+:
+: 'bslmf_isbitwiseequalitycomparable':
+:      Provide a type trait for bitwise equality.
+:
+: 'bslmf_isbitwisemoveable':
+:      Provide a primitive type trait for bitwise moveable classes.
+:
+: 'bslmf_isclass':
+:      Provide a compile-time check for determining class types.
+:
+: 'bslmf_isconst':
+:      Provide a compile-time check for 'const'-qualified types.
+:
+: 'bslmf_isconvertible':
+:      Provide a compile-time check for type conversion.
+:
+: 'bslmf_isconvertibletoany':
+:      Provide a compile-time check for types convertible to any type.
+:
+: 'bslmf_iscopyconstructible':
+:      Provide a meta-function to report if a type is copy constructible.
+:
+: 'bslmf_isempty':
+:      Provide a compile-time check for detecting an empty class type.
+:
+: 'bslmf_isenum':
+:      Provide compile-time check for determining enumerated types.
+:
+: 'bslmf_isfloatingpoint':
+:      Provide a compile-time check for floating-point types.
+:
+: 'bslmf_isfunction':
+:      Provide a compile-time check for determining function types.
+:
+: 'bslmf_isfundamental':
+:      Provide a compile-time check for determining fundamental types.
+:
+: 'bslmf_isintegral':
+:      Provide a compile-time check for integral types.
+:
+: 'bslmf_islvaluereference':
+:      Provide a compile-time check for lvalue reference types.
+:
+: 'bslmf_ismemberfunctionpointer':
+:      Provide a compile-time check for member function pointer types.
+:
+: 'bslmf_ismemberobjectpointer':
+:      Provide a compile-time check for member object pointer types.
+:
+: 'bslmf_ismemberpointer':
+:      Provide a compile-time check for non-static member pointer types.
+:
+: 'bslmf_isnothrowmoveconstructible':
+:      Provide meta-function for determining types with nothrow move ctor.
+:
+: 'bslmf_ispair':
+:      Provide a compile-time check for the bsl::pair type.
+:
+: 'bslmf_ispointer':
+:      Provide a compile-time check for pointer types.
+:
+: 'bslmf_ispointertomember':
+:      Provide a compile-time check for pointer-to-member types.
+:
+: 'bslmf_ispolymorphic':
+:      Provide a compile-time check for determining polymorphic types.
+:
+: 'bslmf_isreference':
+:      Provide a meta-function to test reference types.
+:
+: 'bslmf_isrvaluereference':
+:      Provide a compile-time check for rvalue reference types.
+:
+: 'bslmf_issame':
+:      Provide a meta-function for testing if two types are the same.
+:
+: 'bslmf_istriviallycopyable':
+:      Provide a meta-function for determining trivially copyable types.
+:
+: 'bslmf_istriviallydefaultconstructible':
+:      Provide a compile-time check for trivially default-constructible.
+:
+: 'bslmf_isvoid':
+:      Provide a compile-time check for 'void' types.
+:
+: 'bslmf_isvolatile':
+:      Provide a compile-time check for 'volatile'-qualified types.
+:
+: 'bslmf_matchanytype':
+:      Provide a generic type to which any type can be converted.
+:
+: 'bslmf_matcharithmetictype':
+:      Provide a class supporting "do-the-right-thing clause" dispatch.
+:
+: 'bslmf_memberfunctionpointertraits':
+:      Provide meta-functions to detect member function pointer traits.
+:
+: 'bslmf_metaint':                                       !DEPRECATED!
+:      Provide a meta-function to map integral constants to unique types.
+:
+: 'bslmf_movableref':
+:      Provide a vocabulary type to enable move semantics.
+:
+: 'bslmf_nestedtraitdeclaration':
+:      Provide a nested declaration to associate a class with a trait.
+:
+: 'bslmf_nil':
+:      Provide a nil type.
+:
+: 'bslmf_nthparameter':
+:      Metafunction to return the Nth type parameter in a parameter pack
+:
+: 'bslmf_removeconst':
+:      Provide a meta-function for removing top-level 'const'-qualifier.
+:
+: 'bslmf_removecv':
+:      Provide a meta-function for removing top-level cv-qualifiers.
+:
+: 'bslmf_removecvq':
+:      Provide a meta-function for removing 'const'/'volatile' qualifiers.
+:
+: 'bslmf_removeextent':
+:      Provide a metafunction to return an array type's element type.
+:
+: 'bslmf_removepointer':
+:      Provide a meta-function to transform pointer type to referent type.
+:
+: 'bslmf_removereference':
+:      Provide a meta-function for stripping reference-ness from types.
+:
+: 'bslmf_removevolatile':
+:      Provide a meta-function for removing 'volatile'-qualifier.
+:
+: 'bslmf_resulttype':
+:      Provide access to 'result_type' or 'ResultType' nested type.
+:
+: 'bslmf_selecttrait':
+:      Provide clean compile-time dispatch based on multiple traits
+:
+: 'bslmf_switch':
+:      Provide a compile-time 'switch' meta-function.
+:
+: 'bslmf_tag':
+:      Provide an integral-constant-to-type conversion.
+:
+: 'bslmf_typelist':
+:      Provide a typelist component.
+:
+: 'bslmf_usesallocator':
+:      Provide a meta-function to determine if a type uses an allocator.
+:
+: 'bslmf_usesallocatorargt':
+:      Provide a metafunction for 'allocator_arg_t' construction
+:
+: 'bslmf_util':
+:      Provide low-level functions on 'bslmf' types.
+:
+: 'bslmf_voidtype':
+:      Provide a helper for implementing SFINAE-based metafunctions.

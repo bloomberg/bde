@@ -1,0 +1,44 @@
+# ignore objects, archives, tasks, and backups anywhere in the tree
+*.[oa]
+# except for bces_atomicutilimpl_powerpc*.o
+# It's likely those files should never have been checked in, but they
+# are small, and they are part of the history of bce.
+!bces_atomicutilimpl_powerpc*.o
+*.lib
+*.obj
+*.tsk
+*.exe
+*.exp
+*.tmp
+*.orig
+# ignore vim swapfiles
+.*.sw?
+*~
+# ignore bde_build.pl build and copy directories.  Ignore them both with and
+# without the /, since symlinks don't match / rules.
+unix-*
+windows-*
+unix-*/
+windows-*/
+
+include/
+# allow test/include from bsl+apache
+!groups/bsl/bsl+apache/test/include/
+lib/
+build/
+coverage/
+TAGS
+*.pyc
+.lock-waf*
+.waf-*
+.nfs*
+
+# gyp and generated Visual Studio files
+*.gyp
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.sdf
+*.opensdf

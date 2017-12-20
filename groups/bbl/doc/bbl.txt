@@ -1,0 +1,58 @@
+ bbl.txt
+
+@PURPOSE: Provide a foundation for component-based business logic development.
+
+@MNEMONIC: Basic Business Library (bbl)
+
+@DESCRIPTION: The 'bbl' ("Basic Business Library") package group contains a
+ package that provides a solution for computing day count and year fraction for
+ various day-count conventions and a package for basic computations.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bbl' package group currently has 3 packages having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bblb
+     bbldc
+
+  1. bblscm
+..
+
+/Package Synopsis
+/----------------
+: 'bblb':
+:      Provide basic computations.
+:
+: 'bbldc':
+:      Provide day-count convention implementations.
+:
+: 'bblscm':
+:      Provide versioning information for BDE library components.
+
+/Package Overview
+/----------------
+ This section a brief introduction to the packages of the 'bbl' package group.
+ See the respective Package Level documents for more details.
+
+/'bblb'
+/- - -
+ The {'bblb'} package provides basic computations.  At the moment, this package
+ contains a component, 'bblb_schedulegenerationutil', for schedule generation.
+
+/'bbldc'
+/- - - -
+ The {'bbldc'} package provides day-count convention implementations, an
+ enumeration-based set of dispatch components, and two abstract interfaces with
+ parameterized adapters for the day-count convention implementations.
+
+/'bblscm'
+/ - - - -
+ The {'bblscm'} package contains only two components, 'bblscm_version' and
+ 'bblscm_versiontag'.  The first of these components is included by every other
+ component in 'bbl', and provides versioning information for the package group.
+ Users may use the 'bblscm_version' facilities to query a particular 'bbl'
+ library for its version information.  The second component defines macros that
+ can be used for conditional-compilation based on 'bbl' version information.

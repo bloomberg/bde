@@ -1,0 +1,138 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+from waflib import Logs, Utils
+from waflib.Configure import ConfigurationContext
+
+import os
+import platform
+import sys
+
+top = '.'
+out = 'build'
+
+def options(opt):
+    opt.load('compiler_c')
+
+
+def configure(conf):
+    conf.load('compiler_c')
+
+def build(bld):
+    # This set of c source files correspond to the set of modules mentioned in
+    # the NON-AUTOTOOLS-BUILD of the original pcre2 package.
+    source_files = [
+        'pcre2_auto_possess.c',
+        'pcre2_chartables.c',
+        'pcre2_compile.c',
+        'pcre2_config.c',
+        'pcre2_context.c',
+        'pcre2_dfa_match.c',
+        'pcre2_error.c',
+        'pcre2_jit_compile.c',
+        'pcre2_maketables.c',
+        'pcre2_match.c',
+        'pcre2_match_data.c',
+        'pcre2_newline.c',
+        'pcre2_ord2utf.c',
+        'pcre2_pattern_info.c',
+        'pcre2_serialize.c',
+        'pcre2_string_utils.c',
+        'pcre2_study.c',
+        'pcre2_substitute.c',
+        'pcre2_substring.c',
+        'pcre2_tables.c',
+        'pcre2_ucd.c',
+        'pcre2_valid_utf.c',
+        'pcre2_xclass.c'
+    ]
+
+    cflags = [
+        '-DPCRE2_CODE_UNIT_WIDTH=8',
+        '-DHAVE_CONFIG_H',
+        '-DSUPPORT_UNICODE'
+    ]
+
+    prefix  = bld.env['PREFIX']
+    bde_key = 'bde_thirdparty_pcre2_config'
+    if bde_key in bld.env:
+        config = bld.env[bde_key]
+        is_bde = True
+    else:
+        config = {}
+        config['cflags'] = []
+        config['lib_target'] = 'pcre2'
+        config['lib_install_path'] = bld.env.LIBDIR
+        config['h_install_path'] = os.path.join(prefix, 'include', 'pcre2')
+        config['pc_install_path'] = os.path.join(bld.env.LIBDIR, 'pkgconfig')
+        config['pc_libdir'] = config['lib_install_path']
+        config['pc_includedir'] = config['h_install_path']
+        is_bde = False
+
+    jit_cflags = []
+
+    # PCRE2 does not support JIT correctly on sparc 64-bit builds.
+    if '-m64' in config['cflags'] and 'sparc' == platform.processor():
+        if Logs.verbose:
+            print("Disabling JIT support")
+    else:
+        if Logs.verbose:
+            print("Enabling JIT support")
+        jit_cflags = ['-DSUPPORT_JIT']
+
+    cflags += jit_cflags
+
+    bld(name='pcre2_pc',
+        idx=1,
+        target=config['lib_target'] + '.pc',
+        source=config['lib_target'] + '.pc.in',
+        features=['subst'],
+        prefix=prefix,
+        libdir=config['pc_libdir'],
+        includedir=config['pc_includedir'],
+        libs='-l' + config['lib_target'],
+        cflags='',
+        install_path=config['pc_install_path']
+    )
+
+    bld(name='pcre2_lib',
+        idx=1,
+        target=config['lib_target'],
+        source=source_files,
+        export_includes='..',
+        features=['c', 'cstlib'],
+        cflags=config['cflags'] + cflags,
+        install_path=config['lib_install_path'],
+        depends_on=['pcre2_pc'],
+    )
+
+    if config['h_install_path']:
+        bld.install_files(config['h_install_path'],
+                          bld.path.ant_glob('*.h'))
+
+    if is_bde:
+        bld(name       = 'pcre2',
+            depends_on = 'pcre2_lib')
+
+
+# ----------------------------------------------------------------------------
+# Copyright (C) 2014 Bloomberg Finance L.P.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+# ----------------------------- END-OF-FILE ----------------------------------

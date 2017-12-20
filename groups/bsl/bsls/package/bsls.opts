@@ -1,0 +1,11 @@
+*                       _    OPTS_FILE          = bsls.opts
+
+unix-SunOS-*-*-*                    _   STL_CXXFLAGS    = -library=no%rwtools7
+!! unix-SunOS-sparc-5.10-cc-5.12.4  _   STL_CXXFLAGS    =
+!! unix-SunOS-*-*-gcc               _   STL_CXXFLAGS    =
+
+# Needed for bsls_atomics.t.cpp
+-- unix-SunOS-*-*-*     _    BDE_ENDLDFLAGS     = $(BDE_DYNAMIC) -lpthread -lrt $(BDE_STATIC)
+
+!! *                    _    STL_DEFINES        = -DBDE_NO_CPP_STDLIB
+!! *                    _    STL_INCLUDE        =

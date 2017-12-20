@@ -1,0 +1,31 @@
+This directory contains a copy of the Intel Decimal Floating-Point Math Library
+(inteldfp) version 2.0 Update 1.
+
+The upstream library can be obtained from
+https://software.intel.com/en-us/articles/intel-decimal-floating-point-math-library
+
+The following changes have been made from the upstream:
+
+- The "EXAMPLES" and "TESTS" directories have been removed, mostly because they
+  occupied about 20MB in size combined.
+
+- Moved directory "LIBRARY/src" to "LIBRARY/src/inteldfp" to allow packages
+  depending on inteldfp to use relative include paths (e.g., "#include
+  <inteldfp/bid_functions.h>" instead of "#include <bid_functions.h>") be built
+  in place.
+
+- The line breaks have been converted to use Unix Style from DOS style.
+
+- The mode of the source files have been changed to be no longer executable.
+
+- Created waf 'wscript' files to build using waf, because inteldfp has a
+  makefile which is difficult to port to multiple platforms.
+
+Note that the set of C source files linked into the inteldfp library (defined
+in the wscript is the same as those compiled by the Makefile, which originally
+came with inteldfp, on Linux.  The Makefile conditionally compiles other source
+files (mostly providing certain transcendental functions) depending on the
+platform, but they are not used by BDE's bdldfp package, so we decided to not
+spend additional effort to include them in the wscript.  If the functions
+provided by the unincluded source files are desired, the wscript must be
+updated accordingly.

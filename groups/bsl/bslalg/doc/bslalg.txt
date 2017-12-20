@@ -1,0 +1,194 @@
+ bslalg.txt
+
+@PURPOSE: Provide algorithms and traits used by the BDE STL implementation.
+
+@MNEMONIC: Basic Standard Library ALgorithms (bslalg)
+
+@DESCRIPTION: This package provides facilities for implementing higher-level
+ components (in particular, the standard library containers).  The facilities
+ fall into three broad classes:
+
+: o Utilities that provide efficient implementations of primitive operations on
+:   generic data types (e.g., construction, copy-construction), optimized based
+:   on the exposed traits of the type (e.g., bitwise-copyable, uses-allocator).
+:
+: o Primitive data types and fundamental algorithms that form the basis of
+:   standard library containers (e.g., linked lists, hash tables, Red/Black
+:   trees and deques).
+:
+: o Legacy traits types used to tag user-defined (client) types according to
+:   properties such as whether they use a memory allocator to supply memory
+:   resources, have a trivial default constructor, are POD types, etc.  These
+:   traits types have been superseded by the traits in the 'bslmf' package, and
+:   are implemented in terms of 'bslmf'.
+:
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslalg' package currently has 38 components having 8 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  8. bslalg_dequeprimitives
+     bslalg_rbtreeutil
+
+  7. bslalg_arrayprimitives
+
+  6. bslalg_autoarraymovedestructor
+
+  5. bslalg_autoarraydestructor
+     bslalg_hashtableimputil
+
+  4. bslalg_arraydestructionprimitives
+     bslalg_constructorproxy
+     bslalg_dequeiterator
+     bslalg_hashtableanchor
+     bslalg_selecttrait                                  !DEPRECATED!
+     bslalg_typetraits                                   !DEPRECATED!
+
+  3. bslalg_hashtablebucket
+     bslalg_hastrait                                     !DEPRECATED!
+     bslalg_scalarprimitives
+
+  2. bslalg_autoscalardestructor
+     bslalg_bidirectionallinklistutil
+     bslalg_bidirectionalnode
+     bslalg_rangecompare
+     bslalg_rbtreeanchor
+     bslalg_typetraithasstliterators                     !DEPRECATED!
+
+  1. bslalg_bidirectionallink
+     bslalg_containerbase
+     bslalg_dequeimputil
+     bslalg_functoradapter
+     bslalg_hashutil
+     bslalg_hasstliterators
+     bslalg_rbtreenode
+     bslalg_scalardestructionprimitives
+     bslalg_swaputil
+     bslalg_typetraitbitwisecopyable                     !DEPRECATED!
+     bslalg_typetraitbitwiseequalitycomparable           !DEPRECATED!
+     bslalg_typetraitbitwisemoveable                     !DEPRECATED!
+     bslalg_typetraithaspointersemantics                 !DEPRECATED!
+     bslalg_typetraithastrivialdefaultconstructor        !DEPRECATED!
+     bslalg_typetraitnil                                 !DEPRECATED!
+     bslalg_typetraitpair                                !DEPRECATED!
+     bslalg_typetraitusesbslmaallocator                  !DEPRECATED!
+..
+
+/Component Synopsis
+/------------------
+: 'bslalg_arraydestructionprimitives':
+:      Provide primitive algorithms that destroy arrays.
+:
+: 'bslalg_arrayprimitives':
+:      Provide primitive algorithms that operate on arrays.
+:
+: 'bslalg_autoarraydestructor':
+:      Provide a proctor for destroying arrays.
+:
+: 'bslalg_autoarraymovedestructor':
+:      Provide a proctor for destroying arrays.
+:
+: 'bslalg_autoscalardestructor':
+:      Provide a proctor for destroying an object.
+:
+: 'bslalg_bidirectionallink':
+:      Provide a basic link type for building doubly-linked lists.
+:
+: 'bslalg_bidirectionallinklistutil':
+:      Provide utilities to maintain bidirectional list data structures.
+:
+: 'bslalg_bidirectionalnode':
+:      Provide a node holding a value in a doubly-linked list.
+:
+: 'bslalg_constructorproxy':
+:      Provide a proxy for constructing and destroying objects.
+:
+: 'bslalg_containerbase':
+:      Provide a wrapper for STL allocators, respecting 'bslma' semantics.
+:
+: 'bslalg_dequeimputil':
+:      Provide basic parameters and primitive data structures for deques.
+:
+: 'bslalg_dequeiterator':
+:      Provide a primitive iterator over deque data structures.
+:
+: 'bslalg_dequeprimitives':
+:      Provide primitive algorithms that operate on deques.
+:
+: 'bslalg_functoradapter':
+:      Provide an utility that adapts callable objects to functors.
+:
+: 'bslalg_hashtableanchor':
+:      Provide a type holding the constituent parts of a hash table.
+:
+: 'bslalg_hashtablebucket':
+:      Provide a bucket representation for hash table data structures.
+:
+: 'bslalg_hashtableimputil':
+:      Provide algorithms for implementing a hash table.
+:
+: 'bslalg_hashutil':
+:      Provide a utility of hash functions.
+:
+: 'bslalg_hasstliterators':
+:      Provide a tag type used to detect STL-like iterators traits.
+:
+: 'bslalg_hastrait':                                     !DEPRECATED!
+:      Provide a meta-function to detect if a type has a given trait.
+:
+: 'bslalg_rangecompare':
+:      Provide algorithms to compare iterator-ranges of elements.
+:
+: 'bslalg_rbtreeanchor':
+:      Encapsulate root, first, and last nodes of a tree with a count.
+:
+: 'bslalg_rbtreenode':
+:      Provide a base class for a red-black binary tree node.
+:
+: 'bslalg_rbtreeutil':
+:      Provide a suite of primitive algorithms on red-black trees.
+:
+: 'bslalg_scalardestructionprimitives':
+:      Provide primitive algorithms that destroy scalars.
+:
+: 'bslalg_scalarprimitives':
+:      Provide primitive algorithms that operate on single elements.
+:
+: 'bslalg_selecttrait':                                  !DEPRECATED!
+:      Provide a meta-function to select a suitable trait on a type.
+:
+: 'bslalg_swaputil':
+:      Provide a simple to use 'swap' algorithm.
+:
+: 'bslalg_typetraitbitwisecopyable':                     !DEPRECATED!
+:      Provide a trait to mark classes as bit-wise copyable.
+:
+: 'bslalg_typetraitbitwiseequalitycomparable':           !DEPRECATED!
+:      Provide a trait to mark classes as bit-wise eq.-comparable.
+:
+: 'bslalg_typetraitbitwisemoveable':                     !DEPRECATED!
+:      Provide a trait to mark classes as bit-wise moveable.
+:
+: 'bslalg_typetraithaspointersemantics':                 !DEPRECATED!
+:      Provide a trait to mark classes as having pointer semantics.
+:
+: 'bslalg_typetraithasstliterators':                     !DEPRECATED!
+:      Provide a trait to mark classes as having STL-like iterators.
+:
+: 'bslalg_typetraithastrivialdefaultconstructor':        !DEPRECATED!
+:      Provide a trait to mark classes as having a trivial default ctor.
+:
+: 'bslalg_typetraitnil':                                 !DEPRECATED!
+:      Provide a trait to mark classes as having no other traits.
+:
+: 'bslalg_typetraitpair':                                !DEPRECATED!
+:      Provide a trait to mark classes as similar to 'std::pair'.
+:
+: 'bslalg_typetraits':                                   !DEPRECATED!
+:      Provide compile-time traits that can be associated with types.
+:
+: 'bslalg_typetraitusesbslmaallocator':                  !DEPRECATED!
+:      Provide a trait to mark types that use 'bslma' allocators.

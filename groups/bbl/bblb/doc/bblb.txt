@@ -1,0 +1,21 @@
+ bblb.txt
+
+@PURPOSE: Provide basic computations.
+
+@MNEMONIC: Basic Business Library Basic (bblb)
+
+@DESCRIPTION: The 'bblb' package provides basic computations.  At the moment, this
+ package contains a component, 'bblb_schedulegenerationutil', for schedule
+ generation.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bblb' package currently has 1 component.
+..
+  1. bblb_schedulegenerationutil
+..
+
+/Component Synopsis
+/------------------
+: 'bblb_schedulegenerationutil':
+:      Provide functions for generating schedules of dates.

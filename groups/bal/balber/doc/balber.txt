@@ -1,0 +1,54 @@
+ balber.txt
+
+@PURPOSE: Provide encoding/decoding of data per the (binary) BER rules.
+
+@MNEMONIC: Basic Application Library BER (balber)
+
+@DESCRIPTION: The 'balber' ("Basic Application BER") package defines classes
+ that can encode and decode data per the X.690 BER (Basic Encoding Rules)
+ specification.  These classes can be used only for types supported by the
+ 'bdlat' framework.  Typical usage is illustrated in
+ {'balber_berdecoder'|Example 1: Decoding an Employee Record} and
+ {'balber_berencoder'|Example 1: Encoding an Employee Record}.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'balber' package currently has 7 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. balber_berdecoder
+
+  3. balber_berencoder
+
+  2. balber_beruniversaltagnumber
+     balber_berutil
+
+  1. balber_berconstants
+     balber_berdecoderoptions
+     balber_berencoderoptions
+..
+
+/Component Synopsis
+/------------------
+: 'balber_berconstants':
+:      Provide namespace for BER-related constants.
+:
+: 'balber_berdecoder':
+:      Provide a BER decoder class.
+:
+: 'balber_berdecoderoptions':
+:      Provide an attribute class for specifying BER decoding options.
+:
+: 'balber_berencoder':
+:      Provide a BER encoder class.
+:
+: 'balber_berencoderoptions':
+:      Provide value-semantic attribute classes
+:
+: 'balber_beruniversaltagnumber':
+:      Enumerate the set of BER universal tag numbers.
+:
+: 'balber_berutil':
+:      Provide functions to encode and decode simple types in BER format.
