@@ -394,6 +394,7 @@ class MultiQueueThreadPool_Queue {
   public:
     // PUBLIC TYPES
     typedef bsl::function<void()> Job;
+    typedef bsl::function<void()> CleanupFunctor;
 
   private:
     // PRIVATE TYPES
@@ -494,13 +495,22 @@ class MultiQueueThreadPool_Queue {
         // if the queue is not paused schedule a callback from the associated
         // thread pool.  The behavior is undefined if this queue is empty.
 
-    bool prepareForDeletion(const Job& functor, const Job& functorIfProcessor);
-        // Permanently disable enqueuing to this queue.  If the calling thread
-        // is not the current thread processing a job, return 'false' and
-        // schedule the specified 'functor' to be executed by a thread from the
-        // associated thread pool.  Otherwise, return 'true' and schedule the
-        // specified 'functorIfProcessor' to be executed by a thread from the
-        // associated thread pool
+    bool enqueueDeletion(const CleanupFunctor *cleanupFunctor   = 0,
+                         bslmt::Latch         *completionSignal = 0);
+        // Premanently disable enqueueing from this queue, and enqueue a job
+        // that will delete this queue.  Optioanlly specify 'cleanupFunctor',
+        // which, if supplied, will be invoked immediately prior to this
+        // queue's deletion.  Optionally specify 'completionSignal', on which
+        // (if the calling thread is not processing a job for this queue) to
+        // invoke 'arrive' when the queue is deleted.  Return 'true' if the
+        // current thread is the thread processing a job, and 'false'
+        // otherwise.  Note that if 'completionSignal' is supplied, a return
+        // status of 'false' typically indicates that
+        // 'compleitionSignal->wait()' should be invoked from the calling
+        // function', while a return status of 'true' indicates this is an
+        // attempt to delete the queue from within a job being processed on the
+        // queue (so waiting on the queue's deletion would result in a
+        // dead-lock).
 
     int pushBack(const Job& functor);
         // Enqueue the specified 'functor' at the end of this queue.  Return 0
@@ -602,18 +612,20 @@ class MultiQueueThreadPool {
     MultiQueueThreadPool(const MultiQueueThreadPool&);
     MultiQueueThreadPool& operator=(const MultiQueueThreadPool&);
 
+    // FRIENDS
+    friend MultiQueueThreadPool_Queue;  // access to deleteQueueCb
+
     // PRIVATE MANIPULATORS
     void deleteQueueCb(MultiQueueThreadPool_Queue *queue,
-                       const CleanupFunctor&       cleanupFunctor,
+                       const CleanupFunctor       *cleanup,
                        bslmt::Latch               *latch);
-        // If the specified 'latch' is non-null, execute 'latch->arrive()'.
-        // Otherwise, execute the specified 'cleanupFunctor' if it is valid.
-        // Then, delete the specified 'queue'.  The behavior is undefined
-        // unless '0 != queue'.  Note that this callback provides a mechanism
-        // for proper lifetime management of the 'queue' by scheduling the
-        // deletion with the associated thread pool since the
-        // 'MultiQueueThreadPool' does not know *when* to delete the queue and
-        // a 'MultiQueueThreadPool_Queue' cannot delete itself at the
+        // Delete the specified 'queue', if the specified 'cleanup' is not 0
+        // invoke 'cleanup', if the specified 'latch' is not 0, call
+        // 'latch->arrive'.  'cleanup' and 'latch' may be 0.  Note that this
+        // callback provides a mechanism for proper lifetime management of the
+        // 'queue' by scheduling the deletion with the associated thread pool
+        // since the 'MultiQueueThreadPool' does not know *when* to delete the
+        // queue and a 'MultiQueueThreadPool_Queue' cannot delete itself at the
         // appropriate time.
 
     int findIfUsable(int id, MultiQueueThreadPool_Queue **queue);

@@ -23,9 +23,6 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace {
 
-void noOp() { }
-    // This function does nothing.
-
 void createMultiQueueThreadPool_Queue(
                              void                        *arena,
                              bslma::Allocator            *allocator,
@@ -188,9 +185,9 @@ void MultiQueueThreadPool_Queue::executeFront()
     }
 }
 
-bool MultiQueueThreadPool_Queue::prepareForDeletion(
-                                                 const Job& functor,
-                                                 const Job& functorIfProcessor)
+bool MultiQueueThreadPool_Queue::enqueueDeletion(
+                                          const CleanupFunctor *cleanupFunctor,
+                                          bslmt::Latch         *latch)
 {
     // Note that the queue is actually deleted by the thread pool while
     // executing the supplied 'functor' (which is
@@ -201,25 +198,26 @@ bool MultiQueueThreadPool_Queue::prepareForDeletion(
 
     d_enqueueState = e_DELETING;
 
-    if (e_NOT_SCHEDULED == d_runState || e_PAUSED == d_runState) {
-        int status = d_multiQueueThreadPool_p->d_threadPool_p->
-                                                           enqueueJob(functor);
+    bool isProcessingThread = bslmt::ThreadUtil::self() == d_processor;
+    
 
-        BSLS_ASSERT(0 == status);  (void)status;
+    Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
+                                   d_multiQueueThreadPool_p,
+                                   this,
+                                   cleanupFunctor,
+                                   isProcessingThread ? 0 : latch);
+    
+    if (e_NOT_SCHEDULED == d_runState || e_PAUSED == d_runState) {
+        int rc = d_multiQueueThreadPool_p->d_threadPool_p->enqueueJob(job);
+
+        BSLS_ASSERT(0 == rc);  (void)rc;
     }
     else {
         d_runState = e_PAUSING;
 
-        if (bslmt::ThreadUtil::self() == d_processor) {
-            d_list.push_front(functorIfProcessor);
-
-            return true;
-        }
-
-        d_list.push_front(functor);
+        d_list.push_front(job);
     }
-
-    return false;
+    return isProcessingThread;;
 }
 
 int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
@@ -318,18 +316,18 @@ int MultiQueueThreadPool_Queue::resume()
 
 // PRIVATE MANIPULATORS
 inline
-void MultiQueueThreadPool::deleteQueueCb(
-                                    MultiQueueThreadPool_Queue *queue,
-                                    const CleanupFunctor&       cleanupFunctor,
-                                    bslmt::Latch               *latch)
+void MultiQueueThreadPool::deleteQueueCb(MultiQueueThreadPool_Queue *queue,
+                                         const CleanupFunctor       *cleanup,
+                                         bslmt::Latch               *latch)
 {
     BSLS_ASSERT(queue);
 
     if (latch) {
         latch->arrive();
     }
-    else if (cleanupFunctor) {
-        cleanupFunctor();
+    
+    if (cleanup && *cleanup) {
+        (*cleanup)();
     }
 
     // Note that 'd_queuePool' does its own synchronization.
@@ -423,13 +421,7 @@ int MultiQueueThreadPool::deleteQueue(int                   id,
 
     d_queueRegistry.erase(id);
 
-    Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
-                                   this,
-                                   queue,
-                                   cleanupFunctor,
-                                   (bslmt::Latch *)0);
-
-    queue->prepareForDeletion(job, job);
+    queue->enqueueDeletion(&cleanupFunctor);
 
     return 0;
 }
@@ -450,20 +442,7 @@ int MultiQueueThreadPool::deleteQueue(int id)
 
         d_queueRegistry.erase(id);
 
-        Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
-                                       this,
-                                       queue,
-                                       CleanupFunctor(&noOp),
-                                       &latch);
-
-        Job jobIfProcessor =
-                     bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
-                                          this,
-                                          queue,
-                                          CleanupFunctor(&noOp),
-                                          (bslmt::Latch *)0);
-
-        isProcessor = queue->prepareForDeletion(job, jobIfProcessor);
+        isProcessor = queue->enqueueDeletion(0, &latch);
     }
 
     if (!isProcessor) {
@@ -680,13 +659,7 @@ void MultiQueueThreadPool::shutdown()
          ++it) {
         MultiQueueThreadPool_Queue *queue = it->second;
 
-        Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
-                                       this,
-                                       queue,
-                                       CleanupFunctor(&noOp),
-                                       &latch);
-
-        queue->prepareForDeletion(job, job);
+        queue->enqueueDeletion(0, &latch);
     }
 
     d_queueRegistry.clear();
