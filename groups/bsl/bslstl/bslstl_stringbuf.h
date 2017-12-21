@@ -340,6 +340,16 @@ class basic_stringbuf
         // parent 'basic_streambuf' type without calling a method on this
         // object).
 
+    bool arePointersValid(const char_type *first,
+                          const char_type *middle,
+                          const char_type *last) const;
+        // Return 'true' if pointers form a valid range
+        // ('first <= middle <= last') and 'first == d_str.data()' and
+        // 'middle' and  'last' are in the range
+        // '[d_str.data() .. d_str.data() + d_str.size()]', or all arguments
+        // are 0, and 'false' otherwise.  Note that this function is called in
+        // defensive (i.e., "DEBUG" or "SAFE") build modes only.
+
   protected:
     // PROTECTED MANIPULATORS
     virtual pos_type seekoff(
@@ -674,6 +684,21 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
     return size;
 }
 
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+bool basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::arePointersValid(
+                                                  const char_type *first,
+                                                  const char_type *middle,
+                                                  const char_type *last) const
+{
+    const bool isNull            = first == 0;
+    const char_type *bufferBegin = isNull ? 0 : d_str.data();
+    const char_type *bufferEnd   = isNull ? 0 : d_str.data() + d_str.size();
+    return first  == bufferBegin
+        && last   <= bufferEnd
+        && first  <= middle
+        && middle <= last;
+}
+
 // PROTECTED MANIPULATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
@@ -898,6 +923,8 @@ native_std::streamsize
     if ((d_mode & ios_base::out) == 0) {
         return 0;                                                     // RETURN
     }
+    BSLS_ASSERT(this->pptr());
+    BSLS_ASSERT(this->pbase());
 
     // Compute the space required.
 
@@ -1039,17 +1066,15 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     ~basic_stringbuf()
 {
     if (d_mode & ios_base::in) {
-        BSLS_ASSERT(this->eback() == d_str.data());
-        BSLS_ASSERT(this->egptr() <= d_str.data() + d_str.size());
-        BSLS_ASSERT(this->eback() <= this->gptr());
-        BSLS_ASSERT(this->gptr()  <= this->egptr());
+        BSLS_ASSERT(arePointersValid(this->eback(),
+                                     this->gptr(),
+                                     this->egptr()));
     }
 
     if (d_mode & ios_base::out) {
-        BSLS_ASSERT(this->pbase() == d_str.data());
-        BSLS_ASSERT(this->epptr() == d_str.data() + d_str.size());
-        BSLS_ASSERT(this->pbase() <= this->pptr());
-        BSLS_ASSERT(this->pptr()  <= this->epptr());
+        BSLS_ASSERT(arePointersValid(this->pbase(),
+                                     this->pptr(),
+                                     this->epptr()));
     }
 }
 
