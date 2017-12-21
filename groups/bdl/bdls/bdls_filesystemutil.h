@@ -524,7 +524,10 @@ struct FilesystemUtil {
     static bool exists(const bsl::string&  path);
     static bool exists(const char         *path);
         // Return 'true' if there currently exists a file or directory at the
-        // specified 'path', and 'false' otherwise.
+        // specified 'path', and 'false' otherwise.  If 'path' is a symlink,
+        // the result of this function is platform dependent. On POSIX/Unix
+        // platforms this method dereferences symlinks, while on Windows it
+        // does not.
 
     static bool isRegularFile(const bsl::string&  path,
                               bool                followLinksFlag = false);
@@ -844,15 +847,16 @@ struct FilesystemUtil {
         // refers to a directory and the optionally specified 'recursiveFlag'
         // is 'true', recursively remove all files and directories within the
         // specified directory before removing the directory itself.  Return 0
-        // on success and a non-zero value otherwise.  Note that if 'path' is a
-        // directory, and the directory is not empty, and recursive is 'false',
-        // this method will fail.  Also note that if the function fails when
-        // 'recursive' is 'true', it may or may not have removed *some* files
-        // or directories before failing.
+        // on success and a non-zero value otherwise.  If 'path' refers to a
+        // symbolic link, the symbolic link will be removed, not the target of
+        // the link.  Note that if 'path' is a directory, and the directory is
+        // not empty, and recursive is 'false', this method will fail.  Also
+        // note that if the function fails when 'recursive' is 'true', it may
+        // or may not have removed *some* files or directories before failing.
         //
         // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
         // implementation of the system 'glob' function can temporarily change
-        // the working directory of the entire program, casuing attempts in
+        // the working directory of the entire program, causing attempts in
         // other threads to open files with relative path names to fail.
 
     static int rollFileChain(const bsl::string& path, int maxSuffix);
@@ -870,10 +874,15 @@ struct FilesystemUtil {
         // it will be removed and replaced.  In that case, 'newPath' must refer
         // to the same type of filesystem item as 'oldPath' - that is, they
         // must both be directories or both be files.  Return 0 on success, and
-        // a non-zero value otherwise.  Note that this operation is carried out
-        // via library/system facilities ('rename' in UNIX and 'MoveFile' in
-        // Windows) that usually cannot move files between file systems or
-        // volumes.
+        // a non-zero value otherwise.  If 'oldPath' is a symbolic link, the
+        // link will be renamed.  If a symbolic link already exists at
+        // 'newPath', the resulting behavior is platform dependent.  Note that
+        // this operation is carried out via library/system facilities
+        // ('rename' in UNIX and 'MoveFile' in Windows) that usually cannot
+        // move files between file systems or volumes.  Note that a symbolic
+        // link already exists at 'newPath' POSIX/Unix systems will overwrite
+        // that existing symbolic link, while Windows will return an error
+        // status ('GetLastError' will report 'ERROR_ALREADY_EXISTS').
 
     static int write(FileDescriptor  descriptor,
                      const void     *buffer,
