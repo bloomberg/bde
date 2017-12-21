@@ -223,9 +223,18 @@ class MetricFormatSpec {
         // Return the address of the null-terminated string containing the
         // 'printf'-style format that may be used to format values.
 
-    bsl::ostream& print(bsl::ostream& stream) const;
-        // Write a description of this format spec to the specified 'stream',
-        // and return a reference to the modifiable 'stream'.
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = -1) const;
+        // Format this object to the specified output 'stream' at the (absolute
+        // value of) the optionally specified indentation 'level' and return a
+        // reference to 'stream'.  If 'level' is specified, optionally specify
+        // 'spacesPerLevel', the number of spaces per indentation level for
+        // this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by 'level').  If 'stream' is
+        // not valid on entry, this operation has no effect.
 };
 
 // ============================================================================
@@ -460,7 +469,7 @@ inline
 bsl::ostream& balm::operator<<(bsl::ostream&           stream,
                                const MetricFormatSpec& rhs)
 {
-    return rhs.print(stream);
+    return rhs.print(stream, 0, -1);
 }
 
 namespace balm {
