@@ -316,7 +316,6 @@ int MultiQueueThreadPool_Queue::resume()
                     // ---------------------------------
 
 // PRIVATE MANIPULATORS
-inline
 void MultiQueueThreadPool::deleteQueueCb(
                                   MultiQueueThreadPool_Queue *queue,
                                   const CleanupFunctor       *cleanup,
