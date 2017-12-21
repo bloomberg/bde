@@ -186,8 +186,8 @@ void MultiQueueThreadPool_Queue::executeFront()
 }
 
 bool MultiQueueThreadPool_Queue::enqueueDeletion(
-                                          const CleanupFunctor *cleanupFunctor,
-                                          bslmt::Latch         *latch)
+                                        const CleanupFunctor *cleanupFunctor,
+                                        bslmt::Latch         *completionSignal)
 {
     // Note that the queue is actually deleted by the thread pool while
     // executing the supplied 'functor' (which is
@@ -199,14 +199,14 @@ bool MultiQueueThreadPool_Queue::enqueueDeletion(
     d_enqueueState = e_DELETING;
 
     bool isProcessingThread = bslmt::ThreadUtil::self() == d_processor;
-    
+
 
     Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
                                    d_multiQueueThreadPool_p,
                                    this,
                                    cleanupFunctor,
-                                   isProcessingThread ? 0 : latch);
-    
+                                   isProcessingThread ? 0 : completionSignal);
+
     if (e_NOT_SCHEDULED == d_runState || e_PAUSED == d_runState) {
         int rc = d_multiQueueThreadPool_p->d_threadPool_p->enqueueJob(job);
 
@@ -217,7 +217,8 @@ bool MultiQueueThreadPool_Queue::enqueueDeletion(
 
         d_list.push_front(job);
     }
-    return isProcessingThread;;
+
+    return isProcessingThread;
 }
 
 int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
@@ -316,16 +317,17 @@ int MultiQueueThreadPool_Queue::resume()
 
 // PRIVATE MANIPULATORS
 inline
-void MultiQueueThreadPool::deleteQueueCb(MultiQueueThreadPool_Queue *queue,
-                                         const CleanupFunctor       *cleanup,
-                                         bslmt::Latch               *latch)
+void MultiQueueThreadPool::deleteQueueCb(
+                                  MultiQueueThreadPool_Queue *queue,
+                                  const CleanupFunctor       *cleanup,
+                                  bslmt::Latch               *completionSignal)
 {
     BSLS_ASSERT(queue);
 
-    if (latch) {
-        latch->arrive();
+    if (completionSignal) {
+        completionSignal->arrive();
     }
-    
+
     if (cleanup && *cleanup) {
         (*cleanup)();
     }

@@ -498,7 +498,7 @@ class MultiQueueThreadPool_Queue {
     bool enqueueDeletion(const CleanupFunctor *cleanupFunctor   = 0,
                          bslmt::Latch         *completionSignal = 0);
         // Premanently disable enqueueing from this queue, and enqueue a job
-        // that will delete this queue.  Optioanlly specify 'cleanupFunctor',
+        // that will delete this queue.  Optionally specify 'cleanupFunctor',
         // which, if supplied, will be invoked immediately prior to this
         // queue's deletion.  Optionally specify 'completionSignal', on which
         // (if the calling thread is not processing a job for this queue) to
@@ -618,15 +618,15 @@ class MultiQueueThreadPool {
     // PRIVATE MANIPULATORS
     void deleteQueueCb(MultiQueueThreadPool_Queue *queue,
                        const CleanupFunctor       *cleanup,
-                       bslmt::Latch               *latch);
+                       bslmt::Latch               *completionSignal);
         // Delete the specified 'queue', if the specified 'cleanup' is not 0
-        // invoke 'cleanup', if the specified 'latch' is not 0, call
-        // 'latch->arrive'.  'cleanup' and 'latch' may be 0.  Note that this
-        // callback provides a mechanism for proper lifetime management of the
-        // 'queue' by scheduling the deletion with the associated thread pool
-        // since the 'MultiQueueThreadPool' does not know *when* to delete the
-        // queue and a 'MultiQueueThreadPool_Queue' cannot delete itself at the
-        // appropriate time.
+        // invoke 'cleanup', if the specified 'completionSignal' is not 0, call
+        // 'completionSignal->arrive'.  'cleanup' and 'completionSignal' may be
+        // 0.  Note that this callback provides a mechanism for proper lifetime
+        // management of the 'queue' by scheduling the deletion with the
+        // associated thread pool since the 'MultiQueueThreadPool' does not
+        // know *when* to delete the queue and a 'MultiQueueThreadPool_Queue'
+        // cannot delete itself at the appropriate time.
 
     int findIfUsable(int id, MultiQueueThreadPool_Queue **queue);
        // Load into the specified '*queue' a pointer to the queue referenced by
