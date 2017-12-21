@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 //  Name      Type         Default Constraints
 //  --------- -----------  ------- -------------------------------------------
 //  hostname  bsl::string  ""      empty or 1-255 characters in length
-//  port      int          0       0 if 'hostname' is empty, else [1 .. 65535]
+//  port      int          0       0 if 'hostname' is empty, else [0 .. 65535]
 //..
 //: o 'hostname': IP hostname
 //: o 'port': TCP or UDP port
@@ -129,7 +129,7 @@ class Endpoint {
         // valid value for a 'Endpoint' object, and 'false' otherwise.
         // 'hostname' and 'port' represent a valid 'Endpoint' value if
         // '!hostname.size() && !port' (the default value), or
-        // '1 <= hostname.size()' and 'hostname.size <= 255' and '1 <= port'
+        // '1 <= hostname.size()' and 'hostname.size <= 255' and '0 <= port'
         // and 'port <= 65535'.
 
     // CREATORS
@@ -257,7 +257,7 @@ inline
 bool Endpoint::isValid(const bslstl::StringRef& hostname, int port)
 {
     return (1 <= hostname.length() && hostname.length() <= 255
-                                                 && 1 <= port && port <= 65535)
+                                                 && 0 <= port && port <= 65535)
         || (hostname.isEmpty() && 0 == port);
 }
 

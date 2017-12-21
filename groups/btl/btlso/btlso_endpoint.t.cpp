@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
         { L_,  tooLongHostname.c_str(),     1, false },
 
         { L_,  "h",                        -1, false },
-        { L_,  "h",                         0, false },
+        { L_,  "h",                         0, true  },
         { L_,  "h",                         1, true  },
         { L_,  "h",                     65535, true  },
         { L_,  "h",                     65536, false },
