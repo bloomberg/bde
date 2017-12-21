@@ -611,6 +611,12 @@ bool operator!=(const TYPE&                lhs,
     // object is null, or its underlying value does not compare equal to the
     // other value.
 
+// There is at least one instance of client code having already defined
+// 'operator<' on 'bdlb::NullableValue' (see bde_extended.h in DPKG
+// crm-integration).  The following macro facilitates client migration to the
+// comparison operators defined here.
+#define BDLB_NULLABLEVALUE_SUPPORTS_LESS_THAN
+
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator<(const NullableValue<LHS_TYPE>& lhs,
                const NullableValue<RHS_TYPE>& rhs);
