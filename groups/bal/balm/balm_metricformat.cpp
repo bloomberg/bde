@@ -14,6 +14,8 @@ BSLS_IDENT_RCSID(balm_metricformat_cpp,"$Id$ $CSID$")
 
 #include <bdlb_print.h>
 
+#include <bslim_printer.h>
+
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
 
@@ -72,9 +74,17 @@ bsl::ostream& MetricFormatSpec::formatValue(bsl::ostream&           stream,
 }
 
 // ACCESSORS
-bsl::ostream& MetricFormatSpec::print(bsl::ostream& stream) const
+bsl::ostream& MetricFormatSpec::print(bsl::ostream& stream,
+                                      int           level,
+                                      int           spacesPerLevel) const
 {
-    stream << "[ scale = " << d_scale << " format = \"" << d_format << "\" ]";
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+
+    printer.start();
+    printer.printAttribute("scale",  d_scale);
+    printer.printAttribute("format", d_format);
+    printer.end();
+
     return stream;
 }
 
@@ -117,12 +127,13 @@ bsl::ostream& MetricFormat::print(bsl::ostream& stream,
         }
 
         bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-        stream << (PublicationType::Value)i << " = "
+        stream << (PublicationType::Value)i << " ="
                << d_formatSpecs[i] << NL;
     }
 
     bdlb::Print::indent(stream, level, spacesPerLevel);
     stream << " ]" << NL;
+
     return stream;
 }
 
