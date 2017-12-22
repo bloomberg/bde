@@ -186,8 +186,8 @@ void MultiQueueThreadPool_Queue::executeFront()
 }
 
 bool MultiQueueThreadPool_Queue::enqueueDeletion(
-                                        const CleanupFunctor *cleanupFunctor,
-                                        bslmt::Latch         *completionSignal)
+                                                const Job    *cleanupFunctor,
+                                                bslmt::Latch *completionSignal)
 {
     // Note that the queue is actually deleted by the thread pool while
     // executing the supplied 'functor' (which is
