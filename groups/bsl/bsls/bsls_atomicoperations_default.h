@@ -2018,7 +2018,7 @@ unsigned int AtomicOperations_DefaultUint<IMP>::
     return static_cast<unsigned int>(
              IMP::addIntNv(
                  reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
-                     static_cast<int>(-value)));
+                     static_cast<int>(1 + ~value)));
 }
 
 template <class IMP>
@@ -2030,7 +2030,7 @@ unsigned int AtomicOperations_DefaultUint<IMP>::subtractUintNvAcqRel(
     return static_cast<unsigned int>(
         IMP::addIntNvAcqRel(
                 reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
-                static_cast<int>(-value)));
+                static_cast<int>(1 + ~value)));
 }
 
 template <class IMP>
@@ -2042,7 +2042,7 @@ unsigned int AtomicOperations_DefaultUint<IMP>::subtractUintNvRelaxed(
     return static_cast<unsigned int>(
         IMP::addIntNvRelaxed(
                 reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
-                static_cast<int>(-value)));
+                static_cast<int>(1 + ~value)));
 }
 
                     // ------------------------------------
@@ -2306,7 +2306,7 @@ Types::Uint64 AtomicOperations_DefaultUint64<IMP>::subtractUint64Nv(
     return static_cast<Types::Uint64>(
               IMP::addInt64Nv(
                   reinterpret_cast<typename AtomicTypes::Int64 *>(atomicUint),
-                  static_cast<Types::Int64>(-value)));
+                  static_cast<Types::Int64>(1 + ~value)));
 }
 
 template <class IMP>
@@ -2317,7 +2317,7 @@ Types::Uint64 AtomicOperations_DefaultUint64<IMP>::subtractUint64NvAcqRel(
     return static_cast<Types::Uint64>(
         IMP::addInt64NvAcqRel(
             reinterpret_cast<typename AtomicTypes::Int64 *>(atomicUint),
-            static_cast<Types::Int64>(-value)));
+            static_cast<Types::Int64>(1 + ~value)));
 }
 
 template <class IMP>
@@ -2328,7 +2328,7 @@ Types::Uint64 AtomicOperations_DefaultUint64<IMP>::subtractUint64NvRelaxed(
     return static_cast<Types::Uint64>(
         IMP::addInt64NvRelaxed(
             reinterpret_cast<typename AtomicTypes::Int64 *>(atomicUint),
-            static_cast<Types::Int64>(-value)));
+            static_cast<Types::Int64>(1 + ~value)));
 }
 
                   // ----------------------------------------
