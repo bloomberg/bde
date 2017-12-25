@@ -814,56 +814,56 @@ bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::min32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::max()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::max32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::epsilon()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::epsilon32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::round_error()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::roundError32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::infinity()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::infinity32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::quiet_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::quietNaN32();
 }
 
 BloombergLP::bdldfp::Decimal32
    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::signaling_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::signalingNaN32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::denorm_min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::denormMin32();
 }
@@ -874,56 +874,56 @@ BloombergLP::bdldfp::Decimal32
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::min64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::max()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::max64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::epsilon()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::epsilon64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::round_error()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::roundError64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::infinity()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::infinity64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::quiet_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::quietNaN64();
 }
 
 BloombergLP::bdldfp::Decimal64
    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::signaling_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::signalingNaN64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::denorm_min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::denormMin64();
 }
@@ -934,56 +934,56 @@ BloombergLP::bdldfp::Decimal64
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::min128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::max()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::max128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::epsilon()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::epsilon128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::round_error()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::roundError128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::infinity()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::infinity128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::quiet_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::quietNaN128();
 }
 
 BloombergLP::bdldfp::Decimal128
    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::signaling_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::signalingNaN128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::denorm_min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::denormMin128();
 }
