@@ -1,7 +1,17 @@
-bsl-internal (3.4.0.1) unstable; urgency=low
+bsl-internal (3.4.1.0) unstable; urgency=low
 
+  * c3cebb59b Merge pull request #1602 from bde/review/bump-version-to-3.4.1
+  * efba7729e Bump patch versions: bdl->3.4.1, bsl->3.2.3
+  * 15ffdbbfd Merge pull request #1587 from hversche/pr/1376-rebased-releases/3.4.x
+  * 6fd392ebb Split pbump for out of int range
 
- -- mgiroux <mgiroux@bloomberg.net>  Sat, 9 Dec 2017 13:08:33 -0500
+ -- mgiroux <mgiroux@bloomberg.net>  Sat, 23 Dec 2017 11:33:35 -0500
+
+bsl-internal (3.4.0.1) git; urgency=low
+
+  * a1657b129 Changelog for version 3.4.0.1
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 9 Dec 2017 13:18:22 -0500
 
 bsl-internal (3.4.0.0) git; urgency=low
 
