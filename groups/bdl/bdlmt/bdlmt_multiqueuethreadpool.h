@@ -611,9 +611,6 @@ class MultiQueueThreadPool {
     MultiQueueThreadPool(const MultiQueueThreadPool&);
     MultiQueueThreadPool& operator=(const MultiQueueThreadPool&);
 
-    // FRIENDS
-    friend MultiQueueThreadPool_Queue;  // access to deleteQueueCb
-
     // PRIVATE MANIPULATORS
     void deleteQueueCb(MultiQueueThreadPool_Queue *queue,
                        const CleanupFunctor       *cleanup,
