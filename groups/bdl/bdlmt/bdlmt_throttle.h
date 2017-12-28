@@ -19,6 +19,7 @@ BSLS_IDENT("$Id: $")
 //   BDLMT_THROTTLE_IF_ALLOW_ALL, BDLMT_THROTTLE_IF_ALLOW_NONE
 //
 //@SEE_ALSO:
+//   bslmt_turnstile, btls_leakybucket
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
@@ -374,7 +375,7 @@ class Throttle {
         // configured to observe the passage of time.
 
     int maxSimultaneousActions() const;
-        // Return the maximum number of simultaneous actions with which this
+        // Return the maximum number of simultaneous actions for which this
         // 'Throttle' is configured to permit.
 
     Int64 nanosecondsPerAction() const;
