@@ -113,8 +113,8 @@ void MetricFormat::clearFormatSpec(
 
 // ACCESSORS
 bsl::ostream& MetricFormat::print(bsl::ostream& stream,
-                                       int      level,
-                                       int      spacesPerLevel) const
+                                  int      level,
+                                  int      spacesPerLevel) const
 {
     const char *NL = (spacesPerLevel > 0) ? "\n" : " ";
 
@@ -127,7 +127,7 @@ bsl::ostream& MetricFormat::print(bsl::ostream& stream,
         }
 
         bdlb::Print::indent(stream, level + 1, spacesPerLevel);
-        stream << (PublicationType::Value)i << " ="
+        stream << (PublicationType::Value)i << " = "
                << d_formatSpecs[i] << NL;
     }
 
