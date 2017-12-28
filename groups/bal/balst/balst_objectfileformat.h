@@ -48,16 +48,18 @@ BSLS_IDENT("$Id: $")
 //
 // DWARF is implemented for g++ versions earlier than 7.1.0 on Linux.
 //
-///IMPLEMENTATION NOTE
+///Implementation Note
 ///- - - - - - - - - -
 // Linux g++ 7.1.0 uses DWARF version 4, while g++ 5.4.0 and before use DWARF
-// version 3.  Some work will be needed to support 7.1.0.
+// version 3.  At the moment the required system header, 'dwarf.h', is not
+// available in the Bloomberg production build 'chroot' environment, so
+// support for dwarf formats is disabled.
 //
 // DWARF support on Clang is problematic and not currrently implemented, see
 // the long comment in balst_stacktraceresolverimpl_elf.cpp, which explains
 // exactly how it could be implemented when that becomes a priority.
 //
-// We have not yet looked into implementing DWARF for Dladdr (Darwin).
+// We have not yet investigated implementing DWARF for Dladdr (Darwin).
 //
 ///Usage
 ///-----
@@ -156,11 +158,14 @@ struct ObjectFileFormat {
 
 # if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)        \
     && BSLS_PLATFORM_CMP_VERSION < 70100
+    // DWARF support is implemented only for Linux g++ < 7.1.0.
 
-    // DWARF is supported only for Linux g++ < 7.1.0 (see DWARF section in
-    // component doc).
+#   if 0
+    // Currently the dwarf.h header is not available in the dpkg chroot
+    // used in the production build process.
 
-#   define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
+#     define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
+#   endif
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_AIX)
