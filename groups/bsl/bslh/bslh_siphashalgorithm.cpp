@@ -150,7 +150,7 @@ SipHashAlgorithm::SipHashAlgorithm(const char *seed)
 void
 SipHashAlgorithm::operator()(const void *data, size_t numBytes)
 {
-    BSLS_ASSERT(data);
+    BSLS_ASSERT(0 != data || 0 == numBytes);
 
     u8 const* in = static_cast<const u8*>(data);
 

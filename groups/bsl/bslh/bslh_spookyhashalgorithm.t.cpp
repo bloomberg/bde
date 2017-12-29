@@ -550,7 +550,8 @@ int main(int argc, char *argv[])
         //: 4 'computeHash()' and returns the appropriate value
         //:   according to the SpookyHash specification.
         //:
-        //: 5 'operator()' does a BSLS_ASSERT for null pointers.
+        //: 5 'operator()' does a BSLS_ASSERT for null pointers and non-zero
+        //:   length, and not for null pointers and zero length.
         //
         // Plan:
         //: 1 Insert various lengths of c-strings into the algorithm both all
@@ -708,6 +709,7 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(Obj().operator()(   0, 5));
+            ASSERT_PASS(Obj().operator()(   0, 0));
             ASSERT_PASS(Obj().operator()(data, 5));
         }
 

@@ -117,7 +117,7 @@ void SpookyHashAlgorithmImp::hash128(
     Uint64 *hash1,
     Uint64 *hash2)
 {
-    BSLS_ASSERT(message);
+    BSLS_ASSERT(0 != message || 0 == length);
     BSLS_ASSERT(hash1);
     BSLS_ASSERT(hash2);
 
@@ -187,7 +187,7 @@ void SpookyHashAlgorithmImp::shortHash(
     Uint64 *hash1,
     Uint64 *hash2)
 {
-    BSLS_ASSERT(message);
+    BSLS_ASSERT(0 != message || 0 == length);
     BSLS_ASSERT(hash1);
     BSLS_ASSERT(hash2);
 
@@ -295,7 +295,7 @@ void SpookyHashAlgorithmImp::shortHash(
 
 void SpookyHashAlgorithmImp::update(const void *message, size_t length)
 {
-    BSLS_ASSERT(message);
+    BSLS_ASSERT(0 != message || 0 == length);
 
     union
     {
