@@ -62,6 +62,21 @@ bool Throttle::requestPermission(const bsls::TimeInterval& now)
     // Special casing 'allow all' here prevents undefined behavior later in
     // the function due to overflowing signed arithmetic.
 
+    enum { k_BILLION     = 1000 * 1000 * 1000,
+           k_MAX_SECONDS = LLONG_MAX / k_BILLION,
+           k_MIN_SECONDS = LLONG_MIN / k_BILLION };
+
+    BSLS_ASSERT(now.seconds() <= k_MAX_SECONDS);
+    BSLS_ASSERT(now.seconds() >= k_MIN_SECONDS);
+
+    const Int64 sns = k_BILLION * now.seconds(); // Seconds in NanoSeconds
+    if (0 <= sns) {
+        BSLS_ASSERT(LLONG_MAX - sns > now.nanoseconds());
+    }
+    else {
+        BSLS_ASSERT(LLONG_MIN - sns < now.nanoseconds());
+    }
+
     if (k_ALLOW_ALL == d_nanosecondsPerAction) {
         return true;                                                  // RETURN
     }
@@ -92,7 +107,21 @@ bool Throttle::requestPermission(const bsls::TimeInterval& now)
 bool Throttle::requestPermission(int                       numActions,
                                  const bsls::TimeInterval& now)
 {
+    enum { k_BILLION     = 1000 * 1000 * 1000,
+           k_MAX_SECONDS = LLONG_MAX / k_BILLION,
+           k_MIN_SECONDS = LLONG_MIN / k_BILLION };
+
     BSLS_ASSERT(0 < numActions);
+    BSLS_ASSERT(now.seconds() <= k_MAX_SECONDS);
+    BSLS_ASSERT(now.seconds() >= k_MIN_SECONDS);
+
+    const Int64 sns = k_BILLION * now.seconds(); // Seconds in NanoSeconds
+    if (0 <= sns) {
+        BSLS_ASSERT(LLONG_MAX - sns > now.nanoseconds());
+    }
+    else {
+        BSLS_ASSERT(LLONG_MIN - sns < now.nanoseconds());
+    }
 
     if (d_maxSimultaneousActions < numActions) {
         BSLS_ASSERT(0 == d_maxSimultaneousActions);

@@ -26,6 +26,7 @@
 #include <bsls_systemtime.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_c_ctype.h>      // 'isdigit'
 #include <bsl_cstdlib.h>      // 'atoi'
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -157,15 +158,15 @@ namespace u {
 
 typedef bsls::AtomicOperations AtomicOps;
 
-enum { k_MICROSECOND = 1000,
-       k_MILLISECOND = 1000 * 1000,
-       k_SECOND      = 1000 * 1000 * 1000 };
+enum { k_MICRO  = 1000,
+       k_MILLI  = 1000 * 1000,
+       k_SECOND = 1000 * 1000 * 1000 };
 
 bslma::TestAllocator ta("test", veryVeryVeryVerbose); // test allocator
 
 const Uint64 epsilon = 100;         // 100 nanoseconds
 
-const double maxOver = 0.2;         // 'u::sleep' can take quite a bbit more
+const double maxOver = 0.2;         // 'u::sleep' can take quite a bit more
                                     // time than was requested.
 const double minSleep = 0.00001;
 
@@ -186,6 +187,12 @@ namespace {
 namespace u {
 
 typedef void (*VoidFunc)();
+
+const char *b(bool x)
+    // Return the specified 'x' in string form.
+{
+    return x ? "true" : "false";
+}
 
 inline
 bsls::TimeInterval clockTi(ClockType clockType = CT::e_MONOTONIC)
@@ -246,6 +253,72 @@ void testCase(u::VoidFunc     f,
     ASSERTV(elapsed, expElapsed, elapsed - expElapsed, elapsed >= expElapsed);
 
     if (veryVerbose) { P_(elapsed);    P(elapsed - expElapsed); }
+}
+
+bsls::TimeInterval toTime(const char *timeStr)
+    // Return a time interval converted from the specified 'timeStr' of the
+    // form "<minutes>:<seconds>.<frac>:<nano>", where:
+    //: o <minutes> and <seconds> can be any number of digits.
+    //: o <frac> is the fractional part of a second following the '.'.
+    //: o <nano> is nanoseconds and can be any number of digits
+    // Note that both ':'s and the '.' are optional.  If no '.' is present, the
+    // second ':' may not be present.  If the first ':' is not present, the
+    // first field is taken to be seconds.  The behavior is undefined if
+    // 'bsl::strlen(timeStr) > 128', if any extra '.'s or ':''s are in the
+    // 'timeStr', if 'timeStr' contains any character other than digits, '.',
+    // and ':', or if <minutes>, <seconds>, or <nano> are too long to be
+    // parsed into an 'int'.
+{
+    char buf[128 + 1];
+    const bsl::size_t len = bsl::strlen(timeStr);
+    BSLS_ASSERT(len < sizeof(buf));
+
+    bsl::strcpy(buf, timeStr);
+
+    char * const fracStr = bsl::strchr(buf, '.');
+    char *minutesStr = 0;
+    char *secondsStr = bsl::strchr(buf, ':');
+    if (!secondsStr || (fracStr && secondsStr > fracStr)) {
+        secondsStr = buf;
+    }
+    else {
+        *secondsStr = 0;
+        ++secondsStr;
+        minutesStr = buf;
+    }
+    BSLS_ASSERT(secondsStr);
+    char *nanoStr = bsl::strchr((fracStr ? fracStr : secondsStr), ':');
+    if (nanoStr) {
+        *nanoStr = 0;
+        ++nanoStr;
+    }
+    if (fracStr) {
+        *fracStr = 0;
+    }
+
+    BSLS_ASSERT(secondsStr);
+    if (!*secondsStr && !fracStr) {
+        secondsStr = 0;
+    }
+    for (const char *pc = buf; pc < buf + len; ++pc) {
+        BSLS_ASSERT(!*pc || isdigit(*pc));
+    }
+
+    bsls::TimeInterval ret;
+    if (minutesStr) {
+        ret.addMinutes(bsl::atoi(minutesStr));
+    }
+    if (secondsStr) {
+        if (fracStr) {
+            *fracStr = '.';
+        }
+        ret += bsl::strtod(secondsStr, 0);
+    }
+    if (nanoStr) {
+        ret.addNanoseconds(bsl::atoi(nanoStr));
+    }
+
+    return ret;
 }
 
 }  // close namespace u
@@ -334,7 +407,7 @@ namespace Case_Usage {
 
 namespace Case_Minus_1_Events_Dropped {
 
-const Int64     period          = 100 * u::k_MILLISECOND;
+const Int64     period          = 100 * u::k_MILLI;
 const double    sleepTime       = 2.0 * period / u::k_SECOND;
 const double    shortSleepTime  = 0.0001;
 const int       eventsPerPeriodPerThread = 10;
@@ -384,7 +457,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 3: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -425,6 +498,436 @@ int main(int argc, char *argv[])
                                                 '\n');
         ASSERT(11 == numLines);
       } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING 'requestPermission' WITH TIME PASSED
+        //
+        // Concerns:
+        //: 1 That request permission grants or refuses permission :
+        //:   appropriately when a throttle is configured for finite
+        //:   permission.
+        //:
+        //: 2 That request permission always grants permission when the
+        //:   throttle is configured 'allow all'.
+        //:
+        //: 3 That request permission never grants permission when the throttle
+        //:   is configured 'allow none'.
+        //:
+        //: 4 Negative testing of 'requestPermission'.
+        //
+        // Plan:
+        //: 1 Construct a table with nullable values indicating how the
+        //:   throttle is to be initialized, and with a 'const char *' field to
+        //:   indicate time specs, an int field to indicate
+        //:   'maxSimultaneousActions', and a bool field to indicate whether
+        //:   permission is expected to be granted.  Rows are to take two
+        //:   forms:
+        //:   o 2nd & 3rd column specify args to 'initialize'
+        //:   o 2nd & 3rd columns are -1, and the remaining columns specify the
+        //:     args with which 'requestPermission' is to be called and the
+        //:     expected result of this call.
+        //:
+        //: 2 Iterate through the table, and if it's an initialization record,
+        //:   call 'initalize' on the throttle, otherwise call
+        //:   'requestPermission' with the specified arguments and check that
+        //:   the permission matches expectations.
+        //:
+        //: 3 Use the same table with a similar loop to drive the single-arg
+        //;   'requestPermission'.
+        //:
+        //: 4 Write a loop going through the same table to drive testing of
+        //:   a throttle initialized for 'allow all'.
+        //:
+        //: 5 Write a loop going through the same table to drive testing of
+        //:   'allow none'.
+        //:
+        //: 6 Do negative testing.
+        //
+        // Testing:
+        //   requestPermission(int, const bsls::TimeInterval&);
+        //   requestPermission(const bsls::TimeInterval&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'requestPermission' WITH TIME PASSED\n"
+                             "============================================\n";
+
+#undef  REQUEST
+#define REQUEST   -1, -1
+
+#undef  INITIALIZE
+#define INITIALIZE 0, 0, 0
+
+        static const struct Data {
+            int         d_line;
+            int         d_maxSimultaneousActions;
+            Int64       d_nanosecondsPerAction;
+            int         d_numActions;
+            const char *d_timeStr;
+            bool        d_expPermission;
+        } DATA[] = {
+            { L_, 1, 10,     INITIALIZE },
+            { L_, REQUEST,   1, "0", 1 },
+            { L_, REQUEST,   1, "0", 0 },
+            { L_, REQUEST,   1, "0", 0 },
+            { L_, REQUEST,   1, "::5", 0 },
+            { L_, REQUEST,   1, "::10", 1 },
+            { L_, REQUEST,   1, "::15", 0 },
+            { L_, REQUEST,   1, "::10", 0 },
+            { L_, REQUEST,   1, "0", 0 },
+            { L_, REQUEST,   1, ":1", 1 },
+            { L_, REQUEST,   1, ":1:5", 0 },
+            { L_, REQUEST,   1, ":1:10", 1 },
+            { L_, REQUEST,   1, ":10:0", 1 },
+            { L_, REQUEST,   1, ":10:2", 0 },
+            { L_, REQUEST,   1, ":10:8", 0 },
+            { L_, REQUEST,   1, ":10:10", 1 },
+            { L_, REQUEST,   1, "20::", 1 },
+            { L_, REQUEST,   1, "20::", 0 },
+            { L_, REQUEST,   1, "20::", 0 },
+
+            { L_, 4, 10,     INITIALIZE },
+            { L_, REQUEST,   1, "0", 1 },
+            { L_, REQUEST,   2, "0", 1 },
+            { L_, REQUEST,   2, "0", 0 },
+            { L_, REQUEST,   4, "0", 0 },
+            { L_, REQUEST,   1, "0", 1 },
+            { L_, REQUEST,   1, "0", 0 },
+            { L_, REQUEST,   4, "0", 0 },
+            { L_, REQUEST,   4, ":1", 1 },
+            { L_, REQUEST,   1, ":1", 0 },
+            { L_, REQUEST,   4, ":2", 1 },
+            { L_, REQUEST,   1, ":2:5", 0 },
+            { L_, REQUEST,   1, ":2:9", 0 },
+            { L_, REQUEST,   2, ":2:10", 0 },
+            { L_, REQUEST,   4, ":2:10", 0 },
+            { L_, REQUEST,   1, ":2:10", 1 },
+            { L_, REQUEST,   1, ":2:10", 0 },
+            { L_, REQUEST,   1, ":2:10", 0 },
+            { L_, REQUEST,   4, ":2:49", 0 },
+            { L_, REQUEST,   4, ":2:50", 1 },
+            { L_, REQUEST,   1, "15:", 1 },
+            { L_, REQUEST,   1, "15:", 1 },
+            { L_, REQUEST,   1, "15:", 1 },
+            { L_, REQUEST,   1, "15:", 1 },
+            { L_, REQUEST,   1, "15:", 0 },
+
+            { L_, 4, u::k_SECOND, INITIALIZE },
+            { L_, REQUEST,   2, "0", 1 },
+            { L_, REQUEST,   2, "0", 1 },
+            { L_, REQUEST,   1, "0", 0 },
+            { L_, REQUEST,   1, "0:.1", 0 },
+            { L_, REQUEST,   1, "0:.2", 0 },
+            { L_, REQUEST,   1, "0:.5", 0 },
+            { L_, REQUEST,   1, "0:.5", 0 },
+            { L_, REQUEST,   1, "0:.5", 0 },
+            { L_, REQUEST,   4, "0:1", 0 },
+            { L_, REQUEST,   3, "0:1", 0 },
+            { L_, REQUEST,   2, "0:1", 0 },
+            { L_, REQUEST,   1, "0:1", 1 },
+            { L_, REQUEST,   4, "0:1.1", 0 },
+            { L_, REQUEST,   3, "0:1.1", 0 },
+            { L_, REQUEST,   2, "0:1.1", 0 },
+            { L_, REQUEST,   1, "0:1.1", 0 },
+            { L_, REQUEST,   4, "0:1.2", 0 },
+            { L_, REQUEST,   3, "0:1.2", 0 },
+            { L_, REQUEST,   2, "0:1.2", 0 },
+            { L_, REQUEST,   1, "0:1.2", 0 },
+            { L_, REQUEST,   4, "0:1.2", 0 },
+            { L_, REQUEST,   4, "0:1.3", 0 },
+            { L_, REQUEST,   3, "0:1.3", 0 },
+            { L_, REQUEST,   2, "0:1.3", 0 },
+            { L_, REQUEST,   1, "0:1.3", 0 },
+            { L_, REQUEST,   4, "0:1.9", 0 },
+            { L_, REQUEST,   3, "0:1.9", 0 },
+            { L_, REQUEST,   2, "0:1.9", 0 },
+            { L_, REQUEST,   1, "0:1.9", 0 },
+            { L_, REQUEST,   4, "0:5", 1 },
+            { L_, REQUEST,   1, "100:", 1 },
+            { L_, REQUEST,   4, "100:", 0 },
+            { L_, REQUEST,   4, "100:1", 1 } };
+#undef REQUEST
+#undef INITIALIZE
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        if (verbose)     cout << "Table-Driven Testing - 2 arg\n";
+        if (veryVerbose) cout << "----------------------------\n";
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const Data&        data       = DATA[ti];
+            const int          line       = data.d_line;
+            const int          msa        = data.d_maxSimultaneousActions;
+            const Int64        npa        = data.d_nanosecondsPerAction;
+            const int          numActions = data.d_numActions;
+            const char * const timeStr    = data.d_timeStr;
+            const bool         EXP        = data.d_expPermission;
+
+            static Obj mX;
+
+            if (-1 != msa) {
+                ASSERTV(line, npa, -1 < npa);
+
+                ASSERTV(line, numActions, 0 == numActions);
+                ASSERTV(line, timeStr, 0 == timeStr);
+                ASSERTV(line, EXP, !EXP);
+
+                if (veryVerbose) cout << "'initialize(" << msa << ", " <<
+                                                                 npa << ");\n";
+
+                mX.initialize(msa, npa);
+                continue;
+            }
+            ASSERTV(line, npa, -1 == npa);
+
+            const bsls::TimeInterval time = u::toTime(timeStr);
+
+            ASSERTV(line, msa, npa, -1 == msa && -1 == npa);
+
+            const bool ret = mX.requestPermission(numActions, time);
+
+            if (veryVerbose) cout << "'requestPermissions(int, toTime(\"" <<
+                                   timeStr << "\"))' == " << u::b(ret) << endl;
+
+            ASSERTV(line, EXP, ret, EXP == ret);
+        }
+
+        if (verbose)     cout << "Table-Driven Testing - 1 arg\n";
+        if (veryVerbose) cout << "----------------------------\n";
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const Data&        data       = DATA[ti];
+            const int          line       = data.d_line;
+            const int          msa        = data.d_maxSimultaneousActions;
+            const Int64        npa        = data.d_nanosecondsPerAction;
+            const int          numActions = data.d_numActions;
+            const char * const timeStr    = data.d_timeStr;
+            const bool         EXP        = data.d_expPermission;
+
+            static Obj mX;
+
+            if (-1 != msa) {
+                ASSERTV(line, npa, -1 < npa);
+
+                ASSERTV(line, numActions, 0 == numActions);
+                ASSERTV(line, timeStr, 0 == timeStr);
+                ASSERTV(line, EXP, !EXP);
+
+                if (veryVerbose) cout << "'initialize(" << msa << ", " <<
+                                                                 npa << ");\n";
+
+                mX.initialize(msa, npa);
+                continue;
+            }
+            ASSERTV(line, npa, -1 == npa);
+
+            if (1 < numActions && !EXP) {
+                continue;
+            }
+
+            const bsls::TimeInterval time = u::toTime(timeStr);
+
+            ASSERTV(line, msa, npa, -1 == msa && -1 == npa);
+
+            for (int tj = 0; tj < numActions; ++tj) {
+                const bool ret = mX.requestPermission(time);
+
+                if (veryVerbose) cout << "'requestPermissions(toTime(\"" <<
+                                   timeStr << "\"))' == " << u::b(ret) << endl;
+
+                ASSERTV(line, EXP, ret, tj, EXP == ret);
+            }
+        }
+
+        if (verbose)     cout << "Allow All\n";
+        if (veryVerbose) cout << "---------\n";
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const Data&        data       = DATA[ti];
+            const int          line       = data.d_line;
+            const int          msa        = data.d_maxSimultaneousActions;
+            const int          numActions = data.d_numActions;
+            const char * const timeStr    = data.d_timeStr;
+
+            static Obj mX;
+
+            if (-1 != msa) {
+                mX.initialize(1, 0);    // allow all
+                static const Obj mXAll = BDLMT_THROTTLE_INIT_ALLOW_ALL;
+                ASSERT(0 == bsl::memcmp(&mX, &mXAll, sizeof(mX)));
+
+                continue;
+            }
+
+            const bsls::TimeInterval time = u::toTime(timeStr);
+
+            ASSERTV(line, mX.requestPermission(numActions, time));
+            ASSERTV(line, mX.requestPermission(time));
+            ASSERTV(line, mX.requestPermission(1, time));
+            ASSERTV(line, mX.requestPermission(INT_MAX, time));
+        }
+
+        if (verbose)     cout << "Allow None\n";
+        if (veryVerbose) cout << "----------\n";
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const Data&        data       = DATA[ti];
+            const int          line       = data.d_line;
+            const int          msa        = data.d_maxSimultaneousActions;
+            const int          numActions = data.d_numActions;
+            const char * const timeStr    = data.d_timeStr;
+
+            static Obj mX;
+
+            if (-1 != msa) {
+                mX.initialize(0, 1);    // allow none
+                static const Obj mXNone = BDLMT_THROTTLE_INIT_ALLOW_NONE;
+                ASSERT(0 == bsl::memcmp(&mX, &mXNone, sizeof(mX)));
+
+                continue;
+            }
+
+            const bsls::TimeInterval time = u::toTime(timeStr);
+
+            ASSERTV(line, false == mX.requestPermission(numActions, time));
+            ASSERTV(line, false == mX.requestPermission(time));
+            ASSERTV(line, false == mX.requestPermission(1, time));
+            ASSERTV(line, false == mX.requestPermission(INT_MAX, time));
+        }
+
+        if (verbose)     cout << "Negative Testing\n";
+        if (veryVerbose) cout << "----------------\n";
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            Obj mX = BDLMT_THROTTLE_INIT(4, u::k_SECOND);
+
+            typedef bsls::TimeInterval TI;
+            const TI time;
+
+            const Int64 int64Max   = bsl::numeric_limits<Int64>::max();
+            const Int64 secondsMax = int64Max / u::k_SECOND;
+            const Int64 int64Min   = bsl::numeric_limits<Int64>::min();
+            const Int64 secondsMin = int64Min / u::k_SECOND;
+
+            if (veryVerbose) cout << "Negative Testing, 2-Arg\n";
+
+            ASSERT_PASS(mX.requestPermission(1, time));
+            ASSERT_PASS(mX.requestPermission(2, time));
+            ASSERT_PASS(mX.requestPermission(3, time));
+            ASSERT_PASS(mX.requestPermission(4, time));
+
+            ASSERT_PASS(mX.requestPermission(1, TI(secondsMax, 100)));
+            ASSERT_PASS(mX.requestPermission(2, TI(secondsMin, 0)));
+
+            ASSERT_FAIL(mX.requestPermission(1, TI(secondsMax, 999999999)));
+            ASSERT_FAIL(mX.requestPermission(2, TI(secondsMin, -999999999)));
+
+            ASSERT_FAIL(mX.requestPermission(1, TI(int64Max, 0)));
+            ASSERT_FAIL(mX.requestPermission(1, TI(int64Max, 999999999)));
+            ASSERT_FAIL(mX.requestPermission(1, TI(int64Min, 0)));
+            ASSERT_FAIL(mX.requestPermission(1, TI(int64Min, -999999999)));
+
+            ASSERT_FAIL(mX.requestPermission(0, time));
+            ASSERT_FAIL(mX.requestPermission(5, time));
+
+            ASSERT_FAIL(mX.requestPermission(-1, time));
+            ASSERT_FAIL(mX.requestPermission(INT_MIN, time));
+            ASSERT_FAIL(mX.requestPermission(INT_MAX, time));
+
+            if (veryVerbose) cout << "Negative Testing, 1-Arg\n";
+
+            ASSERT_PASS(mX.requestPermission(TI(secondsMax, 100)));
+            ASSERT_PASS(mX.requestPermission(TI(secondsMin, 0)));
+
+            ASSERT_FAIL(mX.requestPermission(TI(secondsMax, 999999999)));
+            ASSERT_FAIL(mX.requestPermission(TI(secondsMin, -999999999)));
+
+            ASSERT_FAIL(mX.requestPermission(TI(int64Max, 0)));
+            ASSERT_FAIL(mX.requestPermission(TI(int64Max, 999999999)));
+            ASSERT_FAIL(mX.requestPermission(TI(int64Min, 0)));
+            ASSERT_FAIL(mX.requestPermission(TI(int64Min, -999999999)));
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING TEST APPARATUS
+        //
+        // Concerns:
+        //: o That 'toTime' works as specced.
+        //
+        // Plan:
+        //: o Call 'toTime' with table-driven inputs and observe the output is
+        //:   as expected.
+        //
+        // TESTING
+        //   bsls::TimeInterval u::toTime(const char *timeStr);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING TEST APPARATUS\n"
+                             "======================\n";
+
+        static const struct Data {
+            int         d_line;
+            const char *d_timeStr;
+            int         d_seconds;
+            int         d_nanoseconds;
+        } DATA[] = {
+            { L_, "",                       0,         0 },
+            { L_, "0",                      0,         0 },
+            { L_, ":.:",                    0,         0 },
+            { L_, "0:.:",                   0,         0 },
+            { L_, ":0.:",                   0,         0 },
+            { L_, ":.0:",                   0,         0 },
+            { L_, ":.:0",                   0,         0 },
+            { L_, "::0",                    0,         0 },
+            { L_, "1:.:",                  60,         0 },
+            { L_, ":1.:",                   1,         0 },
+            { L_, ":.1:",                   0, 100000000 },
+            { L_, ":.:1",                   0,         1 },
+            { L_, "::1",                    0,         1 },
+            { L_, ".:1",                    0,         1 },
+            { L_, "12:34.100:1",          754, 100000001 },
+            { L_, "2:22.543:123",         142, 543000123 },
+            { L_, "431.87:90",            431, 870000090 },
+            { L_, ".:12345",                0,     12345 },
+            { L_, "0.:12345",               0,     12345 },
+            { L_, "0.0:12345",              0,     12345 },
+            { L_, "0:0.0:12345",            0,     12345 },
+            { L_, "23",                    23,         0 },
+            { L_, "23.4",                  23, 400000000 },
+            { L_, "1:23.3",                83, 300000000 },
+            { L_, "1:23:300000000",        83, 300000000 },
+            { L_, ":83:300000000",         83, 300000000 },
+            { L_, "1:23.987654321",        83, 987654321 },
+            { L_, "1:23.9876543",          83, 987654300 },
+            { L_, "1:23:987654321",        83, 987654321 },
+            { L_, "1:23:987654300",        83, 987654300 },
+            { L_, "45:",                 2700,         0 },
+            { L_, "45:0",                2700,         0 },
+            { L_, "45:0.",               2700,         0 },
+            { L_, "45:0.0",              2700,         0 },
+            { L_, "45:0.0:",             2700,         0 },
+            { L_, "45:0.0:0",            2700,         0 },
+            { L_, "45:.",                2700,         0 },
+            { L_, "45:.:",               2700,         0 } };
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const Data&        data        = DATA[ti];
+            const int          LINE        = data.d_line;
+            const char * const TIME_STR    = data.d_timeStr;
+            const int          SECONDS     = data.d_seconds;
+            const int          NANOSECONDS = data.d_nanoseconds;
+
+            const bsls::TimeInterval EXP(SECONDS, NANOSECONDS);
+            const bsls::TimeInterval ret = u::toTime(TIME_STR);
+
+            ASSERTV(LINE, EXP, ret, EXP == ret);
+
+            const double doubleVal = SECONDS + NANOSECONDS / 1e9;
+            const double retDouble = ret.totalSecondsAsDouble();
+
+            if (veryVerbose) { P_(doubleVal);    P(retDouble); }
+
+            ASSERTV(LINE, doubleVal, retDouble, doubleVal + 1e-10 > retDouble);
+            ASSERTV(LINE, doubleVal, retDouble, doubleVal - 1e-10 < retDouble);
+        }
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING 'initialize', ACCESSORS, AND 'requestPermissionIfValid'
@@ -463,8 +966,6 @@ int main(int argc, char *argv[])
         //   bsls::SystemClockType::Enum clockType() const;
         //   int maxSimultaneousActions() const;
         //   Int64 nanosecondsPerAction() const;
-        //   int requestPermissionIfValid(bool *, int);
-        //   int requestPermissionIfValid(bool *, int, const TimeInterval&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING 'initialize' and ACCESSORS\n"
@@ -474,22 +975,20 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Table-driven testing\n";
 
-        static Obj throttle00 = BDLMT_THROTTLE_INIT(1, u::k_MILLISECOND);
-        static Obj throttle01 = BDLMT_THROTTLE_INIT_REALTIME(
-                                                    1, u::k_MILLISECOND);
-        static Obj throttle02 = BDLMT_THROTTLE_INIT(5, u::k_MILLISECOND);
-        static Obj throttle03 = BDLMT_THROTTLE_INIT_REALTIME(
-                                                    5, u::k_MILLISECOND);
+        static Obj throttle00 = BDLMT_THROTTLE_INIT(1, u::k_MILLI);
+        static Obj throttle01 = BDLMT_THROTTLE_INIT_REALTIME(1, u::k_MILLI);
+        static Obj throttle02 = BDLMT_THROTTLE_INIT(5, u::k_MILLI);
+        static Obj throttle03 = BDLMT_THROTTLE_INIT_REALTIME(5, u::k_MILLI);
         static Obj throttle04 = BDLMT_THROTTLE_INIT(1000, u::k_SECOND);
         static Obj throttle05 = BDLMT_THROTTLE_INIT_REALTIME(
-                                                    1000, u::k_SECOND);
+                                                            1000, u::k_SECOND);
         static Obj throttle16 = BDLMT_THROTTLE_INIT(
                                          10, 10 * TUR::k_NANOSECONDS_PER_HOUR);
         static Obj throttle17 = BDLMT_THROTTLE_INIT_REALTIME(
                                          10, 10 * TUR::k_NANOSECONDS_PER_HOUR);
-        static Obj throttle08 = BDLMT_THROTTLE_INIT(100, 2 * u::k_MILLISECOND);
+        static Obj throttle08 = BDLMT_THROTTLE_INIT(100, 2 * u::k_MILLI);
         static Obj throttle09 = BDLMT_THROTTLE_INIT_REALTIME(
-                                                    100, 2 * u::k_MILLISECOND);
+                                                          100, 2 * u::k_MILLI);
 
         static const struct Data {
             int      d_line;
@@ -498,16 +997,16 @@ int main(int argc, char *argv[])
             Obj     *d_staticThrottle_p;
             bool     d_monotonic;
         } DATA[] = {
-            { L_,    1, u::k_MILLISECOND,                 &throttle00, 1 },
-            { L_,    1, u::k_MILLISECOND,                 &throttle01, 0 },
-            { L_,    5, u::k_MILLISECOND,                 &throttle02, 1 },
-            { L_,    5, u::k_MILLISECOND,                 &throttle03, 0 },
+            { L_,    1, u::k_MILLI,                       &throttle00, 1 },
+            { L_,    1, u::k_MILLI,                       &throttle01, 0 },
+            { L_,    5, u::k_MILLI,                       &throttle02, 1 },
+            { L_,    5, u::k_MILLI,                       &throttle03, 0 },
             { L_, 1000, u::k_SECOND,                      &throttle04, 1 },
             { L_, 1000, u::k_SECOND,                      &throttle05, 0 },
             { L_,   10, 10 * TUR::k_NANOSECONDS_PER_HOUR, &throttle16, 1 },
             { L_,   10, 10 * TUR::k_NANOSECONDS_PER_HOUR, &throttle17, 0 },
-            { L_,  100, 2 * u::k_MILLISECOND,             &throttle08, 1 },
-            { L_,  100, 2 * u::k_MILLISECOND,             &throttle09, 0 }
+            { L_,  100, 2 * u::k_MILLI,                   &throttle08, 1 },
+            { L_,  100, 2 * u::k_MILLI,                   &throttle09, 0 }
         };
         enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
@@ -557,12 +1056,14 @@ int main(int argc, char *argv[])
         {
             // values for 'maxSimultaneousActions'
 
+            const int msaBad = INT_MIN;
             const int msaLo  = -1;
             const int msaMin = 0;
             const int msaMax = INT_MAX;
 
             // values for 'nanosecondsPerAction'
 
+            const Int64 nsaBad = bsl::numeric_limits<Int64>::min();
             const Int64 nsaLo  = -1;
             const Int64 nsaMin = 0;
             const Int64 nsaMax = bsl::numeric_limits<Int64>::max();
@@ -588,11 +1089,19 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(mX.initialize(msaMax, nsaMin, ctValid));
                 ASSERT_PASS(mX.initialize(     1,      1, ctValid));
 
+                ASSERT_FAIL(mX.initialize(msaMin, nsaMin, ctValid));
+
+                ASSERT_FAIL(mX.initialize(msaBad,      1, ctValid));
+                ASSERT_FAIL(mX.initialize(msaBad, nsaMax, ctValid));
                 ASSERT_FAIL(mX.initialize( msaLo,      1, ctValid));
                 ASSERT_FAIL(mX.initialize( msaLo, nsaMax, ctValid));
+                ASSERT_FAIL(mX.initialize(     1, nsaBad, ctValid));
+                ASSERT_FAIL(mX.initialize(msaMax, nsaBad, ctValid));
                 ASSERT_FAIL(mX.initialize(     1,  nsaLo, ctValid));
                 ASSERT_FAIL(mX.initialize(msaMax,  nsaLo, ctValid));
 
+                ASSERT_FAIL(mX.initialize(msaBad,  nsaLo, ctValid));
+                ASSERT_FAIL(mX.initialize( msaLo, nsaBad, ctValid));
                 ASSERT_FAIL(mX.initialize( msaLo,  nsaLo, ctValid));
 
                 ASSERT_FAIL(mX.initialize(msaMin,      1, ctLo));
@@ -609,8 +1118,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_FAIL(mX.initialize( msaLo,  nsaLo, ctHi));
                 ASSERT_FAIL(mX.initialize( msaLo,  nsaLo, ctLo));
-
-                ASSERT_FAIL(mX.initialize(msaMin, nsaMin, ctValid));
             }
         }
       } break;
@@ -640,7 +1147,7 @@ int main(int argc, char *argv[])
 
             int                   leakPeriods[3] = { 100, 10, 1 };
             static const Int64    leakPeriod      = leakPeriods[jj] *
-                                                              u::k_MILLISECOND;
+                                                                    u::k_MILLI;
 
             if (veryVerbose) cout << leakPeriods[jj] <<
                                  " milliseconds, 20 action test, burst = 10\n";
@@ -716,7 +1223,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "1 millsecond leak time, burst 10, 20 periods\n";
         for (int mm = 0; mm < 2; ++mm) {
-            static const Int64    leakPeriod      = 1 * u::k_MILLISECOND;
+            static const Int64    leakPeriod      = 1 * u::k_MILLI;
             static const unsigned burst           = 10;
             const unsigned        numLeakPeriods  = 20;
 

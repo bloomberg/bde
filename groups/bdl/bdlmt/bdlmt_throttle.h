@@ -341,10 +341,12 @@ class Throttle {
         // accumulated by this component.  The behavior is undefined unless
         // this throttle has been initialized (either by calling 'initialize'
         // or using one of the 'BDLMT_THROTTLE_INIT*' macros),
-        // '0 < numActions', and ('numActions <= maxSimultaneousActions' or
-        // '0 == maxSimultaneousActions').  Note that
-        // 'requestPerimissionIfValid', unlike these methods, does not have any
-        // preconditions on the value of 'numActions'.
+        // '0 < numActions', ('numActions <= maxSimultaneousActions' or
+        // '0 == maxSimultaneousActions'), and the value of 'now', if
+        // specified, can be expressed in nanoseconds as a 64-bit signed
+        // integer.  Note that 'requestPerimissionIfValid', unlike these
+        // methods, does not have any preconditions on the value of
+        // 'numActions'.
 
     int requestPermissionIfValid(bool                      *result,
                                  int                        numActions);
@@ -361,13 +363,14 @@ class Throttle {
         // supplied, the current time is obtained from the configured system
         // clock.  If '*result' is set to 'true' then
         // 'numActions * nanosecondsPerActions' is added to the time debt
-        // accumulated by this component.  Return 0 if '0 <= numActions' and
+        // accumulated by this component.  Return 0 if '0 <= numActions',
         // ('numActions <= maxSimultaneousActions' or
-        // '0 == maxSimultaneousActions'), and a non-zero value otherwise.  The
-        // behavior is undefined unless this throttle has been initialized
-        // (either by calling 'initialize' or using one of the
-        // 'BDLMT_THROTTLE_INIT*' macros).  Note that unless 0 is returned,
-        // '*result' is unaffected.
+        // '0 == maxSimultaneousActions'), and the value of 'now', if
+        // specified, can be expressed in nanoseconds as a 64-bit signed
+        // integer, and a non-zero value otherwise.  The behavior is undefined
+        // unless this throttle has been initialized (either by calling
+        // 'initialize' or using one of the 'BDLMT_THROTTLE_INIT*' macros).
+        // Note that unless 0 is returned, '*result' is unaffected.
 
     // ACCESSOR
     bsls::SystemClockType::Enum clockType() const;
@@ -471,8 +474,20 @@ int Throttle::requestPermissionIfValid(bool                      *result,
                                        int                        numActions,
                                        const bsls::TimeInterval&  now)
 {
+    enum { k_BILLION     = 1000 * 1000 * 1000,
+           k_MAX_SECONDS = LLONG_MAX / k_BILLION,
+           k_MIN_SECONDS = LLONG_MIN / k_BILLION };
+
     if (numActions <= 0 || (d_maxSimultaneousActions < numActions &&
                                               0 != d_maxSimultaneousActions)) {
+        return -1;                                                    // RETURN
+    }
+    if (k_MAX_SECONDS < now.seconds() || now.seconds() < k_MIN_SECONDS) {
+        return -1;                                                    // RETURN
+    }
+    const Int64 sns = k_BILLION * now.seconds(); // Seconds in NanoSeconds
+    if (0 <= sns ? LLONG_MAX - sns < now.nanoseconds()
+                 : LLONG_MIN - sns > now.nanoseconds()) {
         return -1;                                                    // RETURN
     }
 
