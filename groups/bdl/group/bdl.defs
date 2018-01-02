@@ -1,0 +1,69 @@
+# BDL external definition options
+
+*-                      _       OPTS_FILE       = bdl.defs
+
+#==============================================================================
+# extra directory for install: uc(package name less '+' prefix)_INCLUDE
+*			_	STL_CXXFLAGS	=
+*			_	STL_LDFLAGS	=
+*			_	STL_DEFINES	=
+
+# BDE_ROOT is defined by bde_build.pl; it is the source root where bde was
+# found, and is the same as ROOT_LOCN in a non-multirooting scenario
+
+#===
+
+windows                 _       STL_DEFINES     = /D_STLP_USE_STATIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
+!! windows              shr     STL_DEFINES     = /D_STLP_USE_DYNAMIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
+
+# This library provides CryptAcquireContext and CryptGenRandom which are used
+# by bdlb.
+-- windows-             _       BDE_ENDLDFLAGS  =  Advapi32.lib
+
+# this are redundant with definitions in bsl.defs
+# # enable/disable STLport debug
+# !! unix-*-*-*-* 	_       STL_DBGDEFS     =
+# !! unix-*-*-*-* 	dbg     STL_DBGDEFS     =
+# unix-*-*-*-*    	_       STL_DEFINES     = $(STL_DBGDEFS)
+#
+# # enable/disable STLport exceptions
+# !! unix-*-*-*-* 	_       STL_EXCDEFS     = -D_STLP_NO_EXCEPTIONS
+# !! unix-*-*-*-* 	exc     STL_EXCDEFS     =
+# unix-*-*-*-*    	_       STL_DEFINES     = $(STL_EXCDEFS)
+#
+# # enable/disable STLport threads
+# !! unix-*-*-*-* 	_       STL_MTDEFS      = -D_NOTHREADS -D_STLP_NO_THREADS
+# !! unix-*-*-*-* 	mt      STL_MTDEFS      =
+# unix-*-*-*-*    	_       STL_DEFINES     = $(STL_MTDEFS)
+#
+# # shared library support
+# windows			shr	STL_DEFINES	= /D_STLP_USE_DECLSPEC
+#
+# # STL_NATIVE* defines explicit locations of native STL, used in packages that
+# # are beneath bde+stlport until their test drivers no longer use iostreams;
+# # set STL_INCLUDE to STL_NATIVEINC and STL_LDFLAGS to STL_NATIVELIB
+# unix-dgux		_	STL_NATIVEINC	= -I/usr/local/como/libcomo
+# unix-dgux		_	STL_NATIVELIB   = -L/usr/local/como/libcomo -lcomo
+# !! unix-SunOS-*-*-gcc	_	STL_CXXFLAGS	=
+# windows			_	STL_DEFINES	= /D_STLP_DONT_FORCE_MSVC_LIB_NAME
+#
+# #===
+#
+# *			_	BDE_CXXFLAGS	= $(STL_DEFINES) $(STL_CXXFLAGS)
+# *			_	BDE_CFLAGS	= $(STL_DEFINES) $(STL_CFLAGS)
+# *			_	BDE_CXXINCLUDE  = $(STL_INCLUDE)
+# *			_	BDE_LDFLAGS	= $(STL_LDFLAGS)
+# # AIX compiler requires -I directives on link line to do lazy template
+# # instantiation.  The $(BDE_INCLUDES) variable is not defined in this .opts file
+# # but is constructed automatically by the build tool to have -I options for
+# # all needed package dependencies (including BDE_INCLUDE (no S) above)
+# unix-AIX-*-*-*  	_	BDE_LDFLAGS	= $(BDE_INCLUDES)
+#
+# # on Sun and Forte6 we need sunmath
+#
+# unix-SunOS-*-*-cc-5.2 	_ 	BDE_EXTRALIBS = -lsunmath
+# !! unix-SunOS-*-*-cc-5.5  _	BDE_EXTRALIBS =
+#
+# -- *			_	BDE_ENDLDFLAGS = $(BDE_EXTRALIBS)
+
+#==============================================================================

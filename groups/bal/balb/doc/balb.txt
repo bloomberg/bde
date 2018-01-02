@@ -1,0 +1,49 @@
+ balb.txt
+
+@PURPOSE: Provide common application-level facilities.
+
+@MNEMONIC: Basic Application Environment Application services (balb)
+
+@SEE_ALSO: baem
+
+@DESCRIPTION: The 'balb' package provides support for an assortment of common
+ application-level services (e.g., command-line processing).  In particular,
+ 'balb' includes the following:
+
+: o A mechanism for monitoring and reporting the observable performance of a
+:   process.
+:
+: o Classes for (1) defining commands (as short strings), (2) passing these
+:   commands through a pipe-channel to a running process, and (3) registering
+:   callback functions to be invoked upon reception of such commands.
+:
+: o A multi-process performance reporting mechanism and a value-semantic type
+:   to represent metrics.  Note that the entire {'baem'} package is dedicated
+:   to metrics gathering.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'balb' package currently has 4 components having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. balb_controlmanager
+     balb_performancemonitor
+     balb_pipecontrolchannel
+     balb_testmessages
+..
+
+/Component Synopsis
+/------------------
+: 'balb_controlmanager':
+:      Provide a mechanism for mapping control messages to callbacks.
+:
+: 'balb_performancemonitor':
+:      Provide a mechanism to collect process performance measures.
+:
+: 'balb_pipecontrolchannel':
+:      Provide a mechanism for reading control messages from a named pipe.
+:
+: 'balb_testmessages':
+:      Provide value-semantic attribute classes

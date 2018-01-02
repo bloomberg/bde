@@ -1,0 +1,32 @@
+ bblscm.txt
+
+@PURPOSE: Provide versioning information for BDE library components.
+
+@MNEMONIC: Basic Business Library Source Control Management (bblscm)
+
+@SEE_ALSO: bslscm
+
+@DESCRIPTION: This package provides versioning information that is incorporated
+ into every release of the 'bbl' Package Group Library.  This versioning
+ information is in turn available to all clients of 'bbl' both at run-time and
+ by inspection of appropriate '.o' files.  Note that, except for the package
+ name, this version functionality is repeated in every package group within the
+ BDE library suite.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bblscm' package currently has 2 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+..
+  2. bblscm_version
+
+  1. bblscm_versiontag
+..
+
+/Component Synopsis
+/------------------
+: 'bblscm_version':
+:      Provide source control management (versioning) information.
+:
+: 'bblscm_versiontag':
+:      Provide versioning information for the 'bbl' package group.

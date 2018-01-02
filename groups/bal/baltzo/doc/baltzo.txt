@@ -1,0 +1,113 @@
+ baltzo.txt
+
+@PURPOSE: Provide timezone data for use with timezone-enabled vocabulary types.
+
+@MNEMONIC: Basic Application Environment TimeZone (Olson) (baltzo)
+
+@DESCRIPTION: The 'baltzo' package provides facilities to convert a local time
+ representation for one time zone into a local time representation for another
+ time zone.  Local time zone representations can be any of several time
+ vocabulary types (e.g., 'balt_LocalDatetime', 'bdet_Datetime').  Time zones
+ are here specified using *time* *zone* *identifiers* (e.g.,
+ "America/New_York", "America/Indiana/Indianapolis", "Europe/Rome",
+ "Pacific/Honolulu").
+
+ The {'baetzo_timezoneutil'} component provides functions that, given a a time
+ zone identifier, can provide information about the timezone, can initialize
+ various datetime objects (e.g., 'baetzo::LocalDatetime', 'bdtl::Datetime',
+ 'bdlt::DatetimeTz), and can convert between local datetime values and UTC
+ values.  These functions address the most common usage scenarios.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'baltzo' package currently has 19 components having 8 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  8. baltzo_localtimeoffsetutil
+     baltzo_windowstimezoneutil
+
+  7. baltzo_timezoneutil
+
+  6. baltzo_timezoneutilimp
+
+  5. baltzo_defaultzoneinfocache
+
+  4. baltzo_datafileloader
+     baltzo_testloader
+     baltzo_zoneinfocache
+
+  3. baltzo_loader
+     baltzo_zoneinfobinaryreader
+     baltzo_zoneinfoutil
+
+  2. baltzo_localtimeperiod
+     baltzo_zoneinfo
+
+  1. baltzo_dstpolicy
+     baltzo_errorcode
+     baltzo_localdatetime
+     baltzo_localtimedescriptor
+     baltzo_localtimevalidity
+     baltzo_zoneinfobinaryheader
+..
+
+/Component Synopsis
+/------------------
+: 'baltzo_datafileloader':
+:      provide a concrete 'baltzo::Loader' for Zoneinfo binary files.
+:
+: 'baltzo_defaultzoneinfocache':
+:      Provide facilities to manage a default Zoneinfo cache object.
+:
+: 'baltzo_dstpolicy':
+:      Enumerate the set of daylight-saving time (DST) policy values.
+:
+: 'baltzo_errorcode':
+:      Enumerate the set of named errors for the 'baltzo' package.
+:
+: 'baltzo_loader':
+:      Provide a protocol for obtaining information about a time zone.
+:
+: 'baltzo_localdatetime':
+:      Provide an attribute class for time-zone-aware datetime values.
+:
+: 'baltzo_localtimedescriptor':
+:      Provide an attribute class for characterizing local time values.
+:
+: 'baltzo_localtimeoffsetutil':
+:      Provide utilities for a 'bdetu_systemtime' local time callback.
+:
+: 'baltzo_localtimeperiod':
+:      Provide a type describing local time over a time period.
+:
+: 'baltzo_localtimevalidity':
+:      Enumerate the set of local time validity codes.
+:
+: 'baltzo_testloader':
+:      Provide a test implementation of the 'baltzo::Loader' protocol.
+:
+: 'baltzo_timezoneutil':
+:      Provide utilities for converting times among different time zones.
+:
+: 'baltzo_timezoneutilimp':
+:      Implement utilities for converting times between time zones.
+:
+: 'baltzo_windowstimezoneutil':
+:      Provide utilities to map Zoneinfo identifiers to other systems.
+:
+: 'baltzo_zoneinfo':
+:      Provide a value type to represent a time zone.
+:
+: 'baltzo_zoneinfobinaryheader':
+:      Provide an attribute class for Zoneinfo binary-file header data.
+:
+: 'baltzo_zoneinfobinaryreader':
+:      Provide utilities for reading the Zoneinfo binary data format.
+:
+: 'baltzo_zoneinfocache':
+:      Provide a cache for time-zone information.
+:
+: 'baltzo_zoneinfoutil':
+:      Provide utility operations on 'baltzo::Zoneinfo' objects.

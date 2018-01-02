@@ -1,0 +1,6 @@
+{
+    "project_id"  : "bsl-oss",
+    "conduit_uri" : "https://review.openbloomberg.com/",
+    "immutable_history" : true,
+    "base" : "git:merge-base(origin/master), arc:prompt"
+}

@@ -1,0 +1,44 @@
+ bdlc.txt
+
+@PURPOSE: Provide container vocabulary types.
+
+@MNEMONIC: Basic Development Library Container (bdlc)
+
+@DESCRIPTION: The 'bdlc' ("Basic Development Library Container") package
+ provides container vocabulary types.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlc' package currently has 6 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bdlc_packedintarrayutil
+
+  1. bdlc_bitarray
+     bdlc_hashtable
+     bdlc_indexclerk
+     bdlc_packedintarray
+     bdlc_queue                                          !DEPRECATED!
+..
+
+/Component Synopsis
+/------------------
+: 'bdlc_bitarray':
+:      Provide a space-efficient, sequential container of boolean values.
+:
+: 'bdlc_hashtable':
+:      Provide a double-hashed table with utility.
+:
+: 'bdlc_indexclerk':
+:      Provide a manager of reusable, non-negative integer indices.
+:
+: 'bdlc_packedintarray':
+:      Provide an extensible, packed array of integral values.
+:
+: 'bdlc_packedintarrayutil':
+:      Provide common non-primitive operations on 'bdlc::PackedIntArray'.
+:
+: 'bdlc_queue':                                          !DEPRECATED!
+:      Provide an in-place double-ended queue of 'T' values.

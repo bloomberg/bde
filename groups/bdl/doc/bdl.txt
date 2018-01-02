@@ -1,0 +1,94 @@
+ bdl.txt
+
+@PURPOSE: Provide vocabulary types, messaging, containers, and parsers.
+
+@MNEMONIC: Basic Development Library (bdl)
+
+@DESCRIPTION: The 'bdl' ("Basic Development Library") package group contains
+ platform-independent system-level utilities, concrete allocators derived from
+ the 'bslma::Allocator' protocol, vocabulary types for date, time, and calendar
+ values, several containers (e.g., packed containers), and a decimal floating
+ point library.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdl' package group currently has 15 packages having 9 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
+..
+  9. bdlat
+     bdld
+
+  8. bdldfp
+     bdlmt
+     bdlpcre
+
+  7. bdlcc
+     bdls
+
+  6. bdlt
+
+  5. bdlc
+
+  4. bdlde
+     bdlma
+
+  3. bdlb
+
+  2. bdlf
+     bdlsb
+     bdlsta
+
+  1. bdlscm
+..
+
+/Package Synopsis
+/----------------
+: 'bdlat':
+:      Provide generic functions to manipulate attribute types
+:
+: 'bdlb':
+:      Provide utilities on basic types.
+:
+: 'bdlc':
+:      Provide container vocabulary types.
+:
+: 'bdlcc':
+:      Provide containers that support concurrent (multi-thread) access.
+:
+: 'bdld':
+:      Provide a variant type ('Datum') and supporting utilities.
+:
+: 'bdlde':
+:      Mechanisms for standard encodings and hashings, e.g., base64, md5.
+:
+: 'bdldfp':
+:      Provide IEEE-754 2008 decimal floating-point types and utilities.
+:
+: 'bdlf':
+:      Provide signature-specific function objects (functors).
+:
+: 'bdlma':
+:      Provide allocators, pools, and other memory-management tools.
+:
+: 'bdlmt':
+:      Provides thread pools and event schedulers.
+:
+: 'bdlpcre':
+:      Provide a mechanism to process Perl-compatible regular expressions.
+:
+: 'bdls':
+:      Provide platform-independent system-level utilities.
+:
+: 'bdlsb':
+:      Provide concrete 'streambuf' implementations.
+:
+: 'bdlscm':
+:      Provide versioning information for BDE library components.
+:
+: 'bdlsta':
+:      Provide basic statistics tools.
+:
+: 'bdlt':
+:      Provide date and time vocabulary types, and related utilities.

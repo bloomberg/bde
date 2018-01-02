@@ -1,0 +1,8 @@
+bslh_defaulthashalgorithm
+bslh_defaultseededhashalgorithm
+bslh_hash
+bslh_seededhash
+bslh_seedgenerator
+bslh_siphashalgorithm
+bslh_spookyhashalgorithm
+bslh_spookyhashalgorithmimp

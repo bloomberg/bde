@@ -1,0 +1,143 @@
+ bsltf.txt
+
+@PURPOSE: Provide a set of utilities and types to help with testing.
+
+@MNEMONIC: Basic Standard Library Test Facility (bsltf)
+
+@DESCRIPTION: This package mainly provides a set test types and utilities that
+ operates on those types, which can help simplify, particularly for templates,
+ the implementation of test drivers.
+
+ See {'bsltf_templatetestfacility'|DESCRIPTION} for an overview of the
+ facilities in this package and examples of their use.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bsltf' package currently has 29 components having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  5. bsltf_convertiblevaluewrapper
+     bsltf_stdstatefulallocator
+     bsltf_testvaluesarray
+
+  4. bsltf_templatetestfacility
+
+  3. bsltf_allocemplacabletesttype
+     bsltf_emplacabletesttype
+
+  2. bsltf_allocargumenttype
+     bsltf_argumenttype
+     bsltf_movablealloctesttype
+     bsltf_movabletesttype
+     bsltf_moveonlyalloctesttype
+
+  1. bsltf_allocbitwisemoveabletesttype
+     bsltf_alloctesttype
+     bsltf_bitwisecopyabletesttype
+     bsltf_bitwisemoveabletesttype
+     bsltf_degeneratefunctor
+     bsltf_enumeratedtesttype
+     bsltf_evilbooleantype
+     bsltf_movestate
+     bsltf_nonassignabletesttype
+     bsltf_noncopyconstructibletesttype
+     bsltf_nondefaultconstructibletesttype
+     bsltf_nonequalcomparabletesttype
+     bsltf_nontypicaloverloadstesttype
+     bsltf_simpletesttype
+     bsltf_stdallocatoradaptor
+     bsltf_stdalloctesttype
+     bsltf_stdtestallocator
+     bsltf_uniontesttype
+..
+
+/Component Synopsis
+/------------------
+: 'bsltf_allocargumenttype':
+:      Provide an allocating test class to represent function arguments.
+:
+: 'bsltf_allocbitwisemoveabletesttype':
+:      Provide a class that allocates memory and is bitwise-moveable.
+:
+: 'bsltf_allocemplacabletesttype':
+:      Provide an allocating test class used to test 'emplace' methods.
+:
+: 'bsltf_alloctesttype':
+:      Provide a class for testing that allocates with 'bslma::Allocator'.
+:
+: 'bsltf_argumenttype':
+:      Provide a non-allocating class to test variadic function arguments.
+:
+: 'bsltf_bitwisecopyabletesttype':
+:      Provide a bitwise-copyable test class.
+:
+: 'bsltf_bitwisemoveabletesttype':
+:      Provide a bitwise-moveable test class.
+:
+: 'bsltf_convertiblevaluewrapper':
+:      Provide a wrapper class, convertible to a supplied value.
+:
+: 'bsltf_degeneratefunctor':
+:      Provide an awkward type to adapt a user-supplied functor.
+:
+: 'bsltf_emplacabletesttype':
+:      Provide a non-allocating test class used to test 'emplace' methods.
+:
+: 'bsltf_enumeratedtesttype':
+:      Provide an enumerated test type.
+:
+: 'bsltf_evilbooleantype':
+:      Provide the most awkward type that is convertible to 'bool'.
+:
+: 'bsltf_movablealloctesttype':
+:      Provide an allocating test class that records when moved from.
+:
+: 'bsltf_movabletesttype':
+:      Provide a non-allocating test class that records when moved from.
+:
+: 'bsltf_moveonlyalloctesttype':
+:      Provide testing type that is move-only & uses 'bslma' allocators.
+:
+: 'bsltf_movestate':
+:      Provide an enumeration of move-state, including unsupported.
+:
+: 'bsltf_nonassignabletesttype':
+:      Provide an attribute class to which can not be assigned.
+:
+: 'bsltf_noncopyconstructibletesttype':
+:      Provide an attribute class that is not copy constructible.
+:
+: 'bsltf_nondefaultconstructibletesttype':
+:      Provide an attribute class that is not default constructible.
+:
+: 'bsltf_nonequalcomparabletesttype':
+:      Provide an attribute class that is not equal comparable.
+:
+: 'bsltf_nontypicaloverloadstesttype':
+:      Provide a class that overloads the non-typical operators.
+:
+: 'bsltf_simpletesttype':
+:      Provide a non-allocating test class without type traits.
+:
+: 'bsltf_stdallocatoradaptor':
+:      Provide a mechanism to propagate standard allocator state.
+:
+: 'bsltf_stdalloctesttype':
+:      Provide a class for testing that allocates with standard allocator
+:
+: 'bsltf_stdstatefulallocator':
+:      Provide a minimal standard compliant allocator.
+:
+: 'bsltf_stdtestallocator':
+:      Provide a minimal standard compliant allocator.
+:
+: 'bsltf_templatetestfacility':
+:      Provide utilities to help with testing templates.
+:
+: 'bsltf_testvaluesarray':
+:      Provide a container for values used for testing.
+:
+: 'bsltf_uniontesttype':
+:      Provide an union test type.

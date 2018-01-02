@@ -1,0 +1,118 @@
+ bbldc.txt
+
+@PURPOSE: Provide day-count convention implementations.
+
+@MNEMONIC: Basic Business Library Day-Count (bbldc)
+
+@DESCRIPTION: The 'bbldc' package provides day-count convention
+ implementations, an enumeration-based set of dispatch components, and two
+ abstract interfaces with parameterized adapters for the day-count convention
+ implementations.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bbldc' package currently has 24 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bbldc_basicbasicdaycountadapter
+     bbldc_basicdaterangedaycountadapter
+     bbldc_basicdaycountutil
+     bbldc_calendardaterangedaycountadapter
+     bbldc_calendardaycountutil
+     bbldc_perioddaterangedaycountadapter
+     bbldc_perioddaycountutil
+     bbldc_terminatedbasicdaycountadapter
+     bbldc_terminateddaterangedaycountadapter
+     bbldc_terminateddaycountutil
+
+  1. bbldc_basicactual360
+     bbldc_basicactual365fixed
+     bbldc_basicdaycount
+     bbldc_basicisdaactualactual
+     bbldc_basicisma30360
+     bbldc_basicnl365
+     bbldc_basicpsa30360eom
+     bbldc_basicsia30360eom
+     bbldc_basicsia30360neom
+     bbldc_calendarbus252
+     bbldc_daterangedaycount
+     bbldc_daycountconvention
+     bbldc_periodicmaactualactual
+     bbldc_terminatedisda30360eom
+..
+
+/Component Synopsis
+/------------------
+: 'bbldc_basicactual360':
+:      Provide stateless functions for the Actual/360 convention.
+:
+: 'bbldc_basicactual365fixed':
+:      Provide stateless functions for the Actual/365 (fixed) convention.
+:
+: 'bbldc_basicbasicdaycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_basicdaterangedaycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_basicdaycount':
+:      Provide a protocol for basic day-count calculations.
+:
+: 'bbldc_basicdaycountutil':
+:      Support for day-count calculations of 'enum'-specified conventions.
+:
+: 'bbldc_basicisdaactualactual':
+:      Provide stateless functions for the ISDA Actual/Actual convention.
+:
+: 'bbldc_basicisma30360':
+:      Provide stateless functions for the ISMA 30/360 convention.
+:
+: 'bbldc_basicnl365':
+:      Provide stateless functions for the NL/365 convention.
+:
+: 'bbldc_basicpsa30360eom':
+:      Provide stateless functions for PSA 30/360 end-of-month convention.
+:
+: 'bbldc_basicsia30360eom':
+:      Provide stateless functions for SIA 30/360 end-of-month convention.
+:
+: 'bbldc_basicsia30360neom':
+:      Provide stateless functions for the SIA-30/360-neom convention.
+:
+: 'bbldc_calendarbus252':
+:      Provide stateless functions for calendar-based BUS-252.
+:
+: 'bbldc_calendardaterangedaycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_calendardaycountutil':
+:      Support for day-count calculations of 'enum'-specified conventions.
+:
+: 'bbldc_daterangedaycount':
+:      Provide a protocol for date-range limited day-count calculations.
+:
+: 'bbldc_daycountconvention':
+:      Provide an enumeration of 'bbldc' day-count conventions.
+:
+: 'bbldc_perioddaterangedaycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_perioddaycountutil':
+:      Support for day-count calculations of 'enum'-specified conventions.
+:
+: 'bbldc_periodicmaactualactual':
+:      Provide stateless functions for period-based ICMA Actual/Actual.
+:
+: 'bbldc_terminatedbasicdaycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_terminateddaterangedaycountadapter':
+:      Provide a parameterized day-count convention implementation.
+:
+: 'bbldc_terminateddaycountutil':
+:      Support for day-count calculations of 'enum'-specified conventions.
+:
+: 'bbldc_terminatedisda30360eom':
+:      Provide stateless functions for ISDA 30/360 eom convention.

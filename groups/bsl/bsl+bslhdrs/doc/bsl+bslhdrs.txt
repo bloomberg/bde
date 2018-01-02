@@ -1,0 +1,99 @@
+ bsl+bslhdrs.txt
+
+@PURPOSE: Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
+
+@MNEMONIC: Basic Standard Library BSL HeaDerS (bsl+bslhdrs)
+
+@DESCRIPTION: This non-conventional package provides *no* components, only
+ headers which enable BDE-STL mode at Bloomberg.  See the package-level
+ documentation at {'bsl+stdhdrs'} for details.
+
+/Hierarchical Synopsis
+/---------------------
+..
+  2. bsl_fstream.h
+     bsl_iomanip.h
+     bsl_iostream.h
+     bsl_istream.h
+     bsl_locale.h
+     bsl_ostream.h
+     bsl_streambuf.h
+     bsl_strstream.h
+
+  1. bsl_algorithm.h
+     bsl_bitset.h
+     bsl_c_assert.h
+     bsl_c_ctype.h
+     bsl_c_errno.h
+     bsl_c_float.h
+     bsl_c_iso646.h
+     bsl_c_limits.h
+     bsl_c_locale.h
+     bsl_c_math.h
+     bsl_c_setjmp.h
+     bsl_c_signal.h
+     bsl_c_stdarg.h
+     bsl_c_stddef.h
+     bsl_c_stdio.h
+     bsl_c_stdlib.h
+     bsl_c_string.h
+     bsl_c_sys_time.h
+     bsl_c_time.h
+     bsl_c_wchar.h
+     bsl_c_wctype.h
+     bsl_cassert.h
+     bsl_cctype.h
+     bsl_cerrno.h
+     bsl_cfloat.h
+     bsl_ciso646.h
+     bsl_climits.h
+     bsl_clocale.h
+     bsl_cmath.h
+     bsl_complex.h
+     bsl_csetjmp.h
+     bsl_csignal.h
+     bsl_cstdarg.h
+     bsl_cstddef.h
+     bsl_cstdio.h
+     bsl_cstdlib.h
+     bsl_cstring.h
+     bsl_ctime.h
+     bsl_cwchar.h
+     bsl_cwctype.h
+     bsl_deque.h
+     bsl_exception.h
+     bsl_functional.h
+     bsl_hash_map.h
+     bsl_hash_set.h
+     bsl_ios.h
+     bsl_iosfwd.h
+     bsl_iterator.h
+     bsl_limits.h
+     bsl_list.h
+     bsl_map.h
+     bsl_memory.h
+     bsl_new.h
+     bsl_numeric.h
+     bsl_queue.h
+     bsl_set.h
+     bsl_slist.h
+     bsl_sstream.h
+     bsl_stack.h
+     bsl_stdexcept.h
+     bsl_string.h
+     bsl_typeinfo.h
+     bsl_utility.h
+     bsl_valarray.h
+     bsl_vector.h
+..
+
+/Component Synopsis
+/------------------
+ The stated purpose of each header with a 'c_' in their name is:
+..
+  Provide functionality of the corresponding C Standard header.
+..
+ For each of the others, the purpose is:
+..
+  Provide functionality of the corresponding C++ Standard header.
+..

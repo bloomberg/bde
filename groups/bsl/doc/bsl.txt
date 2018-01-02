@@ -1,0 +1,215 @@
+ bsl.txt
+
+@PURPOSE: Provide a comprehensive foundation for component-based development.
+
+@MNEMONIC: Basic Standard Library (bsl)
+
+@DESCRIPTION: The 'bsl' ("Basic Standard Library") package group contains
+ various packages that provide platform-specific classes, meta-functions,
+ defensive programming mechanisms, a framework for component testing, memory
+ allocation protocols and algorithms, and a C++ standard library
+ implementation.
+
+ Note that the C++ standard library is implemented in the 'bsl' namespace
+ instead of the standard 'std' namespace.  This allow clients to use both the
+ native compiler provided C++ standard library together with the Bloomberg
+ provided C++ standard library in the same translation unit.
+
+ If clients wish to use the Bloomberg provided standard library as the default
+ standard library (as in the case with Bloomberg managed code), specifying
+ '-DBSL_OVERRIDES_STD' on the compile line will render 'std' as merely an alias
+ to 'bsl' (i.e., 'std::vector' will be the same as 'bsl::vector').  This is
+ also known as the 'BDE-STL' mode.  For more information, please see the
+ package level documentation in 'bsl+stdhdrs'.
+
+ The 'bsl' package group is the foundation of the firm-wide BDE library and has
+ no dependencies beyond the allowed OS and runtime environment dependencies.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bsl' package group currently has 16 packages having 12 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+ The order of packages within each level is not architecturally significant,
+ just alphabetical.
+..
+  12. bslmt
+      bslx
+
+  11. bslim
+
+  10. bsl+stdhdrs
+
+   9. bsl+bslhdrs
+
+   8. bslstp                                             !DEPRECATED!
+
+   7. bslstl
+
+   6. bslalg
+
+   5. bsltf
+
+   4. bslh
+      bslma
+
+   3. bsldoc
+      bslmf
+
+   2. bslscm
+
+   1. bslfwd                                             !DEPRECATED!
+      bsls
+..
+ Note that the 'bsl+stdhdrs' package is only a compatibility layer for
+ Bloomberg managed code.  It is not an essential package for the rest of the
+ BDE libraries (i.e., all other package groups above 'bsl' will compile and
+ function without 'bsl+stdhdrs').  This package implements the logic required
+ for 'BDE-STL' mode.
+
+ Note that required source control package 'bslscm' depends on 'bsls'; this
+ behavior is unique to 'bsl', although it is temporarily also in 'bde' for
+ historic reasons, since logically *every* other package should depend on
+ 'bslscm'.
+
+/Package Synopsis
+/----------------
+: 'bsl+bslhdrs':
+:      Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
+:
+: 'bsl+stdhdrs':
+:      Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
+:
+: 'bslalg':
+:      Provide algorithms and traits used by the BDE STL implementation.
+:
+: 'bsldoc':
+:      Provide documentation of terms and concepts used throughout BDE.
+:
+: 'bslfwd':                                              !DEPRECATED!
+:      Provide compatibility for clients using single-level namespace
+:
+: 'bslh':
+:      Provide a framework for hashing types using swappable algorithms.
+:
+: 'bslim':
+:      Provide implementation mechanisms.
+:
+: 'bslma':
+:      Provide allocators, guards, and other memory-management tools.
+:
+: 'bslmf':
+:      Provide meta-function versions of useful coding constructs.
+:
+: 'bslmt':
+:      Support for multi-threading and thread-safe processes.
+:
+: 'bsls':
+:      Provide system-level utilities for 'bsl'.
+:
+: 'bslscm':
+:      Provide versioning information for BDE library components.
+:
+: 'bslstl':
+:      Provide replacement classes for STL constructs.
+:
+: 'bslstp':                                              !DEPRECATED!
+:      Provide replacement classes (adopted from STLport) for STL.
+:
+: 'bsltf':
+:      Provide a set of utilities and types to help with testing.
+:
+: 'bslx':
+:      Define externalization protocols and provide implementations.
+
+/Package Overview
+/----------------
+ This section provides a brief introduction to the packages of the 'bsl'
+ package group.  Note that several packages, especially at lower levels in the
+ physical hierarchy, are primarily intended for use by other packages within
+ 'bsl'.  See the respective Package Level documents for more details.
+
+/'bsl+bslhdrs'
+/- - - - - - -
+ The {'bsl+bslhdrs'} package provides the 'bsl' version of the standard C++
+ library (e.g., 'bsl_vector.h' instead of 'vector', 'bsl_algorithm.h' instead
+ of 'algorithm').  Users of 'bsl' can include these headers to obtain the
+ corresponding C++ STL functionalities.
+
+/'bsl+stdhdrs'
+/- - - - - - -
+ The {'bsl+stdhdrs'} package provides a compatibility layer to for the
+ 'BDE-STL' mode.  When users include standard C++ headers from this directory
+ (e.g., 'vector', 'algorithm'), and use standard STL types such as
+ 'std::vector', 'std::cout', users will be using the corresponding 'bsl'
+ version instead (i.e., 'std::vector' is the same as 'bsl::vector').
+
+/'bslalg'
+/ - - - -
+ The {'bslalg'} package provides a variety of lower-level algorithms,
+ comparisons, and traits.
+
+/'bsldoc'
+/ - - - -
+ The {'bsldoc'} package documents key terminology and concepts used throughout
+ BDE documentation.  Note that the components in this package consist entirely
+ of comments, no code.
+
+/'bslh'
+/ - - -
+ The {'bslh'} package provides standard hashing algorithms and components
+ allowing the application of those hashing algorithms to types in a modular
+ way.
+
+/'bslim'
+/- - - -
+ The {'bslim'} package provides implementation mechanisms for features that
+ must have identical syntax and semantics in many disparate classes.
+
+/'bslma'
+/- - - -
+ {'bslma'} provides memory allocation and related proctor and handle objects.
+
+/'bslmf'
+/- - - -
+ The {'bslmf'} package provides low-level "meta-functions" implementing
+ "traits" and other useful properties of types, determined at compile-time.
+
+/'bsls'
+/ - - -
+ The {'bsls'} package provides the needed platform-independent definitions and
+ utilities (with platform-specific implementations) so that the rest of the bsl
+ library, and all conforming applications within the Development Framework, can
+ be written in a truly portable, platform-neutral dialect of C++ -- one having
+ dependency on 'bsls', but on no other system-specific services.  Among the
+ issues dealt with in 'bsls' are hardware, operating system, and compiler
+ definitions, "endian-ness" and alignment of type representation in physical
+ memory, bit-manipulation utilities, and a uniform interface to system services
+ (e.g., timers).
+
+/'bslscm'
+/ - - - -
+ The {'bslscm'} package contains only two components, 'bslscm_version' and
+ 'bslscm_versiontag'.  The first of these components is included by every other
+ component in 'bsl', and provides versioning information for the package group.
+ Users may use the 'bslscm_version' facilities to query a particular 'bsl'
+ library for its version information.  The second component defines macros that
+ can be used for conditional-compilation based on 'bsl' version information.
+
+/'bslstl'
+/ - - - -
+ The {'bslstl'} package provides implementations of certain containers of the
+ C++ standard library using the 'bslma' memory allocation model, algorithms and
+ traits in 'bslalg' and meta-functions in 'bslmf'.
+
+/'bsltf'
+/- - - -
+ The {'bsltf'} package provides a set test types and utilities that operates on
+ those types, which can help simplify, particularly for template, the
+ implementation of test drivers.
+
+/'bslx'
+/ - - -
+ The {'bslx'} package defines (via documentation) the BDEX protocol for
+ externalization (i.e., for an "out stream") and "unexternalization" (i.e., for
+ an "in stream"), and provides concrete byte-array-based stream implementations
+ of each kind of stream, including streams for testing.

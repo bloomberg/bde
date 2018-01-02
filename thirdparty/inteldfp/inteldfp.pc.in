@@ -1,0 +1,13 @@
+prefix=@prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: Intel Decimal Floating-Point Math Library
+Description:
+URL: https://software.intel.com/en-us/articles/intel-decimal-floating-point-math-library
+Version: 2.0.1
+Requires:
+Requires.private:
+Libs: -L${libdir} @libs@
+Libs.private:
+Cflags: -I${includedir} @cflags@

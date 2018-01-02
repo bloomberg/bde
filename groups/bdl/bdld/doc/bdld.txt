@@ -1,0 +1,63 @@
+ bdld.txt
+
+@PURPOSE: Provide a variant type ('Datum') and supporting utilities.
+
+@MNEMONIC: Basic Development Library Datum (bdlb)
+
+@DESCRIPTION: The 'bdld' package defines in 'bdld_datum' a type that can
+ contain an assortment of different value types, including user-defined types.
+ Other components provide utilities for assembling arrays and maps of 'Datum'
+ objects.
+
+ Note that `bdlt::Datum` has many features of value-semantic types (including
+ an 'operator=='), but is not a VST.  See {'bdlt_datum'|Notion of Value}.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdld' package currently has 9 components having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  4. bdld_datummaker
+
+  3. bdld_datumarraybuilder
+     bdld_datummapbuilder
+     bdld_datummapowningkeysbuilder
+     bdld_manageddatum
+
+  2. bdld_datum
+
+  1. bdld_datumbinaryref
+     bdld_datumerror
+     bdld_datumudt
+..
+
+/Component Synopsis
+/------------------
+: 'bdld_datum':
+:      Provide a discriminated variant type with a small footprint.
+:
+: 'bdld_datumarraybuilder':
+:      Provide a utility to build a 'Datum' object holding an array.
+:
+: 'bdld_datumbinaryref':
+:      Provide a type to represent binary data and its size.
+:
+: 'bdld_datumerror':
+:      Provide a type for an error code with an optional error message.
+:
+: 'bdld_datummaker':
+:      Provide a mechanism for easily creating 'bdld::Datum' objects.
+:
+: 'bdld_datummapbuilder':
+:      Provide a utility to build a 'Datum' object holding a map.
+:
+: 'bdld_datummapowningkeysbuilder':
+:      Provide a utility to build a 'Datum' object holding a map.
+:
+: 'bdld_datumudt':
+:      Provide a type to represent a user-defined type.
+:
+: 'bdld_manageddatum':
+:      Provide a smart-pointer like manager for a 'Datum' object.

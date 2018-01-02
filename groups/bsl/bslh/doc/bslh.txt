@@ -1,0 +1,957 @@
+ bslh.txt
+
+@PURPOSE: Provide a framework for hashing types using swappable algorithms.
+
+@MNEMONIC: Basic Standard Library Hashing (bslh)
+
+@DESCRIPTION: The 'bslh' package provides components for a more modular hashing
+ implementation than is found in the standard.  This implementation is based on
+ ISO C++ Proposal N3980.  An internal proposal for this is available at {TEAM
+ BDE:MODULAR HASHING<GO>}.  This package provides hashing algorithms as well as
+ 'Hash' and 'SeededHash' structs which allow different algorithms to be applied
+ to any type that has a 'hashAppend' function.  This document will explain the
+ overall benefits of the system, what type implementers need to do to make
+ their types hashable in this system, what type users need to do to hash
+ different types, how to extend different pieces of this system, and will
+ provide a summary of all the components in this package.  All sections are
+ independent and can be read and used without having read the other sections.
+
+/Table of Contents
+/-----------------
+: o Terminology
+:   o Avalanche
+:   o Denial of Service (DoS)
+:   o Funneling
+:   o Salient to Hashing
+:
+: o Why Use This System?
+:   o Better and More Predictable Performance
+:   o Less Code Duplication
+:   o Easier to Make Types Hashable
+:   o Hash Combining
+:   o Swappable Algorithms
+:
+: o Type Implementers
+:   o 'hashAppend'
+:   o Determining what to Hash
+:   o Hashing Other User Defined Types
+:   o Hashing Pointers (especially 'const char *')
+:   o Converting Existing Types
+:
+: o Type Users
+:   o bsl::hash
+:   o bslh::Hash
+:   o bslh::SeededHash, bslh::SeedGenerator, and Secure Hashing
+:     o Seeded Algorithms
+:     o bslh::SeedGenerator
+:     o bslh::SeededHash
+:   o Hashing Performance and Fundamental Integer Types
+:   o Choosing a Hashing Algorithm
+:
+: o Extending the System
+:   o Hashing Algorithm Functors
+:   o Hashing Algorithm Wrappers (bslh::Hash)
+:   o Seed Generator
+:
+: o Hierarchical Synopsis
+:
+: o Component Synopsis
+:
+: o Component Overview
+:   o 'bslh_defaulthashalgorithm'
+:   o 'bslh_defaultseededhashalgorithm'
+:   o 'bslh_hash'
+:   o 'bslh_seededhash'
+:   o 'bslh_seedgenerator'
+:   o 'bslh_siphashalgorithm'
+:   o 'bslh_spookyhashalgorithm'
+:   o 'bslh_spookyhashalgorithmimp'
+
+/Terminology
+/-----------
+
+/Avalanche
+/- - - - -
+ Changing one bit in the input to the hashing algorithm results in an
+ "avalanche", which causes each output bit to have a 50% probability of
+ changing.  The avalanche property means that two very similar values will
+ produce completely dissimilar hashes.
+
+/Denial of Service (DoS)
+/- - - - - - - - - - - -
+ Within the context of hash tables, Denial of Service (DoS) attacks refer to an
+ attacker causing many hash table keys to collide to the same bucket.  These
+ collisions cause look-ups in the hash table to become very time consuming
+ linear searches.
+
+/Funneling
+/- - - - -
+ An undesirable property of hashing algorithms that results in a large number
+ of collisions when the inputs differ by only a few bits.  Funneling is related
+ to the avalanche property of a hashing algorithm and is essentially the
+ opposite of avalanche.  More information can be found at
+ 'http://burtleburtle.net/bob/hash/evahash.html'.
+
+/Salient to Hashing
+/- - - - - - - - -
+ A property of attributes (or fields) of a type.  An attribute is considered
+ salient to hashing if it should be incorporated into the bytes that are used
+ to produce a hash of a given object.  As a general rule is that every
+ attribute used in 'operator==' is usually salient to hashing.  This term is
+ explored more in depth later.
+
+/Why Use This System?
+/--------------------
+ There are numerous benefits to both type creators and users in this new
+ system:
+
+/Better and More Predictable Performance
+/- - - - - - - - - - - - - - - - - - - -
+ This modular hashing system allows users to use known good hashing algorithms
+ to avoid performance issues.  The graph below depicts 'unordered_map'
+ (expected case O(1)) taking longer to find elements that map.  This is a
+ real-world benchmark.  Internal users can read more about these tests at {TEAM
+ BDE:FLAT MAP<GO>}.  The anomalous behavior arose from the use of a poorly
+ written, non-standard, hashing algorithm, which caused similar strings to hash
+ to the same value resulting in many collisions:
+..
+           Time to Find a pair<string, string> in map vs unordered_map
+
+     18 |
+        |                      O = map   X = unordered_map
+     16 |
+  T     |                                                              X
+  i  14 |                                                              |
+  m     |                                                             /
+  e  12 |                                                            /-O
+        |                                                           /
+  i  10 |                                                        - /
+  n     |                                                      -  /
+      8 |                                                    O   /
+  S     |                                                 --    /
+  e   6 |                                               -      /
+  c     |                                             --      /
+  o   4 |                                       ----O        X
+  n     |                               ----O---           --
+  d   2 |                      ---O-----              ----
+  s     |       XO-------XO-------X--------X--------X
+        |____________________________________________________________________
+                |        |        |        |        |        |        |
+                1        10       100      1000     10000    100000   1000000
+                               Elements in Collection
+..
+
+/Less Code Duplication
+/- - - - - - - - - - -
+ In the standard C++03 hashing system, hashing algorithms were often copied
+ into the 'bsl::hash' template specialization on each type.  This resulted in
+ lots of code duplication.  In the new system, algorithms are not implemented
+ directly on the type, so no algorithm duplication occurs.  The little bit of
+ code that is written on the type is specific to that type and wouldn't be
+ copied elsewhere.
+
+/Easier to Make Types Hashable
+/- - - - - - - - - - - - - - -
+ In the standard C++03 hashing system, type implementers had to worry about
+ writing a hashing algorithm for their type.  This required figuring out what
+ constituted a good hash value and how to generate one with a given set of data
+ members.  Thinking about what makes a good hash is no longer the job of the
+ type implementer.  They simply have to declare what data members they want to
+ contribute the hash and then they are done.
+
+/Hash Combining
+/ - - - - - - -
+ In the standard C++03 hashing system, if a type needed to use more than one
+ data member in its hash calculation, there was no proper way for them to
+ combine the hashes from multiple data members into one final hash.  Poor
+ methods of hash combining such as XORing could result in huge numbers of
+ collisions.  The new, modular hashing system offers 'hashAppend' to combine an
+ unlimited number of data members into one, good, hash.
+
+/Swappable Algorithms
+/- - - - - - - - - -
+ In the standard C++03 hashing system, anyone who wanted to hash a type had to
+ use the algorithm written by the type implementer, or they had to write their
+ own algorithm in a functor (without access to private data members of course).
+ Unfortunately, hashing algorithms are not one size fits all.  In some cases, a
+ fast identity hash is fine.  In other cases a slower hash that is secure
+ against Denial of Service (DoS) attacks is required.  The new, modular hashing
+ system offers a suite of hashing algorithms that have been vetted and are know
+ to have good characteristics for different situations.  Swapping out one
+ algorithm for another only requires a type's users to change one line of code,
+ as shown here:
+..
+  // Uses implicitly 'DefaultHashAlgorithm'.
+  bsl::unordered_map<MyType, int, bslh::Hash<>> unorderedMap;
+
+  // Only a single line change is required to use 'SpookyHashAlgorithm'
+  bsl::unordered_map<MyType,
+                     int,
+                     bslh::Hash<bslh::SpookyHashAlgorithm>> unorderedMap;
+..
+
+/Type Implementers
+/-----------------
+ It is the type implementer's job to implement 'hashAppend' (explained below)
+ on their type, much like they have to implement 'swap' on their type.  It is
+ important to note that implementing 'hashAppend' on 'MyType' is fully backward
+ compatible with 'bsl::hash<MyType>'.  That means that when you implement
+ 'hashAppend' on 'MyNewType', 'bsl::hash<MyNewType>' will automatically pick it
+ up without you ever having to write your own template specialization.  For
+ existing types that already have a 'bsl::hash<MyExistingType>' specialization,
+ it is recommended that type implementers delete 'bsl::hash<MyExistingType>'
+ once they have implemented 'hashAppend'.  Deleting the 'bsl::hash' template
+ specialization for 'MyExistingType' will not break any code because
+ 'bsl::hash<TYPE>' automatically redirects to 'bslh::Hash<>'.  Note that
+ deleting the 'bsl::hash' template specialization for 'MyExistingType' will
+ cause the hash value returned by calls to 'bsl::hash<MyExistingType>' to
+ change, but this is explicitly allowed in the 'bsl::hash' contract.
+
+/'hashAppend'
+/ - - - - - -
+ The fundamental piece of this system, at least for type implementers, is the
+ 'hashAppend' free function.  What this free function does is pass the data
+ members of a class which need to be hashed, into a hashing algorithm.  It
+ removes the need for the type implementer to actually write the hashing
+ algorithm.  An example implementation can be seen below:
+..
+  namespace BloombergLP {
+  namespace NamespaceForBoxes {
+
+  class Box {
+      // A value semantic type that represents a box drawn on to a Cartesian
+      // plane.
+    private:
+      Point d_position;
+      int   d_length;
+      int   d_width;
+    public:
+      Box(Point position, int length, int width);
+          // Create a box with the specified 'length' and 'width', with its
+          // upper left corner at the specified 'position'
+
+      friend bool operator==(const Box &left, const Box &right);
+
+      template <class HASH_ALGORITHM>
+      friend
+      void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box);
+          // Apply the specified 'hashAlg' to the specified 'box'
+  };
+
+  Box::Box(Point position, int length, int width)
+  : d_position(position)
+  , d_length(length)
+  , d_width(width)
+  {
+  }
+
+  bool operator==(const Box &left, const Box &right)
+  {
+      return (left.d_position == right.d_position)
+          && (left.d_length   == right.d_length)
+          && (left.d_width    == right.d_width);
+  }
+
+  template <class HASH_ALGORITHM>
+  void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
+  {
+      using bslh::hashAppend;
+      hashAppend(hashAlg, box.d_position);
+      hashAppend(hashAlg, box.d_length);
+      hashAppend(hashAlg, box.d_width);
+  }
+
+  } // close package namespace
+  } // close enterprise namespace
+..
+ A few key features of the 'hashAppend' fuction:
+
+: 1 'hashAppend' is a free function that can be picked up through argument
+:   dependent look-up (ADL).
+:
+:   1 In order to ensure 'hashAppend' can be found through ADL, the function
+:     must begin with 'using bslh::hashAppend'.  Note that most of the time
+:     this isn't required because most 'HASH_ALGORITHM's will be implemented in
+:     'bslh' and thus ADL will already be looking in 'bslh'.  The using
+:     statement is still required, however, to support algorithms that are
+:     implemented outside of 'blsh'.
+:
+: 2 'hashAppend' is defined the header file of the type for which it is
+:   implemented.
+:
+: 3 If 'hashAppend' requires access to private data, it is declared as a friend
+:   to the type which it is hashing.
+:
+: 4 'hashAppend' accepts a reference to a templated hashing algorithm functor,
+:   and a 'const' reference to the type which it is hashing.
+:
+: 5 'hashAppend' recursively calls 'hashAppend' on each of the
+:   salient-attributes of the type that it is hashing, propagating the hash
+:   algorithm functor with each invocation.
+
+ This is the extent of the work for a type implementer.  Once a type
+ implementer knows what members need to contribute to a hash value, the type
+ implementer simply calls 'hashAppend' on members as shown above.  Those
+ members will then be passed into and used by whatever algorithm a consumer of
+ the type wants to apply.
+
+/Determining what to Hash
+/ - - - - - - - - - - - -
+ Type implementers should be familiar with the rules for hash functions.  There
+ are two main rules:
+
+: 1 If 'x == y', then both 'x' and 'y' shall produce the same hash.
+:
+: 2 If 'x != y', then 'x' and 'y' should not produce the same hash.
+
+ For example, if the first rule is violated, 'unordered_map' will encounter
+ runtime errors.  If the second rule is violated, collisions will occur and the
+ performance of 'unordered_map' will suffer.
+
+ Since the rule about hashing are predicated on 'operator==', the easiest way
+ to determine what to hash is to look at 'operator=='.  For example, lets
+ reexamine 'operator==' from our earlier code sample:
+..
+  bool operator==(const Box &left, const Box &right)
+  {
+      return (left.d_position == right.d_position)
+          && (left.d_length   == right.d_length)
+          && (left.d_width    == right.d_width);
+  }
+..
+ In order to ensure that the first rule of hashing if followed, we must only
+ include data members in our hash if one of the following is true:
+
+: o The data member is used in the 'operator==' comparison.
+:
+: o The data member is a entirely dependent on data that is used in the
+:   'operator==' comparison.
+:
+: o The data member is constant.
+
+ If we do not meet any of the above criteria, we open ourselves to the
+ possibility that two objects that compare equal will hash to different values.
+ If two equal objects hash to different values, hash-based data structures
+ ('unordered_map' being the primary concern) will break.  And example of
+ something not to include in 'hashAppend' would be the 'capacity()' of a
+ vector.
+
+ In order to make the second rule of hashing remain true, we should include
+ everything that appears in 'operator==' in our hash.  The more data we can put
+ into the hashing algorithm, the higher the chances of us getting unique
+ outputs.  By following these suggestions, we produced the 'hashAppend'
+ function from our earlier code example:
+..
+  template <class HASH_ALGORITHM>
+  void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
+  {
+      using bslh::hashAppend;
+      hashAppend(hashAlg, box.d_position);
+      hashAppend(hashAlg, box.d_length);
+      hashAppend(hashAlg, box.d_width);
+  }
+..
+ It is worth noting that sometimes even data members that don't actually
+ contribute entropy can still help us produce a more unique unique outputs.
+ For example consider 'vector<vector<int> >'.  If we just hashed the elements
+ in the vector, then an empty 'vector<vector<int> >' would generate the same
+ hash value as a 'vector<vector<int> >' containing one (or more) empty
+ 'vector<int>' objects.  This violates the second rule of hashing (above).  By
+ also passing 'vector.length()' (which is used in equality) into the algorithm,
+ the two vectors will hash to different values.
+
+/Hashing Other User Defined Types
+/ - - - - - - - - - - - - - - - -
+ As we can see in code sample above showing 'hashAppend', 'hashAppend' is
+ called on a data member of the user-defined type, 'Point'.  This code will not
+ compile if 'Point' is a type for which 'hashAppend' has not been implemented.
+ The best route to take is to have the creator of 'Point' go back and add a
+ 'hashAppend' function.  If the creator, or somebody knowledgeable about the
+ type, is not available to add the 'hashAppend' function, there is a work
+ around.  Assuming 'Point' supports the old system and has a 'bsl::hash<Point>'
+ specialization, you can just hash the 'Point' and then pass the resulting
+ 'size_t' into 'hashAppend' just like you would with any other integer data
+ member.  The following code sample shows how we can modify 'Box's 'hashAppend'
+ function to handle 'Point' without a 'hashAppend' free function for 'Point':
+..
+  template <class HASH_ALGORITHM>
+  void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
+  {
+      using bslh::hashAppend;
+      hashAppend(hashAlg, bsl::hash<Point>()(box.d_position));
+      hashAppend(hashAlg, box.d_length);
+      hashAppend(hashAlg, box.d_width);
+  }
+..
+ In the above code sample, the first call to 'hashAppend' is now effectively
+ calling 'hashAppend' on an integer type (the resulting hash from 'bsl::hash'),
+ rather than on 'Point'.  This trick allows new development to use this modular
+ hashing system without having to wait for existing code to be upgraded.
+
+/Hashing Pointers (especially 'const char *')
+/ - - - - - - - - - - - - - - - - - - - - - -
+ Pointers, particularly C-Strings (in the 'const char *' form), are an
+ unfortunate exception in hashing.  Because the standard mandates that we must
+ be able to hash pointers, there is no way to distinguish a null terminated
+ 'const char *' (C-String) from a regular pointer to a 'char'.  Because of
+ this, hashing C-Strings has slightly different semantics.  Instead of calling
+ 'hashAppend' on the pointer, we must pass our C-String directly into the
+ hashing algorithm functor.  All of the hashing algorithm functors in 'bslh'
+ have the function signature shown below:
+..
+  void operator()(const char *data, size_t length);
+      // Incorporates the specified 'data' of 'length' bytes into the internal
+      // state of the hashing algorithm.
+..
+ As we can see, the hashing algorithm functor takes a pointer to the start of
+ the data and a length in bytes.  To hash a C-String, we call the hashing
+ algorithm functor with our pointer and the length of the C-String which we
+ have stored or pre-calculated.  An example of this is the 'hashAppend'
+ function for string, shown here:
+..
+  template <class HASHALG,
+            class CHAR_TYPE,
+            class CHAR_TRAITS,
+            class ALLOCATOR>
+  void hashAppend(HASHALG&                        hashAlg,
+                  const basic_string<CHAR_TYPE,
+                                     CHAR_TRAITS,
+                                     ALLOCATOR>&  input)
+  {
+      using bslh::hashAppend;
+      hashAlg(input.data(), sizeof(CHAR_TYPE)*input.size());
+  }
+..
+ This technique can be applied to any case where you want to hash contiguous
+ data.  It is especially important that the your data is completely contiguous,
+ because padding bits and the like could result in the same data hashing to
+ different values, which violates the first rule of hashing.
+
+/Converting Existing Types
+/- - - - - - - - - - - - -
+ The same process as above should be followed when implementing 'hashAppend' on
+ user defined types which already specialize 'bsl::hash'.  One extra step that
+ is required is the 'bsl::hash' template specialization must be removed once
+ 'hashAppend' has been implemented.  'unordered_map's will still function after
+ the 'bsl::hash' specialization has been removed, since 'bsl::hash<TYPE>'
+ automatically calls 'bslh::Hash<>' when no specialization exists.  Note that
+ deleting the 'bsl::hash' template specialization will cause the hash value
+ returned by 'bsl::hash<YourType>' to change, however, this is explicitly
+ allowed by the contract of 'bsl::hash'.
+
+/Type Users
+/----------
+ The primary use case for 'bslh::Hash' is producing hash values for hash tables
+ ('unordered_map's), so we will be focusing on that for the next example, but
+ this section does apply generally to any use of the modular hashing system.
+ The basic background knowledge required for this section is:
+
+: o 'hashAppend' is a free function, implemented by type implementers, which
+:   makes a type hashable.
+:
+: o 'bslh::Hash<>' is a hashing functor that has the same interface as
+:   'bsl::hash<SomeType>', but allows you to supply a hashing algorithm as a
+:   template parameter.
+:
+: o Standard hashing algorithm functors are available in the 'bslh' package.
+
+ Beyond this basic summary, some knowledge of how 'bslh::Hash' and 'bsl::hash'
+ interact is required for type users to get the most out of this system.
+
+/'bsl::hash'
+/- - - - - -
+ Unfortunately, 'bsl::hash' is impossible to completely escape, even with the
+ modular hashing system.  The standard mandates that 'unordered_map's with a
+ key of 'SomeType' will call 'bsl::hash<SomeType>' by default.  We have done
+ our best to make 'bsl::hash' and 'bslh::Hash' interact nicely in most
+ scenarios, and the section below shows what behavior can be expected from
+ calling 'bsl::hash<SomeType>'.
+
+: o 'bsl::hash' is specialized for 'SomeType' *and* 'hashAppend' is implemented
+:   for 'SomeType'.
+:
+:   o Calling 'bsl::hash<SomeType>' will go to the 'bsl::hash' template
+:     specialization.  Note that 'bsl::hash<SomeType>' should normally be
+:     deleted once 'hashAppend' has been implemented on 'SomeType'.  If
+:     'bsl::hash<SomeType>' has not been deleted, please contact the type's
+:     creator and ask them to do so.
+:
+:   o 'bslh::Hash<AnyImplementedAlgorithm>' can be called directly
+:
+: o 'bsl::hash' is not specialized for 'SomeType' *and* 'hashAppend' is
+:   implemented for 'SomeType'.
+:
+:   o Calling 'bsl::hash<SomeType>' will automatically redirect to
+:     'bslh::Hash<>'.
+:
+:   o 'bslh::Hash<AnyImplementedAlgorithm>' can be called directly
+:
+: o 'bsl::hash' is specialized for 'SomeType' *and* 'hashAppend' is not
+:   implemented for 'SomeType'.
+:
+:   o Calling 'bsl::hash<SomeType>' will go to the 'bsl::hash' template
+:     specialization.  Please implement 'hashAppend' on 'SomeType'.
+:
+: o 'bsl::hash' is not specialized for 'SomeType' *and* 'hashAppend' is not
+:   implemented for 'SomeType'.
+:
+:   o Does not compile, please implement 'hashAppend' on 'SomeType'.
+
+ Note that when 'bsl::hash<SomeType>' redirects to 'bslh::Hash<>',
+ 'bslh::Hash<>' is always using the defualt hashing algorithm.  This is fine
+ for most use cases, but if we need to use a special algorithm, such as a
+ secure one to prevent Denial of Service (DoS) attacks in a hash table, we must
+ directly use 'bslh::Hash' in order to swap out the algorithm template
+ parameter.
+
+/'bslh::Hash'
+/ - - - - - -
+ There are various algorithms that can be swapped into 'bslh::Hash' as template
+ parameters.  Algorithms such as SipHash and SpookyHash
+ ('bslh::SipHashAlgorithm' and 'bslh::SpookyHashAlgorithm' respectively) are
+ implemented and can be swapped into 'bslh::Hash'.  There are also a number of
+ wrapper classes such as 'bslh::DefaultHashAlgorithm' and
+ 'balh::DefaultSeededHashAlgorithm' which are named to allow you to pick them
+ based on what you need, meaning you don't need an in depth knowledge of the
+ individual hashing algorithms.  The usage of these algorithms can be seen
+ below:
+..
+  // Implicitly uses 'bsl::hash<MyType>', may or may not redirect to
+  // 'bslh::Hash<>'.
+  bsl::unordered_map<MyType, int> unorderedMap;
+
+  // Implicitly uses 'bslh::DefaultHashAlgorithm', which redirects to the
+  // current best default algorithm for hashing.
+  bsl::unordered_map<MyType, int, bslh::Hash<>> unorderedMap;
+
+  // Explicitly uses 'bslh::DefaultHashAlgorithm', which redirects to the
+  // current best default algorithm for hashing.
+  bsl::unordered_map<MyType, int, bslh::Hash<bslh::DefaultHashAlgorithm>>
+                                                                  unorderedMap;
+
+  // Explicitly uses 'bslh::SpookyHashAlgorithm', one of the algorithms
+  // available in 'bslh'.
+  bsl::unordered_map<MyType, int, bslh::Hash<bslh::SpookyHashAlgorithm>>
+                                                                  unorderedMap;
+..
+
+/'bslh::SeededHash', 'bslh::SeedGenerator', and Secure Hashing
+/- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ Some hashing algorithms, such as 'bslh::SipHashAlgorithm', require seeds to
+ function.  'bslh::SipHashAlgorithm' was designed by its creators to provide
+ protection against hash table DoS attacks.  In order to get the most
+ protection, 'bslh::SipHashAlgorithm' requires a cryptographically secure
+ random number in order to produce hashes that will be secure against an
+ attacker.  'bslh::SeededHash' and 'bslh::SeedGenerator' exist to facilitate
+ passing seeds into hashing algorithms.
+
+/Seeded Algorithms
+/ -  -  -  -  -  -
+ Different algorithms have different seed requirements.  Some require a seed to
+ function and others take one optionally.  The table below shows the seed
+ requirements of the algorithms in 'bslh':
+..
++-----------------------------------+-----------------------------------------+
+|        Algorithm                  | Takes Seed? | Requires Seed? | Crypto?* |
++-----------------------------------+-------------+----------------+----------+
+|'bslh::DefaultHashAlgorithm'       |      N      |       N        |     N    |
++-----------------------------------+-----------------------------------------+
+|'bslh::DefaultSeededHashAlgorithm' |      Y      |       Y        |     N    |
++-----------------------------------+-----------------------------------------+
+|'bslh::SipHashAlgorithm'           |      Y      |       Y        |     Y    |
++-----------------------------------+-----------------------------------------+
+|'bslh::SpookyHashAlgorithm'        |      Y      |       N        |     N    |
++-----------------------------------+-----------------------------------------+
+ [*] "Crypto" is reverting to the requirement on the seed, not the quality of
+ the algorithm.  I.e., 'bslh::SipHashAlgorithm' is not a cryptographically
+ secure algorithm, but it *is* a cryptographically strong pseudo-random
+ function, *if* it's provided a cryptographically secure seed (see
+ 'bslh_siphashalgorithm' for more information).
+..
+ Algorithms can require different sized seeds, and different quality of seeds.
+ These variances are handled by 'bslh::SeedGenerator'.
+
+/'bslh::SeedGenerator'
+/  -  -  -  -  -  -  -
+ bslh::SeedGenerator allows users to choose their Random Number Generator (RNG)
+ and then handles the actual seed generation for algorithms.  It presents the
+ following interface:
+..
+  template<class RANDOM_NUM_GEN>
+  class SeedGenerator : private RANDOM_NUM_GEN {
+    private:
+      // PRIVATE TYPES
+      typedef typename RANDOM_NUM_GEN::result_type result_type;
+
+      // DATA
+      enum { k_RNGOUTPUTSIZE = sizeof(typename RANDOM_NUM_GEN::result_type)};
+
+    public:
+      // CREATORS
+      SeedGenerator();
+
+      explicit SeedGenerator(const RANDOM_NUM_GEN &randomNumberGenerator);
+
+      // MANIPULATORS
+      void generateSeed(char *seedLocation, size_t seedLength);
+  };
+..
+ Note that 'bslh::SeedGenerator' takes advantage of the empty base optimization
+ when possible.
+
+ 'bslh::SeedGenerator' takes a RNG as a template parameter.  The quality of
+ this RNG will determine the quality of the seed produced.  That is, if the RNG
+ is cryptographically secure, the seed will be as well.  'bslh::SeedGenerator'
+ can be either default constructed or constructed with an instance of the
+ (template parameter) type 'RANDOM_NUM_GEN'.  Default construction is preferred
+ if possible, but the parameterized constructor exists for cases when
+ 'RANDOM_NUM_GEN' is not default constructable, or when you need to pass in an
+ instance of 'RANDOM_NUM_GEN' with a particular state.
+
+ The 'generateSeed' method will be used by 'bslh::SeededHash' to generate seeds
+ for any algorithm that takes a seed.
+
+/'bslh::SeededHash'
+/-  -  -  -  -  - -
+ 'bslh::SeededHash' is very similar to 'bslh::Hash'.  Both are wrappers for the
+ hashing algorithm functors in 'bslh and both present an interface that meets
+ the requirements of the standard for 'std::hash'.  The interface of
+ 'bslh::SeededHash' can be seen below.
+..
+  template <class SEED_GENERATOR, class HASH_ALGORITHM =
+                                              bslh::DefaultSeededHashAlgorithm>
+  struct SeededHash {
+    private:
+      // DATA
+      char seed[HASH_ALGORITHM::k_SEED_LENGTH];
+
+    public:
+      // TYPES
+      typedef size_t result_type;
+
+      // CREATORS
+      SeededHash();
+
+      explicit SeededHash(SEED_GENERATOR& seedGenerator);
+
+      // ACCESSORS
+      template <class TYPE>
+      result_type operator()(const TYPE& type) const;
+  };
+..
+ Like 'bslh::SeedGenerator', 'bslh::SeededHash' has both default and
+ parameterized constructors.  If the (template parameter) type 'SEED_GENERATOR'
+ is default constructible, then 'bslh:SeededHash' will be default
+ constructible, and it can be used in the exact same way as 'bslh::Hash', as
+ shown here:
+..
+  // Construct an unordered map with a secure hashing algorithm
+  bsl::unordered_map<MyType,
+                    int,
+                    bslh::SeededHash<bslh::SeedGenerator<CryptoRNG>,
+                                     bslh::SecureHashAlgorithm> > unorderedMap;
+..
+ If 'bslh::SeededHash' is not default constructable, or you want to use a
+ specific instance of a RNG or seed generator, then 'unordered_map' can no
+ longer be default constructed as previously shown.  Instead,
+ 'bslh::SeededHash' must be passed through the constructor of the unordered
+ map, seen here:
+..
+  // typedefs to make the code smaller
+  typedef bslh::SeedGenerator<CryptoRNG> CryptoSeedGen;
+  typedef bslh::SeededHash<CryptoSeedGen, bslh::SecureHashAlgorithm>
+                                                                  CryptoHasher;
+
+  // Construct the required seed generator and hashing algorithm wrapper from
+  // 'someRNGObject'
+  CryptoSeedGen seedGenerator(someRNGObject);
+  CryptoHasher hashAlg(seedGenerator);
+
+  // Construct our unordered map
+  bsl::unordered_map<MyType, int, CryptoHasher> secureUnorderedMap(
+                                                                 startIterator,
+                                                                 endIterator,
+                                                                 hashAlg);
+..
+ One important difference between 'bslh::Hash' and 'bslh::SeededHash' is that
+ 'bslh::SeededHash' needs to hold the seed, so it can not benefit from the
+ empty base optimization.
+
+/Hashing Performance and Fundamental Integer Types
+/- - - - - - - - - - - - - - - - - - - - - - - - -
+ Fundamental integer types are a notable exception to the pattern of
+ redirecting 'bsl::hash' specializations to 'bslh::Hash'.  Fundamental integer
+ types will retain their 'bsl::hash' template specializations that are identity
+ functions (they return the supplied integer value its own hash value).  This
+ is done for performance reasons, as identity hashing is the fastest possible
+ hash.  Please note that this is not a good hashing algorithm and should only
+ be used in cases where performance is critical and the data is predicable
+ enough that we know minimal numbers of bucket collisions will occur.
+
+/Choosing a Hashing Algorithm
+/ - - - - - - - - - - - - - -
+ For most purposes, the default supplied hashing algorithm will be best.  It
+ has a good combination of speed and key distribution.  In cases where user
+ input is directly included in the 'unordered_map', it is recommended to use a
+ secure hashing algorithm instead, to prevent Denial of Service (DoS) attacks
+ where an attacker causes all of the keys to collide to the same bucket.  Make
+ sure to read the component level documentation when looking for an algorithm,
+ to be sure that a hashing algorithm has the right trade offs for your use
+ case.
+
+/Extending the System
+/--------------------
+ Every piece of the modular hashing system can be extended and swapped out in
+ favor of user defined pieces.  This section defines how to extend the various
+ pieces, and the canonical interfaces that must be adhered to.  Both type
+ implementers and users may have need of this section.
+
+/Hashing Algorithm Functors
+/ - - - - - - - - - - - - -
+ Users are free write their own hashing algorithms and make them available via
+ functors.  In order to plug into 'bslh::Hash' the algorithms must implement
+ the following interface:
+..
+  class SomeHashAlgorithm
+  {
+    public:
+      // TYPES
+      typedef uint64 result_type;
+
+      // CREATORS
+      SomeHashAlgorithm();
+
+      // MANIPULATORS
+      void operator()(const char * key, size_t len);
+
+      result_type computeHash();
+  };
+..
+ The 'result_type' 'typedef' must define the return type of this particular
+ algorithm.  A default constructor (either implicit or explicit) must be
+ supplied that creates an algorithm functor that is in a usable state.  An
+ 'operator()' must be supplied that takes a 'const char' pointer to the data to
+ be hashed and a 'size_t' length of bytes to be hashed.  This operator must
+ operate on all data uniformly, meaning that regardless of whether data is
+ passed in all at once, or one byte at a time, the result returned by
+ 'computeHash()' will be the same.  'computeHash()' will return the final
+ result of the hashing algorithm, in the form of a 'result_type'.
+ 'computeHash()' is allowed to modify the internal state of the algorithm,
+ meaning calling 'computeHash()' more than once might not return the correct
+ value.
+
+ Hashing algorithm functors containing algorithms that require seeds must
+ implement the interface shown above, with the exception of the default
+ constructor.  Seeded algorithm functors must also implement the following
+ interface:
+..
+  class SomeHashAlgorithm
+  {
+    public:
+      // CONSTANTS
+      enum { k_SEED_LENGTH = XXX };
+
+      // CREATORS
+      explicit SomeHashAlgorithm(const char *seed);
+  };
+..
+ The 'k_SEED_LENGTH' enum must be in the public interface, and 'XXX' must be
+ replaced with an integer literal indicating the number of bytes of seed the
+ algorithm requires.  The parameterized constructor must accept a 'const char'
+ pointer.  This pointer will point to a seed of 'XXX' bytes in size.
+
+/Hashing Algorithm Wrappers ('bslh::Hash')
+/- - - - - - - - - - - - - - - - - - - - -
+ Users are free to write their own versions of 'bslh::Hash<>' for whatever use
+ case they require (in fact, 'bslh::SeededHash<>' is one such example).
+ Because no other parts of the modular hashing system rely on 'bslh::Hash<>',
+ you are free to use whatever interface is necessary.  The recommended
+ interface for maintaining compatibility with components that previously used
+ 'bsl::hash<>' can be seen here:
+..
+  template <class HASH_ALGORITHM>
+  struct YourHash
+  {
+      // TYPES
+      typedef size_t result_type;
+
+      // ACCESSORS
+      template <class TYPE>
+      result_type operator()(TYPE const& type) const;
+  };
+..
+ The hashing algorithm wrapper that you create to replace 'blsh::Hash<>' should
+ be templated to operate using various 'HASH_ALGORITHM's.  Whether or not there
+ is a default option for the template is optional.  The 'result_type' should
+ define the type of the hash value that you will return.  The 'operator()'
+ should be templated to operate on any 'TYPE'.  'operator()' should take a
+ single 'const' reference to 'TYPE' and should return a 'result_type'.  Given
+ two 'TYPEs' that compare equal with 'operator==', 'operator()' *must* return
+ the same hash.
+
+/Seed Generator
+/ - - - - - - -
+ Users are free to write their own seed generator, a class of component
+ required by 'bslh::SeededHash'.  The seed generator must conform to the
+ interface shown here:
+..
+  class YourSeedGenerator
+  {
+      // ACCESSORS
+      void generateSeed(char *seedLocation, size_t seedLength);
+  };
+..
+ The only mandatory piece of the seed generator interface is the 'generateSeed'
+ method which accepts a 'char' pointer to memory to be written and a 'size_t'
+ length in bytes.  The generateSeed method must fill the size_t bytes of the
+ memory pointed to by the 'char' pointer with a seed.  If possible, it is
+ better for the seed generator to be default constructible, however, any sort
+ of constructor is acceptable because the seed generator can be constructed and
+ passed directly into 'bslh::SeededHash' if required.  Be aware that having a
+ non-default constructor makes it more difficult to use the seed generator (see
+ the 'bslh::SeededHash' section above to see the difference).
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslh' package currently has 8 components having 5 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  5. bslh_seededhash
+
+  4. bslh_hash
+
+  3. bslh_defaulthashalgorithm
+     bslh_defaultseededhashalgorithm
+
+  2. bslh_spookyhashalgorithm
+
+  1. bslh_seedgenerator
+     bslh_siphashalgorithm
+     bslh_spookyhashalgorithmimp
+..
+
+/Component Synopsis
+/------------------
+: 'bslh_defaulthashalgorithm':
+:      Provide a reasonable hashing algorithm for default use.
+:
+: 'bslh_defaultseededhashalgorithm':
+:      Provide a reasonable seeded hashing algorithm for default use.
+:
+: 'bslh_hash':
+:      Provide a struct to run 'bslh' hash algorithms on supported types.
+:
+: 'bslh_seededhash':
+:      Provide a struct to run seeded 'bslh' hash algorithms on types.
+:
+: 'bslh_seedgenerator':
+:      Provide a class to generate arbitrary length seeds for algorithms.
+:
+: 'bslh_siphashalgorithm':
+:      Provide an implementation of the SipHash algorithm.
+:
+: 'bslh_spookyhashalgorithm':
+:      Provide an implementation of the SpookyHash algorithm.
+:
+: 'bslh_spookyhashalgorithmimp':
+:      Provide BDE style encapsulation of 3rd party SpookyHash code.
+
+/Component Overview
+/------------------
+ This section provides a brief introduction to each of the components in the
+ 'bslh' package.  Full details are available in the documentation of each
+ component.
+
+/'bslh_defaulthashalgorithm'
+/- - - - - - - - - - - - - -
+ The 'bslh_defaulthashalgorithm' component provides an unspecified default
+ hashing algorithm.  The supplied algorithm is suitable for general purpose use
+ in a hash table.  The underlying algorithm is subject to change in future
+ releases.
+
+ This class satisfies the requirements for regular 'bslh' hashing algorithms,
+ as defined in 'bslh_hash'.
+
+/'bslh_defaultseededhashalgorithm'
+/- - - - - - - - - - - - - - - - -
+ The 'bslh_defaultseededhashalgorithm' component provides an unspecified
+ default seeded hashing algorithm.  The supplied algorithm is suitable for
+ general purpose use in a hash table.  The underlying algorithm is subject to
+ change in future releases.
+
+ This class satisfies the requirements for seeded 'bslh' hashing algorithms, as
+ defined in 'bslh_seededhash'.
+
+/'bslh_hash'
+/- - - - - -
+ The {'bslh_hash'} component provides a templated 'struct', 'bslh::Hash', which
+ provides hashing functionality.  This struct is a drop in replacement for
+ 'bsl::hash'.  'bslh::Hash' is a wrapper that adapts hashing algorithms from
+ 'bslh' and 'hashAppend' free functions to match the interface of 'bsl::hash'.
+ This component also contains 'hashAppend' definitions for fundamental types,
+ which are required to make the hashing algorithms in 'bslh' work.
+
+/'bslh_seededhash'
+/- - - - - - - - -
+ The {'bslh_seededhash'} component provides a templated struct,
+ 'bslh::SeededHash', which provides hashing functionality.  This 'struct' is a
+ drop in replacement for 'bsl::hash'.  It is similar to 'bslh::Hash', however,
+ it is meant for hashes that require a seed.  It takes a seed generator and
+ uses that to create seeds to give the hashing algorithm.  'bslh::SeededHash'
+ is a wrapper which adapts hashing algorithms from 'bslh' to match the
+ interface of 'bsl::hash'.  'bslh::SeededHash' is a universal hashing functor
+ that will hash any type that implements 'hashAppend' using the hashing
+ algorithm provided as a template parameter.
+
+/'bslh_seedgenerator'
+/ - - - - - - - - - -
+ The {'bslh_seedgenerator'} component provides a class, 'bslh::SeedGenerator',
+ which utilizes a user-supplied random number generator (RNG) to generate
+ arbitrary length seeds.  The quality of the seeds will only be as good as the
+ quality of the supplied RNG.  A cryptographically secure RNG must be supplied
+ in order for 'SeedGenerator' to produce seeds suitable for a cryptographically
+ secure algorithm.
+
+ This class satisfies the requirements for a seed generator, as defined in
+ 'bslh_seededhash'.
+
+/'bslh_siphashalgorithm'
+/- - - - - - - - - - - -
+ The 'bslh_siphashalgorithm' component provides an implementation of the
+ SipHash algorithm.  SipHash is an algorithm designed for speed and security.
+ A primary use case for this algorithm is to provide an extra line of defense
+ in hash tables (such as the underlying implementation of 'unordered_map')
+ against malicious input that could cause Denial of Service (DoS) attacks.  It
+ is based on one of the finalists for the SHA-3 cryptographic hash standard.
+ Full details of the hash function can be found at
+ 'https://131002.net/siphash/siphash.pdf'.  This particular implementation has
+ been derived from Howard Hinnant's work at
+ 'https://github.com/HowardHinnant/hash_append/blob/master/siphash.h' and as
+ much of the original code as possible, including comment headers, has been
+ preserved.
+
+ This class satisfies the requirements for seeded 'bslh' hashing algorithms, as
+ defined in 'bslh_seededhash'.
+
+/'bslh_spookyhashalgorithm'
+/ - - - - - - - - - - - - -
+ The 'bslh_spookyhashalgorithm' component provides an implementation of the
+ SpookyHash algorithm by Bob Jenkins.  This algorithm is a general purpose
+ algorithm that is known to quickly reach good avalanche performance and
+ execute in time that is comparable to or faster than other industry standard
+ algorithms such as CityHash.  It is a good default choice for hashing values
+ in unordered associative containers.  For more information, see
+ 'http://burtleburtle.net/bob/hash/spooky.html'.
+
+ This class satisfies the requirements for regular 'bslh' hashing algorithms
+ and seeded 'bslh' hashing algorithms, as defined in 'bslh_hash' and
+ 'bslh_seededhash' respectively.
+
+/'bslh_spookyhashalgorithmimp'
+/- - - - - - - - - - - - - - -
+ The 'bslh_spookyhashalgorithmimp' component provides BDE-style encapsulation
+ of Bob Jenkins canonical SpookyHash implementation.  SpookyHash provides a way
+ to hash contiguous data all at once, or non-contiguous data in pieces.  More
+ information is available at 'http://burtleburtle.net/bob/hash/spooky.html'.

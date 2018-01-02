@@ -1,0 +1,216 @@
+ bdlmt.txt
+
+@PURPOSE: Provides thread pools and event schedulers.
+
+@MNEMONIC: Basic Development Library Multi Thread (bdlmt)
+
+@SEE_ALSO: bdlcc
+
+@DESCRIPTION: The 'bdlmt' ("Basic Development Library Multi Thread") package
+ provides components for creating and managing thread pools, and components for
+ scheduling (time-based) events.
+
+ A "thread pool" is a collection of processor threads that are managed
+ together and used interchangeably to support user requests.  The
+ 'bdlmt_threadpool' component allows clients to configure the pool so that it
+ grows and shrinks according to user demand, manage thread availability, and
+ schedule client "jobs" to be run independently as threads in the pool become
+ available.  It does this by placing client requests on an internal job
+ queue, and controlling multiple threads as they remove jobs from the queue
+ and execute them.
+
+ A "multi-queue thread pool" defines a dynamic, configurable pool of queues,
+ each of which is processed by a thread in a thread pool, such that elements
+ on a given queue are processed serially, regardless of which thread is
+ processing the queue at a given time.  In addition to the ability to create
+ and delete queues, clients are able to tune the underlying thread pool.
+
+ A "timer-event scheduler" defines a thread-safe event scheduler.  It
+ provides methods to schedule and cancel recurring and non-recurring events
+ (also referred to as clock).  The callbacks are processed by a separate
+ thread (called dispatcher thread).
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlmt' package currently has 7 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bdlmt_multiqueuethreadpool
+     bdlmt_threadmultiplexor
+
+  1. bdlmt_eventscheduler
+     bdlmt_fixedthreadpool
+     bdlmt_multiprioritythreadpool
+     bdlmt_threadpool
+     bdlmt_timereventscheduler
+..
+
+/Component Synopsis
+/------------------
+: 'bdlmt_eventscheduler':
+:      Provide a thread-safe recurring and one-time event scheduler.
+:
+: 'bdlmt_fixedthreadpool':
+:      Provide portable implementation for a fixed-size pool of threads.
+:
+: 'bdlmt_multiprioritythreadpool':
+:      Provide a mechanism to parallelize a prioritized sequence of jobs.
+:
+: 'bdlmt_multiqueuethreadpool':
+:      Provide a pool of queues, each processed serially by a thread pool.
+:
+: 'bdlmt_threadmultiplexor':
+:      Provide a mechanism for partitioning a collection of threads.
+:
+: 'bdlmt_threadpool':
+:      Provide portable implementation for a dynamic pool of threads.
+:
+: 'bdlmt_timereventscheduler':
+:      Provide a thread-safe recurring and non-recurring event scheduler.
+
+/Generic Overview of Thread Pools
+/--------------------------------
+ At the current time, this generic overview applies only to the
+ 'bdlmt_MultipriorityThreadPool'.  The plan is for other threadpools to move
+ to this model at a later date.
+
+ As Figure 1 illustrates, a threadpool allows its clients to enqueue units of
+ work to be processed concurrently in multiple threads.  Each work item, or
+ "job", consists of a function along with the address of its associated input
+ data.  When executed, this address is supplied to the function as its only
+ argument; note that this function must have external linkage and return
+ 'void':
+..
+  extern "C" void job(void *);     // Idiomatic C-style function signature
+..
+ Alternatively both the function and its data can be encapsulated and
+ supplied in the form of an (invokable) function object, or "functor", taking
+ no arguments and returning 'void'.
+..
+  +-------------------------------------------------------------------------+
+  |                     ThreadPool *Control* Methods                        |
+  |                                                                         |
+  | Front Operations        Middle Operations      Back Operations          |
+  | ----------------        -----------------      ---------------          |
+  | int startThreads()      void removeJobs()      void enableQueue()       |
+  | void stopThreads()      void drainJobs()       void disableQueue()      |
+  | int resumeProcessing()                         int enqueueJob(func,arg) |
+  | int suspendProcessing()                        int enqueueJob(job)      |
+  |                                                                         |
+  +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -+
+  |           +--<--+--<--+--<--+--<--+--<--+----------------+              |
+  |           |     |     |     |     |     |                |              |
+  |  Front <==| Job | Job | Job | Job | Job |                |==< Back      |
+  |           |     |     |     |     |     |                |              |
+  |           +--<--+--<--+--<--+--<--+--<--+----------------+              |
+  |                                                                         |
+  |     ,----------------.                      ,-----------------.         |
+  |    ( N Worker Threads )                    ( Thread Attributes )        |
+  |     `----------------'                      `-----------------'         |
+  +-------------------------------------------------------------------------+
+             Figure 1: Illustration of Generalized Thread Pool
+..
+ In addition to enqueuing jobs, a thread pool must supply primitive control
+ functionality such as creating and destroying worker threads, enabling and
+ disabling the enqueuing of new jobs, causing the queue to block until there
+ are no pending jobs, and removing (i.e., canceling) all pending (i.e., not
+ yet running) jobs.  Different kinds of threadpools will provide different
+ functionality and/or performance characteristics, corresponding those of the
+ underlying thread-enabled ('bdlcc') queue -- e.g., (limited-capacity)
+ 'FixedQueue', (heap-based) 'PriorityQueue', and (array-based)
+ 'MultipriorityQueue'.  Nonetheless, each of the threadpool objects in 'bdlmt'
+ should provide a suite of input and control operations that are consistent
+ in both name and behavior across the 'bdlmt' package.
+
+ Due to the intricate nature of threadpools, it is easy to convolve behaviors
+ in subtly different ways for functions having the same name.  Consider, for
+ example, the method 'void drainJobs()', the basic functionality of which is
+ to 'block' the caller until all of the pending jobs complete (i.e., the
+ queue is empty and all worker threads are idle).  Should 'drainJobs()' also
+ leave the queue in the disabled state?  Even if that is a common usage
+ pattern, it is often useful to start with simple, orthogonal behaviors, and
+ if needed, define more complex behaviors in terms of them.
+
+ In the case of a thread pool, it is instructive to break the functionality
+ into three categories of operations relative to the underlying queue: Front,
+ Middle, and Back.  At the back of the queue (refer to Figure 1), we need to
+ enable/disable clients from adding work items.  Enabling or disabling the
+ queue does not affect the items already in the queue [Middle], nor any
+ worker threads processing these items [Front].
+
+ In the middle of the queue, we have two operations that result in purging
+ all pending items in the queue: 'drainJobs()' and 'removeJobs()' If we
+ invoke 'removeJobs()', then all currently pending (i.e., not started) work
+ items will be removed (i.e., canceled).  During this process, clients
+ attempting to add work items [Back] will block, but their eventual success
+ or failure, (which is based solely on whether the queue is enabled or
+ disabled) is not affected.  Note that jobs that are already in progress
+ [Front] are also unaffected.  Similarly, invoking our orthogonal
+ 'drainJobs()' method will block enqueuing clients until all pending jobs
+ have completed, but will not affect the enabledness of the thread pool
+ [Back], nor the processing of work items [Front].
+
+ Finally we come to the front of the queue, which addresses the processing of
+ jobs.  A (typically fixed) number of worker threads is specified at
+ construction.  The thread pool "wakes up" in an enabled state, but without
+ having created the worker threads.  Invoking the 'startThreads()' method
+ attempts to create these threads (unless they are already created).  The
+ 'startThreads()' method returns 0 if all of these threads are started, and a
+ non-zero value otherwise (in which case none of the worker threads are
+ started).  Redundant calls to 'startThreads()' do nothing and return zero.
+ Invoking 'stopThreads()' destroys each worker thread (after it completes any
+ current job).  Note that the current contents of the queue [Middle], and the
+ ability to enqueue new jobs [Back] are not affected.
+
+ Whether or not started threads should be pulling jobs from the queue and
+ processing them is not necessarily the same as having the user-specified
+ number of worker threads created.  In addition to being *enabled* and
+ *started* let's consider one more possible state, *suspended*.  If a thread
+ pool is in the *suspended* state, then even when it is in the *started*
+ state, it will not attempt to pop jobs from the queue and execute them.
+
+ A created threadpool will be created enabled, not suspended, and not
+ started.  All three of these qualities are orthogonal and any one of them
+ can be changed at any time.
+
+ The vast majority of users will be uninterested in both the 'suspend' and
+ 'disable' features, so it is imperative that newly created threadpools be
+ both non-suspended and enabled so users can remain blissfully ignorant of
+ them.  It is also important the first usage examples, if not all of them,
+ omit use of these features to minimize learning time for the typical user.
+
+ To conclude this generic overview, we note that there is one common usage
+ that, although not minimal, arguably deserves to be a method of every thread
+ pool class: 'void shutdown()'.  This method is best described as a
+ composition of the simple, orthogonal functions described above.  In order
+ to shut down a thread pool, we need to first disable the enqueuing of any
+ additional jobs, then remove all of the pending work items, and finally stop
+ all of the active threads:
+..
+  void shutdown()
+  {
+      disableQueue();
+      removeJobs();
+      stopThreads();
+  }
+..
+ By making sure that our initial operations are simple and orthogonal, we can
+ ensure that the precise meaning of more complex operations is kept clear.
+
+/Synchronous Signals on Unix
+/---------------------------
+ A thread pool ensures that, on Unix platforms, all the threads in the pool
+ block all asynchronous signals.  Specifically all the signals, except the
+ following synchronous signals are blocked.
+..
+  SIGBUS
+  SIGFPE
+  SIGILL
+  SIGSEGV
+  SIGSYS
+  SIGABRT
+  SIGTRAP
+  SIGIOT
+..

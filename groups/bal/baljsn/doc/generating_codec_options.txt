@@ -1,0 +1,81 @@
+This file outlines the steps required to generate the baljsn codec components
+from baljsn.xsd file.
+
+1. Run bas_codegen on baljsn.xsd using the following command:
+
+$ bas_codegen.pl -m msg -p baljsn -E --noExternalization                      \
+                                             --noAggregateConversion baljsn.xsd
+
+The -E option results in each type being generated in a separate component.
+The 'noExternalization' option disables generation of bdex/bslx functionality.
+We dont anticipate anyone bdex-serializing these options therefore that
+functionality is skipped.  The 'noAggregateConversion' option skips any
+aggregate conversion code from these components.
+
+2. Copy the component level doc and implementation note doc from the old
+   components to the generated components.
+
+3. Replace use of bdeat with bdlat.  'bas_codegen.pl' generates components
+   using 'bdeat' (as opposed to 'bdlat') components.  Change the generated
+   components to use the newer components instead.  This will include replacing
+   'bdeat_' with 'bdlat_', 'BDEAT' with 'BDLAT', and 'BDEAT_*' enums with 'e_'.
+
+4. 'baejsn_EncoderOptions' was written with 'EncodingStyle' as an in-class
+   enumeration and not a separate type/component.  To allow
+   backwards-compatibility when baejsn is aliased to baljsn we add a similar
+   in-class enumeration to 'baljsn::EncoderOptions'.  The generated class will
+   have a data member 'd_encodingStyle' of type 'baljsn::EncodingStyle::Value'
+   but we will need to add a manipulator 'setEncodingStyle' that accepts a
+   'baljsn::EncoderOptions::EncodingStyle' argument.  Similarly, the accessor
+   will need to be modified to return a
+   'baljsn::EncoderOptions::EncodingStyle'.
+
+5. Insert missing pre-condition asserts when setting constrained attributes.
+   'bas_codegen.pl' generates constrained attributes in a schema as separate
+   types.  The constrained types in the codec components, 'initialIndentLevel',
+   'spacesPerLevel', 'maxDepth' etc are all attributes that users expect to be
+   'int's.  Therefore, to maintain backwards-compatibility we generate these
+   types as unconstrained 'int's and add pre-condition asserts after the fact.
+   The following asserts in the specified method names need to be added:
+
+   * EncoderOptions::setInitialIndentLevel(int value)
+     * BSLS_ASSERT_SAFE(0 <= value);
+
+   * EncoderOptions::setSpacesPerLevel(int value)
+     * BSLS_ASSERT_SAFE(0 <= value);
+
+   * EncoderOptions::setDatetimeFractionalSecondPrecision(int value)
+     * BSLS_ASSERT_SAFE(0 <= value     );
+     * BSLS_ASSERT_SAFE(     value <= 6);
+
+   * EncoderOptions::setMaxFloatPrecision(int value)
+     * BSLS_ASSERT_SAFE(1 <= value     );
+     * BSLS_ASSERT_SAFE(     value <= 9);
+
+   * EncoderOptions::setMaxDoublePrecision(int value)
+     * BSLS_ASSERT_SAFE(1 <= value     );
+     * BSLS_ASSERT_SAFE(     value <= 17);
+
+   * DecoderOptions::setMaxDepth(int value)
+     * BSLS_ASSERT_SAFE(0 <= value);
+
+6. Set the default values for baljsn::EncoderOptions' 'maxFloatPrecision' and
+   'maxDoublePrecision' attributes as follows:
+
+const int EncoderOptions::DEFAULT_INITIALIZER_MAX_FLOAT_PRECISION =
+                                          bsl::numeric_limits<float>::digits10;
+const int EncoderOptions::DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION =
+                                         bsl::numeric_limits<double>::digits10;
+
+7. Replace the prefixes of the enumerator names in 'baljsn::EncodingStyle'
+   from 'E_' to 'e_'.
+
+8. Add an include for 'balscm_version.h' in all the header files.
+
+9. Add back deprecated enumerator names in EncoderOptions:
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEJSN_COMPACT = e_COMPACT
+      , BAEJSN_PRETTY  = e_PRETTY
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
