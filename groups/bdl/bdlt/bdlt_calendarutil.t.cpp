@@ -3484,21 +3484,17 @@ int main(int argc, char *argv[])
         //:   loads chronologically latest business day preceding 'original'
         //:   date.
         //:
-        //: 5 If 'original' date is not a business day and no business day were
-        //:   found within the month of an 'original' date, status with value
-        //:   '3' is returned.
+        //: 5 If non-zero value is returned, result remains unchanged.
         //:
-        //: 6 If non-zero value is returned, result remains unchanged.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the table-driven approach, define a representative set of
         //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..6)
+        //:   value.  (C-1..5)
         //:
         //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-7)
+        //:   triggered for argument values.  (C-6)
         //
         // Testing:
         //  shiftModifiedFollowingIfValid(bdlt::Date *result, orig, calendar)
@@ -4679,21 +4675,17 @@ int main(int argc, char *argv[])
         //:   loads chronologically earliest business day following 'original'
         //:   date.
         //:
-        //: 5 If 'original' date is not a business day and no business day were
-        //:   found within the month of an 'original' date, status with value
-        //:   '3' is returned.
+        //: 5 If non-zero value is returned, result remains unchanged.
         //:
-        //: 6 If non-zero value is returned, result remains unchanged.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the table-driven approach, define a representative set of
         //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..6)
+        //:   value.  (C-1..5)
         //:
         //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-7)
+        //:   triggered for argument values.  (C-6)
         //
         // Testing:
         //   shiftModifiedPrecedingIfValid(bdlt::Date *result, orig, calendar)
