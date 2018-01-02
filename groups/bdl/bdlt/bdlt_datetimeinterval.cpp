@@ -19,6 +19,8 @@ BSLS_IDENT_RCSID(bdlt_datetimeinterval_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>    // 'sprintf'
 #include <bsl_ostream.h>
 
+#include <cmath>
+
 namespace BloombergLP {
 
 // Assert fundamental assumptions made in the implementation.
