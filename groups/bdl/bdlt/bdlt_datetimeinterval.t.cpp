@@ -1843,13 +1843,51 @@ if (veryVerbose)
 
             {
                 const char *testing = "'setTotalSeconds(double)'";
-                Int64       DATA[] = { k_SECS_MIN, -1, 0, 1, k_SECS_MAX };
+
+                static const double k_DELTA = 1.0e-20;
+                    // Small delta that double can represent around 1.0e-6
+
+                static const struct {
+                    int    d_line;          // source line number
+                    double d_secsFrom;
+                    Int64  d_secsExpected;
+                    Int64  d_usecsExpected;
+                } DATA[] = {
+                    //LN         SECONDS FROM (DOUBLE)        EXP_SEC   EXP_US
+                    //--  --------------------------------  ----------- ------
+                    // Rounding tests
+                    { L_, -1.0 / k_USECS_PER_SEC - k_DELTA,  0,          -1  },
+                    { L_, -1.0 / k_USECS_PER_SEC,            0,          -1  },
+                    { L_, -1.0 / k_USECS_PER_SEC + k_DELTA,  0,          -1  },
+                    { L_, -0.5 / k_USECS_PER_SEC - k_DELTA,  0,          -1  },
+                    { L_, -0.5 / k_USECS_PER_SEC,            0,          -1  },
+                    { L_, -0.5 / k_USECS_PER_SEC + k_DELTA,  0,           0  },
+                    { L_, -0.0 / k_USECS_PER_SEC - k_DELTA,  0,           0  },
+                    { L_, -0.0 / k_USECS_PER_SEC,            0,           0  },
+                    { L_,  0.0 / k_USECS_PER_SEC,            0,           0  },
+                    { L_,  0.0 / k_USECS_PER_SEC + k_DELTA,  0,           0  },
+                    { L_,  0.5 / k_USECS_PER_SEC - k_DELTA,  0,           0  },
+                    { L_,  0.5 / k_USECS_PER_SEC,            0,           1  },
+                    { L_,  0.5 / k_USECS_PER_SEC + k_DELTA,  0,           1  },
+                    { L_,  1.0 / k_USECS_PER_SEC - k_DELTA,  0,           1  },
+                    { L_,  1.0 / k_USECS_PER_SEC,            0,           1  },
+                    { L_,  1.0 / k_USECS_PER_SEC + k_DELTA,  0,           1  },
+
+                    // Largest value capable of maintaining 1us properly
+                    { L_, -8589934591.000001,              -8589934591LL, -1 },
+                    { L_,  8589934591.000001,               8589934591LL,  1 },
+
+                    // Largest value that can be stored in DateTimeInterval
+                    { L_, k_SECS_MIN,                        k_SECS_MIN,  0  },
+                    { L_, k_SECS_MAX,                        k_SECS_MAX,  0  },
+                };
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
                 for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
-                    mX.setTotalSeconds(static_cast<double>(DATA[i]));
-                    mY.setInterval(0, 0, 0, DATA[i]);
-                    ASSERTV(testing, DATA[i], X == Y);
+                    mX.setTotalSeconds(DATA[i].d_secsFrom);
+                    mY.setInterval(0, 0, 0, DATA[i].d_secsExpected, 0,
+                                                      DATA[i].d_usecsExpected);
+                    ASSERTV(testing, DATA[i].d_line, X == Y);
                 }
             }
 
