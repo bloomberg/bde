@@ -4116,15 +4116,15 @@ int main(int argc, char *argv[])
             {L_, "BB|BBBnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      3},
             {L_, "BB|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      2},
             {L_, "BB|Bnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      1},
-            {L_, "BB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "Bn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
+            {L_, "BB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      0},
+            {L_, "Bn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,     -1},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     2,     NV},
 
             //Corner cases
             //Origin: 15
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     2,     NV},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  15,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  15,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  15,     0,     30},
@@ -4155,8 +4155,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  15,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  15,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  15,     0,     30},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      0},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     0,      0},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  15,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  15,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  15,     0,     30},
@@ -4258,7 +4258,7 @@ int main(int argc, char *argv[])
             //Origin 31
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     2,     NV},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  31,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  31,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  31,     0,     30},
@@ -4289,8 +4289,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  31,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  31,     0,     31},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  31,     0,     31},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  31,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  31,     0,      0},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     0,      0},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  31,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  31,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  31,     0,     30},
@@ -4325,7 +4325,7 @@ int main(int argc, char *argv[])
             //Origin 30
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     2,     NV},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  30,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  30,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  30,     0,     30},
@@ -4356,8 +4356,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  30,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  30,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  30,     0,     30},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  30,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  30,     0,      0},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     0,      0},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  30,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  30,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  30,     0,     30},
@@ -4392,7 +4392,7 @@ int main(int argc, char *argv[])
             //Origin 2
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     2,     NV},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   2,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   2,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   2,     0,     30},
@@ -4423,8 +4423,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",   2,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",   2,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",   2,     0,      2},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   2,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   2,     0,      0},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     0,      0},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   2,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   2,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   2,     0,     30},
@@ -4459,7 +4459,7 @@ int main(int argc, char *argv[])
             //Origin 1
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     2,     NV},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   1,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   1,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   1,     0,     30},
@@ -4490,8 +4490,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",   1,     0,      1},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",   1,     0,      1},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",   1,     0,      1},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   1,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   1,     0,      0},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     0,      0},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   1,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   1,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   1,     0,     30},
@@ -5307,15 +5307,15 @@ int main(int argc, char *argv[])
             {L_, "BB|BBBnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      3},
             {L_, "BB|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      2},
             {L_, "BB|Bnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      1},
-            {L_, "BB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "Bn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
+            {L_, "BB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     2,     NV},
+            {L_, "Bn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     2,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     2,     NV},
 
             //Corner cases
             //Origin: 15
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     0,     32},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  15,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  15,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  15,     0,     30},
@@ -5346,8 +5346,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  15,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  15,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  15,     0,      2},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     2,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     0,     32},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  15,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  15,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  15,     0,     30},
@@ -5449,7 +5449,7 @@ int main(int argc, char *argv[])
             //Origin 31
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     0,     32},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  31,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  31,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  31,     0,     30},
@@ -5480,8 +5480,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  31,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  31,     0,     31},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  31,     0,     31},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  31,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  31,     2,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     0,     32},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  31,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  31,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  31,     0,     30},
@@ -5516,7 +5516,7 @@ int main(int argc, char *argv[])
             //Origin 30
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     0,     32},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  30,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  30,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  30,     0,     30},
@@ -5547,8 +5547,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  30,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  30,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  30,     0,     30},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  30,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  30,     2,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     0,     32},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  30,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  30,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  30,     0,     30},
@@ -5583,7 +5583,7 @@ int main(int argc, char *argv[])
             //Origin 2
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     0,     32},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   2,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   2,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   2,     0,     30},
@@ -5614,8 +5614,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",   2,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",   2,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",   2,     0,      2},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   2,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   2,     2,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     0,     32},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   2,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   2,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   2,     0,     30},
@@ -5650,7 +5650,7 @@ int main(int argc, char *argv[])
             //Origin 1
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     0,     32},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   1,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   1,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   1,     0,     30},
@@ -5681,8 +5681,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",   1,     0,      1},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",   1,     0,      1},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",   1,     0,      1},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   1,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   1,     2,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     0,     32},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   1,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   1,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   1,     0,     30},
