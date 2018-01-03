@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
                                            calUS,
                                            CalendarUtil::e_MODIFIED_FOLLOWING);
 //..
-// Notice that, 'e_MODIFIED_FOLLOWING' is specified as an argument to
+// Notice that 'e_MODIFIED_FOLLOWING' is specified as an argument to
 // 'shiftIfValid' to indicate that we want to use the modified-following
 // date-shifting convention.
 //
@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
         //:   specified number of business days in both forward and backward
         //:   counting directions (C-1), (C-2)
         //:
-        //: 2 Explicitely test situations were the method should be
+        //: 2 Explicitly test situations were the method should be
         //:   unsuccessful.  (C-3)
         //:
         //: 3 Verify that, in appropriate build modes, defensive checks are
@@ -3484,21 +3484,17 @@ int main(int argc, char *argv[])
         //:   loads chronologically latest business day preceding 'original'
         //:   date.
         //:
-        //: 5 If 'original' date is not a business day and no business day were
-        //:   found within the month of an 'original' date, status with value
-        //:   '3' is returned.
+        //: 5 If non-zero value is returned, result remains unchanged.
         //:
-        //: 6 If non-zero value is returned, result remains unchanged.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the table-driven approach, define a representative set of
         //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..6)
+        //:   value.  (C-1..5)
         //:
         //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-7)
+        //:   triggered for argument values.  (C-6)
         //
         // Testing:
         //  shiftModifiedFollowingIfValid(bdlt::Date *result, orig, calendar)
@@ -4120,15 +4116,15 @@ int main(int argc, char *argv[])
             {L_, "BB|BBBnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      3},
             {L_, "BB|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      2},
             {L_, "BB|Bnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      1},
-            {L_, "BB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "Bn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
+            {L_, "BB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      0},
+            {L_, "Bn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,     -1},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     2,     NV},
 
             //Corner cases
             //Origin: 15
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     2,     NV},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  15,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  15,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  15,     0,     30},
@@ -4159,8 +4155,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  15,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  15,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  15,     0,     30},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      0},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     0,      0},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  15,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  15,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  15,     0,     30},
@@ -4262,7 +4258,7 @@ int main(int argc, char *argv[])
             //Origin 31
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     2,     NV},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  31,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  31,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  31,     0,     30},
@@ -4293,8 +4289,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  31,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  31,     0,     31},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  31,     0,     31},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  31,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  31,     0,      0},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     0,      0},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  31,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  31,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  31,     0,     30},
@@ -4329,7 +4325,7 @@ int main(int argc, char *argv[])
             //Origin 30
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     2,     NV},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  30,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  30,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  30,     0,     30},
@@ -4360,8 +4356,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  30,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  30,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  30,     0,     30},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  30,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  30,     0,      0},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     0,      0},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  30,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  30,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  30,     0,     30},
@@ -4396,7 +4392,7 @@ int main(int argc, char *argv[])
             //Origin 2
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     2,     NV},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   2,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   2,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   2,     0,     30},
@@ -4427,8 +4423,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",   2,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",   2,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",   2,     0,      2},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   2,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   2,     0,      0},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     0,      0},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   2,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   2,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   2,     0,     30},
@@ -4463,7 +4459,7 @@ int main(int argc, char *argv[])
             //Origin 1
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     2,     NV},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   1,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   1,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   1,     0,     30},
@@ -4494,8 +4490,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",   1,     0,      1},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",   1,     0,      1},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",   1,     0,      1},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   1,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   1,     0,      0},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     0,      0},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   1,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   1,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   1,     0,     30},
@@ -4679,21 +4675,17 @@ int main(int argc, char *argv[])
         //:   loads chronologically earliest business day following 'original'
         //:   date.
         //:
-        //: 5 If 'original' date is not a business day and no business day were
-        //:   found within the month of an 'original' date, status with value
-        //:   '3' is returned.
+        //: 5 If non-zero value is returned, result remains unchanged.
         //:
-        //: 6 If non-zero value is returned, result remains unchanged.
-        //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the table-driven approach, define a representative set of
         //:   valid inputs.  Verify that the function returns the correct
-        //:   value.  (C-1..6)
+        //:   value.  (C-1..5)
         //:
         //: 2 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered for argument values.  (C-7)
+        //:   triggered for argument values.  (C-6)
         //
         // Testing:
         //   shiftModifiedPrecedingIfValid(bdlt::Date *result, orig, calendar)
@@ -5315,15 +5307,15 @@ int main(int argc, char *argv[])
             {L_, "BB|BBBnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      3},
             {L_, "BB|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      2},
             {L_, "BB|Bnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     0,      1},
-            {L_, "BB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "Bn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
+            {L_, "BB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     2,     NV},
+            {L_, "Bn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     2,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     2,     NV},
 
             //Corner cases
             //Origin: 15
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     0,     32},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  15,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  15,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  15,     0,     30},
@@ -5354,8 +5346,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  15,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  15,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  15,     0,      2},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  15,     2,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  15,     0,     32},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  15,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  15,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  15,     0,     30},
@@ -5457,7 +5449,7 @@ int main(int argc, char *argv[])
             //Origin 31
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     0,     32},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  31,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  31,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  31,     0,     30},
@@ -5488,8 +5480,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  31,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  31,     0,     31},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  31,     0,     31},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  31,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  31,     2,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  31,     0,     32},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  31,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  31,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  31,     0,     30},
@@ -5524,7 +5516,7 @@ int main(int argc, char *argv[])
             //Origin 30
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     0,     32},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  30,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  30,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  30,     0,     30},
@@ -5555,8 +5547,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",  30,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",  30,     0,     30},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",  30,     0,     30},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  30,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",  30,     2,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",  30,     0,     32},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",  30,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",  30,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",  30,     0,     30},
@@ -5591,7 +5583,7 @@ int main(int argc, char *argv[])
             //Origin 2
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     0,     32},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   2,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   2,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   2,     0,     30},
@@ -5622,8 +5614,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",   2,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",   2,     0,      2},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",   2,     0,      2},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   2,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   2,     2,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   2,     0,     32},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   2,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   2,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   2,     0,     30},
@@ -5658,7 +5650,7 @@ int main(int argc, char *argv[])
             //Origin 1
             //LN INPUT                                ORIGINAL  STATUS  RESULT
             //-- -----                                --------  ------  ------
-            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     3,     NV},
+            {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     0,     32},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   1,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   1,     0,     31},
             {L_, "nn|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   1,     0,     30},
@@ -5689,8 +5681,8 @@ int main(int argc, char *argv[])
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|Bn",   1,     0,      1},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|nn",   1,     0,      1},
             {L_, "nn|BBnnnnnnnnnnnnnnnnnnnnnnnnnnnBB|Bn",   1,     0,      1},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   1,     3,     NV},
-            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     3,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|nn",   1,     2,     NV},
+            {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn|Bn",   1,     0,     32},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|nn",   1,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnB|Bn",   1,     0,     31},
             {L_, "nB|nnnnnnnnnnnnnnnnnnnnnnnnnnnnnBn|nn",   1,     0,     30},
@@ -5858,7 +5850,7 @@ int main(int argc, char *argv[])
         //   the calendar relative to the beginning of the month.
         //
         // Concerns:
-        //: 1 Function behaves correctly regardless of wether there are
+        //: 1 Function behaves correctly regardless of whether there are
         //:   business days or non-business days before the month.
         //:
         //: 2 Function returns '999' when the sequence that get passed
@@ -5958,7 +5950,7 @@ int main(int argc, char *argv[])
         static const struct {
             int         d_line;          // source line
             const char *d_input_p;       // input values
-            int         d_lenght;        // length of calendar
+            int         d_length;        // length of calendar
             bdlt::Date  d_start;         // start date
             bdlt::Date  d_end;           // end date
             int         d_businessDays;  // number of business days
@@ -5991,7 +5983,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             const int       LINE   = DATA[i].d_line;
             const char     *INPUT  = DATA[i].d_input_p;
-            const int       LENGTH = DATA[i].d_lenght;
+            const int       LENGTH = DATA[i].d_length;
             bdlt::Date      START  = DATA[i].d_start;
             bdlt::Date      END    = DATA[i].d_end;
             const int       BDAYS  = DATA[i].d_businessDays;
@@ -6055,7 +6047,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
