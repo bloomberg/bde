@@ -339,10 +339,10 @@ class DatetimeInterval {
 
     void setTotalSeconds(double seconds);
         // Set the overall value of this object to indicate the specified
-        // number of 'seconds'.  The fractional part of 'seconds', if any,
-        // is rounded to the nearest whole number of microseconds.  The
-        // behavior is undefined unless the resulting time interval value is 
-        // valid (i.e., the days field must not overflow a 32-bit integer).
+        // number of 'seconds'.  The fractional part of 'seconds', if any, is
+        // rounded to the nearest whole number of microseconds.  The behavior
+        // is undefined unless the resulting time interval value is valid
+        // (i.e., the days field must not overflow a 32-bit integer).
 
     void setTotalMilliseconds(bsls::Types::Int64 milliseconds);
         // Set the overall value of this object to indicate the specified
