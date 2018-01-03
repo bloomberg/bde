@@ -54,9 +54,10 @@ BSLS_IDENT("$Id: $")
 //      CheckedData(const char *data, size_t length);
 //          // Creates an instance of this class having the specified 'length'
 //          // bytes of 'data'.  The behavior is undefined unless 'data' is
-//          // initialized with at least 'length' bytes, and remains valid for
-//          // the lifetime of this object.  Note that only a pointer to the
-//          // data will be maintained, it will not be copied.
+//          // initialized with at least 'length' bytes or 'length' is zero,
+//          // and remains valid for the lifetime of this object.  Note that
+//          // only a pointer to the data will be maintained, it will not be
+//          // copied.
 //
 //      const char *getData();
 //          // Return a pointer to the data being tracked by this class.
@@ -77,7 +78,7 @@ BSLS_IDENT("$Id: $")
 //  , d_checksum1(0)
 //  , d_checksum2(0)
 //  {
-//      BSLS_ASSERT(data);
+//      BSLS_ASSERT(0 != data || 0 == length);
 //
 //      SpookyHashAlgorithmImp hashAlg(1, 2);
 //
@@ -332,8 +333,8 @@ class SpookyHashAlgorithmImp {
         // This method is meant to be used for messages less than 192 bytes in
         // length because of its lower startup cost.  The behavior is undefined
         // unless 'message' points at least 'length' bytes of initialized
-        // memory and both 'hash1' and 'hash2' point to at least 8 bytes of
-        // initialized, modifiable, memory.
+        // memory or 'length' is zero, and both 'hash1' and 'hash2' point to
+        // at least 8 bytes of initialized, modifiable, memory.
 
     static void shortEnd(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3);
         // Combine the specified 'h0', 'h1', 'h2', and 'h3' together so that
@@ -364,7 +365,7 @@ class SpookyHashAlgorithmImp {
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
         // seed.  Return the resulting 32-bit hash.  The behavior is undefined
         // unless 'message' points at least 'length' bytes of initialized
-        // memory.
+        // memory or 'length' is zero.
 
     static Uint64 hash64(const void *message,
                          size_t      length,
@@ -372,7 +373,7 @@ class SpookyHashAlgorithmImp {
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
         // seed.  Return the resulting 64-bit hash.  The behavior is undefined
         // unless 'message' points at least 'length' bytes of initialized
-        // memory.
+        // memory or 'length' is zero.
 
     static void hash128(const void *message,
                         size_t      length,
@@ -382,8 +383,9 @@ class SpookyHashAlgorithmImp {
         // 'hash2' as seeds.  Load the higher order bits of the resulting
         // 128-bit hash value into 'hash1' and the lower order bits in 'hash2'.
         // The behavior is undefined unless 'message' points at least 'length'
-        // bytes of initialized memory and both 'hash1' and 'hash2' point to at
-        // least 8 bytes of initialized, modifiable, memory.
+        // bytes of initialized memory or 'length' is zero, and both 'hash1'
+        // and 'hash2' point to at least 8 bytes of initialized, modifiable,
+        // memory.
 
     // CREATORS
     SpookyHashAlgorithmImp(Uint64 seed1, Uint64 seed2);
@@ -401,7 +403,7 @@ class SpookyHashAlgorithmImp {
         // 'Update' will produce the same result as hashing them all at once
         // through the 'HashXX' static methods.  The behavior is undefined
         // unles 'message' points at least 'length' bytes of initialized
-        // memory.
+        // memory or 'length' is zero.
 
     void finalize(Uint64 *hash1, Uint64 *hash2);
         // Load the finalized hash into the specified 'hash1' and 'hash2'.
@@ -427,7 +429,7 @@ SpookyHashAlgorithmImp::Uint32 SpookyHashAlgorithmImp::hash32(
                                                            size_t      length,
                                                            Uint32      seed)
 {
-    BSLS_ASSERT(message);
+    BSLS_ASSERT(0 != message || 0 == length);
     Uint64 hash1 = seed, hash2 = seed;
     hash128(message, length, &hash1, &hash2);
     return static_cast<Uint32>(hash1);
@@ -439,7 +441,7 @@ SpookyHashAlgorithmImp::Uint64 SpookyHashAlgorithmImp::hash64(
                                                            size_t      length,
                                                            Uint64      seed)
 {
-    BSLS_ASSERT(message);
+    BSLS_ASSERT(0 != message || 0 == length);
     Uint64 hash1 = seed;
     hash128(message, length, &hash1, &seed);
     return hash1;

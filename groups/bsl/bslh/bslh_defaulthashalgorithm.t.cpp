@@ -488,7 +488,8 @@ int main(int argc, char *argv[])
         //: 3 The output of calling 'operator()' and then 'computeHash()'
         //:   matches the output of the underlying hashing algorithm.
         //:
-        //: 4 'operator()' does a BSLS_ASSERT for null pointers.
+        //: 4 'operator()' does a BSLS_ASSERT for null pointers and non-zero
+        //:   length, and not for null pointers and zero length.
         //
         // Plan:
         //: 1 Hash a number of values with 'bslh::DefaultHashAlgorithm' and
@@ -575,6 +576,7 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(Obj()(   0, 5));
+            ASSERT_PASS(Obj()(   0, 0));
             ASSERT_PASS(Obj()(data, 5));
         }
 
