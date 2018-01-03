@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //                             specified original date within the valid range
 //                             of the specified calendar.
 //
-//  'nthBusDayOfMonthOrMaxIfValid'
+//  'nthBusinessDayOfMonthOrMaxIfValid'
 //                             Determine the 'n'th business day of the
 //                             specified year and month subject to a maximum of
 //                             the total number of business days in the
@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 //
 //  'shiftModifiedPrecedingIfValid'
 //                             If original date is not a business day, move
-//                             the date backward until it is a business day
+//                             the date backward until it is a business day,
 //                             unless the date goes into the previous month, in
 //                             which case the date is moved to the next
 //                             business day.
@@ -55,21 +55,6 @@ BSLS_IDENT("$Id: $")
 //                             Note that this function delegates its operation
 //                             to one of the above shift functions, based on
 //                             the date-shifting convention specified.
-//
-//  'shiftIfValidExceptOddDay' Shift a date based on a provided convention,
-//                             except when it falls on a specified day-of-week,
-//                             in which case use a different convention.  Note
-//                             that this function delegates its operation to
-//                             'shiftIfValid'.
-//
-//  'shiftIfValidExceptOddDays'
-//                             Shift a date based on a provided convention,
-//                             except when it falls on either a specified
-//                             day-of-week or is one of a continuous series of
-//                             non-business days preceding the specified
-//                             day-of-week, in which case use a different
-//                             convention.  Note that this function delegates
-//                             its operation to 'shiftIfValid'.
 //
 //  'subtractBusinessDaysIfValid'
 //                             Subtract an integral number of business days
@@ -116,7 +101,7 @@ BSLS_IDENT("$Id: $")
 //                                         calUS,
 //                                         CalendarUtil::e_MODIFIED_FOLLOWING);
 //..
-// Notice that, 'e_MODIFIED_FOLLOWING' is specified as an argument to
+// Notice that 'e_MODIFIED_FOLLOWING' is specified as an argument to
 // 'shiftIfValid' to indicate that we want to use the modified-following
 // date-shifting convention.
 //
@@ -163,19 +148,19 @@ struct CalendarUtil {
     enum ShiftConvention {
         // Enumeration used to delineate various date-shifting conventions.
 
-        e_UNADJUSTED,           // The date is not adjusted
+        e_UNADJUSTED,           // The date is not adjusted.
 
         e_FOLLOWING,            // The date is adjusted using
-                                // 'shiftFollowingIfValid'
+                                // 'shiftFollowingIfValid'.
 
         e_PRECEDING,            // The date is adjusted using
-                                // 'shiftPrecedingIfValid'
+                                // 'shiftPrecedingIfValid'.
 
         e_MODIFIED_FOLLOWING,   // The date is adjusted using
-                                // 'shiftModifiedFollowingIfValid'
+                                // 'shiftModifiedFollowingIfValid'.
 
         e_MODIFIED_PRECEDING    // The date is adjusted using
-                                // 'shiftModifiedPrecedingIfValid'
+                                // 'shiftModifiedPrecedingIfValid'.
     };
 
     // CLASS METHODS
@@ -190,10 +175,10 @@ struct CalendarUtil {
         // 'numBusinessDays', the chronologically earliest business day that is
         // on or after the 'original' date for '0 == numBusinessDays', and
         // chronologically after the 'original' date for positive values of
-        // 'numBusinessDays'.  Return 0 on success, and a non-zero value
-        // without modifying '*result' if either the original or the resulting
-        // date are not within the valid range of 'calendar'.  Note that if
-        // '0 != numBusinessDays' then the result of
+        // 'numBusinessDays'.  Return 0 on success, and a non-zero value,
+        // without modifying '*result', if either the 'original' date or the
+        // resulting date is not within the valid range of 'calendar'.  Note
+        // that if '0 != numBusinessDays', then the result of
         // 'addBusinessDaysIfValid(res, orig, cal, numBusinessDays)' is
         // identical to the result of
         // 'subtractBusinessDaysIfValid(res, orig, cal, -numBusinessDays)'.
@@ -206,21 +191,21 @@ struct CalendarUtil {
                                                int                    n);
         // Load, into the specified 'result', the date corresponding to the
         // specified 'n'th business day of the specified 'month' and the
-        // specified 'year' based on the specified 'calendar'.  'n' may take
-        // both positive and negative values.  A positive value of 'n'
-        // indicates that counting the number of business days begins from the
-        // first calendar date of the month (inclusive), and a negative value
-        // of 'n' indicates that counting the number of business days begins
-        // from the last calendar date of the month (inclusive).  If there are
-        // fewer than 'abs(n)' business days in the month according to the
-        // 'calendar', the business day furthest from the first date of the
-        // month is chosen if 'n > 0' and the business day furthest from the
-        // last date of the month is chose if 'n < 0'.  Return 0 on success,
-        // and a non-zero value without modifying '*result' if the entire month
-        // specified by 'year' and 'month' is not within the valid range of the
-        // 'calendar' or there are no business days in the month specified by
-        // 'year' and 'month'.  The behavior is undefined unless 'n != 0',
-        // '1 <= year <= 9999', and '1 <= month <= 12'.
+        // specified 'year' based on the specified 'calendar'.  A positive
+        // value of 'n' indicates that counting the number of business days
+        // begins from the first calendar date of the month (inclusive), and a
+        // negative value of 'n' indicates that counting the number of business
+        // days begins from the last calendar date of the month (inclusive).
+        // If there are fewer than 'abs(n)' business days in the month
+        // according to the 'calendar', the business day furthest from the
+        // first date of the month is chosen if 'n > 0', and the business day
+        // furthest from the last date of the month is chosen if 'n < 0'.
+        // Return 0 on success, and a non-zero value, without modifying
+        // '*result', if the entire month specified by 'year' and 'month' is
+        // not within the valid range of the 'calendar' or there are no
+        // business days in the month specified by 'year' and 'month'.  The
+        // behavior is undefined unless 'n != 0', '1 <= year <= 9999', and
+        // '1 <= month <= 12'.
 
     static int shiftFollowingIfValid(bdlt::Date            *result,
                                      const bdlt::Date&      original,
@@ -228,8 +213,9 @@ struct CalendarUtil {
         // Load, into the specified 'result', the date of the chronologically
         // earliest business day that is on or after the specified 'original'
         // date based on the specified 'calendar'.  Return 0 on success, and a
-        // non-zero value, without modifying '*result', if the following
-        // business day can not be found within the valid range of 'calendar'.
+        // non-zero value, without modifying '*result', if the 'original' date
+        // is not within the valid range of 'calendar' or the following
+        // business day cannot be found within the valid range of 'calendar'.
 
     static int shiftIfValid(bdlt::Date            *result,
                             const bdlt::Date&      original,
@@ -239,8 +225,8 @@ struct CalendarUtil {
         // is derived from the specified 'original' date based on the specified
         // 'calendar' according to the specified date-shifting 'convention'.
         // Return 0 on success, and a non-zero value, without modifying
-        // '*result', if a valid business date can not be found according to
-        // the 'convention' within the valid range of 'calendar'.
+        // '*result', if a valid business date cannot be found according to the
+        // 'convention' within the valid range of 'calendar'.
 
     static int shiftIfValid(bdlt::Date            *result,
                             const bdlt::Date&      original,
@@ -258,7 +244,7 @@ struct CalendarUtil {
         // immediately *preceding* a 'specialDay' according to the 'calendar',
         // in which case the 'result' is determined using the specified
         // 'specialConvention'.  Return 0 on success, and a non-zero value,
-        // without modifying '*result', if a valid business date can not be
+        // without modifying '*result', if a valid business date cannot be
         // found according to the above algorithm within the valid range of
         // 'calendar'.  Note that this method is useful for computing, for
         // example, Korean bond coupon payment dates.
@@ -268,24 +254,26 @@ struct CalendarUtil {
                                              const bdlt::Calendar&  calendar);
         // Load, into the specified 'result', the date of the chronologically
         // earliest business day that is on or after the specified 'original'
-        // date, unless a date can not be found in the same month, in which
-        // case load the chronologically latest business day before the
-        // 'original' date based on the specified 'calendar'.  Return 0 on
-        // success, and a non-zero value, without modifying '*result' if a
-        // business day can not be found within the month of the 'original'
-        // date or the valid range of the 'calendar'.
+        // date, unless a date cannot be found in the same month, in which case
+        // load the chronologically latest business day before the 'original'
+        // date based on the specified 'calendar'.  Return 0 on success, and a
+        // non-zero value, without modifying '*result', if the 'original' date
+        // is not within the valid range of 'calendar' or a valid business date
+        // cannot be found according to the above algorithm within the valid
+        // range of 'calendar'.
 
     static int shiftModifiedPrecedingIfValid(bdlt::Date            *result,
                                              const bdlt::Date&      original,
                                              const bdlt::Calendar&  calendar);
         // Load, into the specified 'result', the date of the chronologically
         // latest business day that is on or before the specified 'original'
-        // date, unless a date can not be found in the same month, in which
-        // case load the chronologically earliest business day after the
-        // 'original' date based on the specified 'calendar'.  Return 0 on
-        // success, and a non-zero value, without modifying '*result', if a
-        // business day can not be found within the month of the 'original'
-        // date or the valid range of the 'calendar'.
+        // date, unless a date cannot be found in the same month, in which case
+        // load the chronologically earliest business day after the 'original'
+        // date based on the specified 'calendar'.  Return 0 on success, and a
+        // non-zero value, without modifying '*result', if the 'original' date
+        // is not within the valid range of 'calendar' or a valid business date
+        // cannot be found according to the above algorithm within the valid
+        // range of 'calendar'.
 
     static int shiftPrecedingIfValid(bdlt::Date            *result,
                                      const bdlt::Date&      original,
@@ -293,8 +281,9 @@ struct CalendarUtil {
         // Load, into the specified 'result', the date of the chronologically
         // latest business day that is on or before the specified 'original'
         // date based on the specified 'calendar'.  Return 0 on success, and a
-        // non-zero value, without modifying '*result' if the preceding
-        // business day can not be found within the valid range of 'calendar'.
+        // non-zero value, without modifying '*result', if the 'original' date
+        // is not within the valid range of 'calendar' or the preceding
+        // business day cannot be found within the valid range of 'calendar'.
 
     static int subtractBusinessDaysIfValid(
                                        bdlt::Date            *result,
@@ -308,10 +297,10 @@ struct CalendarUtil {
         // 'numBusinessDays', the chronologically latest business day that is
         // on or before the 'original' date for '0 == numBusinessDays', and
         // chronologically after the 'original' date for negative values of
-        // 'numBusinessDays'.  Return 0 on success, and a non-zero value
-        // without modifying '*result' if either the original or the resulting
-        // date are not within the valid range of 'calendar'.  Note that if
-        // '0 != numBusinessDays' then the result of
+        // 'numBusinessDays'.  Return 0 on success, and a non-zero value,
+        // without modifying '*result', if either the 'original' date or the
+        // resulting date is not within the valid range of 'calendar'.  Note
+        // that if '0 != numBusinessDays', then the result of
         // 'subtractBusinessDaysIfValid(res, orig, cal, numBusinessDays)' is
         // identical to the result of
         // 'addBusinessDaysIfValid(res, orig, cal, -numBusinessDays)'.
@@ -321,6 +310,11 @@ struct CalendarUtil {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
+                           // -------------------
+                           // struct CalendarUtil
+                           // -------------------
+
+// CLASS METHODS
 inline
 int CalendarUtil::shiftFollowingIfValid(bdlt::Date            *result,
                                         const bdlt::Date&      original,
@@ -389,7 +383,7 @@ int CalendarUtil::shiftPrecedingIfValid(bdlt::Date            *result,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
