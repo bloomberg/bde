@@ -1458,7 +1458,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) {
             cout << "DRQS 113734461: 'deleteQueue' copies cleanupFunctor\n"
-                 << "===================================================\n"
+                 << "===================================================\n";
         }
 
         Obj          mX(bslmt::ThreadAttributes(), 4, 4, 30);
