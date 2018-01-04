@@ -1221,7 +1221,7 @@ int main(int argc, char *argv[])
                     }
                     else {
                         const bool ret = mX.requestPermission(
-                                                          NUM_ACTIONS,
+                                                       NUM_ACTIONS,
                                                        u::clockTi(CLOCK_TYPE));
 
                         if (veryVerbose) cout << "reqestPermission(" <<
