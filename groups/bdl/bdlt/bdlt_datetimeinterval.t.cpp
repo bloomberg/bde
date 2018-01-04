@@ -87,7 +87,7 @@ using namespace bsl;
 // [12] void setTotalHours(Int64 hours);
 // [12] void setTotalMinutes(Int64 minutes);
 // [12] void setTotalSeconds(Int64 seconds);
-// [12] void setTotalSeconds(double seconds);
+// [12] void setTotalSecondsFromDouble(double seconds);
 // [12] void setTotalMilliseconds(Int64 milliseconds);
 // [12] void setTotalMicroseconds(Int64 microseconds);
 // [15] void addInterval(int d, Int64 h = 0, m = 0, s = 0, ms = 0);
@@ -1779,7 +1779,7 @@ if (veryVerbose)
         //   void setTotalHours(Int64 hours);
         //   void setTotalMinutes(Int64 minutes);
         //   void setTotalSeconds(Int64 seconds);
-        //   void setTotalSeconds(double seconds);
+        //   void setTotalSecondsFromDouble(double seconds);
         //   void setTotalMilliseconds(Int64 milliseconds);
         //   void setTotalMicroseconds(Int64 microseconds);
         // --------------------------------------------------------------------
@@ -1842,7 +1842,7 @@ if (veryVerbose)
             }
 
             {
-                const char *testing = "'setTotalSeconds(double)'";
+                const char *testing = "'setTotalSecondsFromDouble(double)'";
 
                 static const double k_DELTA = 1.0e-20;
                     // Small delta that double can represent around 1.0e-6
@@ -1884,7 +1884,7 @@ if (veryVerbose)
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
                 for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
-                    mX.setTotalSeconds(DATA[i].d_secsFrom);
+                    mX.setTotalSecondsFromDouble(DATA[i].d_secsFrom);
                     mY.setInterval(0, 0, 0, DATA[i].d_secsExpected, 0,
                                                       DATA[i].d_usecsExpected);
                     ASSERTV(testing, DATA[i].d_line, X == Y);
