@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
         //   Demonstrate a use for 'bslmf::MatchAnyType'.
         //
         // Plan:
-        //   Overload a function such that one version of it take an argument
+        //   Overload a function such that one version of it takes an argument
         //   of type 'Y' and the other takes an argument of type
         //   'bslmf::MatchAnyType', and the combination produces a function
         //   that can evaluate whether a type is 'Y' or not.

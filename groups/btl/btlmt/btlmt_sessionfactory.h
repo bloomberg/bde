@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: btlmt_session, btlmt_sessionpool
 //
-//@DESCRIPTION: The class provided by this component are intended to be used
+//@DESCRIPTION: The class provided by this component is intended to be used
 // with 'btlmt::SessionPool', which allocates/manages TCP sessions given a
 // session factory.  See the 'btlmt_sessionpool' component for a more detailed
 // documentation.
