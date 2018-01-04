@@ -59,6 +59,15 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE is informative only, and does not compile independently
+//
+// Further, there are a number of behaviors that explicitly should not compile
+// by accident that we will provide tests for.  These tests should fail to
+// compile if the appropriate macro is defined.  Each such test will use a
+// unique macro for its feature test, and provide a commented-out definition of
+// that macro immediately above the test, to easily enable compiling that test
+// while in development.  Below is the list of all macros that control the
+// availability of these tests:
+//  #define BSLSTL_FORWARDITERATOR_COMPILE_FAIL_NON_REFERENCE_DEREFERENCE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -253,6 +262,26 @@ bool testRandomAccessTag( Iter, Iter, std::random_access_iterator_tag* =
 }
 
 struct Wrap { int data; };
+
+//  Class for testing compilation error, see
+//  BSLSTL_FORWARDITERATOR_COMPILE_FAIL_NON_REFERENCE_DEREFERENCE
+template<class T>
+class IncorrectDereferenceIter
+{
+public:
+    // Compiler-generated default, copy and destruction
+    // IncorrectDereferenceIter();
+    // IncorrectDereferenceIter(const IncorrectDereferenceIter&);
+    // IncorrectDereferenceIter& operator=(const IncorrectDereferenceIter&);
+    // ~IncorrectDereferenceIter();
+
+    T operator*() const;
+        // This type of signature should fail to compile
+
+    bool operator==(const IncorrectDereferenceIter& rhs) const;
+    void operator++();
+};
+
 
 }  // close unnamed namespace
 
@@ -1022,6 +1051,14 @@ int main(int argc, char *argv[])
         // operator-> (are constness concerns appropriate for a breathing test,
         // we just want to confirm that each individual API can be called.)
 
+// #define BSLSTL_FORWARDITERATOR_COMPILE_FAIL_NON_REFERENCE_DEREFERENCE
+#if defined(BSLSTL_FORWARDITERATOR_COMPILE_FAIL_NON_REFERENCE_DEREFERENCE)
+        {
+            // confirm that non-reference dereference return type fails to
+            // compile - see DRQS 105559701.
+            bslstl::ForwardIterator<const int, IncorrectDereferenceIter<int>> i;
+        }
+#endif
         // --------------------------------------------------------------------
         // (ORIGINAL) BREATHING/USAGE TEST
         //   We retain the original breathing test supplied by Pablo when the
