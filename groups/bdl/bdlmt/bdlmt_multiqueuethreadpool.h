@@ -496,7 +496,7 @@ class MultiQueueThreadPool_Queue {
 
     bool enqueueDeletion(const Job&    cleanupFunctor   = Job(),
                          bslmt::Latch *completionSignal = 0);
-        // Premanently disable enqueueing from this queue, and enqueue a job
+        // Permanently disable enqueueing from this queue, and enqueue a job
         // that will delete this queue.  Optionally specify 'cleanupFunctor',
         // which, if supplied, will be invoked immediately prior to this
         // queue's deletion.  Optionally specify 'completionSignal', on which

@@ -109,7 +109,8 @@ using namespace BloombergLP;
 // [23] DRQS 107865762: more than one task per queue to thread pool
 // [24] DRQS 107733386: pause queue can be indefinitely deferred
 // [25] DRQS 112259433: 'drain' and 'deleteQueue' can deadlock
-// [26] USAGE EXAMPLE 1
+// [26] DRQS 113734461: 'deleteQueue' copies cleanupFunctor
+// [27] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -471,7 +472,9 @@ void case26CleanupFunctor(bool *called)
     // Set the specified 'called' to 'true'.  Note that this function in
     // intended to be bound as a cleanup functor for 'deleteQueue'
 {
-    bsl::cout << "Case26 Cleanup Functor)" << bsl::endl;
+    if (veryVerbose) {
+        bsl::cout << "Case26 Cleanup Functor" << bsl::endl;
+    }
     *called = true;
 }
 
@@ -481,12 +484,13 @@ void case26WaitJob(bslmt::Latch *latch)
     latch->wait();
 }
 
-
 void case26DeleteQueue(Obj *queue, int queueId, bool *cleanupDone)
-    // Call 'deleleQueue' on the specified 'queue', and supply a cleanup
-    // functor that will be destroyed when this function exits.  Note that
-    // this is factored into a separate function to ensure the temporary
-    // functor is destroyed.
+    // Call 'deleteQueue' on the specified 'queue', using the specified
+    // 'queueId', and supply a cleanup functor that will set 'cleanupDone' to
+    // 'true', and will be *destroyed* when this function exits (i.e., the
+    // functor will be called after the temporary functor in this function call
+    // is destroyed).  Note that this is factored into a separate function to
+    // ensure the temporary functor is destroyed.
 {
     queue->deleteQueue(
         queueId, bdlf::BindUtil::bind(&case26CleanupFunctor, cleanupDone));
@@ -1438,7 +1442,7 @@ int main(int argc, char *argv[]) {
       }  break;
       case 26: {
         // --------------------------------------------------------------------
-        // DRQS 113734461: deeleteQueue copies cleanupFunctor
+        // DRQS 113734461: 'deleteQueue' copies cleanupFunctor
         //
         // Concerns:
         //: 1 That 'deleteQueue' copies the user supplied 'cleanupFunctor'
@@ -1449,8 +1453,13 @@ int main(int argc, char *argv[]) {
         //: 1 Recreate the scenario and verify the deadlock no longer occurs.
         //
         // Testing:
-        //   DRQS 113734461: deeleteQueue copies cleanupFunctor
+        //   DRQS 113734461: 'deleteQueue' copies cleanupFunctor
         // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "DRQS 113734461: 'deleteQueue' copies cleanupFunctor\n"
+                 << "===================================================\n"
+        }
 
         Obj          mX(bslmt::ThreadAttributes(), 4, 4, 30);
         bool         cleanupDone = false;
