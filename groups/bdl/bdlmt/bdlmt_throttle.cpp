@@ -59,9 +59,7 @@ void Throttle::initialize(int                         maxSimultaneousActions,
 
 bool Throttle::requestPermission(const bsls::TimeInterval& now)
 {
-    // Special casing 'allow all' here prevents undefined behavior later in
-    // the function due to overflowing signed arithmetic.
-
+#if defined(BSLS_ASSERT_IS_ACTIVE)
     enum { k_BILLION     = 1000 * 1000 * 1000,
            k_MAX_SECONDS = LLONG_MAX / k_BILLION,
            k_MIN_SECONDS = LLONG_MIN / k_BILLION };
@@ -76,6 +74,10 @@ bool Throttle::requestPermission(const bsls::TimeInterval& now)
     else {
         BSLS_ASSERT(LLONG_MIN - sns < now.nanoseconds());
     }
+#endif
+
+    // Special casing 'allow all' here prevents undefined behavior later in
+    // the function due to overflowing signed arithmetic.
 
     if (k_ALLOW_ALL == d_nanosecondsPerAction) {
         return true;                                                  // RETURN
@@ -107,6 +109,7 @@ bool Throttle::requestPermission(const bsls::TimeInterval& now)
 bool Throttle::requestPermission(int                       numActions,
                                  const bsls::TimeInterval& now)
 {
+#if defined(BSLS_ASSERT_IS_ACTIVE)
     enum { k_BILLION     = 1000 * 1000 * 1000,
            k_MAX_SECONDS = LLONG_MAX / k_BILLION,
            k_MIN_SECONDS = LLONG_MIN / k_BILLION };
@@ -122,6 +125,7 @@ bool Throttle::requestPermission(int                       numActions,
     else {
         BSLS_ASSERT(LLONG_MIN - sns < now.nanoseconds());
     }
+#endif
 
     if (d_maxSimultaneousActions < numActions) {
         BSLS_ASSERT(0 == d_maxSimultaneousActions);
