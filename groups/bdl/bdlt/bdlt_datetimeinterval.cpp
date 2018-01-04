@@ -170,7 +170,7 @@ void DatetimeInterval::assign(bsls::Types::Int64 days,
 }
 
 // MANIPULATORS
-void DatetimeInterval::setTotalSeconds(double seconds)
+void DatetimeInterval::setTotalSecondsFromDouble(double seconds)
 {
     double wholeDays;
     modf(seconds / TimeUnitRatio::k_S_PER_D, &wholeDays);
