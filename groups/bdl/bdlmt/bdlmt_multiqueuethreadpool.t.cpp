@@ -467,6 +467,32 @@ void case12DeleteQueue(bdlmt::MultiQueueThreadPool *mqtp,
     barrier->wait();
 }
 
+void case26CleanupFunctor(bool *called)
+    // Set the specified 'called' to 'true'.  Note that this function in
+    // intended to be bound as a cleanup functor for 'deleteQueue'
+{
+    bsl::cout << "Case26 Cleanup Functor)" << bsl::endl;
+    *called = true;
+}
+
+void case26WaitJob(bslmt::Latch *latch)
+    // Call 'wait' on the specified 'latch'.
+{
+    latch->wait();
+}
+
+
+void case26DeleteQueue(Obj *queue, int queueId, bool *cleanupDone)
+    // Call 'deleleQueue' on the specified 'queue', and supply a cleanup
+    // functor that will be destroyed when this function exits.  Note that
+    // this is factored into a separate function to ensure the temporary
+    // functor is destroyed.
+{
+    queue->deleteQueue(
+        queueId, bdlf::BindUtil::bind(&case26CleanupFunctor, cleanupDone));
+}
+
+
 // ============================================================================
 //          CLASSES AND HELPER FUNCTIONS FOR TESTING USAGE EXAMPLES
 // ----------------------------------------------------------------------------
@@ -1329,7 +1355,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1410,6 +1436,43 @@ int main(int argc, char *argv[]) {
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // DRQS 113734461: deeleteQueue copies cleanupFunctor
+        //
+        // Concerns:
+        //: 1 That 'deleteQueue' copies the user supplied 'cleanupFunctor'
+        //:   so that if the user supplied functor goes out of scope
+        //:   and is destroyed, the task does not seg-fault.
+        //
+        // Plan:
+        //: 1 Recreate the scenario and verify the deadlock no longer occurs.
+        //
+        // Testing:
+        //   DRQS 113734461: deeleteQueue copies cleanupFunctor
+        // --------------------------------------------------------------------
+
+        Obj          mX(bslmt::ThreadAttributes(), 4, 4, 30);
+        bool         cleanupDone = false;
+        bslmt::Latch latch(1);
+
+        mX.start();
+        int queueId = mX.createQueue();
+        mX.enqueueJob(queueId,
+                          bdlf::BindUtil::bind(&case26WaitJob, &latch));
+
+        // We call 'deleteQueue' within a separate function to ensure the
+        // cleanup functor temporary object supplied to 'deleteQueue' is
+        // destroyed.
+
+        case26DeleteQueue(&mX, queueId, &cleanupDone);
+
+        latch.arrive();
+        mX.drain();
+        mX.stop();
+        ASSERT(true == cleanupDone);
+
+      } break;
       case 25: {
         // --------------------------------------------------------------------
         // DRQS 112259433: 'drain' and 'deleteQueue' can deadlock

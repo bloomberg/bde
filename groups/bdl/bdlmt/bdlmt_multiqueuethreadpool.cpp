@@ -186,7 +186,7 @@ void MultiQueueThreadPool_Queue::executeFront()
 }
 
 bool MultiQueueThreadPool_Queue::enqueueDeletion(
-                                                const Job    *cleanupFunctor,
+                                                const Job&    cleanupFunctor,
                                                 bslmt::Latch *completionSignal)
 {
     // Note that the queue is actually deleted by the thread pool while
@@ -318,7 +318,7 @@ int MultiQueueThreadPool_Queue::resume()
 // PRIVATE MANIPULATORS
 void MultiQueueThreadPool::deleteQueueCb(
                                   MultiQueueThreadPool_Queue *queue,
-                                  const CleanupFunctor       *cleanup,
+                                  const CleanupFunctor&       cleanup,
                                   bslmt::Latch               *completionSignal)
 {
     BSLS_ASSERT(queue);
@@ -327,8 +327,8 @@ void MultiQueueThreadPool::deleteQueueCb(
         completionSignal->arrive();
     }
 
-    if (cleanup && *cleanup) {
-        (*cleanup)();
+    if (cleanup) {
+        cleanup();
     }
 
     // Note that 'd_queuePool' does its own synchronization.
@@ -422,7 +422,7 @@ int MultiQueueThreadPool::deleteQueue(int                   id,
 
     d_queueRegistry.erase(id);
 
-    queue->enqueueDeletion(&cleanupFunctor);
+    queue->enqueueDeletion(cleanupFunctor);
 
     return 0;
 }
@@ -443,7 +443,7 @@ int MultiQueueThreadPool::deleteQueue(int id)
 
         d_queueRegistry.erase(id);
 
-        isProcessor = queue->enqueueDeletion(0, &latch);
+        isProcessor = queue->enqueueDeletion(CleanupFunctor(), &latch);
     }
 
     if (!isProcessor) {
@@ -660,7 +660,7 @@ void MultiQueueThreadPool::shutdown()
          ++it) {
         MultiQueueThreadPool_Queue *queue = it->second;
 
-        queue->enqueueDeletion(0, &latch);
+        queue->enqueueDeletion(CleanupFunctor(), &latch);
     }
 
     d_queueRegistry.clear();
