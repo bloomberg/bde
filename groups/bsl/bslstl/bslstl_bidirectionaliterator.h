@@ -235,13 +235,13 @@ class BidirectionalIterator
     // 'ITER_IMP' must provide public operations so that, for objects 'i' and
     // 'j' of type 'ITER_IMP', the following operations are supported:
     //..
-    //     ITER_IMP i;                             default construction
-    //     ITER_IMP j(i);                          copy construction
-    //     i = j                                   assignment
-    //     ++i                                     increment to next element
-    //     --i                                     decrement to previous element
-    //     i == j // convertible to bool           equality comparison
-    //     *i     // reference convertible to T&   element access (dereference)
+    //     ITER_IMP i;                            default construction
+    //     ITER_IMP j(i);                         copy construction
+    //     i = j                                  assignment
+    //     ++i                                    increment to next element
+    //     --i                                    decrement to previous element
+    //     i == j // convertible to bool          equality comparison
+    //     *i     // reference convertible to T&  element access (dereference)
     //..
 
     // PRIVATE TYPES

@@ -265,7 +265,7 @@ struct Wrap { int data; };
 
 //  Class for testing compilation error, see
 //  BSLSTL_FORWARDITERATOR_COMPILE_FAIL_NON_REFERENCE_DEREFERENCE
-template<class T>
+template<class TYPE>
 class IncorrectDereferenceIter
 {
 public:
@@ -275,7 +275,7 @@ public:
     // IncorrectDereferenceIter& operator=(const IncorrectDereferenceIter&);
     // ~IncorrectDereferenceIter();
 
-    T operator*() const;
+    TYPE operator*() const;
         // This type of signature should fail to compile
 
     bool operator==(const IncorrectDereferenceIter& rhs) const;
@@ -1056,7 +1056,8 @@ int main(int argc, char *argv[])
         {
             // confirm that non-reference dereference return type fails to
             // compile - see DRQS 105559701.
-            bslstl::ForwardIterator<const int, IncorrectDereferenceIter<int>> i;
+            bslstl::ForwardIterator<const int, IncorrectDereferenceIter<int>>
+                                                                            it;
         }
 #endif
         // --------------------------------------------------------------------

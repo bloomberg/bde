@@ -142,21 +142,21 @@ class ForwardIterator
     // public operations so that, for objects 'i' and 'j' of type 'ITER_IMP',
     // the following operations are supported:
     //..
-    //     ITER_IMP i;                              Default construction
-    //     ITER_IMP j(i);                           Copy construction
-    //     i = j                                    Assignment
-    //     ++i                                      Increment to next element
-    //     i == j  // convertible to bool           Equality comparison
-    //     *i      // reference convertible to T&   Element access (dereference)
+    //     ITER_IMP i;                             Default construction
+    //     ITER_IMP j(i);                          Copy construction
+    //     i = j                                   Assignment
+    //     ++i                                     Increment to next element
+    //     i == j // convertible to bool           Equality comparison
+    //     *i     // reference convertible to T&   Element access (dereference)
     //..
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) && \
     defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
     static_assert(
         bsl::is_lvalue_reference<
-                     decltype(*bslmf::Util::declval<const ITER_IMP&>())>::value,
+                    decltype(*bslmf::Util::declval<const ITER_IMP&>())>::value,
         "Forward iterators must return a true reference to their element when "
-                                                               "dereferenced.");
+                                                              "dereferenced.");
 #endif
 
     // PRIVATE TYPES
