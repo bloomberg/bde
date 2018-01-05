@@ -48,12 +48,12 @@
 // The above application of 'BSLS_DEPRECATE_IS_ACTIVE' indicates that 'foo' is
 // deprecated starting with 'bde' version 3.2.  Once the deprecation threshold
 // for 'bde' advances to version 3.2, code calling 'foo' will generate a
-// deprecation warning on supported platforms.  (See {Version Control Macros
-// for Library Authors} for information on defining a deprecation threshold for
-// a UOR.)  Note that in the absence of an explicit deprecation threshold
-// ('BDE_VERSION_DEPRECATION_THRESHOLD', in this case), code calling 'foo'
-// would begin generating deprecation warnings in the very next minor or major
-// release of 'bde' (3.3 or 4.0, whichever applies).
+// deprecation warning with compilers that support deprecation attributes.
+// (See {Version Control Macros for Library Authors} for information on
+// defining a deprecation threshold for a UOR.)  Note that in the absence of an
+// explicit deprecation threshold ('BDE_VERSION_DEPRECATION_THRESHOLD', in this
+// case), code calling 'foo' would begin generating deprecation warnings in the
+// very next minor or major release of 'bde' (3.3 or 4.0, whichever applies).
 //
 // If an interface has several entities being deprecated at the same time,
 // clients can define a new deprecation macro within that header to avoid
@@ -145,12 +145,13 @@
 // address these shortcomings:
 //
 //: 1 This facility is designed to provide ABI compatibility.
-//:   'BSLS_DEPRECATE_*' macros primarily trigger *compilation* *warnings* with
-//:   supported compilers, instead of *removing* *code* from the codebase.
+//:   'BSLS_DEPRECATE_*' macros are used to trigger *compilation* *warnings*
+//:   on platforms that support deprecation attributes, instead of *removing*
+//:   *code* from the codebase.
 //:
 //: 2 Typically, use of this facility will not immediately generate a warning
 //:   in client code.  The use of the 'BSLS_DEPRECATE' macro is generally
-//:   guarded by a version check (using 'BSLS_DEPRECATE_IS_ACTIVE').  In an
+//:   guarded by a version check using 'BSLS_DEPRECATE_IS_ACTIVE'.  In an
 //:   environment where compiler warnings are considered to be build failures,
 //:   it is possible (and encouraged) to tag a C++ entity with a deprecation
 //:   macro in one release cycle, and not have that deprecation affect any
@@ -160,9 +161,9 @@
 //
 // Notice that the cost for maintaining ABI compatibility is that clients
 // cannot check whether they are using deprecated interfaces unless they build
-// their software with a supported compiler and with warnings activated.  For
-// this facility to be effective across an enterprise, it is required that such
-// a warning-enabled build be part of the standard process for checking in code
+// their software on certain platforms with warnings activated.  For this
+// facility to be effective across an enterprise, it is required that such
+// warning-enabled builds be part of the standard process for checking in code
 // in the enterprise.
 //
 ///Mechanics
@@ -176,14 +177,14 @@
 ///Deprecation Macros
 /// - - - - - - - - -
 //: 'BSLS_DEPRECATE':
-//:   Expands to a particular deprecation attribute on supported platforms.  If
-//:   the compiler does not support deprecation attributes, 'BSLS_DEPRECATE'
-//:   expands to nothing.  'BSLS_DEPRECATE' can be applied to 'class' or
-//:   'struct' definitions, function declarations, and 'typedef's.
+//:   Expands to a particular deprecation attribute with compilers that have
+//:   such support; otherwise, 'BSLS_DEPRECATE' expands to nothing.
+//:   'BSLS_DEPRECATE' can be applied to 'class' or 'struct' definitions,
+//:   function declarations, and 'typedef's.
 //:
 //: 'BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)':
 //:   Expands to 1 if deprecations are enforced for the specified version 'M.N'
-//:   of the specified 'UOR', or to 0 otherwise.
+//:   of the specified 'UOR', and to 0 otherwise.
 //
 // These two macros are intended to be placed together in a preprocessor '#if'
 // block in front of a function, type, or 'typedef' declaration, with
@@ -217,7 +218,7 @@
 // 'BSLS_DEPRECATE' cannot be applied uniformly to some C++ constructs, most
 // notably variables, enumerators, and preprocessor macros.  Fortunately, these
 // constructs can often be removed from a library without otherwise affecting
-// ABI, so '!BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)' can be used with an '#if'
+// ABI, so '!BSLS_DEPRECATE_IS_ACTIVE(UOR, M, N)' can be used with a '#if'
 // directive to entirely remove blocks of code containing those C++ constructs.
 //
 // Example:
@@ -246,9 +247,9 @@
 // Note the use of the '!' operator: deprecated code is compiled only if
 // deprecations are *not* enforced for the specified UOR version.
 //
-// Particular care must be taken to ensure that deprecating an enumerator does
-// not (inadvertently) change the values of other enumerators in the same
-// 'enum':
+// Particular care must be taken to ensure that deprecating one or more
+// enumerators does not (inadvertently) change the values of other enumerators
+// in the same 'enum':
 //..
 //  enum MyEnum {
 //      e_FIRST,
@@ -373,8 +374,8 @@
 //  }  // close package namespace
 //..
 //
-///Supported Compilers
-///-------------------
+///Supporting Compilers
+///--------------------
 // 'BSLS_DEPRECATE' will produce a warning with the following compilers:
 //: o gcc 4.3+
 //: o clang 3.4+
@@ -523,7 +524,7 @@
 // where old code actually has zero uses and can be deleted.  The deprecation
 // macros 'BSLS_DEPRECATE' and 'BSLS_DEPRECATE_IS_ACTIVE', and their associated
 // control macros, can be used to gradually reduce the number of uses of
-// deprecated code, so that it can eventually be removed.
+// deprecated code, so that it can be removed eventually.
 //
 // Suppose we own package group 'xxx' that is currently at version 7.6.  One of
 // our components contains a function 'foo' that has been superseded by another
@@ -628,8 +629,8 @@
 
 #ifndef BSLS_DEPRECATE
 #  if defined(__GNUC__)
-//   All supported compilers in the GNUC interface family (g++ and clang)
-//   provide the simple gcc extension attribute.
+//   All compilers in the GNUC interface family (g++ and clang) provide the
+//   simple gcc extension attribute.
 #    define BSLS_DEPRECATE __attribute__ ((deprecated))
 #  elif defined (_MSC_VER)
 //   MSVC supports a 'deprecated' declaration specifier starting with Visual

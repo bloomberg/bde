@@ -160,8 +160,8 @@
 // numeric expression is non-zero, and 'false' otherwise.  The other cases will
 // all evaluate to 'false'.
 //
-// The macro operates by adding '1' to the expanded 'EXPRESSION'.  In each of
-// the cases above, that will result in:
+// The macro operates by adding 1 to the expanded 'EXPRESSION'.  In each of the
+// cases above, that will result in:
 //
 //: 1 '+ 1'.             This will compare equal to 1.
 //:
@@ -346,8 +346,8 @@
 ///Future Development
 ///------------------
 //
-///Support for Future Compiler Versions
-/// - - - - - - - - - - - - - - - - - -
+///Support in Future Compiler Versions
+///- - - - - - - - - - - - - - - - - -
 // Future compiler versions should begin to support this facility when they
 // implement either a GCC-style deprecation attribute or the C++14
 // '[[deprecated]]' attribute.  For example, Sun Studio 12.5 is known to
