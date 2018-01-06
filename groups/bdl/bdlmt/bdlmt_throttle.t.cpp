@@ -46,8 +46,8 @@ using bsl::flush;
 //                             --------
 // ----------------------------------------------------------------------------
 // MANIPULATORS
-// [ 7] int requestPermissionIfValid(bool*,int);
-// [ 7] int requestPermissionIfValid(bool*,int,const bsls::TimeInterval&);
+// [ 6] int requestPermissionIfValid(bool*,int);
+// [ 6] int requestPermissionIfValid(bool*,int,const bsls::TimeInterval&);
 // [ 5] bool requestPermission();
 // [ 5] bool requestPermission(int);
 // [ 4] requestPermission(int, const bsls::TimeInterval&);
@@ -55,15 +55,20 @@ using bsl::flush;
 // [ 2] void initialize(int, Int64, SystemClockType::Enum);
 //
 // ACCESSORS
+// [ 7] int nextPermit(bsls::TimeInterval *, int) const;
 // [ 2] bsls::SystemClockType::Enum clockType() const;
 // [ 2] int maxSimultaneousActions() const;
 // [ 2] Int64 nanosecondsPerAction() const;
 //
 // MACROS
-// [ 6] BDLMT_THROTTLE_INIT(int, Int64)
-// [ 6] BDLMT_THROTTLE_INIT_REALTIME(int, Int64)
+// [ 8] BDLMT_THROTTLE_INIT(int, Int64)
+// [ 8] BDLMT_THROTTLE_INIT_REALTIME(int, Int64)
+// [ 9] BDLMT_THROTTLE_IF(int, Int64)
+// [ 9] BDLMT_THROTTLE_IF_REALTIME(int, Int64)
+// [ 9] BDLMT_THROTTLE_IF_ALLOW_ALL
+// [ 9] BDLMT_THROTTLE_IF_ALLOW_NONE
 // ----------------------------------------------------------------------------
-// [ 8] USAGE EXAMPLE
+// [10] USAGE EXAMPLE
 // [ 3] TEST APPARATUS
 // [-1] EVENTS DROPPED TEST
 // [ 1] BREATHING TEST
@@ -129,6 +134,8 @@ typedef bsls::SystemClockType   CT;
 typedef CT::Enum                ClockType;
 typedef bsls::Types::Int64      Int64;
 typedef bsls::Types::Uint64     Uint64;
+typedef bsls::TimeInterval      TimeInterval;
+
 
 int                 test;
 bool             verbose;
@@ -287,11 +294,11 @@ bsls::TimeInterval toTime(const char *timeStr)
 
     bsl::strcpy(buf, timeStr);
 
-    char *minutesStr     = 0;
-    char *secondsStr     = bsl::strchr(buf, ':');
-    char * const fracStr = bsl::strchr(buf, '.');
-    char *nanoStr        = bsl::strchr(buf, 'n');
-    char *maxStr         = buf;    (void) maxStr;
+    char *minutesStr = 0;
+    char *secondsStr = bsl::strchr(buf, ':');
+    char *fracStr    = bsl::strchr(buf, '.');
+    char *nanoStr    = bsl::strchr(buf, 'n');
+    char *maxStr     = buf;    (void) maxStr;
 
     if (!secondsStr) {
         secondsStr = buf;
@@ -304,6 +311,7 @@ bsls::TimeInterval toTime(const char *timeStr)
     BSLS_ASSERT(secondsStr);
     if (fracStr) {
         *fracStr = 0;
+        ++fracStr;
     }
     if (nanoStr) {
         *nanoStr = 0;
@@ -330,11 +338,16 @@ bsls::TimeInterval toTime(const char *timeStr)
     if (minutesStr) {
         ret.addMinutes(bsl::atoi(minutesStr));
     }
-    if (*secondsStr || (fracStr && (!nanoStr || fracStr < nanoStr))) {
-        if (fracStr) {
-            *fracStr = '.';
-        }
-        ret += bsl::strtod(secondsStr, 0);
+    if (*secondsStr) {
+        ret.addSeconds(bsl::atoi(secondsStr));
+    }
+    if (fracStr) {
+        enum { k_FRAC_DIGITS = 9 };
+        char fracBuf[k_FRAC_DIGITS + 1];
+        bsl::strncpy(fracBuf, fracStr, k_FRAC_DIGITS);
+        bsl::fill(fracBuf + bsl::strlen(fracBuf), fracBuf+k_FRAC_DIGITS, '0');
+        fracBuf[k_FRAC_DIGITS] = 0;
+        ret.addNanoseconds(bsl::atoi(fracBuf));
     }
     if (nanoStr) {
         ret.addNanoseconds(bsl::atoi(nanoStr));
@@ -500,7 +513,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 8: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -541,7 +554,631 @@ int main(int argc, char *argv[])
                                                 '\n');
         ASSERT(11 == numLines);
       } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING BDLMT_THROTTLE_IF MACROS
+        //
+        // Concerns:
+        //: 1 That all the 'BDLMT_THROTTLE_IF*' macros work correctly.
+        //
+        // Plan:
+        //: 1 Black box testing 1: Iterate a number of times, calling a
+        //:   'BDLMT_THROTTLE_IF' with counters in both if 'if' clause and the
+        //:   'else' clause controlled by the macro, enough times to exhaust
+        //:   'maxSimultaneousActions' but not enough to run long enough for
+        //:   'nanosecondsPerAction' to expire.  This makes the tallies of
+        //:   counters very predictable, and confirm them.
+        //:
+        //: 2 Black box testing 2: Iterate a number of times calling a
+        //:   'BDLMT_THROTTLE_IF' with a fairly short 'nanosecondsPerAction',
+        //:   with counters in both clauses, and a sleep for 1/4 of the
+        //:   'nanospecondsPerAction', and the outer loop timed to finish after
+        //:   '2.5 * nanospecondsPerAction' has expired.  This should result in
+        //:   'maxSimultaneousActions + 2' events being approved, and a roughly
+        //:   predictable number of events rejected.
+        //:
+        //: 3: Repeat both black box tests for 'BDLMT_THROTTLE_IF_REALTIME'.
+        //:
+        //: 4 White box test:
+        //:   o Define a macro taking 'maxSimultaneousActions' and
+        //:     'nanoSecondsPerAction' arguments, which expands into a code
+        //:     block calling 'BDLMT_THROTTLE_IF' 'maxSimultaneousActions'
+        //:     times, with separate bools being set in the 'if' and 'else'
+        //:     clauses, verifying that the 'if' was always set and the 'else'
+        //:     bool never was.
+        //:   o In the 'if' clause, take a reference to the static throttle
+        //:     instantiated by the macro, and use the accessors to confirm
+        //:     that the state is as expected.
+        //:   o Call the macro with a variety of inputs.
+        //:
+        //: 5 Repeat the white box test for 'BDLMT_THROTTLE_IF_REALTIME'.
+        //:
+        //: 6 Adapt the white box test to 'BDLMT_THROTTLE_ALLOW_ALL'.  Note
+        //:   that there is no need for all the code to be in a macro, since
+        //:   there are no args to be varied.  This test requires very
+        //:   intimate white-box knowledge of the component, because the
+        //:   the state of the throttle is set to strange values in that case.
+        //:
+        //: 6 Adapt the white box test to 'BDLMT_THROTTLE_ALLOW_NONE'.  This
+        //:   is very similar to the 'BDLMT_THROTTLE_ALLOW_ALL' case except
+        //:   that the throttle defined in the conditional has to be
+        //:   accessed from the 'else' clause, since the 'if' clause is never
+        //:   executed.
+        //
+        // Testing:
+        //   BDLMT_THROTTLE_IF(int, Int64)
+        //   BDLMT_THROTTLE_IF_REALTIME(int, Int64)
+        //   BDLMT_THROTTLE_IF_ALLOW_ALL
+        //   BDLMT_THROTTLE_IF_ALLOW_NONE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING BDLMT_THROTTLE_IF MACROS\n"
+                             "================================\n";
+
+        if (verbose) cout << "BDLMT_THROTTLE_IF(4, u::k_SECOND)\n";
+        {
+            int ii, jj, kk;
+            for (ii = 0, jj = 0, kk = 0; kk < 10; ++ii) {
+                ASSERTV(ii, jj, kk, jj + kk == ii);
+                BDLMT_THROTTLE_IF(4, u::k_SECOND) {
+                    ASSERTV(ii, jj, kk, 0 == kk);
+                    ++jj;
+                }
+                else {
+                    ASSERTV(ii, jj, kk, 4 == jj);
+                    ++kk;
+                }
+            }
+            ASSERTV(ii, jj, kk, 14 == ii);
+            ASSERTV(ii, jj, kk,  4 == jj);
+            ASSERTV(ii, jj, kk, 10 == kk);
+        }
+
+        if (verbose) cout << "BDLMT_THROTTLE_IF(4, 80 * u::k_MILLI)\n";
+        {
+            const TimeInterval start = u::clockTi();
+            const TimeInterval end   = start + 0.2;
+
+            int ii, jj, kk;
+            for (ii = 0, jj = 0, kk = 0; u::clockTi() < end; ++ii) {
+                const double elapsed =
+                                 (u::clockTi() - start).totalSecondsAsDouble();
+
+                ASSERTV(ii, jj, kk, jj + kk == ii);
+                BDLMT_THROTTLE_IF(4, 80 * u::k_MILLI) {
+                    if (veryVerbose) {
+                        P_(jj);    P(elapsed);
+                    }
+                    ++jj;
+                }
+                else {
+                    ASSERT(4 <= jj);
+                    if (veryVerbose) {
+                        P_(kk);    P(elapsed);
+                    }
+                    u::checkedSleep(0.02);
+                    ++kk;
+                }
+            }
+            ASSERTV(ii, jj, kk, jj + kk == ii);
+            ASSERTV(ii, jj, kk,  4 + 1 + 1 == jj);
+            ASSERTV(ii, jj, kk, kk < 12);
+            ASSERTV(ii, jj, kk,  8 < kk);
+        }
+
+        if (verbose) cout << "BDLMT_THROTTLE_IF_REALTIME(4, u::k_SECOND)\n";
+        {
+            int ii, jj, kk;
+            for (ii = 0, jj = 0, kk = 0; kk < 10; ++ii) {
+                ASSERTV(ii, jj, kk, jj + kk == ii);
+                BDLMT_THROTTLE_IF_REALTIME(4, u::k_SECOND) {
+                    ASSERTV(ii, jj, kk, 0 == kk);
+                    ++jj;
+                }
+                else {
+                    ASSERTV(ii, jj, kk, 4 == jj);
+                    ++kk;
+                }
+            }
+            ASSERTV(ii, jj, kk, 14 == ii);
+            ASSERTV(ii, jj, kk,  4 == jj);
+            ASSERTV(ii, jj, kk, 10 == kk);
+        }
+
+        if (verbose) cout <<"BDLMT_THROTTLE_IF_REALTIME(4, 80 * u::k_MILLI)\n";
+        {
+            const TimeInterval start = u::clockTi(CT::e_REALTIME);
+            const TimeInterval end   = start + 0.2;
+
+            int ii, jj, kk;
+            for (ii = 0, jj = 0, kk = 0; u::clockTi(CT::e_REALTIME) < end;
+                                                                        ++ii) {
+                const double elapsed =
+                   (u::clockTi(CT::e_REALTIME) - start).totalSecondsAsDouble();
+
+                ASSERTV(ii, jj, kk, jj + kk == ii);
+                BDLMT_THROTTLE_IF_REALTIME(4, 80 * u::k_MILLI) {
+                    if (veryVerbose) {
+                        P_(jj);    P(elapsed);
+                    }
+                    ++jj;
+                }
+                else {
+                    ASSERT(4 <= jj);
+                    if (veryVerbose) {
+                        P_(kk);    P(elapsed);
+                    }
+                    u::checkedSleep(0.02);
+                    ++kk;
+                }
+            }
+            ASSERTV(ii, jj, kk, jj + kk == ii);
+            ASSERTV(ii, jj, kk,  4 + 1 + 1 == jj);
+            ASSERTV(ii, jj, kk, kk < 12);
+            ASSERTV(ii, jj, kk,  8 < kk);
+        }
+
+        if (verbose) cout << "BDLMT_THROTTLE_IF -- WHITE BOX\n";
+
+#undef  WHITE_BOX_TEST_THROTTLE_IF
+#define WHITE_BOX_TEST_THROTTLE_IF(msa, npa) {                                \
+            for (int ii = 0; ii < (msa); ++ii) {                              \
+                BSLMF_ASSERT(0 < msa && 0 < npa);                             \
+                bool found = false, elseFound = false;                        \
+                BDLMT_THROTTLE_IF(msa, npa) {                                 \
+                    Obj& throttle = bdlmt_throttle_iFtHrOtTlE;                \
+                    ASSERTV(throttle.maxSimultaneousActions() == msa);        \
+                    ASSERTV(throttle.nanosecondsPerAction()   == npa);        \
+                    ASSERTV(throttle.clockType()              ==              \
+                                                            CT::e_MONOTONIC); \
+                    found = true;                                             \
+                }                                                             \
+                else {                                                        \
+                    elseFound = true;                                         \
+                }                                                             \
+                ASSERT(found);                                                \
+                ASSERT(!elseFound);                                           \
+            }                                                                 \
+        }
+
+        WHITE_BOX_TEST_THROTTLE_IF( 1,           1);
+        WHITE_BOX_TEST_THROTTLE_IF( 1, u::k_SECOND);
+        WHITE_BOX_TEST_THROTTLE_IF(10, u::k_SECOND);
+        WHITE_BOX_TEST_THROTTLE_IF( 1, u::k_MILLI);
+        WHITE_BOX_TEST_THROTTLE_IF(10, u::k_MILLI);
+        WHITE_BOX_TEST_THROTTLE_IF( 1, 3600LL * u::k_SECOND);
+        WHITE_BOX_TEST_THROTTLE_IF(10, 3600LL * u::k_SECOND);
+#undef  WHITE_BOX_TEST_THROTTLE_IF
+
+        if (verbose) cout << "BDLMT_THROTTLE_IF_REALTIME -- WHITE BOX\n";
+
+#undef  WHITE_BOX_TEST_THROTTLE_IF_REALTIME
+#define WHITE_BOX_TEST_THROTTLE_IF_REALTIME(msa, npa) {                       \
+            for (int ii = 0; ii < (msa); ++ii) {                              \
+                BSLMF_ASSERT(0 < msa && 0 < npa);                             \
+                bool found = false, elseFound = false;                        \
+                BDLMT_THROTTLE_IF_REALTIME(msa, npa) {                        \
+                    Obj& throttle = bdlmt_throttle_iFtHrOtTlE;                \
+                    ASSERTV(throttle.maxSimultaneousActions() == msa);        \
+                    ASSERTV(throttle.nanosecondsPerAction()   == npa);        \
+                    ASSERTV(throttle.clockType()              ==              \
+                                                             CT::e_REALTIME); \
+                    found = true;                                             \
+                }                                                             \
+                else {                                                        \
+                    elseFound = true;                                         \
+                }                                                             \
+                ASSERT(found);                                                \
+                ASSERT(!elseFound);                                           \
+            }                                                                 \
+        }
+
+        WHITE_BOX_TEST_THROTTLE_IF_REALTIME( 1,           1);
+        WHITE_BOX_TEST_THROTTLE_IF_REALTIME( 1, u::k_SECOND);
+        WHITE_BOX_TEST_THROTTLE_IF_REALTIME(10, u::k_SECOND);
+        WHITE_BOX_TEST_THROTTLE_IF_REALTIME( 1, u::k_MILLI);
+        WHITE_BOX_TEST_THROTTLE_IF_REALTIME(10, u::k_MILLI);
+        WHITE_BOX_TEST_THROTTLE_IF_REALTIME( 1, 3600LL * u::k_SECOND);
+        WHITE_BOX_TEST_THROTTLE_IF_REALTIME(10, 3600LL * u::k_SECOND);
+#undef  WHITE_BOX_TEST_THROTTLE_IF_REALTIME
+
+        if (verbose) cout << "BDLMT_THROTTLE_IF_ALLOW_ALL -- WHITE BOX\n";
+        for (int ii = 0; ii < 100; ++ii) {
+            bool found = false, elseFound = false;
+            BDLMT_THROTTLE_IF_ALLOW_ALL {
+                Obj& throttle = bdlmt_throttle_iFtHrOtTlE;
+                ASSERTV(throttle.maxSimultaneousActions(), INT_MAX,
+                                 throttle.maxSimultaneousActions() == INT_MAX);
+                ASSERTV(throttle.nanosecondsPerAction(), LLONG_MIN,
+                                 throttle.nanosecondsPerAction() == LLONG_MIN);
+                ASSERTV(throttle.clockType() == CT::e_MONOTONIC);
+                found = true;
+            }
+            else {
+                elseFound = true;
+            }
+            ASSERT(found);
+            ASSERT(!elseFound);
+        }
+
+        if (verbose) cout << "BDLMT_THROTTLE_IF_ALLOW_NONE -- WHITE BOX\n";
+        for (int ii = 0; ii < 100; ++ii) {
+            bool found = false, elseFound = false;
+            BDLMT_THROTTLE_IF_ALLOW_NONE {
+                found = true;
+            }
+            else {
+                Obj& throttle = bdlmt_throttle_iFtHrOtTlE;
+                ASSERTV(throttle.maxSimultaneousActions(),
+                                       throttle.maxSimultaneousActions() == 0);
+                ASSERTV(throttle.nanosecondsPerAction(), LLONG_MAX,
+                                 throttle.nanosecondsPerAction() == LLONG_MAX);
+                ASSERTV(throttle.clockType() == CT::e_MONOTONIC);
+                elseFound = true;
+            }
+            ASSERT(!found);
+            ASSERT(elseFound);
+        }
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING INITIALIZATION MACROS
+        //
+        // Concerns:
+        //: 1 That the macro initializers create throttles with the same state
+        //:   as a throttle with 'initialize' called with the same arguments.
+        //
+        // Plan:
+        //: 1 Statically initialize a set of throttles with different
+        //:   arguments, and have each one pointed to by a line in a table that
+        //:   contains the same arguments to be passed to 'initialize', after
+        //:   which 'memcmp' is called to verify that the throttles have
+        //:   identical state.
+        //
+        // Testing:
+        //   BDLMT_THROTTLE_INIT(int, Int64)
+        //   BDLMT_THROTTLE_INIT_REALTIME(int, Int64)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING INITIALIZATION MACROS\n"
+                             "=============================\n";
+
+        typedef bdlt::TimeUnitRatio TUR;
+
+        static Obj throttle00 = BDLMT_THROTTLE_INIT(1, u::k_MILLI);
+        static Obj throttle01 = BDLMT_THROTTLE_INIT_REALTIME(1, u::k_MILLI);
+        static Obj throttle02 = BDLMT_THROTTLE_INIT(5, u::k_MILLI);
+        static Obj throttle03 = BDLMT_THROTTLE_INIT_REALTIME(5, u::k_MILLI);
+        static Obj throttle04 = BDLMT_THROTTLE_INIT(1000, u::k_SECOND);
+        static Obj throttle05 = BDLMT_THROTTLE_INIT_REALTIME(
+                                                            1000, u::k_SECOND);
+        static Obj throttle16 = BDLMT_THROTTLE_INIT(
+                                         10, 10 * TUR::k_NANOSECONDS_PER_HOUR);
+        static Obj throttle17 = BDLMT_THROTTLE_INIT_REALTIME(
+                                         10, 10 * TUR::k_NANOSECONDS_PER_HOUR);
+        static Obj throttle08 = BDLMT_THROTTLE_INIT(100, 2 * u::k_MILLI);
+        static Obj throttle09 = BDLMT_THROTTLE_INIT_REALTIME(
+                                                          100, 2 * u::k_MILLI);
+
+        static const ClockType mono = CT::e_MONOTONIC;
+        static const ClockType real = CT::e_REALTIME;
+
+        static const struct Data {
+            int        d_line;
+            int        d_maxSimultaneousActions;
+            Int64      d_nanosecondsPerAction;
+            ClockType  d_clockType;
+            Obj       *d_staticThrottle_p;
+        } DATA[] = {
+            { L_,    1, u::k_MILLI,                       mono, &throttle00 },
+            { L_,    1, u::k_MILLI,                       real, &throttle01 },
+            { L_,    5, u::k_MILLI,                       mono, &throttle02 },
+            { L_,    5, u::k_MILLI,                       real, &throttle03 },
+            { L_, 1000, u::k_SECOND,                      mono, &throttle04 },
+            { L_, 1000, u::k_SECOND,                      real, &throttle05 },
+            { L_,   10, 10 * TUR::k_NANOSECONDS_PER_HOUR, mono, &throttle16 },
+            { L_,   10, 10 * TUR::k_NANOSECONDS_PER_HOUR, real, &throttle17 },
+            { L_,  100, 2 * u::k_MILLI,                   mono, &throttle08 },
+            { L_,  100, 2 * u::k_MILLI,                   real, &throttle09 }};
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const Data& data                   = DATA[ti];
+            const int   LINE                   = data.d_line;
+            const int   maxSimultaneousActions = data.d_maxSimultaneousActions;
+            const Int64 nanosecondsPerAction   = data.d_nanosecondsPerAction;
+            const ClockType clockType          = data.d_clockType;
+            const Obj  *pStaticThrottle        = data.d_staticThrottle_p;
+
+            ASSERT(clockType == pStaticThrottle->clockType());
+
+            Obj mX;
+            mX.initialize(maxSimultaneousActions,
+                          nanosecondsPerAction,
+                          clockType);
+
+            ASSERTV(LINE, 0 == bsl::memcmp(&mX,
+                                           data.d_staticThrottle_p,
+                                           sizeof(Obj)));
+        }
+      } break;
       case 7: {
+        // --------------------------------------------------------------------
+        // TESTING 'nextPermit'
+        //
+        // Concerns:
+        //: 1 If 'nextPermit' is called with invalid input, it will return a
+        //:   non-zero value without modifying the time interval passed to it.
+        //:
+        //: 2 If 'nextPermit' is called with valid input, it will return 0, and
+        //:   set the time interval passed by pointer to it to the exact
+        //:   earliest nanosecond when the specified 'numActions' would be
+        //:   permitted.
+        //
+        // Plan:
+        //: 1 Iterate through a table executing 4 commands:
+        //:   o 'e_CMD_INIT': Initialize the throttle, but don't call any
+        //:     manipulators that will effect its 'd_prevLeakTime' field.  This
+        //:     will only be called for setting the throttle to 'allow all' or
+        //:     'allow none'.
+        //:   o 'e_CMD_INIT_SET_TIME': Initialize the throttle, and call
+        //:     'requestPermissions' to set the 'd_prevLeakTime' field to
+        //:     exactly the time specified.
+        //:   o 'e_CMD_NEXT_PERMIT': Call 'nextPermit', expect it to succeed
+        //:     and return 0 and set the time interval passed to the exact
+        //:     nanosecond when 'numActions' actions would be permitted.  Then
+        //:     follow up with 'requestPermission' to verify that, then
+        //:     re-initialize the throttle to the exact state it was in before
+        //:     'nextPermit' was called.
+        //:   o 'e_CMD_NEXT_PERMIT_INVALID': Call 'nextPermit', expect it to
+        //:     return a non-zero value without modifying the time interval
+        //:     that was passed to it.
+        //
+        // Tesing:
+        //   int nextPermit(bsls::TimeInterval *, int) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'nextPermit'\n"
+                             "====================\n";
+
+        enum { k_BILLION = 1000 * 1000 * 1000 };
+
+        enum Cmd { e_CMD_INIT,
+                   e_CMD_INIT_SET_TIME,
+                   e_CMD_NEXT_PERMIT,
+                   e_CMD_NEXT_PERMIT_INVALID };
+
+        const TimeInterval nullTI(-123456789, -123456789);
+            // We assign the time interval to be returned from 'nextPermit' to
+            // this ridiculous value before the call.  This value is never
+            // expected from a valid call, while with invalid calls we confirm
+            // that the time interval is unmodified.
+
+        const TimeInterval minusTenYears(
+                                  - Obj::k_TEN_YEARS_NANOSECONDS / k_BILLION,
+                                  -(Obj::k_TEN_YEARS_NANOSECONDS % k_BILLION));
+            // White box -- this is the time interval that will be returned by
+            // 'nextPermit' if the throttle was initialized 'allow all'.
+
+        // 'INIT_ALLOW_ALL': initialize the throttle to 'allow all'.
+
+#undef  INIT_ALLOW_ALL
+#define INIT_ALLOW_ALL                                                        \
+    { L_, e_CMD_INIT, 1, 0, -1, TimeInterval() }
+
+        // 'INIT_ALLOW_NONE': initialize the throttle to 'allow none'.
+
+#undef  INIT_ALLOW_NONE
+#define INIT_ALLOW_NONE                                                       \
+    { L_, e_CMD_INIT, 0, 1, -1, TimeInterval() }
+
+        // 'INIT_SET_TIME': initialize the throttle with the specified
+        // 'maxSimultaneousActions' and 'secondsPerAction', and use
+        // 'requestPermission' to set the 'd_prevLeakTime' to the specified
+        // string 'setTimeSpec', which is to be parsed by 'u::toTime'.
+
+#undef  INIT_SET_TIME
+#define INIT_SET_TIME(maxSimultaneousActions, secondsPerAction, setTimeSpec)  \
+    { L_, e_CMD_INIT_SET_TIME, maxSimultaneousActions, secondsPerAction,      \
+                                                   -1, u::toTime(setTimeSpec) }
+
+        // 'NEXT_PERMIT': call 'nextPermit' with the specified 'numActions' and
+        // verify that it succeeds.  Compare the time returned to the specified
+        // 'expectedTimeSpec' and verify that it matches.  If the throttle was
+        // not initialized to 'allow all', call 'requestPermission' after the
+        // 'nextPermit' call to verify that the time returned was the exact
+        // nanosecond when permission would be granted, then re-initialize the
+        // throttle back to the state it was in before the 'nextPermit' call.
+        // Note that 'expectedTimeSpec' can be either a string to be parsed by
+        // 'u::toTime' or a 'TimeInterval'.
+
+#undef  NEXT_PERMIT
+#define NEXT_PERMIT(numActions, expectedTimeSpec)                             \
+    { L_, e_CMD_NEXT_PERMIT, -1, -1, numActions, u::tiAdapt(expectedTimeSpec) }
+
+        // 'NEXT_PERMIT': call 'nextPermit' with the specified 'numActions' and
+        // verify that it fails, and that the 'TimeInterval' passed to the call
+        // was not modified.
+
+#undef  NEXT_PERMIT_INVALID
+#define NEXT_PERMIT_INVALID(numActions)                                       \
+    { L_, e_CMD_NEXT_PERMIT_INVALID, -1, -1, numActions, TimeInterval() }
+
+        const struct Data {
+            int           d_line;
+            Cmd           d_command;
+            int           d_maxSimultaneousActions;
+            double        d_secondsPerAction;
+            int           d_numActions;
+            TimeInterval  d_timeInterval;
+        } DATA[] = {
+            INIT_SET_TIME(4, 2, ":0"),
+            NEXT_PERMIT(1, ":2"),
+            NEXT_PERMIT(2, ":4"),
+            NEXT_PERMIT(3, ":6"),
+            NEXT_PERMIT(4, ":8"),
+            NEXT_PERMIT_INVALID(5),
+            NEXT_PERMIT_INVALID(0),
+            NEXT_PERMIT_INVALID(-1),
+            NEXT_PERMIT_INVALID(INT_MIN),
+            NEXT_PERMIT_INVALID(INT_MAX),
+            NEXT_PERMIT(4, ":8"),
+
+            INIT_SET_TIME(1, 10, ":5"),
+            NEXT_PERMIT(1, ":15"),
+            NEXT_PERMIT_INVALID(2),
+            NEXT_PERMIT_INVALID(0),
+            NEXT_PERMIT_INVALID(-1),
+            NEXT_PERMIT_INVALID(INT_MIN),
+            NEXT_PERMIT_INVALID(INT_MAX),
+            NEXT_PERMIT(1, ":15"),
+
+            INIT_SET_TIME(10, 1, ":30"),
+            NEXT_PERMIT(1, ":31"),
+            NEXT_PERMIT(2, ":32"),
+            NEXT_PERMIT(3, ":33"),
+            NEXT_PERMIT(4, ":34"),
+            NEXT_PERMIT(5, ":35"),
+            NEXT_PERMIT(6, ":36"),
+            NEXT_PERMIT(7, ":37"),
+            NEXT_PERMIT(8, ":38"),
+            NEXT_PERMIT(9, ":39"),
+            NEXT_PERMIT(10, ":40"),
+            NEXT_PERMIT_INVALID(11),
+            NEXT_PERMIT_INVALID(0),
+            NEXT_PERMIT_INVALID(-1),
+            NEXT_PERMIT_INVALID(INT_MIN),
+            NEXT_PERMIT_INVALID(INT_MAX),
+            NEXT_PERMIT(5, ":35"),
+
+            INIT_SET_TIME(8, (1.0 / 8), "37:27"),
+            NEXT_PERMIT(1, "37:27.125"),
+            NEXT_PERMIT(2, "37:27.25"),
+            NEXT_PERMIT(3, "37:27.375"),
+            NEXT_PERMIT(4, "37:27.5"),
+            NEXT_PERMIT(5, "37:27.625"),
+            NEXT_PERMIT(6, "37:27.75"),
+            NEXT_PERMIT(7, "37:27.875"),
+            NEXT_PERMIT(8, "37:28"),
+            NEXT_PERMIT_INVALID(9),
+            NEXT_PERMIT_INVALID(0),
+            NEXT_PERMIT_INVALID(-1),
+            NEXT_PERMIT_INVALID(INT_MIN),
+            NEXT_PERMIT_INVALID(INT_MAX),
+            NEXT_PERMIT(8, "37:28"),
+
+            INIT_ALLOW_ALL,
+            NEXT_PERMIT(1, minusTenYears),
+            NEXT_PERMIT(2, minusTenYears),
+            NEXT_PERMIT(100, minusTenYears),
+            NEXT_PERMIT(1000, minusTenYears),
+            NEXT_PERMIT(1000000, minusTenYears),
+            NEXT_PERMIT(INT_MAX, minusTenYears),
+            NEXT_PERMIT_INVALID(0),
+            NEXT_PERMIT_INVALID(-1),
+            NEXT_PERMIT_INVALID(INT_MIN),
+            NEXT_PERMIT(200, minusTenYears),
+
+            INIT_ALLOW_NONE,
+            NEXT_PERMIT_INVALID(1),
+            NEXT_PERMIT_INVALID(INT_MIN),
+            NEXT_PERMIT_INVALID(-1),
+            NEXT_PERMIT_INVALID(0),
+            NEXT_PERMIT_INVALID(INT_MAX) };
+#undef  INIT_ALLOW_ALL
+#undef  INIT_ALLOW_NONE
+#undef  INIT_SET_TIME
+#undef  NEXT_PERMIT
+#undef  NEXT_PERMIT_INVALID
+
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        Obj mX;
+
+        // We declare the following variables associated with initialization
+        // outside the loop so that they can be re-used to re-initialize
+        // objects in the 'e_CMD_NEXT_PERMIT == cmd' case.
+
+        int          maxSimultaneousActions;
+        double       secondsPerAction;
+        TimeInterval initTimeInterval;
+
+        bool         allowAll;      // 'e_CMD_NEXT_PERMIT == cmd' needs to know
+                                    // if, on the last initialization, the
+                                    // throttle was set to 'allow all'.
+
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const Data&         data         = DATA[ti];
+            const int           LINE         = data.d_line;
+            const Cmd           cmd          = data.d_command;
+            const TimeInterval& timeInterval = data.d_timeInterval;
+
+            switch (cmd) {
+              case e_CMD_INIT:
+              case e_CMD_INIT_SET_TIME: {
+                maxSimultaneousActions = data.d_maxSimultaneousActions;
+                secondsPerAction       = data.d_secondsPerAction;
+                initTimeInterval       = timeInterval;
+                allowAll               = 1 == maxSimultaneousActions &&
+                                                         0 == secondsPerAction;
+
+                mX.initialize(maxSimultaneousActions,
+                              static_cast<Int64>(secondsPerAction *1e9));
+
+                if (e_CMD_INIT_SET_TIME == cmd) {
+                    // Call 'requestPermission' to set the throttle's
+                    // 'd_prevLeakTime' field to 'initTimeInterval'.
+
+                    ASSERTV(LINE, mX.requestPermission(maxSimultaneousActions,
+                                                       initTimeInterval));
+                    ASSERTV(LINE, !mX.requestPermission(initTimeInterval));
+                }
+              } break;
+              case e_CMD_NEXT_PERMIT: {
+                const int numActions = data.d_numActions;
+
+                TimeInterval result = nullTI;
+                const int rc = mX.nextPermit(&result, numActions);
+                ASSERTV(LINE, numActions, 0 == rc);
+                ASSERTV(LINE, numActions, timeInterval, result,
+                                                       timeInterval == result);
+
+                if (!allowAll) {
+                    // Use 'requestPermission' to verify that 'result' was the
+                    // EXACT nanosecond when 'numActions' would first have been
+                    // permitted.
+
+                    result.addNanoseconds(-1);
+                    ASSERTV(LINE, !mX.requestPermission(numActions, result));
+                    result.addNanoseconds(1);
+                    ASSERTV(LINE, mX.requestPermission(numActions, result));
+                    ASSERTV(LINE, !mX.requestPermission(result));
+
+                    // Re-initialize the throttle to the state it was in before
+                    // 'nextPermit' was called.
+
+                    mX.initialize(maxSimultaneousActions,
+                                  static_cast<Int64>(secondsPerAction *1e9));
+                    ASSERTV(LINE, mX.requestPermission(maxSimultaneousActions,
+                                                       initTimeInterval));
+                    ASSERTV(LINE, !mX.requestPermission(initTimeInterval));
+                }
+              } break;
+              case e_CMD_NEXT_PERMIT_INVALID: {
+                const int numActions = data.d_numActions;
+
+                TimeInterval result = nullTI;
+                const int rc = mX.nextPermit(&result, numActions);
+                ASSERTV(LINE, numActions, 0 != rc);
+                ASSERTV(LINE, numActions, nullTI, result, nullTI == result);
+              } break;
+              default: {
+                ASSERTV(LINE, cmd, 0 && "unrecognized cmd");
+              }
+            }
+        }
+      } break;
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING 'requestPermissionIfValid' -- WHITE BOX
         //
@@ -557,7 +1194,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 Loop twice, once where '*result' is pre-set to 'false', once with
         //:   it pre-set to 'true', and observe that neither time is it
-        //:   modified.
+        //:   modified unless the inputs were valid.
         //:
         //: 3 Have the table call the function a few time with valid inputs,
         //:   and observe in those cases that 0 is returned a '*result' has the
@@ -575,8 +1212,6 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                            "TESTING 'requestPermissionIfValid' -- WHITE BOX\n"
                            "===============================================\n";
-
-        typedef bsls::TimeInterval TimeInterval;
 
         enum Cmd        { e_CMD_INIT, e_CMD_REQUEST };
         enum ExpOutcome { e_EXP_INVALID, e_EXP_TRUE, e_EXP_FALSE };
@@ -780,88 +1415,6 @@ int main(int argc, char *argv[])
                   }
                 }
             }
-        }
-      } break;
-      case 6: {
-        // --------------------------------------------------------------------
-        // TESTING INITIALIZATION MACROS
-        //
-        // Concerns:
-        //: 1 That the macro initializers create throttles with the same state
-        //:   as a throttle with 'initialize' called with the same arguments.
-        //
-        // Plan:
-        //: 1 Statically initialize a set of throttles with different
-        //:   arguments, and have each one pointed to by a line in a table that
-        //:   contains the same arguments to be passed to 'initialize', after
-        //:   which 'memcmp' is called to verify that the throttles have
-        //:   identical state.
-        //
-        // Testing:
-        //   BDLMT_THROTTLE_INIT(int, Int64)
-        //   BDLMT_THROTTLE_INIT_REALTIME(int, Int64)
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "TESTING INITIALIZATION MACROS\n"
-                             "=============================\n";
-
-        typedef bdlt::TimeUnitRatio TUR;
-
-        static Obj throttle00 = BDLMT_THROTTLE_INIT(1, u::k_MILLI);
-        static Obj throttle01 = BDLMT_THROTTLE_INIT_REALTIME(1, u::k_MILLI);
-        static Obj throttle02 = BDLMT_THROTTLE_INIT(5, u::k_MILLI);
-        static Obj throttle03 = BDLMT_THROTTLE_INIT_REALTIME(5, u::k_MILLI);
-        static Obj throttle04 = BDLMT_THROTTLE_INIT(1000, u::k_SECOND);
-        static Obj throttle05 = BDLMT_THROTTLE_INIT_REALTIME(
-                                                            1000, u::k_SECOND);
-        static Obj throttle16 = BDLMT_THROTTLE_INIT(
-                                         10, 10 * TUR::k_NANOSECONDS_PER_HOUR);
-        static Obj throttle17 = BDLMT_THROTTLE_INIT_REALTIME(
-                                         10, 10 * TUR::k_NANOSECONDS_PER_HOUR);
-        static Obj throttle08 = BDLMT_THROTTLE_INIT(100, 2 * u::k_MILLI);
-        static Obj throttle09 = BDLMT_THROTTLE_INIT_REALTIME(
-                                                          100, 2 * u::k_MILLI);
-
-        static const ClockType mono = CT::e_MONOTONIC;
-        static const ClockType real = CT::e_REALTIME;
-
-        static const struct Data {
-            int        d_line;
-            int        d_maxSimultaneousActions;
-            Int64      d_nanosecondsPerAction;
-            ClockType  d_clockType;
-            Obj       *d_staticThrottle_p;
-        } DATA[] = {
-            { L_,    1, u::k_MILLI,                       mono, &throttle00 },
-            { L_,    1, u::k_MILLI,                       real, &throttle01 },
-            { L_,    5, u::k_MILLI,                       mono, &throttle02 },
-            { L_,    5, u::k_MILLI,                       real, &throttle03 },
-            { L_, 1000, u::k_SECOND,                      mono, &throttle04 },
-            { L_, 1000, u::k_SECOND,                      real, &throttle05 },
-            { L_,   10, 10 * TUR::k_NANOSECONDS_PER_HOUR, mono, &throttle16 },
-            { L_,   10, 10 * TUR::k_NANOSECONDS_PER_HOUR, real, &throttle17 },
-            { L_,  100, 2 * u::k_MILLI,                   mono, &throttle08 },
-            { L_,  100, 2 * u::k_MILLI,                   real, &throttle09 }};
-        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
-
-        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
-            const Data& data                   = DATA[ti];
-            const int   LINE                   = data.d_line;
-            const int   maxSimultaneousActions = data.d_maxSimultaneousActions;
-            const Int64 nanosecondsPerAction   = data.d_nanosecondsPerAction;
-            const ClockType clockType          = data.d_clockType;
-            const Obj  *pStaticThrottle        = data.d_staticThrottle_p;
-
-            ASSERT(clockType == pStaticThrottle->clockType());
-
-            Obj mX;
-            mX.initialize(maxSimultaneousActions,
-                          nanosecondsPerAction,
-                          clockType);
-
-            ASSERTV(LINE, 0 == bsl::memcmp(&mX,
-                                           data.d_staticThrottle_p,
-                                           sizeof(Obj)));
         }
       } break;
       case 5: {
@@ -1416,7 +1969,7 @@ int main(int argc, char *argv[])
             }
             ASSERTV(line, npa, -1 == npa);
 
-            const bsls::TimeInterval time = u::toTime(timeStr);
+            const TimeInterval time = u::toTime(timeStr);
 
             ASSERTV(line, msa, npa, -1 == msa && -1 == npa);
 
@@ -1460,7 +2013,7 @@ int main(int argc, char *argv[])
                 continue;
             }
 
-            const bsls::TimeInterval time = u::toTime(timeStr);
+            const TimeInterval time = u::toTime(timeStr);
 
             ASSERTV(line, msa, npa, -1 == msa && -1 == npa);
 
@@ -1494,7 +2047,7 @@ int main(int argc, char *argv[])
                 continue;
             }
 
-            const bsls::TimeInterval time = u::toTime(timeStr);
+            const TimeInterval time = u::toTime(timeStr);
 
             ASSERTV(line, mX.requestPermission(numActions, time));
             ASSERTV(line, mX.requestPermission(time));
@@ -1521,7 +2074,7 @@ int main(int argc, char *argv[])
                 continue;
             }
 
-            const bsls::TimeInterval time = u::toTime(timeStr);
+            const TimeInterval time = u::toTime(timeStr);
 
             ASSERTV(line, false == mX.requestPermission(numActions, time));
             ASSERTV(line, false == mX.requestPermission(time));
@@ -1536,7 +2089,7 @@ int main(int argc, char *argv[])
 
             Obj mX = BDLMT_THROTTLE_INIT(4, u::k_SECOND);
 
-            typedef bsls::TimeInterval TI;
+            typedef TimeInterval TI;
             const TI time;
 
             const Int64 int64Max   = bsl::numeric_limits<Int64>::max();
@@ -1655,8 +2208,8 @@ int main(int argc, char *argv[])
             const int          SECONDS     = data.d_seconds;
             const int          NANOSECONDS = data.d_nanoseconds;
 
-            const bsls::TimeInterval EXP(SECONDS, NANOSECONDS);
-            const bsls::TimeInterval ret = u::toTime(TIME_STR);
+            const TimeInterval EXP(SECONDS, NANOSECONDS);
+            const TimeInterval ret = u::toTime(TIME_STR);
 
             ASSERTV(LINE, EXP, ret, EXP == ret);
 
