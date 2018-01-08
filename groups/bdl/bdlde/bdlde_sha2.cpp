@@ -389,43 +389,63 @@ void Sha512::finalize(unsigned char *digest)
 
 Sha224::Sha224():
     d_totalSize(0),
-    d_blockBytesUsed(0),
+    d_blockBytesUsed(0)
+{
     // Second 32 bits of the fractional parts of the square root of the 9th
     // through 16th primes.
-    d_state{0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
-            0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4}
-{
+    d_state[0] = 0xc1059ed8;
+    d_state[1] = 0x367cd507;
+    d_state[2] = 0x3070dd17;
+    d_state[3] = 0xf70e5939;
+    d_state[4] = 0xffc00b31;
+    d_state[5] = 0x68581511;
+    d_state[6] = 0x64f98fa7;
+    d_state[7] = 0xbefa4fa4;
 }
 Sha256::Sha256():
     d_totalSize(0),
-    d_blockBytesUsed(0),
+    d_blockBytesUsed(0)
+{
     // First 32 bits of the fractional part of the square root of the first 8
     // primes.
-    d_state{0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-            0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19}
-{
+    d_state[0] = 0x6a09e667;
+    d_state[1] = 0xbb67ae85;
+    d_state[2] = 0x3c6ef372;
+    d_state[3] = 0xa54ff53a;
+    d_state[4] = 0x510e527f;
+    d_state[5] = 0x9b05688c;
+    d_state[6] = 0x1f83d9ab;
+    d_state[7] = 0x5be0cd19;
 }
 Sha384::Sha384():
     d_totalSize(0),
-    d_blockBytesUsed(0),
+    d_blockBytesUsed(0)
+{
     // First 64 bits of the fractional parts of the square root of the 9th
     // through 16th primes.
-    d_state{0xcbbb9d5dc1059ed8ULL, 0x629a292a367cd507ULL,
-            0x9159015a3070dd17ULL, 0x152fecd8f70e5939ULL,
-            0x67332667ffc00b31ULL, 0x8eb44a8768581511ULL,
-            0xdb0c2e0d64f98fa7ULL, 0x47b5481dbefa4fa4ULL}
-{
+    d_state[0] = 0xcbbb9d5dc1059ed8ULL;
+    d_state[1] = 0x629a292a367cd507ULL;
+    d_state[2] = 0x9159015a3070dd17ULL;
+    d_state[3] = 0x152fecd8f70e5939ULL;
+    d_state[4] = 0x67332667ffc00b31ULL;
+    d_state[5] = 0x8eb44a8768581511ULL;
+    d_state[6] = 0xdb0c2e0d64f98fa7ULL;
+    d_state[7] = 0x47b5481dbefa4fa4ULL;
 }
 Sha512::Sha512():
     d_totalSize(0),
-    d_blockBytesUsed(0),
+    d_blockBytesUsed(0)
+{
     // First 64 bits of the fractional part of the square root of the first 8
     // primes.
-    d_state{0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL,
-            0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL,
-            0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
-            0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL}
-{
+    d_state[0] = 0x6a09e667f3bcc908ULL;
+    d_state[1] = 0xbb67ae8584caa73bULL;
+    d_state[2] = 0x3c6ef372fe94f82bULL;
+    d_state[3] = 0xa54ff53a5f1d36f1ULL;
+    d_state[4] = 0x510e527fade682d1ULL;
+    d_state[5] = 0x9b05688c2b3e6c1fULL;
+    d_state[6] = 0x1f83d9abfb41bd6bULL;
+    d_state[7] = 0x5be0cd19137e2179ULL;
 }
 
 }  // close package namespace
