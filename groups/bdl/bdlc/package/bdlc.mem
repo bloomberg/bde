@@ -1,4 +1,5 @@
 bdlc_bitarray
+bdlc_compactedarray
 bdlc_hashtable
 bdlc_indexclerk
 bdlc_packedintarray
