@@ -18,31 +18,35 @@ INTEGER rotateRight(INTEGER value, unsigned shift)
 
 template<class INTEGER>
 INTEGER bitwiseConditional(INTEGER condition, INTEGER x, INTEGER y)
-    // Returns a value that for each bit set in 'condition' uses the
-    // corresponding bit from 'x', otherwise uses the corresponding bit from
-    // 'y'. Named 'Ch' in FIPS 180-4.
+    // Returns a value that for each bit set in the specified 'condition' uses
+    // the corresponding bit from the specified 'x', otherwise uses the
+    // corresponding bit from the specified 'y'. This function is named 'Ch' in
+    // FIPS 180-4.
 {
     return (x & (y ^ condition)) ^ condition;
 }
 
 template<class INTEGER>
 INTEGER bitwiseMajority(INTEGER x, INTEGER y, INTEGER z)
-    // Returns a value which has each bit set if and only if the corresponding
-    // bit is set in at least two out of three of 'x', 'y', and 'z'. Named
-    // 'Maj' in FIPS 180-4.
+    // Returns a value that has each bit set if and only if the corresponding
+    // bit is set in at least two out of three of the specified 'x', the
+    // specified 'y', and the specified 'z'. This function is named 'Maj' in
+    // FIPS 180-4.
 {
     return (x & y) | ((x | y) & z);
 }
 
 bsl::uint32_t f1(bsl::uint32_t value)
-    // First mixing function used by SHA-224 and SHA-256.
+    // First mixing function used by SHA-224 and SHA-256.  Mixes together the
+    // bits of the specified 'value'.
 {
     return rotateRight(value,  2)
          ^ rotateRight(value, 13)
          ^ rotateRight(value, 22);
 }
 bsl::uint64_t f1(bsl::uint64_t value)
-    // First mixing function used by SHA-384 and SHA-512.
+    // First mixing function used by SHA-384 and SHA-512.  Mixes together the
+    // bits of the specified 'value'.
 {
     return rotateRight(value, 28)
          ^ rotateRight(value, 34)
@@ -50,14 +54,16 @@ bsl::uint64_t f1(bsl::uint64_t value)
 }
 
 bsl::uint32_t f2(bsl::uint32_t value)
-    // Second mixing function used by SHA-224 and SHA-256.
+    // Second mixing function used by SHA-224 and SHA-256.  Mixes together the
+    // bits of the specified 'value'.
 {
     return rotateRight(value,  6)
          ^ rotateRight(value, 11)
          ^ rotateRight(value, 25);
 }
 bsl::uint64_t f2(bsl::uint64_t value)
-    // Second mixing function used by SHA-384 and SHA-512.
+    // Second mixing function used by SHA-384 and SHA-512.  Mixes together the
+    // bits of the specified 'value'.
 {
     return rotateRight(value, 14)
          ^ rotateRight(value, 18)
@@ -65,32 +71,36 @@ bsl::uint64_t f2(bsl::uint64_t value)
 }
 
 bsl::uint32_t f3(bsl::uint32_t value)
-    // Third mixing function used by SHA-224 and SHA-256.
+    // Third mixing function used by SHA-224 and SHA-256.  Mixes together the
+    // bits of the specified 'value'.
 {
     return rotateRight(value,  7) ^ rotateRight(value, 18) ^ (value >>  3);
 }
 bsl::uint64_t f3(bsl::uint64_t value)
-    // Third mixing function used by SHA-384 and SHA-512.
+    // Third mixing function used by SHA-384 and SHA-512.  Mixes together the
+    // bits of the specified 'value'.
 {
     return rotateRight(value,  1) ^ rotateRight(value,  8) ^ (value >>  7);
 }
 
 bsl::uint32_t f4(bsl::uint32_t value)
-    // Fourth mixing function used by SHA-224 and SHA-256.
+    // Fourth mixing function used by SHA-224 and SHA-256.  Mixes together the
+    // bits of the specified 'value'.
 {
     return rotateRight(value, 17) ^ rotateRight(value, 19) ^ (value >> 10);
 }
 bsl::uint64_t f4(bsl::uint64_t value)
-    // Fourth mixing function used by SHA-384 and SHA-512.
+    // Fourth mixing function used by SHA-384 and SHA-512.  Mixes together the
+    // bits of the specified 'value'.
 {
     return rotateRight(value, 19) ^ rotateRight(value, 61) ^ (value >>  6);
 }
 
 template<class INTEGER>
 INTEGER pack(const unsigned char *bytes)
-    // Returns an integer which has the value that would be read from the
-    // address indicated by 'bytes' interpreted as a big-endian integer of type
-    // 'INTEGER'.  The behavior is undefined unless
+    // Returns an integer that has the value that would be read from the
+    // address indicated by the specified 'bytes' interpreted as a big-endian
+    // integer of type 'INTEGER'.  The behavior is undefined unless
     // '[bytes, bytes + sizeof(INTEGER))' is a valid range.
 {
     bsl::size_t shift = sizeof(INTEGER) * CHAR_BIT;
@@ -106,7 +116,10 @@ INTEGER pack(const unsigned char *bytes)
 
 template<class INTEGER>
 void unpack(INTEGER value, unsigned char *bytes)
-    // Stores the integer representation of 'value' into the address indicated by 'bytes', interpreting 'value' as a big-endian integer. The behavior is undefined unless '[bytes, bytes + sizeof(INTEGER))' is a valid range.
+    // Stores the integer representation of the specified 'value' into the
+    // address indicated by the specified 'bytes', interpreting 'value' as a
+    // big-endian integer.  The behavior is undefined unless
+    // '[bytes, bytes + sizeof(INTEGER))' is a valid range.
 {
     bsl::size_t shift = sizeof(INTEGER) * 8;
     for (bsl::size_t index = 0; index != sizeof(INTEGER); ++index) {
@@ -177,16 +190,15 @@ const bsl::uint64_t sha512Constants[80] =
              0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL,
              0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL};
 
-/* SHA-256 functions */
-
 template<class INTEGER, bsl::size_t ARRAY_SIZE>
 void transform(INTEGER             *state,
                const unsigned char *message,
                bsl::uint64_t        numberOfBlocks,
                bsl::uint64_t        blockSize,
                const INTEGER      (&constants)[ARRAY_SIZE])
-    // Update 'state' with the hashed contents of 'message', mixing it with the
-    // values in 'constants'.  The behavior is undefined unless
+    // Update the specified 'state' with the hashed contents of the specified
+    // 'message', mixing it with the values in the specified 'constants'.  The
+    // behavior is undefined unless
     // '[message, message + numberOfBlocks * blockSize)' is a valid range.
 {
     const unsigned char *messageEnd = message + blockSize * numberOfBlocks;
@@ -238,11 +250,14 @@ void updateImpl(INTEGER             *state,
                 bsl::size_t          messageSize,
                 const INTEGER      (&constants)[ARRAY_SIZE])
     // Update the specified 'state' with the contents of the specified 'block'
-    // followed by the contents of the specified 'message'.  Update 'totalSize'
-    // to have the size, in bytes, of all messages passed in so far. Populate
-    // 'block' with all bytes leftover that did not fit into a multiple of
-    // 'BLOCK_SIZE'.  The behavior is undefined unless the range
-    // '[message, message + length)' is a valid range.
+    // followed by the contents of the specified 'message', mixed with the data
+    // in the specified 'constants'.  Update the specified 'totalSize' to have
+    // the size, in bytes, of all messages passed in so far.  Populate 'block'
+    // with all bytes leftover that did not fit into a multiple of
+    // 'BLOCK_SIZE', and store into the specified 'blockBytesUsed' the count of
+    // the bytes in 'block' that are currently in use.  The behavior is
+    // undefined unless the range '[message, message + messageSize)' is a valid
+    // range.
 {
     const bsl::uint64_t prologueSize = bsl::min(messageSize,
                                               BLOCK_SIZE - *blockBytesUsed);
@@ -276,8 +291,12 @@ void finalizeImpl(unsigned char        *digest,
                   bsl::uint64_t         blockBytesUsed,
                   const unsigned char (&block)[BLOCK_SIZE],
                   const INTEGER       (&constants)[ARRAY_SIZE])
-    // Store into the specified 'digest' the contents of 'state' and the
-    // remaining contents of 'block' after appending in the SHA-2 metadata.
+    // Mix the remaining contents of the specified 'block' as indicated by the
+    // specified 'blockBytesUsed' after appending the SHA-2 metadata, which
+    // uses the specified 'totalSize', with the data in the specified
+    // 'constants', and mix the result into the specified 'state'.  Store into
+    // the specified 'digest' the contents of 'state'.  The behavior is
+    // undefined unless '[digest, digest + digestSize)' is a valid range.
 {
     const bsl::uint64_t totalSizeInBits = totalSize * 8;
     const bsl::uint64_t unpaddedSize    = blockBytesUsed
@@ -307,43 +326,43 @@ void finalizeImpl(unsigned char        *digest,
 
 void Sha224::update(const void *message, bsl::size_t length)
 {
-    updateImpl(d_state,
-              &d_totalSize,
-              &d_blockBytesUsed,
-               d_block,
-               static_cast<const unsigned char *>(message),
-               length,
-               sha256Constants);
+    updateImpl( d_state,
+               &d_totalSize,
+               &d_blockBytesUsed,
+                d_block,
+                static_cast<const unsigned char *>(message),
+                length,
+                sha256Constants);
 }
 void Sha256::update(const void *message, bsl::size_t length)
 {
-    updateImpl(d_state,
-              &d_totalSize,
-              &d_blockBytesUsed,
-               d_block,
-               static_cast<const unsigned char *>(message),
-               length,
-               sha256Constants);
+    updateImpl( d_state,
+               &d_totalSize,
+               &d_blockBytesUsed,
+                d_block,
+                static_cast<const unsigned char *>(message),
+                length,
+                sha256Constants);
 }
 void Sha384::update(const void *message, bsl::size_t length)
 {
-    updateImpl(d_state,
-              &d_totalSize,
-              &d_blockBytesUsed,
-               d_block,
-               static_cast<const unsigned char *>(message),
-               length,
-               sha512Constants);
+    updateImpl( d_state,
+               &d_totalSize,
+               &d_blockBytesUsed,
+                d_block,
+                static_cast<const unsigned char *>(message),
+                length,
+                sha512Constants);
 }
 void Sha512::update(const void *message, bsl::size_t length)
 {
-    updateImpl(d_state,
-              &d_totalSize,
-              &d_blockBytesUsed,
-               d_block,
-               static_cast<const unsigned char *>(message),
-               length,
-               sha512Constants);
+    updateImpl( d_state,
+               &d_totalSize,
+               &d_blockBytesUsed,
+                d_block,
+                static_cast<const unsigned char *>(message),
+                length,
+                sha512Constants);
 }
 
 void Sha224::finalize(unsigned char *digest)
