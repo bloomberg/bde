@@ -420,6 +420,8 @@ class Channel {
 
     bool                             d_enableReadFlag;   // are we reading?
 
+    bool                             d_useRoundRobinReads;
+
     // Channel parameters section
 
     bool                             d_allowHalfOpenConnections;
@@ -1654,7 +1656,8 @@ void Channel::readCb(ChannelHandle self)
             return;                                                   // RETURN
         }
 
-        if (readRet != totalBufferSize) {
+        if (readRet != totalBufferSize
+         || d_useRoundRobinReads) {
             break;
         }
     }
@@ -2046,6 +2049,7 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
 , d_highWatermarkAlertState(e_HIGH_WATERMARK_ALERT_NOT_ACTIVE)
 , d_channelType(channelType)
 , d_enableReadFlag(false)
+, d_useRoundRobinReads(config.useRoundRobinReads())
 , d_allowHalfOpenConnections(allowHalfOpenConnections)
 , d_useReadTimeout(config.readTimeout() > 0.0)
 , d_readTimeout(config.readTimeout())

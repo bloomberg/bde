@@ -128,6 +128,13 @@ const bdlat_AttributeInfo
         sizeof("CollectTimeMetrics") - 1,      // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
+    },
+    {
+        e_ATTRIBUTE_ID_USE_ROUND_ROBIN_READS,
+        "UseRoundRobinReads",                  // name
+        sizeof("UseRoundRobinReads") - 1,      // name length
+        "",// annotation
+        bdlat_FormattingMode::e_DEFAULT
     }
 };
 
@@ -480,6 +487,27 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                        e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS];
                                                                       // RETURN
         }
+        else if (bsl::toupper(name[0])=='U'
+              && bsl::toupper(name[1])=='S'
+              && bsl::toupper(name[2])=='E'
+              && bsl::toupper(name[3])=='R'
+              && bsl::toupper(name[4])=='O'
+              && bsl::toupper(name[5])=='U'
+              && bsl::toupper(name[6])=='N'
+              && bsl::toupper(name[7])=='D'
+              && bsl::toupper(name[8])=='R'
+              && bsl::toupper(name[9])=='O'
+              && bsl::toupper(name[10])=='B'
+              && bsl::toupper(name[11])=='I'
+              && bsl::toupper(name[12])=='N'
+              && bsl::toupper(name[13])=='R'
+              && bsl::toupper(name[14])=='E'
+              && bsl::toupper(name[15])=='A'
+              && bsl::toupper(name[16])=='D'
+              && bsl::toupper(name[17])=='S') {
+            return &ATTRIBUTE_INFO_ARRAY[
+                            e_ATTRIBUTE_INDEX_USE_ROUND_ROBIN_READS]; // RETURN
+        }
       } break;
     }
     return 0;
@@ -543,6 +571,10 @@ ChannelPoolConfiguration::lookupAttributeInfo(int id)
         return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS];
                                                                       // RETURN
       }
+      case e_ATTRIBUTE_ID_USE_ROUND_ROBIN_READS: {
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_USE_ROUND_ROBIN_READS];
+                                                                      // RETURN
+      }
 
       default:
         return 0;                                                     // RETURN
@@ -565,6 +597,7 @@ ChannelPoolConfiguration::ChannelPoolConfiguration()
 , d_maxMessageSizeIn(1024)
 , d_threadStackSize(k_DEFAULT_THREAD_STACK_SIZE)
 , d_collectTimeMetrics(true)
+, d_useRoundRobinReads(false)
 {
 }
 
@@ -584,6 +617,7 @@ ChannelPoolConfiguration::ChannelPoolConfiguration(
 , d_maxMessageSizeIn(original.d_maxMessageSizeIn)
 , d_threadStackSize(original.d_threadStackSize)
 , d_collectTimeMetrics(original.d_collectTimeMetrics)
+, d_useRoundRobinReads(original.d_useRoundRobinReads)
 {
 }
 
@@ -623,6 +657,7 @@ ChannelPoolConfiguration::operator=(const ChannelPoolConfiguration& rhs)
         d_maxMessageSizeIn   = rhs.d_maxMessageSizeIn;
         d_threadStackSize    = rhs.d_threadStackSize;
         d_collectTimeMetrics = rhs.d_collectTimeMetrics;
+        d_useRoundRobinReads = rhs.d_useRoundRobinReads;
     }
     return *this;
 }
@@ -646,7 +681,8 @@ bool btlmt::operator==(const ChannelPoolConfiguration& lhs,
         && lhs.d_typMessageSizeIn   == rhs.d_typMessageSizeIn
         && lhs.d_maxMessageSizeIn   == rhs.d_maxMessageSizeIn
         && lhs.d_threadStackSize    == rhs.d_threadStackSize
-        && lhs.d_collectTimeMetrics == rhs.d_collectTimeMetrics;
+        && lhs.d_collectTimeMetrics == rhs.d_collectTimeMetrics
+        && lhs.d_useRoundRobinReads == rhs.d_useRoundRobinReads;
 }
 
 bsl::ostream& btlmt::operator<<(bsl::ostream&                   output,
@@ -668,8 +704,11 @@ bsl::ostream& btlmt::operator<<(bsl::ostream&                   output,
            << "\ttypIncomingMessageSize : " << config.d_typMessageSizeIn <<"\n"
            << "\tmaxIncomingMessageSize : " << config.d_maxMessageSizeIn <<"\n"
            << "\tthreadStackSize        : " << config.d_threadStackSize  <<"\n"
-           << "\tcollectTimeMetrics     : " << config.d_collectTimeMetrics
-           << "\n]\n";
+           << "\tcollectTimeMetrics     : "
+           << config.d_collectTimeMetrics << "\n"
+           << "\tuseRoundRobinReads     : "
+           << config.d_useRoundRobinReads << "\n"
+           << "]\n";
 
     return output;
 }

@@ -165,7 +165,7 @@ using namespace bdlf::PlaceHolders;
 // [28] TESTING: 'busyMetrics' and time metrics collection.
 // [28] CONCERN: Event Manager Allocation
 // [30] Implementing a QueueProcessor
-// [42] USAGE EXAMPLE
+// [43] USAGE EXAMPLE
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -711,6 +711,157 @@ void populateMessage(btlb::Blob       *msg,
     btlb::BlobBuffer blobBuffer(buffer, length);
     msg->appendDataBuffer(blobBuffer);
 }
+
+//-----------------------------------------------------------------------------
+// TEST_CASE_USE_ROUND_ROBIN_READS
+//-----------------------------------------------------------------------------
+
+namespace TEST_CASE_USE_ROUND_ROBIN_READS {
+
+typedef btlso::StreamSocket<IPAddress> StreamSocket;
+
+const int NT = 20;
+
+btlso::InetStreamSocketFactory<btlso::IPv4Address> factory;
+
+bsls::AtomicInt s_numChannelsReadDone(0);
+bsls::AtomicInt s_numChannelsUp(0);
+bsls::AtomicInt s_numListenersUp(0);
+
+struct ClientData {
+    int           d_sourceId;
+    int           d_channelId;
+    IPAddress     d_serverAddress;
+    StreamSocket *d_socket_p;
+    char          d_expChar;
+    int           d_expDataSize;
+    int           d_dataRead;
+} CLIENT_DATA[NT];
+
+struct ServerData {
+    int           d_sourceId;
+    int           d_channelId;
+    IPAddress     d_serverAddress;
+    StreamSocket *d_socket_p;
+    char          d_expChar;
+    int           d_expDataSize;
+    int           d_dataRead;
+} SERVER_DATA[NT];
+
+struct ImportData {
+    int           d_sourceId;
+    int           d_channelId;
+    IPAddress     d_serverAddress;
+    StreamSocket *d_socket_p;
+    char          d_expChar;
+    int           d_expDataSize;
+    int           d_dataRead;
+} IMPORT_DATA[NT];
+
+void poolStateCb(int state, int source, int severity)
+{
+    if (veryVerbose) {
+        MTCOUT << "Pool state callback called with"
+               << " State: " << state
+               << " Source: "  << source
+               << " Severity: " << severity << MTENDL;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              sourceId,
+                    int              state,
+                    void            *)
+{
+    if (veryVerbose) {
+        MTCOUT << "Channel state callback called with"
+               << " Channel Id: " << channelId
+               << " Server Id: "  << sourceId
+               << " State: " << state << MTENDL;
+    }
+
+    if (Obj::BTEMT_CHANNEL_UP == state) {
+        for (int i = 0; i < NT; ++i) {
+            if (sourceId == CLIENT_DATA[i].d_sourceId) {
+                CLIENT_DATA[i].d_channelId = channelId;
+                ++s_numChannelsUp;
+            }
+            else if (sourceId == SERVER_DATA[i].d_sourceId) {
+                SERVER_DATA[i].d_channelId = channelId;
+                ++s_numChannelsUp;
+            }
+            else if (sourceId == IMPORT_DATA[i].d_sourceId) {
+                IMPORT_DATA[i].d_channelId = channelId;
+                ++s_numChannelsUp;
+            }
+        }
+    }
+}
+
+void blobBasedReadCb(int            *needed,
+                     btlb::Blob     *msg,
+                     int             channelId,
+                     void           *)
+{
+    if (veryVerbose) {
+        MTCOUT << "Blob Based Read Cb called with"
+               << " Channel Id: " << channelId
+               << " of length: "  << msg->length() << MTENDL;
+    }
+    *needed = 1;
+
+    for (int i = 0; i < NT; ++i) {
+        if (channelId == CLIENT_DATA[i].d_channelId) {
+            ASSERT(CLIENT_DATA[i].d_expChar == *msg->buffer(0).data());
+            CLIENT_DATA[i].d_dataRead += msg->length();
+            if (CLIENT_DATA[i].d_dataRead >= CLIENT_DATA[i].d_expDataSize) {
+                ++s_numChannelsReadDone;
+            }
+            break;
+        }
+        else if (channelId == SERVER_DATA[i].d_channelId) {
+            ASSERT(SERVER_DATA[i].d_expChar == *msg->buffer(0).data());
+            SERVER_DATA[i].d_dataRead += msg->length();
+            if (SERVER_DATA[i].d_dataRead >= SERVER_DATA[i].d_expDataSize) {
+                ++s_numChannelsReadDone;
+            }
+            break;
+        }
+        else if (channelId == IMPORT_DATA[i].d_channelId) {
+            ASSERT(IMPORT_DATA[i].d_expChar == *msg->buffer(0).data());
+            IMPORT_DATA[i].d_dataRead += msg->length();
+            if (IMPORT_DATA[i].d_dataRead >= IMPORT_DATA[i].d_expDataSize) {
+                ++s_numChannelsReadDone;
+            }
+            break;
+        }
+    }
+    msg->removeAll();
+}
+
+void *listenFunction(void *args)
+{
+    ServerData   *data         = (ServerData *) args;
+    StreamSocket *serverSocket = factory.allocate();
+
+    ASSERT(0 == serverSocket->bind(getLocalAddress()));
+    ASSERT(0 == serverSocket->listen(1));
+    ASSERT(0 == serverSocket->localAddress(&data->d_serverAddress));
+
+    ++s_numListenersUp;
+
+    ASSERT(0 == serverSocket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE));
+
+    ASSERT(0 == serverSocket->accept(&data->d_socket_p));
+
+    ASSERT(0 == data->d_socket_p->setBlockingMode(
+                                            btlso::Flags::e_NONBLOCKING_MODE));
+
+    factory.deallocate(serverSocket);
+    return 0;
+}
+
+}  // close namespace TEST_CASE_STOP_GREEDY_READS
 
 //-----------------------------------------------------------------------------
 // TEST_CASE_WATERMARK_SEQUENCING
@@ -4766,7 +4917,7 @@ int bteso_SslLikeStreamSocket<ADDRESS>::readv(const btls::Iovec *buffers,
         int length = btls::IovecUtil::scatter(buffers, numBuffers,
                                              d_readBuffer,
                                              d_readBytesAvailable);
-        BSLS_ASSERT(length < d_readBytesAvailable);
+        BSLS_ASSERT(length <= d_readBytesAvailable);
         d_readBytesAvailable -= length;
         bsl::memmove(d_readBuffer, d_readBuffer + length,
                      d_readBytesAvailable);
@@ -8103,8 +8254,12 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase42();
+    static void testCase43();
         // Test usage example.
+
+    static void testCase42();
+        // Test that specifying the option to use round robin reads works as
+        // expected.
 
     static void testCase41();
         // Test that 'reuseAddress' option passed to 'listen' works as
@@ -8248,7 +8403,7 @@ class TestDriver {
                                // TEST APPARATUS
                                // --------------
 
-void TestDriver::testCase42()
+void TestDriver::testCase43()
 {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -8283,6 +8438,266 @@ void TestDriver::testCase42()
             MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
         }
         monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR);
+}
+
+void TestDriver::testCase42()
+{
+    // --------------------------------------------------------------------
+    // TEST USING ROUND ROBIN READS
+    //
+    // Concerns:
+    //: 1 Ensure that specifying the 'useRoundRobinReads' configuration option
+    //:   results in the data being correctly transferred.
+    //:
+    //: 2 All types of channels regular or SSL-based can read data correctly.
+    //
+    // Plan:
+    //: 1 Create a channel pool object, mX.
+    //:
+    //: 2 Open a pre-defined number of listening sockets in mX.
+    //:
+    //: 3 Create stream sockets that connect to the listening sockets in
+    //:   mX.
+    //:
+    //: 4 Create a number of threads that each listen on a socket.
+    //:
+    //: 5 Open channels in mX by connecting to the listening sockets
+    //:   created in step 4.
+    //:
+    //: 6 Create a number of threads that each listen on a socket.
+    //:
+    //: 7 Open channels by connecting to the listening sockets created
+    //:   in step 6 and importing them into mX.
+    //:
+    //: 8 Write a large amount of data through the sockets connected to
+    //:   various channels in mX.
+    //:
+    //: 9 Confirm that each of the channels in mX receives all the data
+    //:   and that the data is as expected.
+    //
+    // Testing:
+    // --------------------------------------------------------------------
+
+    if (verbose) cout << "\nTEST USING ROUND ROBIN READS"
+                      << "\n============================"
+                      << endl;
+
+    using namespace TEST_CASE_USE_ROUND_ROBIN_READS;
+
+    const int DATA_SIZE = 1024;
+    btlmt::ChannelPoolConfiguration config;
+    config.setMaxThreads(4 * NT);
+    config.setOutgoingMessageSizes(1, 5, DATA_SIZE); // max - 1K
+
+    config.setUseRoundRobinReads(true);
+    if (verbose) {
+        P(config);
+    }
+
+    Obj::ChannelStateChangeCallback channelCb(&channelStateCb);
+
+    Obj::PoolStateChangeCallback poolCb(&poolStateCb);
+
+    Obj::BlobBasedReadCallback dataCb(&blobBasedReadCb);
+
+    Obj mX(channelCb, dataCb, poolCb, config);
+
+    ASSERT(0 == mX.start());
+
+    const int SERVER_ID = 100;
+
+    for (int i = 0; i < NT; ++i) {
+        const int SOURCE_ID = SERVER_ID + i;
+        ASSERT(0 == mX.listen(0, 1, SOURCE_ID));
+    }
+
+    for (int i = 0; i < NT; ++i) {
+        const int SOURCE_ID = SERVER_ID + i;
+
+        CLIENT_DATA[i].d_sourceId = SOURCE_ID;
+        mX.getServerAddress(&CLIENT_DATA[i].d_serverAddress, SOURCE_ID);
+
+        StreamSocket *socket = factory.allocate();
+
+        ASSERT(0 == socket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE));
+
+        ASSERT(0 == socket->connect(CLIENT_DATA[i].d_serverAddress));
+
+        ASSERT(0 == socket->setBlockingMode(
+                                        btlso::Flags::e_NONBLOCKING_MODE));
+
+        CLIENT_DATA[i].d_socket_p = socket;
+    }
+
+    while (s_numChannelsUp < NT);
+
+    if (verbose) {
+        MTCOUT << "Listening channels connected." << MTENDL;
+    }
+
+    s_numChannelsUp = 0;
+
+    bslmt::ThreadUtil::Handle listenThreads[NT];
+
+    const int CLIENT_ID = 200;
+
+    for (int i = 0; i < NT; ++i) {
+        SERVER_DATA[i].d_sourceId = CLIENT_ID + i;
+
+        ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
+                                              &listenFunction,
+                                              (void *) &SERVER_DATA[i]));
+    }
+
+    while (s_numListenersUp < NT);
+
+    for (int i = 0; i < NT; ++i) {
+        ASSERT(0 == mX.connect(SERVER_DATA[i].d_serverAddress,
+                               10,
+                               bsls::TimeInterval(1),
+                               CLIENT_ID + i));
+    }
+
+    for (int i = 0; i < NT; ++i) {
+        ASSERT(0 == bslmt::ThreadUtil::join(listenThreads[i]));
+    }
+
+    while (s_numChannelsUp < NT);
+
+    if (verbose) {
+        MTCOUT << "Connecting channels connected." << MTENDL;
+    }
+
+    s_numListenersUp = 0;
+
+    const int IMPORT_ID = 300;
+
+    for (int i = 0; i < NT; ++i) {
+        IMPORT_DATA[i].d_sourceId = IMPORT_ID + i;
+
+        ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
+                                              &listenFunction,
+                                              (void *) &IMPORT_DATA[i]));
+    }
+
+    while (s_numListenersUp < NT);
+
+    s_numChannelsUp = 0;
+
+    TEST_CASE_SSL_SOCKETS::bteso_SslLikeStreamSocketFactory<IPAddress>
+                                                     sslSocketFactory(512);
+
+    typedef btlso::StreamSocketFactoryDeleter Deleter;
+
+    for (int i = 0; i < NT; ++i) {
+        
+        StreamSocket *socket = sslSocketFactory.allocate();
+
+        ASSERT(0 == socket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE));
+
+        ASSERT(0 == socket->connect(IMPORT_DATA[i].d_serverAddress));
+
+        ASSERT(0 == socket->setBlockingMode(
+                                         btlso::Flags::e_NONBLOCKING_MODE));
+
+        bslma::ManagedPtr<StreamSocket> socketPtr(
+                              socket,
+                              &sslSocketFactory,
+                              &Deleter::deleteObject<IPAddress>); 
+
+        ASSERT(0 == mX.import(&socketPtr, IMPORT_DATA[i].d_sourceId));
+    }
+
+    while (s_numChannelsUp < NT);
+
+    if (verbose) {
+        MTCOUT << "Importing channels connected." << MTENDL;
+    }
+
+    if (verbose) {
+        MTCOUT << "All connections established." << MTENDL;
+    }
+
+    const int SIZE      = 1024 * 1024;  // 1 MB
+    char      buffer[SIZE];
+
+    for (int i = 0; i < NT; ++i) {
+        mX.disableRead(CLIENT_DATA[i].d_channelId);
+        mX.disableRead(SERVER_DATA[i].d_channelId);
+        mX.disableRead(IMPORT_DATA[i].d_channelId);
+    }
+
+    for (int i = 0; i < NT; ++i) {
+        const char EXP_CHAR          = 'A' + i;
+        CLIENT_DATA[i].d_expChar     = EXP_CHAR;
+        CLIENT_DATA[i].d_dataRead    = 0;
+        CLIENT_DATA[i].d_expDataSize = SIZE;
+
+        bsl::memset(buffer, EXP_CHAR, SIZE);
+
+        StreamSocket *socket = CLIENT_DATA[i].d_socket_p;
+
+        int numWritten = 0;
+        do {
+            const int NW = socket->write(buffer, SIZE - numWritten);
+            if (NW <= 0) {
+                CLIENT_DATA[i].d_expDataSize = numWritten;
+                break;
+            }
+            numWritten += NW;
+        } while (numWritten < SIZE);
+
+        SERVER_DATA[i].d_expChar     = EXP_CHAR;
+        SERVER_DATA[i].d_dataRead    = 0;
+        SERVER_DATA[i].d_expDataSize = SIZE;
+
+        socket = SERVER_DATA[i].d_socket_p;
+
+        numWritten = 0;
+        do {
+            const int NW = socket->write(buffer, SIZE - numWritten);
+            if (NW <= 0) {
+                SERVER_DATA[i].d_expDataSize = numWritten;
+                break;
+            }
+            numWritten += NW;
+        } while (numWritten < SIZE);
+
+        IMPORT_DATA[i].d_expChar     = EXP_CHAR;
+        IMPORT_DATA[i].d_dataRead    = 0;
+        IMPORT_DATA[i].d_expDataSize = SIZE;
+
+        socket = IMPORT_DATA[i].d_socket_p;
+
+        numWritten = 0;
+        do {
+            const int NW = socket->write(buffer, SIZE - numWritten);
+            if (NW <= 0) {
+                IMPORT_DATA[i].d_expDataSize = numWritten;
+                break;
+            }
+            numWritten += NW;
+        } while (numWritten < SIZE);
+    }
+
+    if (verbose) {
+        MTCOUT << "Writing data complete." << MTENDL;
+    }
+
+    for (int i = 0; i < NT; ++i) {
+        mX.enableRead(CLIENT_DATA[i].d_channelId);
+        mX.enableRead(SERVER_DATA[i].d_channelId);
+        mX.enableRead(IMPORT_DATA[i].d_channelId);
+    }
+
+    while (s_numChannelsReadDone < 3 * NT);
+
+    ASSERT(0 == mX.stopAndRemoveAllChannels());
+
+    for (int i = 0; i < NT; ++i) {
+        factory.deallocate(CLIENT_DATA[i].d_socket_p);
+        factory.deallocate(IMPORT_DATA[i].d_socket_p);
+    }
 }
 
 void TestDriver::testCase41()
@@ -16703,6 +17118,7 @@ int main(int argc, char **argv)
 
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
+      CASE(43);
       CASE(42);
       CASE(41);
       CASE(40);
