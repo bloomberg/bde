@@ -26,18 +26,18 @@ using namespace bsl;
 // cryptographic hashes.  The primary concern is to ensure that the correct
 // hashes are calculated.
 //-----------------------------------------------------------------------------
-// [ 2] bdlde::Sha224::Sha224();
-// [ 2] bdlde::Sha224::update(message, size);
-// [ 6] bdlde::Sha224::finalize(digest);
-// [ 3] bdlde::Sha256::Sha256();
-// [ 3] bdlde::Sha256::update(message, size);
-// [ 7] bdlde::Sha256::finalize(digest);
-// [ 4] bdlde::Sha384::Sha384();
-// [ 4] bdlde::Sha384::update(message, size);
-// [ 8] bdlde::Sha384::finalize(digest);
-// [ 5] bdlde::Sha512::Sha512();
-// [ 5] bdlde::Sha512::update(message, size);
-// [ 9] bdlde::Sha512::finalize(digest);
+// [ 2] Sha224::Sha224();
+// [ 2] Sha224::update(const void *message, bsl::size_t length);
+// [ 6] Sha224::finalize(unsigned char* digest);
+// [ 3] Sha256::Sha256();
+// [ 3] Sha256::update(const void *message, bsl::size_t length);;
+// [ 7] Sha256::finalize(unsigned char* digest);
+// [ 4] Sha384::Sha384();
+// [ 4] Sha384::update(const void *message, bsl::size_t length);;
+// [ 8] Sha384::finalize(unsigned char* digest);
+// [ 5] Sha512::Sha512();
+// [ 5] Sha512::update(const void *message, bsl::size_t length);;
+// [ 9] Sha512::finalize(unsigned char* digest);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -355,6 +355,7 @@ int main(int argc, char *argv[])
         //    passing the entire string to update.
         //
         // Testing:
+        //   Sha512::Sha512();
         //   void Sha512::update(const void *message, bsl::size_t length);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-512" "\n"
@@ -375,6 +376,7 @@ int main(int argc, char *argv[])
         //    passing the entire string to update.
         //
         // Testing:
+        //   Sha384::Sha384();
         //   void Sha384::update(const void *message, bsl::size_t length);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-384" "\n"
@@ -395,6 +397,7 @@ int main(int argc, char *argv[])
         //    passing the entire string to update.
         //
         // Testing:
+        //   Sha256::Sha256();
         //   void Sha256::update(const void *message, bsl::size_t length);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-256" "\n"
@@ -415,6 +418,7 @@ int main(int argc, char *argv[])
         //    passing the entire string to update.
         //
         // Testing:
+        //   Sha224::Sha224();
         //   void Sha224::update(const void *message, bsl::size_t length);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-224" "\n"
