@@ -88,9 +88,9 @@ BSLS_IDENT("$Id: $")
 //                               is 'false', those metrics will not
 //                               be collected.
 //
-//   bool    useRoundRobinReads  indicates whether the configured          false
-//                               channel pool should use round robin reads
-//                               instead of greedy reads.
+//   bool    useRoundRobinReads  indicates whether the configured         false
+//                               channel pool should use round robin
+//                               reads instead of greedy reads.
 //..
 // The constraints are as follows:
 //..

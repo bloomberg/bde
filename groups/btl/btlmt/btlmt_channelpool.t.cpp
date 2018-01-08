@@ -861,7 +861,7 @@ void *listenFunction(void *args)
     return 0;
 }
 
-}  // close namespace TEST_CASE_STOP_GREEDY_READS
+}  // close namespace TEST_CASE_USE_ROUND_ROBIN_READS
 
 //-----------------------------------------------------------------------------
 // TEST_CASE_WATERMARK_SEQUENCING
@@ -8590,7 +8590,7 @@ void TestDriver::testCase42()
     typedef btlso::StreamSocketFactoryDeleter Deleter;
 
     for (int i = 0; i < NT; ++i) {
-        
+
         StreamSocket *socket = sslSocketFactory.allocate();
 
         ASSERT(0 == socket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE));
@@ -8603,7 +8603,7 @@ void TestDriver::testCase42()
         bslma::ManagedPtr<StreamSocket> socketPtr(
                               socket,
                               &sslSocketFactory,
-                              &Deleter::deleteObject<IPAddress>); 
+                              &Deleter::deleteObject<IPAddress>);
 
         ASSERT(0 == mX.import(&socketPtr, IMPORT_DATA[i].d_sourceId));
     }
