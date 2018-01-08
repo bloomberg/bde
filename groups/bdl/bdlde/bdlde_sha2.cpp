@@ -1,95 +1,123 @@
+// bdlde_sha2.cpp                                                     -*-C++-*-
 #include "bdlde_sha2.h"
 
 #include <bsl_algorithm.h>
-
-#include <cassert>
 
 namespace BloombergLP {
 namespace bdlde {
 namespace {
 
-template<typename Integer>
-Integer rotateRight(Integer x, unsigned n)
+template<class INTEGER>
+INTEGER rotateRight(INTEGER value, unsigned shift)
+    // Rotate the specified 'value' by 'shift' bits to the right, filling in
+    // bits open up from left with those that "fell off" from the right.  The
+    // behavior is undefined unless 'shift <= sizeof(value) * CHAR_BIT'.
 {
-    return (x >> n) | (x << ((sizeof(x) * 8) - n));
+    return (value >> shift) | (value << ((sizeof(value) * CHAR_BIT) - shift));
 }
 
-// For each bit index, if that bit is set in z, uses the bit from x, otherwise,
-// uses the bit from y.
-template<typename Integer>
-Integer bitwiseChoice(Integer x, Integer y, Integer z)
+template<class INTEGER>
+INTEGER bitwiseConditional(INTEGER condition, INTEGER x, INTEGER y)
+    // Returns a value that for each bit set in 'condition' uses the
+    // corresponding bit from 'x', otherwise uses the corresponding bit from
+    // 'y'. Named 'Ch' in FIPS 180-4.
 {
-    return (x & (y ^ z)) ^ z;
+    return (x & (y ^ condition)) ^ condition;
 }
 
-template<typename Integer>
-Integer bitwiseMajority(Integer x, Integer y, Integer z)
+template<class INTEGER>
+INTEGER bitwiseMajority(INTEGER x, INTEGER y, INTEGER z)
+    // Returns a value which has each bit set if and only if the corresponding
+    // bit is set in at least two out of three of 'x', 'y', and 'z'. Named
+    // 'Maj' in FIPS 180-4.
 {
     return (x & y) | ((x | y) & z);
 }
 
-bsl::uint32_t f1(bsl::uint32_t x)
+bsl::uint32_t f1(bsl::uint32_t value)
+    // First mixing function used by SHA-224 and SHA-256.
 {
-    return (rotateRight(x,  2) ^ rotateRight(x, 13) ^ rotateRight(x, 22));
+    return rotateRight(value,  2)
+         ^ rotateRight(value, 13)
+         ^ rotateRight(value, 22);
 }
-bsl::uint64_t f1(bsl::uint64_t x)
+bsl::uint64_t f1(bsl::uint64_t value)
+    // First mixing function used by SHA-384 and SHA-512.
 {
-    return (rotateRight(x, 28) ^ rotateRight(x, 34) ^ rotateRight(x, 39));
-}
-
-bsl::uint32_t f2(bsl::uint32_t x)
-{
-    return (rotateRight(x,  6) ^ rotateRight(x, 11) ^ rotateRight(x, 25));
-}
-bsl::uint64_t f2(bsl::uint64_t x)
-{
-    return (rotateRight(x, 14) ^ rotateRight(x, 18) ^ rotateRight(x, 41));
+    return rotateRight(value, 28)
+         ^ rotateRight(value, 34)
+         ^ rotateRight(value, 39);
 }
 
-bsl::uint32_t f3(bsl::uint32_t x)
+bsl::uint32_t f2(bsl::uint32_t value)
+    // Second mixing function used by SHA-224 and SHA-256.
 {
-    return (rotateRight(x,  7) ^ rotateRight(x, 18) ^ (x >>  3));
+    return rotateRight(value,  6)
+         ^ rotateRight(value, 11)
+         ^ rotateRight(value, 25);
 }
-bsl::uint64_t f3(bsl::uint64_t x)
+bsl::uint64_t f2(bsl::uint64_t value)
+    // Second mixing function used by SHA-384 and SHA-512.
 {
-    return (rotateRight(x,  1) ^ rotateRight(x,  8) ^ (x >>  7));
-}
-
-bsl::uint32_t f4(bsl::uint32_t x)
-{
-    return (rotateRight(x, 17) ^ rotateRight(x, 19) ^ (x >> 10));
-}
-bsl::uint64_t f4(bsl::uint64_t x)
-{
-    return (rotateRight(x, 19) ^ rotateRight(x, 61) ^ (x >>  6));
+    return rotateRight(value, 14)
+         ^ rotateRight(value, 18)
+         ^ rotateRight(value, 41);
 }
 
-template<typename Integer>
-void unpack(Integer x, unsigned char *str)
+bsl::uint32_t f3(bsl::uint32_t value)
+    // Third mixing function used by SHA-224 and SHA-256.
 {
-    bsl::size_t shift = sizeof(Integer) * 8;
-    for (bsl::size_t index = 0; index != sizeof(Integer); ++index) {
-        shift -= 8;
-        str[index] = static_cast<bsl::uint8_t>(x >> shift);
+    return rotateRight(value,  7) ^ rotateRight(value, 18) ^ (value >>  3);
+}
+bsl::uint64_t f3(bsl::uint64_t value)
+    // Third mixing function used by SHA-384 and SHA-512.
+{
+    return rotateRight(value,  1) ^ rotateRight(value,  8) ^ (value >>  7);
+}
+
+bsl::uint32_t f4(bsl::uint32_t value)
+    // Fourth mixing function used by SHA-224 and SHA-256.
+{
+    return rotateRight(value, 17) ^ rotateRight(value, 19) ^ (value >> 10);
+}
+bsl::uint64_t f4(bsl::uint64_t value)
+    // Fourth mixing function used by SHA-384 and SHA-512.
+{
+    return rotateRight(value, 19) ^ rotateRight(value, 61) ^ (value >>  6);
+}
+
+template<class INTEGER>
+INTEGER pack(const unsigned char *bytes)
+    // Returns an integer which has the value that would be read from the
+    // address indicated by 'bytes' interpreted as a big-endian integer of type
+    // 'INTEGER'.  The behavior is undefined unless
+    // '[bytes, bytes + sizeof(INTEGER))' is a valid range.
+{
+    bsl::size_t shift = sizeof(INTEGER) * CHAR_BIT;
+    INTEGER     x     = 0;
+    for (const unsigned char *ptr = bytes;
+         ptr != bytes + sizeof(INTEGER);
+         ++ptr) {
+        shift -= CHAR_BIT;
+        x |= (static_cast<INTEGER>(*ptr) << shift);
     }
-}
-
-template<typename Integer>
-Integer pack(const unsigned char *str)
-{
-    bsl::size_t shift = sizeof(Integer) * 8;
-    Integer x = 0;
-    for (const unsigned char *ptr = str; ptr != str + sizeof(Integer); ++ptr) {
-        shift -= 8;
-        x |= (static_cast<bsl::uint64_t>(*ptr) << shift);
-    }
-    assert(shift == 0);
     return x;
 }
 
+template<class INTEGER>
+void unpack(INTEGER value, unsigned char *bytes)
+    // Stores the integer representation of 'value' into the address indicated by 'bytes', interpreting 'value' as a big-endian integer. The behavior is undefined unless '[bytes, bytes + sizeof(INTEGER))' is a valid range.
+{
+    bsl::size_t shift = sizeof(INTEGER) * 8;
+    for (bsl::size_t index = 0; index != sizeof(INTEGER); ++index) {
+        shift -= 8;
+        bytes[index] = static_cast<bsl::uint8_t>(value >> shift);
+    }
+}
+
 // First 32 bits of fractional part of the cube roots of the first 64 primes.
-const bsl::array<bsl::uint32_t, 64> sha256_constants =
-           {{0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+const bsl::uint32_t sha256Constants[64] =
+            {0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
              0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
              0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
              0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -104,11 +132,11 @@ const bsl::array<bsl::uint32_t, 64> sha256_constants =
              0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
              0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
              0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
-             0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2}};
+             0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
 // First 64 bits of fractional part of the cube roots of the first 80 primes.
-const bsl::array<bsl::uint64_t, 80> sha512_constants =
-           {{0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL,
+const bsl::uint64_t sha512Constants[80] =
+            {0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL,
              0xb5c0fbcfec4d3b2fULL, 0xe9b5dba58189dbbcULL,
              0x3956c25bf348b538ULL, 0x59f111f1b605d019ULL,
              0x923f82a4af194f9bULL, 0xab1c5ed5da6d8118ULL,
@@ -147,23 +175,26 @@ const bsl::array<bsl::uint64_t, 80> sha512_constants =
              0x28db77f523047d84ULL, 0x32caab7b40c72493ULL,
              0x3c9ebe0a15c9bebcULL, 0x431d67c49c100d4cULL,
              0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL,
-             0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL}};
+             0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL};
 
 /* SHA-256 functions */
 
-template<typename Integer, bsl::size_t ARRAY_SIZE>
-void transform(bsl::array<Integer, 8>                *state,
-               const unsigned char                   *message,
-               bsl::uint64_t                          numberOfBlocks,
-               bsl::uint64_t                          blockSize,
-               const bsl::array<Integer, ARRAY_SIZE> &constants)
+template<class INTEGER, bsl::size_t ARRAY_SIZE>
+void transform(INTEGER             *state,
+               const unsigned char *message,
+               bsl::uint64_t        numberOfBlocks,
+               bsl::uint64_t        blockSize,
+               const INTEGER      (&constants)[ARRAY_SIZE])
+    // Update 'state' with the hashed contents of 'message', mixing it with the
+    // values in 'constants'.  The behavior is undefined unless
+    // '[message, message + numberOfBlocks * blockSize)' is a valid range.
 {
     const unsigned char *messageEnd = message + blockSize * numberOfBlocks;
     for (; message != messageEnd; message += blockSize)
     {
-        Integer w[ARRAY_SIZE];
+        INTEGER w[ARRAY_SIZE];
         for (int index = 0; index != 16; ++index) {
-            w[index] = pack<Integer>(message + index * sizeof(Integer));
+            w[index] = pack<INTEGER>(message + index * sizeof(INTEGER));
         }
         for (int index = 16; index != ARRAY_SIZE; ++index) {
             w[index] = f4(w[index -  2])
@@ -172,14 +203,15 @@ void transform(bsl::array<Integer, 8>                *state,
                      +    w[index - 16];
         }
 
-        bsl::array<Integer, 8> wv = *state;
+        INTEGER wv[8];
+        bsl::copy(state, state + 8, wv);
         for (int index = 0; index != ARRAY_SIZE; ++index) {
-            const Integer t1 = wv[7]
+            const INTEGER t1 = wv[7]
                              + f2(wv[4])
-                             + bitwiseChoice(wv[4], wv[5], wv[6])
+                             + bitwiseConditional(wv[6], wv[4], wv[5])
                              + constants[index]
                              + w[index];
-            const Integer t2 = f1(wv[0])
+            const INTEGER t2 = f1(wv[0])
                              + bitwiseMajority(wv[0], wv[1], wv[2]);
             wv[7] = wv[6];
             wv[6] = wv[5];
@@ -192,33 +224,39 @@ void transform(bsl::array<Integer, 8>                *state,
         }
 
         for (int index = 0; index < 8; ++index) {
-            (*state)[index] += wv[index];
+            state[index] += wv[index];
         }
     }
 }
 
-template<bsl::size_t BLOCK_SIZE, typename Integer, bsl::size_t ARRAY_SIZE>
-void updateImpl(bsl::array<Integer, 8>                *state,
-                bsl::uint64_t                         *totalSize,
-                bsl::uint64_t                         *blockBytesUsed,
-                bsl::array<unsigned char, BLOCK_SIZE> *block,
-                const unsigned char                   *message,
-                bsl::size_t                            messageSize,
-                const bsl::array<Integer, ARRAY_SIZE> &constants)
+template<bsl::size_t BLOCK_SIZE, class INTEGER, bsl::size_t ARRAY_SIZE>
+void updateImpl(INTEGER             *state,
+                bsl::uint64_t       *totalSize,
+                bsl::uint64_t       *blockBytesUsed,
+                unsigned char      (&block)[BLOCK_SIZE],
+                const unsigned char *message,
+                bsl::size_t          messageSize,
+                const INTEGER      (&constants)[ARRAY_SIZE])
+    // Update the specified 'state' with the contents of the specified 'block'
+    // followed by the contents of the specified 'message'.  Update 'totalSize'
+    // to have the size, in bytes, of all messages passed in so far. Populate
+    // 'block' with all bytes leftover that did not fit into a multiple of
+    // 'BLOCK_SIZE'.  The behavior is undefined unless the range
+    // '[message, message + length)' is a valid range.
 {
     const bsl::uint64_t prologueSize = bsl::min(messageSize,
                                               BLOCK_SIZE - *blockBytesUsed);
     bsl::copy(message,
               message + prologueSize,
-              block->begin() + *blockBytesUsed);
+              block + *blockBytesUsed);
     *blockBytesUsed += prologueSize;
 
     *totalSize += messageSize;
     if (*blockBytesUsed != BLOCK_SIZE) {
-        return;
+        return;                                                       // RETURN
     }
 
-    transform(state, block->data(), 1, BLOCK_SIZE, constants);
+    transform(state, block, 1, BLOCK_SIZE, constants);
 
     const unsigned char *remaining       = message + prologueSize;
     const bsl::uint64_t  remainingSize   = messageSize - prologueSize;
@@ -227,39 +265,41 @@ void updateImpl(bsl::array<Integer, 8>                *state,
 
     *blockBytesUsed = remainingSize % BLOCK_SIZE;
     const unsigned char *epilogue = remaining + remainingBlocks * BLOCK_SIZE;
-    bsl::copy(epilogue, epilogue + *blockBytesUsed, block->begin());
+    bsl::copy(epilogue, epilogue + *blockBytesUsed, block);
 }
 
-template<bsl::size_t BLOCK_SIZE, typename Integer, bsl::size_t ARRAY_SIZE>
-void finalizeImpl(unsigned char                               *digest,
-                  bsl::size_t                                  digestSize,
-                  bsl::array<Integer, 8>                      *state,
-                  bsl::uint64_t                                totalSize,
-                  bsl::uint64_t                                blockBytesUsed,
-                  const bsl::array<unsigned char, BLOCK_SIZE> &block,
-                  const bsl::array<Integer, ARRAY_SIZE>       &constants)
+template<bsl::size_t BLOCK_SIZE, class INTEGER, bsl::size_t ARRAY_SIZE>
+void finalizeImpl(unsigned char        *digest,
+                  bsl::size_t           digestSize,
+                  INTEGER              *state,
+                  bsl::uint64_t         totalSize,
+                  bsl::uint64_t         blockBytesUsed,
+                  const unsigned char (&block)[BLOCK_SIZE],
+                  const INTEGER       (&constants)[ARRAY_SIZE])
+    // Store into the specified 'digest' the contents of 'state' and the
+    // remaining contents of 'block' after appending in the SHA-2 metadata.
 {
     const bsl::uint64_t totalSizeInBits = totalSize * 8;
-    const bsl::uint64_t unpaddedSize = blockBytesUsed + 1 + sizeof(Integer) * 2;
+    const bsl::uint64_t unpaddedSize    = blockBytesUsed
+                                        + 1
+                                        + sizeof(INTEGER) * 2;
     const bsl::uint64_t remainingBlocks = (unpaddedSize <= BLOCK_SIZE) ? 1 : 2;
     // At the end of the message, we write a special marker byte, followed by
     // the total size of the message.  Insert '0' bytes between those to pad
     // the message to a multiple of BLOCK_SIZE.
-    bsl::array<unsigned char, BLOCK_SIZE * 2> finalBlocks = {};
-    bsl::copy(block.begin(),
-              block.begin() + blockBytesUsed,
-              finalBlocks.begin());
+    unsigned char       finalBlocks[BLOCK_SIZE * 2] = {};
+    bsl::copy(block, block + blockBytesUsed, finalBlocks);
     finalBlocks[blockBytesUsed] = 1 << 7;
-    unsigned char *end = finalBlocks.data() + remainingBlocks * BLOCK_SIZE;
+    unsigned char *end = finalBlocks + remainingBlocks * BLOCK_SIZE;
     unpack(totalSizeInBits, end - sizeof(totalSizeInBits));
     transform(state,
-              finalBlocks.data(),
+              finalBlocks,
               remainingBlocks,
               BLOCK_SIZE,
               constants);
 
-    for (int index = 0 ; index < digestSize / sizeof(Integer); ++index) {
-        unpack((*state)[index], &digest[index * sizeof(Integer)]);
+    for (int index = 0 ; index < digestSize / sizeof(INTEGER); ++index) {
+        unpack(state[index], &digest[index * sizeof(INTEGER)]);
     }
 }
 
@@ -267,124 +307,124 @@ void finalizeImpl(unsigned char                               *digest,
 
 void Sha224::update(const void *message, bsl::size_t length)
 {
-    updateImpl(&d_state,
-               &d_totalSize,
-               &d_blockBytesUsed,
-               &d_block,
-                static_cast<const unsigned char *>(message),
-                length,
-                sha256_constants);
+    updateImpl(d_state,
+              &d_totalSize,
+              &d_blockBytesUsed,
+               d_block,
+               static_cast<const unsigned char *>(message),
+               length,
+               sha256Constants);
 }
 void Sha256::update(const void *message, bsl::size_t length)
 {
-    updateImpl(&d_state,
-               &d_totalSize,
-               &d_blockBytesUsed,
-               &d_block,
-                static_cast<const unsigned char *>(message),
-                length,
-                sha256_constants);
+    updateImpl(d_state,
+              &d_totalSize,
+              &d_blockBytesUsed,
+               d_block,
+               static_cast<const unsigned char *>(message),
+               length,
+               sha256Constants);
 }
 void Sha384::update(const void *message, bsl::size_t length)
 {
-    updateImpl(&d_state,
-               &d_totalSize,
-               &d_blockBytesUsed,
-               &d_block,
-                static_cast<const unsigned char *>(message),
-                length,
-                sha512_constants);
+    updateImpl(d_state,
+              &d_totalSize,
+              &d_blockBytesUsed,
+               d_block,
+               static_cast<const unsigned char *>(message),
+               length,
+               sha512Constants);
 }
 void Sha512::update(const void *message, bsl::size_t length)
 {
-    updateImpl(&d_state,
-               &d_totalSize,
-               &d_blockBytesUsed,
-               &d_block,
-                static_cast<const unsigned char *>(message),
-                length,
-                sha512_constants);
+    updateImpl(d_state,
+              &d_totalSize,
+              &d_blockBytesUsed,
+               d_block,
+               static_cast<const unsigned char *>(message),
+               length,
+               sha512Constants);
 }
 
 void Sha224::finalize(unsigned char *digest)
 {
     finalizeImpl(digest,
-                 DIGEST_SIZE,
-                &d_state,
+                 k_DIGEST_SIZE,
+                 d_state,
                  d_totalSize,
                  d_blockBytesUsed,
                  d_block,
-                 sha256_constants);
+                 sha256Constants);
 }
 void Sha256::finalize(unsigned char *digest)
 {
     finalizeImpl(digest,
-                 DIGEST_SIZE,
-                &d_state,
+                 k_DIGEST_SIZE,
+                 d_state,
                  d_totalSize,
                  d_blockBytesUsed,
                  d_block,
-                 sha256_constants);
+                 sha256Constants);
 }
 void Sha384::finalize(unsigned char *digest)
 {
     finalizeImpl(digest,
-                 DIGEST_SIZE,
-                &d_state,
+                 k_DIGEST_SIZE,
+                 d_state,
                  d_totalSize,
                  d_blockBytesUsed,
                  d_block,
-                 sha512_constants);
+                 sha512Constants);
 }
 void Sha512::finalize(unsigned char *digest)
 {
     finalizeImpl(digest,
-                 DIGEST_SIZE,
-                &d_state,
+                 k_DIGEST_SIZE,
+                 d_state,
                  d_totalSize,
                  d_blockBytesUsed,
                  d_block,
-                 sha512_constants);
+                 sha512Constants);
 }
 
 Sha224::Sha224():
     d_totalSize(0),
     d_blockBytesUsed(0),
-	// Second 32 bits of the fractional parts of the square root of the 9th
-	// through 16th primes.
-    d_state{{0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
-         0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4}}
+    // Second 32 bits of the fractional parts of the square root of the 9th
+    // through 16th primes.
+    d_state{0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
+            0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4}
 {
 }
 Sha256::Sha256():
     d_totalSize(0),
     d_blockBytesUsed(0),
-	// First 32 bits of the fractional part of the square root of the first 8
-	// primes.
-    d_state{{0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19}}
+    // First 32 bits of the fractional part of the square root of the first 8
+    // primes.
+    d_state{0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+            0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19}
 {
 }
 Sha384::Sha384():
     d_totalSize(0),
     d_blockBytesUsed(0),
-	// First 64 bits of the fractional parts of the square root of the 9th
-	// through 16th primes.
-    d_state{{0xcbbb9d5dc1059ed8ULL, 0x629a292a367cd507ULL,
-         0x9159015a3070dd17ULL, 0x152fecd8f70e5939ULL,
-         0x67332667ffc00b31ULL, 0x8eb44a8768581511ULL,
-         0xdb0c2e0d64f98fa7ULL, 0x47b5481dbefa4fa4ULL}}
+    // First 64 bits of the fractional parts of the square root of the 9th
+    // through 16th primes.
+    d_state{0xcbbb9d5dc1059ed8ULL, 0x629a292a367cd507ULL,
+            0x9159015a3070dd17ULL, 0x152fecd8f70e5939ULL,
+            0x67332667ffc00b31ULL, 0x8eb44a8768581511ULL,
+            0xdb0c2e0d64f98fa7ULL, 0x47b5481dbefa4fa4ULL}
 {
 }
 Sha512::Sha512():
     d_totalSize(0),
     d_blockBytesUsed(0),
-	// First 64 bits of the fractional part of the square root of the first 8
-	// primes.
-    d_state{{0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL,
-         0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL,
-         0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
-         0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL}}
+    // First 64 bits of the fractional part of the square root of the first 8
+    // primes.
+    d_state{0x6a09e667f3bcc908ULL, 0xbb67ae8584caa73bULL,
+            0x3c6ef372fe94f82bULL, 0xa54ff53a5f1d36f1ULL,
+            0x510e527fade682d1ULL, 0x9b05688c2b3e6c1fULL,
+            0x1f83d9abfb41bd6bULL, 0x5be0cd19137e2179ULL}
 {
 }
 

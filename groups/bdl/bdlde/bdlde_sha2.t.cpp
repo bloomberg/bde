@@ -42,7 +42,7 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                     STANDARD BDE ASSERT TEST FUNCTION
 //-----------------------------------------------------------------------------
 
 namespace {
@@ -61,7 +61,7 @@ void aSsErT(int c, const char *s, int i)
 }  // close unnamed namespace
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
@@ -101,34 +101,39 @@ void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 template<bsl::size_t SIZE>
-void toHex(bsl::array<unsigned char, SIZE> const &input,
-           bsl::array<char, SIZE * 2> *output)
+void toHex(bsl::string *output, const unsigned char (&input)[SIZE])
+    // Store into the specified 'output' the hex representation of the bytes in
+    // the specified 'input'.
 {
     const char *hexTable = "0123456789abcdef";
+    output->clear();
     for (bsl::size_t index = 0; index != SIZE; ++index) {
         const unsigned char byte = input[index];
-        (*output)[index * 2    ] = hexTable[byte / 16];
-        (*output)[index * 2 + 1] = hexTable[byte % 16];
+        output->push_back(hexTable[byte / 16]);
+        output->push_back(hexTable[byte % 16]);
     }
 }
 
-template<typename Value, bsl::size_t SIZE>
-bsl::size_t arraySize(Value const (&)[SIZE])
+template<class VALUE, bsl::size_t SIZE>
+bsl::size_t arraySize(const VALUE (&)[SIZE])
+    // Return the size of the array parameter.
 {
     return SIZE;
 }
 
-template<typename Hasher>
-void testKnownHashes(const bsl::array<const char *, 6> & expected)
+template<class HASHER>
+void testKnownHashes(const char *const (&expected)[6])
+    // Hash certain known messages using an instance of 'HASHER', and verify
+    // that the results match the results in 'expected'.
 {
     const bsl::string repeat_a(1000000, 'a');
-    bsl::string all_characters;
+    bsl::string       all_characters;
     for (int c = -128; c != 128; ++c)
     {
         all_characters.push_back(static_cast<char>(c));
     }
 
-    const bsl::string messages[] =
+    const bsl::string messages[6] =
     {
         "",
         "abc",
@@ -139,45 +144,46 @@ void testKnownHashes(const bsl::array<const char *, 6> & expected)
         all_characters
     };
 
-    bsl::size_t const digestSize = Hasher::DIGEST_SIZE;
-    bsl::array<unsigned char, digestSize> digest;
-    bsl::array<char, digestSize * 2> hexDigest;
+    unsigned char digest[HASHER::k_DIGEST_SIZE];
+    bsl::string   hexDigest;
     for (bsl::size_t n = 0; n != arraySize(messages); ++n)
     {
         const char *message = messages[n].c_str();
-        Hasher hasher;
+        HASHER      hasher;
         hasher.update(message,
                       messages[n].size());
-        hasher.finalize(digest.data());
-        
-        toHex(digest, &hexDigest);
-        ASSERT(bsl::equal(hexDigest.begin(), hexDigest.end(), expected[n]));
+        hasher.finalize(digest);
+
+        toHex(&hexDigest, digest);
+        ASSERT(hexDigest == expected[n]);
     }
 }
 
-template<typename Hasher>
+template<class HASHER>
 void testIncremental()
+    // Verify that an instance of the specified 'HASHER' produces the same hash
+    // when hashing an entire message as it does when hashing the message in
+    // pieces.
 {
-    const char        *in   = "abcdef";
-    const bsl::size_t  size = bsl::strlen(in);
+    const char       *in         = "abcdef";
+    const bsl::size_t size       = bsl::strlen(in);
+    const bsl::size_t digestSize = HASHER::k_DIGEST_SIZE;
+    unsigned char     digest1[digestSize];
+    unsigned char     digest2[digestSize];
 
-    bsl::size_t const digestSize = Hasher::DIGEST_SIZE;
-    bsl::array<unsigned char, digestSize> digest1;
-    bsl::array<unsigned char, digestSize> digest2;
-
-    Hasher completeHasher;
+    HASHER completeHasher;
     completeHasher.update(in, size);
-    completeHasher.finalize(digest1.data());
+    completeHasher.finalize(digest1);
 
     for (bsl::size_t stride = 1; stride <= 3; ++stride) {
         ASSERT(size % stride == 0);
-        Hasher incrementalHasher;
+        HASHER incrementalHasher;
         for (bsl::size_t index = 0; index != size; index += stride) {
             incrementalHasher.update(in + index, stride);
         }
-        incrementalHasher.finalize(digest2.data());
-        
-        ASSERT(digest1 == digest2);
+        incrementalHasher.finalize(digest2);
+
+        ASSERT(bsl::equal(digest1, digest1 + digestSize, digest2));
     }
 }
 
@@ -215,9 +221,10 @@ int main(int argc, char *argv[])
         //: 1 Verify a range of values with varying sizes and bytes against
         //:   known values.
         // --------------------------------------------------------------------
-        if (verbose) cout << "SHA-512 tests\n";
-        const bsl::array<const char *, 6> results =
-        {{
+        if (verbose) cout << "KNOWN HASHES FOR SHA-512" "\n"
+                             "========================" "\n";
+        const char *const results[6] =
+        {
             "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce"
             "47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e",
             "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a"
@@ -230,7 +237,7 @@ int main(int argc, char *argv[])
             "de0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b",
             "f91a8584486a5f167ca103e390444e52fd294e10d43af7bd94402876954ae9b1"
             "d0ec65ab9aaf47a7ab7f8733a8d111c038ff78d1238e3aa32b58e9b63767f7d3"
-        }};
+        };
         testKnownHashes<bdlde::Sha512>(results);
       } break;
       case 8: {
@@ -246,9 +253,10 @@ int main(int argc, char *argv[])
         //: 1 Verify a range of values with varying sizes and bytes against
         //:   known values.
         // --------------------------------------------------------------------
-        if (verbose) cout << "SHA-384 tests\n";
-        const bsl::array<const char *, 6> results =
-        {{
+        if (verbose) cout << "KNOWN HASHES FOR SHA-384" "\n"
+                             "========================" "\n";
+        const char *const results[6] =
+        {
             "38b060a751ac96384cd9327eb1b1e36a21fdb71114be0743"
             "4c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b",
             "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded163"
@@ -261,7 +269,7 @@ int main(int argc, char *argv[])
             "7972cec5704c2a5b07b8b3dc38ecc4ebae97ddd87f3d8985",
             "a7902aa7f28885d54c4dadbff0f721cd5532b1e56e6f7a4b"
             "b2baad0229e576da5902c1bf0cc809fa3efa6e6476e62696"
-        }};
+        };
         testKnownHashes<bdlde::Sha384>(results);
       } break;
       case 7: {
@@ -277,16 +285,17 @@ int main(int argc, char *argv[])
         //: 1 Verify a range of values with varying sizes and bytes against
         //:   known values.
         // --------------------------------------------------------------------
-        if (verbose) cout << "SHA-256 tests\n";
-        const bsl::array<const char *, 6> results =
-        {{
+        if (verbose) cout << "KNOWN HASHES FOR SHA-256" "\n"
+                             "========================" "\n";
+        const char *const results[6] =
+        {
             "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
             "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1",
             "cf5b16a778af8380036ce59e7b0492370b249b11e8f07a51afac45037afee9d1",
             "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0",
             "2bae3a9530e35152c19d73f13f6c0e22cb92f22ce8aa895796711f52b8f7f516"
-        }};
+        };
         testKnownHashes<bdlde::Sha256>(results);
       } break;
       case 6: {
@@ -302,17 +311,18 @@ int main(int argc, char *argv[])
         //: 1 Verify a range of values with varying sizes and bytes against
         //:   known values.
         // --------------------------------------------------------------------
-        if (verbose) cout << "SHA-224 tests\n";
-        const bsl::array<const char *, 6> results =
-        {{
+        if (verbose) cout << "KNOWN HASHES FOR SHA-224" "\n"
+                             "========================" "\n";
+        const char *const results[6] =
+        {
             "d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f",
             "23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7",
             "75388b16512776cc5dba5da1fd890150b0c6455cb4f58b1952522525",
             "c97ca9a559850ce97a04a96def6d99a9e0e0e2ab14e6b8df265fc0b3",
             "20794655980c91d8bbb4c1ea97618a4bf03f42581948b2ee4ee7ad67",
             "5dfb7c35156ef5385de415bd1e04379c2fe5b7a002484d73730d4661"
-        }};
-        
+        };
+
         testKnownHashes<bdlde::Sha224>(results);
       } break;
       case 5: {
@@ -328,7 +338,8 @@ int main(int argc, char *argv[])
         //: 1 Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.
         // --------------------------------------------------------------------
-        if (verbose) cout << "SHA-512 update\n";
+        if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-512" "\n"
+                             "===============================" "\n";
         testIncremental<bdlde::Sha512>();
       } break;
       case 4: {
@@ -344,7 +355,8 @@ int main(int argc, char *argv[])
         //: 1 Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.
         // --------------------------------------------------------------------
-        if (verbose) cout << "SHA-384 update\n";
+        if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-384" "\n"
+                             "===============================" "\n";
         testIncremental<bdlde::Sha384>();
       } break;
       case 3: {
@@ -360,7 +372,8 @@ int main(int argc, char *argv[])
         //: 1 Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.
         // --------------------------------------------------------------------
-        if (verbose) cout << "SHA-256 update\n";
+        if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-256" "\n"
+                             "===============================" "\n";
         testIncremental<bdlde::Sha256>();
       } break;
       case 2: {
@@ -376,7 +389,8 @@ int main(int argc, char *argv[])
         //: 1 Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.
         // --------------------------------------------------------------------
-        if (verbose) cout << "SHA-224 update\n";
+        if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-224" "\n"
+                             "===============================" "\n";
         testIncremental<bdlde::Sha224>();
       } break;
       case 1: {
@@ -398,18 +412,18 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nBREATHING TEST"
                              "\n==============\n";
-            {
-                bdlde::Sha224 hasher;
-            }
-            {
-                bdlde::Sha256 hasher;
-            }
-            {
-                bdlde::Sha384 hasher;
-            }
-            {
-                bdlde::Sha512 hasher;
-            }
+        {
+            bdlde::Sha224 hasher;
+        }
+        {
+            bdlde::Sha256 hasher;
+        }
+        {
+            bdlde::Sha384 hasher;
+        }
+        {
+            bdlde::Sha512 hasher;
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
