@@ -1708,10 +1708,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(CONFIG,
                          noa.numBlocksTotal(),
-                         'c' != CONFIG
-                         ? 0 == noa.numBlocksTotal()
-                         : 0 != noa.numBlocksTotal() // tmp from "default"
-                         );
+                         0 == noa.numBlocksTotal());
 
             // ------------------------------------------------
             // Reclaim dynamically allocated object under test.

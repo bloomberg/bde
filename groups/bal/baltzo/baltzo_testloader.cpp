@@ -35,8 +35,7 @@ void baltzo::TestLoader::setTimeZone(const Zoneinfo& timeZone)
 {
     TimeZoneMap::iterator it = d_timeZones.find(timeZone.identifier());
     if (it == d_timeZones.end()) {
-        d_timeZones.insert(bsl::make_pair(timeZone.identifier(),
-                                          timeZone));
+        d_timeZones.emplace(timeZone.identifier(), timeZone);
     }
     else {
         it->second = timeZone;
