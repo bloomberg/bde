@@ -22,24 +22,23 @@ BSLS_IDENT("$Id: $")
 // This utility component provides the following (static) methods:
 //..
 //   DatetimeInterval makeDays(int days);
-//   DatetimeInterval makeHours(int hours);
-//   DatetimeInterval makeMicroseconds(int microseconds);
-//   DatetimeInterval makeMilliseconds(int milliseconds);
-//   DatetimeInterval makeMinutes(int minutes);
-//   DatetimeInterval makeSeconds(int seconds);
+//   DatetimeInterval makeHours(bsls::Types::Int64 hours);
+//   DatetimeInterval makeMinutes(bsls::Types::Int64 minutes);
+//   DatetimeInterval makeSeconds(bsls::Types::Int64 seconds);
+//   DatetimeInterval makeMilliseconds(bsls::Types::Int64 milliseconds);
+//   DatetimeInterval makeMicroseconds(bsls::Types::Int64 microseconds);
 //..
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Simple usage of the various 'make*' functions.
+///Example 1: Simple Usage of the Various 'make*' Functions
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example simply shows how we can create a 'DatetimeInterval' object with
-// 1 day, 2 hours, 3 minutes, 4 seconds, 5 millisecond, and 6 microseconds by
-// composition, either with 'DatetimeInterval' constructor, or with 'make*'
-// functions.  The results are then compared to each other and to a
-// 'DatetimeInterval' that was created in one step.
+// This example shows how we can create a 'DatetimeInterval' objects having
+// values of 1 day, 2 hours, 3 minutes, 4 seconds, 5 millisecond, and 6
+// microseconds by using the 'DatetimeInterval' constructor or, more readably
+// by using the 'make*' functions.
 //
 // First, start with a default (0) 'DatetimeInterval'.
 //..
@@ -92,6 +91,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 #include <bdlt_datetimeinterval.h>
+#include <bsls_types.h>
 
 namespace BloombergLP {
 namespace bdlt {
@@ -110,25 +110,25 @@ struct DatetimeIntervalUtil {
         // Return a 'DatetimeInterval' object having the value given by the
         // specified 'days', and zero for all other attributes.
 
-    static DatetimeInterval makeHours(int hours);
-        // Return a 'DatetimeInterval' object having the value given by the
-        // specified 'hours', and zero for all other attributes.
+    static DatetimeInterval makeHours(bsls::Types::Int64 hours);
+        // Return a 'DatetimeInterval' object having an "hours" attribute
+        // equal to the specified 'hours', and 0 for all other attributes.
 
-    static DatetimeInterval makeMicroseconds(int microseconds);
-        // Return a 'DatetimeInterval' object having the value given by the
-        // specified 'microseconds)', and zero for all other attributes.
+    static DatetimeInterval makeMinutes(bsls::Types::Int64 minutes);
+        // Return a 'DatetimeInterval' object having a "minutes" attribute
+        // equal to the specified 'minutes', and 0 for all other attributes.
 
-    static DatetimeInterval makeMilliseconds(int milliseconds);
+    static DatetimeInterval makeSeconds(bsls::Types::Int64 seconds);
+        // Return a 'DatetimeInterval' object having a "seconds" attribute
+        // equal to the specified 'seconds', and 0 for all other attributes.
+
+    static DatetimeInterval makeMilliseconds(bsls::Types::Int64 milliseconds);
         // Return a 'DatetimeInterval' object having the value given by the
         // specified 'milliseconds', and zero for all other attributes.
 
-    static DatetimeInterval makeMinutes(int minutes);
+    static DatetimeInterval makeMicroseconds(bsls::Types::Int64 microseconds);
         // Return a 'DatetimeInterval' object having the value given by the
-        // specified 'minutes', and zero for all other attributes.
-
-    static DatetimeInterval makeSeconds(int seconds);
-        // Return a 'DatetimeInterval' object having the value given by the
-        // specified 'seconds', and zero for all other attributes.
+        // specified 'microseconds', and zero for all other attributes.
 };
 
 // ============================================================================
@@ -146,33 +146,33 @@ DatetimeInterval DatetimeIntervalUtil::makeDays(int days)
 }
 
 inline
-DatetimeInterval DatetimeIntervalUtil::makeHours(int hours)
+DatetimeInterval DatetimeIntervalUtil::makeHours(bsls::Types::Int64 hours)
 {
     return DatetimeInterval(0, hours);
 }
 
 inline
-DatetimeInterval DatetimeIntervalUtil::makeMicroseconds(int microseconds)
-{
-    return DatetimeInterval(0, 0, 0, 0, 0, microseconds);
-}
-
-inline
-DatetimeInterval DatetimeIntervalUtil::makeMilliseconds(int milliseconds)
-{
-    return DatetimeInterval(0, 0, 0, 0, milliseconds);
-}
-
-inline
-DatetimeInterval DatetimeIntervalUtil::makeMinutes(int minutes)
+DatetimeInterval DatetimeIntervalUtil::makeMinutes(bsls::Types::Int64 minutes)
 {
     return DatetimeInterval(0, 0, minutes);
 }
 
 inline
-DatetimeInterval DatetimeIntervalUtil::makeSeconds(int seconds)
+DatetimeInterval DatetimeIntervalUtil::makeSeconds(bsls::Types::Int64 seconds)
 {
     return DatetimeInterval(0, 0, 0, seconds);
+}
+
+inline
+DatetimeInterval DatetimeIntervalUtil::makeMilliseconds(bsls::Types::Int64 milliseconds)
+{
+    return DatetimeInterval(0, 0, 0, 0, milliseconds);
+}
+
+inline
+DatetimeInterval DatetimeIntervalUtil::makeMicroseconds(bsls::Types::Int64 microseconds)
+{
+    return DatetimeInterval(0, 0, 0, 0, 0, microseconds);
 }
 
 }  // close package namespace

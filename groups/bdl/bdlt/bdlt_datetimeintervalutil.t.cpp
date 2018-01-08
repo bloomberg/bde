@@ -21,11 +21,11 @@ using namespace bsl;
 //
 // CLASS METHODS
 // [ 1] DatetimeInterval makeDays(int days);
-// [ 1] DatetimeInterval makeHours(int hours);
-// [ 1] DatetimeInterval makeMicroseconds(int microseconds);
-// [ 1] DatetimeInterval makeMilliseconds(int milliseconds);
-// [ 1] DatetimeInterval makeMinutes(int minutes);
-// [ 1] DatetimeInterval makeSeconds(int seconds);
+// [ 1] DatetimeInterval makeHours(Int64 hours);
+// [ 1] DatetimeInterval makeMinutes(Int64 minutes);
+// [ 1] DatetimeInterval makeSeconds(Int64 seconds);
+// [ 1] DatetimeInterval makeMilliseconds(Int64 milliseconds);
+// [ 1] DatetimeInterval makeMicroseconds(Int64 microseconds);
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -196,26 +196,25 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   DatetimeInterval makeDays(int days);
-        //   DatetimeInterval makeHours(int hours);
-        //   DatetimeInterval makeMicroseconds(int microseconds);
-        //   DatetimeInterval makeMilliseconds(int milliseconds);
-        //   DatetimeInterval makeMinutes(int minutes);
-        //   DatetimeInterval makeSeconds(int seconds);
+        //   DatetimeInterval makeHours(Int64 hours);
+        //   DatetimeInterval makeMinutes(Int64 minutes);
+        //   DatetimeInterval makeSeconds(Int64 seconds);
+        //   DatetimeInterval makeMilliseconds(Int64 milliseconds);
+        //   DatetimeInterval makeMicroseconds(Int64 microseconds);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "TESTING 'make*' MANIPULATORS" << endl
                           << "============================" << endl;
 
-        if (verbose) cout << "\nTesting 'makeXXX' methods." << endl;
         {
             static const struct {
-                int d_day;
-                int d_hour;
-                int d_minute;
-                int d_second;
-                int d_msec;
-                int d_usec;
+                int   d_day;
+                Int64 d_hour;
+                Int64 d_minute;
+                Int64 d_second;
+                Int64 d_msec;
+                Int64 d_usec;
             } VALUES[] = {
                 {  0,  0,  0,  0,   0,   0 },
                 {  0,  0,  0,  0,   0, 999 },
@@ -240,16 +239,15 @@ int main(int argc, char *argv[])
                 { -2,-23,-22,-21,-210,-117 },
             };
 
-            const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                    / sizeof *VALUES);
+            const bsl::size_t NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const int DAY    = VALUES[i].d_day;
-                const int HOUR   = VALUES[i].d_hour;
-                const int MINUTE = VALUES[i].d_minute;
-                const int SECOND = VALUES[i].d_second;
-                const int MSEC   = VALUES[i].d_msec;
-                const int USEC   = VALUES[i].d_usec;
+            for (bsl::size_t i = 0; i < NUM_VALUES; ++i) {
+                const int   DAY    = VALUES[i].d_day;
+                const Int64 HOUR   = VALUES[i].d_hour;
+                const Int64 MINUTE = VALUES[i].d_minute;
+                const Int64 SECOND = VALUES[i].d_second;
+                const Int64 MSEC   = VALUES[i].d_msec;
+                const Int64 USEC   = VALUES[i].d_usec;
 
                 if (veryVerbose) {
                     T_;
