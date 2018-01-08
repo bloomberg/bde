@@ -27,17 +27,17 @@ using namespace bsl;
 // hashes are calculated.
 //-----------------------------------------------------------------------------
 // [ 2] Sha224::Sha224();
-// [ 2] Sha224::update(const void *message, bsl::size_t length);
-// [ 6] Sha224::finalize(unsigned char* digest);
+// [ 2] void Sha224::update(const void *message, bsl::size_t length);
+// [ 6] void Sha224::finalize(unsigned char* digest);
 // [ 3] Sha256::Sha256();
-// [ 3] Sha256::update(const void *message, bsl::size_t length);;
-// [ 7] Sha256::finalize(unsigned char* digest);
+// [ 3] void Sha256::update(const void *message, bsl::size_t length);;
+// [ 7] void Sha256::finalize(unsigned char* digest);
 // [ 4] Sha384::Sha384();
-// [ 4] Sha384::update(const void *message, bsl::size_t length);;
-// [ 8] Sha384::finalize(unsigned char* digest);
+// [ 4] void Sha384::update(const void *message, bsl::size_t length);;
+// [ 8] void Sha384::finalize(unsigned char* digest);
 // [ 5] Sha512::Sha512();
-// [ 5] Sha512::update(const void *message, bsl::size_t length);;
-// [ 9] Sha512::finalize(unsigned char* digest);
+// [ 5] void Sha512::update(const void *message, bsl::size_t length);;
+// [ 9] void Sha512::finalize(unsigned char* digest);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
