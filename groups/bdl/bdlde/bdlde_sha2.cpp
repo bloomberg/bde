@@ -197,9 +197,9 @@ void transform(INTEGER             *state,
                bsl::uint64_t        blockSize,
                const INTEGER      (&constants)[ARRAY_SIZE])
     // Update the specified 'state' with the hashed contents of the specified
-    // 'message', mixing it with the values in the specified 'constants'.  The
-    // behavior is undefined unless
-    // '[message, message + numberOfBlocks * blockSize)' is a valid range.
+    // 'message' having a length equal to the specified 'blockSize' times the
+    // specified 'numberOfBlocks', mixing it with the values in the specified
+    // 'constants'.
 {
     const unsigned char *messageEnd = message + blockSize * numberOfBlocks;
     for (; message != messageEnd; message += blockSize)
@@ -250,14 +250,13 @@ void updateImpl(INTEGER             *state,
                 bsl::size_t          messageSize,
                 const INTEGER      (&constants)[ARRAY_SIZE])
     // Update the specified 'state' with the contents of the specified 'block'
-    // followed by the contents of the specified 'message', mixed with the data
-    // in the specified 'constants'.  Update the specified 'totalSize' to have
-    // the size, in bytes, of all messages passed in so far.  Populate 'block'
-    // with all bytes leftover that did not fit into a multiple of
-    // 'BLOCK_SIZE', and store into the specified 'blockBytesUsed' the count of
-    // the bytes in 'block' that are currently in use.  The behavior is
-    // undefined unless the range '[message, message + messageSize)' is a valid
-    // range.
+    // followed by the contents of the specified 'message' having the specified
+    // 'messageSize', mixed with the data in the specified 'constants'.  Update
+    // the specified 'totalSize' to have the size, in bytes, of all messages
+    // passed in so far.  Populate 'block' with all bytes leftover that did not
+    // fit into a multiple of 'BLOCK_SIZE', and store into the specified
+    // 'blockBytesUsed' the count of the bytes in 'block' that are currently in
+    // use.
 {
     const bsl::uint64_t prologueSize = bsl::min(messageSize,
                                               BLOCK_SIZE - *blockBytesUsed);
@@ -295,8 +294,8 @@ void finalizeImpl(unsigned char        *digest,
     // specified 'blockBytesUsed' after appending the SHA-2 metadata, which
     // uses the specified 'totalSize', with the data in the specified
     // 'constants', and mix the result into the specified 'state'.  Store into
-    // the specified 'digest' the contents of 'state'.  The behavior is
-    // undefined unless '[digest, digest + digestSize)' is a valid range.
+    // the specified 'digest' having the specified 'digestSize' the contents of
+    // 'state'.
 {
     const bsl::uint64_t totalSizeInBits = totalSize * 8;
     const bsl::uint64_t unpaddedSize    = blockBytesUsed
