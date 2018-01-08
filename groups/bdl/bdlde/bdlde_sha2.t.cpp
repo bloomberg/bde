@@ -41,30 +41,35 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
-//=============================================================================
+// ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
@@ -73,7 +78,6 @@ void aSsErT(int c, const char *s, int i)
 #define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
@@ -124,7 +128,7 @@ bsl::size_t arraySize(const VALUE (&)[SIZE])
 template<class HASHER>
 void testKnownHashes(const char *const (&expected)[6])
     // Hash certain known messages using an instance of 'HASHER', and verify
-    // that the results match the results in 'expected'.
+    // that the results match the results in the specified 'expected'.
 {
     const bsl::string repeat_a(1000000, 'a');
     bsl::string       all_characters;

@@ -322,7 +322,7 @@ void finalizeImpl(unsigned char        *digest,
     }
 }
 
-}   // close unnamed namespace
+} // close unnamed namespace
 
 void Sha224::update(const void *message, bsl::size_t length)
 {
@@ -467,5 +467,5 @@ Sha512::Sha512():
     d_state[7] = 0x5be0cd19137e2179ULL;
 }
 
-}  // close package namespace
-}  // close enterprise namespace
+} // close package namespace
+} // close enterprise namespace

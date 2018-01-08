@@ -85,7 +85,7 @@ class Sha224 {
     bsl::uint32_t d_state[8];
 
   public:
-    // CLASS DATA
+    // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 224 / 8;
         // The size (in bytes) of the output
 
@@ -121,7 +121,7 @@ class Sha256 {
     bsl::uint32_t d_state[8];
 
   public:
-    // CLASS DATA
+    // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 256 / 8;
         // The size (in bytes) of the output
 
@@ -157,7 +157,7 @@ class Sha384 {
     bsl::uint64_t d_state[8];
 
   public:
-    // CLASS DATA
+    // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 384 / 8;
         // The size (in bytes) of the output
 
@@ -193,7 +193,7 @@ class Sha512 {
     bsl::uint64_t d_state[8];
 
   public:
-    // CLASS DATA
+    // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 512 / 8;
         // The size (in bytes) of the output
 
@@ -218,7 +218,7 @@ class Sha512 {
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
 
-}  // close package namespace
-}  // close enterprise namespace
+} // close package namespace
+} // close enterprise namespace
 
 #endif // INCLUDED_BDLDE_SHA2
