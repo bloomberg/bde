@@ -224,6 +224,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Verify a range of values with varying sizes and bytes against
         //:   known values.
+        //
+        // Testing:
+        //   void Sha512::finalize(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-512" "\n"
                              "========================" "\n";
@@ -256,6 +259,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Verify a range of values with varying sizes and bytes against
         //:   known values.
+        //
+        // Testing:
+        //   void Sha384::finalize(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-384" "\n"
                              "========================" "\n";
@@ -288,6 +294,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Verify a range of values with varying sizes and bytes against
         //:   known values.
+        //
+        // Testing:
+        //   void Sha256::finalize(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-256" "\n"
                              "========================" "\n";
@@ -314,6 +323,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Verify a range of values with varying sizes and bytes against
         //:   known values.
+        //
+        // Testing:
+        //   void Sha224::finalize(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-224" "\n"
                              "========================" "\n";
@@ -341,6 +353,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.
+        //
+        // Testing:
+        //   void Sha512::update(const void *message, bsl::size_t length);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-512" "\n"
                              "===============================" "\n";
@@ -358,6 +373,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.
+        //
+        // Testing:
+        //   void Sha384::update(const void *message, bsl::size_t length);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-384" "\n"
                              "===============================" "\n";
@@ -375,6 +393,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.
+        //
+        // Testing:
+        //   void Sha256::update(const void *message, bsl::size_t length);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-256" "\n"
                              "===============================" "\n";
@@ -392,6 +413,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Pass each byte of a string to update and compare the result of
         //    passing the entire string to update.
+        //
+        // Testing:
+        //   void Sha224::update(const void *message, bsl::size_t length);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-224" "\n"
                              "===============================" "\n";
