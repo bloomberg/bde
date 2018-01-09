@@ -448,23 +448,16 @@ class Date {
         // documentation for more information on BDEX streaming of
         // value-semantic types and containers.
 
-    // ATTRIBUTE ACCESSORS
+    // ACCESSORS
     int day() const;
         // Return the day of the month in the range '[1 .. 31]' of this date.
 
-    int dayOfYear() const;
-        // Return the day of the year in the range '[1 .. 366]' of this date.
-
-    int month() const;
-        // Return the month of the year in the range '[1 .. 12]' of this date.
-
-    int year() const;
-        // Return the year in the range '[1 .. 9999]' of this date.
-
-    // ACCESSORS
     DayOfWeek::Enum dayOfWeek() const;
         // Return the day of the week in the range
         // '[DayOfWeek::e_SUN .. DayOfWeek::e_SAT]' of this date.
+
+    int dayOfYear() const;
+        // Return the day of the year in the range '[1 .. 366]' of this date.
 
     void getYearDay(int *year, int *dayOfYear) const;
         // Load, into the specified 'year' and 'dayOfYear', the respective
@@ -474,9 +467,15 @@ class Date {
         // Load, into the specified 'year', 'month', and 'day', the respective
         // 'year', 'month', and 'day' attribute values of this date.
 
+    int month() const;
+        // Return the month of the year in the range '[1 .. 12]' of this date.
+
     MonthOfYear::Enum monthOfYear() const;
         // Return the month of the year in the range
         // '[MonthOfYear::e_JAN .. MonthOfYear::e_DEC]' of this date.
+
+    int year() const;
+        // Return the year in the range '[1 .. 9999]' of this date.
 
                                   // Aspects
 
@@ -807,7 +806,7 @@ STREAM& Date::bdexStreamIn(STREAM& stream, int version)
     return stream;
 }
 
-// ATTRIBUTE ACCESSORS
+// ACCESSORS
 inline
 int Date::day() const
 {
@@ -815,29 +814,16 @@ int Date::day() const
 }
 
 inline
-int Date::dayOfYear() const
-{
-    return SerialDateImpUtil::serialToDayOfYear(d_serialDate);
-}
-
-inline
-int Date::month() const
-{
-    return SerialDateImpUtil::serialToMonth(d_serialDate);
-}
-
-inline
-int Date::year() const
-{
-    return SerialDateImpUtil::serialToYear(d_serialDate);
-}
-
-// ACCESSORS
-inline
 DayOfWeek::Enum Date::dayOfWeek() const
 {
     return static_cast<DayOfWeek::Enum>(
                            SerialDateImpUtil::serialToDayOfWeek(d_serialDate));
+}
+
+inline
+int Date::dayOfYear() const
+{
+    return SerialDateImpUtil::serialToDayOfYear(d_serialDate);
 }
 
 inline
@@ -860,9 +846,21 @@ void Date::getYearMonthDay(int *year, int *month, int *day) const
 }
 
 inline
+int Date::month() const
+{
+    return SerialDateImpUtil::serialToMonth(d_serialDate);
+}
+
+inline
 MonthOfYear::Enum Date::monthOfYear() const
 {
     return static_cast<MonthOfYear::Enum>(month());
+}
+
+inline
+int Date::year() const
+{
+    return SerialDateImpUtil::serialToYear(d_serialDate);
 }
 
                                   // Aspects

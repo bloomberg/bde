@@ -843,26 +843,16 @@ class Datetime {
     Date date() const;
         // Return the value of the "date" part of this object.
 
-    Time time() const;
-        // Return the value of the "time" part of this object, truncated to
-        // millisecond resolution.
-
-    int year() const;
-        // Return the value of the 'year' attribute of this object.
-
-    int month() const;
-        // Return the value of the 'month' attribute of this object.
-
     int day() const;
         // Return the value of the 'day' (of the month) attribute of this
         // object.
 
-    int dayOfYear() const;
-        // Return the value of the 'dayOfYear' attribute of this object.
-
     DayOfWeek::Enum dayOfWeek() const;
         // Return the value of the 'dayOfWeek' attribute associated with the
         // 'day' (of the month) attribute of this object.
+
+    int dayOfYear() const;
+        // Return the value of the 'dayOfYear' attribute of this object.
 
     void getTime(int *hour,
                  int *minute = 0,
@@ -880,17 +870,27 @@ class Datetime {
     int hour() const;
         // Return the value of the 'hour' attribute of this object.
 
-    int minute() const;
-        // Return the value of the 'minute' attribute of this object.
-
-    int second() const;
-        // Return the value of the 'second' attribute of this object.
+    int microsecond() const;
+        // Return the value of the 'microsecond' attribute of this object.
 
     int millisecond() const;
         // Return the value of the 'millisecond' attribute of this object.
 
-    int microsecond() const;
-        // Return the value of the 'microsecond' attribute of this object.
+    int minute() const;
+        // Return the value of the 'minute' attribute of this object.
+
+    int month() const;
+        // Return the value of the 'month' attribute of this object.
+
+    int second() const;
+        // Return the value of the 'second' attribute of this object.
+
+    Time time() const;
+        // Return the value of the "time" part of this object, truncated to
+        // millisecond resolution.
+
+    int year() const;
+        // Return the value of the 'year' attribute of this object.
 
     int printToBuffer(char *result,
                       int   numBytes,
