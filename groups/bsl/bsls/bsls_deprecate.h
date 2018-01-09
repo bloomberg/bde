@@ -23,11 +23,6 @@
 // ABI.  It is therefore safe to link applications based on libraries built
 // with different deprecation policies.
 //
-// In the following we informally use "warning" to mean a diagnostic that is
-// either a compilation warning (advisory) or a compilation error (fatal).
-// Note that in some build modes, compiler diagnostics that are warnings by
-// default may be turned into (fatal) errors instead.
-//
 ///Overview: Common Uses
 ///---------------------
 //
