@@ -780,22 +780,18 @@ int TcpTimerEventManager_ControlChannel::clientWrite(bool forceWrite)
                                              &d_byte,
                                              sizeof(char),
                                              &errorNumber);
-
-            if (rc < 0 && btlso::SocketHandle::e_ERROR_INTERRUPTED != rc) {
-                --d_numPendingRequests;
-                return rc;                                            // RETURN
-            }
         } while (btlso::SocketHandle::e_ERROR_INTERRUPTED == rc);
-        if (rc >= 0) {
-            return rc;                                                // RETURN
+
+        if (rc < 0) {
+            --d_numPendingRequests;
+            BSLS_LOG_ERROR("(PID: %d) Failed to communicate request to control"
+                           " channel (platformErrorCode = %d, rc = %d).\n",
+                           bdls::ProcessUtil::getProcessId(),
+                           errorNumber,
+                           rc);
         }
-        BSLS_LOG_ERROR("(PID: %d) Failed to communicate request to control"
-                       " channel (platformErrorCode = %d, rc = %d).\n",
-                       bdls::ProcessUtil::getProcessId(),
-                       errorNumber,
-                       rc);
-        BSLS_ASSERT(errorNumber > 0);
-        return -errorNumber;                                          // RETURN
+
+        return rc;                                                    // RETURN
     }
     return 0;
 }
@@ -1495,9 +1491,11 @@ int TcpTimerEventManager::enable(const bslmt::ThreadAttributes& attr)
                                                 btlso::EventType::e_READ,
                                                 cb);
         if (rc) {
-            printf("%s(%d): Failed to register controlChannel for READ events"
-                    " in TcpTimerEventManager constructor\n",
-                    __FILE__, __LINE__);
+            BSLS_LOG_ERROR("(PID: %d) Failed to register controlChannel for"
+                           " READ events in TcpTimerEventManager enable()"
+                           " (rc = %d).\n",
+                           bdls::ProcessUtil::getProcessId(),
+                           rc);
             BSLS_ASSERT("Failed to register controlChannel for READ events" &&
                         0);
             return rc;                                                // RETURN
