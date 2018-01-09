@@ -60,10 +60,6 @@ void Throttle::initialize(int                         maxSimultaneousActions,
 bool Throttle::requestPermission(const bsls::TimeInterval& now)
 {
 #if defined(BSLS_ASSERT_IS_ACTIVE)
-    enum { k_BILLION     = 1000 * 1000 * 1000,
-           k_MAX_SECONDS = LLONG_MAX / k_BILLION,
-           k_MIN_SECONDS = LLONG_MIN / k_BILLION };
-
     BSLS_ASSERT(now.seconds() <= k_MAX_SECONDS);
     BSLS_ASSERT(now.seconds() >= k_MIN_SECONDS);
 
@@ -110,10 +106,6 @@ bool Throttle::requestPermission(int                       numActions,
                                  const bsls::TimeInterval& now)
 {
 #if defined(BSLS_ASSERT_IS_ACTIVE)
-    enum { k_BILLION     = 1000 * 1000 * 1000,
-           k_MAX_SECONDS = LLONG_MAX / k_BILLION,
-           k_MIN_SECONDS = LLONG_MIN / k_BILLION };
-
     BSLS_ASSERT(0 < numActions);
     BSLS_ASSERT(now.seconds() <= k_MAX_SECONDS);
     BSLS_ASSERT(now.seconds() >= k_MIN_SECONDS);

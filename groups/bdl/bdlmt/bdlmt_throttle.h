@@ -263,9 +263,13 @@ class Throttle {
     typedef bsls::AtomicOperations   AtomicOps;
     typedef AtomicOps::AtomicTypes   AtomicTypes;
 
+    enum { k_BILLION = 1000 * 1000 * 1000 };
+
     // PRIVATE CONSTANTS
     static const Int64 k_ALLOW_ALL  = LLONG_MIN;
     static const Int64 k_ALLOW_NONE = LLONG_MAX;
+    static const Int64 k_MAX_SECONDS = LLONG_MAX / k_BILLION;
+    static const Int64 k_MIN_SECONDS = LLONG_MIN / k_BILLION;
 
   public:
     // PUBLIC CONSTANTS
@@ -474,10 +478,6 @@ int Throttle::requestPermissionIfValid(bool                      *result,
                                        int                        numActions,
                                        const bsls::TimeInterval&  now)
 {
-    enum { k_BILLION     = 1000 * 1000 * 1000,
-           k_MAX_SECONDS = LLONG_MAX / k_BILLION,
-           k_MIN_SECONDS = LLONG_MIN / k_BILLION };
-
     if (numActions <= 0 || (d_maxSimultaneousActions < numActions &&
                                               0 != d_maxSimultaneousActions)) {
         return -1;                                                    // RETURN

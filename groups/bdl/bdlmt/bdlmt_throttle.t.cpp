@@ -27,6 +27,7 @@
 
 #include <bsl_algorithm.h>
 #include <bsl_c_ctype.h>      // 'isdigit'
+#include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>      // 'atoi'
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -68,7 +69,15 @@ using bsl::flush;
 // [ 9] BDLMT_THROTTLE_IF_ALLOW_ALL
 // [ 9] BDLMT_THROTTLE_IF_ALLOW_NONE
 // ----------------------------------------------------------------------------
-// [10] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
+// [15] CONCERN: BDLMT_THROTTLE_INIT_ALLOW_NONE stress test
+// [15] CONCERN: BDLMT_THROTTLE_IF_ALLOW_NONE stress test
+// [14] CONCERN: BDLMT_THROTTLE_INIT_ALLOW_ALL stress test
+// [14] CONCERN: BDLMT_THROTTLE_IF_ALLOW_ALL stress test
+// [13] CONCERN: Multithreaded, high contention, macro if
+// [12] CONCERN: Multithreaded, low contention, macro if
+// [11] CONCERN: Multithreaded, high contention, macro init
+// [10] CONCERN: Multithreaded, low contention, macro init
 // [ 3] TEST APPARATUS
 // [-1] EVENTS DROPPED TEST
 // [ 1] BREATHING TEST
@@ -162,7 +171,7 @@ const double minSleep = 0.000001;   // 10 microseconds
 
 const int numThreads = 40;
 
-Uint64 start;
+TimeInterval start, end;
 
 bslmt::Mutex outputMutex;
 
@@ -194,7 +203,7 @@ bsls::TimeInterval clockTi(ClockType clockType = CT::e_MONOTONIC)
 
 double doubleClock(ClockType clockType = CT::e_MONOTONIC)
     // Return the time in seconds, as a floating point value, using the
-    // specified 'clockType'.
+    // specified optionally specified 'clockType'.
 {
     return u::clockTi(clockType).totalSecondsAsDouble();
 }
@@ -245,33 +254,6 @@ int checkedSleep(double timeInSeconds, ClockType clockType = CT::e_MONOTONIC)
          : timeInSeconds * 1.1 < elapsed
          ?  1
          : 0;
-}
-
-void testCase(u::VoidFunc     f,
-              bslmt::Barrier *barrier,
-              Int64           expElapsed)
-    // Run the specified function 'f' on multiple threads, use the specified
-    // '*barrier' to coordinate the threads, join the threads after they've all
-    // waited on the barrier twice, and verify that the threads took at least
-    // the specified 'expElapsed' time to finish.
-{
-    bslmt::ThreadGroup tg(&ta);
-
-    tg.addThreads(f, u::numThreads);
-
-    sleep(0.1);    // get everybody waiting on the barrier
-
-    u::start = u::nanoClock();
-    barrier->wait();
-
-    barrier->wait();
-    const Int64 elapsed = u::nanoClock() - u::start;
-
-    tg.joinAll();
-
-    ASSERTV(elapsed, expElapsed, elapsed - expElapsed, elapsed >= expElapsed);
-
-    if (veryVerbose) { P_(elapsed);    P(elapsed - expElapsed); }
 }
 
 bsls::TimeInterval toTime(const char *timeStr)
@@ -344,9 +326,9 @@ bsls::TimeInterval toTime(const char *timeStr)
     if (fracStr) {
         enum { k_FRAC_DIGITS = 9 };
         char fracBuf[k_FRAC_DIGITS + 1];
+        bsl::fill(fracBuf + 0, fracBuf + sizeof(fracBuf), 0);
         bsl::strncpy(fracBuf, fracStr, k_FRAC_DIGITS);
         bsl::fill(fracBuf + bsl::strlen(fracBuf), fracBuf+k_FRAC_DIGITS, '0');
-        fracBuf[k_FRAC_DIGITS] = 0;
         ret.addNanoseconds(bsl::atoi(fracBuf));
     }
     if (nanoStr) {
@@ -358,6 +340,10 @@ bsls::TimeInterval toTime(const char *timeStr)
 
 inline
 bsls::TimeInterval tiAdapt(const char *timeStr)
+    // This overloaded function enables 'TimeInterval's to be indicated in
+    // tables by either the specified 'timeStr', which this function forwards
+    // to 'toTime', or by specifying an actual 'TimeInterval', which is
+    // specified to the 'orig' argument of the other overload.
 {
     return toTime(timeStr);
 }
@@ -394,6 +380,26 @@ bsl::ostream& operator<<(bsl::ostream&               stream,
 
     return stream;
 }
+
+#if 0
+bsl::ostream& operator<<(bsl::ostream&      stream,
+                         bsls::TimeInterval timeInterval)
+    // Output the specified 'clockType' to the specified 'stream'.
+{
+    stream << timeInterval.seconds();;
+    char nanoseconds[10];
+    bsl::sprintf(nanoseconds, "%09d", timeInterval.nanoseconds());
+    char *pc = nanoseconds + 8;
+    for (; nanoseconds <= pc && '0' == *pc; --pc) {
+        *pc = 0;
+    }
+    if (nanoseconds <= pc) {
+        stream << '.' <<nanoseconds;
+    }
+
+    return stream;
+}
+#endif
 
                                   // ----------
                                   // Case_Usage
@@ -457,6 +463,314 @@ namespace Case_Usage {
 
 }  // close namespace Case_Usage
 
+                                // ---------------
+                                // Case_Allow_None
+                                // ---------------
+
+namespace Case_Allow_None {
+
+bsls::AtomicInt64 eventsSoFar(0);
+bsls::AtomicInt   atomicBarrier(-1);
+
+void threadJobIf()
+    // Make a large number of requests via '..._IF_ALLOW_NONE' and verify that
+    // none of the actions and permitted and all of them are refused.
+{
+    enum { k_MILLION = 1024 * 1024 };
+
+    while (atomicBarrier < 0) {}
+
+    while (atomicBarrier < 1) {
+        int delta = 0;
+        for (int ii = 0; ii < k_MILLION; ++ii) {
+            BDLMT_THROTTLE_IF_ALLOW_NONE {
+                ASSERT(0 && "Action rejected\n");
+            }
+            else {
+                ++delta;
+            }
+        }
+        ASSERTV(delta, k_MILLION == delta);
+        eventsSoFar += delta;
+    }
+}
+
+void threadJobInit()
+    // Make a large number of requests of varying numbers of actions on a
+    // throttle configured with '..._ALLOW_NONE' and verify that none of the
+    // are permitted and all of them are refused.
+{
+    enum { k_MILLION = 1024 * 1024,
+           k_BILLION = 1000 * 1000 * 1000 };
+    static bdlmt::Throttle throttle = BDLMT_THROTTLE_INIT_ALLOW_NONE;
+    bool lastDone = false;
+
+    while (atomicBarrier < 0) {}
+
+    while (atomicBarrier < 1) {
+        int delta = 0;
+        for (int ii = 0; ii < k_MILLION; ++ii) {
+            bool permitted = false;
+            int todo = ii % 8;
+            switch (todo) {
+              case 0: {
+                permitted = throttle.requestPermission();
+              } break;
+              case 1: {
+                permitted = throttle.requestPermission(1);
+              } break;
+              case 2: {
+                permitted = throttle.requestPermission(100);
+              } break;
+              case 3: {
+                permitted = throttle.requestPermission(k_BILLION);
+              } break;
+              case 4: {
+                permitted = throttle.requestPermission(u::clockTi());
+              } break;
+              case 5: {
+                permitted = throttle.requestPermission(1, u::clockTi());
+              } break;
+              case 6: {
+                permitted = throttle.requestPermission(100, u::clockTi());
+              } break;
+              case 7: {
+                lastDone = true;
+                permitted = throttle.requestPermission(k_BILLION,
+                                                       u::clockTi());
+              } break;
+              default: {
+                BSLS_ASSERT_OPT(0);
+              }
+            }
+
+            if (permitted) {
+                ASSERTV(todo, 0 && "Action accepted\n");
+            }
+            else {
+                ++delta;
+            }
+        }
+        ASSERT(lastDone);
+        ASSERTV(delta, k_MILLION == delta);
+        eventsSoFar += delta;
+    }
+}
+
+}  // close namespace Case_Allow_None
+
+                                // --------------
+                                // Case_Allow_All
+                                // --------------
+
+namespace Case_Allow_All {
+
+bsls::AtomicInt64 eventsSoFar(0);
+bsls::AtomicInt   atomicBarrier(-1);
+
+void threadJobIf()
+    // Make a large number of requests for permission using '..._IF_ALLOW_ALL'
+    // and observe that actions are always allowed.
+{
+    enum { k_MILLION = 1024 * 1024 };
+
+    while (atomicBarrier < 0) {}
+
+    while (atomicBarrier < 1) {
+        int delta = 0;
+        for (int ii = 0; ii < k_MILLION; ++ii) {
+            BDLMT_THROTTLE_IF_ALLOW_ALL {
+                ++delta;
+            }
+            else {
+                ASSERT(0 && "Action rejected\n");
+            }
+        }
+        ASSERTV(delta, k_MILLION == delta);
+        eventsSoFar += delta;
+    }
+}
+
+void threadJobInit()
+    // Make a large number of requests for permission for varying numbers of
+    // actions via varying overloads of the 'requestPermission' method and
+    // observe that actions are always allowed.
+{
+    enum { k_MILLION = 1024 * 1024,
+           k_BILLION = 1000 * 1000 * 1000 };
+
+    static bdlmt::Throttle throttle = BDLMT_THROTTLE_INIT_ALLOW_ALL;
+
+    bool lastDone = false;
+    while (atomicBarrier < 0) {}
+
+    while (atomicBarrier < 1) {
+        int delta = 0;
+        for (int ii = 0; ii < k_MILLION; ++ii) {
+            bool permitted = false;
+            switch (ii % 8) {
+              case 0: {
+                permitted = throttle.requestPermission();
+              } break;
+              case 1: {
+                permitted = throttle.requestPermission(1);
+              } break;
+              case 2: {
+                permitted = throttle.requestPermission(100);
+              } break;
+              case 3: {
+                permitted = throttle.requestPermission(k_BILLION);
+              } break;
+              case 4: {
+                permitted = throttle.requestPermission(u::clockTi());
+              } break;
+              case 5: {
+                permitted = throttle.requestPermission(1, u::clockTi());
+              } break;
+              case 6: {
+                permitted = throttle.requestPermission(100, u::clockTi());
+              } break;
+              case 7: {
+                lastDone = true;
+                permitted = throttle.requestPermission(k_BILLION,
+                                                       u::clockTi());
+              } break;
+              default: {
+                BSLS_ASSERT_OPT(0);
+              }
+            }
+
+            if (permitted) {
+                ++delta;
+            }
+            else {
+                ASSERT(0 && "Action rejected\n");
+            }
+        }
+        ASSERT(lastDone);
+        ASSERTV(delta, k_MILLION == delta);
+        eventsSoFar += delta;
+    }
+}
+
+}  // close namespace Case_Allow_All
+
+                              // ---------------------------
+                              // Case_Throttle_MULTITHREADED
+                              // ---------------------------
+
+namespace Case_Throttle_MULTITHREADED {
+
+const Int64     leakPeriod      = 300 * u::k_MILLI;
+const int       burstSize       = 10;
+const int       periods         = 3;
+const double    duration        = static_cast<double>(leakPeriod) / 1e9 *
+                                                               (periods - 0.5);
+const double    sleepPeriod     = 100e-6;
+const int       expEvents       = burstSize + (periods - 1);
+enum TestMode { e_INIT_LOW, e_INIT_HIGH, e_IF_LOW, e_IF_HIGH } testMode;
+ClockType       clockType;
+bsls::AtomicInt eventsSoFar(0);
+bsls::AtomicInt rejectedSoFar(0);
+bslmt::Barrier  barrier(u::numThreads + 1);
+
+Obj throttleMonotonic = BDLMT_THROTTLE_INIT(          burstSize, leakPeriod);
+Obj throttleRealtime  = BDLMT_THROTTLE_INIT_REALTIME( burstSize, leakPeriod);
+
+void threadJob()
+    // Request permission for many actions using 'Throttle' objections
+    // initialialized with the '..._INIT*' macros, with the type of clock
+    // driven by 'clockType' and the contention driven by 'contention'.
+{
+    Obj& throttle = CT::e_MONOTONIC == clockType
+                  ? throttleMonotonic
+                  : throttleRealtime;
+    ASSERTV(throttle.clockType() == clockType);
+
+    if (veryVerbose) cout << "Entering 'threadJob'\n";
+
+    barrier.wait();
+
+    switch (testMode) {
+      case e_INIT_HIGH: {
+        while (u::clockTi(clockType) < u::end) {
+            for (int ii = 0; ii < 100; ++ii) {
+                if (throttle.requestPermission()) {
+                    ++eventsSoFar;
+                }
+                else {
+                    ++rejectedSoFar;
+                }
+            }
+        }
+      } break;
+      case e_INIT_LOW: {
+        while (u::clockTi(clockType) < u::end) {
+            u::sleep(sleepPeriod);
+            if (throttle.requestPermission()) {
+                ++eventsSoFar;
+            }
+            else {
+                ++rejectedSoFar;
+            }
+        }
+      } break;
+      case e_IF_HIGH: {
+        while (u::clockTi(clockType) < u::end) {
+            if (CT::e_MONOTONIC == clockType) {
+                for (int ii = 0; ii < 100; ++ii) {
+                    BDLMT_THROTTLE_IF(burstSize, leakPeriod) {
+                        ++eventsSoFar;
+                    }
+                    else {
+                        ++rejectedSoFar;
+                    }
+                }
+            }
+            else {
+                for (int ii = 0; ii < 100; ++ii) {
+                    BDLMT_THROTTLE_IF_REALTIME(burstSize, leakPeriod) {
+                        ++eventsSoFar;
+                    }
+                    else {
+                        ++rejectedSoFar;
+                    }
+                }
+            }
+        }
+      } break;
+      case e_IF_LOW: {
+        while (u::clockTi(clockType) < u::end) {
+            u::sleep(sleepPeriod);
+            if (CT::e_MONOTONIC == clockType) {
+                BDLMT_THROTTLE_IF(burstSize, leakPeriod) {
+                    ++eventsSoFar;
+                }
+                else {
+                    ++rejectedSoFar;
+                }
+            }
+            else {
+                BDLMT_THROTTLE_IF_REALTIME(burstSize, leakPeriod) {
+                    ++eventsSoFar;
+                }
+                else {
+                    ++rejectedSoFar;
+                }
+            }
+        }
+      } break;
+      default: {
+        BSLS_ASSERT(0);
+      }
+    }
+
+    if (veryVerbose) cout << "Leaving 'threadJob'\n";
+    barrier.wait();
+};
+
+}  // close namespace Case_Throttle_MULTITHREADED
+
                             // ---------------------------
                             // Case_Minus_1_Events_Dropped
                             // ---------------------------
@@ -513,7 +827,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 10: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -553,6 +867,387 @@ int main(int argc, char *argv[])
                                                             streamBuf.length(),
                                                 '\n');
         ASSERT(11 == numLines);
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // ALLOW_NONE STRESS TEST
+        //
+        // Concerns:
+        //: 1 That the 'BDLMT_THROTTLE_IF_ALLOW_NONE' and
+        //:   'BDLMT_THROTTLE_INIT_ALLOW_NONE' macros permit no events, and
+        //:   appropriately control an 'else' block as well.
+        //
+        // Plan:
+        //: 1 Have 40 threads in a tight loop calling the 'allow no' macro
+        //:   controlling a 'then' clause that we confirm was never taken, and
+        //:   an 'else' clause that we confirm was always taken.
+        //: 2 Measure the speed with which events are approved.
+        //
+        // Testing:
+        //   CONCERN: BDLMT_THROTTLE_INIT_ALLOW_NONE stress test
+        //   CONCERN: BDLMT_THROTTLE_IF_ALLOW_NONE stress test
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "ALLOW_NONE STRESS TEST\n"
+                             "======================\n";
+
+        if (verbose) cout << "BDLMT_THROTTLE_IF_ALLOW_NONE\n"
+                             "============================\n";
+
+        namespace TC = Case_Allow_None;
+
+        bslmt::ThreadGroup tg(&u::ta);
+        tg.addThreads(&TC::threadJobIf, u::numThreads);
+
+        {
+            u::sleep(0.01);
+            const Uint64 start = u::nanoClock();
+            TC::atomicBarrier = 0;
+            u::sleep(0.1);
+            TC::atomicBarrier = 1;
+            const double elapsed     = 1e-9 * static_cast<double>(
+                                                       u::nanoClock() - start);
+            const double events      = static_cast<double>(TC::eventsSoFar);
+            const double eventsPerSecond = events / elapsed / u::numThreads;
+
+            tg.joinAll();
+
+            if (verbose) cout << "Events per sec: " << eventsPerSecond << endl;
+        }
+        if (verbose) P(TC::eventsSoFar);
+
+        if (verbose) cout << "BDLMT_THROTTLE_INIT_ALLOW_NONE\n"
+                             "==============================\n";
+        TC::eventsSoFar = 0;
+        TC::atomicBarrier = -1;
+
+        tg.addThreads(&TC::threadJobInit, u::numThreads);
+
+        u::sleep(0.01);
+        const Uint64 start = u::nanoClock();
+        TC::atomicBarrier = 0;
+        u::sleep(0.1);
+        TC::atomicBarrier = 1;
+        const double elapsed         = 1e-9 * static_cast<double>(
+                                                       u::nanoClock() - start);
+        const double events          = static_cast<double>(TC::eventsSoFar);
+        const double eventsPerSecond = events / elapsed / u::numThreads;
+
+        tg.joinAll();
+
+        if (verbose) cout << "Events per sec: " << eventsPerSecond << endl;
+        if (verbose) P(TC::eventsSoFar);
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // ALLOW_ALL STRESS TEST
+        //
+        // Concerns:
+        //: 1 That the 'BDLMT_THROTTLE_IF_ALLOW_ALL' and
+        //:   'BDLMT_THROTTLE_INIT_ALLOW_ALL' macros permit all events, and
+        //:   appropriately control an 'else' block as well.
+        //
+        // Plan:
+        //: 1 Have 40 threads in a tight loop calling the 'allow all' macro
+        //:   controlling a 'then' clause that we confirm was always taken, and
+        //:   an 'else' clause that we confirm was never taken.
+        //: 2 Measure the speed with which events are approved.
+        //
+        // Testing:
+        //   CONCERN: BDLMT_THROTTLE_INIT_ALLOW_ALL stress test
+        //   CONCERN: BDLMT_THROTTLE_IF_ALLOW_ALL stress test
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "ALLOW_ALL STRESS TEST\n"
+                             "=====================\n";
+
+        if (verbose) cout << "BDLMT_THROTTLE_IF_ALLOW_ALL\n"
+                             "===========================\n";
+
+        namespace TC = Case_Allow_All;
+
+        bslmt::ThreadGroup tg(&u::ta);
+        tg.addThreads(&TC::threadJobIf, u::numThreads);
+
+        {
+            u::sleep(0.01);
+            const Int64 start   = u::nanoClock();
+            TC::atomicBarrier = 0;
+            u::sleep(0.1);
+            TC::atomicBarrier = 1;
+            const double elapsed     = 1e-9 * static_cast<double>(
+                                                       u::nanoClock() - start);
+            const double events      = static_cast<double>(TC::eventsSoFar);
+            const double eventsPerSecond = events / elapsed / u::numThreads;
+
+            tg.joinAll();
+
+            if (verbose) cout << "Events per sec: " << eventsPerSecond << endl;
+        }
+
+        if (verbose) P(TC::eventsSoFar);
+
+        if (verbose) cout << "BDLMT_THROTTLE_INIT_ALLOW_ALL\n"
+                             "=============================\n";
+        TC::eventsSoFar = 0;
+        TC::atomicBarrier = -1;
+
+        tg.addThreads(&TC::threadJobInit, u::numThreads);
+
+        u::sleep(0.01);
+        const Int64 start   = u::nanoClock();
+        TC::atomicBarrier = 0;
+        u::sleep(0.1);
+        TC::atomicBarrier = 1;
+        const double elapsed         = 1e-9 * static_cast<double>(
+                                                       u::nanoClock() - start);
+        const double events          = static_cast<double>(TC::eventsSoFar);
+        const double eventsPerSecond = events / elapsed / u::numThreads;
+
+        tg.joinAll();
+
+        if (verbose) cout << "Events per sec: " << eventsPerSecond << endl;
+        if (verbose) P(TC::eventsSoFar);
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // MULTITHREADED TEST -- HIGH CONTENTION, IF
+        //
+        // Concerns:
+        //: 1 That the type under test functions properly under light
+        //:   multithreaded contention.
+        //
+        // Plan:
+        //: 1 Repeat the first test in the breathing test, only in a
+        //:   multithreaded context.
+        //
+        // Testing:
+        //   CONCERN: Multithreaded, high contention, macro if
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "MULTITHREADED TEST -- HIGH CONTENTION, IF\n"
+                             "=========================================\n";
+
+        namespace TC = Case_Throttle_MULTITHREADED;
+
+        bslmt::ThreadGroup tg(&u::ta);
+
+        TC::testMode = TC::e_IF_HIGH;
+
+        for (int ti = 0; ti < 2; ++ti) {
+            TC::clockType = ti ? CT::e_REALTIME : CT::e_MONOTONIC;
+
+            TC::eventsSoFar   = 0;
+            TC::rejectedSoFar = 0;
+
+            tg.addThreads(&TC::threadJob, u::numThreads);
+            u::sleep(0.1);    // get everybody waiting on the barrier
+
+            u::end = (u::start = u::clockTi(TC::clockType)) + TC::duration;
+            TC::barrier.wait();    // all start
+            TimeInterval afterBarrier = u::clockTi(TC::clockType);
+
+            TC::barrier.wait();    // all finish
+            if (veryVerbose) {
+                const double elapsed = (u::clockTi(TC::clockType) - u::start).
+                                                        totalSecondsAsDouble();
+                const double scheduled = (u::end - u::start).
+                                                        totalSecondsAsDouble();
+                const double barrier = (afterBarrier - u::start).
+                                                        totalSecondsAsDouble();
+                P_(u::start);    P(u::end);
+                P_(elapsed);   P_(scheduled);   P_(barrier);   P(TC::duration);
+            }
+
+            tg.joinAll();
+
+            ASSERTV(TC::clockType, TC::expEvents, TC::eventsSoFar,
+                                             TC::expEvents == TC::eventsSoFar);
+            const double expMinTotal = TC::duration / 2 / 1e-5;
+            ASSERTV(TC::clockType, expMinTotal, TC::eventsSoFar,
+                                                             TC::rejectedSoFar,
+                            expMinTotal < TC::eventsSoFar + TC::rejectedSoFar);
+        }
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // MULTITHREADED TEST -- LOW CONTENTION, IF
+        //
+        // Concerns:
+        //: 1 That the type under test functions properly under light
+        //:   multithreaded contention.
+        //
+        // Plan:
+        //: 1 Repeat the first test in the breathing test, only in a
+        //:   multithreaded context.
+        //
+        // Testing:
+        //   CONCERN: Multithreaded, low contention, macro if
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "MULTITHREADED TEST -- LOW CONTENTION, IF\n"
+                             "========================================\n";
+
+        namespace TC = Case_Throttle_MULTITHREADED;
+
+        bslmt::ThreadGroup tg(&u::ta);
+
+        TC::testMode = TC::e_IF_LOW;
+
+        for (int ti = 0; ti < 2; ++ti) {
+            TC::clockType = ti ? CT::e_REALTIME : CT::e_MONOTONIC;
+
+            TC::eventsSoFar   = 0;
+            TC::rejectedSoFar = 0;
+
+            tg.addThreads(&TC::threadJob, u::numThreads);
+            u::sleep(0.1);    // get everybody waiting on the barrier
+
+            u::end = (u::start = u::clockTi(TC::clockType)) + TC::duration;
+            TC::barrier.wait();    // all start
+            TimeInterval afterBarrier = u::clockTi(TC::clockType);
+
+            TC::barrier.wait();    // all finish
+            if (veryVerbose) {
+                const double elapsed = (u::clockTi(TC::clockType) - u::start).
+                                                        totalSecondsAsDouble();
+                const double scheduled = (u::end - u::start).
+                                                        totalSecondsAsDouble();
+                const double barrier = (afterBarrier - u::start).
+                                                        totalSecondsAsDouble();
+                P_(u::start);    P(u::end);
+                P_(elapsed);   P_(scheduled);   P_(barrier);   P(TC::duration);
+            }
+
+            tg.joinAll();
+
+            ASSERTV(TC::clockType, TC::expEvents, TC::eventsSoFar,
+                                             TC::expEvents == TC::eventsSoFar);
+            const double expMinTotal = TC::duration / 2 / TC::sleepPeriod;
+            ASSERTV(TC::clockType, expMinTotal, TC::eventsSoFar,
+                                                             TC::rejectedSoFar,
+                            expMinTotal < TC::eventsSoFar + TC::rejectedSoFar);
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // MULTITHREADED TEST -- HIGH CONTENTION, INIT
+        //
+        // Concerns:
+        //: 1 That the type under test functions properly under light
+        //:   multithreaded contention.
+        //
+        // Plan:
+        //: 1 Repeat the first test in the breathing test, only in a
+        //:   multithreaded context.
+        //
+        // Testing:
+        //   CONCERN: Multithreaded, high contention, macro init
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "MULTITHREADED TEST -- HIGH CONTENTION, INIT\n"
+                             "===========================================\n";
+
+        namespace TC = Case_Throttle_MULTITHREADED;
+
+        bslmt::ThreadGroup tg(&u::ta);
+
+        TC::testMode = TC::e_INIT_HIGH;
+
+        for (int ti = 0; ti < 2; ++ti) {
+            TC::clockType = ti ? CT::e_REALTIME : CT::e_MONOTONIC;
+
+            TC::eventsSoFar   = 0;
+            TC::rejectedSoFar = 0;
+
+            tg.addThreads(&TC::threadJob, u::numThreads);
+            u::sleep(0.1);    // get everybody waiting on the barrier
+
+            u::end = (u::start = u::clockTi(TC::clockType)) + TC::duration;
+            TC::barrier.wait();    // all start
+            TimeInterval afterBarrier = u::clockTi(TC::clockType);
+
+            TC::barrier.wait();    // all finish
+            if (veryVerbose) {
+                const double elapsed = (u::clockTi(TC::clockType) - u::start).
+                                                        totalSecondsAsDouble();
+                const double scheduled = (u::end - u::start).
+                                                        totalSecondsAsDouble();
+                const double barrier = (afterBarrier - u::start).
+                                                        totalSecondsAsDouble();
+                P_(u::start);    P(u::end);
+                P_(elapsed);   P_(scheduled);   P_(barrier);   P(TC::duration);
+            }
+
+            tg.joinAll();
+
+            ASSERTV(TC::clockType, TC::expEvents, TC::eventsSoFar,
+                                             TC::expEvents == TC::eventsSoFar);
+            const double expMinTotal = TC::duration / 2 / 1e-5;
+            ASSERTV(TC::clockType, expMinTotal, TC::eventsSoFar,
+                                                             TC::rejectedSoFar,
+                            expMinTotal < TC::eventsSoFar + TC::rejectedSoFar);
+        }
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // MULTITHREADED TEST -- LOW CONTENTION, INIT
+        //
+        // Concerns:
+        //: 1 That the type under test functions properly under light
+        //:   multithreaded contention.
+        //
+        // Plan:
+        //: 1 Repeat the first test in the breathing test, only in a
+        //:   multithreaded context.
+        //
+        // Testing:
+        //   CONCERN: Multithreaded, low contention, macro init
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "MULTITHREADED TEST -- LOW CONTENTION, INIT\n"
+                             "==========================================\n";
+
+        namespace TC = Case_Throttle_MULTITHREADED;
+
+        bslmt::ThreadGroup tg(&u::ta);
+
+        TC::testMode = TC::e_INIT_LOW;
+
+        for (int ti = 0; ti < 2; ++ti) {
+            TC::clockType = ti ? CT::e_REALTIME : CT::e_MONOTONIC;
+
+            TC::eventsSoFar   = 0;
+            TC::rejectedSoFar = 0;
+
+            tg.addThreads(&TC::threadJob, u::numThreads);
+            u::sleep(0.1);    // get everybody waiting on the barrier
+
+            u::end = (u::start = u::clockTi(TC::clockType)) + TC::duration;
+            TC::barrier.wait();    // all start
+            TimeInterval afterBarrier = u::clockTi(TC::clockType);
+
+            TC::barrier.wait();    // all finish
+            if (veryVerbose) {
+                const double elapsed = (u::clockTi(TC::clockType) - u::start).
+                                                        totalSecondsAsDouble();
+                const double scheduled = (u::end - u::start).
+                                                        totalSecondsAsDouble();
+                const double barrier = (afterBarrier - u::start).
+                                                        totalSecondsAsDouble();
+                P_(u::start);    P(u::end);
+                P_(elapsed);   P_(scheduled);   P_(barrier);   P(TC::duration);
+            }
+
+            tg.joinAll();
+
+            ASSERTV(TC::clockType, TC::expEvents, TC::eventsSoFar,
+                                             TC::expEvents == TC::eventsSoFar);
+            const double expMinTotal = TC::duration / 2 / TC::sleepPeriod;
+            ASSERTV(TC::clockType, expMinTotal, TC::eventsSoFar,
+                                                             TC::rejectedSoFar,
+                            expMinTotal < TC::eventsSoFar + TC::rejectedSoFar);
+        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -934,7 +1629,7 @@ int main(int argc, char *argv[])
         //:     return a non-zero value without modifying the time interval
         //:     that was passed to it.
         //
-        // Tesing:
+        // Testing:
         //   int nextPermit(bsls::TimeInterval *, int) const;
         // --------------------------------------------------------------------
 
@@ -2141,10 +2836,10 @@ int main(int argc, char *argv[])
         // TESTING TEST APPARATUS
         //
         // Concerns:
-        //: o That 'toTime' works as specced.
+        //: 1 That 'toTime' works as specced.
         //
         // Plan:
-        //: o Call 'toTime' with table-driven inputs and observe the output is
+        //: 2 Call 'toTime' with table-driven inputs and observe the output is
         //:   as expected.
         //
         // TESTING
@@ -2224,34 +2919,27 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'initialize', ACCESSORS, AND 'requestPermissionIfValid'
+        // TESTING 'initialize' and ACCESSORS
         //
         // Concerns:
-        //: 1 That after an object is initialized, either using 'initialize'
-        //:   or the '...INIT*' macros, that the accessors verify the state of
-        //:   the object is as expected.
-        //:
-        //: 2 Verify that 'requestPermissionIfValid' fails on various forms of
-        //:   invalid input.
-        //:
-        //: 3 Verify that the state of the object is identical to the state
-        //:   of an object created with the '...INIT*' macro passed the same
-        //:   args.
-        //:
+        //: 1 That after an object is initialized using 'initialize' that the
+        //:   accessors verify the state of the object is as expected.
         //
         // Plan:
-        //: 1 Initialize a variety of objects using the '...INIT*' macros,
-        //:   and set up a table to drive identical initialization using the
-        //:   'initialize' function.
+        //: 1 Set up a table and loop over it.
         //:
-        //: 2 Use 'memcmp' to verify that objects initialized both ways are
-        //:   identical.
+        //: 2 Each iteration, create two throttles, one of which has the clock
+        //:   type defaulting, and one of which has the clock type from the
+        //:   table passed.
         //:
-        //: 3 Use the 'maxSimultaneousActions' and 'nanosecondsPerAction'
-        //:   accessors to verify the state of the object.
+        //: 3 If the clock type is monotonic, compare the two throttles and
+        //:   verify that they are binary identical.
         //:
-        //: 4 Call 'requestPermissionIfValid' several times with invalid input,
-        //:   observed that non-zero values are returned.
+        //: 4 Use the 3 accessors to verify that the state of the throttle
+        //:   corresponds to the table driven inputs.
+        //:
+        //: 5 Note that we never test the 'allow all' or 'allow none' cases in
+        //:   this test case, those will be covered later.
         //
         // Testing:
         //   void initialize(int, Int64, SystemClockType::Enum);
@@ -2299,21 +2987,13 @@ int main(int argc, char *argv[])
             Obj monoThrottle;
             monoThrottle.initialize(maxSimultaneousActions,
                                     nanosecondsPerAction);
-            Obj realThrottle;
-            realThrottle.initialize(maxSimultaneousActions,
-                                    nanosecondsPerAction,
-                                    bsls::SystemClockType::e_REALTIME);
             Obj mX;    const Obj& X = mX;
             mX.initialize(maxSimultaneousActions,
                           nanosecondsPerAction,
                           clockType);
 
-            ASSERTV(LINE, 0 == bsl::memcmp((bsls::SystemClockType::e_MONOTONIC
-                                                                   == clockType
-                                            ? &monoThrottle
-                                            : &realThrottle),
-                                            &mX,
-                                            sizeof(Obj)));
+            ASSERTV(LINE, CT::e_MONOTONIC != clockType ||
+                            0 == bsl::memcmp(&monoThrottle, &mX, sizeof(Obj)));
 
             ASSERTV(LINE, maxSimultaneousActions ==X.maxSimultaneousActions());
 
@@ -2402,6 +3082,8 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
+        //: 1 Initialize some throttles to values, and manipulators and
+        //:   accessors.
         //
         // Testing:
         //   BREATHING TEST
@@ -2557,8 +3239,6 @@ int main(int argc, char *argv[])
                 P_(elapsed);    P_(elapsed - expElapsed); P(results);
             }
         }
-
-        (void) u::testCase;    // suppress 'unused' warning
       } break;
       case -1: {
         // --------------------------------------------------------------------
