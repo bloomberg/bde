@@ -258,8 +258,9 @@ void updateImpl(INTEGER             *state,
     // 'blockBytesUsed' the count of the bytes in 'block' that are currently in
     // use.
 {
-    const bsl::uint64_t prologueSize = bsl::min(messageSize,
-                                              BLOCK_SIZE - *blockBytesUsed);
+    const bsl::uint64_t prologueSize = bsl::min(
+                                       static_cast<bsl::uint64_t>(messageSize),
+                                                 BLOCK_SIZE - *blockBytesUsed);
     bsl::copy(message,
               message + prologueSize,
               block + *blockBytesUsed);
