@@ -231,10 +231,9 @@ class Condition {
         // value different from -1 if an error occurs.  The behavior is
         // undefined unless 'mutex' is locked by the calling thread prior to
         // calling this method.  Note that 'mutex' remains locked by the
-        // calling thread upon returning from this function with success or
-        // timeout, but is *not* guaranteed to remain locked otherwise.  Also
-        // note that spurious wakeups are rare but possible, i.e., this method
-        // may succeed (return 0) and return control to the thread without the
+        // calling thread upon returning from this function.  Also note that
+        // spurious wakeups are rare but possible, i.e., this method may
+        // succeed (return 0) and return control to the thread without the
         // condition object being signaled.
 
     int wait(Mutex *mutex);
@@ -247,9 +246,7 @@ class Condition {
         // control to the thread without the condition object being signaled.
         // The behavior is undefined unless 'mutex' is locked by the calling
         // thread prior to calling this method.  Note that 'mutex' remains
-        // locked by the calling thread upon successfully returning from this
-        // function, but is *not* guaranteed to remain locked if an error
-        // occurs.
+        // locked by the calling thread upon return from this function.
 };
 }  // close package namespace
 

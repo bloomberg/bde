@@ -128,16 +128,15 @@ class ConditionImpl<Platform::Win32Threads> {
         // of the 'signal' or 'broadcast' methods is invoked on this object) or
         // until the specified 'timeout', then re-acquire a lock on the
         // 'mutex'.  The 'timeout' is an absolute time represented as an
-        // interval from some epoch, which is detemined by the clock indicated
+        // interval from some epoch, which is determined by the clock indicated
         // at construction (see {Supported Clock-Types} in the component
         // documentation).  Return 0 on success, -1 on timeout, and a non-zero
         // value different from -1 if an error occurs.  The behavior is
         // undefined unless 'mutex' is locked by the calling thread prior to
         // calling this method.  Note that 'mutex' remains locked by the
-        // calling thread upon returning from this function with success or
-        // timeout, but is *not* guaranteed to remain locked otherwise.  Also
-        // note that spurious wakeups are rare but possible, i.e., this method
-        // may succeed (return 0) and return control to the thread without the
+        // calling thread upon returning from this function.  Also note that
+        // spurious wakeups are rare but possible, i.e., this method may
+        // succeed (return 0) and return control to the thread without the
         // condition object being signaled.
 
     int wait(Mutex *mutex);
@@ -150,9 +149,7 @@ class ConditionImpl<Platform::Win32Threads> {
         // control to the thread without the condition object being signaled.
         // The behavior is undefined unless 'mutex' is locked by the calling
         // thread prior to calling this method.  Note that 'mutex' remains
-        // locked by the calling thread upon successfully returning from this
-        // function, but is *not* guaranteed to remain locked if an error
-        // occurs.
+        // locked by the calling thread upon return from this function.
 };
 
 }  // close package namespace
