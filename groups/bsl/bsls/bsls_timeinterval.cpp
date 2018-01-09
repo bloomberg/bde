@@ -188,8 +188,8 @@ native_std::ostream& TimeInterval::print(
         }
     }
 
-    stream << '(' << d_seconds     << "s, "
-                  << d_nanoseconds << "ns)";
+    stream << '(' << d_seconds     << ", "
+                  << d_nanoseconds << ')';
 
     // We suppress the trailing end-of-line if 'spacesPerLevel < 0'.
 
