@@ -317,7 +317,7 @@ void finalizeImpl(unsigned char        *digest,
               BLOCK_SIZE,
               constants);
 
-    for (int index = 0 ; index < digestSize / sizeof(INTEGER); ++index) {
+    for (unsigned index = 0 ; index < digestSize / sizeof(INTEGER); ++index) {
         unpack(state[index], &digest[index * sizeof(INTEGER)]);
     }
 }
