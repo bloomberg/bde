@@ -88,6 +88,27 @@ BSLS_IDENT("$Id: $")
 //  assert(f == m);
 //  assert(f == d);
 //..
+//
+///Example 2: How to display 2h30 minutes with 'make*' Functions
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example shows how we can create a 'Datetime' objects having a
+// value of now + 2 hours and 30 minutes by using the 'DatetimeInterval'
+// constructor or, more readably by using the 'make*' functions.
+//
+// First, create a 'Datetime' objects with the current time.
+//..
+//  Datetime now = bdlt::CurrentTime::now();
+//..
+// Next, create the 'DatetimeInterval' objects and assign the desired
+// values to them with the 'makeHours' and 'makeMinutes' functions, and
+// with the 'DatetimeInterval' constructor.
+//..
+//  Datetime m = now + DatetimeIntervalUtil::makeHours(2) + DatetimeIntervalUtil::makeMinutes(30);
+//  Datetime d = now + DatetimeInterval(0, 2, 30, 0, 0, 0);
+//..
+// Finally assert that both methods are equal.
+//  assert(m == d);
+//..
 
 #include <bdlscm_version.h>
 #include <bdlt_datetimeinterval.h>
@@ -107,28 +128,28 @@ struct DatetimeIntervalUtil {
   public:
     // CLASS METHODS
     static DatetimeInterval makeDays(int days);
-        // Return a 'DatetimeInterval' object having the value given by the
-        // specified 'days', and zero for all other attributes.
+        // Return a 'DatetimeInterval' object representing an duration of the
+        // specified 'days' (exactly).
 
     static DatetimeInterval makeHours(bsls::Types::Int64 hours);
-        // Return a 'DatetimeInterval' object having an "hours" attribute
-        // equal to the specified 'hours', and 0 for all other attributes.
+        // Return a 'DatetimeInterval' object representing an duration of the
+        // specified 'hours' (exactly).
 
     static DatetimeInterval makeMinutes(bsls::Types::Int64 minutes);
-        // Return a 'DatetimeInterval' object having a "minutes" attribute
-        // equal to the specified 'minutes', and 0 for all other attributes.
+        // Return a 'DatetimeInterval' object representing an duration of the
+        // specified 'minutes' (exactly).
 
     static DatetimeInterval makeSeconds(bsls::Types::Int64 seconds);
-        // Return a 'DatetimeInterval' object having a "seconds" attribute
-        // equal to the specified 'seconds', and 0 for all other attributes.
+        // Return a 'DatetimeInterval' object representing an duration of the
+        // specified 'seconds' (exactly).
 
     static DatetimeInterval makeMilliseconds(bsls::Types::Int64 milliseconds);
-        // Return a 'DatetimeInterval' object having the value given by the
-        // specified 'milliseconds', and zero for all other attributes.
+        // Return a 'DatetimeInterval' object representing an duration of the
+        // specified 'milliseconds' (exactly).
 
     static DatetimeInterval makeMicroseconds(bsls::Types::Int64 microseconds);
-        // Return a 'DatetimeInterval' object having the value given by the
-        // specified 'microseconds', and zero for all other attributes.
+        // Return a 'DatetimeInterval' object representing an duration of the
+        // specified 'microseconds' (exactly).
 };
 
 // ============================================================================

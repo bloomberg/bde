@@ -187,6 +187,10 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The "time" values are forwarded correctly to the
         //:  'DatetimeInterval' object.
+        //:
+        //: 2 Each of the factory methods take parameters of their intended
+        //:   type.  That is 'int' for days and 'bsls::Types::Int64' for all of
+        //:    the others.
         //
         // Plan:
         //: 1 Using the table based test values, compare the
