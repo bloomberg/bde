@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_assert.h>
+
 namespace BloombergLP {
 namespace bslim {
 
@@ -11,7 +13,16 @@ namespace bslim {
                         // class TestUtil
                         // --------------
 
+// CLASS DATA
+TestUtil::Func TestUtil::s_func = 0;
+
 // CLASS METHODS
+void *TestUtil::callFunc(void *arg)
+{
+    BSLS_ASSERT(s_func);
+    return (*s_func)(arg);
+}
+
 bool TestUtil::compareText(bslstl::StringRef lhs,
                            bslstl::StringRef rhs,
                            bsl::ostream&     errorStream)
@@ -51,6 +62,11 @@ bool TestUtil::compareText(bslstl::StringRef lhs,
     }
 
     return true;
+}
+
+void TestUtil::setFunc(TestUtil::Func func)
+{
+    s_func = func;
 }
 
 }  // close package namespace
