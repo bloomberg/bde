@@ -531,7 +531,7 @@ class NullableValue {
         // otherwise.  Note that this method returns *by* *value*, so may be
         // inefficient in some contexts.
 
-    #if BSLS_DEPRECATE_IS_ACTIVE(BDL, 3, 3)
+    #if BSLS_DEPRECATE_IS_ACTIVE(BDL, 3, 5)
     BSLS_DEPRECATE
     #endif
     const TYPE *valueOr(const TYPE *value) const;

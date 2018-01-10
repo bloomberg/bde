@@ -3,9 +3,9 @@
 
 #if !defined(BSLS_DEPRECATE_T_DATA_COLLECTION)
 
-// BDE_VERIFY pragma: push    // Relax some bde_verify rules
+// BDE_VERIFY pragma: push    // Relax some 'bde_verify' rules.
 // BDE_VERIFY pragma: -TP19   // Component levelized below 'bsls_bsltestutil',
-//                            // therefore cannot use usual boilerplate
+//                            // therefore we cannot use usual boilerplate.
 
 #include <limits.h>  // 'INT_MIN'
 #include <stdio.h>
@@ -41,7 +41,7 @@
 // state into data suitable for inclusion in a table:
 //
 //: o Data-collection sections in the test driver, in which some compile-time
-//:   state is encoded in a form that can be retreived at run-time.  For cases
+//:   state is encoded in a form that can be retrieved at run-time.  For cases
 //:   6, 7, and 8, states of control macros are assigned to cells in an array.
 //:   For case 11, functions are defined that can return a summary of the
 //:   states of control macros and deprecation macros when the functions were
@@ -68,14 +68,16 @@
 // CONTROL MACRO SETTINGS").  The UOR configuration specifies:
 //:   * UOR version
 //:   * UOR deprecation threshold
-//:   * internal UOR build status ('BB_BUILDING_UOR_<U>')
-//:   * deprecation silencing ('BB_SILENCE_DEPRECATION_<U>_<M>_<N>')
+//:   * internal UOR build deprecation silencing by UOR authors
+//:     ('BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<U>')
+//:   * version-specific deprecation silencing by UOR clients
+//:     ('BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>')
 //
 // These UOR configurations are used primarily in cases 6, 7, and 8.
 //
 // Finally, the data-collection section for cases 6, 7, and 8 uses a set of
 // globally-defined macros to extract the state of each control macro, and
-// store that stae in an array.  These macros depend on the internal macros
+// store that state in an array.  These macros depend on the internal macros
 // tested in case 4, and have a breathing test in case -2.  (See "GLOBAL TEST
 // DATA COLLECTION MACHINERY").
 // ----------------------------------------------------------------------------
@@ -269,15 +271,15 @@ int Case5::test(const int&)
 #define BBG_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(4, 2)
 #define BBH_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(4, 2)
 
-#define BB_SILENCE_DEPRECATION_BBC_4_1
-#define BB_SILENCE_DEPRECATION_BBD_4_2
-#define BB_SILENCE_DEPRECATION_BBE_4_3
-#define BB_SILENCE_DEPRECATION_BBG_4_2
-#define BB_SILENCE_DEPRECATION_BBH_4_3
+#define BB_SILENCE_DEPRECATIONS_BBC_4_1
+#define BB_SILENCE_DEPRECATIONS_BBD_4_2
+#define BB_SILENCE_DEPRECATIONS_BBE_4_3
+#define BB_SILENCE_DEPRECATIONS_BBG_4_2
+#define BB_SILENCE_DEPRECATIONS_BBH_4_3
 
-#define BB_BUILDING_UOR_BBF
-#define BB_BUILDING_UOR_BBG
-#define BB_BUILDING_UOR_BBH
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_BBF
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_BBG
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_BBH
 
 #define CCB_VERSION_MAJOR 4
 #define CCB_VERSION_MINOR 3
@@ -294,15 +296,15 @@ int Case5::test(const int&)
 #define CCH_VERSION_MAJOR 4
 #define CCH_VERSION_MINOR 3
 
-#define BB_BUILDING_UOR_CCF
-#define BB_BUILDING_UOR_CCG
-#define BB_BUILDING_UOR_CCH
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_CCF
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_CCG
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_CCH
 
-#define BB_SILENCE_DEPRECATION_CCC_4_1
-#define BB_SILENCE_DEPRECATION_CCD_4_2
-#define BB_SILENCE_DEPRECATION_CCE_4_3
-#define BB_SILENCE_DEPRECATION_CCG_4_2
-#define BB_SILENCE_DEPRECATION_CCH_4_3
+#define BB_SILENCE_DEPRECATIONS_CCC_4_1
+#define BB_SILENCE_DEPRECATIONS_CCD_4_2
+#define BB_SILENCE_DEPRECATIONS_CCE_4_3
+#define BB_SILENCE_DEPRECATIONS_CCG_4_2
+#define BB_SILENCE_DEPRECATIONS_CCH_4_3
 
 #define DDB_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(4, 2)
 #define DDC_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(4, 2)
@@ -327,15 +329,15 @@ int Case5::test(const int&)
 #define DDH_VERSION_MAJOR 4
 #define DDH_VERSION_MINOR 5
 
-#define BB_SILENCE_DEPRECATION_DDC_4_1
-#define BB_SILENCE_DEPRECATION_DDD_4_2
-#define BB_SILENCE_DEPRECATION_DDE_4_3
-#define BB_SILENCE_DEPRECATION_DDG_4_2
-#define BB_SILENCE_DEPRECATION_DDH_4_3
+#define BB_SILENCE_DEPRECATIONS_DDC_4_1
+#define BB_SILENCE_DEPRECATIONS_DDD_4_2
+#define BB_SILENCE_DEPRECATIONS_DDE_4_3
+#define BB_SILENCE_DEPRECATIONS_DDG_4_2
+#define BB_SILENCE_DEPRECATIONS_DDH_4_3
 
-#define BB_BUILDING_UOR_DDF
-#define BB_BUILDING_UOR_DDG
-#define BB_BUILDING_UOR_DDH
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_DDF
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_DDG
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_DDH
 
 #define EEB_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(4, 2)
 #define EEC_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(4, 2)
@@ -360,25 +362,25 @@ int Case5::test(const int&)
 #define EEH_VERSION_MAJOR 4
 #define EEH_VERSION_MINOR 2
 
-#define BB_SILENCE_DEPRECATION_EEC_4_1
-#define BB_SILENCE_DEPRECATION_EED_4_2
-#define BB_SILENCE_DEPRECATION_EEE_4_3
-#define BB_SILENCE_DEPRECATION_EEG_4_2
-#define BB_SILENCE_DEPRECATION_EEH_4_3
+#define BB_SILENCE_DEPRECATIONS_EEC_4_1
+#define BB_SILENCE_DEPRECATIONS_EED_4_2
+#define BB_SILENCE_DEPRECATIONS_EEE_4_3
+#define BB_SILENCE_DEPRECATIONS_EEG_4_2
+#define BB_SILENCE_DEPRECATIONS_EEH_4_3
 
-#define BB_BUILDING_UOR_EEF
-#define BB_BUILDING_UOR_EEG
-#define BB_BUILDING_UOR_EEH
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_EEF
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_EEG
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_EEH
 
-#define BB_SILENCE_DEPRECATION_FFC_3_1
-#define BB_SILENCE_DEPRECATION_FFD_3_2
-#define BB_SILENCE_DEPRECATION_FFE_3_3
-#define BB_SILENCE_DEPRECATION_FFG_3_2
-#define BB_SILENCE_DEPRECATION_FFH_3_3
+#define BB_SILENCE_DEPRECATIONS_FFC_3_1
+#define BB_SILENCE_DEPRECATIONS_FFD_3_2
+#define BB_SILENCE_DEPRECATIONS_FFE_3_3
+#define BB_SILENCE_DEPRECATIONS_FFG_3_2
+#define BB_SILENCE_DEPRECATIONS_FFH_3_3
 
-#define BB_BUILDING_UOR_FFF
-#define BB_BUILDING_UOR_FFG
-#define BB_BUILDING_UOR_FFH
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_FFF
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_FFG
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_FFH
 
 #define GGB_VERSION_MAJOR 2
 #define GGB_VERSION_MINOR 0
@@ -395,21 +397,21 @@ int Case5::test(const int&)
 #define GGH_VERSION_MAJOR 2
 #define GGH_VERSION_MINOR 0
 
-#define BB_SILENCE_DEPRECATION_GGC_1_998
-#define BB_SILENCE_DEPRECATION_GGD_1_999
-#define BB_SILENCE_DEPRECATION_GGE_2_0
-#define BB_SILENCE_DEPRECATION_GGG_1_999
-#define BB_SILENCE_DEPRECATION_GGH_2_0
+#define BB_SILENCE_DEPRECATIONS_GGC_1_998
+#define BB_SILENCE_DEPRECATIONS_GGD_1_999
+#define BB_SILENCE_DEPRECATIONS_GGE_2_0
+#define BB_SILENCE_DEPRECATIONS_GGG_1_999
+#define BB_SILENCE_DEPRECATIONS_GGH_2_0
 
-#define BB_BUILDING_UOR_GGF
-#define BB_BUILDING_UOR_GGG
-#define BB_BUILDING_UOR_GGH
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_GGF
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_GGG
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_GGH
 
 #define RST_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(7, 9)
-#define BB_SILENCE_DEPRECATION_RST_7_8
+#define BB_SILENCE_DEPRECATIONS_RST_7_8
 
 #define UVW_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(4, 5)
-#define BB_BUILDING_UOR_UVW
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_UVW
 
 // ============================================================================
 //                   GLOBAL TEST DATA COLLECTION MACHINERY
@@ -516,7 +518,7 @@ void collectData()
     STATIC_ASSERT(minorVersionsAlignToTwenty, 0 == MAX_MIN % 20);
 
     // For 'minorVersion' only, '0' is a valid test value.  Initialize all
-    // 'minorVersion' to 'INT_MIN' to expose unset datapoints.
+    // 'minorVersion' to 'INT_MIN' to expose unset data points.
 
     for (int i = 0; i < NUM_UORS; ++i) {
         for (int j = 0; j < MAX_MAJ; ++j) {
@@ -931,7 +933,7 @@ namespace tt {
 //
 ///Example 1: Tagging a Function as Deprecated
 ///- - - - - - - - - - - - - - - - - - - - - -
-// When one piece of code has been superceded by another, we would like to get
+// When one piece of code has been superseded by another, we would like to get
 // users to adopt the new code and stop using the old code.  Being able to
 // remind users that they need to clean up existing uses of the old code, and
 // prevent new uses of that code makes it easier to get to the point where old
@@ -940,7 +942,7 @@ namespace tt {
 // gradually reduce the number of users of deprecated code.
 //
 // Suppose we own package group 'xxx' that is currently at version 7.6.  One of
-// our components contains a function 'foo' that has been superceded by another
+// our components contains a function 'foo' that has been superseded by another
 // function 'bar'.
 //..
 namespace example_xxx_7_6 {
@@ -1011,7 +1013,7 @@ namespace example_xxx_7_7 {
 
 // Define alternate overloads for 'foo' and 'bar' from the usage example, so
 // that we can confirm that the declarations in the example exist.  This was
-// Hyman's idea.  I love sitting next to Hyman!
+// Hyman's idea.
 
 namespace example_xxx_7_6 {
 
@@ -1063,7 +1065,7 @@ int main(int argc, char *argv[])
     int     veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    (void) veryVerbose;  // Suppress unused-varible warnings.
+    (void) veryVerbose;  // Suppress unused-variable warnings.
 
     fprintf(stderr, "TEST " __FILE__ " CASE %d\n", test);
 
@@ -1115,8 +1117,8 @@ int main(int argc, char *argv[])
         ///-----
         // The difficult thing about writing this test driver is that we don't
         // have a clear spec for what the interactions should be.  In the
-        // deprecation proposal 'bdlex_exampleutil' component, though, we do
-        // have an illustration of the approach we intend.
+        // original proposal for this component, though, we did have an
+        // illustration of the approach we intend.
         //
         ///The Path of Least Code Change
         ///- - - - - - - - - - - - - - -
@@ -1166,7 +1168,7 @@ int main(int argc, char *argv[])
         // Really, '#ifndef BDE_OMIT_INTERNAL_DEPRECATED' should have been
         // written:
         //..
-        //  #if    !defined(BDE_OMIT_DEPRECATED)          \                   .
+        //  #if    !defined(BDE_OMIT_DEPRECATED)          \                   @
         //      && !defined(BDE_OPENSOURCE_PUBLICATION)
         //..
         // However, we can't ever build with 'BDE_OPENSOURCE_PUBLICATION'
@@ -1198,7 +1200,7 @@ int main(int argc, char *argv[])
         // How about this:
         //..
         //  #ifndef BDE_OPENSOURCE_PUBLICATION
-        //  #if    BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 2)    \                   .
+        //  #if    BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 2)    \                   @
         //      || defined(BDE_OMIT_INTERNAL_DEPRECATED)
         //  BSLS_DEPRECATE
         //  #endif
@@ -1220,7 +1222,7 @@ int main(int argc, char *argv[])
         // deprecation idioms to this pattern.  That way, the regular
         // deprecation pattern is simply:
         //..
-        //  #if    BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 2)  \                     .
+        //  #if    BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 2)  \                     @
         //      || defined(BDE_OMIT_DEPRECATED)
         //  BSLS_DEPRECATE
         //  #endif
@@ -1234,7 +1236,7 @@ int main(int argc, char *argv[])
         //  }                            //
         //..
         // A test of this approach will demonstrate that removed code
-        // (represented in the test driver through dfferences in overload
+        // (represented in the test driver through differences in overload
         // resolution) is converted into warnings.
         //
         // Concerns:
@@ -1498,10 +1500,10 @@ int main(int argc, char *argv[])
         //:   o 'BWADFTO' is 1 if 'BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY'
         //:     is '#define'd to nil, '0', or '1', and is 0 otherwise.
         //:
-        //:   o 'BBUu' is 1 if 'BB_BUILDING_UOR_<UOR>' is '#define'd to
-        //:     nil, '0', or '1', and is 0 otherwise.
+        //:   o 'BBUu' is 1 if 'BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>'
+        //:     is '#define'd to nil, '0', or '1', and is 0 otherwise.
         //:
-        //:   o 'BSDumn' is 1 if 'BB_SILENCE_DEPRECATION_<UOR>_<M>_<N>' is
+        //:   o 'BSDumn' is 1 if 'BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>' is
         //:     '#define'd to nil, '0', or '1', and is 0 otherwise.
         //:
         //: 2 The formula above holds when the 0 states of the control macros
@@ -1584,7 +1586,7 @@ int main(int argc, char *argv[])
         //         |  > BDMV(m,n) | <=>  BDMV(m,n)     ||      1 |
         //         +==============+====================++========+
         //..
-        //: 2 Define control macros for a set of fictional UORS, covering all
+        //: 2 Define control macros for a set of fictional UORs, covering all
         //:   of the relationships described in the tables shown step 1.  (See
         //:   the "GLOBAL DEPRECATION CONTROL MACRO SETTINGS" section of this
         //:   test driver.)
@@ -1604,7 +1606,7 @@ int main(int argc, char *argv[])
         //:   (This step in the plan is performed by code generated by
         //:   '#define'ing 'BSLS_DEPRECATE_T_DATA_COLLECTION' to be '1',
         //:   setting an appropriate 'COLLECT_CODE', and repeatedly
-        //:   '#include'ing the test driver file to pre-process part 1 of the
+        //:   '#include'ing the test driver file to preprocess part 1 of the
         //:   "DATA COLLECTION" section.)
         //:
         //: 3 Using the table-based approach, for each UOR configured in step
@@ -1988,7 +1990,7 @@ int main(int argc, char *argv[])
         //         |  > BDMV(m,n) | <=>  BDMV(m,n)     ||      1 |
         //         +==============+====================++========+
         //..
-        //: 2 Define control macros for a set of fictional UORS, covering all
+        //: 2 Define control macros for a set of fictional UORs, covering all
         //:   of the relationships described in the table shown step 1.  (See
         //:   the "GLOBAL DEPRECATION CONTROL MACRO SETTINGS" section of this
         //:   test driver, which forms a superset of the relationships required
@@ -2009,7 +2011,7 @@ int main(int argc, char *argv[])
         //:   (This step in the plan is performed by code generated by
         //:   '#define'ing 'BSLS_DEPRECATE_T_DATA_COLLECTION' to be '1',
         //:   setting an appropriate 'COLLECT_CODE', and repeatedly
-        //:   '#include'ing the test driver file to pre-process part 1 of the
+        //:   '#include'ing the test driver file to preprocess part 1 of the
         //:   "DATA COLLECTION" section.)
         //:
         //: 3 Using the table-based approach, for each UOR configured in step
@@ -2135,10 +2137,10 @@ int main(int argc, char *argv[])
         //:   below) expands to 0 or 1 according to the formula '(BBUu ||
         //:   BSDumn)' where:
         //:
-        //:   o 'BBUu' is 1 if 'BB_BUILDING_UOR_<UOR>' is '#define'd to
-        //:     nil, '0', or '1', and is 0 otherwise.
+        //:   o 'BBUu' is 1 if 'BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>'
+        //:     is '#define'd to nil, '0', or '1', and is 0 otherwise.
         //:
-        //:   o 'BSDumn' is 1 if 'BB_SILENCE_DEPRECATION_<UOR>_<M>_<N>' is
+        //:   o 'BSDumn' is 1 if 'BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>' is
         //:     '#define'd to nil, '0', or '1', and is 0 otherwise.
         //:
         //:
@@ -2169,7 +2171,7 @@ int main(int argc, char *argv[])
         //         |      1 |     1  ||     1  |
         //         +========+========++========+
         //..
-        //: 2 Define control macros for a set of fictional UORS, covering all
+        //: 2 Define control macros for a set of fictional UORs, covering all
         //:   of the relationships described in the table shown step 1.  For
         //:   each value of 'BSDumn', also include UORs where that value
         //:   appears for the previous or subsequent version instead.  (See the
@@ -2192,7 +2194,7 @@ int main(int argc, char *argv[])
         //:   (This step in the plan is performed by code generated by
         //:   '#define'ing 'BSLS_DEPRECATE_T_DATA_COLLECTION' to be '1',
         //:   setting an appropriate 'COLLECT_CODE', and repeatedly
-        //:   '#include'ing the test driver file to pre-process part 1 of the
+        //:   '#include'ing the test driver file to preprocess part 1 of the
         //:   "DATA COLLECTION" section.)
         //:
         //: 3 Using the table-based approach, for each UOR configured in step
@@ -2505,29 +2507,33 @@ int main(int argc, char *argv[])
             // Canonical input: control macros assembled with
             // 'BSLS_DEPRECATE_CAT'.
 
-#undef BB_BUILDING_UOR_OMB
-#if 0 != BSLS_DEPRECATE_ISDEFINED(BSLS_DEPRECATE_CAT(BB_BUILDING_UOR_, OMB))
+#undef BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB
+#if 0 != BSLS_DEPRECATE_ISDEFINED(                                            \
+            BSLS_DEPRECATE_CAT(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_, OMB))
             ASSERT(false);
 #endif
 
-#undef BB_BUILDING_UOR_OMB
-#define BB_BUILDING_UOR_OMB
-#if 1 != BSLS_DEPRECATE_ISDEFINED(BSLS_DEPRECATE_CAT(BB_BUILDING_UOR_, OMB))
+#undef  BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB
+#if 1 != BSLS_DEPRECATE_ISDEFINED(                                            \
+            BSLS_DEPRECATE_CAT(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_, OMB))
             ASSERT(false);
 #endif
 
-#undef BB_BUILDING_UOR_OMB
-#define BB_BUILDING_UOR_OMB 0
-#if 1 != BSLS_DEPRECATE_ISDEFINED(BSLS_DEPRECATE_CAT(BB_BUILDING_UOR_, OMB))
+#undef  BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB 0
+#if 1 != BSLS_DEPRECATE_ISDEFINED(                                            \
+            BSLS_DEPRECATE_CAT(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_, OMB))
             ASSERT(false);
 #endif
 
-#undef BB_BUILDING_UOR_OMB
-#define BB_BUILDING_UOR_OMB 1
-#if 1 != BSLS_DEPRECATE_ISDEFINED(BSLS_DEPRECATE_CAT(BB_BUILDING_UOR_, OMB))
+#undef  BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB 1
+#if 1 != BSLS_DEPRECATE_ISDEFINED(                                            \
+            BSLS_DEPRECATE_CAT(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_, OMB))
             ASSERT(false);
 #endif
-#undef BB_BUILDING_UOR_OMB
+#undef BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB
 
             // QoI
 
@@ -2583,24 +2589,27 @@ int main(int argc, char *argv[])
             // defining a macro consisting of a control macro name concatenated
             // with '1L', hence these inputs are excluded by the contract.
 
-#undef BB_BUILDING_UOR_OMB1L
-#define BB_BUILDING_UOR_OMB1L 0
-#if 0 != BSLS_DEPRECATE_ISDEFINED(BSLS_DEPRECATE_CAT(BB_BUILDING_UOR_, OMB))
+#undef  BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB1L
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB1L 0
+#if 0 != BSLS_DEPRECATE_ISDEFINED(                                            \
+            BSLS_DEPRECATE_CAT(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_, OMB))
             ASSERT(false);
 #endif
 
-#undef BB_BUILDING_UOR_OMB1L
-#define BB_BUILDING_UOR_OMB1L 1
-#if 1 != BSLS_DEPRECATE_ISDEFINED(BSLS_DEPRECATE_CAT(BB_BUILDING_UOR_, OMB))
+#undef  BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB1L
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB1L 1
+#if 1 != BSLS_DEPRECATE_ISDEFINED(                                            \
+            BSLS_DEPRECATE_CAT(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_, OMB))
             ASSERT(false);
 #endif
 
             // Invalid inputs: these uses will not compile
 #if 0
 
-#undef BB_BUILDING_UOR_OMB1L
-#define BB_BUILDING_UOR_OMB1L
-#if 0 != BSLS_DEPRECATE_ISDEFINED(BSLS_DEPRECATE_CAT(BB_BUILDING_UOR_, OMB))
+#undef  BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB1L
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB1L
+#if 0 != BSLS_DEPRECATE_ISDEFINED(                                            \
+            BSLS_DEPRECATE_CAT(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_, OMB))
             ASSERT(false);
 #endif
 
@@ -2740,7 +2749,7 @@ int main(int argc, char *argv[])
 #undef ZERO
 #undef ONE
 #undef ALPHA
-#undef BB_BUILDING_UOR_OMB1L
+#undef BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_OMB1L
 #undef OMB_VERSION_DEPRECATION_THRESHOLD
 #undef UOR_NAME
       } break;
@@ -2872,8 +2881,8 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'MACRO_TO_STRING(M)' renders to '""' when 'M' expands to nothing.
         //:
-        //: 2 'MACRO_TO_STRING(M)' renders to someting other than '""' when 'M'
-        //:   expands to "".
+        //: 2 'MACRO_TO_STRING(M)' renders to something other than '""' when
+        //:   'M' expands to "".
         //:
         //: 3 'MACRO_TO_STRING(M)' renders to the expansion of 'M' in
         //:   non-empty, non-literal-empty-string cases.
@@ -3066,8 +3075,8 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Examine the expansions of the 'BSLS_DEPRECATE_IS_ACTIVE' macro
         //:   with combinations of the '*_VERSION_DEPRECATE_*_*',
-        //:   'BB_SILENCE_DEPRECATION_*', 'BB_WARN_ALL_...', and
-        //:   'BB_BUILDING_UOR_*' macros.
+        //:   'BB_SILENCE_DEPRECATIONS_<UOR>_<M>_<N>', 'BB_WARN_ALL_...', and
+        //:   'BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>' macros.
         //
         // Testing:
         //   BREATHING TEST
@@ -3129,13 +3138,13 @@ int main(int argc, char *argv[])
         ASSERT(true);
 #endif
 
-#  define BB_SILENCE_DEPRECATION_ABC_1_2
+#  define BB_SILENCE_DEPRECATIONS_ABC_1_2
 #if BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 2)
         ASSERT(false);
 #else
         ASSERT(true);
 #endif
-#  undef  BB_SILENCE_DEPRECATION_ABC_1_2
+#  undef  BB_SILENCE_DEPRECATIONS_ABC_1_2
 
 #if BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 2)  // Check: silence 1.2 canceled
         ASSERT(true);
@@ -3173,13 +3182,13 @@ int main(int argc, char *argv[])
         ASSERT(false);
 #endif
 
-#  define BB_SILENCE_DEPRECATION_ABC_1_2
+#  define BB_SILENCE_DEPRECATIONS_ABC_1_2
 #if BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 2)
         ASSERT(false);
 #else
         ASSERT(true);
 #endif
-#  undef  BB_SILENCE_DEPRECATION_ABC_1_2
+#  undef  BB_SILENCE_DEPRECATIONS_ABC_1_2
 
 #if BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 2)  // Check: silence 1.2 canceled
         ASSERT(true);
@@ -3196,9 +3205,10 @@ int main(int argc, char *argv[])
 #endif
 
 
-        if (verbose) printf("\nBB_BUILDING_UOR_<UOR>\n");
+        if (verbose)
+            printf("\nBB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_<UOR>\n");
 
-#define BB_BUILDING_UOR_ABC
+#define BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_ABC
 
 #if BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 2)
         ASSERT(false);
@@ -3222,7 +3232,7 @@ int main(int argc, char *argv[])
 #endif
 #  undef  BB_WARN_ALL_DEPRECATIONS_FOR_TESTING_ONLY
 
-#undef  BB_BUILDING_UOR_ABC
+#undef  BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR_ABC
 
 
         if (verbose) printf("\nDefault threshold\n");
@@ -3257,7 +3267,7 @@ int main(int argc, char *argv[])
         ASSERT(true);
 #endif
 
-#  define BB_SILENCE_DEPRECATION_ABC_1_2
+#  define BB_SILENCE_DEPRECATIONS_ABC_1_2
 #if BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 1)
         ASSERT(true);
 #else
@@ -3275,7 +3285,7 @@ int main(int argc, char *argv[])
 #else
         ASSERT(true);
 #endif
-#  undef  BB_SILENCE_DEPRECATION_ABC_1_2
+#  undef  BB_SILENCE_DEPRECATIONS_ABC_1_2
 
 #if BSLS_DEPRECATE_IS_ACTIVE(ABC, 1, 2)  // Check: silence 1.2 canceled
         ASSERT(true);
@@ -3322,7 +3332,7 @@ int main(int argc, char *argv[])
         ASSERT(true);
 #endif
 
-#  define BB_SILENCE_DEPRECATION_DEF_2_999
+#  define BB_SILENCE_DEPRECATIONS_DEF_2_999
 #if BSLS_DEPRECATE_IS_ACTIVE(DEF, 2, 998)
         ASSERT(true);
 #else
@@ -3340,7 +3350,7 @@ int main(int argc, char *argv[])
 #else
         ASSERT(true);
 #endif
-#  undef BB_SILENCE_DEPRECATION_DEF_2_999
+#  undef BB_SILENCE_DEPRECATIONS_DEF_2_999
 
 #if BSLS_DEPRECATE_IS_ACTIVE(DEF, 2, 999)  // Check: silence 1.2 canceled
         ASSERT(true);
@@ -3492,8 +3502,8 @@ int main(int argc, char *argv[])
 
 #ifdef PP_AUDIT
 "((4) * 1000 + (5))": UVW_VERSION_DEPRECATION_THRESHOLD
-"0"                 : BSLS_DEPRECATE_ISDEFINED(BB_SILENCE_DEPRECATION_BBB_4_1)
-"1"                 : BSLS_DEPRECATE_ISDEFINED(BB_SILENCE_DEPRECATION_BBC_4_1)
+"0"                 : BSLS_DEPRECATE_ISDEFINED(BB_SILENCE_DEPRECATIONS_BBB_4_1)
+"1"                 : BSLS_DEPRECATE_ISDEFINED(BB_SILENCE_DEPRECATIONS_BBC_4_1)
 "(0 || 0)"          : BSLS_DEPRECATE_ISRETAINED(ABC, 1, 1)
 "(0 || 0)"          : BSLS_DEPRECATE_ISRETAINED(ABC, 1, 2)
 "(0 || 0)"          : BSLS_DEPRECATE_ISRETAINED(ABC, 1, 3)
@@ -3530,26 +3540,26 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef PP_AUDIT
-1: COLLECT_BB_ISDEFINED_U(BB_BUILDING_UOR, BBG));
-0: COLLECT_BB_ISDEFINED_U(BB_BUILDING_UOR, BBI));
+1: COLLECT_BB_ISDEFINED_U(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR, BBG));
+0: COLLECT_BB_ISDEFINED_U(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR, BBI));
 
 1: COLLECT_ISNONZERO(BBG, VERSION_DEPRECATION_THRESHOLD));
 0: COLLECT_ISNONZERO(BBI, VERSION_DEPRECATION_THRESHOLD));
 
-1: COLLECT_BB_ISDEFINED_U(BB_BUILDING_UOR, DDG));
-0: COLLECT_BB_ISDEFINED_U(BB_BUILDING_UOR, DDI));
+1: COLLECT_BB_ISDEFINED_U(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR, DDG));
+0: COLLECT_BB_ISDEFINED_U(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR, DDI));
 
 1: COLLECT_ISNONZERO(DDG, VERSION_DEPRECATION_THRESHOLD));
 0: COLLECT_ISNONZERO(DDI, VERSION_DEPRECATION_THRESHOLD));
 #endif  // PP_AUDIT
 
-#if COLLECT_BB_ISDEFINED_U(BB_BUILDING_UOR, BBG)
+#if COLLECT_BB_ISDEFINED_U(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR, BBG)
         ASSERT(true);
 #else
         ASSERT(false);
 #endif
 
-#if COLLECT_BB_ISDEFINED_U(BB_BUILDING_UOR, BBI)
+#if COLLECT_BB_ISDEFINED_U(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR, BBI)
         ASSERT(false);
 #else
         ASSERT(true);
@@ -3567,13 +3577,13 @@ int main(int argc, char *argv[])
         ASSERT(true);
 #endif
 
-#if COLLECT_BB_ISDEFINED_U(BB_BUILDING_UOR, DDG)
+#if COLLECT_BB_ISDEFINED_U(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR, DDG)
         ASSERT(true);
 #else
         ASSERT(false);
 #endif
 
-#if COLLECT_BB_ISDEFINED_U(BB_BUILDING_UOR, DDI)
+#if COLLECT_BB_ISDEFINED_U(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR, DDI)
         ASSERT(false);
 #else
         ASSERT(true);
@@ -3727,7 +3737,7 @@ COLLECT_SET_VALUE(isWarnDefined,
 
 #undef expectedValue
 
-#if COLLECT_BB_ISDEFINED_UMN(BB_SILENCE_DEPRECATION,                          \
+#if COLLECT_BB_ISDEFINED_UMN(BB_SILENCE_DEPRECATIONS,                         \
                              COLLECT_U, COLLECT_M, COLLECT_N)
 #define expectedValue e_YES
 #else
@@ -3743,7 +3753,7 @@ COLLECT_SET_VALUE(isSilenceDefined,
 
 #undef expectedValue
 
-#if COLLECT_BB_ISDEFINED_U(BB_BUILDING_UOR, COLLECT_U)
+#if COLLECT_BB_ISDEFINED_U(BB_SILENCE_DEPRECATIONS_FOR_BUILDING_UOR, COLLECT_U)
 #define expectedValue e_YES
 #else
 #define expectedValue e_NO
