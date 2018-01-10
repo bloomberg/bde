@@ -989,8 +989,8 @@ int main(int argc, char *argv[])
         Obj mX(&loader,                 &sa);
         Obj mY(&loader, Interval(0, 0), &sa);
 
-        const int NUM_TEST_ITERATIONS   =   10;
-        const int NUM_THREAD_ITERATIONS = 1000;
+        const int NUM_TEST_ITERATIONS   =  10;
+        const int NUM_THREAD_ITERATIONS = 200;
 
         ThreadInfo info = { NUM_THREAD_ITERATIONS, &mX, &mY };
 
