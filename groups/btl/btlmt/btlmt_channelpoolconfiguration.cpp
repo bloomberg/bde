@@ -130,9 +130,9 @@ const bdlat_AttributeInfo
         bdlat_FormattingMode::e_DEFAULT
     },
     {
-        e_ATTRIBUTE_ID_USE_ROUND_ROBIN_READS,
-        "UseRoundRobinReads",                  // name
-        sizeof("UseRoundRobinReads") - 1,      // name length
+        e_ATTRIBUTE_ID_READ_DATA_POLICY,
+        "ReadDataPolicy",                      // name
+        sizeof("ReadDataPolicy") - 1,          // name length
         "",// annotation
         bdlat_FormattingMode::e_DEFAULT
     }
@@ -194,6 +194,23 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
          && bsl::toupper(name[13])=='S') {
             return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_CONNECTIONS];
                                                                       // RETURN
+        }
+        else if (bsl::toupper(name[0])=='R'
+              && bsl::toupper(name[1])=='E'
+              && bsl::toupper(name[2])=='A'
+              && bsl::toupper(name[3])=='D'
+              && bsl::toupper(name[4])=='D'
+              && bsl::toupper(name[5])=='A'
+              && bsl::toupper(name[6])=='T'
+              && bsl::toupper(name[7])=='A'
+              && bsl::toupper(name[8])=='P'
+              && bsl::toupper(name[9])=='O'
+              && bsl::toupper(name[10])=='L'
+              && bsl::toupper(name[11])=='I'
+              && bsl::toupper(name[12])=='C'
+              && bsl::toupper(name[13])=='Y') {
+            return &ATTRIBUTE_INFO_ARRAY[
+                                 e_ATTRIBUTE_INDEX_READ_DATA_POLICY]; // RETURN
         }
       } break;
       case 15: {
@@ -487,27 +504,6 @@ const bdlat_AttributeInfo *ChannelPoolConfiguration::lookupAttributeInfo(
                                        e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS];
                                                                       // RETURN
         }
-        else if (bsl::toupper(name[0])=='U'
-              && bsl::toupper(name[1])=='S'
-              && bsl::toupper(name[2])=='E'
-              && bsl::toupper(name[3])=='R'
-              && bsl::toupper(name[4])=='O'
-              && bsl::toupper(name[5])=='U'
-              && bsl::toupper(name[6])=='N'
-              && bsl::toupper(name[7])=='D'
-              && bsl::toupper(name[8])=='R'
-              && bsl::toupper(name[9])=='O'
-              && bsl::toupper(name[10])=='B'
-              && bsl::toupper(name[11])=='I'
-              && bsl::toupper(name[12])=='N'
-              && bsl::toupper(name[13])=='R'
-              && bsl::toupper(name[14])=='E'
-              && bsl::toupper(name[15])=='A'
-              && bsl::toupper(name[16])=='D'
-              && bsl::toupper(name[17])=='S') {
-            return &ATTRIBUTE_INFO_ARRAY[
-                            e_ATTRIBUTE_INDEX_USE_ROUND_ROBIN_READS]; // RETURN
-        }
       } break;
     }
     return 0;
@@ -571,8 +567,8 @@ ChannelPoolConfiguration::lookupAttributeInfo(int id)
         return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS];
                                                                       // RETURN
       }
-      case e_ATTRIBUTE_ID_USE_ROUND_ROBIN_READS: {
-        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_USE_ROUND_ROBIN_READS];
+      case e_ATTRIBUTE_ID_READ_DATA_POLICY: {
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_DATA_POLICY];
                                                                       // RETURN
       }
 
@@ -597,7 +593,7 @@ ChannelPoolConfiguration::ChannelPoolConfiguration()
 , d_maxMessageSizeIn(1024)
 , d_threadStackSize(k_DEFAULT_THREAD_STACK_SIZE)
 , d_collectTimeMetrics(true)
-, d_useRoundRobinReads(false)
+, d_readDataPolicy(btlmt::ReadDataPolicy::e_GREEDY)
 {
 }
 
@@ -617,7 +613,7 @@ ChannelPoolConfiguration::ChannelPoolConfiguration(
 , d_maxMessageSizeIn(original.d_maxMessageSizeIn)
 , d_threadStackSize(original.d_threadStackSize)
 , d_collectTimeMetrics(original.d_collectTimeMetrics)
-, d_useRoundRobinReads(original.d_useRoundRobinReads)
+, d_readDataPolicy(original.d_readDataPolicy)
 {
 }
 
@@ -657,7 +653,7 @@ ChannelPoolConfiguration::operator=(const ChannelPoolConfiguration& rhs)
         d_maxMessageSizeIn   = rhs.d_maxMessageSizeIn;
         d_threadStackSize    = rhs.d_threadStackSize;
         d_collectTimeMetrics = rhs.d_collectTimeMetrics;
-        d_useRoundRobinReads = rhs.d_useRoundRobinReads;
+        d_readDataPolicy     = rhs.d_readDataPolicy;
     }
     return *this;
 }
@@ -668,21 +664,21 @@ ChannelPoolConfiguration::operator=(const ChannelPoolConfiguration& rhs)
 bool btlmt::operator==(const ChannelPoolConfiguration& lhs,
                        const ChannelPoolConfiguration& rhs)
 {
-    return lhs.d_maxConnections     == rhs.d_maxConnections
-        && lhs.d_maxThreads         == rhs.d_maxThreads
-        && lhs.d_writeQueueHighWater  == rhs.d_writeQueueHighWater
-        && lhs.d_writeQueueLowWater   == rhs.d_writeQueueLowWater
-        && lhs.d_readTimeout        == rhs.d_readTimeout
-        && lhs.d_metricsInterval    == rhs.d_metricsInterval
-        && lhs.d_minMessageSizeOut  == rhs.d_minMessageSizeOut
-        && lhs.d_typMessageSizeOut  == rhs.d_typMessageSizeOut
-        && lhs.d_maxMessageSizeOut  == rhs.d_maxMessageSizeOut
-        && lhs.d_minMessageSizeIn   == rhs.d_minMessageSizeIn
-        && lhs.d_typMessageSizeIn   == rhs.d_typMessageSizeIn
-        && lhs.d_maxMessageSizeIn   == rhs.d_maxMessageSizeIn
-        && lhs.d_threadStackSize    == rhs.d_threadStackSize
-        && lhs.d_collectTimeMetrics == rhs.d_collectTimeMetrics
-        && lhs.d_useRoundRobinReads == rhs.d_useRoundRobinReads;
+    return lhs.d_maxConnections      == rhs.d_maxConnections
+        && lhs.d_maxThreads          == rhs.d_maxThreads
+        && lhs.d_writeQueueHighWater == rhs.d_writeQueueHighWater
+        && lhs.d_writeQueueLowWater  == rhs.d_writeQueueLowWater
+        && lhs.d_readTimeout         == rhs.d_readTimeout
+        && lhs.d_metricsInterval     == rhs.d_metricsInterval
+        && lhs.d_minMessageSizeOut   == rhs.d_minMessageSizeOut
+        && lhs.d_typMessageSizeOut   == rhs.d_typMessageSizeOut
+        && lhs.d_maxMessageSizeOut   == rhs.d_maxMessageSizeOut
+        && lhs.d_minMessageSizeIn    == rhs.d_minMessageSizeIn
+        && lhs.d_typMessageSizeIn    == rhs.d_typMessageSizeIn
+        && lhs.d_maxMessageSizeIn    == rhs.d_maxMessageSizeIn
+        && lhs.d_threadStackSize     == rhs.d_threadStackSize
+        && lhs.d_collectTimeMetrics  == rhs.d_collectTimeMetrics
+        && lhs.d_readDataPolicy      == rhs.d_readDataPolicy;
 }
 
 bsl::ostream& btlmt::operator<<(bsl::ostream&                   output,
@@ -706,8 +702,8 @@ bsl::ostream& btlmt::operator<<(bsl::ostream&                   output,
            << "\tthreadStackSize        : " << config.d_threadStackSize  <<"\n"
            << "\tcollectTimeMetrics     : "
            << config.d_collectTimeMetrics << "\n"
-           << "\tuseRoundRobinReads     : "
-           << config.d_useRoundRobinReads << "\n"
+           << "\treadDataPolicy         : "
+           << config.d_readDataPolicy << "\n"
            << "]\n";
 
     return output;

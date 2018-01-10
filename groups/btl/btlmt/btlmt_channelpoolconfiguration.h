@@ -88,9 +88,9 @@ BSLS_IDENT("$Id: $")
 //                               is 'false', those metrics will not
 //                               be collected.
 //
-//   bool    useRoundRobinReads  indicates whether the configured         false
-//                               channel pool should use round robin
-//                               reads instead of greedy reads.
+//   btlmt::ReadDataPolicy
+//           readDataPolicy      indicates the read data policy for    e_GREEDY
+//                               the configured channel pool.
 //..
 // The constraints are as follows:
 //..
@@ -205,12 +205,16 @@ BSLS_IDENT("$Id: $")
 //         maxIncomingMessageSize : 3
 //         threadStackSize        : 1024
 //         collectTimeMetrics     : 1
-//         useRoundRobinReads     : 0
+//         readDataPolicy         : GREEDY
 // ]
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BTLMT_READDATAPOLICY
+#include <btlmt_readdatapolicy.h>
 #endif
 
 #ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
@@ -315,7 +319,8 @@ class ChannelPoolConfiguration {
 
     bool                  d_collectTimeMetrics;
 
-    bool                  d_useRoundRobinReads;
+    btlmt::ReadDataPolicy::Enum
+                          d_readDataPolicy;    // read data policy
 
     friend bsl::ostream& operator<<(bsl::ostream&,
                                     const ChannelPoolConfiguration&);
@@ -377,8 +382,8 @@ class ChannelPoolConfiguration {
         e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13,
             // index for 'CollectTimeMetrics' attribute
 
-        e_ATTRIBUTE_INDEX_USE_ROUND_ROBIN_READS = 14
-            // index for 'UseRoundRobinReads' attribute
+        e_ATTRIBUTE_INDEX_READ_DATA_POLICY = 14
+            // index for 'ReadDataPolicy' attribute
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_INDEX_MAX_CONNECTIONS      =
@@ -458,8 +463,8 @@ class ChannelPoolConfiguration {
         e_ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14,
             // id for 'CollectTimeMetrics' attribute
 
-        e_ATTRIBUTE_ID_USE_ROUND_ROBIN_READS   = 15
-            // id for 'UseRoundRobinReads' attribute
+        e_ATTRIBUTE_ID_READ_DATA_POLICY        = 15
+            // id for 'ReadDataPolicy' attribute
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_ID_MAX_CONNECTIONS      = e_ATTRIBUTE_ID_MAX_CONNECTIONS
@@ -589,16 +594,9 @@ class ChannelPoolConfiguration {
         // metrics are collected.  By default the 'collectTimeMetrics'
         // attribute is set to 'true'.
 
-    int setUseRoundRobinReads(bool useRoundRobinReadsFlag);
-        // Set the 'useRoundRobinReads' attribute of this object to the
-        // specified 'useRoundRobinReadsFlag' value.  Return 0.  If
-        // 'useRoundRobinReadsFlag' is 'true' the configured channel pool will
-        // read only once for each connection that has data available
-        // switching among them in a round-robin manner.  If
-        // 'useRoundRobinReadsFlag' is 'false' data is read from a connection
-        // in a greedy manner, i.e. until no more data is available for a
-        // connection, before moving onto the next connection that has data.
-        // By default, the 'useRoundRobinReads' attribute is set to 'false'.
+    int setReadDataPolicy(btlmt::ReadDataPolicy::Enum readDataPolicy);
+        // Set the 'readDataPolicy' attribute of this object to the
+        // specified 'readDataPolicy' value.  Return 0.
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
@@ -662,9 +660,8 @@ class ChannelPoolConfiguration {
         // pool cannot use that estimate of work-load when it attempts to
         // distribute work amongst its managed threads.
 
-    bool useRoundRobinReads() const;
-        // Return the value of the 'useRoundRobinReads' attribute of this
-        // object.
+    btlmt::ReadDataPolicy::Enum readDataPolicy() const;
+        // Return the value of the 'readDataPolicy' attribute of this object.
 
     const double& metricsInterval() const;
         // Return the metrics interval attribute of this object.
@@ -849,10 +846,10 @@ int ChannelPoolConfiguration::setCollectTimeMetrics(
 }
 
 inline
-int ChannelPoolConfiguration::setUseRoundRobinReads(
-                                                   bool useRoundRobinReadsFlag)
+int ChannelPoolConfiguration::setReadDataPolicy(
+                                    btlmt::ReadDataPolicy::Enum readDataPolicy)
 {
-    d_useRoundRobinReads = useRoundRobinReadsFlag;
+    d_readDataPolicy = readDataPolicy;
     return 0;
 }
 
@@ -957,8 +954,8 @@ int ChannelPoolConfiguration::manipulateAttributes(MANIPULATOR& manipulator)
     }
 
     ret = manipulator(
-                &d_useRoundRobinReads,
-                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_USE_ROUND_ROBIN_READS]);
+                &d_readDataPolicy,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_DATA_POLICY]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -1057,10 +1054,10 @@ int ChannelPoolConfiguration::manipulateAttribute(MANIPULATOR& manipulator,
                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
                                                                       // RETURN
       } break;
-      case e_ATTRIBUTE_ID_USE_ROUND_ROBIN_READS: {
+      case e_ATTRIBUTE_ID_READ_DATA_POLICY: {
         return manipulator(
-                &d_useRoundRobinReads,
-                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_USE_ROUND_ROBIN_READS]);
+                &d_readDataPolicy,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_DATA_POLICY]);
                                                                       // RETURN
       } break;
 
@@ -1174,9 +1171,9 @@ bool ChannelPoolConfiguration::collectTimeMetrics() const {
 }
 
 inline
-bool ChannelPoolConfiguration::useRoundRobinReads() const
+btlmt::ReadDataPolicy::Enum ChannelPoolConfiguration::readDataPolicy() const
 {
-    return d_useRoundRobinReads;
+    return d_readDataPolicy;
 }
 
 template <class ACCESSOR>
@@ -1277,9 +1274,8 @@ int ChannelPoolConfiguration::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(
-                d_useRoundRobinReads,
-                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_USE_ROUND_ROBIN_READS]);
+    ret = accessor(d_readDataPolicy,
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_DATA_POLICY]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -1376,10 +1372,10 @@ ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id) const
                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
                                                                       // RETURN
       } break;
-      case e_ATTRIBUTE_ID_USE_ROUND_ROBIN_READS: {
+      case e_ATTRIBUTE_ID_READ_DATA_POLICY: {
         return accessor(
-                d_useRoundRobinReads,
-                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_USE_ROUND_ROBIN_READS]);
+                     d_readDataPolicy,
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_DATA_POLICY]);
                                                                       // RETURN
       } break;
 

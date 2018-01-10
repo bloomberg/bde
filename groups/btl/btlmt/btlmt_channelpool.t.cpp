@@ -11,6 +11,7 @@
 
 #include <btlmt_channelpoolconfiguration.h>
 #include <btlmt_asyncchannel.h>
+#include <btlmt_readdatapolicy.h>
 
 #include <btlb_blobutil.h>
 #include <btls_iovecutil.h>
@@ -713,10 +714,10 @@ void populateMessage(btlb::Blob       *msg,
 }
 
 //-----------------------------------------------------------------------------
-// TEST_CASE_USE_ROUND_ROBIN_READS
+// TEST_CASE_READ_DATA_POLICY_OPTIONS
 //-----------------------------------------------------------------------------
 
-namespace TEST_CASE_USE_ROUND_ROBIN_READS {
+namespace TEST_CASE_READ_DATA_POLICY_OPTIONS {
 
 typedef btlso::StreamSocket<IPAddress> StreamSocket;
 
@@ -861,7 +862,7 @@ void *listenFunction(void *args)
     return 0;
 }
 
-}  // close namespace TEST_CASE_USE_ROUND_ROBIN_READS
+}  // close namespace TEST_CASE_READ_DATA_POLICY_OPTIONS
 
 //-----------------------------------------------------------------------------
 // TEST_CASE_WATERMARK_SEQUENCING
@@ -8258,7 +8259,7 @@ class TestDriver {
         // Test usage example.
 
     static void testCase42();
-        // Test that specifying the option to use round robin reads works as
+        // Test that specifying different read data policy options works as
         // expected.
 
     static void testCase41();
@@ -8443,11 +8444,11 @@ void TestDriver::testCase43()
 void TestDriver::testCase42()
 {
     // --------------------------------------------------------------------
-    // TEST USING ROUND ROBIN READS
+    // TEST USING DIFFERENT READ DATA POLICIES
     //
     // Concerns:
-    //: 1 Ensure that specifying the 'useRoundRobinReads' configuration option
-    //:   results in the data being correctly transferred.
+    //: 1 Ensure that specifying different read data policy options result in
+    //:   the data being correctly transferred.
     //:
     //: 2 All types of channels regular or SSL-based can read data correctly.
     //
@@ -8474,229 +8475,246 @@ void TestDriver::testCase42()
     //:
     //: 9 Confirm that each of the channels in mX receives all the data
     //:   and that the data is as expected.
+    //:
+    //:10 Repeat steps 1-9 for the different read data policy options.
     //
     // Testing:
     // --------------------------------------------------------------------
 
-    if (verbose) cout << "\nTEST USING ROUND ROBIN READS"
-                      << "\n============================"
+    if (verbose) cout << "\nTEST USING DIFFERENT READ DATA POLICIES"
+                      << "\n======================================="
                       << endl;
 
-    using namespace TEST_CASE_USE_ROUND_ROBIN_READS;
+    using namespace TEST_CASE_READ_DATA_POLICY_OPTIONS;
 
-    const int DATA_SIZE = 1024;
-    btlmt::ChannelPoolConfiguration config;
-    config.setMaxThreads(4 * NT);
-    config.setOutgoingMessageSizes(1, 5, DATA_SIZE); // max - 1K
+    btlmt::ReadDataPolicy::Enum POLICIES[] = {
+        btlmt::ReadDataPolicy::e_GREEDY,
+        btlmt::ReadDataPolicy::e_ROUND_ROBIN
+    };
+    const int NUM_POLICIES = sizeof POLICIES / sizeof *POLICIES;
 
-    config.setUseRoundRobinReads(true);
-    if (verbose) {
-        P(config);
-    }
+    for (int i = 0; i < NUM_POLICIES; ++i) {
 
-    Obj::ChannelStateChangeCallback channelCb(&channelStateCb);
+        s_numChannelsReadDone = 0;
+        s_numChannelsUp = 0;
+        s_numListenersUp = 0;
 
-    Obj::PoolStateChangeCallback poolCb(&poolStateCb);
+        const int DATA_SIZE = 1024;
+        btlmt::ChannelPoolConfiguration config;
+        config.setMaxThreads(4 * NT);
+        config.setOutgoingMessageSizes(1, 5, DATA_SIZE); // max - 1K
 
-    Obj::BlobBasedReadCallback dataCb(&blobBasedReadCb);
+        config.setReadDataPolicy(POLICIES[i]);
+        if (verbose) {
+            P(config);
+        }
 
-    Obj mX(channelCb, dataCb, poolCb, config);
+        Obj::ChannelStateChangeCallback channelCb(&channelStateCb);
 
-    ASSERT(0 == mX.start());
+        Obj::PoolStateChangeCallback poolCb(&poolStateCb);
 
-    const int SERVER_ID = 100;
+        Obj::BlobBasedReadCallback dataCb(&blobBasedReadCb);
 
-    for (int i = 0; i < NT; ++i) {
-        const int SOURCE_ID = SERVER_ID + i;
-        ASSERT(0 == mX.listen(0, 1, SOURCE_ID));
-    }
+        Obj mX(channelCb, dataCb, poolCb, config);
 
-    for (int i = 0; i < NT; ++i) {
-        const int SOURCE_ID = SERVER_ID + i;
+        ASSERT(0 == mX.start());
 
-        CLIENT_DATA[i].d_sourceId = SOURCE_ID;
-        mX.getServerAddress(&CLIENT_DATA[i].d_serverAddress, SOURCE_ID);
+        const int SERVER_ID = 100;
 
-        StreamSocket *socket = factory.allocate();
+        for (int i = 0; i < NT; ++i) {
+            const int SOURCE_ID = SERVER_ID + i;
+            ASSERT(0 == mX.listen(0, 1, SOURCE_ID));
+        }
 
-        ASSERT(0 == socket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE));
+        for (int i = 0; i < NT; ++i) {
+            const int SOURCE_ID = SERVER_ID + i;
 
-        ASSERT(0 == socket->connect(CLIENT_DATA[i].d_serverAddress));
+            CLIENT_DATA[i].d_sourceId = SOURCE_ID;
+            mX.getServerAddress(&CLIENT_DATA[i].d_serverAddress, SOURCE_ID);
 
-        ASSERT(0 == socket->setBlockingMode(
-                                        btlso::Flags::e_NONBLOCKING_MODE));
+            StreamSocket *socket = factory.allocate();
 
-        CLIENT_DATA[i].d_socket_p = socket;
-    }
+            ASSERT(0 == socket->setBlockingMode(
+                                               btlso::Flags::e_BLOCKING_MODE));
 
-    while (s_numChannelsUp < NT);
+            ASSERT(0 == socket->connect(CLIENT_DATA[i].d_serverAddress));
 
-    if (verbose) {
-        MTCOUT << "Listening channels connected." << MTENDL;
-    }
+            ASSERT(0 == socket->setBlockingMode(
+                                            btlso::Flags::e_NONBLOCKING_MODE));
 
-    s_numChannelsUp = 0;
+            CLIENT_DATA[i].d_socket_p = socket;
+        }
 
-    bslmt::ThreadUtil::Handle listenThreads[NT];
+        while (s_numChannelsUp < NT);
 
-    const int CLIENT_ID = 200;
+        if (verbose) {
+            MTCOUT << "Listening channels connected." << MTENDL;
+        }
 
-    for (int i = 0; i < NT; ++i) {
-        SERVER_DATA[i].d_sourceId = CLIENT_ID + i;
+        s_numChannelsUp = 0;
 
-        ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
-                                              &listenFunction,
-                                              (void *) &SERVER_DATA[i]));
-    }
+        bslmt::ThreadUtil::Handle listenThreads[NT];
 
-    while (s_numListenersUp < NT);
+        const int CLIENT_ID = 200;
 
-    for (int i = 0; i < NT; ++i) {
-        ASSERT(0 == mX.connect(SERVER_DATA[i].d_serverAddress,
-                               10,
-                               bsls::TimeInterval(1),
-                               CLIENT_ID + i));
-    }
+        for (int i = 0; i < NT; ++i) {
+            SERVER_DATA[i].d_sourceId = CLIENT_ID + i;
 
-    for (int i = 0; i < NT; ++i) {
-        ASSERT(0 == bslmt::ThreadUtil::join(listenThreads[i]));
-    }
+            ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
+                                                  &listenFunction,
+                                                  (void *) &SERVER_DATA[i]));
+        }
 
-    while (s_numChannelsUp < NT);
+        while (s_numListenersUp < NT);
 
-    if (verbose) {
-        MTCOUT << "Connecting channels connected." << MTENDL;
-    }
+        for (int i = 0; i < NT; ++i) {
+            ASSERT(0 == mX.connect(SERVER_DATA[i].d_serverAddress,
+                                   10,
+                                   bsls::TimeInterval(1),
+                                   CLIENT_ID + i));
+        }
 
-    s_numListenersUp = 0;
+        for (int i = 0; i < NT; ++i) {
+            ASSERT(0 == bslmt::ThreadUtil::join(listenThreads[i]));
+        }
 
-    const int IMPORT_ID = 300;
+        while (s_numChannelsUp < NT);
 
-    for (int i = 0; i < NT; ++i) {
-        IMPORT_DATA[i].d_sourceId = IMPORT_ID + i;
+        if (verbose) {
+            MTCOUT << "Connecting channels connected." << MTENDL;
+        }
 
-        ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
-                                              &listenFunction,
-                                              (void *) &IMPORT_DATA[i]));
-    }
+        s_numListenersUp = 0;
 
-    while (s_numListenersUp < NT);
+        const int IMPORT_ID = 300;
 
-    s_numChannelsUp = 0;
+        for (int i = 0; i < NT; ++i) {
+            IMPORT_DATA[i].d_sourceId = IMPORT_ID + i;
 
-    TEST_CASE_SSL_SOCKETS::bteso_SslLikeStreamSocketFactory<IPAddress>
-                                                     sslSocketFactory(512);
+            ASSERT(0 == bslmt::ThreadUtil::create(&listenThreads[i],
+                                                  &listenFunction,
+                                                  (void *) &IMPORT_DATA[i]));
+        }
 
-    typedef btlso::StreamSocketFactoryDeleter Deleter;
+        while (s_numListenersUp < NT);
 
-    for (int i = 0; i < NT; ++i) {
+        s_numChannelsUp = 0;
 
-        StreamSocket *socket = sslSocketFactory.allocate();
+        TEST_CASE_SSL_SOCKETS::bteso_SslLikeStreamSocketFactory<IPAddress>
+                                                         sslSocketFactory(512);
 
-        ASSERT(0 == socket->setBlockingMode(btlso::Flags::e_BLOCKING_MODE));
+        typedef btlso::StreamSocketFactoryDeleter Deleter;
 
-        ASSERT(0 == socket->connect(IMPORT_DATA[i].d_serverAddress));
+        for (int i = 0; i < NT; ++i) {
 
-        ASSERT(0 == socket->setBlockingMode(
-                                         btlso::Flags::e_NONBLOCKING_MODE));
+            StreamSocket *socket = sslSocketFactory.allocate();
 
-        bslma::ManagedPtr<StreamSocket> socketPtr(
-                              socket,
-                              &sslSocketFactory,
-                              &Deleter::deleteObject<IPAddress>);
+            ASSERT(0 == socket->setBlockingMode(
+                                               btlso::Flags::e_BLOCKING_MODE));
 
-        ASSERT(0 == mX.import(&socketPtr, IMPORT_DATA[i].d_sourceId));
-    }
+            ASSERT(0 == socket->connect(IMPORT_DATA[i].d_serverAddress));
 
-    while (s_numChannelsUp < NT);
+            ASSERT(0 == socket->setBlockingMode(
+                       btlso::Flags::e_NONBLOCKING_MODE));
 
-    if (verbose) {
-        MTCOUT << "Importing channels connected." << MTENDL;
-    }
+            bslma::ManagedPtr<StreamSocket> socketPtr(
+                                            socket,
+                                            &sslSocketFactory,
+                                            &Deleter::deleteObject<IPAddress>);
 
-    if (verbose) {
-        MTCOUT << "All connections established." << MTENDL;
-    }
+            ASSERT(0 == mX.import(&socketPtr, IMPORT_DATA[i].d_sourceId));
+        }
 
-    const int SIZE      = 1024 * 1024;  // 1 MB
-    char      buffer[SIZE];
+        while (s_numChannelsUp < NT);
 
-    for (int i = 0; i < NT; ++i) {
-        mX.disableRead(CLIENT_DATA[i].d_channelId);
-        mX.disableRead(SERVER_DATA[i].d_channelId);
-        mX.disableRead(IMPORT_DATA[i].d_channelId);
-    }
+        if (verbose) {
+            MTCOUT << "Importing channels connected." << MTENDL;
+        }
 
-    for (int i = 0; i < NT; ++i) {
-        const char EXP_CHAR          = 'A' + i;
-        CLIENT_DATA[i].d_expChar     = EXP_CHAR;
-        CLIENT_DATA[i].d_dataRead    = 0;
-        CLIENT_DATA[i].d_expDataSize = SIZE;
+        if (verbose) {
+            MTCOUT << "All connections established." << MTENDL;
+        }
 
-        bsl::memset(buffer, EXP_CHAR, SIZE);
+        const int SIZE      = 1024 * 1024;  // 1 MB
+        char      buffer[SIZE];
 
-        StreamSocket *socket = CLIENT_DATA[i].d_socket_p;
+        for (int i = 0; i < NT; ++i) {
+            mX.disableRead(CLIENT_DATA[i].d_channelId);
+            mX.disableRead(SERVER_DATA[i].d_channelId);
+            mX.disableRead(IMPORT_DATA[i].d_channelId);
+        }
 
-        int numWritten = 0;
-        do {
-            const int NW = socket->write(buffer, SIZE - numWritten);
-            if (NW <= 0) {
-                CLIENT_DATA[i].d_expDataSize = numWritten;
-                break;
-            }
-            numWritten += NW;
-        } while (numWritten < SIZE);
+        for (int i = 0; i < NT; ++i) {
+            const char EXP_CHAR          = 'A' + i;
+            CLIENT_DATA[i].d_expChar     = EXP_CHAR;
+            CLIENT_DATA[i].d_dataRead    = 0;
+            CLIENT_DATA[i].d_expDataSize = SIZE;
 
-        SERVER_DATA[i].d_expChar     = EXP_CHAR;
-        SERVER_DATA[i].d_dataRead    = 0;
-        SERVER_DATA[i].d_expDataSize = SIZE;
+            bsl::memset(buffer, EXP_CHAR, SIZE);
 
-        socket = SERVER_DATA[i].d_socket_p;
+            StreamSocket *socket = CLIENT_DATA[i].d_socket_p;
 
-        numWritten = 0;
-        do {
-            const int NW = socket->write(buffer, SIZE - numWritten);
-            if (NW <= 0) {
-                SERVER_DATA[i].d_expDataSize = numWritten;
-                break;
-            }
-            numWritten += NW;
-        } while (numWritten < SIZE);
+            int numWritten = 0;
+            do {
+                const int NW = socket->write(buffer, SIZE - numWritten);
+                if (NW <= 0) {
+                    CLIENT_DATA[i].d_expDataSize = numWritten;
+                    break;
+                }
+                numWritten += NW;
+            } while (numWritten < SIZE);
 
-        IMPORT_DATA[i].d_expChar     = EXP_CHAR;
-        IMPORT_DATA[i].d_dataRead    = 0;
-        IMPORT_DATA[i].d_expDataSize = SIZE;
+            SERVER_DATA[i].d_expChar     = EXP_CHAR;
+            SERVER_DATA[i].d_dataRead    = 0;
+            SERVER_DATA[i].d_expDataSize = SIZE;
 
-        socket = IMPORT_DATA[i].d_socket_p;
+            socket = SERVER_DATA[i].d_socket_p;
 
-        numWritten = 0;
-        do {
-            const int NW = socket->write(buffer, SIZE - numWritten);
-            if (NW <= 0) {
-                IMPORT_DATA[i].d_expDataSize = numWritten;
-                break;
-            }
-            numWritten += NW;
-        } while (numWritten < SIZE);
-    }
+            numWritten = 0;
+            do {
+                const int NW = socket->write(buffer, SIZE - numWritten);
+                if (NW <= 0) {
+                    SERVER_DATA[i].d_expDataSize = numWritten;
+                    break;
+                }
+                numWritten += NW;
+            } while (numWritten < SIZE);
 
-    if (verbose) {
-        MTCOUT << "Writing data complete." << MTENDL;
-    }
+            IMPORT_DATA[i].d_expChar     = EXP_CHAR;
+            IMPORT_DATA[i].d_dataRead    = 0;
+            IMPORT_DATA[i].d_expDataSize = SIZE;
 
-    for (int i = 0; i < NT; ++i) {
-        mX.enableRead(CLIENT_DATA[i].d_channelId);
-        mX.enableRead(SERVER_DATA[i].d_channelId);
-        mX.enableRead(IMPORT_DATA[i].d_channelId);
-    }
+            socket = IMPORT_DATA[i].d_socket_p;
 
-    while (s_numChannelsReadDone < 3 * NT);
+            numWritten = 0;
+            do {
+                const int NW = socket->write(buffer, SIZE - numWritten);
+                if (NW <= 0) {
+                    IMPORT_DATA[i].d_expDataSize = numWritten;
+                    break;
+                }
+                numWritten += NW;
+            } while (numWritten < SIZE);
+        }
 
-    ASSERT(0 == mX.stopAndRemoveAllChannels());
+        if (verbose) {
+            MTCOUT << "Writing data complete." << MTENDL;
+        }
 
-    for (int i = 0; i < NT; ++i) {
-        factory.deallocate(CLIENT_DATA[i].d_socket_p);
-        factory.deallocate(IMPORT_DATA[i].d_socket_p);
+        for (int i = 0; i < NT; ++i) {
+            mX.enableRead(CLIENT_DATA[i].d_channelId);
+            mX.enableRead(SERVER_DATA[i].d_channelId);
+            mX.enableRead(IMPORT_DATA[i].d_channelId);
+        }
+
+        while (s_numChannelsReadDone < 3 * NT);
+
+        ASSERT(0 == mX.stopAndRemoveAllChannels());
+
+        for (int i = 0; i < NT; ++i) {
+            factory.deallocate(CLIENT_DATA[i].d_socket_p);
+            factory.deallocate(IMPORT_DATA[i].d_socket_p);
+        }
     }
 }
 
