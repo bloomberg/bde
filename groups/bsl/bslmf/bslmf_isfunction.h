@@ -61,6 +61,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+#ifndef INCLUDED_BSLMF_ADDPOINTER
+#include <bslmf_addpointer.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
 #endif

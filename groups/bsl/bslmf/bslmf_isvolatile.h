@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::is_volatile: meta-function for determining 'volatile'-qualified types
 //
-//@SEE_ALSO: bslmf_integralconstantt
+//@SEE_ALSO: bslmf_integralconstant
 //
 //@AUTHOR:
 //
