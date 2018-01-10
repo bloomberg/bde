@@ -2,9 +2,10 @@
 #ifndef INCLUDED_BDLT_DATETIMEINTERVALUTIL
 #define INCLUDED_BDLT_DATETIMEINTERVALUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
+// BDE_VERIFY pragma: -FABC01 we order functions by increasing resolution
+// BDE_VERIFY pragma: -SEG03
+
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide non-primitive operations on 'bdlt::DatetimeInterval'.
@@ -21,12 +22,12 @@ BSLS_IDENT("$Id: $")
 //
 // This utility component provides the following (static) methods:
 //..
-//   bdlt::DatetimeInterval makeDays(int days);
-//   bdlt::DatetimeInterval makeHours(bsls::Types::Int64 hours);
-//   bdlt::DatetimeInterval makeMinutes(bsls::Types::Int64 minutes);
-//   bdlt::DatetimeInterval makeSeconds(bsls::Types::Int64 seconds);
-//   bdlt::DatetimeInterval makeMilliseconds(bsls::Types::Int64 milliseconds);
-//   bdlt::DatetimeInterval makeMicroseconds(bsls::Types::Int64 microseconds);
+//  bdlt::DatetimeInterval makeDays(int days);
+//  bdlt::DatetimeInterval makeHours(bsls::Types::Int64 hours);
+//  bdlt::DatetimeInterval makeMinutes(bsls::Types::Int64 minutes);
+//  bdlt::DatetimeInterval makeSeconds(bsls::Types::Int64 seconds);
+//  bdlt::DatetimeInterval makeMilliseconds(bsls::Types::Int64 milliseconds);
+//  bdlt::DatetimeInterval makeMicroseconds(bsls::Types::Int64 microseconds);
 //..
 //
 ///Usage
@@ -35,79 +36,82 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Simple Usage of the Various 'make*' Functions
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows how we can create a 'DatetimeInterval' objects having
-// values of 1 day, 2 hours, 3 minutes, 4 seconds, 5 millisecond, and 6
-// microseconds by using the 'DatetimeInterval' constructor or, more readably
-// by using the 'make*' functions.
+// This example shows how we can create a 'bdlt::DatetimeInterval' objects
+// having values of 1 day, 2 hours, 3 minutes, 4 seconds, 5 millisecond, and 6
+// microseconds by using the 'bdlt::DatetimeInterval' constructor and, more
+// readably, by using the 'make*' functions.
 //
-// First, start with a default (0) 'DatetimeInterval'.
+// First, start with a default (0) 'bdlt::DatetimeInterval':
 //..
-//  DatetimeInterval m;
-//  DatetimeInterval d;
+//  bdlt::DatetimeInterval m;
+//  bdlt::DatetimeInterval d;
 //..
-// Next, add 1 day to it, and assert that both methods are equal.
+// Next, add 1 day to it, and assert that both objects are equal:
 //..
-//  m += DatetimeIntervalUtil::makeDays(1);
-//  d += DatetimeInterval(1, 0, 0, 0, 0, 0);
+//  m += bdlt::DatetimeIntervalUtil::makeDays(1);
+//  d += bdlt::DatetimeInterval(1, 0, 0, 0, 0, 0);
 //  assert(m == d);
 //..
-// Then, add 2 hours to it, and assert that both methods are equal.
+// Then, add 2 hours to it, and assert that both objects are equal:
 //..
-//  m += DatetimeIntervalUtil::makeDays(1);
-//  d += DatetimeInterval(0, 2, 0, 0, 0, 0);
+//  m += bdlt::DatetimeIntervalUtil::makeHours(2);
+//  d += bdlt::DatetimeInterval(0, 2, 0, 0, 0, 0);
 //  assert(m == d);
 //..
-// Next, add 3 minutes to it, and assert that both methods are equal.
+// Next, add 3 minutes to it, and assert that both objects are equal:
 //..
-//  m += DatetimeIntervalUtil::makeMinutes(3);
-//  d += DatetimeInterval(0, 0, 3, 0, 0, 0);
+//  m += bdlt::DatetimeIntervalUtil::makeMinutes(3);
+//  d += bdlt::DatetimeInterval(0, 0, 3, 0, 0, 0);
 //  assert(m == d);
 //..
-// Then, add 4 seconds to it, and assert that both methods are equal.
+// Then, add 4 seconds to it, and assert that both objects are equal:
 //..
-//  m += DatetimeIntervalUtil::makeSeconds(4);
-//  d += DatetimeInterval(0, 0, 0, 4, 0, 0);
+//  m += bdlt::DatetimeIntervalUtil::makeSeconds(4);
+//  d += bdlt::DatetimeInterval(0, 0, 0, 4, 0, 0);
 //  assert(m == d);
 //..
-// Next, add 5 milliseconds to it, and assert that both methods are equal.
+// Next, add 5 milliseconds to it, and assert that both objects are equal:
 //..
-//  m += DatetimeIntervalUtil::makeMilliseconds(5);
-//  d += DatetimeInterval(0, 0, 0, 0, 5, 0);
+//  m += bdlt::DatetimeIntervalUtil::makeMilliseconds(5);
+//  d += bdlt::DatetimeInterval(0, 0, 0, 0, 5, 0);
 //  assert(m == d);
 //..
-// Then, add 6 microseconds to it, and assert that both methods are equal.
+// Then, add 6 microseconds to it, and assert that both objects are equal:
 //..
-//  m += DatetimeIntervalUtil::makeMicroseconds(6);
-//  d += DatetimeInterval(0, 0, 0, 0, 0, 6);
+//  m += bdlt::DatetimeIntervalUtil::makeMicroseconds(6);
+//  d += bdlt::DatetimeInterval(0, 0, 0, 0, 0, 6);
 //  assert(m == d);
 //..
 // Finally, we create an create a 'DatetimeInterval' with  the final value and
-// compare to the objects built in steps.
+// compare to the objects built in steps:
 //..
-//  DatetimeInterval f(1, 2, 3, 4, 5, 6);
+//  bdlt::DatetimeInterval f(1, 2, 3, 4, 5, 6);
 //  assert(f == m);
 //  assert(f == d);
 //..
 //
 ///Example 2: How to Improve Readability Using the 'make*' Functions
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example shows how we can create a 'Datetime' objects having a
-// value of now + 2 hours and 30 minutes by using the 'DatetimeInterval'
-// constructor or, more readably by using the 'make*' functions.
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This example shows how we can create a 'bdlt::Datetime' objects having a
+// value of now + 2 hours and 30 minutes by using the 'bdlt::DatetimeInterval'
+// constructor and, more readably, by using the 'make*' functions.
 //
-// First, create a 'Datetime' objects with the current time.
+// First, create a 'bdlt::Datetime' object having the current time:
 //..
-//  Datetime now = bdlt::CurrentTime::now();
+//  bdlt::Datetime now = bdlt::CurrentTime::now();
 //..
-// Next, create the 'DatetimeInterval' objects and assign the desired
-// values to them with the 'makeHours' and 'makeMinutes' functions, and
-// with the 'DatetimeInterval' constructor.
+// Now, create the 'bdlt::DatetimeInterval' objects and assign the desired
+// values to them using the 'makeHours' and 'makeMinutes' functions, and using
+// the 'bdlt::DatetimeInterval' constructor:
 //..
-//  Datetime nextEventTime = now + DatetimeIntervalUtil::makeHours(2)
-//                               + DatetimeIntervalUtil::makeMinutes(30);
-//  Datetime altEventTime  = now + DatetimeInterval(0, 2, 30, 0, 0, 0);
+//  bdlt::Datetime nextEventTime = now
+//                               + bdlt::DatetimeIntervalUtil::makeHours(2)
+//                               + bdlt::DatetimeIntervalUtil::makeMinutes(30);
+//  bdlt::Datetime altEventTime  = now
+//                               + bdlt::DatetimeInterval(0, 2, 30, 0, 0, 0);
 //..
-// Finally assert that both methods are equal.
+// Finally, assert that both results are equal:
+//..
 //  assert(nextEventTime == altEventTime);
 //..
 
@@ -186,13 +190,15 @@ DatetimeInterval DatetimeIntervalUtil::makeSeconds(bsls::Types::Int64 seconds)
 }
 
 inline
-DatetimeInterval DatetimeIntervalUtil::makeMilliseconds(bsls::Types::Int64 milliseconds)
+DatetimeInterval DatetimeIntervalUtil::makeMilliseconds(
+                                               bsls::Types::Int64 milliseconds)
 {
     return DatetimeInterval(0, 0, 0, 0, milliseconds);
 }
 
 inline
-DatetimeInterval DatetimeIntervalUtil::makeMicroseconds(bsls::Types::Int64 microseconds)
+DatetimeInterval DatetimeIntervalUtil::makeMicroseconds(
+                                               bsls::Types::Int64 microseconds)
 {
     return DatetimeInterval(0, 0, 0, 0, 0, microseconds);
 }
