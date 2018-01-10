@@ -21,12 +21,12 @@ BSLS_IDENT("$Id: $")
 //
 // This utility component provides the following (static) methods:
 //..
-//   DatetimeInterval makeDays(int days);
-//   DatetimeInterval makeHours(bsls::Types::Int64 hours);
-//   DatetimeInterval makeMinutes(bsls::Types::Int64 minutes);
-//   DatetimeInterval makeSeconds(bsls::Types::Int64 seconds);
-//   DatetimeInterval makeMilliseconds(bsls::Types::Int64 milliseconds);
-//   DatetimeInterval makeMicroseconds(bsls::Types::Int64 microseconds);
+//   bdlt::DatetimeInterval makeDays(int days);
+//   bdlt::DatetimeInterval makeHours(bsls::Types::Int64 hours);
+//   bdlt::DatetimeInterval makeMinutes(bsls::Types::Int64 minutes);
+//   bdlt::DatetimeInterval makeSeconds(bsls::Types::Int64 seconds);
+//   bdlt::DatetimeInterval makeMilliseconds(bsls::Types::Int64 milliseconds);
+//   bdlt::DatetimeInterval makeMicroseconds(bsls::Types::Int64 microseconds);
 //..
 //
 ///Usage
@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 //  assert(f == d);
 //..
 //
-///Example 2: How to display 2h30 minutes with 'make*' Functions
+///Example 2: How to Improve Readability Using the 'make*' Functions
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example shows how we can create a 'Datetime' objects having a
 // value of now + 2 hours and 30 minutes by using the 'DatetimeInterval'
@@ -103,11 +103,12 @@ BSLS_IDENT("$Id: $")
 // values to them with the 'makeHours' and 'makeMinutes' functions, and
 // with the 'DatetimeInterval' constructor.
 //..
-//  Datetime m = now + DatetimeIntervalUtil::makeHours(2) + DatetimeIntervalUtil::makeMinutes(30);
-//  Datetime d = now + DatetimeInterval(0, 2, 30, 0, 0, 0);
+//  Datetime nextEventTime = now + DatetimeIntervalUtil::makeHours(2)
+//                               + DatetimeIntervalUtil::makeMinutes(30);
+//  Datetime altEventTime  = now + DatetimeInterval(0, 2, 30, 0, 0, 0);
 //..
 // Finally assert that both methods are equal.
-//  assert(m == d);
+//  assert(nextEventTime == altEventTime);
 //..
 
 #include <bdlscm_version.h>
