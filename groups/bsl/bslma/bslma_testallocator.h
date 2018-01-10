@@ -720,8 +720,9 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
         std::puts("\t\tBegin bslma exception test.");                       \
     }                                                                       \
     int bslmaExceptionCounter = 0;                                          \
-    const bslma::TestAllocator_ProxyBase& bslmaExceptionTestAllocator =     \
-                       bslma::TestAllocator_getProxy(&BSLMA_TESTALLOCATOR); \
+    const BloombergLP::bslma::TestAllocator_ProxyBase&                      \
+        bslmaExceptionTestAllocator =                                       \
+          BloombergLP::bslma::TestAllocator_getProxy(&BSLMA_TESTALLOCATOR); \
     bslmaExceptionTestAllocator.setAllocationLimit(bslmaExceptionCounter);  \
     do {                                                                    \
         try {
@@ -750,7 +751,7 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 
 #ifndef BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                              \
-        } catch (bslma::TestAllocatorException& e) {                        \
+        } catch (BloombergLP::bslma::TestAllocatorException& e) {           \
             if (veryVeryVerbose) {                                          \
                 std::printf("\t*** BSLMA_EXCEPTION: "                       \
                             "alloc limit = %d, last alloc size = %d ***\n", \

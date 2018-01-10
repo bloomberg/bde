@@ -78,6 +78,8 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 7] bool compareText(StringRef, StringRef, bsl::ostream&);
+// [ 9] void *callFunc(void *arg);
+// [ 9] void setFunc(Func func);
 //
 // MACROS
 // [ 6] BSLIM_TESTUTIL_ASSERT(X)
@@ -111,7 +113,7 @@ using namespace BloombergLP;
 // [ 8] ostream& operator<<(str, const SimpleTestType&);
 // [ 8] ostream& operator<<(str, const UnionTestType&);
 //-----------------------------------------------------------------------------
-// [ 9] USAGE EXAMPLE
+// [10] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 // [ 2] TEST APPARATUS
 
@@ -328,6 +330,25 @@ static bool verbose, veryVerbose, veryVeryVerbose;
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace BSLIM_TESTUTIL_TEST_FUNCTION_CALL {
+
+int callCount = 0;
+
+void *testFunctionAdd(void *arg)
+    // Increment call counter and return the specified 'arg'.
+{
+    ++callCount;
+    return arg;
+}
+
+void *testFunctionSub(void *arg)
+    // Decrement call counter and return the specified 'arg'.
+{
+    --callCount;
+    return arg;
+}
+}  // close namespace BSLIM_TESTUTIL_TEST_FUNCTION_CALL
 
 namespace {
 
@@ -810,7 +831,7 @@ int main(int argc, char *argv[])
     bsl::cerr << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -854,6 +875,62 @@ int main(int argc, char *argv[])
 //..
 //  10
 //..
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'callFunc' AND 'setFunc' METHODS
+        //
+        // Concerns:
+        //: 1 A custom function with external linkage can be installed and
+        //:   later called via 'bslim' test utility component.
+        //
+        // Plan:
+        //: 1 Install custom function using 'setFunc' method.
+        //:
+        //: 2 Invoke previously installed function and verify the result of
+        //:   its invocation.
+        //
+        // Testing:
+        //   void *callFunc(void *arg);
+        //   void setFunc(Func func);
+        // --------------------------------------------------------------------
+        if (verbose) bsl::cout << "\nTESTING 'callFunc' AND 'setFunc' METHODS"
+                               << "\n========================================"
+                               << bsl::endl;
+
+        using namespace BSLIM_TESTUTIL_TEST_FUNCTION_CALL;
+
+        ASSERT(0 == callCount);
+
+        Obj::setFunc(testFunctionAdd);
+
+        ASSERT(0 == callCount);
+
+        int   refValue;
+        void *INPUT = &refValue;
+        void *result = Obj::callFunc(INPUT);
+
+        ASSERT(1 == callCount);
+        ASSERT(&refValue == result);
+
+        result = Obj::callFunc(INPUT);
+
+        ASSERT(2 == callCount);
+        ASSERT(&refValue == result);
+
+        Obj::setFunc(testFunctionSub);
+
+        ASSERT(2 == callCount);
+
+        result = Obj::callFunc(INPUT);
+
+        ASSERT(1 == callCount);
+        ASSERT(&refValue == result);
+
+        result = Obj::callFunc(INPUT);
+
+        ASSERT(0 == callCount);
+        ASSERT(&refValue == result);
       } break;
       case 8: {
         // --------------------------------------------------------------------
