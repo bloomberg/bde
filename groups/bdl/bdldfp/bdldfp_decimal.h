@@ -4242,8 +4242,7 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal128 object);
     // decimal floating point exception context.
 
 #if __cplusplus >= 201103L
-inline namespace literals {
-inline namespace decimal_literals {
+namespace DecimalLiterals {
 bdldfp::Decimal32  operator "" _d32 (const char *str);
 bdldfp::Decimal32  operator "" _d32 (const char *str, bsl::size_t len);
 bdldfp::Decimal64  operator "" _d64 (const char *str);
@@ -4313,8 +4312,7 @@ bdldfp::Decimal128 operator "" _d128(const char *str, bsl::size_t len);
     // 'Decimal128 inf  = "inf"_d128;'
     // 'Decimal128 nan  = "nan"_d128;'
 
-}  // close decimal_literals namespace
-}  // close literals namespace
+}  // close DecimalLiterals namespace
 #endif
 
                         // MISCELLANEOUS RELATED TYPES
@@ -7116,14 +7114,13 @@ bool bdldfp::operator>=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
 
 #if __cplusplus >= 201103L
 inline
-bdldfp::Decimal32 bdldfp::literals::decimal_literals::operator "" _d32(
-                                                               const char *str)
+bdldfp::Decimal32 bdldfp::DecimalLiterals::operator "" _d32(const char *str)
 {
     return DecimalImpUtil::parse32(str);
 }
 
 inline
-bdldfp::Decimal32 bdldfp::literals::decimal_literals::operator "" _d32(
+bdldfp::Decimal32 bdldfp::DecimalLiterals::operator "" _d32(
                                                   const char *str, bsl::size_t)
 {
     return DecimalImpUtil::parse32(str);
@@ -7661,14 +7658,13 @@ inline bool bdldfp::operator>=(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
 
 #if __cplusplus >= 201103L
 inline
-bdldfp::Decimal64 bdldfp::literals::decimal_literals::operator "" _d64(
-                                                               const char *str)
+bdldfp::Decimal64 bdldfp::DecimalLiterals::operator "" _d64(const char *str)
 {
     return DecimalImpUtil::parse64(str);
 }
 
 inline
-bdldfp::Decimal64 bdldfp::literals::decimal_literals::operator "" _d64(
+bdldfp::Decimal64 bdldfp::DecimalLiterals::operator "" _d64(
                                                   const char *str, bsl::size_t)
 {
     return DecimalImpUtil::parse64(str);
@@ -8383,14 +8379,13 @@ bool bdldfp::operator>=(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
 
 #if __cplusplus >= 201103L
 inline
-bdldfp::Decimal128 bdldfp::literals::decimal_literals::operator "" _d128(
-                                                               const char *str)
+bdldfp::Decimal128 bdldfp::DecimalLiterals::operator "" _d128(const char *str)
 {
     return DecimalImpUtil::parse128(str);
 }
 
 inline
-bdldfp::Decimal128 bdldfp::literals::decimal_literals::operator "" _d128(
+bdldfp::Decimal128 bdldfp::DecimalLiterals::operator "" _d128(
                                                   const char *str, bsl::size_t)
 {
     return DecimalImpUtil::parse128(str);

@@ -489,6 +489,7 @@ void TestDriver::testCase8()
     {
 #define DFP(X) BDLDFP_DECIMAL_DF(X)
         using namespace bdldfp;
+        using namespace DecimalLiterals;
 
         typedef Decimal32 Tested;
 
@@ -632,6 +633,7 @@ void TestDriver::testCase8()
     {
 #define DFP(X) BDLDFP_DECIMAL_DD(X)
         using namespace bdldfp;
+        using namespace DecimalLiterals;
 
         typedef Decimal64 Tested;
 
@@ -776,6 +778,7 @@ void TestDriver::testCase8()
     {
 #define DFP(X) BDLDFP_DECIMAL_DL(X)
         using namespace bdldfp;
+        using namespace DecimalLiterals;
 
         typedef Decimal128 Tested;
 
@@ -3647,7 +3650,7 @@ void TestDriver::testCase4()
 
             bsl::string ACTUAL(pa);
             getStringFromStream(outdec, &ACTUAL);
-            int ACTUAL_LEN = ACTUAL.length();
+            int ACTUAL_LEN = static_cast<int>(ACTUAL.length());
 
             ASSERTV(LINE, ACTUAL_LEN, EXPECTED, ACTUAL_LEN == EXPECTED);
             ASSERTV(outdec.good());
@@ -3750,7 +3753,7 @@ void TestDriver::testCase4()
 
             bsl::string ACTUAL(pa);
             getStringFromStream(outdec, &ACTUAL);
-            int ACTUAL_LEN = ACTUAL.length();
+            int ACTUAL_LEN = static_cast<int>(ACTUAL.length());
 
             ASSERTV(LINE, ACTUAL_LEN, EXPECTED, ACTUAL_LEN == EXPECTED);
             ASSERTV(outdec.good());
@@ -3854,7 +3857,7 @@ void TestDriver::testCase4()
 
             bsl::string ACTUAL(pa);
             getStringFromStream(outdec, &ACTUAL);
-            int ACTUAL_LEN = ACTUAL.length();
+            int ACTUAL_LEN = static_cast<int>(ACTUAL.length());
 
             ASSERTV(LINE, ACTUAL_LEN, EXPECTED, ACTUAL_LEN == EXPECTED);
             ASSERTV(outdec.good());
