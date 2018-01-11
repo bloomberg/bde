@@ -1049,8 +1049,8 @@ int SessionPool::listen(
     btlso::SocketOptions updatedSocketOptions;
     if (socketOptions) {
         updatedSocketOptions = *socketOptions;
-        updatedSocketOptions.setReuseAddress(reuseAddress);
     }
+    updatedSocketOptions.setReuseAddress(reuseAddress);
     listenOptions.setSocketOptions(updatedSocketOptions);
 
     return listen(handleBuffer,
