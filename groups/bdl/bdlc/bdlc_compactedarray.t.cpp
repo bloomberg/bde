@@ -128,7 +128,7 @@ using namespace bsl;
 // [ 2] void removeAll();
 // [15] void replace(di, value);
 // [15] void replace(di, const CompactedArray& srcArray, si, ne);
-// [16] void reserveCapacity(numElements);
+// [16] void reserveCapacity(numElements, numNewUniqueElements = 0);
 // [17] void resize(bsl::size_t numElements);
 // [11] void swap(CompactedArray& other);
 // [ 4] const TYPE& operator[](bsl::size_t index) const;
@@ -1864,7 +1864,7 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
-        //   void reserveCapacity(numElements);
+        //   void reserveCapacity(numElements, numNewUniqueElements);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1874,22 +1874,34 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nReserve capacity." << endl;
         {
             static const struct {
-                int         d_lineNum;      // source line number
-                const char *d_spec_p;       // specification
+                int                d_lineNum;               // line number
+                const char        *d_spec_p;                // specification
+                const bsl::size_t  d_numNewUniqueElements;  // # of new elem.
             } DATA[] = {
-                //line  spec
-                //----  --------
-                { L_,   "a"      },
-                { L_,   "ab"     },
-                { L_,   "abc"    },
-                { L_,   "ababa"  },
-                { L_,   "abcba"  },
+                //line  spec      NNUE
+                //----  --------  ----
+                { L_,        "a",    0 },
+                { L_,        "a",    1 },
+                { L_,        "a",    2 },
+                { L_,       "ab",    0 },
+                { L_,       "ab",    1 },
+                { L_,       "ab",    2 },
+                { L_,      "abc",    0 },
+                { L_,      "abc",    1 },
+                { L_,      "abc",    2 },
+                { L_,    "ababa",    0 },
+                { L_,    "ababa",    1 },
+                { L_,    "ababa",    2 },
+                { L_,    "abcba",    0 },
+                { L_,    "abcba",    1 },
+                { L_,    "abcba",    2 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE = DATA[i].d_lineNum;
                 const char *const SPEC = DATA[i].d_spec_p;
+                const bsl::size_t NNUE = DATA[i].d_numNewUniqueElements;
 
                 Obj mEXP;  gg(&mEXP, SPEC);  const Obj& EXP = mEXP;
 
@@ -1904,7 +1916,7 @@ int main(int argc, char *argv[])
 
                         bsl::size_t CAP = X.capacity();
 
-                        mX.reserveCapacity(NE);
+                        mX.reserveCapacity(NE, NNUE);
 
                         if (CAP < NE) {
                             LOOP_ASSERT(LINE, NE <= X.capacity());

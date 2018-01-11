@@ -671,12 +671,14 @@ class CompactedArray {
         // 'srcArray' are the same, the behavior is as if a copy of 'srcArray'
         // were passed.
 
-    void reserveCapacity(bsl::size_t numElements);
+    void reserveCapacity(bsl::size_t numElements,
+                         bsl::size_t numNewUniqueElements = 0);
         // Make the capacity of this array at least the specified
-        // 'numElements', assuming no new unique elements are added.  This
-        // method has no effect if the current capacity meets or exceeds the
-        // required capacity.  The behavior is undefined unless
-        // 'false == isEmpty()'.
+        // 'numElements', assuming the optionally specified
+        // 'numNewUniqueElements' are added.  This method has no effect if the
+        // current capacity meets or exceeds the required capacity.  The
+        // behavior is undefined unless
+        // 'false == isEmpty() || 0 < numNewUniqueElements'.
 
     void resize(bsl::size_t numElements);
         // Set the length of this array to the specified 'numElements'.  If
@@ -1432,11 +1434,13 @@ void CompactedArray<TYPE>::replace(bsl::size_t           dstIndex,
 }
 
 template <class TYPE>
-void CompactedArray<TYPE>::reserveCapacity(bsl::size_t numElements)
+void CompactedArray<TYPE>::reserveCapacity(bsl::size_t numElements,
+                                           bsl::size_t numNewUniqueElements)
 {
-    BSLS_ASSERT_SAFE(false == isEmpty());
+    BSLS_ASSERT_SAFE(false == isEmpty() || 0 < numNewUniqueElements);
 
-    d_index.reserveCapacity(numElements, d_data.size() - 1);
+    d_index.reserveCapacity(numElements,
+                            d_data.size() + numNewUniqueElements - 1);
 }
 
 template <class TYPE>
