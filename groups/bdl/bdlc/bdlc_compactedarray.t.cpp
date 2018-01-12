@@ -128,7 +128,8 @@ using namespace bsl;
 // [ 2] void removeAll();
 // [15] void replace(di, value);
 // [15] void replace(di, const CompactedArray& srcArray, si, ne);
-// [16] void reserveCapacity(numElements, numNewUniqueElements = 0);
+// [16] void reserveCapacity(numElements);
+// [16] void reserveCapacity(numElements, numUniqueElements);
 // [17] void resize(bsl::size_t numElements);
 // [11] void swap(CompactedArray& other);
 // [ 4] const TYPE& operator[](bsl::size_t index) const;
@@ -1864,82 +1865,145 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
-        //   void reserveCapacity(numElements, numNewUniqueElements);
+        //   void reserveCapacity(numElements);
+        //   void reserveCapacity(numElements, numUniqueElements);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "RESERVE CAPACITY" << endl
                           << "================" << endl;
 
-        if (verbose) cout << "\nReserve capacity." << endl;
-        {
-            static const struct {
-                int                d_lineNum;               // line number
-                const char        *d_spec_p;                // specification
-                const bsl::size_t  d_numNewUniqueElements;  // # of new elem.
-            } DATA[] = {
-                //line  spec      NNUE
-                //----  --------  ----
-                { L_,        "a",    0 },
-                { L_,        "a",    1 },
-                { L_,        "a",    2 },
-                { L_,       "ab",    0 },
-                { L_,       "ab",    1 },
-                { L_,       "ab",    2 },
-                { L_,      "abc",    0 },
-                { L_,      "abc",    1 },
-                { L_,      "abc",    2 },
-                { L_,    "ababa",    0 },
-                { L_,    "ababa",    1 },
-                { L_,    "ababa",    2 },
-                { L_,    "abcba",    0 },
-                { L_,    "abcba",    1 },
-                { L_,    "abcba",    2 },
-            };
-            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+        static const struct {
+            int                d_lineNum;            // line number
+            const char        *d_spec_p;             // specification
+            const bsl::size_t  d_numUniqueElements;  // # of unique elem.
+        } DATA[] = {
+            //line  spec      NUE
+            //----  --------  ---
+            { L_,         "",   0 },
+            { L_,         "",   1 },
+            { L_,         "",   5 },
+            { L_,        "a",   0 },
+            { L_,        "a",   1 },
+            { L_,        "a",   5 },
+            { L_,       "ab",   0 },
+            { L_,       "ab",   1 },
+            { L_,       "ab",   5 },
+            { L_,      "abc",   0 },
+            { L_,      "abc",   1 },
+            { L_,      "abc",   5 },
+            { L_,    "ababa",   0 },
+            { L_,    "ababa",   1 },
+            { L_,    "ababa",   5 },
+            { L_,    "abcba",   0 },
+            { L_,    "abcba",   1 },
+            { L_,    "abcba",   5 },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
+        if (verbose) cout << "\nTesting 'reserveCapacity(numElements)'."
+                          << endl;
+        {
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE = DATA[i].d_lineNum;
                 const char *const SPEC = DATA[i].d_spec_p;
-                const bsl::size_t NNUE = DATA[i].d_numNewUniqueElements;
 
                 Obj mEXP;  gg(&mEXP, SPEC);  const Obj& EXP = mEXP;
 
                 bsls::Types::Int64 allocations =
                                              defaultAllocator.numAllocations();
 
-                for (bsl::size_t NE = 0; NE < 300; ++NE) {
+                const bsl::size_t MAX_NE = 0 < EXP.length() ? 300 : 1;
+
+                for (bsl::size_t NE = 0; NE < MAX_NE; ++NE) {
                     bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                         Obj mX(&sa);  gg(&mX, SPEC);  const Obj& X = mX;
 
-                        bsl::size_t CAP = X.capacity();
-
-                        mX.reserveCapacity(NE, NNUE);
-
-                        if (CAP < NE) {
-                            LOOP_ASSERT(LINE, NE <= X.capacity());
-                        }
-                        else {
-                            P_(CAP) P_(NE) P(X.capacity());
-                            LOOP_ASSERT(LINE, CAP == X.capacity());
-                        }
+                        mX.reserveCapacity(NE);
 
                         LOOP_ASSERT(LINE, X == EXP);
 
                         bsls::Types::Int64 alloc = sa.numAllocations();
 
-                        for (bsl::size_t j = CAP; j < NE; ++j) {
+                        for (bsl::size_t j = X.length(); j < NE; ++j) {
                             mX.push_back(bsl::string("a", 1));
                         }
 
-                        LOOP_ASSERT(LINE, alloc == sa.numAllocations());
+                        ASSERTV(LINE, NE, alloc == sa.numAllocations());
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                    LOOP_ASSERT(
-                             LINE,
-                             allocations == defaultAllocator.numAllocations());
+                    ASSERTV(LINE,
+                            NE,
+                            allocations == defaultAllocator.numAllocations());
+                }
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'reserveCapacity(nE, nUE)'."
+                          << endl;
+        {
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE = DATA[i].d_lineNum;
+                const char *const SPEC = DATA[i].d_spec_p;
+                const bsl::size_t NUE  = DATA[i].d_numUniqueElements;
+
+                Obj mEXP;  gg(&mEXP, SPEC);  const Obj& EXP = mEXP;
+
+                bsls::Types::Int64 allocations =
+                                             defaultAllocator.numAllocations();
+
+                const bsl::size_t MAX_NE = 0 < NUE ? 300 : 1;
+
+                for (bsl::size_t NE = NUE; NE < MAX_NE; ++NE) {
+                    bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                        Obj mX(&sa);  gg(&mX, SPEC);  const Obj& X = mX;
+
+                        mX.reserveCapacity(NE, NUE);
+
+                        LOOP_ASSERT(LINE, X == EXP);
+
+                        bsls::Types::Int64 alloc = sa.numAllocations();
+
+                        {
+                            bsl::size_t j = X.length();
+
+                            while (j < NE && X.uniqueLength() < NUE) {
+                                if (j) {
+                                    char s[4];
+                                    s[0] =
+                                      static_cast<char>('0' + (j / 1000) % 10);
+                                    s[1] =
+                                       static_cast<char>('0' + (j / 100) % 10);
+                                    s[2] =
+                                       static_cast<char>('0' + (j / 10) % 10);
+                                    s[3] = static_cast<char>('0' + j % 10);
+
+                                    mX.push_back(bsl::string(s, 4));
+                                }
+                                else {
+                                    mX.push_back(bsl::string("a", 1));
+                                }
+
+                                ++j;
+                            }
+
+                            while (j < NE) {
+                                mX.push_back(bsl::string("a", 1));
+                                ++j;
+                            }
+                        }
+
+                        ASSERTV(LINE, NE, NUE, alloc == sa.numAllocations());
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    ASSERTV(LINE,
+                            NE,
+                            NUE,
+                            allocations == defaultAllocator.numAllocations());
                 }
             }
         }
@@ -1952,6 +2016,16 @@ int main(int argc, char *argv[])
             Obj mX;
 
             ASSERT_SAFE_FAIL(mX.reserveCapacity(1));
+
+            ASSERT_SAFE_PASS(mX.reserveCapacity(0));
+
+            ASSERT_SAFE_PASS(mX.reserveCapacity(0, 0));
+
+            ASSERT_SAFE_FAIL(mX.reserveCapacity(1, 0));
+
+            ASSERT_SAFE_FAIL(mX.reserveCapacity(0, 1));
+
+            ASSERT_SAFE_PASS(mX.reserveCapacity(1, 1));
 
             mX.push_back(bsl::string("a", 1));
 
@@ -4606,8 +4680,6 @@ int main(int argc, char *argv[])
         //: 2 Each accessor method is declared 'const'.
         //:
         //: 3 No accessor allocates any memory.
-        //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 To test 'allocator', create object with various allocators and
@@ -4624,10 +4696,6 @@ int main(int argc, char *argv[])
         //:   (excluding those used to test 'allocator') and the number of
         //:   allocation will be verified to ensure that no memory was
         //:   allocated during use of the accessors.  (C-3)
-        //:
-        //: 5 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when the capacity is requested from an empty object
-        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-4)
         //
         // Testing:
         //   const TYPE& operator[](bsl::size_t index) const;
@@ -4685,12 +4753,12 @@ int main(int argc, char *argv[])
                 { L_,       "abcabcabc",    "abcabcabc",     "abc",       10 },
                 { L_,       "cbaabcbac",    "cbaabcbac",     "abc",       10 },
 
-                { L_,              "aP",             "",        "",       10 },
-                { L_,            "aaPP",             "",        "",       16 },
+                { L_,              "aP",             "",        "",        0 },
+                { L_,            "aaPP",             "",        "",        0 },
                 { L_,            "aabP",           "aa",       "a",        3 },
                 { L_,            "abaP",           "ab",      "ab",        3 },
                 { L_,           "abaPP",            "a",       "a",        3 },
-                { L_,          "abaPPP",             "",        "",        3 },
+                { L_,          "abaPPP",             "",        "",        0 },
                 { L_,      "abcabcabcP",     "abcabcab",     "abc",       10 },
                 { L_,     "abcabcabcPa",    "abcabcaba",     "abc",       10 },
                 { L_,    "abcabcabcPPa",     "abcabcaa",     "abc",       10 },
@@ -4722,10 +4790,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, bsl::strlen(EXP)    == X.length());
                 LOOP_ASSERT(LINE, bsl::strlen(UNIQUE) == X.uniqueLength());
                 LOOP_ASSERT(LINE, (0 == strlen(EXP))  == X.isEmpty());
-
-                if (!X.isEmpty()) {
-                    LOOP_ASSERT(LINE,             CAP == X.capacity());
-                }
+                LOOP_ASSERT(LINE,                 CAP == X.capacity());
 
                 for (bsl::size_t i = 0; i < X.length(); i++) {
                     if (veryVerbose) { P_(EXP[i]) P(X[i]) }
@@ -4743,20 +4808,6 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE,
                             defaultAllocator.numAllocations() == allocations);
             }
-        }
-
-        if (verbose) cout << "\nNegative Testing." << endl;
-        {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
-
-            Obj mX;  const Obj& X = mX;
-
-            ASSERT_SAFE_FAIL(X.capacity());
-
-            mX.append("a");
-
-            ASSERT_SAFE_PASS(X.capacity());
         }
       } break;
       case 3: {

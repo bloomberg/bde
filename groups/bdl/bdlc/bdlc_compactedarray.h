@@ -671,14 +671,22 @@ class CompactedArray {
         // 'srcArray' are the same, the behavior is as if a copy of 'srcArray'
         // were passed.
 
-    void reserveCapacity(bsl::size_t numElements,
-                         bsl::size_t numNewUniqueElements = 0);
+    void reserveCapacity(bsl::size_t numElements);
         // Make the capacity of this array at least the specified
-        // 'numElements', assuming the optionally specified
-        // 'numNewUniqueElements' are added.  This method has no effect if the
-        // current capacity meets or exceeds the required capacity.  The
-        // behavior is undefined unless
-        // 'false == isEmpty() || 0 < numNewUniqueElements'.
+        // 'numElements', assuming the number of unique elements within this
+        // array does not increase.  This method has no effect if the current
+        // capacity meets or exceeds the required capacity.  The behavior is
+        // undefined unless 'false == isEmpty() || 0 == numElements'.
+
+    void reserveCapacity(bsl::size_t numElements,
+                         bsl::size_t numUniqueElements);
+        // Make the capacity of this array at least the specified
+        // 'numElements', assuming the number of unique elements in this array
+        // does not exceed the greater of the specified 'numUniqueElements' and
+        // 'uniqueLength()'.  This method has no effect if the current capacity
+        // meets or exceeds the required capacity.  The behavior is undefined
+        // unless 'numUniqueElements <= numElements' and
+        // '0 < numUniqueElements || 0 == numElements'.
 
     void resize(bsl::size_t numElements);
         // Set the length of this array to the specified 'numElements'.  If
@@ -714,8 +722,8 @@ class CompactedArray {
 
     bsl::size_t capacity() const;
         // Return the number of elements this array can hold, without
-        // reallocation, assuming no new unique elements are added.  The
-        // behavior is undefined unless 'false == isEmpty()'.
+        // reallocation, assuming the number of unique elements within this
+        // array does not increase.
 
     const_iterator end() const;
         // Return an iterator referring to one element beyond the last element
@@ -1434,13 +1442,29 @@ void CompactedArray<TYPE>::replace(bsl::size_t           dstIndex,
 }
 
 template <class TYPE>
-void CompactedArray<TYPE>::reserveCapacity(bsl::size_t numElements,
-                                           bsl::size_t numNewUniqueElements)
+void CompactedArray<TYPE>::reserveCapacity(bsl::size_t numElements)
 {
-    BSLS_ASSERT_SAFE(false == isEmpty() || 0 < numNewUniqueElements);
+    BSLS_ASSERT_SAFE(false == isEmpty() || 0 == numElements);
 
-    d_index.reserveCapacity(numElements,
-                            d_data.size() + numNewUniqueElements - 1);
+    if (0 < numElements) {
+        d_index.reserveCapacity(numElements, d_data.size() - 1);
+    }
+}
+
+template <class TYPE>
+void CompactedArray<TYPE>::reserveCapacity(bsl::size_t numElements,
+                                           bsl::size_t numUniqueElements)
+{
+    BSLS_ASSERT_SAFE(numUniqueElements <= numElements);
+    BSLS_ASSERT_SAFE(0 < numUniqueElements || 0 == numElements);
+
+    if (0 < numElements) {
+        d_data.reserve(numUniqueElements);
+        if (d_data.size() > numUniqueElements) {
+            numUniqueElements = d_data.size();
+        }
+        d_index.reserveCapacity(numElements, numUniqueElements - 1);
+    }
 }
 
 template <class TYPE>
@@ -1505,9 +1529,7 @@ typename CompactedArray<TYPE>::const_iterator
 template <class TYPE>
 bsl::size_t CompactedArray<TYPE>::capacity() const
 {
-    BSLS_ASSERT_SAFE(false == isEmpty());
-
-    return d_index.capacity();
+    return d_index.isEmpty() ? 0 : d_index.capacity();
 }
 
 template <class TYPE>
