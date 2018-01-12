@@ -162,12 +162,7 @@ struct ObjectFileFormat {
     && BSLS_PLATFORM_CMP_VERSION < 70100
     // DWARF support is implemented only for Linux g++ < 7.1.0.
 
-#   if 0
-    // Currently the dwarf.h header is not available in the dpkg chroot
-    // used in the production build process.
-
-#     define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
-#   endif
+#   define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_AIX)
