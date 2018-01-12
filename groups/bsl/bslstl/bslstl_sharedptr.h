@@ -4972,7 +4972,34 @@ template <class RESULT, class PARAM>
 struct SharedPtr_TestIsCallable<RESULT(&)(PARAM)>
     :  SharedPtr_TestIsCallable<RESULT(PARAM)> {
 };
-#endif
+
+#if BSLS_PLATFORM_CMP_VERSION >= 1910
+// MSVC 2017 expression-SFINAE has a regression that is failing in two
+// additional cases:
+//  1) for pointers to object types
+//  2) where '0' is used for a null pointer literal, deducing as 'int'.
+// We resolve those issues with a couple more specializations below.
+
+template <class TYPE>
+struct SharedPtr_TestIsCallable<TYPE *> {
+    struct TrueType  { char d_padding; };
+    struct FalseType { char d_padding[17]; };
+
+    template <class ARG>
+    static FalseType test(...);
+};
+
+template <>
+struct SharedPtr_TestIsCallable<int> {
+    struct TrueType  { char d_padding; };
+    struct FalseType { char d_padding[17]; };
+
+    template <class ARG>
+    static FalseType test(...);
+};
+#endif  // MSVC 2017
+
+#endif  // BSLS_PLATFORM_CMP_MSVC
 
 template <class FUNCTOR, class ARG>
 struct SharedPtr_IsCallable {
