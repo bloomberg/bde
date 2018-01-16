@@ -67,6 +67,19 @@ BSLS_IDENT("$Id: $")
 // enable the use of 'bslstl::StringRef' with STL hash containers (e.g.,
 // 'bsl::unordered_set' and 'bsl::unordered_map').
 //
+///How to include 'bslstl::StringRef'
+///----------------------------------
+// To include 'bslstl::StringRef' use '#include <bsl_string.h>' (*not*
+// '#include <bslstl_stringref.h>').
+//
+// This is unfortunate and confusing, and would be redesigned if it could be
+// done without breaking existing clients.  The explanation is that we disallow
+// directly including all types in the 'bslstl' package because of the
+// 'BSL_OVERRIDES_STD' mechanism.  In retrospect, we should have located the
+// 'bslstl::StringRef' in a higher level package so it could be included
+// directly.  In the future, if we remove the 'BSL_OVERRIDES_STD' mechanism,
+// this unfortunate restriction will go away.
+//
 ///Efficiency and Usage Considerations
 ///-----------------------------------
 // Using 'bslstl::StringRef' to pass strings as function arguments can be
