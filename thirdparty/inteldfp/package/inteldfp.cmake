@@ -5,11 +5,6 @@ function(process outInfoTarget listFile)
     set(TARGET inteldfp)
 
     bde_add_info_target(${TARGET})
-    set(${outInfoTarget} ${TARGET} PARENT_SCOPE)
-    bde_info_target_set_property(${TARGET} TARGET "${TARGET}")
-
-    # Standard CMake modules.
-    include (TestBigEndian)
 
     set(headers
         ${rootDir}/LIBRARY/src/inteldfp/bid128_2_str.h
@@ -27,9 +22,9 @@ function(process outInfoTarget listFile)
         ${rootDir}/LIBRARY/src/inteldfp/bid_wrap_names.h
         ${rootDir}/LIBRARY/src/inteldfp/dfp754.h
     )
+    bde_info_target_set_property(${TARGET} HEADERS ${headers})
 
-    add_library(
-        ${TARGET}
+    bde_info_target_set_property(${TARGET} SOURCES
         ${rootDir}/LIBRARY/src/inteldfp/bid64_acos.c
         ${rootDir}/LIBRARY/src/inteldfp/bid64_acosh.c
         ${rootDir}/LIBRARY/src/inteldfp/bid64_asin.c
@@ -316,11 +311,13 @@ function(process outInfoTarget listFile)
         ${rootDir}/LIBRARY/float128/op_system.h
         ${rootDir}/LIBRARY/float128/poly_macros.h
         ${rootDir}/LIBRARY/float128/sqrt_macros.h
-        ${headers}
     )
 
+    bde_add_interface_target(${TARGET})
+    bde_info_target_set_property(${TARGET} INTERFACE_TARGET ${TARGET})
+
     # Common compile definitions.
-    target_compile_definitions(
+    bde_interface_target_compile_definitions(
         ${TARGET}
         PRIVATE
             "DECIMAL_CALL_BY_REFERENCE=0"
@@ -330,7 +327,7 @@ function(process outInfoTarget listFile)
 
     include(bde_ufid)
 
-    target_compile_options(
+    bde_interface_target_compile_options(
         ${TARGET}
         PRIVATE
             $<$<CXX_COMPILER_ID:Clang>:
@@ -350,14 +347,16 @@ function(process outInfoTarget listFile)
     )
 
     # Detecting platform endianess.
+    include (TestBigEndian)
     test_big_endian(IS_BIG_ENDIAN)
-    target_compile_definitions(
+
+    bde_interface_target_compile_definitions(
         ${TARGET}
         PRIVATE
             "BID_BIG_ENDIAN=$<BOOL:${IS_BIG_ENDIAN}>"
     )
 
-    target_compile_definitions(
+    bde_interface_target_compile_definitions(
         ${TARGET}
         PRIVATE
             $<$<CXX_COMPILER_ID:Clang>:
@@ -393,7 +392,7 @@ function(process outInfoTarget listFile)
             >
     )
 
-    target_include_directories(
+    bde_interface_target_include_directories(
         ${TARGET}
         PUBLIC
             $<BUILD_INTERFACE:${rootDir}/LIBRARY/src>
@@ -402,50 +401,13 @@ function(process outInfoTarget listFile)
     )
 
     install(
-        TARGETS ${TARGET}
-        EXPORT ${TARGET}Targets
-        COMPONENT "${TARGET}"
-        ARCHIVE DESTINATION ${bde_install_lib_suffix}/${bde_install_ufid}
-        LIBRARY DESTINATION ${bde_install_lib_suffix}/${bde_install_ufid}
-    )
-
-    if(CMAKE_HOST_UNIX)
-        # This code will create a symlink to a corresponding "ufid" build.
-        # Use with care.
-        set(libName "${CMAKE_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-        set(symlink_val "${bde_install_ufid}/${libName}")
-        set(symlink_file "\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${bde_install_lib_suffix}/${libName}")
-
-        install(
-            CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${symlink_val} ${symlink_file})"
-            COMPONENT "${TARGET}-symlinks"
-            EXCLUDE_FROM_ALL
-        )
-    endif()
-
-    install(
-        EXPORT ${TARGET}Targets
-        COMPONENT "${TARGET}"
-        DESTINATION "${bde_install_lib_suffix}/${bde_install_ufid}/cmake"
-    )
-
-    set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/..")
-
-    configure_file(
-        "${rootDir}/${TARGET}Config.cmake.in"
-        "${PROJECT_BINARY_DIR}/${TARGET}Config.cmake"
-        @ONLY
-    )
-
-    install(
-        FILES "${PROJECT_BINARY_DIR}/${TARGET}Config.cmake"
-        COMPONENT "${TARGET}"
-        DESTINATION "${bde_install_lib_suffix}/${bde_install_ufid}/cmake"
-    )
-
-    install(
         FILES ${headers}
         COMPONENT "${TARGET}-headers"
         DESTINATION "include/${TARGET}"
     )
+
+    set(infoTarget ${TARGET}-standalone)
+    bre_prepare_uor(${TARGET} ${infoTarget} "" LIBRARY)
+    bde_project_add_uor(${infoTarget} ${TARGET})
+    set(${outInfoTarget} ${infoTarget} PARENT_SCOPE)
 endfunction()

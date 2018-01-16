@@ -4,10 +4,7 @@ function(process outInfoTarget listFile)
 
     set(TARGET pcre2)
 
-    include(bde_uor)
     bde_add_info_target(${TARGET})
-    set(${outInfoTarget} ${TARGET} PARENT_SCOPE)
-    bde_info_target_set_property(${TARGET} TARGET "${TARGET}")
 
     set(headers
         ${rootDir}/config.h
@@ -16,9 +13,9 @@ function(process outInfoTarget listFile)
         ${rootDir}/pcre2_intmodedep.h
         ${rootDir}/pcre2_ucp.h
     )
+    bde_info_target_set_property(${TARGET} HEADERS ${headers})
 
-    add_library(
-        ${TARGET}
+    bde_info_target_set_property(${TARGET} SOURCES
         ${rootDir}/pcre2_auto_possess.c
         ${rootDir}/pcre2_chartables.c
         ${rootDir}/pcre2_compile.c
@@ -42,11 +39,13 @@ function(process outInfoTarget listFile)
         ${rootDir}/pcre2_ucd.c
         ${rootDir}/pcre2_valid_utf.c
         ${rootDir}/pcre2_xclass.c
-        ${headers}
     )
 
+    bde_add_interface_target(${TARGET})
+    bde_info_target_set_property(${TARGET} INTERFACE_TARGET ${TARGET})
+
     # Compile options and definitions.
-    target_compile_definitions(
+    bde_interface_target_compile_definitions(
         ${TARGET}
         PRIVATE
             "PCRE2_CODE_UNIT_WIDTH=8"
@@ -58,7 +57,7 @@ function(process outInfoTarget listFile)
     if(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND ${bde_ufid_is_64})
         message(WARNING "JIT support is disabled for " ${CMAKE_SYSTEM_NAME})
     else()
-        target_compile_definitions(
+        bde_interface_target_compile_definitions(
             ${TARGET}
             PRIVATE
                 "SUPPORT_JIT"
@@ -66,7 +65,7 @@ function(process outInfoTarget listFile)
         bde_log(VERBOSE "JIT support is enabled.")
     endif()
 
-    target_compile_options(
+    bde_interface_target_compile_options(
         ${TARGET}
         PRIVATE
             # Compiler specific compile options.
@@ -91,54 +90,12 @@ function(process outInfoTarget listFile)
         ${rootDir} DIRECTORY
     )
 
-    target_include_directories(
+    bde_interface_target_include_directories(
         ${TARGET}
         PUBLIC
             $<BUILD_INTERFACE:${rootDir}>
             $<BUILD_INTERFACE:${EXTERNAL_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:include>
-    )
-
-    install(
-        TARGETS ${TARGET}
-        EXPORT ${TARGET}Targets
-        COMPONENT "${TARGET}"
-        ARCHIVE DESTINATION ${bde_install_lib_suffix}/${bde_install_ufid}
-        LIBRARY DESTINATION ${bde_install_lib_suffix}/${bde_install_ufid}
-    )
-
-    if(CMAKE_HOST_UNIX)
-        # This code will create a symlink to a corresponding "ufid" build.
-        # Use with care.
-        set(libName "${CMAKE_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-        set(symlink_val "${bde_install_ufid}/${libName}")
-        set(symlink_file "\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${bde_install_lib_suffix}/${libName}")
-
-        install(
-            CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${symlink_val} ${symlink_file})"
-            COMPONENT "${TARGET}-symlinks"
-            EXCLUDE_FROM_ALL
-        )
-    endif()
-
-    install(
-        EXPORT ${TARGET}Targets
-        COMPONENT "${TARGET}"
-        DESTINATION "${bde_install_lib_suffix}/${bde_install_ufid}/cmake"
-    )
-
-    set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/..")
-
-    configure_file(
-        "${rootDir}/${TARGET}Config.cmake.in"
-        "${PROJECT_BINARY_DIR}/${TARGET}Config.cmake"
-        @ONLY
-    )
-
-    install(
-        FILES "${PROJECT_BINARY_DIR}/${TARGET}Config.cmake"
-        COMPONENT "${TARGET}"
-        DESTINATION "${bde_install_lib_suffix}/${bde_install_ufid}/cmake"
+            $<INSTALL_INTERFACE:include>
     )
 
     install(
@@ -146,4 +103,9 @@ function(process outInfoTarget listFile)
         COMPONENT "${TARGET}-headers"
         DESTINATION "include/${TARGET}"
     )
+
+    set(infoTarget ${TARGET}-standalone)
+    bre_prepare_uor(${TARGET} ${infoTarget} "" LIBRARY)
+    bde_project_add_uor(${infoTarget} ${TARGET})
+    set(${outInfoTarget} ${infoTarget} PARENT_SCOPE)
 endfunction()

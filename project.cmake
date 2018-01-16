@@ -1,7 +1,9 @@
-function(process_project outInfoTarget list_dir)
-    set(projName bde_project) # postfix needed because of clash with bde-classic group name
-    set(${outInfoTarget} ${projName} PARENT_SCOPE)
-    bde_project(
+function(process_project outInfoTargets list_dir)
+    set(projName bde.p)
+    bde_add_info_target(${projName})
+        # postfix needed because of clash with bde-classic group name
+
+    bde_project_process_uors(
         ${projName}
         COMMON_INTERFACE_TARGET
             bde_ufid_flags
@@ -11,9 +13,15 @@ function(process_project outInfoTarget list_dir)
             ${list_dir}/groups/bdl
             ${list_dir}/groups/bsl
             ${list_dir}/groups/btl
+    )
+
+    # Note, that thirdparty libraries do not use COMMON_INTERFACE_TARGET
+    bde_project_process_uors(
+        ${projName}
         STANDALONE_PACKAGES
             ${list_dir}/thirdparty/decnumber
             ${list_dir}/thirdparty/inteldfp
             ${list_dir}/thirdparty/pcre2
     )
+    set(${outInfoTargets} ${projName} PARENT_SCOPE)
 endfunction()
