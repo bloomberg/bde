@@ -5596,6 +5596,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
+    BSLMF_ASSERT(sizeof(bool) == 1);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(numElements != 0)) {
         std::memset(reinterpret_cast<char *>(begin),  // odd, why not 'void *'?
