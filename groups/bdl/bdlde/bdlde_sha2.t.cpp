@@ -104,6 +104,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                   HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+namespace {
+
 template<bsl::size_t SIZE>
 void toHex(bsl::string *output, const unsigned char (&input)[SIZE])
     // Store into the specified 'output' the hex representation of the bytes in
@@ -154,8 +156,7 @@ void testKnownHashes(const char *const (&expected)[6])
     {
         const char *message = messages[n].c_str();
         HASHER      hasher;
-        hasher.update(message,
-                      messages[n].size());
+        hasher.update(message, messages[n].size());
         hasher.finalize(digest);
 
         toHex(&hexDigest, digest);
@@ -183,21 +184,18 @@ void testIncremental()
         ASSERT(size % stride == 0);
         HASHER incrementalHasher;
         for (bsl::size_t index = 0; index != size; index += stride) {
+            ASSERT(completeHasher != incrementalHasher);
             incrementalHasher.update(in + index, stride);
         }
+        ASSERT(completeHasher != incrementalHasher);
         incrementalHasher.finalize(digest2);
+        ASSERT(completeHasher == incrementalHasher);
 
         ASSERT(bsl::equal(digest1, digest1 + digestSize, digest2));
     }
 }
 
-//=============================================================================
-//                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
-///Usage
-///-----
-// This section illustrates intended use of this component.
+}  // close unnamed namespace
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -211,6 +209,47 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << '\n';
 
     switch (test) { case 0:
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //   This will test the usage example provided in the component header
+        //   file.
+        //
+        // Concerns:
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Run the usage example functions 'validatePassword'.
+        //
+        // Testing:
+        //   Usage example.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing Usage Example" "\n"
+                          << "=====================" "\n";
+
+
+        // Prepare a message.
+        const bsl::string message = "password";
+
+        // Generate a digest for 'message'.
+        bdlde::Sha512 hasher;
+        hasher.update(message.data(), message.length());
+        unsigned char       digest[bdlde::Sha512::k_DIGEST_SIZE];
+        const unsigned char expected[bdlde::Sha512::k_DIGEST_SIZE] = {
+            0xB1, 0x09, 0xF3, 0xBB, 0xBC, 0x24, 0x4E, 0xB8, 0x24, 0x41, 0x91,
+            0x7E, 0xD0, 0x6D, 0x61, 0x8B, 0x90, 0x08, 0xDD, 0x09, 0xB3, 0xBE,
+            0xFD, 0x1B, 0x5E, 0x07, 0x39, 0x4C, 0x70, 0x6A, 0x8B, 0xB9, 0x80,
+            0xB1, 0xD7, 0x78, 0x5E, 0x59, 0x76, 0xEC, 0x04, 0x9B, 0x46, 0xDF,
+            0x5F, 0x13, 0x26, 0xAF, 0x5A, 0x2E, 0xA6, 0xD1, 0x03, 0xFD, 0x07,
+            0xC9, 0x53, 0x85, 0xFF, 0xAB, 0x0C, 0xAC, 0xBC, 0x86
+        };
+        hasher.finalize(digest);
+        ASSERT(bsl::equal(digest,
+                          digest + bdlde::Sha512::k_DIGEST_SIZE,
+                          expected));
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // KNOWN HASHES FOR SHA-512
@@ -434,8 +473,7 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Verify different hashes are produced for different bytes.
-        //: 2 Verify the same hashes are produced for the same bytes.
+        //: 1 Verify default constructed hashes equal themselves.
         //
         // Testing:
         //   BREATHING TEST
@@ -445,15 +483,19 @@ int main(int argc, char *argv[])
                              "\n==============\n";
         {
             bdlde::Sha224 hasher;
+            ASSERT(hasher == hasher);
         }
         {
             bdlde::Sha256 hasher;
+            ASSERT(hasher == hasher);
         }
         {
             bdlde::Sha384 hasher;
+            ASSERT(hasher == hasher);
         }
         {
             bdlde::Sha512 hasher;
+            ASSERT(hasher == hasher);
         }
       } break;
       default: {

@@ -467,5 +467,46 @@ Sha512::Sha512():
     d_state[7] = 0x5be0cd19137e2179ULL;
 }
 
+// FREE OPERATORS
+bool operator==(const Sha224& lhs, const Sha224& rhs)
+{
+    return lhs.d_totalSize      == rhs.d_totalSize
+        && lhs.d_blockBytesUsed == rhs.d_blockBytesUsed
+        && bsl::equal(lhs.d_block,
+                      lhs.d_block + lhs.d_blockBytesUsed,
+                      rhs.d_block)
+        && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
+}
+
+bool operator==(const Sha256& lhs, const Sha256& rhs)
+{
+    return lhs.d_totalSize      == rhs.d_totalSize
+        && lhs.d_blockBytesUsed == rhs.d_blockBytesUsed
+        && bsl::equal(lhs.d_block,
+                      lhs.d_block + lhs.d_blockBytesUsed,
+                      rhs.d_block)
+        && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
+}
+
+bool operator==(const Sha384& lhs, const Sha384& rhs)
+{
+    return lhs.d_totalSize      == rhs.d_totalSize
+        && lhs.d_blockBytesUsed == rhs.d_blockBytesUsed
+        && bsl::equal(lhs.d_block,
+                      lhs.d_block + lhs.d_blockBytesUsed,
+                      rhs.d_block)
+        && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
+}
+
+bool operator==(const Sha512& lhs, const Sha512& rhs)
+{
+    return lhs.d_totalSize      == rhs.d_totalSize
+        && lhs.d_blockBytesUsed == rhs.d_blockBytesUsed
+        && bsl::equal(lhs.d_block,
+                      lhs.d_block + lhs.d_blockBytesUsed,
+                      rhs.d_block)
+        && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
+}
+
 } // close package namespace
 } // close enterprise namespace

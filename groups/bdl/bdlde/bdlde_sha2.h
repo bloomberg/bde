@@ -10,61 +10,51 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide SHA-2 cryptographic hashes.
 //
 //@CLASSES:
-// Sha224: Implements SHA-224
-// Sha256: Implements SHA-256
-// Sha384: Implements SHA-384
-// Sha512: Implements SHA-512
+//  bdlde::Sha224: value-semantic type representing a SHA-224 digest
+//  bdlde::Sha256: value-semantic type representing a SHA-256 digest
+//  bdlde::Sha384: value-semantic type representing a SHA-384 digest
+//  bdlde::Sha512: value-semantic type representing a SHA-512 digest
 //
 //@AUTHOR: David Stone (dstone50)
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bdlde_md5
 //
 //@DESCRIPTION: This component provides a set of classes ('Sha224', 'Sha256',
-// 'Sha384', and 'Sha512') that implement the SHA-2 family of cryptographic
-// functions.  See https://en.wikipedia.org/wiki/SHA-2 and
-// http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf
+// 'Sha384', and 'Sha512') that implement a mechanism for computing and updating a SHA-2 digest (a cryptographic hash).  The specification for this is based on FIPS-180, which can be found at
+//..
+//  http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf
+//..
+//
+// Note that a SHA-2 digest does not aid in error correction.
 //
 ///Usage
 ///-----
 // In this section we show intended usage of this component.
-//
-//  void senderExample(Out& output)
-//      // Write a message and its SHA-2 hash to the specified 'output'
-//      // stream.
+//..
+//  void validatePassword()
+//      // Ensure that a given password ("password") has the correct hash
 //  {
 //      // Prepare a message.
-//      bsl::string message = "This is a test message.";
-//
-//      // Write the message to 'output'.
-//      output << message;
+//      const bsl::string message = "password";
 //
 //      // Generate a digest for 'message'.
 //      bdlde::Sha512 hasher;
 //      hasher.update(message.data(), message.length());
-//      bsl::array<unsigned char, bdlde::Sha512::DIGEST_SIZE> digest;
-//      hasher.finalize(digest.data());
-//      output << digest;
+//      unsigned char       digest[bdlde::Sha512::k_DIGEST_SIZE];
+//      const unsigned char expected[bdlde::Sha512::k_DIGEST_SIZE] = {
+//          0xB1, 0x09, 0xF3, 0xBB, 0xBC, 0x24, 0x4E, 0xB8, 0x24, 0x41, 0x91,
+//          0x7E, 0xD0, 0x6D, 0x61, 0x8B, 0x90, 0x08, 0xDD, 0x09, 0xB3, 0xBE,
+//          0xFD, 0x1B, 0x5E, 0x07, 0x39, 0x4C, 0x70, 0x6A, 0x8B, 0xB9, 0x80,
+//          0xB1, 0xD7, 0x78, 0x5E, 0x59, 0x76, 0xEC, 0x04, 0x9B, 0x46, 0xDF,
+//          0x5F, 0x13, 0x26, 0xAF, 0x5A, 0x2E, 0xA6, 0xD1, 0x03, 0xFD, 0x07,
+//          0xC9, 0x53, 0x85, 0xFF, 0xAB, 0x0C, 0xAC, 0xBC, 0x86
+//      };
+//      hasher.finalize(digest);
+//      ASSERT(bsl::equal(digest,
+//                        digest + bdlde::Sha512::k_DIGEST_SIZE,
+//                        expected));
 //  }
 //..
-//  void receiverExample(In& input)
-//      // Read a message and its SHA-2 hash from the specified 'input' stream,
-//      // and verify the integrity of the message.
-//  {
-//      // Read the message from 'input'.
-//      bsl::string message;
-//      input >> message;
-//
-//      // Read the digest from 'input'.
-//      bdlde::Sha512 hasher;
-//      hasher.update(message.data(), message.length());
-//      typedef bsl::array<unsigned char, bdlde::Sha512::DIGEST_SIZE> Digest;
-//      Digest computed;
-//      hasher.finalize(computed.data());
-//
-//      Digest received;
-//      input >> received;
-//      if (computed != received) handleError();
-//  }
 
 #include <bdlscm_version.h>
 
@@ -84,6 +74,8 @@ class Sha224 {
     unsigned char d_block[512 / 8];
     bsl::uint32_t d_state[8];
 
+    // FRIENDS
+    friend bool operator==(const Sha224&, const Sha224&);
   public:
     // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 224 / 8;
@@ -120,6 +112,8 @@ class Sha256 {
     unsigned char d_block[512 / 8];
     bsl::uint32_t d_state[8];
 
+    // FRIENDS
+    friend bool operator==(const Sha256&, const Sha256&);
   public:
     // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 256 / 8;
@@ -156,6 +150,8 @@ class Sha384 {
     unsigned char d_block[1024 / 8];
     bsl::uint64_t d_state[8];
 
+    // FRIENDS
+    friend bool operator==(const Sha384&, const Sha384&);
   public:
     // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 384 / 8;
@@ -192,6 +188,8 @@ class Sha512 {
     unsigned char d_block[1024 / 8];
     bsl::uint64_t d_state[8];
 
+    // FRIENDS
+    friend bool operator==(const Sha512&, const Sha512&);
   public:
     // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 512 / 8;
@@ -217,6 +215,103 @@ class Sha512 {
     void finalize(unsigned char *digest);
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
+
+// FREE OPERATORS
+bool operator==(const Sha224& lhs, const Sha224& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
+    // value, and 'false' otherwise.  Two digests have the same value if the
+    // values obtained from their respective 'finalize' methods are identical.
+
+inline
+bool operator!=(const Sha224& lhs, const Sha224& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
+    // the same value, and 'false' otherwise.  Two digests do not have the same
+    // value if the values obtained from their respective 'finalize' methods
+    // differ.
+
+bool operator==(const Sha256& lhs, const Sha256& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
+    // value, and 'false' otherwise.  Two digests have the same value if the
+    // values obtained from their respective 'finalize' methods are identical.
+
+inline
+bool operator!=(const Sha256& lhs, const Sha256& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
+    // the same value, and 'false' otherwise.  Two digests do not have the same
+    // value if the values obtained from their respective 'finalize' methods
+    // differ.
+
+bool operator==(const Sha384& lhs, const Sha384& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
+    // value, and 'false' otherwise.  Two digests have the same value if the
+    // values obtained from their respective 'finalize' methods are identical.
+
+inline
+bool operator!=(const Sha384& lhs, const Sha384& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
+    // the same value, and 'false' otherwise.  Two digests do not have the same
+    // value if the values obtained from their respective 'finalize' methods
+    // differ.
+
+bool operator==(const Sha512& lhs, const Sha512& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
+    // value, and 'false' otherwise.  Two digests have the same value if the
+    // values obtained from their respective 'finalize' methods are identical.
+
+inline
+bool operator!=(const Sha512& lhs, const Sha512& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
+    // the same value, and 'false' otherwise.  Two digests do not have the same
+    // value if the values obtained from their respective 'finalize' methods
+    // differ.
+
+// ============================================================================
+//                        INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                                 // ---------
+                                 // class Sha224
+                                 // ---------
+
+// FREE OPERATORS
+inline
+bool operator!=(const Sha224& lhs, const Sha224& rhs)
+{
+    return !(lhs == rhs);
+}
+
+                                 // ---------
+                                 // class Sha256
+                                 // ---------
+
+// FREE OPERATORS
+inline
+bool operator!=(const Sha256& lhs, const Sha256& rhs)
+{
+    return !(lhs == rhs);
+}
+
+                                 // ---------
+                                 // class Sha384
+                                 // ---------
+
+// FREE OPERATORS
+inline
+bool operator!=(const Sha384& lhs, const Sha384& rhs)
+{
+    return !(lhs == rhs);
+}
+
+                                 // ---------
+                                 // class Sha512
+                                 // ---------
+
+// FREE OPERATORS
+inline
+bool operator!=(const Sha512& lhs, const Sha512& rhs)
+{
+    return !(lhs == rhs);
+}
 
 } // close package namespace
 } // close enterprise namespace
