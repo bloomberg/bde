@@ -439,105 +439,6 @@ extern "C" void doRound()
     }
 }
 
-template <class DECIMAL, class DATA>
-void testQuantize(const DATA *data, int num_data)
-    // Iterate over the specified 'data' array of the specified 'num_data'
-    // size and test 'quantize' functions using data items as input and output
-    // arguments of the tested functions.  Ensure that the result of executing
-    // 'quantize' function with the arguments from the data item is equal to
-    // the expected value in the same data item.
-    //
-    // Testing:
-    //   Decimal32  quantize(Decimal32,    Decimal32);
-    //   Decimal64  quantize(Decimal64,    Decimal64);
-    //   Decimal128 quantize(Decimal128,   Decimal128);
-    //   Decimal32  quantize(Decimal32,    int);
-    //   Decimal64  quantize(Decimal64,    int);
-    //   Decimal128 quantize(Decimal128,   int);
-    //   int        quantizeEqual(Decimal32  *, Decimal32,  int);
-    //   int        quantizeEqual(Decimal64  *, Decimal64,  int);
-    //   int        quantizeEqual(Decimal128 *, Decimal128, int);
-{
-    typedef bsl::numeric_limits<DECIMAL> NumLim;
-    NumberMaker<DECIMAL> makeDecimal;
-
-    // All special case values:
-    const DECIMAL sNaN(NumLim::signaling_NaN());
-    const DECIMAL qNaN(NumLim::quiet_NaN());
-    const DECIMAL pInf(NumLim::infinity());
-    const DECIMAL nInf(-pInf);
-
-    for (int ti = 0; ti < num_data; ++ti) {
-        const int            LINE        = data[ti].d_line;
-        const long long int& SIGNIFICAND = data[ti].d_significand;
-        const int&           EXPONENT    = data[ti].d_exponent;
-        const int&           QUANTUM     = data[ti].d_quantum;
-
-        const DECIMAL V = makeDecimal(SIGNIFICAND, EXPONENT);
-        const DECIMAL E = makeDecimal(          1, QUANTUM);
-
-        {  //: o DECIMAL quantize(DECIMAL, DECIMAL);
-
-            const DECIMAL EXPECTED = data[ti].d_expected;
-            const DECIMAL RESULT   = Util::quantize(V, E);
-
-            if (Util::isNan(EXPECTED)) {
-                LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
-            } else {
-                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
-                LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
-            }
-
-            ASSERT(Util::isNan(Util::quantize(    V, sNaN)));
-            ASSERT(Util::isNan(Util::quantize(    V, qNaN)));
-            ASSERT(Util::isNan(Util::quantize(    V, pInf)));
-            ASSERT(Util::isNan(Util::quantize(    V, nInf)));
-            ASSERT(Util::isNan(Util::quantize(sNaN,     E)));
-            ASSERT(Util::isNan(Util::quantize(qNaN,     E)));
-            ASSERT(Util::isNan(Util::quantize(pInf,     E)));
-            ASSERT(Util::isNan(Util::quantize(nInf,     E)));
-        }
-
-        {  //: o DECIMAL quantize(DECIMAL, int);
-
-            const DECIMAL& EXPECTED = data[ti].d_expected;
-            const DECIMAL  RESULT   = Util::quantize(V, QUANTUM);
-
-            if (Util::isNan(EXPECTED)) {
-                LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
-            } else {
-                LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
-                LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
-            }
-
-            ASSERT(Util::isNan(Util::quantize(sNaN, 0)));
-            ASSERT(Util::isNan(Util::quantize(qNaN, 0)));
-            ASSERT(Util::isNan(Util::quantize(pInf, 0)));
-            ASSERT(Util::isNan(Util::quantize(nInf, 0)));
-        }
-
-        {  //: o int quantizeEqual(DECIMAL *, DECIMAL, int);
-
-            DECIMAL X(V); DECIMAL *X_P(&X);
-            DECIMAL Y(V);
-
-            const int& EXPECTED = data[ti].d_retValue;
-            const int  RESULT   = Util::quantizeEqual(X_P, Y, QUANTUM);
-
-            LOOP_ASSERT(LINE, RESULT == EXPECTED);
-            LOOP_ASSERT(LINE, X == V);
-            if (0 == RESULT) {
-                LOOP_ASSERT(LINE, Util::sameQuantum(X, E));
-            }
-
-            ASSERT(-1 == Util::quantizeEqual(X_P, sNaN, 0));
-            ASSERT(-1 == Util::quantizeEqual(X_P, qNaN, 0));
-            ASSERT(-1 == Util::quantizeEqual(X_P, pInf, 0));
-            ASSERT(-1 == Util::quantizeEqual(X_P, nInf, 0));
-        }
-    }
-}
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1406,7 +1307,7 @@ int main(int argc, char* argv[])
                 Obj          d_x;
                 unsigned int d_precision;
                 Obj          d_expected;
-                unsigned int d_errno;
+                int          d_errno;
             } DATA[] = {
             //--------------------------------------------------------------
             // LINE |      X          | PRECISION | EXPECTED        | ERRNO
@@ -1436,7 +1337,7 @@ int main(int argc, char* argv[])
                 const Obj&          X         = DATA[ti].d_x;
                 const unsigned int& PRECISION = DATA[ti].d_precision;
                 const Obj&          EXPECTED  = DATA[ti].d_expected;
-                const unsigned int& ERRNO     = DATA[ti].d_errno;
+                const int&          ERRNO     = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::round(X, PRECISION);
@@ -1457,7 +1358,7 @@ int main(int argc, char* argv[])
                 Obj          d_x;
                 unsigned int d_precision;
                 Obj          d_expected;
-                unsigned int d_errno;
+                int          d_errno;
             } DATA[] = {
             //--------------------------------------------------------------
             // LINE |      X          | PRECISION | EXPECTED        | ERRNO
@@ -1559,7 +1460,7 @@ int main(int argc, char* argv[])
                 const Obj&          X         = DATA[ti].d_x;
                 const unsigned int& PRECISION = DATA[ti].d_precision;
                 const Obj&          EXPECTED  = DATA[ti].d_expected;
-                const unsigned int& ERRNO     = DATA[ti].d_errno;
+                const int&          ERRNO     = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::trunc(X, PRECISION);
@@ -2165,7 +2066,7 @@ int main(int argc, char* argv[])
                 Obj          d_x;
                 unsigned int d_precision;
                 Obj          d_expected;
-                unsigned int d_errno;
+                int          d_errno;
             } DATA[] = {
             //--------------------------------------------------------------
             // LINE |      X          | PRECISION | EXPECTED        | ERRNO
@@ -2193,7 +2094,7 @@ int main(int argc, char* argv[])
                 const Obj&          X         = DATA[ti].d_x;
                 const unsigned int& PRECISION = DATA[ti].d_precision;
                 const Obj&          EXPECTED  = DATA[ti].d_expected;
-                const unsigned int& ERRNO     = DATA[ti].d_errno;
+                const int&          ERRNO     = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::round(X, PRECISION);
@@ -2214,7 +2115,7 @@ int main(int argc, char* argv[])
                 Obj          d_x;
                 unsigned int d_precision;
                 Obj          d_expected;
-                unsigned int d_errno;
+                int          d_errno;
             } DATA[] = {
             //--------------------------------------------------------------
             // LINE |      X          | PRECISION | EXPECTED        | ERRNO
@@ -2307,7 +2208,7 @@ int main(int argc, char* argv[])
                 const Obj&          X         = DATA[ti].d_x;
                 const unsigned int& PRECISION = DATA[ti].d_precision;
                 const Obj&          EXPECTED  = DATA[ti].d_expected;
-                const unsigned int& ERRNO     = DATA[ti].d_errno;
+                const int&          ERRNO     = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::trunc(X, PRECISION);
@@ -2911,7 +2812,7 @@ int main(int argc, char* argv[])
                 Obj          d_x;
                 unsigned int d_precision;
                 Obj          d_expected;
-                unsigned int d_errno;
+                int          d_errno;
             } DATA[] = {
             //--------------------------------------------------------------
             // LINE |      X          | PRECISION | EXPECTED        | ERRNO
@@ -2939,7 +2840,7 @@ int main(int argc, char* argv[])
                 const Obj&          X         = DATA[ti].d_x;
                 const unsigned int& PRECISION = DATA[ti].d_precision;
                 const Obj&          EXPECTED  = DATA[ti].d_expected;
-                const unsigned int& ERRNO     = DATA[ti].d_errno;
+                const int&          ERRNO     = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::round(X, PRECISION);
@@ -2960,7 +2861,7 @@ int main(int argc, char* argv[])
                 Obj          d_x;
                 unsigned int d_precision;
                 Obj          d_expected;
-                unsigned int d_errno;
+                int          d_errno;
             } DATA[] = {
             //--------------------------------------------------------------
             // LINE |      X          | PRECISION | EXPECTED        | ERRNO
@@ -3051,7 +2952,7 @@ int main(int argc, char* argv[])
                 const Obj&          X         = DATA[ti].d_x;
                 const unsigned int& PRECISION = DATA[ti].d_precision;
                 const Obj&          EXPECTED  = DATA[ti].d_expected;
-                const unsigned int& ERRNO     = DATA[ti].d_errno;
+                const int&          ERRNO     = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::trunc(X, PRECISION);
@@ -4208,19 +4109,22 @@ int main(int argc, char* argv[])
         //   Decimal32  quantize(Decimal32,    int);
         //   Decimal64  quantize(Decimal64,    int);
         //   Decimal128 quantize(Decimal128,   int);
-        //   int        quantize(Decimal32  *, int);
-        //   int        quantize(Decimal64  *, int);
-        //   int        quantize(Decimal128 *, int);
+        //   int        quantizeEqual(Decimal32  *, Decimal32,  int);
+        //   int        quantizeEqual(Decimal64  *, Decimal64,  int);
+        //   int        quantizeEqual(Decimal128 *, Decimal128, int);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "quantize Decimal32 tests..." << bsl::endl;
         {
 #define DEC(X) BDLDFP_DECIMAL_DF(X)
 
-            typedef BDEC::Decimal32 TYPE;
+            typedef BDEC::Decimal32           TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
 
+            const TYPE sNaN(NumLim::signaling_NaN());
             const TYPE qNaN(NumLim::quiet_NaN());
+            const TYPE pInf(NumLim::infinity());
+            const TYPE nInf(-pInf);
 
             struct {
                 int  d_line;
@@ -4243,9 +4147,80 @@ int main(int argc, char* argv[])
             { L_,    123456,     0,      5,     DEC(100000e+0),   -1   },
             { L_,    123456,     0,      6,     DEC(0e+0),        -1   },
             };
-
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-            testQuantize<TYPE>(DATA, NUM_DATA);
+
+            NumberMaker<TYPE> makeDecimal;
+
+            // All special case values:
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int            LINE        = DATA[ti].d_line;
+                const long long int& SIGNIFICAND = DATA[ti].d_significand;
+                const int&           EXPONENT    = DATA[ti].d_exponent;
+                const int&           QUANTUM     = DATA[ti].d_quantum;
+
+                const TYPE V = makeDecimal(SIGNIFICAND, EXPONENT);
+                const TYPE E = makeDecimal(          1, QUANTUM);
+
+                {  //: o TYPE quantize(TYPE, TYPE);
+
+                    const TYPE EXPECTED = DATA[ti].d_expected;
+                    const TYPE RESULT   = Util::quantize(V, E);
+
+                    if (Util::isNan(EXPECTED)) {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
+                    } else {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                        LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                    }
+
+                    ASSERT(Util::isNan(Util::quantize(   V, sNaN)));
+                    ASSERT(Util::isNan(Util::quantize(   V, qNaN)));
+                    ASSERT(Util::isNan(Util::quantize(   V, pInf)));
+                    ASSERT(Util::isNan(Util::quantize(   V, nInf)));
+                    ASSERT(Util::isNan(Util::quantize(sNaN,    E)));
+                    ASSERT(Util::isNan(Util::quantize(qNaN,    E)));
+                    ASSERT(Util::isNan(Util::quantize(pInf,    E)));
+                    ASSERT(Util::isNan(Util::quantize(nInf,    E)));
+                }
+
+                {  //: o TYPE quantize(TYPE, int);
+
+                    const TYPE& EXPECTED = DATA[ti].d_expected;
+                    const TYPE  RESULT   = Util::quantize(V, QUANTUM);
+
+                    if (Util::isNan(EXPECTED)) {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
+                    } else {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                        LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                    }
+
+                    ASSERT(Util::isNan(Util::quantize(sNaN, 0)));
+                    ASSERT(Util::isNan(Util::quantize(qNaN, 0)));
+                    ASSERT(Util::isNan(Util::quantize(pInf, 0)));
+                    ASSERT(Util::isNan(Util::quantize(nInf, 0)));
+                }
+
+                {  //: o int quantizeEqual(TYPE *, TYPE, int);
+
+                    TYPE X(V); TYPE *X_P(&X);
+                    TYPE Y(V);
+
+                    const int& EXPECTED = DATA[ti].d_retValue;
+                    const int  RESULT   = Util::quantizeEqual(X_P, Y, QUANTUM);
+
+                    LOOP_ASSERT(LINE, RESULT == EXPECTED);
+                    LOOP_ASSERT(LINE, X == V);
+                    if (0 == RESULT) {
+                        LOOP_ASSERT(LINE, Util::sameQuantum(X, E));
+                    }
+
+                    ASSERT(-1 == Util::quantizeEqual(X_P, sNaN, 0));
+                    ASSERT(-1 == Util::quantizeEqual(X_P, qNaN, 0));
+                    ASSERT(-1 == Util::quantizeEqual(X_P, pInf, 0));
+                    ASSERT(-1 == Util::quantizeEqual(X_P, nInf, 0));
+                }
+            }
 
             if (verbose) cout << "\tNegative Testing." << endl;
             {
@@ -4274,10 +4249,13 @@ int main(int argc, char* argv[])
         if (verbose) bsl::cout << "quantize Decimal64 tests..." << bsl::endl;
         {
 #define DEC(X) BDLDFP_DECIMAL_DD(X)
-            typedef BDEC::Decimal64 TYPE;
+            typedef BDEC::Decimal64           TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
 
+            const TYPE sNaN(NumLim::signaling_NaN());
             const TYPE qNaN(NumLim::quiet_NaN());
+            const TYPE pInf(NumLim::infinity());
+            const TYPE nInf(-pInf);
 
             struct {
                 int           d_line;
@@ -4310,7 +4288,79 @@ int main(int argc, char* argv[])
           { L_, 12345678901234ll,  0,     14,     DEC(0e+0),              -1 },
           };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-            testQuantize<TYPE>(DATA, NUM_DATA);
+
+            NumberMaker<TYPE> makeDecimal;
+
+            // All special case values:
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int            LINE        = DATA[ti].d_line;
+                const long long int& SIGNIFICAND = DATA[ti].d_significand;
+                const int&           EXPONENT    = DATA[ti].d_exponent;
+                const int&           QUANTUM     = DATA[ti].d_quantum;
+
+                const TYPE V = makeDecimal(SIGNIFICAND, EXPONENT);
+                const TYPE E = makeDecimal(          1, QUANTUM);
+
+                {  //: o TYPE quantize(TYPE, TYPE);
+
+                    const TYPE EXPECTED = DATA[ti].d_expected;
+                    const TYPE RESULT   = Util::quantize(V, E);
+
+                    if (Util::isNan(EXPECTED)) {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
+                    } else {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                        LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                    }
+
+                    ASSERT(Util::isNan(Util::quantize(   V, sNaN)));
+                    ASSERT(Util::isNan(Util::quantize(   V, qNaN)));
+                    ASSERT(Util::isNan(Util::quantize(   V, pInf)));
+                    ASSERT(Util::isNan(Util::quantize(   V, nInf)));
+                    ASSERT(Util::isNan(Util::quantize(sNaN,    E)));
+                    ASSERT(Util::isNan(Util::quantize(qNaN,    E)));
+                    ASSERT(Util::isNan(Util::quantize(pInf,    E)));
+                    ASSERT(Util::isNan(Util::quantize(nInf,    E)));
+                }
+
+                {  //: o TYPE quantize(TYPE, int);
+
+                    const TYPE& EXPECTED = DATA[ti].d_expected;
+                    const TYPE  RESULT   = Util::quantize(V, QUANTUM);
+
+                    if (Util::isNan(EXPECTED)) {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
+                    } else {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                        LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                    }
+
+                    ASSERT(Util::isNan(Util::quantize(sNaN, 0)));
+                    ASSERT(Util::isNan(Util::quantize(qNaN, 0)));
+                    ASSERT(Util::isNan(Util::quantize(pInf, 0)));
+                    ASSERT(Util::isNan(Util::quantize(nInf, 0)));
+                }
+
+                {  //: o int quantizeEqual(TYPE *, TYPE, int);
+
+                    TYPE X(V); TYPE *X_P(&X);
+                    TYPE Y(V);
+
+                    const int& EXPECTED = DATA[ti].d_retValue;
+                    const int  RESULT   = Util::quantizeEqual(X_P, Y, QUANTUM);
+
+                    LOOP_ASSERT(LINE, RESULT == EXPECTED);
+                    LOOP_ASSERT(LINE, X == V);
+                    if (0 == RESULT) {
+                        LOOP_ASSERT(LINE, Util::sameQuantum(X, E));
+                    }
+
+                    ASSERT(-1 == Util::quantizeEqual(X_P, sNaN, 0));
+                    ASSERT(-1 == Util::quantizeEqual(X_P, qNaN, 0));
+                    ASSERT(-1 == Util::quantizeEqual(X_P, pInf, 0));
+                    ASSERT(-1 == Util::quantizeEqual(X_P, nInf, 0));
+                }
+            }
 
             if (verbose) cout << "\tNegative Testing." << endl;
             {
@@ -4339,10 +4389,13 @@ int main(int argc, char* argv[])
         if (verbose) bsl::cout << "quantize Decimal128 tests..." << bsl::endl;
         {
 #define DEC(X) BDLDFP_DECIMAL_DL(X)
-            typedef BDEC::Decimal128 TYPE;
+            typedef BDEC::Decimal128          TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
 
+            const TYPE sNaN(NumLim::signaling_NaN());
             const TYPE qNaN(NumLim::quiet_NaN());
+            const TYPE pInf(NumLim::infinity());
+            const TYPE nInf(-pInf);
 
             struct {
                 int           d_line;
@@ -4377,7 +4430,79 @@ int main(int argc, char* argv[])
             { L_, 123456789ll,     0,       9,     DEC(0.0),          -1 },
         };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
-            testQuantize<TYPE>(DATA, NUM_DATA);
+
+            NumberMaker<TYPE> makeDecimal;
+
+            // All special case values:
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int            LINE        = DATA[ti].d_line;
+                const long long int& SIGNIFICAND = DATA[ti].d_significand;
+                const int&           EXPONENT    = DATA[ti].d_exponent;
+                const int&           QUANTUM     = DATA[ti].d_quantum;
+
+                const TYPE V = makeDecimal(SIGNIFICAND, EXPONENT);
+                const TYPE E = makeDecimal(          1, QUANTUM);
+
+                {  //: o TYPE quantize(TYPE, TYPE);
+
+                    const TYPE EXPECTED = DATA[ti].d_expected;
+                    const TYPE RESULT   = Util::quantize(V, E);
+
+                    if (Util::isNan(EXPECTED)) {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
+                    } else {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                        LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                    }
+
+                    ASSERT(Util::isNan(Util::quantize(   V, sNaN)));
+                    ASSERT(Util::isNan(Util::quantize(   V, qNaN)));
+                    ASSERT(Util::isNan(Util::quantize(   V, pInf)));
+                    ASSERT(Util::isNan(Util::quantize(   V, nInf)));
+                    ASSERT(Util::isNan(Util::quantize(sNaN,    E)));
+                    ASSERT(Util::isNan(Util::quantize(qNaN,    E)));
+                    ASSERT(Util::isNan(Util::quantize(pInf,    E)));
+                    ASSERT(Util::isNan(Util::quantize(nInf,    E)));
+                }
+
+                {  //: o TYPE quantize(TYPE, int);
+
+                    const TYPE& EXPECTED = DATA[ti].d_expected;
+                    const TYPE  RESULT   = Util::quantize(V, QUANTUM);
+
+                    if (Util::isNan(EXPECTED)) {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, Util::isNan(RESULT));
+                    } else {
+                        LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
+                        LOOP_ASSERT(LINE, Util::sameQuantum(RESULT, E));
+                    }
+
+                    ASSERT(Util::isNan(Util::quantize(sNaN, 0)));
+                    ASSERT(Util::isNan(Util::quantize(qNaN, 0)));
+                    ASSERT(Util::isNan(Util::quantize(pInf, 0)));
+                    ASSERT(Util::isNan(Util::quantize(nInf, 0)));
+                }
+
+                {  //: o int quantizeEqual(TYPE *, TYPE, int);
+
+                    TYPE X(V); TYPE *X_P(&X);
+                    TYPE Y(V);
+
+                    const int& EXPECTED = DATA[ti].d_retValue;
+                    const int  RESULT   = Util::quantizeEqual(X_P, Y, QUANTUM);
+
+                    LOOP_ASSERT(LINE, RESULT == EXPECTED);
+                    LOOP_ASSERT(LINE, X == V);
+                    if (0 == RESULT) {
+                        LOOP_ASSERT(LINE, Util::sameQuantum(X, E));
+                    }
+
+                    ASSERT(-1 == Util::quantizeEqual(X_P, sNaN, 0));
+                    ASSERT(-1 == Util::quantizeEqual(X_P, qNaN, 0));
+                    ASSERT(-1 == Util::quantizeEqual(X_P, pInf, 0));
+                    ASSERT(-1 == Util::quantizeEqual(X_P, nInf, 0));
+                }
+            }
 
             if (verbose) cout << "\tNegative Testing." << endl;
             {
