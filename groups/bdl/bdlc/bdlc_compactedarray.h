@@ -1674,6 +1674,8 @@ bsl::ostream& CompactedArray<TYPE>::print(bsl::ostream& stream,
 template <class TYPE>
 const TYPE& CompactedArray<TYPE>::uniqueElement(bsl::size_t index) const
 {
+    BSLS_ASSERT_SAFE(index < uniqueLength());
+
     return d_data[index].d_value;
 }
 

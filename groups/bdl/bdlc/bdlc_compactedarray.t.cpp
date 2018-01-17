@@ -1107,13 +1107,15 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(iter - 1);
             ASSERT_SAFE_FAIL(iter - 2);
 
-            ASSERT_SAFE_PASS(X.end() - X.begin());
-            ASSERT_SAFE_PASS(X.begin() - X.end());
-            ASSERT_SAFE_FAIL(X.begin() - Y.end());
+            ASSERT_SAFE_PASS(X.end()    - X.begin());
+            ASSERT_SAFE_PASS(X.begin()  - X.end());
+            ASSERT_SAFE_FAIL(X.begin()  - Y.end());
+            ASSERT_SAFE_FAIL(X.begin()  - Iterator());
+            ASSERT_SAFE_FAIL(Iterator() - X.begin());
 
             mX.append("a");
 
-            ASSERT_SAFE_PASS(X.end() - X.begin());
+            ASSERT_SAFE_PASS(X.end()   - X.begin());
             ASSERT_SAFE_PASS(X.begin() - X.end());
             ASSERT_SAFE_FAIL(X.begin() - Y.end());
         }
@@ -1176,15 +1178,25 @@ int main(int argc, char *argv[])
             Obj        mY;
             const Obj& Y= mY;
 
-            ASSERT_SAFE_PASS(X.begin() <  X.end());
-            ASSERT_SAFE_PASS(X.begin() <  X.end());
-            ASSERT_SAFE_PASS(X.begin() <= X.end());
-            ASSERT_SAFE_PASS(X.begin() >  X.end());
-            ASSERT_SAFE_PASS(X.begin() >= X.end());
-            ASSERT_SAFE_FAIL(X.begin() <  Y.end());
-            ASSERT_SAFE_FAIL(X.begin() <= Y.end());
-            ASSERT_SAFE_FAIL(X.begin() >  Y.end());
-            ASSERT_SAFE_FAIL(X.begin() >= Y.end());
+            ASSERT_SAFE_PASS(X.begin()  <  X.end());
+            ASSERT_SAFE_PASS(X.begin()  <  X.end());
+            ASSERT_SAFE_PASS(X.begin()  <= X.end());
+            ASSERT_SAFE_PASS(X.begin()  >  X.end());
+            ASSERT_SAFE_PASS(X.begin()  >= X.end());
+
+            ASSERT_SAFE_FAIL(X.begin()  <  Y.end());
+            ASSERT_SAFE_FAIL(X.begin()  <= Y.end());
+            ASSERT_SAFE_FAIL(X.begin()  >  Y.end());
+            ASSERT_SAFE_FAIL(X.begin()  >= Y.end());
+
+            ASSERT_SAFE_FAIL(X.begin()  <  Iterator());
+            ASSERT_SAFE_FAIL(Iterator() <  X.begin());
+            ASSERT_SAFE_FAIL(X.begin()  <= Iterator());
+            ASSERT_SAFE_FAIL(Iterator() <= X.begin());
+            ASSERT_SAFE_FAIL(X.begin()  >  Iterator());
+            ASSERT_SAFE_FAIL(Iterator() >  X.begin());
+            ASSERT_SAFE_FAIL(X.begin()  >= Iterator());
+            ASSERT_SAFE_FAIL(Iterator() >= X.begin());
         }
       } break;
       case 20: {
@@ -4677,6 +4689,8 @@ int main(int argc, char *argv[])
         //: 2 Each accessor method is declared 'const'.
         //:
         //: 3 No accessor allocates any memory.
+        //:
+        //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 To test 'allocator', create object with various allocators and
@@ -4693,6 +4707,11 @@ int main(int argc, char *argv[])
         //:   (excluding those used to test 'allocator') and the number of
         //:   allocation will be verified to ensure that no memory was
         //:   allocated during use of the accessors.  (C-3)
+        //:
+        //: 5 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered when an attempt is made to swap objects that do not
+        //:   refer to the same allocator, but not when the allocators are the
+        //:   same (using the 'BSLS_ASSERTTEST_*' macros).  (C-4)
         //
         // Testing:
         //   const TYPE& operator[](bsl::size_t index) const;
@@ -4805,6 +4824,22 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE,
                             defaultAllocator.numAllocations() == allocations);
             }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            Obj mX;  const Obj& X = mX;
+
+            ASSERT_SAFE_FAIL(X[0]);
+            ASSERT_SAFE_FAIL(X.uniqueElement(0));
+
+            mX.append("a");
+
+            ASSERT_SAFE_PASS(X[0]);
+            ASSERT_SAFE_PASS(X.uniqueElement(0));
         }
       } break;
       case 3: {
@@ -4989,6 +5024,8 @@ int main(int argc, char *argv[])
         //:
         //: 5 Memory is not leaked by any method and the destructor properly
         //:   deallocates the residual allocated memory.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create an object using the default constructor with and without
@@ -5014,6 +5051,11 @@ int main(int argc, char *argv[])
         //: 5 Use a supplied 'bslma::TestAllocator' that goes out-of-scope
         //:   at the conclusion of each test to ensure all memory is returned
         //:   to the allocator.  (C-5)
+        //:
+        //: 6 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered when an attempt is made to swap objects that do not
+        //:   refer to the same allocator, but not when the allocators are the
+        //:   same (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
         //   CompactedArray(bslma::Allocator *basicAllocator = 0);
@@ -5206,6 +5248,21 @@ int main(int argc, char *argv[])
 
             ASSERT(allocations == defaultAllocator.numAllocations());
         }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            Obj mX;
+
+            ASSERT_SAFE_FAIL(mX.pop_back());
+
+            mX.append("a");
+
+            ASSERT_SAFE_PASS(mX.pop_back());
+        }
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
