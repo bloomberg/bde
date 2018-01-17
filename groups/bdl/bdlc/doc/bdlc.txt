@@ -30,7 +30,7 @@
 :      Provide a space-efficient, sequential container of boolean values.
 :
 : 'bdlc_compactedarray':
-:      Provide a compacted array of user-defined objects.
+:      Provide a compacted array of 'const' user-defined objects.
 :
 : 'bdlc_hashtable':
 :      Provide a double-hashed table with utility.

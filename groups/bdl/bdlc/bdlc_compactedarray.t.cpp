@@ -11,15 +11,6 @@
 
 #include <bsls_asserttest.h>
 
-#include <bslx_byteinstream.h>
-#include <bslx_byteoutstream.h>
-#include <bslx_instreamfunctions.h>
-#include <bslx_outstreamfunctions.h>
-#include <bslx_testinstream.h>
-#include <bslx_testinstreamexception.h>
-#include <bslx_testoutstream.h>
-#include <bslx_versionfunctions.h>
-
 #include <bsl_cctype.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
