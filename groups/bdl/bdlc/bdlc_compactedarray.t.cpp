@@ -86,9 +86,9 @@ using namespace bsl;
 //:   o copy-assignment
 //:   o swap
 // ----------------------------------------------------------------------------
-// [20] CompactedArrayConstIterator();
-// [20] CompactedArrayConstIterator(const CACI& original);
-// [20] ~CompactedArrayConstIterator();
+// [20] CompactedArray::const_iterator();
+// [20] CompactedArray::const_iterator(const CACI& original);
+// [20] ~CompactedArray::const_iterator();
 // [20] CACI& operator=(const CACI& rhs);
 // [20] CACI& CACI::operator++();
 // [20] CACI& CACI::operator--();
@@ -135,9 +135,9 @@ using namespace bsl;
 // [ 4] const TYPE& operator[](bsl::size_t index) const;
 // [ 4] bslma::Allocator *allocator() const;
 // [19] const TYPE& back() const;
-// [20] CompactedArrayConstIterator begin() const;
+// [20] CompactedArray::const_iterator begin() const;
 // [ 4] bsl::size_t capacity() const;
-// [20] CompactedArrayConstIterator end() const;
+// [20] CompactedArray::const_iterator end() const;
 // [19] const TYPE& front() const;
 // [ 4] bool isEmpty() const;
 // [ 6] bool isEqual(const CompactedArray& other) const;
@@ -240,21 +240,21 @@ typedef bdlc::CompactedArray<bsl::string>::const_iterator Iterator;
 //
 ///Example 1: 'Storing Daily Schedules'
 /// - - - - - - - - - - - - - - - - - -
-// Suppose we are creating a sequence of daily schedules for an employee.
-// Most Mondays (Tuesdays, Wednesdays, etc.) will have the same schedule,
+// Suppose we are creating a sequence of daily schedules for an employee.  Most
+// Mondays (and Tuesdays, Wednesdays, etc.) will have the same schedule,
 // although some may differ.  Instead of storing this data in a
 // 'bsl::vector<my_DailySchedule>', we can use
 // 'bdlc::CompactedArray<my_DailySchedule>' to efficiently store this data.
 //
 // First, we declare and define a 'my_DailySchedule' class.  This class is not
-// overly relevant to the example and is elided for the sake of compactness
+// overly relevant to the example and is elided for the sake of brevity:
 //..
                             // ================
                             // my_DailySchedule
                             // ================
 
     class my_DailySchedule {
-        // A value-semantic class the provides a daily schedule and consumes a
+        // A value-semantic class that provides a daily schedule and consumes a
         // significant amount of memory.
 
         int d_initialLocationId;
@@ -267,9 +267,12 @@ typedef bdlc::CompactedArray<bsl::string>::const_iterator Iterator;
 
       public:
         // CREATORS
-        my_DailySchedule(int initialLocationId);
+        my_DailySchedule(int               initialLocationId,
+                         bslma::Allocator *basicAllocator = 0);
             // Create a 'my_DailySchedule' object having the specified
-            // 'initialLocationId'.
+            // 'initialLocationId'.  Optionally specify a 'basicAllocator' used
+            // to supply memory.  If 'basicAllocator' is 0, the currently
+            // installed default allocator is used.
 
         // ...
 
@@ -285,9 +288,11 @@ typedef bdlc::CompactedArray<bsl::string>::const_iterator Iterator;
 
     // CREATORS
     inline
-    my_DailySchedule::my_DailySchedule(int initialLocationId)
+    my_DailySchedule::my_DailySchedule(int               initialLocationId,
+                                       bslma::Allocator *basicAllocator)
     : d_initialLocationId(initialLocationId)
     {
+        // ...
     }
 
     bool operator<(const my_DailySchedule& lhs, const my_DailySchedule& rhs)
@@ -447,17 +452,18 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-// Then, we create our schedule, which is a vector of 'my_DailySchedule' where
-// the index is the date offset (from an arbitrary epoch measured in days).
+// Then, we create our schedule, which is an array of 'my_DailySchedule' where
+// the index of each element is the date offset (from an arbitrary epoch
+// measured in days).
 //..
     bdlc::CompactedArray<my_DailySchedule> schedule;
 //..
-// Now, we create some daily schedules and append them to the schedule.
+// Now, we create some daily schedules and append them to the 'schedule':
 //..
     my_DailySchedule evenDays(0);
     my_DailySchedule oddDays(1);
 
-    // Population of the 'my_DailySchedule' is elided.
+    // Population of the 'my_DailySchedule' objects is elided.
 
     schedule.push_back(evenDays);
     schedule.push_back(oddDays);
@@ -465,7 +471,7 @@ int main(int argc, char *argv[])
     schedule.push_back(oddDays);
     schedule.push_back(evenDays);
 //..
-// Finally, we verify that the storage is compacted.
+// Finally, we verify that the storage is compacted:
 //..
     ASSERT(5 == schedule.length());
     ASSERT(2 == schedule.uniqueLength());
@@ -1234,11 +1240,11 @@ int main(int argc, char *argv[])
         //: 5 Verify defensive checks are triggered for invalid values.  (C-5)
         //
         // Testing:
-        //   CompactedArrayConstIterator begin() const;
-        //   CompactedArrayConstIterator end() const;
-        //   CompactedArrayConstIterator();
-        //   CompactedArrayConstIterator(const CACI& original);
-        //   ~CompactedArrayConstIterator();
+        //   CompactedArray::const_iterator begin() const;
+        //   CompactedArray::const_iterator end() const;
+        //   CompactedArray::const_iterator();
+        //   CompactedArray::const_iterator(const CACI& original);
+        //   ~CompactedArray::const_iterator();
         //   CACI& operator=(const CACI& rhs);
         //   CACI& CACI::operator++();
         //   CACI& CACI::operator--();

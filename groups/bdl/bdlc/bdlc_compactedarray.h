@@ -7,25 +7,24 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a compacted array of user-defined objects.
+//@PURPOSE: Provide a compacted array of 'const' user-defined objects.
 //
 //@CLASSES:
 //  bdlc::CompactedArray: compacted array of user-defined objects
-//  bdlc::CompactedArrayConstIterator: bidirectional 'const_iterator'
 //
-//@DESCRIPTION: This component provides a space-effient value-semantic array,
+//@DESCRIPTION: This component provides a space-efficient value-semantic array,
 // 'bdlc::CompactedArray', and an associated iterator,
-// 'bdlc::CompactedArrayConstIterator', that provides non-modifiable access to
-// its elements.  The interface of this class provides the user with
+// 'bdlc::CompactedArray::const_iterator', that provides non-modifiable access
+// to its elements.  The interface of this class provides the user with
 // functionality similar to a 'bsl::vector<T>'.  The implementation is designed
-// to reduce dynamic memory usage by removing data duplication at the expense
-// of an additional indirection to obtain the stored data by use of the
-// flyweight design pattern and requiring 'operator<' to be defined for the
-// stored type.  The array supports primitive operations (e.g., insertion,
-// look-up, removal) as well as a complete set of value-semantic operations;
-// however, direct reference to individual elements is not available.  Users
-// can access the value of individual elements by calling the indexing operator
-// or via iterators.
+// to reduce dynamic memory usage by (1) removing data duplication at the
+// expense of an additional indirection to obtain the stored objects (using the
+// flyweight design pattern) and (2) requiring 'operator<' to be defined for
+// the type of the stored objects.  The array supports primitive operations
+// (e.g., insertion, look-up, removal), as well as a complete set of
+// value-semantic operations; however, modifiable reference to individual
+// elements is not available.  Users can access the value of individual
+// elements by calling the indexing operator or via iterators.
 //
 ///Usage
 ///-----
@@ -33,21 +32,21 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: 'Storing Daily Schedules'
 /// - - - - - - - - - - - - - - - - - -
-// Suppose we are creating a sequence of daily schedules for an employee.
-// Most Mondays (Tuesdays, Wednesdays, etc.) will have the same schedule,
+// Suppose we are creating a sequence of daily schedules for an employee.  Most
+// Mondays (and Tuesdays, Wednesdays, etc.) will have the same schedule,
 // although some may differ.  Instead of storing this data in a
 // 'bsl::vector<my_DailySchedule>', we can use
 // 'bdlc::CompactedArray<my_DailySchedule>' to efficiently store this data.
 //
 // First, we declare and define a 'my_DailySchedule' class.  This class is not
-// overly relevant to the example and is elided for the sake of compactness
+// overly relevant to the example and is elided for the sake of brevity:
 //..
 //                          // ================
 //                          // my_DailySchedule
 //                          // ================
 //
 //  class my_DailySchedule {
-//      // A value-semantic class the provides a daily schedule and consumes a
+//      // A value-semantic class that provides a daily schedule and consumes a
 //      // significant amount of memory.
 //
 //      int d_initialLocationId;
@@ -60,9 +59,12 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_DailySchedule(int initialLocationId);
+//      my_DailySchedule(int               initialLocationId,
+//                       bslma::Allocator *basicAllocator = 0);
 //          // Create a 'my_DailySchedule' object having the specified
-//          // 'initialLocationId'.
+//          // 'initialLocationId'.  Optionally specify a 'basicAllocator' used
+//          // to supply memory.  If 'basicAllocator' is 0, the currently
+//          // installed default allocator is used.
 //
 //      // ...
 //
@@ -78,9 +80,11 @@ BSLS_IDENT("$Id: $")
 //
 //  // CREATORS
 //  inline
-//  my_DailySchedule::my_DailySchedule(int initialLocationId)
+//  my_DailySchedule::my_DailySchedule(int               initialLocationId,
+//                                     bslma::Allocator *basicAllocator)
 //  : d_initialLocationId(initialLocationId)
 //  {
+//      // ...
 //  }
 //
 //  bool operator<(const my_DailySchedule& lhs, const my_DailySchedule& rhs)
@@ -94,17 +98,18 @@ BSLS_IDENT("$Id: $")
 //      return false;
 //  }
 //..
-// Then, we create our schedule, which is a vector of 'my_DailySchedule' where
-// the index is the date offset (from an arbitrary epoch measured in days).
+// Then, we create our schedule, which is an array of 'my_DailySchedule' where
+// the index of each element is the date offset (from an arbitrary epoch
+// measured in days).
 //..
 //  bdlc::CompactedArray<my_DailySchedule> schedule;
 //..
-// Now, we create some daily schedules and append them to the schedule.
+// Now, we create some daily schedules and append them to the 'schedule':
 //..
 //  my_DailySchedule evenDays(0);
 //  my_DailySchedule oddDays(1);
 //
-//  // Population of the 'my_DailySchedule' is elided.
+//  // Population of the 'my_DailySchedule' objects is elided.
 //
 //  schedule.push_back(evenDays);
 //  schedule.push_back(oddDays);
@@ -112,59 +117,33 @@ BSLS_IDENT("$Id: $")
 //  schedule.push_back(oddDays);
 //  schedule.push_back(evenDays);
 //..
-// Finally, we verify that the storage is compacted.
+// Finally, we verify that the storage is compacted:
 //..
 //  assert(5 == schedule.length());
 //  assert(2 == schedule.uniqueLength());
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLC_PACKEDINTARRAY
 #include <bdlc_packedintarray.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
 
-#ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
-#endif
 
-#ifndef INCLUDED_BSLIM_PRINTER
 #include <bslim_printer.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_cstddef.h>
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_LIMITS
+#include <bsl_iterator.h>
 #include <bsl_limits.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlc {
@@ -172,41 +151,41 @@ namespace bdlc {
 // FORWARD DECLARATIONS
 template <class TYPE> class CompactedArray;
 
-template <class TYPE> class CompactedArrayConstIterator;
+template <class TYPE> class CompactedArray_ConstIterator;
 
-template <class TYPE> CompactedArrayConstIterator<TYPE>
-                           operator++(CompactedArrayConstIterator<TYPE>&, int);
+template <class TYPE> CompactedArray_ConstIterator<TYPE>
+                          operator++(CompactedArray_ConstIterator<TYPE>&, int);
 
-template <class TYPE> CompactedArrayConstIterator<TYPE>
-                           operator--(CompactedArrayConstIterator<TYPE>&, int);
-
-template <class TYPE>
-bool operator==(const CompactedArrayConstIterator<TYPE>&,
-                const CompactedArrayConstIterator<TYPE>&);
+template <class TYPE> CompactedArray_ConstIterator<TYPE>
+                          operator--(CompactedArray_ConstIterator<TYPE>&, int);
 
 template <class TYPE>
-bool operator!=(const CompactedArrayConstIterator<TYPE>&,
-                const CompactedArrayConstIterator<TYPE>&);
+bool operator==(const CompactedArray_ConstIterator<TYPE>&,
+                const CompactedArray_ConstIterator<TYPE>&);
 
 template <class TYPE>
-bsl::ptrdiff_t operator-(const CompactedArrayConstIterator<TYPE>&,
-                         const CompactedArrayConstIterator<TYPE>&);
+bool operator!=(const CompactedArray_ConstIterator<TYPE>&,
+                const CompactedArray_ConstIterator<TYPE>&);
 
 template <class TYPE>
-bool operator<(const CompactedArrayConstIterator<TYPE>&,
-               const CompactedArrayConstIterator<TYPE>&);
+bsl::ptrdiff_t operator-(const CompactedArray_ConstIterator<TYPE>&,
+                         const CompactedArray_ConstIterator<TYPE>&);
 
 template <class TYPE>
-bool operator<=(const CompactedArrayConstIterator<TYPE>&,
-                const CompactedArrayConstIterator<TYPE>&);
+bool operator<(const CompactedArray_ConstIterator<TYPE>&,
+               const CompactedArray_ConstIterator<TYPE>&);
 
 template <class TYPE>
-bool operator>(const CompactedArrayConstIterator<TYPE>&,
-               const CompactedArrayConstIterator<TYPE>&);
+bool operator<=(const CompactedArray_ConstIterator<TYPE>&,
+                const CompactedArray_ConstIterator<TYPE>&);
 
 template <class TYPE>
-bool operator>=(const CompactedArrayConstIterator<TYPE>&,
-                const CompactedArrayConstIterator<TYPE>&);
+bool operator>(const CompactedArray_ConstIterator<TYPE>&,
+               const CompactedArray_ConstIterator<TYPE>&);
+
+template <class TYPE>
+bool operator>=(const CompactedArray_ConstIterator<TYPE>&,
+                const CompactedArray_ConstIterator<TYPE>&);
 
                     // ==================================
                     // struct CompactedArray_CountedValue
@@ -214,16 +193,16 @@ bool operator>=(const CompactedArrayConstIterator<TYPE>&,
 
 template <class TYPE>
 struct CompactedArray_CountedValue {
-    // This 'struct' represents a reference counted value.
+    // This 'struct' represents a reference-counted value.
 
     // PUBLIC DATA
-    TYPE        d_value;
-    bsl::size_t d_count;
+    TYPE        d_value;  // stored object
+    bsl::size_t d_count;  // reference count of the stored object
 
     // CREATORS
     CompactedArray_CountedValue(const TYPE& value, bsl::size_t count)
-        : d_value(value)
-        , d_count(count)
+    : d_value(value)
+    , d_count(count)
     {
     }
 };
@@ -231,288 +210,304 @@ struct CompactedArray_CountedValue {
 // FREE OPERATORS
 template <class TYPE>
 bool operator==(const CompactedArray_CountedValue<TYPE>& lhs,
-                const CompactedArray_CountedValue<TYPE>& rhs) {
+                const CompactedArray_CountedValue<TYPE>& rhs)
+{
     return lhs.d_value == rhs.d_value;
 }
 
 template <class TYPE>
 bool operator!=(const CompactedArray_CountedValue<TYPE>& lhs,
-                const CompactedArray_CountedValue<TYPE>& rhs) {
+                const CompactedArray_CountedValue<TYPE>& rhs)
+{
     return lhs.d_value != rhs.d_value;
 }
 
 template <class TYPE>
-bool operator<(const CompactedArray_CountedValue<TYPE>& lhs, const TYPE& rhs) {
+bool operator<(const CompactedArray_CountedValue<TYPE>& lhs, const TYPE& rhs)
+{
     return lhs.d_value < rhs;
 }
 
 template <class TYPE>
-bool operator<(const TYPE& lhs, const CompactedArray_CountedValue<TYPE>& rhs) {
+bool operator<(const TYPE& lhs, const CompactedArray_CountedValue<TYPE>& rhs)
+{
     return lhs < rhs.d_value;
 }
 
-                    // =================================
-                    // class CompactedArrayConstIterator
-                    // =================================
+                    // ==================================
+                    // class CompactedArray_ConstIterator
+                    // ==================================
 
 template <class TYPE>
-class CompactedArrayConstIterator {
-    // This unconstrained (value-semantic) class represents a random access
-    // iterator providing non-modifiable access to the elements of a
-    // 'CompactedArray'.  This class provides all functionality of a random
-    // access iterator, as defined by the standard, but is *not* compatible
-    // with most standard methods requiring a bidirectional const_iterator.
+class CompactedArray_ConstIterator {
+    // This value-semantic class represents a random access iterator providing
+    // non-modifiable access to the elements of a 'CompactedArray'.  This class
+    // provides all functionality of a random access iterator, as defined by
+    // the standard, but is *not* compatible with most standard methods
+    // requiring a bidirectional 'const_iterator'.
     //
-    // This class does not perform any bounds checking.  The returned iterator,
-    // 'it', referencing an element within a 'CompactedArray', 'array', remains
-    // valid while '0 <= it - array.begin() < array.length()'.
+    // This class does not perform any bounds checking.  Any iterator, 'it',
+    // referencing a 'CompactedArray' 'array', remains valid while
+    // '0 <= it - array.begin() < array.length()'.
 
     // DATA
-    const CompactedArray<TYPE> *d_array_p;  // A pointer to the
-                                            // 'CompactedArray' into which this
-                                            // iterator references.
+    const CompactedArray<TYPE> *d_array_p;  // 'CompactedArray' referenced by
+                                            // this iterator, or 0 if default
+                                            // value
 
-    bsl::size_t                 d_index;    // The index of the referenced
-                                            // value within the array.
+    bsl::size_t                 d_index;    // index of the referenced element,
+                                            // or one past the end of
+                                            // 'd_array_p'
 
     // FRIENDS
     friend class CompactedArray<TYPE>;
 
-    friend CompactedArrayConstIterator
-                               operator++<>(CompactedArrayConstIterator&, int);
+    friend CompactedArray_ConstIterator
+                              operator++<>(CompactedArray_ConstIterator&, int);
 
-    friend CompactedArrayConstIterator
-                               operator--<>(CompactedArrayConstIterator&, int);
+    friend CompactedArray_ConstIterator
+                              operator--<>(CompactedArray_ConstIterator&, int);
 
-    friend bool operator==<>(const CompactedArrayConstIterator&,
-                             const CompactedArrayConstIterator&);
+    friend bool operator==<>(const CompactedArray_ConstIterator&,
+                             const CompactedArray_ConstIterator&);
 
-    friend bool operator!=<>(const CompactedArrayConstIterator&,
-                             const CompactedArrayConstIterator&);
+    friend bool operator!=<>(const CompactedArray_ConstIterator&,
+                             const CompactedArray_ConstIterator&);
 
-    friend bsl::ptrdiff_t operator-<>(const CompactedArrayConstIterator&,
-                                      const CompactedArrayConstIterator&);
+    friend bsl::ptrdiff_t operator-<>(const CompactedArray_ConstIterator&,
+                                      const CompactedArray_ConstIterator&);
 
-    friend bool operator< <>(const CompactedArrayConstIterator&,
-                             const CompactedArrayConstIterator&);
+    friend bool operator< <>(const CompactedArray_ConstIterator&,
+                             const CompactedArray_ConstIterator&);
 
-    friend bool operator<=<>(const CompactedArrayConstIterator&,
-                             const CompactedArrayConstIterator&);
+    friend bool operator<=<>(const CompactedArray_ConstIterator&,
+                             const CompactedArray_ConstIterator&);
 
-    friend bool operator><>(const CompactedArrayConstIterator&,
-                            const CompactedArrayConstIterator&);
+    friend bool operator><>(const CompactedArray_ConstIterator&,
+                            const CompactedArray_ConstIterator&);
 
-    friend bool operator>=<>(const CompactedArrayConstIterator&,
-                             const CompactedArrayConstIterator&);
+    friend bool operator>=<>(const CompactedArray_ConstIterator&,
+                             const CompactedArray_ConstIterator&);
 
   public:
     // PUBLIC TYPES
 
-    // The following typedefs define the traits for this iterator to make it
+    // The following 'typedef's define the traits for this iterator to make it
     // compatible with standard functions.
 
-    typedef bsl::ptrdiff_t difference_type;  // The type used for the distance
-                                             // between two iterators.
+    typedef bsl::ptrdiff_t  difference_type;  // The type used for the distance
+                                              // between two iterators.
 
-    typedef bsl::size_t    size_type;        // The type used for any function
-                                             // requiring a length (i.e,
-                                             // index).
+    typedef bsl::size_t     size_type;        // The type used for any function
+                                              // requiring a length (i.e,
+                                              // index).
 
-    typedef TYPE           value_type;       // The type for all returns of
-                                             // element values.
+    typedef TYPE            value_type;       // The type for elements.
 
-    typedef TYPE *         pointer;          // The type of an arbitrary
-                                             // pointer into the array.
+    typedef TYPE           *pointer;          // The type of an arbitrary
+                                              // pointer into the array.
 
-    typedef TYPE&          reference;        // The type for all returns of
-                                             // element references.
+    typedef TYPE&           reference;        // The type for element
+                                              // references.
 
-    typedef std::random_access_iterator_tag  iterator_category;
-                                             // This is a random access
-                                             // iterator.
+    typedef std::random_access_iterator_tag iterator_category;
+                                              // This is a random access
+                                              // iterator.
 
   private:
     // PRIVATE CREATORS
-    CompactedArrayConstIterator(const CompactedArray<TYPE> *array,
-                                bsl::size_t                 index);
-        // Create a 'CompactedArrayConstIterator' object with a pointer to the
-        // specified 'array' and the specified 'index'.  The behavior is
-        // undefined unless 'index <= array->length()'.
+    CompactedArray_ConstIterator(const CompactedArray<TYPE> *array,
+                                 bsl::size_t                 index);
+        // Create a 'CompactedArray_ConstIterator' object that refers to the
+        // element at the specified 'index' in the specified 'array', or the
+        // past-the-end iterator for 'array' if 'index == array->length()'.
+        // The behavior is undefined unless 'index <= array->length()'.
 
   public:
     // CREATORS
-    CompactedArrayConstIterator();
-        // Create a default 'CompactedArrayConstIterator'.  Note that the use
-        // of most methods - as indicated in their documentation - upon this
-        // iterator will result in undefined behavior.
+    CompactedArray_ConstIterator();
+        // Create a default 'CompactedArray_ConstIterator'.  Note that the
+        // behavior of most methods is undefined when used on a
+        // default-constructed iterator.
 
-    CompactedArrayConstIterator(const CompactedArrayConstIterator& original);
-        // Create a 'CompactedArrayConstIterator' having the same value as the
-        // specified 'original' one.
+    CompactedArray_ConstIterator(const CompactedArray_ConstIterator& original);
+        // Create a 'CompactedArray_ConstIterator' having the same value as the
+        // specified 'original' object.
 
-    //! ~CompactedArrayConstIterator() = default;
+    //! ~CompactedArray_ConstIterator() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    CompactedArrayConstIterator&
-                             operator=(const CompactedArrayConstIterator& rhs);
+    CompactedArray_ConstIterator&
+                             operator=(
+                                      const CompactedArray_ConstIterator& rhs);
         // Assign to this iterator the value of the specified 'rhs' iterator,
         // and return a reference providing modifiable access to this iterator.
 
-    CompactedArrayConstIterator& operator++();
-        // Advance this iterator to refer to the next element in the referenced
-        // array and return a reference to this iterator *after* the
-        // advancement.  The returned iterator, 'it', referencing an element
-        // within a 'CompactedArray', 'array', remains valid as long as
-        // '0 <= it - array.begin() <= array.length()'.  The behavior is
-        // undefined unless, on entry,
-        // 'CompactedArrayConstInterator() != *this' and
-        // '*this - array.begin() < array.length()'.
-
-    CompactedArrayConstIterator& operator--();
-        // Decrement this iterator to refer to the previous element in the
-        // referenced array and return a reference to this iterator *after* the
-        // decrementation.  The returned iterator, 'it', referencing an element
-        // within a 'CompactedArray', 'array', remains valid as long as
-        // '0 <= it - array.begin() <= array.length()'.  The behavior is
-        // undefined unless, on entry, '0 < *this - array.begin()'.
-
-    CompactedArrayConstIterator& operator+=(bsl::ptrdiff_t offset);
+    CompactedArray_ConstIterator& operator+=(bsl::ptrdiff_t offset);
         // Advance this iterator by the specified 'offset' from the element
-        // referenced to this iterator.  The returned iterator, 'it',
-        // referencing an element within a 'CompactedArray', 'array', remains
-        // valid as long as '0 <= it - array.begin() <= array.length()'.  The
-        // behavior is undefined unless
-        // 'CompactedArrayConstInterator() != *this' and
+        // referenced by this iterator, and return a reference providing
+        // modifiable access to this iterator.  The returned iterator, 'it',
+        // referencing a 'CompactedArray' 'array', remains valid as long as
+        // '0 <= it - array.begin() <= array.length()'.  The behavior is
+        // undefined unless 'CompactedArray_ConstIterator() != *this' and
         // '0 <= *this - array.begin() + offset <= array.length()'.
 
-    CompactedArrayConstIterator& operator-=(bsl::ptrdiff_t offset);
+    CompactedArray_ConstIterator& operator-=(bsl::ptrdiff_t offset);
         // Decrement this iterator by the specified 'offset' from the element
-        // referenced to this iterator.  The returned iterator, 'it',
-        // referencing an element within a 'CompactedArray', 'array', remains
-        // valid as long as '0 <= it - array.begin() <= array.length()'.  The
-        // behavior is undefined unless
-        // 'CompactedArrayConstInterator() != *this' and
+        // referenced by this iterator, and return a reference providing
+        // modifiable access to this iterator.  The returned iterator, 'it',
+        // referencing a 'CompactedArray' 'array', remains valid as long as
+        // '0 <= it - array.begin() <= array.length()'.  The behavior is
+        // undefined unless 'CompactedArray_ConstIterator() != *this' and
         // '0 <= *this - array.begin() - offset <= array.length()'.
+
+    CompactedArray_ConstIterator& operator++();
+        // Advance this iterator to refer to the next element in the referenced
+        // array, and return a reference to this iterator *after* the
+        // advancement.  The returned iterator, 'it', referencing a
+        // 'CompactedArray' 'array', remains valid as long as
+        // '0 <= it - array.begin() <= array.length()'.  The behavior is
+        // undefined unless, on entry,
+        // 'CompactedArray_ConstIterator() != *this' and
+        // '*this - array.begin() < array.length()'.
+
+    CompactedArray_ConstIterator& operator--();
+        // Decrement this iterator to refer to the previous element in the
+        // referenced array, and return a reference to this iterator *after*
+        // the decrementation.  The returned iterator, 'it', referencing a
+        // 'CompactedArray' 'array', remains valid as long as
+        // '0 <= it - array.begin() <= array.length()'.  The behavior is
+        // undefined unless, on entry,
+        // 'CompactedArray_ConstIterator() != *this' and
+        // '0 < *this - array.begin()'.
 
     // ACCESSORS
     const TYPE& operator*() const;
-        // Return the element value referenced by this iterator.  The behavior
-        // is undefined unless for this iterator, referencing an element within
-        // a 'CompactedArray' 'array',
-        // 'CompactedArrayConstInterator() != *this' and
+        // Return a 'const' reference to the element referenced by this
+        // iterator.  The behavior is undefined unless for this iterator,
+        // referencing a 'CompactedArray' 'array',
+        // 'CompactedArray_ConstIterator() != *this' and
         // '*this - array.begin() < array.length()'.
 
     const TYPE& operator->() const;
-        // Return the element value referenced by this iterator.  The behavior
-        // is undefined unless for this iterator, referencing an element within
-        // a 'CompactedArray' 'array',
-        // 'CompactedArrayConstInterator() != *this' and
+        // Return a 'const' reference to the element referenced by this
+        // iterator.  The behavior is undefined unless for this iterator,
+        // referencing a 'CompactedArray' 'array',
+        // 'CompactedArray_ConstIterator() != *this' and
         // '*this - array.begin() < array.length()'.
 
     const TYPE& operator[](bsl::ptrdiff_t offset) const;
-        // Return the element that is the specified 'offset' from the element
-        // reference by this array.  The behavior is undefined unless for this
-        // iterator, referencing an element within a 'CompactedArray' 'array',
-        // 'CompactedArrayConstInterator() != *this' and
+        // Return a 'const' reference to the element at the specified 'offset'
+        // from the element referenced by this iterator.  The behavior is
+        // undefined unless for this iterator, referencing 'CompactedArray'
+        // 'array', 'CompactedArray_ConstIterator() != *this' and
         // '0 <= *this - array.begin() + offset < array.length()'.
 
-    CompactedArrayConstIterator operator+(bsl::ptrdiff_t offset) const;
+    CompactedArray_ConstIterator operator+(bsl::ptrdiff_t offset) const;
         // Return an iterator referencing the location at the specified
         // 'offset' from the element referenced by this iterator.  The returned
-        // iterator, 'it', referencing an element within a 'CompactedArray',
-        // 'array', remains valid as long as
-        // '0 <= it - array.begin() <= array.length()'.  The behavior is
-        // undefined unless
+        // iterator, 'it', referencing a 'CompactedArray' 'array', remains
+        // valid as long as '0 <= it - array.begin() <= array.length()'.  The
+        // behavior is undefined unless
         // '0 <= *this - array.begin() + offset <= array.length()'.
 
-    CompactedArrayConstIterator operator-(bsl::ptrdiff_t offset) const;
+    CompactedArray_ConstIterator operator-(bsl::ptrdiff_t offset) const;
         // Return an iterator referencing the location at the specified
         // 'offset' from the element referenced by this iterator.  The returned
-        // iterator, 'it', referencing an element within a 'CompactedArray',
-        // 'array', remains valid as long as
-        // '0 <= it - array.begin() <= array.length()'.  The behavior is
-        // undefined unless 'CompactedArrayConstInterator() != *this' and
+        // iterator, 'it', referencing a 'CompactedArray' 'array', remains
+        // valid as long as '0 <= it - array.begin() <= array.length()'.  The
+        // behavior is undefined unless
+        // 'CompactedArray_ConstIterator() != *this' and
         // '0 <= *this - array.begin() - offset <= array.length()'.
 };
 
-// FREE FUNCTIONS
+// FREE OPERATORS
 template <class TYPE>
-CompactedArrayConstIterator<TYPE>
-                      operator++(CompactedArrayConstIterator<TYPE>& iter, int);
+CompactedArray_ConstIterator<TYPE>
+                      operator++(CompactedArray_ConstIterator<TYPE>& iter,
+                                 int);
     // Advance the specified iterator 'iter' to refer to the next element in
     // the referenced array, and return an iterator referring to the original
     // element (*before* the advancement).  The returned iterator, 'it',
-    // referencing an element within a 'CompactedArray', 'array', remains valid
-    // as long as '0 <= it - array.begin() <= array.length()'.  The behavior is
-    // undefined unless, on entry, 'CompactedArrayConstInterator() != iter' and
+    // referencing a 'CompactedArray' 'array', remains valid as long as
+    // '0 <= it - array.begin() <= array.length()'.  The behavior is undefined
+    // unless, on entry, 'CompactedArray_ConstIterator() != iter' and
     // 'iter - array.begin() < array.length()'.
 
 template <class TYPE>
-CompactedArrayConstIterator<TYPE>
-                      operator--(CompactedArrayConstIterator<TYPE>& iter, int);
+CompactedArray_ConstIterator<TYPE>
+                      operator--(CompactedArray_ConstIterator<TYPE>& iter,
+                                 int);
     // Decrement the specified iterator 'iter' to refer to the previous element
     // in the referenced array, and return an iterator referring to the
     // original element (*before* the decrementation).  The returned iterator,
-    // 'it', referencing an element within a 'CompactedArray', 'array', remains
-    // valid as long as '0 <= it - array.begin() <= array.length()'.  The
-    // behavior is undefined unless, on entry,
-    // 'CompactedArrayConstInterator() != iter' and '0 < iter - array.begin()'.
+    // 'it', referencing a 'CompactedArray' 'array', remains valid as long as
+    // '0 <= it - array.begin() <= array.length()'.  The behavior is undefined
+    // unless, on entry, 'CompactedArray_ConstIterator() != iter' and
+    // '0 < iter - array.begin()'.
 
 template <class TYPE>
-bool operator==(const CompactedArrayConstIterator<TYPE>& lhs,
-                const CompactedArrayConstIterator<TYPE>& rhs);
+bsl::ptrdiff_t operator-(const CompactedArray_ConstIterator<TYPE>& lhs,
+                         const CompactedArray_ConstIterator<TYPE>& rhs);
+    // Return the number of elements between the specified 'lhs' and 'rhs' as a
+    // signed value.  The behavior is undefined unless 'lhs' and 'rhs'
+    // reference the same array.  Note that the return value is positive when a
+    // positive number of 'rhs++' invocations would result in 'lhs == rhs', and
+    // negative when a positive number of 'rhs--' invocations would result in
+    // 'lhs == rhs'.
+
+template <class TYPE>
+bool operator==(const CompactedArray_ConstIterator<TYPE>& lhs,
+                const CompactedArray_ConstIterator<TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' iterators have the same
-    // value, and 'false' otherwise.  Two 'CompactedArrayConstIterator'
-    // iterators have the same value if they refer to the same array, and have
-    // the same index.
+    // value, and 'false' otherwise.  Two 'CompactedArray_ConstIterator'
+    // iterators have the same value if they both have the default value, or
+    // neither has the default value and they reference the same location in
+    // the same array.
 
 template <class TYPE>
-bool operator!=(const CompactedArrayConstIterator<TYPE>& lhs,
-                const CompactedArrayConstIterator<TYPE>& rhs);
+bool operator!=(const CompactedArray_ConstIterator<TYPE>& lhs,
+                const CompactedArray_ConstIterator<TYPE>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' iterators do not have the
-    // same value and 'false' otherwise.  Two 'CompactedArrayConstIterator'
-    // iterators do not have the same value if they do not refer to the same
-    // array, or do not have the same index.
+    // same value and 'false' otherwise.  Two 'CompactedArray_ConstIterator'
+    // iterators do not have the same value if one has the default value and
+    // the other does not, or neither has the default value and they do not
+    // reference the same location in the same array.
 
 template <class TYPE>
-bsl::ptrdiff_t operator-(const CompactedArrayConstIterator<TYPE>& lhs,
-                         const CompactedArrayConstIterator<TYPE>& rhs);
-    // Return the number of elements between specified 'lhs' and 'rhs'.  The
-    // behavior is undefined unless 'lhs' and 'rhs' reference the same array.
-
-template <class TYPE>
-bool operator<(const CompactedArrayConstIterator<TYPE>& lhs,
-               const CompactedArrayConstIterator<TYPE>& rhs);
+bool operator<(const CompactedArray_ConstIterator<TYPE>& lhs,
+               const CompactedArray_ConstIterator<TYPE>& rhs);
     // Return 'true' if the specified 'lhs' has a value less than the specified
-    // 'rhs', 'false' otherwise.  An iterator has a value less than another if
-    // its index is less the other's index.  The behavior is undefined unless
-    // 'lhs' and 'rhs' refer to the same array.
-
-template <class TYPE>
-bool operator<=(const CompactedArrayConstIterator<TYPE>& lhs,
-                const CompactedArrayConstIterator<TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' has a value less than or equal to
-    // the specified 'rhs, 'false' otherwise.  An iterator has a value less
-    // than or equal to another if its index is less or equal the other's
-    // index.  The behavior is undefined unless 'lhs' and 'rhs' refer to the
-    // same array.
-
-template <class TYPE>
-bool operator>(const CompactedArrayConstIterator<TYPE>& lhs,
-               const CompactedArrayConstIterator<TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' has a value greater than the
-    // specified 'rhs', 'false' otherwise.  An iterator has a value greater
-    // than another if its index is greater the other's index.  The behavior is
+    // 'rhs', and 'false' otherwise.  Iterator 'lhs' has a value less than
+    // iterator 'rhs' if '0 < rhs - lhs' (see 'operator-').  The behavior is
     // undefined unless 'lhs' and 'rhs' refer to the same array.
 
 template <class TYPE>
-bool operator>=(const CompactedArrayConstIterator<TYPE>& lhs,
-                const CompactedArrayConstIterator<TYPE>& rhs);
-    // Return 'true' if the specified 'lhs' has a value greater or equal than
-    // the specified 'rhs', 'false' otherwise.  An iterator has a value greater
-    // than or equal to another if its index is greater the other's index.  The
+bool operator<=(const CompactedArray_ConstIterator<TYPE>& lhs,
+                const CompactedArray_ConstIterator<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' has a value less than or equal to
+    // the specified 'rhs, and 'false' otherwise.  Iterator 'lhs' has a value
+    // less than or equal to iterator 'rhs' if '0 <= rhs - lhs' (see
+    // 'operator-').  The behavior is undefined unless 'lhs' and 'rhs' refer to
+    // the same array.
+
+template <class TYPE>
+bool operator>(const CompactedArray_ConstIterator<TYPE>& lhs,
+               const CompactedArray_ConstIterator<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' has a value greater than the
+    // specified 'rhs', and 'false' otherwise.  Iterator 'lhs' has a value
+    // greater than iterator 'rhs' if '0 > rhs - lhs' (see 'operator-').  The
     // behavior is undefined unless 'lhs' and 'rhs' refer to the same array.
+
+template <class TYPE>
+bool operator>=(const CompactedArray_ConstIterator<TYPE>& lhs,
+                const CompactedArray_ConstIterator<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' has a value greater or equal than
+    // the specified 'rhs', and 'false' otherwise.  Iterator 'lhs' has a value
+    // greater than or equal to iterator 'rhs' if '0 >= rhs - lhs' (see
+    // 'operator-').  The behavior is undefined unless 'lhs' and 'rhs' refer to
+    // the same array.
 
                            // ====================
                            // class CompactedArray
@@ -520,12 +515,22 @@ bool operator>=(const CompactedArrayConstIterator<TYPE>& lhs,
 
 template <class TYPE>
 class CompactedArray {
+    // This space-efficient, value-semantic array class represents a sequence
+    // of 'TYPE' elements.  The interface provides functionality similar to a
+    // 'vector<TYPE>' however modifiable references to individual elements are
+    // not provided.  This class provides accessors that return iterators that
+    // provide non-modifiable access to its elements.  The returned iterators,
+    // unlike those returned by a 'vector<TYPE>' are *not* invalidated upon
+    // reallocation.
+
     // PRIVATE TYPES
     typedef bsl::vector<CompactedArray_CountedValue<TYPE> > Data;
 
     // DATA
-    Data                        d_data;
-    PackedIntArray<bsl::size_t> d_index;
+    Data                        d_data;   // vector of reference-counted unique
+                                          // objects
+
+    PackedIntArray<bsl::size_t> d_index;  // array of indices into 'd_data'
 
     // PRIVATE MANIPULATORS
     void erase(bsl::size_t index);
@@ -536,7 +541,7 @@ class CompactedArray {
     // PUBLIC TYPES
     typedef TYPE value_type;  // The type for all returns of element values.
 
-    typedef CompactedArrayConstIterator<TYPE> const_iterator;
+    typedef CompactedArray_ConstIterator<TYPE> const_iterator;
 
     // CREATORS
     explicit CompactedArray(bslma::Allocator *basicAllocator = 0);
@@ -806,12 +811,12 @@ void hashAppend(HASHALG& hashAlg, const CompactedArray<TYPE>& input);
 //                             INLINE DEFINITIONS
 // ============================================================================
                      // ---------------------------------
-                     // class CompactedArrayConstIterator
+                     // class CompactedArray_ConstIterator
                      // ---------------------------------
 
 // PRIVATE CREATORS
 template <class TYPE>
-CompactedArrayConstIterator<TYPE>::CompactedArrayConstIterator(
+CompactedArray_ConstIterator<TYPE>::CompactedArray_ConstIterator(
                                              const CompactedArray<TYPE> *array,
                                              bsl::size_t                 index)
 : d_array_p(array)
@@ -822,15 +827,15 @@ CompactedArrayConstIterator<TYPE>::CompactedArrayConstIterator(
 
 // CREATORS
 template <class TYPE>
-CompactedArrayConstIterator<TYPE>::CompactedArrayConstIterator()
+CompactedArray_ConstIterator<TYPE>::CompactedArray_ConstIterator()
 : d_array_p(0)
 , d_index(0)
 {
 }
 
 template <class TYPE>
-CompactedArrayConstIterator<TYPE>::CompactedArrayConstIterator(
-                                   const CompactedArrayConstIterator& original)
+CompactedArray_ConstIterator<TYPE>::CompactedArray_ConstIterator(
+                                  const CompactedArray_ConstIterator& original)
 : d_array_p(original.d_array_p)
 , d_index(original.d_index)
 {
@@ -838,8 +843,9 @@ CompactedArrayConstIterator<TYPE>::CompactedArrayConstIterator(
 
 // MANIPULATORS
 template <class TYPE>
-CompactedArrayConstIterator<TYPE>& CompactedArrayConstIterator<TYPE>::
-                              operator=(const CompactedArrayConstIterator& rhs)
+CompactedArray_ConstIterator<TYPE>& CompactedArray_ConstIterator<TYPE>::
+                              operator=(
+                                       const CompactedArray_ConstIterator& rhs)
 {
     d_array_p = rhs.d_array_p;
     d_index   = rhs.d_index;
@@ -847,30 +853,9 @@ CompactedArrayConstIterator<TYPE>& CompactedArrayConstIterator<TYPE>::
 }
 
 template <class TYPE>
-CompactedArrayConstIterator<TYPE>&
-                                CompactedArrayConstIterator<TYPE>::operator++()
-{
-    BSLS_ASSERT_SAFE(d_array_p);
-    BSLS_ASSERT_SAFE(d_index < d_array_p->length());
-
-    ++d_index;
-    return *this;
-}
-
-template <class TYPE>
-CompactedArrayConstIterator<TYPE>&
-                                CompactedArrayConstIterator<TYPE>::operator--()
-{
-    BSLS_ASSERT_SAFE(d_array_p);
-    BSLS_ASSERT_SAFE(0 < d_index);
-
-    --d_index;
-    return *this;
-}
-
-template <class TYPE>
-CompactedArrayConstIterator<TYPE>&
-           CompactedArrayConstIterator<TYPE>::operator+=(bsl::ptrdiff_t offset)
+CompactedArray_ConstIterator<TYPE>&
+           CompactedArray_ConstIterator<TYPE>::operator+=(
+                                                         bsl::ptrdiff_t offset)
 {
     BSLS_ASSERT_SAFE(d_array_p);
 
@@ -885,8 +870,9 @@ CompactedArrayConstIterator<TYPE>&
 }
 
 template <class TYPE>
-CompactedArrayConstIterator<TYPE>&
-           CompactedArrayConstIterator<TYPE>::operator-=(bsl::ptrdiff_t offset)
+CompactedArray_ConstIterator<TYPE>&
+           CompactedArray_ConstIterator<TYPE>::operator-=(
+                                                         bsl::ptrdiff_t offset)
 {
     BSLS_ASSERT_SAFE(d_array_p);
 
@@ -900,9 +886,31 @@ CompactedArrayConstIterator<TYPE>&
     return *this;
 }
 
+template <class TYPE>
+CompactedArray_ConstIterator<TYPE>&
+                               CompactedArray_ConstIterator<TYPE>::operator++()
+{
+    BSLS_ASSERT_SAFE(d_array_p);
+    BSLS_ASSERT_SAFE(d_index < d_array_p->length());
+
+    ++d_index;
+    return *this;
+}
+
+template <class TYPE>
+CompactedArray_ConstIterator<TYPE>&
+                               CompactedArray_ConstIterator<TYPE>::operator--()
+{
+    BSLS_ASSERT_SAFE(d_array_p);
+    BSLS_ASSERT_SAFE(0 < d_index);
+
+    --d_index;
+    return *this;
+}
+
 // ACCESSORS
 template <class TYPE>
-const TYPE& CompactedArrayConstIterator<TYPE>::operator*() const
+const TYPE& CompactedArray_ConstIterator<TYPE>::operator*() const
 {
     BSLS_ASSERT_SAFE(d_array_p);
     BSLS_ASSERT_SAFE(d_index < d_array_p->length());
@@ -911,7 +919,7 @@ const TYPE& CompactedArrayConstIterator<TYPE>::operator*() const
 }
 
 template <class TYPE>
-const TYPE& CompactedArrayConstIterator<TYPE>::operator->() const
+const TYPE& CompactedArray_ConstIterator<TYPE>::operator->() const
 {
     BSLS_ASSERT_SAFE(d_array_p);
     BSLS_ASSERT_SAFE(d_index < d_array_p->length());
@@ -920,7 +928,7 @@ const TYPE& CompactedArrayConstIterator<TYPE>::operator->() const
 }
 
 template <class TYPE>
-const TYPE& CompactedArrayConstIterator<TYPE>::
+const TYPE& CompactedArray_ConstIterator<TYPE>::
                                         operator[](bsl::ptrdiff_t offset) const
 {
     BSLS_ASSERT_SAFE(d_array_p);
@@ -935,8 +943,9 @@ const TYPE& CompactedArrayConstIterator<TYPE>::
 }
 
 template <class TYPE>
-CompactedArrayConstIterator<TYPE>
-      CompactedArrayConstIterator<TYPE>::operator+(bsl::ptrdiff_t offset) const
+CompactedArray_ConstIterator<TYPE>
+      CompactedArray_ConstIterator<TYPE>::operator+(
+                                                   bsl::ptrdiff_t offset) const
 {
     BSLS_ASSERT_SAFE(d_array_p);
 
@@ -946,12 +955,13 @@ CompactedArrayConstIterator<TYPE>
     BSLS_ASSERT_SAFE(   0 >= offset
                      || d_array_p->length() - d_index >= bsl::size_t(offset));
 
-    return CompactedArrayConstIterator<TYPE>(d_array_p, d_index + offset);
+    return CompactedArray_ConstIterator<TYPE>(d_array_p, d_index + offset);
 }
 
 template <class TYPE>
-CompactedArrayConstIterator<TYPE>
-      CompactedArrayConstIterator<TYPE>::operator-(bsl::ptrdiff_t offset) const
+CompactedArray_ConstIterator<TYPE>
+      CompactedArray_ConstIterator<TYPE>::operator-(
+                                                   bsl::ptrdiff_t offset) const
 {
     BSLS_ASSERT_SAFE(d_array_p);
 
@@ -961,55 +971,55 @@ CompactedArrayConstIterator<TYPE>
     BSLS_ASSERT_SAFE(   0 <= offset
                      || d_array_p->length() - d_index >= bsl::size_t(-offset));
 
-    return CompactedArrayConstIterator<TYPE>(d_array_p, d_index - offset);
+    return CompactedArray_ConstIterator<TYPE>(d_array_p, d_index - offset);
 }
 
 }  // close package namespace
 
 // FREE FUNCTIONS
 template <class TYPE>
-bdlc::CompactedArrayConstIterator<TYPE> bdlc::operator++(
-                                       CompactedArrayConstIterator<TYPE>& iter,
-                                       int)
+bdlc::CompactedArray_ConstIterator<TYPE> bdlc::operator++(
+                                      CompactedArray_ConstIterator<TYPE>& iter,
+                                      int)
 {
     BSLS_ASSERT_SAFE(iter.d_array_p);
     BSLS_ASSERT_SAFE(iter.d_index < iter.d_array_p->length());
 
-    const CompactedArrayConstIterator<TYPE> curr = iter;
+    const CompactedArray_ConstIterator<TYPE> curr = iter;
     ++iter;
     return curr;
 }
 
 template <class TYPE>
-bdlc::CompactedArrayConstIterator<TYPE> bdlc::operator--(
-                                       CompactedArrayConstIterator<TYPE>& iter,
-                                       int)
+bdlc::CompactedArray_ConstIterator<TYPE> bdlc::operator--(
+                                      CompactedArray_ConstIterator<TYPE>& iter,
+                                      int)
 {
     BSLS_ASSERT_SAFE(iter.d_array_p);
     BSLS_ASSERT_SAFE(iter.d_index > 0);
 
-    const CompactedArrayConstIterator<TYPE> curr = iter;
+    const CompactedArray_ConstIterator<TYPE> curr = iter;
     --iter;
     return curr;
 }
 
 template <class TYPE>
-bool bdlc::operator==(const CompactedArrayConstIterator<TYPE>& lhs,
-                      const CompactedArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator==(const CompactedArray_ConstIterator<TYPE>& lhs,
+                      const CompactedArray_ConstIterator<TYPE>& rhs)
 {
     return lhs.d_array_p == rhs.d_array_p && lhs.d_index == rhs.d_index;
 }
 
 template <class TYPE>
-bool bdlc::operator!=(const CompactedArrayConstIterator<TYPE>& lhs,
-                      const CompactedArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator!=(const CompactedArray_ConstIterator<TYPE>& lhs,
+                      const CompactedArray_ConstIterator<TYPE>& rhs)
 {
     return lhs.d_array_p != rhs.d_array_p || lhs.d_index != rhs.d_index;
 }
 
 template <class TYPE>
-bsl::ptrdiff_t bdlc::operator-(const CompactedArrayConstIterator<TYPE>& lhs,
-                               const CompactedArrayConstIterator<TYPE>& rhs)
+bsl::ptrdiff_t bdlc::operator-(const CompactedArray_ConstIterator<TYPE>& lhs,
+                               const CompactedArray_ConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -1024,8 +1034,8 @@ bsl::ptrdiff_t bdlc::operator-(const CompactedArrayConstIterator<TYPE>& lhs,
 }
 
 template <class TYPE>
-bool bdlc::operator<(const CompactedArrayConstIterator<TYPE>& lhs,
-                     const CompactedArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator<(const CompactedArray_ConstIterator<TYPE>& lhs,
+                     const CompactedArray_ConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -1033,8 +1043,8 @@ bool bdlc::operator<(const CompactedArrayConstIterator<TYPE>& lhs,
 }
 
 template <class TYPE>
-bool bdlc::operator<=(const CompactedArrayConstIterator<TYPE>& lhs,
-                      const CompactedArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator<=(const CompactedArray_ConstIterator<TYPE>& lhs,
+                      const CompactedArray_ConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -1042,8 +1052,8 @@ bool bdlc::operator<=(const CompactedArrayConstIterator<TYPE>& lhs,
 }
 
 template <class TYPE>
-bool bdlc::operator>(const CompactedArrayConstIterator<TYPE>& lhs,
-                     const CompactedArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator>(const CompactedArray_ConstIterator<TYPE>& lhs,
+                     const CompactedArray_ConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
@@ -1051,8 +1061,8 @@ bool bdlc::operator>(const CompactedArrayConstIterator<TYPE>& lhs,
 }
 
 template <class TYPE>
-bool bdlc::operator>=(const CompactedArrayConstIterator<TYPE>& lhs,
-                      const CompactedArrayConstIterator<TYPE>& rhs)
+bool bdlc::operator>=(const CompactedArray_ConstIterator<TYPE>& lhs,
+                      const CompactedArray_ConstIterator<TYPE>& rhs)
 {
     BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
 
