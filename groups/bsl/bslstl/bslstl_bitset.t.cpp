@@ -73,10 +73,12 @@ using namespace std;    // still using iostream
 // [ 3] constexpr bitset(unsigned long) noexcept;
 // [ 4] bitset(native_std::basic_string, size_type, size_type, char, char);
 // [ 4] bitset(bsl::basic_string, size_type, size_type, char, char);
+// [  ] bitset(const bitset&) noexcept;
 // [ 2] ~bitset();
 //
 // MANIPULATORS:
 // [ 2] reference operator[](std::size_t pos);
+// [  ] bitset& operator=(const bitset&) noexcept;
 // [  ] bitset& operator&=(const bitset &lhs);
 // [  ] bitset& operator|=(const bitset &lhs);
 // [  ] bitset& operator^=(const bitset &lhs);
@@ -93,16 +95,16 @@ using namespace std;    // still using iostream
 // [  ] bitset operator<<(std::size_t pos) const
 // [  ] bitset operator>>(std::size_t pos) const
 // [  ] bitset operator~() const
-// [ 4] bsl::string to_string(char, char) const;
 // [ 3] constexpr bool operator[](std::size_t pos) const;
-// [  ] bool operator==(std::size_t pos) const noexcept;
-// [  ] bool operator!=(std::size_t pos) const noexcept;
+// [  ] bool operator==(const bitset& pos) const noexcept;
+// [  ] bool operator!=(const bitset& pos) const noexcept;
 // [ 2] bool all() const noexcept;
 // [ 2] bool any() const noexcept;
 // [ 2] bool none() const noexcept;
-// [ 2] constexpr std::size_t size() const noexcept;
 // [ 2] std::size_t count() const noexcept;
+// [ 2] constexpr std::size_t size() const noexcept;
 // [  ] bool test(std::size_t) const;
+// [ 4] bsl::string to_string(char, char) const;
 // [  ] unsigned long to_ulong() const noexcept;
 //
 //
@@ -114,8 +116,8 @@ using namespace std;    // still using iostream
 // [  ] operator<<(std::ostream &os, const bitset<N>& x);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
-// [13] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [13] USAGE EXAMPLE
+// [12] CONCERN: Methods qualified 'noexcept' in standard are so defined.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -214,7 +216,7 @@ void debugprint(const bitset<N>& rhs) {
         }
     }
 }
-}
+}  // close namespace bsl
 
 template <class StringType>
 void changeBitString(StringType* str, char zeroChar, char oneChar)
@@ -338,7 +340,7 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         ASSERT(0 == TESTSIZE || !v.all());
 
         if (0 == TESTSIZE) {
-            return;
+            return;                                                   // RETURN
         }
 
         v[0] = 1;
@@ -439,7 +441,7 @@ void testCase3(bool verbose, bool veryVerbose, bool /* veryVeryVerbose */)
 
 }
 
-void testCase13()
+void testCase12()
 {
     // ------------------------------------------------------------------------
     // 'noexcept' SPECIFICATION
@@ -449,7 +451,7 @@ void testCase13()
     //:   required by the standard.
     //
     // Plan:
-    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
+    //: 1 Apply the unary 'noexcept' operator to expressions that mimic those
     //:   appearing in the standard and confirm that calculated boolean value
     //:   matches the expected value.
     //:
@@ -458,7 +460,7 @@ void testCase13()
     //:   'TYPE' specializations.
     //
     // Testing:
-    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+    //   CONCERN: Methods qualified 'noexcept' in standard are so defined.
     // ------------------------------------------------------------------------
 
     // N4594: 20.8 Class template bitset
@@ -491,7 +493,6 @@ void testCase13()
     //..
     //  class reference {
     //    friend class bitset;
-    //    reference() noexcept;
     //  public:
     //    ~reference() noexcept;
     //    reference& operator=(bool x) noexcept;           // for b[i] = x;
@@ -507,28 +508,33 @@ void testCase13()
         size_t          j = 0;
         bool            x = true;
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i]));
-                                                     // 'reference()' (private)
+        // The only public way to construct 'reference' objects is to call
+        // 'operator[]' on a bitset.  That operator is not 'noexcept', so we
+        // must construct 'reference' objects outside the tested expressions.
+
+        bsl::bitset<32>::reference       ref = b[i];
+        const bsl::bitset<32>::reference REF = b[j];
+
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(~b[i]));
-                                                              // '~reference()'
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>::reference(REF)));
+                                    // copy constructor (also tests destructor)
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = x   ));
-                                                           // 'operator=(bool)'
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(ref.~reference()));   // destructor
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = b[j]));
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(ref = x));     // 'operator=(bool)'
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(ref = REF));
                                                // 'operator=(const reference&)'
 
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(~b));       // 'operator~'
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(~REF));              // 'operator~'
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x = b[i])); // 'operator()'
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x = REF));     // 'operator bool()'
         ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i].flip())); // 'flip()'
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(ref.flip()));           // 'flip()'
     }
 
     // page 557: 20.8.1 constructors:
@@ -755,59 +761,71 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta("general", veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 34: {
+      case 13: {
         // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
-                                 "========================" "\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
-        testCase13();
+// Finally, we can exercise our 'isPrime' function with an upper bound of
+// 10,000:
+//..
+    enum { UPPER_BOUND = 10000 };
+
+    ASSERT(1 == isPrime<UPPER_BOUND>(2));
+    ASSERT(1 == isPrime<UPPER_BOUND>(3));
+    ASSERT(0 == isPrime<UPPER_BOUND>(4));
+    ASSERT(1 == isPrime<UPPER_BOUND>(5));
+    ASSERT(0 == isPrime<UPPER_BOUND>(6));
+    ASSERT(1 == isPrime<UPPER_BOUND>(7));
+    ASSERT(0 == isPrime<UPPER_BOUND>(8));
+    ASSERT(0 == isPrime<UPPER_BOUND>(9));
+    ASSERT(0 == isPrime<UPPER_BOUND>(10));
+    // ...
+    ASSERT(1 == isPrime<UPPER_BOUND>(9973));
+    ASSERT(0 == isPrime<UPPER_BOUND>(9975));
+    ASSERT(0 == isPrime<UPPER_BOUND>(10000));
+//..
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'noexcept' SPECIFICATION"
+                            "\n================================\n");
+
+        testCase12();
 
       } break;
-    case 12: {
-      // --------------------------------------------------------------------
-      // USAGE EXAMPLE TEST
-      //
-      // Finally, we can exercise our 'isPrime' function:
-      // --------------------------------------------------------------------
-
-      // Finally, we can exercise our 'isPrime' function with an upper bound
-      // of 10,000:
-      //..
-      enum { UPPER_BOUND = 10000 };
-
-      ASSERT(1 == isPrime<UPPER_BOUND>(2));
-      ASSERT(1 == isPrime<UPPER_BOUND>(3));
-      ASSERT(0 == isPrime<UPPER_BOUND>(4));
-      ASSERT(1 == isPrime<UPPER_BOUND>(5));
-      ASSERT(0 == isPrime<UPPER_BOUND>(6));
-      ASSERT(1 == isPrime<UPPER_BOUND>(7));
-      ASSERT(0 == isPrime<UPPER_BOUND>(8));
-      ASSERT(0 == isPrime<UPPER_BOUND>(9));
-      ASSERT(0 == isPrime<UPPER_BOUND>(10));
-      // ...
-      ASSERT(1 == isPrime<UPPER_BOUND>(9973));
-      ASSERT(0 == isPrime<UPPER_BOUND>(9975));
-      ASSERT(0 == isPrime<UPPER_BOUND>(10000));
-      //..
-    } break;
-
     case 11: {
       // --------------------------------------------------------------------
       // TESTING SHIFT OPERATORS
       //
       // Concerns:
-      //   1. That a bitset can be shifted across word boundaries.
-      //
-      //   2. That a bitset get filled by 0s for the most significant 'pos'
-      //      bits if shifted right, or the least significant 'pos' bits if
-      //      shifted left.
+      //: 1 That a bitset can be shifted across word boundaries.
+      //:
+      //: 2 That a bitset get filled by 0s for the most significant 'pos'
+      //:   bits if shifted right, or the least significant 'pos' bits if
+      //:   shifted left.
       //
       // Plan:
-      //   Using the table-driven technique, construct a bitset.  Then shift
-      //   the bitset and verify the value is as expected.
+      //: 1 Using the table-driven technique, construct a bitset.  Then shift
+      //:   the bitset and verify the value is as expected.
       //
       // Testing:
       //   bitset& operator<<=(std::size_t pos);

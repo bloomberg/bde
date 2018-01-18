@@ -587,22 +587,6 @@ class bitset :
         // Toggle all bits of this bitset and return a reference to this
         // modifiable bitset.
 
-#if __cplusplus >= 201103L
-    template <class CHAR_TYPE = char,
-              class TRAITS = char_traits<CHAR_TYPE>,
-              class ALLOCATOR = allocator<CHAR_TYPE> >
-#else
-    template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
-#endif
-    basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> to_string(
-                                        CHAR_TYPE zero = CHAR_TYPE('0'),
-                                        CHAR_TYPE one  = CHAR_TYPE('1')) const;
-        // Return a 'basic_string' representation of this bitset, where the
-        // zero-bits are represented by the specified 'zero' character and the
-        // one-bits are represented by the specified 'one' character.  The
-        // most-significant bit is placed at the beginning of the string, and
-        // the least-significant bit is placed at the end of the string.
-
     BSLS_CPP11_CONSTEXPR bool operator[](std::size_t pos) const;
         // Return the value of the bit position at the specified 'pos'.
 
@@ -631,15 +615,31 @@ class bitset :
         // 'false' otherwise.  Note that 'all()' and 'none()' are both true
         // for bitsets of size 0.
 
-    BSLS_CPP11_CONSTEXPR std::size_t size() const BSLS_CPP11_NOEXCEPT;
-        // Return the number of bits this bitset holds.
-
     std::size_t count() const BSLS_CPP11_NOEXCEPT;
         // Return the number of bits in this bitset that have the value of 1.
+
+    BSLS_CPP11_CONSTEXPR std::size_t size() const BSLS_CPP11_NOEXCEPT;
+        // Return the number of bits this bitset holds.
 
     bool test(size_t pos) const;
         // Return 'true' if the bit at the specified 'pos' has the value of 1
         // and 'false' otherwise.
+
+#if __cplusplus >= 201103L
+    template <class CHAR_TYPE = char,
+              class TRAITS = char_traits<CHAR_TYPE>,
+              class ALLOCATOR = allocator<CHAR_TYPE> >
+#else
+    template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
+#endif
+    basic_string<CHAR_TYPE, TRAITS, ALLOCATOR> to_string(
+                                        CHAR_TYPE zero = CHAR_TYPE('0'),
+                                        CHAR_TYPE one  = CHAR_TYPE('1')) const;
+        // Return a 'basic_string' representation of this bitset, where the
+        // zero-bits are represented by the specified 'zero' character and the
+        // one-bits are represented by the specified 'one' character.  The
+        // most-significant bit is placed at the beginning of the string, and
+        // the least-significant bit is placed at the end of the string.
 
     unsigned long to_ulong() const;
         // Return an 'unsigned' 'long' value that has the same bit value as the
