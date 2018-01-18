@@ -284,13 +284,13 @@ void updateImpl(INTEGER             *state,
 }
 
 template<bsl::size_t BLOCK_SIZE, class INTEGER, bsl::size_t ARRAY_SIZE>
-void finalizeImpl(unsigned char        *digest,
-                  bsl::size_t           digestSize,
-                  INTEGER              *state,
-                  bsl::uint64_t         totalSize,
-                  bsl::uint64_t         blockBytesUsed,
-                  const unsigned char (&block)[BLOCK_SIZE],
-                  const INTEGER       (&constants)[ARRAY_SIZE])
+void finalize(unsigned char        *digest,
+              bsl::size_t           digestSize,
+              const INTEGER        *inputState,
+              bsl::uint64_t         totalSize,
+              bsl::uint64_t         blockBytesUsed,
+              const unsigned char (&block)[BLOCK_SIZE],
+              const INTEGER       (&constants)[ARRAY_SIZE])
     // Mix the remaining contents of the specified 'block' as indicated by the
     // specified 'blockBytesUsed' after appending the SHA-2 metadata, which
     // uses the specified 'totalSize', with the data in the specified
@@ -311,14 +311,16 @@ void finalizeImpl(unsigned char        *digest,
     finalBlocks[blockBytesUsed] = 1 << 7;
     unsigned char *end = finalBlocks + remainingBlocks * BLOCK_SIZE;
     unpack(totalSizeInBits, end - sizeof(totalSizeInBits));
-    transform(state,
+    INTEGER outputState[8];
+    bsl::copy(inputState, inputState + 8, outputState);
+    transform(outputState,
               finalBlocks,
               remainingBlocks,
               BLOCK_SIZE,
               constants);
 
     for (unsigned index = 0 ; index < digestSize / sizeof(INTEGER); ++index) {
-        unpack(state[index], &digest[index * sizeof(INTEGER)]);
+        unpack(outputState[index], &digest[index * sizeof(INTEGER)]);
     }
 }
 
@@ -365,45 +367,45 @@ void Sha512::update(const void *message, bsl::size_t length)
                 sha512Constants);
 }
 
-void Sha224::finalize(unsigned char *digest)
+void Sha224::loadDigest(unsigned char *digest) const
 {
-    finalizeImpl(digest,
-                 k_DIGEST_SIZE,
-                 d_state,
-                 d_totalSize,
-                 d_blockBytesUsed,
-                 d_block,
-                 sha256Constants);
+    finalize(digest,
+             k_DIGEST_SIZE,
+             d_state,
+             d_totalSize,
+             d_blockBytesUsed,
+             d_block,
+             sha256Constants);
 }
-void Sha256::finalize(unsigned char *digest)
+void Sha256::loadDigest(unsigned char *digest) const
 {
-    finalizeImpl(digest,
-                 k_DIGEST_SIZE,
-                 d_state,
-                 d_totalSize,
-                 d_blockBytesUsed,
-                 d_block,
-                 sha256Constants);
+    finalize(digest,
+             k_DIGEST_SIZE,
+             d_state,
+             d_totalSize,
+             d_blockBytesUsed,
+             d_block,
+             sha256Constants);
 }
-void Sha384::finalize(unsigned char *digest)
+void Sha384::loadDigest(unsigned char *digest) const
 {
-    finalizeImpl(digest,
-                 k_DIGEST_SIZE,
-                 d_state,
-                 d_totalSize,
-                 d_blockBytesUsed,
-                 d_block,
-                 sha512Constants);
+    finalize(digest,
+             k_DIGEST_SIZE,
+             d_state,
+             d_totalSize,
+             d_blockBytesUsed,
+             d_block,
+             sha512Constants);
 }
-void Sha512::finalize(unsigned char *digest)
+void Sha512::loadDigest(unsigned char *digest) const
 {
-    finalizeImpl(digest,
-                 k_DIGEST_SIZE,
-                 d_state,
-                 d_totalSize,
-                 d_blockBytesUsed,
-                 d_block,
-                 sha512Constants);
+    finalize(digest,
+             k_DIGEST_SIZE,
+             d_state,
+             d_totalSize,
+             d_blockBytesUsed,
+             d_block,
+             sha512Constants);
 }
 
 Sha224::Sha224():

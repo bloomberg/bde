@@ -49,7 +49,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //          0x5F, 0x13, 0x26, 0xAF, 0x5A, 0x2E, 0xA6, 0xD1, 0x03, 0xFD, 0x07,
 //          0xC9, 0x53, 0x85, 0xFF, 0xAB, 0x0C, 0xAC, 0xBC, 0x86
 //      };
-//      hasher.finalize(digest);
+//      hasher.loadDigest(digest);
 //      ASSERT(bsl::equal(digest,
 //                        digest + bdlde::Sha512::k_DIGEST_SIZE,
 //                        expected));
@@ -96,9 +96,9 @@ class Sha224 {
         // previously provided data and has not been subsequently assigned to,
         // the current state is equivalent to applying the SHA-2 algorithm to
         // the concatenation of all the provided messages.  The behavior is
-        // undefined unless finalize has not been called on this object and
-        // the range '[message, message + length)' is a valid range.
-    void finalize(unsigned char *digest);
+        // undefined unless the range '[message, message + length)' is a valid
+        // range.
+    void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
 
@@ -134,9 +134,9 @@ class Sha256 {
         // previously provided data and has not been subsequently assigned to,
         // the current state is equivalent to applying the SHA-2 algorithm to
         // the concatenation of all the provided messages.  The behavior is
-        // undefined unless finalize has not been called on this object and
-        // the range '[message, message + length)' is a valid range.
-    void finalize(unsigned char *digest);
+        // undefined unless the range '[message, message + length)' is a valid
+        // range.
+    void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
 
@@ -172,9 +172,9 @@ class Sha384 {
         // previously provided data and has not been subsequently assigned to,
         // the current state is equivalent to applying the SHA-2 algorithm to
         // the concatenation of all the provided messages.  The behavior is
-        // undefined unless finalize has not been called on this object and
-        // the range '[message, message + length)' is a valid range.
-    void finalize(unsigned char *digest);
+        // undefined unless the range '[message, message + length)' is a valid
+        // range.
+    void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
 
@@ -210,9 +210,9 @@ class Sha512 {
         // previously provided data and has not been subsequently assigned to,
         // the current state is equivalent to applying the SHA-2 algorithm to
         // the concatenation of all the provided messages.  The behavior is
-        // undefined unless finalize has not been called on this object and
-        // the range '[message, message + length)' is a valid range.
-    void finalize(unsigned char *digest);
+        // undefined unless the range '[message, message + length)' is a valid
+        // range.
+    void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
 
@@ -220,49 +220,49 @@ class Sha512 {
 bool operator==(const Sha224& lhs, const Sha224& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
     // value, and 'false' otherwise.  Two digests have the same value if the
-    // values obtained from their respective 'finalize' methods are identical.
+    // values obtained from their respective 'loadDigest' methods are identical.
 
 inline
 bool operator!=(const Sha224& lhs, const Sha224& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
     // the same value, and 'false' otherwise.  Two digests do not have the same
-    // value if the values obtained from their respective 'finalize' methods
+    // value if the values obtained from their respective 'loadDigest' methods
     // differ.
 
 bool operator==(const Sha256& lhs, const Sha256& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
     // value, and 'false' otherwise.  Two digests have the same value if the
-    // values obtained from their respective 'finalize' methods are identical.
+    // values obtained from their respective 'loadDigest' methods are identical.
 
 inline
 bool operator!=(const Sha256& lhs, const Sha256& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
     // the same value, and 'false' otherwise.  Two digests do not have the same
-    // value if the values obtained from their respective 'finalize' methods
+    // value if the values obtained from their respective 'loadDigest' methods
     // differ.
 
 bool operator==(const Sha384& lhs, const Sha384& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
     // value, and 'false' otherwise.  Two digests have the same value if the
-    // values obtained from their respective 'finalize' methods are identical.
+    // values obtained from their respective 'loadDigest' methods are identical.
 
 inline
 bool operator!=(const Sha384& lhs, const Sha384& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
     // the same value, and 'false' otherwise.  Two digests do not have the same
-    // value if the values obtained from their respective 'finalize' methods
+    // value if the values obtained from their respective 'loadDigest' methods
     // differ.
 
 bool operator==(const Sha512& lhs, const Sha512& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
     // value, and 'false' otherwise.  Two digests have the same value if the
-    // values obtained from their respective 'finalize' methods are identical.
+    // values obtained from their respective 'loadDigest' methods are identical.
 
 inline
 bool operator!=(const Sha512& lhs, const Sha512& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
     // the same value, and 'false' otherwise.  Two digests do not have the same
-    // value if the values obtained from their respective 'finalize' methods
+    // value if the values obtained from their respective 'loadDigest' methods
     // differ.
 
 // ============================================================================

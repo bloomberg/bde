@@ -28,16 +28,16 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [ 2] Sha224::Sha224();
 // [ 2] void Sha224::update(const void *message, bsl::size_t length);
-// [ 6] void Sha224::finalize(unsigned char* digest);
+// [ 6] void Sha224::loadDigest(unsigned char* digest);
 // [ 3] Sha256::Sha256();
 // [ 3] void Sha256::update(const void *message, bsl::size_t length);;
-// [ 7] void Sha256::finalize(unsigned char* digest);
+// [ 7] void Sha256::loadDigest(unsigned char* digest);
 // [ 4] Sha384::Sha384();
 // [ 4] void Sha384::update(const void *message, bsl::size_t length);;
-// [ 8] void Sha384::finalize(unsigned char* digest);
+// [ 8] void Sha384::loadDigest(unsigned char* digest);
 // [ 5] Sha512::Sha512();
 // [ 5] void Sha512::update(const void *message, bsl::size_t length);;
-// [ 9] void Sha512::finalize(unsigned char* digest);
+// [ 9] void Sha512::loadDigest(unsigned char* digest);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -157,7 +157,7 @@ void testKnownHashes(const char *const (&expected)[6])
         const char *message = messages[n].c_str();
         HASHER      hasher;
         hasher.update(message, messages[n].size());
-        hasher.finalize(digest);
+        hasher.loadDigest(digest);
 
         toHex(&hexDigest, digest);
         ASSERT(hexDigest == expected[n]);
@@ -178,7 +178,7 @@ void testIncremental()
 
     HASHER completeHasher;
     completeHasher.update(in, size);
-    completeHasher.finalize(digest1);
+    completeHasher.loadDigest(digest1);
 
     for (bsl::size_t stride = 1; stride <= 3; ++stride) {
         ASSERT(size % stride == 0);
@@ -187,8 +187,8 @@ void testIncremental()
             ASSERT(completeHasher != incrementalHasher);
             incrementalHasher.update(in + index, stride);
         }
-        ASSERT(completeHasher != incrementalHasher);
-        incrementalHasher.finalize(digest2);
+        ASSERT(completeHasher == incrementalHasher);
+        incrementalHasher.loadDigest(digest2);
         ASSERT(completeHasher == incrementalHasher);
 
         ASSERT(bsl::equal(digest1, digest1 + digestSize, digest2));
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
             0x5F, 0x13, 0x26, 0xAF, 0x5A, 0x2E, 0xA6, 0xD1, 0x03, 0xFD, 0x07,
             0xC9, 0x53, 0x85, 0xFF, 0xAB, 0x0C, 0xAC, 0xBC, 0x86
         };
-        hasher.finalize(digest);
+        hasher.loadDigest(digest);
         ASSERT(bsl::equal(digest,
                           digest + bdlde::Sha512::k_DIGEST_SIZE,
                           expected));
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
         //:   known values.
         //
         // Testing:
-        //   void Sha512::finalize(unsigned char *digest);
+        //   void Sha512::loadDigest(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-512" "\n"
                              "========================" "\n";
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
         //:   known values.
         //
         // Testing:
-        //   void Sha384::finalize(unsigned char *digest);
+        //   void Sha384::loadDigest(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-384" "\n"
                              "========================" "\n";
@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
         //:   known values.
         //
         // Testing:
-        //   void Sha256::finalize(unsigned char *digest);
+        //   void Sha256::loadDigest(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-256" "\n"
                              "========================" "\n";
@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
         //:   known values.
         //
         // Testing:
-        //   void Sha224::finalize(unsigned char *digest);
+        //   void Sha224::loadDigest(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-224" "\n"
                              "========================" "\n";
