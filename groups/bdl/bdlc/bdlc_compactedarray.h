@@ -84,6 +84,8 @@ BSLS_IDENT("$Id: $")
 //                                     bslma::Allocator *basicAllocator)
 //  : d_initialLocationId(initialLocationId)
 //  {
+//      (void)basicAllocator;  // suppress unused variable compiler warning
+//
 //      // ...
 //  }
 //
@@ -196,6 +198,39 @@ bool operator>(const CompactedArray_ConstIterator<TYPE>&,
 template <class TYPE>
 bool operator>=(const CompactedArray_ConstIterator<TYPE>&,
                 const CompactedArray_ConstIterator<TYPE>&);
+
+                  // =====================================
+                  // class CompactedArray_RemoveAllProctor
+                  // =====================================
+
+template <class TYPE>
+class CompactedArray_RemoveAllProctor {
+    // This class implements a proctor that, unless its 'release' method has
+    // previously been invoked, automatically invokes 'removeAll' on a
+    // 'CompactedArray' upon destruction.
+
+    // DATA
+    CompactedArray<TYPE> *d_array_p;  // managed array
+
+    // NOT IMPLEMENTED
+    CompactedArray_RemoveAllProctor();
+    CompactedArray_RemoveAllProctor(const CompactedArray_RemoveAllProctor&);
+
+  public:
+    // CREATORS
+    CompactedArray_RemoveAllProctor(CompactedArray<TYPE> *array);
+        // Create a 'removeAll' proctor that conditionally manages the
+        // specified 'array' (if non-zero).
+
+    ~CompactedArray_RemoveAllProctor();
+        // Destroy this object and, if 'release' has not been invoked, invoke
+        // the managed array's 'removeAll' method.
+
+    // MANIPULATORS
+    void release();
+        // Release from management the array currently managed by this proctor.
+        // If no array, this method has no effect.
+};
 
                     // ==================================
                     // struct CompactedArray_CountedValue
@@ -871,6 +906,36 @@ void hashAppend(HASHALG& hashAlg, const CompactedArray<TYPE>& input);
 //                             INLINE DEFINITIONS
 // ============================================================================
 
+                  // -------------------------------------
+                  // class CompactedArray_RemoveAllProctor
+                  // -------------------------------------
+
+// CREATORS
+template <class TYPE>
+inline
+CompactedArray_RemoveAllProctor<TYPE>::CompactedArray_RemoveAllProctor(
+                                                   CompactedArray<TYPE> *array)
+: d_array_p(array)
+{
+}
+
+template <class TYPE>
+inline
+CompactedArray_RemoveAllProctor<TYPE>::~CompactedArray_RemoveAllProctor()
+{
+    if (d_array_p) {
+        d_array_p->removeAll();
+    }
+}
+
+// MANIPULATORS
+template <class TYPE>
+inline
+void CompactedArray_RemoveAllProctor<TYPE>::release()
+{
+    d_array_p = 0;
+}
+
                     // ----------------------------------
                     // class CompactedArray_ConstIterator
                     // ----------------------------------
@@ -1271,9 +1336,13 @@ CompactedArray<TYPE>& CompactedArray<TYPE>::operator=(
                                                const CompactedArray<TYPE>& rhs)
 {
     if (this != &rhs) {
+        CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
         d_index.reserveCapacity(rhs.length(), rhs.uniqueLength());
         d_data  = rhs.d_data;
         d_index = rhs.d_index;
+
+        proctor.release();
     }
 
     return *this;
@@ -1282,21 +1351,29 @@ CompactedArray<TYPE>& CompactedArray<TYPE>::operator=(
 template <class TYPE>
 void CompactedArray<TYPE>::append(const TYPE& value)
 {
+    CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
     d_index.reserveCapacity(d_index.length() + 1, d_data.size() + 1);
 
     d_index.push_back(increment(value));
+
+    proctor.release();
 }
 
 template <class TYPE>
 void CompactedArray<TYPE>::append(const CompactedArray& srcArray)
 {
     if (&srcArray != this) {
+        CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
         d_index.reserveCapacity(d_index.length() + srcArray.d_index.length(),
                                 d_data.size()    + srcArray.d_data.size());
 
         for (bsl::size_t i = 0; i < srcArray.length(); ++i) {
             d_index.push_back(increment(srcArray[i]));
         }
+
+        proctor.release();
     }
     else {
         d_index.reserveCapacity(d_index.length() * 2);
@@ -1320,12 +1397,16 @@ void CompactedArray<TYPE>::append(const CompactedArray& srcArray,
     BSLS_ASSERT_SAFE(srcIndex    <= srcArray.length() - numElements);
 
     if (&srcArray != this) {
+        CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
         d_index.reserveCapacity(d_index.length() + numElements,
                                 d_data.size()    + numElements);
 
         for (bsl::size_t i = 0; i < numElements; ++i) {
             d_index.push_back(increment(srcArray[srcIndex + i]));
         }
+
+        proctor.release();
     }
     else {
         d_index.reserveCapacity(d_index.length() + numElements);
@@ -1344,9 +1425,13 @@ void CompactedArray<TYPE>::insert(bsl::size_t dstIndex, const TYPE& value)
 {
     BSLS_ASSERT_SAFE(dstIndex <= d_index.length());
 
+    CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
     d_index.reserveCapacity(d_index.length() + 1, d_data.size() + 1);
 
     d_index.insert(dstIndex, increment(value));
+
+    proctor.release();
 }
 
 template <class TYPE>
@@ -1364,12 +1449,16 @@ void CompactedArray<TYPE>::insert(bsl::size_t           dstIndex,
     BSLS_ASSERT_SAFE(dstIndex <= d_index.length());
 
     if (&srcArray != this) {
+        CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
         d_index.reserveCapacity(d_index.length() + srcArray.d_index.length(),
                                 d_data.size()    + srcArray.d_data.size());
 
         for (bsl::size_t i = 0; i < srcArray.length(); ++i) {
             d_index.insert(dstIndex + i, increment(srcArray[i]));
         }
+
+        proctor.release();
     }
     else {
         d_index.reserveCapacity(d_index.length() * 2);
@@ -1396,12 +1485,16 @@ void CompactedArray<TYPE>::insert(bsl::size_t           dstIndex,
     BSLS_ASSERT_SAFE(srcIndex    <= srcArray.length() - numElements);
 
     if (&srcArray != this) {
+        CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
         d_index.reserveCapacity(d_index.length() + numElements,
                                 d_data.size()    + numElements);
 
         for (bsl::size_t i = 0; i < numElements; ++i) {
             d_index.insert(dstIndex + i, increment(srcArray[srcIndex + i]));
         }
+
+        proctor.release();
     }
     else {
         d_index.reserveCapacity(d_index.length() + numElements);
@@ -1425,7 +1518,11 @@ void CompactedArray<TYPE>::pop_back()
     d_index.pop_back();
 
     if (0 == --dataValue.d_count) {
+        CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
         erase(dataIndex);
+
+        proctor.release();
     }
 }
 
@@ -1454,6 +1551,8 @@ void CompactedArray<TYPE>::remove(bsl::size_t dstIndex,
     BSLS_ASSERT_SAFE(numElements <= d_index.length());
     BSLS_ASSERT_SAFE(dstIndex    <= d_index.length() - numElements);
 
+    CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
     bsl::size_t endIndex = dstIndex + numElements;
     for (bsl::size_t i = dstIndex; i < endIndex; ++i) {
         bsl::size_t                        dataIndex = d_index[i];
@@ -1465,6 +1564,8 @@ void CompactedArray<TYPE>::remove(bsl::size_t dstIndex,
     }
 
     d_index.remove(dstIndex, numElements);
+
+    proctor.release();
 }
 
 template <class TYPE>
@@ -1498,10 +1599,14 @@ void CompactedArray<TYPE>::replace(bsl::size_t dstIndex, const TYPE& value)
     CompactedArray_CountedValue<TYPE>& dataValue    = d_data[dataIndex];
 
     if (0 == --dataValue.d_count) {
+        CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
         erase(dataIndex);
         if (dataIndex <= newDataIndex) {
             --newDataIndex;
         }
+
+        proctor.release();
     }
 
     d_index.replace(dstIndex, newDataIndex);
@@ -1521,6 +1626,8 @@ void CompactedArray<TYPE>::replace(bsl::size_t           dstIndex,
     // overflow.
     BSLS_ASSERT_SAFE(numElements <= srcArray.length());
     BSLS_ASSERT_SAFE(srcIndex    <= srcArray.length() - numElements);
+
+    CompactedArray_RemoveAllProctor<TYPE> proctor(this);
 
     if (&srcArray != this) {
         d_index.reserveCapacity(d_index.length(), d_data.size() + numElements);
@@ -1561,6 +1668,8 @@ void CompactedArray<TYPE>::replace(bsl::size_t           dstIndex,
 
         d_index.replace(dstIndex, d_index, srcIndex, numElements);
     }
+
+    proctor.release();
 }
 
 template <class TYPE>
@@ -1593,6 +1702,8 @@ template <class TYPE>
 void CompactedArray<TYPE>::resize(bsl::size_t numElements)
 {
     if (d_index.length() < numElements) {
+        CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
         d_index.reserveCapacity(numElements, d_data.size() + 1);
 
         bsl::size_t count = numElements - d_index.length();
@@ -1601,6 +1712,8 @@ void CompactedArray<TYPE>::resize(bsl::size_t numElements)
         for (bsl::size_t i = 0; i < count; ++i) {
             d_index.push_back(index);
         }
+
+        proctor.release();
     }
     else {
         bsl::size_t count = d_index.length() - numElements;

@@ -284,6 +284,8 @@ typedef bdlc::CompactedArray<bsl::string>::const_iterator Iterator;
                                        bslma::Allocator *basicAllocator)
     : d_initialLocationId(initialLocationId)
     {
+        (void)basicAllocator;  // suppress unused variable compiler warning
+
         // ...
     }
 
