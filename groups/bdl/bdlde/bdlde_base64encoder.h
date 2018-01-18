@@ -428,13 +428,13 @@ class Base64Encoder {
                                                       // length
 
     // INSTANCE DATA
-    signed char d_state;  // state as per above enum
+    signed char d_state;          // state as per above enum
 
-    int d_maxLineLength;  // maximum length of output line
-    int d_lineLength;     // current length of output line
-    int d_outputLength;   // total number of output characters
-    int d_stack;          // storage of non-emitted input
-    int d_bitsInStack;    // number of bits in 'd_stack'
+    int         d_maxLineLength;  // maximum length of output line
+    int         d_lineLength;     // current length of output line
+    int         d_outputLength;   // total number of output characters
+    unsigned    d_stack;          // storage of non-emitted input
+    int         d_bitsInStack;    // number of bits in 'd_stack'
 
   private:
     // NOT IMPLEMENTED
