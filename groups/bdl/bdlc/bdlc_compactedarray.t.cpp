@@ -90,10 +90,11 @@ using namespace bsl;
 // [20] bool operator!=(const CACI& lhs, const PIAI& rhs);
 // [22] CACI& CACI::operator+=(bsl::ptrdiff_t offset);
 // [22] CACI& CACI::operator-=(bsl::ptrdiff_t offset);
-// [22] CACI CACI::operator+(bsl::ptrdiff_t offset);
-// [22] CACI CACI::operator-(bsl::ptrdiff_t offset);
 // [22] CACI CACI::operator++(CACI& iter, int);
 // [22] CACI CACI::operator--(CACI& iter, int);
+// [22] CACI CACI::operator+(const CACI& iterator, bsl::ptrdiff_t offset);
+// [22] CACI CACI::operator+(bsl::ptrdiff_t offset, const CACI& iterator);
+// [22] CACI CACI::operator-(const CACI& iterator, bsl::ptrdiff_t offset);
 // [22] bsl::ptrdiff_t operator-(const CACI& lhs, const CACI& rhs);
 // [21] bool operator<(const CACI& lhs, const CACI& rhs);
 // [21] bool operator<=(const CACI& lhs, const CACI& rhs);
@@ -942,10 +943,11 @@ int main(int argc, char *argv[])
         // Testing:
         //   CACI& CACI::operator+=(bsl::ptrdiff_t offset);
         //   CACI& CACI::operator-=(bsl::ptrdiff_t offset);
-        //   CACI CACI::operator+(bsl::ptrdiff_t offset);
-        //   CACI CACI::operator-(bsl::ptrdiff_t offset);
         //   CACI CACI::operator++(CACI& iter, int);
         //   CACI CACI::operator--(CACI& iter, int);
+        //   CACI CACI::operator+(const CACI& iterator, bsl::ptrdiff_t offset);
+        //   CACI CACI::operator+(bsl::ptrdiff_t offset, const CACI& iterator);
+        //   CACI CACI::operator-(const CACI& iterator, bsl::ptrdiff_t offset);
         //   bsl::ptrdiff_t operator-(const CACI& lhs, const CACI& rhs);
         // --------------------------------------------------------------------
 
@@ -999,19 +1001,22 @@ int main(int argc, char *argv[])
                             Iterator iter2 = iter + j;
                             LOOP2_ASSERT(i, j, *iter2 == X[i + j]);
 
-                            Iterator iter3 = iter;
-                            iter3 += j;
+                            Iterator iter3 = j + iter;
                             LOOP2_ASSERT(i, j, *iter3 == X[i + j]);
 
-                            LOOP2_ASSERT(i, j, iter3 - iter ==  j);
-                            LOOP2_ASSERT(i, j, iter - iter3 == -j);
-
-                            Iterator iter4 = iter - (-j);
+                            Iterator iter4 = iter;
+                            iter4 += j;
                             LOOP2_ASSERT(i, j, *iter4 == X[i + j]);
 
-                            Iterator iter5 = iter;
-                            iter5 -= (-j);
+                            LOOP2_ASSERT(i, j, iter4 - iter ==  j);
+                            LOOP2_ASSERT(i, j, iter - iter4 == -j);
+
+                            Iterator iter5 = iter - (-j);
                             LOOP2_ASSERT(i, j, *iter5 == X[i + j]);
+
+                            Iterator iter6 = iter;
+                            iter6 -= (-j);
+                            LOOP2_ASSERT(i, j, *iter6 == X[i + j]);
                         }
                         if (i - j >= 0) {
                             Iterator iter2 = iter - j;
@@ -1027,9 +1032,12 @@ int main(int argc, char *argv[])
                             Iterator iter4 = iter + (-j);
                             LOOP2_ASSERT(i, j, *iter4 == X[i - j]);
 
-                            Iterator iter5 = iter;
-                            iter5 += (-j);
+                            Iterator iter5 = (-j) + iter;
                             LOOP2_ASSERT(i, j, *iter5 == X[i - j]);
+
+                            Iterator iter6 = iter;
+                            iter6 += (-j);
+                            LOOP2_ASSERT(i, j, *iter6 == X[i - j]);
                         }
                     }
 
@@ -1071,6 +1079,7 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(iter += 1);
             ASSERT_SAFE_FAIL(iter -= 1);
             ASSERT_SAFE_FAIL(iter + 1);
+            ASSERT_SAFE_FAIL(1 + iter);
             ASSERT_SAFE_FAIL(iter - 1);
 
             iter = X.begin();
@@ -1101,9 +1110,12 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(iter - 1);
             ASSERT_SAFE_PASS(iter + 1);
             ASSERT_SAFE_FAIL(iter + 2);
+            ASSERT_SAFE_PASS(1 + iter);
+            ASSERT_SAFE_FAIL(2 + iter);
 
             iter = X.end();
             ASSERT_SAFE_FAIL(iter + 1);
+            ASSERT_SAFE_FAIL(1 + iter);
             ASSERT_SAFE_PASS(iter - 1);
             ASSERT_SAFE_FAIL(iter - 2);
 
