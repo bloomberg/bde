@@ -78,6 +78,7 @@ class Sha224 {
 
     // FRIENDS
     friend bool operator==(const Sha224&, const Sha224&);
+
   public:
     // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 224 / 8;
@@ -100,6 +101,7 @@ class Sha224 {
         // the concatenation of all the provided messages.  The behavior is
         // undefined unless the range '[message, message + length)' is a valid
         // range.
+
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
@@ -118,6 +120,7 @@ class Sha256 {
 
     // FRIENDS
     friend bool operator==(const Sha256&, const Sha256&);
+
   public:
     // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 256 / 8;
@@ -140,6 +143,7 @@ class Sha256 {
         // the concatenation of all the provided messages.  The behavior is
         // undefined unless the range '[message, message + length)' is a valid
         // range.
+
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
@@ -158,6 +162,7 @@ class Sha384 {
 
     // FRIENDS
     friend bool operator==(const Sha384&, const Sha384&);
+
   public:
     // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 384 / 8;
@@ -180,6 +185,7 @@ class Sha384 {
         // the concatenation of all the provided messages.  The behavior is
         // undefined unless the range '[message, message + length)' is a valid
         // range.
+
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
@@ -198,6 +204,7 @@ class Sha512 {
 
     // FRIENDS
     friend bool operator==(const Sha512&, const Sha512&);
+
   public:
     // TYPES
     static const bsl::size_t k_DIGEST_SIZE = 512 / 8;
@@ -220,6 +227,7 @@ class Sha512 {
         // the concatenation of all the provided messages.  The behavior is
         // undefined unless the range '[message, message + length)' is a valid
         // range.
+
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
