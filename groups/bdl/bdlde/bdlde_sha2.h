@@ -69,10 +69,12 @@ class Sha224 {
     // additional data is provided.
 
     // DATA
-    bsl::uint64_t d_totalSize;
-    bsl::uint64_t d_blockBytesUsed;
-    unsigned char d_block[512 / 8];
-    bsl::uint32_t d_state[8];
+    bsl::uint64_t d_totalSize;       // length of the entire message
+    bsl::uint64_t d_bufferSize;      // bytes currently used for 'd_buffer'
+    unsigned char d_buffer[512 / 8]; // buffer for storing remaining part of
+                                     // message that is not yet incorporated
+                                     // into 'd_state'
+    bsl::uint32_t d_state[8];        // state array storing the digest
 
     // FRIENDS
     friend bool operator==(const Sha224&, const Sha224&);
@@ -107,10 +109,12 @@ class Sha256 {
     // additional data is provided.
 
     // DATA
-    bsl::uint64_t d_totalSize;
-    bsl::uint64_t d_blockBytesUsed;
-    unsigned char d_block[512 / 8];
-    bsl::uint32_t d_state[8];
+    bsl::uint64_t d_totalSize;       // length of the entire message
+    bsl::uint64_t d_bufferSize;      // bytes currently used for 'd_buffer'
+    unsigned char d_buffer[512 / 8]; // buffer for storing remaining part of
+                                     // message that is not yet incorporated
+                                     // into 'd_state'
+    bsl::uint32_t d_state[8];        // state array storing the digest
 
     // FRIENDS
     friend bool operator==(const Sha256&, const Sha256&);
@@ -145,10 +149,12 @@ class Sha384 {
     // additional data is provided.
 
     // DATA
-    bsl::uint64_t d_totalSize;
-    bsl::uint64_t d_blockBytesUsed;
-    unsigned char d_block[1024 / 8];
-    bsl::uint64_t d_state[8];
+    bsl::uint64_t d_totalSize;        // length of the entire message
+    bsl::uint64_t d_bufferSize;       // bytes currently used for 'd_buffer'
+    unsigned char d_buffer[1024 / 8]; // buffer for storing remaining part of
+                                      // message that is not yet incorporated
+                                      // into 'd_state'
+    bsl::uint64_t d_state[8];         // state array storing the digest
 
     // FRIENDS
     friend bool operator==(const Sha384&, const Sha384&);
@@ -183,10 +189,12 @@ class Sha512 {
     // additional data is provided.
 
     // DATA
-    bsl::uint64_t d_totalSize;
-    bsl::uint64_t d_blockBytesUsed;
-    unsigned char d_block[1024 / 8];
-    bsl::uint64_t d_state[8];
+    bsl::uint64_t d_totalSize;        // length of the entire message
+    bsl::uint64_t d_bufferSize;       // bytes currently used for 'd_buffer'
+    unsigned char d_buffer[1024 / 8]; // buffer for storing remaining part of
+                                      // message that is not yet incorporated
+                                      // into 'd_state'
+    bsl::uint64_t d_state[8];         // state array storing the digest
 
     // FRIENDS
     friend bool operator==(const Sha512&, const Sha512&);

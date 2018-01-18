@@ -193,16 +193,16 @@ const bsl::uint64_t sha512Constants[80] =
 template<class INTEGER, bsl::size_t ARRAY_SIZE>
 void transform(INTEGER             *state,
                const unsigned char *message,
-               bsl::uint64_t        numberOfBlocks,
-               bsl::uint64_t        blockSize,
+               bsl::uint64_t        numberOfBuffers,
+               bsl::uint64_t        bufferSize,
                const INTEGER      (&constants)[ARRAY_SIZE])
     // Update the specified 'state' with the hashed contents of the specified
-    // 'message' having a length equal to the specified 'blockSize' times the
-    // specified 'numberOfBlocks', mixing it with the values in the specified
+    // 'message' having a length equal to the specified 'bufferSize' times the
+    // specified 'numberOfBuffers', mixing it with the values in the specified
     // 'constants'.
 {
-    const unsigned char *messageEnd = message + blockSize * numberOfBlocks;
-    for (; message != messageEnd; message += blockSize)
+    const unsigned char *messageEnd = message + bufferSize * numberOfBuffers;
+    for (; message != messageEnd; message += bufferSize)
     {
         INTEGER w[ARRAY_SIZE];
         for (int index = 0; index != 16; ++index) {
@@ -241,82 +241,85 @@ void transform(INTEGER             *state,
     }
 }
 
-template<bsl::size_t BLOCK_SIZE, class INTEGER, bsl::size_t ARRAY_SIZE>
+template<bsl::size_t BUFFER_CAPACITY, class INTEGER, bsl::size_t ARRAY_SIZE>
 void updateImpl(INTEGER             *state,
                 bsl::uint64_t       *totalSize,
-                bsl::uint64_t       *blockBytesUsed,
-                unsigned char      (&block)[BLOCK_SIZE],
+                bsl::uint64_t       *bufferSize,
+                unsigned char      (&buffer)[BUFFER_CAPACITY],
                 const unsigned char *message,
                 bsl::size_t          messageSize,
                 const INTEGER      (&constants)[ARRAY_SIZE])
-    // Update the specified 'state' with the contents of the specified 'block'
+    // Update the specified 'state' with the contents of the specified 'buffer'
     // followed by the contents of the specified 'message' having the specified
     // 'messageSize', mixed with the data in the specified 'constants'.  Update
     // the specified 'totalSize' to have the size, in bytes, of all messages
-    // passed in so far.  Populate 'block' with all bytes leftover that did not
-    // fit into a multiple of 'BLOCK_SIZE', and store into the specified
-    // 'blockBytesUsed' the count of the bytes in 'block' that are currently in
-    // use.
+    // passed in so far.  Populate 'buffer' with all bytes leftover that did
+    // not fit into a multiple of 'BUFFER_CAPACITY', and store into the
+    // specified 'bufferSize' the count of the bytes in 'buffer' that are
+    // currently in use.
 {
     const bsl::uint64_t prologueSize = bsl::min(
                                        static_cast<bsl::uint64_t>(messageSize),
-                                                 BLOCK_SIZE - *blockBytesUsed);
+                                                BUFFER_CAPACITY - *bufferSize);
     bsl::copy(message,
               message + prologueSize,
-              block + *blockBytesUsed);
-    *blockBytesUsed += prologueSize;
+              buffer + *bufferSize);
+    *bufferSize += prologueSize;
 
     *totalSize += messageSize;
-    if (*blockBytesUsed != BLOCK_SIZE) {
+    if (*bufferSize != BUFFER_CAPACITY) {
         return;                                                       // RETURN
     }
 
-    transform(state, block, 1, BLOCK_SIZE, constants);
+    transform(state, buffer, 1, BUFFER_CAPACITY, constants);
 
-    const unsigned char *remaining       = message + prologueSize;
-    const bsl::uint64_t  remainingSize   = messageSize - prologueSize;
-    const bsl::uint64_t  remainingBlocks = remainingSize / BLOCK_SIZE;
-    transform(state, remaining, remainingBlocks, BLOCK_SIZE, constants);
+    const unsigned char *remaining        = message + prologueSize;
+    const bsl::uint64_t  remainingSize    = messageSize - prologueSize;
+    const bsl::uint64_t  remainingBuffers = remainingSize / BUFFER_CAPACITY;
+    transform(state, remaining, remainingBuffers, BUFFER_CAPACITY, constants);
 
-    *blockBytesUsed = remainingSize % BLOCK_SIZE;
-    const unsigned char *epilogue = remaining + remainingBlocks * BLOCK_SIZE;
-    bsl::copy(epilogue, epilogue + *blockBytesUsed, block);
+    *bufferSize = remainingSize % BUFFER_CAPACITY;
+    const unsigned char *epilogue = remaining
+                                  + remainingBuffers
+                                  * BUFFER_CAPACITY;
+    bsl::copy(epilogue, epilogue + *bufferSize, buffer);
 }
 
-template<bsl::size_t BLOCK_SIZE, class INTEGER, bsl::size_t ARRAY_SIZE>
+template<bsl::size_t BUFFER_CAPACITY, class INTEGER, bsl::size_t ARRAY_SIZE>
 void finalize(unsigned char        *digest,
               bsl::size_t           digestSize,
               const INTEGER        *inputState,
               bsl::uint64_t         totalSize,
-              bsl::uint64_t         blockBytesUsed,
-              const unsigned char (&block)[BLOCK_SIZE],
+              bsl::uint64_t         bufferSize,
+              const unsigned char (&buffer)[BUFFER_CAPACITY],
               const INTEGER       (&constants)[ARRAY_SIZE])
-    // Mix the remaining contents of the specified 'block' as indicated by the
-    // specified 'blockBytesUsed' after appending the SHA-2 metadata, which
+    // Mix the remaining contents of the specified 'buffer' as indicated by the
+    // specified 'bufferSize' after appending the SHA-2 metadata, which
     // uses the specified 'totalSize', with the data in the specified
     // 'constants', and mix the result into the specified 'state'.  Store into
     // the specified 'digest' having the specified 'digestSize' the contents of
     // 'state'.
 {
     const bsl::uint64_t totalSizeInBits = totalSize * 8;
-    const bsl::uint64_t unpaddedSize    = blockBytesUsed
+    const bsl::uint64_t unpaddedSize    = bufferSize
                                         + 1
                                         + sizeof(INTEGER) * 2;
-    const bsl::uint64_t remainingBlocks = (unpaddedSize <= BLOCK_SIZE) ? 1 : 2;
+    const bsl::uint64_t remainingBuffers =
+                                     (unpaddedSize <= BUFFER_CAPACITY) ? 1 : 2;
     // At the end of the message, we write a special marker byte, followed by
     // the total size of the message.  Insert '0' bytes between those to pad
-    // the message to a multiple of BLOCK_SIZE.
-    unsigned char       finalBlocks[BLOCK_SIZE * 2] = {};
-    bsl::copy(block, block + blockBytesUsed, finalBlocks);
-    finalBlocks[blockBytesUsed] = 1 << 7;
-    unsigned char *end = finalBlocks + remainingBlocks * BLOCK_SIZE;
+    // the message to a multiple of BUFFER_CAPACITY.
+    unsigned char       finalBuffers[BUFFER_CAPACITY * 2] = {};
+    bsl::copy(buffer, buffer + bufferSize, finalBuffers);
+    finalBuffers[bufferSize] = 1 << 7;
+    unsigned char *end = finalBuffers + remainingBuffers * BUFFER_CAPACITY;
     unpack(totalSizeInBits, end - sizeof(totalSizeInBits));
     INTEGER outputState[8];
     bsl::copy(inputState, inputState + 8, outputState);
     transform(outputState,
-              finalBlocks,
-              remainingBlocks,
-              BLOCK_SIZE,
+              finalBuffers,
+              remainingBuffers,
+              BUFFER_CAPACITY,
               constants);
 
     for (unsigned index = 0 ; index < digestSize / sizeof(INTEGER); ++index) {
@@ -330,8 +333,8 @@ void Sha224::update(const void *message, bsl::size_t length)
 {
     updateImpl( d_state,
                &d_totalSize,
-               &d_blockBytesUsed,
-                d_block,
+               &d_bufferSize,
+                d_buffer,
                 static_cast<const unsigned char *>(message),
                 length,
                 sha256Constants);
@@ -340,8 +343,8 @@ void Sha256::update(const void *message, bsl::size_t length)
 {
     updateImpl( d_state,
                &d_totalSize,
-               &d_blockBytesUsed,
-                d_block,
+               &d_bufferSize,
+                d_buffer,
                 static_cast<const unsigned char *>(message),
                 length,
                 sha256Constants);
@@ -350,8 +353,8 @@ void Sha384::update(const void *message, bsl::size_t length)
 {
     updateImpl( d_state,
                &d_totalSize,
-               &d_blockBytesUsed,
-                d_block,
+               &d_bufferSize,
+                d_buffer,
                 static_cast<const unsigned char *>(message),
                 length,
                 sha512Constants);
@@ -360,8 +363,8 @@ void Sha512::update(const void *message, bsl::size_t length)
 {
     updateImpl( d_state,
                &d_totalSize,
-               &d_blockBytesUsed,
-                d_block,
+               &d_bufferSize,
+                d_buffer,
                 static_cast<const unsigned char *>(message),
                 length,
                 sha512Constants);
@@ -373,8 +376,8 @@ void Sha224::loadDigest(unsigned char *digest) const
              k_DIGEST_SIZE,
              d_state,
              d_totalSize,
-             d_blockBytesUsed,
-             d_block,
+             d_bufferSize,
+             d_buffer,
              sha256Constants);
 }
 void Sha256::loadDigest(unsigned char *digest) const
@@ -383,8 +386,8 @@ void Sha256::loadDigest(unsigned char *digest) const
              k_DIGEST_SIZE,
              d_state,
              d_totalSize,
-             d_blockBytesUsed,
-             d_block,
+             d_bufferSize,
+             d_buffer,
              sha256Constants);
 }
 void Sha384::loadDigest(unsigned char *digest) const
@@ -393,8 +396,8 @@ void Sha384::loadDigest(unsigned char *digest) const
              k_DIGEST_SIZE,
              d_state,
              d_totalSize,
-             d_blockBytesUsed,
-             d_block,
+             d_bufferSize,
+             d_buffer,
              sha512Constants);
 }
 void Sha512::loadDigest(unsigned char *digest) const
@@ -403,14 +406,14 @@ void Sha512::loadDigest(unsigned char *digest) const
              k_DIGEST_SIZE,
              d_state,
              d_totalSize,
-             d_blockBytesUsed,
-             d_block,
+             d_bufferSize,
+             d_buffer,
              sha512Constants);
 }
 
 Sha224::Sha224():
     d_totalSize(0),
-    d_blockBytesUsed(0)
+    d_bufferSize(0)
 {
     // Second 32 bits of the fractional parts of the square root of the 9th
     // through 16th primes.
@@ -425,7 +428,7 @@ Sha224::Sha224():
 }
 Sha256::Sha256():
     d_totalSize(0),
-    d_blockBytesUsed(0)
+    d_bufferSize(0)
 {
     // First 32 bits of the fractional part of the square root of the first 8
     // primes.
@@ -440,7 +443,7 @@ Sha256::Sha256():
 }
 Sha384::Sha384():
     d_totalSize(0),
-    d_blockBytesUsed(0)
+    d_bufferSize(0)
 {
     // First 64 bits of the fractional parts of the square root of the 9th
     // through 16th primes.
@@ -455,7 +458,7 @@ Sha384::Sha384():
 }
 Sha512::Sha512():
     d_totalSize(0),
-    d_blockBytesUsed(0)
+    d_bufferSize(0)
 {
     // First 64 bits of the fractional part of the square root of the first 8
     // primes.
@@ -473,40 +476,40 @@ Sha512::Sha512():
 bool operator==(const Sha224& lhs, const Sha224& rhs)
 {
     return lhs.d_totalSize      == rhs.d_totalSize
-        && lhs.d_blockBytesUsed == rhs.d_blockBytesUsed
-        && bsl::equal(lhs.d_block,
-                      lhs.d_block + lhs.d_blockBytesUsed,
-                      rhs.d_block)
+        && lhs.d_bufferSize == rhs.d_bufferSize
+        && bsl::equal(lhs.d_buffer,
+                      lhs.d_buffer + lhs.d_bufferSize,
+                      rhs.d_buffer)
         && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
 }
 
 bool operator==(const Sha256& lhs, const Sha256& rhs)
 {
     return lhs.d_totalSize      == rhs.d_totalSize
-        && lhs.d_blockBytesUsed == rhs.d_blockBytesUsed
-        && bsl::equal(lhs.d_block,
-                      lhs.d_block + lhs.d_blockBytesUsed,
-                      rhs.d_block)
+        && lhs.d_bufferSize == rhs.d_bufferSize
+        && bsl::equal(lhs.d_buffer,
+                      lhs.d_buffer + lhs.d_bufferSize,
+                      rhs.d_buffer)
         && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
 }
 
 bool operator==(const Sha384& lhs, const Sha384& rhs)
 {
     return lhs.d_totalSize      == rhs.d_totalSize
-        && lhs.d_blockBytesUsed == rhs.d_blockBytesUsed
-        && bsl::equal(lhs.d_block,
-                      lhs.d_block + lhs.d_blockBytesUsed,
-                      rhs.d_block)
+        && lhs.d_bufferSize == rhs.d_bufferSize
+        && bsl::equal(lhs.d_buffer,
+                      lhs.d_buffer + lhs.d_bufferSize,
+                      rhs.d_buffer)
         && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
 }
 
 bool operator==(const Sha512& lhs, const Sha512& rhs)
 {
     return lhs.d_totalSize      == rhs.d_totalSize
-        && lhs.d_blockBytesUsed == rhs.d_blockBytesUsed
-        && bsl::equal(lhs.d_block,
-                      lhs.d_block + lhs.d_blockBytesUsed,
-                      rhs.d_block)
+        && lhs.d_bufferSize == rhs.d_bufferSize
+        && bsl::equal(lhs.d_buffer,
+                      lhs.d_buffer + lhs.d_bufferSize,
+                      rhs.d_buffer)
         && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
 }
 
