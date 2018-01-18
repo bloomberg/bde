@@ -1,4 +1,4 @@
-function(process_project outInfoTargets list_dir)
+function(process outInfoTarget list_dir)
     set(projName bde.p)
     bde_add_info_target(${projName})
         # postfix needed because of clash with bde-classic group name
@@ -23,5 +23,5 @@ function(process_project outInfoTargets list_dir)
             ${list_dir}/thirdparty/inteldfp
             ${list_dir}/thirdparty/pcre2
     )
-    set(${outInfoTargets} ${projName} PARENT_SCOPE)
+    set(${outInfoTarget} ${projName} PARENT_SCOPE)
 endfunction()
