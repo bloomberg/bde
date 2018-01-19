@@ -997,8 +997,6 @@ void sessionStateCallbackUsingChannelMapAndCounter(
         }
       } break;
       case btlmt::SessionPool::e_SESSION_UP: {
-        ASSERT(0 != session->channel()->peerAddress().ipAddress());
-
         if (veryVerbose) {
             MTCOUT << "Client connected from "
                    << session->channel()->peerAddress()
