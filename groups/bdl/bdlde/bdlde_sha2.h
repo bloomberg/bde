@@ -90,18 +90,27 @@ class Sha224 {
         // having been provided.
 
     // MANIPULATORS
-    void update(const void *message, bsl::size_t length);
+    void reset();
+        // Reset the value of this SHA-2 digest to the value provided by the
+        // default constructor.
+
+    void update(const void *data, bsl::size_t length);
         // Update the value of this SHA-2 digest to incorporate the specified
-        // 'message' having the specified 'length' in bytes.  If the current
+        // 'data' having the specified 'length' in bytes.  If the current
         // state is the default state, the resultant value of this SHA-2
         // digest is the application of the SHA-2 algorithm upon the currently
-        // given 'message' of the given 'length'.  If this digest has been
+        // given 'data' of the given 'length'.  If this digest has been
         // previously provided data and has not been subsequently assigned to,
         // the current state is equivalent to applying the SHA-2 algorithm to
         // the concatenation of all the provided messages.  The behavior is
-        // undefined unless the range '[message, message + length)' is a valid
-        // range.
+        // undefined unless the range '[data, data + length)' is a valid range.
 
+    void loadDigestAndReset(unsigned char *digest);
+        // Load the current value of this SHA-2 digest into the specified
+        // 'digest' and set the value of this SHA-2 digest to the value
+        // provided by the default constructor.
+
+    // ACCESSORS
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
@@ -132,18 +141,27 @@ class Sha256 {
         // having been provided.
 
     // MANIPULATORS
-    void update(const void *message, bsl::size_t length);
+    void reset();
+        // Reset the value of this SHA-2 digest to the value provided by the
+        // default constructor.
+
+    void update(const void *data, bsl::size_t length);
         // Update the value of this SHA-2 digest to incorporate the specified
-        // 'message' having the specified 'length' in bytes.  If the current
+        // 'data' having the specified 'length' in bytes.  If the current
         // state is the default state, the resultant value of this SHA-2
         // digest is the application of the SHA-2 algorithm upon the currently
-        // given 'message' of the given 'length'.  If this digest has been
+        // given 'data' of the given 'length'.  If this digest has been
         // previously provided data and has not been subsequently assigned to,
         // the current state is equivalent to applying the SHA-2 algorithm to
         // the concatenation of all the provided messages.  The behavior is
-        // undefined unless the range '[message, message + length)' is a valid
-        // range.
+        // undefined unless the range '[data, data + length)' is a valid range.
 
+    void loadDigestAndReset(unsigned char *digest);
+        // Load the current value of this SHA-2 digest into the specified
+        // 'digest' and set the value of this SHA-2 digest to the value
+        // provided by the default constructor.
+
+    // ACCESSORS
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
@@ -174,18 +192,27 @@ class Sha384 {
         // having been provided.
 
     // MANIPULATORS
-    void update(const void *message, bsl::size_t length);
+    void reset();
+        // Reset the value of this SHA-2 digest to the value provided by the
+        // default constructor.
+
+    void update(const void *data, bsl::size_t length);
         // Update the value of this SHA-2 digest to incorporate the specified
-        // 'message' having the specified 'length' in bytes.  If the current
+        // 'data' having the specified 'length' in bytes.  If the current
         // state is the default state, the resultant value of this SHA-2
         // digest is the application of the SHA-2 algorithm upon the currently
-        // given 'message' of the given 'length'.  If this digest has been
+        // given 'data' of the given 'length'.  If this digest has been
         // previously provided data and has not been subsequently assigned to,
         // the current state is equivalent to applying the SHA-2 algorithm to
         // the concatenation of all the provided messages.  The behavior is
-        // undefined unless the range '[message, message + length)' is a valid
-        // range.
+        // undefined unless the range '[data, data + length)' is a valid range.
 
+    void loadDigestAndReset(unsigned char *digest);
+        // Load the current value of this SHA-2 digest into the specified
+        // 'digest' and set the value of this SHA-2 digest to the value
+        // provided by the default constructor.
+
+    // ACCESSORS
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };
@@ -216,18 +243,27 @@ class Sha512 {
         // having been provided.
 
     // MANIPULATORS
-    void update(const void *message, bsl::size_t length);
+    void reset();
+        // Reset the value of this SHA-2 digest to the value provided by the
+        // default constructor.
+
+    void update(const void *data, bsl::size_t length);
         // Update the value of this SHA-2 digest to incorporate the specified
-        // 'message' having the specified 'length' in bytes.  If the current
+        // 'data' having the specified 'length' in bytes.  If the current
         // state is the default state, the resultant value of this SHA-2
         // digest is the application of the SHA-2 algorithm upon the currently
-        // given 'message' of the given 'length'.  If this digest has been
+        // given 'data' of the given 'length'.  If this digest has been
         // previously provided data and has not been subsequently assigned to,
         // the current state is equivalent to applying the SHA-2 algorithm to
         // the concatenation of all the provided messages.  The behavior is
-        // undefined unless the range '[message, message + length)' is a valid
-        // range.
+        // undefined unless the range '[data, data + length)' is a valid range.
 
+    void loadDigestAndReset(unsigned char *digest);
+        // Load the current value of this SHA-2 digest into the specified
+        // 'digest' and set the value of this SHA-2 digest to the value
+        // provided by the default constructor.
+
+    // ACCESSORS
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
 };

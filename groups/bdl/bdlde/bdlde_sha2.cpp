@@ -288,7 +288,7 @@ void updateImpl(INTEGER             *state,
 template<bsl::size_t BUFFER_CAPACITY, class INTEGER, bsl::size_t ARRAY_SIZE>
 void finalize(unsigned char        *digest,
               bsl::size_t           digestSize,
-              const INTEGER        *inputState,
+              INTEGER              *state,
               bsl::uint64_t         totalSize,
               bsl::uint64_t         bufferSize,
               const unsigned char (&buffer)[BUFFER_CAPACITY],
@@ -314,20 +314,82 @@ void finalize(unsigned char        *digest,
     finalBuffers[bufferSize] = 1 << 7;
     unsigned char *end = finalBuffers + remainingBuffers * BUFFER_CAPACITY;
     unpack(totalSizeInBits, end - sizeof(totalSizeInBits));
-    INTEGER outputState[8];
-    bsl::copy(inputState, inputState + 8, outputState);
-    transform(outputState,
+    transform(state,
               finalBuffers,
               remainingBuffers,
               BUFFER_CAPACITY,
               constants);
 
     for (unsigned index = 0 ; index < digestSize / sizeof(INTEGER); ++index) {
-        unpack(outputState[index], &digest[index * sizeof(INTEGER)]);
+        unpack(state[index], &digest[index * sizeof(INTEGER)]);
     }
 }
 
 } // close unnamed namespace
+
+void Sha224::reset()
+{
+    d_totalSize = 0;
+    d_bufferSize = 0;
+    // Second 32 bits of the fractional parts of the square root of the 9th
+    // through 16th primes.
+    d_state[0] = 0xc1059ed8;
+    d_state[1] = 0x367cd507;
+    d_state[2] = 0x3070dd17;
+    d_state[3] = 0xf70e5939;
+    d_state[4] = 0xffc00b31;
+    d_state[5] = 0x68581511;
+    d_state[6] = 0x64f98fa7;
+    d_state[7] = 0xbefa4fa4;
+}
+
+void Sha256::reset()
+{
+    d_totalSize = 0;
+    d_bufferSize = 0;
+    // First 32 bits of the fractional part of the square root of the first 8
+    // primes.
+    d_state[0] = 0x6a09e667;
+    d_state[1] = 0xbb67ae85;
+    d_state[2] = 0x3c6ef372;
+    d_state[3] = 0xa54ff53a;
+    d_state[4] = 0x510e527f;
+    d_state[5] = 0x9b05688c;
+    d_state[6] = 0x1f83d9ab;
+    d_state[7] = 0x5be0cd19;
+}
+
+void Sha384::reset()
+{
+    d_totalSize = 0;
+    d_bufferSize = 0;
+    // First 64 bits of the fractional parts of the square root of the 9th
+    // through 16th primes.
+    d_state[0] = 0xcbbb9d5dc1059ed8ULL;
+    d_state[1] = 0x629a292a367cd507ULL;
+    d_state[2] = 0x9159015a3070dd17ULL;
+    d_state[3] = 0x152fecd8f70e5939ULL;
+    d_state[4] = 0x67332667ffc00b31ULL;
+    d_state[5] = 0x8eb44a8768581511ULL;
+    d_state[6] = 0xdb0c2e0d64f98fa7ULL;
+    d_state[7] = 0x47b5481dbefa4fa4ULL;
+}
+
+void Sha512::reset()
+{
+    d_totalSize = 0;
+    d_bufferSize = 0;
+    // First 64 bits of the fractional part of the square root of the first 8
+    // primes.
+    d_state[0] = 0x6a09e667f3bcc908ULL;
+    d_state[1] = 0xbb67ae8584caa73bULL;
+    d_state[2] = 0x3c6ef372fe94f82bULL;
+    d_state[3] = 0xa54ff53a5f1d36f1ULL;
+    d_state[4] = 0x510e527fade682d1ULL;
+    d_state[5] = 0x9b05688c2b3e6c1fULL;
+    d_state[6] = 0x1f83d9abfb41bd6bULL;
+    d_state[7] = 0x5be0cd19137e2179ULL;
+}
 
 void Sha224::update(const void *message, bsl::size_t length)
 {
@@ -372,9 +434,11 @@ void Sha512::update(const void *message, bsl::size_t length)
 
 void Sha224::loadDigest(unsigned char *digest) const
 {
+    bsl::uint32_t outputState[8];
+    bsl::copy(d_state, d_state + 8, outputState);
     finalize(digest,
              k_DIGEST_SIZE,
-             d_state,
+             outputState,
              d_totalSize,
              d_bufferSize,
              d_buffer,
@@ -382,9 +446,11 @@ void Sha224::loadDigest(unsigned char *digest) const
 }
 void Sha256::loadDigest(unsigned char *digest) const
 {
+    bsl::uint32_t outputState[8];
+    bsl::copy(d_state, d_state + 8, outputState);
     finalize(digest,
              k_DIGEST_SIZE,
-             d_state,
+             outputState,
              d_totalSize,
              d_bufferSize,
              d_buffer,
@@ -392,9 +458,11 @@ void Sha256::loadDigest(unsigned char *digest) const
 }
 void Sha384::loadDigest(unsigned char *digest) const
 {
+    bsl::uint64_t outputState[8];
+    bsl::copy(d_state, d_state + 8, outputState);
     finalize(digest,
              k_DIGEST_SIZE,
-             d_state,
+             outputState,
              d_totalSize,
              d_bufferSize,
              d_buffer,
@@ -402,6 +470,41 @@ void Sha384::loadDigest(unsigned char *digest) const
 }
 void Sha512::loadDigest(unsigned char *digest) const
 {
+    bsl::uint64_t outputState[8];
+    bsl::copy(d_state, d_state + 8, outputState);
+    finalize(digest,
+             k_DIGEST_SIZE,
+             outputState,
+             d_totalSize,
+             d_bufferSize,
+             d_buffer,
+             sha512Constants);
+}
+
+void Sha224::loadDigestAndReset(unsigned char *digest)
+{
+    finalize(digest,
+             k_DIGEST_SIZE,
+             d_state,
+             d_totalSize,
+             d_bufferSize,
+             d_buffer,
+             sha256Constants);
+    reset();
+}
+void Sha256::loadDigestAndReset(unsigned char *digest)
+{
+    finalize(digest,
+             k_DIGEST_SIZE,
+             d_state,
+             d_totalSize,
+             d_bufferSize,
+             d_buffer,
+             sha256Constants);
+    reset();
+}
+void Sha384::loadDigestAndReset(unsigned char *digest)
+{
     finalize(digest,
              k_DIGEST_SIZE,
              d_state,
@@ -409,67 +512,35 @@ void Sha512::loadDigest(unsigned char *digest) const
              d_bufferSize,
              d_buffer,
              sha512Constants);
+    reset();
+}
+void Sha512::loadDigestAndReset(unsigned char *digest)
+{
+    finalize(digest,
+             k_DIGEST_SIZE,
+             d_state,
+             d_totalSize,
+             d_bufferSize,
+             d_buffer,
+             sha512Constants);
+    reset();
 }
 
-Sha224::Sha224():
-    d_totalSize(0),
-    d_bufferSize(0)
+Sha224::Sha224()
 {
-    // Second 32 bits of the fractional parts of the square root of the 9th
-    // through 16th primes.
-    d_state[0] = 0xc1059ed8;
-    d_state[1] = 0x367cd507;
-    d_state[2] = 0x3070dd17;
-    d_state[3] = 0xf70e5939;
-    d_state[4] = 0xffc00b31;
-    d_state[5] = 0x68581511;
-    d_state[6] = 0x64f98fa7;
-    d_state[7] = 0xbefa4fa4;
+    reset();
 }
-Sha256::Sha256():
-    d_totalSize(0),
-    d_bufferSize(0)
+Sha256::Sha256()
 {
-    // First 32 bits of the fractional part of the square root of the first 8
-    // primes.
-    d_state[0] = 0x6a09e667;
-    d_state[1] = 0xbb67ae85;
-    d_state[2] = 0x3c6ef372;
-    d_state[3] = 0xa54ff53a;
-    d_state[4] = 0x510e527f;
-    d_state[5] = 0x9b05688c;
-    d_state[6] = 0x1f83d9ab;
-    d_state[7] = 0x5be0cd19;
+    reset();
 }
-Sha384::Sha384():
-    d_totalSize(0),
-    d_bufferSize(0)
+Sha384::Sha384()
 {
-    // First 64 bits of the fractional parts of the square root of the 9th
-    // through 16th primes.
-    d_state[0] = 0xcbbb9d5dc1059ed8ULL;
-    d_state[1] = 0x629a292a367cd507ULL;
-    d_state[2] = 0x9159015a3070dd17ULL;
-    d_state[3] = 0x152fecd8f70e5939ULL;
-    d_state[4] = 0x67332667ffc00b31ULL;
-    d_state[5] = 0x8eb44a8768581511ULL;
-    d_state[6] = 0xdb0c2e0d64f98fa7ULL;
-    d_state[7] = 0x47b5481dbefa4fa4ULL;
+    reset();
 }
-Sha512::Sha512():
-    d_totalSize(0),
-    d_bufferSize(0)
+Sha512::Sha512()
 {
-    // First 64 bits of the fractional part of the square root of the first 8
-    // primes.
-    d_state[0] = 0x6a09e667f3bcc908ULL;
-    d_state[1] = 0xbb67ae8584caa73bULL;
-    d_state[2] = 0x3c6ef372fe94f82bULL;
-    d_state[3] = 0xa54ff53a5f1d36f1ULL;
-    d_state[4] = 0x510e527fade682d1ULL;
-    d_state[5] = 0x9b05688c2b3e6c1fULL;
-    d_state[6] = 0x1f83d9abfb41bd6bULL;
-    d_state[7] = 0x5be0cd19137e2179ULL;
+    reset();
 }
 
 // FREE OPERATORS
