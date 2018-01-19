@@ -109,7 +109,7 @@ using namespace bdlf::PlaceHolders;
 // [ 4] Testing removal of inefficiencies in read callback
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [20] USAGE EXAMPLE
+// [21] USAGE EXAMPLE
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -997,6 +997,8 @@ void sessionStateCallbackUsingChannelMapAndCounter(
         }
       } break;
       case btlmt::SessionPool::e_SESSION_UP: {
+        ASSERT(0 != session->channel()->peerAddress().ipAddress());
+
         if (veryVerbose) {
             MTCOUT << "Client connected from "
                    << session->channel()->peerAddress()
@@ -1793,6 +1795,88 @@ void runTestFunction(Obj                     *mX,
 
 }  // close namespace BTLMT_SESSION_POOL_BUSY_METRICS
 
+namespace BTLMT_SESSION_POOL_INVALID_PEER_ADDRESS_NAMESPACE {
+
+using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+
+bsls::AtomicInt s_numConnsUp(0);
+bsls::AtomicInt s_continueFlag(1);
+
+enum { k_PORTNUM = 20100 };
+
+void sscbWithPeerAddressAssert(int             state,
+                               int             ,
+                               btlmt::Session *session,
+                               void           *)
+    // Session state callback that asserts that on session up the underlying
+    // channel has a valid peer address.
+{
+    switch(state) {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
+        if (veryVerbose) {
+            MTCOUT << "Client from "
+                   << session->channel()->peerAddress()
+                   << " has disconnected."
+                   << MTENDL;
+        }
+      } break;
+      case btlmt::SessionPool::e_SESSION_UP: {
+        const btlso::IPv4Address& addr = session->channel()->peerAddress();
+        ASSERT(0 != addr.ipAddress());
+        ++s_numConnsUp;
+        if (veryVerbose) {
+            MTCOUT << "Client connected from " << addr << MTENDL;
+        }
+      } break;
+    }
+}
+
+extern "C" void *serverFunction(void *)
+    // This method opens a listening socket, accepts a connection on it, and
+    // then closes the connection and the listening socket immediately after.
+    // This loop is repeated till the global 's_continueFlag' is '1'.
+{
+    int rc = btlso::SocketImpUtil::startup();
+    ASSERT(0 == rc);
+    while (s_continueFlag) {
+        btlso::SocketHandle::Handle serverSocket, acceptSocket;
+        int rc = btlso::SocketImpUtil::open<btlso::IPv4Address>(
+                                        &serverSocket,
+                                        btlso::SocketImpUtil::k_SOCKET_STREAM);
+        ASSERT(0 == rc);
+
+        btlso::SocketOptions options;
+        options.setReuseAddress(true);
+        rc = btlso::SocketOptUtil::setSocketOptions(serverSocket, options);
+        ASSERT(0 == rc);
+
+        btlso::IPv4Address address;
+        address.setPortNumber(k_PORTNUM);
+        rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
+                                                            address);
+        ASSERT(0 == rc);
+
+        rc = btlso::SocketImpUtil::listen(serverSocket, 10);
+        ASSERT(0 == rc);
+
+        rc = btlso::SocketImpUtil::accept<btlso::IPv4Address>(&acceptSocket,
+                                                              serverSocket);
+        ASSERT(0 == rc);
+
+        bslmt::ThreadUtil::yield();
+
+        rc = btlso::SocketImpUtil::close(acceptSocket);
+        ASSERT(0 == rc);
+        rc = btlso::SocketImpUtil::close(serverSocket);
+        ASSERT(0 == rc);
+    }
+    rc = btlso::SocketImpUtil::cleanup();
+    ASSERT(0 == rc);
+    return (void *) 0;
+}
+
+}  // close namespace BTLMT_SESSION_POOL_INVALID_PEER_ADDRESS_NAMESPACE
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -2243,7 +2327,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -2264,6 +2348,83 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
 
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // Testing fix for invalid peer addresses
+        //
+        // Concerns:
+        //: 1 When the session factory's 'allocate' method is called with an
+        //:   'AsyncChannel', the 'peerAddress' associated with that channel is
+        //:   valid.
+        //
+        // Plan:
+        //: 1 Create a separate thread that runs a function that repeatedly
+        //:   opens a listener socket and closes it.
+        //:
+        //: 2 Create a SessionPool object and repeatedly try to connect to the
+        //:   listener socket opened in step 1.
+        //:
+        //: 3 If the connection is established and the session state callback
+        //:   is invoked confirm that the peer address in the specified
+        //:   session is correct.
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing fix for invalid peer address" << endl
+                          << "====================================" << endl;
+
+        using namespace BTLMT_SESSION_POOL_INVALID_PEER_ADDRESS_NAMESPACE;
+
+        // Start server thread
+        bslmt::ThreadUtil::Handle serverThread;
+        ASSERT(0 == bslmt::ThreadUtil::create(&serverThread,
+                                              &serverFunction,
+                                              (void *) 0));
+
+        typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
+
+        btlmt::ChannelPoolConfiguration config;
+        config.setMaxThreads(5);
+        config.setWriteQueueWatermarks(0, 1024 * 1024);  // 1 Mb
+
+        Obj mX(config, &poolStateCallback);  const Obj& X = mX;
+
+        ASSERT(0 == mX.start());
+
+        typedef btlmt::SessionPool::SessionStateCallback SessionCb;
+
+        SessionCb        sessionStateCb(&sscbWithPeerAddressAssert);
+        BlobReadCallback rcb(&readCb);
+        TestFactory      sessionFactory(&rcb);
+
+        const int MAX_TRIES = 2000;
+
+        while (s_numConnsUp < MAX_TRIES) {
+            int handle;
+            btlso::IPv4Address address;
+            address.setPortNumber(k_PORTNUM);
+
+            bsls::TimeInterval timeout(10, 0);
+
+            btlmt::ConnectOptions options;
+            options.setServerEndpoint(address);
+            options.setTimeout(timeout);
+            options.setNumAttempts(1);
+
+            const int rc = mX.connect(&handle,
+                                      sessionStateCb,
+                                      &sessionFactory,
+                                      options);
+            ASSERT(0 == rc);
+        }
+
+        s_continueFlag = 0;
+
+        ASSERT(0 == mX.stopAndRemoveAllSessions());
+
+        bslmt::ThreadUtil::join(serverThread);
       } break;
       case 19: {
         // --------------------------------------------------------------------

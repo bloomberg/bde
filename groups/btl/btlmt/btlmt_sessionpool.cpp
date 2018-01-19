@@ -242,6 +242,20 @@ void SessionPool::channelStateCb(int   channelId,
                                                      &d_spAllocator,
                                                      d_allocator_p);
 
+        if (0 == handle->d_channel_p->peerAddress().ipAddress()) {
+            // The peer closed the connection right after it was established.
+            // ChannelPool identified that a connection was established and
+            // called the channel state callback but before we could create a
+            // 'ChannelPoolChannel' object with a valid 'peerAddress' the
+            // connection was closed.  If read was enabled on this channel we
+            // should get a subsequent CHANNEL_DOWN callback but we
+            // proactively remove the state for this connection so a channel
+            // with an invalid peerAddress is not passed to the user.
+
+            d_handles.remove(handle->d_handleId);
+            return;                                                   // RETURN
+        }
+
         lock.release()->unlock();
 
         // We're binding the 'handleId' instead of the shared pointer so if the
