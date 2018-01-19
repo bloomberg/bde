@@ -98,7 +98,7 @@ function(process outInfoTarget listFile)
     )
 
     set(infoTarget ${TARGET}-standalone)
-    bre_prepare_uor(${TARGET} ${infoTarget} "" LIBRARY)
+    bde_prepare_uor(${TARGET} ${infoTarget} "" LIBRARY)
     bde_project_add_uor(${infoTarget} ${TARGET})
     set(${outInfoTarget} ${infoTarget} PARENT_SCOPE)
 endfunction()
