@@ -18,8 +18,7 @@ BSLS_IDENT("$Id: $")
 //   BDLMT_THROTTLE_IF, BDLMT_THROTTLE_IF_REALTIME,
 //   BDLMT_THROTTLE_IF_ALLOW_ALL, BDLMT_THROTTLE_IF_ALLOW_NONE
 //
-//@SEE_ALSO:
-//   bslmt_turnstile, btls_leakybucket
+//@SEE_ALSO: bslmt_turnstile, btls_leakybucket
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
@@ -263,11 +262,11 @@ class Throttle {
     typedef bsls::AtomicOperations   AtomicOps;
     typedef AtomicOps::AtomicTypes   AtomicTypes;
 
+    // PRIVATE CONSTANTS
     enum { k_BILLION = 1000 * 1000 * 1000 };
 
-    // PRIVATE CONSTANTS
-    static const Int64 k_ALLOW_ALL  = LLONG_MIN;
-    static const Int64 k_ALLOW_NONE = LLONG_MAX;
+    static const Int64 k_ALLOW_ALL   = LLONG_MIN;
+    static const Int64 k_ALLOW_NONE  = LLONG_MAX;
     static const Int64 k_MAX_SECONDS = LLONG_MAX / k_BILLION;
     static const Int64 k_MIN_SECONDS = LLONG_MIN / k_BILLION;
 
@@ -386,7 +385,7 @@ class Throttle {
         // 'Throttle' is configured to permit.
 
     Int64 nanosecondsPerAction() const;
-        // Return the time debt, in nanoseconds, that this 'Throttle is
+        // Return the time debt, in nanoseconds, that this 'Throttle' is
         // configured to incur for each action permitted.
 
     int nextPermit(bsls::TimeInterval *result, int numActions) const;
@@ -470,28 +469,6 @@ int Throttle::requestPermissionIfValid(bool                      *result,
 
     *result = this->requestPermission(numActions,
                                       bsls::SystemTime::now(d_clockType));
-    return 0;
-}
-
-inline
-int Throttle::requestPermissionIfValid(bool                      *result,
-                                       int                        numActions,
-                                       const bsls::TimeInterval&  now)
-{
-    if (numActions <= 0 || (d_maxSimultaneousActions < numActions &&
-                                              0 != d_maxSimultaneousActions)) {
-        return -1;                                                    // RETURN
-    }
-    if (k_MAX_SECONDS < now.seconds() || now.seconds() < k_MIN_SECONDS) {
-        return -1;                                                    // RETURN
-    }
-    const Int64 sns = k_BILLION * now.seconds(); // Seconds in NanoSeconds
-    if (0 <= sns ? LLONG_MAX - sns < now.nanoseconds()
-                 : LLONG_MIN - sns > now.nanoseconds()) {
-        return -1;                                                    // RETURN
-    }
-
-    *result = this->requestPermission(numActions, now);
     return 0;
 }
 

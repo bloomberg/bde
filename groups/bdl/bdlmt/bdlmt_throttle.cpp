@@ -163,6 +163,27 @@ bool Throttle::requestPermission(int                       numActions,
     }
 }
 
+int Throttle::requestPermissionIfValid(bool                      *result,
+                                       int                        numActions,
+                                       const bsls::TimeInterval&  now)
+{
+    if (numActions <= 0 || (d_maxSimultaneousActions < numActions &&
+                                              0 != d_maxSimultaneousActions)) {
+        return -1;                                                    // RETURN
+    }
+    if (k_MAX_SECONDS < now.seconds() || now.seconds() < k_MIN_SECONDS) {
+        return -1;                                                    // RETURN
+    }
+    const Int64 sns = k_BILLION * now.seconds(); // Seconds in NanoSeconds
+    if (0 <= sns ? LLONG_MAX - sns < now.nanoseconds()
+                 : LLONG_MIN - sns > now.nanoseconds()) {
+        return -1;                                                    // RETURN
+    }
+
+    *result = this->requestPermission(numActions, now);
+    return 0;
+}
+
 // ACCESSOR
 int Throttle::nextPermit(bsls::TimeInterval *result, int numActions) const
 {
