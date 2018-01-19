@@ -5,11 +5,6 @@ function(process outInfoTarget listFile)
     set(TARGET decnumber)
 
     bde_add_info_target(${TARGET})
-    set(${outInfoTarget} ${TARGET} PARENT_SCOPE)
-    bde_info_target_set_property(${TARGET} TARGET "${TARGET}")
-
-    # Standard CMake modules.
-    include (TestBigEndian)
 
     set(headers
         ${rootDir}/decContext.h
@@ -24,9 +19,9 @@ function(process outInfoTarget listFile)
         ${rootDir}/decQuad.h
         ${rootDir}/decSingle.h
     )
+    bde_info_target_set_property(${TARGET} HEADERS ${headers})
 
-    add_library(
-        ${TARGET}
+    bde_info_target_set_property(${TARGET} SOURCES
         ${rootDir}/decContext.c
         ${rootDir}/decDouble.c
         ${rootDir}/decimal32.c
@@ -36,11 +31,10 @@ function(process outInfoTarget listFile)
         ${rootDir}/decPacked.c
         ${rootDir}/decQuad.c
         ${rootDir}/decSingle.c
-        ${headers}
     )
 
-    include(bde_ufid)
-    #bde_set_ufid_flags(${TARGET})
+    bde_add_interface_target(${TARGET})
+    bde_info_target_set_property(${TARGET} INTERFACE_TARGET ${TARGET})
 
     # As reported here: https://github.com/bloomberg/bde/pull/148
     #
@@ -52,10 +46,10 @@ function(process outInfoTarget listFile)
     # Without this change clang/linux builds will fail with multiply defined
     # symbols.
     if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
-        target_compile_options(${TARGET} PRIVATE "-std=gnu89")
+        bde_interface_target_compile_options(${TARGET} PRIVATE "-std=gnu89")
     endif()
 
-    target_compile_options(
+    bde_interface_target_compile_options(
         ${TARGET}
         PRIVATE
             $<$<CXX_COMPILER_ID:Clang>:
@@ -75,9 +69,10 @@ function(process outInfoTarget listFile)
     )
 
     # Detecting platform endianess.
+    include (TestBigEndian)
     test_big_endian(IS_BIG_ENDIAN)
 
-    target_compile_definitions(
+    bde_interface_target_compile_definitions(
         ${TARGET}
         PRIVATE
             "DECLITEND=$<NOT:$<BOOL:${IS_BIG_ENDIAN}>>"
@@ -88,7 +83,7 @@ function(process outInfoTarget listFile)
         ${rootDir} DIRECTORY
     )
 
-    target_include_directories(
+    bde_interface_target_include_directories(
         ${TARGET}
         PUBLIC
             $<BUILD_INTERFACE:${rootDir}>
@@ -97,50 +92,13 @@ function(process outInfoTarget listFile)
     )
 
     install(
-        TARGETS ${TARGET}
-        EXPORT ${TARGET}Targets
-        COMPONENT "${TARGET}"
-        ARCHIVE DESTINATION ${bde_install_lib_suffix}/${bde_install_ufid}
-        LIBRARY DESTINATION ${bde_install_lib_suffix}/${bde_install_ufid}
-    )
-
-    if(CMAKE_HOST_UNIX)
-        # This code will create a symlink to a corresponding "ufid" build.
-        # Use with care.
-        set(libName "${CMAKE_STATIC_LIBRARY_PREFIX}${TARGET}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-        set(symlink_val "${bde_install_ufid}/${libName}")
-        set(symlink_file "\$ENV{DESTDIR}/\${CMAKE_INSTALL_PREFIX}/${bde_install_lib_suffix}/${libName}")
-
-        install(
-            CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${symlink_val} ${symlink_file})"
-            COMPONENT "${TARGET}-symlinks"
-            EXCLUDE_FROM_ALL
-        )
-    endif()
-
-    install(
-        EXPORT ${TARGET}Targets
-        COMPONENT "${TARGET}"
-        DESTINATION "${bde_install_lib_suffix}/${bde_install_ufid}/cmake"
-    )
-
-    set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/..")
-
-    configure_file(
-        "${rootDir}/${TARGET}Config.cmake.in"
-        "${PROJECT_BINARY_DIR}/${TARGET}Config.cmake"
-        @ONLY
-    )
-
-    install(
-        FILES "${PROJECT_BINARY_DIR}/${TARGET}Config.cmake"
-        COMPONENT "${TARGET}"
-        DESTINATION "${bde_install_lib_suffix}/${bde_install_ufid}/cmake"
-    )
-
-    install(
         FILES ${headers}
         COMPONENT "${TARGET}-headers"
         DESTINATION "include/${TARGET}"
     )
+
+    set(infoTarget ${TARGET}-standalone)
+    bde_prepare_uor(${TARGET} ${infoTarget} "" LIBRARY)
+    bde_project_add_uor(${infoTarget} ${TARGET})
+    set(${outInfoTarget} ${infoTarget} PARENT_SCOPE)
 endfunction()
