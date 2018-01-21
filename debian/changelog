@@ -1,6 +1,26 @@
 bsl-internal (3.5.0.0) unstable; urgency=low
 
-  * 484439e92 Bump version to 3.5.0
+  * 3eea51d9d Remove unreleased groups from bal and btl
+  * eee5afca7 Changelog for version 3.5.0.0
+  * dd59bb0e2 Bump version to 3.5.0
+  * 33647948f Merge pull request #1652 from rkhlebnikov/master
+  * 02e8754af Merge pull request #1648 from hrosen4/signed-shift_drqs-114474016
+  * 2b7aa9f99 Merge pull request #1640 from rbhindwa/btlmt_sessionpool-reuseAddress-bug-drqs-114065883
+  * bd765bcf5 Merge pull request #1644 from ameredit/shared_ptr_for_vc2017
+  * 3cad81703 Merge pull request #1646 from afeher/drqs-114170148
+  * 55d004055 Merge pull request #1643 from afeher/drqs-114168816-document-include-name
+  * d7d464edf Merge pull request #1639 from cwilson/bsl-changes-from-ball-baseline-for-3.5.0
+  * 127f1b4db Merge pull request #1623 from cwilson/bsls_deprecate-first-use-drqs-112659468
+  * 5dd09ef77 Merge pull request #1633 from rkhlebnikov/btlmt_tcptimereventmanager-logging-fix-drqs-113079237
+  * 4c6914ea6 Merge pull request #1626 from mkim572/bdlt_date-accessors-non-standard-drqs-106330225
+  * 9eb52bdec Merge pull request #1635 from bde/revert-1629-time-interval-units-drqs-66438995
+  * d9f48f999 Merge pull request #1629 from dstone50/time-interval-units-drqs-66438995
+  * 0697f92ff Merge pull request #1634 from osubbotin/review/cmake-internal-release
+  * 9ce6552e1 Merge pull request #1632 from hversche/adjust-condition-documentation-drqs-113923894
+  * f3f4f8ae8 Merge pull request #1617 from egoodrich4/replace-insert-with-emplace
+  * 8e3354f7b adjust 'BSLS_DEPRECATE_IS_ACTIVE' release for 'valueOr'
+  * 9b4b41cab Merge pull request #1619 from rkhlebnikov/bdlt_datetimeinterval-setTotalSecond-drqs-100387561
+  * 3cf12fd7c Merge pull request #1618 from hversche/fix-bdlmt-mqtp-cleanup-drqs-113734461
   * 96c44b992 Merge pull request #1313 from rkhlebnikov/bdlt_datetimeinterval-setTotalSecond-drqs-100387561
   * b41660381 Merge pull request #1608 from hrosen4/hash-null-zero_drqs-113474868
   * 412e70370 Merge pull request #1612 from jmendelsohn4/drqs-113621153/master/bdlt_calendarutil_fix_shiftModified_methods
@@ -1139,7 +1159,7 @@ bsl-internal (3.5.0.0) unstable; urgency=low
   * 486577a0e Merge pull request #559 from rbhindwa/btlmt_channelpool-port-watermark-sequencing-changes-drqs-85532268
   * 835acf117 Merge pull request #539 from bchapman/bslstl_unorderedmap-cpp11-160621-drqs-81595003
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 4 Jan 2018 13:40:24 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 9 Jan 2018 13:22:54 -0500
 
 bsl-internal (3.0.0.0) git; urgency=low
 
@@ -1352,6 +1372,7 @@ bsl-internal (3.0.0.0) git; urgency=low
   * f51a05e57 Merge pull request #314 from mgiroux/review/fix-bdedpkgconfig-for-bde-3.0-uors
   * ed6f6c87e Merge pull request #313 from mgiroux/review/fix-bdedpkgconfig-for-bde-3.0-uors
   * a2a393f4f Merge pull request #286 from cwilson/bael-to-ball-migration-phase1-drqs-78487440
+  * 6ff6177fd Merge branch 'mgiroux-review/add-pcre2-to-debian-control-master'
   * e6ca32310 Merge pull request #308 from che2/third-party-use-relatively-include-paths-drqs-69714826-master
   * 47f794c29 Merge pull request #303 from jmendelsohn4/bdlma_aix_nightly_build-drqs-80716067
   * 8f9a48b98 reduced cases where the really large allocations is performed
@@ -2392,6 +2413,7 @@ bsl-internal (2.20.2.2) git; urgency=low
 
   * 3fad9bb78 bump changelog
   * 9a2dddda7 [APPROVAL] origin/review/fix-debian-sed-command to master
+  * 9945bfc23 fix variable name in sed command in debian/rules
 
  -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 29 Apr 2014 16:20:18 -0400
 
@@ -2456,6 +2478,7 @@ bsl-internal (2.21.0.0.beta.1) git; urgency=low
   * 508cfeeac Merge remote-tracking branch 'remotes/origin/dev/amartin172/decimal-util-include-fix' into hardware_code_3
   * 91644cd04 [APPROVAL] INTERNAL pending/master/fix-deprecation-macro-usage-drqs-46623495 to master
   * 0bf678a42 [APPROVAL] pending/master/fix-deprecation-macro-usage-drqs-46623495 to master
+  * 5917e70ab Fix debian/control.
   * 712114c72 [APPROVAL] OSS fix-bsl+stdhdrs-dep-file-drqs50570497 to master
   * 8c7545d06 [APPROVAL] fix-bsl+stdhdrs-dep-file-drqs50570497 to master
   * 2c2a98388 [APPROVAL] OSS bdldfp_decimalutil.t.cpp-test-driver-compile-infinity to master
@@ -2533,6 +2556,7 @@ bsl-internal (2.20.0.0.bsl.freeze.2) git; urgency=low
   * ff1648376 [APPROVAL] pending/master/debian-rules-cp-default-internal-opts-drqs-48667615 to master
   * 45ac40de7 [APPROVAL] OSS pending/master/remove-windows.h-include to master
   * 8b4220dee [APPROVAL] pending/master/remove-windows.h-include to master
+  * 82ee6c0b5 Updated debian/rules to copy default_internal.opts as well.
   * 6223a0e51 [APPROVAL] OSS review/move-gcc-pragmas-drqs-48661033 to master
   * d4a818b15 [APPROVAL] review/move-gcc-pragmas-drqs-48661033 to master
   * 7e18e0c2b [APPROVAL] OSS review/fix-bdls_testutil-tests-windows-drqs-48410889 to master
@@ -2706,6 +2730,7 @@ bsl-internal (2.18.0.0) git; urgency=low
   * 1decce253 [APPROVAL] OSS pending/master/fix-package-prefix-use-bsls_exceptionutil-drqs40786629 to master
   * 81e9fab5d [APPROVAL] pending/master/fix-package-prefix-use-bsls_exceptionutil-drqs40786629 to master
   * e07ebd0ec [APPROVAL] pending/master/bsl-endianness-drqs39774236 to master
+  * 73f5fb26c debian changes in progress
   * e6a7d54ee [APPROVAL] INTERNAL sun-algorithm-extensions-drqs40798754 to master
   * 64ae05b66 [APPROVAL] sun-algorithm-extensions-drqs40798754 to master
   * 3cae99a9c drqs-40608146: Additional format fixes in 2.17 for 'doxygen' conversion.
