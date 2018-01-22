@@ -1,21 +1,22 @@
 // baljsn_printutil.t.cpp                                             -*-C++-*-
 #include <baljsn_printutil.h>
 
-#include <bslim_testutil.h>
-
-#include <bsl_sstream.h>
-#include <bsl_string.h>
-
-#include <bdlt_time.h>
-#include <bdlt_timetz.h>
 #include <bdlt_date.h>
-#include <bdlt_datetz.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
+#include <bdlt_datetz.h>
+#include <bdlt_time.h>
+#include <bdlt_timetz.h>
+
+#include <bslim_testutil.h>
+#include <bsls_platform.h>
 
 #include <bsl_climits.h>
+#include <bsl_cmath.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -61,7 +62,7 @@ using bsl::endl;
 // [ 5] static int printValue(bsl::ostream& s, const bdldfp::Decimal64&  v);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 6] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -106,6 +107,16 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                   MACROS FOR TESTING WORKAROUNDS
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+    // 'snprintf' on older Windows libraries outputs an additional '0' in the
+    // exponent for scientific notation.
+# define BALJSN_PRINTUTIL_EXTRA_ZERO_PADDING_FOR_EXPONENTS 1
+#endif
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -317,7 +328,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // ENCODING INF and NaN FLOATING POINT VALUES
+        // ENCODING 'INF' AND 'NaN' FLOATING POINT VALUES
         //
         // Concerns:
         //: 1 INF and NaN floating point values can be encoded as strings by
@@ -350,9 +361,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "ENCODING INF and NaN FLOATING POINT VALUES"
+                          << "ENCODING 'INF' AND 'NaN' FLOATING POINT VALUES"
                           << endl
-                          << "=========================================="
+                          << "=============================================="
                           << endl;
 
         testInfAndNaNAsStrings<float>();
@@ -641,7 +652,7 @@ int main(int argc, char *argv[])
                 { L_,           10.0f,  "10" },
                 { L_,           -1.5f,  "-1.5" },
                 { L_,         -1.5e1f,  "-15" },
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
+#if defined(BALJSN_PRINTUTIL_EXTRA_ZERO_PADDING_FOR_EXPONENTS)
                 { L_,   -1.23456e-20f,  "-1.23456e-020" },
                 { L_,    1.23456e-20f,  "1.23456e-020" },
 #else
@@ -761,10 +772,7 @@ int main(int argc, char *argv[])
                 { L_,  0.1234567891f, 4, "0.1235" },
                 { L_,  0.1234567891f, 9, "0.123456791" },
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-                // 'snprintf' on Windows outputs an additional '0' in the
-                // scientific notation.
-
+#if defined(BALJSN_PRINTUTIL_EXTRA_ZERO_PADDING_FOR_EXPONENTS)
                 { L_,           10.0, 1, "1e+001" },
                 { L_,         -1.5e1, 1, "-2e+001" },
                 { L_,-1.23456789e-20, 1, "-1e-020" },
@@ -882,10 +890,7 @@ int main(int argc, char *argv[])
       { L_,     0.123456789012345678, 16, "0.1234567890123457" },
       { L_,     0.123456789012345678, 17, "0.12345678901234568" },
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-                // 'snprintf' on Windows outputs an additional '0' in the
-                // scientific notation.
-
+#if defined(BALJSN_PRINTUTIL_EXTRA_ZERO_PADDING_FOR_EXPONENTS)
       { L_,                     10.0,  1, "1e+001" },
       { L_,                   -1.5e1,  1, "-2e+001" },
       { L_,  -1.2345678901234567e-20,  1, "-1e-020" },

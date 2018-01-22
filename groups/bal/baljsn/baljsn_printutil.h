@@ -87,10 +87,6 @@ BSLS_IDENT("$Id: $")
 #include <baljsn_encoderoptions.h>
 #endif
 
-#ifndef INCLUDED_BDLT_ISO8601UTIL
-#include <bdlt_iso8601util.h>
-#endif
-
 #ifndef INCLUDED_BDLB_FLOAT
 #include <bdlb_float.h>
 #endif
@@ -103,8 +99,24 @@ BSLS_IDENT("$Id: $")
 #include <bdldfp_decimalconvertutil.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMALUTIL
+#include <bdldfp_decimalutil.h>
+#endif
+
+#ifndef INCLUDED_BDLT_ISO8601UTIL
+#include <bdlt_iso8601util.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_BSL_C_STDIO
+#include <bsl_c_stdio.h>
+#endif
+
+#ifndef INCLUDED_BSL_CMATH
+#include <bsl_cmath.h>
 #endif
 
 #ifndef INCLUDED_BSL_IOMANIP
@@ -115,24 +127,16 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ios.h>
 #endif
 
+#ifndef INCLUDED_BSL_LIMITS
+#include <bsl_limits.h>
+#endif
+
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
 #endif
 
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_LIMITS
-#include <bsl_limits.h>
-#endif
-
-#ifndef INCLUDED_BSL_C_STDIO
-#include <bsl_c_stdio.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALUTIL
-#include <bdldfp_decimalutil.h>
 #endif
 
 namespace BloombergLP {
