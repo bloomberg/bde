@@ -92,8 +92,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_iterator.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISLVALUEREFERENCE
+#include <bslmf_islvaluereference.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_UTIL
+#include <bslmf_util.h>
 #endif
 
 #ifndef INCLUDED_BSLS_UTIL
@@ -127,17 +135,26 @@ class ForwardIterator
     // interface, this template generates a complete iterator that meets all of
     // the requirements of a "forward iterator" in the C++ standard.  If 'T' is
     // const-qualified, then the resulting type is a const iterator.  'T' shall
-    // not be a function or reference type.  'ITER_IMP' must provide public
-    // operations so that, for objects 'i' and 'j' of type 'ITER_IMP', the
-    // following operations are supported:
+    // not be a function, reference type or void.  'ITER_IMP' must provide
+    // public operations so that, for objects 'i' and 'j' of type 'ITER_IMP',
+    // the following operations are supported:
     //..
-    //     ITER_IMP i;                          Default construction
-    //     ITER_IMP j(i);                       Copy construction
-    //     i = j                                Assignment
-    //     ++i                                  Increment to next element
-    //     i == j     // convertible to bool    Equality comparison
-    //     *i         // convertible to T&      Element access (dereference)
+    //     ITER_IMP i;                             Default construction
+    //     ITER_IMP j(i);                          Copy construction
+    //     i = j                                   Assignment
+    //     ++i                                     Increment to next element
+    //     i == j // convertible to bool           Equality comparison
+    //     *i     // reference convertible to T&   Element access (dereference)
     //..
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
+    static_assert(
+        bsl::is_lvalue_reference<
+                    decltype(*bslmf::Util::declval<const ITER_IMP&>())>::value,
+        "Forward iterators must return a true reference to their element when "
+                                                              "dereferenced.");
+#endif
 
     // PRIVATE TYPES
     typedef typename bsl::remove_cv<T>::type UnCvqT;   // value type without

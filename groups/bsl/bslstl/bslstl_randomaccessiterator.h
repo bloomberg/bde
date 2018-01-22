@@ -241,21 +241,22 @@ class RandomAccessIterator
     // interface, this template generates a complete iterator that meets all of
     // the requirements of a "random-access iterator" in the C++ standard.  If
     // 'T' is const-qualified, then the resulting type is a const iterator.
-    // 'T' shall not be a function or reference type.  'ITER_IMP' must provide
-    // public operations so that, for objects 'i' and 'j' of type 'ITER_IMP'
-    // and 'n' of an integral type, the following operations are supported:
+    // 'T' shall not be a function, reference type or void.  'ITER_IMP' must
+    // provide public operations so that, for objects 'i' and 'j' of type
+    // 'ITER_IMP' and 'n' of an integral type, the following operations are
+    // supported:
     //..
-    //     ITER_IMP i;                          default construction
-    //     ITER_IMP j(i);                       copy construction
-    //     i = j                                assignment
-    //     ++i                                  increment to next element
-    //     --i                                  decrement to previous element
-    //     i += n                               increment by n elements
-    //     i -= n                               decrement by n elements
-    //     j - i   // convertible to ptrdiff_t  distance from i to j
-    //     i == j  // convertible to bool       equality comparison
-    //     i < j   // convertible to bool       less-than comparison
-    //     *i      // convertible to T&         element access (dereference)
+    //     ITER_IMP i;                            default construction
+    //     ITER_IMP j(i);                         copy construction
+    //     i = j                                  assignment
+    //     ++i                                    increment to next element
+    //     --i                                    decrement to previous element
+    //     i += n                                 increment by n elements
+    //     i -= n                                 decrement by n elements
+    //     j - i  // convertible to ptrdiff_t     distance from i to j
+    //     i == j // convertible to bool          equality comparison
+    //     i < j  // convertible to bool          less-than comparison
+    //     *i     // reference convertible to T&  element access (dereference)
     //..
 
     // PRIVATE TYPES

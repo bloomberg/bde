@@ -228,17 +228,17 @@ class BidirectionalIterator
     // interface, this template generates a complete iterator that meets all of
     // the requirements of a "bidirectional iterator" in the C++ standard.  If
     // 'T' is 'const'-qualified, then the resulting type is a constant
-    // iterator.  'T' shall not be a function or reference type.  'ITER_IMP'
-    // must provide public operations so that, for objects 'i' and 'j' of type
-    // 'ITER_IMP', the following operations are supported:
+    // iterator.  'T' shall not be a function, reference type or void.
+    // 'ITER_IMP' must provide public operations so that, for objects 'i' and
+    // 'j' of type 'ITER_IMP', the following operations are supported:
     //..
-    //     ITER_IMP i;                          default construction
-    //     ITER_IMP j(i);                       copy construction
-    //     i = j                                assignment
-    //     ++i                                  increment to next element
-    //     --i                                  decrement to previous element
-    //     i == j     // convertible to bool    equality comparison
-    //     *i         // convertible to T&      element access (dereference)
+    //     ITER_IMP i;                            default construction
+    //     ITER_IMP j(i);                         copy construction
+    //     i = j                                  assignment
+    //     ++i                                    increment to next element
+    //     --i                                    decrement to previous element
+    //     i == j // convertible to bool          equality comparison
+    //     *i     // reference convertible to T&  element access (dereference)
     //..
 
     // PRIVATE TYPES
