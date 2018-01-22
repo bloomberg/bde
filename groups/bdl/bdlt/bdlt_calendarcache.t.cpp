@@ -890,7 +890,7 @@ int main(int argc, char *argv[])
 //
 ///Example 2: A Calendar Cache with a Timeout
 /// - - - - - - - - - - - - - - - - - - - - -
-// This second example shows the affects on a 'bdlt::CalendarCache' object that
+// This second example shows the effects on a 'bdlt::CalendarCache' object that
 // is constructed to have a timeout value.  Note that the following snippets of
 // code assume a platform-independent 'sleepSeconds' method that sleeps for the
 // specified number of seconds.
@@ -898,7 +898,7 @@ int main(int argc, char *argv[])
 // First, we create a calendar loader and a calendar cache.  The cache is
 // constructed to have a timeout of 3 seconds.  Of course, such a short timeout
 // is inappropriate for production use, but it is necessary for illustrating
-// the affects of a timeout in this example.  As in example 1 (above), we again
+// the effects of a timeout in this example.  As in example 1 (above), we again
 // let the cache use the default allocator:
 //..
     MyCalendarLoader           loader;
@@ -2254,7 +2254,7 @@ int main(int argc, char *argv[])
         //:   and verify that the calendar is no longer in the cache.
         //:
         //: 5 Repeat P-1..4, but this time use the 'getCalendar' method to
-        //:   observe the affects of a timeout.  (C-1)
+        //:   observe the effects of a timeout.  (C-1)
         //
         // Testing:
         //   CONCERN: A non-trivial timeout is processed correctly.
@@ -2270,7 +2270,7 @@ int main(int argc, char *argv[])
 
         Obj mX(&loader, Interval(30, 0), &sa);  const Obj& X = mX;
 
-        // Observe affects of timeout via 'lookupCalendar' method.
+        // Observe effects of timeout via 'lookupCalendar' method.
         {
             Entry e;
 
@@ -2285,7 +2285,7 @@ int main(int argc, char *argv[])
             e = X.lookupCalendar("CAL-1");       ASSERT(!e.get());
         }
 
-        // Observe affects of timeout via 'getCalendar' method.
+        // Observe effects of timeout via 'getCalendar' method.
         {
             Entry e1 = mX.getCalendar("CAL-1");  ASSERT(e1.get());
 

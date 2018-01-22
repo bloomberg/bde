@@ -201,7 +201,7 @@ BSLS_IDENT("$Id: $")
 //:   parameters modified, should one of its methods terminate as the result of
 //:   an injected exception (irrespective of the exception source).  Note that
 //:   it is not generally possible to ensure that all global state, or optional
-//:   modifiable parameters (e.g., allocators), will be entirely uneffected.
+//:   modifiable parameters (e.g., allocators), will be entirely unaffected.
 //
 ///Thread-Aware [TS.4]
 ///- - - - - - - - - -

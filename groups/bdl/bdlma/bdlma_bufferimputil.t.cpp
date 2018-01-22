@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
         //
         //   5) That when a non-raw method is used and the allocation request
         //      would cause the capacity of the buffer to be exceeded, 0 is
-        //      returned and the cursor is not effected.
+        //      returned and the cursor is not affected.
         //
         //   6) QoI: Asserted precondition violations are detected when
         //      enabled.

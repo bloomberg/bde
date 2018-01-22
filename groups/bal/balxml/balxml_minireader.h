@@ -611,7 +611,7 @@ class MiniReader :  public Reader {
         // The XML resource resolver is used by the 'balxml_reader' to find and
         // open an external resources (See the 'XmlResolverFunctor' typedef for
         // more details).  The XML resource resolver remains valid; it is not
-        // effected by a call to 'close' and should be available until the
+        // affected by a call to 'close' and should be available until the
         // reader is destroyed.  The behavior is undefined if this method is
         // called after calling 'open' and before calling 'close'.
 

@@ -886,7 +886,7 @@ if (veryVerbose)
         //:   this component for 'Datetime' and 'DatetimeTz' values are
         //:   rejected (i.e., parsing fails).
         //:
-        //: 7 If parsing fails, the result object is uneffected and a non-zero
+        //: 7 If parsing fails, the result object is unaffected and a non-zero
         //:   value is returned.
         //:
         //: 8 The entire extent of the input string is parsed.
@@ -1610,7 +1610,7 @@ if (veryVerbose)
         //:   this component for 'Time' and 'TimeTz' values are rejected (i.e.,
         //:   parsing fails).
         //:
-        //: 7 If parsing fails, the result object is uneffected and a non-zero
+        //: 7 If parsing fails, the result object is unaffected and a non-zero
         //:   value is returned.
         //:
         //: 8 The entire extent of the input string is parsed.
@@ -2103,7 +2103,7 @@ if (veryVerbose)
         //:   this component for 'Date' and 'DateTz' values are rejected (i.e.,
         //:   parsing fails).
         //:
-        //: 7 If parsing fails, the result object is uneffected and a non-zero
+        //: 7 If parsing fails, the result object is unaffected and a non-zero
         //:   value is returned.
         //:
         //: 8 The entire extent of the input string is parsed.
