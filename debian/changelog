@@ -1,7 +1,18 @@
-bsl-internal (3.4.1.2) unstable; urgency=low
+bsl-internal (3.4.2.0) unstable; urgency=low
 
+  * 0a8e07b3c bump bdl & bal versions to 3.4.2
+  * 3f1c6a03b Merge pull request #1624 from hversche/pr/1617-rebased-releases/3.4.x
+  * 59f5bee5e Merge pull request #1620 from rkhlebnikov/pr/1619-rebased-releases/3.4.x
+  * 8ecdb2971 Merge pull request #1615 from rkhlebnikov/pr/1313-rebased-releases/3.4.x
+  * d8de1bab4 Cleaner version using library functions
 
- -- Jeffrey Mendelsohn <JMENDELSOHN4@bloomberg.net>  Wed, 3 Jan 2018 12:16:31 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Jan 2018 10:29:28 -0500
+
+bsl-internal (3.4.1.2) git; urgency=low
+
+  * 220af5201 Changelog for version 3.4.1.2
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 3 Jan 2018 13:05:46 -0500
 
 bsl-internal (3.4.1.1) git; urgency=low
 
