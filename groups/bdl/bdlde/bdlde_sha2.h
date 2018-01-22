@@ -60,6 +60,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdint.h>
+#include <bsl_iosfwd.h>
 
 namespace BloombergLP {
 namespace bdlde {
@@ -113,6 +114,10 @@ class Sha224 {
     // ACCESSORS
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
+
+    bsl::ostream& print(bsl::ostream& stream) const;
+        // Format the current value of this SHA-2 digest to the specified
+        // output 'stream' and return a reference to the modifiable 'stream'.
 };
 
 class Sha256 {
@@ -164,6 +169,10 @@ class Sha256 {
     // ACCESSORS
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
+
+    bsl::ostream& print(bsl::ostream& stream) const;
+        // Format the current value of this SHA-2 digest to the specified
+        // output 'stream' and return a reference to the modifiable 'stream'.
 };
 
 class Sha384 {
@@ -215,6 +224,10 @@ class Sha384 {
     // ACCESSORS
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
+
+    bsl::ostream& print(bsl::ostream& stream) const;
+        // Format the current value of this SHA-2 digest to the specified
+        // output 'stream' and return a reference to the modifiable 'stream'.
 };
 
 class Sha512 {
@@ -266,6 +279,10 @@ class Sha512 {
     // ACCESSORS
     void loadDigest(unsigned char *digest) const;
         // Load the value of this SHA-2 digest into the specified 'digest'.
+
+    bsl::ostream& print(bsl::ostream& stream) const;
+        // Format the current value of this SHA-2 digest to the specified
+        // output 'stream' and return a reference to the modifiable 'stream'.
 };
 
 // FREE OPERATORS
@@ -317,6 +334,26 @@ bool operator!=(const Sha512& lhs, const Sha512& rhs);
     // value if the values obtained from their respective 'loadDigest' methods
     // differ.
 
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const Sha224& digest);
+    // Write to the specified output 'stream' the specified SHA-2 'digest' and
+    // return a reference to the modifiable 'stream'.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const Sha256& digest);
+    // Write to the specified output 'stream' the specified SHA-2 'digest' and
+    // return a reference to the modifiable 'stream'.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const Sha384& digest);
+    // Write to the specified output 'stream' the specified SHA-2 'digest' and
+    // return a reference to the modifiable 'stream'.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const Sha512& digest);
+    // Write to the specified output 'stream' the specified SHA-2 'digest' and
+    // return a reference to the modifiable 'stream'.
+
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -363,6 +400,30 @@ inline
 bool operator!=(const Sha512& lhs, const Sha512& rhs)
 {
     return !(lhs == rhs);
+}
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const Sha224& digest)
+{
+    return digest.print(stream);
+}
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const Sha256& digest)
+{
+    return digest.print(stream);
+}
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const Sha384& digest)
+{
+    return digest.print(stream);
+}
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const Sha512& digest)
+{
+    return digest.print(stream);
 }
 
 } // close package namespace

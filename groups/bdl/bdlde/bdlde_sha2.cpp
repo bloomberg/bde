@@ -325,7 +325,37 @@ void finalize(unsigned char        *digest,
     }
 }
 
+template<bsl::size_t SIZE>
+void toHex(char *output, const unsigned char (&input)[SIZE])
+    // Store into the specified 'output' the hex representation of the bytes in
+    // the specified 'input'.
+{
+    const char *hexTable = "0123456789abcdef";
+    for (bsl::size_t index = 0; index != SIZE; ++index) {
+        const unsigned char byte = input[index];
+        output[index * 2]     = hexTable[byte / 16];
+        output[index * 2 + 1] = hexTable[byte % 16];
+    }
+}
+
 } // close unnamed namespace
+
+Sha224::Sha224()
+{
+    reset();
+}
+Sha256::Sha256()
+{
+    reset();
+}
+Sha384::Sha384()
+{
+    reset();
+}
+Sha512::Sha512()
+{
+    reset();
+}
 
 void Sha224::reset()
 {
@@ -526,21 +556,53 @@ void Sha512::loadDigestAndReset(unsigned char *digest)
     reset();
 }
 
-Sha224::Sha224()
+bsl::ostream& Sha224::print(bsl::ostream& stream) const
 {
-    reset();
+    unsigned char result[k_DIGEST_SIZE];
+    loadDigest(result);
+    char output[2 * k_DIGEST_SIZE + 1];
+    toHex(output, result);
+    output[2 * k_DIGEST_SIZE] = '\0';
+
+    stream << output;
+
+    return stream;
 }
-Sha256::Sha256()
+bsl::ostream& Sha256::print(bsl::ostream& stream) const
 {
-    reset();
+    unsigned char result[k_DIGEST_SIZE];
+    loadDigest(result);
+    char output[2 * k_DIGEST_SIZE + 1];
+    toHex(output, result);
+    output[2 * k_DIGEST_SIZE] = '\0';
+
+    stream << output;
+
+    return stream;
 }
-Sha384::Sha384()
+bsl::ostream& Sha384::print(bsl::ostream& stream) const
 {
-    reset();
+    unsigned char result[k_DIGEST_SIZE];
+    loadDigest(result);
+    char output[2 * k_DIGEST_SIZE + 1];
+    toHex(output, result);
+    output[2 * k_DIGEST_SIZE] = '\0';
+
+    stream << output;
+
+    return stream;
 }
-Sha512::Sha512()
+bsl::ostream& Sha512::print(bsl::ostream& stream) const
 {
-    reset();
+    unsigned char result[k_DIGEST_SIZE];
+    loadDigest(result);
+    char output[2 * k_DIGEST_SIZE + 1];
+    toHex(output, result);
+    output[2 * k_DIGEST_SIZE] = '\0';
+
+    stream << output;
+
+    return stream;
 }
 
 // FREE OPERATORS
