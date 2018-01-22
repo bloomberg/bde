@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 // Since a class may declare multiple traits (see the component-level
 // documentation of {'bslalg_nestedtraitdeclaration'} for information about
 // declaring traits), the relative precedence of the traits is shown above.
-// The next sub-sections describe these traits and their affects on printing.
+// The next sub-sections describe these traits and their effects on printing.
 //
 ///Effect of 'bdlb::TypeTraitHasPrintMethod' Trait
 ///- - - - - - - - - - - - - - - - - - - - - - - -

@@ -188,7 +188,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: A Calendar Cache with a Timeout
 /// - - - - - - - - - - - - - - - - - - - - -
-// This second example shows the affects on a 'bdlt::CalendarCache' object that
+// This second example shows the effects on a 'bdlt::CalendarCache' object that
 // is constructed to have a timeout value.  Note that the following snippets of
 // code assume a platform-independent 'sleepSeconds' method that sleeps for the
 // specified number of seconds.
@@ -196,7 +196,7 @@ BSLS_IDENT("$Id: $")
 // First, we create a calendar loader and a calendar cache.  The cache is
 // constructed to have a timeout of 3 seconds.  Of course, such a short timeout
 // is inappropriate for production use, but it is necessary for illustrating
-// the affects of a timeout in this example.  As in example 1 (above), we again
+// the effects of a timeout in this example.  As in example 1 (above), we again
 // let the cache use the default allocator:
 //..
 //  MyCalendarLoader           loader;
