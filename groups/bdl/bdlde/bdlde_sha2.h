@@ -20,7 +20,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //@SEE_ALSO: bdlde_md5
 //
 //@DESCRIPTION: This component provides a set of classes ('Sha224', 'Sha256',
-// 'Sha384', and 'Sha512') that implement a mechanism for computing and updating a SHA-2 digest (a cryptographic hash).  The specification for this is based on FIPS-180, which can be found at
+// 'Sha384', and 'Sha512') that implement a mechanism for computing and
+// updating a SHA-2 digest (a cryptographic hash).  The specification for this
+// is based on FIPS-180, which can be found at
 //..
 //  http://csrc.nist.gov/publications/fips/fips180-4/fips-180-4.pdf
 //..
@@ -68,6 +70,17 @@ namespace bdlde {
 class Sha224 {
     // This 'class' represents a SHA-224 digest that can be updated as
     // additional data is provided.
+    //
+    // More generally, this class supports a complete set of *value*
+    // *semantic* operations, including copy construction, assignment, equality
+    // comparison, and 'ostream' printing.  (A precise operational definition
+    // of when two instances have the same value can be found in the
+    // description of 'operator==' for the class.)  This container is
+    // *exception* *neutral* with no guarantee of rollback: if an exception is
+    // thrown during the invocation of a method on a pre-existing instance, the
+    // class is left in a valid state, but its value is undefined.  In no event
+    // is memory leaked.  Finally, *aliasing* (e.g., using all or part of an
+    // object as both source and destination) is supported in all cases.
 
     // DATA
     bsl::uint64_t d_totalSize;       // length of the entire message
@@ -123,6 +136,17 @@ class Sha224 {
 class Sha256 {
     // This 'class' represents a SHA-256 digest that can be updated as
     // additional data is provided.
+    //
+    // More generally, this class supports a complete set of *value*
+    // *semantic* operations, including copy construction, assignment, equality
+    // comparison, and 'ostream' printing.  (A precise operational definition
+    // of when two instances have the same value can be found in the
+    // description of 'operator==' for the class.)  This container is
+    // *exception* *neutral* with no guarantee of rollback: if an exception is
+    // thrown during the invocation of a method on a pre-existing instance, the
+    // class is left in a valid state, but its value is undefined.  In no event
+    // is memory leaked.  Finally, *aliasing* (e.g., using all or part of an
+    // object as both source and destination) is supported in all cases.
 
     // DATA
     bsl::uint64_t d_totalSize;       // length of the entire message
@@ -178,6 +202,17 @@ class Sha256 {
 class Sha384 {
     // This 'class' represents a SHA-384 digest that can be updated as
     // additional data is provided.
+    //
+    // More generally, this class supports a complete set of *value*
+    // *semantic* operations, including copy construction, assignment, equality
+    // comparison, and 'ostream' printing.  (A precise operational definition
+    // of when two instances have the same value can be found in the
+    // description of 'operator==' for the class.)  This container is
+    // *exception* *neutral* with no guarantee of rollback: if an exception is
+    // thrown during the invocation of a method on a pre-existing instance, the
+    // class is left in a valid state, but its value is undefined.  In no event
+    // is memory leaked.  Finally, *aliasing* (e.g., using all or part of an
+    // object as both source and destination) is supported in all cases.
 
     // DATA
     bsl::uint64_t d_totalSize;        // length of the entire message
@@ -233,6 +268,17 @@ class Sha384 {
 class Sha512 {
     // This 'class' represents a SHA-512 digest that can be updated as
     // additional data is provided.
+    //
+    // More generally, this class supports a complete set of *value*
+    // *semantic* operations, including copy construction, assignment, equality
+    // comparison, and 'ostream' printing.  (A precise operational definition
+    // of when two instances have the same value can be found in the
+    // description of 'operator==' for the class.)  This container is
+    // *exception* *neutral* with no guarantee of rollback: if an exception is
+    // thrown during the invocation of a method on a pre-existing instance, the
+    // class is left in a valid state, but its value is undefined.  In no event
+    // is memory leaked.  Finally, *aliasing* (e.g., using all or part of an
+    // object as both source and destination) is supported in all cases.
 
     // DATA
     bsl::uint64_t d_totalSize;        // length of the entire message
@@ -288,51 +334,63 @@ class Sha512 {
 // FREE OPERATORS
 bool operator==(const Sha224& lhs, const Sha224& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
-    // value, and 'false' otherwise.  Two digests have the same value if the
-    // values obtained from their respective 'loadDigest' methods are identical.
+    // value, and 'false' otherwise.  Two digests have the same value if, after
+    // applying any number of equivalent updates to both (possibly including no
+    // updates), the values obtained from their respective 'loadDigest' methods
+    // are identical.
 
 inline
 bool operator!=(const Sha224& lhs, const Sha224& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
     // the same value, and 'false' otherwise.  Two digests do not have the same
-    // value if the values obtained from their respective 'loadDigest' methods
-    // differ.
+    // value if there exists a set of updates (possibly including the empty
+    // set) that, if applied to both, lead to different values being obtained
+    // from their respective 'loadDigest' methods.
 
 bool operator==(const Sha256& lhs, const Sha256& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
-    // value, and 'false' otherwise.  Two digests have the same value if the
-    // values obtained from their respective 'loadDigest' methods are identical.
+    // value, and 'false' otherwise.  Two digests have the same value if, after
+    // applying any number of equivalent updates to both (possibly including no
+    // updates), the values obtained from their respective 'loadDigest' methods
+    // are identical.
 
 inline
 bool operator!=(const Sha256& lhs, const Sha256& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
     // the same value, and 'false' otherwise.  Two digests do not have the same
-    // value if the values obtained from their respective 'loadDigest' methods
-    // differ.
+    // value if there exists a set of updates (possibly including the empty
+    // set) that, if applied to both, lead to different values being obtained
+    // from their respective 'loadDigest' methods.
 
 bool operator==(const Sha384& lhs, const Sha384& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
-    // value, and 'false' otherwise.  Two digests have the same value if the
-    // values obtained from their respective 'loadDigest' methods are identical.
+    // value, and 'false' otherwise.  Two digests have the same value if, after
+    // applying any number of equivalent updates to both (possibly including no
+    // updates), the values obtained from their respective 'loadDigest' methods
+    // are identical.
 
 inline
 bool operator!=(const Sha384& lhs, const Sha384& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
     // the same value, and 'false' otherwise.  Two digests do not have the same
-    // value if the values obtained from their respective 'loadDigest' methods
-    // differ.
+    // value if there exists a set of updates (possibly including the empty
+    // set) that, if applied to both, lead to different values being obtained
+    // from their respective 'loadDigest' methods.
 
 bool operator==(const Sha512& lhs, const Sha512& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests have the same
-    // value, and 'false' otherwise.  Two digests have the same value if the
-    // values obtained from their respective 'loadDigest' methods are identical.
+    // value, and 'false' otherwise.  Two digests have the same value if, after
+    // applying any number of equivalent updates to both (possibly including no
+    // updates), the values obtained from their respective 'loadDigest' methods
+    // are identical.
 
 inline
 bool operator!=(const Sha512& lhs, const Sha512& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' SHA digests do not have
     // the same value, and 'false' otherwise.  Two digests do not have the same
-    // value if the values obtained from their respective 'loadDigest' methods
-    // differ.
+    // value if there exists a set of updates (possibly including the empty
+    // set) that, if applied to both, lead to different values being obtained
+    // from their respective 'loadDigest' methods.
 
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sha224& digest);
