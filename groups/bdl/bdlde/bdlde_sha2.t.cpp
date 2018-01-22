@@ -261,7 +261,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Verify a range of values with varying sizes and bytes against
-        //:   known values.
+        //:   known values. These known values came from running the Python
+        //:   implementation of the SHA-2 algorithms.
         //
         // Testing:
         //   void Sha512::loadDigest(unsigned char *digest);
@@ -292,7 +293,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Hashing a particular value provides the expected hash output when
-        //:   using either the class interface or the function interface.
+        //:   known values. These known values came from running the Python
+        //:   implementation of the SHA-2 algorithms.
         //
         // Plan:
         //: 1 Verify a range of values with varying sizes and bytes against
@@ -327,7 +329,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Hashing a particular value provides the expected hash output when
-        //:   using either the class interface or the function interface.
+        //:   known values. These known values came from running the Python
+        //:   implementation of the SHA-2 algorithms.
         //
         // Plan:
         //: 1 Verify a range of values with varying sizes and bytes against
@@ -356,7 +359,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 Hashing a particular value provides the expected hash output when
-        //:   using either the class interface or the function interface.
+        //:   known values. These known values came from running the Python
+        //:   implementation of the SHA-2 algorithms.
         //
         // Plan:
         //: 1 Verify a range of values with varying sizes and bytes against
