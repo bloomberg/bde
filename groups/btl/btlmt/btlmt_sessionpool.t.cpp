@@ -2410,6 +2410,7 @@ int main(int argc, char *argv[])
             options.setServerEndpoint(address);
             options.setTimeout(timeout);
             options.setNumAttempts(1);
+            options.setEnableRead(false);
 
             const int rc = mX.connect(&handle,
                                       sessionStateCb,
