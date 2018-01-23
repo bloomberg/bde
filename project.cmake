@@ -1,6 +1,6 @@
 function(process outInfoTarget list_dir)
     set(projName bde.p)
-    bde_add_info_target(${projName})
+    bde_struct_create(BDE_PROJECT_TYPE ${projName})
         # postfix needed because of clash with bde-classic group name
 
     bde_project_process_uors(
