@@ -36,10 +36,9 @@ using namespace bsl;
 // access to the data placed within the array (operator[]) and those allowing
 // access to primary attributes of the array ('allocator', 'capacity',
 // 'isEmpty', 'length', 'uniqueElement', and 'uniqueLength').  After the
-// standard 10-cases, the unique functionality of the container, which goes
-// beyond an attribute class, is tested.  Effort is made to use only the
-// primary manipulators and accessors whenever possible, thus making every test
-// case independent.
+// standard 10 cases, the unique functionality of the container is tested.
+// Effort is made to use only the primary manipulators and accessors whenever
+// possible, thus making every test case independent.
 //
 // Primary Manipulators
 //: o 'append'
@@ -50,13 +49,13 @@ using namespace bsl;
 //: o 'operator[]'
 //: o 'allocator'
 //: o 'capacity'
-//: o 'isEmpty'
 //: o 'length'
 //: o 'uniqueElement'
 //: o 'uniqueLength'
 //
 // Certain standard value-semantic-type test cases are omitted:
 //: o [ 8] -- GENERATOR FUNCTION
+//: o [10] BDEX
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
@@ -72,10 +71,6 @@ using namespace bsl;
 //: o All explicit memory allocations are presumed to use the global, default,
 //:   or object allocator.
 //: o ACCESSOR methods are 'const' thread-safe.
-//: o Individual attribute types are presumed to be *alias-safe*; hence, only
-//:   certain methods require the testing of this property:
-//:   o copy-assignment
-//:   o swap
 // ----------------------------------------------------------------------------
 // [20] CompactedArray::const_iterator();
 // [20] CompactedArray::const_iterator(const CACI& original);
@@ -302,7 +297,7 @@ typedef bdlc::CompactedArray<bsl::string>::const_iterator Iterator;
 //..
 
 // ============================================================================
-//                GENERATOR FUNCTIONS 'g' AND 'gg' FOR TESTING
+//               GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
 // ----------------------------------------------------------------------------
 // The following functions interpret the given 'spec' in order from left to
 // right to configure the object according to a custom language.
@@ -494,7 +489,7 @@ int main(int argc, char *argv[])
         //: 2 Specify a set of specifications for distinct object values.
         //:
         //: 3 For every item in the cross-product of these two sets, verify
-        //:   that the hash value is the same when the two items are.  Hope
+        //:   that the hash value is the same when the two items are.  Presume
         //:   that they are different when the two items are.  (C-1..3)
         //
         // Testing:
@@ -688,13 +683,14 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj         mX;   gg(&mX,  "abc");
+            Obj mX;  const Obj& X = mX;  gg(&mX,  "abc");
 
-            Obj        mT;
-            const Obj& T = mT;
+            Obj mT;  const Obj& T = mT;
 
-            mT = mX;  ASSERT_SAFE_PASS(mT.remove(T.begin(), T.end()));
-            mT = mX;  ASSERT_SAFE_FAIL(mT.remove(T.end(),   T.begin()));
+            mT = X;  ASSERT_SAFE_PASS(mT.remove(T.begin(), T.end()));
+            mT = X;  ASSERT_SAFE_FAIL(mT.remove(T.end(),   T.begin()));
+            mT = X;  ASSERT_SAFE_FAIL(mT.remove(X.begin(), T.end()));
+            mT = X;  ASSERT_SAFE_FAIL(mT.remove(T.begin(), X.end()));
         }
       } break;
       case 24: {
@@ -710,6 +706,8 @@ int main(int argc, char *argv[])
         //:
         //: 3 When there is initially sufficient storage in the result variable
         //:   to store the result, the methods produce the expected value.
+        //:
+        //: 4 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Wrap all tests with the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
@@ -725,6 +723,8 @@ int main(int argc, char *argv[])
         //: 4 For every item in the cross-product of these two sets, verify
         //:   the result for the method (the set from 2 is applied to only
         //:   the initial object).  (C-2..3)
+        //:
+        //: 5 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   CACI insert(CACI dst, value);
@@ -802,6 +802,22 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE,
                             allocations == defaultAllocator.numAllocations());
             }
+        }
+
+        if (verbose) cout << "\nNegative testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            Obj mX;  const Obj& X = mX;  gg(&mX,  "abc");
+
+            Obj mT;  const Obj& T = mT;
+
+            const bsl::string Z("a", 1);
+
+            mT = X;  ASSERT_SAFE_PASS(mT.insert(T.begin(), Z));
+            mT = X;  ASSERT_SAFE_PASS(mT.insert(T.end(),   Z));
+            mT = X;  ASSERT_SAFE_FAIL(mT.insert(X.begin(), Z));
         }
       } break;
       case 23: {
@@ -2038,21 +2054,21 @@ int main(int argc, char *argv[])
 
             Obj mX;
 
-            ASSERT_SAFE_FAIL(mX.reserveCapacity(1));
+            ASSERT_FAIL(mX.reserveCapacity(1));
 
-            ASSERT_SAFE_PASS(mX.reserveCapacity(0));
+            ASSERT_PASS(mX.reserveCapacity(0));
 
-            ASSERT_SAFE_PASS(mX.reserveCapacity(0, 0));
+            ASSERT_PASS(mX.reserveCapacity(0, 0));
 
-            ASSERT_SAFE_FAIL(mX.reserveCapacity(1, 0));
+            ASSERT_FAIL(mX.reserveCapacity(1, 0));
 
-            ASSERT_SAFE_FAIL(mX.reserveCapacity(0, 1));
+            ASSERT_FAIL(mX.reserveCapacity(0, 1));
 
-            ASSERT_SAFE_PASS(mX.reserveCapacity(1, 1));
+            ASSERT_PASS(mX.reserveCapacity(1, 1));
 
             mX.push_back(bsl::string("a", 1));
 
-            ASSERT_SAFE_PASS(mX.reserveCapacity(1));
+            ASSERT_PASS(mX.reserveCapacity(1));
         }
       } break;
       case 15: {
@@ -2318,22 +2334,22 @@ int main(int argc, char *argv[])
             Obj        mY;  gg(&mY, "aa");
             const Obj& Y = mY;
 
-            ASSERT_SAFE_FAIL(mX.replace(  4,  "a"));
+            ASSERT_FAIL(mX.replace(  4,  "a"));
 
-            ASSERT_SAFE_FAIL(mX.replace(  4,  Y, 0, 1));
+            ASSERT_FAIL(mX.replace(  4,  Y, 0, 1));
 
-            ASSERT_SAFE_PASS(mX.replace(  0,  "a"));
+            ASSERT_PASS(mX.replace(  0,  "a"));
 
-            ASSERT_SAFE_PASS(mX.replace(  0,  Y, 0, 0));
-            ASSERT_SAFE_PASS(mX.replace(  0,  Y, 0, 1));
-            ASSERT_SAFE_PASS(mX.replace(  0,  Y, 0, 2));
-            ASSERT_SAFE_FAIL(mX.replace(  0,  Y, 0, 3));
-            ASSERT_SAFE_PASS(mX.replace(  0,  Y, 1, 0));
-            ASSERT_SAFE_PASS(mX.replace(  0,  Y, 1, 1));
-            ASSERT_SAFE_FAIL(mX.replace(  0,  Y, 1, 2));
-            ASSERT_SAFE_PASS(mX.replace(  0,  Y, 2, 0));
-            ASSERT_SAFE_FAIL(mX.replace(  0,  Y, 2, 1));
-            ASSERT_SAFE_FAIL(mX.replace(  0,  Y, 3, 0));
+            ASSERT_PASS(mX.replace(  0,  Y, 0, 0));
+            ASSERT_PASS(mX.replace(  0,  Y, 0, 1));
+            ASSERT_PASS(mX.replace(  0,  Y, 0, 2));
+            ASSERT_FAIL(mX.replace(  0,  Y, 0, 3));
+            ASSERT_PASS(mX.replace(  0,  Y, 1, 0));
+            ASSERT_PASS(mX.replace(  0,  Y, 1, 1));
+            ASSERT_FAIL(mX.replace(  0,  Y, 1, 2));
+            ASSERT_PASS(mX.replace(  0,  Y, 2, 0));
+            ASSERT_FAIL(mX.replace(  0,  Y, 2, 1));
+            ASSERT_FAIL(mX.replace(  0,  Y, 3, 0));
         }
       } break;
       case 14: {
@@ -2483,26 +2499,26 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj         mX;  gg(&mX, "abc");
-            Obj         mT;
+            Obj mX;  const Obj& X = mX;  gg(&mX, "abc");
+            Obj mT;
 
-            mT = mX;  ASSERT_SAFE_FAIL(mT.remove(4));
+            mT = X;  ASSERT_FAIL(mT.remove(4));
 
-            mT = mX;  ASSERT_SAFE_PASS(mT.remove(0, 0));
-            mT = mX;  ASSERT_SAFE_PASS(mT.remove(0, 1));
-            mT = mX;  ASSERT_SAFE_PASS(mT.remove(0, 2));
-            mT = mX;  ASSERT_SAFE_PASS(mT.remove(0, 3));
-            mT = mX;  ASSERT_SAFE_FAIL(mT.remove(0, 4));
-            mT = mX;  ASSERT_SAFE_PASS(mT.remove(1, 0));
-            mT = mX;  ASSERT_SAFE_PASS(mT.remove(1, 1));
-            mT = mX;  ASSERT_SAFE_PASS(mT.remove(1, 2));
-            mT = mX;  ASSERT_SAFE_FAIL(mT.remove(1, 3));
-            mT = mX;  ASSERT_SAFE_PASS(mT.remove(2, 0));
-            mT = mX;  ASSERT_SAFE_PASS(mT.remove(2, 1));
-            mT = mX;  ASSERT_SAFE_FAIL(mT.remove(2, 2));
-            mT = mX;  ASSERT_SAFE_PASS(mT.remove(3, 0));
-            mT = mX;  ASSERT_SAFE_FAIL(mT.remove(3, 1));
-            mT = mX;  ASSERT_SAFE_FAIL(mT.remove(4, 0));
+            mT = X;  ASSERT_PASS(mT.remove(0, 0));
+            mT = X;  ASSERT_PASS(mT.remove(0, 1));
+            mT = X;  ASSERT_PASS(mT.remove(0, 2));
+            mT = X;  ASSERT_PASS(mT.remove(0, 3));
+            mT = X;  ASSERT_FAIL(mT.remove(0, 4));
+            mT = X;  ASSERT_PASS(mT.remove(1, 0));
+            mT = X;  ASSERT_PASS(mT.remove(1, 1));
+            mT = X;  ASSERT_PASS(mT.remove(1, 2));
+            mT = X;  ASSERT_FAIL(mT.remove(1, 3));
+            mT = X;  ASSERT_PASS(mT.remove(2, 0));
+            mT = X;  ASSERT_PASS(mT.remove(2, 1));
+            mT = X;  ASSERT_FAIL(mT.remove(2, 2));
+            mT = X;  ASSERT_PASS(mT.remove(3, 0));
+            mT = X;  ASSERT_FAIL(mT.remove(3, 1));
+            mT = X;  ASSERT_FAIL(mT.remove(4, 0));
         }
       } break;
       case 13: {
@@ -2900,26 +2916,26 @@ int main(int argc, char *argv[])
 
             const bsl::string Z("a", 1);
 
-            ASSERT_SAFE_FAIL(mX.insert(  1,  Z));
+            ASSERT_FAIL(mX.insert(  1,  Z));
 
-            ASSERT_SAFE_FAIL(mX.insert(  1,  Y));
+            ASSERT_FAIL(mX.insert(  1,  Y));
 
-            ASSERT_SAFE_FAIL(mX.insert(  1,  Y, 0, 0));
+            ASSERT_FAIL(mX.insert(  1,  Y, 0, 0));
 
-            ASSERT_SAFE_PASS(mX.insert(  0,  Z));
+            ASSERT_PASS(mX.insert(  0,  Z));
 
-            ASSERT_SAFE_PASS(mX.insert(  0,  Y));
+            ASSERT_PASS(mX.insert(  0,  Y));
 
-            ASSERT_SAFE_PASS(mX.insert(  0,  Y, 0, 0));
-            ASSERT_SAFE_PASS(mX.insert(  0,  Y, 0, 1));
-            ASSERT_SAFE_PASS(mX.insert(  0,  Y, 0, 2));
-            ASSERT_SAFE_FAIL(mX.insert(  0,  Y, 0, 3));
-            ASSERT_SAFE_PASS(mX.insert(  0,  Y, 1, 0));
-            ASSERT_SAFE_PASS(mX.insert(  0,  Y, 1, 1));
-            ASSERT_SAFE_FAIL(mX.insert(  0,  Y, 1, 2));
-            ASSERT_SAFE_PASS(mX.insert(  0,  Y, 2, 0));
-            ASSERT_SAFE_FAIL(mX.insert(  0,  Y, 2, 1));
-            ASSERT_SAFE_FAIL(mX.insert(  0,  Y, 3, 0));
+            ASSERT_PASS(mX.insert(  0,  Y, 0, 0));
+            ASSERT_PASS(mX.insert(  0,  Y, 0, 1));
+            ASSERT_PASS(mX.insert(  0,  Y, 0, 2));
+            ASSERT_FAIL(mX.insert(  0,  Y, 0, 3));
+            ASSERT_PASS(mX.insert(  0,  Y, 1, 0));
+            ASSERT_PASS(mX.insert(  0,  Y, 1, 1));
+            ASSERT_FAIL(mX.insert(  0,  Y, 1, 2));
+            ASSERT_PASS(mX.insert(  0,  Y, 2, 0));
+            ASSERT_FAIL(mX.insert(  0,  Y, 2, 1));
+            ASSERT_FAIL(mX.insert(  0,  Y, 3, 0));
         }
 
       } break;
@@ -3292,16 +3308,16 @@ int main(int argc, char *argv[])
 
             const Obj& Y = mY;
 
-            ASSERT_SAFE_PASS(mX.append(  Y, 0, 0));
-            ASSERT_SAFE_PASS(mX.append(  Y, 0, 1));
-            ASSERT_SAFE_PASS(mX.append(  Y, 0, 2));
-            ASSERT_SAFE_FAIL(mX.append(  Y, 0, 3));
-            ASSERT_SAFE_PASS(mX.append(  Y, 1, 0));
-            ASSERT_SAFE_PASS(mX.append(  Y, 1, 1));
-            ASSERT_SAFE_FAIL(mX.append(  Y, 1, 2));
-            ASSERT_SAFE_PASS(mX.append(  Y, 2, 0));
-            ASSERT_SAFE_FAIL(mX.append(  Y, 2, 1));
-            ASSERT_SAFE_FAIL(mX.append(  Y, 3, 0));
+            ASSERT_PASS(mX.append(  Y, 0, 0));
+            ASSERT_PASS(mX.append(  Y, 0, 1));
+            ASSERT_PASS(mX.append(  Y, 0, 2));
+            ASSERT_FAIL(mX.append(  Y, 0, 3));
+            ASSERT_PASS(mX.append(  Y, 1, 0));
+            ASSERT_PASS(mX.append(  Y, 1, 1));
+            ASSERT_FAIL(mX.append(  Y, 1, 2));
+            ASSERT_PASS(mX.append(  Y, 2, 0));
+            ASSERT_FAIL(mX.append(  Y, 2, 1));
+            ASSERT_FAIL(mX.append(  Y, 3, 0));
         }
       } break;
       case 11: {
@@ -3564,8 +3580,8 @@ int main(int argc, char *argv[])
                 Obj mC(&oa1);
                 Obj mZ(&oa2);
 
-                ASSERT_SAFE_PASS(mA.swap(mB));
-                ASSERT_SAFE_FAIL(mC.swap(mZ));
+                ASSERT_PASS(mA.swap(mB));
+                ASSERT_FAIL(mC.swap(mZ));
             }
 
             if (veryVerbose) cout << "\t'swap' free function" << endl;
@@ -5270,11 +5286,11 @@ int main(int argc, char *argv[])
 
             Obj mX;
 
-            ASSERT_SAFE_FAIL(mX.pop_back());
+            ASSERT_FAIL(mX.pop_back());
 
             mX.append("a");
 
-            ASSERT_SAFE_PASS(mX.pop_back());
+            ASSERT_PASS(mX.pop_back());
         }
 
       } break;
