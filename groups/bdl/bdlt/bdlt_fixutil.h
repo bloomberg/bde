@@ -72,12 +72,11 @@ BSLS_IDENT("$Id: $")
 // has a timezone offset of '+04:00', indicating a timezone 4 hours ahead of
 // UTC.
 //
-// A FIX *fractional* *second* corresponds to, for example, the combined
-// 'millisecond' and 'microsecond' attributes of a 'bdlt::Time' object, or the
-// combined 'millisecond' and 'microsecond' attributes of a 'bdlt::Datetime'
-// object.  For example, the 'Time' value (and FIX string) '15:46:09.330000'
-// has a 'millisecond' attribute value of 330 and a microsecond attribute of 0
-// (i.e., a fractional second of .33).
+// A FIX *fractional* *second* corresponds to, for example, combined
+// 'millisecond' and 'microsecond' attributes of a 'bdlt::Datetime' or
+// 'bdlt::Time' object.  For example, the 'Time' value (and FIX string)
+// '15:46:09.330' has a 'millisecond' attribute value of 330; i.e., a
+// fractional second of .33.
 //
 ///FIX String Generation
 ///---------------------
@@ -201,8 +200,7 @@ BSLS_IDENT("$Id: $")
 //  +======================================+=================================+
 //  |  15:46:09.1                          |  Time(15, 46, 09, 100)          |
 //  +--------------------------------------+---------------------------------+
-//  |  15:46:09-05:00                      |  TimeTz(Time(15, 46, 09, 000),  |
-//  |                                      |         -300)                   |
+//  |  15:46:09-05:00                      |  TimeTz(Time(15, 46, 09), -300) |
 //  |                                      |  # implied '.0'                 |
 //  +--------------------------------------+---------------------------------+
 //  |  15:46:09.99999949                   |  Time(15, 46, 09, 999, 999)     |
@@ -712,8 +710,8 @@ struct FixUtil {
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
         // entire 'length' characters do not.  If an optional fractional second
-        // having more than three digits is present in 'string', it is rounded
-        // to the nearest value in milliseconds.  If the optional timezone
+        // having more than six digits is present in 'string', it is rounded
+        // to the nearest value in microseconds.  If the optional timezone
         // offset is present in 'string', the resulting 'Time' value is
         // converted to the equivalent UTC time; if the timezone offset is
         // absent, UTC is assumed.  If a leap second is detected (i.e., the
@@ -768,8 +766,8 @@ struct FixUtil {
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
         // entire 'length' characters do not.  If an optional fractional second
-        // having more than three digits is present in 'string', it is rounded
-        // to the nearest value in milliseconds.  If the optional timezone
+        // having more than six digits is present in 'string', it is rounded
+        // to the nearest value in microseconds.  If the optional timezone
         // offset is not present in 'string', UTC is assumed.  If a leap second
         // is detected (i.e., the parsed value of the 'second' attribute is 60;
         // see {Leap Seconds}), the 'second' attribute is taken to be 59, then
@@ -820,8 +818,8 @@ struct FixUtil {
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
         // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than three digits is present in
-        // 'string', it is rounded to the nearest value in milliseconds.  If
+        // fractional second having more than six digits is present in
+        // 'string', it is rounded to the nearest value in microseconds.  If
         // the optional timezone offset is present in 'string', the resulting
         // 'Time' value is converted to the equivalent UTC time; if the
         // timezone offset is absent, UTC is assumed.  If a leap second is
@@ -876,8 +874,8 @@ struct FixUtil {
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
         // entire 'string.length()' characters do not.  If an optional
-        // fractional second having more than three digits is present in
-        // 'string', it is rounded to the nearest value in milliseconds.  If
+        // fractional second having more than six digits is present in
+        // 'string', it is rounded to the nearest value in microseconds.  If
         // the optional timezone offset is not present in 'string', UTC is
         // assumed.  If a leap second is detected (i.e., the parsed value of
         // the 'second' attribute is 60; see {Leap Seconds}), the 'second'
