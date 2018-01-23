@@ -1800,7 +1800,7 @@ using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 bsls::AtomicInt s_numConnsUp(0);
 bsls::AtomicInt s_continueFlag(1);
 
-enum { k_PORTNUM = 20100 };
+btlso::IPv4Address s_serverAddress;
 
 void sscbWithPeerAddressAssert(int             state,
                                int             ,
@@ -1829,11 +1829,12 @@ void sscbWithPeerAddressAssert(int             state,
     }
 }
 
-extern "C" void *serverFunction(void *)
+extern "C" void *serverFunction(void *data)
     // This method opens a listening socket, accepts a connection on it, and
     // then closes the connection and the listening socket immediately after.
     // This loop is repeated till the global 's_continueFlag' is '1'.
 {
+    bslmt::Barrier *barrier = (bslmt::Barrier *) data;
     int rc = btlso::SocketImpUtil::startup();
     ASSERT(0 == rc);
     while (s_continueFlag) {
@@ -1843,19 +1844,22 @@ extern "C" void *serverFunction(void *)
                                         btlso::SocketImpUtil::k_SOCKET_STREAM);
         ASSERT(0 == rc);
 
-        btlso::SocketOptions options;
-        options.setReuseAddress(true);
-        rc = btlso::SocketOptUtil::setSocketOptions(serverSocket, options);
-        ASSERT(0 == rc);
-
+        int errorCode = 0;
         btlso::IPv4Address address;
-        address.setPortNumber(k_PORTNUM);
         rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
-                                                            address);
+                                                            address,
+                                                            &errorCode);
+        LOOP_ASSERT(errorCode, 0 == rc);
+
+        rc = btlso::SocketImpUtil::getLocalAddress<btlso::IPv4Address>(
+                                                              &s_serverAddress,
+                                                              serverSocket);
         ASSERT(0 == rc);
 
         rc = btlso::SocketImpUtil::listen(serverSocket, 10);
         ASSERT(0 == rc);
+
+        barrier->wait();
 
         rc = btlso::SocketImpUtil::accept<btlso::IPv4Address>(&acceptSocket,
                                                               serverSocket);
@@ -2375,11 +2379,13 @@ int main(int argc, char *argv[])
 
         using namespace BTLMT_SESSION_POOL_INVALID_PEER_ADDRESS_NAMESPACE;
 
+        bslmt::Barrier barrier(2);
+
         // Start server thread
         bslmt::ThreadUtil::Handle serverThread;
         ASSERT(0 == bslmt::ThreadUtil::create(&serverThread,
                                               &serverFunction,
-                                              (void *) 0));
+                                              (void *) &barrier));
 
         typedef btlmt::SessionPool::SessionPoolStateCallback PoolCb;
 
@@ -2397,17 +2403,16 @@ int main(int argc, char *argv[])
         BlobReadCallback rcb(&readCb);
         TestFactory      sessionFactory(&rcb);
 
-        const int MAX_TRIES = 2000;
+        const int MAX_TRIES = 200;
 
         while (s_numConnsUp < MAX_TRIES) {
             int handle;
-            btlso::IPv4Address address;
-            address.setPortNumber(k_PORTNUM);
-
             bsls::TimeInterval timeout(10, 0);
 
+            barrier.wait();
+
             btlmt::ConnectOptions options;
-            options.setServerEndpoint(address);
+            options.setServerEndpoint(s_serverAddress);
             options.setTimeout(timeout);
             options.setNumAttempts(1);
             options.setEnableRead(false);
