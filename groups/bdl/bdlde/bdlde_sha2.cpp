@@ -608,7 +608,7 @@ bsl::ostream& Sha512::print(bsl::ostream& stream) const
 // FREE OPERATORS
 bool operator==(const Sha224& lhs, const Sha224& rhs)
 {
-    return lhs.d_totalSize      == rhs.d_totalSize
+    return lhs.d_totalSize  == rhs.d_totalSize
         && lhs.d_bufferSize == rhs.d_bufferSize
         && bsl::equal(lhs.d_buffer,
                       lhs.d_buffer + lhs.d_bufferSize,
@@ -618,7 +618,7 @@ bool operator==(const Sha224& lhs, const Sha224& rhs)
 
 bool operator==(const Sha256& lhs, const Sha256& rhs)
 {
-    return lhs.d_totalSize      == rhs.d_totalSize
+    return lhs.d_totalSize  == rhs.d_totalSize
         && lhs.d_bufferSize == rhs.d_bufferSize
         && bsl::equal(lhs.d_buffer,
                       lhs.d_buffer + lhs.d_bufferSize,
@@ -628,7 +628,7 @@ bool operator==(const Sha256& lhs, const Sha256& rhs)
 
 bool operator==(const Sha384& lhs, const Sha384& rhs)
 {
-    return lhs.d_totalSize      == rhs.d_totalSize
+    return lhs.d_totalSize  == rhs.d_totalSize
         && lhs.d_bufferSize == rhs.d_bufferSize
         && bsl::equal(lhs.d_buffer,
                       lhs.d_buffer + lhs.d_bufferSize,
@@ -638,7 +638,7 @@ bool operator==(const Sha384& lhs, const Sha384& rhs)
 
 bool operator==(const Sha512& lhs, const Sha512& rhs)
 {
-    return lhs.d_totalSize      == rhs.d_totalSize
+    return lhs.d_totalSize  == rhs.d_totalSize
         && lhs.d_bufferSize == rhs.d_bufferSize
         && bsl::equal(lhs.d_buffer,
                       lhs.d_buffer + lhs.d_bufferSize,
