@@ -1,5 +1,9 @@
+include(bde_package)
+include(bde_struct)
+include(bde_interface_target)
+
 function(process outInfoTarget)
-    bde_process_standard_package(${outInfoTarget} ${ARGN})
+    bde_process_package(${outInfoTarget} ${ARGN})
     set(${outInfoTarget} ${${outInfoTarget}} PARENT_SCOPE)
 
     bde_struct_get_field(interface_target ${${outInfoTarget}} INTERFACE_TARGET)

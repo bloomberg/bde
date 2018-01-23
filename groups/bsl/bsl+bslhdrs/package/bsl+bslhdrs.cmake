@@ -1,18 +1,25 @@
-function(process outInfoTarget list_file uorName)
-    get_filename_component(packageName ${list_file} NAME_WE)
-    get_filename_component(list_dir ${list_file} DIRECTORY)
-    get_filename_component(root_dir ${list_dir} DIRECTORY)
+include(bde_package)
+include(bde_utils)
+include(bde_struct)
+include(bde_interface_target)
+
+function(process outInfoTarget listFile uorName)
+    bde_assert_no_extra_args()
+
+    get_filename_component(packageName ${listFile} NAME_WE)
+    get_filename_component(listDir ${listFile} DIRECTORY)
+    get_filename_component(rootDir ${listDir} DIRECTORY)
 
     bde_struct_create(BDE_PACKAGE_TYPE ${packageName})
     set(${outInfoTarget} ${packageName} PARENT_SCOPE)
 
     # Sources and headers
-    bde_utils_add_meta_file("${list_dir}/${packageName}.pub" headers_list TRACK)
-    bde_list_template_substitute(headers "%" "${root_dir}/%" ${headers_list})
+    bde_utils_add_meta_file("${listDir}/${packageName}.pub" headers TRACK)
+    bde_utils_list_template_substitute(headers "%" "${rootDir}/%" ${headers})
     bde_struct_set_field(${packageName} HEADERS "${headers}")
 
     # Dependencies
-    bde_utils_add_meta_file("${list_dir}/${packageName}.dep" dependencies TRACK)
+    bde_utils_add_meta_file("${listDir}/${packageName}.dep" dependencies TRACK)
     bde_struct_set_field(${packageName} DEPENDS "${dependencies}")
 
     # Include directories
@@ -21,7 +28,7 @@ function(process outInfoTarget list_file uorName)
     bde_interface_target_include_directories(
         ${packageName}
         PUBLIC
-            $<BUILD_INTERFACE:${root_dir}>
+            $<BUILD_INTERFACE:${rootDir}>
             $<INSTALL_INTERFACE:"include">
     )
 

@@ -1,4 +1,12 @@
+include(bde_package)
+include(bde_utils)
+include(bde_struct)
+include(bde_interface_target)
+include(bde_uor)
+
 function(process outInfoTarget listFile)
+    bde_assert_no_extra_args()
+
     get_filename_component(listDir ${listFile} DIRECTORY)
     get_filename_component(rootDir ${listDir} DIRECTORY)
 
