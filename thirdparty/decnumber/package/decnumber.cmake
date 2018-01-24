@@ -1,10 +1,18 @@
+include(bde_package)
+include(bde_utils)
+include(bde_struct)
+include(bde_interface_target)
+include(bde_uor)
+
 function(process outInfoTarget listFile)
+    bde_assert_no_extra_args()
+
     get_filename_component(listDir ${listFile} DIRECTORY)
     get_filename_component(rootDir ${listDir} DIRECTORY)
 
     set(TARGET decnumber)
 
-    bde_add_info_target(${TARGET})
+    bde_struct_create(BDE_PACKAGE_TYPE ${TARGET})
 
     set(headers
         ${rootDir}/decContext.h
@@ -19,9 +27,9 @@ function(process outInfoTarget listFile)
         ${rootDir}/decQuad.h
         ${rootDir}/decSingle.h
     )
-    bde_info_target_set_property(${TARGET} HEADERS ${headers})
+    bde_struct_set_field(${TARGET} HEADERS ${headers})
 
-    bde_info_target_set_property(${TARGET} SOURCES
+    bde_struct_set_field(${TARGET} SOURCES
         ${rootDir}/decContext.c
         ${rootDir}/decDouble.c
         ${rootDir}/decimal32.c
@@ -34,7 +42,7 @@ function(process outInfoTarget listFile)
     )
 
     bde_add_interface_target(${TARGET})
-    bde_info_target_set_property(${TARGET} INTERFACE_TARGET ${TARGET})
+    bde_struct_set_field(${TARGET} INTERFACE_TARGET ${TARGET})
 
     # As reported here: https://github.com/bloomberg/bde/pull/148
     #
