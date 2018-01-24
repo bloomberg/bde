@@ -493,8 +493,8 @@ CompactedArray_ConstIterator<TYPE>
 
 template <class TYPE>
 CompactedArray_ConstIterator<TYPE> operator+(
-                            const CompactedArray_ConstIterator<TYPE>& iterator,
-                            bsl::ptrdiff_t                            offset);
+                           const CompactedArray_ConstIterator<TYPE>& iterator,
+                           bsl::ptrdiff_t                            offset);
 template <class TYPE>
 CompactedArray_ConstIterator<TYPE> operator+(
                            bsl::ptrdiff_t                            offset,
@@ -1606,6 +1606,8 @@ void CompactedArray<TYPE>::replace(bsl::size_t dstIndex, const TYPE& value)
 {
     BSLS_ASSERT(dstIndex < length());
 
+    CompactedArray_RemoveAllProctor<TYPE> proctor(this);
+
     d_index.reserveCapacity(d_index.length(), d_data.size() + 1);
 
     bsl::size_t                        newDataIndex = increment(value);
@@ -1613,17 +1615,15 @@ void CompactedArray<TYPE>::replace(bsl::size_t dstIndex, const TYPE& value)
     CompactedArray_CountedValue<TYPE>& dataValue    = d_data[dataIndex];
 
     if (0 == --dataValue.d_count) {
-        CompactedArray_RemoveAllProctor<TYPE> proctor(this);
-
         erase(dataIndex);
         if (dataIndex <= newDataIndex) {
             --newDataIndex;
         }
-
-        proctor.release();
     }
 
     d_index.replace(dstIndex, newDataIndex);
+
+    proctor.release();
 }
 
 template <class TYPE>
