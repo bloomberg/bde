@@ -48,6 +48,7 @@
      bdlt_timeutil
 
   3. bdlt_date
+     bdlt_datetimeintervalutil
      bdlt_intervalconversionutil
      bdlt_time
 
@@ -97,6 +98,9 @@
 :
 : 'bdlt_datetimeinterval':
 :      Provide a representation of an interval of time.
+:
+: 'bdlt_datetimeintervalutil':
+:      Provide convenience factories for 'bdlt::DatetimeInterval' objects.
 :
 : 'bdlt_datetimetz':
 :      Provide a representation of a date and time with time zone offset.
