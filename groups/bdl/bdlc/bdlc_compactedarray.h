@@ -606,7 +606,7 @@ class CompactedArray {
     void erase(bsl::size_t index);
         // Remove the element in 'd_data' at the specified 'index'.  Update the
         // 'd_index' values to account for this removal.  The behavior is
-        // undefined unless 'index <= length()'
+        // undefined unless 'index < uniqueLength()'
 
     bsl::size_t increment(const TYPE& value, bsl::size_t count = 1);
         // Find the element in 'd_data' equal to the specified 'value',
@@ -1256,7 +1256,7 @@ namespace bdlc {
 template <class TYPE>
 void CompactedArray<TYPE>::erase(bsl::size_t index)
 {
-    BSLS_ASSERT(index <= length());
+    BSLS_ASSERT(index < uniqueLength());
 
     for (bsl::size_t i = 0; i < d_index.length(); ++i) {
         if (d_index[i] > index) {
