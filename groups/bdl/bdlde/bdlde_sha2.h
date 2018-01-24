@@ -31,18 +31,39 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// In this section we show intended usage of this component.  The
+// 'validatePassword' function below returns whether a specified password has a
+// specified hash value.  The 'assertPasswordIsExpected' function below has a
+// sample password to hash and a hash value that matches it.  Note that the
+// output of loadDigest is a binary representation.  When hashes are displayed
+// for human consumption, they are typically converted to hex, but that would
+// create unnecessary overhead here.
 //..
-//  void validatePassword()
-//      // Ensure that a given password ("password") has the correct hash
+//  bool validatePassword(const bsl::string&   password,
+//                        const bsl::string&   salt,
+//                        const unsigned char *expected)
+//      // Return 'true' if the specified 'password' concatenated with the
+//      // specified 'salt' has a SHA-512 hash equal to the specified
+//      // 'expected' and return 'false' otherwise.
 //  {
-//      // Prepare a message.
-//      const bsl::string message = "password";
-//
-//      // Generate a digest for 'message'.
 //      bdlde::Sha512 hasher;
-//      hasher.update(message.data(), message.length());
-//      unsigned char       digest[bdlde::Sha512::k_DIGEST_SIZE];
+//      hasher.update(password.c_str(), password.length());
+//      hasher.update(salt.c_str(), salt.length());
+//      unsigned char digest[bdlde::Sha512::k_DIGEST_SIZE];
+//      hasher.loadDigest(digest);
+//      return bsl::equal(digest,
+//                        digest + bdlde::Sha512::k_DIGEST_SIZE,
+//                        expected);
+//  }
+//
+//  void assertPasswordIsExpected()
+//  {
+//      // Asserts that the constant string 'pass' salted with 'word' has the
+//      // expected hash value.  In a real application, the expected hash would
+//      // likely come from some sort of database, and the hash would be
+//      // iterated many times.
+//      const bsl::string   password = "pass";
+//      const bsl::string   salt     = "word";
 //      const unsigned char expected[bdlde::Sha512::k_DIGEST_SIZE] = {
 //          0xB1, 0x09, 0xF3, 0xBB, 0xBC, 0x24, 0x4E, 0xB8, 0x24, 0x41, 0x91,
 //          0x7E, 0xD0, 0x6D, 0x61, 0x8B, 0x90, 0x08, 0xDD, 0x09, 0xB3, 0xBE,
@@ -51,10 +72,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //          0x5F, 0x13, 0x26, 0xAF, 0x5A, 0x2E, 0xA6, 0xD1, 0x03, 0xFD, 0x07,
 //          0xC9, 0x53, 0x85, 0xFF, 0xAB, 0x0C, 0xAC, 0xBC, 0x86
 //      };
-//      hasher.loadDigest(digest);
-//      ASSERT(bsl::equal(digest,
-//                        digest + bdlde::Sha512::k_DIGEST_SIZE,
-//                        expected));
+//      ASSERT(validatePassword(password, salt, expected));
 //  }
 //..
 
