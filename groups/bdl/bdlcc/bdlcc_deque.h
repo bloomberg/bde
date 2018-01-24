@@ -166,7 +166,7 @@ BSLS_IDENT("$Id: $")
 //      // Dummy implementation of 'getWorkData' function required by the usage
 //      // example.
 //  {
-//      static int i = 1;
+//      static bsls::AtomicInt i(1);
 //      return ++i < 1000;
 //  }
 //..
