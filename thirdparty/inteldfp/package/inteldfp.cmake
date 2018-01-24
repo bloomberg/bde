@@ -1,10 +1,18 @@
+include(bde_package)
+include(bde_utils)
+include(bde_struct)
+include(bde_interface_target)
+include(bde_uor)
+
 function(process outInfoTarget listFile)
+    bde_assert_no_extra_args()
+
     get_filename_component(listDir ${listFile} DIRECTORY)
     get_filename_component(rootDir ${listDir} DIRECTORY)
 
     set(TARGET inteldfp)
 
-    bde_add_info_target(${TARGET})
+    bde_struct_create(BDE_PACKAGE_TYPE ${TARGET})
 
     set(headers
         ${rootDir}/LIBRARY/src/inteldfp/bid128_2_str.h
@@ -22,9 +30,9 @@ function(process outInfoTarget listFile)
         ${rootDir}/LIBRARY/src/inteldfp/bid_wrap_names.h
         ${rootDir}/LIBRARY/src/inteldfp/dfp754.h
     )
-    bde_info_target_set_property(${TARGET} HEADERS ${headers})
+    bde_struct_set_field(${TARGET} HEADERS ${headers})
 
-    bde_info_target_set_property(${TARGET} SOURCES
+    bde_struct_set_field(${TARGET} SOURCES
         ${rootDir}/LIBRARY/src/inteldfp/bid64_acos.c
         ${rootDir}/LIBRARY/src/inteldfp/bid64_acosh.c
         ${rootDir}/LIBRARY/src/inteldfp/bid64_asin.c
@@ -314,7 +322,7 @@ function(process outInfoTarget listFile)
     )
 
     bde_add_interface_target(${TARGET})
-    bde_info_target_set_property(${TARGET} INTERFACE_TARGET ${TARGET})
+    bde_struct_set_field(${TARGET} INTERFACE_TARGET ${TARGET})
 
     # Common compile definitions.
     bde_interface_target_compile_definitions(

@@ -8,7 +8,8 @@ get_filename_component(repoName ${CMAKE_CURRENT_LIST_DIR} NAME)
 
 project(${repoName})
 
-include(bde_project)
+include(bde_workspace)
+
 bde_process_workspace(
     ${CMAKE_CURRENT_LIST_DIR}
 )
