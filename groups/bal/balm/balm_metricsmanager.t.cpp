@@ -1679,7 +1679,7 @@ int main(int argc, char *argv[])
             const char *CATEGORY = CATEGORIES[i];
             ASSERT(0 == MX.findSpecificPublishers(&publisherVec, CATEGORY));
         }
-      };
+      } break;
       case 23: {
         // --------------------------------------------------------------------
         // TESTING: 'publish' with 'resetFlag'
@@ -2133,7 +2133,7 @@ int main(int argc, char *argv[])
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
-    } break;
+      } break;
       case 18: {
         // --------------------------------------------------------------------
         // TESTING: 'addSpecificPublishers(const bslstl::StringRef&, ...)'

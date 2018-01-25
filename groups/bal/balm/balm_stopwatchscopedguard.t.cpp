@@ -69,7 +69,7 @@ using bsl::flush;
 // [ 2] 'TestPublisher'                             (helper classes)
 // [ 3] TESTING REPORTED TIME UNITS
 // [ 6] ELAPSED TIME VALUE
-// [ 8] USAGE
+// [ 7] USAGE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9:{
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
