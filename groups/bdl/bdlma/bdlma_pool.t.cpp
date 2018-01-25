@@ -994,7 +994,7 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(operator delete(p, mX));
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VER < 1900
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION < 1900
                 // Strictly speaking, it has been undefined behavior to throw
                 // out of a delete function since C++11.  However, only MSVC
                 // (so far) displays problematic behavior, 'abort'ing when
