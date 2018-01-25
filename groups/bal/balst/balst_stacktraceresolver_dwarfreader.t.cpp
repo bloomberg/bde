@@ -28,8 +28,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <dwarf.h>
-
 using namespace BloombergLP;
 using bsl::cin;
 using bsl::cout;
@@ -403,115 +401,193 @@ int main(int argc, char *argv[])
         //   stringForTag(unsigned);
         // --------------------------------------------------------------------
 
-        bsl::set<bsl::string> ss;
+        bsl::set<int> intValues;
+        char buf[1000];
 
-        for (unsigned ii = 1, jj = 0; ii <= Obj::e_DW_AT_linkage_name; ++ii) {
-            if ((DW_AT_name < ii && ii < DW_AT_ordering) || 0xe == ii ||
-                        0x1f == ii || 0x23 == ii || 0x24 == ii || 0x26 == ii ||
-                        0x28 == ii || 0x29 == ii || 0x2b == ii || 0x2d == ii ||
-                                                                  0x30 == ii) {
-                continue;
-            }
+#undef  u_CHECK
+#define u_CHECK(id, type)                                                     \
+        {                                                                     \
+            const char *str_p = Obj::stringFor ## type (id);                  \
+            bsl::strcpy(buf, "Obj::");                                        \
+            bsl::strcat(buf, str_p);                                          \
+            ASSERTV(L_, #type, id, buf, !bsl::strcmp(buf, #id));              \
+            ASSERTV(L_, #type, str_p, !bsl::strchr(str_p, '?'));              \
+            intValues.insert(id);                                             \
+        }
 
-            const bsl::string& s = Obj::stringForAt(ii);
-            ASSERTV(ii, s, bsl::string::npos == s.find('?'));
+        u_CHECK(Obj::e_DW_AT_name, At);
+        u_CHECK(Obj::e_DW_AT_ordering, At);
+        u_CHECK(Obj::e_DW_AT_stmt_list, At);
+        u_CHECK(Obj::e_DW_AT_low_pc, At);
+        u_CHECK(Obj::e_DW_AT_high_pc, At);
+        u_CHECK(Obj::e_DW_AT_language, At);
+        u_CHECK(Obj::e_DW_AT_comp_dir, At);
+        u_CHECK(Obj::e_DW_AT_producer, At);
+        u_CHECK(Obj::e_DW_AT_base_types, At);
+        u_CHECK(Obj::e_DW_AT_identifier_case, At);
+        u_CHECK(Obj::e_DW_AT_macro_info, At);
+        u_CHECK(Obj::e_DW_AT_segment, At);
+        u_CHECK(Obj::e_DW_AT_entry_pc, At);
+        u_CHECK(Obj::e_DW_AT_use_UTF8, At);
+        u_CHECK(Obj::e_DW_AT_ranges, At);
+        u_CHECK(Obj::e_DW_AT_description, At);
 
-            if (ii < Obj::e_DW_AT_signature) {
-                ASSERT(s.substr(0, 6) == "DW_AT_");
+        u_CHECK(Obj::e_DW_AT_signature, At);
+        u_CHECK(Obj::e_DW_AT_main_subprogram, At);
+        u_CHECK(Obj::e_DW_AT_data_bit_offset, At);
+        u_CHECK(Obj::e_DW_AT_const_expr, At);
+        u_CHECK(Obj::e_DW_AT_enum_class, At);
+        u_CHECK(Obj::e_DW_AT_linkage_name, At);
+
+        if (veryVerbose) cout << intValues.size() <<" values of 'e_DW_AT_*'\n";
+
+        for (int ii = 0; ii < 0xff; ++ii) {
+            const char *str_p = Obj::stringForAt(ii);
+            if (intValues.count(ii)) {
+                ASSERTV(L_, ii, str_p, !bsl::strchr(str_p, '?'));
+                intValues.erase(ii);
             }
             else {
-                ASSERT(s.substr(0, 8) == "e_DW_AT_");
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_AT_????"));
             }
-
-            ss.insert(s);
-            ++jj;
-            ASSERTV(s, ss.size(), jj, ss.size() == jj);
         }
-        ss.clear();
+        ASSERTV(intValues.empty());
 
-        for (unsigned ii = 1, jj = 0; ii <= Obj::e_DW_FORM_ref_sig8; ++ii) {
-            if (2 == ii || (Obj::e_DW_FORM_flag_present < ii &&
-                                               ii < Obj::e_DW_FORM_ref_sig8)) {
-                continue;
-            }
+        u_CHECK(Obj::e_DW_FORM_addr, Form);
+        u_CHECK(Obj::e_DW_FORM_block2, Form);
+        u_CHECK(Obj::e_DW_FORM_block4, Form);
+        u_CHECK(Obj::e_DW_FORM_data2, Form);
+        u_CHECK(Obj::e_DW_FORM_data4, Form);
+        u_CHECK(Obj::e_DW_FORM_data8, Form);
+        u_CHECK(Obj::e_DW_FORM_string, Form);
+        u_CHECK(Obj::e_DW_FORM_block, Form);
+        u_CHECK(Obj::e_DW_FORM_block1, Form);
+        u_CHECK(Obj::e_DW_FORM_data1, Form);
+        u_CHECK(Obj::e_DW_FORM_flag, Form);
+        u_CHECK(Obj::e_DW_FORM_sdata, Form);
+        u_CHECK(Obj::e_DW_FORM_strp, Form);
+        u_CHECK(Obj::e_DW_FORM_udata, Form);
+        u_CHECK(Obj::e_DW_FORM_ref_addr, Form);
+        u_CHECK(Obj::e_DW_FORM_ref1, Form);
+        u_CHECK(Obj::e_DW_FORM_ref2, Form);
+        u_CHECK(Obj::e_DW_FORM_ref4, Form);
+        u_CHECK(Obj::e_DW_FORM_ref8, Form);
+        u_CHECK(Obj::e_DW_FORM_ref_udata, Form);
+        u_CHECK(Obj::e_DW_FORM_indirect, Form);
 
-            bsl::string s = Obj::stringForForm(ii);
-            ASSERTV(ii, s, bsl::string::npos == s.find('?'));
+        u_CHECK(Obj::e_DW_FORM_sec_offset, Form);
+        u_CHECK(Obj::e_DW_FORM_exprloc, Form);
+        u_CHECK(Obj::e_DW_FORM_flag_present, Form);
+        u_CHECK(Obj::e_DW_FORM_ref_sig8, Form);
 
-            if (ii < Obj::e_DW_FORM_sec_offset) {
-                ASSERT(s.substr(0, 8) == "DW_FORM_");
+        if (veryVerbose) cout << intValues.size() <<
+                                                  " values of 'e_DW_FORM_*'\n";
+
+        for (int ii = 0; ii < 0xff; ++ii) {
+            const char *str_p = Obj::stringForForm(ii);
+            if (intValues.count(ii)) {
+                ASSERTV(L_, ii, str_p, !bsl::strchr(str_p, '?'));
+                intValues.erase(ii);
             }
             else {
-                ASSERT(s.substr(0, 10) == "e_DW_FORM_");
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_FORM_????"));
             }
-
-            ss.insert(s);
-            ++jj;
-            ASSERTV(ii, ss.size() == jj);
         }
-        ss.clear();
+        ASSERTV(intValues.empty());
 
-        for (unsigned ii = 1; ii <= DW_INL_declared_inlined; ++ii) {
-            bsl::string s = Obj::stringForInlineState(ii);
+        u_CHECK(Obj::e_DW_INL_declared_inlined, InlineState);
 
-            ASSERT(s.substr(0, 7) == "DW_INL_");
+        if (veryVerbose) cout << intValues.size() <<
+                                                   " values of 'e_DW_INL_*'\n";
 
-            ss.insert(s);
-            ASSERT(ss.size() == ii);
-        }
-        ss.clear();
-
-        for (unsigned ii = 1; ii <= Obj::e_DW_LNE_set_discriminator; ++ii) {
-            bsl::string s = Obj::stringForLNE(ii);
-            ASSERTV(ii, s, bsl::string::npos == s.find('?'));
-
-            if (ii < Obj::e_DW_LNE_set_discriminator) {
-                ASSERT(s.substr(0, 7) == "DW_LNE_");
+        for (int ii = 0; ii < 0xff; ++ii) {
+            const char *str_p = Obj::stringForInlineState(ii);
+            if (intValues.count(ii)) {
+                ASSERTV(L_, ii, str_p, !bsl::strchr(str_p, '?'));
+                intValues.erase(ii);
             }
             else {
-                ASSERT(s.substr(0, 9) == "e_DW_LNE_");
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_INL_????"));
             }
-
-            ss.insert(s);
-            ASSERT(ss.size() == ii);
         }
-        ss.clear();
+        ASSERTV(intValues.empty());
 
-        for (unsigned ii = 1; ii <= DW_LNS_set_isa; ++ii) {
-            bsl::string s = Obj::stringForLNS(ii);
-            ASSERTV(ii, s, bsl::string::npos == s.find('?'));
+        u_CHECK(Obj::e_DW_LNE_end_sequence, LNE);
+        u_CHECK(Obj::e_DW_LNE_set_address, LNE);
+        u_CHECK(Obj::e_DW_LNE_define_file, LNE);
 
-            ASSERT(s.substr(0, 7) == "DW_LNS_");
+        u_CHECK(Obj::e_DW_LNE_set_discriminator, LNE);
 
-            ss.insert(s);
-            ASSERT(ss.size() == ii);
-        }
-        ss.clear();
+        if (veryVerbose) cout << intValues.size() <<
+                                                   " values of 'e_DW_LNE_*'\n";
 
-        for (unsigned ii = 1, jj = 0; ii <= Obj::e_DW_TAG_template_alias;
-                                                                        ++ii) {
-            if ((DW_TAG_formal_parameter < ii &&
-                                ii < DW_TAG_imported_declaration) || 9 == ii ||
-                                        0xc == ii || 0xe == ii || 0x14 == ii) {
-                continue;
-            }
-
-            bsl::string s = Obj::stringForTag(ii);
-            ASSERTV(ii, s, bsl::string::npos == s.find('?'));
-
-            if (ii < Obj::e_DW_TAG_type_unit &&
-                                            Obj::e_DW_TAG_mutable_type != ii) {
-                ASSERT(s.substr(0, 7) == "DW_TAG_");
+        for (int ii = 0; ii < 0xff; ++ii) {
+            const char *str_p = Obj::stringForLNE(ii);
+            if (intValues.count(ii)) {
+                ASSERTV(L_, ii, str_p, !bsl::strchr(str_p, '?'));
+                intValues.erase(ii);
             }
             else {
-                ASSERT(s.substr(0, 9) == "e_DW_TAG_");
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_LNE_????"));
             }
-
-            ss.insert(s);
-            ++jj;
-            ASSERTV(ii, ss.size() == jj);
         }
-        ss.clear();
+        ASSERTV(intValues.empty());
+
+        u_CHECK(Obj::e_DW_LNS_copy, LNS);
+        u_CHECK(Obj::e_DW_LNS_advance_pc, LNS);
+        u_CHECK(Obj::e_DW_LNS_advance_line, LNS);
+        u_CHECK(Obj::e_DW_LNS_set_file, LNS);
+        u_CHECK(Obj::e_DW_LNS_set_column, LNS);
+        u_CHECK(Obj::e_DW_LNS_negate_stmt, LNS);
+        u_CHECK(Obj::e_DW_LNS_set_basic_block, LNS);
+        u_CHECK(Obj::e_DW_LNS_const_add_pc, LNS);
+        u_CHECK(Obj::e_DW_LNS_fixed_advance_pc, LNS);
+        u_CHECK(Obj::e_DW_LNS_set_prologue_end, LNS);
+        u_CHECK(Obj::e_DW_LNS_set_epilogue_begin, LNS);
+        u_CHECK(Obj::e_DW_LNS_set_isa, LNS);
+
+        if (veryVerbose) cout << intValues.size() <<
+                                                   " values of 'e_DW_LNS_*'\n";
+
+        for (int ii = 0; ii < 0xff; ++ii) {
+            const char *str_p = Obj::stringForLNS(ii);
+            if (intValues.count(ii)) {
+                ASSERTV(L_, ii, str_p, !bsl::strchr(str_p, '?'));
+                intValues.erase(ii);
+            }
+            else {
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_LNS_????"));
+            }
+        }
+        ASSERTV(intValues.empty());
+
+        u_CHECK(Obj::e_DW_TAG_formal_parameter, Tag);
+        u_CHECK(Obj::e_DW_TAG_imported_declaration, Tag);
+        u_CHECK(Obj::e_DW_TAG_compile_unit, Tag);
+        u_CHECK(Obj::e_DW_TAG_partial_unit, Tag);
+        u_CHECK(Obj::e_DW_TAG_lo_user, Tag);
+        u_CHECK(Obj::e_DW_TAG_hi_user, Tag);
+
+        u_CHECK(Obj::e_DW_TAG_mutable_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_type_unit, Tag);
+        u_CHECK(Obj::e_DW_TAG_rvalue_reference_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_template_alias, Tag);
+
+        if (veryVerbose) cout << intValues.size() <<
+                                                   " values of 'e_DW_TAG_*'\n";
+
+        for (int ii = 0; ii < 0x10000; ++ii) {
+            const char *str_p = Obj::stringForTag(ii);
+            if (intValues.count(ii)) {
+                ASSERTV(L_, ii, str_p, !bsl::strchr(str_p, '?'));
+                intValues.erase(ii);
+            }
+            else {
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_TAG_????"));
+            }
+        }
+        ASSERTV(intValues.empty());
+#undef  u_CHECK
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -551,54 +627,54 @@ int main(int argc, char *argv[])
         offsets.push_back(u::getOffset(fd));
         offsets.push_back(u::getOffset(fd));    // e_DW_FORM_flag_present
 
-        for (int ii = 0; ii <= 56; ii += 8) {    // DW_FORM_ref_udata
+        for (int ii = 0; ii <= 56; ii += 8) {    // e_DW_FORM_ref_udata
             u::writeULEB128(fd, 1ULL << ii);
             offsets.push_back(u::getOffset(fd));
         }
 
-        const char str[] = { "woof woof woof\n" };    // DW_FORM_string
+        const char str[] = { "woof woof woof\n" };    // e_DW_FORM_string
         ASSERT(u::sz(str) == FU::write(fd, str, u::sz(str)));
 
         offsets.push_back(u::getOffset(fd));
 
-        u::writeUnsigned(fd, 100);                 // DW_FORM_strp
+        u::writeUnsigned(fd, 100);                 // e_DW_FORM_strp
 
         offsets.push_back(u::getOffset(fd));
 
-        u::writeUnsigned(fd, 0xf0000);             // DW_FORM_addr 4
+        u::writeUnsigned(fd, 0xf0000);             // e_DW_FORM_addr 4
 
         offsets.push_back(u::getOffset(fd));
 
-        u::writeUnsigned(fd, 0xf000f);             // DW_FORM_ref_addr 4
+        u::writeUnsigned(fd, 0xf000f);             // e_DW_FORM_ref_addr 4
 
         offsets.push_back(u::getOffset(fd));
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT)
-        u::writeUint64(fd, 0xfULL << 32);          // DW_FORM_addr 8
+        u::writeUint64(fd, 0xfULL << 32);          // e_DW_FORM_addr 8
 
         offsets.push_back(u::getOffset(fd));
 
-        u::writeUint64(fd, 0xffULL << 32);         // DW_FORM_ref_addr 8
+        u::writeUint64(fd, 0xffULL << 32);         // e_DW_FORM_ref_addr 8
 
         offsets.push_back(u::getOffset(fd));
 #endif
 
-        u::writeByte(fd, 20);                          // DW_FORM_block1
+        u::writeByte(fd, 20);                          // e_DW_FORM_block1
         u::writeGarbage(fd, 20);
 
         offsets.push_back(u::getOffset(fd));
 
-        u::writeShort(fd, 1000);                       // DW_FORM_block2
+        u::writeShort(fd, 1000);                       // e_DW_FORM_block2
         u::writeGarbage(fd, 1000);
 
         offsets.push_back(u::getOffset(fd));
 
-        u::writeUnsigned(fd, 1001);                    // DW_FORM_block4
+        u::writeUnsigned(fd, 1001);                    // e_DW_FORM_block4
         u::writeGarbage(fd, 1001);
 
         offsets.push_back(u::getOffset(fd));
 
-        u::writeULEB128(fd, 1002);                     // DW_FORM_block
+        u::writeULEB128(fd, 1002);                     // e_DW_FORM_block
         u::writeGarbage(fd, 1002);
 
         offsets.push_back(u::getOffset(fd));
@@ -647,28 +723,28 @@ int main(int argc, char *argv[])
 
         ASSERT(offsets[jj++] == X.offset());
 
-        for (int ii = 0; ii <= 56; ii += 8) {    // DW_FORM_ref_udata
-            rc = mX.skipForm(DW_FORM_ref_udata);
+        for (int ii = 0; ii <= 56; ii += 8) {    // e_DW_FORM_ref_udata
+            rc = mX.skipForm(Obj::e_DW_FORM_ref_udata);
             ASSERT(0 == rc);
             ASSERT(offsets[jj++] == X.offset());
         }
 
-        rc = mX.skipForm(DW_FORM_string);
+        rc = mX.skipForm(Obj::e_DW_FORM_string);
         ASSERT(0 == rc);
 
         ASSERT(offsets[jj++] == X.offset());
 
-        rc = mX.skipForm(DW_FORM_strp);
+        rc = mX.skipForm(Obj::e_DW_FORM_strp);
         ASSERT(0 == rc);
 
         ASSERT(offsets[jj++] == X.offset());
 
-        rc = mX.skipForm(DW_FORM_addr);
+        rc = mX.skipForm(Obj::e_DW_FORM_addr);
         ASSERT(0 == rc);
 
         ASSERT(offsets[jj++] == X.offset());
 
-        rc = mX.skipForm(DW_FORM_ref_addr);
+        rc = mX.skipForm(Obj::e_DW_FORM_ref_addr);
         ASSERT(0 == rc);
 
         ASSERT(offsets[jj++] == X.offset());
@@ -678,33 +754,33 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
         ASSERT(8 == X.addressSize());
 
-        rc = mX.skipForm(DW_FORM_addr);
+        rc = mX.skipForm(Obj::e_DW_FORM_addr);
         ASSERT(0 == rc);
 
         ASSERT(offsets[jj++] == X.offset());
 
-        rc = mX.skipForm(DW_FORM_ref_addr);
+        rc = mX.skipForm(Obj::e_DW_FORM_ref_addr);
         ASSERT(0 == rc);
 
         ASSERT(offsets[jj++] == X.offset());
 #endif
 
-        rc = mX.skipForm(DW_FORM_block1);
+        rc = mX.skipForm(Obj::e_DW_FORM_block1);
         ASSERT(0 == rc);
 
         ASSERT(offsets[jj++] == X.offset());
 
-        rc = mX.skipForm(DW_FORM_block2);
+        rc = mX.skipForm(Obj::e_DW_FORM_block2);
         ASSERT(0 == rc);
 
         ASSERT(offsets[jj++] == X.offset());
 
-        rc = mX.skipForm(DW_FORM_block4);
+        rc = mX.skipForm(Obj::e_DW_FORM_block4);
         ASSERT(0 == rc);
 
         ASSERT(offsets[jj++] == X.offset());
 
-        rc = mX.skipForm(DW_FORM_block);
+        rc = mX.skipForm(Obj::e_DW_FORM_block);
         ASSERT(0 == rc);
 
         ASSERT(offsets[jj++] == X.offset());
@@ -839,27 +915,27 @@ int main(int argc, char *argv[])
                 -400LL * (1LL << 32) };
         BSLMF_ASSERT(11 == sizeof indirectData / sizeof *indirectData);
 
-        u::writeULEB128(fd, DW_FORM_data1);
+        u::writeULEB128(fd, Obj::e_DW_FORM_data1);
         u::writeByte(fd, static_cast<unsigned char>(indirectData[0]));
-        u::writeULEB128(fd, DW_FORM_ref1);
+        u::writeULEB128(fd, Obj::e_DW_FORM_ref1);
         u::writeByte(fd, static_cast<unsigned char>(indirectData[1]));
-        u::writeULEB128(fd, DW_FORM_flag);
+        u::writeULEB128(fd, Obj::e_DW_FORM_flag);
         u::writeByte(fd, static_cast<unsigned char>(indirectData[2]));
-        u::writeULEB128(fd, DW_FORM_data2);
+        u::writeULEB128(fd, Obj::e_DW_FORM_data2);
         u::writeShort(fd, static_cast<unsigned short>(indirectData[3]));
-        u::writeULEB128(fd, DW_FORM_ref2);
+        u::writeULEB128(fd, Obj::e_DW_FORM_ref2);
         u::writeShort(fd, static_cast<unsigned short>(indirectData[4]));
-        u::writeULEB128(fd, DW_FORM_data4);
+        u::writeULEB128(fd, Obj::e_DW_FORM_data4);
         u::writeUnsigned(fd, static_cast<unsigned>(indirectData[5]));
-        u::writeULEB128(fd, DW_FORM_ref4);
+        u::writeULEB128(fd, Obj::e_DW_FORM_ref4);
         u::writeUnsigned(fd, static_cast<unsigned>(indirectData[6]));
-        u::writeULEB128(fd, DW_FORM_data8);
+        u::writeULEB128(fd, Obj::e_DW_FORM_data8);
         u::writeUint64(fd, indirectData[7]);
-        u::writeULEB128(fd, DW_FORM_ref8);
+        u::writeULEB128(fd, Obj::e_DW_FORM_ref8);
         u::writeUint64(fd, indirectData[8]);
-        u::writeULEB128(fd, DW_FORM_udata);
+        u::writeULEB128(fd, Obj::e_DW_FORM_udata);
         u::writeULEB128(fd, indirectData[9]);
-        u::writeULEB128(fd, DW_FORM_sdata);
+        u::writeULEB128(fd, Obj::e_DW_FORM_sdata);
         u::writeLEB128(fd, indirectData[10]);
 
         const Offset indirectEnd = u::getOffset(fd);
@@ -1041,14 +1117,14 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (int uu = 0; uu < 256; ++uu) {
-            rc = mX.readOffsetFromForm(&x, DW_FORM_data1);
+            rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data1);
             ASSERT(0 == rc);
             ASSERT(uu == x);
         }
-        rc = mX.readOffsetFromForm(&x, DW_FORM_data1);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data1);
         ASSERT(0 == rc);
         ASSERT((int) maxChar == x);
-        rc = mX.readOffsetFromForm(&x, DW_FORM_data1);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data1);
         ASSERT(0 == rc);
         ASSERT((int) minChar == x);
 
@@ -1056,14 +1132,14 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (int uu = 0; uu < 256; ++uu) {
-            rc = mX.readOffsetFromForm(&x, DW_FORM_flag);
+            rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_flag);
             ASSERT(0 == rc);
             ASSERT(uu == x);
         }
-        rc = mX.readOffsetFromForm(&x, DW_FORM_flag);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_flag);
         ASSERT(0 == rc);
         ASSERT((int) maxChar == x);
-        rc = mX.readOffsetFromForm(&x, DW_FORM_flag);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_flag);
         ASSERT(0 == rc);
         ASSERT((int) minChar == x);
 
@@ -1071,14 +1147,14 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (int uu = 0; uu < 256; ++uu) {
-            rc = mX.readOffsetFromForm(&x, DW_FORM_ref1);
+            rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref1);
             ASSERT(0 == rc);
             ASSERT(uu == x);
         }
-        rc = mX.readOffsetFromForm(&x, DW_FORM_ref1);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref1);
         ASSERT(0 == rc);
         ASSERT((int) maxChar == x);
-        rc = mX.readOffsetFromForm(&x, DW_FORM_ref1);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref1);
         ASSERT(0 == rc);
         ASSERT((int) minChar == x);
 
@@ -1087,14 +1163,14 @@ int main(int argc, char *argv[])
         ASSERT(shortOffset == X.offset());
 
         for (int uu = 0; uu < (1 << 16); uu += (1 << 8)) {
-            rc = mX.readOffsetFromForm(&x, DW_FORM_data2);
+            rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data2);
             ASSERT(0 == rc);
             ASSERT(uu == x);
         }
-        rc = mX.readOffsetFromForm(&x, DW_FORM_data2);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data2);
         ASSERT(0 == rc);
         ASSERT((int) maxShort == x);
-        rc = mX.readOffsetFromForm(&x, DW_FORM_data2);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data2);
         ASSERT(0 == rc);
         ASSERT((int) minShort == x);
 
@@ -1102,14 +1178,14 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (int uu = 0; uu < (1 << 16); uu += (1 << 8)) {
-            rc = mX.readOffsetFromForm(&x, DW_FORM_ref2);
+            rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref2);
             ASSERT(0 == rc);
             ASSERT(uu == x);
         }
-        rc = mX.readOffsetFromForm(&x, DW_FORM_ref2);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref2);
         ASSERT(0 == rc);
         ASSERT((int) maxShort == x);
-        rc = mX.readOffsetFromForm(&x, DW_FORM_ref2);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref2);
         ASSERT(0 == rc);
         ASSERT((int) minShort == x);
 
@@ -1118,14 +1194,14 @@ int main(int argc, char *argv[])
         ASSERT(unsignedOffset == X.offset());
 
         for (Offset uu = 0; uu < (1LL << 32); uu += (1 << 24)) {
-            rc = mX.readOffsetFromForm(&x, DW_FORM_data4);
+            rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data4);
             ASSERT(0 == rc);
             ASSERT(uu == x);
         }
-        rc = mX.readOffsetFromForm(&x, DW_FORM_data4);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data4);
         ASSERT(0 == rc);
         ASSERT((Offset) maxUnsigned == x);
-        rc = mX.readOffsetFromForm(&x, DW_FORM_data4);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data4);
         ASSERT(0 == rc);
         ASSERT((Offset) minUnsigned == x);
 
@@ -1133,14 +1209,14 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (Offset uu = 0; uu < (1LL << 32); uu += (1 << 24)) {
-            rc = mX.readOffsetFromForm(&x, DW_FORM_ref4);
+            rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref4);
             ASSERT(0 == rc);
             ASSERT(uu == x);
         }
-        rc = mX.readOffsetFromForm(&x, DW_FORM_ref4);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref4);
         ASSERT(0 == rc);
         ASSERT((Offset) maxUnsigned == x);
-        rc = mX.readOffsetFromForm(&x, DW_FORM_ref4);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref4);
         ASSERT(0 == rc);
         ASSERT((Offset) minUnsigned == x);
 
@@ -1164,15 +1240,15 @@ int main(int argc, char *argv[])
             bool firstTime = true;
             for (Offset o = 0; firstTime || 0 != o; o += (1ULL << 56)) {
                 firstTime = false;
-                rc = mX.readOffsetFromForm(&x, DW_FORM_data8);
+                rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data8);
                 ASSERT(0 == rc);
                 ASSERT(o == x);
             }
         }
-        rc = mX.readOffsetFromForm(&x, DW_FORM_data8);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data8);
         ASSERT(0 == rc);
         ASSERT((Offset) maxOffset == x);
-        rc = mX.readOffsetFromForm(&x, DW_FORM_data8);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_data8);
         ASSERT(0 == rc);
         ASSERT((Offset) minOffset == x);
 
@@ -1183,15 +1259,15 @@ int main(int argc, char *argv[])
             bool firstTime = true;
             for (Offset o = 0; firstTime || 0 != o; o += (1ULL << 56)) {
                 firstTime = false;
-                rc = mX.readOffsetFromForm(&x, DW_FORM_ref8);
+                rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref8);
                 ASSERT(0 == rc);
                 ASSERT(o == x);
             }
         }
-        rc = mX.readOffsetFromForm(&x, DW_FORM_ref8);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref8);
         ASSERT(0 == rc);
         ASSERT((Offset) maxOffset == x);
-        rc = mX.readOffsetFromForm(&x, DW_FORM_ref8);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_ref8);
         ASSERT(0 == rc);
         ASSERT((Offset) minOffset == x);
 
@@ -1203,15 +1279,15 @@ int main(int argc, char *argv[])
             bool firstTime = true;
             for (Offset o = 0; firstTime || 0 != o; o += (1ULL << 56)) {
                 firstTime = false;
-                rc = mX.readOffsetFromForm(&x, DW_FORM_sdata);
+                rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_sdata);
                 ASSERT(0 == rc);
                 ASSERT(o == x);
             }
         }
-        rc = mX.readOffsetFromForm(&x, DW_FORM_sdata);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_sdata);
         ASSERT(0 == rc);
         ASSERT((Offset) maxOffset == x);
-        rc = mX.readOffsetFromForm(&x, DW_FORM_sdata);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_sdata);
         ASSERT(0 == rc);
         ASSERT((Offset) minOffset == x);
 
@@ -1223,15 +1299,15 @@ int main(int argc, char *argv[])
             bool firstTime = true;
             for (Offset o = 0; firstTime || 0 != o; o += (1ULL << 56)) {
                 firstTime = false;
-                rc = mX.readOffsetFromForm(&x, DW_FORM_udata);
+                rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_udata);
                 ASSERT(0 == rc);
                 ASSERT(o == x);
             }
         }
-        rc = mX.readOffsetFromForm(&x, DW_FORM_udata);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_udata);
         ASSERT(0 == rc);
         ASSERT((Offset) maxOffset == x);
-        rc = mX.readOffsetFromForm(&x, DW_FORM_udata);
+        rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_udata);
         ASSERT(0 == rc);
         ASSERT((Offset) minOffset == x);
 
@@ -1302,7 +1378,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (int ii = 0; ii < 11; ++ii) {
-            rc = mX.readOffsetFromForm(&x, DW_FORM_indirect);
+            rc = mX.readOffsetFromForm(&x, Obj::e_DW_FORM_indirect);
             ASSERT(0 == rc);
             ASSERTV(ii, indirectData[ii], x, indirectData[ii] == x);
         }
@@ -1315,7 +1391,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (int uu = 0; uu < 258; ++uu) {
-            rc = mX.skipForm(DW_FORM_data1);
+            rc = mX.skipForm(Obj::e_DW_FORM_data1);
             ASSERT(0 == rc);
         }
 
@@ -1327,7 +1403,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (int uu = 0; uu < 258; ++uu) {
-            rc = mX.skipForm(DW_FORM_ref1);
+            rc = mX.skipForm(Obj::e_DW_FORM_ref1);
             ASSERT(0 == rc);
         }
 
@@ -1339,7 +1415,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (int uu = 0; uu < 258; ++uu) {
-            rc = mX.skipForm(DW_FORM_flag);
+            rc = mX.skipForm(Obj::e_DW_FORM_flag);
             ASSERT(0 == rc);
         }
 
@@ -1352,7 +1428,7 @@ int main(int argc, char *argv[])
         ASSERT(shortOffset == X.offset());
 
         for (int uu = 0; uu < (1 << 16) + (2 << 8); uu += (1 << 8)) {
-            rc = mX.skipForm(DW_FORM_data2);
+            rc = mX.skipForm(Obj::e_DW_FORM_data2);
             ASSERT(0 == rc);
         }
 
@@ -1364,7 +1440,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (int uu = 0; uu < (1 << 16) + (2 << 8); uu += (1 << 8)) {
-            rc = mX.skipForm(DW_FORM_ref2);
+            rc = mX.skipForm(Obj::e_DW_FORM_ref2);
             ASSERT(0 == rc);
         }
 
@@ -1373,7 +1449,7 @@ int main(int argc, char *argv[])
         ASSERT(unsignedOffset == X.offset());
 
         for (Offset uu = 0; uu < (1LL << 32) + (2 << 24); uu += (1 << 24)) {
-            rc = mX.skipForm(DW_FORM_data4);
+            rc = mX.skipForm(Obj::e_DW_FORM_data4);
             ASSERT(0 == rc);
         }
 
@@ -1385,7 +1461,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (Offset uu = 0; uu < (1LL << 32) + (2 << 24); uu += (1 << 24)) {
-            rc = mX.skipForm(DW_FORM_data4);
+            rc = mX.skipForm(Obj::e_DW_FORM_data4);
             ASSERT(0 == rc);
         }
 
@@ -1394,7 +1470,7 @@ int main(int argc, char *argv[])
         ASSERT(offsetOffset == X.offset());
 
         for (int ii = 0; ii < 258; ++ii) {
-            rc = mX.skipForm(DW_FORM_data8);
+            rc = mX.skipForm(Obj::e_DW_FORM_data8);
             ASSERT(0 == rc);
         }
 
@@ -1406,7 +1482,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (int ii = 0; ii < 258; ++ii) {
-            rc = mX.skipForm(DW_FORM_ref8);
+            rc = mX.skipForm(Obj::e_DW_FORM_ref8);
             ASSERT(0 == rc);
         }
 
@@ -1415,7 +1491,7 @@ int main(int argc, char *argv[])
         ASSERT(leb128Offset == X.offset());
 
         for (int ii = 0; ii < 258; ++ii) {
-            rc = mX.skipForm(DW_FORM_sdata);
+            rc = mX.skipForm(Obj::e_DW_FORM_sdata);
             ASSERT(0 == rc);
         }
 
@@ -1424,7 +1500,7 @@ int main(int argc, char *argv[])
         ASSERT(uleb128Offset == X.offset());
 
         for (int ii = 0; ii < 258; ++ii) {
-            rc = mX.skipForm(DW_FORM_udata);
+            rc = mX.skipForm(Obj::e_DW_FORM_udata);
             ASSERT(0 == rc);
         }
 
@@ -1438,7 +1514,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (int ii = 1; ii <= 11; ++ii) {
-            rc = mX.skipForm(DW_FORM_indirect);
+            rc = mX.skipForm(Obj::e_DW_FORM_indirect);
             ASSERT(0 == rc);
         }
 
@@ -1742,8 +1818,8 @@ int main(int argc, char *argv[])
         //: 1 'readString' works.
         //: 2 'readStringAt' works.
         //: 3 'readStringFromForm' works.
-        //:   A When 'form' is 'DW_FORM_string'.
-        //:   B When 'form' is 'DW_FORM_strp'.
+        //:   A When 'form' is 'e_DW_FORM_string'.
+        //:   B When 'form' is 'e_DW_FORM_strp'.
         //: 4 'skipString' works.
         //
         // Plan:
@@ -1761,7 +1837,7 @@ int main(int argc, char *argv[])
         //:   verify the result. (C-1)
         //: 6 Skip the 'str' reader to the beginning of the string.
         //: 7 Call 'readStringFromForm' on the 'str' reader with a form of
-        //:   'DW_FORM_string' which should have the same effect as calling
+        //:   'e_DW_FORM_string' which should have the same effect as calling
         //:   'readString', and verify the result. (C-3-A)
         //: 8 Skip the 'info' reader to the offset of the 4-byte initial length
         //:   of the 'info' section, and call 'readInitialLength', and confirm
@@ -1769,7 +1845,7 @@ int main(int argc, char *argv[])
         //: 9 Skip the 'info' reader to the offset in the 'info' section of the
         //:   4-byte offset of string in the 'str' section.
         //: 10 Call 'readStringFromForm' on the 'info' reader passing it the
-        //:    'string' reader and 'DW_FORM_strp' and verify the result.
+        //:    'string' reader and 'e_DW_FORM_strp' and verify the result.
         //:    (C-3-B)
         //: 11 Seek back to the initial length of the 'info' section and
         //:    overwrite it with an 8-byte initial length.
@@ -1778,7 +1854,7 @@ int main(int argc, char *argv[])
         //: 13 Skip the 'info' reader to the offset in the 'info' section of
         //:    the 8 byte offset of the string in the 'str' section.
         //: 14 Call 'readStringFromForm' on the 'info' reader passing it the
-        //:    'string' reader and 'DW_FORM_strp' and verify the result.
+        //:    'string' reader and 'e_DW_FORM_strp' and verify the result.
         //:    (C-3-B)
         //: 15 Skip the 'str' reader ot the beginning of the string.
         //: 16 Call 'skipString' on the 'str' reader and verify the cursor is
@@ -1879,7 +1955,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
         ASSERT(str == result);
 
-        if (verbose) cout << "Test 'readStringFromForm' DW_FORM_string\n";
+        if (verbose) cout << "Test 'readStringFromForm' e_DW_FORM_string\n";
 
         result = "woof";
 
@@ -1890,11 +1966,12 @@ int main(int argc, char *argv[])
 
         rc = strReader.readStringFromForm(&result,
                                           &infoReader,
-                                          DW_FORM_string);
+                                          Obj::e_DW_FORM_string);
         ASSERT(0 == rc);
         ASSERT(str == result);
 
-        if (verbose) cout << "Test 'readStringFromForm' short DW_AT_strp\n";
+        if (verbose) cout <<
+                            "Test 'readStringFromForm' short e_DW_FORM_strp\n";
 
         result = "woof";
 
@@ -1912,11 +1989,11 @@ int main(int argc, char *argv[])
 
         rc = infoReader.readStringFromForm(&result,
                                            &strReader,
-                                           DW_FORM_strp);
+                                           Obj::e_DW_FORM_strp);
         ASSERT(0 == rc);
         ASSERT(str == result);
 
-        if (verbose) cout << "Test 'readStringFromForm' long DW_AT_strp\n";
+        if (verbose) cout << "Test 'readStringFromForm' long e_DW_FORM_strp\n";
 
         (void) FU::seek(fd, initLengthOff, FU::e_SEEK_FROM_BEGINNING);
 
@@ -1943,7 +2020,7 @@ int main(int argc, char *argv[])
 
         rc = infoReader.readStringFromForm(&result,
                                            &strReader,
-                                           DW_FORM_strp);
+                                           Obj::e_DW_FORM_strp);
         ASSERT(0 == rc);
         ASSERT(str == result);
 
@@ -2208,7 +2285,7 @@ int main(int argc, char *argv[])
         UintPtr x;
 
         for (unsigned uu = 0; uu < 256; ++uu) {
-            rc = mX.readAddress(&x, DW_FORM_data1);
+            rc = mX.readAddress(&x, Obj::e_DW_FORM_data1);
             ASSERT(0 == rc && uu == x);
         }
 
@@ -2216,7 +2293,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         for (unsigned uu = 0; uu < (1 << 16); uu += 256) {
-            rc = mX.readAddress(&x, DW_FORM_data2);
+            rc = mX.readAddress(&x, Obj::e_DW_FORM_data2);
             ASSERT(0 == rc && uu == x);
         }
 
@@ -2229,7 +2306,7 @@ int main(int argc, char *argv[])
             bool firstTime = true;
             for (unsigned uu = 0; firstTime || 0 != uu; uu += (1 << 24)) {
                 firstTime = false;
-                rc = mX.readAddress(&x, DW_FORM_data4);
+                rc = mX.readAddress(&x, Obj::e_DW_FORM_data4);
                 ASSERT(0 == rc && uu == x);
             }
         }
@@ -2244,7 +2321,7 @@ int main(int argc, char *argv[])
                 bool firstTime = true;
                 for (Uint64 uu = 0; firstTime || 0 != uu; uu += (1ULL << 56)) {
                     firstTime = false;
-                    rc = mX.readAddress(&x, DW_FORM_data8);
+                    rc = mX.readAddress(&x, Obj::e_DW_FORM_data8);
                     ASSERT(0 == rc && uu == x);
                 }
             }
