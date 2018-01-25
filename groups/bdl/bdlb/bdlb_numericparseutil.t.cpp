@@ -1864,6 +1864,30 @@ int main(int argc, char *argv[])
                 else {
                     sscanf(SPEC, "%lf", &VALUE);
                 }
+#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900
+
+                // DRQS 114821685: Test case 4 of 'bdlb_numericparseutil.t.cpp'
+                // is failing for Visual C++ 2015 (and later) due to a changed
+                // parsing of the following strings: "0e", "0E", "0ee", "0eE",
+                // "0Ee", and "0EE".
+                // 
+                // This seems to be a change of behavior in the MS 'sscanf'
+                // function, which now treats these strings as an invalid
+                // partial floating point number instead of a (0) integer
+                // followed by an (unparsed) "e" or "ee".
+
+                if (bslstl::StringRef("0e")  == SPEC ||
+                    bslstl::StringRef("0E")  == SPEC ||
+                    bslstl::StringRef("0ee") == SPEC ||
+                    bslstl::StringRef("0eE") == SPEC ||
+                    bslstl::StringRef("0Ee") == SPEC ||
+                    bslstl::StringRef("0EE") == SPEC) {
+                    VALUE = 0;
+                }
+                else {
+                    LOOP_ASSERT(SPEC,
+                                FAIL || (sscanf(SPEC, "%lf", &VALUE) == 1));
+                }
 #else
                 sscanf(SPEC, "%lf", &VALUE);
 #endif
