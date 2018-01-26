@@ -144,6 +144,7 @@ using namespace bsl;
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
 // [ 8] CompactedArray g(const char *spec);
+// [ 2] CONCERN: Allocator is propogated to the stored objects.
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -5093,6 +5094,7 @@ int main(int argc, char *argv[])
         //   void append(const TYPE& value);
         //   void pop_back();
         //   void removeAll();
+        //   CONCERN: Allocator is propogated to the stored objects.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5149,12 +5151,30 @@ int main(int argc, char *argv[])
             ASSERT(allocations == defaultAllocator.numAllocations());
             ASSERT(0 == sa.numAllocations());
 
-            mX.append("a");
+            bsl::string Z1("a long string that needs an allocation to copy",
+                           &sa);
+            mX.append(Z1);
 
             ASSERT(1 == X.length());
             ASSERT(1 == X.uniqueLength());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(2 == sa.numAllocations());
+            ASSERT(4 == sa.numAllocations());
+
+            mX.append("a");
+
+            ASSERT(2 == X.length());
+            ASSERT(2 == X.uniqueLength());
+            ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(7 == sa.numAllocations());
+
+            bsl::string Z2("another long string that needs an allocation",
+                           &sa);
+            mX.append(Z2);
+
+            ASSERT( 3 == X.length());
+            ASSERT( 3 == X.uniqueLength());
+            ASSERT(allocations == defaultAllocator.numAllocations());
+            ASSERT(11 == sa.numAllocations());
         }
 
         if (verbose) cout << "\nTesting 'append'." << endl;
