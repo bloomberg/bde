@@ -482,13 +482,13 @@ void threadJobIf()
     // Make a large number of requests via '..._IF_ALLOW_NONE' and verify that
     // none of the actions and permitted and all of them are refused.
 {
-    enum { k_MILLION = 1024 * 1024 };
+    enum { k_TIGHT_ITERATIONS = 1024 };
 
     while (atomicBarrier < 0) {}
 
     while (atomicBarrier < 1) {
         int delta = 0;
-        for (int ii = 0; ii < k_MILLION; ++ii) {
+        for (int ii = 0; ii < k_TIGHT_ITERATIONS; ++ii) {
             BDLMT_THROTTLE_IF_ALLOW_NONE {
                 ASSERT(0 && "Action rejected\n");
             }
@@ -496,7 +496,7 @@ void threadJobIf()
                 ++delta;
             }
         }
-        ASSERTV(delta, k_MILLION == delta);
+        ASSERTV(delta, k_TIGHT_ITERATIONS == delta);
         eventsSoFar += delta;
     }
 }
@@ -506,8 +506,9 @@ void threadJobInit()
     // throttle configured with '..._ALLOW_NONE' and verify that none of the
     // are permitted and all of them are refused.
 {
-    enum { k_MILLION = 1024 * 1024,
-           k_BILLION = 1000 * 1000 * 1000 };
+    enum { k_BILLION          = 1000 * 1000 * 1000,
+           k_TIGHT_ITERATIONS = 1024 };
+
     static bdlmt::Throttle throttle = BDLMT_THROTTLE_INIT_ALLOW_NONE;
     bool lastDone = false;
 
@@ -515,7 +516,7 @@ void threadJobInit()
 
     while (atomicBarrier < 1) {
         int delta = 0;
-        for (int ii = 0; ii < k_MILLION; ++ii) {
+        for (int ii = 0; ii < k_TIGHT_ITERATIONS; ++ii) {
             bool permitted = false;
             int todo = ii % 8;
             switch (todo) {
@@ -558,7 +559,7 @@ void threadJobInit()
             }
         }
         ASSERT(lastDone);
-        ASSERTV(delta, k_MILLION == delta);
+        ASSERTV(delta, k_TIGHT_ITERATIONS == delta);
         eventsSoFar += delta;
     }
 }
@@ -578,13 +579,13 @@ void threadJobIf()
     // Make a large number of requests for permission using '..._IF_ALLOW_ALL'
     // and observe that actions are always allowed.
 {
-    enum { k_MILLION = 1024 * 1024 };
+    enum { k_TIGHT_ITERATIONS = 1024 };
 
     while (atomicBarrier < 0) {}
 
     while (atomicBarrier < 1) {
         int delta = 0;
-        for (int ii = 0; ii < k_MILLION; ++ii) {
+        for (int ii = 0; ii < k_TIGHT_ITERATIONS; ++ii) {
             BDLMT_THROTTLE_IF_ALLOW_ALL {
                 ++delta;
             }
@@ -592,7 +593,7 @@ void threadJobIf()
                 ASSERT(0 && "Action rejected\n");
             }
         }
-        ASSERTV(delta, k_MILLION == delta);
+        ASSERTV(delta, k_TIGHT_ITERATIONS == delta);
         eventsSoFar += delta;
     }
 }
@@ -602,8 +603,8 @@ void threadJobInit()
     // actions via varying overloads of the 'requestPermission' method and
     // observe that actions are always allowed.
 {
-    enum { k_MILLION = 1024 * 1024,
-           k_BILLION = 1000 * 1000 * 1000 };
+    enum { k_BILLION          = 1000 * 1000 * 1000,
+           k_TIGHT_ITERATIONS = 1024 };
 
     static bdlmt::Throttle throttle = BDLMT_THROTTLE_INIT_ALLOW_ALL;
 
@@ -612,7 +613,7 @@ void threadJobInit()
 
     while (atomicBarrier < 1) {
         int delta = 0;
-        for (int ii = 0; ii < k_MILLION; ++ii) {
+        for (int ii = 0; ii < k_TIGHT_ITERATIONS; ++ii) {
             bool permitted = false;
             switch (ii % 8) {
               case 0: {
@@ -654,7 +655,7 @@ void threadJobInit()
             }
         }
         ASSERT(lastDone);
-        ASSERTV(delta, k_MILLION == delta);
+        ASSERTV(delta, k_TIGHT_ITERATIONS == delta);
         eventsSoFar += delta;
     }
 }
@@ -2101,48 +2102,48 @@ int main(int argc, char *argv[])
             double      d_sleepSeconds;
             bool        d_expPermission;
         } DATA[] = {
-            INIT(1, 20e-3),
+            INIT(1, 40e-3),
             REQUEST(1, 1),
             REQUEST(1, 0),
             REQUEST(1, 0),
-            MILLI_SLEEP(10),
-            REQUEST(1, 0),
             MILLI_SLEEP(20),
+            REQUEST(1, 0),
+            MILLI_SLEEP(40),
             REQUEST(1, 1),
             REQUEST(1, 0),
 
-            INIT(4, 20e-3),
+            INIT(4, 40e-3),
             REQUEST(2, 1),
             REQUEST(1, 1),
             REQUEST(1, 1),
             REQUEST(1, 0),
             REQUEST(4, 0),
-            MILLI_SLEEP(10),
-            REQUEST(1, 0),
             MILLI_SLEEP(20),
-            REQUEST(1, 1),
             REQUEST(1, 0),
             MILLI_SLEEP(40),
+            REQUEST(1, 1),
+            REQUEST(1, 0),
+            MILLI_SLEEP(80),
             REQUEST(2, 1),
             REQUEST(4, 0),
             REQUEST(3, 0),
             REQUEST(2, 0),
             REQUEST(1, 0),
 
-            INIT(4, 20e-3),
+            INIT(4, 40e-3),
             REQUEST(1, 1),
             REQUEST(3, 1),
             REQUEST(1, 0),
-            MILLI_SLEEP(70),
+            MILLI_SLEEP(140),
             REQUEST(1, 1),
             REQUEST(4, 0),
-            MILLI_SLEEP(40),
+            MILLI_SLEEP(80),
             REQUEST(4, 1),
             REQUEST(4, 0),
             REQUEST(3, 0),
             REQUEST(2, 0),
             REQUEST(1, 0),
-            MILLI_SLEEP(50),
+            MILLI_SLEEP(100),
             REQUEST(4, 0),
             REQUEST(3, 0),
             REQUEST(2, 1),
