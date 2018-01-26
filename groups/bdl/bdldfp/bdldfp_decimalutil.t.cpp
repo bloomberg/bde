@@ -498,7 +498,7 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
 
-    switch (test) { case 0:
+    switch (test) { case 0:  // Zero is always the leading case.
     case 15: {
     // ------------------------------------------------------------------------
     // TESTING decompose
@@ -951,7 +951,9 @@ int main(int argc, char* argv[])
           bslmt::ThreadUtil::createWithAllocator(&r[i], &doRound, &ta);
       }
       for (int i = 0; i < k_NUM_THREADS; ++i) {
-          if (veryVerbose) { cout << "Wait for quantize thread " << i << "\n"; }
+          if (veryVerbose) {
+              cout << "Wait for quantize thread " << i << "\n";
+          }
           bslmt::ThreadUtil::join(q[i]);
           if (veryVerbose) { cout << "Wait for round thread " << i << "\n"; }
           bslmt::ThreadUtil::join(r[i]);
@@ -1201,7 +1203,7 @@ int main(int argc, char* argv[])
           }
       }
 #undef DEC
-    }
+    } break;
     case 12: {
         // --------------------------------------------------------------------
         // TESTING parseDecimal
@@ -1431,7 +1433,7 @@ int main(int argc, char* argv[])
                 }
             }
         }
-    }
+    } break;
     case 11: {
         // --------------------------------------------------------------------
         // TESTING multiplyByPowerOf10
@@ -1486,7 +1488,7 @@ int main(int argc, char* argv[])
                 }
             }
         }
-    }
+    } break;
     case 10: {
         // --------------------------------------------------------------------
         // TESTING fabs
@@ -2748,7 +2750,7 @@ int main(int argc, char* argv[])
             }
 
         }
-    }
+    } break;
     case 1: {
         // --------------------------------------------------------------------
         // TESTING Breathing test
@@ -3597,7 +3599,6 @@ int main(int argc, char* argv[])
 
         }
     } break;
-
     case -1: {
         // --------------------------------------------------------------------
         // TESTING: Performance Test of Random Trading Data.
@@ -3682,7 +3683,6 @@ int main(int argc, char* argv[])
                   << " ticker data operations per second." << bsl::endl;
         bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
     } break;
-
     case -2: {
         // --------------------------------------------------------------------
         // TESTING: Performance Test of Random Trading Data.
@@ -3766,7 +3766,6 @@ int main(int argc, char* argv[])
                   << " ticker data operations per second." << bsl::endl;
         bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
     } break;
-
     case -3: {
         // --------------------------------------------------------------------
         // TESTING: Performance Test of Real-World Trading Data.
@@ -3870,7 +3869,6 @@ int main(int argc, char* argv[])
                   << " ticker data operations per second." << bsl::endl;
         bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
     } break;
-
     case -4: {
         // --------------------------------------------------------------------
         // TESTING: Performance Test of Real-World Trading Data.
@@ -3975,7 +3973,6 @@ int main(int argc, char* argv[])
                   << " ticker data operations per second." << bsl::endl;
         bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
     } break;
-
     case -5: {
         // --------------------------------------------------------------------
         // TESTING: Performance test of 'makeDecimal64'.
@@ -4009,7 +4006,6 @@ int main(int argc, char* argv[])
                   << " makeDecimal64 operations per second." << bsl::endl;
         bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
     } break;
-
     case -6: {
         // --------------------------------------------------------------------
         // TESTING: Performance test of 'makeDecimalRaw128'.
@@ -4050,7 +4046,6 @@ int main(int argc, char* argv[])
                   << " makeDecimal128 operations per second." << bsl::endl;
         bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
     } break;
-
     case -7: {
         // --------------------------------------------------------------------
         // TESTING: Performance test of 'makeDecimalRaw64'.
@@ -4096,7 +4091,6 @@ int main(int argc, char* argv[])
                   << " makeDecimal64 operations per second." << bsl::endl;
         bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
     } break;
-
     case -8: {
         // --------------------------------------------------------------------
         // TESTING: Performance test of 'makeDecimalRaw32'.
@@ -4142,7 +4136,6 @@ int main(int argc, char* argv[])
                   << " makeDecimal32 operations per second." << bsl::endl;
         bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
     } break;
-
     case -9: {
         // --------------------------------------------------------------------
         // TESTING: Performance test of 'multiplyByPowerOf10'.
@@ -4190,7 +4183,6 @@ int main(int argc, char* argv[])
         bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
 
     } break;
-
     default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
         testStatus = -1;
