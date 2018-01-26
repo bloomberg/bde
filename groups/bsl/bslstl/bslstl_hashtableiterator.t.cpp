@@ -980,7 +980,8 @@ void TestDriver<VALUE>::testCase4()
         const Obj& X = mX;
         ASSERTV(ti, X.node() == nodes[ti]);
         ASSERTV(ti, *X == nodes[ti]->value());
-        ASSERTV(ti, X.operator->() == bsls::Util::addressOf(nodes[ti]->value()));
+        ASSERTV(ti,
+                X.operator->() == bsls::Util::addressOf(nodes[ti]->value()));
     }
 
     // Clean up the nodes.
@@ -1193,7 +1194,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    switch (test) { case 0:
+    switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -1298,7 +1299,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase4,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-      }
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING (PRIMITIVE) GENERATORS

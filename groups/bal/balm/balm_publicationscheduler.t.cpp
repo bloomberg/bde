@@ -1760,7 +1760,7 @@ int main(int argc, char *argv[])
             ASSERT(intervalMap.size() == MX.getCategorySchedule(&schedule));
             ASSERT(equalSchedule(intervalMap, schedule));
         }
-      };
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING MANIPULATOR: cancelAll
