@@ -7,6 +7,8 @@
 #include <bslim_testutil.h>
 
 #include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
 
@@ -24,6 +26,7 @@
 #include <bsls_atomic.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
+#include <bsls_bsltestutil.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_c_ctype.h>      // 'isdigit'
@@ -215,7 +218,7 @@ Int64 get(bsls::AtomicOperations::AtomicTypes::Int64 *x_p)
 }
 
 inline
-Uint64 nanoClock(ClockType clockType = CT::e_MONOTONIC)
+Int64 nanoClock(ClockType clockType = CT::e_MONOTONIC)
     // Return the current time, in nanoseconds, according to the clock
     // indicated by the optionally specified 'clockType'.
 {
@@ -224,21 +227,24 @@ Uint64 nanoClock(ClockType clockType = CT::e_MONOTONIC)
 
 bsls::TimeInterval toTime(const char *);    // forward declaration
 
+double secondsPrevLeakTime(Obj *throttle_p)
+{
+    const Int64 lag = nanoClock(throttle_p->d_clockType) -
+                                              get(&throttle_p->d_prevLeakTime);
+    return static_cast<double>(lag) * 1e-9;
+}
+
 inline
 void sleep(double timeInSeconds)
     // Sleep for the specified 'timeInSeconds' seconds, where 10 * 1000
     // microseconds is minimum sleep, at least on some platforms.
 {
-    ASSERT(minSleep <= timeInSeconds);
-
-    ASSERT(timeInSeconds <= 2.0);       // Don't want this test driver to take
-                                        // too long.
-
     bslmt::ThreadUtil::microSleep(static_cast<int>(timeInSeconds * 1e6));
 }
 
 inline
-int checkedSleep(double timeInSeconds, ClockType clockType = CT::e_MONOTONIC)
+double checkedSleep(double    timeInSeconds,
+                    ClockType clockType = CT::e_MONOTONIC)
     // Sleep for at least the specified 'timeInSeconds', using the system clock
     // specified by 'clockType'.  Return 0 if the amount of time slept was at
     // least 'timeInSeconds', and not more than 1.1 times 'timeInSeconds',
@@ -249,11 +255,11 @@ int checkedSleep(double timeInSeconds, ClockType clockType = CT::e_MONOTONIC)
     sleep(timeInSeconds);
     const double elapsed = doubleClock(clockType) - start;
 
-    return elapsed < timeInSeconds
-         ? -1
-         : timeInSeconds * 1.1 < elapsed
-         ?  1
-         : 0;
+    if (elapsed < timeInSeconds || timeInSeconds * 1.1 < elapsed) {
+        return elapsed - timeInSeconds;                               // RETURN
+    }
+
+    return 0;
 }
 
 bsls::TimeInterval toTime(const char *timeStr)
@@ -662,20 +668,31 @@ void threadJobInit()
 namespace Case_Throttle_MULTITHREADED {
 
 const Int64     leakPeriod      = 300 * u::k_MILLI;
+const double    leakPeriodSecs  = static_cast<double>(leakPeriod) * 1e-9;
+const double    balanceFactor   = 1e-9 / leakPeriodSecs;
 const int       burstSize       = 10;
 const int       periods         = 3;
-const double    duration        = static_cast<double>(leakPeriod) / 1e9 *
-                                                               (periods - 0.5);
+const double    duration        = leakPeriodSecs *(periods - 0.5);
 const double    sleepPeriod     = 100e-6;
 const int       expEvents       = burstSize + (periods - 1);
+bslmt::Mutex    mutex;
 enum TestMode { e_INIT_LOW, e_INIT_HIGH, e_IF_LOW, e_IF_HIGH } testMode;
 ClockType       clockType;
 bsls::AtomicInt eventsSoFar(0);
 bsls::AtomicInt rejectedSoFar(0);
+bsls::AtomicInt ii(0);
 bslmt::Barrier  barrier(u::numThreads + 1);
 
 Obj throttleMonotonic = BDLMT_THROTTLE_INIT(          burstSize, leakPeriod);
 Obj throttleRealtime  = BDLMT_THROTTLE_INIT_REALTIME( burstSize, leakPeriod);
+
+inline
+double calculateBalance(Obj *throttle, const bsls::TimeInterval& now)
+{
+    const Int64 diff = now.totalNanoseconds() -
+                                             u::get(&throttle->d_prevLeakTime);
+    return static_cast<double>(diff) * balanceFactor;
+}
 
 void threadJob()
     // Request permission for many actions using 'Throttle' objections
@@ -687,27 +704,34 @@ void threadJob()
                   : throttleRealtime;
     ASSERTV(throttle.clockType() == clockType);
 
-    if (veryVerbose) cout << "Entering 'threadJob'\n";
-
     barrier.wait();
 
+    bsls::TimeInterval now;
     switch (testMode) {
       case e_INIT_HIGH: {
-        while (u::clockTi(clockType) < u::end) {
-            for (int ii = 0; ii < 100; ++ii) {
-                if (throttle.requestPermission()) {
-                    ++eventsSoFar;
-                }
-                else {
-                    ++rejectedSoFar;
-                }
+        while ((now = u::clockTi(clockType)) < u::end) {
+            if (veryVerbose && ++ii < 20) {
+                const double balance = calculateBalance(&throttle, now);
+                bslmt::LockGuard<bslmt::Mutex> guard(&mutex);
+                P(balance);
+            }
+            if (throttle.requestPermission(now)) {
+                ++eventsSoFar;
+            }
+            else {
+                ++rejectedSoFar;
             }
         }
       } break;
       case e_INIT_LOW: {
-        while (u::clockTi(clockType) < u::end) {
+        while ((now = u::clockTi(clockType)) < u::end) {
             u::sleep(sleepPeriod);
-            if (throttle.requestPermission()) {
+            if (veryVerbose && ++ii < 20) {
+                const double balance = calculateBalance(&throttle, now);
+                bslmt::LockGuard<bslmt::Mutex> guard(&mutex);
+                P(balance);
+            }
+            if (throttle.requestPermission(now)) {
                 ++eventsSoFar;
             }
             else {
@@ -716,31 +740,27 @@ void threadJob()
         }
       } break;
       case e_IF_HIGH: {
-        while (u::clockTi(clockType) < u::end) {
+        while ((now = u::clockTi(clockType)) < u::end) {
             if (CT::e_MONOTONIC == clockType) {
-                for (int ii = 0; ii < 100; ++ii) {
-                    BDLMT_THROTTLE_IF(burstSize, leakPeriod) {
-                        ++eventsSoFar;
-                    }
-                    else {
-                        ++rejectedSoFar;
-                    }
+                BDLMT_THROTTLE_IF(burstSize, leakPeriod) {
+                    ++eventsSoFar;
+                }
+                else {
+                    ++rejectedSoFar;
                 }
             }
             else {
-                for (int ii = 0; ii < 100; ++ii) {
-                    BDLMT_THROTTLE_IF_REALTIME(burstSize, leakPeriod) {
-                        ++eventsSoFar;
-                    }
-                    else {
-                        ++rejectedSoFar;
-                    }
+                BDLMT_THROTTLE_IF_REALTIME(burstSize, leakPeriod) {
+                    ++eventsSoFar;
+                }
+                else {
+                    ++rejectedSoFar;
                 }
             }
         }
       } break;
       case e_IF_LOW: {
-        while (u::clockTi(clockType) < u::end) {
+        while ((now = u::clockTi(clockType)) < u::end) {
             u::sleep(sleepPeriod);
             if (CT::e_MONOTONIC == clockType) {
                 BDLMT_THROTTLE_IF(burstSize, leakPeriod) {
@@ -765,9 +785,81 @@ void threadJob()
       }
     }
 
-    if (veryVerbose) cout << "Leaving 'threadJob'\n";
     barrier.wait();
 };
+
+void multiThreadedMain(TestMode mode)
+{
+    testMode = mode;
+
+    bslmt::ThreadGroup tg(&u::ta);
+
+    int retries = 0;
+    int testStatusSum = 0;
+    for (int ti = 0; ti < 2; ++ti) {
+        clockType      = ti ? CT::e_REALTIME : CT::e_MONOTONIC;
+        eventsSoFar    = 0;
+        rejectedSoFar  = 0;
+        ii             = 0;
+
+        if (verbose) cout << "Pass " << ti << ' ' << clockType << endl;
+
+        tg.addThreads(&threadJob, u::numThreads);
+        u::sleep(0.1);    // get everybody waiting on the barrier
+
+        u::end = (u::start = u::clockTi(clockType)) + duration;
+        barrier.wait();    // all start
+        TimeInterval afterBarrier = u::clockTi(clockType);
+
+        barrier.wait();    // all finish
+        const double elapsed = (u::clockTi(clockType) - u::start).
+                                                        totalSecondsAsDouble();
+        const bool tookTooLong  = 0.4 * leakPeriodSecs < elapsed - duration;
+        const bool tooFewEvents = eventsSoFar < expEvents;
+
+        ASSERTV(clockType, expEvents, eventsSoFar, tookTooLong ||
+                                                     eventsSoFar <= expEvents);
+
+        if (tookTooLong || tooFewEvents) {
+            ++ retries;
+            if (7 < retries) {
+                ASSERTV(clockType, duration, elapsed, rejectedSoFar,
+                                                                 retries <= 7);
+                break;
+            }
+
+            cout << "Retry necessary:" << clockType <<
+                                       (tookTooLong ? " tookTooLong: " : "") <<
+                                       (tooFewEvents ? " tooFewEvents: " : "");
+            if (tookTooLong) { P_(duration);    P_(elapsed); }
+            if (tooFewEvents) { P_(eventsSoFar); cout << " <"; P_(expEvents); }
+            P(retries);
+
+            u::sleep((burstSize + 1) * leakPeriodSecs);
+            --ti;
+        }
+        else {
+            ASSERTV(clockType, expEvents, eventsSoFar,
+                                                     expEvents == eventsSoFar);
+        }
+
+        if (veryVerbose || testStatus) {
+            const double scheduled = (u::end - u::start).
+                                                        totalSecondsAsDouble();
+            const double barrier = (afterBarrier - u::start).
+                                                        totalSecondsAsDouble();
+            P_(elapsed);   P_(scheduled);   P_(barrier);    P(eventsSoFar);
+            P_(rejectedSoFar);    P(duration);
+        }
+
+        tg.joinAll();
+
+        testStatusSum += testStatus;
+        testStatus = 0;
+    }
+
+    testStatus = testStatusSum;
+}
 
 }  // close namespace Case_Throttle_MULTITHREADED
 
@@ -1030,44 +1122,7 @@ int main(int argc, char *argv[])
 
         namespace TC = Case_Throttle_MULTITHREADED;
 
-        bslmt::ThreadGroup tg(&u::ta);
-
-        TC::testMode = TC::e_IF_HIGH;
-
-        for (int ti = 0; ti < 2; ++ti) {
-            TC::clockType = ti ? CT::e_REALTIME : CT::e_MONOTONIC;
-
-            TC::eventsSoFar   = 0;
-            TC::rejectedSoFar = 0;
-
-            tg.addThreads(&TC::threadJob, u::numThreads);
-            u::sleep(0.1);    // get everybody waiting on the barrier
-
-            u::end = (u::start = u::clockTi(TC::clockType)) + TC::duration;
-            TC::barrier.wait();    // all start
-            TimeInterval afterBarrier = u::clockTi(TC::clockType);
-
-            TC::barrier.wait();    // all finish
-            if (veryVerbose) {
-                const double elapsed = (u::clockTi(TC::clockType) - u::start).
-                                                        totalSecondsAsDouble();
-                const double scheduled = (u::end - u::start).
-                                                        totalSecondsAsDouble();
-                const double barrier = (afterBarrier - u::start).
-                                                        totalSecondsAsDouble();
-                P_(u::start);    P(u::end);
-                P_(elapsed);   P_(scheduled);   P_(barrier);   P(TC::duration);
-            }
-
-            tg.joinAll();
-
-            ASSERTV(TC::clockType, TC::expEvents, TC::eventsSoFar,
-                                             TC::expEvents == TC::eventsSoFar);
-            const double expMinTotal = TC::duration / 2 / 1e-5;
-            ASSERTV(TC::clockType, expMinTotal, TC::eventsSoFar,
-                                                             TC::rejectedSoFar,
-                            expMinTotal < TC::eventsSoFar + TC::rejectedSoFar);
-        }
+        TC::multiThreadedMain(TC::e_IF_HIGH);
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -1092,42 +1147,7 @@ int main(int argc, char *argv[])
 
         bslmt::ThreadGroup tg(&u::ta);
 
-        TC::testMode = TC::e_IF_LOW;
-
-        for (int ti = 0; ti < 2; ++ti) {
-            TC::clockType = ti ? CT::e_REALTIME : CT::e_MONOTONIC;
-
-            TC::eventsSoFar   = 0;
-            TC::rejectedSoFar = 0;
-
-            tg.addThreads(&TC::threadJob, u::numThreads);
-            u::sleep(0.1);    // get everybody waiting on the barrier
-
-            u::end = (u::start = u::clockTi(TC::clockType)) + TC::duration;
-            TC::barrier.wait();    // all start
-            TimeInterval afterBarrier = u::clockTi(TC::clockType);
-
-            TC::barrier.wait();    // all finish
-            if (veryVerbose) {
-                const double elapsed = (u::clockTi(TC::clockType) - u::start).
-                                                        totalSecondsAsDouble();
-                const double scheduled = (u::end - u::start).
-                                                        totalSecondsAsDouble();
-                const double barrier = (afterBarrier - u::start).
-                                                        totalSecondsAsDouble();
-                P_(u::start);    P(u::end);
-                P_(elapsed);   P_(scheduled);   P_(barrier);   P(TC::duration);
-            }
-
-            tg.joinAll();
-
-            ASSERTV(TC::clockType, TC::expEvents, TC::eventsSoFar,
-                                             TC::expEvents == TC::eventsSoFar);
-            const double expMinTotal = TC::duration / 2 / TC::sleepPeriod;
-            ASSERTV(TC::clockType, expMinTotal, TC::eventsSoFar,
-                                                             TC::rejectedSoFar,
-                            expMinTotal < TC::eventsSoFar + TC::rejectedSoFar);
-        }
+        TC::multiThreadedMain(TC::e_IF_LOW);
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -1150,44 +1170,7 @@ int main(int argc, char *argv[])
 
         namespace TC = Case_Throttle_MULTITHREADED;
 
-        bslmt::ThreadGroup tg(&u::ta);
-
-        TC::testMode = TC::e_INIT_HIGH;
-
-        for (int ti = 0; ti < 2; ++ti) {
-            TC::clockType = ti ? CT::e_REALTIME : CT::e_MONOTONIC;
-
-            TC::eventsSoFar   = 0;
-            TC::rejectedSoFar = 0;
-
-            tg.addThreads(&TC::threadJob, u::numThreads);
-            u::sleep(0.1);    // get everybody waiting on the barrier
-
-            u::end = (u::start = u::clockTi(TC::clockType)) + TC::duration;
-            TC::barrier.wait();    // all start
-            TimeInterval afterBarrier = u::clockTi(TC::clockType);
-
-            TC::barrier.wait();    // all finish
-            if (veryVerbose) {
-                const double elapsed = (u::clockTi(TC::clockType) - u::start).
-                                                        totalSecondsAsDouble();
-                const double scheduled = (u::end - u::start).
-                                                        totalSecondsAsDouble();
-                const double barrier = (afterBarrier - u::start).
-                                                        totalSecondsAsDouble();
-                P_(u::start);    P(u::end);
-                P_(elapsed);   P_(scheduled);   P_(barrier);   P(TC::duration);
-            }
-
-            tg.joinAll();
-
-            ASSERTV(TC::clockType, TC::expEvents, TC::eventsSoFar,
-                                             TC::expEvents == TC::eventsSoFar);
-            const double expMinTotal = TC::duration / 2 / 1e-5;
-            ASSERTV(TC::clockType, expMinTotal, TC::eventsSoFar,
-                                                             TC::rejectedSoFar,
-                            expMinTotal < TC::eventsSoFar + TC::rejectedSoFar);
-        }
+        TC::multiThreadedMain(TC::e_INIT_HIGH);
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1210,44 +1193,7 @@ int main(int argc, char *argv[])
 
         namespace TC = Case_Throttle_MULTITHREADED;
 
-        bslmt::ThreadGroup tg(&u::ta);
-
-        TC::testMode = TC::e_INIT_LOW;
-
-        for (int ti = 0; ti < 2; ++ti) {
-            TC::clockType = ti ? CT::e_REALTIME : CT::e_MONOTONIC;
-
-            TC::eventsSoFar   = 0;
-            TC::rejectedSoFar = 0;
-
-            tg.addThreads(&TC::threadJob, u::numThreads);
-            u::sleep(0.1);    // get everybody waiting on the barrier
-
-            u::end = (u::start = u::clockTi(TC::clockType)) + TC::duration;
-            TC::barrier.wait();    // all start
-            TimeInterval afterBarrier = u::clockTi(TC::clockType);
-
-            TC::barrier.wait();    // all finish
-            if (veryVerbose) {
-                const double elapsed = (u::clockTi(TC::clockType) - u::start).
-                                                        totalSecondsAsDouble();
-                const double scheduled = (u::end - u::start).
-                                                        totalSecondsAsDouble();
-                const double barrier = (afterBarrier - u::start).
-                                                        totalSecondsAsDouble();
-                P_(u::start);    P(u::end);
-                P_(elapsed);   P_(scheduled);   P_(barrier);   P(TC::duration);
-            }
-
-            tg.joinAll();
-
-            ASSERTV(TC::clockType, TC::expEvents, TC::eventsSoFar,
-                                             TC::expEvents == TC::eventsSoFar);
-            const double expMinTotal = TC::duration / 2 / TC::sleepPeriod;
-            ASSERTV(TC::clockType, expMinTotal, TC::eventsSoFar,
-                                                             TC::rejectedSoFar,
-                            expMinTotal < TC::eventsSoFar + TC::rejectedSoFar);
-        }
+        TC::multiThreadedMain(TC::e_INIT_LOW);
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1358,7 +1304,6 @@ int main(int argc, char *argv[])
             ASSERTV(ii, jj, kk, jj + kk == ii);
             ASSERTV(ii, jj, kk,  4 + 1 + 1 == jj);
             ASSERTV(ii, jj, kk, kk < 12);
-            ASSERTV(ii, jj, kk,  8 < kk);
         }
 
         if (verbose) cout << "BDLMT_THROTTLE_IF_REALTIME(4, u::k_SECOND)\n";
@@ -1410,7 +1355,6 @@ int main(int argc, char *argv[])
             ASSERTV(ii, jj, kk, jj + kk == ii);
             ASSERTV(ii, jj, kk,  4 + 1 + 1 == jj);
             ASSERTV(ii, jj, kk, kk < 12);
-            ASSERTV(ii, jj, kk,  8 < kk);
         }
 
         if (verbose) cout << "BDLMT_THROTTLE_IF -- WHITE BOX\n";
@@ -2163,7 +2107,7 @@ int main(int argc, char *argv[])
             REQUEST(1, 0),
             MILLI_SLEEP(10),
             REQUEST(1, 0),
-            MILLI_SLEEP(10),
+            MILLI_SLEEP(20),
             REQUEST(1, 1),
             REQUEST(1, 0),
 
@@ -2175,7 +2119,7 @@ int main(int argc, char *argv[])
             REQUEST(4, 0),
             MILLI_SLEEP(10),
             REQUEST(1, 0),
-            MILLI_SLEEP(10),
+            MILLI_SLEEP(20),
             REQUEST(1, 1),
             REQUEST(1, 0),
             MILLI_SLEEP(40),
@@ -2189,16 +2133,16 @@ int main(int argc, char *argv[])
             REQUEST(1, 1),
             REQUEST(3, 1),
             REQUEST(1, 0),
-            MILLI_SLEEP(80),
+            MILLI_SLEEP(70),
             REQUEST(1, 1),
             REQUEST(4, 0),
-            MILLI_SLEEP(20),
+            MILLI_SLEEP(40),
             REQUEST(4, 1),
             REQUEST(4, 0),
             REQUEST(3, 0),
             REQUEST(2, 0),
             REQUEST(1, 0),
-            MILLI_SLEEP(40),
+            MILLI_SLEEP(50),
             REQUEST(4, 0),
             REQUEST(3, 0),
             REQUEST(2, 1),
@@ -2245,25 +2189,31 @@ int main(int argc, char *argv[])
                 P(CLOCK_TYPE);
             }
 
+            Int64  nanosecondsPerAction;
+            double secondsPerAction;
+            double start = 0, scheduledTime = 0, actualTime = 0, overshoot = 0;
             int retries = 0;
             for (int ti = 0; !quit && ti< k_NUM_DATA; ++ti) {
-                const Data      data   = DATA[ti];
-                const int       LINE   = data.d_line;
-                const Cmd       CMD    = data.d_command;
+                const Data  data = DATA[ti];
+                const int   LINE = data.d_line;
+                const Cmd   CMD  = data.d_command;
 
                 switch (CMD) {
                   case e_CMD_INIT: {
-                    const int   MAX_SIMULTANEOUS_ACTIONS =
+                    const int MAX_SIMULTANEOUS_ACTIONS =
                                                  data.d_maxSimultaneousActions;
-                    const Int64 NANOSECONDS_PER_ACTION =
-                                                   data.d_nanosecondsPerAction;
+
+                    nanosecondsPerAction = data.d_nanosecondsPerAction;
+                    secondsPerAction = 1e-9 *
+                                     static_cast<double>(nanosecondsPerAction);
+
                     if (DEFAULT_TO_MONO) {
                         mX.initialize(MAX_SIMULTANEOUS_ACTIONS,
-                                      NANOSECONDS_PER_ACTION);
+                                      nanosecondsPerAction);
                     }
                     else {
                         mX.initialize(MAX_SIMULTANEOUS_ACTIONS,
-                                      NANOSECONDS_PER_ACTION,
+                                      nanosecondsPerAction,
                                       CLOCK_TYPE);
                     }
 
@@ -2271,13 +2221,16 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) {
                         cout << "initialize(" << MAX_SIMULTANEOUS_ACTIONS <<
-                         ", " << (static_cast<double>(NANOSECONDS_PER_ACTION) *
-                                                                         1e-9);
+                                                      ", " << secondsPerAction;
                         if (!DEFAULT_TO_MONO) {
                             cout << ", " << CLOCK_TYPE;
                         }
                         cout << ");\n";
                     }
+
+                    start         = u::doubleClock(CLOCK_TYPE);
+                    scheduledTime = 0;
+                    actualTime    = 0;
                   } break;
                   case e_CMD_SLEEP: {
                     const double SLEEP_SECONDS = data.d_sleepSeconds;
@@ -2290,17 +2243,23 @@ int main(int argc, char *argv[])
                         cout << ");\n";
                     }
 
-                    int rc = DEFAULT_TO_MONO
-                           ? u::checkedSleep(SLEEP_SECONDS)
-                           : u::checkedSleep(SLEEP_SECONDS, CLOCK_TYPE);
-                    if (0 != rc) {
-                        if (veryVerbose) cout << "Sleep " <<
-                             (rc < 0 ? "under" : "over") <<
-                                 "shot on line: " << LINE << " clock type: " <<
-                                                            CLOCK_TYPE << endl;
-
+                    const double timeToSleep = SLEEP_SECONDS - overshoot;
+                    u::sleep(timeToSleep);
+                    actualTime    =  u::doubleClock(CLOCK_TYPE) - start;
+                    scheduledTime += SLEEP_SECONDS;
+                    overshoot     =  actualTime - scheduledTime;
+                    if (secondsPerAction < overshoot * 4) {
                         ++retries;
-                        ASSERTV(LINE, retries, rc, retries < 10);
+                        const double overshootPercent = 100 * overshoot /
+                                                              secondsPerAction;
+                        ASSERTV(LINE, retries, overshootPercent, retries < 10);
+
+                        if (10 < retries || veryVerbose) {
+                            cout << "Retry << " << retries << " triggered. " <<
+                                 overshootPercent << "% overshoot on line: " <<
+                                 LINE << " clock type: " << CLOCK_TYPE << endl;
+                        }
+
                         if (15 < retries) {
                             quit = true;
                             break;
@@ -2308,11 +2267,10 @@ int main(int argc, char *argv[])
 
                         // Back up to before preceeding init and try again.
 
-                        --ti;
-                        while (e_CMD_INIT != DATA[ti % k_NUM_DATA].d_command) {
-                            --ti;
+                        for (--ti; e_CMD_INIT !=
+                                          DATA[ti-- % k_NUM_DATA].d_command;) {
+                            ;
                         }
-                        --ti;
                     }
                   } break;
                   case e_CMD_REQUEST: {
@@ -2325,6 +2283,7 @@ int main(int argc, char *argv[])
                         }
 
                         for (int ii = 0; ii < NUM_ACTIONS; ++ii) {
+                            double spltBefore = u::secondsPrevLeakTime(&mX);
                             const bool ret = mX.requestPermission();
 
                             if (veryVerbose) {
@@ -2334,148 +2293,18 @@ int main(int argc, char *argv[])
                                 }
                                 cout << " == " << u::b(ret) << endl;
                             }
-                            ASSERTV(LINE, EXP, ret, ii, EXP == ret);
+                            ASSERTV(LINE, EXP, ret, ii, spltBefore,EXP == ret);
                         }
                     }
                     else {
+                        double spltBefore = u::secondsPrevLeakTime(&mX);
                         const bool ret = mX.requestPermission(NUM_ACTIONS);
 
                         if (veryVerbose) cout << "reqestPermission(" <<
                                    NUM_ACTIONS << ") == " << u::b(ret) << endl;
 
-                        ASSERTV(LINE, EXP, ret, NUM_ACTIONS, EXP == ret);
-                    }
-                  } break;
-                  default: {
-                    ASSERT(0 && "invalid CMD");
-                  }
-                }
-            }
-        }
-
-        if (verbose) cout << "Passing system time with correct clock\n";
-
-        quit = false;
-        for (int tk = 0; !quit && tk < k_NUM_DATA_TK; ++tk) {
-            const DataTk    dataTk             = DATA_TK[tk];
-            const int       TK_LINE            = dataTk.d_tkLine;
-            const bool      DEFAULT_TO_MONO    = dataTk.d_defaultToMono;
-            const bool      SINGLE_ACTION_ONLY = dataTk.d_singleAction;
-            const ClockType CLOCK_TYPE         = dataTk.d_clockRealTime
-                                               ? CT::e_REALTIME
-                                               : CT::e_MONOTONIC;
-
-            ASSERTV(TK_LINE, !DEFAULT_TO_MONO ||
-                                                CT::e_MONOTONIC == CLOCK_TYPE);
-
-            if (veryVerbose) {
-                cout << endl;
-                P_(TK_LINE);  P_(DEFAULT_TO_MONO); P_(SINGLE_ACTION_ONLY);
-                P(CLOCK_TYPE);
-            }
-
-            int retries = 0;
-            for (int ti = 0; !quit && ti< k_NUM_DATA; ++ti) {
-                const Data      data   = DATA[ti];
-                const int       LINE   = data.d_line;
-                const Cmd       CMD    = data.d_command;
-
-                switch (CMD) {
-                  case e_CMD_INIT: {
-                    const int   MAX_SIMULTANEOUS_ACTIONS =
-                                                 data.d_maxSimultaneousActions;
-                    const Int64 NANOSECONDS_PER_ACTION =
-                                                   data.d_nanosecondsPerAction;
-                    if (DEFAULT_TO_MONO) {
-                        mX.initialize(MAX_SIMULTANEOUS_ACTIONS,
-                                      NANOSECONDS_PER_ACTION);
-                    }
-                    else {
-                        mX.initialize(MAX_SIMULTANEOUS_ACTIONS,
-                                      NANOSECONDS_PER_ACTION,
-                                      CLOCK_TYPE);
-                    }
-
-                    ASSERT(X.clockType() == CLOCK_TYPE);
-
-                    if (veryVerbose) {
-                        cout << "initialize(" << MAX_SIMULTANEOUS_ACTIONS <<
-                         ", " << (static_cast<double>(NANOSECONDS_PER_ACTION) *
-                                                                         1e-9);
-                        if (!DEFAULT_TO_MONO) {
-                            cout << ", " << CLOCK_TYPE;
-                        }
-                        cout << ");\n";
-                    }
-                  } break;
-                  case e_CMD_SLEEP: {
-                    const double SLEEP_SECONDS = data.d_sleepSeconds;
-
-                    if (veryVerbose) {
-                        cout << "sleep(" << SLEEP_SECONDS;
-                        if (!DEFAULT_TO_MONO) {
-                            cout << ", " << CLOCK_TYPE;
-                        }
-                        cout << ");\n";
-                    }
-
-                    int rc = DEFAULT_TO_MONO
-                           ? u::checkedSleep(SLEEP_SECONDS)
-                           : u::checkedSleep(SLEEP_SECONDS, CLOCK_TYPE);
-                    if (0 != rc) {
-                        if (veryVerbose) cout << "Sleep " <<
-                             (rc < 0 ? "under" : "over") <<
-                                 "shot on line: " << LINE << " clock type: " <<
-                                                            CLOCK_TYPE << endl;
-
-                        ++retries;
-                        ASSERTV(LINE, retries, rc, retries < 10);
-                        if (15 < retries) {
-                            quit = true;
-                            break;
-                        }
-
-                        // Back up to before preceeding init and try again.
-
-                        --ti;
-                        while (e_CMD_INIT != DATA[ti % k_NUM_DATA].d_command) {
-                            --ti;
-                        }
-                        --ti;
-                    }
-                  } break;
-                  case e_CMD_REQUEST: {
-                    const int  NUM_ACTIONS = data.d_numActions;
-                    const bool EXP         = data.d_expPermission;
-
-                    if (SINGLE_ACTION_ONLY) {
-                        if (NUM_ACTIONS > 1 && !EXP) {
-                            continue;
-                        }
-
-                        for (int ii = 0; ii < NUM_ACTIONS; ++ii) {
-                            const bool ret = mX.requestPermission(
-                                                       u::clockTi(CLOCK_TYPE));
-
-                            if (veryVerbose) {
-                                cout << "reqestPermission()";
-                                if (NUM_ACTIONS > 1) {
-                                    cout << ' ' << (ii + 1);
-                                }
-                                cout << " == " << u::b(ret) << endl;
-                            }
-                            ASSERTV(LINE, EXP, ret, ii, EXP == ret);
-                        }
-                    }
-                    else {
-                        const bool ret = mX.requestPermission(
-                                                       NUM_ACTIONS,
-                                                       u::clockTi(CLOCK_TYPE));
-
-                        if (veryVerbose) cout << "reqestPermission(" <<
-                                   NUM_ACTIONS << ") == " << u::b(ret) << endl;
-
-                        ASSERTV(LINE, EXP, ret, NUM_ACTIONS, EXP == ret);
+                        ASSERTV(LINE, EXP, ret, overshoot, spltBefore,
+                                                                   EXP == ret);
                     }
                   } break;
                   default: {
