@@ -144,7 +144,7 @@ using namespace bsl;
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
 // [ 8] CompactedArray g(const char *spec);
-// [ 2] CONCERN: Allocator is propogated to the stored objects.
+// [18] CONCERN: Allocator is propogated to the stored objects.
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -1636,6 +1636,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   CompactedArray(numElements, value, basicAllocator);
+        //   CONCERN: Allocator is propogated to the stored objects.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1721,8 +1722,15 @@ int main(int argc, char *argv[])
             const bsl::size_t  NUM_VALUES = strlen(VALUES);
 
             for (bsl::size_t ne = 0; ne < 10; ++ne) {
-                for (bsl::size_t vi = 0; vi < NUM_VALUES; ++vi) {
-                    bsl::string VALUE(VALUES + vi, 1);
+                for (bsl::size_t vi = 0; vi <= NUM_VALUES; ++vi) {
+                    bsl::string VALUE;
+
+                    if (vi < NUM_VALUES) {
+                        VALUE = bsl::string(VALUES + vi, 1);
+                    }
+                    else {
+                        VALUE = "long string that will require an allocation";
+                    }
 
                     Obj                mEXP;
                     const Obj&         EXP  = mEXP;
