@@ -1319,9 +1319,6 @@ int Encoder_EncodeValue::executeImp(
     }
 
     if (!firstPass.simpleContentId().isNull()) {
-    }
-
-    if (!firstPass.simpleContentId().isNull()) {
         Encoder_EncodeValue encodeValue(d_context_p);
 
         return bdlat_SequenceFunctions::accessAttribute(
