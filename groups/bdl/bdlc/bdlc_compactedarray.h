@@ -262,51 +262,50 @@ struct CompactedArray_CountedValue {
     CompactedArray_CountedValue(
                      const CompactedArray_CountedValue<TYPE>&  original,
                      bslma::Allocator                         *basicAllocator);
-        // Create a 'CompactedArray_CountedValue' having the same value as the
-        // specified 'original' object.  The specified 'basicAllocator' is used
-        // to supply memory.  The behavior is undefined unless
-        // '0 != basicAllocator'.
+        // Create a 'CompactedArray_CountedValue' having the same underlying
+        // object value and reference count as the specified 'original' object.
+        // The specified 'basicAllocator' is used to supply memory.  The
+        // behavior is undefined unless '0 != basicAllocator'.
 
     ~CompactedArray_CountedValue();
-        // Destroy this object
+        // Destroy this object.
 
     // MANIPULATORS
     CompactedArray_CountedValue& operator=(
                                  const CompactedArray_CountedValue<TYPE>& rhs);
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
+        // Assign to this object the underlying object value and reference
+        // count of the specified 'rhs' object, and return a reference
+        // providing modifiable access to this object.
 };
 
 // FREE OPERATORS
 template <class TYPE>
-inline
 bool operator==(const CompactedArray_CountedValue<TYPE>& lhs,
-                const CompactedArray_CountedValue<TYPE>& rhs)
-{
-    return lhs.d_value.object() == rhs.d_value.object();
-}
+                const CompactedArray_CountedValue<TYPE>& rhs);
+    // Return 'true' if the underlying object value of the specified 'lhs' is
+    // the same as the underlying object value of the specified 'rhs', and
+    // 'false' otherwise.  Note that the reference counts are intentionally
+    // ignored.
 
 template <class TYPE>
-inline
 bool operator!=(const CompactedArray_CountedValue<TYPE>& lhs,
-                const CompactedArray_CountedValue<TYPE>& rhs)
-{
-    return lhs.d_value.object() != rhs.d_value.object();
-}
+                const CompactedArray_CountedValue<TYPE>& rhs);
+    // Return 'true' if the underlying object value of the specified 'lhs' is
+    // not the same as the underlying object value of the specified 'rhs', and
+    // 'false' otherwise.  Note that the reference counts are intentionally
+    // ignored.
 
 template <class TYPE>
-inline
-bool operator<(const CompactedArray_CountedValue<TYPE>& lhs, const TYPE& rhs)
-{
-    return lhs.d_value.object() < rhs;
-}
+bool operator<(const CompactedArray_CountedValue<TYPE>& lhs, const TYPE& rhs);
+    // Return 'true' if the underlying object value of the specified 'lhs' is
+    // less than the value of the specified 'rhs', and 'false' otherwise.  Note
+    // that the reference count is intentionally ignored.
 
 template <class TYPE>
-inline
-bool operator<(const TYPE& lhs, const CompactedArray_CountedValue<TYPE>& rhs)
-{
-    return lhs < rhs.d_value.object();
-}
+bool operator<(const TYPE& lhs, const CompactedArray_CountedValue<TYPE>& rhs);
+    // Return 'true' if the value of the specified 'lhs' is less than the
+    // underlying object value of the specified 'rhs', and 'false' otherwise.
+    // Note that the reference count is intentionally ignored.
 
                     // ==================================
                     // class CompactedArray_ConstIterator
@@ -1011,13 +1010,48 @@ CompactedArray_CountedValue<TYPE>&
         CompactedArray_CountedValue<TYPE>::operator=(
                                   const CompactedArray_CountedValue<TYPE>& rhs)
 {
-    if (this != &rhs) {
-        d_value.object() = rhs.d_value.object();
-        d_count          = rhs.d_count;
-    }
+    d_value.object() = rhs.d_value.object();
+    d_count          = rhs.d_count;
 
     return *this;
 }
+
+}  // close package namespace
+
+// FREE OPERATORS
+template <class TYPE>
+inline
+bool bdlc::operator==(const CompactedArray_CountedValue<TYPE>& lhs,
+                      const CompactedArray_CountedValue<TYPE>& rhs)
+{
+    return lhs.d_value.object() == rhs.d_value.object();
+}
+
+template <class TYPE>
+inline
+bool bdlc::operator!=(const CompactedArray_CountedValue<TYPE>& lhs,
+                      const CompactedArray_CountedValue<TYPE>& rhs)
+{
+    return lhs.d_value.object() != rhs.d_value.object();
+}
+
+template <class TYPE>
+inline
+bool bdlc::operator<(const CompactedArray_CountedValue<TYPE>& lhs,
+                     const TYPE&                              rhs)
+{
+    return lhs.d_value.object() < rhs;
+}
+
+template <class TYPE>
+inline
+bool bdlc::operator<(const TYPE&                              lhs,
+                     const CompactedArray_CountedValue<TYPE>& rhs)
+{
+    return lhs < rhs.d_value.object();
+}
+
+namespace bdlc {
 
                     // ----------------------------------
                     // class CompactedArray_ConstIterator
