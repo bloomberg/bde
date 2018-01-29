@@ -144,6 +144,7 @@ using namespace bsl;
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
 // [ 8] CompactedArray g(const char *spec);
+// [18] CONCERN: Allocator is propagated to the stored objects.
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -216,6 +217,13 @@ typedef bdlc::CompactedArray<bsl::string> Obj;
 typedef bdlc::CompactedArray<int>         ObjInt;
 
 typedef bdlc::CompactedArray<bsl::string>::const_iterator Iterator;
+
+// Define 'bsl::string' value long enough to ensure dynamic memory allocation.
+#define SUFFICIENTLY_LONG_STRING "1234567890123456789012345678901234567890" \
+                                 "1234567890123456789012345678901234567890"
+
+const char *const LONG_STRING_1  = "a_"  SUFFICIENTLY_LONG_STRING;
+const char *const LONG_STRING_2  = "ab_" SUFFICIENTLY_LONG_STRING;
 
 // ============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
@@ -1635,6 +1643,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   CompactedArray(numElements, value, basicAllocator);
+        //   CONCERN: Allocator is propagated to the stored objects.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1720,8 +1729,15 @@ int main(int argc, char *argv[])
             const bsl::size_t  NUM_VALUES = strlen(VALUES);
 
             for (bsl::size_t ne = 0; ne < 10; ++ne) {
-                for (bsl::size_t vi = 0; vi < NUM_VALUES; ++vi) {
-                    bsl::string VALUE(VALUES + vi, 1);
+                for (bsl::size_t vi = 0; vi <= NUM_VALUES; ++vi) {
+                    bsl::string VALUE;
+
+                    if (vi < NUM_VALUES) {
+                        VALUE = bsl::string(VALUES + vi, 1);
+                    }
+                    else {
+                        VALUE = LONG_STRING_1;
+                    }
 
                     Obj                mEXP;
                     const Obj&         EXP  = mEXP;
@@ -5093,6 +5109,7 @@ int main(int argc, char *argv[])
         //   void append(const TYPE& value);
         //   void pop_back();
         //   void removeAll();
+        //   CONCERN: Allocator is propagated to the stored objects.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5139,22 +5156,50 @@ int main(int argc, char *argv[])
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
-            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+            bslma::TestAllocator      sa("supplied", veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch",  veryVeryVeryVerbose);
 
             Obj mX(&sa);  const Obj& X = mX;
 
-            ASSERT(&sa == X.allocator());
-            ASSERT(0 == X.length());
-            ASSERT(0 == X.uniqueLength());
-            ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(0 == sa.numAllocations());
+            mX.reserveCapacity(3, 3);
 
+            bsls::Types::Int64 saAllocations = sa.numAllocations();
+
+            ASSERT(&sa == X.allocator());
+
+            ASSERT(                0 == X.length());
+            ASSERT(                0 == X.uniqueLength());
+            ASSERT(allocations       == defaultAllocator.numAllocations());
+
+            bsl::string Z1(&scratch);  Z1 = LONG_STRING_1;
+            ASSERT(1 == scratch.numAllocations());
+
+            mX.append(Z1);
+
+            ASSERT(                1 == X.length());
+            ASSERT(                1 == X.uniqueLength());
+            ASSERT(allocations       == defaultAllocator.numAllocations());
+            ASSERT(saAllocations + 1 == sa.numAllocations());
+
+            // Note that this 'append' will cause the previous string to be
+            // moved in the unique array and result in an allocation for that
+            // string.
             mX.append("a");
 
-            ASSERT(1 == X.length());
-            ASSERT(1 == X.uniqueLength());
-            ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(2 == sa.numAllocations());
+            ASSERT(                2 == X.length());
+            ASSERT(                2 == X.uniqueLength());
+            ASSERT(allocations       == defaultAllocator.numAllocations());
+            ASSERT(saAllocations + 2 == sa.numAllocations());
+
+            bsl::string Z2(&scratch);  Z2 = LONG_STRING_2;
+            ASSERT(2 == scratch.numAllocations());
+
+            mX.append(Z2);
+
+            ASSERT(                3 == X.length());
+            ASSERT(                3 == X.uniqueLength());
+            ASSERT(allocations       == defaultAllocator.numAllocations());
+            ASSERT(saAllocations + 3 == sa.numAllocations());
         }
 
         if (verbose) cout << "\nTesting 'append'." << endl;

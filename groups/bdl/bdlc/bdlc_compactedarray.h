@@ -136,9 +136,11 @@ BSLS_IDENT("$Id: $")
 #include <bslim_printer.h>
 
 #include <bslma_allocator.h>
+#include <bslma_constructionutil.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_objectbuffer.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
@@ -245,47 +247,65 @@ struct CompactedArray_CountedValue {
     // equality-comparison operators of this class.
 
     // PUBLIC DATA
-    TYPE        d_value;  // stored object
-    bsl::size_t d_count;  // reference count of the stored object
+    bsls::ObjectBuffer<TYPE> d_value;  // footprint of stored object
+    bsl::size_t              d_count;  // reference count of the stored object
 
     // CREATORS
-    CompactedArray_CountedValue(const TYPE& value, bsl::size_t count)
-    : d_value(value)
-    , d_count(count)
-    {
-    }
+    CompactedArray_CountedValue(const TYPE&       value,
+                                bsl::size_t       count,
+                                bslma::Allocator *basicAllocator);
+        // Create a 'CompactedArray_CountedValue' having the specified 'value'
+        // and reference 'count'.  The specified 'basicAllocator' is used to
+        // supply memory.  The behavior is undefined unless
+        // '0 != basicAllocator'.
+
+    CompactedArray_CountedValue(
+                     const CompactedArray_CountedValue<TYPE>&  original,
+                     bslma::Allocator                         *basicAllocator);
+        // Create a 'CompactedArray_CountedValue' having the same underlying
+        // object value and reference count as the specified 'original' object.
+        // The specified 'basicAllocator' is used to supply memory.  The
+        // behavior is undefined unless '0 != basicAllocator'.
+
+    ~CompactedArray_CountedValue();
+        // Destroy this object.
+
+    // MANIPULATORS
+    CompactedArray_CountedValue& operator=(
+                                 const CompactedArray_CountedValue<TYPE>& rhs);
+        // Assign to this object the underlying object value and reference
+        // count of the specified 'rhs' object, and return a reference
+        // providing modifiable access to this object.
 };
 
 // FREE OPERATORS
 template <class TYPE>
-inline
 bool operator==(const CompactedArray_CountedValue<TYPE>& lhs,
-                const CompactedArray_CountedValue<TYPE>& rhs)
-{
-    return lhs.d_value == rhs.d_value;
-}
+                const CompactedArray_CountedValue<TYPE>& rhs);
+    // Return 'true' if the underlying object value of the specified 'lhs' is
+    // the same as the underlying object value of the specified 'rhs', and
+    // 'false' otherwise.  Note that the reference counts are intentionally
+    // ignored.
 
 template <class TYPE>
-inline
 bool operator!=(const CompactedArray_CountedValue<TYPE>& lhs,
-                const CompactedArray_CountedValue<TYPE>& rhs)
-{
-    return lhs.d_value != rhs.d_value;
-}
+                const CompactedArray_CountedValue<TYPE>& rhs);
+    // Return 'true' if the underlying object value of the specified 'lhs' is
+    // not the same as the underlying object value of the specified 'rhs', and
+    // 'false' otherwise.  Note that the reference counts are intentionally
+    // ignored.
 
 template <class TYPE>
-inline
-bool operator<(const CompactedArray_CountedValue<TYPE>& lhs, const TYPE& rhs)
-{
-    return lhs.d_value < rhs;
-}
+bool operator<(const CompactedArray_CountedValue<TYPE>& lhs, const TYPE& rhs);
+    // Return 'true' if the underlying object value of the specified 'lhs' is
+    // less than the value of the specified 'rhs', and 'false' otherwise.  Note
+    // that the reference count is intentionally ignored.
 
 template <class TYPE>
-inline
-bool operator<(const TYPE& lhs, const CompactedArray_CountedValue<TYPE>& rhs)
-{
-    return lhs < rhs.d_value;
-}
+bool operator<(const TYPE& lhs, const CompactedArray_CountedValue<TYPE>& rhs);
+    // Return 'true' if the value of the specified 'lhs' is less than the
+    // underlying object value of the specified 'rhs', and 'false' otherwise.
+    // Note that the reference count is intentionally ignored.
 
                     // ==================================
                     // class CompactedArray_ConstIterator
@@ -943,6 +963,97 @@ void CompactedArray_RemoveAllProctor<TYPE>::release()
 }
 
                     // ----------------------------------
+                    // struct CompactedArray_CountedValue
+                    // ----------------------------------
+
+// CREATORS
+template <class TYPE>
+inline
+CompactedArray_CountedValue<TYPE>::CompactedArray_CountedValue(
+                                              const TYPE&       value,
+                                              bsl::size_t       count,
+                                              bslma::Allocator *basicAllocator)
+: d_count(count)
+{
+    BSLS_ASSERT_SAFE(basicAllocator);
+
+    bslma::ConstructionUtil::construct(d_value.address(),
+                                       basicAllocator,
+                                       value);
+}
+
+template <class TYPE>
+inline
+CompactedArray_CountedValue<TYPE>::CompactedArray_CountedValue(
+                      const CompactedArray_CountedValue<TYPE>&  original,
+                      bslma::Allocator                         *basicAllocator)
+: d_count(original.d_count)
+{
+    BSLS_ASSERT_SAFE(basicAllocator);
+
+    bslma::ConstructionUtil::construct(d_value.address(),
+                                       basicAllocator,
+                                       original.d_value.object());
+}
+
+template <class TYPE>
+inline
+CompactedArray_CountedValue<TYPE>::~CompactedArray_CountedValue()
+{
+    d_value.object().~TYPE();
+}
+
+// MANIPULATORS
+template <class TYPE>
+inline
+CompactedArray_CountedValue<TYPE>&
+        CompactedArray_CountedValue<TYPE>::operator=(
+                                  const CompactedArray_CountedValue<TYPE>& rhs)
+{
+    d_value.object() = rhs.d_value.object();
+    d_count          = rhs.d_count;
+
+    return *this;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+template <class TYPE>
+inline
+bool bdlc::operator==(const CompactedArray_CountedValue<TYPE>& lhs,
+                      const CompactedArray_CountedValue<TYPE>& rhs)
+{
+    return lhs.d_value.object() == rhs.d_value.object();
+}
+
+template <class TYPE>
+inline
+bool bdlc::operator!=(const CompactedArray_CountedValue<TYPE>& lhs,
+                      const CompactedArray_CountedValue<TYPE>& rhs)
+{
+    return lhs.d_value.object() != rhs.d_value.object();
+}
+
+template <class TYPE>
+inline
+bool bdlc::operator<(const CompactedArray_CountedValue<TYPE>& lhs,
+                     const TYPE&                              rhs)
+{
+    return lhs.d_value.object() < rhs;
+}
+
+template <class TYPE>
+inline
+bool bdlc::operator<(const TYPE&                              lhs,
+                     const CompactedArray_CountedValue<TYPE>& rhs)
+{
+    return lhs < rhs.d_value.object();
+}
+
+namespace bdlc {
+
+                    // ----------------------------------
                     // class CompactedArray_ConstIterator
                     // ----------------------------------
 
@@ -1283,10 +1394,14 @@ bsl::size_t CompactedArray<TYPE>::increment(const TYPE& value,
         index = d_data.size();
         d_data.emplace_back(value, count);
     }
-    else if (value < iter->d_value) {
+    else if (value < iter->d_value.object()) {
         index = iter - d_data.begin();
 
-        d_data.insert(iter, CompactedArray_CountedValue<TYPE>(value, count));
+        d_data.insert(iter,
+                      CompactedArray_CountedValue<TYPE>(
+                                          value,
+                                          count,
+                                          d_data.get_allocator().mechanism()));
 
         for (bsl::size_t i = 0; i < d_index.length(); ++i) {
             if (d_index[i] >= index) {
@@ -1754,7 +1869,7 @@ const TYPE& CompactedArray<TYPE>::operator[](bsl::size_t index) const
 {
     BSLS_ASSERT_SAFE(index < length());
 
-    return d_data[d_index[index]].d_value;
+    return d_data[d_index[index]].d_value.object();
 }
 
 template <class TYPE>
@@ -1837,7 +1952,7 @@ bsl::ostream& CompactedArray<TYPE>::print(bsl::ostream& stream,
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
     for (bsl::size_t i = 0; i < d_index.length(); ++i) {
-        printer.printValue(d_data[d_index[i]].d_value);
+        printer.printValue(d_data[d_index[i]].d_value.object());
     }
     printer.end();
 
@@ -1850,7 +1965,7 @@ const TYPE& CompactedArray<TYPE>::uniqueElement(bsl::size_t index) const
 {
     BSLS_ASSERT_SAFE(index < uniqueLength());
 
-    return d_data[index].d_value;
+    return d_data[index].d_value.object();
 }
 
 template <class TYPE>
@@ -1915,6 +2030,10 @@ void bdlc::hashAppend(HASHALG& hashAlg, const CompactedArray<TYPE>& input)
 
 namespace BloombergLP {
 namespace bslma {
+
+template <class TYPE>
+struct UsesBslmaAllocator<bdlc::CompactedArray_CountedValue<TYPE> >
+                                                           : bsl::true_type {};
 
 template <class TYPE>
 struct UsesBslmaAllocator<bdlc::CompactedArray<TYPE> > : bsl::true_type {};
