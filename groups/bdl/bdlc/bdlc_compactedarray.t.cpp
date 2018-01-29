@@ -5194,9 +5194,7 @@ int main(int argc, char *argv[])
             bsl::string Z2(&scratch);  Z2 = LONG_STRING_2;
             ASSERT(2 == scratch.numAllocations());
 
-            P(sa.numAllocations());
             mX.append(Z2);
-            P(sa.numAllocations());
 
             ASSERT(                3 == X.length());
             ASSERT(                3 == X.uniqueLength());
