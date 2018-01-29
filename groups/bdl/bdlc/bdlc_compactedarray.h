@@ -253,39 +253,28 @@ struct CompactedArray_CountedValue {
     // CREATORS
     CompactedArray_CountedValue(const TYPE&       value,
                                 bsl::size_t       count,
-                                bslma::Allocator *basicAllocator)
-    : d_count(count)
-    {
-        bslma::ConstructionUtil::construct(d_value.address(),
-                                           basicAllocator,
-                                           value);
-    }
+                                bslma::Allocator *basicAllocator);
+        // Create a 'CompactedArray_CountedValue' having the specified 'value'
+        // and reference 'count'.  The specified 'basicAllocator' is used to
+        // supply memory.  The behavior is undefined unless
+        // '0 != basicAllocator'.
 
     CompactedArray_CountedValue(
-                      const CompactedArray_CountedValue<TYPE>&  original,
-                      bslma::Allocator                         *basicAllocator)
-    : d_count(original.d_count)
-    {
-        bslma::ConstructionUtil::construct(d_value.address(),
-                                           basicAllocator,
-                                           original.d_value.object());
-    }
+                     const CompactedArray_CountedValue<TYPE>&  original,
+                     bslma::Allocator                         *basicAllocator);
+        // Create a 'CompactedArray_CountedValue' having the same value as the
+        // specified 'original' object.  The specified 'basicAllocator' is used
+        // to supply memory.  The behavior is undefined unless
+        // '0 != basicAllocator'.
 
+    ~CompactedArray_CountedValue();
+        // Destroy this object
+
+    // MANIPULATORS
     CompactedArray_CountedValue& operator=(
-                                  const CompactedArray_CountedValue<TYPE>& rhs)
-    {
-        if (this != &rhs) {
-            d_value.object() = rhs.d_value.object();
-            d_count          = rhs.d_count;
-        }
-
-        return *this;
-    }
-
-    ~CompactedArray_CountedValue()
-    {
-        d_value.object().~TYPE();
-    }
+                                 const CompactedArray_CountedValue<TYPE>& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 };
 
 // FREE OPERATORS
@@ -972,6 +961,62 @@ inline
 void CompactedArray_RemoveAllProctor<TYPE>::release()
 {
     d_array_p = 0;
+}
+
+                    // ----------------------------------
+                    // struct CompactedArray_CountedValue
+                    // ----------------------------------
+
+// CREATORS
+template <class TYPE>
+inline
+CompactedArray_CountedValue<TYPE>::CompactedArray_CountedValue(
+                                              const TYPE&       value,
+                                              bsl::size_t       count,
+                                              bslma::Allocator *basicAllocator)
+: d_count(count)
+{
+    BSLS_ASSERT_SAFE(basicAllocator);
+
+    bslma::ConstructionUtil::construct(d_value.address(),
+                                       basicAllocator,
+                                       value);
+}
+
+template <class TYPE>
+inline
+CompactedArray_CountedValue<TYPE>::CompactedArray_CountedValue(
+                      const CompactedArray_CountedValue<TYPE>&  original,
+                      bslma::Allocator                         *basicAllocator)
+: d_count(original.d_count)
+{
+    BSLS_ASSERT_SAFE(basicAllocator);
+
+    bslma::ConstructionUtil::construct(d_value.address(),
+                                       basicAllocator,
+                                       original.d_value.object());
+}
+
+template <class TYPE>
+inline
+CompactedArray_CountedValue<TYPE>::~CompactedArray_CountedValue()
+{
+    d_value.object().~TYPE();
+}
+
+// MANIPULATORS
+template <class TYPE>
+inline
+CompactedArray_CountedValue<TYPE>&
+        CompactedArray_CountedValue<TYPE>::operator=(
+                                  const CompactedArray_CountedValue<TYPE>& rhs)
+{
+    if (this != &rhs) {
+        d_value.object() = rhs.d_value.object();
+        d_count          = rhs.d_count;
+    }
+
+    return *this;
 }
 
                     // ----------------------------------
