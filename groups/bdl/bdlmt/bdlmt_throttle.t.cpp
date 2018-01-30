@@ -1303,7 +1303,7 @@ int main(int argc, char *argv[])
                 }
             }
             ASSERTV(ii, jj, kk, jj + kk == ii);
-            ASSERTV(ii, jj, kk,  4 + 1 + 1 == jj);
+            ASSERTV(ii, jj, kk, jj <= 4 + 1 + 1);
             ASSERTV(ii, jj, kk, kk < 12);
         }
 
@@ -1354,8 +1354,7 @@ int main(int argc, char *argv[])
                 }
             }
             ASSERTV(ii, jj, kk, jj + kk == ii);
-            ASSERTV(ii, jj, kk,  4 + 1 + 1 == jj);
-            ASSERTV(ii, jj, kk, kk < 12);
+            ASSERTV(ii, jj, kk, jj <= 4 + 1 + 1);
         }
 
         if (verbose) cout << "BDLMT_THROTTLE_IF -- WHITE BOX\n";
@@ -2102,48 +2101,48 @@ int main(int argc, char *argv[])
             double      d_sleepSeconds;
             bool        d_expPermission;
         } DATA[] = {
-            INIT(1, 40e-3),
+            INIT(1, 80e-3),
             REQUEST(1, 1),
             REQUEST(1, 0),
             REQUEST(1, 0),
-            MILLI_SLEEP(20),
-            REQUEST(1, 0),
             MILLI_SLEEP(40),
+            REQUEST(1, 0),
+            MILLI_SLEEP(80),
             REQUEST(1, 1),
             REQUEST(1, 0),
 
-            INIT(4, 40e-3),
+            INIT(4, 80e-3),
             REQUEST(2, 1),
             REQUEST(1, 1),
             REQUEST(1, 1),
             REQUEST(1, 0),
             REQUEST(4, 0),
-            MILLI_SLEEP(20),
-            REQUEST(1, 0),
             MILLI_SLEEP(40),
-            REQUEST(1, 1),
             REQUEST(1, 0),
             MILLI_SLEEP(80),
+            REQUEST(1, 1),
+            REQUEST(1, 0),
+            MILLI_SLEEP(160),
             REQUEST(2, 1),
             REQUEST(4, 0),
             REQUEST(3, 0),
             REQUEST(2, 0),
             REQUEST(1, 0),
 
-            INIT(4, 40e-3),
+            INIT(4, 80e-3),
             REQUEST(1, 1),
             REQUEST(3, 1),
             REQUEST(1, 0),
-            MILLI_SLEEP(140),
+            MILLI_SLEEP(280),
             REQUEST(1, 1),
             REQUEST(4, 0),
-            MILLI_SLEEP(80),
+            MILLI_SLEEP(160),
             REQUEST(4, 1),
             REQUEST(4, 0),
             REQUEST(3, 0),
             REQUEST(2, 0),
             REQUEST(1, 0),
-            MILLI_SLEEP(100),
+            MILLI_SLEEP(200),
             REQUEST(4, 0),
             REQUEST(3, 0),
             REQUEST(2, 1),
