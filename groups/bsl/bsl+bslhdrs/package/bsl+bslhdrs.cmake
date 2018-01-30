@@ -17,7 +17,6 @@ function(process outInfoTarget listFile uorName)
     bde_utils_add_meta_file("${listDir}/${packageName}.pub" headers TRACK)
     bde_utils_list_template_substitute(headers "%" "${rootDir}/%" ${headers})
     bde_struct_set_field(${packageName} HEADERS "${headers}")
-    bde_struct_set_field(${packageName} SOURCES "${rootDir}/bslhdrs_dummy.cpp")
 
     # Dependencies
     bde_utils_add_meta_file("${listDir}/${packageName}.dep" dependencies TRACK)
