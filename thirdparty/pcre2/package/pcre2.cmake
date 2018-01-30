@@ -77,20 +77,29 @@ function(process outInfoTarget listFile)
         ${TARGET}
         PRIVATE
             # Compiler specific compile options.
-            $<$<CXX_COMPILER_ID:Clang>:
+            $<$<C_COMPILER_ID:Clang>:
+                $<IF:${bde_ufid_is_64}, -m64, -m32>
+                $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
+            >
+            $<$<C_COMPILER_ID:GNU>:
+                -fdiagnostics-show-option
+                -fno-strict-aliasing
+                -std=gnu99
+                $<IF:${bde_ufid_is_64}, -m64, -m32>
+                $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
+            >
+            $<$<C_COMPILER_ID:SunPro>:
                 $<IF:${bde_ufid_is_64}, -m64, -m32>
             >
-            $<$<CXX_COMPILER_ID:GNU>:
-                $<IF:${bde_ufid_is_64}, -m64, -m32>
-                $<${bde_ufid_is_mt}: -pthread>
+            $<$<C_COMPILER_ID:XL>:
             >
-            $<$<CXX_COMPILER_ID:SunPro>:
-                $<IF:${bde_ufid_is_64}, -m64, -m32>
-                $<${bde_ufid_is_mt}: -mt>
-            >
-            $<$<CXX_COMPILER_ID:XL>:
-                $<${bde_ufid_is_mt}: -qthreaded>
-            >
+    )
+
+    bde_interface_target_compile_definitions(
+        ${TARGET}
+        PRIVATE
+            USE_REAL_MALLOC
+            $<${bde_ufid_is_mt}: _REENTRANT>
     )
 
     get_filename_component(
@@ -101,7 +110,6 @@ function(process outInfoTarget listFile)
     bde_interface_target_include_directories(
         ${TARGET}
         PUBLIC
-            $<BUILD_INTERFACE:${rootDir}>
             $<BUILD_INTERFACE:${EXTERNAL_INCLUDE_DIR}>
             $<INSTALL_INTERFACE:include>
     )

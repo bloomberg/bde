@@ -338,19 +338,21 @@ function(process outInfoTarget listFile)
     bde_interface_target_compile_options(
         ${TARGET}
         PRIVATE
-            $<$<CXX_COMPILER_ID:Clang>:
+            $<$<C_COMPILER_ID:Clang>:
+                $<IF:${bde_ufid_is_64}, -m64, -m32>
+                $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
+            >
+            $<$<C_COMPILER_ID:GNU>:
+                -fdiagnostics-show-option
+                -fno-strict-aliasing
+                -std=gnu99
+                $<IF:${bde_ufid_is_64}, -m64, -m32>
+                $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
+            >
+            $<$<C_COMPILER_ID:SunPro>:
                 $<IF:${bde_ufid_is_64}, -m64, -m32>
             >
-            $<$<CXX_COMPILER_ID:GNU>:
-                $<IF:${bde_ufid_is_64}, -m64, -m32>
-                $<${bde_ufid_is_mt}: -pthread>
-            >
-            $<$<CXX_COMPILER_ID:SunPro>:
-                $<IF:${bde_ufid_is_64}, -m64, -m32>
-                $<${bde_ufid_is_mt}: -mt>
-            >
-            $<$<CXX_COMPILER_ID:XL>:
-                $<${bde_ufid_is_mt}: -qthreaded>
+            $<$<C_COMPILER_ID:XL>:
             >
     )
 
@@ -367,15 +369,17 @@ function(process outInfoTarget listFile)
     bde_interface_target_compile_definitions(
         ${TARGET}
         PRIVATE
-            $<$<CXX_COMPILER_ID:Clang>:
+            USE_REAL_MALLOC
+            $<${bde_ufid_is_mt}: _REENTRANT>
+            $<$<C_COMPILER_ID:Clang>:
                 "LINUX"
                 "efi2"
             >
-            $<$<CXX_COMPILER_ID:GNU>:
+            $<$<C_COMPILER_ID:GNU>:
                 "LINUX"
                 "efi2"
             >
-            $<$<CXX_COMPILER_ID:MSVC>:
+            $<$<C_COMPILER_ID:MSVC>:
                 "WINNT"
                 "WINDOWS"
                 "WNT"
@@ -383,7 +387,7 @@ function(process outInfoTarget listFile)
                     "ia32"
                 >
             >
-            $<$<CXX_COMPILER_ID:SunPro>:
+            $<$<C_COMPILER_ID:SunPro>:
                 "SUNOS"
                 "LINUX"
                 "efi2"
@@ -391,7 +395,7 @@ function(process outInfoTarget listFile)
                 "__float80=double"
                 "BID_THREAD="
             >
-            $<$<CXX_COMPILER_ID:XL>:
+            $<$<C_COMPILER_ID:XL>:
                 "LINUX"
                 "efi2"
                 "__linux"
@@ -404,7 +408,6 @@ function(process outInfoTarget listFile)
         ${TARGET}
         PUBLIC
             $<BUILD_INTERFACE:${rootDir}/LIBRARY/src>
-            $<BUILD_INTERFACE:${rootDir}>
             $<INSTALL_INTERFACE:include>
     )
 
