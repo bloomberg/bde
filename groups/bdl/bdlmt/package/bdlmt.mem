@@ -4,4 +4,5 @@ bdlmt_multiprioritythreadpool
 bdlmt_multiqueuethreadpool
 bdlmt_threadmultiplexor
 bdlmt_threadpool
+bdlmt_throttle
 bdlmt_timereventscheduler
