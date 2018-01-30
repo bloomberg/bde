@@ -1265,7 +1265,7 @@ int TcpTimerEventManager::reinitializeControlChannel()
                                           cb);
     if (rc) {
         BSLS_LOG_ERROR("(PID: %d) Failed to register controlChannel for READ"
-                       " events in btemt_TcpTimerEventManager constructor ",
+                       " events in btemt_TcpTimerEventManager constructor "
                        "(platformErrorCode: %d, rc = %d).\n",
                        bdls::ProcessUtil::getProcessId(),
                        getPlatformErrorCode(),
