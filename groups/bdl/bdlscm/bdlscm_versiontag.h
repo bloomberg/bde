@@ -66,11 +66,12 @@ BSLS_IDENT("$Id: $")
     // (decimal) for BDL version 1.3.1.
 
 #define BDL_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(3, 1)
-    // Define the deprecation threshold macro for 'bdl' as low as possible in
-    // the hierarchy.  The specified version is the latest release for which
-    // deprecations are enforced by default.  Note that 'bsls_deprecate.h' need
-    // not be included here for 'BSLS_DEPRECATE_MAKE_VER' because the threshold
-    // macro will only ever be expanded in contexts where it has been included.
+    // Declare that deprecations for this UOR introduced in the specified
+    // version or earlier will be "active" by default -- i.e.,
+    // 'BSLS_DEPRECATE_IS_ACTIVE' will be 'true' (which typically enables
+    // deprecation warnings).  Note that we define this macro in the version
+    // component, so that it is available at the lowest level in the component
+    // hierarchy of this UOR.
 
 #endif
 
