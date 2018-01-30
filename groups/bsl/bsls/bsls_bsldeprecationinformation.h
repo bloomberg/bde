@@ -2,25 +2,26 @@
 #ifndef INCLUDED_BSLS_BSLDEPRECATIONINFORMATION
 #define INCLUDED_BSLS_BSLDEPRECATIONINFORMATION
 
-//@PURPOSE: Provide macros to control the contents of a 'bsl' release.
+//@PURPOSE: Provide a macro to control 'bsl' deprecations by release version.
 //
 //@MACROS:
-//  BSL_VERSION_DEPRECATED_*: activate deprecations in some version of 'bsl'
+//  BSL_VERSION_DEPRECATION_THRESHOLD: activate deprecations by 'bsl' version
 //
 //@SEE_ALSO: bsls_deprecate
 //
 //@AUTHOR: Alexander Beels (abeels)
 //
-//@DESCRIPTION: This component provides a family of macros that control whether
-// or not deprecations introduced in any given version of 'bsl' are active.
+//@DESCRIPTION: This component provides a macro,
+// 'BSL_VERSION_DEPRECATION_THRESHOLD', that is used to control whether or not
+// deprecations introduced in any given version of 'bsl' are active.
 //
 ///NOT A MODEL; DO NOT EMULATE
 ///---------------------------
-// This component exists only because the structure of 'bsl' is *NON*
-// *STANDARD*, which prevents us from defining these macros in 'bslscm', where
-// they normally would belong.  Other UORs should *NOT* use this component as a
-// model.  Please see 'bsls_deprecate', and the version tag components in
-// other, standards-conforming BDE UORs, such as 'bdlscm_versiontag.h'.
+// This component exists only because the structure of 'bsl' is *NON-STANDARD*,
+// which prevents us from defining the deprecation threshold macro in 'bslscm',
+// where it normally would belong.  Other UORs should *NOT* use this component
+// as a model.  Please see 'bsls_deprecate' and the version tag components in
+// other, standard-conforming, BDE UORs such as 'bdlscm_versiontag'.
 //
 ///Usage
 ///-----
@@ -31,11 +32,12 @@
 // BDE_VERIFY pragma: -SLM01
 
 #define BSL_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(3, 1)
-    // Define the deprecation threshold macro for 'bsl' as low as possible in
-    // the hierarchy.  The specified version is the latest release for which
-    // deprecations are enforced by default.  Note that 'bsls_deprecate.h' need
-    // not be included here for 'BSLS_DEPRECATE_MAKE_VER' because the threshold
-    // macro will only ever be expanded in contexts where it has been included.
+    // Declare that deprecations for this UOR introduced in the specified
+    // version or earlier will be "active" by default -- i.e.,
+    // 'BSLS_DEPRECATE_IS_ACTIVE' will be 'true' (which typically enables
+    // deprecation warnings).  Note that we define this macro in this special
+    // component, so that it is available at the lowest level in the component
+    // hierarchy of this UOR.
 
 // BDE_VERIFY pragma: pop
 
