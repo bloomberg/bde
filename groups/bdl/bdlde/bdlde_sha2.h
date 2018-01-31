@@ -7,7 +7,7 @@
 
 BSLS_IDENT("$Id$ $CSID$")
 
-//@PURPOSE: Provide SHA-2 cryptographic hashes.
+//@PURPOSE: Provide a value-semantic type encoding a message in a SHA-2 digest.
 //
 //@CLASSES:
 //  bdlde::Sha224: value-semantic type representing a SHA-224 digest
@@ -35,33 +35,34 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'validatePassword' function below returns whether a specified password has a
 // specified hash value.  The 'assertPasswordIsExpected' function below has a
 // sample password to hash and a hash value that matches it.  Note that the
-// output of loadDigest is a binary representation.  When hashes are displayed
-// for human consumption, they are typically converted to hex, but that would
-// create unnecessary overhead here.
+// output of 'loadDigest' is a binary representation.  When hashes are
+// displayed for human consumption, they are typically converted to hex, but
+// that would create unnecessary overhead here.
 //..
 //  bool validatePassword(const bsl::string&   password,
 //                        const bsl::string&   salt,
 //                        const unsigned char *expected)
 //      // Return 'true' if the specified 'password' concatenated with the
 //      // specified 'salt' has a SHA-512 hash equal to the specified
-//      // 'expected' and return 'false' otherwise.
+//      // 'expected', and 'false' otherwise.
 //  {
 //      bdlde::Sha512 hasher;
 //      hasher.update(password.c_str(), password.length());
 //      hasher.update(salt.c_str(), salt.length());
+//
 //      unsigned char digest[bdlde::Sha512::k_DIGEST_SIZE];
 //      hasher.loadDigest(digest);
+//
 //      return bsl::equal(digest,
 //                        digest + bdlde::Sha512::k_DIGEST_SIZE,
 //                        expected);
 //  }
 //
 //  void assertPasswordIsExpected()
-//  {
 //      // Asserts that the constant string 'pass' salted with 'word' has the
 //      // expected hash value.  In a real application, the expected hash would
-//      // likely come from some sort of database, and the hash would be
-//      // iterated many times.
+//      // likely come from some sort of database.
+//  {
 //      const bsl::string   password = "pass";
 //      const bsl::string   salt     = "word";
 //      const unsigned char expected[bdlde::Sha512::k_DIGEST_SIZE] = {
@@ -72,6 +73,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //          0x5F, 0x13, 0x26, 0xAF, 0x5A, 0x2E, 0xA6, 0xD1, 0x03, 0xFD, 0x07,
 //          0xC9, 0x53, 0x85, 0xFF, 0xAB, 0x0C, 0xAC, 0xBC, 0x86
 //      };
+//
 //      ASSERT(validatePassword(password, salt, expected));
 //  }
 //..
@@ -102,10 +104,13 @@ class Sha224 {
 
     // DATA
     bsl::uint64_t d_totalSize;       // length of the entire message
+
     bsl::uint64_t d_bufferSize;      // bytes currently used for 'd_buffer'
+
     unsigned char d_buffer[512 / 8]; // buffer for storing remaining part of
                                      // message that is not yet incorporated
                                      // into 'd_state'
+
     bsl::uint32_t d_state[8];        // state array storing the digest
 
     // FRIENDS
@@ -121,6 +126,11 @@ class Sha224 {
         // Construct a SHA-2 digest having the value corresponding to no data
         // having been provided.
 
+    Sha224(const void *data, bsl::size_t length);
+        // Construct a SHA-2 digest corresponding to the specified 'data'
+        // having the specified 'length' (in bytes).  Note that if 'data' is 0,
+        // then 'length' also must be 0.
+
     // MANIPULATORS
     void reset();
         // Reset the value of this SHA-2 digest to the value provided by the
@@ -132,19 +142,21 @@ class Sha224 {
         // state is the default state, the resultant value of this SHA-2
         // digest is the application of the SHA-2 algorithm upon the currently
         // given 'data' of the given 'length'.  If this digest has been
-        // previously provided data and has not been subsequently assigned to,
-        // the current state is equivalent to applying the SHA-2 algorithm to
-        // the concatenation of all the provided messages.  The behavior is
-        // undefined unless the range '[data, data + length)' is a valid range.
+        // previously provided data and has not been subsequently reset, the
+        // current state is not the default state and the resultant value is
+        // equivalent to applying the SHA-2 algorithm upon the concatenation of
+        // all the provided data.  The behavior is undefined unless the range
+        // '[data, data + length)' is a valid range.  Note that if 'data' is 0,
+        // then 'length' must also be 0.
 
-    void loadDigestAndReset(unsigned char *digest);
+    void loadDigestAndReset(unsigned char *result);
         // Load the current value of this SHA-2 digest into the specified
-        // 'digest' and set the value of this SHA-2 digest to the value
+        // 'result' and set the value of this SHA-2 digest to the value
         // provided by the default constructor.
 
     // ACCESSORS
-    void loadDigest(unsigned char *digest) const;
-        // Load the value of this SHA-2 digest into the specified 'digest'.
+    void loadDigest(unsigned char *result) const;
+        // Load the value of this SHA-2 digest into the specified 'result'.
 
     bsl::ostream& print(bsl::ostream& stream) const;
         // Format the current value of this SHA-2 digest to the specified
@@ -168,10 +180,13 @@ class Sha256 {
 
     // DATA
     bsl::uint64_t d_totalSize;       // length of the entire message
+
     bsl::uint64_t d_bufferSize;      // bytes currently used for 'd_buffer'
+
     unsigned char d_buffer[512 / 8]; // buffer for storing remaining part of
                                      // message that is not yet incorporated
                                      // into 'd_state'
+
     bsl::uint32_t d_state[8];        // state array storing the digest
 
     // FRIENDS
@@ -187,6 +202,11 @@ class Sha256 {
         // Construct a SHA-2 digest having the value corresponding to no data
         // having been provided.
 
+    Sha256(const void *data, bsl::size_t length);
+        // Construct a SHA-2 digest corresponding to the specified 'data'
+        // having the specified 'length' (in bytes).  Note that if 'data' is 0,
+        // then 'length' also must be 0.
+
     // MANIPULATORS
     void reset();
         // Reset the value of this SHA-2 digest to the value provided by the
@@ -198,19 +218,21 @@ class Sha256 {
         // state is the default state, the resultant value of this SHA-2
         // digest is the application of the SHA-2 algorithm upon the currently
         // given 'data' of the given 'length'.  If this digest has been
-        // previously provided data and has not been subsequently assigned to,
-        // the current state is equivalent to applying the SHA-2 algorithm to
-        // the concatenation of all the provided messages.  The behavior is
-        // undefined unless the range '[data, data + length)' is a valid range.
+        // previously provided data and has not been subsequently reset, the
+        // current state is not the default state and the resultant value is
+        // equivalent to applying the SHA-2 algorithm upon the concatenation of
+        // all the provided data.  The behavior is undefined unless the range
+        // '[data, data + length)' is a valid range.  Note that if 'data' is 0,
+        // then 'length' must also be 0.
 
-    void loadDigestAndReset(unsigned char *digest);
+    void loadDigestAndReset(unsigned char *result);
         // Load the current value of this SHA-2 digest into the specified
-        // 'digest' and set the value of this SHA-2 digest to the value
+        // 'result' and set the value of this SHA-2 digest to the value
         // provided by the default constructor.
 
     // ACCESSORS
-    void loadDigest(unsigned char *digest) const;
-        // Load the value of this SHA-2 digest into the specified 'digest'.
+    void loadDigest(unsigned char *result) const;
+        // Load the value of this SHA-2 digest into the specified 'result'.
 
     bsl::ostream& print(bsl::ostream& stream) const;
         // Format the current value of this SHA-2 digest to the specified
@@ -234,10 +256,13 @@ class Sha384 {
 
     // DATA
     bsl::uint64_t d_totalSize;        // length of the entire message
+
     bsl::uint64_t d_bufferSize;       // bytes currently used for 'd_buffer'
+
     unsigned char d_buffer[1024 / 8]; // buffer for storing remaining part of
                                       // message that is not yet incorporated
                                       // into 'd_state'
+
     bsl::uint64_t d_state[8];         // state array storing the digest
 
     // FRIENDS
@@ -253,6 +278,11 @@ class Sha384 {
         // Construct a SHA-2 digest having the value corresponding to no data
         // having been provided.
 
+    Sha384(const void *data, bsl::size_t length);
+        // Construct a SHA-2 digest corresponding to the specified 'data'
+        // having the specified 'length' (in bytes).  Note that if 'data' is 0,
+        // then 'length' also must be 0.
+
     // MANIPULATORS
     void reset();
         // Reset the value of this SHA-2 digest to the value provided by the
@@ -264,19 +294,21 @@ class Sha384 {
         // state is the default state, the resultant value of this SHA-2
         // digest is the application of the SHA-2 algorithm upon the currently
         // given 'data' of the given 'length'.  If this digest has been
-        // previously provided data and has not been subsequently assigned to,
-        // the current state is equivalent to applying the SHA-2 algorithm to
-        // the concatenation of all the provided messages.  The behavior is
-        // undefined unless the range '[data, data + length)' is a valid range.
+        // previously provided data and has not been subsequently reset, the
+        // current state is not the default state and the resultant value is
+        // equivalent to applying the SHA-2 algorithm upon the concatenation of
+        // all the provided data.  The behavior is undefined unless the range
+        // '[data, data + length)' is a valid range.  Note that if 'data' is 0,
+        // then 'length' must also be 0.
 
-    void loadDigestAndReset(unsigned char *digest);
+    void loadDigestAndReset(unsigned char *result);
         // Load the current value of this SHA-2 digest into the specified
-        // 'digest' and set the value of this SHA-2 digest to the value
+        // 'result' and set the value of this SHA-2 digest to the value
         // provided by the default constructor.
 
     // ACCESSORS
-    void loadDigest(unsigned char *digest) const;
-        // Load the value of this SHA-2 digest into the specified 'digest'.
+    void loadDigest(unsigned char *result) const;
+        // Load the value of this SHA-2 digest into the specified 'result'.
 
     bsl::ostream& print(bsl::ostream& stream) const;
         // Format the current value of this SHA-2 digest to the specified
@@ -300,10 +332,13 @@ class Sha512 {
 
     // DATA
     bsl::uint64_t d_totalSize;        // length of the entire message
+
     bsl::uint64_t d_bufferSize;       // bytes currently used for 'd_buffer'
+
     unsigned char d_buffer[1024 / 8]; // buffer for storing remaining part of
                                       // message that is not yet incorporated
                                       // into 'd_state'
+
     bsl::uint64_t d_state[8];         // state array storing the digest
 
     // FRIENDS
@@ -319,6 +354,11 @@ class Sha512 {
         // Construct a SHA-2 digest having the value corresponding to no data
         // having been provided.
 
+    Sha512(const void *data, bsl::size_t length);
+        // Construct a SHA-2 digest corresponding to the specified 'data'
+        // having the specified 'length' (in bytes).  Note that if 'data' is 0,
+        // then 'length' also must be 0.
+
     // MANIPULATORS
     void reset();
         // Reset the value of this SHA-2 digest to the value provided by the
@@ -330,19 +370,21 @@ class Sha512 {
         // state is the default state, the resultant value of this SHA-2
         // digest is the application of the SHA-2 algorithm upon the currently
         // given 'data' of the given 'length'.  If this digest has been
-        // previously provided data and has not been subsequently assigned to,
-        // the current state is equivalent to applying the SHA-2 algorithm to
-        // the concatenation of all the provided messages.  The behavior is
-        // undefined unless the range '[data, data + length)' is a valid range.
+        // previously provided data and has not been subsequently reset, the
+        // current state is not the default state and the resultant value is
+        // equivalent to applying the SHA-2 algorithm upon the concatenation of
+        // all the provided data.  The behavior is undefined unless the range
+        // '[data, data + length)' is a valid range.  Note that if 'data' is 0,
+        // then 'length' must also be 0.
 
-    void loadDigestAndReset(unsigned char *digest);
+    void loadDigestAndReset(unsigned char *result);
         // Load the current value of this SHA-2 digest into the specified
-        // 'digest' and set the value of this SHA-2 digest to the value
+        // 'result' and set the value of this SHA-2 digest to the value
         // provided by the default constructor.
 
     // ACCESSORS
-    void loadDigest(unsigned char *digest) const;
-        // Load the value of this SHA-2 digest into the specified 'digest'.
+    void loadDigest(unsigned char *result) const;
+        // Load the value of this SHA-2 digest into the specified 'result'.
 
     bsl::ostream& print(bsl::ostream& stream) const;
         // Format the current value of this SHA-2 digest to the specified
@@ -434,46 +476,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sha512& digest);
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                                 // ---------
+                                 // ------------
                                  // class Sha224
-                                 // ---------
+                                 // ------------
 
 // FREE OPERATORS
 inline
 bool operator!=(const Sha224& lhs, const Sha224& rhs)
-{
-    return !(lhs == rhs);
-}
-
-                                 // ---------
-                                 // class Sha256
-                                 // ---------
-
-// FREE OPERATORS
-inline
-bool operator!=(const Sha256& lhs, const Sha256& rhs)
-{
-    return !(lhs == rhs);
-}
-
-                                 // ---------
-                                 // class Sha384
-                                 // ---------
-
-// FREE OPERATORS
-inline
-bool operator!=(const Sha384& lhs, const Sha384& rhs)
-{
-    return !(lhs == rhs);
-}
-
-                                 // ---------
-                                 // class Sha512
-                                 // ---------
-
-// FREE OPERATORS
-inline
-bool operator!=(const Sha512& lhs, const Sha512& rhs)
 {
     return !(lhs == rhs);
 }
@@ -484,16 +493,49 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sha224& digest)
     return digest.print(stream);
 }
 
+                                 // ------------
+                                 // class Sha256
+                                 // ------------
+
+// FREE OPERATORS
+inline
+bool operator!=(const Sha256& lhs, const Sha256& rhs)
+{
+    return !(lhs == rhs);
+}
+
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sha256& digest)
 {
     return digest.print(stream);
 }
 
+                                 // ------------
+                                 // class Sha384
+                                 // ------------
+
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Sha384& digest)
 {
     return digest.print(stream);
+}
+
+// FREE OPERATORS
+inline
+bool operator!=(const Sha384& lhs, const Sha384& rhs)
+{
+    return !(lhs == rhs);
+}
+
+                                 // ------------
+                                 // class Sha512
+                                 // ------------
+
+// FREE OPERATORS
+inline
+bool operator!=(const Sha512& lhs, const Sha512& rhs)
+{
+    return !(lhs == rhs);
 }
 
 inline

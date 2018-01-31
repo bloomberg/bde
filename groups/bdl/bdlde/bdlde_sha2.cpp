@@ -44,6 +44,7 @@ bsl::uint32_t f1(bsl::uint32_t value)
          ^ rotateRight(value, 13)
          ^ rotateRight(value, 22);
 }
+
 bsl::uint64_t f1(bsl::uint64_t value)
     // First mixing function used by SHA-384 and SHA-512.  Mixes together the
     // bits of the specified 'value'.
@@ -61,6 +62,7 @@ bsl::uint32_t f2(bsl::uint32_t value)
          ^ rotateRight(value, 11)
          ^ rotateRight(value, 25);
 }
+
 bsl::uint64_t f2(bsl::uint64_t value)
     // Second mixing function used by SHA-384 and SHA-512.  Mixes together the
     // bits of the specified 'value'.
@@ -76,6 +78,7 @@ bsl::uint32_t f3(bsl::uint32_t value)
 {
     return rotateRight(value,  7) ^ rotateRight(value, 18) ^ (value >>  3);
 }
+
 bsl::uint64_t f3(bsl::uint64_t value)
     // Third mixing function used by SHA-384 and SHA-512.  Mixes together the
     // bits of the specified 'value'.
@@ -89,6 +92,7 @@ bsl::uint32_t f4(bsl::uint32_t value)
 {
     return rotateRight(value, 17) ^ rotateRight(value, 19) ^ (value >> 10);
 }
+
 bsl::uint64_t f4(bsl::uint64_t value)
     // Fourth mixing function used by SHA-384 and SHA-512.  Mixes together the
     // bits of the specified 'value'.
@@ -286,7 +290,7 @@ void updateImpl(INTEGER             *state,
 }
 
 template<bsl::size_t BUFFER_CAPACITY, class INTEGER, bsl::size_t ARRAY_SIZE>
-void finalize(unsigned char        *digest,
+void finalize(unsigned char        *result,
               bsl::size_t           digestSize,
               INTEGER              *state,
               bsl::uint64_t         totalSize,
@@ -297,13 +301,13 @@ void finalize(unsigned char        *digest,
     // specified 'bufferSize' after appending the SHA-2 metadata, which
     // uses the specified 'totalSize', with the data in the specified
     // 'constants', and mix the result into the specified 'state'.  Store into
-    // the specified 'digest' having the specified 'digestSize' the contents of
+    // the specified 'result' having the specified 'digestSize' the contents of
     // 'state'.
 {
-    const bsl::uint64_t totalSizeInBits = totalSize * 8;
-    const bsl::uint64_t unpaddedSize    = bufferSize
-                                        + 1
-                                        + sizeof(INTEGER) * 2;
+    const bsl::uint64_t totalSizeInBits  = totalSize * 8;
+    const bsl::uint64_t unpaddedSize     = bufferSize
+                                         + 1
+                                         + sizeof(INTEGER) * 2;
     const bsl::uint64_t remainingBuffers =
                                      (unpaddedSize <= BUFFER_CAPACITY) ? 1 : 2;
     // At the end of the message, we write a special marker byte, followed by
@@ -321,7 +325,7 @@ void finalize(unsigned char        *digest,
               constants);
 
     for (unsigned index = 0 ; index < digestSize / sizeof(INTEGER); ++index) {
-        unpack(state[index], &digest[index * sizeof(INTEGER)]);
+        unpack(state[index], &result[index * sizeof(INTEGER)]);
     }
 }
 
@@ -344,17 +348,44 @@ Sha224::Sha224()
 {
     reset();
 }
+
+Sha224::Sha224(const void *data, bsl::size_t length)
+{
+    reset();
+    update(data, length);
+}
+
 Sha256::Sha256()
 {
     reset();
 }
+
+Sha256::Sha256(const void *data, bsl::size_t length)
+{
+    reset();
+    update(data, length);
+}
+
 Sha384::Sha384()
 {
     reset();
 }
+
+Sha384::Sha384(const void *data, bsl::size_t length)
+{
+    reset();
+    update(data, length);
+}
+
 Sha512::Sha512()
 {
     reset();
+}
+
+Sha512::Sha512(const void *data, bsl::size_t length)
+{
+    reset();
+    update(data, length);
 }
 
 void Sha224::reset()
@@ -431,6 +462,7 @@ void Sha224::update(const void *message, bsl::size_t length)
                 length,
                 sha256Constants);
 }
+
 void Sha256::update(const void *message, bsl::size_t length)
 {
     updateImpl( d_state,
@@ -441,6 +473,7 @@ void Sha256::update(const void *message, bsl::size_t length)
                 length,
                 sha256Constants);
 }
+
 void Sha384::update(const void *message, bsl::size_t length)
 {
     updateImpl( d_state,
@@ -451,6 +484,7 @@ void Sha384::update(const void *message, bsl::size_t length)
                 length,
                 sha512Constants);
 }
+
 void Sha512::update(const void *message, bsl::size_t length)
 {
     updateImpl( d_state,
@@ -462,11 +496,11 @@ void Sha512::update(const void *message, bsl::size_t length)
                 sha512Constants);
 }
 
-void Sha224::loadDigest(unsigned char *digest) const
+void Sha224::loadDigest(unsigned char *result) const
 {
     bsl::uint32_t outputState[8];
     bsl::copy(d_state, d_state + 8, outputState);
-    finalize(digest,
+    finalize(result,
              k_DIGEST_SIZE,
              outputState,
              d_totalSize,
@@ -474,11 +508,12 @@ void Sha224::loadDigest(unsigned char *digest) const
              d_buffer,
              sha256Constants);
 }
-void Sha256::loadDigest(unsigned char *digest) const
+
+void Sha256::loadDigest(unsigned char *result) const
 {
     bsl::uint32_t outputState[8];
     bsl::copy(d_state, d_state + 8, outputState);
-    finalize(digest,
+    finalize(result,
              k_DIGEST_SIZE,
              outputState,
              d_totalSize,
@@ -486,23 +521,12 @@ void Sha256::loadDigest(unsigned char *digest) const
              d_buffer,
              sha256Constants);
 }
-void Sha384::loadDigest(unsigned char *digest) const
+
+void Sha384::loadDigest(unsigned char *result) const
 {
     bsl::uint64_t outputState[8];
     bsl::copy(d_state, d_state + 8, outputState);
-    finalize(digest,
-             k_DIGEST_SIZE,
-             outputState,
-             d_totalSize,
-             d_bufferSize,
-             d_buffer,
-             sha512Constants);
-}
-void Sha512::loadDigest(unsigned char *digest) const
-{
-    bsl::uint64_t outputState[8];
-    bsl::copy(d_state, d_state + 8, outputState);
-    finalize(digest,
+    finalize(result,
              k_DIGEST_SIZE,
              outputState,
              d_totalSize,
@@ -511,9 +535,22 @@ void Sha512::loadDigest(unsigned char *digest) const
              sha512Constants);
 }
 
-void Sha224::loadDigestAndReset(unsigned char *digest)
+void Sha512::loadDigest(unsigned char *result) const
 {
-    finalize(digest,
+    bsl::uint64_t outputState[8];
+    bsl::copy(d_state, d_state + 8, outputState);
+    finalize(result,
+             k_DIGEST_SIZE,
+             outputState,
+             d_totalSize,
+             d_bufferSize,
+             d_buffer,
+             sha512Constants);
+}
+
+void Sha224::loadDigestAndReset(unsigned char *result)
+{
+    finalize(result,
              k_DIGEST_SIZE,
              d_state,
              d_totalSize,
@@ -522,9 +559,10 @@ void Sha224::loadDigestAndReset(unsigned char *digest)
              sha256Constants);
     reset();
 }
-void Sha256::loadDigestAndReset(unsigned char *digest)
+
+void Sha256::loadDigestAndReset(unsigned char *result)
 {
-    finalize(digest,
+    finalize(result,
              k_DIGEST_SIZE,
              d_state,
              d_totalSize,
@@ -533,9 +571,10 @@ void Sha256::loadDigestAndReset(unsigned char *digest)
              sha256Constants);
     reset();
 }
-void Sha384::loadDigestAndReset(unsigned char *digest)
+
+void Sha384::loadDigestAndReset(unsigned char *result)
 {
-    finalize(digest,
+    finalize(result,
              k_DIGEST_SIZE,
              d_state,
              d_totalSize,
@@ -544,9 +583,10 @@ void Sha384::loadDigestAndReset(unsigned char *digest)
              sha512Constants);
     reset();
 }
-void Sha512::loadDigestAndReset(unsigned char *digest)
+
+void Sha512::loadDigestAndReset(unsigned char *result)
 {
-    finalize(digest,
+    finalize(result,
              k_DIGEST_SIZE,
              d_state,
              d_totalSize,
@@ -568,6 +608,7 @@ bsl::ostream& Sha224::print(bsl::ostream& stream) const
 
     return stream;
 }
+
 bsl::ostream& Sha256::print(bsl::ostream& stream) const
 {
     unsigned char result[k_DIGEST_SIZE];
@@ -580,6 +621,7 @@ bsl::ostream& Sha256::print(bsl::ostream& stream) const
 
     return stream;
 }
+
 bsl::ostream& Sha384::print(bsl::ostream& stream) const
 {
     unsigned char result[k_DIGEST_SIZE];
@@ -592,6 +634,7 @@ bsl::ostream& Sha384::print(bsl::ostream& stream) const
 
     return stream;
 }
+
 bsl::ostream& Sha512::print(bsl::ostream& stream) const
 {
     unsigned char result[k_DIGEST_SIZE];
