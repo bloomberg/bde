@@ -6,6 +6,7 @@
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
+#include <bsls_exceptionutil.h>
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide a unified low-level interface for decimal floating point.
