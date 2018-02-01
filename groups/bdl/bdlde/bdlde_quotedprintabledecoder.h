@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 // allowing straight pass-through of character sets that cannot be interpreted.
 //
 // The following kinds of errors can be encountered during decoding, listed in
-// order of decreasing order of precedence:
+// decreasing order of precedence:
 //..
 //  E1. BAD_DATA
 //..

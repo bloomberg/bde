@@ -22,9 +22,9 @@ BSLS_IDENT("$Id: $")
 // template programming, one is often dealing with unknown types, about the
 // constructors of which one knows nothing.  One often needs an object of the
 // given type, but since nothing is known about the constructors, one can't
-// just construct and object of the type.  'bslmf::TypeRep' allows one to
-// create a reference to the type.  Note that the 'rep' function in
-// 'bslmf::TypeRep' is not implemented, it must never be called at run time.
+// just construct an object of the type.  'bslmf::TypeRep' allows one to create
+// a reference to the type.  Note that the 'rep' function in 'bslmf::TypeRep'
+// is not implemented, it must never be called at run time.
 //
 ///Usage
 ///-----

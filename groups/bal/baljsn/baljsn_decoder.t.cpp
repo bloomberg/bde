@@ -37675,8 +37675,8 @@ int main(int argc, char *argv[])
 //..
 // Then, we will use the 'bas_codegen.pl' tool, to generate the C++ classes for
 // this schema.  The following command will generate the header and
-// implementation files for the all the classes in the 'test_messages'
-// components in the current directory:
+// implementation files for all the classes in the 'test_messages' components
+// in the current directory:
 //..
 //  $ bas_codegen.pl -m msg -p test xsdfile.xsd
 //..

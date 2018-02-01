@@ -176,8 +176,8 @@ BSLS_IDENT("$Id: $")
 //  assert(""         == emptyRef);
 //  assert("anything" >= emptyRef);
 //..
-// Notice that the behavior a default constructed 'bslstl::StringRef' object
-// behaves the same as if it referenced an empty string.
+// Notice that a default constructed 'bslstl::StringRef' object behaves the
+// same as if it referenced an empty string.
 //
 // Next, we (implicitly) construct a 'bsl::string' object from
 // 'bslstl::StringRef':

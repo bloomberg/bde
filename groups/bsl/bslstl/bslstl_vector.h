@@ -379,7 +379,7 @@ BSLS_IDENT("$Id: $")
 //          // '0 <= columnIndex < numColumns()'.
 //  };
 //..
-// Then we declare the free operator for 'MyMatrix':
+// Then we declare the free operators for 'MyMatrix':
 //..
 //  // FREE OPERATORS
 //  template <class TYPE>
@@ -517,7 +517,7 @@ BSLS_IDENT("$Id: $")
 //      return d_matrix[rowIndex][columnIndex];
 //  }
 //..
-// Finally, we defines the free operators for 'MyMatrix':
+// Finally, we define the free operators for 'MyMatrix':
 //..
 //  // FREE OPERATORS
 //  template <class TYPE>

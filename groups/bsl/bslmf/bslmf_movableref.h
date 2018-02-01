@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // current representation after an operation on this object.  For example, when
 // passing a temporary object to a function the temporary object is movable: it
 // can't be referred to other than in the function call.  When objects are no
-// longer be used their internal representation can be transferred to another
+// longer used their internal representation can be transferred to another
 // object.  Transferring the internal representation of an object to another
 // object is called /moving an object/.  The purpose of 'bslmf::MoveableRef<T>'
 // is to indicate to a function that an object can be moved to another object.

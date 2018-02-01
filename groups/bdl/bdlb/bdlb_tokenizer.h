@@ -123,7 +123,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  void parse_1(bsl::ostream& output, const char *input)
 //      // Print, to the specified 'output' stream, each whitespace-delimited
-//      // token in the specified 'input; string on a separate line following
+//      // token in the specified 'input' string on a separate line following
 //      // a vertical bar ('|') and a hard space (' ').
 //  {
 //      const char softDelimiters[] = " \t\n";  // whitespace

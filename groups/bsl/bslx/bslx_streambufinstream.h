@@ -187,6 +187,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //  }
 //
+//  // MANIPULATORS
 //  template <class STREAM>
 //  STREAM& MyPerson::bdexStreamIn(STREAM& stream, int version)
 //  {

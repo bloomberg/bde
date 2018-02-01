@@ -259,8 +259,8 @@ BSLS_IDENT("$Id: $")
 //:   1 'operator==' is commutative (i.e., 'A == B' if and only if 'B == A').
 //:   2 'operator!=' is the inverse of 'operator==' (i.e., 'A != B' if and only
 //:     if '!(A == B)').
-//:   3 Two object of the type have the same value if and only if the values of
-//:     each of the *salient* *attributes* -- i.e., those attributes (each a
+//:   3 Two objects of the type have the same value if and only if the values
+//:     of each of the *salient* *attributes* -- i.e., those attributes (each a
 //:     value-semantic type) that comprise the value -- respectively compare
 //:     equal.
 //:   4 There is *no* sequence of operations that, when separately applied to

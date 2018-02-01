@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      my_Allocator(bslma::Allocator *basicAllocator = 0);
-//          // Create a 'my_Allcoator'.  Optionally specify 'basicAllocator' to
+//          // Create a 'my_Allocator'.  Optionally specify 'basicAllocator' to
 //          // supply memory.  If 'basicAllocator' is 0, the
 //          // 'bslma::MallocFreeAllocator' will be used.
 //
@@ -107,8 +107,8 @@ BSLS_IDENT("$Id: $")
 //  // ...
 //..
 // When the 'basicAllocator' is not specified, the 'bslma::MallocFreeAllocator'
-// will be used.  That allocator then then calls 'std::malloc' and 'std::free'
-// for allocating and deallocating memory.
+// will be used.  That allocator then calls 'std::malloc' and 'std::free' for
+// allocating and deallocating memory.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
