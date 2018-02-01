@@ -486,6 +486,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_util.h>
 #endif
 
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
 #endif
@@ -1209,7 +1213,8 @@ struct allocator_traits {
         // undefined unless 'elementAddr' refers to a valid, constructed
         // object.
 
-    static size_type max_size(const ALLOCATOR_TYPE& basicAllocator);
+    static size_type max_size(const ALLOCATOR_TYPE& basicAllocator)
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return the largest number of 'value_type' objects that could
         // reasonably be returned by a single invocation of 'allocate' for the
         // specified 'allocator', i.e., 'allocator.max_size()'.
@@ -1910,7 +1915,7 @@ template <class ALLOCATOR_TYPE>
 inline
 typename allocator_traits<ALLOCATOR_TYPE>::size_type
 allocator_traits<ALLOCATOR_TYPE>::max_size(
-                                          const ALLOCATOR_TYPE& basicAllocator)
+                      const ALLOCATOR_TYPE& basicAllocator) BSLS_CPP11_NOEXCEPT
 {
     return basicAllocator.max_size();
 }
