@@ -44,6 +44,16 @@ function(process outInfoTarget listFile)
     bde_add_interface_target(${TARGET})
     bde_struct_set_field(${TARGET} INTERFACE_TARGET ${TARGET})
 
+    # Set up PIC
+    # This code does not work in 3.8, but will be fixed in later versions.
+    # The -fPIC flag is set explicitely in the compile options for now.
+    if(${bde_ufid_is_shr} OR ${bde_ufid_is_pic})
+        bde_interface_target_set_property(
+            ${TARGET}
+                POSITION_INDEPENDENT_CODE PUBLIC 1
+        )
+    endif()
+
     # As reported here: https://github.com/bloomberg/bde/pull/148
     #
     # The C files in bdl+decnumber must be built in -std=gnu89 mode with
@@ -53,27 +63,35 @@ function(process outInfoTarget listFile)
     #
     # Without this change clang/linux builds will fail with multiply defined
     # symbols.
-    if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
-        bde_interface_target_compile_options(${TARGET} PRIVATE "-std=gnu89")
-    endif()
-
     bde_interface_target_compile_options(
         ${TARGET}
         PRIVATE
-            $<$<CXX_COMPILER_ID:Clang>:
+            $<$<C_COMPILER_ID:Clang>:
+                 -std=gnu89
+                $<IF:${bde_ufid_is_64}, -m64, -m32>
+                $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
+            >
+            $<$<C_COMPILER_ID:GNU>:
+                -fdiagnostics-show-option
+                -fno-strict-aliasing
+                -std=gnu99
+                $<IF:${bde_ufid_is_64}, -m64, -m32>
+                $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
+            >
+            $<$<C_COMPILER_ID:SunPro>:
+                -std=gnu99
                 $<IF:${bde_ufid_is_64}, -m64, -m32>
             >
-            $<$<CXX_COMPILER_ID:GNU>:
-                $<IF:${bde_ufid_is_64}, -m64, -m32>
-                $<${bde_ufid_is_mt}: -pthread>
+            $<$<C_COMPILER_ID:XL>:
+                -std=gnu99
             >
-            $<$<CXX_COMPILER_ID:SunPro>:
-                $<IF:${bde_ufid_is_64}, -m64, -m32>
-                $<${bde_ufid_is_mt}: -mt>
-            >
-            $<$<CXX_COMPILER_ID:XL>:
-                $<${bde_ufid_is_mt}: -qthreaded>
-            >
+    )
+
+    bde_interface_target_compile_definitions(
+        ${TARGET}
+        PRIVATE
+            USE_REAL_MALLOC
+            $<${bde_ufid_is_mt}: _REENTRANT>
     )
 
     # Detecting platform endianess.
@@ -94,7 +112,6 @@ function(process outInfoTarget listFile)
     bde_interface_target_include_directories(
         ${TARGET}
         PUBLIC
-            $<BUILD_INTERFACE:${rootDir}>
             $<BUILD_INTERFACE:${EXTERNAL_INCLUDE_DIR}>
             $<INSTALL_INTERFACE:include>
     )
