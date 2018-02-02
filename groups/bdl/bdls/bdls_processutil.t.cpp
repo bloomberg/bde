@@ -134,21 +134,33 @@ int main(int argc, char *argv[])
 
         ASSERT(0 != bdls::ProcessUtil::getProcessId());
 
-        // Some platforms may truncate the process name if, for example, it is
-        // a very long absolute path.  So test for a prefix match.
-
         bsl::string name;
         ASSERT(0 == bdls::ProcessUtil::getProcessName(&name));
-
-        const int nameLen = static_cast<int>(name.size());
-
-        ASSERT(0       <  nameLen);
-        ASSERT(nameLen <= bsl::strlen(argv[0]));
-        ASSERT(0       == bsl::strncmp(name.c_str(), argv[0], nameLen));
+        ASSERT(name == argv[0]);
 
         if (veryVerbose) {
             P_(argv[0]);  P(name);
         }
+
+      } break;
+
+      case -1: {
+        // --------------------------------------------------------------------
+        // MANUAL TEST: LONG PROCESS NAME (LONGER THAN 128 CHARACTERS)
+        //
+        // Concern:
+        //: 1 Reproduce bug where 'getProcessName' truncates the process name
+        //:   without returning an error (negative value).
+        //
+        // Plan:
+        //:  Rename the test driver by hand.  Then run it with -1 test case and
+        //:  see if 'getProcessName' reports the same as 'argv[0]'.
+        // --------------------------------------------------------------------
+
+        bsl::string name;
+        ASSERT(0 == bdls::ProcessUtil::getProcessName(&name));
+        ASSERT(name == argv[0]);
+        P(name);
 
       } break;
       default: {

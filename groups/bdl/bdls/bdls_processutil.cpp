@@ -31,15 +31,30 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_SOLARIS)
 #include <procfs.h>
 #include <fcntl.h>
+#ifndef _REENTRANT
+#define _REENTRANT
+#endif
 #elif defined(BSLS_PLATFORM_OS_AIX)
 #include <sys/procfs.h>
 #include <fcntl.h>
+#include <procinfo.h>
+#include <bslma_allocator.h>
+#include <bslma_deallocatorproctor.h>
+#include <bslma_default.h>
 #elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 #include <fcntl.h>
 #elif defined(BSLS_PLATFORM_OS_HPUX)
 #include <sys/pstat.h>
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 #include <libproc.h>
+#endif
+
+#if defined BSLS_PLATFORM_OS_AIX
+// DRQS 30045663 - AIX is missing this prototype
+extern int getargs(void *processBuffer,
+                   int   bufferLen,
+                   char *argsBuffer,
+                   int   argsLen);
 #endif
 
 
@@ -99,14 +114,14 @@ int ProcessUtil::getProcessName(bsl::string *result)
     if (bsl::string::npos != pos) {
         result->resize(pos);
     }
-# elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_CYGWIN
+# elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_CYGWIN ||   \
+       defined BSLS_PLATFORM_OS_SOLARIS
     enum { NUM_ELEMENTS = 14 + 16 };  // "/proc/<pid>/cmdline"
 
     bdlsb::MemOutStreamBuf osb(NUM_ELEMENTS);
     bsl::ostream          os(&osb);
     os << "/proc/" << getpid() << "/cmdline" << bsl::ends;
     const char *procfs = osb.data();
-
 
     bsl::ifstream ifs;
     ifs.open(procfs, bsl::ios_base::in | bsl::ios_base::binary);
@@ -129,34 +144,28 @@ int ProcessUtil::getProcessName(bsl::string *result)
     result->assign(pathbuf);
 # else
 #  if defined BSLS_PLATFORM_OS_AIX
-    enum { NUM_ELEMENTS = 14 + 16 };  // "/proc/<pid>/psinfo"
+    struct procentry64  procbuffer;
+    static const int    argslen = 65535;
+    bslma::Allocator   *allocator = bslma::Default::allocator(0);
 
-    bdlsb::MemOutStreamBuf osb(NUM_ELEMENTS);
-    bsl::ostream          os(&osb);
-    os << "/proc/" << getpid() << "/psinfo" << bsl::ends;
-    const char *procfs = osb.data();
-#  else
-    const char *procfs = "/proc/self/psinfo";
+    char *argsbuffer = static_cast<char *>(allocator->allocate(argslen));
+    bslma::DeallocatorProctor<bslma::Allocator> proctor(argsbuffer, allocator);
+
+    procbuffer.pi_pid = getpid();
+
+    if (getargs(&procbuffer, sizeof(procbuffer), argsbuffer, argslen) < 0 ) {
+        return -1;
+    }
+
+    if (bsl::find(argsbuffer, argsbuffer + argslen, '\0')
+                                                     == argsbuffer + argslen) {
+        // Process name is longer than 65K, and it was truncated.
+        return -2;                                                    // RETURN
+    }
+
+    result->assign(argsbuffer);
+    return 0;
 #  endif
-    int fd = open(procfs, O_RDONLY);
-    if (fd == -1) {
-        return -1;
-    }
-
-    psinfo_t psinfo;
-    bool readFailed = (sizeof psinfo != read(fd, &psinfo, sizeof psinfo));
-
-    int rc = close(fd);
-    if (readFailed || 0 != rc) {
-        return -1;
-    }
-
-    result->assign(psinfo.pr_psargs);
-
-    bsl::string::size_type pos = result->find_first_of(' ');
-    if (bsl::string::npos != pos) {
-        result->resize(pos);
-    }
 # endif
 #endif
     return result->empty();
