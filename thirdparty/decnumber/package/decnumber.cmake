@@ -44,6 +44,16 @@ function(process outInfoTarget listFile)
     bde_add_interface_target(${TARGET})
     bde_struct_set_field(${TARGET} INTERFACE_TARGET ${TARGET})
 
+    # Set up PIC
+    # This code does not work in 3.8, but will be fixed in later versions.
+    # The -fPIC flag is set explicitely in the compile options for now.
+    if(${bde_ufid_is_shr} OR ${bde_ufid_is_pic})
+        bde_interface_target_set_property(
+            ${TARGET}
+                POSITION_INDEPENDENT_CODE PUBLIC 1
+        )
+    endif()
+
     # As reported here: https://github.com/bloomberg/bde/pull/148
     #
     # The C files in bdl+decnumber must be built in -std=gnu89 mode with
