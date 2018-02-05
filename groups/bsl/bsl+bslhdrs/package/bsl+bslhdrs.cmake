@@ -1,7 +1,7 @@
-include(bde_package)
-include(bde_utils)
-include(bde_struct)
 include(bde_interface_target)
+include(bde_override_std)
+include(bde_struct)
+include(bde_utils)
 
 function(process outInfoTarget listFile uorName)
     bde_assert_no_extra_args()
@@ -31,6 +31,7 @@ function(process outInfoTarget listFile uorName)
             $<BUILD_INTERFACE:${rootDir}>
             $<INSTALL_INTERFACE:"include">
     )
+    bde_override_std(${packageName})
 
     install(
         FILES ${headers}
