@@ -1,9 +1,10 @@
 bsl-internal (3.4.3.0) unstable; urgency=low
 
+  * 1dd3513cc Changelog for version 3.4.3.0
   * da3e93141 Merge pull request #1685 from mgiroux/review/bump-patchversion-to-3.4.3
   * 86ae21b6a Merge pull request #1674 from afeher/pr/1672-rebased-releases/3.4.x
 
- -- mgiroux <mgiroux@bloomberg.net>  Mon, 5 Feb 2018 10:30:26 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 5 Feb 2018 12:05:36 -0500
 
 bsl-internal (3.4.2.0) git; urgency=low
 
