@@ -5,6 +5,6 @@ function(bde_override_std interfaceTarget)
     bde_assert_no_extra_args()
 
     bde_interface_target_compile_definitions(
-        ${interfaceTarget} PUBLIC BDE_OVERRIDES_STD
+        ${interfaceTarget} PRIVATE BSL_OVERRIDES_STD
     )
 endfunction()
