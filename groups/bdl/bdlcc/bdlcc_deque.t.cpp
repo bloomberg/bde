@@ -242,6 +242,7 @@ typedef bsl::size_t            size_t;
 typedef Obj::Proctor           Proctor;
 typedef Obj::ConstProctor      ConstProctor;
 typedef bsls::Types::Int64     Int64;
+typedef bsls::Types::IntPtr    IntPtr;
 
 static const bsl::size_t      maxSizeT = ~static_cast<bsl::size_t>(0);
 
@@ -4829,6 +4830,11 @@ int main(int argc, char *argv[])
         //:
         //: 2 Inject exceptions into the calls of each of the manipulators
         //:   under test to verify that they provide the strong guarantee.
+        //:
+        //: 3 Do a separate, single-threaded test of 'timedPop{Front,Back}'
+        //:   with exceptions injected.  This can't be done in the main
+        //:   multithreaded test because exceptions get injected into the
+        //:   wrong threads where they are not caught.
         //
         // Testing:
         //   int timedPopBack( TYPE *, const bsls::TimeInterval&);
@@ -4948,10 +4954,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            BEGIN_EXCEP_TEST_AOBJ(x) {
-                ASSERT(0 == x.timedPopBack(&ret,
-                                           bdlt::CurrentTime::now()+T10));
-            } END_EXCEP_TEST_AOBJ
+            ASSERT(0 == x.timedPopBack(&ret, bdlt::CurrentTime::now()+T10));
             ASSERT(VA == ret);
 
             sw.stop();
@@ -4972,10 +4975,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            BEGIN_EXCEP_TEST_AOBJ(x) {
-                ASSERT(0 == x.timedPopBack(&ret,
-                                           bdlt::CurrentTime::now()+T10));
-            } END_EXCEP_TEST_AOBJ
+            ASSERT(0 == x.timedPopBack(&ret, bdlt::CurrentTime::now()+T10));
             ASSERT(VB == ret);
 
             sw.stop();
@@ -5069,10 +5069,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            BEGIN_EXCEP_TEST_AOBJ(x) {
-                ASSERT(0 == x.timedPopFront(&ret,
-                                            bdlt::CurrentTime::now()+T10));
-            } END_EXCEP_TEST_AOBJ
+            ASSERT(0 == x.timedPopFront(&ret, bdlt::CurrentTime::now()+T10));
             ASSERT(VA == ret);
 
             sw.stop();
@@ -5093,10 +5090,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            BEGIN_EXCEP_TEST_AOBJ(x) {
-                ASSERT(0 == x.timedPopFront(&ret,
-                                            bdlt::CurrentTime::now()+T10));
-            } END_EXCEP_TEST_AOBJ
+            ASSERT(0 == x.timedPopFront(&ret, bdlt::CurrentTime::now()+T10));
             ASSERT(VB == ret);
 
             sw.stop();
@@ -5109,6 +5103,99 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::join(thread);
             TC::waitingFlag = 0;
+        }
+
+        if (verbose) cout <<
+                    "Single-threaded 'timedPop{Front,Back}' with exceptions\n";
+        for (int ti = 0; ti < 2; ++ti) {
+            bool doFront = ti;
+
+            enum { k_NUM_ELEMENTS = 20 };
+
+            AObj x(&ta);
+            bsl::vector<AElement> v(&ta);
+            v.insert(v.end(), k_NUM_ELEMENTS, VC);
+
+            {
+                AObj::Proctor p(&x);
+                p->insert(p->end(), k_NUM_ELEMENTS, VA);
+            }
+
+            sw.reset();
+            sw.start(true);
+            double lastTime = sw.accumulatedWallTime();
+            for (int ii = 20 - 1; 0 <= ii; --ii) {
+                int pass = 0;
+                BEGIN_EXCEP_TEST_AOBJ(x) {
+                    ++pass;
+
+                    for (int jj = 0; jj < k_NUM_ELEMENTS; ++jj) {
+                        const AElement& EXP = jj <= ii ? VC : VA;
+                        ASSERTV(VA, VC, jj, ii, v[jj], EXP, EXP == v[jj]);
+                    }
+
+                    ASSERTV(ii, x.length(), ii + 1 == (IntPtr) x.length());
+                    for (int jj = 0; jj <= ii; ++jj) {
+                        const AObj::Proctor p(&x);
+                        const bsl::deque<AElement>& d = *p;
+                        ASSERTV(VA, jj, d.size(), d[jj], VA == d[jj]);
+                    }
+
+                    ASSERT(sw.accumulatedWallTime() - lastTime < 0.05);
+                    lastTime = sw.accumulatedWallTime();
+
+                    if (doFront) {
+                        bsl::deque<AElement>::iterator it;
+                        {
+                            AObj::Proctor p(&x);
+                            it = p->end();
+                        }
+
+                        ASSERT(0 == x.timedPopFront(
+                                                &v[ii],
+                                                bdlt::CurrentTime::now()+T10));
+                        {
+                            AObj::Proctor p(&x);
+                            ASSERT(p->end() == it);
+                        }
+                    }
+                    else {
+                        bsl::deque<AElement>::iterator it;
+                        {
+                            AObj::Proctor p(&x);
+                            it = p->begin();
+                        }
+
+                        ASSERT(0 == x.timedPopBack(
+                                                &v[ii],
+                                                bdlt::CurrentTime::now()+T10));
+                        {
+                            AObj::Proctor p(&x);
+                            ASSERT(p->begin() == it);
+                        }
+                    }
+
+                    ASSERT(sw.accumulatedWallTime() - lastTime < 0.05);
+                    ASSERTV(ii, pass, PLAT_EXC, (PLAT_EXC ? 1 : 0) < pass);
+
+                    ASSERT(VA == v[ii]);
+
+                    ASSERTV(ii, x.length(), ii == (IntPtr) x.length());
+                    for (int jj = 0; jj < ii; ++jj) {
+                        const AObj::Proctor p(&x);
+                        const bsl::deque<AElement>& d = *p;
+                        ASSERTV(VA, jj, d.size(), d[jj], VA == d[jj]);
+                    }
+
+                    for (int jj = 0; jj < k_NUM_ELEMENTS; ++jj) {
+                        const AElement& EXP = jj < ii ? VC : VA;
+                        ASSERTV(VA, VC, jj, ii, v[jj], EXP, EXP == v[jj]);
+                    }
+
+                    lastTime = sw.accumulatedWallTime();
+                } END_EXCEP_TEST_AOBJ
+            }
+            sw.stop();
         }
 
         ASSERT(0 == ta.numBytesInUse());
