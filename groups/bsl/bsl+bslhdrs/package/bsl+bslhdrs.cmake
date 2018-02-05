@@ -3,7 +3,7 @@ include(bde_override_std)
 include(bde_struct)
 include(bde_utils)
 
-function(process outInfoTarget listFile uorName)
+function(process retPackage listFile uorName)
     bde_assert_no_extra_args()
 
     get_filename_component(packageName ${listFile} NAME_WE)
@@ -11,7 +11,6 @@ function(process outInfoTarget listFile uorName)
     get_filename_component(rootDir ${listDir} DIRECTORY)
 
     bde_struct_create(BDE_PACKAGE_TYPE ${packageName})
-    set(${outInfoTarget} ${packageName} PARENT_SCOPE)
 
     # Sources and headers
     bde_utils_add_meta_file("${listDir}/${packageName}.pub" headers TRACK)
@@ -38,4 +37,6 @@ function(process outInfoTarget listFile uorName)
         DESTINATION "include"
         COMPONENT "${uorName}-headers"
     )
+
+    bde_return(${packageName})
 endfunction()

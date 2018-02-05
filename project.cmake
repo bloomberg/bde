@@ -1,7 +1,7 @@
 include(bde_project)
 include(bde_utils)
 
-function(process outInfoTarget listDir)
+function(process retProject listDir)
     bde_assert_no_extra_args()
 
     set(projName bde.p)
@@ -34,5 +34,6 @@ function(process outInfoTarget listDir)
             ${listDir}/thirdparty/inteldfp
             ${listDir}/thirdparty/pcre2
     )
-    set(${outInfoTarget} ${projName} PARENT_SCOPE)
+
+    bde_return(${projName})
 endfunction()

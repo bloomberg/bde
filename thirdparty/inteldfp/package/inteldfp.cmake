@@ -4,7 +4,7 @@ include(bde_struct)
 include(bde_interface_target)
 include(bde_uor)
 
-function(process outInfoTarget listFile)
+function(process retUOR listFile)
     bde_assert_no_extra_args()
 
     get_filename_component(listDir ${listFile} DIRECTORY)
@@ -427,8 +427,9 @@ function(process outInfoTarget listFile)
         DESTINATION "include/${TARGET}"
     )
 
-    set(infoTarget ${TARGET}-standalone)
-    bde_prepare_uor(${TARGET} ${infoTarget} "" LIBRARY)
-    bde_project_add_uor(${infoTarget} ${TARGET})
-    set(${outInfoTarget} ${infoTarget} PARENT_SCOPE)
+    set(uor ${TARGET}-standalone)
+    bde_prepare_uor(${TARGET} ${uor} "" LIBRARY)
+    bde_project_add_uor(${uor} ${TARGET})
+
+    bde_return(${uor})
 endfunction()

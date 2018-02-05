@@ -2,15 +2,15 @@ include(bde_interface_target)
 include(bde_package)
 include(bde_struct)
 
-function(process outInfoTarget)
-    bde_force_default_process_package(infoTarget ${ARGN})
+function(process retPackage)
+    bde_force_default_process_package(package ${ARGN})
 
-    bde_struct_get_field(interfaceTarget ${infoTarget} INTERFACE_TARGET)
+    bde_struct_get_field(interfaceTarget ${package} INTERFACE_TARGET)
     bde_interface_target_link_libraries(
         ${interfaceTarget}
         PUBLIC
             $<$<CXX_COMPILER_ID:SunPro>:socket nsl>
     )
 
-    set(${outInfoTarget} ${infoTarget} PARENT_SCOPE)
+    bde_return(${package})
 endfunction()
