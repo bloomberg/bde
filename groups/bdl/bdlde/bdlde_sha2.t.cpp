@@ -102,10 +102,10 @@ using namespace bsl;
 // [11] void Sha256::reset();
 // [12] void Sha384::reset();
 // [13] void Sha512::reset();
-// [ 2] void Sha224::update(const void *message, bsl::size_t length);
-// [ 3] void Sha256::update(const void *message, bsl::size_t length);
-// [ 4] void Sha384::update(const void *message, bsl::size_t length);
-// [ 5] void Sha512::update(const void *message, bsl::size_t length);
+// [ 6] void Sha224::update(const void *message, bsl::size_t length);
+// [ 7] void Sha256::update(const void *message, bsl::size_t length);
+// [ 8] void Sha384::update(const void *message, bsl::size_t length);
+// [ 9] void Sha512::update(const void *message, bsl::size_t length);
 // [14] void Sha224::loadDigestAndReset(unsigned char *result);
 // [15] void Sha256::loadDigestAndReset(unsigned char *result);
 // [16] void Sha384::loadDigestAndReset(unsigned char *result);
@@ -554,8 +554,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void print(bsl::ostream& stream);
-        //   bsl::ostream& operator<<(bsl::ostream& stream,
-        //                            const Sha& digest);
+        //   bsl::ostream& operator<<(bsl::ostream&, const Sha512&);
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -586,8 +585,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void print(bsl::ostream& stream);
-        //   bsl::ostream& operator<<(bsl::ostream& stream,
-        //                            const Sha& digest);
+        //   bsl::ostream& operator<<(bsl::ostream&, const Sha384&);
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -618,8 +616,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void print(bsl::ostream& stream);
-        //   bsl::ostream& operator<<(bsl::ostream& stream,
-        //                            const Sha& digest);
+        //   bsl::ostream& operator<<(bsl::ostream&, const Sha256&);
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -650,8 +647,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void print(bsl::ostream& stream);
-        //   bsl::ostream& operator<<(bsl::ostream& stream,
-        //                            const Sha& digest);
+        //   bsl::ostream& operator<<(bsl::ostream&, const Sha224&);
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -1050,8 +1046,9 @@ int main(int argc, char *argv[])
         //    passing the entire string to update.  (C-1)
         //
         // Testing:
-        //   Sha512::Sha512();
         //   void Sha512::update(const void *message, bsl::size_t length);
+        //   bool operator==(const Sha512& lhs, const Sha512& rhs);
+        //   bool operator!=(const Sha512& lhs, const Sha512& rhs);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-512" "\n"
                              "===============================" "\n";
@@ -1071,8 +1068,9 @@ int main(int argc, char *argv[])
         //    passing the entire string to update.  (C-1)
         //
         // Testing:
-        //   Sha384::Sha384();
         //   void Sha384::update(const void *message, bsl::size_t length);
+        //   bool operator==(const Sha384& lhs, const Sha384& rhs);
+        //   bool operator!=(const Sha384& lhs, const Sha384& rhs);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-384" "\n"
                              "===============================" "\n";
@@ -1092,8 +1090,9 @@ int main(int argc, char *argv[])
         //    passing the entire string to update.  (C-1)
         //
         // Testing:
-        //   Sha256::Sha256();
         //   void Sha256::update(const void *message, bsl::size_t length);
+        //   bool operator==(const Sha256& lhs, const Sha256& rhs);
+        //   bool operator!=(const Sha256& lhs, const Sha256& rhs);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-256" "\n"
                              "===============================" "\n";
@@ -1113,8 +1112,9 @@ int main(int argc, char *argv[])
         //    passing the entire string to update.  (C-1)
         //
         // Testing:
-        //   Sha224::Sha224();
         //   void Sha224::update(const void *message, bsl::size_t length);
+        //   bool operator==(const Sha224& lhs, const Sha224& rhs);
+        //   bool operator!=(const Sha224& lhs, const Sha224& rhs);
         // --------------------------------------------------------------------
         if (verbose) cout << "INCREMENTAL UPDATES FOR SHA-224" "\n"
                              "===============================" "\n";
@@ -1135,6 +1135,8 @@ int main(int argc, char *argv[])
         //:   known values.  (C-1)
         //
         // Testing:
+        //   Sha512::Sha512();
+        //   void Sha512::update(const void *message, bsl::size_t length);
         //   void Sha512::loadDigest(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-512" "\n"
@@ -1157,6 +1159,8 @@ int main(int argc, char *argv[])
         //:   known values.  (C-1)
         //
         // Testing:
+        //   Sha384::Sha384();
+        //   void Sha384::update(const void *message, bsl::size_t length);
         //   void Sha384::loadDigest(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-384" "\n"
@@ -1179,6 +1183,8 @@ int main(int argc, char *argv[])
         //:   known values.  (C-1)
         //
         // Testing:
+        //   Sha256::Sha256();
+        //   void Sha256::update(const void *message, bsl::size_t length);
         //   void Sha256::loadDigest(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-256" "\n"
@@ -1201,6 +1207,8 @@ int main(int argc, char *argv[])
         //:   known values.  (C-1)
         //
         // Testing:
+        //   Sha224::Sha224();
+        //   void Sha224::update(const void *message, bsl::size_t length);
         //   void Sha224::loadDigest(unsigned char *digest);
         // --------------------------------------------------------------------
         if (verbose) cout << "KNOWN HASHES FOR SHA-224" "\n"
