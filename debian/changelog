@@ -1,12 +1,20 @@
-bsl-internal (3.4.2.0) unstable; urgency=low
+bsl-internal (3.4.3.0) unstable; urgency=low
 
+  * da3e93141 Merge pull request #1685 from mgiroux/review/bump-patchversion-to-3.4.3
+  * 86ae21b6a Merge pull request #1674 from afeher/pr/1672-rebased-releases/3.4.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Mon, 5 Feb 2018 10:30:26 -0500
+
+bsl-internal (3.4.2.0) git; urgency=low
+
+  * 15ef08f2d Changelog for version 3.4.2.0
   * 0a8e07b3c bump bdl & bal versions to 3.4.2
   * 3f1c6a03b Merge pull request #1624 from hversche/pr/1617-rebased-releases/3.4.x
   * 59f5bee5e Merge pull request #1620 from rkhlebnikov/pr/1619-rebased-releases/3.4.x
   * 8ecdb2971 Merge pull request #1615 from rkhlebnikov/pr/1313-rebased-releases/3.4.x
   * d8de1bab4 Cleaner version using library functions
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Jan 2018 10:29:28 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Jan 2018 10:31:42 -0500
 
 bsl-internal (3.4.1.2) git; urgency=low
 
@@ -55,6 +63,7 @@ bsl-internal (3.3.2.0) git; urgency=low
   * 0a8f26983 Bump bdl, bal, and btl versions to 3.3.2
   * 178469c73 Merge pull request #1527 from hversche/pr/1522-rebased-releases/3.3.x
   * 54620d790 Merge pull request #1533 from hversche/pr/1517-rebased-releases/3.3.x
+  * d6f722787 Fix DRQS 109891146 by allowing null pointers in the destructor validator logic. Add tests that ensure that null pointers do not trigger an assertion. Add in assertions in xsputn that the pointers are not null, as we currently assume they point somewhere into our internal buffer. This fix should be more binary compatible than the original version.
   * a4613a393 drqs-111740206: 3.3.x: Format fixes for 'bdedox' conversion.
   * 2521da1c6 Merge pull request #1526 from hversche/pr/1525-rebased-releases/3.3.x
 
