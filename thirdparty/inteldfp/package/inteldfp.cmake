@@ -12,7 +12,7 @@ function(process retUOR listFile)
 
     set(TARGET inteldfp)
 
-    bde_struct_create(BDE_PACKAGE_TYPE ${TARGET})
+    bde_struct_create(package BDE_PACKAGE_TYPE NAME ${TARGET})
 
     set(headers
         ${rootDir}/LIBRARY/src/inteldfp/bid128_2_str.h
@@ -30,9 +30,9 @@ function(process retUOR listFile)
         ${rootDir}/LIBRARY/src/inteldfp/bid_wrap_names.h
         ${rootDir}/LIBRARY/src/inteldfp/dfp754.h
     )
-    bde_struct_set_field(${TARGET} HEADERS ${headers})
+    bde_struct_set_field(${package} HEADERS ${headers})
 
-    bde_struct_set_field(${TARGET} SOURCES
+    bde_struct_set_field(${package} SOURCES
         ${rootDir}/LIBRARY/src/inteldfp/bid64_acos.c
         ${rootDir}/LIBRARY/src/inteldfp/bid64_acosh.c
         ${rootDir}/LIBRARY/src/inteldfp/bid64_asin.c
@@ -322,7 +322,7 @@ function(process retUOR listFile)
     )
 
     bde_add_interface_target(${TARGET})
-    bde_struct_set_field(${TARGET} INTERFACE_TARGET ${TARGET})
+    bde_struct_set_field(${package} INTERFACE_TARGET ${TARGET})
 
     # Set up PIC
     # This code does not work in 3.8, but will be fixed in later versions.
@@ -427,9 +427,8 @@ function(process retUOR listFile)
         DESTINATION "include/${TARGET}"
     )
 
-    set(uor ${TARGET}-standalone)
-    bde_prepare_uor(${TARGET} ${uor} "" LIBRARY)
-    bde_project_add_uor(${uor} ${TARGET})
+    bde_prepare_uor(uor ${TARGET} "" LIBRARY)
+    bde_project_add_uor(${uor} ${package})
 
     bde_return(${uor})
 endfunction()

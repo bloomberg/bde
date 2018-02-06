@@ -4,15 +4,14 @@ include(bde_utils)
 function(process retProject listDir)
     bde_assert_no_extra_args()
 
-    set(projName bde.p)
-    bde_struct_create(BDE_PROJECT_TYPE ${projName})
+    bde_struct_create(proj BDE_PROJECT_TYPE NAME bde.p)
         # postfix needed because of clash with bde-classic group name
 
     set(CMAKE_MODULE_PATH "${listDir}/cmake" ${CMAKE_MODULE_PATH})
         # Override defaults
 
     bde_process_project_uors(
-        ${projName}
+        ${proj}
         COMMON_INTERFACE_TARGETS
             bde_ufid_flags
         PACKAGE_GROUPS
@@ -28,12 +27,12 @@ function(process retProject listDir)
 
     # Note, that thirdparty libraries do not use COMMON_INTERFACE_TARGETS
     bde_process_project_uors(
-        ${projName}
+        ${proj}
         STANDALONE_PACKAGES
             ${listDir}/thirdparty/decnumber
             ${listDir}/thirdparty/inteldfp
             ${listDir}/thirdparty/pcre2
     )
 
-    bde_return(${projName})
+    bde_return(${proj})
 endfunction()

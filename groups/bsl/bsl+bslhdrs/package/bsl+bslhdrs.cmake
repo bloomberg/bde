@@ -10,20 +10,16 @@ function(process retPackage listFile uorName)
     get_filename_component(listDir ${listFile} DIRECTORY)
     get_filename_component(rootDir ${listDir} DIRECTORY)
 
-    bde_struct_create(BDE_PACKAGE_TYPE ${packageName})
 
     # Sources and headers
     bde_utils_add_meta_file("${listDir}/${packageName}.pub" headers TRACK)
     bde_utils_list_template_substitute(headers "%" "${rootDir}/%" ${headers})
-    bde_struct_set_field(${packageName} HEADERS "${headers}")
 
     # Dependencies
     bde_utils_add_meta_file("${listDir}/${packageName}.dep" dependencies TRACK)
-    bde_struct_set_field(${packageName} DEPENDS "${dependencies}")
 
     # Include directories
     bde_add_interface_target(${packageName})
-    bde_struct_set_field(${packageName} INTERFACE_TARGET ${packageName})
     bde_interface_target_include_directories(
         ${packageName}
         PUBLIC
@@ -38,5 +34,14 @@ function(process retPackage listFile uorName)
         COMPONENT "${uorName}-headers"
     )
 
-    bde_return(${packageName})
+    bde_struct_create(
+        package
+        BDE_PACKAGE_TYPE
+        NAME ${packageName}
+        HEADERS "${headers}"
+        DEPENDS "${dependencies}"
+        INTERFACE_TARGET ${packageName}
+    )
+
+    bde_return(${package})
 endfunction()

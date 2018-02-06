@@ -12,7 +12,7 @@ function(process retUOR listFile)
 
     set(TARGET decnumber)
 
-    bde_struct_create(BDE_PACKAGE_TYPE ${TARGET})
+    bde_struct_create(package BDE_PACKAGE_TYPE NAME ${TARGET})
 
     set(headers
         ${rootDir}/decContext.h
@@ -27,9 +27,9 @@ function(process retUOR listFile)
         ${rootDir}/decQuad.h
         ${rootDir}/decSingle.h
     )
-    bde_struct_set_field(${TARGET} HEADERS ${headers})
+    bde_struct_set_field(${package} HEADERS ${headers})
 
-    bde_struct_set_field(${TARGET} SOURCES
+    bde_struct_set_field(${package} SOURCES
         ${rootDir}/decContext.c
         ${rootDir}/decDouble.c
         ${rootDir}/decimal32.c
@@ -42,7 +42,7 @@ function(process retUOR listFile)
     )
 
     bde_add_interface_target(${TARGET})
-    bde_struct_set_field(${TARGET} INTERFACE_TARGET ${TARGET})
+    bde_struct_set_field(${package} INTERFACE_TARGET ${TARGET})
 
     # Set up PIC
     # This code does not work in 3.8, but will be fixed in later versions.
@@ -122,9 +122,8 @@ function(process retUOR listFile)
         DESTINATION "include/${TARGET}"
     )
 
-    set(uor ${TARGET}-standalone)
-    bde_prepare_uor(${TARGET} ${uor} "" LIBRARY)
-    bde_project_add_uor(${uor} ${TARGET})
+    bde_prepare_uor(uor ${TARGET} "" LIBRARY)
+    bde_project_add_uor(${uor} ${package})
 
     bde_return(${uor})
 endfunction()
