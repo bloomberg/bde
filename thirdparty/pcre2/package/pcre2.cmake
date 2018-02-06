@@ -4,7 +4,7 @@ include(bde_struct)
 include(bde_interface_target)
 include(bde_uor)
 
-function(process outInfoTarget listFile)
+function(process retUOR listFile)
     bde_assert_no_extra_args()
 
     get_filename_component(listDir ${listFile} DIRECTORY)
@@ -12,7 +12,7 @@ function(process outInfoTarget listFile)
 
     set(TARGET pcre2)
 
-    bde_struct_create(BDE_PACKAGE_TYPE ${TARGET})
+    bde_struct_create(package BDE_PACKAGE_TYPE NAME ${TARGET})
 
     set(headers
         ${rootDir}/config.h
@@ -21,9 +21,9 @@ function(process outInfoTarget listFile)
         ${rootDir}/pcre2_intmodedep.h
         ${rootDir}/pcre2_ucp.h
     )
-    bde_struct_set_field(${TARGET} HEADERS ${headers})
+    bde_struct_set_field(${package} HEADERS ${headers})
 
-    bde_struct_set_field(${TARGET} SOURCES
+    bde_struct_set_field(${package} SOURCES
         ${rootDir}/pcre2_auto_possess.c
         ${rootDir}/pcre2_chartables.c
         ${rootDir}/pcre2_compile.c
@@ -50,7 +50,7 @@ function(process outInfoTarget listFile)
     )
 
     bde_add_interface_target(${TARGET})
-    bde_struct_set_field(${TARGET} INTERFACE_TARGET ${TARGET})
+    bde_struct_set_field(${package} INTERFACE_TARGET ${TARGET})
 
     # Set up PIC
     # This code does not work in 3.8, but will be fixed in later versions.
@@ -130,8 +130,14 @@ function(process outInfoTarget listFile)
         DESTINATION "include/${TARGET}"
     )
 
-    set(infoTarget ${TARGET}-standalone)
-    bde_prepare_uor(${TARGET} ${infoTarget} "" LIBRARY)
-    bde_project_add_uor(${infoTarget} ${TARGET})
-    set(${outInfoTarget} ${infoTarget} PARENT_SCOPE)
+    add_library(${TARGET} "")
+    bde_struct_create(
+        uor
+        BDE_UOR_TYPE
+        NAME "${TARGET}"
+        TARGET "${TARGET}"
+    )
+    bde_project_add_uor(${uor} ${package})
+
+    bde_return(${uor})
 endfunction()
