@@ -360,9 +360,11 @@ function(process retUOR listFile)
                 $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
             >
             $<$<C_COMPILER_ID:SunPro>:
+                -temp=/bb/data/tmp
                 $<IF:${bde_ufid_is_64}, -m64, -m32>
             >
             $<$<C_COMPILER_ID:XL>:
+                $<IF:${bde_ufid_is_64}, -q64, -q32>
             >
     )
 
@@ -379,13 +381,14 @@ function(process retUOR listFile)
     bde_interface_target_compile_definitions(
         ${TARGET}
         PRIVATE
-            USE_REAL_MALLOC
             $<${bde_ufid_is_mt}: _REENTRANT>
             $<$<C_COMPILER_ID:Clang>:
+                "USE_REAL_MALLOC"
                 "LINUX"
                 "efi2"
             >
             $<$<C_COMPILER_ID:GNU>:
+                "USE_REAL_MALLOC"
                 "LINUX"
                 "efi2"
             >
@@ -399,7 +402,6 @@ function(process retUOR listFile)
             >
             $<$<C_COMPILER_ID:SunPro>:
                 "SUNOS"
-                "LINUX"
                 "efi2"
                 "__linux"
                 "__float80=double"
