@@ -122,7 +122,13 @@ function(process retUOR listFile)
         DESTINATION "include/${TARGET}"
     )
 
-    bde_prepare_uor(uor ${TARGET} "" LIBRARY)
+    add_library(${TARGET} "")
+    bde_struct_create(
+        uor
+        BDE_UOR_TYPE
+        NAME "${TARGET}"
+        TARGET "${TARGET}"
+    )
     bde_project_add_uor(${uor} ${package})
 
     bde_return(${uor})
