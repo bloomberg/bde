@@ -1199,12 +1199,12 @@ class basic_string
     basic_string& privateAppend(const CHAR_TYPE *characterString,
                                 size_type        numChars,
                                 const char      *message);
-        // Append characters from the specified 'characterString' array of
-        // characters of the specified 'numChars' length to this string, and
-        // return a reference providing modifiable access to this string.
-        // Throw 'length_error' with the specified 'message' if
-        // 'numChars > max_size() - length()'.  The behavior is undefined
-        // unless 'characterString' is at least 'numChars' long.
+        // Append to this string the specified initial 'numChars' characters
+        // from the specified 'characterString', and return a reference
+        // providing modifiable access to this string.  Throw 'length_error'
+        // with the specified 'message' if 'numChars > max_size() - length()'.
+        // The behavior is undefined unless 'characterString' is at least
+        // 'numChars' long.
 
     basic_string& privateAppend(size_type   numChars,
                                 CHAR_TYPE   character,
@@ -1285,7 +1285,7 @@ class basic_string
         // dispatches to the corresponding 'privateAppend' function.  Throw
         // 'length_error' with the specified 'message' if the length of the
         // string described by 'first' and 'second' is greater than
-        // 'max_length'.
+        // 'max_size()'.
 
     Imp& privateBase();
         // Return a reference providing modifiable access to the base object
@@ -1324,24 +1324,25 @@ class basic_string
                                    const CHAR_TYPE *characterString,
                                    size_type        numChars);
         // Insert into this object at the specified 'outPosition' the specified
-        // 'numChars' starting at the specified 'characterString'.  The
-        // behavior is undefined unless and 'numChars <= max_size() - length()'
-        // and 'characterString' array is at least 'numChars' long.  Note that
-        // this method is alias-safe, i.e., it works correctly even if
+        // initial 'numChars' from the specified 'characterString'.  The
+        // behavior is undefined unless 'numChars <= max_size() - length()' and
+        // 'characterString' is at least 'numChars' long.  Note that this
+        // method is alias-safe, i.e., it works correctly even if
         // 'characterString' points into this string object.
 
     basic_string& privateReplaceRaw(size_type        outPosition,
                                     size_type        outNumChars,
                                     const CHAR_TYPE *characterString,
                                     size_type        numChars);
-        // Replace the specified 'outNumChars' characters of this object
-        // starting at the specified 'outPosition' by the specified 'numChars'
-        // starting at the specified 'characterString', and return a reference
-        // providing modifiable access to this string.  The behavior is
-        // undefined unless 'outPosition <= length()',
+        // Replace the specified 'outNumChars' characters of this string
+        // starting at the specified 'outPosition' with the specified initial
+        // 'numChars' from the specified 'characterString', and return a
+        // reference providing modifiable access to this string.  The behavior
+        // is undefined unless 'outPosition <= length()',
         // 'outNumChars <= length()', 'outPosition <= length() - outNumChars',
-        // 'numChars <= max_size()', and
-        // 'length() - outNumChars <= max_size() - numChars'.  Note that this
+        // 'numChars <= max_size()',
+        // 'length() - outNumChars <= max_size() - numChars', and
+        // 'characterString' is at least 'numChars' long.  Note that this
         // method is alias-safe, i.e., it works correctly even if
         // 'characterString' points into this string object.
 
@@ -1350,11 +1351,11 @@ class basic_string
                                     size_type numChars,
                                     CHAR_TYPE character);
         // Replace the specified 'outNumChars' characters of this string
-        // starting at the specified 'outPosition' by the specified 'numChars'
-        // copies of the specified 'character', and return a reference
-        // providing modifiable access to this string.  The behavior is
-        // undefined unless 'outPosition <= length()',
-        // 'outNumChars <= length()', 'outPosition <= length() - outNumChars'
+        // starting at the specified 'outPosition' with the specified
+        // 'numChars' copies of the specified 'character', and return a
+        // reference providing modifiable access to this string.  The behavior
+        // is undefined unless 'outPosition <= length()',
+        // 'outNumChars <= length()', 'outPosition <= length() - outNumChars',
         // and 'length() <= max_size() - numChars'.
 
     template <class INPUT_ITER>
@@ -1462,12 +1463,12 @@ class basic_string
                           const CHAR_TYPE *other,
                           size_type        otherNumChars) const;
         // Lexicographically compare the substring of this string starting at
-        // the specified 'lhsPosition' of length 'lhsNumChars' with the string
-        // constructed from the specified 'otherNumChars' characters in the
-        // array starting at the specified 'other' address, and return a
-        // negative value if this string is less than 'other', a positive value
-        // if it is greater than 'other', and 0 in case of equality.  The
-        // behavior is undefined unless 'lhsPosition <= length()',
+        // the specified 'lhsPosition' of length 'lhsNumChars' with the
+        // specified initial 'otherNumChars' characters in the specified
+        // 'other' string, and return a negative value if the indicated
+        // substring of this string is less than 'other', a positive value if
+        // it is greater than 'other', and 0 in case of equality.  The behavior
+        // is undefined unless 'lhsPosition <= length()',
         // 'lhsNumChars <= length()', and
         // 'lhsPosition <= length() - lhsNumChars'.
 
@@ -1551,11 +1552,12 @@ class basic_string
     basic_string(const CHAR_TYPE  *characterString,
                  size_type         numChars,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR());
-        // Create a string having the same value as the specified
-        // 'characterString' of the specified 'numChars' length.  Optionally
-        // specify a 'basicAllocator' used to supply memory.  If
+        // Create a string having the same value as the specified initial
+        // 'numChars' characters in the specified 'characterString'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is not specified, a default-constructed allocator
-        // is used.  Throw 'out_of_range' if 'numChars >= npos'.
+        // is used.  Throw 'out_of_range' if 'numChars >= npos'.  The behavior
+        // is undefined unless 'characterString' is at least 'numChars' long.
 
     basic_string(size_type        numChars,
                  CHAR_TYPE        character,
@@ -1762,9 +1764,10 @@ class basic_string
 
     basic_string& append(const CHAR_TYPE *characterString,
                          size_type        numChars);
-        // Append to this string the specified 'numChars' characters from the
-        // array starting at the specified 'characterString' address, and
-        // return a reference providing modifiable access to this string.
+        // Append to this string the specified initial 'numChars' characters
+        // from the specified 'characterString', and return a reference
+        // providing modifiable access to this string.  The behavior is
+        // undefined unless 'characterString' is at least 'numChars' long.
 
     basic_string& append(const CHAR_TYPE *characterString);
         // Append the specified null-terminated 'characterString' (of length
@@ -1837,9 +1840,10 @@ class basic_string
 
     basic_string& assign(const CHAR_TYPE *characterString,
                          size_type        numChars);
-        // Assign to this string the same value as the specified
-        // 'characterString' of the specified 'numChars' length, and return a
-        // reference providing modifiable access to this string.
+        // Assign to this string the specified initial 'numChars' characters in
+        // the specified 'characterString', and return a reference providing
+        // modifiable access to this string.  The behavior is undefined unless
+        // 'characterString' is at least 'numChars' long.
 
     basic_string& assign(
                   const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
@@ -1892,11 +1896,11 @@ class basic_string
     basic_string& insert(size_type        position,
                          const CHAR_TYPE *characterString,
                          size_type        numChars);
-        // Insert at the specified 'position' in this string a copy of the
-        // specified 'numChars' characters in the array starting at the
-        // specified 'characterString' address, and return a reference
-        // providing modifiable access to this string.  Throw 'out_of_range' if
-        // 'position > length()'.
+        // Insert at the specified 'position' in this string the specified
+        // initial 'numChars' characters in the specified 'characterString',
+        // and return a reference providing modifiable access to this string.
+        // Throw 'out_of_range' if 'position > length()'.  The behavior is
+        // undefined unless 'characterString' is at least 'numChars' long.
 
     basic_string& insert(size_type        position,
                          const CHAR_TYPE *characterString);
@@ -2022,9 +2026,11 @@ class basic_string
         // Replace the specified 'outNumChars' characters starting at the
         // specified 'outPosition' in this string (or the suffix of this string
         // starting at 'outPosition' if 'outPosition + outNumChars > length()')
-        // with the specified 'numChars' characters in the specified
+        // with the specified initial 'numChars' characters in the specified
         // 'characterString'.  Return a reference providing modifiable access
         // to this string.  Throw 'out_of_range' if 'outPosition > length()'.
+        // The behavior is undefined unless 'characterString' is at least
+        // 'numChars' long.
 
     basic_string& replace(size_type        outPosition,
                           size_type        outNumChars,
@@ -2064,11 +2070,11 @@ class basic_string
                           size_type        numChars);
         // Replace the substring in the range starting at the specified 'first'
         // position and ending right before the specified 'last' position with
-        // the specified 'numChars' characters in the specified
+        // the specified initial 'numChars' characters in the specified
         // 'characterString'.  Return a reference providing modifiable access
         // to this string.  The behavior is undefined unless 'first' and 'last'
-        // are both within the range '[cbegin() .. cend()]' and
-        // 'first <= last'.
+        // are both within the range '[cbegin() .. cend()]', 'first <= last',
+        // and 'characterString' is at least 'numChars' long.
 
     basic_string& replace(const_iterator   first,
                           const_iterator   last,
@@ -2199,11 +2205,14 @@ class basic_string
     size_type copy(CHAR_TYPE *characterString,
                    size_type  numChars,
                    size_type  position = 0) const;
-        // Copy the specified 'numChars' or 'length() - position', whichever is
-        // smaller, characters from this string into the specified
+        // Copy from this string, starting from the optionally specified
+        // 'position', the specified 'numChars' or 'length() - position'
+        // characters, whichever is smaller, into the specified
         // 'characterString' buffer, and return the number of characters
-        // copied.  Throw 'out_of_range' if 'position > length()'.  Note that
-        // the output 'characterString' is *not* null-terminated.
+        // copied.  If 'position' is not specified, 0 is used.  Throw
+        // 'out_of_range' if 'position > length()'.  The behavior is undefined
+        // unless 'characterString' is at least 'numChars' long.  Note that the
+        // output 'characterString' is *not* null-terminated.
 
                      // *** 21.3.7 string operations: ***
 
