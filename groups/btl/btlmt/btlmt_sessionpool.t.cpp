@@ -2313,23 +2313,86 @@ namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE {
 
 }  // close namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE
 
-//=============================================================================
-//                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     GLOBAL 'class' FOR TESTING
+// ----------------------------------------------------------------------------
 
-int main(int argc, char *argv[])
+class TestDriver {
+    // This 'class' provide a namespace for testing 'btlmt::SessionPool's
+    // functionality.
+
+  public:
+    // TEST CASES
+    static void testCase21();
+        // Test usage example.
+
+    static void testCase20();
+        // Testing fix for invalid peer addresses.
+
+    static void testCase19();
+        // Testing 'isRunning'.
+
+    static void testCase18();
+        // Testing 'busyMetrics'.
+
+    static void testCase17();
+        // Testing 'close' with and without enqueued data.
+
+    static void testCase16();
+        // Test for checking memory usage.
+
+    static void testCase15();
+        // Test that platform errors are returned correctly.
+
+    static void testCase14();
+        // Test constructor taking BlobBufferFactory.
+
+    static void testCase13();
+        // Test 'allocate' with shared async channel.
+
+    static void testCase12();
+        // Test calling 'start' after 'stop'.
+
+    static void testCase11();
+        // Test 'connect' with socket options.
+
+    static void testCase10();
+        // Test 'connect' with user-specified local address.
+
+    static void testCase9();
+        // Test 'setWriteQueueWatermarks'.
+
+    static void testCase8();
+        // Test 'stopAndRemoveAllSessions'.
+
+    static void testCase7();
+        // Test removal of intermediate read blob.
+
+    static void testCase6();
+        // Test that 'stop' updates 'numSessions' correctly.
+
+    static void testCase5();
+        // Test that peer address is set correctly.
+
+    static void testCase4();
+        // Test removal of inefficiencies in read callback.
+
+    static void testCase3();
+        // Test blob-based reads.
+
+    static void testCase2();
+        // Test allocator propagation.
+
+    static void testCase1();
+        // Breathing test.
+};
+
+                               // --------------
+                               // TEST APPARATUS
+                               // --------------
+
+void TestDriver::testCase21()
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
-
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
-
-    bslma::TestAllocator ta("ta", veryVeryVerbose);
-
-    switch (test) { case 0:  // Zero is always the leading case.
-      case 21: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -2346,12 +2409,15 @@ int main(int argc, char *argv[])
 
         using namespace BTLMT_SESSION_POOL_USAGE_EXAMPLE;
 
+        bslma::TestAllocator ta("ta", veryVeryVerbose);
+
         usageExample(&ta);
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
+}
 
-      } break;
-      case 20: {
+void TestDriver::testCase20()
+{
         // --------------------------------------------------------------------
         // Testing fix for invalid peer addresses
         //
@@ -2429,8 +2495,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.stopAndRemoveAllSessions());
 
         bslmt::ThreadUtil::join(serverThread);
-      } break;
-      case 19: {
+}
+
+void TestDriver::testCase19()
+{
         // --------------------------------------------------------------------
         // TESTING 'isRunning'
         //
@@ -2482,8 +2550,10 @@ int main(int argc, char *argv[])
 
         mX.stopAndRemoveAllSessions();
         ASSERT(false == X.isRunning());
-      } break;
-      case 18: {
+}
+
+void TestDriver::testCase18()
+{
         // --------------------------------------------------------------------
         // Testing 'busyMetrics'
         //
@@ -2608,8 +2678,10 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == X.busyMetrics());
         }
-      } break;
-      case 17: {
+}
+
+void TestDriver::testCase17()
+{
         // --------------------------------------------------------------------
         // TESTING close with and without enqueued data
         //
@@ -2959,8 +3031,10 @@ int main(int argc, char *argv[])
 
             factory.deallocate(socket);
         }
-      } break;
-      case 16: {
+}
+
+void TestDriver::testCase16()
+{
         // --------------------------------------------------------------------
         // CHECKING MEMORY USAGE
         //
@@ -3094,8 +3168,10 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(TA_MAX_BYTES, MAX_NUM_BYTES,
                          TA_MAX_BYTES < MAX_NUM_BYTES);
         }
-      } break;
-      case 15: {
+}
+
+void TestDriver::testCase15()
+{
         // --------------------------------------------------------------------
         // TESTING: platform errors are returned correctly
         //
@@ -3494,8 +3570,10 @@ int main(int argc, char *argv[])
 #endif
         }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
-      } break;
-      case 14: {
+}
+
+void TestDriver::testCase14()
+{
         // --------------------------------------------------------------------
         // Test Constructor taking BlobBufferFactory
         //
@@ -3530,6 +3608,8 @@ int main(int argc, char *argv[])
                                << "============================" << bsl::endl;
 
         using namespace BTLMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
+
+        bslma::TestAllocator ta("ta", veryVeryVerbose);
 
         bslma::DefaultAllocatorGuard defaultAllocGuard(&ta);
         bslma::TestAllocator pa("poolAllocator", veryVeryVerbose);
@@ -3620,8 +3700,10 @@ int main(int argc, char *argv[])
 
         ASSERT(0 != pa.numAllocations());
         ASSERT(0 == pa.numBytesInUse());
-      } break;
-      case 13: {
+}
+
+void TestDriver::testCase13()
+{
         // --------------------------------------------------------------------
         // TESTING 'allocate' with shared async channel
         //   Ensure that the 'channel' passed to the session objects remains
@@ -3656,6 +3738,8 @@ int main(int argc, char *argv[])
 
         bslmt::Barrier barrier(3);
 
+        bslma::TestAllocator ta("ta", veryVeryVerbose);
+
         Tester tester(Tester::LISTENER, &barrier, address, &ta);
 
         int portNumber = tester.portNumber();
@@ -3683,8 +3767,10 @@ int main(int argc, char *argv[])
 
         barrier.wait();
 
-      } break;
-      case 12: {
+}
+
+void TestDriver::testCase12()
+{
         // --------------------------------------------------------------------
         // TESTING CALLING 'start' AFTER 'stop'
         //   Ensure that 'start' after a 'stop' works as expected.
@@ -3782,8 +3868,10 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX.stopAndRemoveAllSessions());
 
         ASSERT(0 == mX.numSessions());
-      } break;
-      case 11: {
+}
+
+void TestDriver::testCase11()
+{
         // --------------------------------------------------------------------
         // TESTING 'connect' with socket options
         //   Ensure that the 'connect' that takes a socket option object
@@ -3892,8 +3980,10 @@ int main(int argc, char *argv[])
 #endif
             ASSERT(0 == pool.stopAndRemoveAllSessions());
         }
-      } break;
-      case 10: {
+}
+
+void TestDriver::testCase10()
+{
         // --------------------------------------------------------------------
         // TESTING 'connect' with a user-specified local address
         //   Ensure that the 'connect' that takes a client address returns a
@@ -4005,8 +4095,10 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == pool.stopAndRemoveAllSessions());
         }
-      } break;
-      case 9: {
+}
+
+void TestDriver::testCase9()
+{
         // --------------------------------------------------------------------
         // TESTING 'setWriteQueueWatermarks'
         //   The 'setWriteQueueWatermarks' method has the expected effect.
@@ -4144,8 +4236,10 @@ int main(int argc, char *argv[])
                                                         HIGH_WATERMARK + 2));
 
         ASSERT(0 == sessionPool.stop());
-      } break;
-      case 8: {
+}
+
+void TestDriver::testCase8()
+{
         // --------------------------------------------------------------------
         // TESTING 'stopAndRemoveAllSessions'
         //
@@ -4234,8 +4328,10 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_THREADS; ++i) {
             bslmt::ThreadUtil::join(connectThreads[i]);
         }
-      } break;
-      case 7: {
+}
+
+void TestDriver::testCase7()
+{
         // --------------------------------------------------------------------
         // TESTING removal of intermediate read blob
         //  Ensure that session pool does not allocate and hold on to
@@ -4337,8 +4433,10 @@ int main(int argc, char *argv[])
                 MTCOUT << "maxNumDataBuffers: " << maxNumDataBuffers << MTENDL;
             }
         }
-      } break;
-      case 6: {
+}
+
+void TestDriver::testCase6()
+{
         // --------------------------------------------------------------------
         // TESTING 'stop' updates numSessions correctly
         //  Ensure that the bug where d_numSessions is decremented in stop and
@@ -4437,8 +4535,10 @@ int main(int argc, char *argv[])
 
         ns = X.numSessions();
         LOOP_ASSERT(ns, 0 == ns);
-      } break;
-      case 5: {
+}
+
+void TestDriver::testCase5()
+{
         // --------------------------------------------------------------------
         // TESTING peer address is set appropriately
         //
@@ -4492,8 +4592,10 @@ int main(int argc, char *argv[])
         socket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
         barrier.wait();
-      } break;
-      case 4: {
+}
+
+void TestDriver::testCase4()
+{
         // --------------------------------------------------------------------
         // TESTING removal of inefficiencies in read callback
         //
@@ -4581,8 +4683,10 @@ int main(int argc, char *argv[])
         socketFactory.deallocate(socket);
 
         LOOP_ASSERT(cbCount, 1 == cbCount);
-      } break;
-      case 3: {
+}
+
+void TestDriver::testCase3()
+{
         // --------------------------------------------------------------------
         // BLOB BASED EXAMPLE
         //
@@ -4597,6 +4701,8 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator da("default", veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
+
+        bslma::TestAllocator ta("ta", veryVeryVerbose);
 
         TestFactory factory(0, &ta);
 
@@ -4647,8 +4753,10 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(0 != ta.numBytesInUse());
-      } break;
-      case 2: {
+}
+
+void TestDriver::testCase2()
+{
         // --------------------------------------------------------------------
         // TEST ALLOCATOR PROPAGATION
         //
@@ -4665,6 +4773,8 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator da("default", veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultAllocGuard(&da);
+
+        bslma::TestAllocator ta("ta", veryVeryVerbose);
 
         TestFactory factory(0, &ta);
 
@@ -4714,9 +4824,10 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
         ASSERT(0 != ta.numBytesInUse());
-      } break;
+}
 
-      case 1: {
+void TestDriver::testCase1()
+{
         // --------------------------------------------------------------------
         // BREATHING TEST:
         //
@@ -4729,9 +4840,48 @@ int main(int argc, char *argv[])
         btlmt::ChannelPoolConfiguration config;
 
         Obj X(config, btlmt::SessionPool::SessionPoolStateCallback());
-      } break;
+}
+
+
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
+
+int main(int argc, char *argv[])
+{
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
+    veryVeryVerbose = argc > 4;
+
+    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
+
+    switch (test) { case 0:  // Zero is always the leading case.
+#define CASE(NUMBER) case NUMBER: TestDriver::testCase##NUMBER(); break
+      CASE(21);
+      CASE(20);
+      CASE(19);
+      CASE(18);
+      CASE(17);
+      CASE(16);
+      CASE(15);
+      CASE(14);
+      CASE(13);
+      CASE(12);
+      CASE(11);
+      CASE(10);
+      CASE(9);
+      CASE(8);
+      CASE(7);
+      CASE(6);
+      CASE(5);
+      CASE(4);
+      CASE(3);
+      CASE(2);
+      CASE(1);
+#undef CASE
       default: {
-        bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
+        cerr << "WARNING: CASE " << test << " NOT FOUND." << endl;
         testStatus = -1;
       }
     }
