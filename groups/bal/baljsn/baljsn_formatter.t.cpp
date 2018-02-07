@@ -8,6 +8,7 @@
 #include <bdlat_attributeinfo.h>
 #include <bdlat_choicefunctions.h>
 #include <bdlat_enumeratorinfo.h>
+#include <bdlat_formattingmode.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_sequencefunctions.h>
 #include <bdlat_valuetypefunctions.h>
@@ -19,15 +20,6 @@
 
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlsb_memoutstreambuf.h>
-
-// These header are for testing only and the hierarchy level of 'baljsn' was
-// increase because of them.  They should be remove when possible.
-#include <balxml_decoder.h>
-#include <balxml_decoderoptions.h>
-#include <balxml_encoder.h>
-#include <balxml_encoderoptions.h>
-#include <balxml_minireader.h>
-#include <balxml_errorinfo.h>
 
 #include <bdlat_typetraits.h>
 
@@ -1700,8 +1692,8 @@ int main(int argc, char *argv[])
         // TESTING 'openElement' METHOD
         //
         // Concerns:
-        //: 1 The 'openElement' method outputs a the name of the element
-        //:   followed by ':'.
+        //: 1 The 'openElement' method outputs the name of the element followed
+        //:   by ':'.
         //:
         //: 2 If pretty style is selected then 'openElement' indents before
         //:   printing element name and outputs the ':' character with spaces
@@ -1746,11 +1738,20 @@ int main(int argc, char *argv[])
      {   L_,    -1,     -1,   -1,    -1,   "",         0,   "\"\":"        },
      {   L_,    -1,     -1,   -1,    -1,   "name",     0,   "\"name\":"    },
 
-     {   L_,     0,     -1,   -1, false,   "",         0,   "\"\":"        },
-     {   L_,     0,     -1,   -1,  true,   "",         0,   "\"\":"        },
+     {   L_,     0,     -1,   -1,    -1,   "",         0,   "\"\":"        },
+     {   L_,     0,     -1,   -1,    -1,   "",         0,   "\"\":"        },
 
-        {   L_,     0,     -1,   -1,  false,    0,  "["                 },
-        {   L_,     0,     -1,   -1,  true,     0,  "["                 },
+     {   L_,     1,     -1,   -1,    -1,   "",         0,   "\"\" : "      },
+     {   L_,     1,     -1,   -1,    -1,   "",         0,   "\"\" : "      },
+
+     {   L_,     0,     -1,   -1,    -1,   "name",     0,   "\"name\":"    },
+     {   L_,     0,     -1,   -1,    -1,   "name",     0,   "\"name\":"    },
+
+     {   L_,     1,     -1,   -1,    -1,   "name",     0,   "\"name\" : "  },
+     {   L_,     1,     -1,   -1,    -1,   "name",     0,   "\"name\" : "  },
+
+     // {   L_,     0,     -1,   -1,  false,    0,  "["                 },
+     // {   L_,     0,     -1,   -1,  true,     0,  "["                 },
 
         // {   L_,     1,      1,    2,  false,    0,  "["             NL  },
         // {   L_,     1,      1,    2,  true,     0,  "["                 },
