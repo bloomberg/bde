@@ -316,33 +316,33 @@ class MemFn {
   private:
     // PRIVATE TYPES
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 1, Args>::TypeOrDefault>::Type A1;
+        typename bslmf::TypeListTypeOf< 1, Args>::TypeOrDefault>::Type ARG1;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 2, Args>::TypeOrDefault>::Type A2;
+        typename bslmf::TypeListTypeOf< 2, Args>::TypeOrDefault>::Type ARG2;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 3, Args>::TypeOrDefault>::Type A3;
+        typename bslmf::TypeListTypeOf< 3, Args>::TypeOrDefault>::Type ARG3;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 4, Args>::TypeOrDefault>::Type A4;
+        typename bslmf::TypeListTypeOf< 4, Args>::TypeOrDefault>::Type ARG4;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 5, Args>::TypeOrDefault>::Type A5;
+        typename bslmf::TypeListTypeOf< 5, Args>::TypeOrDefault>::Type ARG5;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 6, Args>::TypeOrDefault>::Type A6;
+        typename bslmf::TypeListTypeOf< 6, Args>::TypeOrDefault>::Type ARG6;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 7, Args>::TypeOrDefault>::Type A7;
+        typename bslmf::TypeListTypeOf< 7, Args>::TypeOrDefault>::Type ARG7;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 8, Args>::TypeOrDefault>::Type A8;
+        typename bslmf::TypeListTypeOf< 8, Args>::TypeOrDefault>::Type ARG8;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 9, Args>::TypeOrDefault>::Type A9;
+        typename bslmf::TypeListTypeOf< 9, Args>::TypeOrDefault>::Type ARG9;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf<10, Args>::TypeOrDefault>::Type A10;
+        typename bslmf::TypeListTypeOf<10, Args>::TypeOrDefault>::Type ARG10;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf<11, Args>::TypeOrDefault>::Type A11;
+        typename bslmf::TypeListTypeOf<11, Args>::TypeOrDefault>::Type ARG11;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf<12, Args>::TypeOrDefault>::Type A12;
+        typename bslmf::TypeListTypeOf<12, Args>::TypeOrDefault>::Type ARG12;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf<13, Args>::TypeOrDefault>::Type A13;
+        typename bslmf::TypeListTypeOf<13, Args>::TypeOrDefault>::Type ARG13;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf<14, Args>::TypeOrDefault>::Type A14;
+        typename bslmf::TypeListTypeOf<14, Args>::TypeOrDefault>::Type ARG14;
         // 'AN', for 'N' from 1 up to 14, is an alias for the type of the 'N'th
         // argument in the 'Args' list.
 
@@ -380,187 +380,205 @@ class MemFn {
     }
 
     template <class INSTANCE>
-    ResultType operator()(INSTANCE& object, A1 a1) const
+    ResultType operator()(INSTANCE& object, ARG1 arg1) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1', and
-        // return the result of this invocation, or 'void' if this member
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1',
+        // and return the result of this invocation, or 'void' if this member
         // function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1);  // see NOTES above
+        return (Deref::deref(object).*d_func_p)(arg1);  // see NOTES above
     }
 
     template <class INSTANCE>
-    ResultType operator()(INSTANCE& object, A1 a1, A2 a2) const
+    ResultType operator()(INSTANCE& object, ARG1 arg1, ARG2 arg2) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a2', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2);  // etc.
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(INSTANCE& object, A1 a1, A2 a2, A3 a3) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a3', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(INSTANCE& object, A1 a1, A2 a2, A3 a3, A4 a4) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a4', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(INSTANCE& object,
-                                 A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a5', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4, a5);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(INSTANCE& object,
-                                 A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
-                                 A6 a6) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a6', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4, a5, a6);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(INSTANCE& object,
-                                 A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
-                                 A7 a7) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a7', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4, a5, a6, a7);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(INSTANCE& object,
-                                 A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
-                                 A7 a7, A8 a8) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a8', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4, a5, a6, a7,
-                                                a8);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(INSTANCE& object,
-                                 A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
-                                 A7 a7, A8 a8, A9 a9) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a9', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4, a5, a6, a7, a8,
-                                                a9);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(INSTANCE& object,
-                                 A1 a1, A2 a2, A3 a3, A4  a4, A5  a5, A6  a6,
-                                 A7 a7, A8 a8, A9 a9, A10 a10) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a10', and return the result of this invocation, or 'void' if
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg2', and return the result of this invocation, or 'void' if
         // this member function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4, a5, a6, a7, a8,
-                                                a9, a10);
+        return (Deref::deref(object).*d_func_p)(arg1, arg2);  // etc.
     }
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                                 A1 a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6  a6,
-                                 A7 a7, A8 a8, A9 a9, A10 a10, A11 a11) const
+                                ARG1 arg1, ARG2 arg2, ARG3 arg3) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a11', and return the result of this invocation, or 'void' if
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg3', and return the result of this invocation, or 'void' if
         // this member function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1,  a2, a3, a4, a5, a6, a7,
-                                                a8, a9, a10, a11);
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3);
     }
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                                A1  a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6 a6,
-                                A7  a7, A8 a8, A9 a9, A10 a10, A11 a11,
-                                A12 a12) const
+                                ARG1 arg1, ARG2 arg2, ARG3 arg3,
+                                ARG4 arg4) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a12', and return the result of this invocation, or 'void' if
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg4', and return the result of this invocation, or 'void' if
         // this member function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3,  a4,  a5,  a6,  a7,
-                                                a8, a9, a10, a11, a12);
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4);
     }
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                                A1  a1,  A2  a2,  A3  a3, A4 a4, A5  a5,
-                                A6  a6,  A7  a7,  A8  a8, A9 a9, A10 a10,
-                                A11 a11, A12 a12, A13 a13) const
+                                ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4,
+                                ARG5 arg5) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a13', and return the result of this invocation, or 'void' if
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg5', and return the result of this invocation, or 'void' if
         // this member function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3,  a4,  a5,  a6,  a7,
-                                                a8, a9, a10, a11, a12, a13);
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5);
     }
 
     template <class INSTANCE>
     ResultType operator()(INSTANCE& object,
-                                A1  a1,  A2  a2,  A3  a3,  A4  a4, A5  a5,
-                                A6  a6,  A7  a7,  A8  a8,  A9  a9, A10 a10,
-                                A11 a11, A12 a12, A13 a13, A14 a14) const
+                                ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4,
+                                ARG5 arg5, ARG6 arg6) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1' up
-        // to 'a14', and return the result of this invocation, or 'void' if
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg6', and return the result of this invocation, or 'void' if
         // this member function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3,  a4,  a5,  a6,  a7,
-                                                a8, a9, a10, a11, a12, a13,
-                                                a14);
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5,
+                                                arg6);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(INSTANCE& object,
+                                ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4,
+                                ARG5 arg5, ARG6 arg6, ARG7 arg7) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg7', and return the result of this invocation, or 'void' if
+        // this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5,
+                                                arg6, arg7);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(INSTANCE& object,
+                                ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4,
+                                ARG5 arg5, ARG6 arg6, ARG7 arg7,
+                                ARG8 arg8) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg8', and return the result of this invocation, or 'void' if
+        // this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5,
+                                                arg6, arg7, arg8);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(INSTANCE& object,
+                                ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4,
+                                ARG5 arg5, ARG6 arg6, ARG7 arg7, ARG8 arg8,
+                                ARG9 arg9) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg9', and return the result of this invocation, or 'void' if
+        // this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5,
+                                                arg6, arg7, arg8, arg9);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(INSTANCE& object,
+                                ARG1 arg1, ARG2  arg2, ARG3 arg3, ARG4  arg4,
+                                ARG5 arg5, ARG6  arg6, ARG7 arg7, ARG8 arg8,
+                                ARG9 arg9, ARG10 arg10) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg10', and return the result of this invocation, or 'void' if
+        // this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5,
+                                                arg6, arg7, arg8, arg9, arg10);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(INSTANCE& object,
+                                ARG1 arg1, ARG2  arg2,  ARG3 arg3, ARG4 arg4,
+                                ARG5 arg5, ARG6  arg6,  ARG7 arg7, ARG8 arg8,
+                                ARG9 arg9, ARG10 arg10, ARG11 arg11) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg11', and return the result of this invocation, or 'void' if
+        // this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1,  arg2, arg3, arg4, arg5,
+                                                arg6, arg7, arg8, arg9, arg10,
+                                                arg11);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(INSTANCE& object,
+                                ARG1  arg1,  ARG2  arg2,  ARG3  arg3,
+                                ARG4  arg4,  ARG5  arg5,  ARG6  arg6,
+                                ARG7  arg7,  ARG8  arg8,  ARG9  arg9,
+                                ARG10 arg10, ARG11 arg11, ARG12 arg12) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg12', and return the result of this invocation, or 'void' if
+        // this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3,  arg4,  arg5,
+                                                arg6,  arg7, arg8, arg9, arg10,
+                                                arg11, arg12);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(INSTANCE& object,
+                                ARG1  arg1,  ARG2  arg2,  ARG3  arg3,
+                                ARG4  arg4,  ARG5  arg5,  ARG6  arg6,
+                                ARG7  arg7,  ARG8  arg8,  ARG9  arg9,
+                                ARG10 arg10, ARG11 arg11, ARG12 arg12,
+                                ARG13 arg13) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg13', and return the result of this invocation, or 'void' if
+        // this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3,  arg4,  arg5,
+                                                arg6,  arg7, arg8, arg9, arg10,
+                                                arg11, arg12, arg13);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(INSTANCE& object,
+                                 ARG1  arg1,  ARG2  arg2,  ARG3  arg3,
+                                 ARG4  arg4,  ARG5  arg5,  ARG6  arg6,
+                                 ARG7  arg7,  ARG8  arg8,  ARG9  arg9,
+                                 ARG10 arg10, ARG11 arg11, ARG12 arg12,
+                                 ARG13 arg13, ARG14 arg14) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1' up
+        // to 'arg14', and return the result of this invocation, or 'void' if
+        // this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3,  arg4,  arg5,
+                                                arg6,  arg7, arg8, arg9, arg10,
+                                                arg11, arg12, arg13, arg14);
     }
 
     template <class INSTANCE>
@@ -575,191 +593,210 @@ class MemFn {
     }
 
     template <class INSTANCE>
-    ResultType operator()(const INSTANCE& object, A1 a1) const
+    ResultType operator()(const INSTANCE& object, ARG1 arg1) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified argument 'a1', and
-        // return the result of this invocation, or 'void' if this member
+        // parameterized 'INSTANCE' type, with the specified argument 'arg1',
+        // and return the result of this invocation, or 'void' if this member
         // function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1);
+        return (Deref::deref(object).*d_func_p)(arg1);
     }
 
     template <class INSTANCE>
-    ResultType operator()(const INSTANCE& object, A1 a1, A2 a2) const
+    ResultType operator()(const INSTANCE& object, ARG1 arg1, ARG2 arg2) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a2', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(const INSTANCE& object, A1 a1, A2 a2, A3 a3) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a3', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(const INSTANCE& object,
-                                       A1 a1, A2 a2, A3 a3, A4 a4) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a4', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(const INSTANCE& object,
-                                       A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a5', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4, a5);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(const INSTANCE& object,
-                                       A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
-                                       A6 a6) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a6', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4, a5, a6);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(const INSTANCE& object,
-                                       A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
-                                       A6 a6, A7 a7) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a7', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2,  a3,  a4,  a5, a6, a7);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(const INSTANCE& object,
-                                       A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
-                                       A6 a6, A7 a7, A8 a8) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a8', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4, a5, a6, a7,
-                                                a8);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(const INSTANCE& object,
-                                       A1 a1, A2 a2, A3 a3, A4 a4, A5 a5,
-                                       A6 a6, A7 a7, A8 a8, A9 a9) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a9', and return the result of this invocation, or 'void' if this
-        // member function pointer does not return a result.
-    {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4, a5, a6, a7,
-                                                a8, a9);
-    }
-
-    template <class INSTANCE>
-    ResultType operator()(const INSTANCE& object,
-                                      A1  a1, A2 a2, A3 a3, A4 a4, A5  a5,
-                                      A6  a6, A7 a7, A8 a8, A9 a9,
-                                      A10 a10) const
-        // Invoke the member function pointer held by this wrapper on the
-        // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a10', and return the result of this invocation, or 'void' if
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg2', and return the result of this invocation, or 'void' if
         // this member function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3, a4, a5, a6, a7,
-                                                a8, a9, a10);
+        return (Deref::deref(object).*d_func_p)(arg1, arg2);
     }
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                                      A1  a1, A2 a2, A3 a3, A4 a4, A5  a5,
-                                      A6  a6, A7 a7, A8 a8, A9 a9, A10 a10,
-                                      A11 a11) const
+                                      ARG1 arg1, ARG2 arg2, ARG3 arg3) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a11', and return the result of this invocation, or 'void' if
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg3', and return the result of this invocation, or 'void' if
         // this member function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3,  a4, a5, a6, a7,
-                                                a8, a9, a10, a11);
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3);
     }
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                                      A1  a1,  A2  a2, A3 a3, A4 a4, A5  a5,
-                                      A6  a6,  A7  a7, A8 a8, A9 a9, A10 a10,
-                                      A11 a11, A12 a12) const
+                                      ARG1 arg1, ARG2 arg2, ARG3 arg3,
+                                      ARG4 arg4) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a12', and return the result of this invocation, or 'void' if
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg4', and return the result of this invocation, or 'void' if
         // this member function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3,  a4,  a5, a6, a7,
-                                                a8, a9, a10, a11, a12);
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4);
     }
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                                      A1  a1,  A2  a2,  A3  a3, A4 a4, A5  a5,
-                                      A6  a6,  A7  a7,  A8  a8, A9 a9, A10 a10,
-                                      A11 a11, A12 a12, A13 a13) const
+                                      ARG1 arg1, ARG2 arg2, ARG3 arg3,
+                                      ARG4 arg4, ARG5 arg5) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a13', and return the result of this invocation, or 'void' if
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg5', and return the result of this invocation, or 'void' if
         // this member function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3,  a4,  a5,  a6,  a7,
-                                                a8, a9, a10, a11, a12, a13);
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5);
     }
 
     template <class INSTANCE>
     ResultType operator()(const INSTANCE& object,
-                                      A1  a1,  A2  a2,  A3  a3,  A4  a4,
-                                      A5  a5,  A6  a6,  A7  a7,  A8  a8,
-                                      A9  a9,  A10 a10, A11 a11, A12 a12,
-                                      A13 a13, A14 a14) const
+                                      ARG1 arg1, ARG2 arg2, ARG3 arg3,
+                                      ARG4 arg4, ARG5 arg5, ARG6 arg6) const
         // Invoke the member function pointer held by this wrapper on the
         // specified 'object' reference to a non-modifiable instance of the
-        // parameterized 'INSTANCE' type, with the specified arguments 'a1' up
-        // to 'a14', and return the result of this invocation, or 'void' if
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg6', and return the result of this invocation, or 'void' if
         // this member function pointer does not return a result.
     {
-        return (Deref::deref(object).*d_func_p)(a1, a2, a3,  a4,  a5,  a6,  a7,
-                                                a8, a9, a10, a11, a12, a13,
-                                                a14);
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5,
+                                                arg6);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(const INSTANCE& object,
+                                      ARG1 arg1, ARG2 arg2, ARG3 arg3,
+                                      ARG4 arg4, ARG5 arg5, ARG6 arg6,
+                                      ARG7 arg7) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a non-modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg7', and return the result of this invocation, or 'void' if
+        // this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5,
+                                                arg6, arg7);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(const INSTANCE& object,
+                                      ARG1 arg1, ARG2 arg2, ARG3 arg3,
+                                      ARG4 arg4, ARG5 arg5, ARG6 arg6,
+                                      ARG7 arg7, ARG8 arg8) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a non-modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg8', and return the result of this invocation, or 'void' if
+        // this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5,
+                                                arg6, arg7, arg8);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(const INSTANCE& object,
+                                      ARG1 arg1, ARG2 arg2, ARG3 arg3,
+                                      ARG4 arg4, ARG5 arg5, ARG6 arg6,
+                                      ARG7 arg7, ARG8 arg8, ARG9 arg9) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a non-modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg9', and return the result of this invocation, or 'void' if
+        // this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5,
+                                                arg6, arg7, arg8, arg9);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(const INSTANCE& object,
+                                      ARG1  arg1, ARG2 arg2, ARG3 arg3,
+                                      ARG4  arg4, ARG5 arg5, ARG6 arg6,
+                                      ARG7  arg7, ARG8 arg8, ARG9 arg9,
+                                      ARG10 arg10) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a non-modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg10', and return the result of this invocation, or 'void'
+        // if this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5,
+                                                arg6, arg7, arg8, arg9, arg10);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(const INSTANCE& object,
+                                      ARG1  arg1,  ARG2  arg2, ARG3 arg3,
+                                      ARG4  arg4,  ARG5  arg5, ARG6 arg6,
+                                      ARG7  arg7,  ARG8  arg8, ARG9 arg9,
+                                      ARG10 arg10, ARG11 arg11) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a non-modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg11', and return the result of this invocation, or 'void'
+        // if this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2, arg3, arg4, arg5,
+                                                arg6, arg7, arg8, arg9, arg10,
+                                                arg11);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(const INSTANCE& object,
+                                      ARG1  arg1,  ARG2  arg2, ARG3 arg3,
+                                      ARG4  arg4,  ARG5  arg5, ARG6 arg6,
+                                      ARG7  arg7,  ARG8  arg8, ARG9 arg9,
+                                      ARG10 arg10, ARG11 arg11,
+                                      ARG12 arg12) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a non-modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg12', and return the result of this invocation, or 'void'
+        // if this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1,  arg2, arg3, arg4, arg5,
+                                                arg6,  arg7, arg8, arg9, arg10,
+                                                arg11, arg12);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(const INSTANCE& object,
+                                      ARG1  arg1,  ARG2  arg2,  ARG3  arg3,
+                                      ARG4  arg4,  ARG5  arg5,  ARG6  arg6,
+                                      ARG7  arg7,  ARG8  arg8,  ARG9  arg9,
+                                      ARG10 arg10, ARG11 arg11, ARG12 arg12,
+                                      ARG13 arg13) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a non-modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg13', and return the result of this invocation, or 'void'
+        // if this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1, arg2,  arg3,  arg4,
+                                                arg5, arg6,  arg7,  arg8,
+                                                arg9, arg10, arg11, arg12,
+                                                arg13);
+    }
+
+    template <class INSTANCE>
+    ResultType operator()(const INSTANCE& object,
+                                      ARG1  arg1,  ARG2  arg2,  ARG3  arg3,
+                                      ARG4  arg4,  ARG5  arg5,  ARG6  arg6,
+                                      ARG7  arg7,  ARG8  arg8,  ARG9  arg9,
+                                      ARG10 arg10, ARG11 arg11, ARG12 arg12,
+                                      ARG13 arg13, ARG14 arg14) const
+        // Invoke the member function pointer held by this wrapper on the
+        // specified 'object' reference to a non-modifiable instance of the
+        // parameterized 'INSTANCE' type, with the specified arguments 'arg1'
+        // up to 'arg14', and return the result of this invocation, or 'void'
+        // if this member function pointer does not return a result.
+    {
+        return (Deref::deref(object).*d_func_p)(arg1,  arg2, arg3, arg4, arg5,
+                                                arg6,  arg7, arg8, arg9, arg10,
+                                                arg11, arg12, arg13, arg14);
     }
 };
 
@@ -814,33 +851,33 @@ class MemFnInstance {
   private:
     // PRIVATE TYPES
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 1, Args>::TypeOrDefault>::Type A1;
+        typename bslmf::TypeListTypeOf< 1, Args>::TypeOrDefault>::Type ARG1;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 2, Args>::TypeOrDefault>::Type A2;
+        typename bslmf::TypeListTypeOf< 2, Args>::TypeOrDefault>::Type ARG2;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 3, Args>::TypeOrDefault>::Type A3;
+        typename bslmf::TypeListTypeOf< 3, Args>::TypeOrDefault>::Type ARG3;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 4, Args>::TypeOrDefault>::Type A4;
+        typename bslmf::TypeListTypeOf< 4, Args>::TypeOrDefault>::Type ARG4;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 5, Args>::TypeOrDefault>::Type A5;
+        typename bslmf::TypeListTypeOf< 5, Args>::TypeOrDefault>::Type ARG5;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 6, Args>::TypeOrDefault>::Type A6;
+        typename bslmf::TypeListTypeOf< 6, Args>::TypeOrDefault>::Type ARG6;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 7, Args>::TypeOrDefault>::Type A7;
+        typename bslmf::TypeListTypeOf< 7, Args>::TypeOrDefault>::Type ARG7;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 8, Args>::TypeOrDefault>::Type A8;
+        typename bslmf::TypeListTypeOf< 8, Args>::TypeOrDefault>::Type ARG8;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf< 9, Args>::TypeOrDefault>::Type A9;
+        typename bslmf::TypeListTypeOf< 9, Args>::TypeOrDefault>::Type ARG9;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf<10, Args>::TypeOrDefault>::Type A10;
+        typename bslmf::TypeListTypeOf<10, Args>::TypeOrDefault>::Type ARG10;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf<11, Args>::TypeOrDefault>::Type A11;
+        typename bslmf::TypeListTypeOf<11, Args>::TypeOrDefault>::Type ARG11;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf<12, Args>::TypeOrDefault>::Type A12;
+        typename bslmf::TypeListTypeOf<12, Args>::TypeOrDefault>::Type ARG12;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf<13, Args>::TypeOrDefault>::Type A13;
+        typename bslmf::TypeListTypeOf<13, Args>::TypeOrDefault>::Type ARG13;
     typedef typename bslmf::ForwardingType<
-        typename bslmf::TypeListTypeOf<14, Args>::TypeOrDefault>::Type A14;
+        typename bslmf::TypeListTypeOf<14, Args>::TypeOrDefault>::Type ARG14;
         // 'AN', for 'N' from 1 up to 14, is an alias for the type of the 'N'th
         // argument in the 'Args' list.
 
@@ -883,33 +920,43 @@ class MemFnInstance {
 
     // ACCESSORS
     ResultType operator()() const;
-    ResultType operator()(A1 a1) const;
-    ResultType operator()(A1 a1, A2 a2) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
-                          A7 a7) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
-                          A7 a7, A8 a8) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6,
-                          A7 a7, A8 a8, A9 a9) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3, A4  a4, A5 a5, A6 a6,
-                          A7 a7, A8 a8, A9 a9, A10 a10) const;
-    ResultType operator()(A1 a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6 a6,
-                          A7 a7, A8 a8, A9 a9, A10 a10, A11 a11) const;
-    ResultType operator()(A1  a1, A2 a2, A3 a3, A4  a4,  A5  a5, A6 a6,
-                          A7  a7, A8 a8, A9 a9, A10 a10, A11 a11,
-                          A12 a12) const;
-    ResultType operator()(A1  a1,  A2  a2, A3 a3, A4  a4,  A5  a5, A6 a6,
-                          A7  a7,  A8  a8, A9 a9, A10 a10, A11 a11,
-                          A12 a12, A13 a13) const;
-    ResultType operator()(A1  a1,  A2  a2,  A3  a3, A4  a4,  A5  a5, A6 a6,
-                          A7  a7,  A8  a8,  A9  a9, A10 a10, A11 a11,
-                          A12 a12, A13 a13, A14 a14) const;
+    ResultType operator()(ARG1 arg1) const;
+    ResultType operator()(ARG1 arg1, ARG2 arg2) const;
+    ResultType operator()(ARG1 arg1, ARG2 arg2, ARG3 arg3) const;
+    ResultType operator()(ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4) const;
+    ResultType operator()(ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4,
+                          ARG5 arg5) const;
+    ResultType operator()(ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4,
+                          ARG5 arg5, ARG6 arg6) const;
+    ResultType operator()(ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4,
+                          ARG5 arg5, ARG6 arg6,
+                          ARG7 arg7) const;
+    ResultType operator()(ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4,
+                          ARG5 arg5, ARG6 arg6,
+                          ARG7 arg7, ARG8 arg8) const;
+    ResultType operator()(ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4,
+                          ARG5 arg5, ARG6 arg6,
+                          ARG7 arg7, ARG8 arg8, ARG9 arg9) const;
+    ResultType operator()(ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4  arg4,
+                          ARG5 arg5, ARG6 arg6,
+                          ARG7 arg7, ARG8 arg8, ARG9 arg9, ARG10 arg10) const;
+    ResultType operator()(ARG1 arg1, ARG2  arg2,  ARG3 arg3, ARG4 arg4,
+                          ARG5 arg5, ARG6  arg6,  ARG7 arg7, ARG8 arg8,
+                          ARG9 arg9, ARG10 arg10, ARG11 arg11) const;
+    ResultType operator()(ARG1  arg1, ARG2 arg2,   ARG3  arg3, ARG4 arg4,
+                          ARG5  arg5, ARG6 arg6,   ARG7  arg7, ARG8 arg8,
+                          ARG9  arg9, ARG10 arg10, ARG11 arg11,
+                          ARG12 arg12) const;
+    ResultType operator()(ARG1 arg1, ARG2  arg2,  ARG3  arg3,  ARG4  arg4,
+                          ARG5 arg5, ARG6  arg6,  ARG7  arg7,  ARG8  arg8,
+                          ARG9 arg9, ARG10 arg10, ARG11 arg11, ARG12 arg12,
+                          ARG13 arg13) const;
+    ResultType operator()(ARG1  arg1,  ARG2  arg2,  ARG3  arg3,  ARG4  arg4,
+                          ARG5  arg5,  ARG6  arg6,  ARG7  arg7,  ARG8  arg8,
+                          ARG9  arg9,  ARG10 arg10, ARG11 arg11, ARG12 arg12,
+                          ARG13 arg13, ARG14 arg14) const;
         // Invoke the member function pointer held by this wrapper on the
-        // provided object with the specified 'a1' up to 'aN' as arguments,
+        // provided object with the specified 'arg1' up to 'argN' as arguments,
         // with 'N' being the number of arguments of the member function, and
         // return the result of this invocation, or 'void' if this member
         // function pointer does not return a result.
@@ -1020,139 +1067,154 @@ MemFnInstance<PROTOTYPE, INSTANCE>::operator()() const
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
-MemFnInstance<PROTOTYPE, INSTANCE>::operator()(A1 a1) const
+MemFnInstance<PROTOTYPE, INSTANCE>::operator()(ARG1 arg1) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
-MemFnInstance<PROTOTYPE, INSTANCE>::operator()(A1 a1, A2 a2) const
+MemFnInstance<PROTOTYPE, INSTANCE>::operator()(ARG1 arg1, ARG2 arg2) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2);
-}
-
-template <class PROTOTYPE, class INSTANCE>
-inline
-typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
-MemFnInstance<PROTOTYPE, INSTANCE>::operator()(A1 a1, A2 a2, A3 a3) const
-{
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
 MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
-                                              A1 a1, A2 a2, A3 a3, A4 a4) const
+        ARG1 arg1, ARG2 arg2, ARG3 arg3) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3, a4);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2, arg3);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
 MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
-                                       A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const
+        ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3, a4, a5);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2, arg3, arg4);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
 MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
-                                A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const
+        ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4, ARG5 arg5) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3, a4, a5, a6);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2, arg3, arg4,
+                                                    arg5);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
 MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
-                         A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) const
+        ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4, ARG5 arg5, ARG6 arg6) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3, a4, a5, a6,
-                                                    a7);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2, arg3, arg4,
+                                                    arg5, arg6);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
 MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
-                  A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) const
+        ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4, ARG5 arg5, ARG6 arg6,
+        ARG7 arg7) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3, a4, a5, a6, a7,
-                                                    a8);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2, arg3, arg4,
+                                                    arg5, arg6, arg7);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
 MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
-           A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) const
+        ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4, ARG5 arg5, ARG6 arg6,
+        ARG7 arg7, ARG8 arg8) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3, a4, a5, a6, a7,
-                                                    a8, a9);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2, arg3, arg4,
+                                                    arg5, arg6, arg7, arg8);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
 MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
-                A1  a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9,
-                A10 a10) const
+        ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4 arg4, ARG5 arg5, ARG6 arg6,
+        ARG7 arg7, ARG8 arg8, ARG9 arg9) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3, a4, a5, a6, a7,
-                                                    a8, a9, a10);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2, arg3, arg4,
+                                                    arg5, arg6, arg7, arg8,
+                                                    arg9);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
 MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
-              A1  a1,  A2  a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9,
-              A10 a10, A11 a11) const
+        ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4  arg4, ARG5 arg5, ARG6 arg6,
+        ARG7 arg7, ARG8 arg8, ARG9 arg9, ARG10 arg10) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3, a4, a5, a6,
-                                                    a7, a8, a9, a10, a11);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2, arg3, arg4,
+                                                    arg5, arg6, arg7, arg8,
+                                                    arg9, arg10);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
 MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
-           A1  a1,  A2  a2,  A3  a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9,
-           A10 a10, A11 a11, A12 a12) const
+        ARG1 arg1, ARG2 arg2, ARG3 arg3, ARG4  arg4,  ARG5  arg5, ARG6 arg6,
+        ARG7 arg7, ARG8 arg8, ARG9 arg9, ARG10 arg10, ARG11 arg11) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3, a4, a5, a6, a7,
-                                                    a8, a9, a10, a11, a12);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2,  arg3, arg4,
+                                                    arg5, arg6,  arg7, arg8,
+                                                    arg9, arg10, arg11);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
 MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
-          A1  a1,  A2  a2,  A3  a3,  A4  a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9,
-          A10 a10, A11 a11, A12 a12, A13 a13) const
+        ARG1  arg1, ARG2 arg2, ARG3 arg3, ARG4  arg4,  ARG5  arg5, ARG6 arg6,
+        ARG7  arg7, ARG8 arg8, ARG9 arg9, ARG10 arg10, ARG11 arg11,
+        ARG12 arg12) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3, a4, a5, a6, a7,
-                                                    a8, a9, a10, a11, a12,
-                                                    a13);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2,  arg3,  arg4,
+                                                    arg5, arg6,  arg7,  arg8,
+                                                    arg9, arg10, arg11, arg12);
 }
 
 template <class PROTOTYPE, class INSTANCE>
 inline
 typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
 MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
-        A1  a1,  A2  a2,  A3  a3,  A4  a4,  A5  a5, A6 a6, A7 a7, A8 a8, A9 a9,
-        A10 a10, A11 a11, A12 a12, A13 a13, A14 a14) const
+        ARG1  arg1,  ARG2  arg2, ARG3 arg3, ARG4  arg4,  ARG5  arg5, ARG6 arg6,
+        ARG7  arg7,  ARG8  arg8, ARG9 arg9, ARG10 arg10, ARG11 arg11,
+        ARG12 arg12, ARG13 arg13) const
 {
-    return (Deref::deref(d_obj.object()).*d_func_p)(a1, a2, a3, a4, a5, a6, a7,
-                                                    a8, a9, a10, a11, a12, a13,
-                                                    a14);
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2,  arg3,  arg4,
+                                                    arg5, arg6,  arg7,  arg8,
+                                                    arg9, arg10, arg11, arg12,
+                                                    arg13);
+}
+
+template <class PROTOTYPE, class INSTANCE>
+inline
+typename MemFnInstance<PROTOTYPE, INSTANCE>::ResultType
+MemFnInstance<PROTOTYPE, INSTANCE>::operator()(
+        ARG1  arg1,  ARG2  arg2,  ARG3  arg3,  ARG4  arg4,  ARG5  arg5,
+        ARG6  arg6,  ARG7  arg7,  ARG8  arg8,  ARG9  arg9, ARG10 arg10,
+        ARG11 arg11, ARG12 arg12, ARG13 arg13, ARG14 arg14) const
+{
+    return (Deref::deref(d_obj.object()).*d_func_p)(arg1, arg2, arg3, arg4,
+                                                    arg5, arg6, arg7, arg8,
+                                                    arg9, arg10, arg11, arg12,
+                                                    arg13, arg14);
 }
 
                               // ----------------
