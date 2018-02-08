@@ -1,10 +1,10 @@
 # BDL capabilities
 
-*                       _    OPTS_FILE = bdl.cap
+*			_	OPTS_FILE = bdl.cap
 
 #==============================================================================
 
 # bdl builds on everything, in every way
-*			_	CAPABILITY	= ALWAYS
+!! *			_	CAPABILITY	= ALWAYS
 
 #==============================================================================
