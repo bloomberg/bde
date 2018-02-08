@@ -35,9 +35,7 @@ namespace bsl {
     using native_std::system_error;
     using native_std::is_error_code_enum;
     using native_std::is_error_condition_enum;
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR >= 1800
     using native_std::errc;
-#endif
     using native_std::generic_category;
     using native_std::system_category;
     using native_std::make_error_code;
