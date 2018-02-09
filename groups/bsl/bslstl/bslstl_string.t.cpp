@@ -160,7 +160,7 @@ using bsls::nameOfType;
 // [15] reference back();
 // [13] basic_string& assign(const basic_string& str);
 // [13] basic_string& assign(bslmf::MovableRef<basic_string> str);
-// [13] basic_string& assign(const basic_string& str, pos, n);
+// [13] basic_string& assign(const basic_string& str, pos, n = npos);
 // [13] basic_string& assign(const CHAR_TYPE *s, size_type n);
 // [13] basic_string& assign(const CHAR_TYPE *s);
 // [  ] basic_string& assign(const bslstl::StringRefData<CHAR_TYPE>& strRef);
@@ -168,14 +168,15 @@ using bsls::nameOfType;
 // [13] template <class Iter> basic_string& assign(Iter first, Iter last);
 // [33] basic_string& assign(initializer_list<CHAR_TYPE> values);
 // [17] basic_string& append(const basic_string& str);
-// [17] basic_string& append(const basic_string& str, pos, n);
+// [17] basic_string& append(const basic_string& str, pos, n = npos);
 // [17] basic_string& append(const CHAR_TYPE *s, size_type n);
 // [17] basic_string& append(const CHAR_TYPE *s);
 // [17] basic_string& append(size_type n, CHAR_TYPE c);
 // [17] template <class Iter> basic_string& append(Iter first, Iter last);
+// [33] basic_string& append(initializer_list<CHAR_TYPE> values);
 // [ 2] void push_back(CHAR_TYPE c);
 // [  ] basic_string& insert(size_type pos1, const string& str);
-// [  ] basic_string& insert(size_type pos1, const string& str, pos2, n);
+// [  ] basic_string& insert(size_type pos1, const string& str, pos2, n=npos);
 // [  ] basic_string& insert(size_type pos, const CHAR_TYPE *s, n2);
 // [  ] basic_string& insert(size_type pos, const CHAR_TYPE *s);
 // [18] basic_string& insert(size_type pos, size_type n, CHAR_TYPE c);
@@ -188,7 +189,7 @@ using bsls::nameOfType;
 // [19] iterator erase(const_iterator position);
 // [19] iterator erase(const_iterator first, const_iterator last);
 // [20] basic_string& replace(pos1, n1, const string& str);
-// [20] basic_string& replace(pos1, n1, const string& str, pos2, n2);
+// [20] basic_string& replace(pos1, n1, const string& str, pos2, n2=npos);
 // [20] basic_string& replace(pos1, n1, const C *s, n2);
 // [20] basic_string& replace(pos1, n1, const C *s);
 // [20] basic_string& replace(pos1, n1, size_type n2, C c);
@@ -249,7 +250,7 @@ using bsls::nameOfType;
 // [23] size_type copy(char *s, n, pos = 0) const;
 // [24] int compare(const string& str) const;
 // [24] int compare(pos1, n1, const string& str) const;
-// [24] int compare(pos1, n1, const string& str, pos2, n2) const;
+// [24] int compare(pos1, n1, const string& str, pos2, n2 = npos) const;
 // [24] int compare(const C *s) const;
 // [24] int compare(pos1, n1, const C *s) const;
 // [24] int compare(pos1, n1, const C *s, n2) const;
@@ -1742,7 +1743,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
     //:   that requires allocated memory)
     //
     // Concerns:
-    //
     //: 1 Construction
     //:
     //:   1 The created string has the specified value and uses the specified
@@ -1773,8 +1773,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
     //:
     //:   2 The insertion argument must be 'const'.
     //:
-    //:   3 The target string and source initialization list can be of any of
-    //:     the three string length categories.
+    //:   3 The target string and source initializer list can be of any of the
+    //:     three string length categories.
     //:
     //:   4 The target string is set to the expected value.
     //:
@@ -1782,14 +1782,30 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
     //:
     //:   6 The returned iterator provided modifiable access to the string.
     //:
-    //:   7 The insertion method is exception safe.
+    //:   7 The insertion method is exception-safe.
+    //:
+    //: 4 Appending
+    //:
+    //:   1 The initializer list elements are inserted at the end of the target
+    //:     string.
+    //:
+    //:   2 The target string and source initializer list can be of any of the
+    //:     three string length categories.
+    //:
+    //:   3 The target string is set to the expected value.
+    //:
+    //:   4 The reference returned is to the target object (i.e., '*this').
+    //:
+    //:   5 The reference returned provides modifiable access to the string.
+    //:
+    //:   6 The 'append' method is exception-safe.
     //
     // Plan:
     //: 1 Construction (C-1.1..4)
     //:
-    //:   1 For an initialization list at the boundaries between the three
-    //:     string length categories, create a test object (string) that uses a
-    //:     test allocator.
+    //:   1 For an initializer list at the boundaries between the three string
+    //:     length categories, create a test object (string) that uses a test
+    //:     allocator.
     //:
     //:   2 Confirm that the created object has the expected value.
     //:
@@ -1798,8 +1814,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
     //:     allocator shows no use.
     //:
     //:   4 Wrap the construction with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
-    //:     macros so that so that each allocation experiences an injected
-    //:     exception at some point.
+    //:     macros so that each allocation experiences an injected exception at
+    //:     some point.
     //:
     //:   5 Repeat P-1.1 to P-1.4 for an object created to use the currently
     //:     installed default constructor and tests adjusted to expect use of
@@ -1807,18 +1823,18 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
     //:
     //: 2 Assignment (C-2.1..4)
     //:
-    //:   1 Using a table-drive approach create a lhs object (a string) and a
-    //:     rhs object (an initialization list) so that we at least one data
-    //:     point in the cross product of the boundaries between the three
-    //:     string length categories.
+    //:   1 Using a table-drive approach, create a lhs object (a string) and a
+    //:     rhs object (an initializer list) so that we at least one data point
+    //:     in the cross product of the boundaries between the three string
+    //:     length categories.
     //:
     //:   2 Confirm that the 'lhs' is set to the expected value.
     //:
     //:   3 Confirm that the 'lhs' allocator shows use when expected.
     //:
     //:   4 Wrap the assignments with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
-    //:     macros so that so that each allocation experiences an injected
-    //:     exception at some point.
+    //:     macros so that each allocation experiences an injected exception at
+    //:     some point.
     //:
     //:   5 For each step P-2.1 to P-2.4, shadow each use of the 'assign'
     //:     method with an analogous use of 'operator=' on an equivalent 'lhs'
@@ -1826,32 +1842,52 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
     //:
     //: 3 Insertion (C-3.1..7)
     //:
-    //:   1 Using a table-drive approach create a target object (a string) and
-    //:     a source object (an initialization list) so that we at least one
-    //:     data point in the cross product of of the boundaries between the
-    //:     three string length categories.  The table also defines insertion
-    //:     points corresponding the beginning, middle, and end of the target
+    //:   1 Using a table-drive approach, create a target object (a string) and
+    //:     a source object (an initializer list) so that we have at least one
+    //:     data point in the cross product of the boundaries between the three
+    //:     string length categories.  The table also defines insertion points
+    //:     corresponding to the beginning, middle, and end of the target
     //:     string.
     //:
     //:   2 Supply the position argument to the 'insert' method as a
     //:     'const_iterator' object.
     //:
-    //:   2 Confirm that the target string is set to the expected value.
+    //:   3 Confirm that the target string is set to the expected value.
+    //:
+    //:   4 Confirm that the allocator of the target string shows use when
+    //:     expected.
+    //:
+    //:   5 Confirm that the return value can be assigned to a (non-'const')
+    //:     'iterator' object.
+    //:
+    //:   6 Wrap the insertions with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
+    //:     macros so that each allocation experiences an injected exception at
+    //:     some point.
+    //:
+    //: 4 Appending (C-4.1..6)
+    //:
+    //:   1 Using a table-drive approach, create a target object (a string) and
+    //:     a source object (an initializer list) so that we have at least one
+    //:     data point in the cross product of the boundaries between the three
+    //:     string length categories.
+    //:
+    //:   2 Call 'append' and confirm that the target string is set to the
+    //:     expected value.
     //:
     //:   3 Confirm that the allocator of the target string shows use when
     //:     expected.
     //:
-    //:   4 Confirm that the return value can be assigned to a (non-'const')
-    //:     'iterator' object.
+    //:   4 Confirm that the return value has the expected type and value.
     //:
-    //:   4 Wrap the assignments with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
-    //:     macros so that so that each allocation experiences an injected
-    //:     exception at some point.
+    //:   5 Wrap the append call with 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
+    //:     macros so that each allocation experiences an injected exception at
+    //:     some point.
     //
     // Testing:
     //   basic_string(initializer_list<CHAR_TYPE> values, basicAllocator);
     //   basic_string& operator=(initializer_list<CHAR_TYPE> values);
     //   basic_string& assign(initializer_list<CHAR_TYPE> values);
+    //   basic_string& append(initializer_list<CHAR_TYPE> values);
     //   iterator insert(const_iterator pos, initializer_list<CHAR_TYPE>);
     // --------------------------------------------------------------------
 
@@ -2558,6 +2594,148 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase33()
                                              P(exceptionLoopCount) }
 
                 mY.insert(Y.size(), LIST);
+                ++allocationCount;  // 'LIST' calculated to allocate.
+
+                ASSERTV(srcLength, X == Y);
+                ASSERTV(srcLength, oem.isInUseUp());
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV(srcLength,
+                     expectedExceptionLoopCount ==  exceptionLoopCount);
+            ASSERTV(srcLength,
+                        expectedAllocationCount ==     allocationCount);
+        }
+        ASSERT(oam.isInUseSame());
+    }
+
+    if (verbose) printf("\nTesting 'append' with initializer lists\n");
+    {
+        const char * const            maxShortStrSpec2 = iSpecBySize[
+                                                           2 * maxShortStrLen];
+        const char * const        exceedsShortStrSpec2 = iSpecBySize[
+                                                       2 * exceedsShortStrLen];
+        const char * const maxPlusExceedsShortStrSpec = iSpecBySize[
+                                          maxShortStrLen + exceedsShortStrLen];
+
+        const struct {
+            int                          d_line;        // source line number
+            const char                  *d_specInitial; // initial state
+            std::initializer_list<TYPE>  d_list;        // source list
+            const char                  *d_specResult;  // expected result
+        } DATA[] = {
+   //-----------^
+   //line  source               list                result
+   //----  ------------------   ------------------  -------------------
+   { L_,                   "",   {                },                  "" },
+   { L_,                   "",   { 'A'            },                 "A" },
+   { L_,                  "A",   {                },                 "A" },
+   { L_,                  "A",   { 'B'            },                "AB" },
+   { L_,                 "AB",   {                },                "AB" },
+   { L_,                 "AB",   { 'A', 'B'       },              "ABAB" },
+   { L_,                 "AB",   { 'A', 'B', 'C'  },             "ABABC" },
+   { L_,                "ABC",   { 'D'            },              "ABCD" },
+
+   { L_,      maxShortStrSpec,            emptyList,     maxShortStrSpec  },
+   { L_,      maxShortStrSpec,      maxShortStrList,     maxShortStrSpec2 },
+   { L_,      maxShortStrSpec,  exceedsShortStrList,
+                                              maxPlusExceedsShortStrSpec  },
+
+   { L_,  exceedsShortStrSpec,            emptyList, exceedsShortStrSpec  },
+   { L_,  exceedsShortStrSpec,      maxShortStrList,
+                                              maxPlusExceedsShortStrSpec  },
+   { L_,  exceedsShortStrSpec,  exceedsShortStrList, exceedsShortStrSpec2 }
+   //-----------V
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        Tam dam(defaultAllocator_p);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int          LINE         = DATA[ti].d_line;
+            const char * const SPEC_INITIAL = DATA[ti].d_specInitial;
+            IList              LIST         = DATA[ti].d_list;
+            const char * const SPEC_RESULT  = DATA[ti].d_specResult;
+
+            if (veryVerbose) { P_(LINE)
+                               P_(LIST)
+                               P_(SPEC_INITIAL)
+                               P(SPEC_RESULT) }
+
+            ASSERT(strlen(SPEC_INITIAL) + LIST.size()
+                == strlen(SPEC_RESULT));  // table sanity check
+
+            Obj mX(objectAllocator_p); const Obj& X = gg(&mX, SPEC_INITIAL);
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            Obj mY(&scratch); const Obj& Y = gg(&mY, SPEC_RESULT);
+
+            Tam oam(objectAllocator_p);
+
+            bool  expectAllocation = X.capacity() - X.length() < LIST.size();
+
+            Obj *mR = &mX.append(LIST);
+
+            ASSERTV(LINE, X,    Y,  X == Y);
+            ASSERTV(LINE, mR, &mX, mR == &mX);
+
+            if (expectAllocation) {
+                ASSERT(oam.isTotalUp());
+            }
+            else {
+                ASSERT(oam.isTotalSame());
+            }
+        }
+        ASSERT(dam.isTotalSame());
+    }
+
+    if (verbose) printf("\nTesting 'append': exception-safety\n");
+    {
+        const size_t LENGTHS[] = {                  0,
+                                       maxShortStrLen,
+                                   exceedsShortStrLen,
+                                 };
+        const size_t NUM_LENGTHS = sizeof LENGTHS / sizeof *LENGTHS;
+
+        Tam oam(objectAllocator_p);
+
+        for (size_t dstLength = 0; dstLength < NUM_LENGTHS; ++dstLength) {
+
+            if (veryVerbose) { T_ P(dstLength) }
+
+            LOOP_ASSERT(dstLength, dstLength < NUM_iSpecBySize);
+
+            const char * const SPEC = iSpecBySize[dstLength];
+
+            Obj mY(objectAllocator_p); const Obj& Y = gg(&mY, SPEC);
+
+            const size_t srcLength = Y.capacity() - Y.length() + 1;
+            ASSERTV(dstLength, srcLength, srcLength < NUM_iListBySize);
+
+            IList LIST = iListBySize[srcLength];
+
+            const size_t expectedLength = Y.length() + srcLength;
+            ASSERTV(dstLength, srcLength, expectedLength < NUM_iSpecBySize);
+
+            const char * const expectedSPEC = iSpecBySize[expectedLength];
+
+            Obj mX(objectAllocator_p); const Obj& X = gg(&mX, expectedSPEC);
+
+            int                exceptionLoopCount = 0;
+            const int  expectedExceptionLoopCount = 2;
+            int                   allocationCount = 0;
+            const int     expectedAllocationCount = 1;
+
+            Tam oem(objectAllocator_p);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*objectAllocator_p) {
+                ++exceptionLoopCount;
+
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody)
+                                             P(exceptionLoopCount) }
+
+                mY.append(LIST);
                 ++allocationCount;  // 'LIST' calculated to allocate.
 
                 ASSERTV(srcLength, X == Y);
@@ -3964,7 +4142,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
     // Testing:
     //   int  compare(const string& str) const;
     //   int  compare(pos1, n1, const string& str) const;
-    //   int  compare(pos1, n1, const string& str, pos2, n2) const;
+    //   int  compare(pos1, n1, const string& str, pos2, n2 = npos) const;
     //   int  compare(const C* s) const;
     //   int  compare(pos1, n1, const C* s) const;
     //   int  compare(pos1, n1, const C* s, n2) const;
@@ -6205,7 +6383,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
     //
     // Testing:
     //   string& replace(pos1, n1, const string& str);
-    //   string& replace(pos1, n1, const string& str, pos2, n2);
+    //   string& replace(pos1, n1, const string& str, pos2, n2 = npos);
     //   string& replace(pos1, n1, const C *s, n2);
     //   string& replace(pos1, n1, const C *s);
     //   replace(const_iterator first, const_iterator last, const C *s, n2);
@@ -9419,7 +9597,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     // Testing:
     //   basic_string& operator+=(const StringRefData& strRefData);
     //   basic_string& append(const basic_string& str);
-    //   basic_string& append(const basic_string& str, pos, n);
+    //   basic_string& append(const basic_string& str, pos, n = npos);
     //   basic_string& append(const CHAR_TYPE *s, size_type n);
     //   basic_string& append(const CHAR_TYPE *s);
     //   template <class Iter> basic_string& append(Iter first, Iter last);
@@ -10853,7 +11031,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
     // Testing:
     // * basic_string& assign(const basic_string& str);
     //   basic_string& assign(bslmf::MovableRef<basic_string> str);
-    // * basic_string& assign(basic_string& str, pos, n);
+    // * basic_string& assign(basic_string& str, pos, n = npos);
     // * basic_string& assign(const CHAR_TYPE *s, size_type n);
     // * basic_string& assign(const CHAR_TYPE *s);
     //   basic_string& assign(size_type n, CHAR_TYPE c);
@@ -18410,6 +18588,7 @@ int main(int argc, char *argv[])
         //   basic_string(initializer_list<CHAR_TYPE> values, basicAllocator);
         //   basic_string& operator=(initializer_list<CHAR_TYPE> values);
         //   basic_string& assign(initializer_list<CHAR_TYPE> values);
+        //   basic_string& append(initializer_list<CHAR_TYPE> values);
         //   iterator insert(const_iterator pos, initializer_list<CHAR_TYPE>);
         // --------------------------------------------------------------------
 
@@ -20356,7 +20535,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   int compare(const string& str) const;
         //   int compare(pos1, n1, const string& str) const;
-        //   int compare(pos1, n1, const string& str, pos2, n2) const;
+        //   int compare(pos1, n1, const string& str, pos2, n2 = npos) const;
         //   int compare(const C *s) const;
         //   int compare(pos1, n1, const C *s) const;
         //   int compare(pos1, n1, const C *s, n2) const;
@@ -20518,7 +20697,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   basic_string& replace(pos1, n1, const string& str);
-        //   basic_string& replace(pos1, n1, const string& str, pos2, n2);
+        //   basic_string& replace(pos1, n1, const string& str, pos2, n2=npos);
         //   basic_string& replace(pos1, n1, const C *s, n2);
         //   basic_string& replace(pos1, n1, const C *s);
         //   basic_string& replace(pos1, n1, size_type n2, C c);
@@ -20681,7 +20860,7 @@ int main(int argc, char *argv[])
         //   basic_string& operator+=(CHAR_TYPE c);
         //   basic_string& operator+=(const StringRefData& strRefData);
         //   basic_string& append(const basic_string& str);
-        //   basic_string& append(const basic_string& str, pos, n);
+        //   basic_string& append(const basic_string& str, pos, n = npos);
         //   basic_string& append(const CHAR_TYPE *s, size_type n);
         //   basic_string& append(const CHAR_TYPE *s);
         //   basic_string& append(size_type n, CHAR_TYPE c);
@@ -20832,7 +21011,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   basic_string& assign(const basic_string& str);
         //   basic_string& assign(bslmf::MovableRef<basic_string> str);
-        //   basic_string& assign(const basic_string& str, pos, n);
+        //   basic_string& assign(const basic_string& str, pos, n = npos);
         //   basic_string& assign(const CHAR_TYPE *s, size_type n);
         //   basic_string& assign(const CHAR_TYPE *s);
         //   basic_string& assign(size_type n, CHAR_TYPE c);
