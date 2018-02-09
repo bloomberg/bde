@@ -4301,21 +4301,21 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
                         const Obj V1(V, j, 1);
                         const Obj VN(V, j, V_LEN);
 
-                        checkCompare(U1, V,  U.compare(i, 1, V));
-                        checkCompare(U1, V1, U.compare(i, 1, V, j, 1));
-                        checkCompare(U1, VN, U.compare(i, 1, V, j, V_LEN));
+                        // int compare(pos1, n1, str) const;
 
-                        checkCompare(U1, V,  U.compare(i, 1, V));
-                        checkCompare(U1, V1, U.compare(i, 1, V, j, 1));
-                        checkCompare(U1, VN, U.compare(i, 1, V, j, V_LEN));
-
+                        checkCompare(U1, V,  U.compare(i,     1, V));
                         checkCompare(UN, V,  U.compare(i, U_LEN, V));
-                        checkCompare(UN, V1, U.compare(i, U_LEN, V, j, 1));
+
+                        // int compare(pos1, n1, str, pos2, n2 = npos) const;
+
+                        checkCompare(U1, V1, U.compare(i,     1, V, j,     1));
+                        checkCompare(UN, V1, U.compare(i, U_LEN, V, j,     1));
+
+                        checkCompare(U1, VN, U.compare(i,     1, V, j, V_LEN));
                         checkCompare(UN, VN, U.compare(i, U_LEN, V, j, V_LEN));
 
-                        checkCompare(UN, V,  U.compare(i, U_LEN, V));
-                        checkCompare(UN, V1, U.compare(i, U_LEN, V, j, 1));
-                        checkCompare(UN, VN, U.compare(i, U_LEN, V, j, V_LEN));
+                        checkCompare(U1, VN, U.compare(i,     1, V, j));
+                        checkCompare(UN, VN, U.compare(i, U_LEN, V, j));
                     }
                 }
             }
@@ -6708,6 +6708,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
 
                         // string& replace(pos1, n1, const string& str,
                         //                 pos2, n2);
+// TBD replace npos
                         Obj &result = mX.replace(BEGIN, SIZE,
                                                  Y, POS2, NUM_ELEMENTS);
                         ASSERT(&result == &mX);
@@ -6820,6 +6821,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                               case REPLACE_SUBSTRING_AT_INDEX: {
                                 // string& replace(pos1, n1, const string& str,
                                 //                 pos2, n2);
+// TBD replace npos
                                 Obj &result = mX.replace(BEGIN,
                                                          SIZE,
                                                          Y,
@@ -6968,6 +6970,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                       case REPLACE_SUBSTRING_AT_INDEX: {
                         // string& replace(pos1, n1, const string& str,
                         //                 pos2, n);
+// TBD replace npos
                         mX.replace(BEGIN, SIZE, Y, 0, INIT_LENGTH);
                         mY.replace(BEGIN, SIZE, Y, 0, INIT_LENGTH);
                       } break;
@@ -7067,6 +7070,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                 printf("between "); P_(BEGIN); P(END);
                             }
 
+// TBD replace npos
                             mX.replace(BEGIN, SIZE, Y, INDEX, NUM_ELEMENTS);
                             mY.replace(BEGIN, SIZE, Y, INDEX, NUM_ELEMENTS);
 
@@ -8794,6 +8798,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                         // string& insert(pos1, const string<C,CT,A>& str,
                         //                pos2, n);
+// TBD insert npos
                         Obj &result = mX.insert(POS, Y, POS2, NUM_ELEMENTS);
                         ASSERT(&result == &mX);
 
@@ -8935,6 +8940,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                               case INSERT_SUBSTRING_AT_INDEX: {
                             // string& insert(pos1, const string<C,CT,A>& str,
                             //                pos2, n);
+// TBD insert npos
                                 mX.insert(POS, Y, 0, NUM_ELEMENTS);
                               } break;
                               default:
@@ -9037,6 +9043,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                       } break;
                       case INSERT_SUBSTRING_AT_INDEX: {
                     // string& insert(pos1, const string<C,CT,A>& str, pos2, n)
+// TBD insert npos
                         mX.insert(POS, Y, 0, INIT_LENGTH);
                         mY.insert(POS, Y, 0, INIT_LENGTH);
                       } break;
@@ -9110,6 +9117,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                                 printf(" at "); P_(POS);
                             }
 
+// TBD insert npos
                             mX.insert(POS, Y, INDEX, NUM_ELEMENTS);
                             mY.insert(POS, Y, INDEX, NUM_ELEMENTS);
 
@@ -9896,6 +9904,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         {
                             AllocatorUseGuard guardG(globalAllocator_p);
                             AllocatorUseGuard guardD(defaultAllocator_p);
+// TBD append npos
                             Obj &result = mX.append(Y, POS2, NUM_ELEMENTS);
                             ASSERT(&result == &mX);
                         }
@@ -10028,6 +10037,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                           } break;
                           case APPEND_SUBSTRING: {
                         // string& append(const string<C,CT,A>& str, pos2, n);
+// TBD append npos
                             Obj &result = mX.append(Y, 0, NUM_ELEMENTS);
                             ASSERT(&result == &mX);
                           } break;
@@ -10140,6 +10150,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                       } break;
                       case APPEND_SUBSTRING: {
                     // string& append(const string<C,CT,A>& str, pos2, n);
+// TBD append npos
                         mX.append(Y, 0, INIT_LENGTH);
                         mY.append(Y, 0, INIT_LENGTH);
                       } break;
@@ -10222,6 +10233,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         {
                             AllocatorUseGuard guardG(globalAllocator_p);
                             AllocatorUseGuard guardD(defaultAllocator_p);
+// TBD append npos
                             mX.append(Y, INDEX, NUM_ELEMENTS);
                             mY.append(Y, INDEX, NUM_ELEMENTS);
                         }
@@ -11413,6 +11425,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
 
             try
             {
+// TBD assign npos
                 dst.assign(src, 0, Obj::npos);
             }
             catch (bslma::TestAllocatorException &)
