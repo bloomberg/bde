@@ -79,11 +79,11 @@ function(process retUOR listFile)
                 $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
             >
             $<$<C_COMPILER_ID:SunPro>:
-                -std=gnu99
+                -temp=/bb/data/tmp
                 $<IF:${bde_ufid_is_64}, -m64, -m32>
             >
             $<$<C_COMPILER_ID:XL>:
-                -std=gnu99
+                $<IF:${bde_ufid_is_64}, -q64, -q32>
             >
     )
 

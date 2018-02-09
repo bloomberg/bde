@@ -99,17 +99,21 @@ function(process retUOR listFile)
                 $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
             >
             $<$<C_COMPILER_ID:SunPro>:
+                -temp=/bb/data/tmp
                 $<IF:${bde_ufid_is_64}, -m64, -m32>
             >
             $<$<C_COMPILER_ID:XL>:
+                $<IF:${bde_ufid_is_64}, -q64, -q32>
             >
     )
 
     bde_interface_target_compile_definitions(
         ${TARGET}
         PRIVATE
-            USE_REAL_MALLOC
             $<${bde_ufid_is_mt}: _REENTRANT>
+            $<$<C_COMPILER_ID:GNU>:
+                USE_REAL_MALLOC
+            >
     )
 
     get_filename_component(
