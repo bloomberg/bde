@@ -8526,12 +8526,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     enum {
         INSERT_STRING_MODE_FIRST        = 0,
         INSERT_SUBSTRING_AT_INDEX       = 0,
-        INSERT_STRING_AT_INDEX          = 1,
-        INSERT_CSTRING_N_AT_INDEX       = 2,
-        INSERT_CSTRING_AT_INDEX         = 3,
-        INSERT_STRING_AT_ITERATOR       = 4,
-        INSERT_STRING_AT_CONST_ITERATOR = 5,
-        INSERT_STRING_MODE_LAST         = 5
+        INSERT_SUBSTRING_AT_INDEX_NPOS  = 1,
+        INSERT_STRING_AT_INDEX          = 2,
+        INSERT_CSTRING_N_AT_INDEX       = 3,
+        INSERT_CSTRING_AT_INDEX         = 4,
+        INSERT_STRING_AT_ITERATOR       = 5,
+        INSERT_STRING_AT_CONST_ITERATOR = 6,
+        INSERT_STRING_MODE_LAST         = 6
     };
 
     static const struct {
@@ -8798,7 +8799,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                         // string& insert(pos1, const string<C,CT,A>& str,
                         //                pos2, n);
-// TBD insert npos
                         Obj &result = mX.insert(POS, Y, POS2, NUM_ELEMENTS);
                         ASSERT(&result == &mX);
 
@@ -8940,8 +8940,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                               case INSERT_SUBSTRING_AT_INDEX: {
                             // string& insert(pos1, const string<C,CT,A>& str,
                             //                pos2, n);
-// TBD insert npos
                                 mX.insert(POS, Y, 0, NUM_ELEMENTS);
+                              } break;
+                              case INSERT_SUBSTRING_AT_INDEX_NPOS: {
+                            // string& insert(pos1, const string<C,CT,A>& str,
+                            //                pos2, n);
+                                mX.insert(POS, Y, 0);  // 'npos' default arg.
                               } break;
                               default:
                                 printf("***UNKNOWN INSERT MODE***\n");
@@ -9043,9 +9047,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                       } break;
                       case INSERT_SUBSTRING_AT_INDEX: {
                     // string& insert(pos1, const string<C,CT,A>& str, pos2, n)
-// TBD insert npos
                         mX.insert(POS, Y, 0, INIT_LENGTH);
                         mY.insert(POS, Y, 0, INIT_LENGTH);
+                      } break;
+                      case INSERT_SUBSTRING_AT_INDEX_NPOS: {
+                    // string& insert(pos1, const string<C,CT,A>& str, pos2, n)
+                        mX.insert(POS, Y, 0);  // 'npos' default arg.
+                        mY.insert(POS, Y, 0);
                       } break;
                       case INSERT_STRING_AT_ITERATOR: {
                     // insert(const_iterator p, InputIter first, last);
@@ -9117,9 +9125,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                                 printf(" at "); P_(POS);
                             }
 
-// TBD insert npos
-                            mX.insert(POS, Y, INDEX, NUM_ELEMENTS);
-                            mY.insert(POS, Y, INDEX, NUM_ELEMENTS);
+                            if (INDEX + NUM_ELEMENTS >= Y.length()) {
+                                mX.insert(POS, Y, INDEX);  // 'npos' dflt. arg.
+                                mY.insert(POS, Y, INDEX);
+                            }
+                            else {
+                                mX.insert(POS, Y, INDEX, NUM_ELEMENTS);
+                                mY.insert(POS, Y, INDEX, NUM_ELEMENTS);
+                            }
 
                             if (veryVerbose) {
                                 T_; T_; T_; T_; P(X);
