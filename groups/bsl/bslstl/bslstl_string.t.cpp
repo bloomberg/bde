@@ -6407,14 +6407,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
     enum {
         REPLACE_STRING_MODE_FIRST        = 0,
         REPLACE_SUBSTRING_AT_INDEX       = 0,
-        REPLACE_STRING_AT_INDEX          = 1,
-        REPLACE_CSTRING_N_AT_INDEX       = 2,
-        REPLACE_CSTRING_AT_INDEX         = 3,
-        REPLACE_STRING_AT_ITERATOR       = 4,
-        REPLACE_CONST_STRING_AT_ITERATOR = 5,
-        REPLACE_CSTRING_N_AT_ITERATOR    = 6,
-        REPLACE_CSTRING_AT_ITERATOR      = 7,
-        REPLACE_STRING_MODE_LAST         = 7
+        REPLACE_SUBSTRING_AT_INDEX_NPOS  = 1,
+        REPLACE_STRING_AT_INDEX          = 2,
+        REPLACE_CSTRING_N_AT_INDEX       = 3,
+        REPLACE_CSTRING_AT_INDEX         = 4,
+        REPLACE_STRING_AT_ITERATOR       = 5,
+        REPLACE_CONST_STRING_AT_ITERATOR = 6,
+        REPLACE_CSTRING_N_AT_ITERATOR    = 7,
+        REPLACE_CSTRING_AT_ITERATOR      = 8,
+        REPLACE_STRING_MODE_LAST         = 8
     };
 
     static const struct {
@@ -6708,7 +6709,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
 
                         // string& replace(pos1, n1, const string& str,
                         //                 pos2, n2);
-// TBD replace npos
                         Obj &result = mX.replace(BEGIN, SIZE,
                                                  Y, POS2, NUM_ELEMENTS);
                         ASSERT(&result == &mX);
@@ -6821,12 +6821,21 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                               case REPLACE_SUBSTRING_AT_INDEX: {
                                 // string& replace(pos1, n1, const string& str,
                                 //                 pos2, n2);
-// TBD replace npos
                                 Obj &result = mX.replace(BEGIN,
                                                          SIZE,
                                                          Y,
                                                          0,
                                                          NUM_ELEMENTS);
+                                ASSERT(&result == &mX);
+                              } break;
+                              case REPLACE_SUBSTRING_AT_INDEX_NPOS: {
+                                // string& replace(pos1, n1, const string& str,
+                                //                 pos2, n2);
+                                Obj &result = mX.replace(BEGIN,
+                                                         SIZE,
+                                                         Y,
+                                                         0);
+                                                         // 'npos' dflt. arg.
                                 ASSERT(&result == &mX);
                               } break;
                               case REPLACE_CSTRING_N_AT_INDEX: {
@@ -6970,9 +6979,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                       case REPLACE_SUBSTRING_AT_INDEX: {
                         // string& replace(pos1, n1, const string& str,
                         //                 pos2, n);
-// TBD replace npos
                         mX.replace(BEGIN, SIZE, Y, 0, INIT_LENGTH);
                         mY.replace(BEGIN, SIZE, Y, 0, INIT_LENGTH);
+                      } break;
+                      case REPLACE_SUBSTRING_AT_INDEX_NPOS: {
+                        // string& replace(pos1, n1, const string& str,
+                        //                 pos2, n);
+                        mX.replace(BEGIN, SIZE, Y, 0);  // 'npos' default arg.
+                        mY.replace(BEGIN, SIZE, Y, 0);
                       } break;
                       case REPLACE_STRING_AT_ITERATOR: {
                         // replace(const_iterator p, q, InputIter first, last);
@@ -7070,9 +7084,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                 printf("between "); P_(BEGIN); P(END);
                             }
 
-// TBD replace npos
-                            mX.replace(BEGIN, SIZE, Y, INDEX, NUM_ELEMENTS);
-                            mY.replace(BEGIN, SIZE, Y, INDEX, NUM_ELEMENTS);
+                            if (INDEX + NUM_ELEMENTS >= Y.length()) {
+                                mX.replace(BEGIN, SIZE, Y, INDEX);  // 'npos'
+                                                                    // default
+                                                                    // argument
+                                mY.replace(BEGIN, SIZE, Y, INDEX);
+                            }
+                            else {
+                                mX.replace(BEGIN, SIZE, Y, INDEX,NUM_ELEMENTS);
+                                mY.replace(BEGIN, SIZE, Y, INDEX,NUM_ELEMENTS);
+                            }
 
                             if (veryVerbose) {
                                 T_; T_; T_; T_; P(X);
