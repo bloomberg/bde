@@ -9639,14 +9639,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     enum {
         APPEND_STRING_MODE_FIRST  = 0,
         APPEND_SUBSTRING          = 0,
-        APPEND_STRING             = 1,
-        APPEND_CSTRING_N          = 2,
-        APPEND_CSTRING_NULL_0     = 3,
-        APPEND_CSTRING            = 4,
-        APPEND_RANGE              = 5,
-        APPEND_CONST_RANGE        = 6,
-        APPEND_STRINGREFDATA      = 7,
-        APPEND_STRING_MODE_LAST   = 7
+        APPEND_SUBSTRING_NPOS     = 1,
+        APPEND_STRING             = 2,
+        APPEND_CSTRING_N          = 3,
+        APPEND_CSTRING_NULL_0     = 4,
+        APPEND_CSTRING            = 5,
+        APPEND_RANGE              = 6,
+        APPEND_CONST_RANGE        = 7,
+        APPEND_STRINGREFDATA      = 8,
+        APPEND_STRING_MODE_LAST   = 8
     };
 
     static const struct {
@@ -9917,7 +9918,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         {
                             AllocatorUseGuard guardG(globalAllocator_p);
                             AllocatorUseGuard guardD(defaultAllocator_p);
-// TBD append npos
                             Obj &result = mX.append(Y, POS2, NUM_ELEMENTS);
                             ASSERT(&result == &mX);
                         }
@@ -10050,8 +10050,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                           } break;
                           case APPEND_SUBSTRING: {
                         // string& append(const string<C,CT,A>& str, pos2, n);
-// TBD append npos
                             Obj &result = mX.append(Y, 0, NUM_ELEMENTS);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_SUBSTRING_NPOS: {
+                        // string& append(const string<C,CT,A>& str, pos2, n);
+                            Obj &result = mX.append(Y, 0); // 'npos' dflt. arg.
                             ASSERT(&result == &mX);
                           } break;
                           case APPEND_STRINGREFDATA: {
@@ -10163,9 +10167,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                       } break;
                       case APPEND_SUBSTRING: {
                     // string& append(const string<C,CT,A>& str, pos2, n);
-// TBD append npos
                         mX.append(Y, 0, INIT_LENGTH);
                         mY.append(Y, 0, INIT_LENGTH);
+                      } break;
+                      case APPEND_SUBSTRING_NPOS: {
+                    // string& append(const string<C,CT,A>& str, pos2, n);
+                        mX.append(Y, 0);  // 'npos' default argument
+                        mY.append(Y, 0);
                       } break;
                       case APPEND_RANGE: {
                     // void append(InputIter first, last);
@@ -10246,9 +10254,15 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         {
                             AllocatorUseGuard guardG(globalAllocator_p);
                             AllocatorUseGuard guardD(defaultAllocator_p);
-// TBD append npos
-                            mX.append(Y, INDEX, NUM_ELEMENTS);
-                            mY.append(Y, INDEX, NUM_ELEMENTS);
+
+                            if (INDEX + NUM_ELEMENTS >= Y.length()) {
+                                mX.append(Y, INDEX);  // 'npos' default arg.
+                                mY.append(Y, INDEX);
+                            }
+                            else {
+                                mX.append(Y, INDEX, NUM_ELEMENTS);
+                                mY.append(Y, INDEX, NUM_ELEMENTS);
+                            }
                         }
 
                         if (veryVerbose) {
