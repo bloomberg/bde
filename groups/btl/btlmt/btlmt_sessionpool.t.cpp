@@ -731,7 +731,10 @@ void TesterSession::readCb(int         result,
 
         ASSERT(0 == d_channel_sp->write(b));
 
-        ASSERT(0 != d_channel_sp->write(b));
+        int rc = 0;
+        do {
+            rc = d_channel_sp->write(b);
+        } while (0 == rc);
     }
 
     d_channel_sp->close();
@@ -2782,7 +2785,7 @@ void TestDriver::testCase17()
 
             barrier.wait();
 
-            const int BUFSIZE = 1024 * 1024;  // 1 MB
+            const int BUFSIZE = 1024 * 100;  // 100 KB
             char buffer[BUFSIZE];
 
             int totalDataRead = 0;
@@ -2936,7 +2939,7 @@ void TestDriver::testCase17()
 
             barrier.wait();
 
-            const int BUFSIZE = 1024 * 1024;  // 1 MB
+            const int BUFSIZE = 1024 * 100;  // 100 KB
             char buffer[BUFSIZE];
 
             int totalDataRead = 0;
