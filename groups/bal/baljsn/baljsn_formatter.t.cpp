@@ -81,10 +81,10 @@ using bsl::endl;
 // [11] void setIsArrayElement(bool isArrayElement);
 //
 // ACCESSORS
-// [12] bool isArrayElement() const;
+// [11] bool isArrayElement() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [13] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1481,7 +1481,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1591,6 +1591,57 @@ int main(int argc, char *argv[])
     bsl::cout << os.str() << bsl::endl;
 //..
       } break;
+       case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'setIsArrayElement' & 'isArrayElement' METHODS
+        //
+        // Concerns:
+        //: 1 'isArrayElement' returns the value of the 'isArrayElement'
+        //:   attribute and returns 'false' by default.
+        //:
+        //: 2 'setIsArrayElement' sets the 'isArrayElement' attribute to the
+        //:   value provided to the method.
+        //:
+        // Plan:
+        //: 1 Create a Formatter object and confirm that by default
+        //:   'isArrayElement' returns 'false'.
+        //:
+        //: 2 Using the 'setIsArrayElement' manipulator set the value of the
+        //:   'isArrayElement' attribute first to 'true' and then to 'false.
+        //:   Confirm using the 'isArrayElement' accessor that the attribute
+        //:   values does in fact change to 'true' and 'false' respectively.
+        //
+        // Testing:
+        //   void setIsArrayElement(bool isArrayElement);
+        //   bool isArrayElement() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+         << "TESTING 'setIsArrayElement' and 'isArrayElement' METHODS" << endl
+         << "========================================================" << endl;
+       } break;
+       case 10: {
+        // --------------------------------------------------------------------
+        // TESTING 'indent' METHOD
+        //
+        // Concerns:
+        //: 1 The 'indent' method outputs the appropriate amount of whitespace.
+        //:
+        // Plan:
+        //: 1 Using a table-based approach specify the encoding style,
+        //:   indentation level, spaces per level, is array element, and the
+        //:   expected output after calling 'indent'.  Create a formatter
+        //:   object using the specified parameters and invoke 'indent' on it.
+        //:   Verify that the output written to the stream is as expected.
+        //
+        // Testing:
+        //   void indent();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'indent' METHOD" << endl
+                          << "=======================" << endl;
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // TESTING 'closeElement' METHOD
@@ -1687,6 +1738,31 @@ int main(int argc, char *argv[])
         }
 #undef NL
       } break;
+       case 8: {
+        // --------------------------------------------------------------------
+        // TESTING 'putValue' METHOD
+        //
+        // Concerns:
+        //: 1 The 'putValue' method outputs the value of the element being
+        //:   encoded irrespective of the type of 'value'.
+        //:
+        //: 2 Errorneous values of 'value' cause 'putValue' to return an error.
+        //:
+        // Plan:
+        //: 1 For all the possible data types create two values, one valid and
+        //:   one invalid, and invoke 'putValue' on each value.
+        //:
+        //: 2 Confirm that 'putValue' returns 0 and correctly encodes the valid
+        //:   values and returns a non-zero values for invalid values.
+        //
+        // Testing:
+        //   int putValue(const TYPE& value, const EncoderOptions *options);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'putValue' METHOD" << endl
+                          << "=========================" << endl;
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING 'openElement' METHOD
@@ -1750,24 +1826,6 @@ int main(int argc, char *argv[])
      {   L_,     1,     -1,   -1,    -1,   "name",     0,   "\"name\" : "  },
      {   L_,     1,     -1,   -1,    -1,   "name",     0,   "\"name\" : "  },
 
-     // {   L_,     0,     -1,   -1,  false,    0,  "["                 },
-     // {   L_,     0,     -1,   -1,  true,     0,  "["                 },
-
-        // {   L_,     1,      1,    2,  false,    0,  "["             NL  },
-        // {   L_,     1,      1,    2,  true,     0,  "["                 },
-
-        // {   L_,    -1,     -1,   -1,  false,    3,  "[[[["              },
-        // {   L_,    -1,     -1,   -1,  true,     3,  "[[[["              },
-
-        // {   L_,     0,     -1,   -1,  false,    3,  "[[[["              },
-        // {   L_,     0,     -1,   -1,  true,     3,  "[[[["              },
-
-        // {   L_,     1,      1,    2,  false,    3,  "["             NL
-        //                                             "["             NL
-        //                                             "["             NL
-        //                                             "["             NL
-        //                                                                 },
-        // {   L_,     1,      1,    2,  true,     3,  "[[[["              },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
