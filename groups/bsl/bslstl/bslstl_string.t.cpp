@@ -163,7 +163,7 @@ using bsls::nameOfType;
 // [13] basic_string& assign(const basic_string& str, pos, n = npos);
 // [13] basic_string& assign(const CHAR_TYPE *s, size_type n);
 // [13] basic_string& assign(const CHAR_TYPE *s);
-// [  ] basic_string& assign(const bslstl::StringRefData<CHAR_TYPE>& strRef);
+// [13] basic_string& assign(const StringRefData<CHAR_TYPE>& strRef);
 // [13] basic_string& assign(size_type n, CHAR_TYPE c);
 // [13] template <class Iter> basic_string& assign(Iter first, Iter last);
 // [33] basic_string& assign(initializer_list<CHAR_TYPE> values);
@@ -175,10 +175,10 @@ using bsls::nameOfType;
 // [17] template <class Iter> basic_string& append(Iter first, Iter last);
 // [33] basic_string& append(initializer_list<CHAR_TYPE> values);
 // [ 2] void push_back(CHAR_TYPE c);
-// [  ] basic_string& insert(size_type pos1, const string& str);
-// [  ] basic_string& insert(size_type pos1, const string& str, pos2, n=npos);
-// [  ] basic_string& insert(size_type pos, const CHAR_TYPE *s, n2);
-// [  ] basic_string& insert(size_type pos, const CHAR_TYPE *s);
+// [18] basic_string& insert(size_type pos1, const string& str);
+// [18] basic_string& insert(size_type pos1, const string& str, pos2, n=npos);
+// [18] basic_string& insert(size_type pos, const CHAR_TYPE *s, n2);
+// [18] basic_string& insert(size_type pos, const CHAR_TYPE *s);
 // [18] basic_string& insert(size_type pos, size_type n, CHAR_TYPE c);
 // [18] iterator insert(const_iterator pos, CHAR_TYPE value);
 // [18] iterator insert(const_iterator pos, size_type n, CHAR_TYPE value);
@@ -3465,7 +3465,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 case 5: printf("\tWith assign<Iter>(f, l).\n");   break;
                 case 6: printf("\tWith assign<Iter>(i, i).\n");   break;
                 default: ASSERT(0);
-            };
+            }
         }
 
         for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
@@ -3487,7 +3487,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                   case 5: mX.assign(Y.begin(), Y.end());                break;
                   case 6: mX.assign(LENGTH, static_cast<size_t>(Y[0])); break;
                   default: ASSERT(0);
-                };
+                }
             }
             catch (std::length_error& e) {
                 if (veryVerbose) {
@@ -3525,7 +3525,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                 case 1: printf("\toperator+=(C *s).\n");  break;
                 case 2: printf("\toperator+=(C c).\n");   break;
                 default: ASSERT(0);
-            };
+            }
         }
 
         for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
@@ -3550,8 +3550,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                         mX += Y[i];
                     }
                   } break;
-                  default: ASSERT(0);
-                };
+                  default: {
+                    ASSERT(0);
+                  } break;
+                }
             }
             catch (std::length_error& e) {
                 if (veryVerbose) {
@@ -3593,7 +3595,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
               case 5: printf("\tWith append<Iter>(f, l).\n");  break;
               case 6: printf("\tWith append<Iter>(i, i).\n");  break;
               default: ASSERT(0);
-            };
+            }
         }
 
         for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
@@ -3628,8 +3630,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                   case 6: {
                     mX.append(LENGTH, static_cast<size_t>(DEFAULT_VALUE));
                   } break;
-                  default: ASSERT(0);
-                };
+                  default: {
+                    ASSERT(0);
+                  } break;
+                }
             }
             catch (std::length_error& e) {
                 if (veryVerbose) {
@@ -3674,7 +3678,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
               case 7: printf("\tWith insert(p, n, C c).\n");          break;
               case 8: printf("\tWith insert<Iter>(p, f, l).\n");      break;
               default: ASSERT(0);
-            };
+            }
         }
 
         for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
@@ -3719,8 +3723,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                   case 8: {
                     mX.insert(mX.cbegin(), Y.begin(), Y.end());
                   } break;
-                  default: ASSERT(0);
-                };
+                  default: {
+                    ASSERT(0);
+                  } break;
+                }
             }
             catch (std::length_error& e) {
                 if (veryVerbose) {
@@ -3772,7 +3778,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
               case 8: printf("\treplace(f, l, n2, C c).\n");
                       break;
               default: ASSERT(0);
-            };
+            }
         }
 
         for (size_t limit = LENGTH - 2; limit <= LENGTH + 2; ++limit) {
@@ -3810,8 +3816,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                   case 8: {
                     mX.replace(mX.begin(), mX.end(), LENGTH, DEFAULT_VALUE);
                   } break;
-                  default: ASSERT(0);
-                };
+                  default: {
+                    ASSERT(0);
+                  } break;
+                }
             } catch (std::length_error& e) {
                 if (veryVerbose) {
                     printf("\t\t\tCaught std::length_error(\"%s\").\n",
@@ -3907,7 +3915,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
               case 1: printf("\tWith resize(n).\n");         break;
               case 2: printf("\tWith resize(n, C c).\n");    break;
               default: ASSERT(0);
-            };
+            }
         }
 
         for (int i = 0; DATA[i]; ++i)
@@ -3924,7 +3932,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                   case 1:  mX.resize(DATA[i]);                   break;
                   case 2:  mX.resize(DATA[i], DEFAULT_VALUE);    break;
                   default: ASSERT(0);
-                };
+                }
             }
             catch (std::length_error& e) {
                 if (veryVerbose) {
@@ -3960,7 +3968,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             switch (appendMethod) {
               case 4: printf("\tWith append(n, c).\n");        break;
               default: ASSERT(0);
-            };
+            }
         }
 
         for (int i = 0; DATA[i]; ++i) {
@@ -4009,7 +4017,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
               case 5: printf("\tWith insert(pos, n, C c).\n");        break;
               case 7: printf("\tWith insert(p, n, C c).\n");          break;
               default: ASSERT(0);
-            };
+            }
         }
 
         for (int i = 0; DATA[i]; ++i) {
@@ -4029,8 +4037,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                   case 7: {
                     mX.insert(mX.begin(), LENGTH, DEFAULT_VALUE);
                   } break;
-                  default: ASSERT(0);
-                };
+                  default: {
+                    ASSERT(0);
+                  } break;
+                }
             }
             catch (std::length_error& e) {
                 if (veryVerbose) {
@@ -4067,7 +4077,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
               case 5: printf("\tWith replace(pos1, n1, n2, C c).\n");  break;
               case 8: printf("\tWith replace(f, l, n2, C c).\n");      break;
               default: ASSERT(0);
-            };
+            }
         }
 
         for (int i = 0; DATA[i]; ++i) {
@@ -4090,8 +4100,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
                                LENGTH,
                                DEFAULT_VALUE);
                   } break;
-                  default: ASSERT(0);
-                };
+                  default: {
+                    ASSERT(0);
+                  } break;
+                }
             } catch (std::length_error& e) {
                 if (veryVerbose) {
                     printf("\t\t\tCaught std::length_error(\"%s\").\n",
@@ -5931,10 +5943,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
                                                      VALUE);
                             LOOP3_ASSERT(INIT_LINE, i, ti, &X == &result);
                           } break;
-                          default:
+                          default: {
                             printf("***UNKNOWN REPLACE MODE***\n");
                             ASSERT(0);
-                        };
+                          } break;
+                        }
 
                         const Int64 AA = testAllocator.numBlocksTotal();
                         const Int64  A = testAllocator.numBlocksInUse();
@@ -6042,10 +6055,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
                                              &X == &result);
                                 checkResultFlag = true;
                               } break;
-                              default:
+                              default: {
                                 printf("***UNKNOWN REPLACE MODE***\n");
                                 ASSERT(0);
-                            };
+                              } break;
+                            }
                             guard.release();
 
                             if (veryVerbose) {
@@ -6226,10 +6240,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20MatchTypes()
                                                      VALUE);
                             LOOP3_ASSERT(INIT_LINE, i, ti, &X == &result);
                           } break;
-                          default:
+                          default: {
                             printf("***UNKNOWN REPLACE MODE***\n");
                             ASSERT(0);
-                        };
+                          } break;
+                        }
 
                         const Int64 AA = testAllocator.numBlocksTotal();
                         const Int64  A = testAllocator.numBlocksInUse();
@@ -6337,10 +6352,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20MatchTypes()
                                              &X == &result);
                                 checkResultFlag = true;
                               } break;
-                              default:
+                              default: {
                                 printf("***UNKNOWN REPLACE MODE***\n");
                                 ASSERT(0);
-                            };
+                              } break;
+                            }
 
                             if (veryVerbose) {
                                 T_; T_; T_; P_(X); P(X.capacity());
@@ -6543,7 +6559,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
                         }
 
-                        switch(replaceMode) {
+                        switch (replaceMode) {
                           case REPLACE_STRING_AT_INDEX: {
                             // string& replace(pos1, n1, const string& str);
                             Obj &result = mX.replace(BEGIN, SIZE, Y);
@@ -6595,10 +6611,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                        U.begin(),
                                        U.end());
                           } break;
-                          default:
+                          default: {
                             printf("***UNKNOWN REPLACE MODE***\n");
                             ASSERT(0);
-                        };
+                          } break;
+                        }
 
                         const Int64 AA = testAllocator.numBlocksTotal();
                         const Int64  A = testAllocator.numBlocksInUse();
@@ -6811,7 +6828,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                             ExceptionGuard<Obj> guard(X, L_);
                             testAllocator.setAllocationLimit(AL);
 
-                            switch(replaceMode) {
+                            switch (replaceMode) {
                               case REPLACE_STRING_AT_INDEX: {
                                 // string& replace(pos1, n1,
                                 //                 const string& str);
@@ -6886,10 +6903,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                            U.begin(),
                                            U.end());
                               } break;
-                              default:
+                              default: {
                                 printf("***UNKNOWN REPLACE MODE***\n");
                                 ASSERT(0);
-                            };
+                              } break;
+                            }
                             guard.release();
 
                             if (veryVerbose) {
@@ -6960,7 +6978,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                         printf(" between "); P_(BEGIN); P_(END);
                     }
 
-                    switch(replaceMode) {
+                    switch (replaceMode) {
                       case REPLACE_STRING_AT_INDEX: {
                         // string& replace(pos1, n1, const string& str);
                         mX.replace(BEGIN, SIZE, Y);
@@ -7016,10 +7034,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                         mY.replace(mY.begin() + BEGIN, mY.begin() + END,
                                    Y.c_str());
                       } break;
-                      default:
+                      default: {
                         printf("***UNKNOWN REPLACE MODE***\n");
                         ASSERT(0);
-                    };
+                      } break;
+                    }
 
                     if (veryVerbose) {
                         T_; T_; T_; T_; P(X);
@@ -8195,10 +8214,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
                         LOOP3_ASSERT(INIT_LINE, i, j,
                                      X.begin() + POS == result);
                       } break;
-                      default:
+                      default: {
                         printf("***UNKNOWN INSERT MODE***\n");
                         ASSERT(0);
-                    };
+                      } break;
+                    }
 
                     const Int64 AA = testAllocator.numBlocksTotal();
                     const Int64  A = testAllocator.numBlocksInUse();
@@ -8311,10 +8331,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
                             Obj &result = mX.insert(POS, NUM_ELEMENTS, VALUE);
                             LOOP3_ASSERT(INIT_LINE, i, j, &X == &result);
                           } break;
-                          default:
+                          default: {
                             printf("***UNKNOWN INSERT MODE***\n");
                             ASSERT(0);
-                        };
+                          } break;
+                        }
 
                         const Int64 AA = testAllocator.numBlocksTotal();
                         const Int64  A = testAllocator.numBlocksInUse();
@@ -8442,10 +8463,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
                                              X.begin() + POS == result);
                                 checkResultFlag = true;
                               } break;
-                              default:
+                              default: {
                                 printf("***UNKNOWN INSERT MODE***\n");
                                 ASSERT(0);
-                            };
+                              } break;
+                            }
                             guard.release();
 
                             if (veryVerbose) {
@@ -8674,7 +8696,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
                         }
 
-                        switch(insertMode) {
+                        switch (insertMode) {
                           case INSERT_STRING_AT_INDEX: {
                             // string& insert(pos1, const string<C,CT,A>& str);
                             Obj &result = mX.insert(POS, Y);
@@ -8702,10 +8724,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                             // insert(const_iterator p, InputIter first, last);
                             mX.insert(mX.cbegin() + POS, U.begin(), U.end());
                           } break;
-                          default:
+                          default: {
                             printf("***UNKNOWN INSERT MODE***\n");
                             ASSERT(0);
-                        };
+                          } break;
+                        }
 
                         const Int64 AA = testAllocator.numBlocksTotal();
                         const Int64  A = testAllocator.numBlocksInUse();
@@ -8926,7 +8949,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                             ExceptionGuard<Obj> guard(X, L_);
                             testAllocator.setAllocationLimit(AL);
 
-                            switch(insertMode) {
+                            switch (insertMode) {
                               case INSERT_STRING_AT_INDEX: {
                             // string& insert(pos1, const string<C,CT,A>& str);
                                 Obj &result = mX.insert(POS, Y);
@@ -8968,10 +8991,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                             //                pos2, n);
                                 mX.insert(POS, Y, 0);  // 'npos' default arg.
                               } break;
-                              default:
+                              default: {
                                 printf("***UNKNOWN INSERT MODE***\n");
                                 ASSERT(0);
-                            };
+                              } break;
+                            }
                             guard.release();
 
                             if (veryVerbose) {
@@ -9050,7 +9074,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                         printf(" at "); P(POS);
                     }
 
-                    switch(insertMode) {
+                    switch (insertMode) {
                       case INSERT_STRING_AT_INDEX: {
                     // string& insert(pos1, const string<C,CT,A>& str);
                         mX.insert(POS, Y);
@@ -9086,10 +9110,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                         mX.insert(mX.cbegin() + POS, mY.begin(), mY.end());
                         mY.insert(mY.cbegin() + POS, mY.begin(), mY.end());
                       } break;
-                      default:
+                      default: {
                         printf("***UNKNOWN INSERT MODE***\n");
                         ASSERT(0);
-                    };
+                      } break;
+                    }
 
                     if (veryVerbose) {
                         T_; T_; T_; T_; P(X);
@@ -9792,7 +9817,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                     {
                         AllocatorUseGuard guardG(globalAllocator_p);
                         AllocatorUseGuard guardD(defaultAllocator_p);
-                        switch(appendMode) {
+                        switch (appendMode) {
                           case APPEND_STRING: {
                             // string& append(const string<C,CT,A>& str);
                             Obj &result = mX.append(Y);
@@ -9828,10 +9853,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             Obj &result = mX += V;
                             ASSERT(&result == &mX);
                           } break;
-                          default:
+                          default: {
                             printf("***UNKNOWN APPEND MODE***\n");
                             ASSERT(0);
-                        };
+                          } break;
+                        }
                     }
 
                     const Int64 AA = testAllocator.numBlocksTotal();
@@ -10038,7 +10064,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         ExceptionGuard<Obj> guard(X, L_);
                         testAllocator.setAllocationLimit(AL);
 
-                        switch(appendMode) {
+                        switch (appendMode) {
                           case APPEND_STRING: {
                         // string& append(const string<C,CT,A>& str);
                             Obj &result = mX.append(Y);
@@ -10084,10 +10110,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             Obj &result = mX += V;
                             ASSERT(&result == &mX);
                           } break;
-                          default:
+                          default: {
                             printf("***UNKNOWN APPEND MODE***\n");
                             ASSERT(0);
-                        };
+                          } break;
+                        }
 
                         guard.release();
 
@@ -10165,7 +10192,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                 {
                     AllocatorUseGuard guardG(globalAllocator_p);
                     AllocatorUseGuard guardD(defaultAllocator_p);
-                    switch(appendMode) {
+                    switch (appendMode) {
                       case APPEND_STRING: {
                     // string& append(const string<C,CT,A>& str);
                         mX.append(Y);
@@ -10211,10 +10238,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         mX += V;
                         mY += V;
                       } break;
-                      default:
+                      default: {
                         printf("***UNKNOWN APPEND MODE***\n");
                         ASSERT(0);
-                    };
+                      } break;
+                    }
                 }
 
                 if (veryVerbose) {
@@ -11473,7 +11501,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
 
             try
             {
-// TBD assign npos
                 dst.assign(src, 0, Obj::npos);
             }
             catch (bslma::TestAllocatorException &)
@@ -11610,8 +11637,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrRefData()
     //   completely in test case 17.
     //
     // Testing:
-    //   template <class InputIter>
-    //     assign(InputIter first, InputIter last, const A& a = A());
+    //   basic_string& assign(const StringRefData<CHAR_TYPE>& strRef);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -11896,6 +11922,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
     bslma::Allocator     *Z = &testAllocator;
 
+    const TYPE DEFAULT_VALUE = TYPE(::DEFAULT_VALUE);
+
     const TYPE         *values     = 0;
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
@@ -12086,6 +12114,447 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
             }
         }
     }
+
+    enum {
+        ASSIGN_STRING_MODE_FIRST          = 0,
+        ASSIGN_SUBSTRING                  = 0,
+        ASSIGN_SUBSTRING_NPOS             = 1,
+        ASSIGN_STRING                     = 2,
+        ASSIGN_CSTRING_N                  = 3,
+        ASSIGN_CSTRING                    = 4,
+        ASSIGN_STRING_FROM_ITERATOR       = 5,
+        ASSIGN_STRING_FROM_CONST_ITERATOR = 6,
+        ASSIGN_STRING_MODE_LAST           = 6
+    };
+
+    for (int assignMode  = ASSIGN_STRING;
+             assignMode <= ASSIGN_STRING_MODE_LAST;
+             ++assignMode)
+    {
+        if (verbose)
+            printf("\tUsing string with assignMode = %d.\n", assignMode);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_RES = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_RES);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_RES);
+                    printf("using default char value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_U_DATA; ++ti) {
+                    const int     LINE         = U_DATA[ti].d_lineNum;
+                    const char   *SPEC         = U_DATA[ti].d_spec;
+                    const size_t  NUM_ELEMENTS = strlen(SPEC);
+
+                    Obj mY(g(SPEC));  const Obj& Y = mY;
+
+                    CONTAINER mU(Y);  const CONTAINER& U = mU;
+
+                    const size_t LENGTH = Y.size();
+
+                    Obj mX(INIT_LENGTH,
+                           DEFAULT_VALUE,
+                           AllocType(&testAllocator));  const Obj& X = mX;
+                    mX.reserve(INIT_RES);
+                    const size_t INIT_CAP = X.capacity();
+
+                    size_t k;
+                    for (k = 0; k < INIT_LENGTH; ++k) {
+                        mX[k] = VALUES[k % NUM_VALUES];
+                    }
+
+                    const size_t CAP = computeNewCapacity(LENGTH,
+                                                          INIT_LENGTH,
+                                                          INIT_CAP,
+                                                          X.max_size());
+
+                    if (veryVerbose) {
+                        printf("\t\t\tAssign "); P_(NUM_ELEMENTS);
+                        printf("using "); P(SPEC);
+                    }
+
+                    Obj mExp;  const Obj& EXP = mExp;
+                    mExp.append(Y);
+
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tBefore:"); P_(BB); P(B);
+                    }
+
+                    switch (assignMode) {
+                      case ASSIGN_STRING: {
+                        // string& assign(const string& str);
+                        Obj& result = mX.assign(Y);
+                        ASSERT(&result == &mX);
+                      } break;
+                      case ASSIGN_CSTRING_N: {
+                        // string& assign(const C *s, n);
+                        Obj& result = mX.assign(Y.data(), NUM_ELEMENTS);
+                        ASSERT(&result == &mX);
+                      } break;
+                      case ASSIGN_CSTRING: {
+                        // string& assign(const C *s);
+                        Obj& result = mX.assign(Y.c_str());
+                        ASSERT(&result == &mX);
+                      } break;
+                      case ASSIGN_STRING_FROM_ITERATOR: {
+                        // template <class InputIter>
+                        //   void assign(InputIter first, last);
+                        mX.assign(mU.begin(), mU.end());
+                      } break;
+                      case ASSIGN_STRING_FROM_CONST_ITERATOR: {
+                        // template <class InputIter>
+                        //   void assign(InputIter first, last);
+                        mX.assign(U.begin(), U.end());
+                      } break;
+                      default: {
+                        printf("***UNKNOWN ASSIGN MODE***\n");
+                        ASSERT(0);
+                      } break;
+                    }
+
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        printf("\t\t\t\tAfter :"); P_(AA); P(A);
+                        T_; T_; T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    LOOP2_ASSERT(INIT_LINE, LINE, LENGTH == X.size());
+                    if (!INPUT_ITERATOR_TAG) {
+                        LOOP2_ASSERT(INIT_LINE, LINE, CAP == X.capacity());
+                    }
+                    LOOP2_ASSERT(INIT_LINE, LINE, EXP == X);
+
+                    const int REALLOC = X.capacity() > INIT_CAP;
+                    const int A_ALLOC = DEFAULT_CAPACITY >= INIT_CAP
+                                     && X.capacity() > DEFAULT_CAPACITY;
+
+                    LOOP2_ASSERT(INIT_LINE, INIT_LENGTH,
+                                 BB + REALLOC <= AA);
+                    LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, ti,
+                                 B + A_ALLOC <=  A);
+                }
+                ASSERT(0 == testAllocator.numMismatches());
+                ASSERT(0 == testAllocator.numBlocksInUse());
+            }
+        }
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBlocksInUse());
+
+    if (verbose) printf("\tUsing string with assignMode = %d.\n",
+                        ASSIGN_SUBSTRING);
+    {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_RES = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_RES);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_RES);
+                    printf("using default char value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_U_DATA; ++ti) {
+                    const int     LINE         = U_DATA[ti].d_lineNum;
+                    const char   *SPEC         = U_DATA[ti].d_spec;
+                    const size_t  NUM_ELEMENTS = strlen(SPEC);
+
+                    Obj mY(g(SPEC));  const Obj& Y = mY;
+
+                    for (size_t k = 0; k <= NUM_ELEMENTS; ++k) {
+                        const size_t POS = k;
+
+                        const size_t NUM_ELEMENTS_INS = NUM_ELEMENTS - POS;
+                        const size_t LENGTH           = NUM_ELEMENTS_INS;
+
+                        Obj mX(INIT_LENGTH,
+                               DEFAULT_VALUE,
+                               AllocType(&testAllocator));  const Obj& X = mX;
+                        mX.reserve(INIT_RES);
+                        const size_t INIT_CAP = X.capacity();
+
+                        size_t n;
+                        for (n = 0; n < INIT_LENGTH; ++n) {
+                            mX[n] =  VALUES[n % NUM_VALUES];
+                        }
+
+                        Obj mExp;  const Obj& EXP = mExp;
+                        mExp.append(Y, POS, NUM_ELEMENTS);
+
+                        const size_t CAP = computeNewCapacity(LENGTH,
+                                                              INIT_LENGTH,
+                                                              INIT_CAP,
+                                                              X.max_size());
+
+                        if (veryVerbose) {
+                            printf("\t\t\tAssign"); P_(NUM_ELEMENTS_INS);
+                            printf("using "); P_(SPEC);
+                            printf("starting at "); P(POS);
+                        }
+
+                        const Int64 BB = testAllocator.numBlocksTotal();
+                        const Int64  B = testAllocator.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tBefore:"); P_(BB); P(B);
+                        }
+
+                        // string& assign(const string& str, pos, n);
+                        Obj& result = mX.assign(Y, POS, NUM_ELEMENTS);
+                        ASSERT(&result == &mX);
+
+                        const Int64 AA = testAllocator.numBlocksTotal();
+                        const Int64  A = testAllocator.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tAfter :"); P_(AA); P(A);
+                            T_; T_; T_; T_; P_(X); P(X.capacity());
+                        }
+
+                        LOOP3_ASSERT(INIT_LINE, LINE, POS,
+                                     LENGTH == X.size());
+                        if (!INPUT_ITERATOR_TAG) {
+                            LOOP3_ASSERT(INIT_LINE, LINE, POS,
+                                         CAP == X.capacity());
+                        }
+                        LOOP2_ASSERT(INIT_LINE, LINE, EXP == X);
+
+                        const int REALLOC = X.capacity() > INIT_CAP;
+                        const int A_ALLOC =
+                            DEFAULT_CAPACITY >= INIT_CAP &&
+                            X.capacity() > DEFAULT_CAPACITY;
+
+                        LOOP3_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP,
+                                     BB + REALLOC <= AA);
+                        LOOP3_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP,
+                                     B + A_ALLOC <=  A);
+                    }
+                }
+                ASSERT(0 == testAllocator.numMismatches());
+                ASSERT(0 == testAllocator.numBlocksInUse());
+            }
+        }
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBlocksInUse());
+
+    if (verbose) printf("\tWith exceptions.\n");
+
+    for (int assignMode  = ASSIGN_STRING_MODE_FIRST;
+             assignMode <= ASSIGN_STRING_MODE_LAST;
+             ++assignMode)
+    {
+        if (verbose)
+            printf("\t\tUsing string with assignMode = %d.\n", assignMode);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_RES = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_RES);
+
+                if (veryVerbose) {
+                    printf("\t\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_RES);
+                    printf("using default char value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_U_DATA; ++ti) {
+                    const int     LINE         = U_DATA[ti].d_lineNum;
+                    const char   *SPEC         = U_DATA[ti].d_spec;
+                    const size_t  NUM_ELEMENTS = strlen(SPEC);
+
+                    Obj mY(g(SPEC));  const Obj& Y = mY;
+
+                    CONTAINER mU(Y);  const CONTAINER& U = mU;
+
+                    const size_t LENGTH = Y.size();
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                      const Int64 AL = testAllocator.allocationLimit();
+                      testAllocator.setAllocationLimit(-1);
+
+                      Obj mX(INIT_LENGTH,
+                             DEFAULT_VALUE,
+                             AllocType(&testAllocator));
+                      const Obj& X = mX;
+                      mX.reserve(INIT_RES);
+
+                      Obj mExp;  const Obj& EXP = mExp;
+                      mExp.append(Y);
+
+                      ExceptionGuard<Obj> guard(X, L_);
+                      testAllocator.setAllocationLimit(AL);
+
+                      switch (assignMode) {
+                        case ASSIGN_STRING: {
+                          // string& assign(const string& str);
+                          Obj& result = mX.assign(Y);
+                          ASSERT(&result == &mX);
+                        } break;
+                        case ASSIGN_SUBSTRING: {
+                          // string& assign(const string& str, pos, n);
+                          Obj& result = mX.assign(Y, 0, NUM_ELEMENTS);
+                          ASSERT(&result == &mX);
+                        } break;
+                        case ASSIGN_SUBSTRING_NPOS: {
+                          // string& assign(const string& str, pos, n);
+                          Obj& result = mX.assign(Y, 0);  // 'npos' dflt. arg.
+                          ASSERT(&result == &mX);
+                        } break;
+                        case ASSIGN_CSTRING_N: {
+                          // string& assign(const C *s, n);
+                          Obj& result = mX.assign(Y.data(), NUM_ELEMENTS);
+                          ASSERT(&result == &mX);
+                        } break;
+                        case ASSIGN_CSTRING: {
+                          // string& assign(const C *s);
+                          Obj& result = mX.assign(Y.c_str());
+                          ASSERT(&result == &mX);
+                        } break;
+                        case ASSIGN_STRING_FROM_ITERATOR: {
+                          // template <class InputIter>
+                          //  assign(InputIter first, last);
+                          mX. assign(mU.begin(), mU.end());
+                        } break;
+                        case ASSIGN_STRING_FROM_CONST_ITERATOR: {
+                          // template <class InputIter>
+                          //   assign(InputIter first, last);
+                          mX.assign(U.begin(), U.end());
+                        } break;
+                        default: {
+                          printf("***UNKNOWN ASSIGN MODE***\n");
+                          ASSERT(0);
+                        } break;
+                      }
+                      guard.release();
+
+                      if (veryVerbose) {
+                          T_; T_; T_; P_(X); P(X.capacity());
+                      }
+
+                      LOOP2_ASSERT(INIT_LINE, LINE, LENGTH == X.size());
+                      LOOP2_ASSERT(INIT_LINE, LINE, EXP    == X);
+
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                }
+                ASSERT(0 == testAllocator.numMismatches());
+                ASSERT(0 == testAllocator.numBlocksInUse());
+            }
+        }
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBlocksInUse());
+
+    if (verbose) printf("\tTesting aliasing concerns.\n");
+
+    for (int assignMode  = ASSIGN_STRING_MODE_FIRST;
+             assignMode <= ASSIGN_STRING_MODE_LAST;
+             ++assignMode)
+    {
+        if (verbose)
+            printf("\t\tUsing string with assignMode = %d.\n", assignMode);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_RES = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_RES);
+
+                if (veryVerbose) {
+                    printf("\t\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_RES);
+                    printf("using distinct (cyclic) values.\n");
+                }
+
+                Obj mX(INIT_LENGTH, DEFAULT_VALUE, AllocType(&testAllocator));
+                const Obj& X = mX;
+                mX.reserve(INIT_RES);
+                const size_t INIT_CAP = X.capacity();
+
+                for (size_t k = 0; k < INIT_LENGTH; ++k) {
+                    mX[k] = VALUES[k % NUM_VALUES];
+                }
+
+                Obj mY(X); const Obj& Y = mY;  // control
+
+                if (veryVerbose) {
+                    printf("\t\t\tAssign with "); P(Y);
+                }
+
+                switch (assignMode) {
+                  case ASSIGN_STRING: {
+                    // string& assign(const string& str);
+                    mX.assign(Y);
+                    mY.assign(Y);
+                  } break;
+                  case ASSIGN_CSTRING_N: {
+                    // string& assign(const C *s, n);
+                    mX.assign(Y.data(), INIT_LENGTH);
+                    mY.assign(Y.data(), INIT_LENGTH);
+                  } break;
+                  case ASSIGN_CSTRING: {
+                    // string& assign(const C *s);
+                    mX.assign(Y.c_str());
+                    mY.assign(Y.c_str());
+                  } break;
+                  case ASSIGN_SUBSTRING: {
+                    // string& assign(const string& str, pos, n);
+                    mX.assign(Y, 0, INIT_LENGTH);
+                    mY.assign(Y, 0, INIT_LENGTH);
+                  } break;
+                  case ASSIGN_SUBSTRING_NPOS: {
+                    // string& assign(const string& str, pos, n);
+                    mX.assign(Y, 0);  // 'npos' default arg.
+                    mY.assign(Y, 0);
+                  } break;
+                  case ASSIGN_STRING_FROM_ITERATOR: {
+                    // string& assign(InputIter first, last);
+                    mX.assign(mY.begin(), mY.end());
+                    mY.assign(mY.begin(), mY.end());
+                  } break;
+                  case ASSIGN_STRING_FROM_CONST_ITERATOR: {
+                    // string& assign(InputIter first, last);
+                    mX.assign(Y.begin(), Y.end());
+                    mY.assign(Y.begin(), Y.end());
+                  } break;
+                  default: {
+                    printf("***UNKNOWN ASSIGN MODE***\n");
+                    ASSERT(0);
+                  } break;
+                }
+
+                if (veryVerbose) {
+                    T_; T_; T_; T_; P(X);
+                    T_; T_; T_; T_; P(Y);
+                }
+
+                LOOP2_ASSERT(INIT_LINE, INIT_CAP, X == Y);
+            }
+        }
+    }
+    ASSERT(0 == testAllocator.numMismatches());
+    ASSERT(0 == testAllocator.numBlocksInUse());
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
@@ -12711,7 +13180,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                   case 3: {
                     Obj x(Y, 0, LENGTH, objectAllocator_p);
                   } break;
-                };
+                }
 
                 ASSERTV(LINE, 0 == globalAllocator_p->numBytesInUse());
                 ASSERTV(LINE, 0 == objectAllocator_p->numBytesInUse());
@@ -13738,10 +14207,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                                                            Y.begin(), Y.end());
                             mY = srd;
                           } break;
-                          default:
+                          default: {
                             printf("***UNKNOWN SELF_ASSIGN MODE***\n");
                             ASSERT(0);
-                        };
+                          } break;
+                        }
                     }
 
                     LOOP3_ASSERT(SPEC, N, assignMode, Y == Y);
@@ -13781,16 +14251,17 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 
                     int OFFSET = 0;
                     switch (constructMode) {
-                      case PARTIAL_SELF_ASSIGN_CONSTRUCT_LONG_TAIL:
+                      case PARTIAL_SELF_ASSIGN_CONSTRUCT_LONG_TAIL: {
                         OFFSET = 1;
-                        break;
-                      case PARTIAL_SELF_ASSIGN_CONSTRUCT_SHORT_TAIL:
+                      } break;
+                      case PARTIAL_SELF_ASSIGN_CONSTRUCT_SHORT_TAIL: {
                         OFFSET = Y.length() - 1;
-                        break;
-                      default:
+                      } break;
+                      default: {
                         printf("***UNKNOWN "
                                     "PARTIAL_SELF_ASSIGN_CONSTRUCT MODE***\n");
                         ASSERT(0);
+                      } break;
                     }
 
                     testAllocator.setAllocationLimit(AL);
@@ -13805,10 +14276,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                                                   Y.begin() + OFFSET, Y.end());
                             mY = srd;
                           } break;
-                          default:
+                          default: {
                             printf("***UNKNOWN PARTIAL_SELF_ASSIGN MODE***\n");
                             ASSERT(0);
-                        };
+                          } break;
+                        }
                         guard.release();
                     }
 
@@ -21075,6 +21547,7 @@ int main(int argc, char *argv[])
         //   basic_string& assign(const basic_string& str, pos, n = npos);
         //   basic_string& assign(const CHAR_TYPE *s, size_type n);
         //   basic_string& assign(const CHAR_TYPE *s);
+        //   basic_string& assign(const StringRefData<CHAR_TYPE>& strRef);
         //   basic_string& assign(size_type n, CHAR_TYPE c);
         //   template <class Iter> basic_string& assign(Iter first, Iter last);
         // --------------------------------------------------------------------
