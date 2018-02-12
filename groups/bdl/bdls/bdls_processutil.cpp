@@ -81,11 +81,12 @@ int ProcessUtil::getProcessName(bsl::string *result)
     result->clear();
 
 #if defined BSLS_PLATFORM_OS_WINDOWS
-    bdlma::LocalSequentialAllocator<MAX_PATH + 1> la;
-    bsl::wstring wResult(MAX_PATH, 0, &la);
-    while (wResult.length() <= 4 * MAX_PATH) {
+    static const size_t k_INITIAL_SIZE = MAX_PATH + 1;
+    bdlma::LocalSequentialAllocator<sizeof(wchar_t) * k_INITIAL_SIZE> la;
+    bsl::wstring wResult(MAX_PATH, L'\0', &la);
+    while (wResult.length() <= 4 * k_INITIAL_SIZE) {
         DWORD length = GetModuleFileNameW(0, &wResult[0], wResult.length());
-        if (length <= 0) {  // Error
+        if (length == 0) {  // Error
             return 1;                                                 // RETURN
         }
         else if (length < wResult.length()) {  // Success
@@ -93,12 +94,12 @@ int ProcessUtil::getProcessName(bsl::string *result)
             return bdlde::CharConvertUtf16::utf16ToUtf8(result, wResult);
                                                                       // RETURN
         }
-        else {  // Not enough space for the process name in 'wResult'
+        else { // Not enough space for the process name in 'wResult'
             wResult.resize(wResult.length() * 2); // Make more space
         }
     }
 
-    return -1;
+    return -1; // The path name is too long (more than 4 * k_INITIAL_SIZE)
 #else
 # if defined BSLS_PLATFORM_OS_HPUX
     result->resize(256);
