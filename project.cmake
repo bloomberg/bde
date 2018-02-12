@@ -1,7 +1,7 @@
 include(bde_project)
 include(bde_utils)
 
-function(process retProject listDir)
+function(process_project retProject listDir)
     bde_assert_no_extra_args()
 
     bde_struct_create(proj BDE_PROJECT_TYPE NAME bde.p)

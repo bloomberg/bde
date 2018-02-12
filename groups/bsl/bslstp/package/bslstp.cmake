@@ -1,7 +1,6 @@
 include(bde_package)
 
-macro(process)
+macro(process_package)
     bde_process_package(${ARGN})
-        # Do not use bde/cmake/defaults/bde_process_package.cmake to
-        # avoid setting BSL_OVERRIDES_STD
+        # Call bde_process_package directly to avoid setting BSL_OVERRIDES_STD
 endmacro()

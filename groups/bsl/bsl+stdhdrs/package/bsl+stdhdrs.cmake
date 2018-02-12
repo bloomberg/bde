@@ -3,7 +3,7 @@ include(bde_override_std)
 include(bde_struct)
 include(bde_utils)
 
-function(process retPackage listFile uorName)
+function(process_package retPackage listFile uorName)
     bde_assert_no_extra_args()
 
     get_filename_component(packageName ${listFile} NAME_WE)

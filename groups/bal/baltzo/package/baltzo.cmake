@@ -1,14 +1,13 @@
 include(bde_interface_target)
-include(bde_package)
 include(bde_struct)
 
-function(process retPackage)
-    bde_force_default_process_package(package ${ARGN})
+function(process_package retPackage)
+    default_process_package(package ${ARGN})
 
     bde_struct_get_field(interfaceTarget ${package} INTERFACE_TARGET)
     bde_interface_target_link_libraries(
         ${interfaceTarget}
-        PUBLIC
+        INTERFACE
             $<$<CXX_COMPILER_ID:MSVC>:advapi32>
     )
 

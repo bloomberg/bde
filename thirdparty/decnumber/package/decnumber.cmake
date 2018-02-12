@@ -4,7 +4,7 @@ include(bde_struct)
 include(bde_interface_target)
 include(bde_uor)
 
-function(process retUOR listFile)
+function(process_uor retUOR listFile)
     bde_assert_no_extra_args()
 
     get_filename_component(listDir ${listFile} DIRECTORY)
