@@ -500,6 +500,15 @@ int PrintUtil::printValue(bsl::ostream& stream,
 }
 
 inline
+int PrintUtil::printValue(bsl::ostream& stream,
+                          signed char   value,
+                          const EncoderOptions *)
+{
+    stream << static_cast<int>(value);
+    return 0;
+}
+
+inline
 int PrintUtil::printValue(bsl::ostream&      stream,
                           const bsl::string& value,
                           const EncoderOptions *)

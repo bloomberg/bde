@@ -31,6 +31,7 @@
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
 #include <bdlt_time.h>
+
 #include <bdlt_timetz.h>
 
 #include <bslma_testallocator.h>
@@ -49,9 +50,7 @@
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::endl;
+using namespace bsl;
 
 // ============================================================================
 //                             TEST PLAN
@@ -1444,6 +1443,27 @@ const int& Employee::age() const
 
 }  // close enterprise namespace
 
+template <class TYPE>
+void testPutValue(const TYPE& value, const Options *options, bool isValid)
+{
+    ostringstream actual;
+    Obj           mX(actual);
+
+    const int rc = mX.putValue(value, options);
+
+    if (isValid) {
+        ASSERTV(rc, 0 == rc);
+
+        ostringstream exp;
+        baljsn::PrintUtil::printValue(exp, value, options);
+        ASSERTV(exp.good());
+
+        ASSERTV(actual.str(), exp.str(), actual.str() == exp.str());
+    }
+    else {
+        ASSERTV(rc, 0 != rc);
+    }
+}
 
 Obj g(bsl::ostream& os, int style, int indent, int spl)
 {
@@ -1620,7 +1640,8 @@ int main(int argc, char *argv[])
          << "TESTING 'setIsArrayElement' and 'isArrayElement' METHODS" << endl
          << "========================================================" << endl;
 
-        Obj mX;  const ObJ& X = mX;
+        ostringstream os;
+        Obj mX(os);  const Obj& X = mX;
         ASSERT(false == X.isArrayElement());
 
         mX.setIsArrayElement(true);
@@ -1758,8 +1779,9 @@ int main(int argc, char *argv[])
         //: 2 Errorneous values of 'value' cause 'putValue' to return an error.
         //:
         // Plan:
-        //: 1 For all the possible data types create two values, one valid and
-        //:   one invalid, and invoke 'putValue' on each value.
+        //: 1 For all the possible data types create atleast one valid value
+        //:   and an invalid value (if an invalid value exists) and invoke
+        //:   'putValue' on them.
         //:
         //: 2 Confirm that 'putValue' returns 0 and correctly encodes the valid
         //:   values and returns a non-zero values for invalid values.
@@ -1771,7 +1793,81 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "TESTING 'putValue' METHOD" << endl
                           << "=========================" << endl;
-        char
+
+        const bool                A = true;
+        const char                B = 'A';
+        const signed char         C = '\"';
+        const unsigned char       D =
+                                     bsl::numeric_limits<unsigned char>::max();
+        const short               E = -1;
+        const unsigned short      F =
+                                    bsl::numeric_limits<unsigned short>::max();
+        const int                 G = -10;
+        const unsigned int        H = bsl::numeric_limits<unsigned int>::max();
+        const bsls::Types::Int64  I = -100;
+        const bsls::Types::Uint64 J =
+                               bsl::numeric_limits<bsls::Types::Uint64>::max();
+        const float               K = -1.5;
+        const double              L = 10.5;
+        const char               *M = "one";
+        const bsl::string         N = "one";
+        const bdldfp::Decimal64   O = BDLDFP_DECIMAL_DD(1.13);
+        const bdlt::Date          PA(2000,  1, 1);
+        const bdlt::Time          QA(0, 1, 2, 3);
+        const bdlt::Datetime      R(PA, QA);
+        const bdlt::DateTz        S(PA, -5);
+        const bdlt::TimeTz        T(QA, -5);
+        const bdlt::DatetimeTz    U(R, -5);
+
+        const float               INV1 =
+                                        bsl::numeric_limits<float>::infinity();
+        const double              INV2 =
+                                       bsl::numeric_limits<double>::infinity();
+        const char               *INV3 = "\x80";
+        const bsl::string         INV4 = "\xc2\x00";
+
+        const Options DO;  const Options *DP = &DO;
+
+        testPutValue(A, DP, true);
+        testPutValue(B, DP, true);
+        testPutValue(C, DP, true);
+        testPutValue(D, DP, true);
+        testPutValue(E, DP, true);
+        testPutValue(F, DP, true);
+        testPutValue(G, DP, true);
+        testPutValue(H, DP, true);
+        testPutValue(I, DP, true);
+        testPutValue(J, DP, true);
+        testPutValue(K, DP, true);
+        testPutValue(L, DP, true);
+        testPutValue(M, DP, true);
+        testPutValue(N, DP, true);
+        testPutValue(O, DP, true);
+        testPutValue(PA, DP, true);
+        testPutValue(QA, DP, true);
+        testPutValue(R, DP, true);
+        testPutValue(S, DP, true);
+        testPutValue(T, DP, true);
+        testPutValue(U, DP, true);
+
+        testPutValue(INV1, DP, false);
+        testPutValue(INV2, DP, false);
+        testPutValue(INV3, DP, false);
+        testPutValue(INV4, DP, false);
+
+        Options opts;  const Options *OPTS = &opts;
+        opts.setEncodeInfAndNaNAsStrings(true);
+
+        testPutValue(INV1, OPTS, true);
+        testPutValue(INV2, OPTS, true);
+
+        opts.setDatetimeFractionalSecondPrecision(6);
+        testPutValue(PA, OPTS, true);
+        testPutValue(QA, OPTS, true);
+        testPutValue(R, OPTS, true);
+        testPutValue(S, OPTS, true);
+        testPutValue(T, OPTS, true);
+        testPutValue(U, OPTS, true);
       } break;
       case 7: {
         // --------------------------------------------------------------------
