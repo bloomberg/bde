@@ -1,8 +1,7 @@
 include(bde_package)
 
 function(process_package retPackage)
-    bde_process_package(package ${ARGN})
-        # Call bde_process_package directly to avoid setting BSL_OVERRIDES_STD
+    default_process_package(package ${ARGN})
 
     bde_struct_get_field(testInterface ${package} TEST_INTERFACE_TARGET)
     bde_interface_target_compile_options(
@@ -12,6 +11,10 @@ function(process_package retPackage)
                 /bigobj
             >
     )
+
+    bde_struct_get_field(objlib ${package} OBJ_TARGET)
+    bde_struct_get_field(tests ${package} TEST_TARGETS)
+    set_target_properties(${objlib} ${tests} PROPERTIES SUPPRESS_BSL_OVERRIDES_STD ON)
 
     bde_return(${package})
 endfunction()

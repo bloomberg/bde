@@ -1,5 +1,5 @@
 include(bde_interface_target)
-include(bde_override_std)
+include(bde_package)
 include(bde_struct)
 include(bde_utils)
 
@@ -11,8 +11,8 @@ function(process_package retPackage listFile uorName)
     get_filename_component(rootDir ${listDir} DIRECTORY)
 
     # Sources and headers
-    bde_utils_add_meta_file("${listDir}/${packageName}.pub" headers TRACK)
-    bde_utils_list_template_substitute(headers "%" "${rootDir}/%" ${headers})
+    bde_utils_add_meta_file("${listDir}/${packageName}.pub" rawHeaders TRACK)
+    bde_utils_list_template_substitute(headers "%" "${rootDir}/%" ${rawHeaders})
 
     # Dependencies
     bde_utils_add_meta_file("${listDir}/${packageName}.dep" dependencies TRACK)
@@ -21,15 +21,14 @@ function(process_package retPackage listFile uorName)
     bde_add_interface_target(${packageName})
     bde_interface_target_include_directories(
         ${packageName}
-        PUBLIC
+        INTERFACE
             $<BUILD_INTERFACE:${rootDir}>
             $<INSTALL_INTERFACE:"include/stlport">
     )
-    bde_override_std(${packageName})
 
     # Custom install of all headers in 'stlport'.
     # Note that this code correctly handles install of subdirs.
-    foreach(file IN LISTS headers)
+    foreach(file IN LISTS rawHeaders)
         get_filename_component(dir ${file} DIRECTORY)
         string(CONCAT fullFile ${rootDir} "/" ${file})
         install(
@@ -47,6 +46,7 @@ function(process_package retPackage listFile uorName)
         DEPENDS "${dependencies}"
         INTERFACE_TARGET ${packageName}
     )
+    bde_create_header_only_library(${package})
 
     bde_return(${package})
 endfunction()
