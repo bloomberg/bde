@@ -1,13 +1,19 @@
 // bslmt_testutil.t.cpp                                               -*-C++-*-
 #include <bslmt_testutil.h>
 
+#include <bslmt_barrier.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_threadgroup.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_string.h>
 #include <bsl_sstream.h>
 
@@ -130,27 +136,30 @@ static void realaSsErT(bool b, const char *s, int i)
 // #define ASSERT(X) { realaSsErT(!(X), #X, __LINE__); }
 //..
 
+#define REAL_ASSERT(X)                                                        \
+    if (X) ; else do { realaSsErT(1, #X, __LINE__); } while (false)
+
 #define REALLOOP1_ASSERT(I,X)                                                 \
-    if (!(X)) { bsl::cerr << #I << ": " << I << "\n";                         \
-                realaSsErT(1, #X, __LINE__); }
+    if (X) ; else do { bsl::cerr << #I << ": " << I << "\n";                  \
+                       realaSsErT(1, #X, __LINE__); } while (false)
 
 #define REALLOOP2_ASSERT(I,J,X)                                               \
-    if (!(X)) { bsl::cerr << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\n";                         \
-                realaSsErT(1, #X, __LINE__); }
+    if (X) ; else do { bsl::cerr << #I << ": " << I << "\t"                   \
+                                 << #J << ": " << J << "\n";                  \
+                       realaSsErT(1, #X, __LINE__); } while (false)
 
 #define REALLOOP3_ASSERT(I,J,K,X)                                             \
-    if (!(X)) { bsl::cerr << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\t"                          \
-                          << #K << ": " << K << "\n";                         \
-                realaSsErT(1, #X, __LINE__); }
+    if (X) ; else do { bsl::cerr << #I << ": " << I << "\t"                   \
+                                 << #J << ": " << J << "\t"                   \
+                                 << #K << ": " << K << "\n";                  \
+                       realaSsErT(1, #X, __LINE__); } while (false)
 
 #define REALLOOP4_ASSERT(I,J,K,L,X)                                           \
-    if (!(X)) { bsl::cerr << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\t"                          \
-                          << #K << ": " << K << "\t"                          \
-                          << #L << ": " << L << "\n";                         \
-                realaSsErT(1, #X, __LINE__); }
+    if (X) ; else do { bsl::cerr << #I << ": " << I << "\t"                   \
+                                 << #J << ": " << J << "\t"                   \
+                                 << #K << ": " << K << "\t"                   \
+                                 << #L << ": " << L << "\n";                  \
+                       realaSsErT(1, #X, __LINE__); } while (false)
 
 #define REALP(X)                                                              \
     bsl::cerr << #X " = " << (X) << bsl::endl;
@@ -160,6 +169,9 @@ static void realaSsErT(bool b, const char *s, int i)
 
 #define REALT_                                                                \
     bsl::cerr << "\t" << bsl::flush;
+
+#define REALL_                                                                \
+    __LINE__
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -176,31 +188,43 @@ static void realaSsErT(bool b, const char *s, int i)
 //                             USAGE EXAMPLE CODE
 //-----------------------------------------------------------------------------
 
-namespace {
+namespace Usage {
 
 ///Example 1: Writing a Test Driver
 /// - - - - - - - - - - - - - - - -
 // First, we write an elided component to test, which provides a utility class:
 //..
-    namespace bdlabc {
-
-    struct ExampleUtil {
+    namespace bslabc {
+//
+    struct SumUtil {
         // This utility class provides sample functionality to demonstrate how
-        // a test driver might be written validating its only method.
+        // a multi threaded test driver might be written.
 
         // CLASS METHODS
-        static int fortyTwo();
-            // Return the integer value 42.
+        static double sumOfSquares(double a,
+                                   double b = 0,
+                                   double c = 0,
+                                   double d = 0);
     };
-
+//
     // CLASS METHODS
     inline
-    int ExampleUtil::fortyTwo()
+    double SumUtil::sumOfSquares(double a,
+                                 double b,
+                                 double c,
+                                 double d)
     {
-        return 42;
+        // Note that there is a bug here in that we have added the cube, rather
+        // than the square, of 'd'.
+//
+        double ret = a*a;
+        ret += b*b;
+        ret += c*c;
+        ret += d*d*d;
+        return ret;
     }
-
-    }  // close namespace bdlabc
+//
+    }  // close namespace bslabc
 //..
 // Then, we can write an elided test driver for this component.  We start by
 // providing the standard BDE assert test macro:
@@ -208,9 +232,9 @@ namespace {
     //=========================================================================
     //                       STANDARD BDE ASSERT TEST MACRO
     //-------------------------------------------------------------------------
-    static int testStatus = 0;
-
-    static void aSsErT(int c, const char *s, int i)
+    int testStatus = 0;
+//
+    void aSsErT(int c, const char *s, int i)
     {
         if (c) {
             bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -225,37 +249,183 @@ namespace {
     //=========================================================================
     //                       STANDARD BDE TEST DRIVER MACROS
     //-------------------------------------------------------------------------
-    #define ASSERT       BSLMT_TESTUTIL_LOOP0_ASSERT
-    #define ASSERTV      BSLMT_TESTUTIL_ASSERTV
-
-    #define Q   BSLMT_TESTUTIL_Q   // Quote identifier literally.
-    #define P   BSLMT_TESTUTIL_P   // Print identifier and value.
-    #define P_  BSLMT_TESTUTIL_P_  // P(X) without '\n'.
-    #define T_  BSLMT_TESTUTIL_T_  // Print a tab (w/o newline).
-    #define L_  BSLMT_TESTUTIL_L_  // current Line number
-
+    #define ASSERT   BSLMT_TESTUTIL_ASSERT
+    #define ASSERTV  BSLMT_TESTUTIL_ASSERTV
+//
+    #define Q        BSLMT_TESTUTIL_Q   // Quote identifier literally.
+    #define P        BSLMT_TESTUTIL_P   // Print identifier and value.
+    #define P_       BSLMT_TESTUTIL_P_  // P(X) without '\n'.
+    #define T_       BSLMT_TESTUTIL_T_  // Print a tab (w/o newline).
+    #define L_       BSLMT_TESTUTIL_L_  // current Line number
 //..
-// Now, using the (standard) abbreviated macro names we have just defined, we
-// write a test function for the 'static' 'fortyTwo' method, to be called from
-// a test case in the test driver:
+// Then, we define global verbosity flags to be used for controlling debug
+// traces.  The flags will be set by elided code at the beginning of 'main' to
+// determine the level of output verbosity the client wants.  We also define
+// six global double variables that we will use for testing, and a barrier to
+// coordinate threads
 //..
-    void testFortyTwo(bool verbose)
-        // Test 'bdlabc::ExampleUtil::fortyTwo' in the specified 'verbose'
-        // verbosity level.
-    {
-        const int value = bdlabc::ExampleUtil::fortyTwo();
-        if (verbose) P(value);
-        ASSERT(41 != value);
-        ASSERTV(value, 42 == value);
+    //=========================================================================
+    //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+    //-------------------------------------------------------------------------
+//
+    bool         verbose;
+    bool         veryVerbose;
+    bool         veryVeryVerbose;
+    bool         veryVeryVeryVerbose;
+//..
+// Next we define some global typedefs, variables, and constants used by this
+// test case:
+//..
+                                // ---------------
+                                // Usage Test Case
+                                // ---------------
+//
+    typedef  bslabc::SumUtil SU;
+//
+    bsls::AtomicInt threadIdx(0);
+    bsls::AtomicInt lastRand(0);
+//
+    enum { k_NUM_ITERATIONS     = 5,
+           k_NUM_THREADS        = 10,
+           k_NUM_RAND_VARIABLES = k_NUM_ITERATIONS * k_NUM_THREADS * 4 };
+//
+    double *randNumbers;
+//..
+// Then, using out test macros, we wwrite five test functors that can be run
+// concurrently that will test the five static functions.
+//..
+    struct TestSums {
+        void operator()()
+        {
+            const int idx     = threadIdx++;
+            int       randIdx = idx * k_NUM_ITERATIONS * 4;
+//
+            if (veryVerbose) {
+                BSLMT_TESTUTIL_OUTPUT_GUARD;
+//
+                // Instantiating the output guard above locks the output
+                // mutex.  The following two macros would lock that mutex
+                // themselves, except that they detect the output guard and
+                // refrain.  Having the two macros guarded by one output guard
+                // ensures that the output from both will appear on the same
+                // line, uninterrupted by output from the 'BSLMT_TESTUTIL_*'
+                // macros being called from any other thread.
+//
+                P_(idx);    P(randIdx);
+            }
+//
+            for (int ii = 0; ii < k_NUM_ITERATIONS; ++ii) {
+                double x[4];
+                for (int jj = 0; jj < 4; ++jj, ++randIdx) {
+                    x[jj] = randNumbers[randIdx];
+                }
+                if (randIdx >= k_NUM_RAND_VARIABLES) {
+                    BSLMT_TESTUTIL_OUTPUT_GUARD;
+//
+                    // We expect with the following two asserts, if either one
+                    // fails, both will fail.  We create the output guard above
+                    // to ensure that if they both output, their output will
+                    // appear adjacent to each other, uninterrupted by any
+                    // output from 'bslmt_TESTUTIL_*' macros being called by
+                    // any other thread.
+//
+                    ASSERTV(randIdx, k_NUM_RAND_VARIABLES, !lastRand);
+                    ASSERTV(randIdx, k_NUM_RAND_VARIABLES,
+                                              randIdx == k_NUM_RAND_VARIABLES);
+                    lastRand = true;
+//
+                    if (veryVerbose) {
+                        // This output calling 'cout' could turn into a mess if
+                        // 'BSLMT_TESTUTIL_*' macros in the other threads
+                        // decided to output at the same time.  We are safe
+                        // here because we are within scope of an output guard.
+//
+                        bsl::cout << "Thread number " << idx <<
+                             " reached the end of the random number buffer." <<
+                                                                     bsl::endl;
+                    }
+                }
+//
+                // If any of the 'ASSERTV's following here fail, they will
+                // detect that no output guard object is in scope and lock the
+                // output mutex before doing any output, so the entire trace
+                // from any one failing 'ASSERTV' will be in one contiguous
+                // block.
+//
+                double exp = x[0] * x[0];
+                ASSERTV(x[0], exp, SU::sumOfSquares(x[0]),
+                                                exp == SU::sumOfSquares(x[0]));
+//
+                exp += x[1] * x[1];
+                ASSERTV(x[0], x[1], exp, SU::sumOfSquares(x[0], x[1]),
+                                          exp == SU::sumOfSquares(x[0], x[1]));
+//
+                exp += x[2] * x[2];
+                ASSERTV(x[0], x[1], x[2], exp,
+                                            SU::sumOfSquares(x[0], x[1], x[2]),
+                                    exp == SU::sumOfSquares(x[0], x[1], x[2]));
+//
+                exp += x[3] * x[3];
+                ASSERTV(x[0], x[1], x[2], x[3], exp,
+                                      SU::sumOfSquares(x[0], x[1], x[2], x[3]),
+                              exp == SU::sumOfSquares(x[0], x[1], x[2], x[3]));
+            }
+//
+            if (veryVerbose) {
+                BSLMT_TESTUTIL_OUTPUT_GUARD;
+
+                bsl::cout << "Thread number " << idx << " finishing." <<
+                                                                     bsl::endl;
+            }
+        }
+    };
+//..
+//..
+int testMain()    // do not copy to .h file
+{
+//..
+// Next, in 'main', we allocate and populate our array of random numbers with
+// 'bsl::rand', which is single-threaded:
+//..
+    bslma::TestAllocator testAllocator("usage");
+    randNumbers = static_cast<double *>(testAllocator.allocate(
+                                       sizeof(double) * k_NUM_RAND_VARIABLES));
+//
+    for (int ii = 0; ii < k_NUM_RAND_VARIABLES; ++ii) {
+        randNumbers[ii] = static_cast<double>(bsl::rand()) / RAND_MAX *
+                                                                   bsl::rand();
     }
 //..
-// Finally, when 'testFortyTwo' is called from a test case in verbose mode we
-// observe the console output:
+// Then, we spawn our threads and let them run.
 //..
-//  value = 42
+    bslmt::ThreadGroup tg;
+    tg.addThreads(TestSums(), k_NUM_THREADS);
 //..
+// Now, we join the threads, clean up, and at the end of 'main' examine
+// 'testStatus' if it's greater than 0, report that the test failed.
+//..
+    tg.joinAll();
+//
+    testAllocator.deallocate(randNumbers);
+//
+    if (testStatus > 0) {
+        // Note that since there is a bug in 'SU::sumOfSquares' with 4 args, we
+        // expect the last assert in 'TestSums::operator()' to fail 5
+        // iterations times 10 threads == 50 times, so the following message
+        // will report 'test status = 50.'.
 
-}  // close unnamed namespace
+        bsl::cerr << "Error, non-zero test status = " << testStatus << "."
+                  << bsl::endl;
+    }
+//
+    return testStatus;
+//..
+// Finally, after the program has run, we see 50 assertion failures in the
+// output with differring values of the 'x[*]' variables, but all the asserts
+// will be intact in the output stream rather than interrupting each other.
+}
+
+}  // close namespace Usage
 
 //=============================================================================
 //                    UNDEFINE STANDARD TEST DRIVER MACROS
@@ -270,47 +440,36 @@ namespace {
 #undef T_
 #undef L_
 
-#define ASSERT(X) { realaSsErT(!(X), #X, __LINE__); }
-
 //=============================================================================
 //                    DEFINE SHORTHAND MACROS UNDER TEST
 //-----------------------------------------------------------------------------
 
-#define MT_ASSERT       BSLMT_TESTUTIL_LOOP0_ASSERT
-#define MT_ASSERTV      BSLMT_TESTUTIL_ASSERTV
+#define MT_ASSERT      BSLMT_TESTUTIL_LOOP0_ASSERT
+#define MT_ASSERTV     BSLMT_TESTUTIL_ASSERTV
 
-#define MT_Q   BSLMT_TESTUTIL_Q   // Quote identifier literally.
-#define MT_P   BSLMT_TESTUTIL_P   // Print identifier and value.
-#define MT_P_  BSLMT_TESTUTIL_P_  // P(X) without '\n'.
-#define MT_T_  BSLMT_TESTUTIL_T_  // Print a tab (w/o newline).
-#define MT_L_  BSLMT_TESTUTIL_L_  // current Line number
+#define MT_Q           BSLMT_TESTUTIL_Q   // Quote identifier literally.
+#define MT_P           BSLMT_TESTUTIL_P   // Print identifier and value.
+#define MT_P_          BSLMT_TESTUTIL_P_  // P(X) without '\n'.
+#define MT_T_          BSLMT_TESTUTIL_T_  // Print a tab (w/o newline).
+#define MT_L_          BSLMT_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+int&      testStatus          = Usage::testStatus;
+
+bool&     verbose             = Usage::verbose;
+bool&     veryVerbose         = Usage::veryVerbose;
+bool&     veryVeryVerbose     = Usage::veryVeryVerbose;
+bool&     veryVeryVeryVerbose = Usage::veryVeryVeryVerbose;
 
 typedef bslmt::TestUtil Obj;
 
-enum { FORMAT_STRING_SIZE = 256 };  // Size of temporary format string buffers
-                                    // used for output formatting.
+int                  test;
+bslma::TestAllocator ta("test");
 
-enum {
-    // Enumeration defining sizes for the buffers used by the output
-    // redirection apparatus.
-
-    OUTPUT_BUFFER_SIZE = 32 * 1024 * 1024,
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    PATH_BUFFER_SIZE   = MAX_PATH
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-    PATH_BUFFER_SIZE   = L_tmpnam
-#else
-    PATH_BUFFER_SIZE   = PATH_MAX
-#endif
-};
-
-int         test;
-static bool verbose, veryVerbose, veryVeryVerbose, veryVeryVeryVerbose;
+inline
+void aSsErT(int c, const char *s, int i)
+{
+    Usage::aSsErT(c, s, i);
+}
 
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
@@ -420,6 +579,11 @@ class OutputRedirector {
         // successfully.  Note that captured output is allowed to have 0
         // length.
 
+    int numInstances(const bsl::string& expected);
+        // Scan the buffer for instances of the specified 'expected', and
+        // return the number of of instances of 'expected' that were found.
+        // Overwrite the matched memory in the buffer with '*'s.
+
     void redirect();
         // Redirect 'stdout' to a temp file, and 'stderr' to the original
         // 'stdout', putting this 'OutputRedirector' object into the
@@ -458,10 +622,6 @@ class OutputRedirector {
     bool isRedirected() const;
         // Return 'true' if 'stdout' and 'stderr' have been successfully
         // redirected, and 'false' otherwise.
-
-    int numInstances(const char *expected) const;
-        // Scan the buffer for instances of the specified 'expected', and
-        // return the number of of instances of 'expected' that were found.
 
     const struct stat& originalStdoutStat() const;
         // Return a reference providing non-modifiable access to the status
@@ -515,7 +675,7 @@ void OutputRedirector::cleanup()
 OutputRedirector::OutputRedirector(const bsl::string&  fileName,
                                    bslma::Allocator   *alloc)
 : d_fileName(fileName, alloc)
-, d_outputBuffer(static_cast<char *>(alloc->allocate(OUTPUT_BUFFER_SIZE)))
+, d_outputBuffer(0)
 , d_isRedirectedFlag(false)
 , d_isFileCreatedFlag(false)
 , d_isOutputReadyFlag(false)
@@ -531,7 +691,9 @@ OutputRedirector::~OutputRedirector()
 {
     cleanup();
 
-    d_allocator_p->deallocate(d_outputBuffer);
+    if (d_outputBuffer) {
+        d_allocator_p->deallocate(d_outputBuffer);
+    }
 }
 
 // MANIPULATORS
@@ -542,26 +704,15 @@ char *OutputRedirector::buffer()
 
 bool OutputRedirector::load()
 {
-    ASSERT(d_isRedirectedFlag);
-    ASSERT(!ferror(stdout));
+    REAL_ASSERT(d_isRedirectedFlag);
+    REAL_ASSERT(!ferror(stdout));
 
-    d_outputSize = ftell(stdout);
-
-    if (d_outputSize + 1 > OUTPUT_BUFFER_SIZE) {
-
-        // Refuse to load output if it will not all fit in the scratch buffer.
-
-        if (veryVerbose) {
-            REALP(d_outputSize);
-            fprintf(stderr,
-                    "Error "
-                        __FILE__
-                        "(%d): Captured output exceeds read buffer size\n",
-                    __LINE__);
-        }
-        d_outputSize = 0L;
-        return false;                                                 // RETURN
+    if (d_outputBuffer) {
+        d_allocator_p->deallocate(d_outputBuffer);
     }
+    d_outputSize = ftell(stdout);
+    d_outputBuffer = static_cast<char *>(
+                                    d_allocator_p->allocate(d_outputSize + 1));
 
     rewind(stdout);
 
@@ -606,6 +757,25 @@ bool OutputRedirector::load()
     return true;
 }
 
+int OutputRedirector::numInstances(const bsl::string& expected)
+{
+    BSLS_ASSERT(d_isOutputReadyFlag);
+    BSLS_ASSERT(!expected.empty());
+    BSLS_ASSERT(bsl::string::npos == expected.find('#'));
+
+    const char   *e   = expected.c_str();
+    const size_t  len = expected.length();
+
+    int ret = 0;
+    for (char *pc = d_outputBuffer; (pc = bsl::strstr(pc, e)); ) {
+        ++ret;
+
+        bsl::fill(pc, pc + len, '#');
+    }
+
+    return ret;
+}
+
 void OutputRedirector::redirect()
 {
     if (d_isRedirectedFlag) {
@@ -625,8 +795,8 @@ void OutputRedirector::redirect()
     // in later tests.
 
     int originalStdoutFD = fileno(stdout);
-    ASSERT(-1 != originalStdoutFD);
-    ASSERT(0 == fstat(originalStdoutFD, &d_originalStdoutStat));
+    REAL_ASSERT(-1 != originalStdoutFD);
+    REAL_ASSERT(0 == fstat(originalStdoutFD, &d_originalStdoutStat));
 
     // Redirect 'stderr' to 'stdout'.
 
@@ -649,8 +819,6 @@ void OutputRedirector::redirect()
     // Redirect 'stdout' to our test file.
 
     if (!freopen(d_fileName.c_str(), "w+", stdout)) {
-
-
         if (veryVerbose) {
 
             // Note that we print this error message on 'stderr', because we
@@ -669,7 +837,7 @@ void OutputRedirector::redirect()
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
     if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
-        ASSERT(0 == "Failed to set stdout to binary mode.");
+        REAL_ASSERT(0 == "Failed to set stdout to binary mode.");
         cleanup();
         std::abort();
     }
@@ -679,7 +847,6 @@ void OutputRedirector::redirect()
     d_isRedirectedFlag  = true;
 
     if (EOF == fflush(stdout)) {
-
         // Not flushing 'stdout' is not a fatal condition, so we print out a
         // warning, but do not abort.
 
@@ -698,18 +865,21 @@ void OutputRedirector::redirect()
 
 void OutputRedirector::reset()
 {
-    ASSERT(d_isRedirectedFlag);
+    REAL_ASSERT(d_isRedirectedFlag);
 
+    if (d_outputBuffer) {
+        d_allocator_p->deallocate(d_outputBuffer);
+        d_outputBuffer = 0;
+    }
     d_outputSize        = 0L;
     d_isOutputReadyFlag = false;
-    d_outputBuffer[0]   = '\0';
     rewind(stdout);
 }
 
 // ACCESSORS
 int OutputRedirector::compare(const char *expected) const
 {
-    ASSERT(expected);
+    REAL_ASSERT(expected);
 
     return compare(expected, strlen(expected));
 }
@@ -717,8 +887,8 @@ int OutputRedirector::compare(const char *expected) const
 int OutputRedirector::compare(const char *expected,
                               size_t      expectedLength) const
 {
-    ASSERT(d_isRedirectedFlag);
-    ASSERT(expected || !expectedLength);
+    REAL_ASSERT(d_isRedirectedFlag);
+    REAL_ASSERT(expected || !expectedLength);
 
     if (!d_isOutputReadyFlag) {
         if (veryVerbose) {
@@ -747,21 +917,6 @@ bool OutputRedirector::isRedirected() const
     return d_isRedirectedFlag;
 }
 
-int OutputRedirector::numInstances(const char *expected) const
-{
-    BSLS_ASSERT(d_isOutputReadyFlag);
-    BSLS_ASSERT(expected);
-    BSLS_ASSERT(*expected);
-
-    int ret = 0;
-    for (const char *pc = d_outputBuffer; (pc = bsl::strstr(pc, expected));
-                                                                        ++pc) {
-        ++ret;
-    }
-
-    return ret;
-}
-
 const struct stat& OutputRedirector::originalStdoutStat() const
 {
     return d_originalStdoutStat;
@@ -775,6 +930,327 @@ size_t OutputRedirector::outputSize() const
 }  // close namespace u
 }  // close unnamed namespace
 
+namespace MultiThreadedTest {
+
+enum { k_NUM_THREADS = 40,
+       k_NUM_ITERATIONS  = 100,
+       k_NUM_REPEATED_RECORDS = 4 };
+
+bslmt::Barrier       barrier(k_NUM_THREADS + 1);
+bsls::AtomicInt      atomicBarrier(0);
+bsls::AtomicInt      threadIdx(0);
+bsls::AtomicInt      numChecked(0);
+
+u::OutputRedirector *outputRedirector_p = 0;
+bslmt::Mutex         checkMutex;
+
+struct ThreadData {
+    // Data for one thread.  All the variables will be initialized to have
+    // distinct values for each thread, so that output take takes variables
+    // will all be unique to each thread, and should be able to be found in
+    // the output buffer.
+
+    // CONSTANTS
+    enum { k_NUM_ASSERTS = 8 };
+
+    // DATA
+    const unsigned d_idx;        // Index of this thread, range '[ 0 .. 40 )'
+
+    const int      d_arf;        // All these variables will be given unique
+    const int      d_woof;       // values for each thread, so that output
+    const int      d_meow;       // done by a thread that outputs variables
+    const double   d_fracA;      // will be unique to that thread.
+    const double   d_fracB;
+    const double   d_fracC;
+    const double   d_fracD;
+    const double   d_fracE;
+    const double   d_fracF;
+
+    int            d_assertLines[k_NUM_ASSERTS];    // line numbers where the
+                                                    // 'MT_ASSERT*'s occur.
+
+    // CREATOR
+    explicit
+    ThreadData(unsigned idx)
+    : d_idx(idx)
+    , d_arf(idx * 43)
+    , d_woof(idx * 47)
+    , d_meow(idx * 379 + 271)
+    , d_fracA(idx * 59.0 / 64)
+    , d_fracB(idx * 61.0 / 128)
+    , d_fracC(idx * 101.0 / 128)
+    , d_fracD(idx * 383.0 / 512)
+    , d_fracE(idx * 397.0 / 512)
+    , d_fracF(idx * 2237.0 / (4 * 1024))
+        // Initialize all the variables other than 'd_assertLine' and
+        // 'd_assertVLine' to have values unique to this thread, given a
+        // specified 'idx' that is a thread index unique to the thread.
+    {}
+
+    // MANIPULATOR
+    void doOutput()
+        // Iterate 'K_NUM_ITERATIONS' times, doing various kinds of output
+        // simultaneous with all the other threads.  All output containing
+        // variables, which all have unique values for each thread, should
+        // occur exactly 'k_NUM_ITERATIONS' times, and output not containing
+        // variables should occur exactly 'k_NUM_THREADS * k_NUM_ITERATIONS'
+        // times.
+    {
+        for (int ii = 0; ii < k_NUM_ITERATIONS; ++ii) {
+            // Test 'MT_Q', 'MT_P', and 'MT_P_', all of which have built-in
+            // mutex control so their respective outputs will occur distinct
+            // but intact.
+
+            MT_Q(meow bow wow wow wow);
+            MT_P(d_fracA);
+            MT_P_(d_fracB);
+
+            // Output a block out output.  The 'BSLMT_TESTUTIL_OUTPUT_GUARD'
+            // creates a guard locking the output mutex, and the 'MT_P_',
+            // 'MT_P', 'MT_Q', and 'MT_T_' macros will all detect the presence
+            // of that guard and not try to lock the mutex themselves.
+
+            {
+                BSLMT_TESTUTIL_OUTPUT_GUARD;
+
+                MT_P_(d_idx);    MT_T_    MT_P_(d_arf);    MT_P(d_fracC);
+                MT_P(d_idx * d_arf * d_fracD);
+                MT_Q(To be or not to be -- that is the question.);
+            }
+
+            int assertIdx = 0;
+
+            // An assert with no variable output.
+
+            d_assertLines[assertIdx++] = MT_L_ + 1;
+            MT_ASSERT(d_woof == d_meow);
+
+            // An assert with several variables output.
+
+            d_assertLines[assertIdx++] = MT_L_ + 1;
+            MT_ASSERTV(d_woof, d_meow, d_fracE, d_fracF, d_meow < d_fracF);
+
+            // Output block containing regular stream output.
+
+            {
+                BSLMT_TESTUTIL_OUTPUT_GUARD;
+                using namespace bsl;
+
+                cout << "There are more things in heaven and earth, Horatio,"<<
+                                                                          endl;
+                cout << "Than are dreamt of in your philosophy." << endl;
+                cout << d_fracD * d_fracE << endl;
+            }
+
+            // Output blocks containing all the asserts we haven't done yet.
+
+            {
+                BSLMT_TESTUTIL_OUTPUT_GUARD;
+
+                d_assertLines[assertIdx++] = MT_L_ + 1;
+                MT_ASSERTV(d_woof > 2 * d_meow);
+                d_assertLines[assertIdx++] = MT_L_ + 1;
+                MT_ASSERTV(d_woof, d_woof > 3 * d_meow);
+            }
+
+            // In Aix, the value of '__LINE__' within a macro is at the first
+            // line, on other platforms, it's at the last line.
+
+#if !defined(BSLS_PLATFORM_OS_AIX)
+            const int twoLineMacroRel = 2;
+#else
+            const int twoLineMacroRel = 1;
+#endif
+
+            {
+                BSLMT_TESTUTIL_OUTPUT_GUARD;
+
+                d_assertLines[assertIdx++] = MT_L_ + 1;
+                MT_ASSERTV(d_woof, d_meow, d_woof >= 3 * d_meow);
+                d_assertLines[assertIdx++] = MT_L_ + twoLineMacroRel;
+                MT_ASSERTV(d_arf, d_meow, d_fracA,
+                                                d_arf + d_meow == 3 * d_fracA);
+            }
+
+            {
+                BSLMT_TESTUTIL_OUTPUT_GUARD;
+
+                d_assertLines[assertIdx++] = MT_L_ + twoLineMacroRel;
+                MT_ASSERTV(d_arf, d_meow, d_fracA, d_fracB, d_fracC,
+                            d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC);
+                d_assertLines[assertIdx++] = MT_L_ + twoLineMacroRel;
+                MT_ASSERTV(d_arf, d_meow, d_fracA, d_fracB, d_fracC, d_fracD,
+                  d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC * d_fracD);
+            }
+
+            BSLS_ASSERT(k_NUM_ASSERTS == assertIdx);
+        }
+    }
+
+    // ACCESSOR
+    void checkPatterns() const
+        // The threads are all done running 'doOutput' and doing output and
+        // the output redirector has been loaded.  Now we look through the
+        // buffer of output for all the expected output.  As we find expected
+        // patterns, we count the number of times they occur and fill the
+        // buffer footprint of the patterns with '#' (both of which are done
+        // by 'u::OutputRedirector::numInstances').
+    {
+        bslmt::LockGuard<bslmt::Mutex> lockGuard(&checkMutex);
+            // We are going to be using the single-threaded 'REAL*' asserts and
+            // using the 'str()' accessor of 'bsl::ostringstream', which uses
+            // the default allocator, and we want to install a default
+            // allocator guard to guide that to use our test allocator, which
+            // doesn't work well in a multithreaded context, so we control this
+            // method with a mutex to ensure that happens on only one thread at
+            // a time.  The method 'u::OutputRedirector::numInstances' is also
+            // not thread-safe.
+
+        bslma::DefaultAllocatorGuard  allocGuard(&ta);
+        bsl::ostringstream            oss(&ta);
+        bsl::string                   pattern(&ta);
+        int                           expMatch;
+        int                           assertIdx = 0;
+
+#define PV(X)    #X ": " << X << '\n'
+#define PV_(X)   #X ": " << X << '\t'
+#define PE      "Error " << __FILE__ << '(' << d_assertLines[assertIdx++]
+
+        if (0 == d_idx) {
+            // First, check output that did not contain variable values, which
+            // will have been output every iteration by every thread.  Only do
+            // this in the first thread.
+
+            ++numChecked;
+            expMatch = k_NUM_THREADS * k_NUM_ITERATIONS;
+
+            pattern = "<| meow bow wow wow wow |>\n";
+            const int numQ = outputRedirector_p->numInstances(pattern);
+            REALLOOP4_ASSERT(d_idx, pattern, expMatch, numQ,
+                                                           expMatch == numQ);
+
+            oss.str("");
+            oss << PE <<"): d_woof == d_meow    (failed)\n";
+            pattern = oss.str();
+            const int numA = outputRedirector_p->numInstances(pattern);
+            REALLOOP4_ASSERT(d_idx, pattern, expMatch, numA, expMatch == numA);
+        }
+        else {
+            ++assertIdx;
+        }
+
+        // Now check all the output that had variable values in it.  Since the
+        // variables were all unique to each thread, each pattern will be
+        // unique to this thread and will have occurred exactly
+        // 'k_NUM_ITERATINS' times.
+
+        ++numChecked;
+        expMatch = k_NUM_ITERATIONS;
+
+        oss.str("");
+        oss << "d_fracA = " << d_fracA << "\n";
+        pattern = oss.str();
+        const int numP = outputRedirector_p->numInstances(pattern);
+        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numP, expMatch == numP);
+
+        oss.str("");
+        oss << "d_fracB = " << d_fracB << ", ";
+        pattern = oss.str();
+        const int numP_ = outputRedirector_p->numInstances(pattern);
+        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numP_, expMatch == numP_);
+
+        oss.str("");
+        oss << "d_idx = " << d_idx << ", \t" << "d_arf = " << d_arf <<
+                                           ", d_fracC = " << d_fracC << "\n" <<
+               "d_idx * d_arf * d_fracD = " << d_idx*d_arf*d_fracD << "\n" <<
+               "<| To be or not to be -- that is the question. |>\n";
+        pattern = oss.str();
+        const int numBlock = outputRedirector_p->numInstances(pattern);
+        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBlock,
+                                                         expMatch == numBlock);
+
+        oss.str("");
+        oss << PV_(d_woof) << PV_(d_meow) << PV_(d_fracE) << PV(d_fracF) <<
+               PE << "): d_meow < d_fracF    (failed)\n";
+        pattern = oss.str();
+        const int numAV = outputRedirector_p->numInstances(pattern);
+        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numAV, expMatch == numAV);
+
+        oss.str("");
+        oss << "There are more things in heaven and earth, Horatio,\n"
+               "Than are dreamt of in your philosophy.\n" <<
+               d_fracD * d_fracE << bsl::endl;
+        pattern = oss.str();
+        const int numCout = outputRedirector_p->numInstances(pattern);
+        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numCout,
+                                                          expMatch == numCout);
+
+        oss.str("");
+        oss << PE << "): d_woof > 2 * d_meow    (failed)\n";
+        oss << PV(d_woof) <<
+               PE << "): d_woof > 3 * d_meow    (failed)\n";
+        pattern = oss.str();
+        const int numBA1 = outputRedirector_p->numInstances(pattern);
+        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBA1, expMatch == numBA1);
+
+        oss.str("");
+        oss << PV_(d_woof) << PV(d_meow) <<
+               PE << "): d_woof >= 3 * d_meow    (failed)\n";
+        oss << PV_(d_arf) << PV_(d_meow) << PV(d_fracA) <<
+               PE << "): d_arf + d_meow == 3 * d_fracA    (failed)\n";
+        pattern = oss.str();
+        const int numBA2 = outputRedirector_p->numInstances(pattern);
+        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBA2, expMatch == numBA2);
+
+        oss.str("");
+        oss << PV_(d_arf) << PV_(d_meow) << PV_(d_fracA) << PV_(d_fracB) <<
+               PV(d_fracC) <<
+               PE << "): d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC"
+                     "    (failed)\n";
+        oss << PV_(d_arf) << PV_(d_meow) << PV_(d_fracA) << PV_(d_fracB) <<
+               PV_(d_fracC) << PV(d_fracD) <<
+               PE << "): d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC *"
+                     " d_fracD    (failed)\n";
+        pattern = oss.str();
+        const int numBA3 = outputRedirector_p->numInstances(pattern);
+        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBA3, expMatch == numBA3);
+
+        BSLS_ASSERT(k_NUM_ASSERTS == assertIdx);
+
+        // At this point, this method has counted up all the output created
+        // by the 'doOutput' method and replaced what it found with '#'s.
+        // After all the threads have been joined, the main thread will check
+        // that the output buffer is 100% '#'s.
+#undef PV
+#undef PV_
+#undef PE
+    }
+};
+
+struct Func {
+    void operator()()
+    {
+        ThreadData threadData(threadIdx++);
+        REAL_ASSERT(0 != outputRedirector_p);
+
+        barrier.wait();
+        ++atomicBarrier;
+        while (atomicBarrier < k_NUM_THREADS) ;
+
+        threadData.doOutput();
+
+        barrier.wait();
+
+        // main thread is loading the output redirector
+
+        barrier.wait();
+
+        threadData.checkPatterns();
+    }
+};
+
+}  // close namespace MultiThreadedTest
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -787,17 +1263,44 @@ int main(int argc, char *argv[])
     veryVeryVerbose     = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
-    bslma::TestAllocator ta("test", veryVeryVeryVerbose);
-
     bsl::string scratchFileName(&ta);
     {
-        char buf[256];
-        snprintf(buf,
-                 sizeof(buf),
-                 "tmp.bslmt_testutil.output.case.%d.txt",
-                 test);
+#if   defined(BSLS_PLATFORM_OS_AIX)
+        const char *platform = "aix";
+#elif defined(BSLS_PLATFORM_OS_CYGWIN)
+        const char *platform = "cygwin";
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+        const char *platform = "darwin";
+#elif defined(BSLS_PLATFORM_OS_FREEBSD)
+        const char *platform = "freebsd";
+#elif defined(BSLS_PLATFORM_OS_HPUX)
+        const char *platform = "hpux";
+#elif defined(BSLS_PLATFORM_OS_LINUX)
+        const char *platform = "linux";
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
+        const char *platform = "solaris";
+#elif defined(BSLS_PLATFORM_OS_SUNOS)
+        const char *platform = "sunos";
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+        const char *platform = "windows";
+#else
+        const char *platform = "other";
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_32_BIT)
+        const int numBits = 32;
+#else
+        const int numBits = 64;
+#endif
+
+        char buf[1024];
+        snprintf(buf, sizeof(buf),
+                 "tmp.bslmt_testutil.output.case:%d.%s%d.txt",
+                 test, platform, numBits);
         scratchFileName = buf;
     }
+    unlink(scratchFileName.c_str());
+    if (veryVerbose) REALP(scratchFileName);
 
     static const int usageTest = 9;
 
@@ -829,13 +1332,136 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cerr << bsl::endl
-                               << "USAGE EXAMPLE" << bsl::endl
-                               << "=============" << bsl::endl;
+        if (verbose) bsl::cerr << "USAGE EXAMPLE\n"
+                                  "=============\n";
 
-        testFortyTwo(verbose);
+        namespace TC = Usage;
+
+        int rc = TC::testMain();
+        REALLOOP2_ASSERT(rc, testStatus, rc == testStatus);
+
+        REALLOOP3_ASSERT(TC::k_NUM_THREADS, TC::k_NUM_ITERATIONS, testStatus,
+                       TC::k_NUM_THREADS * TC::k_NUM_ITERATIONS == testStatus);
       } break;
       case 8: {
+        // --------------------------------------------------------------------
+        // MULTITHREADED_TEST
+        //
+        // Concern:
+        //: 1 That the macros all operate properly in a multithreaded context.
+        //:
+        //: 2 That output from macros not contained in a guarded block are
+        //:   always preserved intact in their entirety.
+        //:
+        //: 3 That output done within a guarded block is preserved intact in
+        //:   its entirety.
+        //
+        // Plan:
+        //: 1 Launch 40 threads that will simultaneously use the macros to do
+        //:   output, and output directly within guarded blocks, which will be
+        //:   captured by 'output'.
+        //:
+        //: 2 Load the captured output into a buffer.
+        //:
+        //: 3 Have the threads simultaneously construct all the unique strings
+        //:   expected to be found in the output.  Have them call
+        //:   'u::OutputRedirector::numInstances' to count the number of
+        //:   occurrences of each string and fill their footprints with '#'
+        //:   characters.  Verify that the number of occurrences was as
+        //:   expected.
+        //
+        // Testing:
+        //   BSLMT_TESTUTIL_Q
+        //   BSLMT_TESTUTIL_P
+        //   BSLMT_TESTUTIL_P_
+        //   BSLMT_TESTUTIL_ASSERT
+        //   BSLMT_TESTUTIL_ASSERTV
+        //   BSLMT_TESTUTIL_OUTPUT_GUARD
+        // --------------------------------------------------------------------
+
+
+        if (verbose) bsl::cerr << "MULTITHREADED_TEST\n"
+                                  "==================\n";
+
+        namespace TC = MultiThreadedTest;
+
+        TC::outputRedirector_p = &output;
+
+        bslmt::ThreadGroup tg(&ta);
+        tg.addThreads(TC::Func(), TC::k_NUM_THREADS);
+
+        // Threads are initializing their 'ThreadData' objects.
+
+        TC::barrier.wait();
+
+        REALLOOP2_ASSERT(TC::k_NUM_THREADS, TC::threadIdx,
+                                           TC::k_NUM_THREADS == TC::threadIdx);
+
+        // Subthreads are all running 'Data::doOutput' concurrently.
+
+        TC::barrier.wait();
+
+        output.load();
+        const size_t  len = output.outputSize();
+        char         *buf = output.buffer();
+
+        REALLOOP1_ASSERT(len,
+                          TC::k_NUM_THREADS * TC::k_NUM_ITERATIONS * 80 < len);
+
+        size_t numHashes = bsl::count(buf, buf + len, '#');
+        REALLOOP1_ASSERT(numHashes, 0 == numHashes);
+
+        int saveRealTestStatus = realTestStatus;
+        if (veryVeryVerbose) REALP(saveRealTestStatus);
+
+        TC::barrier.wait();
+
+        // Subthreads are all running 'Data::checkPatterns', checking the
+        // output for matching strings and replacing matched strings with '*'s
+        // in the output buffer.  'Data::checkPatterns' is controlled by a
+        // mutex, so they only run one at a time.
+
+        tg.joinAll();
+
+        if (veryVeryVerbose && saveRealTestStatus != realTestStatus) {
+            bsl::cerr << "Unmatched strings:\n"
+                         "=================\n";
+
+            int stringIdx = 0;
+            bsl::string s(&ta);
+            for (const char *a = output.buffer(), *b, *c; *a; a = c) {
+                for (b = a; '#' == *b; ++b) ;
+                if (!*b) {
+                    break;
+                }
+                for (c = b + 1; *c && '#' != *c; ++c) ;
+
+                bsl::cerr << "String " << stringIdx++ << bsl::endl;
+                s.clear();
+                s.insert(s.end(), b, c);
+                bsl::cerr << s << bsl::endl;
+            }
+        }
+
+        REALLOOP2_ASSERT(TC::k_NUM_THREADS, TC::numChecked,
+                                      TC::k_NUM_THREADS + 1 == TC::numChecked);
+
+        // The output buffer should be undisturbed, other than being
+        // overwritten with '#'s.
+
+        REAL_ASSERT(output.outputSize() == len);
+        REAL_ASSERT(output.buffer()     == buf);
+
+        // Check that 100% of the buffer has been overwritten with '#'s.
+
+        numHashes = bsl::count(buf, buf + len, '#');
+        REALLOOP2_ASSERT(numHashes, len, numHashes == len);
+
+        if (verbose) {
+            REALP_(len);    REALP(numHashes);
+        }
+      } break;
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING 'callFunc' AND 'setFunc' METHODS
         //
@@ -853,399 +1479,43 @@ int main(int argc, char *argv[])
         //   void *callFunc(void *arg);
         //   void setFunc(Func func);
         // --------------------------------------------------------------------
-        if (verbose) bsl::cout << "\nTESTING 'callFunc' AND 'setFunc' METHODS"
-                               << "\n========================================"
-                               << bsl::endl;
+
+        if (verbose) bsl::cerr << "TESTING 'callFunc' AND 'setFunc' METHODS\n"
+                                  "========================================\n";
 
         using namespace BSLMT_TESTUTIL_TEST_FUNCTION_CALL;
 
-        ASSERT(0 == callCount);
+        REAL_ASSERT(0 == callCount);
 
         Obj::setFunc(testFunctionAdd);
 
-        ASSERT(0 == callCount);
+        REAL_ASSERT(0 == callCount);
 
         int   refValue;
         void *INPUT = &refValue;
         void *result = Obj::callFunc(INPUT);
 
-        ASSERT(1 == callCount);
-        ASSERT(&refValue == result);
+        REAL_ASSERT(1 == callCount);
+        REAL_ASSERT(&refValue == result);
 
         result = Obj::callFunc(INPUT);
 
-        ASSERT(2 == callCount);
-        ASSERT(&refValue == result);
+        REAL_ASSERT(2 == callCount);
+        REAL_ASSERT(&refValue == result);
 
         Obj::setFunc(testFunctionSub);
 
-        ASSERT(2 == callCount);
+        REAL_ASSERT(2 == callCount);
 
         result = Obj::callFunc(INPUT);
 
-        ASSERT(1 == callCount);
-        ASSERT(&refValue == result);
+        REAL_ASSERT(1 == callCount);
+        REAL_ASSERT(&refValue == result);
 
         result = Obj::callFunc(INPUT);
 
-        ASSERT(0 == callCount);
-        ASSERT(&refValue == result);
-      } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // TESTING 'compareText'
-        //
-        // Concerns:
-        //: 1 The function returns 'true' if the strings are both empty
-        //:
-        //: 2 The function returns 'true' if the strings have the same value
-        //:
-        //: 3 The function returns 'false' if the left string is shorter
-        //:   than the right.
-        //:
-        //: 4 The function returns 'false' if the right string is shorter
-        //:   than the left.
-        //:
-        //: 5 The function returns 'false' if the strings are the same length
-        //:   but differ in their contents
-        //:
-        //: 6 The function writes a message to the supplied stream containing
-        //:   information about the character where they differ, if the two
-        //:   strings are not the same.
-        //:
-        //: 7 If no stream is explicitly supplied, error messages are written
-        //:   to 'stdout'.
-        //:
-        //: 8 The function correctly handles embedded non-ascii and null
-        //:   characters.
-        //
-        // Plan:
-        //: 1 Call 'compareText' with a data set containing a variety of
-        //:   strings, and compare the results to 'strcmp'.  (C-1-6)
-        //:
-        //: 2 Call 'compareText' with a data set containing embedded nulls and
-        //:   compare the results against
-        //:   'bslstl::StringRef::operator=='. (C-8)
-        //:
-        //: 3 Call 'compareText' with types of un-equal strings that will
-        //:   produce different error messages, and verify the produced error
-        //:   message meets the expected error message. (C-7)
-        //
-        // Testing:
-        //   bool compareText(StringRef, StringRef, bsl::ostream&);
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cout << bsl::endl
-                               << "TESTING 'compareText'" << bsl::endl
-                               << "=====================" << bsl::endl;
-
-        if (verbose) bsl::cout << "Compare against 'strcmp'." << bsl::endl;
-        {
-            const char *DATA[] = {
-                "",
-                "a",
-                "z",
-                "A",
-                "Z",
-                "\x01",
-                "\x20",
-                "\x40",
-                "\x60",
-                "\x80",
-                "\xA0",
-                "\xC0",
-                "\xE0",
-                "\xF0",
-                " a",
-                " z",
-                " A",
-                " Z",
-                " \x01",
-                " \x50",
-                " \xA0",
-                " \xF0",
-                "aa",
-                "az",
-                "aA",
-                "aZ",
-                "a\x01",
-                "a\x50",
-                "a\xA0",
-                "a\xF0",
-                "Za",
-                "Zz",
-                "ZA",
-                "ZZ",
-                "Z\x01",
-                "Z\x50",
-                "Z\xA0",
-                "Z\xF0",
-                "\xA0""a",
-                "\xA0""z",
-                "\xA0""A",
-                "\xA0""Z",
-                "\xA0""\x01",
-                "\xA0""\x50",
-                "\xA0""\xA0""",
-                "\xA0""\xF0",
-                "  a",
-                "  z",
-                "  A",
-                "  Z",
-                "  \x01",
-                "  \x50",
-                "  \xA0",
-                "  \xF0",
-                "aaa",
-                "aaz",
-                "aaA",
-                "aaZ",
-                "aa\x01",
-                "aa\x50",
-                "aa\xA0",
-                "aa\xF0",
-                "aZa",
-                "aZz",
-                "aZA",
-                "aZZ",
-                "aZ\x01",
-                "aZ\x50",
-                "aZ\xA0",
-                "aZ\xF0",
-                "a\xA0""a",
-                "a\xA0""z",
-                "a\xA0""A",
-                "a\xA0""Z",
-                "a\xA0""\x01",
-                "a\xA0""\x50",
-                "a\xA0""\xA0",
-                "a\xA0""\xF0",
-                "a a",
-                "a z",
-                "a A",
-                "a Z",
-                "a \x01",
-                "a \x50",
-                "a \xA0",
-                "a \xF0",
-                "aaa",
-                "aaz",
-                "aaA",
-                "aaZ",
-                "aa\x01",
-                "aa\x50",
-                "aa\xA0",
-                "aa\xF0",
-                "aZa",
-                "aZz",
-                "aZA",
-                "aZZ",
-                "aZ\x01",
-                "aZ\x50",
-                "aZ\xA0",
-                "aZ\xF0",
-                "a\xA0""a",
-                "a\xA0""z",
-                "a\xA0""A",
-                "a\xA0""Z",
-                "a\xA0""\x01",
-                "a\xA0""\x50",
-                "a\xA0""\xA0",
-                "a\xA0""\xF0",
-                "aaa",
-                "aaz",
-                "aaA",
-                "aaZ",
-                "aa\x01",
-                "aa\x50",
-                "aa\xA0",
-                "aa\xF0",
-                "aZa",
-                "aZz",
-                "aZA",
-                "aZZ",
-                "aZ\x01",
-                "aZ\x50",
-                "aZ\xA0",
-                "aZ\xF0",
-                "a\xA0""a",
-                "a\xA0""z",
-                "a\xA0""A",
-                "a\xA0""Z",
-                "a\xA0""\x01",
-                "a\xA0""\x50",
-                "a\xA0""\xA0",
-                "a\xA0""\xF0",
-                "\xF0"" a",
-                "\xF0"" z",
-                "\xF0"" A",
-                "\xF0"" Z",
-                "\xF0"" \x01",
-                "\xF0"" \x50",
-                "\xF0"" \xA0",
-                "\xF0"" \xF0",
-                "\xF0""aa",
-                "\xF0""az",
-                "\xF0""aA",
-                "\xF0""aZ",
-                "\xF0""a\x01",
-                "\xF0""a\x50",
-                "\xF0""a\xA0",
-                "\xF0""a\xF0",
-                "\xF0""Za",
-                "\xF0""Zz",
-                "\xF0""ZA",
-                "\xF0""ZZ",
-                "\xF0""Z\x01",
-                "\xF0""Z\x50",
-                "\xF0""Z\xA0",
-                "\xF0""Z\xF0",
-                "\xF0""\xA0""a",
-                "\xF0""\xA0""z",
-                "\xF0""\xA0""A",
-                "\xF0""\xA0""Z",
-                "\xF0""\xA0""\x01",
-                "\xF0""\xA0""\x50",
-                "\xF0""\xA0""\xA0",
-                "\xF0""\xA0""\xF0""",
-                "aaaaaaaaa",
-                "aaaaaaaa ",
-                "aaaaaaaa",
-                "zzzzzaaaaaaaa",
-            };
-
-            const int NUM_DATA  = sizeof(DATA)/sizeof(*DATA);
-
-            for (int a = 0; a < NUM_DATA; ++a) {
-                for (int b = 0; b < NUM_DATA; ++b) {
-
-                    bsl::ostringstream output;
-
-                    const char *aString = DATA[a];
-                    const char *bString = DATA[b];
-
-                    bool equal = 0 == strcmp(aString, bString);
-
-                    ASSERT(equal ==
-                           Obj::compareText(aString, bString, output));
-                    ASSERT(equal == output.str().empty());
-                }
-            }
-
-        }
-
-        if (verbose) bsl::cout << "Compare data with embedded nulls."
-                               << bsl::endl;
-        {
-            struct TestData {
-                char d_string[5];
-                int  d_size;
-            } DATA[] = {
-                { { }                            , 0 },
-                { {    0 }                       , 1 },
-                { { 0x10 }                       , 1 },
-                { { 'a'  }                       , 1 },
-                { { 'a'  , 'a',    0, 0x10, 'b' }, 5 },
-                { {  0   , 'a',  'b', 0x10, 'b' }, 5 },
-                { {  0   , 'a',  'b', 0x10, 'c' }, 5 },
-                { {  0   , 'a',  'b', 0x10,  0  }, 5 }
-            };
-            const int NUM_DATA  = sizeof(DATA)/sizeof(*DATA);
-
-            for (int a = 0; a < NUM_DATA; ++a) {
-                for (int b = 0; b < NUM_DATA; ++b) {
-
-                    bsl::ostringstream output;
-
-                    bslstl::StringRef aString(DATA[a].d_string,
-                                              DATA[a].d_size);
-                    bslstl::StringRef bString(DATA[b].d_string,
-                                              DATA[b].d_size);
-
-                    bool equal = aString == bString;
-                    ASSERT(equal ==
-                           Obj::compareText(aString, bString, output));
-                    ASSERT(equal == output.str().empty());
-                }
-            }
-        }
-
-        if (verbose) bsl::cout << "verify error message." << bsl::endl;
-        {
-            bsl::string INDEX_MARKER("index (");
-            bsl::string A_MARKER("a[i] = ");
-            bsl::string B_MARKER("b[i] = ");
-            {
-                bsl::ostringstream  error;
-                const char         *A = "aa";
-                const char         *B = "ab";
-
-                ASSERT(false == Obj::compareText(A, B, error));
-
-                bsl::string errorMsg = error.str();
-
-                ASSERT(0 < errorMsg.size());
-
-                ASSERT(bsl::string::npos != errorMsg.find(INDEX_MARKER));
-                ASSERT('1' == errorMsg[
-                           errorMsg.find(INDEX_MARKER) + INDEX_MARKER.size()]);
-
-                ASSERT(bsl::string::npos != errorMsg.find(A_MARKER));
-                ASSERT('a' == errorMsg[
-                           errorMsg.find(A_MARKER) + A_MARKER.size()]);
-
-                ASSERT('b' == errorMsg[
-                           errorMsg.find(B_MARKER) + B_MARKER.size()]);
-
-            }
-
-            {
-                bsl::ostringstream  error;
-                const char         *A = "a";
-                const char         *B = "aa";
-
-                ASSERT(false == Obj::compareText(A, B, error));
-
-                bsl::string errorMsg = error.str();
-
-                ASSERT(0 < errorMsg.size());
-
-                ASSERT(bsl::string::npos != errorMsg.find(INDEX_MARKER));
-                ASSERT('1' == errorMsg[
-                           errorMsg.find(INDEX_MARKER) + INDEX_MARKER.size()]);
-
-                ASSERT(bsl::string::npos != errorMsg.find(A_MARKER));
-                ASSERT('E' == errorMsg[
-                           errorMsg.find(A_MARKER) + A_MARKER.size()]);
-
-                ASSERT('a' == errorMsg[
-                           errorMsg.find(B_MARKER) + B_MARKER.size()]);
-
-            }
-            {
-                bsl::ostringstream  error;
-                const char         *A = "aa";
-                const char         *B = "a";
-
-                ASSERT(false == Obj::compareText(A, B, error));
-
-                bsl::string errorMsg = error.str();
-
-                ASSERT(0 < errorMsg.size());
-
-                ASSERT(bsl::string::npos != errorMsg.find(INDEX_MARKER));
-                ASSERT('1' == errorMsg[
-                           errorMsg.find(INDEX_MARKER) + INDEX_MARKER.size()]);
-
-                ASSERT(bsl::string::npos != errorMsg.find(A_MARKER));
-                ASSERT('a' == errorMsg[
-                           errorMsg.find(A_MARKER) + A_MARKER.size()]);
-
-                ASSERT('E' == errorMsg[
-                           errorMsg.find(B_MARKER) + B_MARKER.size()]);
-
-            }
-        }
+        REAL_ASSERT(0 == callCount);
+        REAL_ASSERT(&refValue == result);
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1292,12 +1562,9 @@ int main(int argc, char *argv[])
         //   BSLMT_TESTUTIL_ASSERTV(...)
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cerr << bsl::endl
-                      << "BSLMT_TESTUTIL_LOOP*_ASSERT AND BSLMT_ASSERTV MACROS"
-                      << bsl::endl
-                      << "===================================================="
-                      << bsl::endl;
+        if (verbose) bsl::cerr <<
+                      "BSLMT_TESTUTIL_LOOP*_ASSERT AND BSLMT_ASSERTV MACROS\n"
+                      "====================================================\n";
 
         enum {
             BUFFER_SIZE    = 1024,  // size of the buffer used to store
@@ -1315,7 +1582,7 @@ int main(int argc, char *argv[])
 
         // 'BSLMT_TESTUTIL_LOOP1_ASSERT(I,X)'
         {
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
 
@@ -1326,10 +1593,10 @@ int main(int argc, char *argv[])
                 BSLMT_TESTUTIL_ASSERTV(I, idx < NUM_ITERATIONS);
 
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
             }
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
 
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
@@ -1340,7 +1607,7 @@ int main(int argc, char *argv[])
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_LOOP1_ASSERT(I, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\nError %s(%d):"
@@ -1352,7 +1619,7 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
@@ -1366,7 +1633,7 @@ int main(int argc, char *argv[])
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_ASSERTV(I, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\nError %s(%d):"
@@ -1378,13 +1645,13 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP2_ASSERT(I,J,X)'
         {
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
@@ -1395,10 +1662,10 @@ int main(int argc, char *argv[])
                 BSLMT_TESTUTIL_LOOP2_ASSERT(I, J, idx < NUM_ITERATIONS);
                 BSLMT_TESTUTIL_ASSERTV(I, J,idx < NUM_ITERATIONS);
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
             }
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
 
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
@@ -1410,7 +1677,7 @@ int main(int argc, char *argv[])
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_LOOP2_ASSERT(I, J, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\nError %s(%d):"
@@ -1422,7 +1689,7 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
@@ -1437,7 +1704,7 @@ int main(int argc, char *argv[])
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_ASSERTV(I, J, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\nError %s(%d):"
@@ -1449,13 +1716,13 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP3_ASSERT(I,J,K,X)'
         {
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
@@ -1468,10 +1735,10 @@ int main(int argc, char *argv[])
                                             idx < NUM_ITERATIONS);
                 BSLMT_TESTUTIL_ASSERTV(I, J, K, idx < NUM_ITERATIONS);
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
             }
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
 
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
@@ -1484,7 +1751,7 @@ int main(int argc, char *argv[])
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_LOOP3_ASSERT(I, J, K, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\nError %s(%d):"
@@ -1496,7 +1763,7 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
@@ -1512,7 +1779,7 @@ int main(int argc, char *argv[])
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_ASSERTV(I, J, K, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\nError %s(%d):"
@@ -1524,13 +1791,13 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)'
         {
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
@@ -1544,10 +1811,10 @@ int main(int argc, char *argv[])
                                             idx < NUM_ITERATIONS);
                 BSLMT_TESTUTIL_ASSERTV(I, J, K, L, idx < NUM_ITERATIONS);
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
             }
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
 
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
@@ -1561,7 +1828,7 @@ int main(int argc, char *argv[])
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_LOOP4_ASSERT(I, J, K, L, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\nError %s(%d):"
@@ -1573,7 +1840,7 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
@@ -1590,7 +1857,7 @@ int main(int argc, char *argv[])
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_ASSERTV(I, J, K, L, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\nError %s(%d):"
@@ -1602,13 +1869,13 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)'
         {
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
@@ -1623,10 +1890,10 @@ int main(int argc, char *argv[])
                                             idx < NUM_ITERATIONS);
                 BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, idx < NUM_ITERATIONS);
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
             }
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
 
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
@@ -1642,7 +1909,7 @@ int main(int argc, char *argv[])
                 BSLMT_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M,
                                             idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError %s(%d):"
@@ -1654,7 +1921,7 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
@@ -1684,7 +1951,7 @@ int main(int argc, char *argv[])
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError %s(%d):"
@@ -1696,13 +1963,13 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
 
         // 'BSLMT_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)'
         {
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
                 const int J = idx + 1;
@@ -1718,10 +1985,10 @@ int main(int argc, char *argv[])
                                             idx < NUM_ITERATIONS);
                 BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, N, idx < NUM_ITERATIONS);
                 REALLOOP1_ASSERT(testStatus, 0 == testStatus);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
             }
-            ASSERT(0 == testStatus);
+            REAL_ASSERT(0 == testStatus);
 
             for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
                 const int I = idx;
@@ -1738,7 +2005,7 @@ int main(int argc, char *argv[])
                 BSLMT_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N,
                                             idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\n"
@@ -1751,7 +2018,7 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
 
             // Repeat for 'ASSERTV'.
@@ -1770,7 +2037,7 @@ int main(int argc, char *argv[])
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, N, idx > NUM_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
-                ASSERT(output.load());
+                REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
                          "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d\n"
@@ -1783,7 +2050,7 @@ int main(int argc, char *argv[])
                                  output.buffer(),
                                  0 == output.compare(s_expectedOutput));
             }
-            ASSERT(NUM_ITERATIONS == testStatus);
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
             testStatus = 0;
         }
       } break;
@@ -1806,35 +2073,34 @@ int main(int argc, char *argv[])
         //   BSLMT_TESTUTIL_Q(X)
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cerr << bsl::endl
-                               << "'Q' (IDENTIFIER OUTPUT MACRO)" << bsl::endl
-                               << "=============================" << bsl::endl;
+        if (verbose) bsl::cerr << "'Q' (IDENTIFIER OUTPUT MACRO)\n"
+                                  "=============================\n";
         {
             output.reset();
             BSLMT_TESTUTIL_Q(sample);
-            ASSERT(output.load());
-            ASSERT(0 == output.compare("<| sample |>\n"));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare("<| sample |>\n"));
         }
 
         {
             output.reset();
             BSLMT_TESTUTIL_Q(embedded white   space);
-            ASSERT(output.load());
-            ASSERT(0 == output.compare("<| embedded white space |>\n"));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare("<| embedded white space |>\n"));
         }
 
         {
             output.reset();
             BSLMT_TESTUTIL_Q(   initial whitespace);
-            ASSERT(output.load());
-            ASSERT(0 == output.compare("<| initial whitespace |>\n"));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare("<| initial whitespace |>\n"));
         }
 
         {
             output.reset();
             BSLMT_TESTUTIL_Q(final whitespace   );
-            ASSERT(output.load());
-            ASSERT(0 == output.compare("<| final whitespace |>\n"));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare("<| final whitespace |>\n"));
         }
       } break;
       case 4: {
@@ -1863,11 +2129,8 @@ int main(int argc, char *argv[])
         //   BSLMT_TESTUTIL_P_(X)
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cerr << bsl::endl
-                               << "'P' AND 'P_' (VALUE OUTPUT MACROS)"
-                               << bsl::endl
-                               << "=================================="
-                               << bsl::endl;
+        if (verbose) bsl::cerr << "'P' AND 'P_' (VALUE OUTPUT MACROS)\n"
+                                  "==================================\n";
 
         // 'BSLMT_TESTUTIL_P(X)'
         {
@@ -1875,7 +2138,7 @@ int main(int argc, char *argv[])
 
             output.reset();
             BSLMT_TESTUTIL_P(INPUT);
-            ASSERT(output.load());
+            REAL_ASSERT(output.load());
             REALLOOP1_ASSERT(output.buffer(),
                              0 == output.compare("INPUT = 42\n"));
         }
@@ -1886,7 +2149,7 @@ int main(int argc, char *argv[])
 
             output.reset();
             BSLMT_TESTUTIL_P_(INPUT);
-            ASSERT(output.load());
+            REAL_ASSERT(output.load());
             REALLOOP1_ASSERT(output.buffer(),
                              0 == output.compare("INPUT = 42, "));
         }
@@ -1914,34 +2177,33 @@ int main(int argc, char *argv[])
         //   BSLMT_TESTUTIL_T_
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cerr << bsl::endl
-                               << "'L_' AND 'T_' (STATIC MACROS)" << bsl::endl
-                               << "=============================" << bsl::endl;
+        if (verbose) bsl::cerr << "'L_' AND 'T_' (STATIC MACROS)\n"
+                                  "=============================\n";
 
         // 'BSLMT_TESTUTIL_L_'
         {
             // Line spacing is significant as it assures
             // 'BSLMT_TESTUTIL_L_' is not a simple sequence.
 
-            ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
+            REAL_ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
 
 
-            ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
-            ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
+            REAL_ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
+            REAL_ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
 
 
 
-            ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
+            REAL_ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
 
-            ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
+            REAL_ASSERT(__LINE__ == BSLMT_TESTUTIL_L_);
         }
 
         // 'BSLMT_TESTUTIL_T_'
         {
             output.reset();
             BSLMT_TESTUTIL_T_;
-            ASSERT(output.load());
-            ASSERT(0 == output.compare("\t"));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare("\t"));
         }
       } break;
       case 2: {
@@ -2035,15 +2297,16 @@ int main(int argc, char *argv[])
         //   TEST APPARATUS
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cerr << bsl::endl
-                               << "TEST APPARATUS" << bsl::endl
-                               << "==============" << bsl::endl;
+        if (verbose) bsl::cerr << "TEST APPARATUS\n"
+                                  "==============\n";
 
         {
             // 1) Output is redirected.
 
-            ASSERT(-1 != ftell(stdout));
+            REAL_ASSERT(-1 != ftell(stdout));
         }
+
+        enum { OUTPUT_BUFFER_SIZE = 1024 * 1024 };
 
         {
             // 2) Captured output is readable.
@@ -2052,23 +2315,23 @@ int main(int argc, char *argv[])
             const char *testString = "This is output";
             char        buffer[TEST_STRING_SIZE];
 
-            ASSERT(TEST_STRING_SIZE == strlen(testString) + 1);
+            REAL_ASSERT(TEST_STRING_SIZE == strlen(testString) + 1);
 
             rewind(stdout);
             long initialStdoutPosition = ftell(stdout);
-            ASSERT(0 == initialStdoutPosition);
+            REAL_ASSERT(0 == initialStdoutPosition);
             printf("%s", testString);
             long finalStdoutPosition = ftell(stdout);
-            ASSERT(-1 != finalStdoutPosition);
-            ASSERT(finalStdoutPosition > initialStdoutPosition);
+            REAL_ASSERT(-1 != finalStdoutPosition);
+            REAL_ASSERT(finalStdoutPosition > initialStdoutPosition);
             long outputSize = finalStdoutPosition - initialStdoutPosition;
-            ASSERT(outputSize + 1 == TEST_STRING_SIZE);
+            REAL_ASSERT(outputSize + 1 == TEST_STRING_SIZE);
             rewind(stdout);
             size_t bytesWritten =
                                fread(buffer, sizeof(char), outputSize, stdout);
-            ASSERT(static_cast<long>(bytesWritten) == outputSize);
+            REAL_ASSERT(static_cast<long>(bytesWritten) == outputSize);
             buffer[TEST_STRING_SIZE - 1] = '\0';
-            ASSERT(0 == strcmp(testString, buffer));
+            REAL_ASSERT(0 == strcmp(testString, buffer));
         }
 
         {
@@ -2079,16 +2342,16 @@ int main(int argc, char *argv[])
 
             rewind(stdout);
             printf("%s", testString);
-            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
-            ASSERT(false == output.isOutputReady());
-            ASSERT(0 == output.outputSize());
-            ASSERT(output.load());
-            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
-            ASSERT(true == output.isOutputReady());
-            ASSERT(testStringLength == output.outputSize());
-            ASSERT(0 == memcmp(testString,
-                               output.buffer(),
-                               output.outputSize()));
+            REAL_ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
+            REAL_ASSERT(false == output.isOutputReady());
+            REAL_ASSERT(0 == output.outputSize());
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
+            REAL_ASSERT(true == output.isOutputReady());
+            REAL_ASSERT(testStringLength == output.outputSize());
+            REAL_ASSERT(0 == memcmp(testString,
+                                    output.buffer(),
+                                    output.outputSize()));
         }
 
         {
@@ -2100,13 +2363,13 @@ int main(int argc, char *argv[])
             rewind(stdout);
             printf("%s", testString);
             output.load();
-            ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
-            ASSERT(true == output.isOutputReady());
-            ASSERT(testStringLength == output.outputSize());
+            REAL_ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
+            REAL_ASSERT(true == output.isOutputReady());
+            REAL_ASSERT(testStringLength == output.outputSize());
             output.reset();
-            ASSERT(0 == ftell(stdout));
-            ASSERT(true != output.isOutputReady());
-            ASSERT(0 == output.outputSize());
+            REAL_ASSERT(0 == ftell(stdout));
+            REAL_ASSERT(true != output.isOutputReady());
+            REAL_ASSERT(0 == output.outputSize());
         }
 
         {
@@ -2121,20 +2384,20 @@ int main(int argc, char *argv[])
 
             output.reset();
             printf("%s", testString);
-            ASSERT(output.load());
-            ASSERT(!!strcmp(testString, testString) ==
-                       !!output.compare(testString));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(!!strcmp(testString, testString) ==
+                                                 !!output.compare(testString));
 
-            ASSERT(!!strcmp(testString, shortString) ==
-                       !!output.compare(shortString));
-            ASSERT(!!strcmp(testString, longString) ==
-                       !!output.compare(longString));
-            ASSERT(!!strcmp(testString, differentStartString) ==
-                       !!output.compare(differentStartString));
-            ASSERT(!!strcmp(testString, differentEndString) ==
-                       !!output.compare(differentEndString));
-            ASSERT(!!strcmp(testString, differentMiddleString) ==
-                       !!output.compare(differentMiddleString));
+            REAL_ASSERT(!!strcmp(testString, shortString) ==
+                                                !!output.compare(shortString));
+            REAL_ASSERT(!!strcmp(testString, longString) ==
+                                                 !!output.compare(longString));
+            REAL_ASSERT(!!strcmp(testString, differentStartString) ==
+                                       !!output.compare(differentStartString));
+            REAL_ASSERT(!!strcmp(testString, differentEndString) ==
+                                         !!output.compare(differentEndString));
+            REAL_ASSERT(!!strcmp(testString, differentMiddleString) ==
+                                      !!output.compare(differentMiddleString));
         }
 
         {
@@ -2149,19 +2412,11 @@ int main(int argc, char *argv[])
             const char *testString = "This is good output";
 
             output.reset();
-            int stringLength = static_cast<int>(strlen(testString));
-            for (int idx = 0; idx * stringLength < OUTPUT_BUFFER_SIZE; ++idx) {
-                printf("%s", testString);
-            }
             printf("%s", testString);
-            ASSERT(!output.load());
+            REAL_ASSERT(0 != output.compare(testString));
 
             output.reset();
-            printf("%s", testString);
-            ASSERT(0 != output.compare(testString));
-
-            output.reset();
-            ASSERT(0 != output.compare("", 0));
+            REAL_ASSERT(0 != output.compare("", 0));
 
             veryVerbose     = tempVeryVerbose;
             veryVeryVerbose = tempVeryVeryVerbose;
@@ -2174,16 +2429,16 @@ int main(int argc, char *argv[])
 
             output.reset();
             printf("%s", testString);
-            ASSERT(output.load());
-            ASSERT(0 == output.compare(testString));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare(testString));
 
             const char *twoNewlineTestString =
                 "This has two\nembedded newlines\n";
 
             output.reset();
             printf("%s", twoNewlineTestString);
-            ASSERT(output.load());
-            ASSERT(0 == output.compare(twoNewlineTestString));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare(twoNewlineTestString));
         }
 
         {
@@ -2193,8 +2448,8 @@ int main(int argc, char *argv[])
 
             output.reset();
             printf("%s", testString);
-            ASSERT(output.load());
-            ASSERT(0 == output.compare(testString));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare(testString));
         }
 
         {
@@ -2206,18 +2461,18 @@ int main(int argc, char *argv[])
 
             output.reset();
             fwrite(testString1, sizeof(char), 7, stdout);
-            ASSERT(output.load());
-            ASSERT(0 == output.compare(testString1, 7));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare(testString1, 7));
 
             output.reset();
             fwrite(testString2, sizeof(char), 4, stdout);
-            ASSERT(output.load());
-            ASSERT(0 == output.compare(testString2, 4));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare(testString2, 4));
 
             output.reset();
             fwrite(testString3, sizeof(char), 4, stdout);
-            ASSERT(output.load());
-            ASSERT(0 == output.compare(testString3, 4));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare(testString3, 4));
         }
 
         {
@@ -2228,32 +2483,39 @@ int main(int argc, char *argv[])
 
             output.reset();
             printf("%s", crnlTestString);
-            ASSERT(output.load());
-            ASSERT(0 == output.compare(crnlTestString));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare(crnlTestString));
 
             output.reset();
             printf("%s", ctrlDTestString);
-            ASSERT(output.load());
-            ASSERT(0 == output.compare(ctrlDTestString));
+            REAL_ASSERT(output.load());
+            REAL_ASSERT(0 == output.compare(ctrlDTestString));
         }
 
         {
             // 11) 'stderr' points to the original target of 'stdout'.
 
             int newStderrFD = fileno(stderr);
-            ASSERT(-1 != newStderrFD);
-            struct stat stderrStat;
-            stderrStat.st_dev = output.originalStdoutStat().st_dev;
-            stderrStat.st_rdev = output.originalStdoutStat().st_rdev;
-            ASSERT(-1 != fstat(newStderrFD, &stderrStat));
-#if !defined(BSLS_PLATFORM_OS_WINDOWS)
-            // 'st_dev' and 'st_rdev' are not stable on Windows.
-            ASSERT(stderrStat.st_dev == output.originalStdoutStat().st_dev);
-            ASSERT(stderrStat.st_rdev == output.originalStdoutStat().st_rdev);
-#endif
-            ASSERT(stderrStat.st_ino == output.originalStdoutStat().st_ino);
-        }
+            REAL_ASSERT(-1 != newStderrFD);
 
+#if !defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(BSLS_PLATFORM_OS_AIX)
+            struct stat stderrStat;
+            REAL_ASSERT(-1 != fstat(newStderrFD, &stderrStat));
+            // The 'stat' fields only seem to be well-preserved when output was
+            // re-directed via 'freopen' and not necessary when it's redirected
+            // through forms of 'dup2'.
+
+            REALLOOP2_ASSERT(stderrStat.st_dev,
+                                           output.originalStdoutStat().st_dev,
+                      stderrStat.st_dev == output.originalStdoutStat().st_dev);
+            REALLOOP2_ASSERT(stderrStat.st_rdev,
+                                          output.originalStdoutStat().st_rdev,
+                    stderrStat.st_rdev == output.originalStdoutStat().st_rdev);
+            REALLOOP2_ASSERT(stderrStat.st_ino,
+                                           output.originalStdoutStat().st_ino,
+                      stderrStat.st_ino == output.originalStdoutStat().st_ino);
+#endif
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -2271,9 +2533,8 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cerr << bsl::endl
-                               << "BREATHING TEST" << bsl::endl
-                               << "==============" << bsl::endl;
+        if (verbose) bsl::cerr << "BREATHING TEST\n"
+                                  "==============\n";
 
         const bool    b = true;
         const char    c = 'c';
@@ -2292,7 +2553,7 @@ int main(int argc, char *argv[])
 
             BSLMT_TESTUTIL_LOOP0_ASSERT(!b);
             BSLMT_TESTUTIL_LOOP1_ASSERT(b, !b);
-            ASSERT(testStatus == 2);
+            REAL_ASSERT(testStatus == 2);
 
             testStatus = 0;
             BSLMT_TESTUTIL_LOOP0_ASSERT(!b);
@@ -2302,7 +2563,7 @@ int main(int argc, char *argv[])
             BSLMT_TESTUTIL_LOOP4_ASSERT(b, c, i, d, !b);
             BSLMT_TESTUTIL_LOOP5_ASSERT(b, c, i, d, f, !b);
             BSLMT_TESTUTIL_LOOP6_ASSERT(b, c, i, d, f, s, !b);
-            ASSERT(testStatus == 7);
+            REAL_ASSERT(testStatus == 7);
 
             testStatus = 0;
             BSLMT_TESTUTIL_ASSERTV(!b);
@@ -2312,7 +2573,46 @@ int main(int argc, char *argv[])
             BSLMT_TESTUTIL_ASSERTV(b, c, i, d, !b);
             BSLMT_TESTUTIL_ASSERTV(b, c, i, d, f, !b);
             BSLMT_TESTUTIL_ASSERTV(b, c, i, d, f, s, !b);
-            ASSERT(testStatus == 7);
+            REAL_ASSERT(testStatus == 7);
+        }
+
+        // Ensure that all the above macros still work with namespace
+        // 'BloombergLP' in scope.
+
+        if (verbose) {
+            using namespace BloombergLP;
+
+            BSLMT_TESTUTIL_Q(BSLMT_TESTUTIL_L_);
+            BSLMT_TESTUTIL_P_(b);
+            BSLMT_TESTUTIL_T_;
+            BSLMT_TESTUTIL_P_(c);
+            BSLMT_TESTUTIL_T_;
+            BSLMT_TESTUTIL_P(i);
+
+            testStatus = 0;
+            BSLMT_TESTUTIL_LOOP0_ASSERT(!b);
+            BSLMT_TESTUTIL_LOOP1_ASSERT(b, !b);
+            REAL_ASSERT(testStatus == 2);
+
+            testStatus = 0;
+            BSLMT_TESTUTIL_LOOP0_ASSERT(!b);
+            BSLMT_TESTUTIL_LOOP1_ASSERT(b, !b);
+            BSLMT_TESTUTIL_LOOP2_ASSERT(b, c, !b);
+            BSLMT_TESTUTIL_LOOP3_ASSERT(b, c, i, !b);
+            BSLMT_TESTUTIL_LOOP4_ASSERT(b, c, i, d, !b);
+            BSLMT_TESTUTIL_LOOP5_ASSERT(b, c, i, d, f, !b);
+            BSLMT_TESTUTIL_LOOP6_ASSERT(b, c, i, d, f, s, !b);
+            REAL_ASSERT(testStatus == 7);
+
+            testStatus = 0;
+            BSLMT_TESTUTIL_ASSERTV(!b);
+            BSLMT_TESTUTIL_ASSERTV(b, !b);
+            BSLMT_TESTUTIL_ASSERTV(b, c, !b);
+            BSLMT_TESTUTIL_ASSERTV(b, c, i, !b);
+            BSLMT_TESTUTIL_ASSERTV(b, c, i, d, !b);
+            BSLMT_TESTUTIL_ASSERTV(b, c, i, d, f, !b);
+            BSLMT_TESTUTIL_ASSERTV(b, c, i, d, f, s, !b);
+            REAL_ASSERT(testStatus == 7);
         }
       } break;
       default: {

@@ -28,47 +28,6 @@ void *TestUtil::callFunc(void *arg)
     return (*s_func)(arg);
 }
 
-bool TestUtil::compareText(bslstl::StringRef a,
-                           bslstl::StringRef b,
-                           bsl::ostream&     errorStream)
-{
-    bslstl::StringRef::size_type i;
-
-    for (i = 0; i < a.length() && i < b.length(); ++i) {
-        if (a[i] != b[i]) {
-            errorStream << "a: \"" << a << "\"\n"
-                        << "b: \"" << b << "\"\n"
-                        << "Strings differ at index (" << i << ") "
-                        << "a[i] = " << a[i] << "(" << (int)a[i] << ") "
-                        << "b[i] = " << b[i] << "(" << (int)b[i] << ")"
-                        << bsl::endl;
-            return false;                                             // RETURN
-        }
-    }
-
-    if (i < b.length()) {
-        errorStream << "a: \"" << a << "\"\n"
-                    << "b: \"" << b << "\"\n"
-                    << "Strings differ at index (" << i << ") "
-                    << "a[i] = END-OF-STRING "
-                    << "b[i] = " << b[i] << "(" << (int)b[i] << ")"
-                    << bsl::endl;
-        return false;                                                 // RETURN
-    }
-
-    if (i < a.length()) {
-        errorStream << "a: \"" << a << "\"\n"
-                    << "b: \"" << b << "\"\n"
-                    << "Strings differ at index (" << i << ") "
-                    << "a[i] = " << a[i] << "(" << (int)a[i] << ") "
-                    << "b[i] = END-OF-STRING"
-                    << bsl::endl;
-        return false;                                                 // RETURN
-    }
-
-    return true;
-}
-
 bslmt::Mutex& TestUtil::outputMutexSingleton()
 {
     static bslmt::Mutex *mutex_p;
