@@ -1619,6 +1619,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
          << "TESTING 'setIsArrayElement' and 'isArrayElement' METHODS" << endl
          << "========================================================" << endl;
+
+        Obj mX;  const ObJ& X = mX;
+        ASSERT(false == X.isArrayElement());
+
+        mX.setIsArrayElement(true);
+        ASSERT(true == X.isArrayElement());
+
+        mX.setIsArrayElement(false);
+        ASSERT(false == X.isArrayElement());
        } break;
        case 10: {
         // --------------------------------------------------------------------
@@ -1762,6 +1771,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "TESTING 'putValue' METHOD" << endl
                           << "=========================" << endl;
+        char
       } break;
       case 7: {
         // --------------------------------------------------------------------
