@@ -1845,7 +1845,7 @@ extern "C" void *serverFunction(void *data)
         ASSERT(0 == rc);
 
         int errorCode = 0;
-        btlso::IPv4Address address;
+        btlso::IPv4Address address(getLocalAddress());
         rc = btlso::SocketImpUtil::bind<btlso::IPv4Address>(serverSocket,
                                                             address,
                                                             &errorCode);
