@@ -170,11 +170,12 @@ class Rule {
 
     PredicateSet       d_predicateSet;  // set of predicates
 
-    mutable int        d_hashValue;     // the cached hash value; < 0 means
-                                        // it's invalid
+    mutable int        d_hashValue;     // cached hash value; < 0 indicates it
+                                        // is invalid
 
-    mutable int        d_hashSize;      // the number of slots from which
-                                        // 'd_hashValue' was calculated
+    mutable int        d_hashSize;      // number of slots from which
+                                        // 'd_hashValue' was calculated; 0
+                                        // indicates it is invalid
 
     // FRIENDS
     friend bool operator==(const Rule&, const Rule&);
@@ -186,7 +187,8 @@ class Rule {
     static int hash(const Rule& rule, int size);
         // Return a hash value calculated from the specified 'rule' using the
         // specified 'size' as the number of slots.  The value returned is
-        // guaranteed to be in the range '[0 .. size - 1]'.
+        // guaranteed to be in the range '[0 .. size - 1]'.  The behavior is
+        // undefined unless '0 < size'.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Rule, bslma::UsesBslmaAllocator);
@@ -367,7 +369,7 @@ Rule::Rule(const Rule& original, bslma::Allocator *basicAllocator)
 , d_thresholds(original.d_thresholds)
 , d_predicateSet(original.d_predicateSet, basicAllocator)
 , d_hashValue(original.d_hashValue)
-, d_hashSize(0)
+, d_hashSize(original.d_hashSize)
 {
 }
 

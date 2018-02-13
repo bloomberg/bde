@@ -17,6 +17,8 @@ BSLS_IDENT_RCSID(ball_predicateset_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bsls_assert.h>
+
 #include <bsl_climits.h>
 #include <bsl_ostream.h>
 
@@ -35,6 +37,8 @@ int PredicateSet::s_initialSize = 8;
 // CLASS METHODS
 int PredicateSet::hash(const PredicateSet& set, int size)
 {
+    BSLS_ASSERT(0 < size);
+
     const_iterator iter;
     int hashValue = 0;
     for (iter = set.begin(); iter != set.end(); ++iter) {

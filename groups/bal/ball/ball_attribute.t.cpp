@@ -25,6 +25,7 @@
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_types.h>
 
 #include <bsl_climits.h>
@@ -35,7 +36,7 @@
 #include <bsl_c_time.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -1043,6 +1044,18 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, 0 <= hash);
             LOOP_ASSERT(LINE, hash < HDATA[i].d_hashSize);
             LOOP2_ASSERT(LINE, hash, HDATA[i].d_hashValue == hash);
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            const Obj X("x", 0);
+
+            ASSERT_PASS(Obj::hash(X,  1));
+            ASSERT_FAIL(Obj::hash(X,  0));
+            ASSERT_FAIL(Obj::hash(X, -1));
         }
 
       } break;

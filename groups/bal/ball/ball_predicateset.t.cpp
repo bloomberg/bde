@@ -17,6 +17,7 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bslim_testutil.h>
+#include <bsls_asserttest.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
@@ -24,7 +25,7 @@
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -513,6 +514,19 @@ int main(int argc, char *argv[])
             }
             LOOP_ASSERT(i, DATA[i].d_hash == hash);
         }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            const Obj X;
+
+            ASSERT_PASS(Obj::hash(X,  1));
+            ASSERT_FAIL(Obj::hash(X,  0));
+            ASSERT_FAIL(Obj::hash(X, -1));
+        }
+
       } break;
       case 12: {
         // --------------------------------------------------------------------

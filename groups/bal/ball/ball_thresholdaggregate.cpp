@@ -7,6 +7,7 @@ BSLS_IDENT_RCSID(ball_thresholdaggregate_cpp,"$Id$ $CSID$")
 #include <bdlb_hashutil.h>
 #include <bdlb_print.h>
 
+#include <bsls_assert.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
@@ -27,6 +28,8 @@ namespace ball {
 // CLASS METHODS
 int ThresholdAggregate::hash(const ThresholdAggregate& aggregate, int size)
 {
+    BSLS_ASSERT(0 < size);
+
 #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
     int value = (aggregate.recordLevel()  << 24)
               + (aggregate.passLevel()    << 16)

@@ -143,7 +143,8 @@ class PredicateSet {
     static int hash(const PredicateSet& set, int size);
         // Return a hash value calculated from the specified 'set' using the
         // specified 'size' as the number of slots.  The hash value is
-        // guaranteed to be in the range '[0 .. size)'.
+        // guaranteed to be in the range '[0 .. size - 1]'.  The behavior is
+        // undefined unless '0 < size'.
 
     // TYPES
     typedef SetType::const_iterator const_iterator;
