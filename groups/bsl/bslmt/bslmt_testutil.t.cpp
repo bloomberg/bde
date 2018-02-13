@@ -9,25 +9,23 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
-#include <bsls_asserttest.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstddef.h>     // 'size_t'
+#include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_string.h>
 #include <bsl_sstream.h>
 
 #include <fcntl.h>
-#include <limits.h>     // 'PATH_MAX' on Linux
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>     // 'strlen'
 
 #include <sys/types.h>  // for 'struct stat'; required on Sun and Windows only
 #include <sys/stat.h>   // (ditto)
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-# include <windows.h>   // 'MAX_PATH'
 # include <io.h>        // '_dup2'
 # define snprintf _snprintf
 #else
@@ -49,11 +47,11 @@ using namespace BloombergLP;
 //
 // The macros provided mirror the standard test macros normally used in test
 // drivers.  The intention is that the standard test macros should be
-// implemented as aliases of the 'BSLMT_TESTUTIL_*' macros, as
-// illustrated in the first usage example.  As a result, the identifiers
-// normally used in a test driver conflict with the identifiers used in the
-// usage example.  Therefore, this test driver avoids the standard test macros
-// (and support functions), and uses the following instead:
+// implemented as aliases of the 'BSLMT_TESTUTIL_*' macros, as illustrated in
+// the first usage example.  As a result, the identifiers normally used in a
+// test driver conflict with the identifiers used in the usage example.
+// Therefore, this test driver avoids the standard test macros (and support
+// functions), and uses the following instead:
 //..
 //      STANDARD        bslmt_testutil.t.cpp
 //  ----------------    --------------------
@@ -85,11 +83,11 @@ using namespace BloombergLP;
 // provided by the user.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 7] bool compareText(StringRef, StringRef, bsl::ostream&);
-// [ 9] void *callFunc(void *arg);
-// [ 9] void setFunc(Func func);
+// [ 7] void *callFunc(void *arg);
+// [ 7] void setFunc(Func func);
 //
 // MACROS
+// [ 6] BSLMT_TESTUTIL_ASSERT(X)
 // [ 6] BSLMT_TESTUTIL_LOOP0_ASSERT(X)
 // [ 6] BSLMT_TESTUTIL_LOOP1_ASSERT(I,X)
 // [ 6] BSLMT_TESTUTIL_LOOP2_ASSERT(I,J,X)
@@ -104,9 +102,10 @@ using namespace BloombergLP;
 // [ 3] BSLMT_TESTUTIL_L_
 // [ 3] BSLMT_TESTUTIL_T_
 //-----------------------------------------------------------------------------
-// [10] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 // [ 2] TEST APPARATUS
+// [ 8] MULTITHREADED TEST
+// [ 9] USAGE EXAMPLE
 
 // ============================================================================
 //                VARIATIONS ON STANDARD BDE ASSERT TEST MACROS
@@ -123,6 +122,9 @@ using namespace BloombergLP;
 static int realTestStatus = 0;
 
 static void realaSsErT(bool b, const char *s, int i)
+    // Implement 'aSsErT' for the 'REAL*' macros.  If the specified 'b' is
+    // false, emit a message showing the specified code expression 's' and the
+    // specified line number 'i'.
 {
     if (b) {
         bsl::cerr << "Error " << __FILE__ << "(" << i << "): " << s
@@ -173,17 +175,6 @@ static void realaSsErT(bool b, const char *s, int i)
 #define REALL_                                                                \
     __LINE__
 
-// ============================================================================
-//                  NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
-
 //=============================================================================
 //                             USAGE EXAMPLE CODE
 //-----------------------------------------------------------------------------
@@ -205,6 +196,8 @@ namespace Usage {
                                    double b = 0,
                                    double c = 0,
                                    double d = 0);
+            // Return the sum of the squares of one to 4 arguments, the
+            // specified 'a' and the optionally specified 'b', 'c', and 'd'.
     };
 //
     // CLASS METHODS
@@ -296,6 +289,8 @@ namespace Usage {
 //..
     struct TestSums {
         void operator()()
+            // Test 'TestUtil::sumOfSquares' with a variety of randomly
+            // generated arguments to be found in the array 'randNumbers'
         {
             const int idx     = threadIdx++;
             int       randIdx = idx * k_NUM_ITERATIONS * 4;
@@ -519,7 +514,7 @@ class OutputRedirector {
     // DATA
     const bsl::string d_fileName;
 
-    char *d_outputBuffer;                     // scratch buffer for holding
+    char *d_outputBuffer_p;                   // scratch buffer for holding
                                               // captured output
 
     bool d_isRedirectedFlag;                  // has 'stdout' been redirected
@@ -530,7 +525,7 @@ class OutputRedirector {
                                               // temp file
 
     long d_outputSize;                        // size of output loaded into
-                                              // 'd_outputBuffer'
+                                              // 'd_outputBuffer_p'
 
     struct stat d_originalStdoutStat;         // status information for
                                               // 'stdout' just before
@@ -557,9 +552,9 @@ class OutputRedirector {
   public:
     // CREATORS
     OutputRedirector(const bsl::string& fileName, bslma::Allocator *alloc);
-        // Create an 'OutputRedirector' in an un-redirected state having
-        // empty scratch buffer, ready to open the specified 'fileName'.  Use
-        // the specified 'alloc' to supply memory.
+        // Create an 'OutputRedirector' in an un-redirected state having empty
+        // scratch buffer, ready to open the specified 'fileName'.  Use the
+        // specified 'alloc' to supply memory.
 
     ~OutputRedirector();
         // Destroy this 'OutputRedirector' object.  If the object is in a
@@ -586,12 +581,12 @@ class OutputRedirector {
 
     void redirect();
         // Redirect 'stdout' to a temp file, and 'stderr' to the original
-        // 'stdout', putting this 'OutputRedirector' object into the
-        // redirected state.  The temp file to which 'stdout' is redirected
-        // will be created the first time 'redirect' is called, and will be
-        // removed when this object is destroyed.  Subsequent calls to this
-        // method no effect on 'stdout' and 'stderr'.  If this method fails to
-        // redirect either 'stdout' or 'stderr', 'std::abort' is called.
+        // 'stdout', putting this 'OutputRedirector' object into the redirected
+        // state.  The temp file to which 'stdout' is redirected will be
+        // created the first time 'redirect' is called, and will be removed
+        // when this object is destroyed.  Subsequent calls to this method no
+        // effect on 'stdout' and 'stderr'.  If this method fails to redirect
+        // either 'stdout' or 'stderr', 'bsl::abort' is called.
 
     void reset();
         // Reset the scratch buffer to empty.  The behavior is undefined unless
@@ -606,7 +601,7 @@ class OutputRedirector {
         // as the scratch buffer, and non-zero otherwise.  The behavior is
         // undefined unless 'redirect' has been previously called successfully.
 
-    int compare(const char *expected, size_t expectedLength) const;
+    int compare(const char *expected, bsl::size_t expectedLength) const;
         // Compare the specified 'expected' character buffer of the specified
         // 'expectedLength' with any output that has been loaded into the
         // scratch buffer.  Return 0 if 'expected' has the same length and
@@ -629,7 +624,7 @@ class OutputRedirector {
         // that this method is used only to test the correctness of
         // 'OutputRedirector'.
 
-    size_t outputSize() const;
+    bsl::size_t outputSize() const;
         // Return the number of bytes currently loaded into the scratch buffer.
 };
 
@@ -675,7 +670,7 @@ void OutputRedirector::cleanup()
 OutputRedirector::OutputRedirector(const bsl::string&  fileName,
                                    bslma::Allocator   *alloc)
 : d_fileName(fileName, alloc)
-, d_outputBuffer(0)
+, d_outputBuffer_p(0)
 , d_isRedirectedFlag(false)
 , d_isFileCreatedFlag(false)
 , d_isOutputReadyFlag(false)
@@ -684,22 +679,22 @@ OutputRedirector::OutputRedirector(const bsl::string&  fileName,
 {
     unlink(d_fileName.c_str());
 
-    memset(&d_originalStdoutStat, 0, sizeof(struct stat));
+    bsl::memset(&d_originalStdoutStat, 0, sizeof(struct stat));
 }
 
 OutputRedirector::~OutputRedirector()
 {
     cleanup();
 
-    if (d_outputBuffer) {
-        d_allocator_p->deallocate(d_outputBuffer);
+    if (d_outputBuffer_p) {
+        d_allocator_p->deallocate(d_outputBuffer_p);
     }
 }
 
 // MANIPULATORS
 char *OutputRedirector::buffer()
 {
-    return d_outputBuffer;
+    return d_outputBuffer_p;
 }
 
 bool OutputRedirector::load()
@@ -707,16 +702,17 @@ bool OutputRedirector::load()
     REAL_ASSERT(d_isRedirectedFlag);
     REAL_ASSERT(!ferror(stdout));
 
-    if (d_outputBuffer) {
-        d_allocator_p->deallocate(d_outputBuffer);
+    if (d_outputBuffer_p) {
+        d_allocator_p->deallocate(d_outputBuffer_p);
     }
     d_outputSize = ftell(stdout);
-    d_outputBuffer = static_cast<char *>(
+    d_outputBuffer_p = static_cast<char *>(
                                     d_allocator_p->allocate(d_outputSize + 1));
 
     rewind(stdout);
 
-    long charsRead = fread(d_outputBuffer, sizeof(char), d_outputSize, stdout);
+    long charsRead =
+                   fread(d_outputBuffer_p, sizeof(char), d_outputSize, stdout);
 
     if (d_outputSize != charsRead) {
 
@@ -731,14 +727,14 @@ bool OutputRedirector::load()
                 perror("\tError message: ");
                 clearerr(stdout);
             }
-            fprintf(stderr,
-                    "Error "
-                        __FILE__
-                        "(%d): Could not read all captured output\n",
-                    __LINE__);
+            bsl::fprintf(stderr,
+                         "Error "
+                         __FILE__
+                         "(%d): Could not read all captured output\n",
+                         __LINE__);
         }
 
-        d_outputBuffer[charsRead] = '\0';
+        d_outputBuffer_p[charsRead] = '\0';
 
             // ... to ensure that direct inspection of buffer does not overflow
 
@@ -747,7 +743,7 @@ bool OutputRedirector::load()
 
         // We have read all output from the capture file.
 
-        d_outputBuffer[d_outputSize] = '\0';
+        d_outputBuffer_p[d_outputSize] = '\0';
 
         // ... to ensure that direct inspection of buffer does not overflow
     }
@@ -763,11 +759,11 @@ int OutputRedirector::numInstances(const bsl::string& expected)
     BSLS_ASSERT(!expected.empty());
     BSLS_ASSERT(bsl::string::npos == expected.find('#'));
 
-    const char   *e   = expected.c_str();
-    const size_t  len = expected.length();
+    const char        *e   = expected.c_str();
+    const bsl::size_t  len = expected.length();
 
     int ret = 0;
-    for (char *pc = d_outputBuffer; (pc = bsl::strstr(pc, e)); ) {
+    for (char *pc = d_outputBuffer_p; (pc = bsl::strstr(pc, e)); ) {
         ++ret;
 
         bsl::fill(pc, pc + len, '#');
@@ -783,9 +779,10 @@ void OutputRedirector::redirect()
         // Do not redirect anything if we have already redirected.
 
         if (veryVerbose) {
-            fprintf(stdout,
-                    "Warning " __FILE__ "(%d): Output already redirected\n",
-                    __LINE__);
+            bsl::fprintf(stdout,
+                         "Warning " __FILE__
+                         "(%d): Output already redirected\n",
+                         __LINE__);
         }
 
         return;                                                       // RETURN
@@ -809,11 +806,11 @@ void OutputRedirector::redirect()
             // Note that we print this error message on 'stdout' instead of
             // 'stderr', because 'stdout' has not been redirected.
 
-            fprintf(stdout,
-                    "Error " __FILE__ "(%d): Failed to redirect stderr\n",
-                    __LINE__);
+            bsl::fprintf(stdout,
+                         "Error " __FILE__ "(%d): Failed to redirect stderr\n",
+                         __LINE__);
         }
-        std::abort();
+        bsl::abort();
     }
 
     // Redirect 'stdout' to our test file.
@@ -825,12 +822,12 @@ void OutputRedirector::redirect()
             // have just redirected 'stdout' to the capture file.
 
             REALP(d_fileName.c_str());
-            fprintf(stderr,
-                    "Error " __FILE__ "(%d): Failed to redirect stdout\n",
-                    __LINE__);
+            bsl::fprintf(stderr,
+                         "Error " __FILE__ "(%d): Failed to redirect stdout\n",
+                         __LINE__);
         }
         cleanup();
-        std::abort();
+        bsl::abort();
     }
 
     // 'stderr' and 'stdout' have been successfully redirected.
@@ -839,7 +836,7 @@ void OutputRedirector::redirect()
     if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
         REAL_ASSERT(0 == "Failed to set stdout to binary mode.");
         cleanup();
-        std::abort();
+        bsl::abort();
     }
 #endif
 
@@ -856,9 +853,9 @@ void OutputRedirector::redirect()
             // have just redirected 'stdout' to the capture file.
 
             perror("Error message: ");
-            fprintf(stderr,
-                    "Warning " __FILE__ "(%d): Error flushing stdout\n",
-                    __LINE__);
+            bsl::fprintf(stderr,
+                         "Warning " __FILE__ "(%d): Error flushing stdout\n",
+                         __LINE__);
         }
     }
 }
@@ -867,9 +864,9 @@ void OutputRedirector::reset()
 {
     REAL_ASSERT(d_isRedirectedFlag);
 
-    if (d_outputBuffer) {
-        d_allocator_p->deallocate(d_outputBuffer);
-        d_outputBuffer = 0;
+    if (d_outputBuffer_p) {
+        d_allocator_p->deallocate(d_outputBuffer_p);
+        d_outputBuffer_p = 0;
     }
     d_outputSize        = 0L;
     d_isOutputReadyFlag = false;
@@ -881,11 +878,11 @@ int OutputRedirector::compare(const char *expected) const
 {
     REAL_ASSERT(expected);
 
-    return compare(expected, strlen(expected));
+    return compare(expected, bsl::strlen(expected));
 }
 
-int OutputRedirector::compare(const char *expected,
-                              size_t      expectedLength) const
+int OutputRedirector::compare(const char  *expected,
+                              bsl::size_t  expectedLength) const
 {
     REAL_ASSERT(d_isRedirectedFlag);
     REAL_ASSERT(expected || !expectedLength);
@@ -893,18 +890,19 @@ int OutputRedirector::compare(const char *expected,
     if (!d_isOutputReadyFlag) {
         if (veryVerbose) {
             REALP(expected);
-            fprintf(stderr,
-                    "Error " __FILE__ "(%d): No captured output available\n",
-                    __LINE__);
+            bsl::fprintf(stderr,
+                         "Error " __FILE__
+                         "(%d): No captured output available\n",
+                         __LINE__);
         }
         return -1;                                                    // RETURN
     }
 
-    // Use 'memcmp' instead of 'strncmp' to compare 'd_outputBuffer' with
+    // Use 'memcmp' instead of 'strncmp' to compare 'd_outputBuffer_p' with
     // 'expected' because 'expected' may contain embedded null characters.
 
     return d_outputSize != static_cast<long>(expectedLength)
-        || memcmp(d_outputBuffer, expected, expectedLength);
+        || bsl::memcmp(d_outputBuffer_p, expected, expectedLength);
 }
 
 bool OutputRedirector::isOutputReady() const
@@ -922,9 +920,9 @@ const struct stat& OutputRedirector::originalStdoutStat() const
     return d_originalStdoutStat;
 }
 
-size_t OutputRedirector::outputSize() const
+bsl::size_t OutputRedirector::outputSize() const
 {
-    return static_cast<size_t>(d_outputSize);
+    return static_cast<bsl::size_t>(d_outputSize);
 }
 
 }  // close namespace u
@@ -1217,10 +1215,10 @@ struct ThreadData {
 
         BSLS_ASSERT(k_NUM_ASSERTS == assertIdx);
 
-        // At this point, this method has counted up all the output created
-        // by the 'doOutput' method and replaced what it found with '#'s.
-        // After all the threads have been joined, the main thread will check
-        // that the output buffer is 100% '#'s.
+        // At this point, this method has counted up all the output created by
+        // the 'doOutput' method and replaced what it found with '#'s.  After
+        // all the threads have been joined, the main thread will check that
+        // the output buffer is 100% '#'s.
 #undef PV
 #undef PV_
 #undef PE
@@ -1229,6 +1227,7 @@ struct ThreadData {
 
 struct Func {
     void operator()()
+        // Execute one thread of the multi threaded test.
     {
         ThreadData threadData(threadIdx++);
         REAL_ASSERT(0 != outputRedirector_p);
@@ -1257,7 +1256,7 @@ struct Func {
 
 int main(int argc, char *argv[])
 {
-    test                = argc > 1 ? atoi(argv[1]) : 0;
+    test                = argc > 1 ? bsl::atoi(argv[1]) : 0;
     verbose             = argc > 2;
     veryVerbose         = argc > 3;
     veryVeryVerbose     = argc > 4;
@@ -1295,14 +1294,14 @@ int main(int argc, char *argv[])
 
         char buf[1024];
         snprintf(buf, sizeof(buf),
-                 "tmp.bslmt_testutil.output.case:%d.%s%d.txt",
-                 test, platform, numBits);
+                "tmp.bslmt_testutil.output.case:%d.%s%d.txt",
+                test, platform, numBits);
         scratchFileName = buf;
     }
     unlink(scratchFileName.c_str());
     if (veryVerbose) REALP(scratchFileName);
 
-    static const int usageTest = 9;
+    static const int usageTest = 9;    // test number of usage test case
 
     // Capture 'stdout' to a file, and send 'stderr' to 'stdout', unless we are
     // running the usage example.
@@ -1315,7 +1314,7 @@ int main(int argc, char *argv[])
     bsl::cerr << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case usageTest: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1335,6 +1334,8 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cerr << "USAGE EXAMPLE\n"
                                   "=============\n";
 
+        REAL_ASSERT(9 == usageTest);
+
         namespace TC = Usage;
 
         int rc = TC::testMain();
@@ -1345,7 +1346,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // MULTITHREADED_TEST
+        // MULTITHREADED TEST
         //
         // Concern:
         //: 1 That the macros all operate properly in a multithreaded context.
@@ -1371,16 +1372,11 @@ int main(int argc, char *argv[])
         //:   expected.
         //
         // Testing:
-        //   BSLMT_TESTUTIL_Q
-        //   BSLMT_TESTUTIL_P
-        //   BSLMT_TESTUTIL_P_
-        //   BSLMT_TESTUTIL_ASSERT
-        //   BSLMT_TESTUTIL_ASSERTV
-        //   BSLMT_TESTUTIL_OUTPUT_GUARD
+        //   MULTITHREADED TEST
         // --------------------------------------------------------------------
 
 
-        if (verbose) bsl::cerr << "MULTITHREADED_TEST\n"
+        if (verbose) bsl::cerr << "MULTITHREADED TEST\n"
                                   "==================\n";
 
         namespace TC = MultiThreadedTest;
@@ -1402,13 +1398,13 @@ int main(int argc, char *argv[])
         TC::barrier.wait();
 
         output.load();
-        const size_t  len = output.outputSize();
-        char         *buf = output.buffer();
+        const bsl::size_t  len = output.outputSize();
+        char              *buf = output.buffer();
 
         REALLOOP1_ASSERT(len,
                           TC::k_NUM_THREADS * TC::k_NUM_ITERATIONS * 80 < len);
 
-        size_t numHashes = bsl::count(buf, buf + len, '#');
+        bsl::size_t numHashes = bsl::count(buf, buf + len, '#');
         REALLOOP1_ASSERT(numHashes, 0 == numHashes);
 
         int saveRealTestStatus = realTestStatus;
@@ -1552,6 +1548,7 @@ int main(int argc, char *argv[])
         //:   correctly format each primitive type.  (C-2..3)
         //
         // Testing:
+        //   BSLMT_TESTUTIL_ASSERT(X)
         //   BSLMT_TESTUTIL_LOOP0_ASSERT(X)
         //   BSLMT_TESTUTIL_LOOP1_ASSERT(I,X)
         //   BSLMT_TESTUTIL_LOOP2_ASSERT(I,J,X)
@@ -1579,6 +1576,82 @@ int main(int argc, char *argv[])
                                                     // that will be compared to
                                                     // real output captured
                                                     // from 'stdout'
+
+        // 'BSLMT_TESTUTIL_ASSERT(X)'
+        {
+            REAL_ASSERT(0 == testStatus);
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+                if (veryVerbose) { REALP(idx); }
+
+                output.reset();
+                BSLMT_TESTUTIL_ASSERT(idx < NUM_ITERATIONS);
+                BSLMT_TESTUTIL_ASSERTV(idx < NUM_ITERATIONS);
+
+                REALLOOP1_ASSERT(testStatus, 0 == testStatus);
+                REAL_ASSERT(output.load());
+                REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
+            }
+            REAL_ASSERT(0 == testStatus);
+
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+                if (veryVerbose) { REALP(idx); }
+
+                output.reset();
+                const int LINE = __LINE__ + 1;
+                BSLMT_TESTUTIL_ASSERT(idx > NUM_ITERATIONS);
+                REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
+                REAL_ASSERT(output.load());
+                snprintf(s_expectedOutput,
+                         BUFFER_SIZE,
+                         "Error %s(%d):"
+                         " idx > NUM_ITERATIONS    (failed)\n",
+                         __FILE__,
+                         LINE);
+                REALLOOP2_ASSERT(s_expectedOutput,
+                                 output.buffer(),
+                                 0 == output.compare(s_expectedOutput));
+            }
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            testStatus = 0;
+        }
+
+        // 'BSLMT_TESTUTIL_LOOP0_ASSERT(X)'
+        {
+            REAL_ASSERT(0 == testStatus);
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+                if (veryVerbose) { REALP(idx); }
+
+                output.reset();
+                BSLMT_TESTUTIL_LOOP0_ASSERT(idx < NUM_ITERATIONS);
+                BSLMT_TESTUTIL_ASSERTV(idx < NUM_ITERATIONS);
+
+                REALLOOP1_ASSERT(testStatus, 0 == testStatus);
+                REAL_ASSERT(output.load());
+                REALLOOP1_ASSERT(output.buffer(), 0 == output.compare(""));
+            }
+            REAL_ASSERT(0 == testStatus);
+
+            for (int idx = 0; idx < NUM_ITERATIONS; ++idx) {
+                if (veryVerbose) { REALP(idx); }
+
+                output.reset();
+                const int LINE = __LINE__ + 1;
+                BSLMT_TESTUTIL_LOOP0_ASSERT(idx > NUM_ITERATIONS);
+                REALLOOP2_ASSERT(testStatus, idx, testStatus == idx + 1);
+                REAL_ASSERT(output.load());
+                snprintf(s_expectedOutput,
+                         BUFFER_SIZE,
+                         "Error %s(%d):"
+                         " idx > NUM_ITERATIONS    (failed)\n",
+                         __FILE__,
+                         LINE);
+                REALLOOP2_ASSERT(s_expectedOutput,
+                                 output.buffer(),
+                                 0 == output.compare(s_expectedOutput));
+            }
+            REAL_ASSERT(NUM_ITERATIONS == testStatus);
+            testStatus = 0;
+        }
 
         // 'BSLMT_TESTUTIL_LOOP1_ASSERT(I,X)'
         {
@@ -1912,8 +1985,8 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError"
+                         " %s(%d): idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M,
                          __FILE__,
                          LINE);
@@ -1938,15 +2011,15 @@ int main(int argc, char *argv[])
                 output.reset();
 
                 // On AIX, the line number printed from the
-                // 'BSLMT_TESTUTIL_ASSERTV' macro is the line
-                // number of the first line of the call statement, even if the
-                // statement is split over multiple lines.  This behavior is
-                // different from the equivalent loop-assert alternative, which
-                // prints the last line of the statement.  The behavior of
-                // 'ASSERTV' and regular loop-assert is consistent on other
-                // platforms.  So here we make sure that the call to
-                // 'BSLMT_TESTUTIL_ASSERTV' fits on a single line
-                // to ensure that the output is the same on all platforms.
+                // 'BSLMT_TESTUTIL_ASSERTV' macro is the line number of the
+                // first line of the call statement, even if the statement is
+                // split over multiple lines.  This behavior is different from
+                // the equivalent loop-assert alternative, which prints the
+                // last line of the statement.  The behavior of 'ASSERTV' and
+                // regular loop-assert is consistent on other platforms.  So
+                // here we make sure that the call to 'BSLMT_TESTUTIL_ASSERTV'
+                // fits on a single line to ensure that the output is the same
+                // on all platforms.
 
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, idx > NUM_ITERATIONS);
@@ -1954,8 +2027,8 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError %s(%d):"
-                         " idx > NUM_ITERATIONS    (failed)\n",
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\nError"
+                         " %s(%d): idx > NUM_ITERATIONS    (failed)\n",
                          I, J, K, L, M,
                          __FILE__,
                          LINE);
@@ -2315,33 +2388,33 @@ int main(int argc, char *argv[])
             const char *testString = "This is output";
             char        buffer[TEST_STRING_SIZE];
 
-            REAL_ASSERT(TEST_STRING_SIZE == strlen(testString) + 1);
+            REAL_ASSERT(TEST_STRING_SIZE == bsl::strlen(testString) + 1);
 
             rewind(stdout);
             long initialStdoutPosition = ftell(stdout);
             REAL_ASSERT(0 == initialStdoutPosition);
-            printf("%s", testString);
+            bsl::printf("%s", testString);
             long finalStdoutPosition = ftell(stdout);
             REAL_ASSERT(-1 != finalStdoutPosition);
             REAL_ASSERT(finalStdoutPosition > initialStdoutPosition);
             long outputSize = finalStdoutPosition - initialStdoutPosition;
             REAL_ASSERT(outputSize + 1 == TEST_STRING_SIZE);
             rewind(stdout);
-            size_t bytesWritten =
+            bsl::size_t bytesWritten =
                                fread(buffer, sizeof(char), outputSize, stdout);
             REAL_ASSERT(static_cast<long>(bytesWritten) == outputSize);
             buffer[TEST_STRING_SIZE - 1] = '\0';
-            REAL_ASSERT(0 == strcmp(testString, buffer));
+            REAL_ASSERT(0 == bsl::strcmp(testString, buffer));
         }
 
         {
             // 3) 'load' works.
 
-            const char *testString       = "This is output";
-            size_t      testStringLength = strlen(testString);
+            const char  *testString       = "This is output";
+            bsl::size_t  testStringLength = bsl::strlen(testString);
 
             rewind(stdout);
-            printf("%s", testString);
+            bsl::printf("%s", testString);
             REAL_ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
             REAL_ASSERT(false == output.isOutputReady());
             REAL_ASSERT(0 == output.outputSize());
@@ -2349,19 +2422,19 @@ int main(int argc, char *argv[])
             REAL_ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
             REAL_ASSERT(true == output.isOutputReady());
             REAL_ASSERT(testStringLength == output.outputSize());
-            REAL_ASSERT(0 == memcmp(testString,
-                                    output.buffer(),
-                                    output.outputSize()));
+            REAL_ASSERT(0 == bsl::memcmp(testString,
+                                         output.buffer(),
+                                         output.outputSize()));
         }
 
         {
             // 4) 'reset' works.
 
-            const char *testString       = "This is output";
-            size_t      testStringLength = strlen(testString);
+            const char  *testString       = "This is output";
+            bsl::size_t  testStringLength = bsl::strlen(testString);
 
             rewind(stdout);
-            printf("%s", testString);
+            bsl::printf("%s", testString);
             output.load();
             REAL_ASSERT(static_cast<long>(testStringLength) == ftell(stdout));
             REAL_ASSERT(true == output.isOutputReady());
@@ -2383,20 +2456,20 @@ int main(int argc, char *argv[])
             const char *differentMiddleString = "This iz output";
 
             output.reset();
-            printf("%s", testString);
+            bsl::printf("%s", testString);
             REAL_ASSERT(output.load());
-            REAL_ASSERT(!!strcmp(testString, testString) ==
+            REAL_ASSERT(!!bsl::strcmp(testString, testString) ==
                                                  !!output.compare(testString));
 
-            REAL_ASSERT(!!strcmp(testString, shortString) ==
+            REAL_ASSERT(!!bsl::strcmp(testString, shortString) ==
                                                 !!output.compare(shortString));
-            REAL_ASSERT(!!strcmp(testString, longString) ==
+            REAL_ASSERT(!!bsl::strcmp(testString, longString) ==
                                                  !!output.compare(longString));
-            REAL_ASSERT(!!strcmp(testString, differentStartString) ==
+            REAL_ASSERT(!!bsl::strcmp(testString, differentStartString) ==
                                        !!output.compare(differentStartString));
-            REAL_ASSERT(!!strcmp(testString, differentEndString) ==
+            REAL_ASSERT(!!bsl::strcmp(testString, differentEndString) ==
                                          !!output.compare(differentEndString));
-            REAL_ASSERT(!!strcmp(testString, differentMiddleString) ==
+            REAL_ASSERT(!!bsl::strcmp(testString, differentMiddleString) ==
                                       !!output.compare(differentMiddleString));
         }
 
@@ -2412,7 +2485,7 @@ int main(int argc, char *argv[])
             const char *testString = "This is good output";
 
             output.reset();
-            printf("%s", testString);
+            bsl::printf("%s", testString);
             REAL_ASSERT(0 != output.compare(testString));
 
             output.reset();
@@ -2428,7 +2501,7 @@ int main(int argc, char *argv[])
             const char *testString = "This has an\nembedded newline";
 
             output.reset();
-            printf("%s", testString);
+            bsl::printf("%s", testString);
             REAL_ASSERT(output.load());
             REAL_ASSERT(0 == output.compare(testString));
 
@@ -2436,7 +2509,7 @@ int main(int argc, char *argv[])
                 "This has two\nembedded newlines\n";
 
             output.reset();
-            printf("%s", twoNewlineTestString);
+            bsl::printf("%s", twoNewlineTestString);
             REAL_ASSERT(output.load());
             REAL_ASSERT(0 == output.compare(twoNewlineTestString));
         }
@@ -2447,7 +2520,7 @@ int main(int argc, char *argv[])
             const char *testString = "";
 
             output.reset();
-            printf("%s", testString);
+            bsl::printf("%s", testString);
             REAL_ASSERT(output.load());
             REAL_ASSERT(0 == output.compare(testString));
         }
@@ -2482,12 +2555,12 @@ int main(int argc, char *argv[])
             const char *ctrlDTestString = "ab" "\x04" "cd";
 
             output.reset();
-            printf("%s", crnlTestString);
+            bsl::printf("%s", crnlTestString);
             REAL_ASSERT(output.load());
             REAL_ASSERT(0 == output.compare(crnlTestString));
 
             output.reset();
-            printf("%s", ctrlDTestString);
+            bsl::printf("%s", ctrlDTestString);
             REAL_ASSERT(output.load());
             REAL_ASSERT(0 == output.compare(ctrlDTestString));
         }
@@ -2551,9 +2624,9 @@ int main(int argc, char *argv[])
             BSLMT_TESTUTIL_T_;
             BSLMT_TESTUTIL_P(i);
 
-            BSLMT_TESTUTIL_LOOP0_ASSERT(!b);
-            BSLMT_TESTUTIL_LOOP1_ASSERT(b, !b);
-            REAL_ASSERT(testStatus == 2);
+            testStatus = 0;
+            BSLMT_TESTUTIL_ASSERT(!b);
+            REAL_ASSERT(testStatus == 1);
 
             testStatus = 0;
             BSLMT_TESTUTIL_LOOP0_ASSERT(!b);
@@ -2616,13 +2689,15 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
-        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+        bsl::fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         realTestStatus = -1;
       }
     }
 
     if (realTestStatus > 0) {
-        fprintf(stderr, "Error, non-zero test status = %d.\n", realTestStatus);
+        bsl::fprintf(stderr,
+                     "Error, non-zero test status = %d.\n",
+                     realTestStatus);
     }
     return realTestStatus;
 }

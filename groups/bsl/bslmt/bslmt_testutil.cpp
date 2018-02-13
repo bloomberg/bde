@@ -8,7 +8,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-char bslmt_testutil_guard_object = 0;
+char bloomberglp_bslmt_testutil_guard_object = 0;
 
 namespace BloombergLP {
 namespace bslmt {
@@ -28,7 +28,7 @@ void *TestUtil::callFunc(void *arg)
     return (*s_func)(arg);
 }
 
-bslmt::Mutex& TestUtil::outputMutexSingleton()
+bslmt::Mutex& TestUtil::outputMutexSingleton_impl()
 {
     static bslmt::Mutex *mutex_p;
 
@@ -51,14 +51,14 @@ void TestUtil::setFunc(TestUtil::Func func)
                           // ---------------------------
 
 TestUtil::GuardObject::GuardObject()
-: d_mutex(&TestUtil::outputMutexSingleton())
+: d_mutex_p(&TestUtil::outputMutexSingleton_impl())
 {
-    d_mutex->lock();
+    d_mutex_p->lock();
 }
 
 TestUtil::GuardObject::~GuardObject()
 {
-    d_mutex->unlock();
+    d_mutex_p->unlock();
 }
 
                           // ---------------------------
@@ -67,19 +67,19 @@ TestUtil::GuardObject::~GuardObject()
 
 // CREATORS
 TestUtil::NestedGuard::NestedGuard(char *)
-: d_mutex(&TestUtil::outputMutexSingleton())
+: d_mutex_p(&TestUtil::outputMutexSingleton_impl())
 {
-    d_mutex->lock();
+    d_mutex_p->lock();
 }
 
 TestUtil::NestedGuard::NestedGuard(GuardObject *)
-: d_mutex(0)
+: d_mutex_p(0)
 {}
 
 TestUtil::NestedGuard::~NestedGuard()
 {
-    if (d_mutex) {
-        d_mutex->unlock();
+    if (d_mutex_p) {
+        d_mutex_p->unlock();
     }
 }
 

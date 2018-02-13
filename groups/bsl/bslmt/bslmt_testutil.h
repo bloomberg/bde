@@ -1,4 +1,4 @@
-// bslmt_testutil.h                                      -*-C++-*-
+// bslmt_testutil.h                                                   -*-C++-*-
 #ifndef INCLUDED_BSLMT_TESTUTIL
 #define INCLUDED_BSLMT_TESTUTIL
 
@@ -95,8 +95,8 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// Next, we define the standard print and 'ASSERT*' macros, as aliases to
-// the macros defined by this component:
+// Next, we define the standard print and 'ASSERT*' macros, as aliases to the
+// macros defined by this component:
 //..
 //  //=========================================================================
 //  //                       STANDARD BDE TEST DRIVER MACROS
@@ -292,30 +292,35 @@ BSLS_IDENT("$Id: $")
                            // Global Definition
                            // =================
 
-extern char bslmt_testutil_guard_object;
+extern char bloomberglp_bslmt_testutil_guard_object;
     // Create a global variable, outside of any namespace, with this name to
     // match that sought by the 'NestedGuard' in the
     // 'BSLMT_TESTUTIL_NESTED_GUARD' macro if it is instantiated in a context
-    // not guarded by 'BSLMT_TESTUTIL_GUARD'.  Note that the state of this
-    // variable is never accessed.
+    // not guarded by 'BSLMT_TESTUTIL_GUARD'.  This variable is not intended to
+    // be accessed directly by clients of this component, rather, only by
+    // macros within this component.  Note that the state of this variable is
+    // never accessed.
 
                            // =================
                            // Macro Definitions
                            // =================
 
 #define BSLMT_TESTUTIL_OUTPUT_GUARD                                           \
-    BloombergLP::bslmt::TestUtil::GuardObject bslmt_testutil_guard_object
+    BloombergLP::bslmt::TestUtil::GuardObject                                 \
+                                        bloomberglp_bslmt_testutil_guard_object
     // Create a guard that unconditionally locks the singleton output mutex.
 
 #define BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD                                    \
     BloombergLP::bslmt::TestUtil::NestedGuard                                 \
-               bslmt_testutil_nested_guard_object(&bslmt_testutil_guard_object)
-    // If a regular 'GuardObject' named 'bslmt_testutil_guard_object' created
-    // by 'BSLMT_TESTUTIL_GUARD' is in scope, create a guard that does nothing,
+                      bslmt_testutil_nested_guard_object(                     \
+                                      &bloomberglp_bslmt_testutil_guard_object)
+    // If a regular 'GuardObject' named
+    // 'bloomberglp_bslmt_testutil_guard_object' created by
+    // 'BSLMT_TESTUTIL_GUARD' is in scope, create a guard that does nothing,
     // because the singleton output mutex is already locked in the current
-    // thread.  Otherwise, 'bslmt_testutil_guard_object' will match the global
-    // scoped 'char' defined above and this macro will create a guard that
-    // locks the singleton output mutex.
+    // thread.  Otherwise, 'bloomberglp_bslmt_testutil_guard_object' will match
+    // the global scoped 'char' defined above and this macro will create a
+    // guard that locks the singleton output mutex.
 
 #define BSLMT_TESTUTIL_LOOP0_ASSERT(X)                                        \
     if (X) ; else do { BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD;                    \
@@ -368,9 +373,9 @@ extern char bslmt_testutil_guard_object;
                                  << #N << ": " << N << "\n";                  \
                        aSsErT(1, #X, __LINE__); } while (false)
 
-// The 'BSLMT_TESTUTIL_EXPAND' macro is required to work around a
-// preprocessor issue on Windows that prevents '__VA_ARGS__' from being
-// expanded in the definition of 'BSLMT_TESTUTIL_NUM_ARGS'.
+// The 'BSLMT_TESTUTIL_EXPAND' macro is required to work around a preprocessor
+// issue on Windows that prevents '__VA_ARGS__' from being expanded in the
+// definition of 'BSLMT_TESTUTIL_NUM_ARGS'.
 
 #define BSLMT_TESTUTIL_EXPAND(X)                                              \
     X
@@ -392,8 +397,8 @@ extern char bslmt_testutil_guard_object;
                              BSLMT_TESTUTIL_NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 // The following 4 macros can either be used within a block guarded by a
-// 'BSLMT_TESTUTIL_GUARD', in which case they don't acquire the
-// mutex, or outside such a block, in which case they do acquire it.
+// 'BSLMT_TESTUTIL_GUARD', in which case they don't acquire the mutex, or
+// outside such a block, in which case they do acquire it.
 
 #define BSLMT_TESTUTIL_Q(X)                                                   \
     do { BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD;                                  \
@@ -452,9 +457,10 @@ struct TestUtil {
         // called, and the most recent call was passed a non-null function
         // pointer.
 
-    static bslmt::Mutex& outputMutexSingleton();
-        // Return a reference to the constructed output mutex, initializing
-        // it if necessary.
+    static bslmt::Mutex& outputMutexSingleton_impl();
+        // Return a reference to the constructed output mutex, initializing it
+        // if necessary.  This function is not intended to be called by clients
+        // of this component, rather, only by macros defined in this component.
 
     static void setFunc(Func func);
         // Set the function to be called by 'callFunc' to the specified 'func'.
@@ -466,7 +472,7 @@ struct TestUtil {
 
 class TestUtil::GuardObject {
     // DATA
-    bslmt::Mutex *d_mutex;
+    bslmt::Mutex *d_mutex_p;
 
   private:
     // NOT IMPLEMENTED
@@ -489,7 +495,7 @@ class TestUtil::GuardObject {
 
 class TestUtil::NestedGuard {
     // DATA
-    bslmt::Mutex *d_mutex;
+    bslmt::Mutex *d_mutex_p;
 
   private:
     // NOT IMPLEMENTED
