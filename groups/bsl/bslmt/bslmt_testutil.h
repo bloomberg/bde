@@ -57,6 +57,8 @@ BSLS_IDENT("$Id: $")
 //                                 double b = 0,
 //                                 double c = 0,
 //                                 double d = 0);
+//          // Return the sum of the squares of one to 4 arguments, the
+//          // specified 'a' and the optionally specified 'b', 'c', and 'd'.
 //  };
 //
 //  // CLASS METHODS
@@ -95,8 +97,8 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// Next, we define the standard print and 'ASSERT*' macros, as aliases to the
-// macros defined by this component:
+// Next, we define the standard print and 'ASSERT*' macros, as aliases to
+// the macros defined by this component:
 //..
 //  //=========================================================================
 //  //                       STANDARD BDE TEST DRIVER MACROS
@@ -148,6 +150,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  struct TestSums {
 //      void operator()()
+//          // Test 'TestUtil::sumOfSquares' with a variety of randomly
+//          // generated arguments to be found in the array 'randNumbers'
 //      {
 //          const int idx     = threadIdx++;
 //          int       randIdx = idx * k_NUM_ITERATIONS * 4;
