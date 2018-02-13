@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate the set of channel read data policy values.
+//@PURPOSE: Enumerate policies for reading data from multiple channels.
 //
 //@CLASSES:
 //  btlmt::ReadDataPolicy: namespace for channel read data policy 'enum'
@@ -29,7 +29,8 @@ BSLS_IDENT("$Id: $")
 //                  that channel is exhausted before moving onto the next
 //                  channel to read data.
 //
-//  e_ROUND_ROBIN   Read data from each channel once in a round-robin manner.
+//  e_ROUND_ROBIN   Perform a single read for each channel, in a round-robin
+//                  manner
 //..
 //
 ///Usage
@@ -95,8 +96,8 @@ struct ReadDataPolicy {
                       // that channel is exhausted before moving onto the next
                       // channel to read data.
 
-        e_ROUND_ROBIN // Read data from each channel once in a round-robin
-                      // manner.
+        e_ROUND_ROBIN // Perform a single read for each channel, in a
+                      // round-robin manner.
     };
 
   public:

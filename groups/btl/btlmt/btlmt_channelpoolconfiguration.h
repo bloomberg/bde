@@ -89,8 +89,10 @@ BSLS_IDENT("$Id: $")
 //                               be collected.
 //
 //   btlmt::ReadDataPolicy
-//           readDataPolicy      indicates the read data policy for    e_GREEDY
-//                               the configured channel pool.
+//           readDataPolicy      indicates the policy for              e_GREEDY
+//                               multiplexing reads from multiple
+//                               channels that have data ready to
+//                               be read
 //..
 // The constraints are as follows:
 //..
