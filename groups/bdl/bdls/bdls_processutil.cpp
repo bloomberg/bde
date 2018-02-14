@@ -12,54 +12,54 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 
-#include <bdlsb_memoutstreambuf.h>
-
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
-#include <bsl_fstream.h>
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-# include <windows.h>
+#if defined BSLS_PLATFORM_OS_WINDOWS
 # include <bdlde_charconvertutf16.h>
 # include <bdlma_localsequentialallocator.h>
+# include <windows.h>
 #else
-# include <unistd.h>
-#endif
+# include <unistd.h>    // getpid
 
-#if defined BSLS_PLATFORM_OS_DARWIN
-# include <libproc.h>
-#elif defined BSLS_PLATFORM_OS_SOLARIS
-# include <procfs.h>
-# include <fcntl.h>
-# ifndef   _REENTRANT
-#   define _REENTRANT
-# endif
-#elif defined BSLS_PLATFORM_CMP_GNU || defined BSLS_PLATFORM_CMP_CLANG
-# include <errno.h>
-#elif defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_CYGWIN
-# include <fcntl.h>
-#elif defined BSLS_PLATFORM_OS_AIX
-# include <sys/procfs.h>
-# include <fcntl.h>
-# include <procinfo.h>
-# include <bslma_allocator.h>
-# include <bslma_deallocatorproctor.h>
-# include <bslma_default.h>
-#elif defined BSLS_PLATFORM_OS_HPUX
-# include <sys/pstat.h>
-#endif
+# if defined BSLS_PLATFORM_OS_DARWIN
+#   include <libproc.h>
+# elif defined BSLS_PLATFORM_OS_HPUX
+#   include <sys/pstat.h>
+# elif defined BSLS_PLATFORM_OS_SOLARIS
+#   include <stdlib.h>
+# elif defined BSLS_PLATFORM_OS_CYGWIN
+#   ifndef   _REENTRANT
+#     define _REENTRANT
+#   endif
 
-#if defined BSLS_PLATFORM_OS_AIX
+#   include <bdlsb_memoutstreambuf.h>
+#   include <bsl_fstream.h>
+#   include <fcntl.h>
+#   include <procfs.h>
+# elif defined BSLS_PLATFORM_OS_LINUX
+#   include <errno.h>
+# elif defined BSLS_PLATFORM_OS_AIX
+#   include <bslma_allocator.h>
+#   include <bslma_deallocatorproctor.h>
+#   include <bslma_default.h>
+#   include <bsl_algorithm.h>
+#   include <sys/procfs.h>
+#   include <fcntl.h>
+#   include <procinfo.h>
+
 // DRQS 30045663 - AIX is missing this prototype
 extern int getargs(void *processBuffer,
                    int   bufferLen,
                    char *argsBuffer,
                    int   argsLen);
+# else
+#   error Unrecognized Platform
+# endif
 #endif
-
 
 namespace BloombergLP {
 
@@ -74,7 +74,7 @@ int ProcessUtil::getProcessId()
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     return static_cast<int>(GetCurrentProcessId());
 #else
-    return static_cast<int>(getpid());
+    return static_cast<int>(::getpid());
 #endif
 }
 
@@ -104,6 +104,12 @@ int ProcessUtil::getProcessName(bsl::string *result)
     }
 
     return -1; // The path name is too long (more than 4 * k_INITIAL_SIZE)
+#elif defined BSLS_PLATFORM_OS_DARWIN
+    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+    if (proc_pidpath (getpid(), pathbuf, sizeof(pathbuf)) <= 0) {
+        return -1;
+    }
+    result->assign(pathbuf);
 #elif defined BSLS_PLATFORM_OS_HPUX
     result->resize(256);
     int rc = pstat_getcommandline(&(*result->begin()),
@@ -118,17 +124,13 @@ int ProcessUtil::getProcessName(bsl::string *result)
     if (bsl::string::npos != pos) {
         result->resize(pos);
     }
-#elif defined BSLS_PLATFORM_OS_DARWIN
-    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
-    if (proc_pidpath (getpid(), pathbuf, sizeof(pathbuf)) <= 0) {
-        return -1;
-    }
-    result->assign(pathbuf);
-#elif defined BSLS_PLATFORM_OS_CYGWIN || defined BSLS_PLATFORM_OS_SOLARIS
+#elif defined BSLS_PLATFORM_OS_SOLARIS
+    *result = ::getexecname();
+#elif defined BSLS_PLATFORM_OS_CYGWIN
     enum { NUM_ELEMENTS = 14 + 16 };  // "/proc/<pid>/cmdline"
 
     bdlsb::MemOutStreamBuf osb(NUM_ELEMENTS);
-    bsl::ostream          os(&osb);
+    bsl::ostream           os(&osb);
     os << "/proc/" << getpid() << "/cmdline" << bsl::ends;
     const char *procfs = osb.data();
 
@@ -145,8 +147,8 @@ int ProcessUtil::getProcessName(bsl::string *result)
     if (bsl::string::npos != pos) {
         result->resize(pos);
     }
-#elif defined BSLS_PLATFORM_CMP_GNU || defined BSLS_PLATFORM_CMP_CLANG
-    *result = program_invocation_name;
+#elif defined BSLS_PLATFORM_OS_LINUX
+    *result = ::program_invocation_name;
 #elif defined BSLS_PLATFORM_OS_AIX
     struct procentry64  procbuffer;
     static const int    argslen = 65535;
@@ -168,6 +170,8 @@ int ProcessUtil::getProcessName(bsl::string *result)
     }
 
     result->assign(argsbuffer);
+#else
+# error    Unrecognized Platform
 #endif
 
     return result->empty();    // 'false' == 0 if success

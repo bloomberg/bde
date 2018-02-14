@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 
         bsl::string name;
         ASSERT(0 == bdls::ProcessUtil::getProcessName(&name));
-        ASSERT(name == argv[0]);
+        ASSERTV(name, argv[0], name == argv[0]);
 
         if (veryVerbose) {
             P_(argv[0]);  P(name);
