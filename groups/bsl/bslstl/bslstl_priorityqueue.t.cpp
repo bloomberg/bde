@@ -1499,6 +1499,7 @@ class TestDriver {
     typedef bsl::priority_queue<VALUE, CONTAINER, COMPARATOR>  Obj;
         // type under testing
 
+    typedef typename Obj::value_compare   value_compare;
     typedef typename Obj::value_type      value_type;
     typedef typename Obj::reference       reference;
     typedef typename Obj::const_reference const_reference;
