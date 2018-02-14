@@ -10,4 +10,5 @@ bdlde_crc64
 bdlde_md5
 bdlde_quotedprintabledecoder
 bdlde_quotedprintableencoder
+bdlde_sha2
 bdlde_utf8util
