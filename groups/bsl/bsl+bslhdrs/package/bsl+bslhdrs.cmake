@@ -40,7 +40,7 @@ function(process_package retPackage listFile uorName)
         DEPENDS "${dependencies}"
         INTERFACE_TARGET ${packageName}
     )
-    bde_create_header_only_library(${package})
+    bde_create_package_target(${package})
 
     bde_return(${package})
 endfunction()

@@ -135,13 +135,7 @@ function(process_uor retUOR listFile)
     )
 
     add_library(${TARGET} "")
-    bde_struct_create(
-        uor
-        BDE_UOR_TYPE
-        NAME "${TARGET}"
-        TARGET "${TARGET}"
-    )
-    bde_project_add_uor(${uor} ${package})
+    bde_create_standalone_uor(uor ${TARGET} ${package})
 
     bde_return(${uor})
 endfunction()
