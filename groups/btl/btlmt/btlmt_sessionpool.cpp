@@ -234,7 +234,7 @@ void SessionPool::channelStateCb(int   channelId,
         }
 
         // A peer might close the connection immediately after it is
-        // established.  We can identify identify this scenario by checking the
+        // established.  We can identify this scenario by checking the
         // channel's 'peerAddress'.  If the peer has disconnected, stop further
         // processing, destroy any established state ('handle'), and notify
         // 'ChannelPool' to 'shutdown' the connection.
