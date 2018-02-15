@@ -233,6 +233,22 @@ void SessionPool::channelStateCb(int   channelId,
             return;                                                   // RETURN
         }
 
+        // A peer might close the connection immediately after it is
+        // established.  We can identify identify this scenario by checking the
+        // channel's 'peerAddress'.  If the peer has disconnected, stop further
+        // processing, destroy any established state ('handle'), and notify
+        // 'ChannelPool' to 'shutdown' the connection.
+
+        btlso::IPv4Address peerAddress;
+        const int rc = d_channelPool_p->getPeerAddress(&peerAddress,
+                                                       channelId);
+
+        if (0 != rc || 0 == peerAddress.ipAddress()) {
+            d_handles.remove(handle->d_handleId);
+            d_channelPool_p->shutdown(channelId, ChannelPool::e_IMMEDIATE);
+            return;                                                   // RETURN
+        }
+
         d_channelPool_p->setChannelContext(channelId, handle.get());
 
         handle->d_channel_p = new (*d_allocator_p) ChannelPoolChannel(
@@ -241,20 +257,6 @@ void SessionPool::channelStateCb(int   channelId,
                                                      d_blobBufferFactory.ptr(),
                                                      &d_spAllocator,
                                                      d_allocator_p);
-
-        if (0 == handle->d_channel_p->peerAddress().ipAddress()) {
-            // The peer closed the connection right after it was established.
-            // ChannelPool identified that a connection was established and
-            // called the channel state callback but before we could create a
-            // 'ChannelPoolChannel' object with a valid 'peerAddress' the
-            // connection was closed.  If read was enabled on this channel we
-            // should get a subsequent CHANNEL_DOWN callback but we
-            // proactively remove the state for this connection so a channel
-            // with an invalid peerAddress is not passed to the user.
-
-            d_handles.remove(handle->d_handleId);
-            return;                                                   // RETURN
-        }
 
         lock.release()->unlock();
 
