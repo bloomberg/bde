@@ -1819,12 +1819,10 @@ void TestDriver::testCase29()
                     const int INVALID_EXPONENT1 = -102;
                     const int INVALID_EXPONENT2 =   91;
 
-                    Obj O;
-
-                    ASSERT_PASS(Util::quantize(O,   VALID_EXPONENT1));
-                    ASSERT_PASS(Util::quantize(O,   VALID_EXPONENT2));
-                    ASSERT_FAIL(Util::quantize(O, INVALID_EXPONENT1));
-                    ASSERT_FAIL(Util::quantize(O, INVALID_EXPONENT2));
+                    ASSERT_PASS(Util::quantize(Obj(),   VALID_EXPONENT1));
+                    ASSERT_PASS(Util::quantize(Obj(),   VALID_EXPONENT2));
+                    ASSERT_FAIL(Util::quantize(Obj(), INVALID_EXPONENT1));
+                    ASSERT_FAIL(Util::quantize(Obj(), INVALID_EXPONENT2));
                 }
             }
 
@@ -2023,12 +2021,10 @@ void TestDriver::testCase29()
                     const int INVALID_EXPONENT1 = -399;
                     const int INVALID_EXPONENT2 =  370;
 
-                    Obj X;
-
-                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT1));
-                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT2));
-                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT1));
-                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT2));
+                    ASSERT_PASS(Util::quantize(Obj(),   VALID_EXPONENT1));
+                    ASSERT_PASS(Util::quantize(Obj(),   VALID_EXPONENT2));
+                    ASSERT_FAIL(Util::quantize(Obj(), INVALID_EXPONENT1));
+                    ASSERT_FAIL(Util::quantize(Obj(), INVALID_EXPONENT2));
                 }
             }
 
@@ -2223,12 +2219,10 @@ void TestDriver::testCase29()
                     const int INVALID_EXPONENT1 = -6177;
                     const int INVALID_EXPONENT2 =  6112;
 
-                    Obj X;
-
-                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT1));
-                    ASSERT_PASS(Util::quantize(X,   VALID_EXPONENT2));
-                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT1));
-                    ASSERT_FAIL(Util::quantize(X, INVALID_EXPONENT2));
+                    ASSERT_PASS(Util::quantize(Obj(),   VALID_EXPONENT1));
+                    ASSERT_PASS(Util::quantize(Obj(),   VALID_EXPONENT2));
+                    ASSERT_FAIL(Util::quantize(Obj(), INVALID_EXPONENT1));
+                    ASSERT_FAIL(Util::quantize(Obj(), INVALID_EXPONENT2));
                 }
             }
 
