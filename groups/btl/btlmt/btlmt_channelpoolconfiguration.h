@@ -87,6 +87,12 @@ BSLS_IDENT("$Id: $")
 //                               processing data, and if this value
 //                               is 'false', those metrics will not
 //                               be collected.
+//
+//   btlmt::ReadDataPolicy
+//           readDataPolicy      indicates the policy for              e_GREEDY
+//                               multiplexing reads from multiple
+//                               channels that have data ready to
+//                               be read
 //..
 // The constraints are as follows:
 //..
@@ -201,11 +207,16 @@ BSLS_IDENT("$Id: $")
 //         maxIncomingMessageSize : 3
 //         threadStackSize        : 1024
 //         collectTimeMetrics     : 1
+//         readDataPolicy         : GREEDY
 // ]
 //..
 
 #ifndef INCLUDED_BTLSCM_VERSION
 #include <btlscm_version.h>
+#endif
+
+#ifndef INCLUDED_BTLMT_READDATAPOLICY
+#include <btlmt_readdatapolicy.h>
 #endif
 
 #ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
@@ -310,6 +321,9 @@ class ChannelPoolConfiguration {
 
     bool                  d_collectTimeMetrics;
 
+    btlmt::ReadDataPolicy::Enum
+                          d_readDataPolicy;    // read data policy
+
     friend bsl::ostream& operator<<(bsl::ostream&,
                                     const ChannelPoolConfiguration&);
 
@@ -319,7 +333,7 @@ class ChannelPoolConfiguration {
   public:
     // TYPES
     enum {
-        k_NUM_ATTRIBUTES = 14 // the number of attributes in this class
+        k_NUM_ATTRIBUTES = 15 // the number of attributes in this class
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
@@ -367,8 +381,11 @@ class ChannelPoolConfiguration {
         e_ATTRIBUTE_INDEX_THREAD_STACK_SIZE    = 12,
             // index for 'ThreadStackSize' attribute
 
-        e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13
+        e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS = 13,
             // index for 'CollectTimeMetrics' attribute
+
+        e_ATTRIBUTE_INDEX_READ_DATA_POLICY = 14
+            // index for 'ReadDataPolicy' attribute
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_INDEX_MAX_CONNECTIONS      =
@@ -445,8 +462,11 @@ class ChannelPoolConfiguration {
         e_ATTRIBUTE_ID_THREAD_STACK_SIZE       = 13,
             // id for 'ThreadStackSize' attribute
 
-        e_ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14
+        e_ATTRIBUTE_ID_COLLECT_TIME_METRICS    = 14,
             // id for 'CollectTimeMetrics' attribute
+
+        e_ATTRIBUTE_ID_READ_DATA_POLICY        = 15
+            // id for 'ReadDataPolicy' attribute
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_ID_MAX_CONNECTIONS      = e_ATTRIBUTE_ID_MAX_CONNECTIONS
@@ -567,13 +587,18 @@ class ChannelPoolConfiguration {
         // (with no effect on the state of this object) otherwise.
 
     int setCollectTimeMetrics(bool collectTimeMetricsFlag);
-        // Set to the specified 'collectTimeMetricsFlag' whether the configured
-        // channel pool will collect time metrics.  Return 0.  If
+        // Set the 'collectTimeMetrics' attribute of this object to the
+        // specified 'collectTimeMetricsFlag'.  Return 0.  If
         // 'collectTimeMetricsFlag' is 'true' the configured channel pool will
-        // collect metrics categorizing the time spent processing data.  Note
-        // that, if this value is 'false', the channel pool cannot use that
-        // estimate of work-load when it attempts to distribute work amongst
-        // its managed threads.
+        // collect metrics categorizing the time each thread spends processing
+        // data and will attempt to distribute work amongst its managed
+        // threads accordingly.  If 'collectTimeMetricsFlag' is 'false' no
+        // metrics are collected.  By default the 'collectTimeMetrics'
+        // attribute is set to 'true'.
+
+    int setReadDataPolicy(btlmt::ReadDataPolicy::Enum readDataPolicy);
+        // Set the 'readDataPolicy' attribute of this object to the
+        // specified 'readDataPolicy' value.  Return 0.
 
     template<class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
@@ -636,6 +661,9 @@ class ChannelPoolConfiguration {
         // processing data.  Note that, if this value is 'false', the channel
         // pool cannot use that estimate of work-load when it attempts to
         // distribute work amongst its managed threads.
+
+    btlmt::ReadDataPolicy::Enum readDataPolicy() const;
+        // Return the value of the 'readDataPolicy' attribute of this object.
 
     const double& metricsInterval() const;
         // Return the metrics interval attribute of this object.
@@ -819,6 +847,14 @@ int ChannelPoolConfiguration::setCollectTimeMetrics(
     return 0;
 }
 
+inline
+int ChannelPoolConfiguration::setReadDataPolicy(
+                                    btlmt::ReadDataPolicy::Enum readDataPolicy)
+{
+    d_readDataPolicy = readDataPolicy;
+    return 0;
+}
+
 template <class MANIPULATOR>
 int ChannelPoolConfiguration::manipulateAttributes(MANIPULATOR& manipulator)
 {
@@ -919,6 +955,13 @@ int ChannelPoolConfiguration::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;                                                   // RETURN
     }
 
+    ret = manipulator(
+                &d_readDataPolicy,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_DATA_POLICY]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
     return ret;
 }
 
@@ -1011,6 +1054,12 @@ int ChannelPoolConfiguration::manipulateAttribute(MANIPULATOR& manipulator,
         return manipulator(
                  &d_collectTimeMetrics,
                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_READ_DATA_POLICY: {
+        return manipulator(
+                &d_readDataPolicy,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_DATA_POLICY]);
                                                                       // RETURN
       } break;
 
@@ -1123,6 +1172,12 @@ bool ChannelPoolConfiguration::collectTimeMetrics() const {
     return d_collectTimeMetrics;
 }
 
+inline
+btlmt::ReadDataPolicy::Enum ChannelPoolConfiguration::readDataPolicy() const
+{
+    return d_readDataPolicy;
+}
+
 template <class ACCESSOR>
 int ChannelPoolConfiguration::accessAttributes(ACCESSOR& accessor) const
 {
@@ -1221,6 +1276,12 @@ int ChannelPoolConfiguration::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
+    ret = accessor(d_readDataPolicy,
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_DATA_POLICY]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
     return ret;
 }
 
@@ -1311,6 +1372,12 @@ ChannelPoolConfiguration::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(
                  d_collectTimeMetrics,
                  ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_COLLECT_TIME_METRICS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_READ_DATA_POLICY: {
+        return accessor(
+                     d_readDataPolicy,
+                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_READ_DATA_POLICY]);
                                                                       // RETURN
       } break;
 

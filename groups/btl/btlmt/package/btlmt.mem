@@ -6,6 +6,7 @@ btlmt_channelstatus
 btlmt_channeltype
 btlmt_connectoptions
 btlmt_listenoptions
+btlmt_readdatapolicy
 btlmt_resolutionmode
 btlmt_session
 btlmt_sessionfactory

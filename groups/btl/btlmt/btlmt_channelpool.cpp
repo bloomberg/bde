@@ -14,6 +14,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <btlmt_channelstatus.h>
 #include <btlmt_listenoptions.h>
+#include <btlmt_readdatapolicy.h>
 
 #include <bdls_processutil.h>
 
@@ -419,6 +420,11 @@ class Channel {
     char                             d_channelType;      // created how?
 
     bool                             d_enableReadFlag;   // are we reading?
+
+    btlmt::ReadDataPolicy::Enum      d_readDataPolicy;   // read policy to
+                                                         // decide how to read
+                                                         // data from multiple
+                                                         // data-ready channels
 
     // Channel parameters section
 
@@ -1654,7 +1660,8 @@ void Channel::readCb(ChannelHandle self)
             return;                                                   // RETURN
         }
 
-        if (readRet != totalBufferSize) {
+        if (readRet != totalBufferSize
+         || btlmt::ReadDataPolicy::e_ROUND_ROBIN == d_readDataPolicy) {
             break;
         }
     }
@@ -2046,6 +2053,7 @@ Channel::Channel(bslma::ManagedPtr<StreamSocket> *socket,
 , d_highWatermarkAlertState(e_HIGH_WATERMARK_ALERT_NOT_ACTIVE)
 , d_channelType(channelType)
 , d_enableReadFlag(false)
+, d_readDataPolicy(config.readDataPolicy())
 , d_allowHalfOpenConnections(allowHalfOpenConnections)
 , d_useReadTimeout(config.readTimeout() > 0.0)
 , d_readTimeout(config.readTimeout())

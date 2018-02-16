@@ -41,6 +41,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] int setMaxThreads(int maxThreads);
 // [ 2] int setMetricsInterval(double metricsInterval);
 // [ 2] int setReadTimeout(double readTimeout);
+// [ 2] int setReadDataPolicy(btlmt::ReadDataPolicy::Enum value);
 // [ 1] int minIncomingMessageSize() const;
 // [ 1] int typicalIncomingMessageSize() const;
 // [ 1] int maxIncomingMessageSize() const;
@@ -49,6 +50,7 @@ using namespace bsl;  // automatically added by script
 // [ 1] int maxOutgoingMessageSize() const;
 // [ 1] int maxConnections() const;
 // [ 1] int maxThreads() const;
+// [ 1] btlmt::ReadDataPolicy::Enum readDataPolicy() const;
 // [ 1] double metricsInterval() const;
 // [ 1] double readTimeout() const;
 //
@@ -142,6 +144,15 @@ const int THREADSTACKSIZE[NUM_VALUES]  = { 1048576, 512, 600, 700, 800, 900,
                                                                          999 };
 const bool COLLECTMETRICS[NUM_VALUES] =
                                      { true, false, true, false, true, false };
+const btlmt::ReadDataPolicy::Enum READDATAPOLICY[NUM_VALUES] =
+{
+    btlmt::ReadDataPolicy::e_GREEDY,
+    btlmt::ReadDataPolicy::e_ROUND_ROBIN,
+    btlmt::ReadDataPolicy::e_GREEDY,
+    btlmt::ReadDataPolicy::e_ROUND_ROBIN,
+    btlmt::ReadDataPolicy::e_GREEDY,
+    btlmt::ReadDataPolicy::e_ROUND_ROBIN
+};
 
 //=============================================================================
 //                             HELPER CLASSES
@@ -348,6 +359,7 @@ int main(int argc, char *argv[])
                 "\tmaxIncomingMessageSize : 3" NL
                 "\tthreadStackSize        : 1024" NL
                 "\tcollectTimeMetrics     : 1" NL
+                "\treadDataPolicy         : GREEDY" NL
                 "]" NL
                 ;
             ASSERT(os.str().c_str() == s);
@@ -380,7 +392,7 @@ int main(int argc, char *argv[])
                           << "\n==========================" << endl;
 
         enum {
-            NUM_ATTRIBUTES = 14
+            NUM_ATTRIBUTES = 15
         };
 
         ASSERT(NUM_ATTRIBUTES == Obj::k_NUM_ATTRIBUTES);
@@ -390,7 +402,7 @@ int main(int argc, char *argv[])
         "MinMessageSizeOut", "TypMessageSizeOut", "MaxMessageSizeOut",
         "MinMessageSizeIn", "TypMessageSizeIn", "MaxMessageSizeIn",
         "WriteQueueLowWater", "WriteQueueHighWater", "ThreadStackSize",
-        "CollectTimeMetrics"
+        "CollectTimeMetrics", "ReadDataPolicy"
         };
 
         const int NUM_NAMES = sizeof NAMES / sizeof *NAMES;
@@ -564,6 +576,15 @@ int main(int argc, char *argv[])
                                                                     visitor,
                                                                     j + 1));
                   } break;
+                  case 14: {
+                    ASSERT(0 == mA.setReadDataPolicy(READDATAPOLICY[i]));
+                    AssignValue<btlmt::ReadDataPolicy::Enum>
+                                                    visitor(READDATAPOLICY[i]);
+                    LOOP2_ASSERT(i, j, 0 ==
+                       bdlat_SequenceFunctions::manipulateAttribute(&mB,
+                                                                    visitor,
+                                                                    j + 1));
+                  } break;
 
                   default:
                     ASSERT(0);
@@ -589,6 +610,18 @@ int main(int argc, char *argv[])
                      bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
                     AssignValue<bool> avisitor(value);
+                    ASSERT(0 ==
+                     bdlat_SequenceFunctions::manipulateAttribute(&mC,
+                                                                  avisitor,
+                                                                  j + 1));
+                }
+                else if (j == 14) {
+                    btlmt::ReadDataPolicy::Enum value;
+                    GetValue<btlmt::ReadDataPolicy::Enum> gvisitor(&value);
+                    ASSERT(0 ==
+                     bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
+                                                              j + 1));
+                    AssignValue<btlmt::ReadDataPolicy::Enum> avisitor(value);
                     ASSERT(0 ==
                      bdlat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
@@ -769,6 +802,7 @@ int main(int argc, char *argv[])
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
         ASSERT(   COLLECTMETRICS[0] == X1.collectTimeMetrics());
+        ASSERT(   READDATAPOLICY[0] == X1.readDataPolicy());
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
         ASSERT(1 == (Z1 == Y1));          ASSERT(0 == (Z1 != Y1));
@@ -788,6 +822,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == mX1.setReadTimeout(READTIMEOUT[0]));
         ASSERT(0 == mX1.setThreadStackSize(THREADSTACKSIZE[0]));
         ASSERT(0 == mX1.setCollectTimeMetrics(COLLECTMETRICS[0]));
+        ASSERT(0 == mX1.setReadDataPolicy(READDATAPOLICY[0]));
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
         ASSERT(1 == (Z1 == Y1));          ASSERT(0 == (Z1 != Y1));
@@ -813,6 +848,7 @@ int main(int argc, char *argv[])
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
         ASSERT(   COLLECTMETRICS[0] == X1.collectTimeMetrics());
+        ASSERT(   READDATAPOLICY[0] == X1.readDataPolicy());
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
         ASSERT(0 == (Z1 == X1));          ASSERT(1 == (Z1 != X1));
@@ -858,6 +894,7 @@ int main(int argc, char *argv[])
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
         ASSERT(   COLLECTMETRICS[0] == X1.collectTimeMetrics());
+        ASSERT(   READDATAPOLICY[0] == X1.readDataPolicy());
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
         ASSERT(0 == (Z1 == X1));          ASSERT(1 == (Z1 != X1));
@@ -901,6 +938,7 @@ int main(int argc, char *argv[])
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
         ASSERT(   COLLECTMETRICS[0] == X1.collectTimeMetrics());
+        ASSERT(   READDATAPOLICY[0] == X1.readDataPolicy());
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
         ASSERT(0 == (Z1 == X1));          ASSERT(1 == (Z1 != X1));
@@ -942,6 +980,7 @@ int main(int argc, char *argv[])
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
         ASSERT(   COLLECTMETRICS[0] == X1.collectTimeMetrics());
+        ASSERT(   READDATAPOLICY[0] == X1.readDataPolicy());
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
         ASSERT(0 == (Z1 == X1));          ASSERT(1 == (Z1 != X1));
@@ -983,7 +1022,7 @@ int main(int argc, char *argv[])
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
         ASSERT(   COLLECTMETRICS[0] == X1.collectTimeMetrics());
-
+        ASSERT(   READDATAPOLICY[0] == X1.readDataPolicy());
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
         ASSERT(0 == (Z1 == X1));          ASSERT(1 == (Z1 != X1));
@@ -1025,7 +1064,7 @@ int main(int argc, char *argv[])
         ASSERT(      READTIMEOUT[1] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
         ASSERT(   COLLECTMETRICS[0] == X1.collectTimeMetrics());
-
+        ASSERT(   READDATAPOLICY[0] == X1.readDataPolicy());
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
         ASSERT(0 == (Z1 == X1));          ASSERT(1 == (Z1 != X1));
@@ -1067,7 +1106,7 @@ int main(int argc, char *argv[])
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[1] == X1.threadStackSize());
         ASSERT(   COLLECTMETRICS[0] == X1.collectTimeMetrics());
-
+        ASSERT(   READDATAPOLICY[0] == X1.readDataPolicy());
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
         ASSERT(0 == (Z1 == X1));          ASSERT(1 == (Z1 != X1));
@@ -1109,7 +1148,7 @@ int main(int argc, char *argv[])
         ASSERT(      READTIMEOUT[0] == X1.readTimeout());
         ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
         ASSERT(   COLLECTMETRICS[1] == X1.collectTimeMetrics());
-
+        ASSERT(   READDATAPOLICY[0] == X1.readDataPolicy());
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
         ASSERT(0 == (Z1 == X1));          ASSERT(1 == (Z1 != X1));
@@ -1125,6 +1164,48 @@ int main(int argc, char *argv[])
         ASSERT(0 == (Y1 == Z1));          ASSERT(1 == (Y1 != Z1));
 
         ASSERT(0 == mX1.setCollectTimeMetrics(COLLECTMETRICS[0]));
+        ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
+        ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
+        ASSERT(0 == (Y1 == Z1));          ASSERT(1 == (Y1 != Z1));
+
+        mX1 = mY1 = Z1;
+        ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
+        ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
+        ASSERT(1 == (Y1 == Z1));          ASSERT(0 == (Y1 != Z1));
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\t Change attribute 8." << endl;
+
+        ASSERT(0 == mX1.setReadDataPolicy(READDATAPOLICY[1]));
+        ASSERT( MINMESSAGESIZEIN[0] == X1.minIncomingMessageSize());
+        ASSERT( TYPMESSAGESIZEIN[0] == X1.typicalIncomingMessageSize());
+        ASSERT( MAXMESSAGESIZEIN[0] == X1.maxIncomingMessageSize());
+        ASSERT(MINMESSAGESIZEOUT[0] == X1.minOutgoingMessageSize());
+        ASSERT(TYPMESSAGESIZEOUT[0] == X1.typicalOutgoingMessageSize());
+        ASSERT(MAXMESSAGESIZEOUT[0] == X1.maxOutgoingMessageSize());
+        ASSERT(   MAXCONNECTIONS[0] == X1.maxConnections());
+        ASSERT(    MAXNUMTHREADS[0] == X1.maxThreads());
+        ASSERT(  METRICSINTERVAL[0] == X1.metricsInterval());
+        ASSERT(      READTIMEOUT[0] == X1.readTimeout());
+        ASSERT(  THREADSTACKSIZE[0] == X1.threadStackSize());
+        ASSERT(   COLLECTMETRICS[0] == X1.collectTimeMetrics());
+        ASSERT(   READDATAPOLICY[1] == X1.readDataPolicy());
+        ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
+        ASSERT(0 == (X1 == Z1));          ASSERT(1 == (X1 != Z1));
+        ASSERT(0 == (Z1 == X1));          ASSERT(1 == (Z1 != X1));
+        ASSERT(1 == (Y1 == Z1));          ASSERT(0 == (Y1 != Z1));
+        {
+            Obj C(X1);
+            ASSERT(C == X1 == 1);          ASSERT(C != X1 == 0);
+        }
+
+        mY1 = X1;
+        ASSERT(1 == (Y1 == Y1));          ASSERT(0 == (Y1 != Y1));
+        ASSERT(1 == (Y1 == X1));          ASSERT(0 == (Y1 != X1));
+        ASSERT(0 == (Y1 == Z1));          ASSERT(1 == (Y1 != Z1));
+
+        ASSERT(0 == mX1.setReadDataPolicy(READDATAPOLICY[0]));
         ASSERT(1 == (X1 == X1));          ASSERT(0 == (X1 != X1));
         ASSERT(1 == (X1 == Z1));          ASSERT(0 == (X1 != Z1));
         ASSERT(0 == (Y1 == Z1));          ASSERT(1 == (Y1 != Z1));
@@ -1173,6 +1254,7 @@ int main(int argc, char *argv[])
                 "\tmaxIncomingMessageSize : 1024" NL
                 "\tthreadStackSize        : 1048576" NL
                 "\tcollectTimeMetrics     : 1" NL
+                "\treadDataPolicy         : GREEDY" NL
                 "]" NL
                 ;
             ASSERT(buf == s);
@@ -1198,8 +1280,10 @@ int main(int argc, char *argv[])
                 "\tmaxIncomingMessageSize : 17" NL
                 "\tthreadStackSize        : 512" NL
                 "\tcollectTimeMetrics     : 1" NL
+                "\treadDataPolicy         : GREEDY" NL
                 "]" NL
                 ;
+            P(buf)
             ASSERT(buf == s);
         }
       } break;
