@@ -664,7 +664,7 @@ UNPACK_X_OR_Y(
 
         P_X_DIGIT(packed_result, LSD_NUM, G_X_DIGIT(digit_ptr, LSD_NUM));
         }
-    return fp_class | ((WORD) 1 << (BITS_PER_WORD - 1));
+    return fp_class | (WORD)((U_WORD) 1 << (BITS_PER_WORD - 1));
     }
 
 /*

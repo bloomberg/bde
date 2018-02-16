@@ -44,7 +44,7 @@
 	/* 040 */ DATA_1x2( 0x00000002, 0x00000000 ),
 
 	/* unpacked 0 constant */
-	/* 048 */ POS, -131072, DATA_2x2( 0x00000000, 0x00000000, 0x00000000, 0x00000000 ),
+	/* 048 */ POS, 0xfffe0000, DATA_2x2( 0x00000000, 0x00000000, 0x00000000, 0x00000000 ),
 
 	/* Fixed point coefficients for erf(x) evaluation */
 	/* 072 */ DATA_4( 0x690507d1, 0xeef69e7e, 0x0009a2c0, 0x00000000 ),
@@ -84,7 +84,7 @@
 	/* 568 */ DATA_4( 0x6fcba7b4, 0x663ae3dc, 0xabb226b4, 0x7dd1ffd9 ),
 	/* 584 */ DATA_4( 0x6ae846ad, 0x61d40831, 0x18de9d28, 0xd396d32d ),
 	/* 600 */ DATA_4( 0x6bfec344, 0x71d48a7f, 0x14db688d, 0x906eba82 ),
-	/* 616 */ DATA_1x2( 0x000000-3, 0x00000000 ),
+	/* 616 */ DATA_1x2( -3u, 0x00000000 ),
 	/* 624 */ DATA_4( 0xa522fa40, 0x38900912, 0x02199f19, 0x00000000 ),
 	/* 640 */ DATA_4( 0x4c93f48a, 0x5070d6ad, 0xed6686d5, 0x00000003 ),
 	/* 656 */ DATA_4( 0x82a6ef78, 0xc9d7c414, 0x37e89742, 0x000001fb ),

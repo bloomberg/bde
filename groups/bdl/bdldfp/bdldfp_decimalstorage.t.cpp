@@ -1,5 +1,5 @@
 // bdldfp_binaryintegraldecimalimputil.t.cpp                          -*-C++-*-
-#include <bdldfp_binaryintegraldecimalimputil.h>
+#include <bdldfp_decimalstorage.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$")

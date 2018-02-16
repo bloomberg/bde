@@ -1730,44 +1730,65 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'Decimal64'." << endl;
         {
-            typedef bdldfp::Decimal64 Type;
+            typedef bdldfp::Decimal64         Type;
+            typedef bsl::numeric_limits<Type> Limits;
+
+#define DFP(X) BDLDFP_DECIMAL_DD(X)
 
             const struct {
                 int         d_lineNum;
                 Type        d_input;
+                char        d_style;
+                int         d_precision;
                 const char *d_result;
             } DATA[] = {
-                //LINE  VALUE  RESULT
-                //----  -----  ------
+//---------------------------------------------------------------------------
+// LN |           VALUE           | STYLE | PRS |          RESULT
+//---------------------------------------------------------------------------
+{ L_,  DFP(0.0),                    'N',     0,  "0.0",                    },
+{ L_,  DFP(15.13),                  'N',     0,  "15.13",                  },
+{ L_,  DFP(-9.876543210987654e307), 'N',     0,  "-9.876543210987654e+307" },
+{ L_,  Limits::infinity(),          'N',     0,   "INF",                   },
+{ L_, -Limits::infinity(),          'N',     0,  "-INF",                   },
+{ L_,  Limits::signaling_NaN(),     'N',     0,   "NaN",                   },
+{ L_,  Limits::quiet_NaN(),         'N',     0,   "NaN",                   },
 
-                { L_,   BDLDFP_DECIMAL_DD(0.0),   "0.0" },
-                { L_,   BDLDFP_DECIMAL_DD(1.13),  "1.13" },
-                { L_,   BDLDFP_DECIMAL_DD(-9.876543210987654e307),
-                  "-9.876543210987654e+307" },
-                { L_,   bsl::numeric_limits<bdldfp::Decimal64>::infinity(),
-                  "INF" },
-                { L_,  -bsl::numeric_limits<bdldfp::Decimal64>::infinity(),
-                  "-INF" },
-                { L_,  bsl::numeric_limits<bdldfp::Decimal64>::signaling_NaN(),
-                  "NaN" },
-                { L_,  bsl::numeric_limits<bdldfp::Decimal64>::quiet_NaN(),
-                  "NaN" },
+{ L_,  DFP(0.0),                    'F',     2,  "0.00",                   },
+{ L_,  DFP(15.13),                  'F',     2,  "15.13",                  },
+{ L_,  DFP(-9876543210987654.0),    'F',     0,  "-9876543210987654"       },
+{ L_,  Limits::infinity(),          'F',     0,   "INF",                   },
+{ L_, -Limits::infinity(),          'F',     0,  "-INF",                   },
+{ L_,  Limits::signaling_NaN(),     'F',     0,   "NaN",                   },
+{ L_,  Limits::quiet_NaN(),         'F',     0,   "NaN",                   },
 
+{ L_,  DFP(0.1),                    'S',     0,  "1e-1"                    },
+{ L_,  DFP(15.13),                  'S',     3,  "1.513e+1",               },
+{ L_,  DFP(-9.876543210987654e307), 'S',    11,  "-9.87654321099e+307"     },
+{ L_,  Limits::infinity(),          'S',     0,   "INF",                   },
+{ L_, -Limits::infinity(),          'S',     0,  "-INF",                   },
+{ L_,  Limits::signaling_NaN(),     'S',     0,   "NaN",                   },
+{ L_,  Limits::quiet_NaN(),         'S',     0,   "NaN",                   },
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
-                const char *RESULT = DATA[i].d_result;
+                const int   LINE      = DATA[i].d_lineNum;
+                const Type  INPUT     = DATA[i].d_input;
+                const char  STYLE     = DATA[i].d_style;
+                const char *RESULT    = DATA[i].d_result;
+                const int   PRECISION = DATA[i].d_precision;
 
                 bsl::stringstream ss;
+                ss.precision(PRECISION);
+                if ('F' == STYLE) { ss << bsl::fixed;      }
+                if ('S' == STYLE) { ss << bsl::scientific; }
 
                 Util::printDefault(ss, INPUT);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
+#undef DFP
         }
 
         // TBD: Currently this test case is commented out till the

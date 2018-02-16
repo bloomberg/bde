@@ -1,13 +1,8 @@
-// bdldfp_decimalimputil_decnumber.t.cpp                              -*-C++-*-
-#include <bdldfp_decimalimputil_decnumber.h>
+// bdldfp_decimalstorage.cpp                                          -*-C++-*-
+#include <bdldfp_decimalstorage.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id$")
-
-int main(int , char **)
-{
-    return -1;
-}
+BSLS_IDENT_RCSID(bdldfp_decimalstorage_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.

@@ -1,11 +1,11 @@
-// bdldfp_decimalimputil_ibmxlc.cpp                                   -*-C++-*-
-#include <bdldfp_decimalimputil_ibmxlc.h>
+// bdldfp_decimalformatconfig.cpp                                     -*-C++-*-
+#include <bdldfp_decimalformatconfig.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdldfp_decimalimputil_ibmxlc_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdldfp_decimalformatconfg_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

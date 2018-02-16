@@ -57,21 +57,6 @@ using namespace bsl;
 // [ 6] Decimal32 decimal32FromFloat(float, int);
 // [ 6] Decimal64 decimal64FromFloat(float, int);
 // [ 6] Decimal128 decimal128FromFloat(float, int);
-// [  ] decimal32ToBID(uc*, Decimal32);
-// [  ] decimal64ToBID(uc*, Decimal64);
-// [  ] decimal128ToBID(uc*, Decimal128);
-// [  ] decimalToBID(uc*, Decimal32);
-// [  ] decimalToBID(uc*, Decimal64);
-// [  ] decimalToBID(uc*, Decimal128);
-// [  ] Decimal32 decimal32FromBID(cuc*);
-// [  ] Decimal64 decimal64FromBID(cuc*);
-// [  ] Decimal128 decimal128FromBID(cuc*);
-// [  ] decimal32FromBID(Decimal32*, cuc*);
-// [  ] decimal64FromBID(Decimal64*, cuc*);
-// [  ] decimal128FromBID(Decimal128*, cuc*);
-// [  ] decimalFromBID(Decimal32*, cuc*);
-// [  ] decimalFromBID(Decimal64*, cuc*);
-// [  ] decimalFromBID(Decimal128*, cuc*);
 // [  ] decimal32ToDPD(uc*, Decimal32);
 // [  ] decimal64ToDPD(uc*, Decimal64);
 // [  ] decimal128ToDPD(uc*, Decimal128);
@@ -532,7 +517,7 @@ unsigned char *decimal64ToBinaryIntegralNetwork(unsigned char *buffer,
     // integer to the specified 'buffer'.
 {
     bsls::Types::Uint64 encoded;
-    Util::decimal64ToBID(reinterpret_cast<unsigned char *>(&encoded), decimal);
+    bsl::memcpy(&encoded, &decimal, sizeof(encoded));
 
     encoded = BSLS_BYTEORDER_HTONLL(encoded);
 

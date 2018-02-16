@@ -1744,7 +1744,7 @@ union {\
 
 // BID args and result
 #define       BID128_FUNCTION_ARG1(fn_name, arg_name)\
-	 DFP_WRAPFN_DFP(128, fn_name, 128);              \
+	 DFP_WRAPFN_DFP(128, fn_name, 128)               \
 	                                                 \
 DECLSPEC_OPT      BID_UINT128                                     \
      fn_name (BID_UINT128 bid_##arg_name _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1754,7 +1754,7 @@ DECLSPEC_OPT      BID_UINT128                                     \
 
 // BID args and result
 #define       BID128_FUNCTION_ARG1_NORND(fn_name, arg_name)\
-	 DFP_WRAPFN_DFP(128, fn_name, 128);              \
+	 DFP_WRAPFN_DFP(128, fn_name, 128)               \
 DECLSPEC_OPT      BID_UINT128                                     \
      fn_name (BID_UINT128 bid_##arg_name _EXC_FLAGS_PARAM  \
            _EXC_MASKS_PARAM _EXC_INFO_PARAM) { \
@@ -1763,7 +1763,7 @@ DECLSPEC_OPT      BID_UINT128                                     \
 
 // result is not BID type
 #define       BID128_FUNCTION_ARG1_NORND_CUSTOMRESTYPE(restype, fn_name, arg_name)\
-	 RES_WRAPFN_DFP(restype, fn_name, 128);              \
+	 RES_WRAPFN_DFP(restype, fn_name, 128)               \
 DECLSPEC_OPT      restype                                     \
      fn_name (BID_UINT128 bid_##arg_name _EXC_FLAGS_PARAM  \
            _EXC_MASKS_PARAM _EXC_INFO_PARAM) { \
@@ -1772,7 +1772,7 @@ DECLSPEC_OPT      restype                                     \
 
 // BID args and result
 #define       BID128_FUNCTION_ARG2(fn_name, arg_name1, arg_name2)\
-	 DFP_WRAPFN_DFP_DFP(128, fn_name, 128, 128);                 \
+	 DFP_WRAPFN_DFP_DFP(128, fn_name, 128, 128)                  \
 	                                                             \
 DECLSPEC_OPT      BID_UINT128                                     \
      fn_name (BID_UINT128 bid_##arg_name1,      \
@@ -1784,7 +1784,7 @@ DECLSPEC_OPT      BID_UINT128                                     \
 
 // fmod, rem
 #define       BID128_FUNCTION_ARG2_NORND(fn_name, arg_name1, arg_name2)\
-	 DFP_WRAPFN_DFP_DFP(128, fn_name, 128, 128);                 \
+	 DFP_WRAPFN_DFP_DFP(128, fn_name, 128, 128)                  \
 	                                                             \
 DECLSPEC_OPT      BID_UINT128                                     \
      fn_name (BID_UINT128 bid_##arg_name1,      \
@@ -1796,7 +1796,7 @@ DECLSPEC_OPT      BID_UINT128                                     \
 
 // compares
 #define       BID128_FUNCTION_ARG2_NORND_CUSTOMRESTYPE(restype, fn_name, arg_name1, arg_name2)\
-	 RES_WRAPFN_DFP_DFP(restype, fn_name, 128, 128);                 \
+	 RES_WRAPFN_DFP_DFP(restype, fn_name, 128, 128)                  \
 DECLSPEC_OPT      restype                                    \
      fn_name (BID_UINT128 bid_##arg_name1,      \
             BID_UINT128 bid_##arg_name2 _EXC_FLAGS_PARAM  \
@@ -1807,7 +1807,7 @@ DECLSPEC_OPT      restype                                    \
 
 // not currently used
 #define       BID128_FUNCTION_ARG2P_NORND_CUSTOMRESTYPE(restype, fn_name, arg_name1, res_name2)\
-	 RES_WRAPFN_DFP_DFP(restype, fn_name, 128, 128);                 \
+	 RES_WRAPFN_DFP_DFP(restype, fn_name, 128, 128)                  \
 DECLSPEC_OPT      restype                                    \
      fn_name (BID_UINT128 bid_##arg_name1,      \
             BID_UINT128* res_name2 _EXC_FLAGS_PARAM  \
@@ -1817,7 +1817,7 @@ DECLSPEC_OPT      restype                                    \
 
 // not currently used
 #define       BID128_FUNCTION_ARG3P_NORND_CUSTOMRESTYPE(restype, fn_name, arg_name1, arg_name2, res_name3)\
-	 RES_WRAPFN_DFP_DFP_DFP(restype, fn_name, 128, 128, 128);                 \
+	 RES_WRAPFN_DFP_DFP_DFP(restype, fn_name, 128, 128, 128)                  \
 DECLSPEC_OPT      restype                                    \
      fn_name (BID_UINT128 bid_##arg_name1,      \
             BID_UINT128 bid_##arg_name2, BID_UINT128* res_name3 _EXC_FLAGS_PARAM  \
@@ -1828,7 +1828,7 @@ DECLSPEC_OPT      restype                                    \
 
 // BID args and result
 #define       BID128_FUNCTION_ARG128_ARGTYPE2(fn_name, arg_name1, type2, arg_name2)\
-	 DFP_WRAPFN_DFP_DFP(128, fn_name, 128, bidsize(type2));                 \
+	 DFP_WRAPFN_DFP_DFP(128, fn_name, 128, bidsize(type2))                  \
 DECLSPEC_OPT      BID_UINT128                                     \
      fn_name (BID_UINT128 bid_##arg_name1,      \
             type2 bid_##arg_name2 _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1839,7 +1839,7 @@ DECLSPEC_OPT      BID_UINT128                                     \
 
 // scalb, ldexp
 #define       BID128_FUNCTION_ARG128_CUSTOMARGTYPE2(fn_name, arg_name1, type2, arg_name2)\
-	 DFP_WRAPFN_DFP_OTHERTYPE(128, fn_name, 128, type2);                 \
+	 DFP_WRAPFN_DFP_OTHERTYPE(128, fn_name, 128, type2)                  \
 DECLSPEC_OPT      BID_UINT128                                     \
      fn_name (BID_UINT128 bid_##arg_name1,      \
             type2 bid_##arg_name2 _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1850,7 +1850,7 @@ DECLSPEC_OPT      BID_UINT128                                     \
 
 // frexp
 #define       BID128_FUNCTION_ARG128_CUSTOMARGTYPE2_PLAIN(fn_name, arg_name1, type2, arg_name2)\
-	 DFP_WRAPFN_DFP_OTHERTYPE(128, fn_name, 128, type2);                 \
+	 DFP_WRAPFN_DFP_OTHERTYPE(128, fn_name, 128, type2)                  \
 DECLSPEC_OPT      BID_UINT128                                     \
      fn_name (BID_UINT128 bid_##arg_name1,      \
             type2 arg_name2   \
@@ -1860,7 +1860,7 @@ DECLSPEC_OPT      BID_UINT128                                     \
 
 // BID args and result
 #define       BID_TYPE0_FUNCTION_ARGTYPE1_ARGTYPE2(type0, fn_name, type1, arg_name1, type2, arg_name2)\
-	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, bidsize(type1), bidsize(type2));                 \
+	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, bidsize(type1), bidsize(type2))                  \
 DECLSPEC_OPT      type0                                     \
      fn_name (type1 bid_##arg_name1,      \
             type2 bid_##arg_name2 _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1871,7 +1871,7 @@ DECLSPEC_OPT      type0                                     \
 
 // BID arg1 and result
 #define       BID_TYPE0_FUNCTION_ARGTYPE1_OTHER_ARGTYPE2(type0, fn_name, type1, arg_name1, type2, arg_name2)\
-	 DFP_WRAPFN_DFP_OTHERTYPE(bidsize(type0), fn_name, bidsize(type1), type2);                 \
+	 DFP_WRAPFN_DFP_OTHERTYPE(bidsize(type0), fn_name, bidsize(type1), type2)                  \
 DECLSPEC_OPT      type0                                     \
      fn_name (type1 bid_##arg_name1,      \
             type2 bid_##arg_name2 _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1882,7 +1882,7 @@ DECLSPEC_OPT      type0                                     \
 
 // BID args and result
 #define       BID_TYPE0_FUNCTION_ARGTYPE1_ARGTYPE2_ARGTYPE3(type0, fn_name, type1, arg_name1, type2, arg_name2, type3, arg_name3)\
-	 DFP_WRAPFN_DFP_DFP_DFP(bidsize(type0), fn_name, bidsize(type1), bidsize(type2), bidsize(type3));                 \
+	 DFP_WRAPFN_DFP_DFP_DFP(bidsize(type0), fn_name, bidsize(type1), bidsize(type2), bidsize(type3))                  \
 DECLSPEC_OPT      type0                                     \
      fn_name (type1 bid_##arg_name1,      \
             type2 bid_##arg_name2, type3 bid_##arg_name3 _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1894,7 +1894,7 @@ DECLSPEC_OPT      type0                                     \
 
 // BID args and result
 #define       BID_TYPE_FUNCTION_ARG2(type0, fn_name, arg_name1, arg_name2)\
-	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, bidsize(type0), bidsize(type0));                 \
+	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, bidsize(type0), bidsize(type0))                 \
 DECLSPEC_OPT      type0                                     \
      fn_name (type0 bid_##arg_name1,      \
             type0 bid_##arg_name2 _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1905,7 +1905,7 @@ DECLSPEC_OPT      type0                                     \
 
 // BID args, result a different type (e.g. for compares)
 #define       BID_TYPE_FUNCTION_ARG2_CUSTOMRESULT_NORND(typeres, fn_name, type0, arg_name1, arg_name2)\
-	 RES_WRAPFN_DFP_DFP(typeres, fn_name, bidsize(type0), bidsize(type0));                 \
+	 RES_WRAPFN_DFP_DFP(typeres, fn_name, bidsize(type0), bidsize(type0))                  \
 DECLSPEC_OPT      typeres                                     \
      fn_name (type0 bid_##arg_name1,      \
             type0 bid_##arg_name2 _EXC_FLAGS_PARAM  \
@@ -1916,7 +1916,7 @@ DECLSPEC_OPT      typeres                                     \
 
 // BID args and result
 #define       BID_TYPE_FUNCTION_ARG1(type0, fn_name, arg_name1)\
-	 DFP_WRAPFN_DFP(bidsize(type0), fn_name, bidsize(type0));                 \
+	 DFP_WRAPFN_DFP(bidsize(type0), fn_name, bidsize(type0))                  \
 DECLSPEC_OPT      type0                                     \
      fn_name (type0 bid_##arg_name1      \
              _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1926,7 +1926,7 @@ DECLSPEC_OPT      type0                                     \
 
 // BID args and result
 #define       BID128_FUNCTION_ARGTYPE1_ARG128(fn_name, type1, arg_name1, arg_name2)\
-	 DFP_WRAPFN_DFP_DFP(128, fn_name, bidsize(type1), 128);                 \
+	 DFP_WRAPFN_DFP_DFP(128, fn_name, bidsize(type1), 128)                  \
 DECLSPEC_OPT      BID_UINT128                                     \
      fn_name (type1 bid_##arg_name1,      \
             BID_UINT128 bid_##arg_name2 _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1937,7 +1937,7 @@ DECLSPEC_OPT      BID_UINT128                                     \
 
 // BID args and result
 #define       BID_TYPE0_FUNCTION_ARG128_ARGTYPE2(type0, fn_name, arg_name1, type2, arg_name2)\
-	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, 128, bidsize(type2));                 \
+	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, 128, bidsize(type2))                  \
 DECLSPEC_OPT      type0                                     \
      fn_name (BID_UINT128 bid_##arg_name1,      \
             type2 bid_##arg_name2 _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1948,7 +1948,7 @@ DECLSPEC_OPT      type0                                     \
 
 // BID args and result
 #define       BID_TYPE0_FUNCTION_ARGTYPE1_ARG128(type0, fn_name, type1, arg_name1, arg_name2)\
-	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, bidsize(type1), 128);                 \
+	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, bidsize(type1), 128)                  \
 DECLSPEC_OPT      type0                                     \
      fn_name (type1 bid_##arg_name1,      \
             BID_UINT128 bid_##arg_name2 _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1959,7 +1959,7 @@ DECLSPEC_OPT      type0                                     \
 
 // BID args and result
 #define       BID_TYPE0_FUNCTION_ARG128_ARG128(type0, fn_name, arg_name1, arg_name2)\
-	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, 128, 128);                 \
+	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, 128, 128)                  \
 DECLSPEC_OPT      type0                                     \
      fn_name (BID_UINT128 bid_##arg_name1,      \
             BID_UINT128 bid_##arg_name2 _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
@@ -1970,7 +1970,7 @@ DECLSPEC_OPT      type0                                     \
 
 // BID args and result
 #define       BID_TYPE0_FUNCTION_ARG1(type0, fn_name, arg_name)\
-	 DFP_WRAPFN_DFP(bidsize(type0), fn_name, 128);                 \
+	 DFP_WRAPFN_DFP(bidsize(type0), fn_name, 128)                  \
 DECLSPEC_OPT      type0                                     \
      fn_name (BID_UINT128 bid_##arg_name _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
            _EXC_MASKS_PARAM _EXC_INFO_PARAM) { \
@@ -1979,7 +1979,7 @@ DECLSPEC_OPT      type0                                     \
 
 // BID args and result
 #define       BID128_FUNCTION_ARGTYPE1(fn_name, type1, arg_name)\
-	 DFP_WRAPFN_DFP(128, fn_name, bidsize(type1));                 \
+	 DFP_WRAPFN_DFP(128, fn_name, bidsize(type1))                  \
 DECLSPEC_OPT      BID_UINT128                                     \
      fn_name (type1 bid_##arg_name _RND_MODE_PARAM _EXC_FLAGS_PARAM  \
            _EXC_MASKS_PARAM _EXC_INFO_PARAM) { \
@@ -2015,7 +2015,7 @@ DECLSPEC_OPT      type0                                     \
 
 // BID to int/uint functions
 #define       BID_TYPE0_FUNCTION_ARGTYPE1_NORND(type0, fn_name, type1, arg_name)\
-	 RES_WRAPFN_DFP(type0, fn_name, bidsize(type1));                 \
+	 RES_WRAPFN_DFP(type0, fn_name, bidsize(type1))                  \
 DECLSPEC_OPT      type0                                     \
      fn_name (type1 bid_##arg_name _EXC_FLAGS_PARAM  \
            _EXC_MASKS_PARAM _EXC_INFO_PARAM) { \
@@ -2024,7 +2024,7 @@ DECLSPEC_OPT      type0                                     \
 
 // used for BID-to-BID conversions
 #define       BID_TYPE0_FUNCTION_ARGTYPE1_NORND_NOFLAGS(type0, fn_name, type1, arg_name)\
-	 DFP_WRAPFN_DFP(bidsize(type0), fn_name, bidsize(type1));                 \
+	 DFP_WRAPFN_DFP(bidsize(type0), fn_name, bidsize(type1))                  \
 DECLSPEC_OPT      type0                                     \
      fn_name (type1 bid_##arg_name _EXC_FLAGS_PARAM  \
            _EXC_MASKS_PARAM _EXC_INFO_PARAM) { \
@@ -2032,7 +2032,7 @@ DECLSPEC_OPT      type0                                     \
 
 // fmod, rem
 #define       BID_TYPE0_FUNCTION_ARGTYPE1_ARGTYPE2_NORND(type0, fn_name, type1, arg_name1, type2, arg_name2)\
-	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, bidsize(type1), bidsize(type2));                 \
+	 DFP_WRAPFN_DFP_DFP(bidsize(type0), fn_name, bidsize(type1), bidsize(type2))                  \
 DECLSPEC_OPT      type0                                     \
      fn_name (type1 bid_##arg_name1, type2 bid_##arg_name2 _EXC_FLAGS_PARAM  \
            _EXC_MASKS_PARAM _EXC_INFO_PARAM) { \

@@ -11,7 +11,6 @@ BSLS_IDENT("$Id$")
 //
 //@MACROS:
 //  BDLDFP_DECIMALPLATFORM_C99_TR: using C99 (C-language) decimal fp support
-//  BDLDFP_DECIMALPLATFORM_DECNUMBER: using the 'decNumber' library
 //  BDLDFP_DECIMALPLATFORM_INTELDFP: using the 'IntelDFP' library
 //  BDLDFP_DECIMALPLATFORM_HARDWARE: using hardware support for decimals
 //  BDLDFP_DECIMALPLATFORM_SOFTWARE: using software only (no hardware support)
@@ -39,8 +38,6 @@ BSLS_IDENT("$Id$")
 //
 // 'BDLDFP_DECIMALPLATFORM_C99_TR' - Full ISO/IEC TR 24732 support with
 //                                   library.
-//
-// 'BDLDFP_DECIMALPLATFORM_DECNUMBER' - Using bdl+decnumber as emulation
 //
 // 'BDLDFP_DECIMALPLATFORM_INTELDFP' - Using bdl+inteldfp as emulation
 //
@@ -142,14 +139,10 @@ BSLS_IDENT("$Id$")
 #ifndef BDLDFP_DECIMALPLATFORM_C99_TR
 #  if 1
 #    define BDLDFP_DECIMALPLATFORM_INTELDFP  1
-#  else
-#    define BDLDFP_DECIMALPLATFORM_DECNUMBER 1
 #  endif
 #endif
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-#  define BDLDFP_DECIMALPLATFORM_DPD    1
-#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
 #  define BDLDFP_DECIMALPLATFORM_DPD    1
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
 #  define BDLDFP_DECIMALPLATFORM_BININT 1
@@ -206,8 +199,7 @@ BSLMF_ASSERT(false);
 // Verify exactly one implementation library must be selected
 
 #if BDLDFP_DECIMALPLATFORM_INTELDFP                                           \
-  + BDLDFP_DECIMALPLATFORM_C99_TR                                             \
-  + BDLDFP_DECIMALPLATFORM_DECNUMBER != 1
+  + BDLDFP_DECIMALPLATFORM_C99_TR != 1
     #error "Exactly one decimal implementation library must be selected."
     BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
 #endif
@@ -217,11 +209,6 @@ BSLMF_ASSERT(false);
    !defined(BDLDFP_DECIMALPLATFORM_SOFTWARE) && \
    !defined(BDLDFP_DECIMALPLATFORM_BININT)
     #error "INTELDFP mode requires SOFTWARE and BININT modes to be set."
-    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
-#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER) && \
-     !defined(BDLDFP_DECIMALPLATFORM_SOFTWARE) &&\
-     !defined(BDLDFP_DECIMALPLATFORM_DPD)
-    #error "DECNUMBER mode requires SOFTWARE and DPD modes to be set."
     BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
 #endif
 
