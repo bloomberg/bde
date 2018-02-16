@@ -270,6 +270,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmentimp.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bsls {
@@ -282,6 +286,10 @@ template <int ALIGNMENT>
 struct AlignmentToType {
     // This 'struct' provides a 'typedef', 'Type', that aliases a primitive
     // type having the specified 'ALIGNMENT' requirement.
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+    // TYPES
+    class alignas(ALIGNMENT) Type { char d_c[ALIGNMENT]; };
+#else
 
   private:
     // PRIVATE TYPES
@@ -302,6 +310,7 @@ struct AlignmentToType {
     typedef typename AlignmentImpPriorityToType<PRIORITY>::Type Type;
         // Alias for a primitive type that has the specified 'ALIGNMENT'
         // requirement.
+#endif
 };
 
 }  // close package namespace
