@@ -2515,7 +2515,7 @@ void TestDriver::testCase21()
                                << "=========================================="
                                << bsl::endl;
 
-        using namespace BTEMT_SESSION_POOL_GRACEFUL_SHUTDOWN;
+        using namespace BTLMT_SESSION_POOL_GRACEFUL_SHUTDOWN;
 
         typedef btlmt::SessionPool::SessionPoolStateCallback SessionPoolStateCb;
         typedef btlmt::SessionPool::SessionStateCallback     SessionStateCb;
