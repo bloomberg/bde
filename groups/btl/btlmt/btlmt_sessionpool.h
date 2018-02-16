@@ -59,6 +59,42 @@ BSLS_IDENT("$Id: $")
 // message buffer is assumed and either the message is copied into the local
 // buffer of the session or the address of the buffer is retained.
 //
+///Half-Open Connections
+///---------------------
+// When a channel is closed, 'btlmt::SessionPool', by default, closes both its
+// read and write ends, thereby disallowing the connection from any further
+// communication.
+//
+// However, users might want their connections to operate in "half-open mode",
+// where only one end of the connection is closed while the other continues
+// operating.  Consider a scenario where a user wants to write a final message
+// to the peer and then close the connection.  In this case the user not only
+// expects that the peer is informed that the user is no longer reading but any
+// enqueued data should also be successfully transmitted.  Having the
+// connection in half-open mode where the write-end remains open while the
+// read-end is closed enables this use-case.
+//
+// 'btlmt::SessionPool' provides support for half-open connections by allowing
+// users to set the 'allowHalfOpenConnections' attribute in either the
+// 'btlmt::ListenOptions' argument passed to 'listen' or the
+// 'btlmt::ConnectOptions' argument passed to 'connect'.  Channels created with
+// this attribute set to 'true' can then function in half-open mode.  However,
+// the half-open mode of a channel cannot be changed *after* it has been
+// constructed.
+//
+// Specifying that sessions can be half-open introduces the possibility that
+// one end may get closed while the other remains open.  'btlmt::SessionPool'
+// informs users that a channel's read or write end was closed by invoking the
+// session state callback providing it a 'e_SESSION_DOWN_READ' or
+// 'e_SESSION_DOWN_WRITE' event respectively.  The conditions under which the
+// session state callback is invoked with either of these events is outlined
+// in the documentation for these events in the
+// 'btlmt::SessionPool::SessionState' 'enum'.  Note that these events in the
+// session state callbacks are invoked only for sessions that set the
+// 'allowHalfOpenConnections' option to 'true' at construction, and that if
+// both ends of a connection are closed the 'e_SESSION_DOWN' event is supplied
+// to the session state callback.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -658,16 +694,46 @@ class SessionPool {
         // Result code passed to the session callback.
 
         e_SESSION_UP             = 1,  // new session has been allocated
+
         e_SESSION_DOWN           = 2,  // session went down
+
         e_SESSION_ALLOC_FAILED   = 3,  // session allocation failed
+
         e_SESSION_STARTUP_FAILED = 4,  // the call to 'start' failed
+
         e_WRITE_QUEUE_LOWWATER   = 5,  // write queue low watermark reached
+
         e_WRITE_QUEUE_HIGHWATER  = 6,  // write queue high watermark reached
+
         e_ACCEPT_FAILED          = 7,  // accept failed
+
         e_CONNECT_ATTEMPT_FAILED = 8,  // a connection attempt failed
+
         e_CONNECT_FAILED         = 9,  // the connection initiation failed
-        e_CONNECT_ABORTED        = 10  // session was shutdown before the
+
+        e_CONNECT_ABORTED        = 10, // session was shutdown before the
                                        // connection could be established
+
+        e_SESSION_DOWN_READ      = 11  // The session's read end was closed.
+                                       // This can happen when
+                                       // 'allowHalfOpenConnections' is 'true'
+                                       // and either of the following happens:
+                                       //..
+                                       //: o The peer closes the connection
+                                       //:   while the session is waiting to
+                                       //:   read data
+                                       //: o The session was closed but it has
+                                       //:   pending data enqueued to be sent
+                                       //:   to the peer
+
+        e_ SESSION_DOWN_WRITE    = 12  // The session's write end was closed.
+                                       // This can happen when
+                                       // 'allowHalfOpenConnections' is 'true'
+                                       // and:
+                                       //..
+                                       //: o The user tries to write on the
+                                       //:   connection but the peer has
+                                       //:   already closed it
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , SESSION_UP             = e_SESSION_UP

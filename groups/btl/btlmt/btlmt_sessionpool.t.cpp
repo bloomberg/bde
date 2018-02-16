@@ -906,6 +906,60 @@ void sessionStateCb(int             state,
     }
 }
 
+void sessionStateCbWithBarriers(int             state,
+                                int             ,
+                                btlmt::Session *session,
+                                void           *,
+                                bslmt::Mutex   *statesLock,
+                                vector<int>    *states,
+                                bslmt::Barrier *upDownBarrier,
+                                bslmt::Barrier *halfCloseBarrier)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> guard(statesLock);
+
+        states->push_back(state);
+    }
+
+    switch (state) {
+      case btlmt::SessionPool::e_SESSION_DOWN: {
+          if (veryVerbose) {
+              MTCOUT << "Client from "
+                     << session->channel()->peerAddress()
+                     << " has disconnected."
+                     << MTENDL;
+          }
+          upDownBarrier->wait();
+      } break;
+      case btlmt::SessionPool::e_SESSION_UP: {
+          if (veryVerbose) {
+              MTCOUT << "Client connected from "
+                     << session->channel()->peerAddress()
+                     << MTENDL;
+          }
+          upDownBarrier->wait();
+      } break;
+      case btlmt::SessionPool::e_SESSION_DOWN_READ: {
+          if (veryVerbose) {
+              MTCOUT << "Read end of client from "
+                     << session->channel()->peerAddress()
+                     << " has disconnected."
+                     << MTENDL;
+          }
+          halfCloseBarrier->wait();
+      } break;
+      case btlmt::SessionPool::e_SESSION_DOWN_WRITE: {
+          if (veryVerbose) {
+              MTCOUT << "Write end of client from "
+                     << session->channel()->peerAddress()
+                     << " has disconnected."
+                     << MTENDL;
+          }
+          halfCloseBarrier->wait();
+      } break;
+    }
+}
+
 }  // close namespace BTLMT_SESSION_POOL_GRACEFUL_SHUTDOWN
 
 
@@ -2326,8 +2380,12 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase21();
+    static void testCase22();
         // Test usage example.
+
+    static void testCase21();
+        // Test 'e_SESSION_DOWN_READ' and 'e_SESSION_DOWN_WRITE' session state
+        // callback events are correctly forwarded.
 
     static void testCase20();
         // Testing fix for invalid peer addresses.
@@ -2394,7 +2452,7 @@ class TestDriver {
                                // TEST APPARATUS
                                // --------------
 
-void TestDriver::testCase21()
+void TestDriver::testCase22()
 {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
@@ -2417,6 +2475,268 @@ void TestDriver::testCase21()
         usageExample(&ta);
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
+}
+
+void TestDriver::testCase21()
+{
+        // --------------------------------------------------------------------
+        // TEST 'e_SESSION_DOWN_*' events are correctly forwarded
+        //
+        // Concerns:
+        //: 1 Setting the 'allowHalfOpenConnections' flag to 'true' results
+        //:   in the 'e_SESSION_DOWN_[READ|WRITE]' events being called on the
+        //:   session state callback as appropriate.
+        //:
+        //: 2 If 'allowHalfOpenConnections' flag is set to 'false' or if it is
+        //:   not set then no callbacks are invoked in the case of a
+        //:   connection's read or write end being closed.
+        //:
+        // Plan:
+        //: 1 Create a default-constructed session pool object, mX.
+        //:
+        //: 2 Create a listening socket on mX and connect to it from another
+        //:   socket.  Ensure that the enableRead option is set on the listener
+        //:   socket.  Close the peer and confirm that
+        //:  'e_SESSION_DOWN_[READ|WRITE]' event is not invoked.
+        //:
+        //: 3 Perform steps 1 and 2 after setting the
+        //:   'allowHalfOpenConnections' flag first to 'true' and then to
+        //:   'false' and verify that the callback is invoked in the first
+        //:   instance and not in the second case.
+        //:
+        //: 4 Perform steps 1 - 3 for a connecting channel and verify that
+        //:   the callbacks are invoked (or not invoked) as expected.
+        //
+        // Testing:
+        //-------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "TEST 'e_SESSION_DOWN_*' event are forwarded"
+                               << bsl::endl
+                               << "=========================================="
+                               << bsl::endl;
+
+        using namespace BTEMT_SESSION_POOL_GRACEFUL_SHUTDOWN;
+
+        typedef btlmt::SessionPool::SessionPoolStateCallback SessionPoolStateCb;
+        typedef btlmt::SessionPool::SessionStateCallback     SessionStateCb;
+
+        bslmt::Barrier upDownBarrier(2), halfCloseBarrier(2);
+        bslmt::Mutex   statesLock;
+        vector<int>    states;
+
+        SessionPoolStateCb poolCb    = &poolStateCallback;
+        SessionStateCb     sessionCb = bdlf::BindUtil::bind(
+                                                   &sessionStateCbWithBarriers,
+                                                   _1,
+                                                   _2,
+                                                   _3,
+                                                   _4,
+                                                   &statesLock,
+                                                   &states,
+                                                   &upDownBarrier,
+                                                   &halfCloseBarrier);
+
+        if (verbose) bsl::cout << "Testing on accepting socket "
+                               << bsl::endl;
+        {
+            for (int i = 0; i < 3; ++i) {
+                states.clear();
+
+                btlmt::ChannelPoolConfiguration config;
+                config.setMaxThreads(1);                  // 4 I/O threads
+                config.setWriteQueueWatermarks(0, 1<<10); // 1KB
+
+                Obj pool(config, poolCb);
+
+                ASSERT(0 == pool.start());
+
+                int handle;
+                TesterFactory sessionFactory;
+
+                btlso::IPv4Address serverAddress;
+
+                btlmt::ListenOptions listenOpts;
+                listenOpts.setServerAddress(serverAddress);
+                listenOpts.setBacklog(5);
+
+                bool halfOpenMode = (i == 1 ? true : false);
+                if (0 != i) {  // Use default value if i == 0
+                    listenOpts.setAllowHalfOpenConnections(halfOpenMode);
+                }
+
+                listenOpts.setEnableRead(true);
+                btlso::SocketOptions socketOpts;
+                socketOpts.setReuseAddress(true);
+                listenOpts.setSocketOptions(socketOpts);
+
+                ASSERT(0 == pool.listen(&handle,
+                                        sessionCb,
+                                        &sessionFactory,
+                                        listenOpts));
+
+                const int PORTNUM = pool.portNumber(handle);
+
+                btlso::IPv4Address address("127.0.0.1",
+                                           btlso::IPv4Address::e_ANY_PORT);
+                address.setPortNumber(PORTNUM);
+
+                InetStreamSocketFactory  factory;
+                StreamSocket            *socket = factory.allocate();
+
+                ASSERT(0 == socket->connect(address));
+
+                upDownBarrier.wait();
+
+                {
+                    bslmt::LockGuard<bslmt::Mutex> guard(&statesLock);
+
+                    ASSERT(1 == states.size());
+                    ASSERT(Obj::e_SESSION_UP == states[0]);
+                }
+
+                btlmt::SessionPoolSessionIterator iter(&pool);
+
+                btlmt::AsyncChannel *channel = (*iter).second->channel();
+
+                socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+
+                factory.deallocate(socket);
+
+                if (halfOpenMode) {
+                    halfCloseBarrier.wait();
+
+                    {
+                        bslmt::LockGuard<bslmt::Mutex> guard(&statesLock);
+
+                        ASSERT(2 == states.size());
+                        ASSERT(Obj::e_SESSION_DOWN_READ == states[1]);
+                    }
+                }
+
+                channel->close();
+
+                if (halfOpenMode) {
+                    halfCloseBarrier.wait();
+
+                    {
+                        bslmt::LockGuard<bslmt::Mutex> guard(&statesLock);
+
+                        ASSERT(states.size() >= 3);
+                        ASSERT(Obj::e_SESSION_DOWN_WRITE == states[2]);
+                    }
+                }
+
+                upDownBarrier.wait();
+                {
+                    bslmt::LockGuard<bslmt::Mutex> guard(&statesLock);
+
+                    const int EXP_SIZE = halfOpenMode ? 4 : 2;
+                    ASSERT(EXP_SIZE == states.size());
+                    ASSERT(Obj::e_SESSION_DOWN == states[EXP_SIZE - 1]);
+                }
+            }
+        }
+
+        states.clear();
+
+        if (verbose) bsl::cout << "Testing on connecting socket " << bsl::endl;
+        {
+            for (int i = 0; i < 3; ++i) {
+                states.clear();
+
+                InetStreamSocketFactory  factory;
+                StreamSocket            *serverSocket = factory.allocate();
+
+                ASSERT(0 == serverSocket->bind(getLocalAddress()));
+                ASSERT(0 == serverSocket->listen(1));
+
+                IPAddress serverAddr;
+                ASSERT(0 == serverSocket->localAddress(&serverAddr));
+
+                btlmt::ChannelPoolConfiguration config;
+                config.setMaxThreads(1);                  // 4 I/O threads
+                config.setWriteQueueWatermarks(0, 1<<10); // 1KB
+
+                Obj pool(config, poolCb);
+
+                ASSERT(0 == pool.start());
+
+                TesterFactory sessionFactory;
+
+                btlmt::ConnectOptions connectOptions;
+                connectOptions.setServerEndpoint(serverAddr);
+                connectOptions.setTimeout(bsls::TimeInterval(1));
+                connectOptions.setNumAttempts(1);
+
+                bool halfOpenMode = (i == 1 ? true : false);
+                if (0 != i) {  // Use default value if i == 0
+                    connectOptions.setAllowHalfOpenConnections(halfOpenMode);
+                }
+                connectOptions.setEnableRead(true);
+
+                int handleBuffer;
+                int rc = pool.connect(&handleBuffer,
+                                      sessionCb,
+                                      &sessionFactory,
+                                      connectOptions);
+                ASSERT(0 == rc);
+
+                StreamSocket *socket;
+                do {
+                    rc = serverSocket->accept(&socket);
+                } while (rc);
+
+                upDownBarrier.wait();
+
+                {
+                    bslmt::LockGuard<bslmt::Mutex> guard(&statesLock);
+
+                    ASSERT(1 == states.size());
+                    ASSERT(Obj::e_SESSION_UP == states[0]);
+                }
+
+                btlmt::SessionPoolSessionIterator iter(&pool);
+
+                btlmt::AsyncChannel *channel = (*iter).second->channel();
+
+                socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+
+                factory.deallocate(socket);
+
+                if (halfOpenMode) {
+                    halfCloseBarrier.wait();
+
+                    {
+                        bslmt::LockGuard<bslmt::Mutex> guard(&statesLock);
+
+                        ASSERT(2 == states.size());
+                        ASSERT(Obj::e_SESSION_DOWN_READ == states[1]);
+                    }
+                }
+
+                channel->close();
+
+                if (halfOpenMode) {
+                    halfCloseBarrier.wait();
+
+                    {
+                        bslmt::LockGuard<bslmt::Mutex> guard(&statesLock);
+
+                        ASSERT(states.size() >= 3);
+                        ASSERT(Obj::e_SESSION_DOWN_WRITE == states[2]);
+                    }
+                }
+
+                upDownBarrier.wait();
+                {
+                    bslmt::LockGuard<bslmt::Mutex> guard(&statesLock);
+
+                    const int EXP_SIZE = halfOpenMode ? 4 : 2;
+                    ASSERT(EXP_SIZE == states.size());
+                    ASSERT(Obj::e_SESSION_DOWN == states[EXP_SIZE - 1]);
+                }
+            }
+        }
 }
 
 void TestDriver::testCase20()

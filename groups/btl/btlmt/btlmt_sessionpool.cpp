@@ -49,6 +49,44 @@ BSLS_IDENT_RCSID(btlmt_sessionpool_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+namespace {
+
+btlmt::SessionPool::SessionState getSessionStateEvent(int event)
+    // Return the 'btlmt::SessionPool::SessionState' event corresponding to the
+    // specified 'btlmt::ChannelPool' channel state 'event'.  The behavior is
+    // undefined unless 'event' corresponds to one of the channel pool events
+    // below:
+    //..
+    //      ChannelPool event           SessionPool event
+    //      -----------------           -----------------
+    //      e_WRITE_QUEUE_LOWWATER      e_WRITE_QUEUE_LOWWATER
+    //      e_WRITE_QUEUE_HIGHWATER     e_WRITE_QUEUE_HIGHWATER
+    //      e_CHANNEL_DOWN_READ         e_SESSION_DOWN_READ
+    //      e_CHANNEL_DOWN_WRITE        e_SESSION_DOWN_WRITE
+    //..
+{
+    switch (event) {
+      case btlmt::ChannelPool::e_WRITE_QUEUE_LOWWATER: {
+        return btlmt::SessionPool::e_WRITE_QUEUE_LOWWATER;
+      } break;
+      case btlmt::ChannelPool::e_WRITE_QUEUE_HIGHWATER: {
+        return btlmt::SessionPool::e_WRITE_QUEUE_HIGHWATER;
+      } break;
+      case btlmt::ChannelPool::e_CHANNEL_DOWN_READ: {
+        return btlmt::SessionPool::e_SESSION_DOWN_READ;
+      } break;
+      case btlmt::ChannelPool::e_CHANNEL_DOWN_WRITE: {
+        return btlmt::SessionPool::e_SESSION_DOWN_WRITE;
+      } break;
+      default: {
+        BSLS_ASSERT(0 && "Invalid ChannelPool event type");
+      }
+    }
+    return static_cast<btlmt::SessionPool::SessionState>(0);
+}
+
+}  // close unnamed namespace
+
 namespace btlmt {
 
                       // ------------------------
@@ -276,7 +314,10 @@ void SessionPool::channelStateCb(int   channelId,
                                              _2,
                                              handle->d_handleId));
       } break;
-      case ChannelPool::e_WRITE_QUEUE_LOWWATER: {
+      case ChannelPool::e_WRITE_QUEUE_LOWWATER:                 // FALL THROUGH
+      case ChannelPool::e_WRITE_QUEUE_HIGHWATER:                // FALL THROUGH
+      case ChannelPool::e_CHANNEL_DOWN_READ:                    // FALL THROUGH
+      case ChannelPool::e_CHANNEL_DOWN_WRITE: {
           if (0 == userData) {
               break;
           }
@@ -284,26 +325,17 @@ void SessionPool::channelStateCb(int   channelId,
           SessionPool_Handle *handlePtr =
                                    static_cast<SessionPool_Handle *>(userData);
 
-          if (handlePtr->d_session_p) {
-              handlePtr->d_sessionStateCB(e_WRITE_QUEUE_LOWWATER,
-                                          handlePtr->d_handleId,
-                                          handlePtr->d_session_p,
-                                          handlePtr->d_userData_p);
-          }
-      } break;
-      case ChannelPool::e_WRITE_QUEUE_HIGHWATER: {
-          if (0 == userData) {
-              break;
+          HandlePtr handle;
+
+          if (d_handles.find(handlePtr->d_handleId, &handle)) {
+              return;                                                 // RETURN
           }
 
-          SessionPool_Handle *handlePtr =
-                                   static_cast<SessionPool_Handle *>(userData);
-
-          if (handlePtr->d_session_p) {
-              handlePtr->d_sessionStateCB(e_WRITE_QUEUE_HIGHWATER,
-                                          handlePtr->d_handleId,
-                                          handlePtr->d_session_p,
-                                          handlePtr->d_userData_p);
+          if (handle->d_session_p) {
+              handle->d_sessionStateCB(getSessionStateEvent(state),
+                                       handle->d_handleId,
+                                       handle->d_session_p,
+                                       handle->d_userData_p);
           }
       } break;
     }
