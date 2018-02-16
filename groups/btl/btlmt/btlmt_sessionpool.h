@@ -714,7 +714,7 @@ class SessionPool {
         e_CONNECT_ABORTED        = 10, // session was shutdown before the
                                        // connection could be established
 
-        e_SESSION_DOWN_READ      = 11  // The session's read end was closed.
+        e_SESSION_DOWN_READ      = 11, // The session's read end was closed.
                                        // This can happen when
                                        // 'allowHalfOpenConnections' is 'true'
                                        // and either of the following happens:
@@ -726,7 +726,7 @@ class SessionPool {
                                        //:   pending data enqueued to be sent
                                        //:   to the peer
 
-        e_ SESSION_DOWN_WRITE    = 12  // The session's write end was closed.
+        e_SESSION_DOWN_WRITE    = 12   // The session's write end was closed.
                                        // This can happen when
                                        // 'allowHalfOpenConnections' is 'true'
                                        // and:
