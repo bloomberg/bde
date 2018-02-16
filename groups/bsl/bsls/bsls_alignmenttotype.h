@@ -284,11 +284,14 @@ namespace bsls {
 
 template <int ALIGNMENT>
 struct AlignmentToType {
-    // This 'struct' provides a 'typedef', 'Type', that aliases a primitive
-    // type having the specified 'ALIGNMENT' requirement.
+    // This 'struct' provides a 'typedef', 'Type', that aliases a type having 
+    // the specified 'ALIGNMENT' requirement.
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+
     // TYPES
     class alignas(ALIGNMENT) Type { char d_c[ALIGNMENT]; };
+
 #else
 
   private:
