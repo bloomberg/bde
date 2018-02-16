@@ -2512,7 +2512,7 @@ void TestDriver::testCase21()
 
         if (verbose) bsl::cout << "TEST 'e_SESSION_DOWN_*' event are forwarded"
                                << bsl::endl
-                               << "=========================================="
+                               << "==========================================="
                                << bsl::endl;
 
         using namespace BTLMT_SESSION_POOL_GRACEFUL_SHUTDOWN;
@@ -2577,7 +2577,7 @@ void TestDriver::testCase21()
                 const int PORTNUM = pool.portNumber(handle);
 
                 btlso::IPv4Address address("127.0.0.1",
-                                           btlso::IPv4Address::e_ANY_PORT);
+                                           btlso::IPv4Address::k_ANY_PORT);
                 address.setPortNumber(PORTNUM);
 
                 InetStreamSocketFactory  factory;
@@ -2598,7 +2598,7 @@ void TestDriver::testCase21()
 
                 btlmt::AsyncChannel *channel = (*iter).second->channel();
 
-                socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+                socket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
                 factory.deallocate(socket);
 
@@ -2699,7 +2699,7 @@ void TestDriver::testCase21()
 
                 btlmt::AsyncChannel *channel = (*iter).second->channel();
 
-                socket->shutdown(btlso::Flag::e_SHUTDOWN_BOTH);
+                socket->shutdown(btlso::Flags::e_SHUTDOWN_BOTH);
 
                 factory.deallocate(socket);
 
