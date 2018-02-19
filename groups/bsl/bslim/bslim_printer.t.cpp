@@ -276,6 +276,35 @@ void testFunctionAddress(int)
 {
 }
 
+
+struct ParenPrintUtil {
+    // Utility class to print negative numbers in parenthesis.
+
+    static bsl::ostream& print(bsl::ostream& stream,
+                               int           num,
+                               int           level = 0,
+                               int           spacesPerLevel = 4);
+    // Print the specified 'num' to the specified 'stream' with indentation
+    // given by the optionally specified 'level' and 'spacesPerLevel' and
+    // return a reference to the modifiable 'stream'.
+};
+
+bsl::ostream& ParenPrintUtil::print(bsl::ostream& stream,
+                                    int           num,
+                                    int           level,
+                                    int           spacesPerLevel)
+{
+    Obj printer(&stream, level, spacesPerLevel);
+    if (num < 0) {
+        stream << '(' << -num << ")";
+    }
+    else {
+        stream << num;
+    }
+    return stream;
+}
+
+
 // BDE_VERIFY pragma: push   // Disable warnings for usage examples.
 // BDE_VERIFY pragma: -BW01
 // BDE_VERIFY pragma: -AT02
@@ -1977,6 +2006,86 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
+
+
+        if (veryVerbose) { printf("vector<int>::iterator with FUNCTOR\n"); }
+        {
+            bsl::vector<int>        v(&uniqKeys[0], uniqKeys + NUM_DATA);
+            const bsl::vector<int>& V = v;
+            bsl::ostringstream      out;
+            bslim::Printer          p(&out, 2, 2);
+            p.printAttribute("vector",
+                             V.begin(),
+                             V.end(),
+                             &ParenPrintUtil::print);
+
+            const char *EXP = "      vector = [\n"
+                              "        (3)\n"
+                              "        2\n"
+                              "        7\n"
+                              "        5\n"
+                              "        9\n"
+                              "        3\n"
+                              "        22\n"
+                              "        1\n"
+                              "      ]\n";
+            const char *EXP2 = EXP + 15;
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+
+            out.str("");
+            p.printValue(V.begin(), V.end(), &ParenPrintUtil::print);
+            LOOP2_ASSERT(EXP2, out.str(), EXP2 == out.str());
+        }
+        {
+            bsl::vector<int>        v(&uniqKeys[0], uniqKeys + NUM_DATA);
+            const bsl::vector<int>& V = v;
+            bsl::ostringstream      out;
+            bslim::Printer          p(&out, 0, -1);
+            p.printAttribute("vector",
+                             V.begin(),
+                             V.end(),
+                             &ParenPrintUtil::print);
+
+            const char *EXP = " vector = [ (3) 2 7 5 9 3 22 1 ]";
+            const char *EXP2 = EXP + 10;
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+
+            out.str("");
+            p.printValue(V.begin(), V.end(), &ParenPrintUtil::print);
+            LOOP2_ASSERT(EXP2, out.str(), EXP2 == out.str());
+        }
+
+        if (veryVerbose) {
+            printf("vector<signed char>::iterator with FUNCTOR\n");
+        }
+        {
+            bsl::vector<signed char>        v(&uniqKeys[0], 
+                                              uniqKeys + NUM_DATA);
+            const bsl::vector<signed char>& V = v;
+            bsl::ostringstream              out;
+            bslim::Printer                  p(&out, 2, 2);
+            p.printAttribute("vector",
+                             V.begin(),
+                             V.end(),
+                             &ParenPrintUtil::print);
+
+            const char *EXP = "      vector = [\n"
+                              "        (3)\n"
+                              "        2\n"
+                              "        7\n"
+                              "        5\n"
+                              "        9\n"
+                              "        3\n"
+                              "        22\n"
+                              "        1\n"
+                              "      ]\n";
+            const char *EXP2 = EXP + 15;
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+
+            out.str("");
+            p.printValue(V.begin(), V.end(), &ParenPrintUtil::print);
+            LOOP2_ASSERT(EXP2, out.str(), EXP2 == out.str());
+        }
 // BDE_VERIFY pragma: pop    // Disable 'verbose print in loop'.
       } break;
       case 15: {
@@ -2485,6 +2594,30 @@ int main(int argc, char *argv[])
                     LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
                 }
             }
+        }
+
+        // shared_ptr tests
+        {
+            bsl::shared_ptr<bslstl::StringRef> sp =
+                bsl::make_shared<bslstl::StringRef>("This is a long string.");
+
+            ostringstream vOut, eOut, nOut;
+
+            Obj pV(&vOut, 0, 0);
+            pV.printValue(sp);
+
+            const void *ptr = static_cast<const void *>(sp.get());
+            eOut << bsl::hex << bsl::showbase
+                 << reinterpret_cast<bsls::Types::UintPtr>(ptr) 
+                 << " \"" << *sp << "\"\n";
+            ASSERTV(eOut.str(), vOut.str(), eOut.str() == vOut.str());
+
+            sp.reset();
+            Obj nV(&nOut, 0, 0);
+            nV.printValue(sp);
+            ASSERTV(nOut.str(), nOut.str() == "NULL\n");
+            
+
         }
       } break;
       case 9: {
