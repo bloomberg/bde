@@ -14,32 +14,15 @@ function(process_package retPackage listFile uorName)
     bde_utils_add_meta_file("${listDir}/${packageName}.pub" headers TRACK)
     bde_utils_list_template_substitute(headers "%" "${rootDir}/%" ${headers})
 
-    # Dependencies
-    bde_utils_add_meta_file("${listDir}/${packageName}.dep" dependencies TRACK)
-
-    # Include directories
-    bde_add_interface_target(${packageName})
-    bde_interface_target_include_directories(
-        ${packageName}
-        INTERFACE
-            $<BUILD_INTERFACE:${rootDir}>
-            $<INSTALL_INTERFACE:"include">
-    )
-
-    install(
-        FILES ${headers}
-        DESTINATION "include"
-        COMPONENT "${uorName}-headers"
-    )
-
     bde_struct_create(
         package
         BDE_PACKAGE_TYPE
         NAME ${packageName}
         HEADERS "${headers}"
-        DEPENDS "${dependencies}"
-        INTERFACE_TARGET ${packageName}
     )
+
+    bde_create_package_interfaces(${package} ${listFile})
+    bde_setup_package_headers(${package} ${listFile} ${uorName})
     bde_create_package_target(${package})
 
     bde_return(${package})
