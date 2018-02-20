@@ -465,8 +465,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard guard;
 
             const Obj X("x", 0);
 
