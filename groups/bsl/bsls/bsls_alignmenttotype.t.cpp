@@ -429,31 +429,6 @@ const char *string::EMPTY_STRING = "";
 }  // close unnamed namespace
 
 //=============================================================================
-//                  CLASSES AND FUNCTIONS USED IN TESTS
-//-----------------------------------------------------------------------------
-
-template <class T>
-inline
-bool samePtrType(T *, void *)
-{
-    return false;
-}
-
-template <class T>
-inline
-bool samePtrType(T *, T *)
-{
-    return true;
-}
-
-template <class T1, class T2>
-inline
-bool sameType(T1 t1, T2 t2)
-{
-    return samePtrType(&t1, &t2);
-}
-
-//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -523,10 +498,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTest bsls::AlignmentToType<T>::Type"
                           << "\n===================================" << endl;
 
-        // Test sameType function.
-        ASSERT(sameType(int(), int()));
-        ASSERT(! sameType(int(), short()));
-
         typedef void (*FuncPtr)();
 
         enum {
@@ -544,216 +515,154 @@ int main(int argc, char *argv[])
             LONG_DOUBLE_ALIGNMENT = bsls::AlignmentImpCalc<long double>::VALUE
         };
 
-        long double  LD = 0.0;
-        void        *V  = 0;
-        long long    LL = 0;
+#undef  CHECK_ALIGNMENT
+#define CHECK_ALIGNMENT(alignment, type)                                      \
+        LOOP_ASSERT(alignment,                                                \
+                    0 + bsls::AlignmentImpCalc<type>::VALUE ==                \
+                    0 + bsls::AlignmentImpCalc<                               \
+                        bsls::AlignmentToType<alignment>::Type>::VALUE)
 
-        (void) LD;
-        (void) V;
-        (void) LL;
-
-#if defined(BSLS_PLATFORM_OS_CYGWIN)
-        bsls::AlignmentImp8ByteAlignedType _8BAT;
-#endif
-
-        LOOP_ASSERT(CHAR_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<CHAR_ALIGNMENT>::Type(),
-                             char()));
-        LOOP_ASSERT(SHORT_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<SHORT_ALIGNMENT>::Type(),
-                             short()));
-        LOOP_ASSERT(INT_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<INT_ALIGNMENT>::Type(),
-                             int()));
-        LOOP_ASSERT(BOOL_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<BOOL_ALIGNMENT>::Type(),
-                             char()));
-        LOOP_ASSERT(FLOAT_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<FLOAT_ALIGNMENT>::Type(),
-                             int()));
+        CHECK_ALIGNMENT(CHAR_ALIGNMENT, char);
+        CHECK_ALIGNMENT(SHORT_ALIGNMENT, short);
+        CHECK_ALIGNMENT(INT_ALIGNMENT, int);
+        CHECK_ALIGNMENT(BOOL_ALIGNMENT, char);
+        CHECK_ALIGNMENT(FLOAT_ALIGNMENT, int);
 
 #if (defined(BSLS_PLATFORM_OS_AIX) && !defined(BSLS_PLATFORM_CPU_64_BIT))   \
  ||  defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BSLS_PLATFORM_OS_CYGWIN)
-        LOOP_ASSERT(WCHAR_T_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<WCHAR_T_ALIGNMENT>::Type(),
-                             short()));
+        CHECK_ALIGNMENT(WCHAR_T_ALIGNMENT, short);
 #else
-        LOOP_ASSERT(WCHAR_T_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<WCHAR_T_ALIGNMENT>::Type(),
-                             int()));
+        CHECK_ALIGNMENT(WCHAR_T_ALIGNMENT, int);
 #endif
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
     #if defined(BSLS_PLATFORM_CPU_64_BIT)
-        LOOP_ASSERT(INT64_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                             long()));
-        LOOP_ASSERT(DOUBLE_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
-                             long()));
+        CHECK_ALIGNMENT(INT64_ALIGNMENT, long);
+        CHECK_ALIGNMENT(DOUBLE_ALIGNMENT, long);
         #if defined(BSLS_PLATFORM_CPU_POWERPC) \
          && defined(BSLS_PLATFORM_OS_LINUX)
-        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                          long()));
+            CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, long);
         #else
-        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           LD));
+            CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, long double);
         #endif
     #else
         #if defined(BSLS_PLATFORM_CPU_ARM)
-        LOOP_ASSERT(INT64_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                             LL));
-        LOOP_ASSERT(DOUBLE_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
-                             LL));
+            CHECK_ALIGNMENT(INT64_ALIGNMENT, long long);
+            CHECK_ALIGNMENT(DOUBLE_ALIGNMENT, long long);
         #elif defined(BSLS_PLATFORM_CPU_POWERPC) \
            && defined(BSLS_PLATFORM_OS_LINUX)
-        LOOP_ASSERT(INT64_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                             LL));
-        LOOP_ASSERT(DOUBLE_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
-                             LL));
+            CHECK_ALIGNMENT(INT64_ALIGNMENT, long long);
+            CHECK_ALIGNMENT(DOUBLE_ALIGNMENT, long long);
         #else
-        LOOP_ASSERT(INT64_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                             int()));
-        LOOP_ASSERT(DOUBLE_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
-                             int()));
+            CHECK_ALIGNMENT(INT64_ALIGNMENT, int);
+            CHECK_ALIGNMENT(DOUBLE_ALIGNMENT, int);
         #endif
 
         #if defined(BSLS_PLATFORM_OS_LINUX)
-        #if defined(BSLS_PLATFORM_CPU_ARM)
-        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                          LL));
-        #elif defined(BSLS_PLATFORM_CPU_POWERPC)
-        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                          LL));
+            #if defined(BSLS_PLATFORM_CPU_ARM)
+                CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, long long);
+            #elif defined(BSLS_PLATFORM_CPU_POWERPC)
+                CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, long long);
+            #else
+                CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, int);
+            #endif
         #else
-        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                          int()));
-        #endif
-        #else
-        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                          LD));
+            CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, long double);
         #endif
     #endif
 #elif defined(BSLS_PLATFORM_OS_AIX)
     #if defined(BSLS_PLATFORM_CPU_64_BIT)
-        LOOP_ASSERT(INT64_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                             long()));
-        LOOP_ASSERT(DOUBLE_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
-                             int()));
-        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           int()));
+        CHECK_ALIGNMENT(INT64_ALIGNMENT, long);
+        CHECK_ALIGNMENT(DOUBLE_ALIGNMENT, int);
+        CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, int);
     #else
-        LOOP_ASSERT(INT64_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                             LL));
-        LOOP_ASSERT(DOUBLE_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
-                             int()));
-        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           int()));
+        CHECK_ALIGNMENT(INT64_ALIGNMENT, long long);
+        CHECK_ALIGNMENT(DOUBLE_ALIGNMENT, int);
+        CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, int);
     #endif
 #elif defined(BSLS_PLATFORM_OS_CYGWIN)
     #if defined(BSLS_PLATFORM_CPU_64_BIT)
         // TBD
     #else
-       LOOP_ASSERT(INT64_ALIGNMENT,
-                   sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                            _8BAT));
-       LOOP_ASSERT(DOUBLE_ALIGNMENT,
-                   sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
-                            _8BAT));
-       LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                   sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                            int()));
+        CHECK_ALIGNMENT(INT64_ALIGNMENT, bsls::AlignmentImp8ByteAlignedType);
+        CHECK_ALIGNMENT(DOUBLE_ALIGNMENT, bsls::AlignmentImp8ByteAlignedType);
+        CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, int);
     #endif
 #else // NOT AIX, Linux, Darwin, or Cygwin
     #if defined(BSLS_PLATFORM_CPU_64_BIT)
         #if defined(BSLS_PLATFORM_OS_WINDOWS)
-            LOOP_ASSERT(INT64_ALIGNMENT,
-                       sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                                 LL));
-            LOOP_ASSERT(DOUBLE_ALIGNMENT,
-                      sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
-                               LL));
-            LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           LL));
+            CHECK_ALIGNMENT(INT64_ALIGNMENT, long long);
+            CHECK_ALIGNMENT(DOUBLE_ALIGNMENT, long long);
+            CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, long long);
         #else
-            LOOP_ASSERT(INT64_ALIGNMENT,
-                       sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                                 long()));
-            LOOP_ASSERT(DOUBLE_ALIGNMENT,
-                      sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
-                               long()));
-            LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           LD));
+            CHECK_ALIGNMENT(INT64_ALIGNMENT, long);
+            CHECK_ALIGNMENT(DOUBLE_ALIGNMENT, long);
+            CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, long double);
         #endif
     #else
-        LOOP_ASSERT(INT64_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<INT64_ALIGNMENT>::Type(),
-                             LL));
-        LOOP_ASSERT(DOUBLE_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
-                             LL));
-        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
-                 sameType(bsls::AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
-                           LL));
+        CHECK_ALIGNMENT(INT64_ALIGNMENT, long long);
+        CHECK_ALIGNMENT(DOUBLE_ALIGNMENT, long long);
+        CHECK_ALIGNMENT(LONG_DOUBLE_ALIGNMENT, long long);
     #endif
 #endif // end defined(BSLS_PLATFORM_OS_AIX)
        //  || defined(BSLS_PLATFORM_OS_LINUX)
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT)
     #if defined(BSLS_PLATFORM_OS_WINDOWS)
-        LOOP_ASSERT(LONG_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<LONG_ALIGNMENT>::Type(),
-                             int()));
-        LOOP_ASSERT(
-                   PTR_ALIGNMENT,
-                   sameType(bsls::AlignmentToType<PTR_ALIGNMENT>::Type(), LL));
-        LOOP_ASSERT(FUNC_PTR_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<FUNC_PTR_ALIGNMENT>::Type(),
-                             LL));
+        CHECK_ALIGNMENT(LONG_ALIGNMENT, int);
+        CHECK_ALIGNMENT(PTR_ALIGNMENT, long long);
+        CHECK_ALIGNMENT(FUNC_PTR_ALIGNMENT, long long);
     #else
-        LOOP_ASSERT(LONG_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<LONG_ALIGNMENT>::Type(),
-                             long()));
-        LOOP_ASSERT(PTR_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<PTR_ALIGNMENT>::Type(),
-                             long()));
-        LOOP_ASSERT(FUNC_PTR_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<FUNC_PTR_ALIGNMENT>::Type(),
-                             long()));
+        CHECK_ALIGNMENT(LONG_ALIGNMENT, long);
+        CHECK_ALIGNMENT(PTR_ALIGNMENT, long);
+        CHECK_ALIGNMENT(FUNC_PTR_ALIGNMENT, long);
     #endif
 #else // !defined(BSLS_PLATFORM_CPU_64_BIT)
-
-        LOOP_ASSERT(LONG_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<LONG_ALIGNMENT>::Type(),
-                             int()));
-        LOOP_ASSERT(PTR_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<PTR_ALIGNMENT>::Type(),
-                             int()));
-        LOOP_ASSERT(FUNC_PTR_ALIGNMENT,
-                    sameType(bsls::AlignmentToType<FUNC_PTR_ALIGNMENT>::Type(),
-                             int()));
+    CHECK_ALIGNMENT(LONG_ALIGNMENT, int);
+    CHECK_ALIGNMENT(PTR_ALIGNMENT, int);
+    CHECK_ALIGNMENT(FUNC_PTR_ALIGNMENT, int);
 #endif // end defined(BSLS_PLATFORM_CPU_64_BIT)
 
+#undef  CHECK_ALIGNMENT
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+
+#undef  CHECK_ALIGNMENT
+#define CHECK_ALIGNMENT(N)                                                    \
+    do {                                                                      \
+        class alignas(N) X { };                                               \
+        LOOP_ASSERT(N, 0 + alignof(X) == 0 + bsls::AlignmentImpCalc<          \
+                                     bsls::AlignmentToType<N>::Type>::VALUE); \
+    } while (false);
+
+    if (veryVerbose) {
+        cout << "Checking over-aligned types\n";
+    }
+
+    CHECK_ALIGNMENT(1);
+    CHECK_ALIGNMENT(2);
+    CHECK_ALIGNMENT(4);
+    CHECK_ALIGNMENT(8);
+    CHECK_ALIGNMENT(16);
+    CHECK_ALIGNMENT(32);
+    CHECK_ALIGNMENT(64);
+    CHECK_ALIGNMENT(128);
+    CHECK_ALIGNMENT(256);
+    CHECK_ALIGNMENT(512);
+    CHECK_ALIGNMENT(1024);
+    CHECK_ALIGNMENT(2048);
+    CHECK_ALIGNMENT(4096);
+    CHECK_ALIGNMENT(8192);
+
+#undef  CHECK_ALIGNMENT
+
+#else
+
+    if (veryVerbose) {
+        cout << "Not checking over-aligned types - alignas not available\n";
+    }
+
+#endif
       } break;
       default: {
         cerr << "WARNING: CASE `"<< test << "' NOT FOUND." <<endl;
