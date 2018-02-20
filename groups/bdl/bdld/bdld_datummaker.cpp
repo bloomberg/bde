@@ -21,7 +21,40 @@ BSLS_IDENT_RCSID(bdld_datummaker_cpp, "$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdld {
-                          // All methods are inline.
+
+                              // ----------------
+                              // class DatumMaker
+                              // ----------------
+
+// ACCESSORS
+bdld::Datum DatumMaker::operator()(const bdld::DatumMapEntry *elements,
+                                   int                        size,
+                                   bool                       sorted) const
+{
+    bdld::DatumMutableMapRef map;
+    bdld::Datum::createUninitializedMap(&map, size, d_allocator_p);
+    for (int i = 0; i < size; ++i) {
+        map.data()[i] = elements[i];
+    }
+    *map.size()   = size;
+    *map.sorted() = sorted;
+    return bdld::Datum::adoptMap(map);
+}
+
+bdld::Datum DatumMaker::operator()(const bdld::DatumIntMapEntry *elements,
+                                   int                           size,
+                                   bool                          sorted) const
+{
+    bdld::DatumMutableIntMapRef map;
+    bdld::Datum::createUninitializedIntMap(&map, size, d_allocator_p);
+    for (int i = 0; i < size; ++i) {
+        map.data()[i] = elements[i];
+    }
+    *map.size()   = size;
+    *map.sorted() = sorted;
+    return bdld::Datum::adoptIntMap(map);
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 

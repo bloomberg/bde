@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocatorMonitor gam(&ga), dam(&da);
 
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -269,6 +269,245 @@ int main(int argc, char *argv[])
 //..
     ASSERT(retVal.theInteger() == 3);
 //..
+
+      } break;
+
+      case 6: {
+        //---------------------------------------------------------------------
+        // INTEGER-MAP TESTS:
+        //   This case exercises the integer-map constructors, the 'im'
+        //   functions.
+        //
+        // Concerns:
+        //:
+        //: 1 Integer-map constructors create 'bdld::Datum' integer-maps.
+        //:
+        //: 2 At least 16 entries are supported on compilers not providing
+        //:   variadic template support.
+        //:
+        //: 3 More than 16 entries are supported on compilers with variadic
+        //:   template support.
+        //:
+        //: 4 Entries of the map retain the values they are provided in the
+        //:   constructor.
+        //
+        // Plan:
+        //:
+        //: 1 Use 'DatumMaker' to create integer-maps.
+        //:
+        //: 2 Use 'bdld::Datum::create*' functions to create oracle maps.
+        //:
+        //: 3 Compare the 'DatumMaker' made and the oracle maps for equality.
+        //
+        // Testing:
+        //    bdld::Datum im(...) const;
+        //    operator()(const bdld::DatumIntMapRef& value) const;
+        //    operator()(const DatumIntMapEntry *, int, bool)  const;
+        //---------------------------------------------------------------------
+
+        if (verbose) cout << endl << "INTEGER-MAP TESTS" << endl
+                                  << "=================" << endl;
+
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        bdlma::LocalSequentialAllocator<64> sa(&ta);
+        Obj m(&sa);
+
+        const bdld::DatumIntMapEntry map[] = {
+            bdld::DatumIntMapEntry( 0, m(0)),
+            bdld::DatumIntMapEntry( 2, m(1)),
+            bdld::DatumIntMapEntry( 4, m(2)),
+            bdld::DatumIntMapEntry( 6, m(3)),
+            bdld::DatumIntMapEntry( 8, m(4)),
+            bdld::DatumIntMapEntry(10, m(5)),
+            bdld::DatumIntMapEntry(12, m(6)),
+            bdld::DatumIntMapEntry(14, m(7)),
+            bdld::DatumIntMapEntry(16, m(8)),
+            bdld::DatumIntMapEntry(18, m(9)),
+            bdld::DatumIntMapEntry(20, m(10)),
+            bdld::DatumIntMapEntry(22, m(11)),
+            bdld::DatumIntMapEntry(24, m(12)),
+            bdld::DatumIntMapEntry(26, m(13)),
+            bdld::DatumIntMapEntry(28, m(14)),
+            bdld::DatumIntMapEntry(30, m(15)),
+            bdld::DatumIntMapEntry(32, m(-1)),
+            bdld::DatumIntMapEntry(34, m(-1)),
+            bdld::DatumIntMapEntry(36, m(-1)),
+            bdld::DatumIntMapEntry(38, m(-1)),
+        };
+        const int mSize = sizeof(map) / sizeof(*map);
+        bdld::DatumMutableIntMapRef mRef;
+        bdld::Datum::createUninitializedIntMap(&mRef, mSize, &sa);
+        for (int i = 0; i < mSize; ++i) {
+            mRef.data()[i] = map[i];
+        }
+        bsls::Types::size_type& size = *mRef.size();
+
+        size = mSize;
+        ASSERT(bdld::Datum::adoptIntMap(mRef) == m(mRef));
+        ASSERT(bdld::Datum::adoptIntMap(mRef) == m(map, mSize));
+
+
+        size =  0; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im());
+        size =  1; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0));
+        size =  2; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1));
+        size =  3; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2));
+        size =  4; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3));
+        size =  5; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4));
+        size =  6; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5));
+        size =  7; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5,
+                                                                 12, 6));
+        size =  8; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5,
+                                                                 12, 6,
+                                                                 14, 7));
+        size =  9; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5,
+                                                                 12, 6,
+                                                                 14, 7,
+                                                                 16, 8));
+        size = 10; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5,
+                                                                 12, 6,
+                                                                 14, 7,
+                                                                 16, 8,
+                                                                 18, 9));
+        size = 11; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5,
+                                                                 12, 6,
+                                                                 14, 7,
+                                                                 16, 8,
+                                                                 18, 9,
+                                                                 20, 10));
+        size = 12; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5,
+                                                                 12, 6,
+                                                                 14, 7,
+                                                                 16, 8,
+                                                                 18, 9,
+                                                                 20, 10,
+                                                                 22, 11));
+        size = 13; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5,
+                                                                 12, 6,
+                                                                 14, 7,
+                                                                 16, 8,
+                                                                 18, 9,
+                                                                 20, 10,
+                                                                 22, 11,
+                                                                 24, 12));
+        size = 14; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5,
+                                                                 12, 6,
+                                                                 14, 7,
+                                                                 16, 8,
+                                                                 18, 9,
+                                                                 20, 10,
+                                                                 22, 11,
+                                                                 24, 12,
+                                                                 26, 13));
+        size = 15; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5,
+                                                                 12, 6,
+                                                                 14, 7,
+                                                                 16, 8,
+                                                                 18, 9,
+                                                                 20, 10,
+                                                                 22, 11,
+                                                                 24, 12,
+                                                                 26, 13,
+                                                                 28, 14));
+        size = 16; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5,
+                                                                 12, 6,
+                                                                 14, 7,
+                                                                 16, 8,
+                                                                 18, 9,
+                                                                 20, 10,
+                                                                 22, 11,
+                                                                 24, 12,
+                                                                 26, 13,
+                                                                 28, 14,
+                                                                 30, 15));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+        size = 20; ASSERT(bdld::Datum::adoptIntMap(mRef) == m.im( 0, 0,
+                                                                  2, 1,
+                                                                  4, 2,
+                                                                  6, 3,
+                                                                  8, 4,
+                                                                 10, 5,
+                                                                 12, 6,
+                                                                 14, 7,
+                                                                 16, 8,
+                                                                 18, 9,
+                                                                 20, 10,
+                                                                 22, 11,
+                                                                 24, 12,
+                                                                 26, 13,
+                                                                 28, 14,
+                                                                 30, 15,
+                                                                 32, -1,
+                                                                 34, -1,
+                                                                 36, -1,
+                                                                 38, -1));
+#endif
 
       } break;
 
