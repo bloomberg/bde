@@ -9,9 +9,10 @@
 
 #include <bdls_processutil.h>
 
-#include <bslim_testutil.h>
-
 #include <bdls_filesystemutil.h>
+
+#include <bslim_testutil.h>
+#include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
@@ -19,8 +20,17 @@
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 
+#if defined BSLS_PLATFORM_OS_UNIX
+# include <unistd.h>
+#else
+# include <windows.h>
+#endif
+
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::flush;
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -70,8 +80,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                 GLOBAL HELPER TYPES & CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdls::FilesystemUtil    FUtil;
-typedef bdls::ProcessUtil Obj;
+typedef bdls::FilesystemUtil  FUtil;
+typedef bdls::ProcessUtil     Obj;
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -85,17 +95,22 @@ int main(int argc, char *argv[])
 //  bool     veryVeryVerbose = argc > 4;
 //  bool veryVeryVeryVerbose = argc > 5;
 
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
     switch(test) { case 0:
       case 2: {
         // --------------------------------------------------------------------
         // LEAKING FILE DESCRIPTORS TEST
         //
         // Concern:
-        //   Reproduce bug where 'getProcessName' is leaking file descriptors.
+        //: 1 Reproduce bug where 'getProcessName' is leaking file descriptors.
         //
         // Plan:
-        //   Call it many times and see if we run out of file descriptors.
+        //: 1 Call it many times and see if we run out of file descriptors.
         // --------------------------------------------------------------------
+
+        if (verbose) cout << "LEAKING FILE DESCRIPTORS TEST\n"
+                             "=============================\n";
 
         const int firstId = Obj::getProcessId();
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -124,13 +139,15 @@ int main(int argc, char *argv[])
       }  break;
       case 1: {
         // ------------------------------------------------------------
-        // TESTING: BREATHING TEST
+        // BREATHING TEST
+        //
+        // Testing:
+        //   int getProcessId();
+        //   int getProcessName(bsl::string *);
         // ------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "BREATHING TEST" << bsl::endl
-                      << "==============" << bsl::endl;
-        }
+        if (verbose) cout << "BREATHING TEST\n"
+                             "==============\n";
 
         ASSERT(0 != bdls::ProcessUtil::getProcessId());
 
@@ -141,27 +158,80 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             P_(argv[0]);  P(name);
         }
-
       } break;
-
       case -1: {
         // --------------------------------------------------------------------
-        // MANUAL TEST: LONG PROCESS NAME (LONGER THAN 128 CHARACTERS)
+        // MANUAL TEST: LONG PROCESS NAME (> 128 CHARACTERS)
         //
         // Concern:
         //: 1 Reproduce bug where 'getProcessName' truncates the process name
         //:   without returning an error (negative value).
         //
         // Plan:
-        //:  Rename the test driver by hand.  Then run it with -1 test case and
-        //:  see if 'getProcessName' reports the same as 'argv[0]'.
+        //: 1 Rename the test driver by hand.  Then run it with -1 test case
+        //:   and see if 'getProcessName' reports the same as 'argv[0]'.
         // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                         "MANUAL TEST: LONG PROCESS NAME (> 128 CHARACTERS)\n"
+                         "=================================================\n";
 
         bsl::string name;
         ASSERT(0 == bdls::ProcessUtil::getProcessName(&name));
         ASSERT(name == argv[0]);
         P(name);
+      } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // 'getProcessName': CHDIR TEST
+        //
+        // Concerns:
+        //: 1 Ensure that we are able to find the executable after a 'chdir'
+        //:   after process start up.
+        //:
+        //: 2 This is a negative test case because it does not pass on all
+        //:   platforms, and it also requires the test to be set up so that
+        //:   the executable will be called from a relative path.
+        //
+        // Plan:
+        //: 1 Call 'chdir'.
+        //:
+        //: 2 Call 'getProcessName' and verify that the file name it returns
+        //:   still exists.
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << "'getProcessName': CHDIR TEST\n"
+                             "============================\n";
+
+        ASSERT(FUtil::exists(argv[0]));
+
+        // Make sure 'argv[0]' is a relative path, and the change to the parent
+        // directory.
+
+        char cwdBuf[1024];
+#if BSLS_PLATFORM_OS_UNIX
+        ASSERTV(argv[0], '/' != argv[0][0]);
+
+        ::chdir("..");
+        ::getcwd(cwdBuf, sizeof(cwdBuf));
+#else
+        ASSERTV(argv[0], '\\' != argv[0][0]);
+        ASSERTV(argv[0], !bsl::strchr(argv[0], ':'));
+
+        ::_chdir("..");
+        ::_getcwd(cwdBuf, static_cast<int>(sizeof(cwdBuf)));
+#endif
+
+        bsl::string name;
+        int rc = Obj::getProcessName(&name);
+        ASSERT(0 == rc);
+        ASSERT(FUtil::exists(name));
+
+        if (verbose) {
+            P(cwdBuf);
+            P(argv[0]);
+            P(name);
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

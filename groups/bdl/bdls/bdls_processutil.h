@@ -26,8 +26,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component, 'bdls::ProcessUtil', defines a
-// platform-independent interface for processes.  Currently, it provides (only)
-// a utility to get the current process ID.
+// platform-independent interface for processes.  Currently, it provides a
+// utility to get the current process ID, and a utility to get the name of the
+// process executable.
 //
 ///Usage
 ///-----
@@ -72,6 +73,13 @@ struct ProcessUtil {
         // Return 0 on success, and a non-zero value otherwise.  Note that on
         // many systems, this is the fully qualified path name of the current
         // executable.
+        //
+        // CAVEATS: Note that if the process was begun by executing a relative
+        // path, this function may return that relative path, which may no
+        // longer be valid if the application has changed the current directory
+        // since the beginning of the process.  Also, on some platforms,
+        // '*result' may differ from the path specified at process start in
+        // that symbolic links will have been resolved.
 };
 
 }  // close package namespace
