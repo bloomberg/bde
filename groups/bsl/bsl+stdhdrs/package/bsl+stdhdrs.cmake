@@ -1,9 +1,9 @@
 include(bde_interface_target)
-include(bde_override_std)
+include(bde_package)
 include(bde_struct)
 include(bde_utils)
 
-function(process retPackage listFile uorName)
+function(process_package retPackage listFile uorName)
     bde_assert_no_extra_args()
 
     get_filename_component(packageName ${listFile} NAME_WE)
@@ -11,25 +11,30 @@ function(process retPackage listFile uorName)
     get_filename_component(rootDir ${listDir} DIRECTORY)
 
     # Sources and headers
-    bde_utils_add_meta_file("${listDir}/${packageName}.pub" headers TRACK)
-    bde_utils_list_template_substitute(headers "%" "${rootDir}/%" ${headers})
+    bde_utils_add_meta_file("${listDir}/${packageName}.pub" rawHeaders TRACK)
+    bde_utils_list_template_substitute(headers "%" "${rootDir}/%" ${rawHeaders})
 
-    # Dependencies
-    bde_utils_add_meta_file("${listDir}/${packageName}.dep" dependencies TRACK)
+    bde_struct_create(
+        package
+        BDE_PACKAGE_TYPE
+        NAME ${packageName}
+        HEADERS "${headers}"
+    )
+
+    bde_create_package_interfaces(${package} ${listFile})
 
     # Include directories
-    bde_add_interface_target(${packageName})
+    bde_struct_get_field(packageInterface ${package} INTERFACE_TARGET)
     bde_interface_target_include_directories(
-        ${packageName}
-        PUBLIC
+        ${packageInterface}
+        INTERFACE
             $<BUILD_INTERFACE:${rootDir}>
             $<INSTALL_INTERFACE:"include/stlport">
     )
-    bde_override_std(${packageName})
 
     # Custom install of all headers in 'stlport'.
     # Note that this code correctly handles install of subdirs.
-    foreach(file IN LISTS headers)
+    foreach(file IN LISTS rawHeaders)
         get_filename_component(dir ${file} DIRECTORY)
         string(CONCAT fullFile ${rootDir} "/" ${file})
         install(
@@ -39,14 +44,7 @@ function(process retPackage listFile uorName)
         )
     endforeach()
 
-    bde_struct_create(
-        package
-        BDE_PACKAGE_TYPE
-        NAME ${packageName}
-        HEADERS "${headers}"
-        DEPENDS "${dependencies}"
-        INTERFACE_TARGET ${packageName}
-    )
+    bde_create_package_target(${package})
 
     bde_return(${package})
 endfunction()

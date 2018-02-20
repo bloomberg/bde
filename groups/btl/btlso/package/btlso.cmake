@@ -3,7 +3,7 @@ include(bde_package)
 include(bde_struct)
 
 function(process retPackage)
-    bde_force_default_process_package(package ${ARGN})
+    default_process(package ${ARGN})
 
     bde_struct_get_field(interfaceTarget ${package} INTERFACE_TARGET)
     bde_interface_target_link_libraries(
