@@ -3192,7 +3192,7 @@ void TestDriver::testCase4()
             }
         }
     }
-
+#undef DFP
     {
         const char *INF_P  =   "inf";
         const char *INF_N  =  "-inf";
@@ -3868,6 +3868,7 @@ void TestDriver::testCase4()
 
         }
     }
+#define DFP(X) BDLDFP_DECIMAL_DL(X)
     { // C-20
         typedef BDEC::Decimal128 Tested;
 
@@ -3876,53 +3877,57 @@ void TestDriver::testCase4()
             Tested      d_decimalValue;
             const char *d_expected;
         } DATA[] = {
-            //------------------------------------------
-            // L  | NUMBER           | EXPECTED
-            //------------------------------------------
-            {  L_,  DFP(1234567E+2),  "1.234567e+8"    },
-            {  L_,  DFP(1234567E+1),  "1.234567e+7"    },
-            {  L_,  DFP(1234567E-0),  "1234567"        },
-            {  L_,  DFP(1234567E-1),  "123456.7"       },
-            {  L_,  DFP(1234567E-2),  "12345.67"       },
-            {  L_,  DFP(1234567E-3),  "1234.567"       },
-            {  L_,  DFP(1234567E-4),  "123.4567"       },
-            {  L_,  DFP(1234567E-5),  "12.34567"       },
-            {  L_,  DFP(1234567E-6),  "1.234567"       },
-            {  L_,  DFP(1234567E-7),  "0.1234567"      },
-            {  L_,  DFP(1234567E-8),  "0.01234567"     },
-            {  L_,  DFP(1234567E-9),  "0.001234567"    },
-            {  L_,  DFP(1234567E-10), "0.0001234567"   },
-            {  L_,  DFP(1234567E-11), "0.00001234567"  },
-            {  L_,  DFP(1234567E-12), "0.000001234567" },
-            {  L_,  DFP(1234567E-13), "1.234567e-7"    },
-            {  L_,  DFP(1234567E-14), "1.234567e-8"    },
+            //----------------------------------------------
+            // L  | NUMBER             | EXPECTED
+            //----------------------------------------------
+            {  L_,  DFP(123456789E+2),  "1.23456789e+10"   },
+            {  L_,  DFP(123456789E+1),  "1.23456789e+9"    },
+            {  L_,  DFP(123456789E-0),  "123456789"        },
+            {  L_,  DFP(123456789E-1),  "12345678.9"       },
+            {  L_,  DFP(123456789E-2),  "1234567.89"       },
+            {  L_,  DFP(123456789E-3),  "123456.789"       },
+            {  L_,  DFP(123456789E-4),  "12345.6789"       },
+            {  L_,  DFP(123456789E-5),  "1234.56789"       },
+            {  L_,  DFP(123456789E-6),  "123.456789"       },
+            {  L_,  DFP(123456789E-7),  "12.3456789"       },
+            {  L_,  DFP(123456789E-8),  "1.23456789"       },
+            {  L_,  DFP(123456789E-9),  "0.123456789"      },
+            {  L_,  DFP(123456789E-10), "0.0123456789"     },
+            {  L_,  DFP(123456789E-11), "0.00123456789"    },
+            {  L_,  DFP(123456789E-12), "0.000123456789"   },
+            {  L_,  DFP(123456789E-13), "0.0000123456789"  },
+            {  L_,  DFP(123456789E-14), "0.00000123456789" },
+            {  L_,  DFP(123456789E-15), "1.23456789e-7"    },
+            {  L_,  DFP(123456789E-16), "1.23456789e-8"    },
 
-            {  L_,  DFP(0.042000000), "0.04200000"     },
-            {  L_,  DFP(0.04200000),  "0.04200000"     },
-            {  L_,  DFP(0.0420000),   "0.0420000"      },
-            {  L_,  DFP(0.042000),    "0.042000"       },
-            {  L_,  DFP(0.04200),     "0.04200"        },
-            {  L_,  DFP(0.0420),      "0.0420"         },
-            {  L_,  DFP(0.042),       "0.042"          },
-            {  L_,  DFP(0.42),        "0.42"           },
-            {  L_,  DFP(4.2),         "4.2"            },
-            {  L_,  DFP(42E+0),       "42"             },
-            {  L_,  DFP(42.0),        "42.0"           },
-            {  L_,  DFP(42.00),       "42.00"          },
-            {  L_,  DFP(42.000),      "42.000"         },
-            {  L_,  DFP(42.0000),     "42.0000"        },
-            {  L_,  DFP(42.00000),    "42.00000"       },
-            {  L_,  DFP(42.000000),   "42.00000"       },
-            {  L_,  DFP(42.0000000),  "42.00000"       },
+            {  L_,  DFP(0.042000000),   "0.042000000"      },
+            {  L_,  DFP(0.04200000),    "0.04200000"       },
+            {  L_,  DFP(0.0420000),     "0.0420000"        },
+            {  L_,  DFP(0.042000),      "0.042000"         },
+            {  L_,  DFP(0.04200),       "0.04200"          },
+            {  L_,  DFP(0.0420),        "0.0420"           },
+            {  L_,  DFP(0.042),         "0.042"            },
+            {  L_,  DFP(0.42),          "0.42"             },
+            {  L_,  DFP(4.2),           "4.2"              },
+            {  L_,  DFP(42E+0),         "42"               },
+            {  L_,  DFP(42.0),          "42.0"             },
+            {  L_,  DFP(42.00),         "42.00"            },
+            {  L_,  DFP(42.000),        "42.000"           },
+            {  L_,  DFP(42.0000),       "42.0000"          },
+            {  L_,  DFP(42.00000),      "42.00000"         },
+            {  L_,  DFP(42.000000),     "42.000000"        },
+            {  L_,  DFP(42.0000000),    "42.0000000"       },
+            {  L_,  DFP(42.00000000),   "42.00000000"      },
+            {  L_,  DFP(42.000000000),  "42.000000000"     },
 
-            {  L_,  DFP(0.0),         "0.0"            },
-            {  L_,  DFP(0.00),        "0.00"           },
-            {  L_,  DFP(0.000),       "0.000"          },
-            {  L_,  DFP(0.0000),      "0.0000"         },
-            {  L_,  DFP(0.00000),     "0.00000"        },
-            {  L_,  DFP(0.000000),    "0.000000"       },
-            {  L_,  DFP(0.0000000),   "0e-7"           },
-            {  L_,  DFP(0.00000000),  "0e-8"           },
+            {  L_,  DFP(0.0),           "0.0"              },
+            {  L_,  DFP(0.00),          "0.00"             },
+            {  L_,  DFP(0.000),         "0.000"            },
+            {  L_,  DFP(0.0000),        "0.0000"           },
+            {  L_,  DFP(0.00000),       "0.00000"          },
+            {  L_,  DFP(0.000000),      "0.000000"         },
+            {  L_,  DFP(0.0000000),     "0e-7"             },
+            {  L_,  DFP(0.00000000),    "0e-8"             },
         };
 
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
@@ -3946,7 +3951,7 @@ void TestDriver::testCase4()
             }
         }
     }
-
+#undef DFP
     // Bug in Studio Studio's C++ standard library: 'ostreambuf_iterator'
     // doesn't set the 'failed' attribute when the iterator reaches the end of
     // EOF of the 'streambuf'.  Therefore, 'operator<<' for the decimal types
@@ -3964,7 +3969,7 @@ void TestDriver::testCase4()
             char buffer[4];
             bdlsb::FixedMemOutStreamBuf obuf(buffer, 4);
             bsl::ostream out(&obuf);
-            BDEC::Decimal64 value = DFP(-1.0);
+            BDEC::Decimal64 value = BDLDFP_DECIMAL_DD(-1.0);
             out << bsl::setprecision(1) << bsl::fixed << value;
             ASSERTV(out.fail(), !out.fail());
             ASSERTV(out.bad(), !out.bad());
@@ -3973,7 +3978,7 @@ void TestDriver::testCase4()
             char buffer[4];
             bdlsb::FixedMemOutStreamBuf obuf(buffer, 3);
             bsl::ostream out(&obuf);
-            BDEC::Decimal32 value = DFP(-1.0);
+            BDEC::Decimal32 value = BDLDFP_DECIMAL_DF(-1.0);
             out << bsl::setprecision(1) << bsl::fixed << value;
             ASSERTV(out.fail(), out.fail());
             ASSERTV(out.bad(), out.bad());
@@ -3982,7 +3987,7 @@ void TestDriver::testCase4()
             char buffer[4];
             bdlsb::FixedMemOutStreamBuf obuf(buffer, 3);
             bsl::ostream out(&obuf);
-            BDEC::Decimal64 value = DFP(-1.0);
+            BDEC::Decimal64 value = BDLDFP_DECIMAL_DD(-1.0);
             out << bsl::setprecision(1) << bsl::fixed << value;
             ASSERTV(out.fail(), out.fail());
             ASSERTV(out.bad(), out.bad());
@@ -3991,7 +3996,7 @@ void TestDriver::testCase4()
             char buffer[4];
             bdlsb::FixedMemOutStreamBuf obuf(buffer, 3);
             bsl::ostream out(&obuf);
-            BDEC::Decimal128 value = DFP(-1.0);
+            BDEC::Decimal128 value = BDLDFP_DECIMAL_DL(-1.0);
             out << bsl::setprecision(1) << bsl::fixed << value;
             ASSERTV(out.fail(), out.fail());
             ASSERTV(out.bad(), out.bad());
@@ -3999,6 +4004,7 @@ void TestDriver::testCase4()
     }
 #endif
 
+#define DFP(X) BDLDFP_DECIMAL_DF(X)
     {
         // Test output to wide stream.  (P-4)
 
