@@ -66,6 +66,11 @@ function(process_uor retUOR listFile)
     bde_interface_target_compile_options(
         ${TARGET}
         PRIVATE
+            $<$<C_COMPILER_ID:AppleClang>:
+                 -std=gnu89
+                $<IF:${bde_ufid_is_64}, -m64, -m32>
+                $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
+            >
             $<$<C_COMPILER_ID:Clang>:
                  -std=gnu89
                 $<IF:${bde_ufid_is_64}, -m64, -m32>

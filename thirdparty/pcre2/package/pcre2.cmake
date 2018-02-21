@@ -87,6 +87,10 @@ function(process_uor retUOR listFile)
         ${TARGET}
         PRIVATE
             # Compiler specific compile options.
+            $<$<C_COMPILER_ID:AppleClang>:
+                $<IF:${bde_ufid_is_64}, -m64, -m32>
+                $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
+            >
             $<$<C_COMPILER_ID:Clang>:
                 $<IF:${bde_ufid_is_64}, -m64, -m32>
                 $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -fPIC>
