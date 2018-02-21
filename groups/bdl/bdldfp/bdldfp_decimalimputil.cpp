@@ -431,10 +431,11 @@ int formatImpl(char                      *buffer,
 
     switch (cls) {
       case FP_NORMAL:
-      case FP_SUBNORMAL: {
-          value = DecimalImpUtil::normalize(value);
-      }                                                             // NO BREAK
+      case FP_SUBNORMAL:
       case FP_ZERO: {
+        if (DecimalFormatConfig::e_NATURAL != cfg.style()) {
+            value = DecimalImpUtil::normalize(value);
+        }
 
         switch (cfg.style()) {
           case DecimalFormatConfig::e_SCIENTIFIC: {

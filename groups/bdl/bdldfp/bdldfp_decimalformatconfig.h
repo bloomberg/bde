@@ -45,7 +45,10 @@ BSLS_IDENT("$Id$")
 //:   'to-scientific-string' found in
 //:   {http://speleotrove.com/decimal/decarith.pdf}.
 //:
-//: o 'precision': control how many digits are written after the decimal point.
+//: o 'precision': control how many digits are written after the decimal point
+//:   if the decimal number is rendered in 'e_FIXED' and 'e_SCIENTIFIC'
+//:   formats.  Note that 'precision' attribute is ignored in 'e_NATURAL'
+//:   format.
 //:
 //: o 'sign': control how the sign is output.  If a decimal value has its sign
 //:   bit set, a '-' is always written.  Otherwise, if 'sign' is
