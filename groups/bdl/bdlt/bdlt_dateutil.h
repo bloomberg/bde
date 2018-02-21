@@ -34,6 +34,7 @@ BSLS_IDENT("$Id: $")
 //
 //  'nthDayOfWeekInMonth'         o Find a specified day of the week in a
 //  'lastDayOfWeekInMonth'          specified year and month.
+//  'lastDayInMonth'
 //
 //  'addMonthsEom'                o Add a specified number of months to a date
 //  'addMonthsNoEom'                using either the end-of-month or the
@@ -280,6 +281,11 @@ struct DateUtil {
         // Return 'true' if the specified 'yyyymmddValue' represents a valid
         // 'Date' value in the "YYYYMMDD" format, and 'false' otherwise.
 
+    static Date lastDayInMonth(int year, int month);
+        // Return the latest date in the specified 'month' of the specified
+        // 'year'.  The behavior is undefined unless '1 <= year <= 9999' and
+        // '1 <= month <= 12'.
+
     static Date lastDayOfWeekInMonth(int             year,
                                      int             month,
                                      DayOfWeek::Enum dayOfWeek);
@@ -427,6 +433,17 @@ bool DateUtil::isValidYYYYMMDD(int yyyymmddValue)
     return SerialDateImpUtil::isValidYearMonthDay(yyyymmddValue / 100,
                                                   month,
                                                   day);
+}
+
+inline
+Date DateUtil::lastDayInMonth(int year, int month)
+{
+    BSLS_ASSERT_SAFE(1 <= year);   BSLS_ASSERT_SAFE(year  <= 9999);
+    BSLS_ASSERT_SAFE(1 <= month);  BSLS_ASSERT_SAFE(month <= 12);
+
+    return Date(year,
+                month,
+                SerialDateImpUtil::lastDayOfMonth(year, month));
 }
 
 }  // close package namespace
