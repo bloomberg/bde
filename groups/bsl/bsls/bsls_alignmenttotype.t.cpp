@@ -633,7 +633,7 @@ int main(int argc, char *argv[])
         class alignas(N) X { };                                               \
         LOOP_ASSERT(N, 0 + alignof(X) == 0 + bsls::AlignmentImpCalc<          \
                                      bsls::AlignmentToType<N>::Type>::VALUE); \
-    } while (false);
+    } while (false)
 
     if (veryVerbose) {
         cout << "Checking over-aligned types\n";
