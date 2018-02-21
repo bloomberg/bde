@@ -70,16 +70,11 @@ struct ProcessUtil {
         // process into the specified 'result'.  The process name may be in
         // any language on all supported platforms.  To provide that support,
         // 'result' will be encoded as UTF-8, but it might not be normalized.
-        // Return 0 on success, and a non-zero value otherwise.  Note that on
-        // many systems, this is the fully qualified path name of the current
-        // executable.
-        //
-        // CAVEATS: Note that if the process was begun by executing a relative
-        // path, this function may return that relative path, which may no
-        // longer be valid if the application has changed the current directory
-        // since the beginning of the process.  Also, on some platforms,
-        // '*result' may differ from the path specified at process start in
-        // that symbolic links will have been resolved.
+        // Return 0 on success, and a non-zero value otherwise.  Note that the
+        // behavior varies with platform -- the implementation attempts to
+        // return a pathname through which the executable can be accessed,
+        // which may be completely unlike the value of 'argv[0]' specified to
+        // 'main', especially if 'argv[0]' was specified as a relative path.
 };
 
 }  // close package namespace

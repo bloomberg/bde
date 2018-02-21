@@ -198,6 +198,10 @@ int ProcessUtil::getProcessName(bsl::string *result)
 
     result->assign(::getexecname());
 #elif defined BSLS_PLATFORM_OS_WINDOWS
+    // On Windows, 'argv[0]' is always an absolute path, even if it was
+    // specified on the cmd line as a relative path.  The following code yields
+    // the full path.
+
     static const size_t k_INITIAL_SIZE = MAX_PATH + 1;
     bdlma::LocalSequentialAllocator<sizeof(wchar_t) * k_INITIAL_SIZE> la;
     bsl::wstring wResult(MAX_PATH, L'\0', &la);

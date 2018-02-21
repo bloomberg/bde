@@ -23,7 +23,7 @@
 #if defined BSLS_PLATFORM_OS_UNIX
 # include <unistd.h>
 #else
-# include <windows.h>
+# include <direct.h>
 #endif
 
 using namespace BloombergLP;
@@ -203,35 +203,50 @@ int main(int argc, char *argv[])
         if (verbose) cout << "'getProcessName': CHDIR TEST\n"
                              "============================\n";
 
-        ASSERT(FUtil::exists(argv[0]));
-
-        // Make sure 'argv[0]' is a relative path, and the change to the parent
-        // directory.
-
-        char cwdBuf[1024];
+#undef CHDIR_CALL
+#undef GETCWD_CALL
 #if BSLS_PLATFORM_OS_UNIX
-        ASSERTV(argv[0], '/' != argv[0][0]);
+# define CHDIR_CALL    ::chdir
+# define GETCWD_CALL   ::getcwd
 
-        ::chdir("..");
-        ::getcwd(cwdBuf, sizeof(cwdBuf));
+const bool expRelative = true;
 #else
-        ASSERTV(argv[0], '\\' != argv[0][0]);
-        ASSERTV(argv[0], !bsl::strchr(argv[0], ':'));
+# define CHDIR_CALL    ::_chdir
+# define GETCWD_CALL   ::_getcwd
 
-        ::_chdir("..");
-        ::_getcwd(cwdBuf, static_cast<int>(sizeof(cwdBuf)));
+// Note that, on Windows, 'argv[0]' is always absolute, never relative, even if
+// it was specified on the cmdline as relative.
+
+const bool expRelative = false;
 #endif
+
+        if (verbose) P(argv[0]);
+        ASSERTV(argv[0], FUtil::exists(argv[0]));
+
+        // Detect relative path on Unix or Windows
+
+        const bool argv0IsRelative = '/' != argv[0][0] && '\\' != argv[0][0] &&
+                                                    !bsl::strchr(argv[0], ':');
+        ASSERTV(expRelative, argv0IsRelative, expRelative == argv0IsRelative);
+
+        CHDIR_CALL("..");
+
+        enum { k_CWD_BUF_LEN = 1024 };
+        char cwdBuf[k_CWD_BUF_LEN];
+        GETCWD_CALL(cwdBuf, k_CWD_BUF_LEN);
+        if (verbose) P(cwdBuf);
+
+        ASSERTV(cwdBuf, argv[0], FUtil::exists(argv[0]), argv0IsRelative,
+                                    FUtil::exists(argv[0]) == !argv0IsRelative)
 
         bsl::string name;
         int rc = Obj::getProcessName(&name);
         ASSERT(0 == rc);
         ASSERT(FUtil::exists(name));
+        if (verbose) P(name);
 
-        if (verbose) {
-            P(cwdBuf);
-            P(argv[0]);
-            P(name);
-        }
+#undef CHDIR_CALL
+#undef GETCWD_CALL
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
