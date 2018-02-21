@@ -154,7 +154,9 @@ class InBlobStreamBuf : public bsl::streambuf {
   public:
     // CREATORS
     explicit InBlobStreamBuf(const btlb::Blob *blob);
-        // Create a 'BlobStreamBuf' using the specified 'blob'.
+        // Create a 'BlobStreamBuf' using the specified 'blob'.  The behavior
+        // is undefined unless 'blob' remains valid and externally unmodified
+        // for the lifetime of this 'streambuf'.
 
     ~InBlobStreamBuf();
         // Destroy this stream buffer.
@@ -162,7 +164,9 @@ class InBlobStreamBuf : public bsl::streambuf {
     // MANIPULATORS
     void reset(const btlb::Blob *blob = 0);
         // Reset the get areas.  Optionally set the underlying 'btlb::Blob'
-        // value to the optionally specified 'blob' if 'blob' is not 0.
+        // value to the optionally specified 'blob' if 'blob' is not 0.  The
+        // behavior is undefined unless 'blob' remains valid and externally
+        // unmodified for the lifetime of this 'streambuf'.
 
     // ACCESSORS
     int currentBufferIndex() const;
@@ -262,7 +266,9 @@ class OutBlobStreamBuf : public bsl::streambuf {
     explicit OutBlobStreamBuf(btlb::Blob *blob);
         // Create a 'OutBlobStreamBuf' using the specified 'blob', and set the
         // location at which the next write operation will occur to
-        // 'blob->length()'.
+        // 'blob->length()'.  The behavior is undefined unless 'blob' remains
+        // valid and externally unmodified for the lifetime of this
+        // 'streambuf'.
 
     ~OutBlobStreamBuf();
         // Destroy this stream buffer.
@@ -275,7 +281,8 @@ class OutBlobStreamBuf : public bsl::streambuf {
         // Reset the put position of this buffer to the first location,
         // available for writing in the underlying 'btlb::Blob'. Optionally
         // specify a 'blob' used to change current underlying 'btlb::Blob'
-        // value for.
+        // value for.  The behavior is undefined unless 'blob' remains valid
+        // and externally unmodified for the lifetime of this 'streambuf'.
 
     // ACCESSORS
     int currentBufferIndex() const;
