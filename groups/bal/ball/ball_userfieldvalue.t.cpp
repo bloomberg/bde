@@ -31,7 +31,7 @@ using namespace bsl;
 //: o TBD
 //
 // Basic Accessors:
-//: o TB
+//: o TBD
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
@@ -42,11 +42,47 @@ using namespace bsl;
 //: o Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [  ] UserFieldValue();
+// [  ] UserFieldValue(                                Allocator *ba = 0);
+// [  ] UserFieldValue(bsls::Types::Int64       value, Allocator *ba = 0);
+// [  ] UserFieldValue(double                   value, Allocator *ba = 0);
+// [  ] UserFieldValue(bslstl::StringRef        value, Allocator *ba = 0);
+// [  ] UserFieldValue(const bdlt::DatetimeTz&  value, Allocator *ba = 0);
+// [  ] UserFieldValue(const bsl::vector<char>& value, Allocator *ba = 0);
+// [  ] UserFieldValue(INTEGRAL_TYPE            value, Allocator *ba = 0);
+// [  ] UserFieldValue(const UserFieldValue& original, Allocator *ba = 0);
+// [  ] ~UserFieldValue() = default;
 //
+// MANIPULATORS
+// [  ] UserFieldValue& operator=(const UserFieldValue& rhs);
+// [  ] void reset();
+// [  ] void setInt64(bsls::Types::Int64 value);
+// [  ] void setDouble(double value);
+// [  ] void setString(bslstl::StringRef value);
+// [  ] void setDatetimeTz(const bdlt::DatetimeTz& value);
+// [  ] void setCharArray(const bsl::vector<char>& value);
+// [  ] void swap(UserFieldValue& other);
+//
+// ACCESSORS
+// [  ] bool isUnset() const;
+// [  ] ball::UserFieldType::Enum type() const;
+// [  ] const bsls::Types::Int64& theInt64() const;
+// [  ] const double& theDouble() const;
+// [  ] const bsl::string& theString() const;
+// [  ] const bdlt::DatetimeTz& theDatetimeTz() const;
+// [  ] const bsl::vector<char>& theCharArray() const;
+// [  ] bslma::Allocator *allocator() const;
+// [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
+//
+// FREE OPERATORS
+// [  ] bool operator==(const UserFieldValue& lhs, const UserFieldValue& rhs);
+// [  ] bool operator!=(const UserFieldValue& lhs, const UserFieldValue& rhs);
+// [ 5] ostream& operator<<(ostream &os, const UserFieldValue& object);
+//
+// FREE FUNCTIONS
+// [  ] void swap(UserFieldValue& a, UserFieldValue& b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [  ] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -149,7 +185,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 2: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -212,8 +248,300 @@ int main(int argc, char *argv[])
 //..
 
       } break;
-      case 1: {
+      case 5: {
+        // --------------------------------------------------------------------
+        // PRINT AND OUTPUT OPERATOR (<<)
+        //   Ensure that the value of the object can be formatted appropriately
+        //   on an 'ostream' in some standard, human-readable form.
+        //
+        // Concerns:
+        //: 1 The 'print' method writes the value to the specified 'ostream'.
+        //:
+        //: 2 The 'print' method writes the value in the intended format.
+        //:
+        //: 3 The output using 's << obj' is the same as 'obj.print(s, 0, -1)'.
+        //:
+        //: 4 The 'print' method's signature and return type are standard.
+        //:
+        //: 5 The 'print' method returns the supplied 'ostream'.
+        //:
+        //: 6 The optional 'level' and 'spacesPerLevel' parameters have the
+        //:   correct default values (0 and 4, respectively).
+        //:
+        //: 7 The output 'operator<<'s signature and return type are standard.
+        //:
+        //: 8 The output 'operator<<' returns the destination 'ostream'.
+        //
+        // Plan:
+        //: 1 Use the addresses of the 'print' member function and 'operator<<'
+        //:   free function defined in this component to initialize,
+        //:   respectively, member-function and free-function pointers having
+        //:   the appropriate signatures and return types.  (C-4, 7)
+        //:
+        //: 2 Using the table-driven technique:  (C-1..3, 5..6, 8)
+        //:
+        //:   1 Define fourteen carefully selected combinations of (two) object
+        //:     values ('A' and 'B'), having distinct values, and various
+        //:     values for the two formatting parameters, along with the
+        //:     expected output.
+        //:
+        //:     ( 'value' x  'level'   x 'spacesPerLevel' ):
+        //:     1 { A   } x {  0     } x {  0, 1, -1, -8 } --> 3 expected o/ps
+        //:     2 { A   } x {  3, -3 } x {  0, 2, -2, -8 } --> 6 expected o/ps
+        //:     3 { B   } x {  2     } x {  3            } --> 1 expected o/p
+        //:     4 { A B } x { -8     } x { -8            } --> 2 expected o/ps
+        //:     5 { A B } x { -9     } x { -9            } --> 2 expected o/ps
+        //:
+        //:   2 For each row in the table defined in P-2.1:  (C-1..3, 5..6, 8)
+        //:
+        //:     1 Using a 'const' 'Obj', supply each object value and pair of
+        //:       formatting parameters to 'print', omitting the 'level' or
+        //:       'spacesPerLevel' parameter if the value of that argument is
+        //:       '-8'.  If the parameters are, arbitrarily, '(-9, -9)', then
+        //:       invoke the 'operator<<' instead.
+        //:
+        //:     2 Use a standard 'ostringstream' to capture the actual output.
+        //:
+        //:     3 Verify the address of what is returned is that of the
+        //:       supplied stream.  (C-5, 8)
+        //:
+        //:     4 Compare the contents captured in P-2.2.2 with what is
+        //:       expected.  (C-1..3, 6)
+        //
+        // Testing:
+        //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
+        //   ostream& operator<<(ostream &os, const UserFieldValue& object);
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "PRINT AND OUTPUT OPERATOR (<<)" << endl
+                          << "==============================" << endl;
+
+        if (verbose) cout << "\nAssign the addresses of 'print' and "
+                             "the output 'operator<<' to variables." << endl;
+        {
+            typedef ostream& (Obj::*funcPtr)(ostream&, int, int) const;
+            typedef ostream& (*operatorPtr)(ostream&, const Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            funcPtr     printMember = &Obj::print;
+            operatorPtr operatorOut = ball::operator<<;
+
+            (void)printMember;  // quash potential compiler warnings
+            (void)operatorOut;
+        }
+
+        if (verbose) cout <<
+             "\nCreate a table of distinct value/format combinations." << endl;
+
+        static const struct {
+            int         d_line;            // source line number
+            int         d_level;
+            int         d_spacesPerLevel;
+
+            const char *d_string;
+
+            const char *d_expected_p;
+        } DATA[] = {
+
+#define NL "\n"
+
+        // ------------------------------------------------------------------
+        // P-2.1.1: { A } x { 0 }     x { 0, 1, -1, -8 } -->  4 expected o/ps
+        // ------------------------------------------------------------------
+
+        //LINE L SPL   VALUE         EXP
+        //---- - ---   -----         ---
+
+        { L_,  0,  0,  "28JUL1914",  "28JUL1914"              NL },
+
+        { L_,  0,  1,  "28JUL1914",  "28JUL1914"              NL },
+
+        { L_,  0, -1,  "28JUL1914",  "28JUL1914"                 },
+
+        { L_,  0, -8,  "28JUL1914",  "28JUL1914"              NL },
+
+        // ------------------------------------------------------------------
+        // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } -->  6 expected o/ps
+        // ------------------------------------------------------------------
+
+        //LINE L SPL   VALUE         EXP
+        //---- - ---   -----         ---
+
+        { L_,  3,  0,  "28JUL1914",  "28JUL1914"              NL },
+
+        { L_,  3,  2,  "28JUL1914",  "      28JUL1914"        NL },
+
+        { L_,  3, -2,  "28JUL1914",  "      28JUL1914"           },
+
+        { L_,  3, -8,  "28JUL1914",  "            28JUL1914"  NL },
+
+        { L_, -3,  0,  "28JUL1914",  "28JUL1914"              NL },
+
+        { L_, -3,  2,  "28JUL1914",  "28JUL1914"              NL },
+
+        { L_, -3, -2,  "28JUL1914",  "28JUL1914"                 },
+
+        { L_, -3, -8,  "28JUL1914",  "28JUL1914"              NL },
+
+        // -----------------------------------------------------------------
+        // P-2.1.3: { B } x { 2 }     x { 3 }            -->  1 expected o/p
+        // -----------------------------------------------------------------
+
+        //LINE L SPL   VALUE         EXP
+        //---- - ---   -----         ---
+
+        { L_,  2,  3,  "09DEC0721",  "      09DEC0721"        NL },
+
+        // -----------------------------------------------------------------
+        // P-2.1.4: { A B } x { -8 }   x { -8 }         -->  2 expected o/ps
+        // -----------------------------------------------------------------
+
+        //LINE L SPL   VALUE         EXP
+        //---- - ---   -----         ---
+
+        { L_, -8, -8,  "28JUL1914",  "28JUL1914"              NL },
+
+        { L_, -8, -8,  "09DEC0721",  "09DEC0721"              NL },
+
+        // -----------------------------------------------------------------
+        // P-2.1.5: { A B } x { -9 }   x { -9 }         -->  2 expected o/ps
+        // -----------------------------------------------------------------
+
+        //LINE L SPL   VALUE         EXP
+        //---- - ---   -----         ---
+
+        { L_, -9, -9,  "28JUL1914",  "28JUL1914"                 },
+
+        { L_, -9, -9,  "09DEC0721",  "09DEC0721"                 },
+
+#undef NL
+
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        if (verbose) cout << "\nTesting with various print specifications."
+                          << endl;
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE   = DATA[ti].d_line;
+                const int         L      = DATA[ti].d_level;
+                const int         SPL    = DATA[ti].d_spacesPerLevel;
+                const char *const STRING = DATA[ti].d_string;
+                const char *const EXP    = DATA[ti].d_expected_p;
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P_(L) P(SPL)
+                    T_ P(STRING)
+                }
+
+                if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
+
+                const Obj X(STRING);
+
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                ostringstream os(&oa);
+
+                // Verify supplied stream is returned by reference.
+
+                if (-9 == L && -9 == SPL) {
+                    ASSERTV(LINE, &os == &(os << X));
+
+                    if (veryVeryVerbose) { T_ T_ Q(operator<<) }
+                }
+                else {
+                    ASSERTV(LINE, -8 == SPL || -8 != L);
+
+                    if (-8 != SPL) {
+                        ASSERTV(LINE, &os == &X.print(os, L, SPL));
+                    }
+                    else if (-8 != L) {
+                        ASSERTV(LINE, &os == &X.print(os, L));
+                    }
+                    else {
+                        ASSERTV(LINE, &os == &X.print(os));
+                    }
+
+                    if (veryVeryVerbose) { T_ T_ Q(print) }
+                }
+
+                {
+                    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    // Verify output is formatted as expected.
+
+                    if (veryVeryVerbose) { P(os.str()) }
+
+                    ASSERTV(LINE, EXP, os.str(), EXP == os.str());
+                }
+            }
+        }
+
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // BASIC ACCESSORS
+        //   Ensure each basic accessor properly interprets object state.
+        //
+        // Concerns:
+        //: 1 TBD
+        //
+        // Plan:
+        //: 1 TBD
+        //
+        // Testing:
+        //   TBD
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BASIC ACCESSORS" << endl
+                          << "===============" << endl;
+
+        // TBD
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // GENERATOR FUNCTION 'gg'
+        //   There is no 'gg' function for this component.
+        //
+        // Testing:
+        //   Reserved for 'gg' generator function.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "GENERATOR FUNCTION 'gg'" << endl
+                          << "=======================" << endl;
+
+        if (verbose) cout << "No 'gg' function for 'ball::UserFieldValue'."
+                          << endl;
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // PRIMARY MANIPULATORS & DTOR
+        //
+        // Concerns:
+        //: 1 TBD
+        //:
+        // Plan:
+        //: 1 TBD
+        //
+        // Testing:
+        //   TBD
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PRIMARY MANIPULATORS & DTOR" << endl
+                          << "===========================" << endl;
+
+        // TBD
+
+      } break;
+      case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This case exercises (but does not fully test) basic functionality.
