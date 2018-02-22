@@ -189,6 +189,7 @@ typedef bdlt::Iso8601UtilConfiguration Config;
 
 typedef bslstl::StringRef              StrRef;
 
+const int k_INTERVAL_MAX_PRECISION   = 9;
 const int k_DATE_MAX_PRECISION       = 3;
 const int k_DATETZ_MAX_PRECISION     = 3;
 const int k_DATETIME_MAX_PRECISION   = 6;
@@ -202,6 +203,98 @@ const int k_TIMETZ_MAX_PRECISION     = 6;
 
 // Define DEFAULT DATA generally usable across 'generate' and 'parse' test
 // cases.
+
+// *** 'TimeInterval' Data ***
+
+struct DefaultIntervalDataRow {
+    int                 d_line;         // source line number
+    bsls::Types::Int64  d_sec;          // seconds
+    int                 d_usec;         // nanoseconds
+    const char         *d_iso8601;      // ISO 8601 string
+    bool                d_canonical;    // Is this the canonical string?
+};
+
+static const DefaultIntervalDataRow DEFAULT_INTERVAL_DATA[] = {
+    //LINE             SECONDS             NANOSECONDS
+    //---- ------------------------------  -----------
+    //                                       ISO8601                CANONICAL
+    //                        ------------------------------------  ---------
+    { L_,                               0,         0,
+                              "P0W",                                   false },
+    { L_,                               0,         0,
+                              "P0D",                                   false },
+    { L_,                               0,         0,
+                              "PT0H",                                  false },
+    { L_,                               0,         0,
+                              "PT0M",                                  false },
+    { L_,                               0,         0,
+                              "PT0S",                                  false },
+    { L_,                               0,         0,
+                              "PT0.000000000S",                         true },
+    { L_,                               0,         0,
+                              "P0DT0M",                                false },
+    { L_,                               0,         0,
+                              "P0DT0S",                                false },
+    { L_,                               0,         0,
+                              "P0W0DT0H0M0S",                          false },
+    { L_,                               0,         0,
+                              "P0W0DT0H0M0.0S",                        false },
+    { L_,                               0,         0,
+                              "P0W0DT0H0M0.000000000S",                false },
+    { L_,                               0,         0,
+                              "P0W0DT0H0M0.0000000000S",               false },
+    { L_,                          604800,         0,
+                              "P1W",                                   false },
+    { L_,                          604800,         0,
+                              "P1WT0.000000000S",                       true },
+    { L_,                           86400,         0,
+                              "P1D",                                   false },
+    { L_,                           86400,         0,
+                              "P1DT0.000000000S",                       true },
+    { L_,                            3600,         0,
+                              "PT1H",                                  false },
+    { L_,                            3600,         0,
+                              "PT1H0.000000000S",                       true },
+    { L_,                              60,         0,
+                              "PT1M",                                  false },
+    { L_,                              60,         0,
+                              "PT1M0.000000000S",                       true },
+    { L_,                               1,         0,
+                              "PT1S",                                  false },
+    { L_,                               1,         0,
+                              "PT1.000000000S",                         true },
+    { L_,                           93600,         0,
+                              "P1DT2H0.000000000S",                     true },
+    { L_,                           93600,         0,
+                              "PT26H",                                 false },
+    { L_,                    172800 + 300,         0,
+                              "P2DT5M0.000000000S",                     true },
+    { L_,                    172800 + 300,         0,
+                              "P2DT5M",                                false },
+    { L_,                      259200 + 7,         0,
+                              "P3DT7.000000000S",                       true },
+    { L_, 604800 + 86400 + 7200 + 240 + 5,      5497,
+                              "P1W1DT2H4M5.000005497S",                 true },
+    { L_,                               0,   3000000,
+                              "PT0.003000000S",                         true },
+    { L_,                               0,   3000000,
+                              "PT0.0030S",                             false },
+    { L_,                               0,   3000000,
+                              "P0W0DT0H0M0.003S",                      false },
+    { L_,                               0,   3000000,
+                              "P0W0DT0H0M0.0030S",                     false },
+    { L_,                               0,         5,
+                              "PT0.0000000045S",                       false },
+    { L_,                               0,         4,
+                              "PT0.00000000449S",                      false },
+    { L_,           9223372036854775807LL, 999999999,
+                              "PT9223372036854775807.999999999S",      false },
+    { L_,           9223372036854775807LL, 999999999,
+                              "P15250284452471W3DT15H30M7.999999999S",  true },
+};
+const int NUM_DEFAULT_INTERVAL_DATA =
+static_cast<int>(sizeof DEFAULT_INTERVAL_DATA / sizeof *DEFAULT_INTERVAL_DATA);
+
 
 // *** 'Date' Data ***
 
@@ -801,7 +894,7 @@ if (veryVerbose)
 //  08:59:59.123+0400
 //..
 // Then, we construct the 'bdlt::Iso8601UtilConfiguration' object that
-// indicates how we would like to affect the generated output ISO 8601 string.
+// indicates how we would like to effect the generated output ISO 8601 string.
 // In this case, we want to use ',' as the decimal sign (in fractional seconds)
 // and omit the ':' in zone designators:
 //..
@@ -2094,6 +2187,150 @@ if (veryVerbose)
         }
 
       } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // PARSE: bsls::TimeInterval
+        //
+        // Concerns:
+        //: 1 All ISO 8601 string representations supported by this component
+        //:   (as documented in the header file) for 'TimeInterval' values are
+        //:   parsed successfully.
+        //:
+        //: 2 If parsing succeeds, the result 'TimeInterval' object has the
+        //:   expected value.
+        //:
+        //: 3 If parsing succeeds, 0 is returned.
+        //:
+        //: 4 All strings that are not ISO 8601 representations supported by
+        //:   this component for 'TimeInterval' values are rejected (i.e.,
+        //:   parsing fails).
+        //:
+        //: 5 If parsing fails, the result object is uneffected and a non-zero
+        //:   value is returned.
+        //:
+        //: 6 The entire extent of the input string is parsed.
+        //:
+        //: 7 Fractional seconds containing more than nine digits are handled
+        //:   correctly.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   'TimeInterval' values.
+        //:
+        //: 2 Apply the (fully-tested) 'generateRaw' functions to each element
+        //:   in the cross product, 'T x Z x C', of the test data from P-1.
+        //:
+        //: 3 Invoke the 'parse' functions on the strings generated in P-2 and
+        //:   verify that parsing succeeds, i.e., that 0 is returned and the
+        //:   result objects have the expected values.  (C-1..5)
+        //:
+        //: 4 Using the table-driven technique, specify a set of distinct
+        //:   strings that are not ISO 8601 representations supported by this
+        //:   component for 'Time' and 'TimeTz' values.
+        //:
+        //: 5 Invoke the 'parse' functions on the strings from P-4 and verify
+        //:   that parsing fails, i.e., that a non-zero value is returned and
+        //:   the result objects are unchanged.  (C-6..8)
+        //:
+        //: 6 Using the table-driven technique, specify a set of distinct
+        //:   ISO 8601 strings that specifically cover cases involving leap
+        //:   seconds and fractional seconds containing more than three digits.
+        //:
+        //: 7 Invoke the 'parse' functions on the strings from P-6 and verify
+        //:   the results are as expected.  (C-9)
+        //
+        // Testing:
+        //   int parse(Time *, const char *, int);
+        //   int parse(TimeTz *, const char *, int);
+        //   int parse(Time *result, const StringRef& string);
+        //   int parse(TimeTz *result, const StringRef& string);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PARSE: bsls::TimeInterval" << endl
+                          << "=========================" << endl;
+
+        const bsls::TimeInterval XX(2, 4);  // A control, distinct from any
+                                            // test data.
+
+        if (verbose) cout << "\nTesting bsls::TimeInterval." << endl;
+        {
+            const int NUM_INTERVAL_DATA = NUM_DEFAULT_INTERVAL_DATA;
+            const DefaultIntervalDataRow (&INTERVAL_DATA)[NUM_INTERVAL_DATA] =
+                                                         DEFAULT_INTERVAL_DATA;
+
+            for (int ti = 0; ti < NUM_INTERVAL_DATA; ++ti) {
+                const int                 LINE   = INTERVAL_DATA[ti].d_line;
+                const char               *INPUT  = INTERVAL_DATA[ti].d_iso8601;
+                const int                 LENGTH =
+                                          static_cast<int>(bsl::strlen(INPUT));
+                const bsls::Types::Int64  SEC    = INTERVAL_DATA[ti].d_sec;
+                const int                 USEC   = INTERVAL_DATA[ti].d_usec;
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                bsls::TimeInterval mX(XX);  const bsls::TimeInterval&   X = mX;
+                bsls::TimeInterval EXPECTED(SEC, USEC);
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, INPUT, LENGTH));
+                ASSERTV(LINE, EXPECTED, X, EXPECTED == X);
+
+                mX = XX;
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                        0 == Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                ASSERTV(LINE, EXPECTED, X, EXPECTED == X);
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            const struct {
+                int         d_line;
+                const char *d_input;
+            } DATA[] = {
+                { L_, "1D"         },
+                { L_, "P"          },
+                { L_, "P0"         },
+                { L_, "P1"         },
+                { L_, "PW"         },
+                { L_, "PW1D"       },
+                { L_, "P1D1W"      },
+                { L_, "P1D1D"      },
+                { L_, "P1H"        },
+                { L_, "PT"         },
+                { L_, "PT1"        },
+                { L_, "P1.0W1D"    },
+                { L_, "PT1.1H1M"   },
+                { L_, "PT1.0H1.0S" },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE = DATA[ti].d_line;
+                const char *INPUT = DATA[ti].d_input;
+                const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
+
+                if (veryVerbose) { T_ P_(LINE) P(INPUT) }
+
+                bsls::TimeInterval mX(XX);  const bsls::TimeInterval&   X = mX;
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                    0 != Util::parse(&mX, INPUT, LENGTH));
+                ASSERTV(LINE, XX, X, XX == X);
+
+                ASSERTV(LINE, INPUT, LENGTH,
+                    0 != Util::parse(&mX, StrRef(INPUT, LENGTH)));
+                ASSERTV(LINE, XX, X, XX == X);
+            }
+        }
+
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // PARSE: DATE & DATETZ
@@ -2456,7 +2693,7 @@ if (veryVerbose)
         //: 4 The value of the supplied object is unchanged.
         //:
         //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
+        //:   process-wide default, has the desired effect on the output.
         //:
         //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -2481,7 +2718,7 @@ if (veryVerbose)
         //:     for all buffer lengths in the range '[0 .. L]', where 'L'
         //:     provides sufficient capacity for a null terminator and a few
         //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
+        //:     output matches the string from 'R' (taking the effect of the
         //:     configuration into account), a null terminator is appended when
         //:     expected, and the return value is correct.  (C-1..5)
         //:
@@ -2995,7 +3232,7 @@ if (veryVerbose)
         //: 4 The value of the supplied object is unchanged.
         //:
         //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
+        //:   process-wide default, has the desired effect on the output.
         //:
         //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -3017,7 +3254,7 @@ if (veryVerbose)
         //:     for all buffer lengths in the range '[0 .. L]', where 'L'
         //:     provides sufficient capacity for a null terminator and a few
         //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
+        //:     output matches the string from 'R' (taking the effect of the
         //:     configuration into account), a null terminator is appended when
         //:     expected, and the return value is correct.  (C-1..5)
         //:
@@ -3495,7 +3732,7 @@ if (veryVerbose)
         //: 4 The value of the supplied object is unchanged.
         //:
         //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
+        //:   process-wide default, has the desired effect on the output.
         //:
         //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -3517,7 +3754,7 @@ if (veryVerbose)
         //:     for all buffer lengths in the range '[0 .. L]', where 'L'
         //:     provides sufficient capacity for a null terminator and a few
         //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
+        //:     output matches the string from 'R' (taking the effect of the
         //:     configuration into account), a null terminator is appended when
         //:     expected, and the return value is correct.  (C-1..5)
         //:
@@ -3989,7 +4226,7 @@ if (veryVerbose)
         //: 4 The value of the supplied object is unchanged.
         //:
         //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
+        //:   process-wide default, has the desired effect on the output.
         //:
         //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -4011,7 +4248,7 @@ if (veryVerbose)
         //:     for all buffer lengths in the range '[0 .. L]', where 'L'
         //:     provides sufficient capacity for a null terminator and a few
         //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
+        //:     output matches the string from 'R' (taking the effect of the
         //:     configuration into account), a null terminator is appended when
         //:     expected, and the return value is correct.  (C-1..5)
         //:
@@ -4394,7 +4631,7 @@ if (veryVerbose)
         //: 4 The value of the supplied object is unchanged.
         //:
         //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
+        //:   process-wide default, has the desired effect on the output.
         //:
         //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -4412,7 +4649,7 @@ if (veryVerbose)
         //:     for all buffer lengths in the range '[0 .. L]', where 'L'
         //:     provides sufficient capacity for a null terminator and a few
         //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
+        //:     output matches the string from 'R' (taking the effect of the
         //:     configuration into account), a null terminator is appended when
         //:     expected, and the return value is correct.  (C-1..5)
         //:
@@ -4763,7 +5000,7 @@ if (veryVerbose)
         //: 4 The value of the supplied object is unchanged.
         //:
         //: 5 The configuration that is in effect, whether user-supplied or the
-        //:   process-wide default, has the desired affect on the output.
+        //:   process-wide default, has the desired effect on the output.
         //:
         //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -4781,7 +5018,7 @@ if (veryVerbose)
         //:     for all buffer lengths in the range '[0 .. L]', where 'L'
         //:     provides sufficient capacity for a null terminator and a few
         //:     extra characters.  For each call, verify that the generated
-        //:     output matches the string from 'R' (taking the affect of the
+        //:     output matches the string from 'R' (taking the effect of the
         //:     configuration into account), a null terminator is appended when
         //:     expected, and the return value is correct.  (C-1..5)
         //:
@@ -5065,6 +5302,344 @@ if (veryVerbose)
                 }
             }  // loop over 'CNFG_DATA'
         }  // loop over 'DATE_DATA'
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            const Config C;
+
+            if (verbose) cout << "\t'generate'" << endl;
+            {
+                const TYPE X;
+                char       buffer[OBJLEN];
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
+
+                ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+
+                bsl::string mS("qwerty");
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X));
+
+                ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
+                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
+            }
+
+            if (verbose) cout << "\t'generateRaw'" << endl;
+            {
+                const TYPE X;
+                char       buffer[OBJLEN];
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X));
+                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
+
+                ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
+                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
+            }
+        }
+
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // GENERATE 'TimeInterval'
+        //
+        // Concerns:
+        //: 1 The output generated by each method has the expected format and
+        //:   contents.
+        //:
+        //: 2 When sufficient capacity is indicated, the method taking
+        //:   'bufferLength' generates a null terminator.
+        //:
+        //: 3 Each method returns the expected value (the correct character
+        //:   count or the supplied 'ostream', depending on the return type).
+        //:
+        //: 4 The value of the supplied object is unchanged.
+        //:
+        //: 5 The configuration that is in effect, whether user-supplied or the
+        //:   process-wide default, has the desired effect on the output.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   'TimeInterval' values (one per row) and their corresponding ISO
+        //:   8601 string representations.
+        //:
+        //: 2 For each row 'R' in the table from P-1:  (C-1..5)
+        //:
+        //:   1 Create a 'const' 'TimeInterval' object, 'X', from 'R'.
+        //:
+        //:   2 Invoke the six methods under test on 'X' for all possible
+        //:     configurations.  Also exercise the method taking 'bufferLength'
+        //:     for all buffer lengths in the range '[0 .. L]', where 'L'
+        //:     provides sufficient capacity for a null terminator and a few
+        //:     extra characters.  For each call, verify that the generated
+        //:     output matches the string from 'R' (taking the effect of the
+        //:     configuration into account), a null terminator is appended when
+        //:     expected, and the return value is correct.  (C-1..5)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid arguments, but not triggered for adjacent
+        //:   valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
+        //
+        // Testing:
+        //   int generate(char *, int, const TimeInterval&);
+        //   int generate(char *, int, const TimeInterval&, const Config&);
+        //   int generate(string *, const TimeInterval&);
+        //   int generate(string *, const TimeInterval&, const Config&);
+        //   ostream generate(ostream&, const TimeInterval&);
+        //   ostream generate(ostream&, const TimeInterval&, const Config&);
+        //   int generateRaw(char *, const TimeInterval&);
+        //   int generateRaw(char *, const TimeInterval&, const Config&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "GENERATE 'TimeInterval'" << endl
+                          << "=======================" << endl;
+
+        typedef bsls::TimeInterval TYPE;
+
+        const int OBJLEN = Util::k_TIMEINTERVAL_STRLEN;
+        const int BUFLEN = OBJLEN + 4;
+
+        char buffer[BUFLEN];
+        char chaste[BUFLEN];  bsl::memset(chaste, '?', BUFLEN);
+
+        const int                  NUM_INTERVAL_DATA =
+                                                     NUM_DEFAULT_INTERVAL_DATA;
+        const DefaultIntervalDataRow (&INTERVAL_DATA)[NUM_INTERVAL_DATA] =
+                                                         DEFAULT_INTERVAL_DATA;
+
+        const int                  NUM_CNFG_DATA =       NUM_DEFAULT_CNFG_DATA;
+        const DefaultCnfgDataRow (&CNFG_DATA)[NUM_CNFG_DATA] =
+                                                             DEFAULT_CNFG_DATA;
+
+        for (int ti = 0; ti < NUM_INTERVAL_DATA; ++ti) {
+            if (!INTERVAL_DATA[ti].d_canonical) {
+                continue;
+            }
+            const int                 ILINE   = INTERVAL_DATA[ti].d_line;
+            const bsls::Types::Int64  SEC     = INTERVAL_DATA[ti].d_sec;
+            const int                 USEC    = INTERVAL_DATA[ti].d_usec;
+            const char               *ISO8601 = INTERVAL_DATA[ti].d_iso8601;
+
+            const TYPE        X(SEC, USEC);
+            const bsl::string BASE_EXPECTED(ISO8601);
+
+            if (veryVerbose) { T_ P_(ILINE) P_(X) P(BASE_EXPECTED) }
+
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const int  PRECISION = CNFG_DATA[tc].d_precision;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
+                }
+
+                Config mC;  const Config& C = mC;
+                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                Config::setDefaultConfiguration(C);
+
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED,
+                                        C,
+                                        k_INTERVAL_MAX_PRECISION);
+
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
+
+                // 'generate' taking 'bufferLength'
+
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    if (veryVeryVerbose) {
+                        T_ T_ cout << "Length: "; P(k)
+                    }
+
+                    ASSERTV(ILINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, k, X));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to a 'string'
+                {
+                    bsl::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN, OUTLEN == Util::generate(&mS, X));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, &os == &Util::generate(os, X));
+
+                    ASSERTV(ILINE, EXPECTED, os.str(), EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(chaste,
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
+                }
+            }  // loop over 'CNFG_DATA'
+
+            for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
+                const int  CLINE     = CNFG_DATA[tc].d_line;
+                const bool OMITCOLON = CNFG_DATA[tc].d_omitColon;
+                const int  PRECISION = CNFG_DATA[tc].d_precision;
+                const bool USECOMMA  = CNFG_DATA[tc].d_useComma;
+                const bool USEZ      = CNFG_DATA[tc].d_useZ;
+
+                if (veryVerbose) {
+                    T_ P_(CLINE) P_(OMITCOLON) P_(PRECISION)
+                                                           P_(USECOMMA) P(USEZ)
+                }
+
+                Config mC;  const Config& C = mC;
+                gg(&mC, PRECISION, OMITCOLON, USECOMMA, USEZ);
+
+                // Set the default configuration to the complement of 'C'.
+
+                Config mDFLT;  const Config& DFLT = mDFLT;
+                gg(&mDFLT, 9 - PRECISION, !OMITCOLON, !USECOMMA, !USEZ);
+                Config::setDefaultConfiguration(DFLT);
+
+                bsl::string EXPECTED(BASE_EXPECTED);
+                updateExpectedPerConfig(&EXPECTED,
+                                        C,
+                                        k_TIME_MAX_PRECISION);
+
+                const int OUTLEN = static_cast<int>(EXPECTED.length());
+
+                // 'generate' taking 'bufferLength'
+
+                for (int k = 0; k < BUFLEN; ++k) {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    if (veryVeryVerbose) {
+                        T_ T_ cout << "Length: "; P(k)
+                    }
+
+                    ASSERTV(ILINE, k, OUTLEN,
+                            OUTLEN == Util::generate(buffer, k, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             k < OUTLEN ? k : OUTLEN));
+
+                    if (k <= OUTLEN) {
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k,
+                                                 BUFLEN - k));
+                    }
+                    else {
+                        ASSERTV(ILINE, k, OUTLEN, '\0' == buffer[OUTLEN]);
+
+                        ASSERTV(ILINE, EXPECTED, buffer,
+                                0 == bsl::memcmp(chaste,
+                                                 buffer + k + 1,
+                                                 BUFLEN - k - 1));
+                    }
+                }
+
+                // 'generate' to a 'string'
+                {
+                    bsl::string mS("qwerty");
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generate(&mS, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, mS, EXPECTED == mS);
+
+                    if (veryVerbose) { P_(EXPECTED) P(mS); }
+                }
+
+                // 'generate' to an 'ostream'
+                {
+                    bsl::ostringstream os;
+
+                    ASSERTV(ILINE, &os == &Util::generate(os, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, os.str(), EXPECTED == os.str());
+
+                    if (veryVerbose) { P_(EXPECTED) P(os.str()); }
+                }
+
+                // 'generateRaw'
+                {
+                    bsl::memset(buffer, '?', BUFLEN);
+
+                    ASSERTV(ILINE, OUTLEN,
+                            OUTLEN == Util::generateRaw(buffer, X, C));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(EXPECTED.c_str(),
+                                             buffer,
+                                             OUTLEN));
+
+                    ASSERTV(ILINE, EXPECTED, buffer,
+                            0 == bsl::memcmp(chaste,
+                                             buffer + OUTLEN,
+                                             BUFLEN - OUTLEN));
+                }
+            }  // loop over 'CNFG_DATA'
+        }  // loop over 'TIME_DATA'
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
