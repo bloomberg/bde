@@ -1251,6 +1251,21 @@ int parseIntervalImpl(bsls::Types::Int64 *weeks,
                       bsls::Types::Int64 *nanoseconds,
                       const char         *string,
                       int                length)
+    // Parse the specified initial 'length' characters of the specified ISO
+    // 8601 'string' and load the values into the specified 'weeks', 'days',
+    // 'hours', 'minutes', 'seconds', and 'nanoseconds'.  Nothing is written
+    // into a value which does not have a corresponding component in 'string'.
+    // Return 0 on success, and a non-zero value (with no effect) otherwise.
+    // 'string' is assumed to be of the form:
+    //..
+    //  P{w+W}{d+D}{T{h+H}{m+M}s+(.|,)s+S}
+    //..
+    // *Exactly* 'length' characters are parsed; parsing will fail if a
+    // proper prefix of 'string' matches the expected format, but the
+    // entire 'length' characters do not.  If an optional fractional second
+    // having more than nine digits is present in 'string', it is rounded
+    // to the nearest value in nanoseconds.  The behavior is undefined
+    // unless '0 <= length'.
 {
     BSLS_ASSERT(weeks);
     BSLS_ASSERT(days);
@@ -1260,13 +1275,6 @@ int parseIntervalImpl(bsls::Types::Int64 *weeks,
     BSLS_ASSERT(nanoseconds);
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= length);
-
-    // Sample ISO 8601 duration: "P3Y6M4DT12H30M5.35S"
-    //
-    // All components are optional except the leading "P" (for "Period"). If
-    // there is any time component, then the "T" is also mandatory.  At least
-    // one component must be present, and if the "T" is present, at least one
-    // component must appear after the "T".
 
     enum { k_MINIMUM_LENGTH = sizeof "P0Y" - 1 };
 
