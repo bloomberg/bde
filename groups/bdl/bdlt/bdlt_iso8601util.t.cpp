@@ -44,85 +44,95 @@ using namespace bsl;
 //: o Precondition violations are detected in appropriate build modes.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 1] int generate(char *, int, const Date&);
-// [ 1] int generate(char *, int, const Date&, const Config&);
-// [ 2] int generate(char *, int, const Time&);
-// [ 2] int generate(char *, int, const Time&, const Config&);
-// [ 3] int generate(char *, int, const Datetime&);
-// [ 3] int generate(char *, int, const Datetime&, const Config&);
-// [ 4] int generate(char *, int, const DateTz&);
-// [ 4] int generate(char *, int, const DateTz&, const Config&);
-// [ 5] int generate(char *, int, const TimeTz&);
-// [ 5] int generate(char *, int, const TimeTz&, const Config&);
-// [ 6] int generate(char *, int, const DatetimeTz&);
-// [ 6] int generate(char *, int, const DatetimeTz&, const Config&);
-// [ 1] int generate(string *, const Date&);
-// [ 1] int generate(string *, const Date&, const Config&);
-// [ 2] int generate(string *, const Time&);
-// [ 2] int generate(string *, const Time&, const Config&);
-// [ 3] int generate(string *, const Datetime&);
-// [ 3] int generate(string *, const Datetime&, const Config&);
-// [ 4] int generate(string *, const DateTz&);
-// [ 4] int generate(string *, const DateTz&, const Config&);
-// [ 5] int generate(string *, const TimeTz&);
-// [ 5] int generate(string *, const TimeTz&, const Config&);
-// [ 6] int generate(string *, const DatetimeTz&);
-// [ 6] int generate(string *, const DatetimeTz&, const Config&);
-// [ 1] ostream generate(ostream&, const Date&);
-// [ 1] ostream generate(ostream&, const Date&, const Config&);
-// [ 2] ostream generate(ostream&, const Time&);
-// [ 2] ostream generate(ostream&, const Time&, const Config&);
-// [ 3] ostream generate(ostream&, const Datetime&);
-// [ 3] ostream generate(ostream&, const Datetime&, const Config&);
-// [ 4] ostream generate(ostream&, const DateTz&);
-// [ 4] ostream generate(ostream&, const DateTz&, const Config&);
-// [ 5] ostream generate(ostream&, const TimeTz&);
-// [ 5] ostream generate(ostream&, const TimeTz&, const Config&);
-// [ 6] ostream generate(ostream&, const DatetimeTz&);
-// [ 6] ostream generate(ostream&, const DatetimeTz&, const Config&);
-// [ 1] int generateRaw(char *, const Date&);
-// [ 1] int generateRaw(char *, const Date&, const Config&);
-// [ 2] int generateRaw(char *, const Time&);
-// [ 2] int generateRaw(char *, const Time&, const Config&);
-// [ 3] int generateRaw(char *, const Datetime&);
-// [ 3] int generateRaw(char *, const Datetime&, const Config&);
-// [ 4] int generateRaw(char *, const DateTz&);
-// [ 4] int generateRaw(char *, const DateTz&, const Config&);
-// [ 5] int generateRaw(char *, const TimeTz&);
-// [ 5] int generateRaw(char *, const TimeTz&, const Config&);
-// [ 6] int generateRaw(char *, const DatetimeTz&);
-// [ 6] int generateRaw(char *, const DatetimeTz&, const Config&);
-// [ 7] int parse(Date *, const char *, int);
-// [ 8] int parse(Time *, const char *, int);
-// [ 9] int parse(Datetime *, const char *, int);
-// [ 7] int parse(DateTz *, const char *, int);
-// [ 8] int parse(TimeTz *, const char *, int);
-// [ 9] int parse(DatetimeTz *, const char *, int);
-// [ 7] int parse(Date *result, const StringRef& string);
-// [ 8] int parse(Time *result, const StringRef& string);
-// [ 9] int parse(Datetime *result, const StringRef& string);
-// [ 7] int parse(DateTz *result, const StringRef& string);
-// [ 8] int parse(TimeTz *result, const StringRef& string);
-// [ 9] int parse(DatetimeTz *result, const StringRef& string);
+// [ 1] int generate(char *, int, const TimeInterval&);
+// [ 1] int generate(char *, int, const TimeInterval&, const Config&);
+// [ 2] int generate(char *, int, const Date&);
+// [ 2] int generate(char *, int, const Date&, const Config&);
+// [ 3] int generate(char *, int, const Time&);
+// [ 3] int generate(char *, int, const Time&, const Config&);
+// [ 4] int generate(char *, int, const Datetime&);
+// [ 4] int generate(char *, int, const Datetime&, const Config&);
+// [ 5] int generate(char *, int, const DateTz&);
+// [ 5] int generate(char *, int, const DateTz&, const Config&);
+// [ 6] int generate(char *, int, const TimeTz&);
+// [ 6] int generate(char *, int, const TimeTz&, const Config&);
+// [ 7] int generate(char *, int, const DatetimeTz&);
+// [ 7] int generate(char *, int, const DatetimeTz&, const Config&);
+// [ 1] int generate(string *, const TimeInterval&);
+// [ 1] int generate(string *, const TimeInterval&, const Config&);
+// [ 2] int generate(string *, const Date&);
+// [ 2] int generate(string *, const Date&, const Config&);
+// [ 3] int generate(string *, const Time&);
+// [ 3] int generate(string *, const Time&, const Config&);
+// [ 4] int generate(string *, const Datetime&);
+// [ 4] int generate(string *, const Datetime&, const Config&);
+// [ 5] int generate(string *, const DateTz&);
+// [ 5] int generate(string *, const DateTz&, const Config&);
+// [ 6] int generate(string *, const TimeTz&);
+// [ 6] int generate(string *, const TimeTz&, const Config&);
+// [ 7] int generate(string *, const DatetimeTz&);
+// [ 7] int generate(string *, const DatetimeTz&, const Config&);
+// [ 1] ostream generate(ostream&, const TimeInterval&);
+// [ 1] ostream generate(ostream&, const TimeInterval&, const Config&);
+// [ 2] ostream generate(ostream&, const Date&);
+// [ 2] ostream generate(ostream&, const Date&, const Config&);
+// [ 3] ostream generate(ostream&, const Time&);
+// [ 3] ostream generate(ostream&, const Time&, const Config&);
+// [ 4] ostream generate(ostream&, const Datetime&);
+// [ 4] ostream generate(ostream&, const Datetime&, const Config&);
+// [ 5] ostream generate(ostream&, const DateTz&);
+// [ 5] ostream generate(ostream&, const DateTz&, const Config&);
+// [ 6] ostream generate(ostream&, const TimeTz&);
+// [ 6] ostream generate(ostream&, const TimeTz&, const Config&);
+// [ 7] ostream generate(ostream&, const DatetimeTz&);
+// [ 7] ostream generate(ostream&, const DatetimeTz&, const Config&);
+// [ 1] int generateRaw(char *, const TimeInterval&);
+// [ 1] int generateRaw(char *, const TimeInterval&, const Config&);
+// [ 2] int generateRaw(char *, const Date&);
+// [ 2] int generateRaw(char *, const Date&, const Config&);
+// [ 3] int generateRaw(char *, const Time&);
+// [ 3] int generateRaw(char *, const Time&, const Config&);
+// [ 4] int generateRaw(char *, const Datetime&);
+// [ 4] int generateRaw(char *, const Datetime&, const Config&);
+// [ 5] int generateRaw(char *, const DateTz&);
+// [ 5] int generateRaw(char *, const DateTz&, const Config&);
+// [ 6] int generateRaw(char *, const TimeTz&);
+// [ 6] int generateRaw(char *, const TimeTz&, const Config&);
+// [ 7] int generateRaw(char *, const DatetimeTz&);
+// [ 7] int generateRaw(char *, const DatetimeTz&, const Config&);
+// [ 8] int parse(TimeInterval *, const char *, int);
+// [ 9] int parse(Date *, const char *, int);
+// [10] int parse(Time *, const char *, int);
+// [11] int parse(Datetime *, const char *, int);
+// [ 9] int parse(DateTz *, const char *, int);
+// [10] int parse(TimeTz *, const char *, int);
+// [11] int parse(DatetimeTz *, const char *, int);
+// [ 8] int parse(TimeInterval *result, const StringRef& string);
+// [ 9] int parse(Date *result, const StringRef& string);
+// [10] int parse(Time *result, const StringRef& string);
+// [11] int parse(Datetime *result, const StringRef& string);
+// [ 9] int parse(DateTz *result, const StringRef& string);
+// [10] int parse(TimeTz *result, const StringRef& string);
+// [11] int parse(DatetimeTz *result, const StringRef& string);
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// [ 1] int generate(char *, const Date&, int);
-// [ 2] int generate(char *, const Time&, int);
-// [ 3] int generate(char *, const Datetime&, int);
-// [ 4] int generate(char *, const DateTz&, int);
-// [ 5] int generate(char *, const TimeTz&, int);
-// [ 6] int generate(char *, const DatetimeTz&, int);
-// [ 4] int generate(char *, const DateTz&, int, bool useZ);
-// [ 5] int generate(char *, const TimeTz&, int, bool useZ);
-// [ 6] int generate(char *, const DatetimeTz&, int, bool useZ);
-// [ 4] ostream generate(ostream&, const DateTz&, bool useZ);
-// [ 5] ostream generate(ostream&, const TimeTz&, bool useZ);
-// [ 6] ostream generate(ostream&, const DatetimeTz&, bool useZ);
-// [ 4] int generateRaw(char *, const DateTz&, bool useZ);
-// [ 5] int generateRaw(char *, const TimeTz&, bool useZ);
-// [ 6] int generateRaw(char *, const DatetimeTz&, bool useZ);
+// [ 2] int generate(char *, const Date&, int);
+// [ 3] int generate(char *, const Time&, int);
+// [ 4] int generate(char *, const Datetime&, int);
+// [ 5] int generate(char *, const DateTz&, int);
+// [ 6] int generate(char *, const TimeTz&, int);
+// [ 7] int generate(char *, const DatetimeTz&, int);
+// [ 5] int generate(char *, const DateTz&, int, bool useZ);
+// [ 6] int generate(char *, const TimeTz&, int, bool useZ);
+// [ 7] int generate(char *, const DatetimeTz&, int, bool useZ);
+// [ 5] ostream generate(ostream&, const DateTz&, bool useZ);
+// [ 6] ostream generate(ostream&, const TimeTz&, bool useZ);
+// [ 7] ostream generate(ostream&, const DatetimeTz&, bool useZ);
+// [ 5] int generateRaw(char *, const DateTz&, bool useZ);
+// [ 6] int generateRaw(char *, const TimeTz&, bool useZ);
+// [ 7] int generateRaw(char *, const DatetimeTz&, bool useZ);
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 //-----------------------------------------------------------------------------
-// [10] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -211,7 +221,13 @@ struct DefaultIntervalDataRow {
     bsls::Types::Int64  d_sec;          // seconds
     int                 d_usec;         // nanoseconds
     const char         *d_iso8601;      // ISO 8601 string
-    bool                d_canonical;    // Is this the canonical string?
+    bool                d_canonical;    // There are many strings which can be
+                                        // parsed into the same TimeInterval,
+                                        // but for each TimeInterval there is
+                                        // only one canonical string
+                                        // representation (the string returned
+                                        // by the generate functions).
+
 };
 
 static const DefaultIntervalDataRow DEFAULT_INTERVAL_DATA[] = {
@@ -773,7 +789,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -970,7 +986,7 @@ if (veryVerbose)
 //..
 
       } break;
-      case 9: {
+      case 11: {
         // --------------------------------------------------------------------
         // PARSE: DATETIME & DATETIMETZ
         //
@@ -1694,7 +1710,7 @@ if (veryVerbose)
             }
         }
       } break;
-      case 8: {
+      case 10: {
         // --------------------------------------------------------------------
         // PARSE: TIME & TIMETZ
         //
@@ -2187,7 +2203,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 11: {
+      case 9: {
         // --------------------------------------------------------------------
         // PARSE: bsls::TimeInterval
         //
@@ -2331,7 +2347,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // PARSE: DATE & DATETZ
         //
@@ -2676,7 +2692,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // GENERATE 'DatetimeTz'
         //
@@ -3215,7 +3231,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // GENERATE 'TimeTz'
         //
@@ -3715,7 +3731,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // GENERATE 'DateTz'
         //
@@ -4209,7 +4225,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // GENERATE 'Datetime'
         //
@@ -4614,7 +4630,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // GENERATE 'Time'
         //
@@ -4983,7 +4999,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
         // GENERATE 'Date'
         //
@@ -5350,7 +5366,7 @@ if (veryVerbose)
         }
 
       } break;
-      case 12: {
+      case 1: {
         // --------------------------------------------------------------------
         // GENERATE 'TimeInterval'
         //

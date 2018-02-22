@@ -84,7 +84,8 @@ int asciiToInt(const char **nextPos,
     const char         *tmpNext = 0;
     bsls::Types::Int64  tmp     = 0;
 
-    if (0 != asciiPrefixToInt64(&tmpNext, &tmp, begin, end) || tmpNext != end) {
+    if (0 != asciiPrefixToInt64(&tmpNext, &tmp, begin, end)
+        || tmpNext != end) {
         return -1;                                                    // RETURN
     }
 
