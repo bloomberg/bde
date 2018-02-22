@@ -10,8 +10,11 @@
 #include <bdls_processutil.h>
 
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
 
 #include <bslim_testutil.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
@@ -93,9 +96,15 @@ int main(int argc, char *argv[])
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
 //  bool     veryVeryVerbose = argc > 4;
-//  bool veryVeryVeryVerbose = argc > 5;
+    bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // The component under test may use the default allocator, but must not
+    // leak from it.
+
+    bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard defaultGuard(&ta);
 
     switch(test) { case 0:
       case 2: {
@@ -151,12 +160,24 @@ int main(int argc, char *argv[])
 
         ASSERT(0 != bdls::ProcessUtil::getProcessId());
 
+        ASSERTV(argv[0], FUtil::exists(argv[0]));
+
         bsl::string name;
         ASSERT(0 == bdls::ProcessUtil::getProcessName(&name));
-        ASSERTV(name, argv[0], name == argv[0]);
+
+        ASSERTV(name, FUtil::exists(name));
+
+        bsl::string nameBasename, argv0Basename;
+        ASSERT(0 == bdls::PathUtil::getBasename(&nameBasename,  name));
+        ASSERT(0 == bdls::PathUtil::getBasename(&argv0Basename, argv[0]));
+
+        ASSERTV(nameBasename, argv0Basename, name, argv[0],
+                                                nameBasename == argv0Basename);
 
         if (veryVerbose) {
-            P_(argv[0]);  P(name);
+            P_(nameBasename);    P(argv0Basename);
+            P(argv[0]);
+            P(name);
         }
       } break;
       case -1: {
@@ -205,7 +226,7 @@ int main(int argc, char *argv[])
 
 #undef CHDIR_CALL
 #undef GETCWD_CALL
-#if BSLS_PLATFORM_OS_UNIX
+#if defined BSLS_PLATFORM_OS_UNIX 
 # define CHDIR_CALL    ::chdir
 # define GETCWD_CALL   ::getcwd
 

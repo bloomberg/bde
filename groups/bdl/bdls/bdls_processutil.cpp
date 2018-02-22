@@ -41,6 +41,7 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 #   include <fcntl.h>
 #   include <procfs.h>
 # elif defined BSLS_PLATFORM_OS_DARWIN
+#   include <bsl_algorithm.h>
 #   include <libproc.h>
 # elif defined BSLS_PLATFORM_OS_HPUX
 #   include <sys/pstat.h>
@@ -144,13 +145,16 @@ int ProcessUtil::getProcessName(bsl::string *result)
         result->resize(pos);
     }
 #elif defined BSLS_PLATFORM_OS_DARWIN
-    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
-    if (proc_pidpath(ProcessUtil::getProcessId(),
-                     pathbuf,
-                     sizeof(pathbuf)) <= 0) {
-        return -1;
+    enum { k_BUF_LEN = 4 * 1024 };
+    char buf[k_BUF_LEN];
+    if (proc_pidpath(ProcessUtil::getProcessId(), buf, k_BUF_LEN) <= 0) {
+        return -1;                                                    // RETURN
     }
-    result->assign(pathbuf);
+    if (buf + k_BUF_LEN == bsl::find(buf + 0, buf + k_BUF_LEN, 0)) {
+        return -1;                                                    // RETURN
+    }
+
+    result->assign(buf);
 #elif defined BSLS_PLATFORM_OS_HPUX
     result->resize(1024);
     int rc = pstat_getcommandline(&(*result->begin()),
@@ -158,7 +162,7 @@ int ProcessUtil::getProcessName(bsl::string *result)
                                   1,
                                   ProcessUtil::getProcessId());
     if (rc < 0) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     bsl::string::size_type pos = result->find_first_of(' ');
