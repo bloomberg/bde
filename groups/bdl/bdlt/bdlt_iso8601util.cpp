@@ -189,7 +189,7 @@ int parseFractionalSecond(const char         **nextPos,
     const char *endSignificant = bsl::min(end, p + 10);
 
     bsls::Types::Int64 tmp    = 0;
-    bsls::Types::Int64 factor = 10000000000;
+    bsls::Types::Int64 factor = 10000000000LL;
                             // Since the result is in nanoseconds, we have to
                             // adjust it according to how many digits are
                             // present.
