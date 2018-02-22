@@ -1,5 +1,164 @@
-bsl-internal (3.5.0.0) unstable; urgency=low
+bsl-internal (3.6.0.0) unstable; urgency=low
 
+  * 043819a85 Merge pull request #1718 from bde/review/bump-version-to-3.6.0
+  * 522b684f1 Bump all-non-bsl versions to 3.6.0
+  * 79cc34858 Merge pull request #1710 from glaptev1/glaptev1/bdldfp_Decimal_formatting_fix_drqs-116871865
+  * 29aa5f729 Merge pull request #1704 from jmendelsohn4/drqs-116645790/master/bdlt_dateutil-add-lastDayInMonth
+  * 1af52c9c2 Merge pull request #1712 from osubbotin/review/cmake-build-system
+  * e5be0e166 Merge pull request #1711 from hversche/blobstream-doc-drqs116471775
+  * 3906b5e7f Merge pull request #1709 from jmendelsohn4/drqs-101272518/add-missing-include
+  * 6eb764a0d Merge pull request #1708 from rkhlebnikov/master
+  * e715ee41b Merge pull request #1595 from afeher/drqs-98825761-print-shared_ptr
+  * 3f62065dd Merge pull request #1706 from rbhindwa/btlmt_sessionpool-forward-callbacks-half-open-drqs-115905147
+  * 4e471ba04 Revert btl.mem to remove unreleased packages
+  * acb2831fe Merge pull request #1483 from glaptev1/glaptev/bdldfp_decimal_refactoring-rdsibde-1668
+  * 53abac8a6 temporarily add unreleased packages for matrix_build
+  * 0a3152363 Merge pull request #1705 from rbhindwa/btlmt_channelpool-greedy-reads-drqs-101479336-rebased
+  * 46289aed1 temporarily add unreleased group for matrix_build
+  * e05a23632 Merge pull request #1658 from rbhindwa/btlmt_sessionpool-fix-invalid-peer-addresses-drqs-52772304
+  * 827ae4b4c Fix test cases in DecimalImpUtil test driver. Rename DPD conversion functions.
+  * 790b38110 Merge pull request #1702 from bde/revert-1682-RDSIBDE-1791-allocator_traits-max_size-noexcept
+  * d2fabdf68 Merge pull request #1611 from dstone50/sha-2-drqs-101272518
+  * 650f74eec Merge pull request #1693 from afeher/drqs-116126880-getprocessname-windows-fixes
+  * fe144c6b2 Merge pull request #1691 from osubbotin/review/cmake-build-system
+  * bd79e5a21 Merge pull request #1690 from ameredit/revised_capabilities
+  * becb28c46 Merge pull request #1681 from afeher/drqs-114680489-system_error-errc
+  * d97720ce2 Merge pull request #1621 from dmora15/review/longer-typedef-names
+  * d186e56fd Merge pull request #1688 from rkhlebnikov/master
+  * 52895dfe3 Merge pull request #1686 from rkhlebnikov/master
+  * c037c648c Merge pull request #1680 from bchapman/bdlcc_deque-tc-6-uncaught-exception-drqs-114972660
+  * 5eb4ea4ee Merge pull request #1677 from osubbotin/review/cmake-build-system
+  * bbcda9164 Merge pull request #1682 from afeher/RDSIBDE-1791-allocator_traits-max_size-noexcept
+  * ba252cb77 Adopt commit 29b46f33a from master: Merge pull request #1678 from rbhindwa/btlmt_tcptimereventmanager-fix-log-format-string-drqs-115170059
+  * 8593bea74 Adopt commit b72211088 from master: Merge pull request #1673 from cwilson/revise-DEPRECATION_THRESHOLD-doc-drqs-114051583
+  * 3db42d660 Adopt commit 8e391f774 from master: Merge pull request #1444 from bchapman/bdlmt_throttle-single-atomic-drqs-81995681
+  * 9d7a2fb8e Adopt commit 30e412083 from master: Merge pull request #1672 from afeher/drqs-114969444-getprocessname-truncates-without-error
+  * 43dc1a217 Adopt commit c3c6f1377 from master: Merge pull request #1670 from jmendelsohn4/drqs-114830151/bdlc_compactedarray_allocator_issue
+  * 2b77cfd00 Adopt commit f00174306 from master: Merge pull request #1669 from fbirbacher/balxml-remove-empty-if
+  * dbd830ce6 Adopt commit 3ad31956e from master: Merge pull request #1664 from ameredit/relax_serice_pack_test_for_windows_test_driver
+  * fb4ab1cf4 Adopt commit acd809b5f from master: Merge pull request #1668 from cwilson/test-driver-switch-issues-per-bde_verify-drqs-114498556
+  * 3da9344ac Adopt commit 7361ffede from master: Merge pull request #1665 from afeher/drqs-114821685-vs-2015-fix
+  * f1375d7e6 Adopt commit f5d2740ff from master: Merge pull request #1667 from ameredit/fix_for_bad_msvc_version_check
+  * 4da10cac4 Adopt commit 983e28f53 from master: Merge pull request #1642 from bchapman/balst_eliminate-dwart.h-drqs-107745446
+  * b3834fdbd Adopt commit 0c8a37e3a from master: Merge pull request #1650 from ameredit/fix_test_case_numbering_in_bitset
+  * 8a2a86dda Adopt commit cbad2f3f8 from master: Merge pull request #1651 from ameredit/negative_test_case_relies_on_undefined_behavior
+  * e5e26af1e Adopt commit 35d10b4fc from master: Merge pull request #1662 from jmendelsohn4/drqs-114807321/master/bdlcc_deque_usage_example
+  * 0918212ad Adopt commit 89e1cb9ae from master: Merge pull request #1627 from jmendelsohn4/drqs-113919952/master/bdlc_compactedarray
+  * 275972fd4 Adopt commit 63c22bf79 from master: Merge pull request #1638 from jmendelsohn4/drqs-114050089/bdlt_calendarcache_reduce_iterations
+  * 81ad1282c Adopt commit 6da73079a from master: Merge pull request #1564 from oimanuel/addmake_bdlt_datetimeintervalutil-drqs-96209674
+  * ce0e4bba6 Adopt commit efd2c6d64 from master: Merge pull request #1659 from rkhlebnikov/master
+  * dd798a572 Adopt commit 1128f66a1 from master: Merge pull request #1314 from dstone50/microsecond-fix-support-DRQS-101100121
+  * 976443be7 Adopt commit 6e91c4e51 from master: Merge pull request #1616 from rkhlebnikov/bslstl_forwarditerator-assert-true-reference-DRQS-105559701
+  * 6030d9c3d Adopt commit 0ba5c2123 from master: Merge pull request #1641 from bde/update-readme
+  * 101b8b0ae Adopt commit d24c9bb76 from master: Merge pull request #1647 from jdevenpo/effect-affect
+  * 13328434a Adopt commit 74e4e45bb from master: Merge pull request #1654 from ameredit/remove_old_workaround_in_baljsn_printutil.t.cpp
+  * 62d44930a Adopt commit 72ae590e9 from master: Merge pull request #1655 from ameredit/remove_old_workaround_in_balxml_tests
+  * a536a3071 Adopt commit c0084855e from master: Merge pull request #1657 from mgiroux/review/bump-version-to-3.5.0
+  * 3720d132d Adopt commit 33647948f from master: Merge pull request #1652 from rkhlebnikov/master
+  * 664722b65 Adopt commit 02e8754af from master: Merge pull request #1648 from hrosen4/signed-shift_drqs-114474016
+  * e42d017b9 Adopt commit bd765bcf5 from master: Merge pull request #1644 from ameredit/shared_ptr_for_vc2017
+  * ec594062e Adopt commit 3cad81703 from master: Merge pull request #1646 from afeher/drqs-114170148
+  * e79c6452a Adopt commit 55d004055 from master: Merge pull request #1643 from afeher/drqs-114168816-document-include-name
+  * 6f70b0366 Adopt commit d7d464edf from master: Merge pull request #1639 from cwilson/bsl-changes-from-ball-baseline-for-3.5.0
+  * ea117757e Adopt commit 127f1b4db from master: Merge pull request #1623 from cwilson/bsls_deprecate-first-use-drqs-112659468
+  * 76361913a Adopt commit 5dd09ef77 from master: Merge pull request #1633 from rkhlebnikov/btlmt_tcptimereventmanager-logging-fix-drqs-113079237
+  * 7b7035909 Adopt commit 4c6914ea6 from master: Merge pull request #1626 from mkim572/bdlt_date-accessors-non-standard-drqs-106330225
+  * 7283a3995 Adopt commit 9eb52bdec from master: Merge pull request #1635 from bde/revert-1629-time-interval-units-drqs-66438995
+  * 5d4c6933b Adopt commit d9f48f999 from master: Merge pull request #1629 from dstone50/time-interval-units-drqs-66438995
+  * b98823b90 Adopt commit 0697f92ff from master: Merge pull request #1634 from osubbotin/review/cmake-internal-release
+  * 36cb66f70 Adopt commit 9ce6552e1 from master: Merge pull request #1632 from hversche/adjust-condition-documentation-drqs-113923894
+  * 9a4675c6f Adopt commit f3f4f8ae8 from master: Merge pull request #1617 from egoodrich4/replace-insert-with-emplace
+  * d3bfcbafc Adopt commit 9b4b41cab from master: Merge pull request #1619 from rkhlebnikov/bdlt_datetimeinterval-setTotalSecond-drqs-100387561
+  * 23dbabe81 Adopt commit 3cf12fd7c from master: Merge pull request #1618 from hversche/fix-bdlmt-mqtp-cleanup-drqs-113734461
+  * 46d1442d9 Adopt commit 96c44b992 from master: Merge pull request #1313 from rkhlebnikov/bdlt_datetimeinterval-setTotalSecond-drqs-100387561
+  * 9b038b674 Adopt commit b41660381 from master: Merge pull request #1608 from hrosen4/hash-null-zero_drqs-113474868
+  * 38aafad14 Adopt commit 412e70370 from master: Merge pull request #1612 from jmendelsohn4/drqs-113621153/master/bdlt_calendarutil_fix_shiftModified_methods
+  * 788b58eae Adopt commit be8741f9d from master: Merge pull request #1607 from hversche/fix-balm_metricformat-tests
+  * b5aa22963 Adopt commit aed059254 from master: Merge pull request #1605 from bde/revert-1588-pr/1099-rebased-master
+  * 1abb1d054 Adopt commit f321148ee from master: Merge pull request #1604 from hversche/remove-balst-version-check
+  * 54133fee0 Adopt commit 63ebbf4f4 from master: Merge pull request #1603 from glaptev1/glaptev1/bdldfp_transitive_includes_drqs-113116452
+  * 6b0399600 Adopt commit a564d4a14 from master: Merge pull request #1591 from hversche/multiqueuethreadpool-cleanup-drqs-112337550
+  * 3c2c8e017 Adopt commit e3e46434e from master: Merge pull request #1594 from hrosen4/negate-unsigned_drqs-113023341
+  * 0fe7c71ab Adopt commit 1b6a27228 from master: Merge pull request #1590 from afeher/drqs-30903544-filesystemutil-docs
+  * e6439fe06 Adopt commit 3d86a9184 from master: Merge pull request #1598 from rkhlebnikov/btlso_endpoint-allow-port-0-drqs-112624138
+  * cda8ca5fc Adopt commit 09375801f from master: Merge pull request #1597 from cwilson/define-macro-to-facility-migration-drqs-102552752
+  * e1a756571 Adopt commit 401bcf4d3 from master: Merge pull request #1593 from osubbotin/review/balm-formatspecs-print-drqs-113047953
+  * 2f5bba808 Adopt commit 81ef9d1f5 from master: Merge pull request #1510 from dstone50/stringbuf-assertion-on-null-dqrs-109891146
+  * 0122b7186 Adopt commit 5eaf67d93 from master: Merge pull request #1589 from osubbotin/review/btlmt_channelpool-td-fix-drqs-112919866
+  * 0f753da1b Adopt commit d65c4bc43 from master: Merge pull request #1502 from apaprock/exceptionutil-noexcept
+  * ac94c113c Adopt commit 16a144f8c from master: Merge pull request #1182 from dschuman/review/dschumann-drqs-101525561
+  * 651985c9e Adopt commit 5eb42479e from master: Merge pull request #1588 from hversche/pr/1099-rebased-master
+  * 225827aaa Adopt commit 5fa01ef1c from master: Merge pull request #1303 from csharpe/patch-1
+  * f13607805 Adopt commit b9f8ea970 from master: Merge pull request #1337 from mivanov15/patch-2
+  * e49a2d6ae Adopt commit e5d658cb0 from master: Merge pull request #1389 from mivanov15/patch-3
+  * 97aab57d0 Adopt commit 5b316538a from master: Merge pull request #1585 from bchapman/balst_stacktraceresolver-DWARF-recent-versions-drqs-107745446
+  * 3eff68a43 Adopt commit 5c943308e from master: Merge pull request #1586 from osubbotin/review/cmake-internal-release
+  * ddbcea3c6 Adopt commit 113526b72 from master: Merge pull request #1516 from apaprock/test-bitwise-moveable-fixes
+  * e8e10e3a6 Adopt commit 16c3dbcf5 from master: Merge pull request #1559 from oimanuel/addifvalid_bdlt_datetime-drqs-59819730
+  * 05f8f12a3 Adopt commit 28e3e3c7a from master: Merge pull request #1578 from osubbotin/review/cmake-internal-release
+  * e37a7fb80 Adopt commit 371089dab from master: Merge pull request #1573 from dstone50/visual-studio-warning-drqs-106678386
+  * 56b5d595f Adopt commit 9b01063ff from master: Merge pull request #1572 from ameredit/missing_breaks_in_string_test_driver
+  * 133c21514 Adopt commit b514cac64 from master: Merge pull request #1571 from ameredit/bslstl_stringrefdata_buffer_overrun
+  * 0399c19d7 Adopt commit c77dd483a from master: Merge pull request #1512 from dsokolov7/review/bde-is-empty-drqs-110789138
+  * f168cf0a9 Adopt commit 800948568 from master: Merge pull request #1501 from apaprock/incremented-bool
+  * 6a729802a Adopt commit 1d9b92a8a from master: Merge pull request #1554 from afeher/fix-numericparseutil
+  * 3757e0f42 Adopt commit 8b0c3f90f from master: Merge pull request #1563 from rbhindwa/btlso_eventcallbackregistry-remove-bug-drqs-112324350
+  * d89a0608e Adopt commit f9b86bb5d from master: Merge pull request #1421 from osubbotin/review/bdlb_tokenizer_advance_support-drqs-109136293
+  * 50daca98d Adopt commit 5071a7988 from master: Merge pull request #1558 from jmendelsohn4/drqs-112259433/master/bdlt_multiqueuethreadpool-drain-deadlock
+  * e75e80f86 Adopt commit 254ec402c from master: Merge pull request #1548 from sbreitst/bdedox_fix-drqs-111478499-master
+  * b50b72186 Adopt commit 0e3c3a679 from master: Merge pull request #1536 from rbhindwa/btlmt_channelpool-reuseAddress-bug-drqs-112071188
+  * 49f535c48 Adopt commit df813b4c0 from master: Merge pull request #1518 from dsokolov7/review/bde-hardware-concurrency-drqs-102835877
+  * dcd712a3a Adopt commit 3aa3f59bf from master: Merge pull request #1555 from rbhindwa/balxml_formatter-disallow-del-char-drqs-105477872
+  * 924b277af Adopt commit 01c91a769 from master: Merge pull request #1553 from rbhindwa/balxml_minireader-doc-accept-invalid-chars-drqs-106337161
+  * 2d94d513a Adopt commit 069fab5e9 from master: Merge pull request #1552 from jmendelsohn4/drqs-97945531/master_for_real/bslmt_rwmutex_doc
+  * 55c8af678 Adopt commit 451a3da89 from master: Merge pull request #1540 from rkhlebnikov/bslstl_string-rename-STRING_TYPE-drqs-112049582
+  * a9265d758 Adopt commit 3236a9b6c from master: Merge pull request #1545 from cwilson/bsls_objectbuffer-doc-typos-drqs-112139590
+  * 690cf832f Adopt commit 48a37084c from master: Merge pull request #1523 from bchapman/bsls_bslonce-BSLS_BSLONCE_INITIALIZER-drqs-111273324
+  * 0285051d2 Adopt commit 5ee1e409f from master: Merge pull request #1517 from afeher/drqs-111658129-fix-negative-nan-on-linux
+  * 5bbc3abe2 Adopt commit ecec2e090 from master: Merge pull request #1530 from sbreitst/bdedox_fixes-drqs-111740206.master
+  * e17fa8fb0 Adopt commit 2454a97c1 from master: Merge pull request #1522 from rbhindwa/btlso_defaulteventmanager_epoll-add-epollhup-check-drqs-111753124
+  * c0dcee398 Adopt commit 942124fac from master: Merge pull request #1525 from apaprock/bslstl-sharedptr-clang-warning
+  * 8948f4195 Adopt commit e19d5166d from master: Merge pull request #1519 from cwilson/balber_berdecoder-compiler-warning-as-error-drqs-111718186
+  * bb86e970c Adopt commit 68f9a037b from master: Merge pull request #1513 from hrosen4/stringref-start-length_drqs-111595969
+  * 424e69ad4 Adopt commit 02f582875 from master: Merge pull request #1472 from afeher/drqs-108711361-bdlmt-threadpool-enqueueJob-move-semantics
+  * 81552bc5a Adopt commit 9a2cd6c09 from master: Merge pull request #1504 from jmendelsohn4/drqs-111263700/master/remove_register_keyword
+  * fc2ebb2bd Adopt commit 6ec40a651 from master: Merge pull request #1498 from hrosen4/epoll_ctl-hang_drqs-110958627
+  * 6907582f3 Adopt commit df600fc00 from master: Merge pull request #1487 from psipika/tokenizer-doc-update
+  * c269f65c7 Adopt commit f94fddc09 from master: Merge pull request #1500 from afeher/drqs-109444302-no-utf8
+  * 43d52456f Adopt commit a9907f73c from master: Merge pull request #1492 from jmendelsohn4/drqs-111225498/bdlcc_objectpool-nb-20171124
+  * c5b42e770 Adopt commit 2cce8bbec from master: Merge pull request #1490 from oimanuel/fix_addR_bdlcc_skiplist-drqs-110999125
+  * 29b46f33a Merge pull request #1678 from rbhindwa/btlmt_tcptimereventmanager-fix-log-format-string-drqs-115170059
+  * b72211088 Merge pull request #1673 from cwilson/revise-DEPRECATION_THRESHOLD-doc-drqs-114051583
+  * 8e391f774 Merge pull request #1444 from bchapman/bdlmt_throttle-single-atomic-drqs-81995681
+  * 30e412083 Merge pull request #1672 from afeher/drqs-114969444-getprocessname-truncates-without-error
+  * c3c6f1377 Merge pull request #1670 from jmendelsohn4/drqs-114830151/bdlc_compactedarray_allocator_issue
+  * f00174306 Merge pull request #1669 from fbirbacher/balxml-remove-empty-if
+  * 3ad31956e Merge pull request #1664 from ameredit/relax_serice_pack_test_for_windows_test_driver
+  * acd809b5f Merge pull request #1668 from cwilson/test-driver-switch-issues-per-bde_verify-drqs-114498556
+  * 7361ffede Merge pull request #1665 from afeher/drqs-114821685-vs-2015-fix
+  * f5d2740ff Merge pull request #1667 from ameredit/fix_for_bad_msvc_version_check
+  * 83a4d2a8b Fix typo in compiler version check macro
+  * 983e28f53 Merge pull request #1642 from bchapman/balst_eliminate-dwart.h-drqs-107745446
+  * 0c8a37e3a Merge pull request #1650 from ameredit/fix_test_case_numbering_in_bitset
+  * cbad2f3f8 Merge pull request #1651 from ameredit/negative_test_case_relies_on_undefined_behavior
+  * 35d10b4fc Merge pull request #1662 from jmendelsohn4/drqs-114807321/master/bdlcc_deque_usage_example
+  * 89e1cb9ae Merge pull request #1627 from jmendelsohn4/drqs-113919952/master/bdlc_compactedarray
+  * 63c22bf79 Merge pull request #1638 from jmendelsohn4/drqs-114050089/bdlt_calendarcache_reduce_iterations
+  * 6da73079a Merge pull request #1564 from oimanuel/addmake_bdlt_datetimeintervalutil-drqs-96209674
+  * efd2c6d64 Merge pull request #1659 from rkhlebnikov/master
+  * 1128f66a1 Merge pull request #1314 from dstone50/microsecond-fix-support-DRQS-101100121
+  * 6e91c4e51 Merge pull request #1616 from rkhlebnikov/bslstl_forwarditerator-assert-true-reference-DRQS-105559701
+  * 0ba5c2123 Merge pull request #1641 from bde/update-readme
+  * d24c9bb76 Merge pull request #1647 from jdevenpo/effect-affect
+  * 74e4e45bb Merge pull request #1654 from ameredit/remove_old_workaround_in_baljsn_printutil.t.cpp
+  * 72ae590e9 Merge pull request #1655 from ameredit/remove_old_workaround_in_balxml_tests
+
+ -- mgiroux <mgiroux@bloomberg.net>  Thu, 22 Feb 2018 14:07:43 -0500
+
+bsl-internal (3.5.0.0) git; urgency=low
+
+  * c0084855e Merge pull request #1657 from mgiroux/review/bump-version-to-3.5.0
+  * 2fcd02dee Changelog for version 3.5.0.0
   * 3eea51d9d Remove unreleased groups from bal and btl
   * eee5afca7 Changelog for version 3.5.0.0
   * dd59bb0e2 Bump version to 3.5.0
@@ -1159,7 +1318,7 @@ bsl-internal (3.5.0.0) unstable; urgency=low
   * 486577a0e Merge pull request #559 from rbhindwa/btlmt_channelpool-port-watermark-sequencing-changes-drqs-85532268
   * 835acf117 Merge pull request #539 from bchapman/bslstl_unorderedmap-cpp11-160621-drqs-81595003
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 9 Jan 2018 13:22:54 -0500
+ -- mgiroux <mgiroux@bloomberg.net>  Sun, 21 Jan 2018 10:24:07 -0500
 
 bsl-internal (3.0.0.0) git; urgency=low
 
