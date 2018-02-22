@@ -4,13 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balscm_version_cpp,"$Id$ $CSID$")
 
-#include <bslscm_patchversion.h> // BSLSCM_PATCHVERSION_PATCH
-
 namespace BloombergLP {
 
-// 'bal' is maintained in sync with 'bsl', so they share a patch version.
+// For the 3.6.x release series, 'bal' is versioned independently of 'bsl'.
 
-#define BAL_VERSION_PATCH BSLSCM_PATCHVERSION_PATCH
+#define BAL_VERSION_PATCH 0
 
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)
