@@ -197,27 +197,9 @@ int ProcessUtil::getProcessName(bsl::string *result)
         result->assign(::program_invocation_name);
     }
 #elif defined BSLS_PLATFORM_OS_SOLARIS
-    // '::getexecname' will massage 'argv[0]' to remove symlinks and '.'
-    // directories, but will not convert a relative path to absolute.
+    // '::getexecname' will return an absolute path with symlinks resolved.
 
     result->assign(::getexecname());
-
-    struct stat s;
-    int rc = ::stat(result->c_str(), &s);
-    if (result->empty() || (0 != rc && '/' != *result->c_str())) {
-        // The executable was specified as a relative path.  The reason it's
-        // not there is probably that we've done a 'chdir' since program
-        // start-up.
-
-        char fileNameBuf[50];
-        snprintf(fileNameBuf,
-                 sizeof(fileNameBuf),
-                 "/proc/%d/object/a.out",
-                 ProcessUtil::getProcessId());
-        if (0 == ::stat(fileNameBuf, &s)) {
-            result->assign(fileNameBuf);
-        }
-    }
 #elif defined BSLS_PLATFORM_OS_WINDOWS
     // On Windows, 'argv[0]' is always an absolute path, even if it was
     // specified on the cmd line as a relative path.  The following code yields
