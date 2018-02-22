@@ -145,8 +145,13 @@ int ProcessUtil::getProcessName(bsl::string *result)
         result->resize(pos);
     }
 #elif defined BSLS_PLATFORM_OS_DARWIN
+    // We empirically determined that 'proc_pidpath' won't tolerate a buffer
+    // much longer than 4K, and 4K is short enough not to be worth dynamically
+    // allocating.
+
     enum { k_BUF_LEN = 4 * 1024 };
     char buf[k_BUF_LEN];
+    bsl::fill(buf + 0, buf + k_BUF_LEN, '*');
     if (proc_pidpath(ProcessUtil::getProcessId(), buf, k_BUF_LEN) <= 0) {
         return -1;                                                    // RETURN
     }
