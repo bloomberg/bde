@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
             int         d_level;
             int         d_spacesPerLevel;
 
-            const char *d_string;
+            const char *d_string_p;
             Int64       d_int64;
 
             const char *d_expected_p;
@@ -482,7 +482,7 @@ int main(int argc, char *argv[])
                 const int         LINE   = DATA[ti].d_line;
                 const int         L      = DATA[ti].d_level;
                 const int         SPL    = DATA[ti].d_spacesPerLevel;
-                const char *const STRING = DATA[ti].d_string;
+                const char *const STRING = DATA[ti].d_string_p;
                 const Int64       INT64  = DATA[ti].d_int64;
                 const char *const EXP    = DATA[ti].d_expected_p;
 

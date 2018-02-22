@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
             int         d_level;
             int         d_spacesPerLevel;
 
-            const char *d_string;
+            const char *d_string_p;
 
             const char *d_expected_p;
         } DATA[] = {
@@ -428,7 +428,7 @@ int main(int argc, char *argv[])
                 const int         LINE   = DATA[ti].d_line;
                 const int         L      = DATA[ti].d_level;
                 const int         SPL    = DATA[ti].d_spacesPerLevel;
-                const char *const STRING = DATA[ti].d_string;
+                const char *const STRING = DATA[ti].d_string_p;
                 const char *const EXP    = DATA[ti].d_expected_p;
 
                 if (veryVerbose) {
