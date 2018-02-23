@@ -1349,8 +1349,8 @@ int main(int argc, char *argv[])
 
             ASSERTV(LINE, compareText(os.str(), PDATA[i].d_output));
         }
-     } break;
-     case 4: {
+      } break;
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING BASIC ACCESSORS
         //   The pattern of the 'ball::Rule' object must be verifiable by the

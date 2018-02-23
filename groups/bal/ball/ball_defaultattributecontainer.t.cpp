@@ -987,8 +987,8 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, compareText(os.str(), PDATA[i].d_output));
         }
 
-     } break;
-     case 4: {
+      } break;
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING BASIC ACCESSORS
         //   Every attribute added must be verified by 'hasValue'.
@@ -1049,7 +1049,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-     case 3: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING GENERATOR FUNCTIONS 'GG'
         //   The 'gg' function must create objects having the expected values.

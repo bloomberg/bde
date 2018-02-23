@@ -1225,8 +1225,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, compareText(os.str(), PDATA[i].d_output));
         }
 
-     } break;
-     case 4: {
+      } break;
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING BASIC ACCESSORS
         //   Every predicate added must be verified by 'isMember'.

@@ -235,7 +235,7 @@ BSLS_IDENT("$Id: $")
 //          // and return a reference to 'stream'.
 //  };
 //..
-// The 'ball::AttributeContainer' methods are simple wrappers around 'bsl::set'
+// The 'ball::AttributeSet' methods are simple wrappers around 'bsl::set'
 // methods:
 //..
 //  inline
