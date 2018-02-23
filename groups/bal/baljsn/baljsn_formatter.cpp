@@ -7,8 +7,6 @@ BSLS_IDENT_RCSID(baljsn_formatter_cpp,"$Id$ $CSID$")
 #include <baljsn_encoderoptions.h>
 #include <baljsn_printutil.h>
 
-#include <bdlb_print.h>
-
 namespace BloombergLP {
 namespace baljsn {
 
@@ -17,22 +15,27 @@ namespace baljsn {
                           // ---------------
 
 // CREATORS
-Formatter::Formatter(bsl::ostream& stream,
-                     bool          usePrettyStyle,
-                     int           initialIndentLevel,
-                     int           spacesPerLevel)
+Formatter::Formatter(bsl::ostream&     stream,
+                     bool              usePrettyStyle,
+                     int               initialIndentLevel,
+                     int               spacesPerLevel,
+                     bslma::Allocator *basicAllocator)
 : d_outputStream(stream)
 , d_usePrettyStyle(usePrettyStyle)
 , d_indentLevel(initialIndentLevel)
 , d_spacesPerLevel(spacesPerLevel)
-, d_isArrayElement(false)
+, d_callSequenceVec(basicAllocator)
 {
+    // Add a dummy value so we don't have to check whether 'd_callSequenceVec'
+    // is empty in 'openObject' when we access 'd_callSequenceVec.back()'.
+
+    d_callSequenceVec.push_back(false);
 }
 
 // MANIPULATORS
 void Formatter::openObject()
 {
-    if (d_isArrayElement) {
+    if (d_usePrettyStyle && d_callSequenceVec.back()) {
         indent();
     }
 
@@ -41,6 +44,7 @@ void Formatter::openObject()
     if (d_usePrettyStyle) {
         d_outputStream << '\n';
         ++d_indentLevel;
+        d_callSequenceVec.push_back(false);
     }
 }
 
@@ -49,7 +53,10 @@ void Formatter::closeObject()
     if (d_usePrettyStyle) {
         --d_indentLevel;
         d_outputStream << '\n';
-        bdlb::Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
+        indent();
+
+        BSLS_ASSERT_SAFE(false == d_callSequenceVec.back());
+        d_callSequenceVec.pop_back();
     }
 
     d_outputStream << '}';
@@ -62,26 +69,28 @@ void Formatter::openArray(bool formatAsEmptyArrayFlag)
     if (d_usePrettyStyle && !formatAsEmptyArrayFlag) {
         d_outputStream << '\n';
         ++d_indentLevel;
+        d_callSequenceVec.push_back(true);
     }
 }
 
 void Formatter::closeArray(bool formatAsEmptyArrayFlag)
 {
-    if (d_usePrettyStyle) {
+    if (d_usePrettyStyle && !formatAsEmptyArrayFlag) {
         --d_indentLevel;
-        if (!formatAsEmptyArrayFlag) {
-            d_outputStream << '\n';
-            bdlb::Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
-        }
+        d_outputStream << '\n';
+        indent();
+
+        BSLS_ASSERT_SAFE(true == d_callSequenceVec.back());
+        d_callSequenceVec.pop_back();
     }
 
     d_outputStream << ']';
 }
 
-int Formatter::openElement(const bsl::string& name)
+int Formatter::openMember(const bsl::string& name)
 {
     if (d_usePrettyStyle) {
-        bdlb::Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
+        indent();
     }
 
     const int rc = PrintUtil::printValue(d_outputStream, name);
@@ -94,20 +103,11 @@ int Formatter::openElement(const bsl::string& name)
     return 0;
 }
 
-void Formatter::closeElement()
+void Formatter::closeMember()
 {
     d_outputStream << ',';
     if (d_usePrettyStyle) {
         d_outputStream << '\n';
-    }
-}
-
-void Formatter::indent()
-{
-    if (d_usePrettyStyle) {
-        bdlb::Print::indent(d_outputStream,
-                            d_indentLevel,
-                            d_spacesPerLevel);
     }
 }
 

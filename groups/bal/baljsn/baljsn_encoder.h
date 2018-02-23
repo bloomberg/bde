@@ -714,16 +714,10 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&                  value,
 
     Encoder_SequenceVisitor visitor(this);
 
-    const bool isArrayElement = d_formatter.isArrayElement();
-
-    d_formatter.setIsArrayElement(false);
-
     const int rc = bdlat_SequenceFunctions::accessAttributes(value, visitor);
     if (rc) {
         return rc;                                                    // RETURN
     }
-
-    d_formatter.setIsArrayElement(isArrayElement);
 
     if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
         d_formatter.closeObject();
@@ -745,16 +739,10 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&                value,
 
         Encoder_ElementVisitor visitor = { this, mode };
 
-        const bool isArrayElement = d_formatter.isArrayElement();
-
-        d_formatter.setIsArrayElement(false);
-
         const int rc = bdlat_ChoiceFunctions::accessSelection(value, visitor);
         if (rc) {
             return rc;                                                // RETURN
         }
-
-        d_formatter.setIsArrayElement(isArrayElement);
 
         if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
             d_formatter.closeObject();
@@ -778,22 +766,18 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&               value,
 
         Encoder_ElementVisitor visitor = { this, mode };
 
-        d_formatter.setIsArrayElement(true);
-
         int rc = bdlat_ArrayFunctions::accessElement(value, visitor, 0);
         if (rc) {
             return rc;                                                // RETURN
         }
 
         for (int i = 1; i < size; ++i) {
-            d_formatter.closeElement();
+            d_formatter.closeMember();
             rc = bdlat_ArrayFunctions::accessElement(value, visitor, i);
             if (rc) {
                 return rc;                                            // RETURN
             }
         }
-
-        d_formatter.setIsArrayElement(false);
 
         d_formatter.closeArray();
     }
@@ -811,8 +795,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&                       value,
                                   bdlat_TypeCategory::NullableValue)
 {
     if (bdlat_NullableValueFunctions::isNull(value)) {
-        d_formatter.indent();
-        d_outputStream << "null";
+        d_formatter.putNullValue();
         return 0;                                                     // RETURN
     }
 
@@ -846,7 +829,12 @@ Encoder_EncodeImpl::Encoder_EncodeImpl(Encoder               *encoder,
 inline
 void Encoder_EncodeImpl::openDocument()
 {
-    d_formatter.indent();
+    if (baljsn::EncoderOptions::e_PRETTY ==
+                                         d_encoderOptions_p->encodingStyle()) {
+        bdlb::Print::indent(d_outputStream,
+                            d_encoderOptions_p->initialIndentLevel(),
+                            d_encoderOptions_p->spacesPerLevel());
+    }
 }
 
 inline
@@ -949,7 +937,7 @@ int Encoder_SequenceVisitor::operator()(const TYPE& value, const INFO& info)
     }
 
     if (!d_isFirstElement) {
-        d_encoder_p->d_formatter.closeElement();
+        d_encoder_p->d_formatter.closeMember();
     }
 
     d_isFirstElement = false;
@@ -978,7 +966,7 @@ int Encoder_ElementVisitor::operator()(const TYPE& value, const INFO& info)
     const int mode = info.formattingMode();
     if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
 
-        const int rc = d_encoder_p->d_formatter.openElement(info.name());
+        const int rc = d_encoder_p->d_formatter.openMember(info.name());
         if (rc) {
             d_encoder_p->logStream() << "Unable to encode element named: '"
                                      << info.name() << "'." << bsl::endl;

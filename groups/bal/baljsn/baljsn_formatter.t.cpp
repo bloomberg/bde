@@ -73,17 +73,13 @@ using namespace bsl;
 // [ 4] void closeObject();
 // [ 5] void openArray();
 // [ 6] void closeArray();
-// [ 7] int openElement();
+// [ 7] int openMember();
 // [ 8] int putValue(const TYPE& value, const EncoderOptions *options);
-// [ 9] void closeElement();
-// [10] void indent();
-// [11] void setIsArrayElement(bool isArrayElement);
-//
-// ACCESSORS
-// [11] bool isArrayElement() const;
+// [ 8] int putNullValue();
+// [ 9] void closeMember();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [11] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1443,28 +1439,6 @@ const int& Employee::age() const
 
 }  // close enterprise namespace
 
-template <class TYPE>
-void testPutValue(const TYPE& value, const Options *options, bool isValid)
-{
-    ostringstream actual;
-    Obj           mX(actual);
-
-    const int rc = mX.putValue(value, options);
-
-    if (isValid) {
-        ASSERTV(rc, 0 == rc);
-
-        ostringstream exp;
-        baljsn::PrintUtil::printValue(exp, value, options);
-        ASSERTV(exp.good());
-
-        ASSERTV(actual.str(), exp.str(), actual.str() == exp.str());
-    }
-    else {
-        ASSERTV(rc, 0 != rc);
-    }
-}
-
 Obj g(bsl::ostream& os, int style, int indent, int spl)
 {
     if (-1 != style) {
@@ -1485,6 +1459,55 @@ Obj g(bsl::ostream& os, int style, int indent, int spl)
     }
 }
 
+template <class TYPE>
+void testPutValue(int            line,
+                  int            style,
+                  int            indent,
+                  int            spl,
+                  const TYPE&    value,
+                  const Options *options,
+                  bool           isValid)
+{
+    for (int i = 0; i < 2; ++i) {
+        // i == 0, output as the value of an element, i.e. without indentation
+        // i == 1, output as an array element, i.e. with indentation
+
+        bsl::ostringstream os, exp;
+
+        Obj mX = g(os, style, indent, spl);  const Obj& X = mX;
+
+        if (0 == i) {
+            mX.openObject();
+            exp << '{';
+            if (1 == style) {
+                exp << '\n';
+            }
+        }
+        else {
+            mX.openArray();
+            exp << '[';
+            if (1 == style) {
+                exp << '\n';
+                bdlb::Print::indent(exp, indent + 1, spl);
+            }
+        }
+
+        const int rc = mX.putValue(value, options);
+
+        if (isValid) {
+            ASSERTV(line, rc, 0 == rc);
+
+            baljsn::PrintUtil::printValue(exp, value, options);
+            ASSERTV(line, exp.good());
+
+            ASSERTV(line, os.str(), exp.str(), os.str() == exp.str());
+        }
+        else {
+            ASSERTV(line, rc, 0 != rc);
+        }
+    }
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -1501,7 +1524,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1552,7 +1575,7 @@ int main(int argc, char *argv[])
 // 'Stocks' to it:
 //..
     formatter.openObject();
-    formatter.openElement("Stocks");
+    formatter.openMember("Stocks");
 //..
 // Then, we see that 'Stocks' is an array element so we specify the start of
 // the array:
@@ -1560,42 +1583,29 @@ int main(int argc, char *argv[])
     formatter.openArray();
 //..
 // Next, each element within 'Stocks' is an object that contains the
-// information for an individual stock.  So we have to output an object here.
-// However, there is an additional step that the 'Formatter' 'class' requires.
-// When writing data in pretty style the 'isArrayElement' flag is required to
-// be set before encoding elements.  Setting this flag allows the formatter to
-// correctly distinguish between elements that are part of an object and those
-// that are part of an array and encode them appropriately.
+// information for an individual stock.  So we have to output an object here:
 //..
-    formatter.setIsArrayElement(true);
     formatter.openObject();
 //..
-// We now revert back the 'isArrayElement' flag as we start encoding elements
-// in an object.  Note that the 'isArrayElement' flag is only relevant if the
-// pretty encoding style is used.  Otherwise, users can safely ignore that
-// flag.
-//..
-    formatter.setIsArrayElement(false);
-//..
-// We now encode the other elements in the stock object.  The 'closeElement'
+// We now encode the other elements in the stock object.  The 'closeMember'
 // terminates the element by adding a ',' at the end.  For the last element in
-// an object do not call the 'closeElement' method.
+// an object do not call the 'closeMember' method.
 //..
-    formatter.openElement("Name");
+    formatter.openMember("Name");
     formatter.putValue("International Business Machines Corp");
-    formatter.closeElement();
+    formatter.closeMember();
 //
-    formatter.openElement("Ticker");
+    formatter.openMember("Ticker");
     formatter.putValue("IBM US Equity");
-    formatter.closeElement();
+    formatter.closeMember();
 //
-    formatter.openElement("Last Price");
+    formatter.openMember("Last Price");
     formatter.putValue(149.3);
-    formatter.closeElement();
+    formatter.closeMember();
 //
-    formatter.openElement("Divident Yield");
+    formatter.openMember("Divident Yield");
     formatter.putValue(3.95);
-    // Note no call to 'closeElement' for the last element
+    // Note no call to 'closeMember' for the last element
 //..
 // Similarly, we can continue to format the rest of the document.  For the
 // purpose of this usage we will complete this document.
@@ -1610,92 +1620,186 @@ int main(int argc, char *argv[])
     if (verbose)
     bsl::cout << os.str() << bsl::endl;
 //..
-      } break;
-       case 11: {
-        // --------------------------------------------------------------------
-        // TESTING 'setIsArrayElement' & 'isArrayElement' METHODS
-        //
-        // Concerns:
-        //: 1 'isArrayElement' returns the value of the 'isArrayElement'
-        //:   attribute and returns 'false' by default.
-        //:
-        //: 2 'setIsArrayElement' sets the 'isArrayElement' attribute to the
-        //:   value provided to the method.
-        //:
-        // Plan:
-        //: 1 Create a Formatter object and confirm that by default
-        //:   'isArrayElement' returns 'false'.
-        //:
-        //: 2 Using the 'setIsArrayElement' manipulator set the value of the
-        //:   'isArrayElement' attribute first to 'true' and then to 'false.
-        //:   Confirm using the 'isArrayElement' accessor that the attribute
-        //:   values does in fact change to 'true' and 'false' respectively.
-        //
-        // Testing:
-        //   void setIsArrayElement(bool isArrayElement);
-        //   bool isArrayElement() const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-         << "TESTING 'setIsArrayElement' and 'isArrayElement' METHODS" << endl
-         << "========================================================" << endl;
-
-        ostringstream os;
-        Obj mX(os);  const Obj& X = mX;
-        ASSERT(false == X.isArrayElement());
-
-        mX.setIsArrayElement(true);
-        ASSERT(true == X.isArrayElement());
-
-        mX.setIsArrayElement(false);
-        ASSERT(false == X.isArrayElement());
        } break;
        case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'indent' METHOD
+        // TESTING INTERLEAVING OBJECT AND ARRAY CALLS
         //
         // Concerns:
-        //: 1 The 'indent' method outputs the appropriate amount of whitespace.
+        //: 1 Interleaving the object and array method calls, 'openObject',
+        //:   'openArray', 'closeObject', and 'closeArray' result in the
+        //:   appropriate indentation being output.
         //:
         // Plan:
         //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, is array element, and the
-        //:   expected output after calling 'indent'.  Create a formatter
-        //:   object using the specified parameters and invoke 'indent' on it.
-        //:   Verify that the output written to the stream is as expected.
+        //:   indentation level, spaces per level, the sequence of method
+        //:   calls, and the expected output after calling these methods.
+        //:   Create a formatter object using the specified parameters and
+        //:   invoke the sequence of calls on it.  Verify that the output
+        //:   written to the stream is as expected.
         //
         // Testing:
-        //   void indent();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'indent' METHOD" << endl
-                          << "=======================" << endl;
+                          << "TESTING INTERLEAVING OBJECT AND ARRAY CALLS"
+                          << endl
+                          << "==========================================="
+                          << endl;
+
+#define NL "\n"
+
+        // Interleave 'openObject' and 'openArray'
+        const struct Data {
+            int         d_line;                // source line number
+            int         d_encodingStyle;
+            int         d_initialIndentLevel;
+            int         d_spacesPerLevel;
+            bsl::string d_methodCalls; // Represent the sequence of method
+                                       // calls as a string with the following
+                                       // notation:
+                                       // '{' - 'openObject'
+                                       // '[' - 'openArray'
+                                       // ']' - 'closeArray'
+                                       // '}' - 'closeObject'
+            bsl::string d_expected;
+        } DATA[] = {
+
+       // LINE  STYLE  INDENT   SPL  NT        EXPECTED
+       // ----  -----  ------   ---  ---       -------
+
+        {   L_,    -1,     -1,   -1,  "",              ""                },
+        {   L_,     0,     -1,   -1,  "",              ""                },
+        {   L_,     1,      1,    2,  "",              ""                },
+
+        {   L_,    -1,     -1,   -1,  "{}",            "{}"              },
+        {   L_,     0,     -1,   -1,  "{}",            "{}"              },
+        {   L_,     1,      1,    2,  "{}",            "{"           NL
+                                                                     NL
+                                                       "  }"             },
+
+        {   L_,    -1,     -1,   -1,  "[]",            "[]"              },
+        {   L_,     0,     -1,   -1,  "[]",            "[]"              },
+        {   L_,     1,      1,    2,  "[]",            "["           NL
+                                                                     NL
+                                                       "  ]"             },
+
+        {   L_,    -1,     -1,   -1,  "{[",            "{["              },
+        {   L_,     0,     -1,   -1,  "{[",            "{["              },
+        {   L_,     1,      1,    2,  "{[",            "{"           NL
+                                                       "["           NL  },
+
+        {   L_,    -1,     -1,   -1,  "{[]}",          "{[]}"            },
+        {   L_,     0,     -1,   -1,  "{[]}",          "{[]}"            },
+        {   L_,     1,      1,    2,  "{[]}",          "{"           NL
+                                                       "["           NL
+                                                                     NL
+                                                       "    ]"       NL
+                                                       "  }"             },
+
+        {   L_,    -1,     -1,   -1,  "{[{",           "{[{"             },
+        {   L_,     0,     -1,   -1,  "{[{",           "{[{"             },
+        {   L_,     1,      1,    2,  "{[{",           "{"           NL
+                                                       "["           NL
+                                                       "      {"     NL  },
+
+        {   L_,    -1,     -1,   -1,  "{[{}]}",        "{[{}]}"          },
+        {   L_,     0,     -1,   -1,  "{[{}]}",        "{[{}]}"          },
+        {   L_,     1,      1,    2,  "{[{}]}",        "{"           NL
+                                                       "["           NL
+                                                       "      {"     NL
+                                                                     NL
+                                                       "      }"     NL
+                                                       "    ]"       NL
+                                                       "  }"             },
+
+        {   L_,    -1,     -1,   -1,  "{[{[",          "{[{["            },
+        {   L_,     0,     -1,   -1,  "{[{[",          "{[{["            },
+        {   L_,     1,      1,    2,  "{[{[",          "{"           NL
+                                                       "["           NL
+                                                       "      {"     NL
+                                                       "["           NL  },
+
+        {   L_,    -1,     -1,   -1,  "{[{[]}]}",      "{[{[]}]}"            },
+        {   L_,     0,     -1,   -1,  "{[{[]}]}",      "{[{[]}]}"            },
+        {   L_,     1,      1,    2,  "{[{[]}]}",      "{"           NL
+                                                       "["           NL
+                                                       "      {"     NL
+                                                       "["           NL
+                                                                     NL
+                                                       "        ]"   NL
+                                                       "      }"     NL
+                                                       "    ]"       NL
+                                                       "  }"             },
+
+        {   L_,    -1,     -1,   -1,  "{[{[{}]}]}",    "{[{[{}]}]}"         },
+        {   L_,     0,     -1,   -1,  "{[{[{}]}]}",    "{[{[{}]}]}"         },
+        {   L_,     1,      1,    2,  "{[{[{}]}]}",    "{"           NL
+                                                       "["           NL
+                                                       "      {"     NL
+                                                       "["           NL
+                                                       "          {" NL
+                                                                     NL
+                                                       "          }" NL
+                                                       "        ]"   NL
+                                                       "      }"     NL
+                                                       "    ]"       NL
+                                                       "  }"             },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int         LINE   = DATA[i].d_line;
+            const int         STYLE  = DATA[i].d_encodingStyle;
+            const int         INDENT = DATA[i].d_initialIndentLevel;
+            const int         SPL    = DATA[i].d_spacesPerLevel;
+            const bsl::string CALLS  = DATA[i].d_methodCalls;
+            const bsl::string EXP    = DATA[i].d_expected;
+
+            bsl::ostringstream os;
+
+            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+
+            for (size_t j = 0; j < CALLS.size(); ++j) {
+                switch (CALLS[j]) {
+                  case '{': mX.openObject(); break;
+                  case '[': mX.openArray(); break;
+                  case ']': mX.closeArray(); break;
+                  case '}': mX.closeObject(); break;
+                  default: ASSERT(0);
+                }
+            }
+
+            os << bsl::flush;
+
+            ASSERTV(LINE, EXP, os.str(), EXP == os.str());
+        }
+#undef NL
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'closeElement' METHOD
+        // TESTING 'closeMember' METHOD
         //
         // Concerns:
-        //: 1 The 'closeElement' method outputs a ','.
+        //: 1 The 'closeMember' method outputs a ','.
         //:
-        //: 2 If pretty style is selected then 'closeElement' outputs a newline
+        //: 2 If pretty style is selected then 'closeMember' outputs a newline
         //:   after the ','.
         //:
         // Plan:
         //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, is array element, number of
-        //:   times 'closeElement' must be called and the expected output
-        //:   after calling 'closeElement'.  Create a formatter object using
-        //:   the specified parameters and invoke 'closeElement' on it.  Verify
+        //:   indentation level, spaces per level, number of times
+        //:   'closeMember' must be called and the expected output after
+        //:   calling 'closeMember'.  Create a formatter object using the
+        //:   specified parameters and invoke 'closeMember' on it.  Verify
         //:   that the output written to the stream is as expected.
         //
         // Testing:
-        //   void closeElement();
+        //   void closeMember();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'closeElement' METHOD" << endl
+                          << "TESTING 'closeMember' METHOD" << endl
                           << "=============================" << endl;
 #define NL "\n"
 
@@ -1707,39 +1811,38 @@ int main(int argc, char *argv[])
             int         d_encodingStyle;
             int         d_initialIndentLevel;
             int         d_spacesPerLevel;
-            bool        d_isArrayElement;
             int         d_numTimesCloseArrayCalled;
             bsl::string d_expected;
         } DATA[] = {
 
-        // LINE  STYLE  INDENT   SPL    IAE    NT   EXPECTED
-        // ----  -----  ------   ---    ---    ---  -------
+        // LINE  STYLE  INDENT   SPL  NT   EXPECTED
+        // ----  -----  ------   ---  ---  -------
 
-        {   L_,    -1,     -1,   -1,  false,    0,       ","             },
-        {   L_,    -1,     -1,   -1,  true,     0,       ","             },
+        {   L_,    -1,     -1,   -1,  0,       ","             },
+        {   L_,    -1,     -1,   -1,  0,       ","             },
 
-        {   L_,     0,     -1,   -1,  false,    0,       ","             },
-        {   L_,     0,     -1,   -1,  true,     0,       ","             },
+        {   L_,     0,     -1,   -1,  0,       ","             },
+        {   L_,     0,     -1,   -1,  0,       ","             },
 
-        {   L_,     1,      2,    2,  false,    0,       ","        NL   },
-        {   L_,     1,      2,    2,  true,     0,       ","        NL   },
+        {   L_,     1,      2,    2,  0,       ","        NL   },
+        {   L_,     1,      2,    2,  0,       ","        NL   },
 
-        {   L_,    -1,     -1,   -1,  false,    3,       ",,,,"          },
-        {   L_,    -1,     -1,   -1,  true,     3,       ",,,,"          },
+        {   L_,    -1,     -1,   -1,  3,       ",,,,"          },
+        {   L_,    -1,     -1,   -1,  3,       ",,,,"          },
 
-        {   L_,     0,     -1,   -1,  false,    3,       ",,,,"          },
-        {   L_,     0,     -1,   -1,  true,     3,       ",,,,"          },
+        {   L_,     0,     -1,   -1,  3,       ",,,,"          },
+        {   L_,     0,     -1,   -1,  3,       ",,,,"          },
 
-        {   L_,     1,      5,    2,  false,    3,       ","        NL
-                                                         ","        NL
-                                                         ","        NL
-                                                         ","        NL
-                                                                         },
-        {   L_,     1,      5,    2,  true,     3,       ","        NL
-                                                         ","        NL
-                                                         ","        NL
-                                                         ","        NL
-                                                                         },
+        {   L_,     1,      5,    2,  3,       ","        NL
+                                               ","        NL
+                                               ","        NL
+                                               ","        NL
+                                                               },
+        {   L_,     1,      5,    2,  3,       ","        NL
+                                               ","        NL
+                                               ","        NL
+                                               ","        NL
+                                                               },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1748,7 +1851,6 @@ int main(int argc, char *argv[])
             const int         STYLE  = DATA[i].d_encodingStyle;
             const int         INDENT = DATA[i].d_initialIndentLevel;
             const int         SPL    = DATA[i].d_spacesPerLevel;
-            const bool        IAE    = DATA[i].d_isArrayElement;
             const int         NT     = DATA[i].d_numTimesCloseArrayCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
@@ -1756,11 +1858,9 @@ int main(int argc, char *argv[])
 
             Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
 
-            mX.setIsArrayElement(IAE);
+            for (int k = 0; k < NT; ++k) mX.closeMember();
 
-            for (int k = 0; k < NT; ++k) mX.closeElement();
-
-            mX.closeElement();
+            mX.closeMember();
 
             os << bsl::flush;
 
@@ -1778,6 +1878,12 @@ int main(int argc, char *argv[])
         //:
         //: 2 Errorneous values of 'value' cause 'putValue' to return an error.
         //:
+        //: 3 The 'putNullValue' outputs a null value.
+        //:
+        //: 4 The 'putValue' and 'putNullValue' methods indent before
+        //:   outputting their value only if the value is part of an array.
+        //:   Otherwise no indentation is done.
+        //:
         // Plan:
         //: 1 For all the possible data types create atleast one valid value
         //:   and an invalid value (if an invalid value exists) and invoke
@@ -1785,9 +1891,14 @@ int main(int argc, char *argv[])
         //:
         //: 2 Confirm that 'putValue' returns 0 and correctly encodes the valid
         //:   values and returns a non-zero values for invalid values.
+        //:
+        //: 3 Confirm that 'putValue' indents only for values in an array.
+        //:
+        //: 4 Repeat steps 1-3 for 'putNullValue'.
         //
         // Testing:
         //   int putValue(const TYPE& value, const EncoderOptions *options);
+        //   void putNullValue();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1828,56 +1939,124 @@ int main(int argc, char *argv[])
 
         const Options DO;  const Options *DP = &DO;
 
-        testPutValue(A, DP, true);
-        testPutValue(B, DP, true);
-        testPutValue(C, DP, true);
-        testPutValue(D, DP, true);
-        testPutValue(E, DP, true);
-        testPutValue(F, DP, true);
-        testPutValue(G, DP, true);
-        testPutValue(H, DP, true);
-        testPutValue(I, DP, true);
-        testPutValue(J, DP, true);
-        testPutValue(K, DP, true);
-        testPutValue(L, DP, true);
-        testPutValue(M, DP, true);
-        testPutValue(N, DP, true);
-        testPutValue(O, DP, true);
-        testPutValue(PA, DP, true);
-        testPutValue(QA, DP, true);
-        testPutValue(R, DP, true);
-        testPutValue(S, DP, true);
-        testPutValue(T, DP, true);
-        testPutValue(U, DP, true);
+        // Use a value of -1 to signify that that specific option should not be
+        // set and that its default value should be used.
 
-        testPutValue(INV1, DP, false);
-        testPutValue(INV2, DP, false);
-        testPutValue(INV3, DP, false);
-        testPutValue(INV4, DP, false);
+        const struct Data {
+            int         d_line;                // source line number
+            int         d_encodingStyle;
+            int         d_initialIndentLevel;
+            int         d_spacesPerLevel;
+        } DATA[] = {
 
-        Options opts;  const Options *OPTS = &opts;
-        opts.setEncodeInfAndNaNAsStrings(true);
+            // LINE  STYLE  INDENT   SPL
+            // ----  -----  ------   ---
 
-        testPutValue(INV1, OPTS, true);
-        testPutValue(INV2, OPTS, true);
+            {   L_,    -1,     -1,   -1  },
+            {   L_,    -1,     -1,    2  },
+            {   L_,    -1,      3,    2  },
 
-        opts.setDatetimeFractionalSecondPrecision(6);
-        testPutValue(PA, OPTS, true);
-        testPutValue(QA, OPTS, true);
-        testPutValue(R, OPTS, true);
-        testPutValue(S, OPTS, true);
-        testPutValue(T, OPTS, true);
-        testPutValue(U, OPTS, true);
+            {   L_,     0,     -1,   -1  },
+            {   L_,     0,     -1,    2  },
+            {   L_,     0,      3,    2  },
+
+            {   L_,     1,      1,    2  },
+            {   L_,     1,      2,    4  },
+            {   L_,     1,      3,    5  },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int         L  = DATA[i].d_line;
+            const int         E  = DATA[i].d_encodingStyle;
+            const int         I  = DATA[i].d_initialIndentLevel;
+            const int         S  = DATA[i].d_spacesPerLevel;
+
+            testPutValue(L, E, I, S, A, DP, true);
+            testPutValue(L, E, I, S, B, DP, true);
+            testPutValue(L, E, I, S, C, DP, true);
+            testPutValue(L, E, I, S, D, DP, true);
+            testPutValue(L, E, I, S, E, DP, true);
+            testPutValue(L, E, I, S, F, DP, true);
+            testPutValue(L, E, I, S, G, DP, true);
+            testPutValue(L, E, I, S, H, DP, true);
+            testPutValue(L, E, I, S, I, DP, true);
+            testPutValue(L, E, I, S, J, DP, true);
+            testPutValue(L, E, I, S, K, DP, true);
+            testPutValue(L, E, I, S, L, DP, true);
+            testPutValue(L, E, I, S, M, DP, true);
+            testPutValue(L, E, I, S, N, DP, true);
+            testPutValue(L, E, I, S, O, DP, true);
+            testPutValue(L, E, I, S, PA, DP, true);
+            testPutValue(L, E, I, S, QA, DP, true);
+            testPutValue(L, E, I, S, R, DP, true);
+            testPutValue(L, E, I, S, S, DP, true);
+            testPutValue(L, E, I, S, T, DP, true);
+            testPutValue(L, E, I, S, U, DP, true);
+
+            testPutValue(L, E, I, S, INV1, DP, false);
+            testPutValue(L, E, I, S, INV2, DP, false);
+            testPutValue(L, E, I, S, INV3, DP, false);
+            testPutValue(L, E, I, S, INV4, DP, false);
+
+            Options opts;  const Options *OPTS = &opts;
+            opts.setEncodeInfAndNaNAsStrings(true);
+
+            testPutValue(L, E, I, S, INV1, OPTS, true);
+            testPutValue(L, E, I, S, INV2, OPTS, true);
+
+            opts.setDatetimeFractionalSecondPrecision(6);
+            testPutValue(L, E, I, S, PA, OPTS, true);
+            testPutValue(L, E, I, S, QA, OPTS, true);
+            testPutValue(L, E, I, S, R, OPTS, true);
+            testPutValue(L, E, I, S, S, OPTS, true);
+            testPutValue(L, E, I, S, T, OPTS, true);
+            testPutValue(L, E, I, S, U, OPTS, true);
+
+            // testPutNullValue
+            {
+                for (int j = 0; j < 2; ++j) {
+                    // j == 0, output as value of element, i.e. w/o indentation
+                    // j == 1, output as array element, i.e. with indentation
+
+                    bsl::ostringstream os, exp;
+
+                    Obj mX = g(os, E, I, S);  const Obj& X = mX;
+
+                    if (0 == j) {
+                        mX.openObject();
+                        exp << '{';
+                        if (1 == E) {
+                            exp << '\n';
+                        }
+                    }
+                    else {
+                        mX.openArray();
+                        exp << '[';
+                        if (1 == E) {
+                            exp << '\n';
+                            bdlb::Print::indent(exp, I + 1, S);
+                        }
+                    }
+
+                    mX.putNullValue();
+
+                    exp << "null";
+
+                    ASSERTV(L, os.str(), exp.str(), os.str() == exp.str());
+                }
+            }
+        }
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'openElement' METHOD
+        // TESTING 'openMember' METHOD
         //
         // Concerns:
-        //: 1 The 'openElement' method outputs the name of the element followed
+        //: 1 The 'openMember' method outputs the name of the element followed
         //:   by ':'.
         //:
-        //: 2 If pretty style is selected then 'openElement' indents before
+        //: 2 If pretty style is selected then 'openMember' indents before
         //:   printing element name and outputs the ':' character with spaces
         //:   around it.
         //:
@@ -1886,18 +2065,18 @@ int main(int argc, char *argv[])
         //:
         // Plan:
         //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, is array element, element
-        //:   name, expected return value, and the expected output after
-        //:   calling 'openElement'.  Create a formatter object using the
-        //:   specified parameters and invoke 'openElement' on it.  Verify that
-        //:   the output written to the stream is as expected.
+        //:   indentation level, spaces per level, element name, expected
+        //:   return value, and the expected output after calling
+        //:   'openMember'.  Create a formatter object using the specified
+        //:   parameters and invoke 'openMember' on it.  Verify that the
+        //:   output written to the stream is as expected.
         //
         // Testing:
-        //   void openElement(const bsl::string& name);
+        //   void openMember(const bsl::string& name);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'openElement' METHOD" << endl
+                          << "TESTING 'openMember' METHOD" << endl
                           << "============================" << endl;
 #define NL "\n"
 
@@ -1909,28 +2088,33 @@ int main(int argc, char *argv[])
             int         d_encodingStyle;
             int         d_initialIndentLevel;
             int         d_spacesPerLevel;
-            int         d_isArrayElement;
             bsl::string d_elementName;
             int         d_expRetCode;
             bsl::string d_expected;
         } DATA[] = {
-     // LINE  STYLE  INDENT   SPL   IAE    NAME    EXP_RC   EXPECTED
-     // ----  -----  ------   ---   ---    ----    ------   -------
+     // LINE  STYLE  INDENT   SPL   NAME    EXP_RC   EXPECTED
+     // ----  -----  ------   ---   ----    ------   -------
 
-     {   L_,    -1,     -1,   -1,    -1,   "",         0,   "\"\":"        },
-     {   L_,    -1,     -1,   -1,    -1,   "name",     0,   "\"name\":"    },
+     {   L_,    -1,     -1,   -1,   "",         0,   "\"\":"              },
+     {   L_,    -1,     -1,   -1,   "name",     0,   "\"name\":"          },
 
-     {   L_,     0,     -1,   -1,    -1,   "",         0,   "\"\":"        },
-     {   L_,     0,     -1,   -1,    -1,   "",         0,   "\"\":"        },
+     {   L_,     0,     -1,   -1,   "",         0,   "\"\":"              },
+     {   L_,     0,     -1,   -1,   "",         0,   "\"\":"              },
 
-     {   L_,     1,     -1,   -1,    -1,   "",         0,   "\"\" : "      },
-     {   L_,     1,     -1,   -1,    -1,   "",         0,   "\"\" : "      },
+     {   L_,     1,     -1,   -1,   "",         0,   "\"\" : "            },
+     {   L_,     1,     -1,   -1,   "",         0,   "\"\" : "            },
 
-     {   L_,     0,     -1,   -1,    -1,   "name",     0,   "\"name\":"    },
-     {   L_,     0,     -1,   -1,    -1,   "name",     0,   "\"name\":"    },
+     {   L_,     1,      1,    2,   "",         0,   "  \"\" : "          },
+     {   L_,     1,      2,    3,   "",         0,   "      \"\" : "      },
 
-     {   L_,     1,     -1,   -1,    -1,   "name",     0,   "\"name\" : "  },
-     {   L_,     1,     -1,   -1,    -1,   "name",     0,   "\"name\" : "  },
+     {   L_,     0,     -1,   -1,   "name",     0,   "\"name\":"          },
+     {   L_,     0,     -1,   -1,   "name",     0,   "\"name\":"          },
+
+     {   L_,     1,     -1,   -1,   "name",     0,   "\"name\" : "        },
+     {   L_,     1,     -1,   -1,   "name",     0,   "\"name\" : "        },
+
+     {   L_,     1,      1,    2,   "name",     0,   "  \"name\" : "      },
+     {   L_,     1,      2,    3,   "name",     0,   "      \"name\" : "  },
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1940,7 +2124,6 @@ int main(int argc, char *argv[])
             const int         STYLE  = DATA[i].d_encodingStyle;
             const int         INDENT = DATA[i].d_initialIndentLevel;
             const int         SPL    = DATA[i].d_spacesPerLevel;
-            const int         IAE    = DATA[i].d_isArrayElement;
             const bsl::string NAME   = DATA[i].d_elementName;
             const int         EXP_RC = DATA[i].d_expRetCode;
             const bsl::string EXP    = DATA[i].d_expected;
@@ -1949,9 +2132,7 @@ int main(int argc, char *argv[])
 
             Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
 
-            mX.setIsArrayElement(IAE);
-
-            const int rc = mX.openElement(NAME);
+            const int rc = mX.openMember(NAME);
 
             os << bsl::flush;
 
@@ -1974,11 +2155,11 @@ int main(int argc, char *argv[])
         //:
         // Plan:
         //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, is array element, number of
-        //:   times 'closeArray' must be called and the expected output
-        //:   after calling 'closeArray'.  Create a formatter object using the
-        //:   specified parameters and invoke 'closeArray' on it.  Verify that
-        //:   the output written to the stream is as expected.
+        //:   indentation level, spaces per level, element name, expected
+        //:   return value, and the expected output after calling 'closeArray'.
+        //:   Create a formatter object using the specified parameters and
+        //:   invoke 'closeArray' on it.  Verify that the output written to the
+        //:   stream is as expected.
         //
         // Testing:
         //   void closeArray();
@@ -2059,18 +2240,18 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The 'openArray' method outputs a '['.
         //:
-        //: 2 If pretty style is selected then 'openArray' indents before
-        //:   printing '[' only if the 'isArrayElement' flag is true.
+        //: 2 If pretty style is selected then 'openArray' does not result in
+        //:   in indentation before printing '['.
         //:
         //: 3 Each invocation of 'openArray' increases the indent level.
         //:
         // Plan:
         //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, is array element, number of
-        //:   times 'openArray' must be called and the expected output
-        //:   after calling 'openArray'.  Create a formatter object using the
-        //:   specified parameters and invoke 'openArray' on it.  Verify that
-        //:   the output written to the stream is as expected.
+        //:   indentation level, spaces per level, element name, expected
+        //:   return value, and the expected output after calling 'openArray'.
+        //:   Create a formatter object using the specified parameters and
+        //:   invoke 'openArray' on it.  Verify that the output written to the
+        //:   stream is as expected.
         //
         // Testing:
         //   void openArray();
@@ -2157,11 +2338,11 @@ int main(int argc, char *argv[])
         //:
         // Plan:
         //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, is array element, number of
-        //:   times 'closeObject' must be called and the expected output
-        //:   after calling 'closeObject'.  Create a formatter object using the
-        //:   specified parameters and invoke 'closeObject' on it.  Verify that
-        //:   the output written to the stream is as expected.
+        //:   indentation level, spaces per level, element name, expected
+        //:   return value, and the expected output after calling
+        //:   'closeObject'.  Create a formatter object using the specified
+        //:   parameters and invoke 'closeObject' on it.  Verify that the
+        //:   output written to the stream is as expected.
         //
         // Testing:
         //   void closeObject();
@@ -2180,39 +2361,38 @@ int main(int argc, char *argv[])
             int         d_encodingStyle;
             int         d_initialIndentLevel;
             int         d_spacesPerLevel;
-            bool        d_isArrayElement;
             int         d_numTimesCloseObjectCalled;
             bsl::string d_expected;
         } DATA[] = {
 
-        // LINE  STYLE  INDENT   SPL    IAE    NT   EXPECTED
-        // ----  -----  ------   ---    ---    ---  -------
+        // LINE  STYLE  INDENT   SPL  NT   EXPECTED
+        // ----  -----  ------   ---  ---  -------
 
-        {   L_,    -1,     -1,   -1,  false,    0,       "}"             },
-        {   L_,    -1,     -1,   -1,  true,     0,       "}"             },
+        {   L_,    -1,     -1,   -1,  0,       "}"             },
+        {   L_,    -1,     -1,   -1,  0,       "}"             },
 
-        {   L_,     0,     -1,   -1,  false,    0,       "}"             },
-        {   L_,     0,     -1,   -1,  true,     0,       "}"             },
+        {   L_,     0,     -1,   -1,  0,       "}"             },
+        {   L_,     0,     -1,   -1,  0,       "}"             },
 
-        {   L_,     1,      2,    2,  false,    0,  NL   "  }"           },
-        {   L_,     1,      2,    2,  true,     0,  NL   "  }"           },
+        {   L_,     1,      2,    2,  0,  NL   "  }"           },
+        {   L_,     1,      2,    2,  0,  NL   "  }"           },
 
-        {   L_,    -1,     -1,   -1,  false,    3,       "}}}}"          },
-        {   L_,    -1,     -1,   -1,  true,     3,       "}}}}"          },
+        {   L_,    -1,     -1,   -1,  3,       "}}}}"          },
+        {   L_,    -1,     -1,   -1,  3,       "}}}}"          },
 
-        {   L_,     0,     -1,   -1,  false,    3,       "}}}}"          },
-        {   L_,     0,     -1,   -1,  true,     3,       "}}}}"          },
+        {   L_,     0,     -1,   -1,  3,       "}}}}"          },
+        {   L_,     0,     -1,   -1,  3,       "}}}}"          },
 
-        {   L_,     1,      5,    2,  false,    3,  NL   "        }"
-                                                    NL   "      }"
-                                                    NL   "    }"
-                                                    NL   "  }"
-                                                                        },
-        {   L_,     1,      5,    2,  true,     3,  NL   "        }"
-                                                    NL   "      }"
-                                                    NL   "    }"
-                                                    NL   "  }"
-                                                                        },
+        {   L_,     1,      5,    2,  3,  NL   "        }"
+                                          NL   "      }"
+                                          NL   "    }"
+                                          NL   "  }"
+                                                               },
+        {   L_,     1,      5,    2,  3,  NL   "        }"
+                                          NL   "      }"
+                                          NL   "    }"
+                                          NL   "  }"
+                                                               },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2221,15 +2401,12 @@ int main(int argc, char *argv[])
             const int         STYLE  = DATA[i].d_encodingStyle;
             const int         INDENT = DATA[i].d_initialIndentLevel;
             const int         SPL    = DATA[i].d_spacesPerLevel;
-            const bool        IAE    = DATA[i].d_isArrayElement;
             const int         NT     = DATA[i].d_numTimesCloseObjectCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
             bsl::ostringstream     os;
 
             Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
-
-            mX.setIsArrayElement(IAE);
 
             for (int k = 0; k < NT; ++k) mX.closeObject();
 
@@ -2248,18 +2425,18 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The 'openObject' method outputs a '{'.
         //:
-        //: 2 If pretty style is selected then 'openObject' indents before
-        //:   printing '{' only if the 'isArrayElement' flag is true.
+        //: 2 If pretty style is selected then 'openObject' outputs a newline
+        //:   after printing '{'.
         //:
         //: 3 Each invocation of 'openObject' increases the indent level.
         //:
         // Plan:
         //: 1 Using a table-based approach specify the encoding style,
-        //:   indentation level, spaces per level, is array element, number of
-        //:   times 'openObject' must be called and the expected output
-        //:   after calling 'openObject'.  Create a formatter object using the
-        //:   specified parameters and invoke 'openObject' on it.  Verify that
-        //:   the output written to the stream is as expected.
+        //:   indentation level, spaces per level, element name, expected
+        //:   return value, and the expected output after calling
+        //:   'openObject'.  Create a formatter object using the specified
+        //:   parameters and invoke 'openObject' on it.  Verify that the
+        //:   output written to the stream is as expected.
         //
         // Testing:
         //   void openObject();
@@ -2278,39 +2455,28 @@ int main(int argc, char *argv[])
             int         d_encodingStyle;
             int         d_initialIndentLevel;
             int         d_spacesPerLevel;
-            bool        d_isArrayElement;
             int         d_numTimesOpenObjectCalled;
             bsl::string d_expected;
         } DATA[] = {
 
-        // LINE  STYLE  INDENT   SPL    IAE    NT   EXPECTED
-        // ----  -----  ------   ---    ---    ---  -------
+            // LINE  STYLE  INDENT   SPL  NT   EXPECTED
+            // ----  -----  ------   ---  ---  -------
 
-        {   L_,    -1,     -1,   -1,  false,    0,  "{"                 },
-        {   L_,    -1,     -1,   -1,  true,     0,  "{"                 },
+            {   L_,    -1,     -1,   -1,  0,  "{"                 },
 
-        {   L_,     0,     -1,   -1,  false,    0,  "{"                 },
-        {   L_,     0,     -1,   -1,  true,     0,  "{"                 },
+            {   L_,     0,     -1,   -1,  0,  "{"                 },
 
-        {   L_,     1,      1,    2,  false,    0,  "{"             NL  },
-        {   L_,     1,      1,    2,  true,     0,  "  {"           NL  },
+            {   L_,     1,      1,    2,  0,  "{"             NL  },
 
-        {   L_,    -1,     -1,   -1,  false,    3,  "{{{{"              },
-        {   L_,    -1,     -1,   -1,  true,     3,  "{{{{"              },
+            {   L_,    -1,     -1,   -1,  3,  "{{{{"              },
 
-        {   L_,     0,     -1,   -1,  false,    3,  "{{{{"              },
-        {   L_,     0,     -1,   -1,  true,     3,  "{{{{"              },
+            {   L_,     0,     -1,   -1,  3,  "{{{{"              },
 
-        {   L_,     1,      1,    2,  false,    3,  "{"             NL
-                                                    "{"             NL
-                                                    "{"             NL
-                                                    "{"             NL
-                                                                        },
-        {   L_,     1,      1,    2,  true,     3,  "  {"           NL
-                                                    "    {"         NL
-                                                    "      {"       NL
-                                                    "        {"     NL
-                                                                        },
+            {   L_,     1,      1,    2,  3,  "{"             NL
+                                              "{"             NL
+                                              "{"             NL
+                                              "{"             NL
+            },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2319,15 +2485,12 @@ int main(int argc, char *argv[])
             const int         STYLE  = DATA[i].d_encodingStyle;
             const int         INDENT = DATA[i].d_initialIndentLevel;
             const int         SPL    = DATA[i].d_spacesPerLevel;
-            const bool        IAE    = DATA[i].d_isArrayElement;
             const int         NT     = DATA[i].d_numTimesOpenObjectCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
             bsl::ostringstream     os;
 
             Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
-
-            mX.setIsArrayElement(IAE);
 
             for (int k = 0; k < NT; ++k) mX.openObject();
 
@@ -2405,13 +2568,13 @@ int main(int argc, char *argv[])
         {   L_,     1,      1,    2,   "{"                               NL
                                        "    \"A\" : 1,"                  NL
                                        "    \"B\" : ["                   NL
-                                       "2"                               NL
+                                       "      2"                         NL
                                        "    ]"                           NL
                                        "  }"                                 },
         {   L_,     1,      3,    5,   "{"                               NL
                                        "                    \"A\" : 1,"  NL
                                        "                    \"B\" : ["   NL
-                                       "2"                               NL
+                                       "                         2"      NL
                                        "                    ]"           NL
                                        "               }"                    },
         };
@@ -2433,14 +2596,14 @@ int main(int argc, char *argv[])
             Obj mY = g(os2, STYLE, INDENT, SPL);  const Obj& Y = mY;
 
             mX.openObject();
-            mX.openElement("A"); mX.putValue(1); mX.closeElement();
-            mX.openElement("B");
+            mX.openMember("A"); mX.putValue(1); mX.closeMember();
+            mX.openMember("B");
             mX.openArray(); mX.putValue(2); mX.closeArray();
             mX.closeObject();
 
             mY.openObject();
-            mY.openElement("A"); mY.putValue(1); mY.closeElement();
-            mY.openElement("B");
+            mY.openMember("A"); mY.putValue(1); mY.closeMember();
+            mY.openMember("B");
             mY.openArray(); mY.putValue(2); mY.closeArray();
             mY.closeObject();
 
@@ -2502,21 +2665,21 @@ int main(int argc, char *argv[])
 
         bsl::string name = "name";
 
-        const int rc = mX.openElement(name);
+        const int rc = mX.openMember(name);
         ASSERTV(rc, 0 == rc);
 
         exp += '"' + name + '"' + ':';
         ASSERTV(exp, os.str(), exp == os.str());
 
-        mX.closeElement();
+        mX.putNullValue();
+
+        exp += "null";
+        ASSERTV(exp, os.str(), exp == os.str());
+
+        mX.closeMember();
 
         exp += ',';
         ASSERTV(exp, os.str(), exp == os.str());
-
-        mX.setIsArrayElement(true);
-        ASSERTV(true == X.isArrayElement());
-        ASSERTV(exp, os.str(), exp == os.str());
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
