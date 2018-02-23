@@ -2186,27 +2186,34 @@ int main(int argc, char *argv[])
         // LINE  STYLE  INDENT   SPL    FAEA    NT   EXPECTED
         // ----  -----  ------   ---    ----    ---  -------
 
-        {   L_,    -1,     -1,   -1,  false,    0,       "]"             },
-        {   L_,    -1,     -1,   -1,  true,     0,       "]"             },
+        {   L_,    -1,     -1,   -1,  false,    0,       "[]"            },
+        {   L_,    -1,     -1,   -1,  true,     0,       "[]"            },
 
-        {   L_,     0,     -1,   -1,  false,    0,       "]"             },
-        {   L_,     0,     -1,   -1,  true,     0,       "]"             },
+        {   L_,     0,     -1,   -1,  false,    0,       "[]"            },
+        {   L_,     0,     -1,   -1,  true,     0,       "[]"            },
 
-        {   L_,     1,      2,    2,  false,    0,  NL   "  ]"           },
-        {   L_,     1,      2,    2,  true,     0,       "]"             },
+        {   L_,     1,      2,    2,  false,    0,       "["
+                                                    NL
+                                                    NL   "    ]"         },
+        {   L_,     1,      2,    2,  true,     0,       "[]"         },
 
-        {   L_,    -1,     -1,   -1,  false,    3,       "]]]]"          },
-        {   L_,    -1,     -1,   -1,  true,     3,       "]]]]"          },
+        {   L_,    -1,     -1,   -1,  false,    3,       "[[[[]]]]"      },
+        {   L_,    -1,     -1,   -1,  true,     3,       "[[[[]]]]"      },
 
-        {   L_,     0,     -1,   -1,  false,    3,       "]]]]"          },
-        {   L_,     0,     -1,   -1,  true,     3,       "]]]]"          },
+        {   L_,     0,     -1,   -1,  false,    3,       "[[[[]]]]"      },
+        {   L_,     0,     -1,   -1,  true,     3,       "[[[[]]]]"      },
 
-        {   L_,     1,      5,    2,  false,    3,  NL   "        ]"
+        {   L_,     1,      1,    2,  false,    3,       "["
+                                                    NL   "["
+                                                    NL   "["
+                                                    NL   "["
+                                                    NL
+                                                    NL   "        ]"
                                                     NL   "      ]"
                                                     NL   "    ]"
                                                     NL   "  ]"
                                                                         },
-        {   L_,     1,      5,    2,  true,     3,       "]]]]"         },
+        {   L_,     1,      1,    2,  true,    3,        "[[[[]]]]"     },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2223,9 +2230,16 @@ int main(int argc, char *argv[])
 
             Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
 
-            for (int k = 0; k < NT; ++k) mX.closeArray(FAEA);
+            for (int k = 0; k < NT; ++k) {
+                mX.openArray(FAEA);
+            }
 
+            mX.openArray(FAEA);
             mX.closeArray(FAEA);
+
+            for (int k = 0; k < NT; ++k) {
+                mX.closeArray(FAEA);
+            }
 
             os << bsl::flush;
 
@@ -2368,31 +2382,28 @@ int main(int argc, char *argv[])
         // LINE  STYLE  INDENT   SPL  NT   EXPECTED
         // ----  -----  ------   ---  ---  -------
 
-        {   L_,    -1,     -1,   -1,  0,       "}"             },
-        {   L_,    -1,     -1,   -1,  0,       "}"             },
+        {   L_,    -1,     -1,   -1,  0,       "{}"             },
 
-        {   L_,     0,     -1,   -1,  0,       "}"             },
-        {   L_,     0,     -1,   -1,  0,       "}"             },
+        {   L_,     0,     -1,   -1,  0,       "{}"             },
 
-        {   L_,     1,      2,    2,  0,  NL   "  }"           },
-        {   L_,     1,      2,    2,  0,  NL   "  }"           },
+        {   L_,     1,      2,    2,  0,       "{"
+                                          NL
+                                          NL   "    }"          },
 
-        {   L_,    -1,     -1,   -1,  3,       "}}}}"          },
-        {   L_,    -1,     -1,   -1,  3,       "}}}}"          },
+        {   L_,    -1,     -1,   -1,  3,       "{{{{}}}}"       },
 
-        {   L_,     0,     -1,   -1,  3,       "}}}}"          },
-        {   L_,     0,     -1,   -1,  3,       "}}}}"          },
+        {   L_,     0,     -1,   -1,  3,       "{{{{}}}}"       },
 
-        {   L_,     1,      5,    2,  3,  NL   "        }"
+        {   L_,     1,      1,    2,  3,       "{"
+                                          NL   "{"
+                                          NL   "{"
+                                          NL   "{"
+                                          NL
+                                          NL   "        }"
                                           NL   "      }"
                                           NL   "    }"
                                           NL   "  }"
-                                                               },
-        {   L_,     1,      5,    2,  3,  NL   "        }"
-                                          NL   "      }"
-                                          NL   "    }"
-                                          NL   "  }"
-                                                               },
+                                                                },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2408,9 +2419,16 @@ int main(int argc, char *argv[])
 
             Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
 
-            for (int k = 0; k < NT; ++k) mX.closeObject();
+            for (int k = 0; k < NT; ++k) {
+                mX.openObject();
+            }
 
+            mX.openObject();
             mX.closeObject();
+
+            for (int k = 0; k < NT; ++k) {
+                mX.closeObject();
+            }
 
             os << bsl::flush;
 
