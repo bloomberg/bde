@@ -1,10 +1,11 @@
-// bslmf_isvolatile.cpp                                               -*-C++-*-
-#include <bslmf_isvolatile.h>
+// bslstl_vector_test.cpp                                             -*-C++-*-
+#include <bslstl_vector_test.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslmf_issame.h>       // for testing only
+#include <bslstl_forwarditerator.h>     // for testing only
+#include <bslstl_iterator.h>            // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2017 Bloomberg Finance L.P.

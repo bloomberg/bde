@@ -12,15 +12,15 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::AutoScalarDestructor: exception-neutrality proctor for an object
 //
-//@SEE_ALSO: bslma_autodestructor, bslalg_scalardestructionprimitives
+//@SEE_ALSO: bslma_autodestructor, bslma_destructionutil
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a proctor object to manage an
 // otherwise-unmanaged instance of a user-defined type.  If not explicitly
 // released, the instance managed by the proctor object is automatically
-// destroyed by the proctor's destructor, using the
-// 'bslalg::ScalarDestructionPrimitives' utility.
+// destroyed by the proctor's destructor, using the 'bslma::DestructionUtil'
+// utility.
 //
 ///Usage
 ///-----
@@ -29,12 +29,20 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
+#include <bslalg_scalardestructionprimitives.h>
+#endif
+
 #endif
 
 namespace BloombergLP {
@@ -104,7 +112,7 @@ inline
 AutoScalarDestructor<OBJECT_TYPE>::~AutoScalarDestructor()
 {
     if (d_object_p) {
-        ScalarDestructionPrimitives::destroy(d_object_p);
+        bslma::DestructionUtil::destroy(d_object_p);
     }
 }
 

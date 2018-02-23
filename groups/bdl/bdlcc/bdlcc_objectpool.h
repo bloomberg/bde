@@ -324,10 +324,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_infrequentdeleteblocklist.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
 #endif
@@ -338,6 +334,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -1434,7 +1434,7 @@ inline
 ObjectPool_GeneralProxy<TYPE>
 ::~ObjectPool_GeneralProxy()
 {
-    bslalg::ScalarDestructionPrimitives::destroy(&d_object.object());
+    bslma::DestructionUtil::destroy(&d_object.object());
 }
 
 template <class TYPE>

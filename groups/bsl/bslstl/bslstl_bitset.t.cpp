@@ -389,7 +389,7 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
     }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
     {   // constexpr test
-        constexpr bsl::bitset<TESTSIZE> v;
+        constexpr bsl::bitset<TESTSIZE> v{};
         ASSERT(TESTSIZE == v.size());
         ASSERT(v.none());
         ASSERT(!v.any());

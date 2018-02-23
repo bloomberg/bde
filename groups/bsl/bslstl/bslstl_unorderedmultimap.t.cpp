@@ -54,7 +54,7 @@
 #endif
 
 #if !defined(BSLS_COMPILER_FEATURES_SUPPORT_RVALUE_REFERENCES) \
- &&  defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130
+ &&  defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130
 #   define BSL_COMPILER_THINKS_MOVE_AMBIGUOUS_WITH_COPY 1
 #endif
 
@@ -2802,7 +2802,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32_inline()
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(usedAlloc) {
             ++numThrows;
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
             // There's a bug in 'std::initializer_list' in the GNU g++ compiler
             // which, if a throw occurs while the initializer list is being
             // constructed, it isn't destroyed properly and memory is leaked.
@@ -7820,9 +7820,6 @@ template <bool SELECT_ON_CONTAINER_COPY_CONSTRUCTION_FLAG,
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
                      testCase7_select_on_container_copy_construction_dispatch()
 {
-    const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value +
-                           bslma::UsesBslmaAllocator<VALUE>::value;
-
     // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
     // under test in this test case to 'false'.
 

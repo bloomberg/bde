@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // also that operations like 'ldrexd' and 'stdrexd' are supported only starting
 // from 'armv6zk', so not every armv6 platform will work.
 //
-// For more details on ARM atomic pritives see the Linux kernel source code
+// For more details on ARM atomic primitives see the Linux kernel source code
 // (arch/arm/include/asm/atomic.h) and the "C/C++11 mappings to processors"
 // (http://www.cl.cam.ac.uk/~pes20/cpp/cpp0xmappings.html), and the
 // "ARM1156T2F-S Technical Reference Manual"

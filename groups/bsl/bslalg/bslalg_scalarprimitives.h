@@ -91,12 +91,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_autoscalardestructor.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
@@ -113,6 +113,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include <bslmf_isfundamental.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include <bslmf_ispointer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISSAME
@@ -168,6 +176,14 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_NEW
 #include <new>          // placement 'new'
 #define INCLUDED_NEW
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
+#include <bslalg_scalardestructionprimitives.h>
+#endif
+
 #endif
 
 namespace BloombergLP {
@@ -643,7 +659,7 @@ struct ScalarPrimitives {
     template <class TARGET_TYPE>
     static void destruct(TARGET_TYPE *object,
                          void        *allocator);
-        // !DEPRECATED!: Use 'ScalarDestructionPrimitives::destroy' without an
+        // !DEPRECATED!: Use 'bslma::DestructionUtil::destroy' without an
         // allocator argument instead.
         //
         // Destroy the specified 'object' of the parameterized 'TARGET_TYPE',
@@ -655,7 +671,7 @@ struct ScalarPrimitives {
 
     template <class TARGET_TYPE>
     static void destruct(TARGET_TYPE *object);
-        // !DEPRECATED!: Use 'ScalarDestructionPrimitives::destroy' instead.
+        // !DEPRECATED!: Use 'bslma::DestructionUtil::destroy' instead.
         //
         // Destroy the specified 'object' of the parameterized 'TARGET_TYPE',
         // as if by calling the 'TARGET_TYPE' destructor, but do not deallocate
@@ -2477,14 +2493,14 @@ template <class TARGET_TYPE>
 inline
 void ScalarPrimitives::destruct(TARGET_TYPE *address, void *)
 {
-    ScalarDestructionPrimitives::destroy(address);
+    bslma::DestructionUtil::destroy(address);
 }
 
 template <class TARGET_TYPE>
 inline
 void ScalarPrimitives::destruct(TARGET_TYPE *address)
 {
-    ScalarDestructionPrimitives::destroy(address);
+    bslma::DestructionUtil::destroy(address);
 }
 
 }  // close package namespace
@@ -2577,8 +2593,8 @@ ScalarPrimitives_Imp::defaultConstruct(
               TARGET_TYPE                                             *address,
               bsl::integral_constant<int, e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // assignment can't throw.
@@ -2638,8 +2654,8 @@ ScalarPrimitives_Imp::copyConstruct(
                       bslma::Allocator                               *,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // copy-constructor can't throw, and that assignment (although would
@@ -2681,8 +2697,8 @@ ScalarPrimitives_Imp::copyConstruct(
                       const TARGET_TYPE&                              original,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // copy-constructor can't throw, and that assignment (although would
@@ -2752,8 +2768,8 @@ ScalarPrimitives_Imp::moveConstruct(
                       bslma::Allocator                               *,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // copy-constructor can't throw, and that assignment (although would
@@ -2793,8 +2809,8 @@ ScalarPrimitives_Imp::moveConstruct(
                       TARGET_TYPE&                                    original,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // move-constructor can't throw, and that assignment (although would
@@ -2836,8 +2852,8 @@ ScalarPrimitives_Imp::destructiveMove(
                       ALLOCATOR                                      *,
                       bsl::integral_constant<int, e_BITWISE_MOVEABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // copy-constructor can't throw, and that assignment (although would
@@ -2868,7 +2884,7 @@ ScalarPrimitives_Imp::destructiveMove(
                                    bsl::integral_constant<int, e_NIL_TRAITS> *)
 {
     ScalarPrimitives::moveConstruct(address, *original, allocator);
-    ScalarDestructionPrimitives::destroy(original);
+    bslma::DestructionUtil::destroy(original);
 }
 
                         // *** construct overloads: ***
@@ -2882,8 +2898,8 @@ ScalarPrimitives_Imp::construct(
                       bslma::Allocator                                *,
                       bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *)
 {
-    if (bslmf::IsFundamental<TARGET_TYPE>::value
-     || bslmf::IsPointer<TARGET_TYPE>::value) {
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't
         // call library functions for fundamental or pointer types.  Note that
         // copy-constructor can't throw, and that assignment (although would
@@ -3831,8 +3847,8 @@ void ScalarPrimitives_Imp::swap(
                       bsl::integral_constant<int, e_BITWISE_MOVEABLE_TRAITS> *)
 {
     if (bsl::is_same<LHS_TYPE, RHS_TYPE>::value
-     && !bslmf::IsFundamental<LHS_TYPE>::value
-     && !bslmf::IsPointer<LHS_TYPE>::value
+     && !bsl::is_fundamental<LHS_TYPE>::value
+     && !bsl::is_pointer<LHS_TYPE>::value
      && !bslmf::UsesAllocatorArgT<LHS_TYPE>::value
      && !bslma::UsesBslmaAllocator<LHS_TYPE>::value) {
         // Detectable at compile-time, this condition ensures that we don't

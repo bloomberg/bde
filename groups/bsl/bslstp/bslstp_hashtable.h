@@ -63,8 +63,8 @@
 #include <bslstp_util.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
-#include <bslalg_scalarprimitives.h>
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
@@ -104,6 +104,14 @@
 #ifndef INCLUDED_FUNCTIONAL
 #include <functional>
 #define INCLUDED_FUNCTIONAL
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include <bslalg_scalarprimitives.h>
+#endif
+
 #endif
 
 // Hashtable class, used to implement the hashed associative containers
@@ -604,7 +612,7 @@ private:
 
   void _M_delete_node(_Node* __n)
   {
-    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslma::DestructionUtil::destroy(
                                              BSLS_UTIL_ADDRESSOF(__n->_M_val));
     _M_num_elements.deallocate(__n, 1);
   }

@@ -30,7 +30,7 @@ BSLS_IDENT("$: $")
 //  bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;
 //..
 // Note that 'SpinLock' is a struct requiring aggregate initialization
-// to allow lock variables to be staticially initalized when using a C++03
+// to allow lock variables to be statically initalized when using a C++03
 // compiler (i.e., without using 'constexpr').
 //
 ///Usage

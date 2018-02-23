@@ -236,21 +236,21 @@ class DerivedClassTestType : public BaseClassTestType {
     // as the template parameter 'TYPE' of 'bsl::is_fundamental'.
 };
 
-typedef int (StructTestType::*MethodPtrTestType) ();
-    // This pointer to non-static member function type is intended to be used
-    // for testing as the template parameter 'TYPE' of 'bsl::is_fundamental'.
-
 typedef void (*FunctionPtrTestType) ();
     // This function pointer type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_fundamental'.
 
-typedef int StructTestType::*PMD;
-    // This pointer to member object type is intended to be used for testing as
-    // the template parameter 'TYPE' of 'bsl::is_fundamental'.
-
 struct Incomplete;
     // This incomplete 'struct' type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_fundamental'.
+
+typedef int (Incomplete::*MethodPtrTestType) ();
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of 'bsl::is_fundamental'.
+
+typedef int Incomplete::*PMD;
+    // This pointer to member object type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_fundamental'.
 
 }  // close unnamed namespace
 

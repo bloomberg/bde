@@ -30,7 +30,7 @@ using namespace BloombergLP::bsltf;
  && (defined(BSLS_PLATFORM_CMP_IBM)   \
   || defined(BSLS_PLATFORM_CMP_CLANG) \
   || defined(BSLS_PLATFORM_CMP_MSVC)  \
-  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130) \
+  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130) \
      )
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
@@ -3057,7 +3057,7 @@ testCaseHelper()
  && (defined(BSLS_PLATFORM_CMP_IBM)   \
   || defined(BSLS_PLATFORM_CMP_CLANG) \
   || defined(BSLS_PLATFORM_CMP_MSVC)  \
-  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130) \
+  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130) \
      )
 # define EXAMPLE_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types

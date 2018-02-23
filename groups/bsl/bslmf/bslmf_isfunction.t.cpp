@@ -2,11 +2,17 @@
 #include <bslmf_isfunction.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+# define BSLMF_ISFUNCTION_NO_ABOMINABLE_TYPES
+#endif
 
 //=============================================================================
 //                                TEST PLAN
@@ -135,7 +141,47 @@ struct Incomplete;
     // This incomplete 'struct' type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_function'.
 
+struct Abstract {
+    // This abstract class is intended to be used for testing as the template
+    // parameter 'TYPE' of 'bsl::is_function'.
+
+    virtual ~Abstract() = 0;
+};
+
+class NotConstructible {
+    // This awkward class is intended to be used for testing as the template
+    // parameter 'TYPE' of 'bsl::is_function'.
+
+    NotConstructible(const NotConstructible&);
+};
+
+class EvilOverloads {
+    // This awkward class is intended to be used for testing as the template
+    // parameter 'TYPE' of 'bsl::is_function'.
+
+    void operator&();
+
+    template <class OTHER>
+    void operator,(const OTHER&);
+};
+
+
+
 }  // close unnamed namespace
+
+extern "C" {
+typedef int ExternCFunc();
+typedef int ExternCFuncElipsis(...);
+typedef int ExternCFunc14       (int, int, int, int, int, int, int, int, int,
+                                 int, int, int, int, int);
+typedef int ExternCFunc14Elipsis(int, int, int, int, int, int, int, int, int,
+                                 int, int, int, int, int...);
+typedef int ExternCFunc15       (int, int, int, int, int, int, int, int, int,
+                                 int, int, int, int, int, int);
+typedef int ExternCFunc15Elipsis(int, int, int, int, int, int, int, int, int,
+                                 int, int, int, int, int, int...);
+
+}
 
 #define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)       \
     ASSERT(result == META_FUNC<TYPE>::value);                 \
@@ -155,11 +201,37 @@ struct Incomplete;
     ASSERT(result == META_FUNC<TYPE volatile&>::value);        \
     ASSERT(result == META_FUNC<TYPE const volatile&>::value);
 
+#define TYPE_ASSERT_CVQ_REF_NOEXCEPT(META_FUNC, TYPE, result)           \
+    ASSERT(result == META_FUNC<TYPE& noexcept>::value);                 \
+    ASSERT(result == META_FUNC<TYPE const& noexcept>::value);           \
+    ASSERT(result == META_FUNC<TYPE volatile& noexcept>::value);        \
+    ASSERT(result == META_FUNC<TYPE const volatile& noexcept>::value);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+# define TYPE_ASSERT_CVQ_RVALREF(META_FUNC, TYPE, result)       \
+    ASSERT(result == META_FUNC<TYPE&&>::value);                 \
+    ASSERT(result == META_FUNC<TYPE const&&>::value);           \
+    ASSERT(result == META_FUNC<TYPE volatile&&>::value);        \
+    ASSERT(result == META_FUNC<TYPE const volatile&&>::value);
+#else
+# define TYPE_ASSERT_CVQ_RVALREF(META_FUNC, TYPE, result)
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+# define TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(META_FUNC, TYPE, result)       \
+    ASSERT(result == META_FUNC<TYPE&& noexcept>::value);                 \
+    ASSERT(result == META_FUNC<TYPE const&& noexcept>::value);           \
+    ASSERT(result == META_FUNC<TYPE volatile&& noexcept>::value);        \
+    ASSERT(result == META_FUNC<TYPE const volatile&& noexcept>::value);
+#else
+# define TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(META_FUNC, TYPE, result)
+#endif
+
 #define TYPE_ASSERT_CVQ(META_FUNC, TYPE, result)                     \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result);                 \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const, result);           \
     TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE volatile, result);        \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const volatile, result);  \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const volatile, result);
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -235,7 +307,10 @@ int main(int argc, char *argv[])
         //: 3 'is_function::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) pointer or pointer-to-member type.
         //:
-        //: 4 'is_function::value' is 'true' when 'TYPE' is a function type.
+        //: 4 'is_function::value' is 'false' when 'TYPE' is a reference type,
+        //:   and 'false' for function references in particular.
+        //:
+        //: 5 'is_function::value' is 'true' when 'TYPE' is a function type.
         //:   Note that cv-qualified is irrelevant for a function type.
         //
         // Plan:
@@ -250,35 +325,72 @@ int main(int argc, char *argv[])
                             "=========================\n");
 
         // C-1
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, void, false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, int,  false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_function, int,  false);
+
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, void,      false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, int,       false);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_function, int,       false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int[],     false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int[2],    false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int[][2],  false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, int[2][3], false);
 
         // C-2
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, EnumTestType,         false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_function, EnumTestType,         false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, StructTestType,       false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_function, StructTestType,       false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, UnionTestType,        false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_function, UnionTestType,        false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, BaseClassTestType,    false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_function, BaseClassTestType,    false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, DerivedClassTestType, false);
-        TYPE_ASSERT_CVQ_REF   (bsl::is_function, DerivedClassTestType, false);
+
+        TYPE_ASSERT_CVQ_SUFFIX  (bsl::is_function, EnumTestType,        false);
+        TYPE_ASSERT_CVQ_REF     (bsl::is_function, EnumTestType,        false);
+        TYPE_ASSERT_CVQ_RVALREF (bsl::is_function, EnumTestType,        false);
+        TYPE_ASSERT_CVQ_SUFFIX  (bsl::is_function, StructTestType,      false);
+        TYPE_ASSERT_CVQ_REF     (bsl::is_function, StructTestType,      false);
+        TYPE_ASSERT_CVQ_RVALREF (bsl::is_function, StructTestType,      false);
+        TYPE_ASSERT_CVQ_SUFFIX  (bsl::is_function, UnionTestType,       false);
+        TYPE_ASSERT_CVQ_REF     (bsl::is_function, UnionTestType,       false);
+        TYPE_ASSERT_CVQ_RVALREF (bsl::is_function, UnionTestType,       false);
+        TYPE_ASSERT_CVQ_SUFFIX  (bsl::is_function, BaseClassTestType,   false);
+        TYPE_ASSERT_CVQ_REF     (bsl::is_function, BaseClassTestType,   false);
+        TYPE_ASSERT_CVQ_RVALREF (bsl::is_function, BaseClassTestType,   false);
+        TYPE_ASSERT_CVQ_SUFFIX  (bsl::is_function, DerivedClassTestType,false);
+        TYPE_ASSERT_CVQ_REF     (bsl::is_function, DerivedClassTestType,false);
+        TYPE_ASSERT_CVQ_RVALREF (bsl::is_function, DerivedClassTestType,false);
+        TYPE_ASSERT_CVQ_SUFFIX  (bsl::is_function, Incomplete,          false);
+        TYPE_ASSERT_CVQ_REF     (bsl::is_function, Incomplete,          false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, Incomplete[],        false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, Incomplete[2],       false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, Incomplete[][2],     false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, Incomplete[2][3],    false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, Abstract,            false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, NotConstructible,    false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, NotConstructible[],  false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, NotConstructible[2], false);
+        TYPE_ASSERT_CVQ_PREFIX(bsl::is_function, NotConstructible[][2], false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, NotConstructible[2][3],
+                                                                        false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, EvilOverloads,       false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, EvilOverloads[],     false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, EvilOverloads[3],    false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, EvilOverloads[][3],  false);
+        TYPE_ASSERT_CVQ_PREFIX  (bsl::is_function, EvilOverloads[3][2], false);
 
         // C-3
-        TYPE_ASSERT_CVQ(bsl::is_function, int*,                       false);
-        TYPE_ASSERT_CVQ(bsl::is_function, StructTestType*,            false);
-        TYPE_ASSERT_CVQ(bsl::is_function, int StructTestType::*,      false);
-        TYPE_ASSERT_CVQ(bsl::is_function, int StructTestType::* *,    false);
-        TYPE_ASSERT_CVQ(bsl::is_function, UnionTestType*,             false);
-        TYPE_ASSERT_CVQ(bsl::is_function, PMD BaseClassTestType::*,   false);
-        TYPE_ASSERT_CVQ(bsl::is_function, PMD BaseClassTestType::* *, false);
-        TYPE_ASSERT_CVQ(bsl::is_function, BaseClassTestType*,         false);
-        TYPE_ASSERT_CVQ(bsl::is_function, DerivedClassTestType*,      false);
-        TYPE_ASSERT_CVQ(bsl::is_function, Incomplete*,                false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, MethodPtrTestType,   false);
-        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, FunctionPtrTestType, false);
+
+        TYPE_ASSERT_CVQ(bsl::is_function, int*,                         false);
+        TYPE_ASSERT_CVQ(bsl::is_function, StructTestType*,              false);
+        TYPE_ASSERT_CVQ(bsl::is_function, int StructTestType::*,        false);
+        TYPE_ASSERT_CVQ(bsl::is_function, int StructTestType::* *,      false);
+        TYPE_ASSERT_CVQ(bsl::is_function, UnionTestType*,               false);
+        TYPE_ASSERT_CVQ(bsl::is_function, PMD BaseClassTestType::*,     false);
+        TYPE_ASSERT_CVQ(bsl::is_function, PMD BaseClassTestType::* *,   false);
+        TYPE_ASSERT_CVQ(bsl::is_function, BaseClassTestType*,           false);
+        TYPE_ASSERT_CVQ(bsl::is_function, DerivedClassTestType*,        false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, Incomplete*,           false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, ExternCFunc*,          false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, ExternCFuncElipsis*,   false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, ExternCFunc14*,        false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, ExternCFunc14Elipsis*, false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, ExternCFunc15*,        false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, ExternCFunc15Elipsis*, false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, MethodPtrTestType,     false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, FunctionPtrTestType,   false);
+
 
         TYPE_ASSERT_CVQ_REF(bsl::is_function, int*,                     false);
         TYPE_ASSERT_CVQ_REF(bsl::is_function, StructTestType*,          false);
@@ -293,18 +405,216 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF(bsl::is_function, Incomplete*,              false);
         TYPE_ASSERT_CVQ_REF(bsl::is_function, MethodPtrTestType,        false);
         TYPE_ASSERT_CVQ_REF(bsl::is_function, FunctionPtrTestType,      false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, ExternCFunc*,             false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, ExternCFuncElipsis*,      false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, ExternCFunc14*,           false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, ExternCFunc14Elipsis*,    false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, ExternCFunc15*,           false);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, ExternCFunc15Elipsis*,    false);
+
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, int*,                 false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, StructTestType*,      false);
+        TYPE_ASSERT_CVQ_RVALREF(
+                               bsl::is_function, int StructTestType::*, false);
+        TYPE_ASSERT_CVQ_RVALREF(
+                             bsl::is_function, int StructTestType::* *, false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, UnionTestType*,       false);
+        TYPE_ASSERT_CVQ_RVALREF(
+                            bsl::is_function, PMD BaseClassTestType::*, false);
+        TYPE_ASSERT_CVQ_RVALREF(
+                          bsl::is_function, PMD BaseClassTestType::* *, false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, BaseClassTestType*,   false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, DerivedClassTestType*,false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, Incomplete*,          false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, MethodPtrTestType,    false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, FunctionPtrTestType,  false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, ExternCFunc*,         false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, ExternCFuncElipsis*,  false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, ExternCFunc14*,       false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, ExternCFunc14Elipsis*,false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, ExternCFunc15*,       false);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, ExternCFunc15Elipsis*,false);
 
         // C-4
-        ASSERT(true == bsl::is_function<int  (int)>::value);
-        ASSERT(true == bsl::is_function<void (void)>::value);
-        ASSERT(true == bsl::is_function<int  (void)>::value);
-        ASSERT(true == bsl::is_function<void (int)>::value);
+
+        // Functions cannot be cv-qualified, so it suffices to check a simple
+        // reference to each kind of function signature, without cv-qualfiers.
+        // Similarly, it is not possible to form a reference to an "sbominable"
+        // function, so there are no cv-qualifiers to check elsewhere.
+
+        ASSERT(false == bsl::is_function<int  (&)(int )>::value);
+        ASSERT(false == bsl::is_function<void (&)(void)>::value);
+        ASSERT(false == bsl::is_function<int  (&)(void)>::value);
+        ASSERT(false == bsl::is_function<void (&)(int )>::value);
+
+        ASSERT(false == bsl::is_function<int  (&)(int...)>::value);
+        ASSERT(false == bsl::is_function<void (&)(   ...)>::value);
+        ASSERT(false == bsl::is_function<int  (&)(   ...)>::value);
+        ASSERT(false == bsl::is_function<void (&)(int...)>::value);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        ASSERT(false == bsl::is_function<int  (&&)(int )>::value);
+        ASSERT(false == bsl::is_function<void (&&)(void)>::value);
+        ASSERT(false == bsl::is_function<int  (&&)(void)>::value);
+        ASSERT(false == bsl::is_function<void (&&)(int )>::value);
+
+        ASSERT(false == bsl::is_function<int  (&&)(int...)>::value);
+        ASSERT(false == bsl::is_function<void (&&)(   ...)>::value);
+        ASSERT(false == bsl::is_function<int  (&&)(   ...)>::value);
+        ASSERT(false == bsl::is_function<void (&&)(int...)>::value);
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+        ASSERT(false == bsl::is_function<int  (&)(int ) noexcept>::value);
+        ASSERT(false == bsl::is_function<void (&)(void) noexcept>::value);
+        ASSERT(false == bsl::is_function<int  (&)(void) noexcept>::value);
+        ASSERT(false == bsl::is_function<void (&)(int ) noexcept>::value);
+
+        ASSERT(false == bsl::is_function<int  (&)(int...) noexcept>::value);
+        ASSERT(false == bsl::is_function<void (&)(   ...) noexcept>::value);
+        ASSERT(false == bsl::is_function<int  (&)(   ...) noexcept>::value);
+        ASSERT(false == bsl::is_function<void (&)(int...) noexcept>::value);
+
+        // If a compiler supports C++17 noexcept as part of the function type,
+        // it should already support C++11 cv-qualifiers in the function type.
+        ASSERT(false == bsl::is_function<int  (&&)(int ) noexcept>::value);
+        ASSERT(false == bsl::is_function<void (&&)(void) noexcept>::value);
+        ASSERT(false == bsl::is_function<int  (&&)(void) noexcept>::value);
+        ASSERT(false == bsl::is_function<void (&&)(int ) noexcept>::value);
+
+        ASSERT(false == bsl::is_function<int  (&&)(int...) noexcept>::value);
+        ASSERT(false == bsl::is_function<void (&&)(   ...) noexcept>::value);
+        ASSERT(false == bsl::is_function<int  (&&)(   ...) noexcept>::value);
+        ASSERT(false == bsl::is_function<void (&&)(int...) noexcept>::value);
+#endif
+
+        // C-5
+
+        // Note: as the macros perform textual substitution on the source code,
+        // we are actually testing "abominable" function types, rather than
+        // cv-qualified function types (which do not exist) or function
+        // references.
+
+#if defined(BSLMF_ISFUNCTION_NO_ABOMINABLE_TYPES)
+        ASSERT((bsl::is_function< int  (int )>::value));
+        ASSERT((bsl::is_function< void (void)>::value));
+        ASSERT((bsl::is_function< int  (void)>::value));
+        ASSERT((bsl::is_function< void (int )>::value));
+
+        ASSERT((bsl::is_function< int  (int...)>::value));
+        ASSERT((bsl::is_function< void (   ...)>::value));
+        ASSERT((bsl::is_function< int  (   ...)>::value));
+        ASSERT((bsl::is_function< void (int...)>::value));
+
+        ASSERT((bsl::is_function<
+                         int (int, int, int, int, int, int, int, int, int, int,
+                              int, int, int, int)>::value));
+        ASSERT((bsl::is_function<
+                         int (int, int, int, int, int, int, int, int, int, int,
+                              int, int, int, int...)>::value));
+
+        ASSERT((bsl::is_function<
+                         int (int, int, int, int, int, int, int, int, int, int,
+                              int, int, int, int, int)>::value));
+        ASSERT((bsl::is_function<
+                         int (int, int, int, int, int, int, int, int, int, int,
+                              int, int, int, int, int...)>::value));
+#else
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, int  (int ),   true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, void (void),   true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, int  (void),   true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, void (int ),   true);
+
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, int  (int...), true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, void (   ...), true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, int  (   ...), true);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, void (int...), true);
+
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function,
+                         int (int, int, int, int, int, int, int, int, int, int,
+                              int, int, int, int),
+                               true);
+
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function,
+                         int (int, int, int, int, int, int, int, int, int, int,
+                              int, int, int, int...),
+                               true);
+
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function,
+                         int (int, int, int, int, int, int, int, int, int, int,
+                              int, int, int, int, int),
+                               true);
+
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function,
+                         int (int, int, int, int, int, int, int, int, int, int,
+                              int, int, int, int, int...),
+                               true);
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, int (int ), true);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, void(void), true);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, int (void), true);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, void(int ), true);
+
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, int (int...), true);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, void(   ...), true);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, int (   ...), true);
+        TYPE_ASSERT_CVQ_REF(bsl::is_function, void(int...), true);
+
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, int (int ), true);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, void(void), true);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, int (void), true);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, void(int ), true);
+
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, int (int...), true);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, void(   ...), true);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, int (   ...), true);
+        TYPE_ASSERT_CVQ_RVALREF(bsl::is_function, void(int...), true);
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+        // If a compiler supports C++17 noexcept as part of the function type,
+        // it should already support C++11 cv-qualifiers in the function type.
+
+        TYPE_ASSERT_CVQ_REF_NOEXCEPT(bsl::is_function, int (int ), true);
+        TYPE_ASSERT_CVQ_REF_NOEXCEPT(bsl::is_function, void(void), true);
+        TYPE_ASSERT_CVQ_REF_NOEXCEPT(bsl::is_function, int (void), true);
+        TYPE_ASSERT_CVQ_REF_NOEXCEPT(bsl::is_function, void(int ), true);
+
+        TYPE_ASSERT_CVQ_REF_NOEXCEPT(bsl::is_function, int (int...), true);
+        TYPE_ASSERT_CVQ_REF_NOEXCEPT(bsl::is_function, void(   ...), true);
+        TYPE_ASSERT_CVQ_REF_NOEXCEPT(bsl::is_function, int (   ...), true);
+        TYPE_ASSERT_CVQ_REF_NOEXCEPT(bsl::is_function, void(int...), true);
+
+        TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(bsl::is_function, int (int ), true);
+        TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(bsl::is_function, void(void), true);
+        TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(bsl::is_function, int (void), true);
+        TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(bsl::is_function, void(int ), true);
+
+        TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(bsl::is_function, int (int...), true);
+        TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(bsl::is_function, void(   ...), true);
+        TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(bsl::is_function, int (   ...), true);
+        TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(bsl::is_function, void(int...), true);
+# endif
+
+#endif
+
+        // Confirm that there are no surprises when function types are supplied
+        // using a typedef-name.
 
         ASSERT(true == bsl::is_function<IntRetParamFunctionTestType>::value);
         ASSERT(
               true == bsl::is_function<VoidRetNoParamFunctionTestType>::value);
         ASSERT(true == bsl::is_function<IntRetNoParamFunctionTestType>::value);
         ASSERT(true == bsl::is_function<VoidRetParamFunctionTestType>::value);
+
+        ASSERT(true == bsl::is_function<ExternCFunc>::value);
+        ASSERT(true == bsl::is_function<ExternCFuncElipsis>::value);
+        ASSERT(true == bsl::is_function<ExternCFunc14>::value);
+        ASSERT(true == bsl::is_function<ExternCFunc14Elipsis>::value);
+        ASSERT(true == bsl::is_function<ExternCFunc15>::value);
+        ASSERT(true == bsl::is_function<ExternCFunc15Elipsis>::value);
+
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -320,7 +630,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

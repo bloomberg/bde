@@ -9,13 +9,18 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_ismemberpointer.h>
+#include <bslmf_ispointer.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_nameof.h>
+#include <bsls_outputredirector.h>
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 using namespace BloombergLP;
 using namespace BloombergLP::bsltf;
@@ -104,7 +109,8 @@ using bsls::NameOf;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [16] USAGE EXAMPLE
+// [17] USAGE EXAMPLE
+// [16] CONCERN: all values in the array are printable with 'P()' macro
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -249,7 +255,7 @@ template <class VALUE, class ALLOCATOR>
 inline
 int TestConverter<VALUE, ALLOCATOR>::getIdentifier(const VALUE& obj)
 {
-    return 127 - TemplateTestFacility::getIdentifier<VALUE>(obj);
+    return 127 - TemplateTestFacility::getIdentifier(obj);
 }
 
 //=============================================================================
@@ -280,6 +286,9 @@ class TestDriver
 
   public:
     // TEST CASES
+    static void testCase16();
+        // TESTING PRINT CONCERNS.
+
     static void testCase15();
         // TESTING MANIPULATORS.
 
@@ -329,6 +338,157 @@ class TestDriver
                               // ----------
                               // TEST CASES
                               // ----------
+
+template <class VALUE, class ALLOCATOR, class CONVERTER>
+void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase16()
+{
+    // ------------------------------------------------------------------------
+    // TESTING PRINT CONCERNS
+    //
+    // Concerns:
+    //: 1 The standard test values that support 'debugprint' can be printed
+    //:   using the standard test-driver 'P' and 'P_' macros.
+    //:
+    //: 2 The printed values are correct when inspected by hand, running this
+    //:   test case in 'verbose' mode.
+    //
+    // Plan:
+    //: 1 Create a constant TestValuesArray object, passing a value
+    //:   specification.
+    //:
+    //: 2 Loop over all the values, and in verbose mode print the values, and
+    //:   the corresponding 'SPEC' character, using the 'P_' and 'P' macros.
+    //:
+    //: 3 Run in verbose mode to inspect the printed value, and confirm all the
+    //:   printed stings have the expected values.
+    //
+    // Testing:
+    //  CONCERN: all values in the array are printable with 'P()' macro
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nVALUE: %s\n", NameOf<VALUE>().name());
+
+    char specBuffer[128] = {};
+    for (int i = 0; i != 127; ++i) {
+        specBuffer[i] = static_cast<char>(i+1);
+    }
+
+    const char   *SPEC = specBuffer;
+    const Obj     VALUES(SPEC);
+    const size_t  NUM_VALUES = VALUES.size();
+
+    bsls::OutputRedirector redirector(bsls::OutputRedirector::e_STDOUT_STREAM,
+                                      verbose,
+                                      veryVerbose);
+
+    if (!verbose) {
+        // Write just the test values, and parse them back as integers, with
+        // adjustments for known corner cases.
+
+        for (size_t i = 0; i != NUM_VALUES; ++i) {
+            redirector.enable();
+            redirector.clear();
+            P_(VALUES[i]);
+
+            if (!redirector.load()) {
+                redirector.disable();
+                ASSERT(!"Could not load redirected output into buffer.");
+                break;
+            }
+            redirector.disable();
+
+            if (!redirector.isOutputReady()) {
+                ASSERT(!"Redirected output buffer is empty.");
+                break;
+            }
+
+            if (redirector.outputSize() < 12 ) {
+                ASSERT(!"Redirected output buffer is shorted than expected.");
+                break;
+            }
+
+            const char *printedText = redirector.getOutput();
+            ASSERT(0 == strncmp("VALUES[i] = ", printedText, 12));
+
+            printedText += 12;
+            if ('"' == *printedText) {
+                ++printedText;
+            }
+
+            if (bsl::is_member_pointer<VALUE>::value) {
+                // There is no 'debugprint' overload for member-pointers.
+                // Instead, member-pointers match the overload for 'bool' with
+                // a built-in conversion, so we expect the output to be simply
+                // "true" for a non-null value, and "false" for a null member
+                // pointer.  We can spot the latter case as it has the testing
+                // framework gives null the identifier '0'.
+
+                if (0 == bsltf::TemplateTestFacility::getIdentifier(VALUES[i]))
+                {
+                    ASSERTV(i, printedText,
+                            0 == strncmp("false", printedText, 5));
+                }
+                else {
+                    ASSERTV(i, printedText,
+                            0 == strncmp("true", printedText, 4));
+                }
+            }
+            else {
+                // For types other than member-pointer, the output format is an
+                // integer, potentially quoted, potentially in hexadecimal
+                // format, that can be parsed simply with 'strtol'.  Note that
+                // we should check that some output was consumed by the call to
+                // 'strtol', otherwise we might be fooled if '0' is a valid
+                // result (as happens for 'const char *').
+
+                char *result = 0;
+
+                // Note that pointer values are usually printed as hex, but IBM
+                // fails to precede the hex-string with '0x', forcing use of
+                // the explicit hexadecimal radix.  Note that 'const char *'
+                // values are actually string representations, holding the
+                // decimal string representation of the corresponding ID.
+
+                const int radix = bsl::is_pointer<VALUE>::value &&
+                                 !bsl::is_same<const char *, VALUE>::value
+                                ? 16  : 0;
+                const long parsedValue = strtol(printedText, &result, radix);
+                if (result == printedText) {
+                    if (bsl::is_pointer<VALUE>::value) {
+                        ASSERTV(
+                     NameOf<VALUE>().name(),
+                     result,
+                     bsltf::TemplateTestFacility::getIdentifier(VALUES[i]),
+                     bsltf::TemplateTestFacility::getIdentifier(VALUES[i]) == 0
+                     || !"Parsing redirected output did not consume any text");
+                    }
+                    else {
+                        ASSERTV(NameOf<VALUE>().name(), result,
+                        !"Parsing redirected output did not consume any text");
+                    }
+                }
+                else {
+                    ASSERTV(NameOf<VALUE>().name(),
+                            126 - i,
+                            parsedValue,
+                            printedText,
+                            long(126 - i) == parsedValue);
+                }
+            }
+        }
+    }
+    else {
+        // Write out each test value in a formatted line using the various
+        // BDE test driver macros.  This format is intended to be readable by a
+        // manual audit.
+
+        for (size_t i = 0; i != NUM_VALUES; ++i) {
+            if (verbose) { T_ P_(i) P_(SPEC[i]) P_(VALUES[i]) P(VALUES[i]) }
+        }
+    }
+}
+
+
 template <class VALUE, class ALLOCATOR, class CONVERTER>
 void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
 {
@@ -2167,8 +2327,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase2()
     //   createInplace(VALUE *objPtr, char value, ALLOCATOR allocator);
     // ------------------------------------------------------------------------
 
-    if (verbose)
-        printf("\nVALUE: %s\n", NameOf<VALUE>().name());
+    if (verbose) printf("\nVALUE: %s\n", NameOf<VALUE>().name());
 
     typedef TestValuesArray_DefaultConverter<VALUE, ALLOCATOR> Converter;
 
@@ -2183,16 +2342,18 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase2()
     const VALUE&               X = mX;
     VALUE                     *address = buffer.address();
 
-    for (size_t ti = 0; ti <= 127; ++ti) {
+    for (int ti = 0; ti != 128; ++ti) {
+        // Note that 'char' might not be able to represent 128
+
         Converter::createInplace(address,
                                  static_cast<char>(ti),
                                  &objectAllocator);
-        int value = TemplateTestFacility::getIdentifier<VALUE>(X);
 
-        if (veryVeryVerbose) {
-            T_ T_ P_(ti) P(value) }
+        const int ID = TemplateTestFacility::getIdentifier(X);
 
-        ASSERTV(ti, value, ti == value);
+        if (veryVeryVerbose) { T_ T_ P_(ti) P(ID) }
+
+        ASSERTV(ti, ID, ID == ti);
 
         bslma::DestructionUtil::destroy(address);
     }
@@ -2333,7 +2494,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -2359,6 +2520,18 @@ int main(int argc, char *argv[])
 //..
     runTest<char>();
 //..
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING PRINT CONCERNS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING PRINT CONCERNS"
+                            "\n======================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase16,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 15: {
         // --------------------------------------------------------------------

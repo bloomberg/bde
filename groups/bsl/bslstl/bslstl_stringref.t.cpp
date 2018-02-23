@@ -250,6 +250,22 @@ wchar_t const * TestData<wchar_t>::stringValue2 = L"abcfg";
 char const * EMPTY_STRING     = TestData<char>::emptyString;
 char const * NON_EMPTY_STRING = TestData<char>::nonEmptyString;
 
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+namespace BloombergLP {
+namespace bslstl {
+
+void debugprint(const StringRef& value)
+{
+    for (int i = 0; i != value.length(); ++i) {
+        putchar(value[i]);
+    }
+}
+
+}  // close package namespace
+}  // close enterprise namespace
 // ============================================================================
 //                 Test Case 11: Testing 'bsl::string;;operator='
 // ----------------------------------------------------------------------------
@@ -3133,21 +3149,21 @@ int main(int argc, char *argv[])
           // Empty string
           Obj x1(EMPTY_STRING, std::strlen(EMPTY_STRING));
           const Obj& X1 = x1;
-          ASSERT(X1.isEmpty());
-          ASSERT(X1.length()  == 0);
-          ASSERT(X1.begin()   == X1.end());
-          ASSERT(X1.begin()   == EMPTY_STRING);
-          ASSERT(X1.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));
+          ASSERTV(X1, X1.isEmpty());
+          ASSERTV(X1, X1.length() == 0);
+          ASSERTV(X1, X1.begin()  == X1.end());
+          ASSERTV(X1, X1.begin()  == EMPTY_STRING);
+          ASSERTV(X1, X1.end()    == EMPTY_STRING + std::strlen(EMPTY_STRING));
 
           // Non-empty string
           Obj x2(NON_EMPTY_STRING, std::strlen(NON_EMPTY_STRING));
           const Obj& X2 = x2;
-          ASSERT(!X2.isEmpty());
-          ASSERT(X2.length()  == std::strlen(NON_EMPTY_STRING));
-          ASSERT(X2.begin()   != X2.end());
-          ASSERT(X2.begin()   == NON_EMPTY_STRING);
-          ASSERT(X2.end()     == NON_EMPTY_STRING +
-                                 std::strlen(NON_EMPTY_STRING));
+          ASSERTV(X2, !X2.isEmpty());
+          ASSERTV(X2, X2.length(), X2.length()  == 30);
+          ASSERTV(X2, X2.begin()   != X2.end());
+          ASSERTV(X2, X2.begin()   == NON_EMPTY_STRING);
+          ASSERTV(X2, X2.end()     == NON_EMPTY_STRING +
+                                      std::strlen(NON_EMPTY_STRING));
 
           // Assorted integer types for length
 #define TEST_LITERAL_ZERO(LITERAL_ZERO)                                       \
@@ -3157,11 +3173,11 @@ int main(int argc, char *argv[])
           }                                                                   \
           Obj x(EMPTY_STRING, LITERAL_ZERO);                                  \
           const Obj& X = x;                                                   \
-          ASSERT(X.isEmpty());                                                \
-          ASSERT(X.length()  == 0);                                           \
-          ASSERT(X.begin()   == X.end());                                     \
-          ASSERT(X.begin()   == EMPTY_STRING);                                \
-          ASSERT(X.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));    \
+          ASSERTV(X, X.isEmpty());                                            \
+          ASSERTV(X, X.length(), X.length()  == 0);                           \
+          ASSERTV(X, X.begin() == X.end());                                   \
+          ASSERTV(X, X.begin() == EMPTY_STRING);                              \
+          ASSERTV(X, X.end()   == EMPTY_STRING + std::strlen(EMPTY_STRING));  \
         }
 
 #define TEST_TYPE(INT_TYPE)                                                   \
@@ -3172,11 +3188,11 @@ int main(int argc, char *argv[])
           Obj x(NON_EMPTY_STRING,                                             \
                 static_cast<INT_TYPE>(std::strlen(NON_EMPTY_STRING)));        \
           const Obj& X = x;                                                   \
-          ASSERT(!X.isEmpty());                                               \
-          ASSERT(X.length()  == std::strlen(NON_EMPTY_STRING));               \
-          ASSERT(X.begin()   != X.end());                                     \
-          ASSERT(X.begin()   == NON_EMPTY_STRING);                            \
-          ASSERT(X.end()     == NON_EMPTY_STRING +                            \
+          ASSERTV(X, !X.isEmpty());                                           \
+          ASSERTV(X, X.length(), X.length()  == 30);                          \
+          ASSERTV(X, X.begin()   != X.end());                                 \
+          ASSERTV(X, X.begin()   == NON_EMPTY_STRING);                        \
+          ASSERTV(X, X.end()     == NON_EMPTY_STRING +                        \
                                  std::strlen(NON_EMPTY_STRING));              \
         }
 

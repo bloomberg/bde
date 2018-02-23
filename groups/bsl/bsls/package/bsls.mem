@@ -53,6 +53,7 @@ bsls_nameof
 bsls_nativestd
 bsls_nullptr
 bsls_objectbuffer
+bsls_outputredirector
 bsls_performancehint
 bsls_platform
 bsls_platformutil

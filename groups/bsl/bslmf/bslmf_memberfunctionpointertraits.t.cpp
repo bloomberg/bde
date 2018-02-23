@@ -275,6 +275,11 @@ int main(int argc, char *argv[])
           //------------------------------------------------------------------
           // TESTING POINTER TO MEMBER OF CONST VOLATILE CLASS
           //------------------------------------------------------------------
+
+          if (verbose) printf(
+                      "\nTESTING POINTER TO MEMBER OF CONST VOLATILE CLASS"
+                      "\n-------------------------------------------------\n");
+
           {
               typedef bslmf::MemberFunctionPointerTraits<TestFunc0CV> X;
               typedef bslmf::TypeList0 ListType;
@@ -425,6 +430,11 @@ int main(int argc, char *argv[])
           //------------------------------------------------------------------
           // TESTING POINTER TO MEMBER OF VOLATILE CLASS
           //------------------------------------------------------------------
+
+          if (verbose) printf(
+                            "\nTESTING POINTER TO MEMBER OF VOLATILE CLASS"
+                            "\n-------------------------------------------\n");
+
           {
               typedef bslmf::MemberFunctionPointerTraits<TestFunc0V> X;
               typedef bslmf::TypeList0 ListType;
@@ -574,6 +584,9 @@ int main(int argc, char *argv[])
           //------------------------------------------------------------------
           // TESTING POINTER TO MEMBER OF CONST CLASS
           //------------------------------------------------------------------
+
+          if (verbose) printf("\nTESTING POINTER TO MEMBER OF CONST CLASS"
+                              "\n----------------------------------------\n");
           {
               typedef bslmf::MemberFunctionPointerTraits<TestFunc0C> X;
               typedef bslmf::TypeList0 ListType;
@@ -724,6 +737,9 @@ int main(int argc, char *argv[])
           //------------------------------------------------------------------
           // TESTING POINTER TO MEMBER OF NON-CV CLASS
           //------------------------------------------------------------------
+
+          if (verbose) printf("\nTESTING POINTER TO MEMBER OF NON-CV CLASS"
+                              "\n-----------------------------------------\n");
           {
               typedef bslmf::MemberFunctionPointerTraits<TestFunc0> X;
               typedef bslmf::TypeList0 ListType;

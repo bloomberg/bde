@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <sys/time.h>
 #   else
-#     include BSL_NATIVE_SYS_TIME_HEADER(sys/time.h)
+#     include BSL_NATIVE_C_LIB_HEADER(sys/time.h)
 #   endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <sys/time.h>
 #   else
-#     include BSL_NATIVE_SYS_TIME_HEADER(sys/time.h)
+#     include BSL_NATIVE_C_LIB_HEADER(sys/time.h)
 #   endif
 
 // This native header does not define any symbols in namespace 'std' to import,

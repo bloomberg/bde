@@ -48,9 +48,9 @@ void aSsErT(bool condition, const char *message, int line)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV

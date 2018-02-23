@@ -20,7 +20,7 @@ BSLS_IDENT_RCSID(btlsos_tcpcbchannel_cpp,"$Id$ $CSID$")
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
-#include <bslalg_scalardestructionprimitives.h>
+#include <bslma_destructionutil.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -227,14 +227,14 @@ TcpCbChannel_RReg::~TcpCbChannel_RReg() {
                     (bsl::function<void(const char *, int, int)> *)
                         (void *)d_cb.d_arena;
 
-        bslalg::ScalarDestructionPrimitives::destroy(cb);
+        bslma::DestructionUtil::destroy(cb);
     }
     else {
         BSLS_ASSERT(d_callbackType == e_VFUNC2);
         bsl::function<void(int, int)> *cb =
             (bsl::function<void(int, int)> *) (void *) d_cb.d_arena;
 
-        bslalg::ScalarDestructionPrimitives::destroy(cb);
+        bslma::DestructionUtil::destroy(cb);
     }
 }
 

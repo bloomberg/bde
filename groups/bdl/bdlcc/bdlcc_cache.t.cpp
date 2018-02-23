@@ -1815,7 +1815,7 @@ class TestHashFunctor {
     bsl::size_t operator() (const TYPE& obj) const
         // Return the has value of the specified 'obj'.
     {
-        return  bsltf::TemplateTestFacility::getIdentifier<TYPE>(obj);
+        return  bsltf::TemplateTestFacility::getIdentifier(obj);
     }
 
     bool operator==(const TestHashFunctor& rhs) const
@@ -1832,8 +1832,8 @@ class TestHashFunctor {
 template <class TYPE>
 bool areEqual(const TYPE& lhs, const TYPE& rhs)
 {
-    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-        == bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+    return bsltf::TemplateTestFacility::getIdentifier(lhs)
+        == bsltf::TemplateTestFacility::getIdentifier(rhs);
 }
 
 template <class TYPE>

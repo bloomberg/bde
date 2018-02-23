@@ -118,7 +118,7 @@ struct NthParameter_Sentinel;  // Declared but not defined
 template <std::size_t N, class FIRST_PARAM = NthParameter_Sentinel,
           class... PARAMS>
 struct NthParameter {
-    // Metafunction to compute the specified 'N'th element of the spcified
+    // Metafunction to compute the specified 'N'th element of the specified
     // 'PARAMS' template parameter pack.  The 'Type' nested typedef will match
     // the 'N'th element of 'PARAMS', where 'N' is zero-based (so that an 'N'
     // of zero corresponds to the first parameter.
@@ -128,9 +128,9 @@ struct NthParameter {
         // off the first parameter until N == 0.
 };
 
-// ===========================================================================
-//                      IMPLEMENTATION
-// ===========================================================================
+// ============================================================================
+//                              IMPLEMENTATION
+// ============================================================================
 
 template <class FIRST_PARAM, class... PARAMS>
 struct NthParameter<0, FIRST_PARAM, PARAMS...> {

@@ -53,6 +53,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISSAME
+#include <bslmf_issame.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -63,14 +67,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_SUN)
-// The Microsoft and Sun compilers do not recognize array-types as cv-qualified
-// (when the element type is cv-qualified) when performing matching for partial
-// template specialization, but do get the correct result when performing
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1910)     \
+ ||  defined(BSLS_PLATFORM_CMP_IBM)
+// The Microsoft compiler does not recognize array-types as cv-qualified (when
+// the element type is cv-qualified) when performing matching for partial
+// template specialization, but does get the correct result when performing
 // overload resolution for functions (taking arrays by reference).  Given the
 // function dispatch behavior being correct, we choose to work around this
 // compiler bug, rather than try to report compiler behavior, as the compiler
-// itself is inconsistent depeoning on how the trait might be used.  This also
+// itself is inconsistent depending on how the trait might be used.  This also
 // corresponds to how Microsft itself implements the trait in VC2010 and later.
 // Last tested against VC 2015 (Release Candidate).
 # define BSLMF_ISCONST_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT 1
@@ -97,11 +102,24 @@ struct is_const : false_type {
                          // struct is_const<TYPE const>
                          // ===========================
 
+#if defined(BSLS_PLATFORM_CMP_SUN)
+template <class TYPE>
+struct is_const<const TYPE>
+    : integral_constant<bool, !is_same<TYPE, const TYPE>::value> {
+     // This partial specialization of 'is_const', for when the (template
+     // parameter) 'TYPE' is 'const'-qualified, derives from 'bsl::true_type'.
+     // Note that the Solaris CC compiler misdiagnoses cv-qualified
+     // "abominable" function types as being cv-qualified themselves.  The
+     // correct result is obtained by delegating the result to a call through
+     // 'is_same'.
+};
+#else
 template <class TYPE>
 struct is_const<const TYPE> : true_type {
      // This partial specialization of 'is_const', for when the (template
      // parameter) 'TYPE' is 'const'-qualified, derives from 'bsl::true_type'.
 };
+#endif
 
 
 #if defined(BSLMF_ISCONST_COMPILER_DOES_NOT_DETECT_CV_QUALIFIED_ARRAY_ELEMENT)

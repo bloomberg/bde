@@ -62,27 +62,32 @@
 //:
 //: o If not defined, the component could be updated to recognize the build
 //:   configuration as providing the feature of interest.
+//
+// TBD Add tests for the new macros (and amendments to existing macros).  See
+//     the macros without test-case numbers below.
 // ----------------------------------------------------------------------------
+// [  ] BSLS_LIBRARYFEATURES_HAS_C90_GETS
+// [  ] BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
+// [  ] BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+// [ 6] BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
 // [ 1] BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
 // [ 2] BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// [  ] BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
+// [  ] BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+// [  ] BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
 // [ 3] BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+// [  ] BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
 // [ 4] BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 // [ 5] BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
-// [ 6] BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
-// [ 6] BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
+// [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
+// [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
+// [ 9] BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS
 // [ 7] int native_std::isblank(int);
 // [ 7] bool native_std::isblank(char, const native_std::locale&);
-// [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 // ----------------------------------------------------------------------------
-// [ 9] USAGE EXAMPLE
+// [10] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
-// TBD Add tests for the new macros (and amendments to existing macros):
-//
-//: o BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
-//: o BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
-//: o BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-//: o BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -153,6 +158,79 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined =
 #else
                                                                      false;
 #endif
+
+                    // case 9
+
+static const bool
+    u_BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined =
+#if defined(BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+
+#include <initializer_list>
+
+namespace test_case_9
+{
+class MyType {
+  public:
+    static int s_liveCount;
+
+  private:
+    static void addToLiveCount() {
+        if (s_liveCount > 5) {
+            throw s_liveCount;
+        }
+        else {
+            ++s_liveCount;
+        }
+    }
+
+  public:
+    MyType() { addToLiveCount(); }
+    MyType(int) { addToLiveCount(); }
+    MyType(const MyType&) { addToLiveCount(); }
+    ~MyType() { --s_liveCount; }
+};
+
+struct MyWrapper {
+    MyWrapper(std::initializer_list<MyType>) {}
+};
+
+int MyType::s_liveCount = 0;
+
+void runTest() {
+    ASSERT(0 == MyType::s_liveCount);
+
+# if defined(BDE_BUILD_TARGET_EXC)
+    try {
+        const MyWrapper X = { 1, 2 };
+        (void)X;
+    }
+    catch(...) {
+        ASSERT(!"Strange error! No exceptions were expected.");
+    }
+    ASSERT(0 == MyType::s_liveCount);
+
+    try {
+        const MyWrapper X = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        (void)X;
+    }
+    catch(int) {
+        if (u_BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined)
+            ASSERT(0 != MyType::s_liveCount);
+        else
+            ASSERT(0 == MyType::s_liveCount);
+    }
+# endif
+}
+
+}  // close namespace test_case_9
+#endif
+
 
                     // case 8
 
@@ -657,7 +735,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -678,6 +756,52 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
       } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
+        //
+        // Concerns:
+        //: 1 The 'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
+        //:   flag is defined when the native standard library provides the
+        //:   class template 'std::initializer_list<T>', and the constructor
+        //:   called by the compiler when providing a list of initializers does
+        //:   not properly clean up after itself if an exception is thrown
+        //:   copying one of those elements.  This macro should not be defined
+        //:   if the library does not provide 'std::initializer_list<T>', nor
+        //:   in the expected case that the library implementation does not
+        //:   leak.
+        //
+        // Plan:
+        //: 1 When 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS' is
+        //:   defined conditionally compile code that includes
+        //:   '<initializer_list>', and try to initialize from a list of
+        //:   instrumented user-defined object types, using a constructor that
+        //:   throws when the (instrumented) global object count gets too high.
+        //: 2 Verify that the live global object count is reduced to zero after
+        //:   throwing the exception, unless the macro
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' is
+        //:   defined.  (C-1)
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+       "TESTING 'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS'\n"
+       "==================================================================\n");
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        test_case_9::runTest();
+#endif
+
+        if (verbose) {
+            P(
+            u_BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined)
+        }
+
+        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
+
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS'
@@ -694,7 +818,7 @@ int main(int argc, char *argv[])
         //:
         //:     o atomic class template and specializations for pointer types
         //
-        //:Plan:
+        // Plan:
         //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' is
         //:   defined conditionally compile code that includes '<atomic>', and
         //:   uses each of the listed types at least once.  (C-1)
@@ -784,7 +908,7 @@ int main(int argc, char *argv[])
         //:   the native standard library provides C99 features.
         //:
         //: 2 'BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF' is defined only when
-        //:   the native standard library provides C99 snprintf.
+        //:   the native standard library provides C99 'snprintf'.
         //
         //
         // Plan:
@@ -1041,7 +1165,7 @@ int main(int argc, char *argv[])
         //:     o 'isblank'
         //:
         //:   o Function defined in '<memory>'
-        //:     o addressof;
+        //:     o 'addressof';
         //:     o 'uninitialized_copy_n'
         //:
         //:   o Function defined in '<numeric>'

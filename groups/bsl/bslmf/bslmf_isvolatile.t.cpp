@@ -5,8 +5,8 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <stdio.h>   // 'printf'
-#include <stdlib.h>  // 'atoi'
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace BloombergLP;
 
@@ -78,10 +78,7 @@ void aSsErT(bool condition, const char *message, int line)
 //# define BSLMF_ISVOLATILE_SHOW_COMPILER_ERRORS 1
 #if !defined(BSLMF_ISVOLATILE_SHOW_COMPILER_ERRORS)
 
-# if defined(BSLS_PLATFORM_CMP_IBM)                                           \
-  || defined(BSLS_PLATFORM_CMP_SUN)                                           \
-  ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION <= 40400)   \
-  ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
 // The xlC and Sun CC compilers mistakenly detect function types with trailing
 // cv-qualifiers as being cv-qualified themselves.  However, in such cases the
 // cv-qualifier applies to the (hidden) 'this' pointer, as these function types
@@ -92,7 +89,21 @@ void aSsErT(bool condition, const char *message, int line)
 // Note that we could obtain the correct answer by deriving 'is_volatile' from
 // (the negation of) 'is_function', but that simply exposes that our current
 // implementation of 'is_function' does not detect such types either.
-#   define BSLMF_ISVOLATILE_COMPILER_MISREPORTS_ABOMINABLE_FUNCTION_TYPES
+#   define BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES
+# endif
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+// The xlC and Sun CC compilers mistakenly detect function types with trailing
+// cv-qualifiers as being cv-qualified themselves.  However, in such cases the
+// cv-qualifier applies to the (hidden) 'this' pointer, as these function types
+// exist only to be the result-type of a pointer-to-member type.  By definition
+// no function type can ever be cv-qualified.  The Microsoft compiler cannot
+// parse such types at all.
+//
+// Note that we could obtain the correct answer by deriving 'is_volatile' from
+// (the negation of) 'is_function', but that simply exposes that our current
+// implementation of 'is_function' does not detect such types either.
+#   define BSLMF_ISVOLATILE_COMPILER_CANNOT_QUALIFY_ABOMINABLE_FUNCTION_TYPES
 # endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800
@@ -108,8 +119,8 @@ void aSsErT(bool condition, const char *message, int line)
 # if defined(BSLS_PLATFORM_CMP_IBM)                                           \
   || defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_CV_QUAL_FOR_ARRAYS)
 // The IBM xlC compiler correctly matches an array of 'const volatile' elements
-// to a function template taking 'const T&', but incorrectly deduces 'T' to be
-// 'const volatile X[N]' rather than simply 'volatile X[N]'.  The trait is
+// to a function template taking 'volatile T&', but incorrectly deduces 'T' to
+// be 'const volatile X[N]' rather than simply 'const X[N]'.  The trait is
 // manually tested to confirm that it gives the correct result, so we define
 // a macro allowing us to disable the affected tests on this platform.
 #   define BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY
@@ -139,7 +150,7 @@ void aSsErT(bool condition, const char *message, int line)
 namespace {
 
 struct TestType {
-    // This user-defined type is intended to be used for testing.
+   // This user-defined type is intended to be used for testing.
 };
 
 }  // close unnamed namespace
@@ -198,6 +209,36 @@ bool testCVOverload(volatile DEDUCED_TYPE &)
     return bsl::is_volatile<DEDUCED_TYPE>::value;
 }
 
+
+
+template <class TYPE>
+bool testIsvolatile()
+{
+    return bsl::is_volatile<TYPE>::value;
+}
+
+template <class TYPE>
+bool testIsNotvolatileable()
+{
+    return !testIsvolatile<TYPE volatile>();
+}
+
+
+template <class MEMBER, class HOST>
+void testNovolatileOnMemberFunction(MEMBER HOST::*)
+    // Call this function with a pointer-to-member pointing specifically to a
+    // cv-qualfied member function.  This will allow validation that a
+    // cv-qualfied "abominable" function does not carry a 'volatile' qualifier,
+    // even on platforms that do not allow us to enter the type directly.
+{
+    ASSERT(!testIsvolatile<MEMBER>());
+}
+
+struct ClassWithCvFunctions {
+    void volatileQualified() volatile {}
+    void cvQualified() const volatile {}
+};
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -219,7 +260,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -243,8 +284,8 @@ int main(int argc, char *argv[])
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Verify 'Volatile' Types
-/// - - - - - - - - - - - - - - - - -
+///Example 1: Verify 'volatile' Types
+///- - - - - - - - - - - - - - - -
 // Suppose that we want to assert whether a particular type is
 // 'volatile'-qualified.
 //
@@ -261,6 +302,96 @@ int main(int argc, char *argv[])
     ASSERT(true  == bsl::is_volatile<MyVolatileType>::value);
 //..
 
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING NON-QUALIFYABLE TYPES
+        //   Reference type and function types do not support cv-qualification,
+        //   although "abominable" function types have a syntax that looks like
+        //   they do.  Confirm that there are no surprising compiler bugs when
+        //   a template tries to specialize for volatile-qualified version of
+        //   such a type.
+        //
+        // Concerns:
+        //: 1 'is_volatile<TYPE>::value' has the value expected for the type
+        //:   deduced for a single function template, with no overloads, that
+        //:   deduces the complete type, including cv-qualifiers, from its
+        //:   argument passed by reference.
+        //:
+        //: 2 'is_volatile<TYPE>::value' is always 'false' for a type deduced
+        //:   from a pair of function template overloads taking their arguments
+        //:   by reference, and by volatile-reference.
+        //:
+        //: 3 Given the specific information that some platforms require a
+        //:   special implementation for arrays, multidimensional arrays should
+        //:   have the same result as this trait applied to an array of a
+        //:   single dimension with the same (potentially cv-qualified) element
+        //:   type.
+        //
+        // Plan:
+        //: 1 Verify that 'bsl::is_volatile<TYPE>::value' has the correct value
+        //:   for each concern.
+        //
+        // Testing:
+        //   CONCERN: not all types support cv-qualifiers
+        // --------------------------------------------------------------------
+
+        if (verbose)
+             printf("\nTESTING NON-QUALIFYABLE TYPES"
+                    "\n=============================\n");
+
+        // First check there are no high level surprises
+        ASSERT(!testIsvolatile<int &>());
+        ASSERT(!testIsvolatile<volatile int &>());
+        ASSERT(!testIsvolatile<int()>());
+        ASSERT(!testIsvolatile<volatile int()>());
+#if !defined(BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
+        ASSERT(!testIsvolatile<volatile int() volatile>());
+#endif
+
+        // Test again through a function that will try to volatile-qualify the
+        // supplied template parameter
+
+        ASSERT(testIsNotvolatileable<int &>());
+        ASSERT(testIsNotvolatileable<volatile int &>());
+#if !defined(BSLMF_ISVOLATILE_COMPILER_CANNOT_QUALIFY_ABOMINABLE_FUNCTION_TYPES)
+        ASSERT(testIsNotvolatileable<int()>());
+        ASSERT(testIsNotvolatileable<volatile int()>());
+# if !defined(BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
+        ASSERT(testIsNotvolatileable<volatile int() volatile>());
+# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
+        ASSERT(testIsNotvolatileable<int &&>());
+        ASSERT(testIsNotvolatileable<volatile int &&>());
+        ASSERT(testIsNotvolatileable<int() &>());
+        ASSERT(testIsNotvolatileable<volatile int() &>());
+        ASSERT(testIsNotvolatileable<volatile int() volatile &>());
+        ASSERT(testIsNotvolatileable<int() volatile &>());
+        ASSERT(testIsNotvolatileable<volatile int() volatile &>());
+        ASSERT(testIsNotvolatileable<volatile int() const volatile &>());
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+        ASSERT(testIsNotvolatileable<int() noexcept>());
+        ASSERT(testIsNotvolatileable<volatile int() noexcept>());
+        ASSERT(testIsNotvolatileable<volatile int() volatile noexcept>());
+
+        ASSERT(testIsNotvolatileable<int() & noexcept>());
+        ASSERT(testIsNotvolatileable<volatile int() & noexcept>());
+        ASSERT(testIsNotvolatileable<volatile int() volatile & noexept>());
+        ASSERT(testIsNotvolatileable<int() volatile & noexcept>());
+        ASSERT(testIsNotvolatileable<volatile int() volatile & noexcept>());
+        ASSERT(
+            testIsNotvolatileable<volatile int() const volatile & noexcept>());
+#endif
+
+#if !defined(BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
+        testNovolatileOnMemberFunction(
+                                     &ClassWithCvFunctions::volatileQualified);
+        testNovolatileOnMemberFunction(&ClassWithCvFunctions::cvQualified);
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -282,7 +413,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 'is_volatile<TYPE>::value' is always 'false' for a type deduced
         //:   from a pair of function template overloads taking their arguments
-        //:   by reference, and by const-reference.
+        //:   by reference, and by volatile-reference.
         //:
         //: 3 Given the specific information that some platforms require a
         //:   special implementation for arrays, multidimensional arrays should
@@ -344,7 +475,7 @@ int main(int argc, char *argv[])
 
         ASSERT(false == testCVDeduction(array2D));
         ASSERT(false == testCVDeduction(constArray2D));
-        ASSERT (true == testCVDeduction(volatileArray2D));
+        ASSERT( true == testCVDeduction(volatileArray2D));
         ASSERT( true == testCVDeduction(constVolatileArray2D));
 
         ASSERT(false == testCVDeduction(arrayUB2D));
@@ -352,8 +483,8 @@ int main(int argc, char *argv[])
         ASSERT( true == testCVDeduction(volatileArrayUB2D));
         ASSERT( true == testCVDeduction(constVolatileArrayUB2D));
 
-        // Overload match should implicitly strip off 'const', so the following
-        // test functions should always return 'false'.
+        // Overload match should implicitly strip off 'volatile', so the
+        // following test functions should always return 'false'.
 
         ASSERT(false == testCVOverload(data));
         ASSERT(false == testCVOverload(constData));
@@ -361,58 +492,50 @@ int main(int argc, char *argv[])
         ASSERT(false == testCVOverload(constVolatileData));
 
         ASSERT(false == testCVOverload(array));
+        ASSERT(false == testCVOverload(arrayUB));
+        ASSERT(false == testCVOverload(array2D));
+        ASSERT(false == testCVOverload(arrayUB2D));
+
         ASSERT(false == testCVOverload(constArray));
+        ASSERT(false == testCVOverload(constArrayUB));
+        ASSERT(false == testCVOverload(constArray2D));
+        ASSERT(false == testCVOverload(constArrayUB2D));
+
 #if !defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_CV_QUAL_FOR_ARRAYS)
         ASSERT(false == testCVOverload(volatileArray));
-# if !defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
-        ASSERT(false == testCVOverload(constVolatileArray));
-# endif
-#endif
-
-        ASSERT(false == testCVOverload(arrayUB));
-        ASSERT(false == testCVOverload(constArrayUB));
-#if !defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_CV_QUAL_FOR_ARRAYS)
         ASSERT(false == testCVOverload(volatileArrayUB));
-# if !defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
-        ASSERT(false == testCVOverload(constVolatileArrayUB));
-# endif
 #endif
-
-        ASSERT(false == testCVOverload(array2D));
-        ASSERT(false == testCVOverload(constArray2D));
 #if !defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
         ASSERT(false == testCVOverload(volatileArray2D));
-        ASSERT(false == testCVOverload(constVolatileArray2D));
-#endif
-
-        ASSERT(false == testCVOverload(arrayUB2D));
-        ASSERT(false == testCVOverload(constArrayUB2D));
-#if !defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
         ASSERT(false == testCVOverload(volatileArrayUB2D));
+
+        ASSERT(false == testCVOverload(constVolatileArray));
+        ASSERT(false == testCVOverload(constVolatileArrayUB));
+        ASSERT(false == testCVOverload(constVolatileArray2D));
         ASSERT(false == testCVOverload(constVolatileArrayUB2D));
 #endif
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // TESTING 'bsl::is_volatile<TYPE>'
-        //   Ensure 'bsl::is_volatile' has the correct base-characteristics
+        //   Ensure that 'bsl::is_volatile' has the correct base-characteristics
         //   for a variety of template parameter types, and neither hides nor
-        //   makes ambiguous the salient elements of the 'integral_constant'
+        //   makes ambiguous the salient elements of the 'integral_constantt'
         //   interface.
         //
         // Concerns:
         //: 1 'is_volatile<T>::value' is 'false' when 'T' is a (possibly
-        //:   'volatile'-qualified) type.
+        //:   'const'-qualified) type.
         //:
-        //: 2 'is_volatile<T>::value' is 'true' when 'T' is a 'const'-qualified
-        //:   or cv-qualified type.
+        //: 2 'is_volatile<T>::value' is 'true' when 'T' is a 'volatile'
+        //:   qualified or cv-qualified type.
         //:
         //: 3 'is_volatile<T>::VALUE' has the same value as
         //:   'is_volatile<T>::value'.
         //:
         //: 4 'is_volatile<T>' is publicly and unambiguously derived from
-        //:   either 'true_type' or 'false_type', according to concerns C-1 and
-        //:   C-2.
+        //:   either 'true_type' or 'false_type', according to concerns 1 and
+        //:   2.
         //:
         //: 5 Objects of type 'is_volatile<T>' can be default constructed and
         //:   copied, for use in tag-dispatch schemes.
@@ -433,7 +556,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'bsl::is_volatile<TYPE>'"
-                            "\n================================\n");
+                            "\n=============================\n");
 
         // C-1
         ASSERT(false == eval(bsl::is_volatile<int>()));
@@ -443,14 +566,15 @@ int main(int argc, char *argv[])
         ASSERT(false == eval(bsl::is_volatile<TestType const>()));
 
         ASSERT(false == eval(bsl::is_volatile<int &>()));
-        ASSERT(false == eval(bsl::is_volatile<const int &>()));
         ASSERT(false == eval(bsl::is_volatile<volatile int &>()));
+        ASSERT(false == eval(bsl::is_volatile<const int &>()));
+        ASSERT(false == eval(bsl::is_volatile<const volatile int &>()));
 
         ASSERT(false == eval(bsl::is_volatile<volatile int *>()));
         ASSERT(false == eval(bsl::is_volatile<const volatile int *>()));
         ASSERT(false == eval(bsl::is_volatile<volatile int TestType::*>()));
-        ASSERT(false == eval(
-                          bsl::is_volatile<const volatile int TestType::*>()));
+        ASSERT(false ==
+                     eval(bsl::is_volatile<const volatile int TestType::*>()));
 
         ASSERT(false == eval(bsl::is_volatile<void>()));
         ASSERT(false == eval(bsl::is_volatile<void const>()));
@@ -459,11 +583,11 @@ int main(int argc, char *argv[])
         ASSERT(false == eval(bsl::is_volatile<volatile int(&)()>()));
         ASSERT(false == eval(bsl::is_volatile<volatile int(*)()>()));
 
-#if !defined BSLMF_ISVOLATILE_COMPILER_MISREPORTS_ABOMINABLE_FUNCTION_TYPES
+#if !defined(BSLMF_ISVOLATILE_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
         // Additional tests for abominable function types
-        ASSERT(false == eval(bsl::is_volatile<volatile int() volatile>()));
-        ASSERT(
-             false == eval(bsl::is_volatile<volatile int() const volatile>()));
+        ASSERT(false == eval(bsl::is_volatile<volatile int(...) volatile>()));
+        ASSERT(false == eval(
+                           bsl::is_volatile<volatile int() const volatile>()));
 #endif
 
         ASSERT(false == eval(bsl::is_volatile<int[4]>()));
@@ -488,7 +612,7 @@ int main(int argc, char *argv[])
         ASSERT(true == eval(bsl::is_volatile<void volatile>()));
         ASSERT(true == eval(bsl::is_volatile<void const volatile>()));
 
-        ASSERT(true == eval(bsl::is_volatile<int * const volatile>()));
+        ASSERT(true == eval(bsl::is_volatile<int * volatile>()));
         ASSERT(true == eval(bsl::is_volatile<int * const volatile>()));
         ASSERT(true == eval(bsl::is_volatile<int(* volatile)()>()));
         ASSERT(true == eval(bsl::is_volatile<int(* const volatile)()>()));
@@ -524,7 +648,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -538,3 +662,4 @@ int main(int argc, char *argv[])
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
+

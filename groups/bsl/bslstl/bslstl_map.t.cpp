@@ -75,7 +75,7 @@
  && (defined(BSLS_PLATFORM_CMP_IBM)   \
   || defined(BSLS_PLATFORM_CMP_CLANG) \
   || defined(BSLS_PLATFORM_CMP_MSVC)  \
-  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130) \
+  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130) \
      )
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
@@ -86,7 +86,7 @@
 #endif
 
 #if !defined(BSLS_COMPILER_FEATURES_SUPPORT_RVALUE_REFERENCES) \
- &&  defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130
+ &&  defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130
 #   define BSL_COMPILER_THINKS_MOVE_AMBIGUOUS_WITH_COPY 1
 #endif
 
@@ -787,12 +787,12 @@ class TestComparator {
         ++d_count;
 
         if (d_compareLess) {
-            return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-            < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);  // RETURN
+            return bsltf::TemplateTestFacility::getIdentifier(lhs)
+                 < bsltf::TemplateTestFacility::getIdentifier(rhs);   // RETURN
         }
         else {
-            return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-            > bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);  // RETURN
+            return bsltf::TemplateTestFacility::getIdentifier(lhs)
+                 > bsltf::TemplateTestFacility::getIdentifier(rhs);   // RETURN
         }
     }
 
@@ -854,12 +854,12 @@ class TestComparatorNonConst {
         ++d_count;
 
         if (d_compareLess) {
-            return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-            < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);  // RETURN
+            return bsltf::TemplateTestFacility::getIdentifier(lhs)
+                 < bsltf::TemplateTestFacility::getIdentifier(rhs);   // RETURN
         }
         else {
-            return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-            > bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);  // RETURN
+            return bsltf::TemplateTestFacility::getIdentifier(lhs)
+                 > bsltf::TemplateTestFacility::getIdentifier(rhs);   // RETURN
         }
     }
 
@@ -1220,8 +1220,8 @@ class GreaterThanFunctor {
         // is greater than the integer representation of the specified 'rhs',
         // and 'false' otherwise.
     {
-        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-             > bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+        return bsltf::TemplateTestFacility::getIdentifier(lhs)
+             > bsltf::TemplateTestFacility::getIdentifier(rhs);
     }
 };
 
@@ -1231,8 +1231,8 @@ bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
     // Return 'true' if the integer representation of the specified 'lhs' is
     // less than integer representation of the specified 'rhs'.
 {
-    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-         < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+    return bsltf::TemplateTestFacility::getIdentifier(lhs)
+         < bsltf::TemplateTestFacility::getIdentifier(rhs);
 }
 
 }  // close unnamed namespace

@@ -439,10 +439,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_rangecompare.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
 #endif
@@ -453,6 +449,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
+#include <bslma_destructionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_STDALLOCATOR
@@ -6052,8 +6052,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::pop_front()
 {
     BSLS_ASSERT(!this->empty());
 
-    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
-                                                     this->d_start.valuePtr());
+    BloombergLP::bslma::DestructionUtil::destroy(this->d_start.valuePtr());
 
     if (1 == this->d_start.remainingInBlock()) {
         this->deallocateN(*this->d_start.blockPtr(), 1);
@@ -6071,15 +6070,14 @@ void deque<VALUE_TYPE, ALLOCATOR>::pop_back()
 
     if (0 == this->d_finish.offsetInBlock()) {
         --this->d_finish;
-        BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
+        BloombergLP::bslma::DestructionUtil::destroy(
                                                     this->d_finish.valuePtr());
         this->deallocateN(this->d_finish.blockPtr()[1], 1);
         return;                                                       // RETURN
     }
 
     this->d_finish.valuePtrDecrement();
-    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
-                                                    this->d_finish.valuePtr());
+    BloombergLP::bslma::DestructionUtil::destroy(this->d_finish.valuePtr());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>

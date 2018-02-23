@@ -26,7 +26,7 @@ BSLS_IDENT_RCSID(btlsos_tcptimedcbconnector_cpp,"$Id$ $CSID$")
 #include <bdlf_memfn.h>
 #include <bdlf_bind.h>
 
-#include <bslalg_scalardestructionprimitives.h>
+#include <bslma_destructionutil.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -228,14 +228,14 @@ TcpTimedCbConnector_Reg::~TcpTimedCbConnector_Reg()
             (bsl::function<void(btlsc::TimedCbChannel*, int)> *)
                                                   (void *)d_cb.d_callbackArena;
 
-        bslalg::ScalarDestructionPrimitives::destroy(cb);
+        bslma::DestructionUtil::destroy(cb);
     }
     else {
         bsl::function<void(btlsc::TimedCbChannel*, int)> *cb =
              (bsl::function<void(btlsc::TimedCbChannel*, int)>*)
                 (void *)d_cb.d_callbackArena;
 
-        bslalg::ScalarDestructionPrimitives::destroy(cb);
+        bslma::DestructionUtil::destroy(cb);
     }
 }
 

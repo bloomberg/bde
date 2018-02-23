@@ -365,7 +365,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)                                            \
- ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130)
+ ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5150)
 // IBM xlC and Sun CC compilers have a hard time handling function types in
 // some of the template instantiations required by this component, so we simply
 // treat function types as 'void' types.  This gives the same result as neither
@@ -460,6 +460,7 @@ struct DetectNestedTrait : DetectNestedTrait_Imp<TYPE, TRAIT>::Type {
     // trait mechanism.  Inherits from 'true_type' iff 'TYPE' is convertible to
     // 'NestedTraitDeclaration<TYPE, TRAIT>' and from 'false_type' otherwise.
 };
+
 #else
 template <class TYPE, template <class> class TRAIT>
 struct DetectNestedTrait : DetectNestedTrait_Imp<
@@ -480,6 +481,13 @@ struct DetectNestedTrait : DetectNestedTrait_Imp<
     // the base class as either 'false_type' or the 'Imp' instantiation would
     // still require the 'Imp' instantiation be valid, which is exactly the
     // compiler bug we are trying to work around.
+};
+
+template <class TYPE, template <class> class TRAIT>
+struct DetectNestedTrait<TYPE &, TRAIT> : bsl::false_type {
+    // This partial specialization handles function references, and all other
+    // reference types, which might cause a problem for the primary template on
+    // compilers that cannot handle template specialization of function types.
 };
 #endif
 
