@@ -278,6 +278,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isintegral.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
 #endif
@@ -371,6 +379,9 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // Standard Library general container requirements.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StringRefImp, bsl::is_trivially_copyable);
+
     // CREATORS
     StringRefImp();
         // Create an object representing an empty 'std::string' value that is
