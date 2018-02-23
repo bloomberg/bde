@@ -1,3 +1,5 @@
+include(legacy/wafstyleout)
+
 include(bde_project)
 include(bde_utils)
 
