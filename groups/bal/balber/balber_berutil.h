@@ -786,7 +786,9 @@ int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
             return k_FAILURE;                                         // RETURN
         }
 
-        *value = (TYPE)(*value << e_BITS_PER_OCTET);
+        const unsigned long long mask =
+                         (1ull << ((sizeof(TYPE) - 1) * e_BITS_PER_OCTET)) - 1;
+        *value = (TYPE)((*value & mask) << e_BITS_PER_OCTET);
         *value = (TYPE)(*value | (unsigned char)nextOctet);
     }
 
