@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
 #undef NL
 
         };
-        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;
