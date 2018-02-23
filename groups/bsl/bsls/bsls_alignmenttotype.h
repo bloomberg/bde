@@ -284,7 +284,7 @@ namespace bsls {
 
 template <int ALIGNMENT>
 struct AlignmentToType {
-    // This 'struct' provides a 'typedef', 'Type', that aliases a type having 
+    // This 'struct' provides a 'typedef', 'Type', that aliases a type having
     // the specified 'ALIGNMENT' requirement.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
