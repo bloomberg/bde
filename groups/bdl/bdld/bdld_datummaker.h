@@ -5,7 +5,7 @@
 //@PURPOSE: Provide a mechanism for easily creating 'bdld::Datum' objects.
 //
 //@CLASSES:
-//  DatumMaker: a mechanism for easily creating 'bdld::Datum' objects
+//  bdld::DatumMaker: a mechanism for easily creating 'bdld::Datum' objects
 //
 //@SEE_ALSO:
 //
@@ -100,6 +100,10 @@
 #include <bdld_datummapowningkeysbuilder.h>
 #endif
 
+#ifndef INCLUDED_BDLD_DATUMINTMAPBUILDER
+#include <bdld_datumintmapbuilder.h>
+#endif
+
 #ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
 #endif
@@ -161,6 +165,9 @@ class DatumMaker {
     void pushBackHelper(bdld::DatumMapOwningKeysBuilder *) const;
         // Do nothing, ends template recursion.
 
+    void pushBackHelper(bdld::DatumIntMapBuilder *) const;
+        // Do nothing, ends template recursion.
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=32
     template <typename TYPE>
     void pushBackHelper(bdld::DatumArrayBuilder *builder,
@@ -202,6 +209,22 @@ class DatumMaker {
                         const bslstl::StringRef&         key,
                         TYPE&&                           value,
                         ENTRIES&&...                     entries) const;
+        // 'push_back' the specified 'key' and 'value' pair (forming a
+        // property) into the specified 'builder', then call 'pushBackHelper'
+        // with the specified (variadic) entries.
+
+    template <typename TYPE>
+    void pushBackHelper(bdld::DatumIntMapBuilder *builder,
+                        int                       key,
+                        TYPE&&                    value) const;
+        // 'push_back' the specified 'key' and 'value' pair (forming a
+        // property) into the specified 'builder'.
+
+    template <typename TYPE, typename... ENTRIES>
+    void pushBackHelper(bdld::DatumIntMapBuilder *builder,
+                        int                       key,
+                        TYPE&&                    value,
+                        ENTRIES&&...              entries) const;
         // 'push_back' the specified 'key' and 'value' pair (forming a
         // property) into the specified 'builder', then call 'pushBackHelper'
         // with the specified (variadic) entries.
@@ -1810,6 +1833,500 @@ class DatumMaker {
                       BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES_32) entries_32
                         ) const;
 
+
+    template <typename TYPE>
+    void pushBackHelper(bdld::DatumIntMapBuilder               *builder,
+                        int                                     key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05,
+                             typename ENTRY_06>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05,
+                        int                                          key_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06)  entry_06
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05,
+                             typename ENTRY_06,
+                             typename ENTRY_07>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05,
+                        int                                          key_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06)  entry_06,
+                        int                                          key_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07)  entry_07
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05,
+                             typename ENTRY_06,
+                             typename ENTRY_07,
+                             typename ENTRY_08>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05,
+                        int                                          key_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06)  entry_06,
+                        int                                          key_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07)  entry_07,
+                        int                                          key_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08)  entry_08
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05,
+                             typename ENTRY_06,
+                             typename ENTRY_07,
+                             typename ENTRY_08,
+                             typename ENTRY_09>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05,
+                        int                                          key_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06)  entry_06,
+                        int                                          key_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07)  entry_07,
+                        int                                          key_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08)  entry_08,
+                        int                                          key_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09)  entry_09
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05,
+                             typename ENTRY_06,
+                             typename ENTRY_07,
+                             typename ENTRY_08,
+                             typename ENTRY_09,
+                             typename ENTRY_10>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05,
+                        int                                          key_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06)  entry_06,
+                        int                                          key_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07)  entry_07,
+                        int                                          key_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08)  entry_08,
+                        int                                          key_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09)  entry_09,
+                        int                                          key_10,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10)  entry_10
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05,
+                             typename ENTRY_06,
+                             typename ENTRY_07,
+                             typename ENTRY_08,
+                             typename ENTRY_09,
+                             typename ENTRY_10,
+                             typename ENTRY_11>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05,
+                        int                                          key_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06)  entry_06,
+                        int                                          key_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07)  entry_07,
+                        int                                          key_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08)  entry_08,
+                        int                                          key_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09)  entry_09,
+                        int                                          key_10,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10)  entry_10,
+                        int                                          key_11,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11)  entry_11
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05,
+                             typename ENTRY_06,
+                             typename ENTRY_07,
+                             typename ENTRY_08,
+                             typename ENTRY_09,
+                             typename ENTRY_10,
+                             typename ENTRY_11,
+                             typename ENTRY_12>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05,
+                        int                                          key_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06)  entry_06,
+                        int                                          key_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07)  entry_07,
+                        int                                          key_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08)  entry_08,
+                        int                                          key_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09)  entry_09,
+                        int                                          key_10,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10)  entry_10,
+                        int                                          key_11,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11)  entry_11,
+                        int                                          key_12,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12)  entry_12
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05,
+                             typename ENTRY_06,
+                             typename ENTRY_07,
+                             typename ENTRY_08,
+                             typename ENTRY_09,
+                             typename ENTRY_10,
+                             typename ENTRY_11,
+                             typename ENTRY_12,
+                             typename ENTRY_13>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05,
+                        int                                          key_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06)  entry_06,
+                        int                                          key_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07)  entry_07,
+                        int                                          key_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08)  entry_08,
+                        int                                          key_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09)  entry_09,
+                        int                                          key_10,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10)  entry_10,
+                        int                                          key_11,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11)  entry_11,
+                        int                                          key_12,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12)  entry_12,
+                        int                                          key_13,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13)  entry_13
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05,
+                             typename ENTRY_06,
+                             typename ENTRY_07,
+                             typename ENTRY_08,
+                             typename ENTRY_09,
+                             typename ENTRY_10,
+                             typename ENTRY_11,
+                             typename ENTRY_12,
+                             typename ENTRY_13,
+                             typename ENTRY_14>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05,
+                        int                                          key_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06)  entry_06,
+                        int                                          key_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07)  entry_07,
+                        int                                          key_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08)  entry_08,
+                        int                                          key_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09)  entry_09,
+                        int                                          key_10,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10)  entry_10,
+                        int                                          key_11,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11)  entry_11,
+                        int                                          key_12,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12)  entry_12,
+                        int                                          key_13,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13)  entry_13,
+                        int                                          key_14,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14)  entry_14
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05,
+                             typename ENTRY_06,
+                             typename ENTRY_07,
+                             typename ENTRY_08,
+                             typename ENTRY_09,
+                             typename ENTRY_10,
+                             typename ENTRY_11,
+                             typename ENTRY_12,
+                             typename ENTRY_13,
+                             typename ENTRY_14,
+                             typename ENTRY_15>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05,
+                        int                                          key_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06)  entry_06,
+                        int                                          key_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07)  entry_07,
+                        int                                          key_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08)  entry_08,
+                        int                                          key_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09)  entry_09,
+                        int                                          key_10,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10)  entry_10,
+                        int                                          key_11,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11)  entry_11,
+                        int                                          key_12,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12)  entry_12,
+                        int                                          key_13,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13)  entry_13,
+                        int                                          key_14,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14)  entry_14,
+                        int                                          key_15,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_15)  entry_15
+                        ) const;
+
+    template <typename TYPE, typename ENTRY_01,
+                             typename ENTRY_02,
+                             typename ENTRY_03,
+                             typename ENTRY_04,
+                             typename ENTRY_05,
+                             typename ENTRY_06,
+                             typename ENTRY_07,
+                             typename ENTRY_08,
+                             typename ENTRY_09,
+                             typename ENTRY_10,
+                             typename ENTRY_11,
+                             typename ENTRY_12,
+                             typename ENTRY_13,
+                             typename ENTRY_14,
+                             typename ENTRY_15,
+                             typename ENTRY_16>
+    void pushBackHelper(bdld::DatumIntMapBuilder                    *builder,
+                        int                                          key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE)      value,
+                        int                                          key_01,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01)  entry_01,
+                        int                                          key_02,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02)  entry_02,
+                        int                                          key_03,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03)  entry_03,
+                        int                                          key_04,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04)  entry_04,
+                        int                                          key_05,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05)  entry_05,
+                        int                                          key_06,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06)  entry_06,
+                        int                                          key_07,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07)  entry_07,
+                        int                                          key_08,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08)  entry_08,
+                        int                                          key_09,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09)  entry_09,
+                        int                                          key_10,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10)  entry_10,
+                        int                                          key_11,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11)  entry_11,
+                        int                                          key_12,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12)  entry_12,
+                        int                                          key_13,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13)  entry_13,
+                        int                                          key_14,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14)  entry_14,
+                        int                                          key_15,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_15)  entry_15,
+                        int                                          key_16,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_16)  entry_16
+                        ) const;
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
@@ -1846,6 +2363,18 @@ class DatumMaker {
                         BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
                         BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES)... entries
                         ) const;
+
+    template <typename TYPE>
+    void pushBackHelper(bdld::DatumIntMapBuilder               *builder,
+                        int                                     key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value) const;
+
+    template <typename TYPE, typename... ENTRIES>
+    void pushBackHelper(bdld::DatumIntMapBuilder               *builder,
+                        int                                     key,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                        BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES)... entries
+                        ) const;
 #endif
 
   public:
@@ -1863,35 +2392,40 @@ class DatumMaker {
     bdld::Datum operator()() const;
         // Return a 'bdld::Datum' having a null value.
 
-    bdld::Datum operator()(const bslmf::Nil&                value) const;
-    bdld::Datum operator()(int                              value) const;
-    bdld::Datum operator()(double                           value) const;
-    bdld::Datum operator()(bool                             value) const;
-    bdld::Datum operator()(const bdld::DatumError&          value) const;
-    bdld::Datum operator()(const bdlt::Date&                value) const;
-    bdld::Datum operator()(const bdlt::Time&                value) const;
-    bdld::Datum operator()(const bdlt::Datetime&            value) const;
-    bdld::Datum operator()(const bdlt::DatetimeInterval&    value) const;
-    bdld::Datum operator()(bdldfp::Decimal64                value) const;
-    bdld::Datum operator()(bsls::Types::Int64               value) const;
-    bdld::Datum operator()(const bdld::DatumUdt&            value) const;
-    bdld::Datum operator()(const bdld::Datum&               value) const;
-    bdld::Datum operator()(const bdld::DatumArrayRef&       value) const;
-    bdld::Datum operator()(const bdld::DatumMutableMapRef&  value) const;
+    bdld::Datum operator()(const bslmf::Nil&                  value) const;
+    bdld::Datum operator()(int                                value) const;
+    bdld::Datum operator()(double                             value) const;
+    bdld::Datum operator()(bool                               value) const;
+    bdld::Datum operator()(const bdld::DatumError&            value) const;
+    bdld::Datum operator()(const bdlt::Date&                  value) const;
+    bdld::Datum operator()(const bdlt::Time&                  value) const;
+    bdld::Datum operator()(const bdlt::Datetime&              value) const;
+    bdld::Datum operator()(const bdlt::DatetimeInterval&      value) const;
+    bdld::Datum operator()(bdldfp::Decimal64                  value) const;
+    bdld::Datum operator()(bsls::Types::Int64                 value) const;
+    bdld::Datum operator()(const bdld::DatumUdt&              value) const;
+    bdld::Datum operator()(const bdld::Datum&                 value) const;
+    bdld::Datum operator()(const bdld::DatumArrayRef&         value) const;
+    bdld::Datum operator()(const bdld::DatumMutableMapRef&    value) const;
+    bdld::Datum operator()(const bdld::DatumMutableIntMapRef& value) const;
         // Return a 'bdld::Datum' having the specified 'value'.  Note that
         // where possible, no memory is allocated - array are returned as
-        // references.  Note that 'ConstDatumMapRef' is not supported at the
-        // moment.
+        // references.  Note that 'DatumMapRef' and 'DatumIntMapRef' are not
+        // supported at the moment.
 
     bdld::Datum operator()(const bdld::Datum         *elements,
                            int                        size)  const;
     bdld::Datum operator()(const bdld::DatumMapEntry *elements,
                            int                        size,
                            bool                       sorted = false)  const;
+    bdld::Datum operator()(
+                          const bdld::DatumIntMapEntry *elements,
+                          int                           size,
+                          bool                          sorted = false)  const;
         // Return a 'bdld::Datum' having the specified 'size' number of
         // 'elements'.  Note that where possible, no memory is allocated -
-        // arrays are returned as references.  Note that 'DatumMapRef' is not
-        // supported at the moment.
+        // arrays are returned as references.  Note that 'DatumMapRef' and
+        // 'DatumIntMapRef' are not supported at the moment.
 
     bdld::Datum operator()(const bslstl::StringRef&  value) const;
     bdld::Datum operator()(const char               *value) const;
@@ -2231,7 +2765,7 @@ class DatumMaker {
     bdld::Datum m(ENTRIES&&... entries) const;
         // Return a 'bdld::Datum' object containing a map of the specified
         // 'entries'.  The 'entries' are supplied as pairs (odd number of
-        // 'sizeof.,..(entries)' being an error) where the first specified
+        // 'sizeof...(entries)' being an error) where the first specified
         // element is the key, and the second is its corresponding value.  The
         // behavior is undefined if the same key is supplied more than once.
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -2825,7 +3359,7 @@ class DatumMaker {
     bdld::Datum mok(ENTRIES&&... entries) const;
         // Return a 'bdld::Datum' object containing a map with owned keys
         // consisting of the specified 'entries'.  The 'entries' are supplied
-        // as pairs (odd number of 'sizeof.,..(entries)' being an error) where
+        // as pairs (odd number of 'sizeof...(entries)' being an error) where
         // the first specified element is the key, and the second is its
         // corresponding value.  The behavior is undefined if the same key is
         // supplied more than once.
@@ -3416,6 +3950,468 @@ class DatumMaker {
     bdld::Datum mok(BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES)... entries
                     ) const;
 #endif
+
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    template <typename... ENTRIES>
+    bdld::Datum im(ENTRIES&&... entries) const;
+        // Return a 'bdld::Datum' object containing an integer-map of the
+        // specified 'entries'.  The 'entries' are supplied  in pairs
+        // (supplying an odd number will result in a compilation failure) where
+        // the first supplied argument is an integer key, and the second is its
+        // corresponding value.  The behavior is undefined if the same key is
+        // supplied more than once.
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+    bdld::Datum im() const;
+
+    template <typename ENTRY_01>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01
+                  ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05,
+              typename ENTRY_06>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05,
+                   int                                         key_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entries_06
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05,
+              typename ENTRY_06,
+              typename ENTRY_07>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05,
+                   int                                         key_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entries_06,
+                   int                                         key_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entries_07
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05,
+              typename ENTRY_06,
+              typename ENTRY_07,
+              typename ENTRY_08>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05,
+                   int                                         key_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entries_06,
+                   int                                         key_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entries_07,
+                   int                                         key_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entries_08
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05,
+              typename ENTRY_06,
+              typename ENTRY_07,
+              typename ENTRY_08,
+              typename ENTRY_09>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05,
+                   int                                         key_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entries_06,
+                   int                                         key_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entries_07,
+                   int                                         key_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entries_08,
+                   int                                         key_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entries_09
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05,
+              typename ENTRY_06,
+              typename ENTRY_07,
+              typename ENTRY_08,
+              typename ENTRY_09,
+              typename ENTRY_10>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05,
+                   int                                         key_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entries_06,
+                   int                                         key_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entries_07,
+                   int                                         key_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entries_08,
+                   int                                         key_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entries_09,
+                   int                                         key_10,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entries_10
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05,
+              typename ENTRY_06,
+              typename ENTRY_07,
+              typename ENTRY_08,
+              typename ENTRY_09,
+              typename ENTRY_10,
+              typename ENTRY_11>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05,
+                   int                                         key_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entries_06,
+                   int                                         key_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entries_07,
+                   int                                         key_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entries_08,
+                   int                                         key_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entries_09,
+                   int                                         key_10,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entries_10,
+                   int                                         key_11,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entries_11
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05,
+              typename ENTRY_06,
+              typename ENTRY_07,
+              typename ENTRY_08,
+              typename ENTRY_09,
+              typename ENTRY_10,
+              typename ENTRY_11,
+              typename ENTRY_12>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05,
+                   int                                         key_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entries_06,
+                   int                                         key_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entries_07,
+                   int                                         key_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entries_08,
+                   int                                         key_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entries_09,
+                   int                                         key_10,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entries_10,
+                   int                                         key_11,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entries_11,
+                   int                                         key_12,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entries_12
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05,
+              typename ENTRY_06,
+              typename ENTRY_07,
+              typename ENTRY_08,
+              typename ENTRY_09,
+              typename ENTRY_10,
+              typename ENTRY_11,
+              typename ENTRY_12,
+              typename ENTRY_13>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05,
+                   int                                         key_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entries_06,
+                   int                                         key_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entries_07,
+                   int                                         key_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entries_08,
+                   int                                         key_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entries_09,
+                   int                                         key_10,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entries_10,
+                   int                                         key_11,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entries_11,
+                   int                                         key_12,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entries_12,
+                   int                                         key_13,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entries_13
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05,
+              typename ENTRY_06,
+              typename ENTRY_07,
+              typename ENTRY_08,
+              typename ENTRY_09,
+              typename ENTRY_10,
+              typename ENTRY_11,
+              typename ENTRY_12,
+              typename ENTRY_13,
+              typename ENTRY_14>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05,
+                   int                                         key_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entries_06,
+                   int                                         key_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entries_07,
+                   int                                         key_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entries_08,
+                   int                                         key_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entries_09,
+                   int                                         key_10,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entries_10,
+                   int                                         key_11,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entries_11,
+                   int                                         key_12,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entries_12,
+                   int                                         key_13,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entries_13,
+                   int                                         key_14,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14) entries_14
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05,
+              typename ENTRY_06,
+              typename ENTRY_07,
+              typename ENTRY_08,
+              typename ENTRY_09,
+              typename ENTRY_10,
+              typename ENTRY_11,
+              typename ENTRY_12,
+              typename ENTRY_13,
+              typename ENTRY_14,
+              typename ENTRY_15>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05,
+                   int                                         key_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entries_06,
+                   int                                         key_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entries_07,
+                   int                                         key_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entries_08,
+                   int                                         key_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entries_09,
+                   int                                         key_10,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entries_10,
+                   int                                         key_11,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entries_11,
+                   int                                         key_12,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entries_12,
+                   int                                         key_13,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entries_13,
+                   int                                         key_14,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14) entries_14,
+                   int                                         key_15,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_15) entries_15
+                   ) const;
+
+    template <typename ENTRY_01,
+              typename ENTRY_02,
+              typename ENTRY_03,
+              typename ENTRY_04,
+              typename ENTRY_05,
+              typename ENTRY_06,
+              typename ENTRY_07,
+              typename ENTRY_08,
+              typename ENTRY_09,
+              typename ENTRY_10,
+              typename ENTRY_11,
+              typename ENTRY_12,
+              typename ENTRY_13,
+              typename ENTRY_14,
+              typename ENTRY_15,
+              typename ENTRY_16>
+    bdld::Datum im(int                                         key_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entries_01,
+                   int                                         key_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entries_02,
+                   int                                         key_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entries_03,
+                   int                                         key_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entries_04,
+                   int                                         key_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entries_05,
+                   int                                         key_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entries_06,
+                   int                                         key_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entries_07,
+                   int                                         key_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entries_08,
+                   int                                         key_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entries_09,
+                   int                                         key_10,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entries_10,
+                   int                                         key_11,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entries_11,
+                   int                                         key_12,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entries_12,
+                   int                                         key_13,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entries_13,
+                   int                                         key_14,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14) entries_14,
+                   int                                         key_15,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_15) entries_15,
+                   int                                         key_16,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_16) entries_16
+                   ) const;
+
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+    template <typename... ENTRIES>
+    bdld::Datum im(BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES)... entries)
+                                                                         const;
+#endif
 };
 
 // ============================================================================
@@ -3442,6 +4438,11 @@ void DatumMaker::pushBackHelper(bdld::DatumMapOwningKeysBuilder *) const
 {
 }
 
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder *) const
+{
+}
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <typename TYPE>
 inline
@@ -3458,7 +4459,7 @@ void DatumMaker::pushBackHelper(bdld::DatumArrayBuilder *builder,
                                 ELEMENTS&&...            elements) const
 {
     builder->pushBack((*this)(element));
-    pushBackHelper(builder, elements...);
+    pushBackHelper(builder, bsl::forward<ELEMENTS>(elements)...);
 }
 
 template <typename TYPE>
@@ -3478,7 +4479,7 @@ void DatumMaker::pushBackHelper(bdld::DatumMapBuilder    *builder,
                                 ENTRIES&&...              entries) const
 {
     builder->pushBack(key, (*this)(value));
-    pushBackHelper(builder, entries...);
+    pushBackHelper(builder, bsl::forward<ENTRIES>(entries)...);
 }
 
 template <typename TYPE>
@@ -3499,7 +4500,27 @@ void DatumMaker::pushBackHelper(
                                ENTRIES&&...                     entries) const
 {
     builder->pushBack(key, (*this)(value));
-    pushBackHelper(builder, entries...);
+    pushBackHelper(builder, bsl::forward<ENTRIES>(entries)...);
+}
+
+template <typename TYPE>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder *builder,
+                                int                       key,
+                                TYPE&&                    value) const
+{
+    builder->pushBack(key, (*this)(value));
+}
+
+template <typename TYPE, typename... ENTRIES>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder *builder,
+                                int                       key,
+                                TYPE&&                    value,
+                                ENTRIES&&...              entries) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, bsl::forward<ENTRIES>(entries)...);
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 template <typename TYPE>
@@ -6006,6 +7027,705 @@ void DatumMaker::pushBackHelper(
                             entries_32);
 }
 
+
+template <typename TYPE>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder);
+}
+
+template <typename TYPE, typename ENTRY_01>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05,
+                         typename ENTRY_06>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                           key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05,
+                            key_06, entry_06);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05,
+                         typename ENTRY_06,
+                         typename ENTRY_07>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                           key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                           key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05,
+                            key_06, entry_06,
+                            key_07, entry_07);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05,
+                         typename ENTRY_06,
+                         typename ENTRY_07,
+                         typename ENTRY_08>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                           key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                           key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                           key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05,
+                            key_06, entry_06,
+                            key_07, entry_07,
+                            key_08, entry_08);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05,
+                         typename ENTRY_06,
+                         typename ENTRY_07,
+                         typename ENTRY_08,
+                         typename ENTRY_09>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                           key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                           key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                           key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                           key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05,
+                            key_06, entry_06,
+                            key_07, entry_07,
+                            key_08, entry_08,
+                            key_09, entry_09);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05,
+                         typename ENTRY_06,
+                         typename ENTRY_07,
+                         typename ENTRY_08,
+                         typename ENTRY_09,
+                         typename ENTRY_10>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                           key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                           key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                           key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                           key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                           key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05,
+                            key_06, entry_06,
+                            key_07, entry_07,
+                            key_08, entry_08,
+                            key_09, entry_09,
+                            key_10, entry_10);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05,
+                         typename ENTRY_06,
+                         typename ENTRY_07,
+                         typename ENTRY_08,
+                         typename ENTRY_09,
+                         typename ENTRY_10,
+                         typename ENTRY_11>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                           key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                           key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                           key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                           key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                           key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                           key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05,
+                            key_06, entry_06,
+                            key_07, entry_07,
+                            key_08, entry_08,
+                            key_09, entry_09,
+                            key_10, entry_10,
+                            key_11, entry_11);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05,
+                         typename ENTRY_06,
+                         typename ENTRY_07,
+                         typename ENTRY_08,
+                         typename ENTRY_09,
+                         typename ENTRY_10,
+                         typename ENTRY_11,
+                         typename ENTRY_12>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                           key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                           key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                           key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                           key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                           key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                           key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11,
+                          int                                           key_12,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entry_12
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05,
+                            key_06, entry_06,
+                            key_07, entry_07,
+                            key_08, entry_08,
+                            key_09, entry_09,
+                            key_10, entry_10,
+                            key_11, entry_11,
+                            key_12, entry_12);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05,
+                         typename ENTRY_06,
+                         typename ENTRY_07,
+                         typename ENTRY_08,
+                         typename ENTRY_09,
+                         typename ENTRY_10,
+                         typename ENTRY_11,
+                         typename ENTRY_12,
+                         typename ENTRY_13>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                           key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                           key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                           key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                           key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                           key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                           key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11,
+                          int                                           key_12,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entry_12,
+                          int                                           key_13,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entry_13
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05,
+                            key_06, entry_06,
+                            key_07, entry_07,
+                            key_08, entry_08,
+                            key_09, entry_09,
+                            key_10, entry_10,
+                            key_11, entry_11,
+                            key_12, entry_12,
+                            key_13, entry_13);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05,
+                         typename ENTRY_06,
+                         typename ENTRY_07,
+                         typename ENTRY_08,
+                         typename ENTRY_09,
+                         typename ENTRY_10,
+                         typename ENTRY_11,
+                         typename ENTRY_12,
+                         typename ENTRY_13,
+                         typename ENTRY_14>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                           key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                           key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                           key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                           key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                           key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                           key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11,
+                          int                                           key_12,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entry_12,
+                          int                                           key_13,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entry_13,
+                          int                                           key_14,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14) entry_14
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05,
+                            key_06, entry_06,
+                            key_07, entry_07,
+                            key_08, entry_08,
+                            key_09, entry_09,
+                            key_10, entry_10,
+                            key_11, entry_11,
+                            key_12, entry_12,
+                            key_13, entry_13,
+                            key_14, entry_14);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05,
+                         typename ENTRY_06,
+                         typename ENTRY_07,
+                         typename ENTRY_08,
+                         typename ENTRY_09,
+                         typename ENTRY_10,
+                         typename ENTRY_11,
+                         typename ENTRY_12,
+                         typename ENTRY_13,
+                         typename ENTRY_14,
+                         typename ENTRY_15>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                           key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                           key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                           key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                           key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                           key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                           key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11,
+                          int                                           key_12,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entry_12,
+                          int                                           key_13,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entry_13,
+                          int                                           key_14,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14) entry_14,
+                          int                                           key_15,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_15) entry_15
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05,
+                            key_06, entry_06,
+                            key_07, entry_07,
+                            key_08, entry_08,
+                            key_09, entry_09,
+                            key_10, entry_10,
+                            key_11, entry_11,
+                            key_12, entry_12,
+                            key_13, entry_13,
+                            key_14, entry_14,
+                            key_15, entry_15);
+}
+
+template <typename TYPE, typename ENTRY_01,
+                         typename ENTRY_02,
+                         typename ENTRY_03,
+                         typename ENTRY_04,
+                         typename ENTRY_05,
+                         typename ENTRY_06,
+                         typename ENTRY_07,
+                         typename ENTRY_08,
+                         typename ENTRY_09,
+                         typename ENTRY_10,
+                         typename ENTRY_11,
+                         typename ENTRY_12,
+                         typename ENTRY_13,
+                         typename ENTRY_14,
+                         typename ENTRY_15,
+                         typename ENTRY_16>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                                int                                    key,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          int                                           key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                           key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                           key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                           key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                           key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                           key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                           key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                           key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                           key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                           key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                           key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11,
+                          int                                           key_12,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entry_12,
+                          int                                           key_13,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entry_13,
+                          int                                           key_14,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14) entry_14,
+                          int                                           key_15,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_15) entry_15,
+                          int                                           key_16,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_16) entry_16
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, key_01, entry_01,
+                            key_02, entry_02,
+                            key_03, entry_03,
+                            key_04, entry_04,
+                            key_05, entry_05,
+                            key_06, entry_06,
+                            key_07, entry_07,
+                            key_08, entry_08,
+                            key_09, entry_09,
+                            key_10, entry_10,
+                            key_11, entry_11,
+                            key_12, entry_12,
+                            key_13, entry_13,
+                            key_14, entry_14,
+                            key_15, entry_15,
+                            key_16, entry_16);
+}
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
@@ -6066,6 +7786,28 @@ inline
 void DatumMaker::pushBackHelper(
                                bdld::DatumMapOwningKeysBuilder *builder,
                                const bslstl::StringRef&         key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES)... entries
+                          ) const
+{
+    builder->pushBack(key, (*this)(value));
+    pushBackHelper(builder, entries...);
+}
+
+template <typename TYPE>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                               int                                     key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value
+                                ) const
+{
+    builder->pushBack(key, (*this)(value));
+}
+
+template <typename TYPE, typename... ENTRIES>
+inline
+void DatumMaker::pushBackHelper(bdld::DatumIntMapBuilder              *builder,
+                               int                                     key,
                                BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) value,
                           BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES)... entries
                           ) const
@@ -6208,18 +7950,10 @@ bdld::Datum DatumMaker::operator()(const bdld::DatumMutableMapRef& value) const
 }
 
 inline
-bdld::Datum DatumMaker::operator()(const bdld::DatumMapEntry *elements,
-                                   int                        size,
-                                   bool                       sorted) const
+bdld::Datum DatumMaker::operator()(
+                                const bdld::DatumMutableIntMapRef& value) const
 {
-    bdld::DatumMutableMapRef map;
-    bdld::Datum::createUninitializedMap(&map, size, d_allocator_p);
-    for (int i = 0; i < size; ++i) {
-        map.data()[i] = elements[i];
-    }
-    *map.size()   = size;
-    *map.sorted() = sorted;
-    return bdld::Datum::adoptMap(map);
+    return bdld::Datum::adoptIntMap(value);
 }
 
 template <class TYPE>
@@ -6835,7 +8569,7 @@ bdld::Datum DatumMaker::m(ENTRIES&&... entries) const
 
     const int mapElements = numArguments / 2;
     bdld::DatumMapBuilder builder(mapElements, d_allocator_p);
-    pushBackHelper(&builder, entries...);
+    pushBackHelper(&builder, bsl::forward<ENTRIES>(entries)...);
     return builder.commit();
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -7911,7 +9645,7 @@ bdld::Datum DatumMaker::mok(ENTRIES&&... entries) const
     BSLMF_ASSERT(0 == numArguments % 2);
 
     bdld::DatumMapOwningKeysBuilder builder(d_allocator_p);
-    pushBackHelper(&builder, entries...);
+    pushBackHelper(&builder, bsl::forward<ENTRIES>(entries)...);
     return builder.commit();
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -8954,6 +10688,745 @@ bdld::Datum DatumMaker::mok(
     return builder.commit();
 }
 #endif
+
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <typename... ENTRIES>
+inline
+bdld::Datum DatumMaker::im(ENTRIES&&... entries) const
+{
+    const int numArguments = sizeof...(ENTRIES);
+
+    // Due to MSVC not recognizing bitwise and of a constant expression and a
+    // string literal as a constant expression, we don't use a meaningful error
+    // as part of this assert.
+    //
+    // See: https://connect.microsoft.com/VisualStudio/feedback/details/1523001
+    BSLMF_ASSERT(0 == numArguments % 2);
+
+    const int mapElements = numArguments / 2;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, bsl::forward<ENTRIES>(entries)...);
+    return builder.commit();
+}
+#elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+inline
+bdld::Datum DatumMaker::im(
+                           ) const
+{
+    const int mapElements = 0;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder);
+    return builder.commit();
+}
+
+template <typename ENTRY_01>
+inline
+bdld::Datum DatumMaker::im(
+                           int                                         key_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01
+                          ) const
+{
+    const int mapElements = 1;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02
+                          ) const
+{
+    const int mapElements = 2;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03
+                          ) const
+{
+    const int mapElements = 3;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04
+                          ) const
+{
+    const int mapElements = 4;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05
+                          ) const
+{
+    const int mapElements = 5;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05,
+          typename ENTRY_06>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                         key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06
+                          ) const
+{
+    const int mapElements = 6;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05,
+                             key_06, entry_06);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05,
+          typename ENTRY_06,
+          typename ENTRY_07>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                         key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                         key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07
+                          ) const
+{
+    const int mapElements = 7;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05,
+                             key_06, entry_06,
+                             key_07, entry_07);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05,
+          typename ENTRY_06,
+          typename ENTRY_07,
+          typename ENTRY_08>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                         key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                         key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                         key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08
+                          ) const
+{
+    const int mapElements = 8;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05,
+                             key_06, entry_06,
+                             key_07, entry_07,
+                             key_08, entry_08);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05,
+          typename ENTRY_06,
+          typename ENTRY_07,
+          typename ENTRY_08,
+          typename ENTRY_09>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                         key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                         key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                         key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                         key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09
+                          ) const
+{
+    const int mapElements = 9;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05,
+                             key_06, entry_06,
+                             key_07, entry_07,
+                             key_08, entry_08,
+                             key_09, entry_09);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05,
+          typename ENTRY_06,
+          typename ENTRY_07,
+          typename ENTRY_08,
+          typename ENTRY_09,
+          typename ENTRY_10>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                         key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                         key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                         key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                         key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                         key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10
+                          ) const
+{
+    const int mapElements = 10;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05,
+                             key_06, entry_06,
+                             key_07, entry_07,
+                             key_08, entry_08,
+                             key_09, entry_09,
+                             key_10, entry_10);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05,
+          typename ENTRY_06,
+          typename ENTRY_07,
+          typename ENTRY_08,
+          typename ENTRY_09,
+          typename ENTRY_10,
+          typename ENTRY_11>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                         key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                         key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                         key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                         key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                         key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                         key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11
+                          ) const
+{
+    const int mapElements = 11;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05,
+                             key_06, entry_06,
+                             key_07, entry_07,
+                             key_08, entry_08,
+                             key_09, entry_09,
+                             key_10, entry_10,
+                             key_11, entry_11);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05,
+          typename ENTRY_06,
+          typename ENTRY_07,
+          typename ENTRY_08,
+          typename ENTRY_09,
+          typename ENTRY_10,
+          typename ENTRY_11,
+          typename ENTRY_12>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                         key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                         key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                         key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                         key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                         key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                         key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11,
+                          int                                         key_12,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entry_12
+                          ) const
+{
+    const int mapElements = 12;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05,
+                             key_06, entry_06,
+                             key_07, entry_07,
+                             key_08, entry_08,
+                             key_09, entry_09,
+                             key_10, entry_10,
+                             key_11, entry_11,
+                             key_12, entry_12);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05,
+          typename ENTRY_06,
+          typename ENTRY_07,
+          typename ENTRY_08,
+          typename ENTRY_09,
+          typename ENTRY_10,
+          typename ENTRY_11,
+          typename ENTRY_12,
+          typename ENTRY_13>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                         key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                         key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                         key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                         key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                         key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                         key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11,
+                          int                                         key_12,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entry_12,
+                          int                                         key_13,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entry_13
+                          ) const
+{
+    const int mapElements = 13;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05,
+                             key_06, entry_06,
+                             key_07, entry_07,
+                             key_08, entry_08,
+                             key_09, entry_09,
+                             key_10, entry_10,
+                             key_11, entry_11,
+                             key_12, entry_12,
+                             key_13, entry_13);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05,
+          typename ENTRY_06,
+          typename ENTRY_07,
+          typename ENTRY_08,
+          typename ENTRY_09,
+          typename ENTRY_10,
+          typename ENTRY_11,
+          typename ENTRY_12,
+          typename ENTRY_13,
+          typename ENTRY_14>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                         key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                         key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                         key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                         key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                         key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                         key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11,
+                          int                                         key_12,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entry_12,
+                          int                                         key_13,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entry_13,
+                          int                                         key_14,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14) entry_14
+                          ) const
+{
+    const int mapElements = 14;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05,
+                             key_06, entry_06,
+                             key_07, entry_07,
+                             key_08, entry_08,
+                             key_09, entry_09,
+                             key_10, entry_10,
+                             key_11, entry_11,
+                             key_12, entry_12,
+                             key_13, entry_13,
+                             key_14, entry_14);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05,
+          typename ENTRY_06,
+          typename ENTRY_07,
+          typename ENTRY_08,
+          typename ENTRY_09,
+          typename ENTRY_10,
+          typename ENTRY_11,
+          typename ENTRY_12,
+          typename ENTRY_13,
+          typename ENTRY_14,
+          typename ENTRY_15>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                         key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                         key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                         key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                         key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                         key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                         key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11,
+                          int                                         key_12,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entry_12,
+                          int                                         key_13,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entry_13,
+                          int                                         key_14,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14) entry_14,
+                          int                                         key_15,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_15) entry_15
+                          ) const
+{
+    const int mapElements = 15;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05,
+                             key_06, entry_06,
+                             key_07, entry_07,
+                             key_08, entry_08,
+                             key_09, entry_09,
+                             key_10, entry_10,
+                             key_11, entry_11,
+                             key_12, entry_12,
+                             key_13, entry_13,
+                             key_14, entry_14,
+                             key_15, entry_15);
+    return builder.commit();
+}
+
+template <typename ENTRY_01,
+          typename ENTRY_02,
+          typename ENTRY_03,
+          typename ENTRY_04,
+          typename ENTRY_05,
+          typename ENTRY_06,
+          typename ENTRY_07,
+          typename ENTRY_08,
+          typename ENTRY_09,
+          typename ENTRY_10,
+          typename ENTRY_11,
+          typename ENTRY_12,
+          typename ENTRY_13,
+          typename ENTRY_14,
+          typename ENTRY_15,
+          typename ENTRY_16>
+inline
+bdld::Datum DatumMaker::im(
+                          int                                         key_01,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_01) entry_01,
+                          int                                         key_02,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_02) entry_02,
+                          int                                         key_03,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_03) entry_03,
+                          int                                         key_04,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_04) entry_04,
+                          int                                         key_05,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_05) entry_05,
+                          int                                         key_06,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_06) entry_06,
+                          int                                         key_07,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_07) entry_07,
+                          int                                         key_08,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_08) entry_08,
+                          int                                         key_09,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_09) entry_09,
+                          int                                         key_10,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_10) entry_10,
+                          int                                         key_11,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_11) entry_11,
+                          int                                         key_12,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_12) entry_12,
+                          int                                         key_13,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_13) entry_13,
+                          int                                         key_14,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_14) entry_14,
+                          int                                         key_15,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_15) entry_15,
+                          int                                         key_16,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ENTRY_16) entry_16
+                          ) const
+{
+    const int mapElements = 16;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, key_01, entry_01,
+                             key_02, entry_02,
+                             key_03, entry_03,
+                             key_04, entry_04,
+                             key_05, entry_05,
+                             key_06, entry_06,
+                             key_07, entry_07,
+                             key_08, entry_08,
+                             key_09, entry_09,
+                             key_10, entry_10,
+                             key_11, entry_11,
+                             key_12, entry_12,
+                             key_13, entry_13,
+                             key_14, entry_14,
+                             key_15, entry_15,
+                             key_16, entry_16);
+    return builder.commit();
+}
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
+template <typename... ENTRIES>
+inline
+bdld::Datum DatumMaker::im(
+                   BSLS_COMPILERFEATURES_FORWARD_REF(ENTRIES)... entries) const
+{
+    const int numArguments = sizeof...(ENTRIES);
+
+    BSLMF_ASSERT(0 == numArguments % 2);
+
+    const int mapElements = numArguments / 2;
+    bdld::DatumIntMapBuilder builder(mapElements, d_allocator_p);
+    pushBackHelper(&builder, entries...);
+    return builder.commit();
+}
+#endif
+
 
 }  // close package namespace
 }  // close enterprise namespace
