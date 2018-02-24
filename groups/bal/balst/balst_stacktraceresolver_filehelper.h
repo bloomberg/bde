@@ -169,13 +169,18 @@ class StackTraceResolver_FileHelper {
   public:
     // CREATORS
     explicit
-    StackTraceResolver_FileHelper(const char *fileName);
-        // Open the file referred to by the specified 'fileName' for read-only
-        // access and set 'd_fd' to the file descriptor.  The behavior is
-        // undefined if the specified file does not exist or is unreadable.
+    StackTraceResolver_FileHelper();
+        // Create a file helper object in an invalid state.
 
     ~StackTraceResolver_FileHelper();
-        // Close the file indicated at construction and destroy this object.
+        // Close any file currently opened by this object and destroy it.
+
+    // MANIPULATOR
+    int initialize(const char *fileName);
+        // Open the file referred to by the specified 'fileName' for read-only
+        // access and set 'd_fd' to the file descriptor.  Return 0 on success
+        // and a non-zero value otherwise.  If this object already had a file
+        // descriptor open, close it before opening 'fileName'.
 
     // ACCESSORS
     char *loadString(Offset            offset,

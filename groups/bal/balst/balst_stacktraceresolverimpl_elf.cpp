@@ -3556,7 +3556,12 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
                                  static_cast<int>(d_hidden.d_isMainExecutable),
                          numProgramHeaders, u::l(d_hidden.d_frameRecs.size()));
 
-    balst::StackTraceResolver_FileHelper helper(name);
+    balst::StackTraceResolver_FileHelper helper;
+    int rc = helper.initialize(name);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
     d_hidden.d_helper_p = &helper;
 
     for (int i = 0; i < numProgramHeaders; ++i) {
@@ -3585,10 +3590,10 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
 
             // 'resolveSegment' trashes scratch buffers A and B
 
-            int rc = resolveSegment(baseAddress,    // base address
-                                    textSegPtr,     // seg ptr
-                                    ph->p_memsz,    // seg size
-                                    name);          // file name
+            rc = resolveSegment(baseAddress,    // base address
+                                textSegPtr,     // seg ptr
+                                ph->p_memsz,    // seg size
+                                name);          // file name
             if (rc) {
                 return -1;                                            // RETURN
             }
@@ -4056,7 +4061,9 @@ int u::StackTraceResolver::resolve(
 
             // note this will be opened twice, here and in 'processLoadedImage'
 
-            balst::StackTraceResolver_FileHelper helper(desc.filename);
+            balst::StackTraceResolver_FileHelper helper;
+            rc = helper.initialize(desc.filename);
+            u_ASSERT_BAIL(0 == rc);
 
             rc = helper.readExact(&elfHeader, sizeof(elfHeader), 0);
             u_ASSERT_BAIL(0 == rc);

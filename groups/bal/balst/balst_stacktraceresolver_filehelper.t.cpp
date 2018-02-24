@@ -251,7 +251,9 @@ int main(int argc, char *argv[])
     ASSERT(0 == rc);
 
     {
-        balst::StackTraceResolver_FileHelper helper(fileNameBuffer);
+        balst::StackTraceResolver_FileHelper helper;
+        rc = helper.initialize(fileNameBuffer);
+        ASSERT(0 == rc);
 
         char buf[100];
         memset(buf, 0, sizeof(buf));
@@ -371,7 +373,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nloadString" << endl;
         {
-            const Obj X(fileNameBuffer);
+            Obj mX;    const Obj& X = mX;
+            rc = mX.initialize(fileNameBuffer);
+            ASSERT(0 == rc);
 
             char scratchBuf[2000];
             bsl::memset(scratchBuf, 'a', sizeof(scratchBuf));
@@ -452,7 +456,11 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tloadString" << endl;
             {
                 char buf[1];
-                const Obj X(fileNameBuffer);
+                Obj mX;    const Obj& X = mX;
+
+                rc = mX.initialize(fileNameBuffer);
+                ASSERT(0 == rc);
+
                 char *result = 0;
                 ASSERT_PASS(result = X.loadString(0, buf, 1, &ta));
                 if (result) ta.deallocate(result);
@@ -567,7 +575,9 @@ int main(int argc, char *argv[])
             char       buf[100];
             bsl::memset(buf, FILL_CHAR, sizeof(buf));
 
-            const Obj X(fileNameBuffer);
+            Obj mX;    const Obj& X = mX;
+            rc = mX.initialize(fileNameBuffer);
+            ASSERT(0 == rc);
 
             const bsls::Types::UintPtr RC = X.readBytes(buf, SIZE, OFFSET);
             LOOP_ASSERT(LINE, EXP_RC == RC);
@@ -592,7 +602,9 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\treadBytes" << endl;
             {
                 char buf[100];
-                const Obj X(fileNameBuffer);
+                Obj mX;    const Obj& X = mX;
+                rc = mX.initialize(fileNameBuffer);
+
                 ASSERT_PASS(X.readBytes(buf, 0, 0));
                 ASSERT_FAIL(X.readBytes(0,   0, 0));
                 ASSERT_FAIL(X.readBytes(buf, 0, -1));
@@ -698,7 +710,9 @@ int main(int argc, char *argv[])
             char       buf[100];
             bsl::memset(buf, FILL_CHAR, sizeof(buf));
 
-            const Obj X(fileNameBuffer);
+            Obj mX;    const Obj& X = mX;
+            rc = mX.initialize(fileNameBuffer);
+            ASSERT(0 == rc);
 
             rc = X.readExact(buf, SIZE, OFFSET);
             if ('N' == EOF_FLAG) {
@@ -720,7 +734,10 @@ int main(int argc, char *argv[])
             {
                 char buf[100] = { "" };
                 ++buf[0];                  // suppress unused variable warning
-                const Obj X(fileNameBuffer);
+                Obj mX;    const Obj& X = mX;
+                rc = mX.initialize(fileNameBuffer);
+                ASSERT(0 == rc);
+
                 ASSERT_SAFE_PASS(X.readExact(buf, 0, 0));
                 ASSERT_SAFE_FAIL(X.readExact(0,   0, 0));
                 ASSERT_SAFE_FAIL(X.readExact(buf, 0, -1));
@@ -784,14 +801,19 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            if (veryVerbose) cout << "\tconstructor" << endl;
+            if (veryVerbose) cout << "\tinitialize" << endl;
             {
-                ASSERT_PASS(Obj((const char *)fileNameBuffer));
-                ASSERT_FAIL(Obj("bogus"));
-                ASSERT_FAIL(Obj(NULL));
+                Obj mX;
+                ASSERT_PASS(rc = mX.initialize("bogus"));
+                ASSERT(0 != rc);
+                ASSERT_PASS(rc = mX.initialize(NULL));
+                ASSERT(0 != rc);
+                ASSERT_PASS(rc = mX.initialize((const char *) fileNameBuffer));
+                ASSERT(0 == rc);
+                ASSERT_PASS(rc = mX.initialize((const char *) fileNameBuffer));
+                ASSERT(0 == rc);
             }
         }
-
       }  break;
       case 1: {
         // --------------------------------------------------------------------
@@ -844,7 +866,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
 
         {
-            const Obj X(fileNameBuffer);
+            Obj mX;    const Obj& X = mX;
+            rc = mX.initialize(fileNameBuffer);
+            ASSERT(0 == rc);
 
             char buf[100];
             rc = X.readExact(buf, 1, 0);
