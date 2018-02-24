@@ -202,9 +202,12 @@ int main(int argc, char *argv[])
         if (verbose) cout << "'getExecutablePath' RELATIVE ARGV[0] TEST\n"
                              "=========================================\n";
 
+        const char *hostName = bsl::getenv("HOSTNAME");
+        hostName = hostName ? hostName : "unknown";
+
         char dirNameBuf[1024];
         bsl::sprintf(dirNameBuf,"tmp.bdls_processutil.t.case4.%s.%d.dir",
-                                 bsl::getenv("HOSTNAME"), Obj::getProcessId());
+                                                hostName, Obj::getProcessId());
         const bsl::string dirName(dirNameBuf, &ta);
 
         (void) FUtil::remove(dirName, true);
