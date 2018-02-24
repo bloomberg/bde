@@ -61,6 +61,14 @@ struct ProcessUtil {
     // operations.
 
     // CLASS METHODS
+    static int getExecutablePath(bsl::string *result);
+        // Return a path with which the executable can be accessed.  Return 0
+        // if '*result' is set to a path which does open any file, which may
+        // be the case if the path is relative and 'chdir' has been called
+        // since process start up.  Note that the highest priority in this
+        // function is to return a path which, when opened, will access the
+        // executable, which may not resemble the 'argv[0]' passed to 'main'.
+
     static int getProcessId();
         // Return the system specific process identifier for the currently
         // running process.

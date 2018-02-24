@@ -12,6 +12,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 
+#include <bdls_filesystemutil.h>
+
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
@@ -26,11 +28,9 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 #   include <bslma_deallocatorguard.h>
 #   include <bslma_default.h>
 #   include <bsl_algorithm.h>
+#   include <bsl_cstdio.h>
 #   include <sys/procfs.h>
-#   include <sys/stat.h>
-#   include <sys/types.h>
 #   include <procinfo.h>
-#   include <stdio.h>
 # elif defined BSLS_PLATFORM_OS_CYGWIN
 #   ifndef   _REENTRANT
 #     define _REENTRANT
@@ -51,14 +51,11 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 #   include <bslma_default.h>
 #   include <bsls_types.h>
 #   include <bsl_algorithm.h>
-#   include <errno.h>
-#   include <sys/stat.h>
-#   include <sys/types.h>
+#   include <sys/stat.h>         // 'lstat'
+#   include <errno.h>            // ::program_invocation_name
 # elif defined BSLS_PLATFORM_OS_SOLARIS
+#   include <bsl_cstdio.h>
 #   include <stdlib.h>
-#   include <sys/stat.h>
-#   include <sys/types.h>
-#   include <stdio.h>
 # else
 #   error Unrecognized Platform
 # endif
@@ -68,14 +65,14 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 # include <windows.h>
 #endif
 
-namespace BloombergLP {
-namespace bdls {
-                             // ------------------
-                             // struct ProcessUtil
-                             // ------------------
+namespace {
+namespace u {
 
-// CLASS METHODS
-int ProcessUtil::getProcessId()
+typedef BloombergLP::bdls::FilesystemUtil FUtil;
+
+inline
+int getPid()
+    // Return the process id of the current process, cast to an 'int'.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     return static_cast<int>(GetCurrentProcessId());
@@ -84,45 +81,55 @@ int ProcessUtil::getProcessId()
 #endif
 }
 
-int ProcessUtil::getProcessName(bsl::string *result)
+}  // close namespace u
+}  // close unnamed namespace
+
+namespace BloombergLP {
+namespace bdls {
+                             // ------------------
+                             // struct ProcessUtil
+                             // ------------------
+
+// CLASS METHODS
+int ProcessUtil::getExecutablePath(bsl::string *result)
 {
     BSLS_ASSERT(result);
 
     result->clear();
 
+    bool resultExists = false;      // We set this flag to 'true' if we have
+                                    // already confirmed that file '*result'
+                                    // exists, to suppress an otherwise
+                                    // redundant check at the end of the
+                                    // function.
+
 #if defined BSLS_PLATFORM_OS_AIX
-    struct procentry64  procbuffer;
-    enum { k_BUF_LEN = 64 * 1024 };
-    bslma::Allocator *allocator = bslma::Default::defaultAllocator();
-
-    char *argsbuffer = static_cast<char *>(allocator->allocate(k_BUF_LEN));
-    char *end = argsbuffer + k_BUF_LEN;
-    bslma::DeallocatorGuard<bslma::Allocator> guard(argsbuffer, allocator);
-
-    procbuffer.pi_pid = ProcessUtil::getProcessId();
-
-    // '::getargs' should fill the beginning of 'argsbuffer' with
-    // null-terminated 'argv[0]', which might be a relative path.
-
-    if (0 == ::getargs(&procbuffer, sizeof(procbuffer), argsbuffer, k_BUF_LEN)
-                                   && bsl::find(argsbuffer, end, '\0') < end) {
-        result->assign(argsbuffer);
-    }
-
-    struct stat s;
-    if (result->empty() ||
-                   ('/' != (*result)[0] && 0 != ::stat(result->c_str(), &s))) {
-        // Either 'getargs' failed, or the path is relative and the executable
-        // is not there.  We have probably done a 'chdir' since program
-        // start-up.  See if we can find the executable from "/proc".
-
-        char fileNameBuf[50];
-        snprintf(fileNameBuf,
-                 sizeof(fileNameBuf),
+    char fileNameBuf[6 + 30 + 7 + 6];    // way more than enough
+    bsl::sprintf(fileNameBuf,
                  "/proc/%d/object/a.out",
-                 ProcessUtil::getProcessId());
-        if (0 == ::stat(fileNameBuf, &s)) {
-            result->assign(fileNameBuf);
+                 u::getPid());
+    if (u::FUtil::exists(fileNameBuf)) {
+        result->assign(fileNameBuf);
+        resultExists = true;
+    }
+    else {
+        enum { k_BUF_LEN = 64 * 1024 };
+        bslma::Allocator *allocator = bslma::Default::defaultAllocator();
+        char *argsBuf = static_cast<char *>(allocator->allocate(k_BUF_LEN));
+        bslma::DeallocatorGuard<bslma::Allocator> guard(argsBuf, allocator);
+
+        char *end = argsBuf + k_BUF_LEN;
+
+        struct procentry64  procBuf;
+        procBuf.pi_pid = u::getPid();
+
+        // '::getargs' should fill the beginning of 'argsBuf' with
+        // null-terminated 'argv[0]', which might be a relative path.
+
+        bsl::fill(argsBuf, end, '*');
+        if (0 == ::getargs(&procBuf, sizeof(procBuf), argsBuf, k_BUF_LEN)
+                                      && bsl::find(argsBuf, end, '\0') < end) {
+            result->assign(argsBuf);
         }
     }
 #elif defined BSLS_PLATFORM_OS_CYGWIN
@@ -130,7 +137,7 @@ int ProcessUtil::getProcessName(bsl::string *result)
 
     bdlsb::MemOutStreamBuf osb(NUM_ELEMENTS);
     bsl::ostream           os(&osb);
-    os << "/proc/" << ProcessUtil::getProcessId() << "/cmdline" << bsl::ends;
+    os << "/proc/" << u::getPid() << "/cmdline" << bsl::ends;
     const char *procfs = osb.data();
 
     bsl::ifstream ifs;
@@ -152,20 +159,20 @@ int ProcessUtil::getProcessName(bsl::string *result)
     enum { k_BUF_LEN = 4 * 1024 };
     char buf[k_BUF_LEN];
     bsl::fill(buf + 0, buf + k_BUF_LEN, '*');
-    if (proc_pidpath(ProcessUtil::getProcessId(), buf, k_BUF_LEN) <= 0) {
-        return -1;                                                    // RETURN
-    }
+    int rc = proc_pidpath(u::getPid(), buf, k_BUF_LEN);
     if (buf + k_BUF_LEN == bsl::find(buf + 0, buf + k_BUF_LEN, 0)) {
         return -1;                                                    // RETURN
     }
-
     result->assign(buf);
+    if (rc <= 0) {
+        return -1;                                                    // RETURN
+    }
 #elif defined BSLS_PLATFORM_OS_HPUX
     result->resize(1024);
     int rc = pstat_getcommandline(&(*result->begin()),
                                   result->size(),
                                   1,
-                                  ProcessUtil::getProcessId());
+                                  u::getPid());
     if (rc < 0) {
         return -1;                                                    // RETURN
     }
@@ -185,18 +192,19 @@ int ProcessUtil::getProcessName(bsl::string *result)
     if (0 == rc && S_ISLNK(s.st_mode)) {
         enum { k_BUF_LEN = 64 * 1024 };
         bslma::Allocator *allocator = bslma::Default::defaultAllocator();
+        char *buf = static_cast<char *>(allocator->allocate(k_BUF_LEN));
+        bslma::DeallocatorGuard<bslma::Allocator> guard(buf, allocator);
 
-        char *linkBuf = static_cast<char *>(allocator->allocate(k_BUF_LEN));
-        bslma::DeallocatorGuard<bslma::Allocator> guard(linkBuf, allocator);
+        // If successful, 'readlink' returns the number of bytes in the result.
 
-        rc = ::readlink(linkName, linkBuf, k_BUF_LEN);
-        if (0 < rc && rc < k_BUF_LEN && linkBuf + rc ==
-                                     bsl::find(linkBuf, linkBuf + rc + 1, 0)) {
-            result->assign(linkBuf);
+        rc = ::readlink(linkName, buf, k_BUF_LEN);
+        if (0 < rc && rc < k_BUF_LEN && buf + rc ==
+                                             bsl::find(buf, buf + rc + 1, 0)) {
+            result->assign(buf);
         }
     }
 
-    if (result->empty()) {
+    if (result->empty() || !u::FUtil::exists(*result)) {
         // Reading the symlink failed, probably because "/proc" is sometimes
         // unavailable.  We fall back on reading '::program_invocation_name',
         // which will just yield 'argv[0]', which may or may not be a relative
@@ -205,6 +213,144 @@ int ProcessUtil::getProcessName(bsl::string *result)
 
         result->assign(::program_invocation_name);
     }
+    else {
+        resultExists = true;
+    }
+#elif defined BSLS_PLATFORM_OS_SOLARIS
+    char fileNameBuf[6 + 30 + 7 + 6];    // way more than enough
+    bsl::sprintf(fileNameBuf,
+                 "/proc/%d/object/a.out",
+                 u::getPid());
+    if (u::FUtil::exists(fileNameBuf)) {
+        result->assign(fileNameBuf);
+        resultExists = true;
+    }
+    else {
+        // Probably "/proc" is unavailable.  '::getexecname' will return an
+        // absolute path with symlinks resolved.
+
+        result->assign(::getexecname());
+    }
+#elif defined BSLS_PLATFORM_OS_WINDOWS
+    // On Windows, 'argv[0]' is always an absolute path, even if it was
+    // specified on the cmd line as a relative path.  The following code yields
+    // the full path.
+
+    static const size_t k_INITIAL_SIZE = MAX_PATH + 1;
+    bdlma::LocalSequentialAllocator<sizeof(wchar_t) * k_INITIAL_SIZE> la;
+    bsl::wstring wResult(MAX_PATH, L'\0', &la);
+    while (wResult.length() <= 4 * k_INITIAL_SIZE) {
+        DWORD length = GetModuleFileNameW(0, &wResult[0], wResult.length());
+        if (length == 0) {  // Error
+            return 1;                                                 // RETURN
+        }
+        else if (length < wResult.length()) {  // Success
+            wResult.resize(length);
+            int rc =  bdlde::CharConvertUtf16::utf16ToUtf8(result, wResult);
+            if (0 != rc) {
+                return -1;                                            // RETURN
+            }
+            break;
+        }
+        else { // Not enough space for the process name in 'wResult'
+            wResult.resize(wResult.length() * 2); // Make more space
+        }
+    }
+
+    // Either '*result' has been set, or the path name is too long (more than
+    // 4 * k_INITIAL_SIZE), and we will return 1 because 'result->empty()'.
+#else
+# error    Unrecognized Platform
+#endif
+
+    return result->empty() || (!resultExists && !u::FUtil::exists(*result));
+}
+
+int ProcessUtil::getProcessId()
+{
+    return u::getPid();
+}
+
+int ProcessUtil::getProcessName(bsl::string *result)
+{
+    BSLS_ASSERT(result);
+
+    result->clear();
+
+#if defined BSLS_PLATFORM_OS_AIX
+    enum { k_BUF_LEN = 64 * 1024 };
+    bslma::Allocator *allocator = bslma::Default::defaultAllocator();
+    char *argsBuf = static_cast<char *>(allocator->allocate(k_BUF_LEN));
+    bslma::DeallocatorGuard<bslma::Allocator> guard(argsBuf, allocator);
+
+    char *end = argsBuf + k_BUF_LEN;
+
+    struct procentry64  procBuf;
+    procBuf.pi_pid = u::getPid();
+
+    // '::getargs' should fill the beginning of 'argsBuf' with null-terminated
+    // 'argv[0]', which might be a relative path.
+
+    bsl::fill(argsBuf, end, '*');
+    if (0 == ::getargs(&procBuf, sizeof(procBuf), argsBuf, k_BUF_LEN)
+                                      && bsl::find(argsBuf, end, '\0') < end) {
+        result->assign(argsBuf);
+    }
+#elif defined BSLS_PLATFORM_OS_CYGWIN
+    enum { NUM_ELEMENTS = 14 + 30 };  // "/proc/<pid>/cmdline"
+
+    bdlsb::MemOutStreamBuf osb(NUM_ELEMENTS);
+    bsl::ostream           os(&osb);
+    os << "/proc/" << u::getPid() << "/cmdline" << bsl::ends;
+    const char *procfs = osb.data();
+
+    bsl::ifstream ifs;
+    ifs.open(procfs, bsl::ios_base::in | bsl::ios_base::binary);
+    if (ifs.fail()) {
+        return -1;                                                    // RETURN
+    }
+    ifs >> *result;
+
+    bsl::string::size_type pos = result->find_first_of('\0');
+    if (bsl::string::npos != pos) {
+        result->resize(pos);
+    }
+#elif defined BSLS_PLATFORM_OS_DARWIN
+    // We empirically determined that 'proc_pidpath' won't tolerate a buffer
+    // much longer than 4K, and 4K is short enough not to be worth dynamically
+    // allocating.
+
+    enum { k_BUF_LEN = 4 * 1024 };
+    char buf[k_BUF_LEN];
+    bsl::fill(buf + 0, buf + k_BUF_LEN, '*');
+    if (proc_pidpath(u::getPid(), buf, k_BUF_LEN) <= 0) {
+        return -1;                                                    // RETURN
+    }
+    if (buf + k_BUF_LEN == bsl::find(buf + 0, buf + k_BUF_LEN, 0)) {
+        return -1;                                                    // RETURN
+    }
+
+    result->assign(buf);
+#elif defined BSLS_PLATFORM_OS_HPUX
+    result->resize(1024);
+    int rc = pstat_getcommandline(&(*result->begin()),
+                                  result->size(),
+                                  1,
+                                  u::getPid());
+    if (rc < 0) {
+        return -1;                                                    // RETURN
+    }
+
+    bsl::string::size_type pos = result->find_first_of(' ');
+    if (bsl::string::npos != pos) {
+        result->resize(pos);
+    }
+#elif defined BSLS_PLATFORM_OS_LINUX
+    // We read '::program_invocation_name', which will just yield 'argv[0]',
+    // which may or may not be a relative path.  Note that this can still cope
+    // with the case where the path of the executable contains spaces.
+
+    result->assign(::program_invocation_name);
 #elif defined BSLS_PLATFORM_OS_SOLARIS
     // '::getexecname' will return an absolute path with symlinks resolved.
 
@@ -224,15 +370,16 @@ int ProcessUtil::getProcessName(bsl::string *result)
         }
         else if (length < wResult.length()) {  // Success
             wResult.resize(length);
-            return bdlde::CharConvertUtf16::utf16ToUtf8(result, wResult);
-                                                                      // RETURN
+            int rc =  bdlde::CharConvertUtf16::utf16ToUtf8(result, wResult);
+            if (0 != rc) {
+                return -1;                                            // RETURN
+            }
+            break;
         }
         else { // Not enough space for the process name in 'wResult'
             wResult.resize(wResult.length() * 2); // Make more space
         }
     }
-
-    return -1; // The path name is too long (more than 4 * k_INITIAL_SIZE)
 #else
 # error    Unrecognized Platform
 #endif
