@@ -202,6 +202,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "'getExecutablePath' RELATIVE ARGV[0] TEST\n"
                              "=========================================\n";
 
+        // 'getenv("HOSTNAME")' doesn't work on Darwin for some reason, even
+        // though 'echo $HOSTNAME' from the shell does.
+
         const char *hostName = bsl::getenv("HOSTNAME");
         hostName = hostName ? hostName : "unknown";
 
