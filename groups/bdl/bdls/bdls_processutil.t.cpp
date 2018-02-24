@@ -198,6 +198,9 @@ int main(int argc, char *argv[])
         //:   value, which will indicate whether TC 2 passed.
         // --------------------------------------------------------------------
 
+        verbose = true;
+        veryVerbose = true;
+
 #if defined BSLS_PLATFORM_OS_UNIX
         if (verbose) cout << "'getExecutablePath' RELATIVE ARGV[0] TEST\n"
                              "=========================================\n";
@@ -205,12 +208,19 @@ int main(int argc, char *argv[])
         // 'getenv("HOSTNAME")' doesn't work on Darwin for some reason, even
         // though 'echo $HOSTNAME' from the shell does.
 
-        const char *hostName = bsl::getenv("HOSTNAME");
-        hostName = hostName ? hostName : "unknown";
+        bsl::string hostName(&ta);
+        {
+            enum { k_BUF_LEN = 128 };
+            char hostNameBuf[k_BUF_LEN];
+            int hostNameRc = ::gethostname(hostNameBuf, k_BUF_LEN);
+            ASSERT(0 == hostNameRc);
+            hostNameBuf[k_BUF_LEN - 1] = 0;
+            hostName = hostNameBuf;
+        }
 
         char dirNameBuf[1024];
         bsl::sprintf(dirNameBuf,"tmp.bdls_processutil.t.case4.%s.%d.dir",
-                                                hostName, Obj::getProcessId());
+                                        hostName.c_str(), Obj::getProcessId());
         const bsl::string dirName(dirNameBuf, &ta);
 
         (void) FUtil::remove(dirName, true);
@@ -234,14 +244,23 @@ int main(int argc, char *argv[])
         ASSERT(fp);
         bsl::fprintf(fp, ":\n");
         bsl::fprintf(fp, "cp '%s' '%s'\n", argv[0], cpDst.c_str());
+        if (veryVerbose)  bsl::fprintf(fp, "echo $?\n");
         bsl::fprintf(fp, "chmod a+rwx '%s'\n", cpDst.c_str());
-        bsl::fprintf(fp, "cd %s >/dev/null 2>&1\n", dirName.c_str());
+        if (veryVerbose)  bsl::fprintf(fp, "echo $?\n");
+        if (veryVerbose)  bsl::fprintf(fp, "pwd\n");
+        bsl::fprintf(fp, "cd %s\n", dirName.c_str());    //  >/dev/null 2>&1
+        if (veryVerbose)  bsl::fprintf(fp, "echo $?\n");
+        if (veryVerbose)  bsl::fprintf(fp, "pwd\n");
         bsl::fprintf(fp, "exec '%s' 2%s%s%s%s\n",
                                               execName.c_str(),
                                               verbose ? " v" : "",
                                               veryVerbose ? " v" : "",
                                               veryVeryVerbose ? " v" : "",
                                               veryVeryVeryVerbose ? " v" : "");
+
+        // The following is just for diagnostics if the 'exec' fails.
+
+        bsl::fprintf(fp, "pwd; ls -l");
         rc = bsl::fclose(fp);
         ASSERT(0 == rc);
 
