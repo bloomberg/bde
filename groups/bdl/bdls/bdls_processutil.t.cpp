@@ -110,9 +110,13 @@ bool isExecutable(const bsl::string& path)
 bool isRelative(const bsl::string& path)
 {
     ASSERT(!path.empty());
-    const char C = path.empty() ? 0 : path[0];
+    const char C = *path.c_str();
 
-    return '/' != C && '\\' != C && bsl::string::npos == path.find(':');
+#if defined BSLS_PLATFORM_OS_UNIX
+    return '/' != C;
+#else
+    return '\\' != C && bsl::string::npos == path.find(':');
+#endif
 }
 
 int resolvePath(bsl::string *result, const char *origPath)
@@ -198,9 +202,6 @@ int main(int argc, char *argv[])
         //:   value, which will indicate whether TC 2 passed.
         // --------------------------------------------------------------------
 
-        verbose = true;
-        veryVerbose = true;
-
 #if defined BSLS_PLATFORM_OS_UNIX
         if (verbose) cout << "'getExecutablePath' RELATIVE ARGV[0] TEST\n"
                              "=========================================\n";
@@ -208,20 +209,19 @@ int main(int argc, char *argv[])
         // 'getenv("HOSTNAME")' doesn't work on Darwin for some reason, even
         // though 'echo $HOSTNAME' from the shell does.
 
-        bsl::string hostName(&ta);
+        bsl::string dirName(&ta);
         {
             enum { k_BUF_LEN = 128 };
             char hostNameBuf[k_BUF_LEN];
             int hostNameRc = ::gethostname(hostNameBuf, k_BUF_LEN);
             ASSERT(0 == hostNameRc);
             hostNameBuf[k_BUF_LEN - 1] = 0;
-            hostName = hostNameBuf;
-        }
 
-        char dirNameBuf[1024];
-        bsl::sprintf(dirNameBuf,"tmp.bdls_processutil.t.case4.%s.%d.dir",
-                                        hostName.c_str(), Obj::getProcessId());
-        const bsl::string dirName(dirNameBuf, &ta);
+            char dirNameBuf[1024];
+            bsl::sprintf(dirNameBuf,"tmp.bdls_processutil.t.case4.%s.%d.dir",
+                                             hostNameBuf, Obj::getProcessId());
+            dirName = dirNameBuf;
+        }
 
         (void) FUtil::remove(dirName, true);
         ASSERT(!FUtil::exists(dirName));
@@ -239,29 +239,20 @@ int main(int argc, char *argv[])
         cpDst += '/';
         cpDst += execName;
 
-        const bsl::string scriptName(dirName + "/case4script.sh", &ta);
+        const bsl::string scriptName(dirName + "/case4.script.sh", &ta);
         FILE *fp = bsl::fopen(scriptName.c_str(), "w");
         ASSERT(fp);
         bsl::fprintf(fp, ":\n");
         bsl::fprintf(fp, "cp '%s' '%s'\n", argv[0], cpDst.c_str());
-        if (veryVerbose)  bsl::fprintf(fp, "echo $?\n");
         bsl::fprintf(fp, "chmod a+rwx '%s'\n", cpDst.c_str());
-        if (veryVerbose)  bsl::fprintf(fp, "echo $?\n");
-        if (veryVerbose)  bsl::fprintf(fp, "pwd\n");
-        bsl::fprintf(fp, "cd %s\n", dirName.c_str());    //  >/dev/null 2>&1
-        if (veryVerbose)  bsl::fprintf(fp, "echo $?\n");
-        if (veryVerbose)  bsl::fprintf(fp, "pwd\n");
-        bsl::fprintf(fp, "ls -l\n");
+        bsl::fprintf(fp, "cd '%s' >/dev/null 2>&1\n", dirName.c_str());
+        if (veryVerbose) bsl::fprintf(fp, "pwd; ls -l\n");
         bsl::fprintf(fp, "exec './%s' 2%s%s%s%s\n",
                                               execName.c_str(),
                                               verbose ? " v" : "",
                                               veryVerbose ? " v" : "",
                                               veryVeryVerbose ? " v" : "",
                                               veryVeryVeryVerbose ? " v" : "");
-
-        // The following is just for diagnostics if the 'exec' fails.
-
-        bsl::fprintf(fp, "pwd; ls -l");
         rc = bsl::fclose(fp);
         ASSERT(0 == rc);
 
@@ -271,13 +262,12 @@ int main(int argc, char *argv[])
         }
         systemStr += scriptName;
         rc = bsl::system(systemStr.c_str());
-        if (0 != rc) {
-            ASSERTV(rc, 0 < rc);
-            if (0 < rc) {
-                testStatus = bsl::min(101, testStatus + rc);
-            }
+        ASSERT(0 == rc);
+        if (0 < rc) {
+            testStatus = bsl::min(101, testStatus + rc);
         }
 
+        ASSERT(FUtil::exists(dirName));
         rc = FUtil::remove(dirName, true);
         ASSERT(0 == rc);
         ASSERT(!FUtil::exists(dirName));
