@@ -251,7 +251,8 @@ int main(int argc, char *argv[])
         bsl::fprintf(fp, "cd %s\n", dirName.c_str());    //  >/dev/null 2>&1
         if (veryVerbose)  bsl::fprintf(fp, "echo $?\n");
         if (veryVerbose)  bsl::fprintf(fp, "pwd\n");
-        bsl::fprintf(fp, "exec '%s' 2%s%s%s%s\n",
+        bsl::fprintf(fp, "ls -l\n");
+        bsl::fprintf(fp, "exec './%s' 2%s%s%s%s\n",
                                               execName.c_str(),
                                               verbose ? " v" : "",
                                               veryVerbose ? " v" : "",
