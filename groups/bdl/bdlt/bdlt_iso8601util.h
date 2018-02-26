@@ -349,20 +349,36 @@ BSLS_IDENT("$Id: $")
 // brackets optional elements, '()' is used for grouping, and '|' separates
 // alternatives:
 //..
-// <Generated Duration> ::=  P{w+W}{d+D}T{h+H}{m+M}s+(.|,)s+S   # all values
-//                                                              # guaranteed to
-//                                                              # be less than
-//                                                              # their modulus
-//                                                              # (weeks can be
-//                                                              # up to 14
-//                                                              # digits)
+// <Date Duration>      ::=  {w+W}{d+D}
 //
-// <Parsed Duration>    ::=  P{w+W}{d+D}{T{h+H}{m+M}s+(.|,)s+S} # must contain
-//                                                              # at least one
-//                                                              # optional
-//                                                              # field (i.e.
-//                                                              # "P" is not
-//                                                              # valid)
+// <Time Duration>      ::=  T{h+H}{m+M}{s+{(.|,)s+}S}         # must contain
+//                                                             # at least one
+//                                                             # optional field
+//                                                             # (i.e. "T" is
+//                                                             # not valid)
+//
+// <Generated Duration> ::=  P<Date Duration><Time Duration>   # all values
+//                                                             # guaranteed to
+//                                                             # be less than
+//                                                             # their modulus
+//                                                             # (weeks can be
+//                                                             # be up to 14
+//                                                             # digits), and
+//                                                             # it must
+//                                                             # contain the
+//                                                             # seconds
+//                                                             # portion
+//
+// <Parsed Duration>    ::=  P<Date Duration>{<Time Duration>} # must contain
+//                                                             # at least one
+//                                                             # optional field
+//                                                             # in <Date
+//                                                             # Duration> or
+//                                                             # must contain
+//                                                             # a <Time
+//                                                             # Duration>
+//                                                             # (i.e. "P" is
+//                                                             # not valid)
 //..
 //
 ///Usage
@@ -845,8 +861,11 @@ struct Iso8601Util {
         // value (with no effect) otherwise.  'string' is assumed to be of the
         // form:
         //..
-        //  P{w+W}{d+D}{T{h+H}{m+M}s+(.|,)s+S}
+        //  <Parsed Duration>
         //..
+        // See "Summary of Supported ISO 8601 Duration Representations" for a
+        // complete description of this format.
+        //
         // *Exactly* 'length' characters are parsed; parsing will fail if a
         // proper prefix of 'string' matches the expected format, but the
         // entire 'length' characters do not.  If an optional fractional second
@@ -977,8 +996,11 @@ struct Iso8601Util {
         // success, and a non-zero value (with no effect) otherwise.  'string'
         // is assumed to be of the form:
         //..
-        //  P{w+W}{d+D}{T{h+H}{m+M}s+(.|,)s+S}
+        //  <Parsed Duration>
         //..
+        // See "Summary of Supported ISO 8601 Duration Representations" for a
+        // complete description of this format.
+        //
         // *Exactly* 'string.length()' characters are parsed; parsing will fail
         // if a proper prefix of 'string' matches the expected format, but the
         // entire 'string.length()' characters do not.  If an optional
