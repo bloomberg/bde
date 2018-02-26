@@ -359,6 +359,10 @@ BSLS_IDENT("$Id$")
 #include <bsl_cstring.h>
 #endif
 
+#ifndef INCLUDED_BSL_C_SIGNAL
+#include <bsl_c_signal.h>  // Formerly transitively included via decContext.h
+#endif
+
 namespace BloombergLP {
 namespace bdldfp {
                         // ========================
