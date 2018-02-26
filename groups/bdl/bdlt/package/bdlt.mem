@@ -29,6 +29,7 @@ bdlt_posixdateimputil
 bdlt_prolepticdateimputil
 bdlt_serialdateimputil
 bdlt_time
+bdlt_timetable
 bdlt_timetz
 bdlt_timeunitratio
 bdlt_timeutil
