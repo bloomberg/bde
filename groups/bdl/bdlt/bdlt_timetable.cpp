@@ -134,6 +134,8 @@ void Timetable::addTransition(const Datetime& datetime, int transitionCode)
     BSLS_ASSERT(                         0 <= transitionCode
                 || k_UNSET_TRANSITION_CODE == transitionCode);
 
+    Timetable_RemoveAllProctor proctor(this);
+
     bsl::size_t   index = datetime.date() - d_firstDate;
     Timetable_Day daily(d_timetable[index], d_timetable.allocator());
     bool          roll  = daily.addTransition(datetime, transitionCode);
@@ -149,6 +151,8 @@ void Timetable::addTransition(const Datetime& datetime, int transitionCode)
 
         ++index;
     }
+
+    proctor.release();
 }
 
 void Timetable::addTransition(const DayOfWeek::Enum& dayOfWeek,
@@ -181,6 +185,8 @@ void Timetable::removeAllTransitions(const Date& date)
 {
     BSLS_ASSERT(isInRange(date));
 
+    Timetable_RemoveAllProctor proctor(this);
+
     bsl::size_t   index = date - d_firstDate;
     Timetable_Day daily(d_timetable[index], d_timetable.allocator());
     bool          roll  = daily.removeAllTransitions();
@@ -198,12 +204,16 @@ void Timetable::removeAllTransitions(const Date& date)
 
         ++index;
     }
+
+    proctor.release();
 }
 
 void Timetable::removeTransition(const Datetime& datetime)
 {
     BSLS_ASSERT(24 > datetime.hour());
     BSLS_ASSERT(isInRange(datetime.date()));
+
+    Timetable_RemoveAllProctor proctor(this);
 
     bsl::size_t   index = datetime.date() - d_firstDate;
     Timetable_Day daily(d_timetable[index], d_timetable.allocator());
@@ -222,6 +232,8 @@ void Timetable::removeTransition(const Datetime& datetime)
 
         ++index;
     }
+
+    proctor.release();
 }
 
 void Timetable::removeTransition(const DayOfWeek::Enum& dayOfWeek,
@@ -256,6 +268,8 @@ void Timetable::setInitialTransitionCode(int transitionCode)
     if (   0 < d_timetable.length()
         && d_timetable.front().initialTransitionCode()
                                                   != d_initialTransitionCode) {
+        Timetable_RemoveAllProctor proctor(this);
+
         bsl::size_t   index = 0;
         Timetable_Day daily(d_timetable[index], d_timetable.allocator());
         bool          roll  = daily.setInitialTransitionCode(transitionCode);
@@ -271,6 +285,8 @@ void Timetable::setInitialTransitionCode(int transitionCode)
 
             ++index;
         }
+
+        proctor.release();
     }
 }
 
