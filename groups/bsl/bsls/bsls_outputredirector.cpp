@@ -21,6 +21,12 @@ BSLS_IDENT("$Id$ $CSID$")
 # include <stdint.h>    // 'SIZE_MAX', cannot include on all Windows platforms
 #endif
 
+#ifndef SIZE_MAX
+#define SIZE_MAX (static_cast<size_t>(-1))
+    // 'SIZE_MAX' is only defined as part of C99, so it may not exist in some
+    // pre-C++11 compilers.
+#endif
+
 namespace BloombergLP {
 namespace bsls {
 
