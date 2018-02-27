@@ -321,6 +321,17 @@ class Encoder {
         // log is reset each time 'encode' is called.
 };
 
+                          // =======================
+                          // class Encoder_Formatter
+                          // =======================
+
+typedef Formatter Encoder_Formatter;
+    // This 'typedef' provides an alias to the 'baljsn::Formatter' 'class'.
+    // The initial formatter 'class' was implemented as a component-private
+    // class in this component and was used by clients directly.  This
+    // 'typedef' allows those users to continue to build while they migrate to
+    // using the 'Formatter' 'class' directly.
+
                           // ========================
                           // class Encoder_EncodeImpl
                           // ========================

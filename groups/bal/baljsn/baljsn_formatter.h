@@ -24,15 +24,15 @@ BSLS_IDENT("$Id: $")
 // information) specifies a self-describing and simple syntax that is built on
 // two structures:
 //..
-//: o Objects. JSON objects are represented as collections of name value pairs.
-//:            The 'Formatter' class allows encoding objects by providing the
-//:            'openObject' and 'closeObject' methods to open and close an
-//:            object and the 'openMember', 'closeMember', and 'putValue'
-//:            methods to add elements and values to an object.
+//:  o Objects: JSON objects are represented as collections of name value
+//:             pairs.  The 'Formatter' class allows encoding objects by
+//:             providing the 'openObject' and 'closeObject' methods to open
+//:             and close an object and the 'openMember', 'closeMember', and
+//:             'putValue' methods to add members and values to an object.
 //:
-//: o Arrays. JSON arrays are specified as an ordered list of values.  The
-//:           'Formatter' 'class' provides the 'openArray' and 'closeArray'
-//:           method to open and close an array
+//:  o Arrays: JSON arrays are specified as an ordered list of values.  The
+//:            'Formatter' 'class' provides the 'openArray' and 'closeArray'
+//:            method to open and close an array.
 //..
 //
 // The 'Formatter' 'class' also provides the ability to specify formatting
@@ -139,8 +139,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_print.h>
 #endif
 
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
+#ifndef INCLUDED_BDLC_BITARRAY
+#include <bdlc_bitarray.h>
 #endif
 
 #ifndef INCLUDED_BSL_OSTREAM
@@ -172,7 +172,7 @@ class Formatter {
 
     int               d_spacesPerLevel;      // spaces per indentation level
 
-    bsl::vector<bool> d_callSequenceVec;     // vector specifying the sequence
+    bdlc::BitArray    d_callSequence;        // array specifying the sequence
                                              // in which the 'openObject' and
                                              // 'openArray' methods were
                                              // called.  An 'openObject' call
@@ -185,6 +185,14 @@ class Formatter {
         // sequence of whitespace characters for the proper indentation of an
         // element at the current indentation level.  Note that this method
         // does not check that 'd_usePrettyStyle' is 'true' before indenting.
+
+    // PRIVATE ACCESSORS
+    bool isArrayElement() const;
+        // Return 'true' if the value being encoded is an element of an array,
+        // and 'false' otherwise.  A value is identified as an element of an
+        // array if 'openArray' was called on this object and was not
+        // subsequently followed by either an 'openObject' or 'closeArray'
+        // call.
 
   public:
     // CREATORS
@@ -214,36 +222,39 @@ class Formatter {
     // MANIPULATORS
     void openObject();
         // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an object.
+        // characters designating the start of an object (referred to as an
+        // "object" in JSON).
 
     void closeObject();
         // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an object.
+        // characters designating the end of an object (referred to as an
+        // "object" in JSON).
 
     void openArray(bool formatAsEmptyArray = false);
         // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an array.  Optionally specify
-        // 'formatAsEmptyArray' denoting if the array being opened should be
-        // formatted as an empty array.  If 'formatAsEmptyArray' is not
-        // specified then the array being opened is formatted as an array
-        // having elements.  Note that the formatting (and as a consequence the
-        // 'formatAsEmptyArray') is relevant only if this formatter encodes in
-        // the pretty style and is ignored otherwise.
+        // characters designating the start of an array (referred to as an
+        // "array" in JSON).  Optionally specify 'formatAsEmptyArray' denoting
+        // if the array being opened should be formatted as an empty array.  If
+        // 'formatAsEmptyArray' is not specified then the array being opened is
+        // formatted as an array having elements.  Note that the formatting
+        // (and as a consequence the 'formatAsEmptyArray') is relevant only if
+        // this formatter encodes in the pretty style and is ignored otherwise.
 
     void closeArray(bool formatAsEmptyArray = false);
         // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an array.  Optionally specify
-        // 'formatAsEmptyArray' denoting if the array being closed should be
-        // formatted as an empty array.  If 'formatAsEmptyArray' is not
-        // specified then the array being closed is formatted as an array
-        // having elements.  Note that the formatting (and as a consequence the
-        // 'formatAsEmptyArray') is relevant only if this formatter encodes in
-        // the pretty style and is ignored otherwise.
+        // characters designating the end of an array (referred to as an
+        // "array" in JSON).  Optionally specify 'formatAsEmptyArray' denoting
+        // if the array being closed should be formatted as an empty array.  If
+        // 'formatAsEmptyArray' is not specified then the array being closed is
+        // formatted as an array having elements.  Note that the formatting
+        // (and as a consequence the 'formatAsEmptyArray') is relevant only if
+        // this formatter encodes in the pretty style and is ignored otherwise.
 
     int openMember(const bsl::string& name);
         // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an element having the specified
-        // 'name'.  Return 0 on success and a non-zero value otherwise.
+        // characters designating the start of a member (referred to as a
+        // "name/value pair" in JSON) having the specified 'name'.  Return 0 on
+        // success and a non-zero value otherwise.
 
     void putNullValue();
         // Print onto the stream supplied at construction the value
@@ -258,9 +269,9 @@ class Formatter {
 
     void closeMember();
         // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an element.
+        // characters designating the end of an member (referred to as a
+        // "name/value pair" in JSON).
 };
-
 
 // ============================================================================
 //                            INLINE DEFINITIONS
@@ -277,11 +288,20 @@ void Formatter::indent()
     bdlb::Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
 }
 
+// PRIVATE ACCESSORS
+inline
+bool Formatter::isArrayElement() const
+{
+    BSLS_ASSERT_SAFE(d_callSequence.length() >= 1);
+
+    return d_callSequence[d_callSequence.length() - 1];
+}
+
 // MANIPULATORS
 inline
 void Formatter::putNullValue()
 {
-    if (d_usePrettyStyle && d_callSequenceVec.back()) {
+    if (d_usePrettyStyle && isArrayElement()) {
         indent();
     }
     d_outputStream << "null";
@@ -290,7 +310,7 @@ void Formatter::putNullValue()
 template <class TYPE>
 int Formatter::putValue(const TYPE& value, const EncoderOptions *options)
 {
-    if (d_usePrettyStyle && d_callSequenceVec.back()) {
+    if (d_usePrettyStyle && isArrayElement()) {
         indent();
     }
     return baljsn::PrintUtil::printValue(d_outputStream, value, options);

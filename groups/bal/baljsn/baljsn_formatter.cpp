@@ -24,18 +24,18 @@ Formatter::Formatter(bsl::ostream&     stream,
 , d_usePrettyStyle(usePrettyStyle)
 , d_indentLevel(initialIndentLevel)
 , d_spacesPerLevel(spacesPerLevel)
-, d_callSequenceVec(basicAllocator)
+, d_callSequence(basicAllocator)
 {
-    // Add a dummy value so we don't have to check whether 'd_callSequenceVec'
-    // is empty in 'openObject' when we access 'd_callSequenceVec.back()'.
+    // Add a dummy value so we don't have to check whether 'd_callSequence' is
+    // empty in 'openObject' when we access its last element.
 
-    d_callSequenceVec.push_back(false);
+    d_callSequence.append(false);
 }
 
 // MANIPULATORS
 void Formatter::openObject()
 {
-    if (d_usePrettyStyle && d_callSequenceVec.back()) {
+    if (d_usePrettyStyle && isArrayElement()) {
         indent();
     }
 
@@ -44,7 +44,7 @@ void Formatter::openObject()
     if (d_usePrettyStyle) {
         d_outputStream << '\n';
         ++d_indentLevel;
-        d_callSequenceVec.push_back(false);
+        d_callSequence.append(false);
     }
 }
 
@@ -55,8 +55,8 @@ void Formatter::closeObject()
         d_outputStream << '\n';
         indent();
 
-        BSLS_ASSERT_SAFE(false == d_callSequenceVec.back());
-        d_callSequenceVec.pop_back();
+        BSLS_ASSERT_SAFE(false == isArrayElement());
+        d_callSequence.remove(d_callSequence.length() - 1);
     }
 
     d_outputStream << '}';
@@ -69,7 +69,7 @@ void Formatter::openArray(bool formatAsEmptyArrayFlag)
     if (d_usePrettyStyle && !formatAsEmptyArrayFlag) {
         d_outputStream << '\n';
         ++d_indentLevel;
-        d_callSequenceVec.push_back(true);
+        d_callSequence.append(true);
     }
 }
 
@@ -80,8 +80,8 @@ void Formatter::closeArray(bool formatAsEmptyArrayFlag)
         d_outputStream << '\n';
         indent();
 
-        BSLS_ASSERT_SAFE(true == d_callSequenceVec.back());
-        d_callSequenceVec.pop_back();
+        BSLS_ASSERT_SAFE(true == isArrayElement());
+        d_callSequence.remove(d_callSequence.length() - 1);
     }
 
     d_outputStream << ']';
