@@ -184,6 +184,14 @@ BSLS_IDENT("$Id$")
 #include <bsl_iostream.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSL_C_SIGNAL
+#include <bsl_c_signal.h>  // Formerly transitively included via decContext.h
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
 
                 // DECIMAL FLOATING-POINT LITERAL EMULATION
