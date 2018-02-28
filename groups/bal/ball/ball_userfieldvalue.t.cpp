@@ -1,11 +1,14 @@
 // ball_userfieldvalue.t.cpp                                          -*-C++-*-
 #include <ball_userfieldvalue.h>
 
+#include <bdlt_datetime.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
 
@@ -28,10 +31,20 @@ using namespace bsl;
 // TBD
 //
 // Primary Manipulators:
-//: o TBD
+//: o void setInt64(bsls::Types::Int64 value);
+//: o void setDouble(double value);
+//: o void setString(bslstl::StringRef value);
+//: o void setDatetimeTz(const bdlt::DatetimeTz& value);
+//: o void setCharArray(const bsl::vector<char>& value);
 //
 // Basic Accessors:
-//: o TBD
+//: o ball::UserFieldType::Enum type() const;
+//: o const bsls::Types::Int64& theInt64() const;
+//: o const double& theDouble() const;
+//: o const bsl::string& theString() const;
+//: o const bdlt::DatetimeTz& theDatetimeTz() const;
+//: o const bsl::vector<char>& theCharArray() const;
+//: o bslma::Allocator *allocator() const;
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
@@ -42,47 +55,54 @@ using namespace bsl;
 //: o Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CREATORS
-// [  ] UserFieldValue(                                Allocator *ba = 0);
-// [  ] UserFieldValue(bsls::Types::Int64       value, Allocator *ba = 0);
-// [  ] UserFieldValue(double                   value, Allocator *ba = 0);
-// [  ] UserFieldValue(bslstl::StringRef        value, Allocator *ba = 0);
-// [  ] UserFieldValue(const bdlt::DatetimeTz&  value, Allocator *ba = 0);
-// [  ] UserFieldValue(const bsl::vector<char>& value, Allocator *ba = 0);
-// [  ] UserFieldValue(INTEGRAL_TYPE            value, Allocator *ba = 0);
-// [  ] UserFieldValue(const UserFieldValue& original, Allocator *ba = 0);
-// [  ] ~UserFieldValue() = default;
+// [ 2] UserFieldValue(Allocator *ba = 0);
+// [12] UserFieldValue(bsls::Types::Int64       value, Allocator *ba = 0);
+// [12] UserFieldValue(double                   value, Allocator *ba = 0);
+// [12] UserFieldValue(bslstl::StringRef        value, Allocator *ba = 0);
+// [12] UserFieldValue(const bdlt::DatetimeTz&  value, Allocator *ba = 0);
+// [12] UserFieldValue(const bsl::vector<char>& value, Allocator *ba = 0);
+// [13] UserFieldValue(INTEGRAL_TYPE            value, Allocator *ba = 0);
+// [ 7] UserFieldValue(const UserFieldValue& original, Allocator *ba = 0);
+// [ 2] ~UserFieldValue() = default;
 //
 // MANIPULATORS
-// [  ] UserFieldValue& operator=(const UserFieldValue& rhs);
-// [  ] void reset();
-// [  ] void setInt64(bsls::Types::Int64 value);
-// [  ] void setDouble(double value);
-// [  ] void setString(bslstl::StringRef value);
-// [  ] void setDatetimeTz(const bdlt::DatetimeTz& value);
-// [  ] void setCharArray(const bsl::vector<char>& value);
-// [  ] void swap(UserFieldValue& other);
+// [ 9] UserFieldValue& operator=(const UserFieldValue& rhs);
+// [11] void reset();
+// [ 2] void setInt64(bsls::Types::Int64 value);
+// [ 2] void setDouble(double value);
+// [ 2] void setString(bslstl::StringRef value);
+// [ 2] void setDatetimeTz(const bdlt::DatetimeTz& value);
+// [ 2] void setCharArray(const bsl::vector<char>& value);
+// [ 8] void swap(UserFieldValue& other);
 //
 // ACCESSORS
-// [  ] bool isUnset() const;
-// [  ] ball::UserFieldType::Enum type() const;
-// [  ] const bsls::Types::Int64& theInt64() const;
-// [  ] const double& theDouble() const;
-// [  ] const bsl::string& theString() const;
-// [  ] const bdlt::DatetimeTz& theDatetimeTz() const;
-// [  ] const bsl::vector<char>& theCharArray() const;
-// [  ] bslma::Allocator *allocator() const;
+// [11] bool isUnset() const;
+// [ 4] ball::UserFieldType::Enum type() const;
+// [ 4] const bsls::Types::Int64& theInt64() const;
+// [ 4] const double& theDouble() const;
+// [ 4] const bsl::string& theString() const;
+// [ 4] const bdlt::DatetimeTz& theDatetimeTz() const;
+// [ 4] const bsl::vector<char>& theCharArray() const;
+// [ 4] bslma::Allocator *allocator() const;
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
 // FREE OPERATORS
-// [  ] bool operator==(const UserFieldValue& lhs, const UserFieldValue& rhs);
-// [  ] bool operator!=(const UserFieldValue& lhs, const UserFieldValue& rhs);
+// [ 6] bool operator==(const UserFieldValue& lhs, const UserFieldValue& rhs);
+// [ 6] bool operator!=(const UserFieldValue& lhs, const UserFieldValue& rhs);
 // [ 5] ostream& operator<<(ostream &os, const UserFieldValue& object);
 //
 // FREE FUNCTIONS
-// [  ] void swap(UserFieldValue& a, UserFieldValue& b);
+// [ 8] void swap(UserFieldValue& a, UserFieldValue& b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 6] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
+// [ 3] int ggg(Obj *object, const char *spec, bool verboseFlag = true);
+// [ 3] Obj& gg(Obj *object, const char *spec);
+// [ *] CONCERN: This test driver is reusable w/other, similar components.
+// [ *] CONCERN: In no case does memory come from the global allocator.
+// [ *] CONCERN: In no case does memory come from the default allocator.
+// [ 4] CONCERN: All accessor methods are declared 'const'.
+// [10] Reserved for BDEX streaming.
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -146,6 +166,44 @@ void aSsErT(bool condition, const char *message, int line)
 typedef ball::UserFieldValue Obj;
 typedef ball::UserFieldType  Type;
 
+        // Create Two Distinct Exemplars For Each Field Type
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+#define SUFFICIENTLY_LONG_STRING "123456789012345678901234567890123"
+#else  // 64_BIT
+#define SUFFICIENTLY_LONG_STRING "12345678901234567890123456789012" \
+                                 "123456789012345678901234567890123"
+#endif
+BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
+
+// Note that, for example, the "A" in "A1" corresponds to 'Type::e_INT64'.
+
+const bsls::Types::Int64 A1 =  7925;
+const bsls::Types::Int64 A2 = -1242;
+
+const double             B1 = 10.5;
+const double             B2 = 20.5;
+
+const bsl::string        C1 = "one";
+const bsl::string        C2 = SUFFICIENTLY_LONG_STRING;
+
+const bdlt::DatetimeTz   D1(bdlt::Datetime(2000,  1,  1, 0, 1, 2,   3), 240);
+const bdlt::DatetimeTz   D2(bdlt::Datetime(2025, 12, 31, 4, 5, 6, 789), -60);
+
+static bsl::vector<char> fE1()
+{
+    bsl::vector<char> t(C1.rbegin(), C1.rend());
+    return t;
+}
+static bsl::vector<char> fE2()
+{
+    bsl::vector<char> t(C2.rbegin(), C2.rend());
+    return t;
+}
+const bsl::vector<char>  E1 = fE1();
+const bsl::vector<char>  E2 = fE2();
+
 // ============================================================================
 //                                 TYPE TRAITS
 // ----------------------------------------------------------------------------
@@ -156,7 +214,169 @@ BSLMF_ASSERT(true == bslma::UsesBslmaAllocator<Obj>::value);
 //                      HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
+Type::Enum charToUserFieldType(char c)
+    // Return the user field type corresponding to the specified 'c', or
+    // 'Type::e_VOID' if 'c' does not correspond to a user field type.
+{
+    switch (c) {
+      default: {
+        return Type::e_VOID;                                          // RETURN
+      }
+      case 'A': {
+        return Type::e_INT64;                                         // RETURN
+      }
+      case 'B': {
+        return Type::e_DOUBLE;                                        // RETURN
+      }
+      case 'C': {
+        return Type::e_STRING;                                        // RETURN
+      }
+      case 'D': {
+        return Type::e_DATETIMETZ;                                    // RETURN
+      }
+      case 'E': {
+        return Type::e_CHAR_ARRAY;                                    // RETURN
+      }
+    }
+    return Type::e_VOID;
+}
 
+// ============================================================================
+//              GENERATOR FUNCTIONS 'gg' AND 'ggg' FOR TESTING
+// ---------------------------------------------------------------------------- 
+// TBD doc
+// The following functions interpret the given 'spec' in order from left to
+// right to configure the object according to a custom language.  Uppercase
+// letters '[A .. E]' correspond to arbitrary (but unique) 'int' values to be
+// assigned to the 'bdlb::Variant' object (thus of type 'INT_TYPE').  Uppercase
+// letters '[F .. J]' correspond to arbitrary (but unique) 'TestInt' values to
+// be assigned to the 'bdlb::Variant' object (thus of type 'TEST_INT_TYPE').
+// Uppercase letters '[S .. W]' correspond to arbitrary (but unique) 'string'
+// values to be assigned to the 'bdlb::Variant' object (thus of type
+// 'STRING_TYPE').  Uppercase letters '[K .. O]' correspond to arbitrary (but
+// unique) 'TestString' values to be assigned to the 'bdlb::Variant' object
+// (thus of type 'TEST_STRING_TYPE').  Uppercase letter 'Z' corresponds to an
+// object of type 'TestVoid'.  A tilde ('~') indicates that the value of the
+// object is to be set to its initial, unset state (via the 'reset' method).
+//
+// LANGUAGE SPECIFICATION
+// ----------------------
+// <SPEC>       ::= <EMPTY> | <LIST>
+//
+// <EMPTY>      ::=
+//
+// <LIST>       ::= <ITEM>  | <ITEM> <LIST>
+//
+// <ITEM>       ::= <VALUE> | <RESET>
+//
+// <VALUE>      ::= <TYPE> <INDEX>
+//
+// <TYPE>       ::= 'A' | 'B' | 'C' | 'D' | 'E'
+//                  // Corresponding to 'e_INT64' 'e_DOUBLE', 'e_STRING',
+//                  // 'e_DATETIMETZ', and 'e_CHAR_ARRAY', respectively.
+//
+// <INDEX>      ::= '1' | '2'
+//                  // The first or second test value of the associated type.
+//
+// <RESET>      ::= '~'
+//
+// Spec String  Description
+// -----------  -----------------------------------------------------------
+// "~"          Reset the object to the unset state.
+//
+// "B1"         Set the object to have the value corresponding to 'B1', i.e.,
+//              the first of the two test values for 'e_DOUBLE'.
+//
+// "A2D1"       Set the object to have the value corresponding to 'A2', then
+//              set it to have the value corresponding to 'D1'.
+// ------------------------------------------------------------------------
+
+int ggg(Obj *object, const char *spec, bool verboseFlag = true)
+    // Configure the specified 'object' according to the specified 'spec',
+    // using only the setters and 'reset'.  Optionally specify a 'false'
+    // 'verboseFlag' to suppress 'spec' syntax error messages.  Return the
+    // index of the first invalid character, and a negative value otherwise.
+    // Note that this function is used to implement 'gg' as well as allow for
+    // verification of syntax error detection.
+{
+    ASSERT(object);
+    ASSERT(spec);
+
+    enum { POSITION = 0, SUCCESS = -1 };
+
+    const char *input = spec;
+
+    while (*input) {
+        if ('~' == *input) {
+            object->reset();
+            ++input;
+        }
+        else if (*input >= 'A' && *input <= 'E') {
+           const Type::Enum type = charToUserFieldType(*input);
+            ++input;
+
+            if ('1' == *input || '2' == *input) {
+                const bool isOne = '1' == *input;
+                ++input;
+                
+                switch (type) {
+                  case Type::e_VOID: {
+                    BSLS_ASSERT_OPT(false);
+                  } break;
+                  case Type::e_INT64: {
+                    isOne ? object->setInt64(A1)
+                          : object->setInt64(A2);
+                  } break;
+                  case Type::e_DOUBLE: {
+                    isOne ? object->setDouble(B1)
+                          : object->setDouble(B2);
+                  } break;
+                  case Type::e_STRING: {
+                    isOne ? object->setString(C1)
+                          : object->setString(C2);
+                  } break;
+                  case Type::e_DATETIMETZ: {
+                    isOne ? object->setDatetimeTz(D1)
+                          : object->setDatetimeTz(D2);
+                  } break;
+                  case Type::e_CHAR_ARRAY: {
+                    isOne ? object->setCharArray(E1)
+                          : object->setCharArray(E2);
+                  } break;
+                }
+            }
+            else {
+                break;
+            }
+        }
+        else {
+            break;
+        }
+    }
+
+    if (*input) {
+        const int idx = static_cast<int>(input - spec);
+        if (verboseFlag) {
+            printf("Error, bad character ('%c') "
+                   "in spec \"%s\" at position %d.\n", *input, spec, idx);
+        }
+        return idx;  // Discontinue processing this spec.             // RETURN
+    }
+
+    return -1;  // All input was consumed.
+}
+
+Obj& gg(Obj *object, const char *spec)
+    // Return, by reference, the specified 'object' with its value adjusted
+    // according to the specified 'spec' according to the custom language
+    // described above.
+{
+    ASSERT(object);
+    ASSERT(spec);
+    ASSERT(ggg(object, spec) < 0);
+
+    return *object;
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -185,7 +405,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 6: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -247,6 +467,52 @@ int main(int argc, char *argv[])
     ASSERT(valueA == valueB);
 //..
 
+      } break;
+      case 13: {
+        // TBD
+      } break;
+      case 12: {
+        // TBD
+      } break;
+      case 11: {
+        // TBD
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // BDEX STREAMING
+        //
+        // Concerns:
+        //   N/A
+        //
+        // Plan:
+        //   N/A
+        //
+        // Testing:
+        //   Reserved for BDEX streaming.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "BDEX STREAMING" << endl
+                          << "==============" << endl;
+
+        if (verbose) cout << "Not implemented for 'ball::UserFieldValue'."
+                          << endl;
+
+      } break;
+      case 9: {
+        // TBD
+      } break;
+      case 8: {
+        // TBD
+
+        // Negative Testing
+
+      } break;
+      case 7: {
+        // TBD
+      } break;
+      case 6: {
+        // TBD
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -493,7 +759,13 @@ int main(int argc, char *argv[])
         //: 1 TBD
         //
         // Testing:
-        //   TBD
+        //   ball::UserFieldType::Enum type() const;
+        //   const bsls::Types::Int64& theInt64() const;
+        //   const double& theDouble() const;
+        //   const bsl::string& theString() const;
+        //   const bdlt::DatetimeTz& theDatetimeTz() const;
+        //   const bsl::vector<char>& theCharArray() const;
+        //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -502,22 +774,92 @@ int main(int argc, char *argv[])
 
         // TBD
 
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard guard;
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            Obj mX(&scratch);  const Obj& X = mX;
+
+            ASSERT_SAFE_FAIL(X.theInt64());
+            ASSERT_SAFE_FAIL(X.theDouble());
+            ASSERT_SAFE_FAIL(X.theString());
+            ASSERT_SAFE_FAIL(X.theDatetimeTz());
+            ASSERT_SAFE_FAIL(X.theCharArray());
+
+            mX.setInt64(A1);
+
+            ASSERT_SAFE_PASS(X.theInt64());
+            ASSERT_SAFE_FAIL(X.theDouble());
+            ASSERT_SAFE_FAIL(X.theString());
+            ASSERT_SAFE_FAIL(X.theDatetimeTz());
+            ASSERT_SAFE_FAIL(X.theCharArray());
+
+            mX.setDouble(B1);
+
+            ASSERT_SAFE_FAIL(X.theInt64());
+            ASSERT_SAFE_PASS(X.theDouble());
+            ASSERT_SAFE_FAIL(X.theString());
+            ASSERT_SAFE_FAIL(X.theDatetimeTz());
+            ASSERT_SAFE_FAIL(X.theCharArray());
+
+            mX.setString(C1);
+
+            ASSERT_SAFE_FAIL(X.theInt64());
+            ASSERT_SAFE_FAIL(X.theDouble());
+            ASSERT_SAFE_PASS(X.theString());
+            ASSERT_SAFE_FAIL(X.theDatetimeTz());
+            ASSERT_SAFE_FAIL(X.theCharArray());
+
+            mX.setDatetimeTz(D1);
+
+            ASSERT_SAFE_FAIL(X.theInt64());
+            ASSERT_SAFE_FAIL(X.theDouble());
+            ASSERT_SAFE_FAIL(X.theString());
+            ASSERT_SAFE_PASS(X.theDatetimeTz());
+            ASSERT_SAFE_FAIL(X.theCharArray());
+
+            mX.setCharArray(E1);
+
+            ASSERT_SAFE_FAIL(X.theInt64());
+            ASSERT_SAFE_FAIL(X.theDouble());
+            ASSERT_SAFE_FAIL(X.theString());
+            ASSERT_SAFE_FAIL(X.theDatetimeTz());
+            ASSERT_SAFE_PASS(X.theCharArray());
+        }
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // GENERATOR FUNCTION 'gg'
-        //   There is no 'gg' function for this component.
+        //
+        // Concerns:
+        //: 1 Parsing stops at the first incorrect character of the spec.
+        //:
+        //: 2 The resulting object has the correct type and value.
+        //:
+        //: 3 All examples in the documentation are parsed as expected.
+        //
+        // Plan:
+        // TBD doc
+        //  Using the table-driven technique, create a table of test vectors
+        //  containing the line number, spec, expected return code, expected
+        //  type index, and value index.  For concern 1, make sure the return
+        //  code is the same as the specified offset where the error occurred.
+        //  For concerns 2 and 3, verify that the type index and value index
+        //  are as expected.
         //
         // Testing:
-        //   Reserved for 'gg' generator function.
+        //   int ggg(Obj *object, const char *spec, bool verboseFlag = true);
+        //   Obj& gg(Obj *object, const char *spec);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "GENERATOR FUNCTION 'gg'" << endl
                           << "=======================" << endl;
 
-        if (verbose) cout << "No 'gg' function for 'ball::UserFieldValue'."
-                          << endl;
+        // TBD
 
       } break;
       case 2: {
@@ -531,14 +873,322 @@ int main(int argc, char *argv[])
         //: 1 TBD
         //
         // Testing:
-        //   TBD
+        //   UserFieldValue(Allocator *ba = 0);
+        //   ~UserFieldValue() = default;
+        //   void setInt64(bsls::Types::Int64 value);
+        //   void setDouble(double value);
+        //   void setString(bslstl::StringRef value);
+        //   void setDatetimeTz(const bdlt::DatetimeTz& value);
+        //   void setCharArray(const bsl::vector<char>& value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRIMARY MANIPULATORS & DTOR" << endl
                           << "===========================" << endl;
 
-        // TBD
+        if (verbose) {
+            cout <<
+                 "\nDefault constructor with various allocator configurations."
+                 << endl;
+        }
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+
+            const char CONFIG = cfg;  // how we specify the allocator
+
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj                  *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
+
+            switch (CONFIG) {
+              case 'a': {
+                objPtr = new (fa) Obj();
+                objAllocatorPtr = &da;
+              } break;
+              case 'b': {
+                objPtr = new (fa) Obj(
+                                  reinterpret_cast<bslma::TestAllocator *>(0));
+                objAllocatorPtr = &da;
+              } break;
+              case 'c': {
+                objPtr = new (fa) Obj(&sa);
+                objAllocatorPtr = &sa;
+              } break;
+              default: {
+                ASSERTV(CONFIG, !"Bad allocator config.");
+              } break;
+            }
+
+            Obj&                   mX = *objPtr;  const Obj& X = mX;
+            bslma::TestAllocator&  oa = *objAllocatorPtr;
+            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+            if (veryVerbose) { P_(CONFIG); P(X); }
+
+            ASSERTV(CONFIG, X.isUnset());
+            ASSERTV(CONFIG, &oa, X.allocator(), &oa == X.allocator());
+
+            // Verify no allocation from the object/non-object allocators.
+
+            ASSERTV(CONFIG,  oa.numBlocksTotal(), 0 ==  oa.numBlocksTotal());
+            ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+
+            // Reclaim dynamically allocated object under test.
+
+            fa.deleteObject(objPtr);
+
+            // Verify all memory is released on object destruction.
+
+            ASSERTV(fa.numBlocksInUse(),  0 ==  fa.numBlocksInUse());
+            ASSERTV(oa.numBlocksInUse(),  0 ==  oa.numBlocksTotal());
+            ASSERTV(noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
+        }
+
+        if (verbose) {
+            cout <<
+      "\nApply each setter to unset object w/various allocator configurations."
+                 << endl;
+        }
+        for (char ft = 'A'; ft <= 'E'; ++ft) {  // iterate over field types
+               const Type::Enum type = charToUserFieldType(ft);
+
+            for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+
+                const char CONFIG = cfg;  // how we specify the allocator
+
+                bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                Obj                  *objPtr;
+                bslma::TestAllocator *objAllocatorPtr;
+
+                switch (CONFIG) {
+                  case 'a': {
+                    objPtr = new (fa) Obj();
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'b': {
+                    objPtr = new (fa) Obj(
+                                  reinterpret_cast<bslma::TestAllocator *>(0));
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'c': {
+                    objPtr = new (fa) Obj(&sa);
+                    objAllocatorPtr = &sa;
+                  } break;
+                  default: {
+                    ASSERTV(CONFIG, !"Bad allocator config.");
+                  } break;
+                }
+
+                Obj&                   mX = *objPtr;  const Obj& X = mX;
+                bslma::TestAllocator&  oa = *objAllocatorPtr;
+                bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+                ASSERTV(CONFIG, X.isUnset());
+                ASSERTV(CONFIG, &oa, X.allocator(), &oa == X.allocator());
+
+                bslma::TestAllocatorMonitor oam(objAllocatorPtr);
+
+                switch (type) {
+                  case Type::e_VOID: {
+                    BSLS_ASSERT_OPT(false);
+                  } break;
+                  case Type::e_INT64: {
+                    mX.setInt64(A2);
+                    ASSERT(A2 == X.theInt64());
+                  } break;
+                  case Type::e_DOUBLE: {
+                    mX.setDouble(B2);
+                    ASSERT(B2 == X.theDouble());
+                  } break;
+                  case Type::e_STRING: {
+                    mX.setString(C2);
+                    ASSERT(C2 == X.theString());
+                  } break;
+                  case Type::e_DATETIMETZ: {
+                    mX.setDatetimeTz(D2);
+                    ASSERT(D2 == X.theDatetimeTz());
+                  } break;
+                  case Type::e_CHAR_ARRAY: {
+                    mX.setCharArray(E2);
+                    ASSERT(E2 == X.theCharArray());
+                  } break;
+                }
+
+                if (veryVerbose) {
+                    // Printing an 'e_DATETIMETZ' field value incurs an
+                    // allocation from the default allocator.
+
+                    bslma::TestAllocator scratch("scratch",
+                                                 veryVeryVeryVerbose);
+                    bslma::DefaultAllocatorGuard dag(&scratch);
+
+                    P_(CONFIG); P_(type); P(X);
+                }
+
+                ASSERTV(CONFIG, type, type == X.type());
+                ASSERTV(CONFIG, type,        !X.isUnset());
+                ASSERTV(CONFIG, &oa, X.allocator(), &oa == X.allocator());
+
+                if (Type::e_STRING == type || Type::e_CHAR_ARRAY == type) {
+                    ASSERTV(CONFIG, type, oam.isInUseUp());
+                }
+                else {
+                    ASSERTV(CONFIG, type, oam.isTotalSame());
+                }
+
+                // Reclaim dynamically allocated object under test.
+
+                fa.deleteObject(objPtr);
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(CONFIG, type,fa.numBlocksInUse(),
+                        0 == fa.numBlocksInUse());
+
+                if (Type::e_STRING == type || Type::e_CHAR_ARRAY == type) {
+                    ASSERTV(CONFIG, type, oa.numBlocksInUse(),
+                            0 == oa.numBlocksInUse());
+                }
+                else {
+                    ASSERTV(CONFIG, type, oa.numBlocksTotal(),
+                            0 == oa.numBlocksTotal());
+                }
+
+                ASSERTV(CONFIG, type, noa.numBlocksTotal(),
+                        0 == noa.numBlocksTotal());
+            }
+        }
+
+        if (verbose) {
+            cout << "\nApply each setter to non-unset object." << endl;
+        }
+        for (char fti = 'A'; fti <= 'E'; ++fti) {  // iterate over field types
+               const Type::Enum typeI = charToUserFieldType(fti);
+
+            for (char ftj = 'A'; ftj <= 'E'; ++ftj) {
+                   const Type::Enum typeJ = charToUserFieldType(ftj);
+
+                bslma::TestAllocator da("default", veryVeryVeryVerbose);
+                bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                {
+                    Obj mX(&oa);  const Obj& X = mX;
+
+                    switch (typeI) {  // initial type of field
+                      case Type::e_VOID: {
+                        BSLS_ASSERT_OPT(false);
+                      } break;
+                      case Type::e_INT64: {
+                        mX.setInt64(A1);
+                        ASSERT(A1 == X.theInt64());
+                      } break;
+                      case Type::e_DOUBLE: {
+                        mX.setDouble(B1);
+                        ASSERT(B1 == X.theDouble());
+                      } break;
+                      case Type::e_STRING: {
+                        mX.setString(C1);
+                        ASSERT(C1 == X.theString());
+                      } break;
+                      case Type::e_DATETIMETZ: {
+                        mX.setDatetimeTz(D1);
+                        ASSERT(D1 == X.theDatetimeTz());
+                      } break;
+                      case Type::e_CHAR_ARRAY: {
+                        mX.setCharArray(E1);
+                        ASSERT(E1 == X.theCharArray());
+                      } break;
+                    }
+                    ASSERTV(typeI, typeJ, typeI == X.type());
+
+                    if (veryVerbose) {
+                        // Printing an 'e_DATETIMETZ' field value incurs an
+                        // allocation from the default allocator.
+
+                        bslma::TestAllocator scratch("scratch",
+                                                     veryVeryVeryVerbose);
+                        bslma::DefaultAllocatorGuard dag(&scratch);
+
+                        Q("Before:") P_(typeI); P_(typeJ); P(X);
+                    }
+
+                    bslma::TestAllocatorMonitor oam(&oa);
+
+                    switch (typeJ) {  // new type of field
+                      case Type::e_VOID: {
+                        BSLS_ASSERT_OPT(false);
+                      } break;
+                      case Type::e_INT64: {
+                        mX.setInt64(A2);
+                        ASSERT(A2 == X.theInt64());
+                      } break;
+                      case Type::e_DOUBLE: {
+                        mX.setDouble(B2);
+                        ASSERT(B2 == X.theDouble());
+                      } break;
+                      case Type::e_STRING: {
+                        mX.setString(C2);
+                        ASSERT(C2 == X.theString());
+                      } break;
+                      case Type::e_DATETIMETZ: {
+                        mX.setDatetimeTz(D2);
+                        ASSERT(D2 == X.theDatetimeTz());
+                      } break;
+                      case Type::e_CHAR_ARRAY: {
+                        mX.setCharArray(E2);
+                        ASSERT(E2 == X.theCharArray());
+                      } break;
+                    }
+                    ASSERTV(typeI, typeJ, typeJ == X.type());
+
+                    if (veryVerbose) {
+                        // Printing an 'e_DATETIMETZ' field value incurs an
+                        // allocation from the default allocator.
+
+                        bslma::TestAllocator scratch("scratch",
+                                                     veryVeryVeryVerbose);
+                        bslma::DefaultAllocatorGuard dag(&scratch);
+
+                        Q("After:") P_(typeI); P_(typeJ); P(X);
+                    }
+
+                    if ((Type::e_CHAR_ARRAY == typeJ || Type::e_STRING ==typeJ)
+                      && Type::e_CHAR_ARRAY != typeI) {
+                        ASSERTV(typeI, typeJ, oam.isInUseUp());
+                    }
+                    else {
+                        ASSERTV(typeI, typeJ,
+                                oam.isInUseSame() || oam.isTotalSame());
+                    }
+                }
+
+                // Verify all memory is released on object destruction.
+
+                if (Type::e_STRING == typeJ || Type::e_CHAR_ARRAY == typeI
+                                            || Type::e_CHAR_ARRAY == typeJ) {
+                    ASSERTV(typeI, typeJ, oa.numBlocksInUse(),
+                            0 == oa.numBlocksInUse());
+                }
+                else {
+                    ASSERTV(typeI, typeJ, oa.numBlocksTotal(),
+                            0 == oa.numBlocksTotal());
+                }
+
+                ASSERTV(typeI, typeJ, da.numBlocksTotal(),
+                        0 == da.numBlocksTotal());
+            }
+        }
 
       } break;
       case 1: {
@@ -589,7 +1239,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
-        ASSERT(Type::e_VOID   == W.type());
+        ASSERT(Type::e_VOID == W.type());
 
         if (veryVerbose) cout <<
                           "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -607,7 +1257,7 @@ int main(int argc, char *argv[])
                                 "\ta. Check the initial value of 'x'." << endl;
         if (veryVeryVerbose) { T_ P(X) }
 
-        ASSERT(Type::e_VOID   == W.type());
+        ASSERT(Type::e_VOID == W.type());
 
         if (veryVerbose) cout <<
                      "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -687,7 +1337,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ P(Z) }
 
-        ASSERT(Type::e_VOID   == Z.type());
+        ASSERT(Type::e_VOID == Z.type());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -729,7 +1379,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ P(W) }
 
-        ASSERT(Type::e_VOID   == Z.type());
+        ASSERT(Type::e_VOID == Z.type());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -769,13 +1419,13 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     // CONCERN: In no case does memory come from the default allocator.
 
-    LOOP_ASSERT(defaultAllocator.numBlocksTotal(),
-                0 == defaultAllocator.numBlocksTotal());
+    ASSERTV(defaultAllocator.numBlocksTotal(),
+            0 == defaultAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
