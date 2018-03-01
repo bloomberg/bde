@@ -6,6 +6,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_default.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
@@ -166,6 +167,16 @@ int main(int argc, char *argv[])
     const bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // CONCERN: In no case does memory come from the default allocator.
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
       case 17: {
@@ -2420,6 +2431,16 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
+
+    // CONCERN: In no case does memory come from the default allocator.
+
+    LOOP_ASSERT(defaultAllocator.numBlocksTotal(),
+                0 == defaultAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
