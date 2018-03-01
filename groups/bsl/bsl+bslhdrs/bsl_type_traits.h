@@ -166,6 +166,11 @@ namespace bsl {
     using native_std::rank;
     using native_std::extent;
 
+    // 20.10.6, type relations:
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_IS_BASE_OF
+    using native_std::is_base_of;
+#endif
+
     // 20.10.7.3, sign modifications:
     using native_std::make_signed;
     using native_std::make_unsigned;
@@ -226,7 +231,6 @@ namespace bsl {
     using native_std::is_polymorphic;
     using native_std::is_trivially_default_constructible;
     using native_std::is_same;
-    using native_std::is_base_of;
     using native_std::is_convertible;
     using native_std::remove_const;
     using native_std::remove_volatile;
