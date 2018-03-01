@@ -321,17 +321,6 @@ class Encoder {
         // log is reset each time 'encode' is called.
 };
 
-                          // =======================
-                          // class Encoder_Formatter
-                          // =======================
-
-typedef Formatter Encoder_Formatter;
-    // This 'typedef' provides an alias to the 'baljsn::Formatter' 'class'.
-    // The initial formatter 'class' was implemented as a component-private
-    // class in this component and was used by clients directly.  This
-    // 'typedef' allows those users to continue to build while they migrate to
-    // using the 'Formatter' 'class' directly.
-
                           // ========================
                           // class Encoder_EncodeImpl
                           // ========================
@@ -1016,6 +1005,121 @@ int Encoder_DynamicTypeDispatcher::operator()(const TYPE&  value,
 {
     return d_encoder_p->encodeImp(value, d_mode, category);
 }
+
+// The 'Encoder_Formatter' 'class' has been replaced by the 'baljsn::Formatter'
+// 'class' in the 'baljsn_formatter' component.  Clients should use that
+// 'class' instead.  The following 'class' definition is provided for
+// backwards-compatibility for users that have written code using this
+// component-private 'class'.
+
+                          // =======================
+                          // class Encoder_Formatter
+                          // =======================
+
+class Encoder_Formatter {
+    // This class implements a formatter providing operations for rending JSON
+    // text elements to an output stream (supplied at construction) according
+    // to a set of formatting options (also supplied at construction).  This is
+    // a component-private class and should not be used outside of this
+    // component.
+    //
+    // DEPRECATED: Use 'baljsn::Formatter' instead.
+
+    // DATA
+    bsl::ostream& d_outputStream;     // stream for output (held, not owned)
+    bool          d_usePrettyStyle;   // encoding style
+    int           d_indentLevel;      // initial indent level
+    int           d_spacesPerLevel;   // spaces per level
+    bool          d_isArrayElement;   // is current element part of an array
+
+  public:
+    // CREATORS
+    Encoder_Formatter(bsl::ostream& stream, const EncoderOptions& options);
+        // Create a 'Encoder_Formatter' object using the specified 'stream' and
+        // 'options'.
+
+    //! ~Encoder_Formatter() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    void openObject();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of an object.
+
+    void closeObject();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of an object.
+
+    void openArray(bool formatAsEmptyArrayFlag = false);
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of an array.  Optionally specify
+        // 'formatAsEmptyArrayFlag' denoting if the array being opened should
+        // be formatted as an empty array.  If 'formatAsEmptyArrayFlag' is not
+        // specified then the array being opened is formatted as an array
+        // having elements.  Note that the formatting (and as a consequence the
+        // 'formatAsEmptyArrayFlag') is relevant only if this formatter encodes
+        // in the pretty style and is ignored otherwise.
+
+    void closeArray(bool formatAsEmptyArrayFlag = false);
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of an array.  Optionally specify
+        // 'formatAsEmptyArrayFlag' denoting if the array being closed should
+        // be formatted as an empty array.  If 'formatAsEmptyArrayFlag' is not
+        // specified then the array being closed is formatted as an array
+        // having elements.  Note that the formatting (and as a consequence the
+        // 'formatAsEmptyArrayFlag') is relevant only if this formatter encodes
+        // in the pretty style and is ignored otherwise.
+
+    void indent();
+        // Print onto the stream supplied at construction the sequence of
+        // whitespace characters for the proper indentation of an element given
+        // the encoding options supplied at construction.
+
+    int openElement(const bsl::string& name);
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of an element having the specified
+        // 'name'.  Return 0 on success and a non-zero value otherwise.
+
+    void closeElement();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of an element.
+
+    void openDocument();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of the document.
+
+    void closeDocument();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of the document.
+
+    void setIsArrayElement(bool isArrayElement);
+        // Set the flag denoting if the current element refers to an array
+        // element to the specified 'isArrayElement'.
+
+    // ACCESSORS
+    bool isArrayElement() const;
+        // Return the value of the flag denoting if the current element refers
+        // to an array element.
+};
+
+                        // -----------------------
+                        // class Encoder_Formatter
+                        // -----------------------
+
+// MANIPULATORS
+inline
+void Encoder_Formatter::setIsArrayElement(bool isArrayElement)
+{
+    d_isArrayElement = isArrayElement;
+}
+
+// ACCESSORS
+inline
+bool Encoder_Formatter::isArrayElement() const
+{
+    return d_isArrayElement;
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace

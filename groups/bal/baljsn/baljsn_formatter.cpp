@@ -1,4 +1,4 @@
-// baljsn_formatter.cpp                                                 -*-C++-*-
+// baljsn_formatter.cpp                                               -*-C++-*-
 #include <baljsn_formatter.h>
 
 #include <bsls_ident.h>
@@ -30,6 +30,14 @@ Formatter::Formatter(bsl::ostream&     stream,
     // empty in 'openObject' when we access its last element.
 
     d_callSequence.append(false);
+}
+
+Formatter::~Formatter()
+{
+    // Verify that the dummy value added in the constructor is the only value
+    // remaining in 'd_callSequence'.
+
+    BSLS_ASSERT(1 == d_callSequence.length() && false == isArrayElement());
 }
 
 // MANIPULATORS

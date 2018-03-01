@@ -46,6 +46,139 @@ int Encoder_EncodeImpl::encodeImp(const bsl::vector<char>&  value,
 
     return encode(base64String, 0);
 }
+
+// The 'Encoder_Formatter' 'class' has been replaced by the 'baljsn::Formatter'
+// 'class' in the 'baljsn_formatter' component.  Clients should use that
+// 'class' instead.  The following method definitions are provided for
+// backwards-compatibility as users have written code using this
+// component-private 'class'.
+
+                          // -----------------------
+                          // class Encoder_Formatter
+                          // -----------------------
+
+// CREATORS
+Encoder_Formatter::Encoder_Formatter(bsl::ostream&         stream,
+                                     const EncoderOptions& options)
+: d_outputStream(stream)
+, d_isArrayElement(false)
+{
+    if (baljsn::EncoderOptions::e_PRETTY == options.encodingStyle()) {
+        d_usePrettyStyle = true;
+        d_indentLevel    = options.initialIndentLevel();
+        d_spacesPerLevel = options.spacesPerLevel();
+    }
+    else {
+        d_usePrettyStyle = false;
+        d_indentLevel    = 0;
+        d_spacesPerLevel = 0;
+    }
+}
+
+// MANIPULATORS
+void Encoder_Formatter::openObject()
+{
+    indent();
+
+    d_outputStream << '{';
+
+    if (d_usePrettyStyle) {
+        d_outputStream << '\n';
+    }
+
+    ++d_indentLevel;
+}
+
+void Encoder_Formatter::closeObject()
+{
+    --d_indentLevel;
+
+    if (d_usePrettyStyle) {
+        d_outputStream << '\n';
+        bdlb::Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
+    }
+
+    d_outputStream << '}';
+}
+
+void Encoder_Formatter::openArray(bool formatAsEmptyArrayFlag)
+{
+    d_outputStream << '[';
+
+    if (d_usePrettyStyle && !formatAsEmptyArrayFlag) {
+        d_outputStream << '\n';
+    }
+
+    ++d_indentLevel;
+}
+
+void Encoder_Formatter::closeArray(bool formatAsEmptyArrayFlag)
+{
+    --d_indentLevel;
+
+    if (d_usePrettyStyle && !formatAsEmptyArrayFlag) {
+        d_outputStream << '\n';
+        bdlb::Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
+    }
+
+    d_outputStream << ']';
+
+}
+
+void Encoder_Formatter::indent()
+{
+    if (d_usePrettyStyle) {
+        if (d_isArrayElement) {
+            bdlb::Print::indent(d_outputStream,
+                               d_indentLevel,
+                               d_spacesPerLevel);
+        }
+    }
+}
+
+int Encoder_Formatter::openElement(const bsl::string& name)
+{
+    if (d_usePrettyStyle) {
+        bdlb::Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
+    }
+
+    const int rc = PrintUtil::printValue(d_outputStream, name);
+    if (rc) {
+        return rc;                                                    // RETURN
+    }
+
+    if (d_usePrettyStyle) {
+        d_outputStream << " : ";
+    }
+    else {
+        d_outputStream << ':';
+    }
+
+    return 0;
+}
+
+void Encoder_Formatter::closeElement()
+{
+    d_outputStream << ',';
+    if (d_usePrettyStyle) {
+        d_outputStream << '\n';
+    }
+}
+
+void Encoder_Formatter::openDocument()
+{
+    if (d_usePrettyStyle) {
+        bdlb::Print::indent(d_outputStream, d_indentLevel, d_spacesPerLevel);
+    }
+}
+
+void Encoder_Formatter::closeDocument()
+{
+    if (d_usePrettyStyle) {
+        d_outputStream << '\n';
+    }
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace

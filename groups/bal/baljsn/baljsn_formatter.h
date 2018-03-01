@@ -23,17 +23,16 @@ BSLS_IDENT("$Id: $")
 // The JSON encoding format (see http://json.org or ECMA-404 standard for more
 // information) specifies a self-describing and simple syntax that is built on
 // two structures:
-//..
-//:  o Objects: JSON objects are represented as collections of name value
-//:             pairs.  The 'Formatter' class allows encoding objects by
-//:             providing the 'openObject' and 'closeObject' methods to open
-//:             and close an object and the 'openMember', 'closeMember', and
-//:             'putValue' methods to add members and values to an object.
+//
+//: o Objects: JSON objects are represented as collections of name value
+//:   pairs.  The 'Formatter' class allows encoding objects by providing the
+//:   'openObject' and 'closeObject' methods to open and close an object and
+//:   the 'openMember', 'closeMember', and 'putValue' methods to add members
+//:   and values to an object.
 //:
-//:  o Arrays: JSON arrays are specified as an ordered list of values.  The
-//:            'Formatter' 'class' provides the 'openArray' and 'closeArray'
-//:            method to open and close an array.
-//..
+//: o Arrays: JSON arrays are specified as an ordered list of values.  The
+//:   'Formatter' 'class' provides the 'openArray' and 'closeArray' method to
+//:   open and close an array.
 //
 // The 'Formatter' 'class' also provides the ability to specify formatting
 // options at construction.  The options that can be provided include the
@@ -42,10 +41,10 @@ BSLS_IDENT("$Id: $")
 //
 // Valid sequence of operations
 // - - - - - - - - - - - - - -
-// The 'Formatter' 'class' does not maintain internal state to verify that the
-// sequence of operations called on its object result in a valid JSON document.
-// It is the user's responsibility to ensure that the methods provided by this
-// component are called in the right order.
+// The 'Formatter' 'class' does only minimal checking to verify that the
+// sequence of operations called on its object result in a valid JSON
+// document.  It is the user's responsibility to ensure that the methods
+// provided by this component are called in the right order.
 //
 ///Usage
 ///-----
@@ -216,7 +215,7 @@ class Formatter {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    //! ~Formatter() = default;
+    ~Formatter();
         // Destroy this object.
 
     // MANIPULATORS

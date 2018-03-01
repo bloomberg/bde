@@ -1444,18 +1444,18 @@ Obj g(bsl::ostream& os, int style, int indent, int spl)
     if (-1 != style) {
         if (-1 != indent) {
             if (-1 != spl) {
-                return Obj(os, style, indent, spl);
+                return Obj(os, style, indent, spl);                   // RETURN
             }
             else {
-                return Obj(os, style, indent);
+                return Obj(os, style, indent);                        // RETURN
             }
         }
         else {
-            return Obj(os, style);
+            return Obj(os, style);                                    // RETURN
         }
     }
     else {
-        return Obj(os);
+        return Obj(os);                                               // RETURN
     }
 }
 
@@ -1504,6 +1504,15 @@ void testPutValue(int            line,
         }
         else {
             ASSERTV(line, rc, 0 != rc);
+        }
+
+        // Restore object to a valid state
+
+        if (0 == i) {
+            mX.closeObject();
+        }
+        else {
+            mX.closeArray();
         }
     }
 }
@@ -1684,11 +1693,6 @@ int main(int argc, char *argv[])
                                                                      NL
                                                        "  ]"             },
 
-        {   L_,    -1,     -1,   -1,  "{[",            "{["              },
-        {   L_,     0,     -1,   -1,  "{[",            "{["              },
-        {   L_,     1,      1,    2,  "{[",            "{"           NL
-                                                       "["           NL  },
-
         {   L_,    -1,     -1,   -1,  "{[]}",          "{[]}"            },
         {   L_,     0,     -1,   -1,  "{[]}",          "{[]}"            },
         {   L_,     1,      1,    2,  "{[]}",          "{"           NL
@@ -1696,12 +1700,6 @@ int main(int argc, char *argv[])
                                                                      NL
                                                        "    ]"       NL
                                                        "  }"             },
-
-        {   L_,    -1,     -1,   -1,  "{[{",           "{[{"             },
-        {   L_,     0,     -1,   -1,  "{[{",           "{[{"             },
-        {   L_,     1,      1,    2,  "{[{",           "{"           NL
-                                                       "["           NL
-                                                       "      {"     NL  },
 
         {   L_,    -1,     -1,   -1,  "{[{}]}",        "{[{}]}"          },
         {   L_,     0,     -1,   -1,  "{[{}]}",        "{[{}]}"          },
@@ -1712,13 +1710,6 @@ int main(int argc, char *argv[])
                                                        "      }"     NL
                                                        "    ]"       NL
                                                        "  }"             },
-
-        {   L_,    -1,     -1,   -1,  "{[{[",          "{[{["            },
-        {   L_,     0,     -1,   -1,  "{[{[",          "{[{["            },
-        {   L_,     1,      1,    2,  "{[{[",          "{"           NL
-                                                       "["           NL
-                                                       "      {"     NL
-                                                       "["           NL  },
 
         {   L_,    -1,     -1,   -1,  "{[{[]}]}",      "{[{[]}]}"            },
         {   L_,     0,     -1,   -1,  "{[{[]}]}",      "{[{[]}]}"            },
@@ -2044,6 +2035,15 @@ int main(int argc, char *argv[])
                     exp << "null";
 
                     ASSERTV(L, os.str(), exp.str(), os.str() == exp.str());
+
+                    // Restore object to a valid state
+
+                    if (0 == j) {
+                        mX.closeObject();
+                    }
+                    else {
+                        mX.closeArray();
+                    }
                 }
             }
         }
@@ -2335,6 +2335,10 @@ int main(int argc, char *argv[])
             os << bsl::flush;
 
             ASSERTV(LINE, EXP, os.str(), EXP == os.str());
+
+            // Restore object to a valid state
+
+            for (int k = 0; k <= NT; ++k) mX.closeArray(FAEA);
         }
 #undef NL
       } break;
@@ -2517,6 +2521,10 @@ int main(int argc, char *argv[])
             os << bsl::flush;
 
             ASSERTV(LINE, EXP, os.str(), EXP == os.str());
+
+            // Restore object to a valid state
+
+            for (int k = 0; k <= NT; ++k) mX.closeObject();
         }
 #undef NL
       } break;
