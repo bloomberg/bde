@@ -33,14 +33,14 @@ using namespace bsl;
 //: o All CLASS METHODS and the '<<' free operator are 'const' thread-safe.
 // ----------------------------------------------------------------------------
 // TYPES
-// [ 1] enum Enum { ... };
+// [ 1] enum Value { ... };
 //
 // CLASS METHODS
-// [ 3] ostream& print(ostream& s, Enum val, int level = 0, int sPL = 4);
-// [ 1] const char *toAscii(btlmt::ReadDataPolicy::Enum val);
+// [ 3] ostream& print(ostream& s, Value val, int level = 0, int sPL = 4);
+// [ 1] const char *toAscii(btlmt::ReadDataPolicy::Value val);
 //
 // FREE OPERATORS
-// [ 2] operator<<(ostream& s, btlmt::ReadDataPolicy::Enum val);
+// [ 2] operator<<(ostream& s, btlmt::ReadDataPolicy::Value val);
 // ----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 
@@ -105,8 +105,8 @@ static void aSsErT(int c, const char *s, int i) {
 //                        GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef btlmt::ReadDataPolicy::Enum Enum;
-typedef btlmt::ReadDataPolicy       Obj;
+typedef btlmt::ReadDataPolicy::Value Enum;
+typedef btlmt::ReadDataPolicy        Obj;
 
 // ============================================================================
 //                       GLOBAL CONSTANTS FOR TESTING
@@ -166,11 +166,11 @@ int main(int argc, char *argv[])
 // The following snippets of code provide a simple illustration of
 // 'btlmt::ReadDataPolicy' usage.
 //
-// First, we create a variable 'value' of type 'btlmt::ReadDataPolicy::Enum'
+// First, we create a variable 'value' of type 'btlmt::ReadDataPolicy::Value'
 // and initialize it with the enumerator value
 // 'btlmt::ReadDataPolicy::e_GREEDY':
 //..
-    btlmt::ReadDataPolicy::Enum value = btlmt::ReadDataPolicy::e_GREEDY;
+    btlmt::ReadDataPolicy::Value value = btlmt::ReadDataPolicy::e_GREEDY;
 //..
 // Next, we store a pointer to its ASCII representation in a variable
 // 'asciiValue' of type 'const char *':
@@ -229,7 +229,7 @@ if (veryVerbose)
         //:   result to initialize a variable of the appropriate type.  (C-5)
         //
         // Testing:
-        //   ostream& print(ostream& s, Enum val, int level = 0, int sPL = 4);
+        //   ostream& print(ostream& s, Value val, int level = 0, int sPL = 4);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing 'print'" << endl
@@ -385,7 +385,7 @@ if (veryVerbose)
         //:   to initialize a variable of the appropriate type.  (C-6)
         //
         // Testing:
-        //   operator<<(ostream& s, btlmt::ReadDataPolicy::Enum val);
+        //   operator<<(ostream& s, btlmt::ReadDataPolicy::Value val);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing '<<' operator" << endl
@@ -496,8 +496,8 @@ if (veryVerbose)
         //:   (C-4, C-5)
         //
         // Testing:
-        //   enum Enum { ... };
-        //   const char *toAscii(btlmt::ReadDataPolicy::Enum val);
+        //   enum Value { ... };
+        //   const char *toAscii(btlmt::ReadDataPolicy::Value val);
         // -------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing 'enum' and 'toAscii'" << endl
