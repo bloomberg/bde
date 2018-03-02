@@ -50,11 +50,12 @@ bsl::ostream& DatetimeTz::print(bsl::ostream& stream,
     // The user-specified width will be effective when 'streamBuf.data()' is
     // written to 'stream' (below).
 
-    const int SIZE = 32;  // must be > 30
+    const int k_SIZE = 32;  // must be > 30
 
-    bsls::AlignedBuffer<SIZE> alignedBuffer;
-    bdlsb::FixedMemOutStreamBuf streamBuf(alignedBuffer.buffer(),
-                                          static_cast<bsl::streamsize>(SIZE));
+    bsls::AlignedBuffer<k_SIZE> alignedBuffer;
+    bdlsb::FixedMemOutStreamBuf streamBuf(
+                                         alignedBuffer.buffer(),
+                                         static_cast<bsl::streamsize>(k_SIZE));
 
     bsl::ostream os(&streamBuf);
 
