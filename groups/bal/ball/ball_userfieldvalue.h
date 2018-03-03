@@ -224,7 +224,7 @@ class UserFieldValue {
 
     void swap(UserFieldValue& other);
         // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the no-throw
+        // specified 'other' object.  This method provides the strong exception
         // guarantee if 'type()' is the same as 'other.type()'; otherwise, it
         // provides the basic guarantee.  The behavior is undefined unless this
         // object was created with the same allocator as 'other'.
@@ -316,10 +316,10 @@ bsl::ostream& operator<<(bsl::ostream& stream, const UserFieldValue& object);
 // FREE FUNCTIONS
 void swap(ball::UserFieldValue& a, ball::UserFieldValue& b);
     // Swap the value of the specified 'a' object with the value of the
-    // specified 'b' object.  This method provides the no-throw guarantee if
-    // 'a.type()' is the same as 'b.type()'; otherwise, it provides the basic
-    // guarantee.  The behavior is undefined unless both objects were created
-    // with the same allocator.
+    // specified 'b' object.  This method provides the strong exception
+    // guarantee if 'a.type()' is the same as 'b.type()'; otherwise, it
+    // provides the basic guarantee.  The behavior is undefined unless both
+    // objects were created with the same allocator.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -510,7 +510,7 @@ bsl::ostream& ball::operator<<(bsl::ostream&         stream,
 
 // FREE FUNCTIONS
 inline
-void swap(ball::UserFieldValue& a, ball::UserFieldValue& b)
+void ball::swap(UserFieldValue& a, UserFieldValue& b)
 {
     BSLS_ASSERT_SAFE(a.allocator() == b.allocator());
 

@@ -89,6 +89,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -170,9 +174,9 @@ class UserFields {
 
     void swap(UserFields& other);
         // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.   This method provides the no-throw
-        // exception guarantee if 'allocator' is the same as
-        // 'other.allocator()', and the basic exception guarantee otherwise.
+        // specified 'other' object.  This method provides the strong exception
+        // guarantee.  The behavior is undefined unless this object was created
+        // with the same allocator as 'other'.
 
     // ACCESSORS
     ConstIterator begin() const;
@@ -246,9 +250,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const UserFields& object);
 // FREE FUNCTIONS
 void swap(ball::UserFields& a, ball::UserFields& b);
     // Swap the value of the specified 'a' object with the value of the
-    // specified 'b' object.  This method provides the no-throw exception
-    // guarantee if 'a.allocator()' is the same as 'b.allocator()', and the
-    // basic exception guarantee otherwise.
+    // specified 'b' object.  This method provides the strong exception
+    // guarantee.  The behavior is undefined unless both objects were created
+    // with the same allocator.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -337,6 +341,8 @@ UserFieldValue& UserFields::value(int index)
 inline
 void UserFields::swap(UserFields& other)
 {
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
     d_values.swap(other.d_values);
 }
 
@@ -400,8 +406,10 @@ bsl::ostream& ball::operator<<(bsl::ostream& stream, const UserFields& object)
 
 // FREE FUNCTIONS
 inline
-void swap(ball::UserFields& a, ball::UserFields& b)
+void ball::swap(UserFields& a, UserFields& b)
 {
+    BSLS_ASSERT_SAFE(a.allocator() == b.allocator());
+
     a.swap(b);
 }
 
