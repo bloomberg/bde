@@ -12,61 +12,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(btlb_pooledblobbufferfactory_cpp,"$Id$ $CSID$")
 
-#include <bsls_assert.h>
-
-namespace BloombergLP {
-namespace btlb {
-
-                      // -----------------------------
-                      // class PooledBlobBufferFactory
-                      // -----------------------------
-
-// CREATORS
-PooledBlobBufferFactory::PooledBlobBufferFactory(
-                                              int               bufferSize,
-                                              bslma::Allocator *basicAllocator)
-: d_bufferSize(bufferSize)
-, d_spPool(basicAllocator)
-{
-    BSLS_ASSERT(0 < bufferSize);
-}
-
-PooledBlobBufferFactory::PooledBlobBufferFactory(
-                                int                          bufferSize,
-                                bsls::BlockGrowth::Strategy  growthStrategy,
-                                bslma::Allocator            *basicAllocator)
-: d_bufferSize(bufferSize)
-, d_spPool(growthStrategy, basicAllocator)
-{
-    BSLS_ASSERT(0 < bufferSize);
-}
-
-PooledBlobBufferFactory::PooledBlobBufferFactory(
-                                int                          bufferSize,
-                                bsls::BlockGrowth::Strategy  growthStrategy,
-                                int                          maxBlocksPerChunk,
-                                bslma::Allocator            *basicAllocator)
-: d_bufferSize(bufferSize)
-, d_spPool(growthStrategy, maxBlocksPerChunk, basicAllocator)
-{
-    BSLS_ASSERT(0 < bufferSize);
-}
-
-PooledBlobBufferFactory::~PooledBlobBufferFactory()
-{
-}
-
-// MANIPULATORS
-void PooledBlobBufferFactory::allocate(BlobBuffer *buffer)
-{
-    buffer->reset(bslstl::SharedPtrUtil::createInplaceUninitializedBuffer(
-                                               d_bufferSize, &d_spPool),
-                  d_bufferSize);
-}
-}  // close package namespace
-
-}  // close enterprise namespace
-
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
 //

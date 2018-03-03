@@ -76,6 +76,8 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
 #define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(expr)
+#define ASSERT_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_PASS_RAW(expr)
 
 // ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
@@ -508,8 +510,8 @@ int main(int argc, char *argv[]) {
                     Blob blob(&factory);
                     blob.setLength(3);
 
-                    ASSERT_FAIL(Util::copy(0, 0, src, 1));
-                    ASSERT_PASS(Util::copy(&blob, 0, src, 1));
+                    ASSERT_FAIL_RAW(Util::copy(0, 0, src, 1));
+                    ASSERT_PASS_RAW(Util::copy(&blob, 0, src, 1));
                 }
 
                 if (veryVerbose) cout << "\tBad src pointer" << endl;
@@ -517,8 +519,8 @@ int main(int argc, char *argv[]) {
                     Blob blob(&factory);
                     blob.setLength(3);
 
-                    ASSERT_FAIL(Util::copy(&blob, 0, 0, 1));
-                    ASSERT_PASS(Util::copy(&blob, 0, src, 1));
+                    ASSERT_FAIL_RAW(Util::copy(&blob, 0, 0, 1));
+                    ASSERT_PASS_RAW(Util::copy(&blob, 0, src, 1));
                 }
 
                 if (veryVerbose) cout << "\tBad dstOffset" << endl;
@@ -529,15 +531,15 @@ int main(int argc, char *argv[]) {
 
                     // Fails '0 <= dstOffset'
 
-                    ASSERT_FAIL(Util::copy(&blob, -1, src, 0));
-                    ASSERT_PASS(Util::copy(&blob,  0, src, 0));
+                    ASSERT_FAIL_RAW(Util::copy(&blob, -1, src, 0));
+                    ASSERT_PASS_RAW(Util::copy(&blob,  0, src, 0));
 
-                    ASSERT_PASS(Util::copy(&blob,  0, src, 1));
+                    ASSERT_PASS_RAW(Util::copy(&blob,  0, src, 1));
 
                     // Fails 'dstOffset + length <= dst->length()'
 
-                    ASSERT_PASS(Util::copy(&blob,  2, src, 1));
-                    ASSERT_FAIL(Util::copy(&blob,  2, src, 2));
+                    ASSERT_PASS_RAW(Util::copy(&blob,  2, src, 1));
+                    ASSERT_FAIL_RAW(Util::copy(&blob,  2, src, 2));
                 }
 
                 if (veryVerbose) cout << "\tBad length" << endl;
@@ -545,8 +547,8 @@ int main(int argc, char *argv[]) {
                     Blob blob(&factory);
                     blob.setLength(3);
 
-                    ASSERT_FAIL(Util::copy(&blob, 0, src, -1));
-                    ASSERT_PASS(Util::copy(&blob, 0, src, 0));
+                    ASSERT_FAIL_RAW(Util::copy(&blob, 0, src, -1));
+                    ASSERT_PASS_RAW(Util::copy(&blob, 0, src, 0));
                 }
             }
         }
@@ -746,8 +748,8 @@ int main(int argc, char *argv[]) {
                     dst.setLength(3);
                     src.setLength(3);
 
-                    ASSERT_FAIL(Util::copy(0, 0, src, 0, 1));
-                    ASSERT_PASS(Util::copy(&dst, 0, src, 0, 1));
+                    ASSERT_FAIL_RAW(Util::copy(0, 0, src, 0, 1));
+                    ASSERT_PASS_RAW(Util::copy(&dst, 0, src, 0, 1));
                 }
 
                 if (veryVerbose) cout << "\tBad dstOffset" << endl;
@@ -759,15 +761,15 @@ int main(int argc, char *argv[]) {
 
                     // Fails '0 <= dstOffset'
 
-                    ASSERT_FAIL(Util::copy(&dst, -1, src, 0, 0));
-                    ASSERT_PASS(Util::copy(&dst,  0, src, 0, 0));
+                    ASSERT_FAIL_RAW(Util::copy(&dst, -1, src, 0, 0));
+                    ASSERT_PASS_RAW(Util::copy(&dst,  0, src, 0, 0));
 
                     dst.setLength(3);
 
                     // Fails 'dstOffset + length <= dst->length()'
 
-                    ASSERT_PASS(Util::copy(&dst,  2, src, 0, 1));
-                    ASSERT_FAIL(Util::copy(&dst,  2, src, 0, 2));
+                    ASSERT_PASS_RAW(Util::copy(&dst,  2, src, 0, 1));
+                    ASSERT_FAIL_RAW(Util::copy(&dst,  2, src, 0, 2));
                 }
 
                 if (veryVerbose) cout << "\tBad srcOffset" << endl;
@@ -779,15 +781,15 @@ int main(int argc, char *argv[]) {
 
                     // Fails '0 <= srcOffset'
 
-                    ASSERT_FAIL(Util::copy(&dst, 0, src, -1, 0));
-                    ASSERT_PASS(Util::copy(&dst, 0, src,  0, 0));
+                    ASSERT_FAIL_RAW(Util::copy(&dst, 0, src, -1, 0));
+                    ASSERT_PASS_RAW(Util::copy(&dst, 0, src,  0, 0));
 
                     src.setLength(3);
 
                     // Fails 'srcOffset + length <= src->length()'
 
-                    ASSERT_PASS(Util::copy(&dst,  0, src, 2, 1));
-                    ASSERT_FAIL(Util::copy(&dst,  0, src, 2, 2));
+                    ASSERT_PASS_RAW(Util::copy(&dst,  0, src, 2, 1));
+                    ASSERT_FAIL_RAW(Util::copy(&dst,  0, src, 2, 2));
                 }
 
                 if (veryVerbose) cout << "\tBad length" << endl;
@@ -797,8 +799,8 @@ int main(int argc, char *argv[]) {
                     dst.setLength(3);
                     src.setLength(3);
 
-                    ASSERT_FAIL(Util::copy(&dst, 0, src, 0, -1));
-                    ASSERT_PASS(Util::copy(&dst, 0, src, 0, 0));
+                    ASSERT_FAIL_RAW(Util::copy(&dst, 0, src, 0, -1));
+                    ASSERT_PASS_RAW(Util::copy(&dst, 0, src, 0, 0));
                 }
             }
         }
@@ -991,7 +993,7 @@ int main(int argc, char *argv[]) {
                          || BLOB.totalSize() - POS < SIZE || SIZE <= 0) {
 
                             veryVeryVerbose && (bsl::cout << " BAD ARG\n");
-                            BSLS_ASSERTTEST_ASSERT_FAIL(
+                            BSLS_ASSERTTEST_ASSERT_FAIL_RAW(
                                 btlb::BlobUtil::getContiguousRangeOrCopy(
                                               copyBufP, BLOB, POS, SIZE, ALN));
                             continue;
@@ -1000,7 +1002,7 @@ int main(int argc, char *argv[]) {
 
                         memset(copyBufP, '#', SIZE + 1);
                         char *out;
-                        BSLS_ASSERTTEST_ASSERT_PASS(out =
+                        BSLS_ASSERTTEST_ASSERT_PASS_RAW(out =
                                       btlb::BlobUtil::getContiguousRangeOrCopy(
                                               copyBufP, BLOB, POS, SIZE, ALN));
                         ASSERT(0 != out);
@@ -1068,12 +1070,12 @@ int main(int argc, char *argv[]) {
                     " LEN="  << LEN << ","
                     " ALN="  << ALN << ")\n";
             }
-            BSLS_ASSERTTEST_ASSERT_FAIL(
+            BSLS_ASSERTTEST_ASSERT_FAIL_RAW(
                                       btlb::BlobUtil::getContiguousRangeOrCopy(
                                                     BUF, BLOB, POS, LEN, ALN));
         }
         // One-off alignment is OK for alignment 1:
-        BSLS_ASSERTTEST_ASSERT_PASS(btlb::BlobUtil::getContiguousRangeOrCopy(
+        BSLS_ASSERTTEST_ASSERT_PASS_RAW(btlb::BlobUtil::getContiguousRangeOrCopy(
                                                      abuf + 1, BLOB, 1, 1, 1));
         verbose && (cout << "\nEnd of Test.\n");
       } break;
@@ -1261,9 +1263,9 @@ int main(int argc, char *argv[]) {
 
             char *p1 = 0, *p5 = 0;
 
-            BSLS_ASSERTTEST_ASSERT_PASS(p1 =
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(p1 =
                 btlb::BlobUtil::getContiguousDataBuffer(&BLOB1, 1, &factory7));
-            BSLS_ASSERTTEST_ASSERT_PASS(p5 =
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(p5 =
                 btlb::BlobUtil::getContiguousDataBuffer(&BLOB5, 5, &factory7));
 
             ASSERT(p1);
@@ -1314,13 +1316,13 @@ int main(int argc, char *argv[]) {
 
         btlb::Blob BLOB;
 
-        BSLS_ASSERTTEST_ASSERT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL_RAW(
                       btlb::BlobUtil::getContiguousDataBuffer(0, 1, &factory));
-        BSLS_ASSERTTEST_ASSERT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL_RAW(
                  btlb::BlobUtil::getContiguousDataBuffer(&BLOB, -1, &factory));
-        BSLS_ASSERTTEST_ASSERT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL_RAW(
                          btlb::BlobUtil::getContiguousDataBuffer(&BLOB, 1, 0));
-        BSLS_ASSERTTEST_ASSERT_FAIL(
+        BSLS_ASSERTTEST_ASSERT_FAIL_RAW(
                  btlb::BlobUtil::getContiguousDataBuffer(&BLOB, 10, &factory));
 
         verbose && (cout << "\nEnd of Test.\n");
@@ -1428,12 +1430,12 @@ int main(int argc, char *argv[]) {
                     }
                     if (bad_jk(j, k, BLOB)) {
 
-                        BSLS_ASSERTTEST_ASSERT_FAIL(
+                        BSLS_ASSERTTEST_ASSERT_FAIL_RAW(
                                      btlb::BlobUtil::copy(tstBuf, BLOB, j, k));
 
                     } else if (k) {
 
-                        BSLS_ASSERTTEST_ASSERT_PASS(
+                        BSLS_ASSERTTEST_ASSERT_PASS_RAW(
                                      btlb::BlobUtil::copy(tstBuf, BLOB, j, k));
 
                         ASSERT(bsl::memcmp(refBuf, tstBuf, k) == 0);
@@ -1597,7 +1599,7 @@ int main(int argc, char *argv[]) {
             pair<int, int> PLACE;
             if (0 <= EXPECTINDEX) {
 
-                BSLS_ASSERTTEST_ASSERT_PASS(PLACE =
+                BSLS_ASSERTTEST_ASSERT_PASS_RAW(PLACE =
                           btlb::BlobUtil::findBufferIndexAndOffset(BLOB, POS));
 
                 if (veryVerbose) {
@@ -1611,7 +1613,7 @@ int main(int argc, char *argv[]) {
                 ASSERT(0 != BLOB.buffer(PLACE.first).size());
             } else {
 
-                BSLS_ASSERTTEST_ASSERT_FAIL(PLACE =
+                BSLS_ASSERTTEST_ASSERT_FAIL_RAW(PLACE =
                           btlb::BlobUtil::findBufferIndexAndOffset(BLOB, POS));
 
                 ASSERT(EXPECTINDEX == -1);
