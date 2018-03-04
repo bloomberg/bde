@@ -46,7 +46,7 @@ using namespace bsl;
 //: o const bsl::string& theString() const;
 //: o const bdlt::DatetimeTz& theDatetimeTz() const;
 //: o const bsl::vector<char>& theCharArray() const;
-//: o bslma::Allocator *allocator() const;
+//: o bslma::Allocator *allocator() const;  // tested in case 2
 //
 // Global Concerns:
 //: o The test driver is robust w.r.t. reuse in other, similar components.
@@ -85,7 +85,7 @@ using namespace bsl;
 // [ 4] const bsl::string& theString() const;
 // [ 4] const bdlt::DatetimeTz& theDatetimeTz() const;
 // [ 4] const bsl::vector<char>& theCharArray() const;
-// [ 4] bslma::Allocator *allocator() const;
+// [ 2] bslma::Allocator *allocator() const;
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
 // FREE OPERATORS
@@ -292,7 +292,7 @@ Type::Enum charToFieldType(char c)
     return Type::e_VOID;
 }
 
-bool verifyFieldValue(const Obj& object, char type, char value)
+bool verifyFieldTypeAndValue(const Obj& object, char type, char value)
     // Return 'true' if the specified field value 'object' has the underlying
     // type and value corresponding to the specified 'gg'-specific 'type' and
     // 'value', and 'false' otherwise.
@@ -984,7 +984,120 @@ int main(int argc, char *argv[])
 
       } break;
       case 11: {
-        // TBD
+        // --------------------------------------------------------------------
+        // 'reset' AND 'isUnset' METHODS
+        //
+        // Concerns:
+        //: 1 The 'isUnset' accessor method returns 'true' if and only if the
+        //:   object is in the unset state.  In particular, 'isUnset' returns
+        //:   'true' if and only if the 'type' method (tested in case 4)
+        //:   returns 'Type::e_VOID'.
+        //:
+        //: 2 The 'isUnset' accessor method is declared 'const'.
+        //:
+        //: 3 The 'reset' method sets any object to the unset state regardless
+        //:   of the object's value before the call.
+        //:
+        //: 4 The 'reset' method releases all outstanding memory, if any, back
+        //:   to the object allocator.
+        //
+        // Plan:
+        //: 1 Using the default constructor, create a control object, 'U', and
+        //:   verify that 'isUnset' returns 'true'.
+        //:
+        //: 2 Using the table-driven technique:
+        //:
+        //:   1 Specify a set of (unique) object values (one per row),
+        //:     including the "unset" value.
+        //:
+        //:   2 Additionally, provide a (bi-valued) column, 'MEM', indicating
+        //:     the expectation of memory allocation for the associated value:
+        //:     ('Y') "Yes" or ('N') "No".
+        //:
+        //: 3 For each row 'R' (representing a distinct object value, 'V') in
+        //:   the table described in P-2:  (C-1..4)
+        //:
+        //:   1 Use the default constructor and the 'gg' function to configure
+        //:     an object, 'X', having the value 'V'.
+        //:
+        //:   2 Invoke 'isUnset' on a 'const' reference to 'X' and verify that
+        //:     its return value is consistent with that of the previously
+        //:     testing 'type' method.  For good measure, verify that 'X'
+        //:     compares equal to 'U' if and only if 'isUnset' returns 'true'.
+        //:     (C-1..2)
+        //:
+        //:   3 Using a test allocator, verify that the memory usage of the
+        //:     object allocator is consistent with the value of 'MEM' for 'V'.
+        //:
+        //:   4 Invoke 'reset' on 'X' and verify that the object is now in the
+        //:     unset state, i.e., 'isUnset' returns 'true' and 'X' compares
+        //:     equal to 'U'.  (C-3)
+        //:
+        //:   5 Verify that all memory, if any, is released back to the object
+        //:     allocator as a consequence on calling 'reset'.  (C-4)
+        //
+        // Testing:
+        //   void reset();
+        //   bool isUnset() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "'reset' AND 'isUnset' METHODS" << endl
+                          << "=============================" << endl;
+
+        if (verbose) cout <<
+           "\nUse a table of distinct object values and expected memory usage."
+                                                                       << endl;
+        const int NUM_DATA                     = DEFAULT_NUM_DATA;
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        {
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            const Obj U;  // control (unset)
+
+            ASSERTV(U.isUnset());
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE = DATA[ti].d_line;
+                const char *const SPEC = DATA[ti].d_spec_p;
+                const char        MEM  = DATA[ti].d_mem;
+                const char        TYPE = DATA[ti].d_type;
+
+                if (veryVerbose) { T_ P_(SPEC) P_(MEM) P(TYPE) }
+
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
+
+                // Verify "unsetness" of the object.
+
+                const bool isVoid = Type::e_VOID == X.type();
+
+                ASSERTV(LINE, isVoid == X.isUnset());
+                ASSERTV(LINE, isVoid == (U == X));
+
+                // Verify memory in use from object allocator when expected.
+
+                ASSERTV(LINE, SPEC, MEM,
+                        ('Y' == MEM) == (0 < oa.numBlocksInUse()));
+
+                mX.reset();
+
+                // Verify object is now unset.
+
+                ASSERTV(LINE, X.isUnset());
+                ASSERTV(LINE, U == X);
+
+                // Verify all memory, if any, is released back to object
+                // allocator.
+
+                ASSERTV(LINE, SPEC, MEM, 0 == oa.numBlocksInUse());
+            }
+            ASSERTV(0 == da.numBlocksTotal());
+        }
+
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1051,7 +1164,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 Using the table-driven technique:
         //:
-        //:   1 Specify a set of (unique) valid object values (one per row).
+        //:   1 Specify a set of (unique) object values (one per row).
         //:
         //:   2 Additionally, provide a (bi-valued) column, 'MEM', indicating
         //:     the expectation of memory allocation for the associated value:
@@ -1060,8 +1173,9 @@ int main(int argc, char *argv[])
         //: 4 For each row 'R1' (representing a distinct object value, 'V') in
         //:   the table described in P-3:  (C-1..2, 5..8, 11)
         //:
-        //:   1 Use the value constructor and a "scratch" allocator to create
-        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
+        //:   1 Use the default constructor, a "scratch" allocator, and 'gg' to
+        //:     create two 'const' 'Obj', 'Z' and 'ZZ', each having the value
+        //:     'V'.
         //:
         //:   2 Execute an inner loop that iterates over each row 'R2'
         //:     (representing a distinct object value, 'W') in the table
@@ -1071,8 +1185,8 @@ int main(int argc, char *argv[])
         //:
         //:     1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
-        //:     2 Use the value constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mX', having the value 'W'.
+        //:     2 Use the default constructor, 'oa', and 'gg' to create a
+        //:       modifiable 'Obj', 'mX', having the value 'W'.
         //:
         //:     3 Assign 'mX' from 'Z' in the presence of injected exceptions
         //:       (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros).
@@ -1121,9 +1235,10 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
-        //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
-        //:     'mX'; also use the value constructor and a distinct "scratch"
-        //:     allocator to create a 'const' 'Obj' 'ZZ'.
+        //:   2 Use the default constructor, 'oa', and 'gg' to create a
+        //:     modifiable 'Obj' 'mX'; also use the default constructor, a
+        //:     distinct "scratch" allocator, and 'gg' to create a 'const'
+        //:     'Obj' 'ZZ'.
         //:
         //:   3 Let 'Z' be a 'const' reference to 'mX'.
         //:
@@ -1368,7 +1483,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 Using the table-driven technique:
         //:
-        //:   1 Specify a set of (unique) valid object values (one per row).
+        //:   1 Specify a set of (unique) object values (one per row).
         //:
         //:   2 Additionally, provide a (bi-valued) column, 'MEM', indicating
         //:     the expectation of memory allocation for the associated value:
@@ -1378,10 +1493,10 @@ int main(int argc, char *argv[])
         //:
         //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
-        //:   2 Use the value constructor and 'oa' to create a modifiable
-        //:     'Obj', 'mW', having the value described by 'R1'; also use the
-        //:     copy constructor and a "scratch" allocator to create a 'const'
-        //:     'Obj' 'XX' from 'mW'.
+        //:   2 Use the default constructor, 'oa', and 'gg' to create a
+        //:     modifiable 'Obj', 'mW', having the value described by 'R1';
+        //:     also use the copy constructor and a "scratch" allocator to
+        //      create a 'const' 'Obj' 'XX' from 'mW'.
         //:
         //:   3 Use the member and free 'swap' functions to swap the value of
         //:     'mW' with itself; verify, after each swap, that:  (C-5)
@@ -1397,10 +1512,10 @@ int main(int argc, char *argv[])
         //:     1 Use the copy constructor and 'oa' to create a modifiable
         //:       'Obj', 'mX', from 'XX' (P-4.2).
         //:
-        //:     2 Use the value constructor and 'oa' to create a modifiable
-        //:       'Obj', 'mY', and having the value described by 'R2'; also use
-        //:       the copy constructor to create, using a "scratch" allocator,
-        //:       a 'const' 'Obj', 'YY', from 'Y'.
+        //:     2 Use the default constructor, 'oa', and 'gg' to create a
+        //:       modifiable 'Obj', 'mY', having the value described by 'R2';
+        //:       also use the copy constructor to create, using a "scratch"
+        //:       allocator, a 'const' 'Obj', 'YY', from 'Y'.
         //:
         //:     3 Use, in turn, the member and free 'swap' functions to swap
         //:       the values of 'mX' and 'mY'; verify, after each swap, that:
@@ -1722,7 +1837,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Using the table-driven technique:
         //:
-        //:   1 Specify a set of (unique) valid object values (one per row).
+        //:   1 Specify a set of (unique) object values (one per row).
         //:
         //:   2 Additionally, provide a (bi-valued) column, 'MEM', indicating
         //:     the expectation of memory allocation for the associated value:
@@ -1731,8 +1846,9 @@ int main(int argc, char *argv[])
         //: 2 For each row (representing a distinct object value, 'V') in the
         //:   table described in P-1:  (C-1..12)
         //:
-        //:   1 Use the value constructor and a "scratch" allocator to create
-        //:     two 'const' 'Obj', 'Z' and 'ZZ', each having the value 'V'.
+        //:   1 Use the default constructor, a "scratch" allocator, and 'gg' to
+        //:     create two 'const' 'Obj', 'Z' and 'ZZ', each having the value
+        //:     'V'.
         //:
         //:   2 Execute an inner loop creating three distinct objects in turn,
         //:     each using the copy constructor on 'Z' from P-2.1, but
@@ -2435,12 +2551,46 @@ int main(int argc, char *argv[])
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
-        //: 1 TBD
+        //: 1 The 'type' accessor method returns the type of the field value,
+        //:   and 'Type::e_VOID' if the object is in the unset state.
         //:
-        //: n QoI: Asserted precondition violations are detected when enabled.
+        //: 2 Each "the" accessor method, when called on an object (necessarily
+        //:   not in the unset state) having a value of the appropriate type,
+        //:   returns the expected value.
+        //:
+        //: 3 Each accessor method is declared 'const'.
+        //:
+        //: 4 No accessor allocates any memory.
+        //:
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 TBD
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   object values (one per row), ensuring that the "unset" state and
+        //:   at least one value for all of the possible fields types are
+        //:   represented.
+        //:
+        //: 2 For each row (representing a distinct object value, 'V') in the
+        //:   table described in P-1:  (C-1..4)
+        //:
+        //:   1 Use the default constructor, a test allocator 'oa', and 'gg' to
+        //:     create a 'const' 'Obj', 'X', having the value 'V'.
+        //:
+        //:   2 If 'V' represents the unset state, verify that the 'type'
+        //:     method returns 'Type::e_VOID'; otherwise, use the helper
+        //:     function 'verifyFieldTypeAndValue' to verify that 'type'
+        //:     returns the expected value and that the "the" method
+        //:     corresponding to that type also returns the expected value.
+        //:     (C-1..3)
+        //:
+        //:   3 Use a test allocator monitor to verify that no accessor
+        //:     allocates any memory.  (C-4)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered when an attempt is made to invoke any "the" method on
+        //:   an object in the unset state or on an object having a value of a
+        //:   type that doesn't correspond to the "the" method (using the
+        //:   'BSLS_ASSERTTEST_*' macros).  (C-5)
         //
         // Testing:
         //   ball::UserFieldType::Enum type() const;
@@ -2449,14 +2599,47 @@ int main(int argc, char *argv[])
         //   const bsl::string& theString() const;
         //   const bdlt::DatetimeTz& theDatetimeTz() const;
         //   const bsl::vector<char>& theCharArray() const;
-        //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "BASIC ACCESSORS" << endl
                           << "===============" << endl;
 
-        // TBD
+        if (verbose) cout <<
+           "\nUse a table of distinct object values and expected memory usage."
+                                                                       << endl;
+        const int NUM_DATA                     = DEFAULT_NUM_DATA;
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE  = DATA[ti].d_line;
+                const char *const SPEC  = DATA[ti].d_spec_p;
+                const char        TYPE  = DATA[ti].d_type;
+                const char        VALUE = DATA[ti].d_value;
+
+                if (veryVerbose) { T_ P_(SPEC) P_(TYPE) P(VALUE) }
+
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                // Verify type and value of object using basic accessors.
+
+                if ('V' == TYPE) {  // unset
+                    ASSERTV(LINE, SPEC, TYPE, VALUE, Type::e_VOID == X.type());
+                }
+                else {
+                    ASSERTV(LINE, SPEC, TYPE, VALUE, Type::e_VOID != X.type());
+                    ASSERTV(LINE, SPEC, TYPE, VALUE,
+                            verifyFieldTypeAndValue(X, TYPE, VALUE));
+                }
+
+                ASSERTV(LINE, SPEC, TYPE, VALUE, oam.isTotalSame());
+            }
+        }
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
@@ -2670,7 +2853,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, Type::e_VOID == X.type());
                 }
                 else {
-                    ASSERTV(LINE, verifyFieldValue(X, TYPE, VALUE));
+                    ASSERTV(LINE, verifyFieldTypeAndValue(X, TYPE, VALUE));
                 }
 
                 {
@@ -2756,6 +2939,7 @@ int main(int argc, char *argv[])
         //   void setString(bslstl::StringRef value);
         //   void setDatetimeTz(const bdlt::DatetimeTz& value);
         //   void setCharArray(const bsl::vector<char>& value);
+        //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
