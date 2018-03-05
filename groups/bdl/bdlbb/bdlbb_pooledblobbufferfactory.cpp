@@ -1,4 +1,4 @@
-// bdlblob_pooledblobbufferfactory.cpp                                -*-C++-*-
+// bdlbb_pooledblobbufferfactory.cpp                                  -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,15 +7,15 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <bdlblob_pooledblobbufferfactory.h>
+#include <bdlbb_pooledblobbufferfactory.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlblob_pooledblobbufferfactory_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlbb_pooledblobbufferfactory_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
 namespace BloombergLP {
-namespace bdlblob {
+namespace bdlbb {
 
                       // -----------------------------
                       // class PooledBlobBufferFactory

@@ -1,4 +1,4 @@
-// bdlblob_pooledblobbufferfactory.h                                  -*-C++-*-
+// bdlbb_pooledblobbufferfactory.h                                    -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,27 +7,27 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BDLBLOB_POOLEDBLOBBUFFERFACTORY
-#define INCLUDED_BDLBLOB_POOLEDBLOBBUFFERFACTORY
+#ifndef INCLUDED_BDLBB_POOLEDBLOBBUFFERFACTORY
+#define INCLUDED_BDLBB_POOLEDBLOBBUFFERFACTORY
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a concrete implementation of 'bdlblob::BlobBufferFactory'.
+//@PURPOSE: Provide a concrete implementation of 'bdlbb::BlobBufferFactory'.
 //
 //@CLASSES:
-//  bdlblob::PooledBlobBufferFactory: mechanism pooling 'bdlblob::BlobBuffer's
+//  bdlbb::PooledBlobBufferFactory: mechanism pooling 'bdlbb::BlobBuffer's
 //
-//@SEE_ALSO: bdlblob_blob, bdlma_concurrentpool
+//@SEE_ALSO: bdlbb_blob, bdlma_concurrentpool
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
 //@DESCRIPTION: This component provides a mechanism for allocating
-// 'bdlblob::BlobBuffer' objects of a fixed specified size.  The size is passed
-// at construction of the 'bdlblob::PooledBlobBufferFactory' instance.  A
-// 'bdlblob::BlobBuffer' is basically a shared pointer to a buffer of 'char' of
+// 'bdlbb::BlobBuffer' objects of a fixed specified size.  The size is passed
+// at construction of the 'bdlbb::PooledBlobBufferFactory' instance.  A
+// 'bdlbb::BlobBuffer' is basically a shared pointer to a buffer of 'char' of
 // the prescribed size.  Thus it is generally more efficient to create them
 // with a uniform size, for the same reason as a pool is more efficient than a
 // general-purpose memory allocator.  In order to gain further efficiency, this
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BDLBLOB_BLOB
-#include <bdlblob_blob.h>
+#include <bdlbb_blob.h>
 #endif
 
 #ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlblob {
+namespace bdlbb {
 
                       // =============================
                       // class PooledBlobBufferFactory

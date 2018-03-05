@@ -1,4 +1,4 @@
-// bdlblob_blobstreambuf.h                                            -*-C++-*-
+// bdlbb_blobstreambuf.h                                              -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,8 +7,8 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BDLBLOB_BLOBSTREAMBUF
-#define INCLUDED_BDLBLOB_BLOBSTREAMBUF
+#ifndef INCLUDED_BDLBB_BLOBSTREAMBUF
+#define INCLUDED_BDLBB_BLOBSTREAMBUF
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -18,24 +18,24 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide blob implementing the 'streambuf' interface.
 //
 //@CLASSES:
-// bdlblob::InBlobStreamBuf: 'bdlblob::Blob' input 'streambuf'
-// bdlblob::OutBlobStreamBuf: 'bdlblob::Blob' output 'streambuf'
+// bdlbb::InBlobStreamBuf: 'bdlbb::Blob' input 'streambuf'
+// bdlbb::OutBlobStreamBuf: 'bdlbb::Blob' output 'streambuf'
 //
 //@AUTHOR: Guillaume Morin (gmorin1)
 //
-//@SEE_ALSO: bdlblob_blob
+//@SEE_ALSO: bdlbb_blob
 //
 //@DESCRIPTION: This component implements the input and output
-// 'bsl::basic_streambuf' protocol using a user-supplied 'bdlblob::Blob'.
+// 'bsl::basic_streambuf' protocol using a user-supplied 'bdlbb::Blob'.
 // Method names necessarily correspond to the protocol-specified method names.
 // Refer to the C++ Standard, Section 27.5.2, for a full specification of the
 // interface.
 //
-// A 'bdlblob::Blob' is an indexed sequence of 'bdlblob::BlobBuffer' of
+// A 'bdlbb::Blob' is an indexed sequence of 'bdlbb::BlobBuffer' of
 // potentially different sizes.  The number of buffers in the sequence can
 // increase or decrease, but the order of the buffers cannot change.
 // Therefore, the blob behaves logically as a single indexed buffer.
-// 'bdlblob::InBlobStreamBuf' and 'bdlblob::OutBlobStreamBuf' can therefore
+// 'bdlbb::InBlobStreamBuf' and 'bdlbb::OutBlobStreamBuf' can therefore
 // respectively read from and write to this buffer as if there were a single
 // continuous index.
 
@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BDLBLOB_BLOB
-#include <bdlblob_blob.h>
+#include <bdlbb_blob.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -64,8 +64,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlblob { class Blob; }
-namespace bdlblob {
+namespace bdlbb { class Blob; }
+namespace bdlbb {
 
                           // =====================
                           // class InBlobStreamBuf
@@ -73,13 +73,13 @@ namespace bdlblob {
 
 class InBlobStreamBuf : public bsl::streambuf {
     // This class implements the input functionality of the 'basic_streambuf'
-    // protocol, using a client-supplied 'bdlblob::Blob'.
+    // protocol, using a client-supplied 'bdlbb::Blob'.
 
     // PRIVATE TYPES
     typedef bsl::ios_base ios_base;
 
     // DATA
-    const bdlblob::Blob *d_blob_p;                 // "streamed" blob (held)
+    const bdlbb::Blob *d_blob_p;                 // "streamed" blob (held)
     int               d_getBufferIndex;         // index of current buffer
     int               d_previousBuffersLength;  // length of buffers before the
                                                 // current one
@@ -154,7 +154,7 @@ class InBlobStreamBuf : public bsl::streambuf {
 
   public:
     // CREATORS
-    explicit InBlobStreamBuf(const bdlblob::Blob *blob);
+    explicit InBlobStreamBuf(const bdlbb::Blob *blob);
         // Create a 'BlobStreamBuf' using the specified 'blob'.  The behavior
         // is undefined unless 'blob' remains valid and externally unmodified
         // for the lifetime of this 'streambuf'.
@@ -163,8 +163,8 @@ class InBlobStreamBuf : public bsl::streambuf {
         // Destroy this stream buffer.
 
     // MANIPULATORS
-    void reset(const bdlblob::Blob *blob = 0);
-        // Reset the get areas.  Optionally set the underlying 'bdlblob::Blob'
+    void reset(const bdlbb::Blob *blob = 0);
+        // Reset the get areas.  Optionally set the underlying 'bdlbb::Blob'
         // value to the optionally specified 'blob' if 'blob' is not 0.  The
         // behavior is undefined unless 'blob' remains valid and externally
         // unmodified for the lifetime of this 'streambuf'.
@@ -174,7 +174,7 @@ class InBlobStreamBuf : public bsl::streambuf {
         // Return the index of the current buffer.  The behavior is undefined
         // unless the "streamed" blob has at least one buffer.
 
-    const bdlblob::Blob *data() const;
+    const bdlbb::Blob *data() const;
         // Return the address of the blob held by this stream buffer.
 
     int previousBuffersLength() const;
@@ -189,13 +189,13 @@ class InBlobStreamBuf : public bsl::streambuf {
 
 class OutBlobStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the 'basic_streambuf'
-    // protocol, using a client-supplied 'bdlblob::Blob'.
+    // protocol, using a client-supplied 'bdlbb::Blob'.
 
     // PRIVATE TYPES
     typedef bsl::ios_base ios_base;
 
     // DATA
-    bdlblob::Blob *d_blob_p;                 // "streamed" blob (held)
+    bdlbb::Blob *d_blob_p;                 // "streamed" blob (held)
     int         d_putBufferIndex;         // index of current buffer
     int         d_previousBuffersLength;  // length of buffers before
 
@@ -264,7 +264,7 @@ class OutBlobStreamBuf : public bsl::streambuf {
 
   public:
     // CREATORS
-    explicit OutBlobStreamBuf(bdlblob::Blob *blob);
+    explicit OutBlobStreamBuf(bdlbb::Blob *blob);
         // Create a 'OutBlobStreamBuf' using the specified 'blob', and set the
         // location at which the next write operation will occur to
         // 'blob->length()'.  The behavior is undefined unless 'blob' remains
@@ -275,13 +275,13 @@ class OutBlobStreamBuf : public bsl::streambuf {
         // Destroy this stream buffer.
 
     // MANIPULATORS
-    bdlblob::Blob *data();
+    bdlbb::Blob *data();
         // Return the address of the blob held by this stream buffer.
 
-    void reset(bdlblob::Blob *blob = 0);
+    void reset(bdlbb::Blob *blob = 0);
         // Reset the put position of this buffer to the first location,
-        // available for writing in the underlying 'bdlblob::Blob'. Optionally
-        // specify a 'blob' used to change current underlying 'bdlblob::Blob'
+        // available for writing in the underlying 'bdlbb::Blob'. Optionally
+        // specify a 'blob' used to change current underlying 'bdlbb::Blob'
         // value for.  The behavior is undefined unless 'blob' remains valid
         // and externally unmodified for the lifetime of this 'streambuf'.
 
@@ -290,7 +290,7 @@ class OutBlobStreamBuf : public bsl::streambuf {
         // Return the index of the current buffer.  The behavior is undefined
         // unless the "streamed" blob has at least one buffer.
 
-    const bdlblob::Blob *data() const;
+    const bdlbb::Blob *data() const;
         // Return the address of the blob held by this stream buffer.
 
     int previousBuffersLength() const;
@@ -309,7 +309,7 @@ class OutBlobStreamBuf : public bsl::streambuf {
 
 // MANIPULATORS
 inline
-void InBlobStreamBuf::reset(const bdlblob::Blob *blob)
+void InBlobStreamBuf::reset(const bdlbb::Blob *blob)
 {
     if (blob) {
         d_blob_p = blob;
@@ -332,7 +332,7 @@ int InBlobStreamBuf::currentBufferIndex() const
 }
 
 inline
-const bdlblob::Blob *InBlobStreamBuf::data() const
+const bdlbb::Blob *InBlobStreamBuf::data() const
 {
     return d_blob_p;
 }
@@ -349,13 +349,13 @@ int InBlobStreamBuf::previousBuffersLength() const
 
 // MANIPULATORS
 inline
-bdlblob::Blob *OutBlobStreamBuf::data()
+bdlbb::Blob *OutBlobStreamBuf::data()
 {
     return d_blob_p;
 }
 
 inline
-void OutBlobStreamBuf::reset(bdlblob::Blob *blob)
+void OutBlobStreamBuf::reset(bdlbb::Blob *blob)
 {
     if (blob) {
         d_blob_p = blob;
@@ -378,7 +378,7 @@ int OutBlobStreamBuf::currentBufferIndex() const
 }
 
 inline
-const bdlblob::Blob *OutBlobStreamBuf::data() const
+const bdlbb::Blob *OutBlobStreamBuf::data() const
 {
     return d_blob_p;
 }
