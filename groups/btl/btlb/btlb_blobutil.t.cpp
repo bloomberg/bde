@@ -1075,8 +1075,8 @@ int main(int argc, char *argv[]) {
                                                     BUF, BLOB, POS, LEN, ALN));
         }
         // One-off alignment is OK for alignment 1:
-        BSLS_ASSERTTEST_ASSERT_PASS_RAW(btlb::BlobUtil::getContiguousRangeOrCopy(
-                                                     abuf + 1, BLOB, 1, 1, 1));
+        BSLS_ASSERTTEST_ASSERT_PASS_RAW(
+            btlb::BlobUtil::getContiguousRangeOrCopy(abuf + 1, BLOB, 1, 1, 1));
         verbose && (cout << "\nEnd of Test.\n");
       } break;
       case 8: {
