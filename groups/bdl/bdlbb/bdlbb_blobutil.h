@@ -1,4 +1,4 @@
-// bdlblob_blobutil.h                                                 -*-C++-*-
+// bdlbb_blobutil.h                                                   -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,27 +7,27 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BDLBLOB_BLOBUTIL
-#define INCLUDED_BDLBLOB_BLOBUTIL
+#ifndef INCLUDED_BDLBB_BLOBUTIL
+#define INCLUDED_BDLBB_BLOBUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a suite of utilities for I/O operations on 'bdlblob::Blob'.
+//@PURPOSE: Provide a suite of utilities for I/O operations on 'bdlbb::Blob'.
 //
 //@CLASSES:
-//  bdlblob::BlobUtil: suite of utilities on 'bdlblob::Blob'
+//  bdlbb::BlobUtil: suite of utilities on 'bdlbb::Blob'
 //
-//@SEE_ALSO: bdlblob_blob
+//@SEE_ALSO: bdlbb_blob
 //
 //@AUTHOR: Shezan Baig (sbaig)
 //
 //@CONTACT: Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This 'struct' provides a variety of utilities for
-// 'bdlblob::Blob' objects, 'bdlblob::BlobUtil', such as I/O functions,
+// 'bdlbb::Blob' objects, 'bdlbb::BlobUtil', such as I/O functions,
 // comparison functions, and streaming functions.
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BDLBLOB_BLOB
-#include <bdlblob_blob.h>
+#include <bdlbb_blob.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlblob {
+namespace bdlbb {
 
                              // ===============
                              // struct BlobUtil
@@ -532,13 +532,13 @@ BlobUtilAsciiDumper::BlobUtilAsciiDumper(const Blob *blob)
 
 // FREE OPERATORS
 inline
-bsl::ostream& bdlblob::operator<<(bsl::ostream&              stream,
+bsl::ostream& bdlbb::operator<<(bsl::ostream&              stream,
                                const BlobUtilAsciiDumper& rhs)
 {
     return BlobUtil::asciiDump(stream, *rhs.d_blob_p);
 }
 
-namespace bdlblob {
+namespace bdlbb {
 
                          // ------------------------
                          // struct BlobUtilHexDumper
@@ -566,7 +566,7 @@ BlobUtilHexDumper::BlobUtilHexDumper(const Blob *blob,
 
 // FREE OPERATORS
 inline
-bsl::ostream& bdlblob::operator<<(bsl::ostream&            stream,
+bsl::ostream& bdlbb::operator<<(bsl::ostream&            stream,
                                const BlobUtilHexDumper& rhs)
 {
     return BlobUtil::hexDump(stream,

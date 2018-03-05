@@ -38,8 +38,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLBLOB_POOLEDBLOBBUFFERFACTORY
-#include <bdlblob_pooledblobbufferfactory.h>
+#ifndef INCLUDED_BDLBB_POOLEDBLOBBUFFERFACTORY
+#include <bdlbb_pooledblobbufferfactory.h>
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace btlb {
 
-typedef bdlblob::PooledBlobBufferFactory PooledBlobBufferFactory;
+typedef bdlbb::PooledBlobBufferFactory PooledBlobBufferFactory;
 
 }  // close package namespace
 }  // close enterprise namespace

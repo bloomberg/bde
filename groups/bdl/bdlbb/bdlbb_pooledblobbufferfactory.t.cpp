@@ -1,4 +1,4 @@
-// bdlblob_pooledblobbufferfactory.t.cpp                              -*-C++-*-
+// bdlbb_pooledblobbufferfactory.t.cpp                                -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,7 +7,7 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <bdlblob_pooledblobbufferfactory.h>
+#include <bdlbb_pooledblobbufferfactory.h>
 
 #include <bslim_testutil.h>
 
@@ -76,7 +76,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                               GLOBAL TYPEDEF
 //-----------------------------------------------------------------------------
 
-typedef bdlblob::PooledBlobBufferFactory Obj;
+typedef bdlbb::PooledBlobBufferFactory Obj;
 
 static int verbose;
 static int veryVerbose;
@@ -86,10 +86,10 @@ void checkBlob(int         LINE,
                int         bufferSize,
                int         length,
                int         maxLength,
-               bdlblob::Blob& mX)
+               bdlbb::Blob& mX)
 {
     const int NUM_BUFFERS = (0 < maxLength) ? 1+(maxLength-1)/bufferSize : 0;
-    const bdlblob::Blob& X = mX;
+    const bdlbb::Blob& X = mX;
 
     LOOP2_ASSERT(bufferSize, LINE, bufferSize*NUM_BUFFERS == X.totalSize());
     LOOP2_ASSERT(bufferSize, LINE, length == X.length());
@@ -122,8 +122,8 @@ int main(int argc, char *argv[]) {
         // BREATHING TEST
         //
         // Plan: Due to the amount of work needed to build a test driver, for
-        //   now, I simply copy the breathing test of a 'bdlblob_blob' but this
-        //   time using the 'bdlblob::PooledBlobBufferFactory' instead of the
+        //   now, I simply copy the breathing test of a 'bdlbb_blob' but this
+        //   time using the 'bdlbb::PooledBlobBufferFactory' instead of the
         //   (local) testing class 'TestBlobBufferFactory' in that component.
         //   In order to gain confidence against alignment and number of
         //   allocations, we try all buffer sizes in a reasonable range.
@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        if (verbose) cout << "\nTesting bdlblob::PooledBlobBufferFactory."
+        if (verbose) cout << "\nTesting bdlbb::PooledBlobBufferFactory."
                           << "\n--------------------------------------\n";
         for (int bufferSize = 1;
              bufferSize < static_cast<int>(32 * sizeof(void*));
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
                 int maxLength = 0;
                 Obj factory(bufferSize, &ta);
 
-                bdlblob::Blob mX(&factory, &ta);  const bdlblob::Blob& X = mX;
+                bdlbb::Blob mX(&factory, &ta);  const bdlbb::Blob& X = mX;
                 ASSERT(0 == X.length());
                 ASSERT(0 == X.totalSize());
                 ASSERT(0 == X.numBuffers());
@@ -201,7 +201,7 @@ int main(int argc, char *argv[]) {
                 mX.setLength(1);
                 checkBlob(L_, bufferSize, 1, maxLength, mX);
 
-                bdlblob::BlobBuffer buf;
+                bdlbb::BlobBuffer buf;
                 factory.allocate(&buf);
                 mX.appendBuffer(buf);
                 maxLength += bufferSize;

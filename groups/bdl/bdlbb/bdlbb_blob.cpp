@@ -1,4 +1,4 @@
-// bdlblob_blob.cpp                                                   -*-C++-*-
+// bdlbb_blob.cpp                                                     -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,10 +7,10 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <bdlblob_blob.h>
+#include <bdlbb_blob.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlblob_blob_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlbb_blob_cpp,"$Id$ $CSID$")
 
 #include <bdlb_print.h>
 
@@ -29,15 +29,15 @@ BSLS_IDENT_RCSID(bdlblob_blob_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace {
 
-typedef bsl::vector<bdlblob::BlobBuffer>::iterator       BlobBufferIterator;
-typedef bsl::vector<bdlblob::BlobBuffer>::const_iterator
+typedef bsl::vector<bdlbb::BlobBuffer>::iterator       BlobBufferIterator;
+typedef bsl::vector<bdlbb::BlobBuffer>::const_iterator
                                                        BlobBufferConstIterator;
 
                       // ==============================
                       // class InvalidBlobBufferFactory
                       // ==============================
 
-class InvalidBlobBufferFactory : private bdlblob::BlobBufferFactory {
+class InvalidBlobBufferFactory : private bdlbb::BlobBufferFactory {
 
     // NOT IMPLEMENTED
     InvalidBlobBufferFactory(const InvalidBlobBufferFactory&);
@@ -58,13 +58,13 @@ class InvalidBlobBufferFactory : private bdlblob::BlobBufferFactory {
     }
 
     static
-    bdlblob::BlobBufferFactory *factory(
-        bdlblob::BlobBufferFactory *basicFactory = 0)
+    bdlbb::BlobBufferFactory *factory(
+        bdlbb::BlobBufferFactory *basicFactory = 0)
     {
         return basicFactory ? basicFactory : &singleton();
     }
 
-    virtual void allocate(bdlblob::BlobBuffer *)
+    virtual void allocate(bdlbb::BlobBuffer *)
     {
         BSLS_ASSERT_OPT(!"Invalid Blob Buffer Factory Used!");
     }
@@ -72,7 +72,7 @@ class InvalidBlobBufferFactory : private bdlblob::BlobBufferFactory {
 
 }  // close unnamed namespace
 
-namespace bdlblob {
+namespace bdlbb {
 
                              // ================
                              // class BlobBuffer
@@ -109,13 +109,13 @@ bsl::ostream& BlobBuffer::print(bsl::ostream& stream, int, int) const
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& bdlblob::operator<<(bsl::ostream&     stream,
+bsl::ostream& bdlbb::operator<<(bsl::ostream&     stream,
                                   const BlobBuffer& buffer)
 {
     return buffer.print(stream, 0, -1);
 }
 
-namespace bdlblob {
+namespace bdlbb {
 
                          // =======================
                          // class BlobBufferFactory
@@ -669,7 +669,7 @@ void Blob::moveAndAppendDataBuffers(Blob *srcBlob)
 }  // close package namespace
 
 // FREE OPERATORS
-bool bdlblob::operator==(const Blob& lhs, const Blob& rhs)
+bool bdlbb::operator==(const Blob& lhs, const Blob& rhs)
 {
     return lhs.d_buffers            == rhs.d_buffers
         && lhs.d_totalSize          == rhs.d_totalSize
@@ -678,7 +678,7 @@ bool bdlblob::operator==(const Blob& lhs, const Blob& rhs)
         && lhs.d_preDataIndexLength == rhs.d_preDataIndexLength;
 }
 
-bool bdlblob::operator!=(const Blob& lhs, const Blob& rhs)
+bool bdlbb::operator!=(const Blob& lhs, const Blob& rhs)
 {
     return lhs.d_buffers            != rhs.d_buffers
         || lhs.d_totalSize          != rhs.d_totalSize

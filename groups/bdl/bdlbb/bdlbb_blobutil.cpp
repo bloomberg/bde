@@ -1,4 +1,4 @@
-// bdlblob_blobutil.cpp                                               -*-C++-*-
+// bdlbb_blobutil.cpp                                                 -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,10 +7,10 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <bdlblob_blobutil.h>
+#include <bdlbb_blobutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlblob_blobutil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlbb_blobutil_cpp,"$Id$ $CSID$")
 
 #include <bslma_allocator.h>
 #include <bslma_deallocatorproctor.h>
@@ -29,7 +29,7 @@ namespace {
 
 // HELPER FUNCTION
 void copyFromPlace(char                *dstBuffer,
-                   const bdlblob::Blob& srcBlob,
+                   const bdlbb::Blob& srcBlob,
                    bsl::pair<int, int>  place,
                    int                  length)
     // Copy the specified 'length' bytes, starting at the specified 'place' in
@@ -47,7 +47,7 @@ void copyFromPlace(char                *dstBuffer,
 
     int copied = 0;
     do {
-        const bdlblob::BlobBuffer& buf = srcBlob.buffer(place.first);
+        const bdlbb::BlobBuffer& buf = srcBlob.buffer(place.first);
         int toCopy = bsl::min(length - copied, buf.size() - place.second);
         bsl::memcpy(dstBuffer + copied, buf.data() + place.second, toCopy);
         copied += toCopy;
@@ -58,7 +58,7 @@ void copyFromPlace(char                *dstBuffer,
 
 }  // close unnamed namespace
 
-namespace bdlblob {
+namespace bdlbb {
 
                              // ---------------
                              // struct BlobUtil

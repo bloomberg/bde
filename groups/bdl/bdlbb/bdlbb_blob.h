@@ -1,4 +1,4 @@
-// bdlblob_blob.h                                                     -*-C++-*-
+// bdlbb_blob.h                                                       -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -7,8 +7,8 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BDLBLOB_BLOB
-#define INCLUDED_BDLBLOB_BLOB
+#ifndef INCLUDED_BDLBB_BLOB
+#define INCLUDED_BDLBB_BLOB
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -18,23 +18,23 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an indexed set of buffers from multiple sources.
 //
 //@CLASSES:
-//        bdlblob::BlobBuffer: in-core representation of a shared buffer
-// bdlblob::BlobBufferFactory: factory of blob buffers
-//              bdlblob::Blob: indexed sequence of buffers
+//        bdlbb::BlobBuffer: in-core representation of a shared buffer
+// bdlbb::BlobBufferFactory: factory of blob buffers
+//              bdlbb::Blob: indexed sequence of buffers
 //
-//@SEE_ALSO: bcema_sharedptr, bdlblob_pooledblobbufferfactory
+//@SEE_ALSO: bcema_sharedptr, bdlbb_pooledblobbufferfactory
 //
 //@AUTHOR: Guillaume Morin (gmorin1), Herve Bronnimann (hbronnimann)
 //
-//@DESCRIPTION: This component provides an indexed sequence ('bdlblob::Blob')
-// of 'bdlblob::BlobBuffer' objects allocated from potentially multiple
-// 'bdlblob::BlobBufferFactory' objects.  A 'bdlblob::BlobBuffer' is a simple
+//@DESCRIPTION: This component provides an indexed sequence ('bdlbb::Blob')
+// of 'bdlbb::BlobBuffer' objects allocated from potentially multiple
+// 'bdlbb::BlobBufferFactory' objects.  A 'bdlbb::BlobBuffer' is a simple
 // in-core value object owning a shared pointer to a memory buffer.  Therefore,
 // the lifetime of the underlying memory is determined by shared ownership
 // between the blob buffer, the blob(s) that may contain it, and any other
 // entities that may share ownership of the memory buffer.
 //
-// Logically, a 'bdlblob::Blob' can be thought of as a sequence of bytes
+// Logically, a 'bdlbb::Blob' can be thought of as a sequence of bytes
 // (although not contiguous).  Each buffer in a blob contributes its own size
 // to the blob, with the total size of a blob being the sum of sizes over all
 // its buffers.  A prefix of these bytes, collectively referred to as the data
@@ -49,11 +49,11 @@ BSLS_IDENT("$Id: $")
 // insertion/removal of buffers containing some data bytes), as well as several
 // attributes driven by the data length.  The first bytes numbered by the data
 // length belong to the data buffers.  Note that all data buffers, except
-// perhaps the last, contribute all their bytes to the 'bdlblob::Blob' data.
+// perhaps the last, contribute all their bytes to the 'bdlbb::Blob' data.
 // The last data buffer contributes anywhere between one and all of its bytes
-// to the 'bdlblob::Blob' data.  The number of data buffers (returned by the
+// to the 'bdlbb::Blob' data.  The number of data buffers (returned by the
 // 'numDataBuffers' method), as well as the last data buffer length (returned
-// by 'lastDataBufferLength'), are maintained by 'bdlblob::Blob' automatically
+// by 'lastDataBufferLength'), are maintained by 'bdlbb::Blob' automatically
 // when setting the length to a new value.
 //
 // Buffers which do not contain data are referred to as capacity buffers.  The
@@ -65,14 +65,14 @@ BSLS_IDENT("$Id: $")
 // This design is intended to allow very efficient re-assignment of buffers (or
 // part of buffers using shared pointer aliasing) between different blobs,
 // without copying of the underlying data, while promoting efficient allocation
-// of resources (via retaining capacity).  Thus, 'bdlblob::Blob' is an
-// advantageous replacement for 'bdlblob::PooledBufferChain' when manipulation
+// of resources (via retaining capacity).  Thus, 'bdlbb::Blob' is an
+// advantageous replacement for 'bdlbb::PooledBufferChain' when manipulation
 // of the sequence, sharing of portions of the sequence, and lifetime
 // management of individual portions of the sequence, are desired.  Another
-// added flexibility of 'bdlblob::Blob' is the possibility for buffers in the
+// added flexibility of 'bdlbb::Blob' is the possibility for buffers in the
 // sequence to have different sizes (as opposed to a uniform fixed size for
-// 'bdlblob::PooledBufferChain').  When choosing whether to use a
-// 'bdlblob::Blob' vs. a 'bdlblob::PooledBufferChain', one must consider the
+// 'bdlbb::PooledBufferChain').  When choosing whether to use a
+// 'bdlbb::Blob' vs. a 'bdlbb::PooledBufferChain', one must consider the
 // added flexibility versus the added cost of shared ownership for each
 // individual buffer and random access to the buffer.
 //
@@ -88,10 +88,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: A Simple Blob Buffer Factory
 ///- - - - - - - - - - - - - - - - - - - -
-// Classes that implement the 'bdlblob::BlobBufferFactory' protocol are used to
-// allocate 'bdlblob::BlobBuffer' objects.  A simple implementation follows:
+// Classes that implement the 'bdlbb::BlobBufferFactory' protocol are used to
+// allocate 'bdlbb::BlobBuffer' objects.  A simple implementation follows:
 //..
-//  class SimpleBlobBufferFactory : public bdlblob::BlobBufferFactory {
+//  class SimpleBlobBufferFactory : public bdlbb::BlobBufferFactory {
 //      // This factory creates blob buffers of a fixed size specified at
 //      // construction.
 //
@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 //      ~SimpleBlobBufferFactory();
 //
 //      // MANIPULATORS
-//      void allocate(bdlblob::BlobBuffer *buffer);
+//      void allocate(bdlbb::BlobBuffer *buffer);
 //  };
 //
 //  SimpleBlobBufferFactory::SimpleBlobBufferFactory(
@@ -126,7 +126,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //  }
 //
-//  void SimpleBlobBufferFactory::allocate(bdlblob::BlobBuffer *buffer)
+//  void SimpleBlobBufferFactory::allocate(bdlbb::BlobBuffer *buffer)
 //  {
 //      bsl::shared_ptr<char> shptr(
 //                              (char *) d_allocator_p->allocate(d_bufferSize),
@@ -137,18 +137,18 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that should the user desire a blob buffer factory for his/her
 // application, a better implementation that pools buffers is available in the
-// 'bdlblob_pooledblobbufferfactory' component.
+// 'bdlbb_pooledblobbufferfactory' component.
 //
 ///Simple Blob Usage
 ///- - - - - - - - -
 // Blobs can be created just by passing a factory that is responsible to
-// allocate the 'bdlblob::BlobBuffer'.  The following simple program
+// allocate the 'bdlbb::BlobBuffer'.  The following simple program
 // illustrates how.
 //..
 //  {
 //      SimpleBlobBufferFactory myFactory(1024);
 //
-//      bdlblob::Blob blob(&myFactory);
+//      bdlbb::Blob blob(&myFactory);
 //      assert(0    == blob.length());
 //      assert(0    == blob.totalSize());
 //
@@ -167,15 +167,15 @@ BSLS_IDENT("$Id: $")
 //      assert(sizeof data == blob.length());
 //      assert(       1024 == blob.totalSize());
 //..
-// A 'bdlblob::BlobBuffer' can easily be re-assigned from one blob to another
+// A 'bdlbb::BlobBuffer' can easily be re-assigned from one blob to another
 // with no copy.  In that case, the memory held by the buffer will be returned
 // to its factory when the last blob referencing the buffer is destroyed.  For
 // the following example, a blob will be created using the default constructor.
-// In this case, the 'bdlblob::Blob' object will not able to grow on its own.
+// In this case, the 'bdlbb::Blob' object will not able to grow on its own.
 // Calling 'setLength' for a number equal or greater than 'totalSize()' will
 // result in undefined behavior.
 //..
-//      bdlblob::Blob dest;
+//      bdlbb::Blob dest;
 //      assert(   0 == dest.length());
 //      assert(   0 == dest.totalSize());
 //
@@ -186,7 +186,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that at this point, the logical length (returned by 'length') of this
 // object has not changed.  'setLength' must be called explicitly by the user
-// if the logical length of the 'bdlblob::Blob' must be changed:
+// if the logical length of the 'bdlbb::Blob' must be changed:
 //..
 //      dest.setLength(dest.buffer(0).size());
 //      assert(1024 == dest.length());
@@ -203,7 +203,7 @@ BSLS_IDENT("$Id: $")
 //                                  blob.buffer(0).data() + 10);
 //          // 'shptr' is now an alias of 'blob.buffer(0).buffer()'.
 //
-//      bdlblob::BlobBuffer partialBuffer(shptr, 6);
+//      bdlbb::BlobBuffer partialBuffer(shptr, 6);
 //      dest.appendBuffer(partialBuffer);
 //          // The last buffer of 'dest' contains only bytes 11-16 from
 //          // 'blob.buffer(0)'.
@@ -219,17 +219,17 @@ BSLS_IDENT("$Id: $")
 // copy-pasted into application programs although they can provide a foundation
 // for application utilities):
 //..
-//  void prependProlog(bdlblob::Blob      *blob,
+//  void prependProlog(bdlbb::Blob      *blob,
 //                     const bsl::string&  prolog,
 //                     bslma::Allocator   *allocator = 0);
 //      // Prepend the specified 'prolog' to the specified 'blob', using the
 //      // optionally specified 'allocator' to supply any memory (or the
 //      // currently installed default allocator if 'allocator' is 0).  The
 //      // behavior is undefined unless 'blob' points to an initialized
-//      // 'bdlblob::Blob' instance.
+//      // 'bdlbb::Blob' instance.
 //
 //  template <class DELETER>
-//  void composeMessage(bdlblob::Blob      *blob,
+//  void composeMessage(bdlbb::Blob      *blob,
 //                      const bsl::string&  prolog,
 //                      char * const       *vectors,
 //                      const int          *vectorSizes,
@@ -246,22 +246,22 @@ BSLS_IDENT("$Id: $")
 //      // belonging to 'blob' prior to composing the message is not longer in
 //      // 'blob' after composing the message.  Note also that 'blob' need not
 //      // have been created with a blob buffer factory.  The behavior is
-//      // undefined unless 'blob' points to an initialized 'bdlblob::Blob'
+//      // undefined unless 'blob' points to an initialized 'bdlbb::Blob'
 //      // instance.
 //
-//  int timestampMessage(bdlblob::Blob *blob, bslma::Allocator *allocator = 0);
+//  int timestampMessage(bdlbb::Blob *blob, bslma::Allocator *allocator = 0);
 //      // Insert a timestamp data buffer immediately after the prolog buffer
 //      // and prior to any payload buffer.  Return the number of bytes
 //      // inserted.  Use the optionally specified 'allocator' to supply
 //      // memory, or the currently installed default allocator if 'allocator'
 //      // is 0.  The behavior is undefined unless the specified 'blob' points
-//      // to an initialized 'bdlblob::Blob' instance with at least one data
+//      // to an initialized 'bdlbb::Blob' instance with at least one data
 //      // buffer.
 //..
 // A possible implementation using only 'prependBuffer', 'appendBuffer', and
 // 'insertBuffer' could be as follows:
 //..
-//  void prependProlog(bdlblob::Blob      *blob,
+//  void prependProlog(bdlbb::Blob      *blob,
 //                     const bsl::string&  prolog,
 //                     bslma::Allocator   *allocator)
 //  {
@@ -271,7 +271,7 @@ BSLS_IDENT("$Id: $")
 //
 //      int prologLength = prolog.length();
 //      SimpleBlobBufferFactory fa(prologLength + sizeof(int));
-//      bdlblob::BlobBuffer prologBuffer;
+//      bdlbb::BlobBuffer prologBuffer;
 //      fa.allocate(&prologBuffer);
 //
 //      bslx::MarshallingUtil::putInt32(prologBuffer.data(), prologLength);
@@ -299,7 +299,7 @@ BSLS_IDENT("$Id: $")
 // The 'composeMessage' implementation is simplified by using 'prependProlog':
 //..
 //  template <class DELETER>
-//  void composeMessage(bdlblob::Blob      *blob,
+//  void composeMessage(bdlbb::Blob      *blob,
 //                      const bsl::string&  prolog,
 //                      char * const       *vectors,
 //                      const int          *vectorSizes,
@@ -316,7 +316,7 @@ BSLS_IDENT("$Id: $")
 //
 //      for (int i = 0; i < numVectors; ++i) {
 //          bsl::shared_ptr<char> shptr(vectors[i], deleter, allocator);
-//          bdlblob::BlobBuffer partialBuffer(shptr, vectorSizes[i]);
+//          bdlbb::BlobBuffer partialBuffer(shptr, vectorSizes[i]);
 //          blob->appendDataBuffer(partialBuffer);
 //              // The last buffer of 'dest' contains only bytes 11-16 from
 //              // 'blob.buffer(0)'.
@@ -331,16 +331,16 @@ BSLS_IDENT("$Id: $")
 // that in typical messages, timestamps would be part of the prolog itself, so
 // this is a somewhat contrived example for exposition only.
 //..
-//  int timestampMessage(bdlblob::Blob *blob, bslma::Allocator *allocator)
+//  int timestampMessage(bdlbb::Blob *blob, bslma::Allocator *allocator)
 //  {
 //      BSLS_ASSERT(blob);
 //      BSLS_ASSERT(0 < blob->numDataBuffers());
 //
-//      bdlblob::BlobBuffer buffer;
+//      bdlbb::BlobBuffer buffer;
 //      bdlt::Datetime now = bdlt::CurrentTime::utc();
 //
 //      SimpleBlobBufferFactory fa(128, allocator);
-//      bdlblob::BlobBuffer timestampBuffer;
+//      bdlbb::BlobBuffer timestampBuffer;
 //      fa.allocate(&timestampBuffer);
 //
 //      bslx::ByteOutStream bdexStream(20150826);
@@ -414,7 +414,7 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
-namespace bdlblob {
+namespace bdlbb {
 
                              // ================
                              // class BlobBuffer
@@ -503,13 +503,13 @@ class BlobBuffer {
 namespace bslmf {
 
 template <>
-struct IsBitwiseMoveable<BloombergLP::bdlblob::BlobBuffer>
+struct IsBitwiseMoveable<BloombergLP::bdlbb::BlobBuffer>
     : IsBitwiseMoveable<bsl::shared_ptr<char> >::type
 {};
 
 }  // close namespace bslmf
 
-namespace bdlblob {
+namespace bdlbb {
 
 // FREE OPERATORS
 bool operator==(const BlobBuffer& lhs, const BlobBuffer& rhs);
@@ -785,19 +785,19 @@ class Blob {
 namespace bslmf {
 
 template <>
-struct IsBitwiseMoveable<BloombergLP::bdlblob::Blob>
-    : IsBitwiseMoveable<bsl::vector<BloombergLP::bdlblob::BlobBuffer> >::type
+struct IsBitwiseMoveable<BloombergLP::bdlbb::Blob>
+    : IsBitwiseMoveable<bsl::vector<BloombergLP::bdlbb::BlobBuffer> >::type
 {};
 }  // close namespace bslmf
 
 namespace bslma {
 
 template <>
-struct UsesBslmaAllocator<BloombergLP::bdlblob::Blob> : bsl::true_type
+struct UsesBslmaAllocator<BloombergLP::bdlbb::Blob> : bsl::true_type
 {};
 }  // close namespace bslma
 
-namespace bdlblob {
+namespace bdlbb {
 
 // FREE OPERATORS
 bool operator==(const Blob& lhs, const Blob& rhs);
@@ -883,20 +883,20 @@ int BlobBuffer::size() const
 
 // FREE OPERATORS
 inline
-bool bdlblob::operator==(const BlobBuffer& lhs, const BlobBuffer& rhs)
+bool bdlbb::operator==(const BlobBuffer& lhs, const BlobBuffer& rhs)
 {
     return lhs.d_buffer.get() == rhs.d_buffer.get()
         && lhs.d_size         == rhs.d_size;
 }
 
 inline
-bool bdlblob::operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs)
+bool bdlbb::operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs)
 {
     return lhs.d_buffer.get() != rhs.d_buffer.get()
         || lhs.d_size         != rhs.d_size;
 }
 
-namespace bdlblob {
+namespace bdlbb {
 
                                 // ==========
                                 // class Blob
