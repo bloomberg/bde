@@ -161,6 +161,14 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -196,6 +204,9 @@ class StringRefData {
                                 // or 0 if 'd_begin_p==0'
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StringRefData, bsl::is_trivially_copyable);
+
     // CREATORS
     StringRefData();
         // Create a 'StringRefData' object having default attribute values:

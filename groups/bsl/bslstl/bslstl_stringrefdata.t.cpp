@@ -2,6 +2,11 @@
 
 #include <bslstl_stringrefdata.h>
 
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_isbitwiseequalitycomparable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
+
 #include <string>
 
 #include <stdio.h>
@@ -63,8 +68,9 @@ using namespace BloombergLP;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 // [10] Reserved for 'bslx' streaming.
+// [11] TYPE TRAITS
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACROS
@@ -288,7 +294,7 @@ int main(int argc, char *argv[])
     // CONCERN: This test driver is reusable w/other, similar components.
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -330,6 +336,51 @@ ASSERT(&*strObj.end()   == strRef.end());
 ASSERT(&*strObj.begin() == strRf2.begin());
 ASSERT(&*strObj.end()   == strRf2.end());
 //..
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING TYPE TRAITS
+        //   The object is trivially copyable, and bitwise copyable and should
+        //   have appropriate bsl type traits to reflect this.
+        //
+        // Concerns:
+        //: 1 The class has the 'bsl::is_trivially_copyable' trait.
+        //:
+        //: 2 The class has the 'bslmf::IsBitwiseMoveable' trait.
+        //:
+        //: 3 The class doesn't have the
+        //:   'bsl::is_trivially_default_constructible' trait.
+        //:
+        //: 4 The class doesn't have the 'bslma::UsesBslmaAllocator' trait.
+        //:
+        //: 5 The class doesn't have the 'bslmf::IsBitwiseEqualityComparable'
+        //:   trait.
+        //
+        // Plan:
+        //: 1 ASSERT the presence of each trait required by the type.  (C-1..5)
+        //
+        // Testing:
+        //   TYPE TRAITS
+        // --------------------------------------------------------------------
+          if (verbose) printf("\n"
+                              "TESTING TYPE TRAITS\n"
+                              "===================\n");
+
+          typedef bslstl::StringRefData<char>    RefData;
+          typedef bslstl::StringRefData<wchar_t> WRefData;
+
+          ASSERT(bsl::is_trivially_copyable<RefData>::value);
+          ASSERT(bslmf::IsBitwiseMoveable<RefData>::value);
+          ASSERT(!bsl::is_trivially_default_constructible<RefData>::value);
+          ASSERT(!bslma::UsesBslmaAllocator<RefData>::value);
+          ASSERT(!bslmf::IsBitwiseEqualityComparable<RefData>::value);
+
+          ASSERT(bsl::is_trivially_copyable<WRefData>::value);
+          ASSERT(bslmf::IsBitwiseMoveable<WRefData>::value);
+          ASSERT(!bsl::is_trivially_default_constructible<WRefData>::value);
+          ASSERT(!bslma::UsesBslmaAllocator<WRefData>::value);
+          ASSERT(!bslmf::IsBitwiseEqualityComparable<WRefData>::value);
+
       } break;
       case 10: {
         // --------------------------------------------------------------------
