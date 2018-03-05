@@ -198,12 +198,11 @@ int main(int argc, char *argv[])
         // Plan:
         // Iterate over a set of test vectors varying in buffer size and length
         // of data to write.  For each test vector, instantiate a
-        // 'bdlbb::PooledBlobBufferFactory', 'mF', allocate a
-        // 'bdlbb::Blob', 'mC', and use 'mC' to instantiate a
-        // 'bdlbb::BlobStreamBuf', 'mX'.  Write the specified number of bytes
-        // to 'mX' using 'sputn', and verify the length of 'mC'.  Read the
-        // specified number of buffers from 'mX', and verify the result, and
-        // the get area offset of 'mX'.
+        // 'bdlbb::PooledBlobBufferFactory', 'mF', allocate a 'bdlbb::Blob',
+        // 'mC', and use 'mC' to instantiate a 'bdlbb::BlobStreamBuf', 'mX'.
+        // Write the specified number of bytes to 'mX' using 'sputn', and
+        // verify the length of 'mC'.  Read the specified number of buffers
+        // from 'mX', and verify the result, and the get area offset of 'mX'.
         //
         // Instantiate a 'bdlbb::PooledBlobBufferFactory', 'mF', allocate a
         // 'bdlbb::Blob', 'mC', and use 'mC' to instantiate a

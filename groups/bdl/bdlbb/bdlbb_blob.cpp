@@ -51,24 +51,40 @@ class InvalidBlobBufferFactory : private bdlbb::BlobBufferFactory {
   public:
     // CLASS METHODS
     static
-    InvalidBlobBufferFactory& singleton()
-    {
-        static InvalidBlobBufferFactory instance;
-        return instance;
-    }
+    bdlbb::BlobBufferFactory *factory(
+                                   bdlbb::BlobBufferFactory *basicFactory = 0);
+        // Return a pointer to a 'BlobBufferFactory' object referring either to
+        // '*basicFactory' if 'basicFactory' is non-null or to the singleton
+        // object managed by this 'class' if it is null.
 
     static
-    bdlbb::BlobBufferFactory *factory(
-        bdlbb::BlobBufferFactory *basicFactory = 0)
-    {
-        return basicFactory ? basicFactory : &singleton();
-    }
+    InvalidBlobBufferFactory& singleton();
+        // Return a reference providing modifiable access to the
+        // 'InvalidBlobBufferFactory' singleton object managed by this
+        // 'class'.
 
-    virtual void allocate(bdlbb::BlobBuffer *)
-    {
-        BSLS_ASSERT_OPT(!"Invalid Blob Buffer Factory Used!");
-    }
+    virtual void allocate(bdlbb::BlobBuffer *);
+        // Allocate a blob buffer from this blob buffer factory, and load it
+        // into the specified 'buffer'.
 };
+
+inline
+bdlbb::BlobBufferFactory *InvalidBlobBufferFactory::factory(
+                                        bdlbb::BlobBufferFactory *basicFactory)
+{
+    return basicFactory ? basicFactory : &singleton();
+}
+
+InvalidBlobBufferFactory& InvalidBlobBufferFactory::singleton()
+{
+    static InvalidBlobBufferFactory instance;
+    return instance;
+}
+
+void InvalidBlobBufferFactory::allocate(bdlbb::BlobBuffer *)
+{
+    BSLS_ASSERT_OPT(!"Invalid Blob Buffer Factory Used!");
+}
 
 }  // close unnamed namespace
 
@@ -110,7 +126,7 @@ bsl::ostream& BlobBuffer::print(bsl::ostream& stream, int, int) const
 
 // FREE OPERATORS
 bsl::ostream& bdlbb::operator<<(bsl::ostream&     stream,
-                                  const BlobBuffer& buffer)
+                                const BlobBuffer& buffer)
 {
     return buffer.print(stream, 0, -1);
 }

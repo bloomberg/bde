@@ -44,7 +44,7 @@ using bsl::cerr;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This test driver verifies many claims about 'bdlbb::Blob's which are made
+// This test driver verifies many claims about 'bdlbb::Blob's that are made
 // in the component-level and class-level documentation, as well as the
 // individual contracts of each function, namely:
 // - that 'bdlbb::BlobBuffer' is an in-core value-semantic type containing a
@@ -495,7 +495,7 @@ class NullDeleter {
 // copy-pasted into application programs although they can provide a foundation
 // for application utilities):
 //..
-    void prependProlog(bdlbb::Blob      *blob,
+    void prependProlog(bdlbb::Blob        *blob,
                        const bsl::string&  prolog,
                        bslma::Allocator   *allocator = 0);
         // Prepend the specified 'prolog' to the specified 'blob', using the
@@ -505,7 +505,7 @@ class NullDeleter {
         // 'bdlbb::Blob' instance.
 
     template <class DELETER>
-    void composeMessage(bdlbb::Blob      *blob,
+    void composeMessage(bdlbb::Blob        *blob,
                         const bsl::string&  prolog,
                         char * const       *vectors,
                         const int          *vectorSizes,
@@ -537,7 +537,7 @@ class NullDeleter {
 // A possible implementation using only 'prependBuffer', 'appendBuffer', and
 // 'insertBuffer' could be as follows:
 //..
-    void prependProlog(bdlbb::Blob      *blob,
+    void prependProlog(bdlbb::Blob        *blob,
                        const bsl::string&  prolog,
                        bslma::Allocator   *allocator)
     {
@@ -575,7 +575,7 @@ class NullDeleter {
 // The 'composeMessage' implementation is simplified by using 'prependProlog':
 //..
     template <class DELETER>
-    void composeMessage(bdlbb::Blob      *blob,
+    void composeMessage(bdlbb::Blob        *blob,
                         const bsl::string&  prolog,
                         char * const       *vectors,
                         const int          *vectorSizes,
@@ -693,8 +693,8 @@ int main(int argc, char *argv[])
 ///Simple Blob Usage
 ///- - - - - - - - -
 // Blobs can be created just by passing a factory that is responsible to
-// allocate the 'bdlbb::BlobBuffer'.  The following simple program
-// illustrates how.
+// allocate the 'bdlbb::BlobBuffer'.  The following simple program illustrates
+// how.
 //..
     {
         SimpleBlobBufferFactory myFactory(1024);
