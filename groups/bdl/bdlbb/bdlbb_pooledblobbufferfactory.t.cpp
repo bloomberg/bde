@@ -82,10 +82,10 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
-void checkBlob(int         LINE,
-               int         bufferSize,
-               int         length,
-               int         maxLength,
+void checkBlob(int          LINE,
+               int          bufferSize,
+               int          length,
+               int          maxLength,
                bdlbb::Blob& mX)
 {
     const int NUM_BUFFERS = (0 < maxLength) ? 1+(maxLength-1)/bufferSize : 0;

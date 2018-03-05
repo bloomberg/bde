@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLBLOB_BLOB
+#ifndef INCLUDED_BDLBB_BLOB
 #include <bdlbb_blob.h>
 #endif
 

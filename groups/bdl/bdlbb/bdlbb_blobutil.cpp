@@ -29,7 +29,7 @@ namespace {
 
 // HELPER FUNCTION
 void copyFromPlace(char                *dstBuffer,
-                   const bdlbb::Blob& srcBlob,
+                   const bdlbb::Blob&   srcBlob,
                    bsl::pair<int, int>  place,
                    int                  length)
     // Copy the specified 'length' bytes, starting at the specified 'place' in
