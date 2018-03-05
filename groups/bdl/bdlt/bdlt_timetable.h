@@ -17,13 +17,21 @@ BSLS_IDENT("$Id: $")
 // 'bdlt::Timetable', that represents a timetable of state transitions over a
 // *valid* *range* of dates, an associated iterator,
 // 'bdlt::Timetable::const_iterator', that provides non-modifiable access to
-// its elements, and a class 'bdlt::TimetableTransition', that represents a
-// change of state at a datetime.
+// the timetable's state transitions, and a class 'bdlt::TimetableTransition',
+// that represents a change of state at a datetime.
 //
 // 'bdlt::Timetable' is designed to be especially efficient at determining the
 // state in effect at a given 'bdlt::Datetime' value (within the valid range
 // for a particular 'bdlt::Timetable' object), and iterating through the state
 // transitions.
+//
+// 'bdlt::TimetableTransition' consists of a 'bdlt::Datetime' and a (single)
+// non-negative integral code (of type 'int') that defines the "state" that
+// becomes effective at that datetime.  The meaning of the integral code
+// ascribed to each transition is defined by the client.  There can be at most
+// one 'bdlt::TimetableTransition' defined for any datetime value within the
+// range of a 'bdlt::Timetable'.  Consequently, there is at most one
+// (client-defined) state in effect at any datetime in a timetable.
 //
 // Default-constructed timetables are empty, and have an empty valid range.
 // Timetables can also be constructed with an initial (non-empty) valid range.
@@ -37,11 +45,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Exception-Safety Guarantees
 ///---------------------------
-// All methods of the 'bdlt::Timetable' are exception-safe, but in general
-// provide only the basic guarantee (i.e., no guarantee of rollback): If an
-// exception occurs (i.e., while attempting to allocate memory), the timetable
-// object is left in a coherent state, but (unless otherwise specified) its
-// *value* is undefined.
+// All methods of 'bdlt::Timetable' are exception-safe, but in general provide
+// only the basic guarantee (i.e., no guarantee of rollback): If an exception
+// occurs (i.e., while attempting to allocate memory), the timetable object is
+// left in a coherent state, but (unless otherwise specified) its *value* is
+// undefined.
+//
+// All methods of 'bdlt::TimetableTransition' are exception-safe.
 //
 ///Usage
 ///-----
@@ -69,24 +79,24 @@ BSLS_IDENT("$Id: $")
 //  timetable.setInitialTransitionCode(NO_TRADING);
 //
 //  for (int i = 0; i < 5; ++ i) {
-//      timetable.addTransition(static_cast<bdlt::DayOfWeek::Enum>(
+//      timetable.addTransitions(static_cast<bdlt::DayOfWeek::Enum>(
 //                                                 bdlt::DayOfWeek::e_MON + i),
-//                              bdlt::Time(8, 30),
-//                              TRADING,
-//                              timetable.firstDate(),
-//                              timetable.lastDate());
+//                               bdlt::Time(8, 30),
+//                               TRADING,
+//                               timetable.firstDate(),
+//                               timetable.lastDate());
 //
-//      timetable.addTransition(static_cast<bdlt::DayOfWeek::Enum>(
+//      timetable.addTransitions(static_cast<bdlt::DayOfWeek::Enum>(
 //                                                 bdlt::DayOfWeek::e_MON + i),
-//                              bdlt::Time(16, 30),
-//                              NO_TRADING,
-//                              timetable.firstDate(),
-//                              timetable.lastDate());
+//                               bdlt::Time(16, 30),
+//                               NO_TRADING,
+//                               timetable.firstDate(),
+//                               timetable.lastDate());
 //  }
 //..
 // Next, we add a holiday on January 19, 2018:
 //..
-//  timetable.removeAllTransitions(bdlt::Date(2018, 1, 19));
+//  timetable.removeTransitions(bdlt::Date(2018, 1, 19));
 //..
 // Then, we add a half-day on November 23, 2018:
 //..
@@ -143,7 +153,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
 #include <bsl_iosfwd.h>
-#include <bsl_iterator.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -159,8 +168,9 @@ class Timetable_ConstIterator;
                         // =========================
 
 class TimetableTransition {
-    // This class represents a state transition, implemented as a datetime for
-    // when the transition occurs, and a code to indicate the new state.
+    // This simply-constrained attribute class represents a state transition,
+    // implemented as a datetime for when the transition occurs, and a code to
+    // indicate the new state.
 
     // DATA
     Datetime d_datetime;  // datetime of the transition
@@ -182,17 +192,19 @@ class TimetableTransition {
                            const TimetableTransition&);
 
     template <class HASHALG>
-    friend void hashAppend(HASHALG& hashAlg, const TimetableTransition&);
+    friend void hashAppend(HASHALG&, const TimetableTransition&);
 
-    // NOT IMPLEMENTED
-    TimetableTransition();
-
+  private:
     // PRIVATE CREATORS
     TimetableTransition(const Datetime& datetime, int code);
         // Create a 'TimetableTransition' having the specified 'datetime' and
-        // 'code'.
+        // 'code'.  The behavior is undefined unless '24 > datetime.hour()' and
+        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
   public:
+    // CLASS DATA
+    enum { k_UNSET_TRANSITION_CODE = -1 };  // value representing an unset
+                                            // transition code
     // CREATORS
     TimetableTransition(const TimetableTransition& original);
         // Create a 'TimetableTransition' having the same value as the
@@ -203,15 +215,15 @@ class TimetableTransition {
 
     // MANIPULATORS
     TimetableTransition& operator=(const TimetableTransition& rhs);
-        // Assign to this 'TimetableTransition' the value of the specified
-        // 'rhs' timetable transition, and return a reference providing
-        // modifiable access to this 'TimetableTransition'.
+        // Assign to this object the value of the specified 'rhs' timetable
+        // transition, and return a reference providing modifiable access to
+        // this 'TimetableTransition'.
 
     // ACCESSORS
     const Datetime& datetime() const;
         // Return the datetime of this transition.
 
-    int transitionCode() const;
+    int code() const;
         // Return the code of this transition.
 
                              // Aspects
@@ -236,17 +248,18 @@ bool operator==(const TimetableTransition& lhs,
                 const TimetableTransition& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' timetable transitions
     // have the same value, and 'false' otherwise.  Two timetable transitions
-    // have the same value if they have the same datetime and transition code.
+    // have the same value if they have the same datetime and code.
 
 bool operator!=(const TimetableTransition& lhs,
                 const TimetableTransition& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' timetable transitions do
     // not have the same value, and 'false' otherwise.  Two timetable
     // transitions do not have the same value if they do not have the same
-    // datetime and transition code.
+    // datetime or the same code.
 
 bool operator<(const TimetableTransition& lhs,
                const TimetableTransition& rhs);
+// TBD only use the datetime?
     // Return 'true' if the specified 'lhs' has a value less than the specified
     // 'rhs', and 'false' otherwise.  Timetable transition 'lhs' has a value
     // less than timetable transition 'rhs' if
@@ -256,12 +269,14 @@ bool operator<(const TimetableTransition& lhs,
 bool operator<(const TimetableTransition& lhs, const Datetime& rhs);
     // Return 'true' if the specified 'lhs' has a value less than the specified
     // 'rhs', and 'false' otherwise.  Timetable transition 'lhs' has a value
-    // less than datetime 'rhs' if 'lhs.datetime() < rhs'.
+    // less than datetime 'rhs' if 'lhs.datetime() < rhs'.  The behavior is
+    // undefined unless '24 > rhs.hour()'.
 
 bool operator<(const Datetime& lhs, const TimetableTransition& rhs);
     // Return 'true' if the specified 'lhs' has a value less than the specified
     // 'rhs', and 'false' otherwise.  Datetime 'lhs' has a value less than
-    // timetable transition 'rhs' if 'lhs < rhs.datetime()'.
+    // timetable transition 'rhs' if 'lhs < rhs.datetime()'.  The behavior is
+    // undefined unless '24 > lhs.hour()'.
 
 // HASH SPECIALIZATIONS
 template <class HASHALG>
@@ -275,14 +290,23 @@ void hashAppend(HASHALG& hashAlg, const TimetableTransition& object);
                            // ===================
 
 class Timetable_Day {
+    // This class implements a value-semantic repository of time-indexed state
+    // transitions over one date.  A 'Timetable_Day' can be "populated" with
+    // state transitions via the 'addTransition' method, and queried for the
+    // transition code in effect at a specified time via the
+    // 'transitionCodeInEffect' method.  Note that, as an optimization for the
+    // 'transitionCodeInEffect' method, the transition code in effect before
+    // the first possible transition is stored in 'd_initialTransitionCode'.
+
     // This class implements one day of a timetable.
 
     // DATA
     int                              d_initialTransitionCode;
                                              // transition code in effect at
-                                             // the start of this day
+                                             // the start of this daily
+                                             // timetable
 
-    bsl::vector<TimetableTransition> d_transition;
+    bsl::vector<TimetableTransition> d_transitions;
                                              // ordered vector of transitions
 
     // FRIENDS
@@ -293,17 +317,22 @@ class Timetable_Day {
     friend bool operator< (const Timetable_Day&, const Timetable_Day&);
 
     template <class HASHALG>
-    friend void hashAppend(HASHALG& hashAlg, const Timetable_Day&);
+    friend void hashAppend(HASHALG&, const Timetable_Day&);
 
   public:
     // CLASS DATA
-    static const int k_UNSET_TRANSITION_CODE = -1;  // value representing an
-                                                    // unset transition code
+    enum { k_UNSET_TRANSITION_CODE =
+                                TimetableTransition::k_UNSET_TRANSITION_CODE };
+                                            // value representing an unset
+                                            // transition code
 
     // CREATORS
+    explicit
     Timetable_Day(bslma::Allocator *basicAllocator);
-        // Create a 'Timetable_Day'.  The specified 'basicAllocator' is used to
-        // supply memory.  The behavior is undefined unless
+        // Create an empty 'Timetable_Day' (i.e., a daily timetable having no
+        // transitions) whose initial transition code is
+        // 'k_UNSET_TRANSITION_CODE'.  The specified 'basicAllocator' is used
+        // to supply memory.  The behavior is undefined unless
         // '0 != basicAllocator'.
 
     Timetable_Day(const Timetable_Day&  original,
@@ -317,87 +346,91 @@ class Timetable_Day {
 
     // MANIPULATORS
     Timetable_Day& operator=(const Timetable_Day& rhs);
-        // Assign to this 'Timetable_Day' the value of the specified 'rhs'
-        // daily timetable, and return a reference providing modifiable access
-        // to this 'Timetable_Day'.
+        // Assign to this object the value of the specified 'rhs' daily
+        // timetable, and return a reference providing modifiable access to
+        // this 'Timetable_Day'.
 
-    bool setInitialTransitionCode(int transitionCode);
-        // Set the transition code in effect at the start of this timetable to
-        // the specified 'transitionCode'.  Return 'true' if the value returned
-        // by 'finalTransitionCode()' prior to this operations is not equal to
-        // the value returned by 'finalTransitionCode()' after this operation.
-        // The behavior is undefined unless
-        // '0 <= transitionCode || k_UNSET_TRANSITION_CODE == transitionCode'.
+    bool setInitialTransitionCode(int code);
+        // Set the transition code in effect prior to the start of this daily
+        // timetable to the specified 'code'.  Return 'true' if the value
+        // returned by 'finalTransitionCode()' prior to this operation is not
+        // equal to the value returned by 'finalTransitionCode()' after this
+        // operation, and false otherwise.  The behavior is undefined unless
+        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
-    bool addTransition(const Datetime& datetime, int transitionCode);
-        // Add a transition at the specified 'datetime' having the specified
-        // 'transitionCode'.  If 'datetime' is already a transition point,
-        // replace the existing code with the provided 'transitionCode'.
-        // Return 'true' if the value returned by 'finalTransitionCode()' prior
-        // to this operations is not equal to the value returned by
-        // 'finalTransitionCode()' after this operation.  The behavior is
-        // undefined unless '24 > datetime.hour()',
-        // '0 <= transitionCode || k_UNSET_TRANSITION_CODE == transitionCode',
-        // and all the resultant transitions in this 'Timetable_Day' have the
-        // same date.
+    bool addTransition(const Datetime& datetime, int code);
+        // Add a transition to this daily timetable at the specified 'datetime'
+        // having the specified 'code'.  If 'datetime' is already a transition
+        // point, replace the existing code with 'code'.  Return 'true' if the
+        // value returned by 'finalTransitionCode()' prior to this operation is
+        // not equal to the value returned by 'finalTransitionCode()' after
+        // this operation, and false otherwise.  The behavior is undefined
+        // unless '24 > datetime.hour()',
+        // '0 <= code || k_UNSET_TRANSITION_CODE == code', and all the
+        // resultant transitions in this 'Timetable_Day' have the same date.
 
     bool removeAllTransitions();
-        // Remove all transitions.  Return 'true' if the value returned by
-        // 'finalTransitionCode()' prior to this operations is not equal to the
-        // value returned by 'finalTransitionCode()' after this operation.
+        // Remove all transitions from this daily timetable.  Return 'true' if
+        // the value returned by 'finalTransitionCode()' prior to this
+        // operation is not equal to the value returned by
+        // 'finalTransitionCode()' after this operation, and false otherwise.
 
     bool removeTransition(const Datetime& datetime);
         // If a transition occurs at the specified 'datetime', remove the
         // transition from this daily timetable.  Otherwise, return without
         // modifying this daily timetable.  Return 'true' if the value returned
-        // by 'finalTransitionCode()' prior to this operations is not equal to
-        // the value returned by 'finalTransitionCode()' after this operation.
-        // The behavior is undefined unless '24 > datetime.hour()', and there
-        // are no transitions in this 'Timetable_Day' or
-        // 'd_transition[0].datetime().date() == datetime.date()'.
+        // by 'finalTransitionCode()' prior to this operation is not equal to
+        // the value returned by 'finalTransitionCode()' after this operation,
+        // and false otherwise.  The behavior is undefined unless
+        // '24 > datetime.hour()', and either there are no transitions in this
+        // 'Timetable_Day' or
+        // 'd_transitions[0].datetime().date() == datetime.date()'.
 
     // ACCESSORS
     int finalTransitionCode() const;
-        // Return the transition code at the end of this daily timetable.  If
-        // this daily timetable has no such transition, return
-        // 'k_UNSET_TRANSITION_CODE'.
+        // Return the transition code at the end of this daily timetable.  Note
+        // that if this daily timetable has no transition,
+        // 'initialTransitionCode()' is returned.
 
     int initialTransitionCode() const;
-        // Return the transition code at the start of this daily timetable (see
-        // 'setInitialTransitionCode').  If this daily timetable has no such
-        // transition, return 'k_UNSET_TRANSITION_CODE'.
+        // Return the transition code in effect prior to the start of this
+        // daily timetable.
 
     bsl::size_t size() const;
         // Return the number of transitions in this daily timetable.
 
     int transitionCodeInEffect(const Datetime& datetime) const;
-        // Return the transition code associated with the first transition that
-        // occurs on or before the specified 'datetime' in this timetable.  If
-        // this timetable has no such transition, return
-        // 'k_UNSET_TRANSITION_CODE'.  The behavior is undefined unless
-        // '24 > datetime.hour()', and there are no transitions in this
+        // Return the transition code associated with the latest transition
+        // that occurs on or before the specified 'datetime' in this daily
+        // timetable.  If this daily timetable has no such transition, return
+        // 'initialTransitionCode()'.  The behavior is undefined unless
+        // '24 > datetime.hour()', and either there are no transitions in this
         // 'Timetable_Day' or
-        // 'd_transition[0].datetime().date() == datetime.date()'.
+        // 'd_transitions[0].datetime().date() == datetime.date()'.
 };
 
 // FREE OPERATORS
 bool operator==(const Timetable_Day& lhs, const Timetable_Day& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' daily timetables have the
     // same value, and 'false' otherwise.  Two daily timetables have the same
-    // value if they have the same initial transition code, transitions, and
-    // each corresponding pair of transitions has the same transition code.
+    // value if they have the same initial transition code, the same number of
+    // transitions, and each corresponding pair of transitions has the same
+    // value.
 
 bool operator!=(const Timetable_Day& lhs, const Timetable_Day& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' daily timetables do not
     // have the same value, and 'false' otherwise.  Two daily timetables do not
     // have the same value if they do not have the same initial transition
-    // code, transitions, or, for at least one corresponding pair of
-    // transitions, do not have the same transition code.
+    // code, they do not have the same number of transitions, or there is a
+    // corresponding pair of transitions that do not have the same value.
 
 bool operator<(const Timetable_Day& lhs, const Timetable_Day& rhs);
-    // Return 'true' if the specified 'lhs' daily timetable is
-    // lexicographically less than the specified 'rhs' daily timetable, and
-    // 'false' otherwise.
+    // Return 'true' if the specified 'lhs' daily timetable is less than the
+    // specified 'rhs' daily timetable, and 'false' otherwise.  The 'lhs' daily
+    // timetable is less than the 'rhs' daily timetable if
+    // 'lhs.initialTransitionCode() < rhs.initialTransitionCode()', or
+    // 'lhs.initialTransitionCode() == rhs.initialTransitionCode()' and
+    // 'lhs.d_transitions < rhs.d_transitions'.
 
 // HASH SPECIALIZATIONS
 template <class HASHALG>
@@ -411,7 +444,7 @@ void hashAppend(HASHALG& hashAlg, const Timetable_Day& object);
                              // ===============
 
 class Timetable {
-    // This class implements a value-semantic repository of datetime indexed
+    // This class implements a value-semantic repository of datetime-indexed
     // state transitions over a *valid* *range* of dates.  This valid range,
     // '[firstDate() .. lastDate()]', spans the first and last dates of a
     // timetable's accessible contents.  A timetable can be "populated" with
@@ -440,22 +473,25 @@ class Timetable {
     friend bool operator!=(const Timetable&, const Timetable&);
 
     template <class HASHALG>
-    friend void hashAppend(HASHALG& hashAlg, const Timetable&);
+    friend void hashAppend(HASHALG&, const Timetable&);
 
   public:
     // CLASS DATA
-    static const int k_UNSET_TRANSITION_CODE =
-                                       Timetable_Day::k_UNSET_TRANSITION_CODE;
+    enum { k_UNSET_TRANSITION_CODE =
+                                TimetableTransition::k_UNSET_TRANSITION_CODE };
+                                            // value representing an unset
+                                            // transition code
 
     // TYPES
     typedef Timetable_ConstIterator const_iterator;
 
     // CREATORS
     explicit Timetable(bslma::Allocator *basicAllocator = 0);
-        // Create an empty timetable, i.e., a timetable having an empty valid
-        // range.  Optionally specify a 'basicAllocator' used to supply memory.
-        // If 'basicAllocator' is 0, the currently installed default allocator
-        // is used.
+        // Create an empty 'Timetable' (i.e., a timetable having no
+        // transitions) whose initial transition code is
+        // 'k_UNSET_TRANSITION_CODE'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     Timetable(
              const Date&       firstDate,
@@ -465,9 +501,12 @@ class Timetable {
         // Create a timetable having a valid range from the specified
         // 'firstDate' through the specified 'lastDate' and having the
         // optionally specified 'initialTransitionCode'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined unless 'firstDate <= lastDate'.
+        // 'basicAllocator' used to supply memory.  If 'initialTransitionCode'
+        // is not specified, the initial transition code is set to
+        // 'k_UNSET_TRANSITION_CODE'.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  The behavior is undefined
+        // unless 'firstDate <= lastDate', and '0 <= initialTransitionCode' or
+        // 'k_UNSET_TRANSITION_CODE == initialTransitionCode'.
 
     Timetable(const Timetable& original, bslma::Allocator *basicAllocator = 0);
         // Create a timetable having the value of the specified 'original'
@@ -484,64 +523,47 @@ class Timetable {
         // and return a reference providing modifiable access to this
         // timetable.
 
-    void addTransition(const Date& date, const Time& time, int transitionCode);
+    void addTransition(const Date& date, const Time& time, int code);
         // Add a transition on the specified 'date' at the specified 'time'
-        // having the specified 'transitionCode'.  If 'time' is already a
-        // transition point on 'date', replace the existing code with the
-        // provided 'transitionCode'.  The addition of a transition, but not
-        // the replacement of the code at the transition, invalidates all
-        // iterators.  The behavior is undefined unless '24 > time.hour()',
-        // 'date' is within the valid range of this timetable, and
-        // '0 <= transitionCode || k_UNSET_TRANSITION_CODE == transitionCode'.
-
-    void addTransition(const Datetime& datetime, int transitionCode);
-        // Add a transition at the specified 'datetime' having the specified
-        // 'transitionCode'.  If 'datetime' is already a transition point,
-        // replace the existing code with the provided 'transitionCode'.  The
-        // addition of a transition, but not the replacement of the code at the
-        // transition, invalidates all iterators.  The behavior is undefined
-        // unless '24 > datetime.hour()', 'datetime.date()' is within the valid
+        // having the specified 'code'.  If 'time' is already a transition
+        // point on 'date', replace the existing code with 'code'.  The
+        // addition of a transition, but not the replacement of the code of an
+        // existing transition, invalidates all iterators.  The behavior is
+        // undefined unless '24 > time.hour()', 'date' is within the valid
         // range of this timetable, and
-        // '0 <= transitionCode || k_UNSET_TRANSITION_CODE == transitionCode'.
+        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
-    void addTransition(const DayOfWeek::Enum& dayOfWeek,
-                       const Time&            time,
-                       int                    transitionCode,
-                       const Date&            firstDate,
-                       const Date&            lastDate);
+    void addTransition(const Datetime& datetime, int code);
+        // Add a transition at the specified 'datetime' having the specified
+        // 'code'.  If 'datetime' is already a transition point, replace the
+        // existing code with 'code'.  The addition of a transition, but not
+        // the replacement of the code of an existing transition, invalidates
+        // all iterators.  The behavior is undefined unless
+        // '24 > datetime.hour()', 'datetime.date()' is within the valid range
+        // of this timetable, and
+        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
+
+    void addTransitions(const DayOfWeek::Enum& dayOfWeek,
+                        const Time&            time,
+                        int                    code,
+                        const Date&            firstDate,
+                        const Date&            lastDate);
         // Add transitions that occur at the specified 'time', having the
-        // specified 'transitionCode', to all dates that are of the specified
-        // 'dayOfWeek' within the closed interval of dates from the specified
-        // 'firstDate' to the specified 'lastDate'.  For every date where this
-        // transition will occur, if 'time' is already a transition point,
-        // replace the existing code with the provided 'transitionCode'.  The
-        // addition of a transition, but not the replacement of the code at the
-        // transition, invalidates all iterators.  The behavior is undefined
-        // unless '24 > time.hour()', 'firstDate <= lastDate', 'firstDate' and
+        // specified 'code', to all dates that are of the specified 'dayOfWeek'
+        // within the closed interval of dates from the specified 'firstDate'
+        // to the specified 'lastDate'.  For every date where this transition
+        // will occur, if 'time' is already a transition point, replace the
+        // existing code with the provided 'code'.  The addition of a
+        // transition, but not the replacement of the code at the transition,
+        // invalidates all iterators.  The behavior is undefined unless
+        // '24 > time.hour()', 'firstDate <= lastDate', 'firstDate' and
         // 'lastDate' are within the valid range of this timetable, and
-        // '0 <= transitionCode || k_UNSET_TRANSITION_CODE == transitionCode'.
+        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
     void removeAll();
         // Remove all information from this timetable, leaving it with its
         // default constructed "empty" value.  The removal of a transition
         // invalidates all iterators.
-
-    void removeAllTransitions(const Date& date);
-        // Remove all transitions from the specified 'date'.  The removal of a
-        // transition invalidates all iterators.  The behavior is undefined
-        // unless 'date' is within the valid range of this timetable.
-
-    void removeTransition(const DayOfWeek::Enum& dayOfWeek,
-                          const Time&            time,
-                          const Date&            firstDate,
-                          const Date&            lastDate);
-        // Remove all transitions that occur at the specified 'time' to all
-        // dates that are of the specified 'dayOfWeek' within the closed
-        // interval of dates from the specified 'firstDate' to the specified
-        // 'lastDate'.  The removal of a transition invalidates all iterators.
-        // The behavior is undefined unless '24 > time.hour()',
-        // 'firstDate <= lastDate', and 'firstDate' and 'lastDate' are within
-        // the valid range of this timetable.
 
     void removeTransition(const Date& date, const Time& time);
         // If a transition occurs on the specified 'date' at the specified
@@ -558,10 +580,27 @@ class Timetable {
         // iterators.  The behavior is undefined unless '24 > datetime.hour()'
         // and 'datetime.date()' is within the valid range of this timetable.
 
-    void setInitialTransitionCode(int transitionCode);
+    void removeTransitions(const Date& date);
+        // Remove all transitions from the specified 'date'.  The removal of a
+        // transition invalidates all iterators.  The behavior is undefined
+        // unless 'date' is within the valid range of this timetable.
+
+    void removeTransitions(const DayOfWeek::Enum& dayOfWeek,
+                           const Time&            time,
+                           const Date&            firstDate,
+                           const Date&            lastDate);
+        // Remove all transitions that occur at the specified 'time' to all
+        // dates that are of the specified 'dayOfWeek' within the closed
+        // interval of dates from the specified 'firstDate' to the specified
+        // 'lastDate'.  The removal of a transition invalidates all iterators.
+        // The behavior is undefined unless '24 > time.hour()',
+        // 'firstDate <= lastDate', and 'firstDate' and 'lastDate' are within
+        // the valid range of this timetable.
+
+    void setInitialTransitionCode(int code);
         // Set the transition code in effect at the start of this timetable to
-        // the specified 'transitionCode'.  The behavior is undefined unless
-        // '0 <= transitionCode || k_UNSET_TRANSITION_CODE == transitionCode'.
+        // the specified 'code'.  The behavior is undefined unless
+        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
     void setValidRange(const Date& firstDate, const Date& lastDate);
         // Set the range of this timetable using the specified 'firstDate' and
@@ -594,7 +633,7 @@ class Timetable {
         // Return a reference providing non-modifiable access to the earliest
         // date in the valid range of this timetable.  The behavior is
         // undefined if this timetable does not have a valid range (i.e.,
-        // default constructed or constructed from a calendar not having a
+        // default constructed or constructed from a timetable not having a
         // valid range).
 
     int initialTransitionCode() const;
@@ -610,7 +649,7 @@ class Timetable {
         // Return a reference providing non-modifiable access to the latest
         // date in the valid range of this timetable.  The behavior is
         // undefined if this timetable does not have a valid range (i.e.,
-        // default constructed or constructed from a calendar not having a
+        // default constructed or constructed from a timetable not having a
         // valid range).
 
     int length() const;
@@ -619,18 +658,18 @@ class Timetable {
         // 'lastDate() - firstDate() + 1' otherwise.
 
     int transitionCodeInEffect(const Date& date, const Time& time) const;
-        // Return the transition code associated with the first transition that
-        // occurs on or before the specified 'date' at the specified 'time' in
-        // this timetable.  If this timetable has no such transition, return
-        // 'k_UNSET_TRANSITION_CODE'.  The behavior is undefined unless
+        // Return the transition code associated with the latest transition
+        // that occurs on or before the specified 'date' at the specified
+        // 'time' in this timetable.  If this timetable has no such transition,
+        // return 'initialTransitionCode()'.  The behavior is undefined unless
         // '24 > time.hour()' and 'date' is within the valid range of this
         // timetable.
 
     int transitionCodeInEffect(const Datetime& datetime) const;
-        // Return the transition code associated with the first transition that
-        // occurs on or before the specified 'datetime' in this timetable.  If
-        // this timetable has no such transition, return
-        // 'k_UNSET_TRANSITION_CODE'.  The behavior is undefined unless
+        // Return the transition code associated with the latest transition
+        // that occurs on or before the specified 'datetime' in this timetable.
+        // If this timetable has no such transition, return
+        // 'initialTransitionCode()'.  The behavior is undefined unless
         // '24 > datetime.hour()' and 'datetime.date()' is within the valid
         // range of this timetable.
 
@@ -696,14 +735,14 @@ class Timetable_ConstIterator {
     // to the transitions in a 'Timetable' object.
 
     // DATA
-    const Timetable *d_timetable_p;  // A pointer to the 'Timetable' into which
-                                     // this iterator references.
+    const Timetable *d_timetable_p;      // pointer to the 'Timetable' into
+                                         // which this iterator references
 
-    bsl::size_t      d_dayIndex;     // The index of the referenced day within
-                                     // the timetable.
+    bsl::size_t      d_dayIndex;         // index of the referenced daily
+                                         // timetable
 
-    bsl::size_t      d_timeIndex;    // The index of the referenced time on the
-                                     // referenced day within the timetable.
+    bsl::size_t      d_transitionIndex;  // index of the referenced transition
+                                         // in the referenced daily timetable
 
     // FRIENDS
     friend class Timetable;
@@ -717,10 +756,10 @@ class Timetable_ConstIterator {
     // PRIVATE CREATORS
     Timetable_ConstIterator(const Timetable& timetable,
                             bsl::size_t      dayIndex,
-                            bsl::size_t      timeIndex);
+                            bsl::size_t      transitionIndex);
         // Create a transition iterator for the specified 'timetable'.  This
-        // iterator references the time at the specified 'timeIndex' on the day
-        // at the specified 'dayIndex' in the 'timetable'.
+        // iterator references the time at the specified 'transitionIndex' on
+        // the day at the specified 'dayIndex' in the 'timetable'.
 
   public:
     // CREATORS
@@ -807,6 +846,10 @@ TimetableTransition::TimetableTransition(const Datetime& datetime, int code)
 : d_datetime(datetime)
 , d_code(code)
 {
+    BSLS_ASSERT_SAFE(24 > datetime.hour());
+
+    BSLS_ASSERT_SAFE(                         0 <= code
+                     || k_UNSET_TRANSITION_CODE == code);
 }
 
 // CREATORS
@@ -836,7 +879,7 @@ const Datetime& TimetableTransition::datetime() const
 }
 
 inline
-int TimetableTransition::transitionCode() const
+int TimetableTransition::code() const
 {
     return d_code;
 }
@@ -869,12 +912,16 @@ bool bdlt::operator<(const TimetableTransition& lhs,
 inline
 bool bdlt::operator<(const TimetableTransition& lhs, const Datetime& rhs)
 {
+    BSLS_ASSERT_SAFE(24 > rhs.hour());
+
     return lhs.d_datetime < rhs;
 }
 
 inline
 bool bdlt::operator<(const Datetime& lhs, const TimetableTransition& rhs)
 {
+    BSLS_ASSERT_SAFE(24 > lhs.hour());
+
     return lhs < rhs.d_datetime;
 }
 
@@ -891,15 +938,15 @@ void bdlt::hashAppend(HASHALG& hashAlg, const TimetableTransition& object)
 
 namespace bdlt {
 
-                           // --------------------
-                           // struct Timetable_Day
-                           // --------------------
+                           // -------------------
+                           // class Timetable_Day
+                           // -------------------
 
 // CREATORS
 inline
 Timetable_Day::Timetable_Day(bslma::Allocator *basicAllocator)
 : d_initialTransitionCode(k_UNSET_TRANSITION_CODE)
-, d_transition(basicAllocator)
+, d_transitions(basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 != basicAllocator);
 }
@@ -908,7 +955,7 @@ inline
 Timetable_Day::Timetable_Day(const Timetable_Day&  original,
                              bslma::Allocator     *basicAllocator)
 : d_initialTransitionCode(original.d_initialTransitionCode)
-, d_transition(original.d_transition, basicAllocator)
+, d_transitions(original.d_transitions, basicAllocator)
 {
     BSLS_ASSERT_SAFE(0 != basicAllocator);
 }
@@ -918,48 +965,19 @@ inline
 Timetable_Day& Timetable_Day::operator=(const Timetable_Day& rhs)
 {
     d_initialTransitionCode = rhs.d_initialTransitionCode;
-    d_transition            = rhs.d_transition;
+    d_transitions           = rhs.d_transitions;
 
     return *this;
 }
 
 inline
-bool Timetable_Day::setInitialTransitionCode(int transitionCode)
+bool Timetable_Day::setInitialTransitionCode(int code)
 {
-    bool rv = d_initialTransitionCode != transitionCode
-           && d_transition.empty();
+    bool rv = d_initialTransitionCode != code && d_transitions.empty();
 
-    d_initialTransitionCode = transitionCode;
+    d_initialTransitionCode = code;
 
     return rv;
-}
-
-inline
-bool Timetable_Day::addTransition(const Datetime& datetime, int transitionCode)
-{
-    BSLS_ASSERT_SAFE(24 > datetime.hour());
-
-    BSLS_ASSERT_SAFE(                                    0 <= transitionCode
-                     || Timetable::k_UNSET_TRANSITION_CODE == transitionCode);
-
-    BSLS_ASSERT_SAFE(   d_transition.empty()
-                     || d_transition[0].datetime().date() == datetime.date());
-
-    int code = finalTransitionCode();
-
-    bsl::vector<TimetableTransition>::iterator iter =
-                                         bsl::lower_bound(d_transition.begin(),
-                                                          d_transition.end(),
-                                                          datetime);
-    if (iter == d_transition.end() || iter->d_datetime != datetime) {
-        d_transition.insert(iter, TimetableTransition(datetime,
-                                                      transitionCode));
-    }
-    else {
-        iter->d_code = transitionCode;
-    }
-
-    return code != finalTransitionCode();
 }
 
 inline
@@ -967,31 +985,9 @@ bool Timetable_Day::removeAllTransitions()
 {
     int code = finalTransitionCode();
 
-    d_transition.clear();
+    d_transitions.clear();
 
     return code != d_initialTransitionCode;
-}
-
-inline
-bool Timetable_Day::removeTransition(const Datetime& datetime)
-{
-    BSLS_ASSERT_SAFE(   d_transition.empty()
-                     || d_transition[0].datetime().date() == datetime.date());
-
-    bsl::vector<TimetableTransition>::iterator iter =
-                                         bsl::lower_bound(d_transition.begin(),
-                                                          d_transition.end(),
-                                                          datetime);
-
-    if (iter == d_transition.end() || iter->d_datetime != datetime) {
-        return false;                                                 // RETURN
-    }
-
-    int code = finalTransitionCode();
-
-    d_transition.erase(iter);
-
-    return finalTransitionCode() != code;
 }
 
 // ACCESSORS
@@ -999,9 +995,9 @@ inline
 int Timetable_Day::finalTransitionCode() const
 {
     bsl::vector<TimetableTransition>::const_reverse_iterator iter =
-                                                         d_transition.rbegin();
+                                                        d_transitions.rbegin();
 
-    return iter != d_transition.rend()
+    return iter != d_transitions.rend()
          ? iter->d_code
          : d_initialTransitionCode;
 }
@@ -1015,31 +1011,7 @@ int Timetable_Day::initialTransitionCode() const
 inline
 bsl::size_t Timetable_Day::size() const
 {
-    return d_transition.size();
-}
-
-inline
-int Timetable_Day::transitionCodeInEffect(const Datetime& datetime) const
-{
-    BSLS_ASSERT_SAFE(24 > datetime.hour());
-
-    BSLS_ASSERT_SAFE(   d_transition.empty()
-                     || d_transition[0].datetime().date() == datetime.date());
-
-    bsl::vector<TimetableTransition>::const_iterator iter =
-                                         bsl::upper_bound(d_transition.begin(),
-                                                          d_transition.end(),
-                                                          datetime);
-    if (iter == d_transition.end()) {
-        return finalTransitionCode();                                 // RETURN
-    }
-    else if (iter == d_transition.begin()) {
-        return d_initialTransitionCode;                               // RETURN
-    }
-
-    --iter;
-
-    return iter->d_code;
+    return d_transitions.size();
 }
 
 }  // close package namespace
@@ -1049,14 +1021,14 @@ inline
 bool bdlt::operator==(const Timetable_Day& lhs, const Timetable_Day& rhs)
 {
     return lhs.d_initialTransitionCode == rhs.d_initialTransitionCode
-        && lhs.d_transition            == rhs.d_transition;
+        && lhs.d_transitions           == rhs.d_transitions;
 }
 
 inline
 bool bdlt::operator!=(const Timetable_Day& lhs, const Timetable_Day& rhs)
 {
     return lhs.d_initialTransitionCode != rhs.d_initialTransitionCode
-        || lhs.d_transition            != rhs.d_transition;
+        || lhs.d_transitions           != rhs.d_transitions;
 }
 
 inline
@@ -1064,7 +1036,7 @@ bool bdlt::operator<(const Timetable_Day& lhs, const Timetable_Day& rhs)
 {
     return lhs.d_initialTransitionCode < rhs.d_initialTransitionCode
         || (   lhs.d_initialTransitionCode == rhs.d_initialTransitionCode
-            && lhs.d_transition < rhs.d_transition);
+            && lhs.d_transitions < rhs.d_transitions);
 }
 
 // HASH SPECIALIZATIONS
@@ -1075,7 +1047,7 @@ void bdlt::hashAppend(HASHALG& hashAlg, const Timetable_Day& object)
     using ::BloombergLP::bslh::hashAppend;
 
     hashAppend(hashAlg, object.d_initialTransitionCode);
-    hashAppend(hashAlg, object.d_transition);
+    hashAppend(hashAlg, object.d_transitions);
 }
 
 namespace bdlt {
@@ -1094,11 +1066,9 @@ Timetable& Timetable::operator=(const Timetable& rhs)
 }
 
 inline
-void Timetable::addTransition(const Date& date,
-                              const Time& time,
-                              int         transitionCode)
+void Timetable::addTransition(const Date& date, const Time& time, int code)
 {
-    addTransition(Datetime(date, time), transitionCode);
+    addTransition(Datetime(date, time), code);
 }
 
 inline
@@ -1136,18 +1106,6 @@ void Timetable::swap(Timetable& other)
 }
 
 // ACCESSORS
-inline
-Timetable::const_iterator Timetable::begin() const
-{
-    bsl::size_t dayIndex = 0;
-
-    while (dayIndex < d_timetable.length()
-        && 0 == d_timetable[dayIndex].size()) {
-        ++dayIndex;
-    }
-    return Timetable_ConstIterator(*this, dayIndex, 0);
-}
-
 inline
 Timetable::const_iterator Timetable::end() const
 {
@@ -1271,12 +1229,13 @@ namespace bdlt {
 
 // PRIVATE CREATORS
 inline
-Timetable_ConstIterator::Timetable_ConstIterator(const Timetable& timetable,
-                                                 bsl::size_t      dayIndex,
-                                                 bsl::size_t      timeIndex)
+Timetable_ConstIterator::Timetable_ConstIterator(
+                                              const Timetable& timetable,
+                                              bsl::size_t      dayIndex,
+                                              bsl::size_t      transitionIndex)
 : d_timetable_p(&timetable)
 , d_dayIndex(dayIndex)
-, d_timeIndex(timeIndex)
+, d_transitionIndex(transitionIndex)
 {
 }
 
@@ -1285,7 +1244,7 @@ inline
 Timetable_ConstIterator::Timetable_ConstIterator()
 : d_timetable_p(0)
 , d_dayIndex(0)
-, d_timeIndex(0)
+, d_transitionIndex(0)
 {
 }
 
@@ -1294,7 +1253,7 @@ Timetable_ConstIterator::Timetable_ConstIterator(
                                        const Timetable_ConstIterator& original)
 : d_timetable_p(original.d_timetable_p)
 , d_dayIndex(original.d_dayIndex)
-, d_timeIndex(original.d_timeIndex)
+, d_transitionIndex(original.d_transitionIndex)
 {
 }
 
@@ -1303,48 +1262,9 @@ inline
 Timetable_ConstIterator& Timetable_ConstIterator::
                                   operator=(const Timetable_ConstIterator& rhs)
 {
-    d_timetable_p = rhs.d_timetable_p;
-    d_dayIndex    = rhs.d_dayIndex;
-    d_timeIndex   = rhs.d_timeIndex;
-
-    return *this;
-}
-
-inline
-Timetable_ConstIterator& Timetable_ConstIterator::operator++()
-{
-    BSLS_ASSERT_SAFE(d_dayIndex < d_timetable_p->d_timetable.length());
-
-    ++d_timeIndex;
-    while (d_dayIndex < d_timetable_p->d_timetable.length()
-        && d_timeIndex == d_timetable_p->d_timetable[d_dayIndex].size()) {
-        d_timeIndex = 0;
-        ++d_dayIndex;
-    }
-
-    return *this;
-}
-
-inline
-Timetable_ConstIterator& Timetable_ConstIterator::operator--()
-{
-    BSLS_ASSERT_SAFE(0 < d_dayIndex || 0 < d_timeIndex);
-
-    if (d_timeIndex) {
-        --d_timeIndex;
-    }
-    else {
-        --d_dayIndex;
-
-        while (d_dayIndex
-            && 0 == d_timetable_p->d_timetable[d_dayIndex].size()) {
-            --d_dayIndex;
-        }
-
-        BSLS_ASSERT_SAFE(0 < d_timetable_p->d_timetable[d_dayIndex].size());
-
-        d_timeIndex = d_timetable_p->d_timetable[d_dayIndex].size() - 1;
-    }
+    d_timetable_p     = rhs.d_timetable_p;
+    d_dayIndex        = rhs.d_dayIndex;
+    d_transitionIndex = rhs.d_transitionIndex;
 
     return *this;
 }
@@ -1357,7 +1277,8 @@ const TimetableTransition& Timetable_ConstIterator::operator*() const
     BSLS_ASSERT_SAFE(d_dayIndex
                           < static_cast<bsl::size_t>(d_timetable_p->length()));
 
-    return d_timetable_p->d_timetable[d_dayIndex].d_transition[d_timeIndex];
+    return d_timetable_p->d_timetable[d_dayIndex].d_transitions[
+                                                            d_transitionIndex];
 }
 
 inline
@@ -1367,7 +1288,8 @@ const TimetableTransition *Timetable_ConstIterator::operator->() const
     BSLS_ASSERT_SAFE(d_dayIndex
                           < static_cast<bsl::size_t>(d_timetable_p->length()));
 
-    return &d_timetable_p->d_timetable[d_dayIndex].d_transition[d_timeIndex];
+    return &d_timetable_p->d_timetable[d_dayIndex].d_transitions[
+                                                            d_transitionIndex];
 }
 
 }  // close package namespace
@@ -1397,18 +1319,18 @@ inline
 bool bdlt::operator==(const Timetable_ConstIterator& lhs,
                       const Timetable_ConstIterator& rhs)
 {
-    return lhs.d_timetable_p == rhs.d_timetable_p
-        && lhs.d_dayIndex    == rhs.d_dayIndex
-        && lhs.d_timeIndex   == rhs.d_timeIndex;
+    return lhs.d_timetable_p     == rhs.d_timetable_p
+        && lhs.d_dayIndex        == rhs.d_dayIndex
+        && lhs.d_transitionIndex == rhs.d_transitionIndex;
 }
 
 inline
 bool bdlt::operator!=(const Timetable_ConstIterator& lhs,
                       const Timetable_ConstIterator& rhs)
 {
-    return lhs.d_timetable_p != rhs.d_timetable_p
-        || lhs.d_dayIndex    != rhs.d_dayIndex
-        || lhs.d_timeIndex   != rhs.d_timeIndex;
+    return lhs.d_timetable_p     != rhs.d_timetable_p
+        || lhs.d_dayIndex        != rhs.d_dayIndex
+        || lhs.d_transitionIndex != rhs.d_transitionIndex;
 }
 
 }  // close enterprise namespace

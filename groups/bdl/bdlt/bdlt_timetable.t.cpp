@@ -40,7 +40,7 @@ using namespace bsl;
 // corresponding pair of transitions has the same transition code.
 //
 // We have chosen the primary manipulators for 'bdlt::Timetable' to be
-// 'addTransition(const Datetime& datetime, int transitionCode)',
+// 'addTransition(const Datetime& datetime, int code)',
 // 'setInitialTransitionCode', 'setValidRange', and 'removeAll'.
 //
 // We have chosen the basic accessors for 'bdlt::Timetable' to be 'allocator',
@@ -74,15 +74,15 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 9] Timetable& operator=(const Timetable& rhs);
-// [13] void addTransition(date, time, transitionCode);
-// [ 2] void addTransition(const Datetime& datetime, int transitionCode);
-// [13] void addTransition(dow, time, code, firstDate, lastDate);
+// [13] void addTransition(date, time, code);
+// [ 2] void addTransition(const Datetime& datetime, int code);
+// [13] void addTransitions(dow, time, code, firstDate, lastDate);
 // [ 2] void removeAll();
-// [14] void removeAllTransitions(const Date& date);
-// [15] void removeTransition(dayOfWeek, time, firstDate, lastDate);
 // [15] void removeTransition(const Date& date, const Time& time);
 // [15] void removeTransition(const Datetime& datetime);
-// [ 2] void setInitialTransitionCode(int transitionCode);
+// [14] void removeTransitions(const Date& date);
+// [15] void removeTransitions(dayOfWeek, time, firstDate, lastDate);
+// [ 2] void setInitialTransitionCode(int code);
 // [ 2] void setValidRange(const Date& firstDate, const Date& lastDate);
 // [ 8] void swap(Timetable& other);
 //
@@ -423,6 +423,7 @@ int parseTransition(const char     **endPos,
 }
 
 int ggg(Obj *object, const char *spec, bool verboseFlag = true)
+    // TBD
     // Configure the specified 'object' according to the specified 'spec',
     // using only the primary manipulators 'addDay', 'addHoliday',
     // 'addHolidayCode', 'addWeekendDay', and 'addWeekendDaysTransition'.
@@ -642,24 +643,24 @@ int main(int argc, char *argv[])
     timetable.setInitialTransitionCode(NO_TRADING);
 
     for (int i = 0; i < 5; ++ i) {
-        timetable.addTransition(static_cast<bdlt::DayOfWeek::Enum>(
+        timetable.addTransitions(static_cast<bdlt::DayOfWeek::Enum>(
                                                    bdlt::DayOfWeek::e_MON + i),
-                                bdlt::Time(8, 30),
-                                TRADING,
-                                timetable.firstDate(),
-                                timetable.lastDate());
+                                 bdlt::Time(8, 30),
+                                 TRADING,
+                                 timetable.firstDate(),
+                                 timetable.lastDate());
 
-        timetable.addTransition(static_cast<bdlt::DayOfWeek::Enum>(
+        timetable.addTransitions(static_cast<bdlt::DayOfWeek::Enum>(
                                                    bdlt::DayOfWeek::e_MON + i),
-                                bdlt::Time(16, 30),
-                                NO_TRADING,
-                                timetable.firstDate(),
-                                timetable.lastDate());
+                                 bdlt::Time(16, 30),
+                                 NO_TRADING,
+                                 timetable.firstDate(),
+                                 timetable.lastDate());
     }
 //..
 // Next, we add a holiday on January 19, 2018:
 //..
-    timetable.removeAllTransitions(bdlt::Date(2018, 1, 19));
+    timetable.removeTransitions(bdlt::Date(2018, 1, 19));
 //..
 // Then, we add a half-day on November 23, 2018:
 //..
@@ -792,7 +793,7 @@ int main(int argc, char *argv[])
         //   bool operator==(const TCI& lhs, const TCI& rhs);
         //   bool operator!=(const TCI& lhs, const TCI& rhs);
         //   const Datetime& TT:datetime() const;
-        //   int TT:transitionCode() const;
+        //   int TT:code() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -907,8 +908,7 @@ int main(int argc, char *argv[])
                     BEFORE.addTime(0, 0, 0, 0, -1);
 
                     LOOP_ASSERT(i, *iter == *iter.operator->());
-                    LOOP_ASSERT(i, iter->transitionCode()
-                                                   == X.transitionCodeInEffect(
+                    LOOP_ASSERT(i, iter->code() == X.transitionCodeInEffect(
                                                             iter->datetime()));
                     LOOP_ASSERT(i, previousTransitionCode
                                           == X.transitionCodeInEffect(BEFORE));
@@ -961,14 +961,14 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(iter.operator->());
 
             iter = X.begin();
-            ASSERT_SAFE_PASS(++iter);
-            ASSERT_SAFE_PASS(--iter);
-            ASSERT_SAFE_FAIL(--iter);
+            ASSERT_PASS(++iter);
+            ASSERT_PASS(--iter);
+            ASSERT_FAIL(--iter);
 
             iter = X.end();
-            ASSERT_SAFE_PASS(--iter);
-            ASSERT_SAFE_PASS(++iter);
-            ASSERT_SAFE_FAIL(++iter);
+            ASSERT_PASS(--iter);
+            ASSERT_PASS(++iter);
+            ASSERT_FAIL(++iter);
 
             iter = X.begin();
             ASSERT_SAFE_PASS(*iter);
@@ -996,9 +996,9 @@ int main(int argc, char *argv[])
         //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
-        //   void removeTransition(dayOfWeek, time, firstDate, lastDate);
         //   void removeTransition(const Date& date, const Time& time);
         //   void removeTransition(const Datetime& datetime);
+        //   void removeTransitions(dayOfWeek, time, firstDate, lastDate);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1116,7 +1116,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'removeTransition(dow, t, f, l)'." << endl;
+            cout << "\nTesting 'removeTransitions(dow, t, f, l)'." << endl;
         }
         {
             const char *spec = "!20180101_20180131 0@20180105_1217"
@@ -1124,18 +1124,18 @@ int main(int argc, char *argv[])
 
             Obj mX;  const Obj& X = gg(&mX, spec);
 
-            mX.addTransition(bdlt::DayOfWeek::e_MONDAY,
-                             bdlt::Time(12, 34),
-                             3,
-                             bdlt::Date(2018, 1,  1),
-                             bdlt::Date(2018, 1, 31));
+            mX.addTransitions(bdlt::DayOfWeek::e_MONDAY,
+                              bdlt::Time(12, 34),
+                              3,
+                              bdlt::Date(2018, 1,  1),
+                              bdlt::Date(2018, 1, 31));
 
             Obj mY(X);  const Obj& Y = mY;
 
-            mX.removeTransition(bdlt::DayOfWeek::e_MONDAY,
-                                bdlt::Time(12, 34),
-                                bdlt::Date(2018, 1,  1),
-                                bdlt::Date(2018, 1, 31));
+            mX.removeTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                 bdlt::Time(12, 34),
+                                 bdlt::Date(2018, 1,  1),
+                                 bdlt::Date(2018, 1, 31));
 
             mY.removeTransition(bdlt::Date(2018, 1,  1),
                                 bdlt::Time(12, 34));
@@ -1156,18 +1156,18 @@ int main(int argc, char *argv[])
 
             Obj mX;  const Obj& X = gg(&mX, spec);
 
-            mX.addTransition(bdlt::DayOfWeek::e_WEDNESDAY,
-                             bdlt::Time(12, 34),
-                             3,
-                             bdlt::Date(2018, 1,  1),
-                             bdlt::Date(2018, 1, 31));
+            mX.addTransitions(bdlt::DayOfWeek::e_WEDNESDAY,
+                              bdlt::Time(12, 34),
+                              3,
+                              bdlt::Date(2018, 1,  1),
+                              bdlt::Date(2018, 1, 31));
 
             Obj mY(X);  const Obj& Y = mY;
 
-            mX.removeTransition(bdlt::DayOfWeek::e_WEDNESDAY,
-                                bdlt::Time(12, 34),
-                                bdlt::Date(2018, 1, 16),
-                                bdlt::Date(2018, 1, 31));
+            mX.removeTransitions(bdlt::DayOfWeek::e_WEDNESDAY,
+                                 bdlt::Time(12, 34),
+                                 bdlt::Date(2018, 1, 16),
+                                 bdlt::Date(2018, 1, 31));
 
             mY.removeTransition(bdlt::Date(2018, 1, 17),
                                 bdlt::Time(12, 34));
@@ -1197,31 +1197,31 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(mX.removeTransition(bdlt::Date(2017, 1, 1),
                                             bdlt::Time(1)));
 
-            ASSERT_PASS(mX.removeTransition(bdlt::DayOfWeek::e_MONDAY,
-                                            bdlt::Time(1),
-                                            bdlt::Date(2018, 1, 1),
-                                            bdlt::Date(2018, 1, 2)));
-            ASSERT_FAIL(mX.removeTransition(bdlt::DayOfWeek::e_MONDAY,
-                                            bdlt::Time(24),
-                                            bdlt::Date(2018, 1, 1),
-                                            bdlt::Date(2018, 1, 2)));
-            ASSERT_FAIL(mX.removeTransition(bdlt::DayOfWeek::e_MONDAY,
-                                            bdlt::Time(1),
-                                            bdlt::Date(2018, 1, 2),
-                                            bdlt::Date(2018, 1, 1)));
-            ASSERT_FAIL(mX.removeTransition(bdlt::DayOfWeek::e_MONDAY,
-                                            bdlt::Time(1),
-                                            bdlt::Date(2017, 1, 1),
-                                            bdlt::Date(2018, 1, 2)));
-            ASSERT_FAIL(mX.removeTransition(bdlt::DayOfWeek::e_MONDAY,
-                                            bdlt::Time(1),
-                                            bdlt::Date(2018, 1, 1),
-                                            bdlt::Date(2019, 1, 2)));
+            ASSERT_PASS(mX.removeTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                             bdlt::Time(1),
+                                             bdlt::Date(2018, 1, 1),
+                                             bdlt::Date(2018, 1, 2)));
+            ASSERT_FAIL(mX.removeTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                             bdlt::Time(24),
+                                             bdlt::Date(2018, 1, 1),
+                                             bdlt::Date(2018, 1, 2)));
+            ASSERT_FAIL(mX.removeTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                             bdlt::Time(1),
+                                             bdlt::Date(2018, 1, 2),
+                                             bdlt::Date(2018, 1, 1)));
+            ASSERT_FAIL(mX.removeTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                             bdlt::Time(1),
+                                             bdlt::Date(2017, 1, 1),
+                                             bdlt::Date(2018, 1, 2)));
+            ASSERT_FAIL(mX.removeTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                             bdlt::Time(1),
+                                             bdlt::Date(2018, 1, 1),
+                                             bdlt::Date(2019, 1, 2)));
         }
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'removeAllTransitions(const Date& date)'
+        // TESTING 'removeTransitions(const Date& date)'
         //   The manipulator operates as expected.
         //
         // Concerns:
@@ -1237,19 +1237,19 @@ int main(int argc, char *argv[])
         //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
-        //   void removeAllTransitions(const Date& date);
+        //   void removeTransitions(const Date& date);
         // --------------------------------------------------------------------
 
         if (verbose) {
             cout << endl
-                 << "TESTING 'removeAllTransitions(const Date& date)'"
+                 << "TESTING 'removeTransitions(const Date& date)'"
                  << endl
                  << "================================================"
                  << endl;
         }
 
         if (verbose) {
-            cout << "\nTesting 'removeAllTransitions(const Date& date)'."
+            cout << "\nTesting 'removeTransitions(const Date& date)'."
                  << endl;
         }
         {
@@ -1259,7 +1259,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = gg(&mX, specX);
             Obj mY;  const Obj& Y = gg(&mY, specY);
 
-            mX.removeAllTransitions(bdlt::Date(2017, 12, 26));
+            mX.removeTransitions(bdlt::Date(2017, 12, 26));
 
             ASSERT(X == Y);
         }
@@ -1270,7 +1270,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = gg(&mX, specX);
             Obj mY;  const Obj& Y = gg(&mY, specY);
 
-            mX.removeAllTransitions(bdlt::Date(2017, 12, 26));
+            mX.removeTransitions(bdlt::Date(2017, 12, 26));
 
             ASSERT(X == Y);
         }
@@ -1282,7 +1282,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = gg(&mX, specX);
             Obj mY;  const Obj& Y = gg(&mY, specY);
 
-            mX.removeAllTransitions(bdlt::Date(2017, 12, 26));
+            mX.removeTransitions(bdlt::Date(2017, 12, 26));
 
             ASSERT(X == Y);
         }
@@ -1295,7 +1295,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = gg(&mX, specX);
             Obj mY;  const Obj& Y = gg(&mY, specY);
 
-            mX.removeAllTransitions(bdlt::Date(2017, 12, 27));
+            mX.removeTransitions(bdlt::Date(2017, 12, 27));
 
             ASSERT(X == Y);
         }
@@ -1307,13 +1307,13 @@ int main(int argc, char *argv[])
 
             Obj mX;  ggg(&mX, "!20180101_20180131");
 
-            ASSERT_PASS(mX.removeAllTransitions(bdlt::Date(2018, 1, 1)));
-            ASSERT_FAIL(mX.removeAllTransitions(bdlt::Date(2019, 1, 1)));
+            ASSERT_PASS(mX.removeTransitions(bdlt::Date(2018, 1, 1)));
+            ASSERT_FAIL(mX.removeTransitions(bdlt::Date(2019, 1, 1)));
         }
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING 'addTransition(d, t, c)' & 'addTransition(dow, t, c, f, l)'
+        // TESTING 'addTransition(d, t, c)' & 'addTransitions(dow, t, c, f, l)'
         //   The manipulators operate as expected.
         //
         // Concerns:
@@ -1329,14 +1329,14 @@ int main(int argc, char *argv[])
         //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
         //
         // Testing:
-        //   void addTransition(date, time, transitionCode);
-        //   void addTransition(dow, time, code, firstDate, lastDate);
+        //   void addTransition(date, time, code);
+        //   void addTransitions(dow, time, code, firstDate, lastDate);
         // --------------------------------------------------------------------
 
         if (verbose) {
             cout << endl
                  << "TESTING 'addTransition(d, t, c)' & "
-                 << "'addTransition(dow, t, c, f, l)'"
+                 << "'addTransitions(dow, t, c, f, l)'"
                  << endl
                  << "==================================="
                  << "================================"
@@ -1379,11 +1379,11 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = gg(&mX, specX);
             Obj mY;  const Obj& Y = gg(&mY, specY);
 
-            mX.addTransition(bdlt::DayOfWeek::e_MONDAY,
-                             bdlt::Time(11, 15),
-                             0,
-                             bdlt::Date(2018, 1,  1),
-                             bdlt::Date(2018, 1, 31));
+            mX.addTransitions(bdlt::DayOfWeek::e_MONDAY,
+                              bdlt::Time(11, 15),
+                              0,
+                              bdlt::Date(2018, 1,  1),
+                              bdlt::Date(2018, 1, 31));
 
             ASSERT(X == Y);
         }
@@ -1396,11 +1396,11 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = gg(&mX, specX);
             Obj mY;  const Obj& Y = gg(&mY, specY);
 
-            mX.addTransition(bdlt::DayOfWeek::e_MONDAY,
-                             bdlt::Time(11, 15),
-                             0,
-                             bdlt::Date(2018, 1,  2),
-                             bdlt::Date(2018, 1, 29));
+            mX.addTransitions(bdlt::DayOfWeek::e_MONDAY,
+                              bdlt::Time(11, 15),
+                              0,
+                              bdlt::Date(2018, 1,  2),
+                              bdlt::Date(2018, 1, 29));
 
             ASSERT(X == Y);
         }
@@ -1411,11 +1411,11 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = gg(&mX, specX);
             Obj mY;  const Obj& Y = gg(&mY, specY);
 
-            mX.addTransition(bdlt::DayOfWeek::e_MONDAY,
-                             bdlt::Time(11, 15),
-                             0,
-                             bdlt::Date(2018, 1, 2),
-                             bdlt::Date(2018, 1, 5));
+            mX.addTransitions(bdlt::DayOfWeek::e_MONDAY,
+                              bdlt::Time(11, 15),
+                              0,
+                              bdlt::Date(2018, 1, 2),
+                              bdlt::Date(2018, 1, 5));
 
             ASSERT(X == Y);
         }
@@ -1443,41 +1443,41 @@ int main(int argc, char *argv[])
                                          bdlt::Time(1),
                                          -2));
 
-            ASSERT_PASS(mX.addTransition(bdlt::DayOfWeek::e_MONDAY,
-                                         bdlt::Time(1),
-                                         0,
-                                         bdlt::Date(2018, 01, 01),
-                                         bdlt::Date(2018, 01, 03)));
-            ASSERT_PASS(mX.addTransition(bdlt::DayOfWeek::e_MONDAY,
-                                         bdlt::Time(1),
-                                         Obj::k_UNSET_TRANSITION_CODE,
-                                         bdlt::Date(2018, 01, 01),
-                                         bdlt::Date(2018, 01, 03)));
-            ASSERT_FAIL(mX.addTransition(bdlt::DayOfWeek::e_MONDAY,
-                                         bdlt::Time(24),
-                                         0,
-                                         bdlt::Date(2018, 01, 01),
-                                         bdlt::Date(2018, 01, 03)));
-            ASSERT_FAIL(mX.addTransition(bdlt::DayOfWeek::e_MONDAY,
-                                         bdlt::Time(1),
-                                         0,
-                                         bdlt::Date(2018, 01, 03),
-                                         bdlt::Date(2018, 01, 01)));
-            ASSERT_FAIL(mX.addTransition(bdlt::DayOfWeek::e_MONDAY,
-                                         bdlt::Time(1),
-                                         0,
-                                         bdlt::Date(2017, 01, 01),
-                                         bdlt::Date(2018, 01, 03)));
-            ASSERT_FAIL(mX.addTransition(bdlt::DayOfWeek::e_MONDAY,
-                                         bdlt::Time(1),
-                                         0,
-                                         bdlt::Date(2018, 01, 01),
-                                         bdlt::Date(2019, 01, 03)));
-            ASSERT_FAIL(mX.addTransition(bdlt::DayOfWeek::e_MONDAY,
-                                         bdlt::Time(1),
-                                         -2,
-                                         bdlt::Date(2018, 01, 01),
-                                         bdlt::Date(2018, 01, 03)));
+            ASSERT_PASS(mX.addTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                          bdlt::Time(1),
+                                          0,
+                                          bdlt::Date(2018, 01, 01),
+                                          bdlt::Date(2018, 01, 03)));
+            ASSERT_PASS(mX.addTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                          bdlt::Time(1),
+                                          Obj::k_UNSET_TRANSITION_CODE,
+                                          bdlt::Date(2018, 01, 01),
+                                          bdlt::Date(2018, 01, 03)));
+            ASSERT_FAIL(mX.addTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                          bdlt::Time(24),
+                                          0,
+                                          bdlt::Date(2018, 01, 01),
+                                          bdlt::Date(2018, 01, 03)));
+            ASSERT_FAIL(mX.addTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                          bdlt::Time(1),
+                                          0,
+                                          bdlt::Date(2018, 01, 03),
+                                          bdlt::Date(2018, 01, 01)));
+            ASSERT_FAIL(mX.addTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                          bdlt::Time(1),
+                                          0,
+                                          bdlt::Date(2017, 01, 01),
+                                          bdlt::Date(2018, 01, 03)));
+            ASSERT_FAIL(mX.addTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                          bdlt::Time(1),
+                                          0,
+                                          bdlt::Date(2018, 01, 01),
+                                          bdlt::Date(2019, 01, 03)));
+            ASSERT_FAIL(mX.addTransitions(bdlt::DayOfWeek::e_MONDAY,
+                                          bdlt::Time(1),
+                                          -2,
+                                          bdlt::Date(2018, 01, 01),
+                                          bdlt::Date(2018, 01, 03)));
         }
       } break;
       case 12: {
@@ -3429,7 +3429,7 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS TEST
         //   The basic concern is that the default constructor, the destructor,
         //   and the primary manipulators:
-        //      - addTransition(const Datetime& datetime, int transitionCode)
+        //      - addTransition(const Datetime& datetime, int code)
         //      - removeAll
         //      - setValidRange
         //   operate as expected.
@@ -3439,7 +3439,7 @@ int main(int argc, char *argv[])
         //:     a. creates an object with the expected value
         //:     b. properly wires the optionally-specified allocator
         //:
-        //: 2 That 'addTransition(datetime, transitionCode)'
+        //: 2 That 'addTransition(datetime, code)'
         //:     a. properly handles duplicates
         //:     b. is exception-neutral
         //:
@@ -3480,9 +3480,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   Timetable(bslma::Allocator *basicAllocator = 0);
         //   ~Timetable();
-        //   void addTransition(const Datetime& datetime, int transitionCode);
+        //   void addTransition(const Datetime& datetime, int code);
         //   void removeAll();
-        //   void setInitialTransitionCode(int transitionCode);
+        //   void setInitialTransitionCode(int code);
         //   void setValidRange(const Date& firstDate, const Date& lastDate);
         // --------------------------------------------------------------------
 
@@ -3599,7 +3599,7 @@ int main(int argc, char *argv[])
                 ASSERT(1 == X.transitionCodeInEffect(
                                                bdlt::Datetime(X.lastDate())));
 
-                // Remove from the begining of the range.
+                // Remove from the beginning of the range.
 
                 mX.setValidRange(bdlt::Date(2018, 1, 5),
                                  bdlt::Date(2018, 1, 7));
@@ -3692,7 +3692,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\nTesting 'addTransition(datetime, transitionCode)'."
+            cout << "\nTesting 'addTransition(datetime, code)'."
                  << endl;
         }
         {
