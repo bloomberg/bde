@@ -216,7 +216,10 @@ class Formatter {
         // used.
 
     ~Formatter();
-        // Destroy this object.
+        // Destroy this object.  The behavior is undefined unless each call to
+        // 'openObject', 'openArray', and 'openMember' made on this object was
+        // matched with a corresponding call to 'closeObject', 'closeArray',
+        // and 'closeMember'.
 
     // MANIPULATORS
     void openObject();
@@ -227,7 +230,8 @@ class Formatter {
     void closeObject();
         // Print onto the stream supplied at construction the sequence of
         // characters designating the end of an object (referred to as an
-        // "object" in JSON).
+        // "object" in JSON).  The behavior is undefined unless this
+        // 'Formatter' is currently formatting an object.
 
     void openArray(bool formatAsEmptyArray = false);
         // Print onto the stream supplied at construction the sequence of
@@ -245,9 +249,11 @@ class Formatter {
         // "array" in JSON).  Optionally specify 'formatAsEmptyArray' denoting
         // if the array being closed should be formatted as an empty array.  If
         // 'formatAsEmptyArray' is not specified then the array being closed is
-        // formatted as an array having elements.  Note that the formatting
-        // (and as a consequence the 'formatAsEmptyArray') is relevant only if
-        // this formatter encodes in the pretty style and is ignored otherwise.
+        // formatted as an array having elements.  The behavior is undefined
+        // unless this 'Formatter' is currently formatting an array.  Note that
+        // the formatting (and as a consequence the 'formatAsEmptyArray') is
+        // relevant only if this formatter encodes in the pretty style and is
+        // ignored otherwise.
 
     int openMember(const bsl::string& name);
         // Print onto the stream supplied at construction the sequence of
@@ -269,7 +275,8 @@ class Formatter {
     void closeMember();
         // Print onto the stream supplied at construction the sequence of
         // characters designating the end of an member (referred to as a
-        // "name/value pair" in JSON).
+        // "name/value pair" in JSON).  The behavior is undefined unless this
+        // 'Formatter' is currently formatting a member.
 };
 
 // ============================================================================
