@@ -167,7 +167,7 @@ namespace bsl {
     using native_std::extent;
 
     // 20.10.6, type relations:
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_IS_BASE_OF
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     using native_std::is_base_of;
 #endif
 
