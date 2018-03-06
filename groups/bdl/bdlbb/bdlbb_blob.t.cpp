@@ -185,7 +185,7 @@ void checkNoAliasedBlobBuffers(const bdlbb::Blob& blob)
             for (int j = 0; j < blob.buffer(i).size(); ++j) {
                 blob.buffer(i).data()[j] = ++filler;
             }
-            filler += jump;
+            filler += static_cast<char>(jump);
         }
         // Compare in forward order.
         filler = 0;
@@ -193,7 +193,7 @@ void checkNoAliasedBlobBuffers(const bdlbb::Blob& blob)
             for (int j = 0; j < blob.buffer(i).size(); ++j) {
                 ASSERT(blob.buffer(i).data()[j] == ++filler);
             }
-            filler += jump;
+            filler += static_cast<char>(jump);
         }
     }
 }
@@ -553,7 +553,8 @@ void prependProlog(bdlbb::Blob        *blob,
     bslx::MarshallingUtil::putInt32(prologBuffer.data(), prologLength);
     bsl::memcpy(
         prologBuffer.data() + sizeof(int), prolog.c_str(), prologLength);
-    BSLS_ASSERT(prologBuffer.size() == prologLength + sizeof(int));
+    BSLS_ASSERT(prologBuffer.size() == static_cast<size_t>(prologLength) +
+                                                                  sizeof(int));
 
     blob->prependDataBuffer(prologBuffer);
 }
@@ -1399,7 +1400,7 @@ int main(int argc, char *argv[])
                             fa.allocate(&src);
                             ASSERT(BUFFER_SIZE == src.size());
 
-                            const char srcChar = 'A' + i;
+                            const char srcChar = static_cast<char>('A' + i);
                             bsl::memset(src.data(), srcChar, src.size());
                             ASSERT(compareBlobBufferData(src, srcChar));
 
