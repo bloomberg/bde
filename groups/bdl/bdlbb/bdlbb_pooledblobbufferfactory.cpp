@@ -10,16 +10,16 @@
 #include <bdlbb_pooledblobbufferfactory.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlbb_pooledblobbufferfactory_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlbb_pooledblobbufferfactory_cpp, "$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
 namespace BloombergLP {
 namespace bdlbb {
 
-                      // -----------------------------
-                      // class PooledBlobBufferFactory
-                      // -----------------------------
+                       // -----------------------------
+                       // class PooledBlobBufferFactory
+                       // -----------------------------
 
 // CREATORS
 PooledBlobBufferFactory::PooledBlobBufferFactory(
@@ -32,9 +32,9 @@ PooledBlobBufferFactory::PooledBlobBufferFactory(
 }
 
 PooledBlobBufferFactory::PooledBlobBufferFactory(
-                                int                          bufferSize,
-                                bsls::BlockGrowth::Strategy  growthStrategy,
-                                bslma::Allocator            *basicAllocator)
+                                   int                          bufferSize,
+                                   bsls::BlockGrowth::Strategy  growthStrategy,
+                                   bslma::Allocator            *basicAllocator)
 : d_bufferSize(bufferSize)
 , d_spPool(growthStrategy, basicAllocator)
 {
@@ -60,7 +60,7 @@ PooledBlobBufferFactory::~PooledBlobBufferFactory()
 void PooledBlobBufferFactory::allocate(BlobBuffer *buffer)
 {
     buffer->reset(bslstl::SharedPtrUtil::createInplaceUninitializedBuffer(
-                                               d_bufferSize, &d_spPool),
+                      d_bufferSize, &d_spPool),
                   d_bufferSize);
 }
 }  // close package namespace

@@ -26,18 +26,17 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlbb_blob
 //
 //@DESCRIPTION: This component implements the input and output
-// 'bsl::basic_streambuf' protocol using a user-supplied 'bdlbb::Blob'.
-// Method names necessarily correspond to the protocol-specified method names.
-// Refer to the C++ Standard, Section 27.5.2, for a full specification of the
+// 'bsl::basic_streambuf' protocol using a user-supplied 'bdlbb::Blob'.  Method
+// names necessarily correspond to the protocol-specified method names.  Refer
+// to the C++ Standard, Section 27.5.2, for a full specification of the
 // interface.
 //
-// A 'bdlbb::Blob' is an indexed sequence of 'bdlbb::BlobBuffer' of
-// potentially different sizes.  The number of buffers in the sequence can
-// increase or decrease, but the order of the buffers cannot change.
-// Therefore, the blob behaves logically as a single indexed buffer.
-// 'bdlbb::InBlobStreamBuf' and 'bdlbb::OutBlobStreamBuf' can therefore
-// respectively read from and write to this buffer as if there were a single
-// continuous index.
+// A 'bdlbb::Blob' is an indexed sequence of 'bdlbb::BlobBuffer' of potentially
+// different sizes.  The number of buffers in the sequence can increase or
+// decrease, but the order of the buffers cannot change.  Therefore, the blob
+// behaves logically as a single indexed buffer.  'bdlbb::InBlobStreamBuf' and
+// 'bdlbb::OutBlobStreamBuf' can therefore respectively read from and write to
+// this buffer as if there were a single continuous index.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -67,9 +66,9 @@ namespace BloombergLP {
 namespace bdlbb { class Blob; }
 namespace bdlbb {
 
-                          // =====================
-                          // class InBlobStreamBuf
-                          // =====================
+                           // =====================
+                           // class InBlobStreamBuf
+                           // =====================
 
 class InBlobStreamBuf : public bsl::streambuf {
     // This class implements the input functionality of the 'basic_streambuf'
@@ -79,10 +78,10 @@ class InBlobStreamBuf : public bsl::streambuf {
     typedef bsl::ios_base ios_base;
 
     // DATA
-    const bdlbb::Blob *d_blob_p;                 // "streamed" blob (held)
-    int               d_getBufferIndex;         // index of current buffer
-    int               d_previousBuffersLength;  // length of buffers before the
-                                                // current one
+    const bdlbb::Blob *d_blob_p;          // "streamed" blob (held)
+    int                d_getBufferIndex;  // index of current buffer
+    int d_previousBuffersLength;          // length of buffers before the
+                                          // current one
 
     // NOT IMPLEMENTED
     InBlobStreamBuf(const InBlobStreamBuf&);
@@ -106,9 +105,8 @@ class InBlobStreamBuf : public bsl::streambuf {
                               int_type c = bsl::streambuf::traits_type::eof());
         // Adjust the underlying blob and put the optionally specified
         // character 'c' at the newly valid 'gptr()'.  Return 'c' (or
-        // '~traits_type::eof' if 'c
-        // == traits_type::eof') on success, and 'traits_type::eof()'
-        // otherwise.
+        // '~traits_type::eof' if 'c == traits_type::eof') on success, and
+        // 'traits_type::eof()' otherwise.
 
     virtual pos_type seekoff(
        off_type                offset,
@@ -183,9 +181,9 @@ class InBlobStreamBuf : public bsl::streambuf {
         // blob has at least one buffer.
 };
 
-                          // ======================
-                          // class OutBlobStreamBuf
-                          // ======================
+                           // ======================
+                           // class OutBlobStreamBuf
+                           // ======================
 
 class OutBlobStreamBuf : public bsl::streambuf {
     // This class implements the output functionality of the 'basic_streambuf'
@@ -196,8 +194,8 @@ class OutBlobStreamBuf : public bsl::streambuf {
 
     // DATA
     bdlbb::Blob *d_blob_p;                 // "streamed" blob (held)
-    int         d_putBufferIndex;         // index of current buffer
-    int         d_previousBuffersLength;  // length of buffers before
+    int          d_putBufferIndex;         // index of current buffer
+    int          d_previousBuffersLength;  // length of buffers before
 
     // NOT IMPLEMENTED
     OutBlobStreamBuf(const OutBlobStreamBuf&);
@@ -303,17 +301,17 @@ class OutBlobStreamBuf : public bsl::streambuf {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-                          // =====================
-                          // class InBlobStreamBuf
-                          // =====================
+                           // =====================
+                           // class InBlobStreamBuf
+                           // =====================
 
 // MANIPULATORS
 inline
 void InBlobStreamBuf::reset(const bdlbb::Blob *blob)
 {
     if (blob) {
-        d_blob_p = blob;
-        d_getBufferIndex = 0;
+        d_blob_p                = blob;
+        d_getBufferIndex        = 0;
         d_previousBuffersLength = 0;
         setg(0, 0, 0);
         if (0 == d_blob_p->length()) {
@@ -343,9 +341,9 @@ int InBlobStreamBuf::previousBuffersLength() const
     return d_previousBuffersLength;
 }
 
-                          // ======================
-                          // class OutBlobStreamBuf
-                          // ======================
+                           // ======================
+                           // class OutBlobStreamBuf
+                           // ======================
 
 // MANIPULATORS
 inline
@@ -358,8 +356,8 @@ inline
 void OutBlobStreamBuf::reset(bdlbb::Blob *blob)
 {
     if (blob) {
-        d_blob_p = blob;
-        d_putBufferIndex = 0;
+        d_blob_p                = blob;
+        d_putBufferIndex        = 0;
         d_previousBuffersLength = 0;
         setp(0, 0);
         if (0 == d_blob_p->totalSize()) {

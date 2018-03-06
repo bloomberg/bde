@@ -15,25 +15,25 @@
 
 #include <bdlt_datetime.h>
 
-#include <bslma_default.h>                      // for testing only
-#include <bslma_defaultallocatorguard.h>        // for testing only
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
+#include <bslma_default.h>                 // for testing only
+#include <bslma_defaultallocatorguard.h>   // for testing only
+#include <bslma_testallocator.h>           // for testing only
+#include <bslma_testallocatorexception.h>  // for testing only
 
 #include <bsl_algorithm.h>
-#include <bsl_cctype.h>      // 'isdigit' 'isupper' 'islower'
-#include <bsl_cstdlib.h>     // 'atoi'
-#include <bsl_cstring.h>     // 'memset'/memcmp()
+#include <bsl_cctype.h>   // 'isdigit' 'isupper' 'islower'
+#include <bsl_cstdlib.h>  // 'atoi'
+#include <bsl_cstring.h>  // 'memset'/memcmp()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::flush;
-using bsl::endl;
 using bsl::cerr;
+using bsl::cout;
+using bsl::endl;
+using bsl::flush;
 
 //=============================================================================
 //                             TEST PLAN
@@ -85,10 +85,10 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT BSLIM_TESTUTIL_ASSERT
+#define ASSERTV BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP_ASSERT BSLIM_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
@@ -97,24 +97,23 @@ void aSsErT(bool condition, const char *message, int line)
 #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
+#define Q BSLIM_TESTUTIL_Q    // Quote identifier literally.
+#define P BSLIM_TESTUTIL_P    // Print identifier and value.
+#define P_ BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_ BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_ BSLIM_TESTUTIL_L_  // current Line number
 
-class testBlobBufferFactory : public bdlbb::BlobBufferFactory
-{
+class testBlobBufferFactory : public bdlbb::BlobBufferFactory {
     bslma::Allocator *d_allocator_p;
     bsl::size_t       d_currentBufferSize;
     bool              d_growFlag;
 
-    private:
+  private:
     // not implemented
     testBlobBufferFactory(const testBlobBufferFactory&);
     testBlobBufferFactory& operator=(const testBlobBufferFactory&);
 
-    public:
+  public:
     // CREATORS
     explicit testBlobBufferFactory(bslma::Allocator *allocator,
                                    bsl::size_t       currentBufferSize = 4);
@@ -126,7 +125,7 @@ class testBlobBufferFactory : public bdlbb::BlobBufferFactory
 
     // ACCESSORS
     bsl::size_t currentBufferSize() const;
-    bool growFlag() const;
+    bool        growFlag() const;
 };
 
 testBlobBufferFactory::testBlobBufferFactory(
@@ -144,10 +143,8 @@ testBlobBufferFactory::~testBlobBufferFactory()
 
 void testBlobBufferFactory::allocate(bdlbb::BlobBuffer *buffer)
 {
-
     bsl::shared_ptr<char> shptr(
-                         (char *) d_allocator_p->allocate(d_currentBufferSize),
-                          d_allocator_p);
+        (char *)d_allocator_p->allocate(d_currentBufferSize), d_allocator_p);
 
     buffer->reset(shptr, d_currentBufferSize);
     if (d_growFlag && d_currentBufferSize < 1024) {
@@ -176,14 +173,16 @@ bool testBlobBufferFactory::growFlag() const
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int verbose         = argc > 2;
+    int veryVerbose     = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    ;
 
-    switch (test) { case 0:  // Zero is always the leading case.
+    switch (test) {
+      case 0:  // Zero is always the leading case.
       case 8: {
         // --------------------------------------------------------------------
         // TESTING CONCERN: EOF IS STREAMED CORRECTLY
@@ -195,9 +194,8 @@ int main(int argc, char *argv[])
         //   * That 'xsputn' copies EOF when it appears as the first character
         //     in a buffer (i.e., when it crosses a buffer boundary).
         //
-        // Plan:
-        // Iterate over a set of test vectors varying in buffer size and length
-        // of data to write.  For each test vector, instantiate a
+        // Plan: Iterate over a set of test vectors varying in buffer size and
+        // length of data to write.  For each test vector, instantiate a
         // 'bdlbb::PooledBlobBufferFactory', 'mF', allocate a 'bdlbb::Blob',
         // 'mC', and use 'mC' to instantiate a 'bdlbb::BlobStreamBuf', 'mX'.
         // Write the specified number of bytes to 'mX' using 'sputn', and
@@ -224,25 +222,53 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             const struct {
-                int d_line;          // source line number
-                int d_bufferSize;    // factory buffer size
-                int d_dataLength;    // length of data to read and write
+                int d_line;        // source line number
+                int d_bufferSize;  // factory buffer size
+                int d_dataLength;  // length of data to read and write
             } DATA[] = {
                 //Line  Buffer Size  Data Length
                 //----  -----------  -----------
-                { L_,   1,           1,         },
-                { L_,   1,           5,         },
-                { L_,   2,           1,         },
-                { L_,   2,           2,         },
-                { L_,   2,           5,         },
-                { L_,   3,           9,         },
-                { L_,   37,          101,       },
+                {
+                    L_,
+                    1,
+                    1,
+                },
+                {
+                    L_,
+                    1,
+                    5,
+                },
+                {
+                    L_,
+                    2,
+                    1,
+                },
+                {
+                    L_,
+                    2,
+                    2,
+                },
+                {
+                    L_,
+                    2,
+                    5,
+                },
+                {
+                    L_,
+                    3,
+                    9,
+                },
+                {
+                    L_,
+                    37,
+                    101,
+                },
             };
             enum { k_DATA_SIZE = sizeof DATA / sizeof *DATA };
 
-            const bsl::ios_base::seekdir  CUR     = bsl::ios_base::cur;
-            const bsl::ios_base::openmode OUT1    = bsl::ios_base::out;
-            const bsl::ios_base::openmode IN1     = bsl::ios_base::in;
+            const bsl::ios_base::seekdir  CUR  = bsl::ios_base::cur;
+            const bsl::ios_base::openmode OUT1 = bsl::ios_base::out;
+            const bsl::ios_base::openmode IN1  = bsl::ios_base::in;
             const int EOF_VAL = bdlbb::InBlobStreamBuf::traits_type::eof();
 
             for (int i = 0; i < k_DATA_SIZE; ++i) {
@@ -251,8 +277,10 @@ int main(int argc, char *argv[])
                 const int DATA_LENGTH = DATA[i].d_dataLength;
 
                 if (verbose) {
-                    P_(i); P_(LINE);
-                    P_(BUFFER_SIZE); P(DATA_LENGTH);
+                    P_(i);
+                    P_(LINE);
+                    P_(BUFFER_SIZE);
+                    P(DATA_LENGTH);
                 }
 
                 testBlobBufferFactory fa(&ta, BUFFER_SIZE);
@@ -266,21 +294,20 @@ int main(int argc, char *argv[])
                     bsl::memset(EOFS, EOF_VAL, DATA_LENGTH);
 
                     // Write out data.
-                    LOOP2_ASSERT(i, LINE, DATA_LENGTH ==
-                                            out.sputn(EOFS, DATA_LENGTH));
-                    LOOP2_ASSERT(i, LINE, DATA_LENGTH ==
-                                                 out.pubseekoff(0, CUR, OUT1));
+                    LOOP2_ASSERT(
+                        i, LINE, DATA_LENGTH == out.sputn(EOFS, DATA_LENGTH));
+                    LOOP2_ASSERT(
+                        i, LINE, DATA_LENGTH == out.pubseekoff(0, CUR, OUT1));
                     LOOP2_ASSERT(i, LINE, DATA_LENGTH == blob.length());
 
                     // Read in data.
                     char *result = (char *)ta.allocate(DATA_LENGTH);
-                    LOOP2_ASSERT(i, LINE, DATA_LENGTH ==
-                                                in.sgetn(result, DATA_LENGTH));
-                    LOOP2_ASSERT(i, LINE, DATA_LENGTH ==
-                                                   in.pubseekoff(0, CUR, IN1));
-                    LOOP2_ASSERT(i, LINE, 0 == bsl::memcmp(EOFS,
-                                                           result,
-                                                           DATA_LENGTH));
+                    LOOP2_ASSERT(
+                        i, LINE, DATA_LENGTH == in.sgetn(result, DATA_LENGTH));
+                    LOOP2_ASSERT(
+                        i, LINE, DATA_LENGTH == in.pubseekoff(0, CUR, IN1));
+                    LOOP2_ASSERT(
+                        i, LINE, 0 == bsl::memcmp(EOFS, result, DATA_LENGTH));
                     ta.deallocate(EOFS);
                     ta.deallocate(result);
                 }
@@ -288,10 +315,7 @@ int main(int argc, char *argv[])
 
             //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            enum {
-                k_BUFFER_SIZE = 8,
-                k_DATA_LENGTH = 12
-            };
+            enum { k_BUFFER_SIZE = 8, k_DATA_LENGTH = 12 };
             ASSERT(k_DATA_LENGTH > k_BUFFER_SIZE);
             ASSERT(k_DATA_LENGTH < k_BUFFER_SIZE * 2);
 
@@ -308,23 +332,22 @@ int main(int argc, char *argv[])
                     bdlbb::InBlobStreamBuf  in(&blob);
                     bdlbb::OutBlobStreamBuf out(&blob);
                     data[i] = EOF_VAL;
-                    LOOP_ASSERT(i, k_DATA_LENGTH ==
-                                               out.sputn(data, k_DATA_LENGTH));
-                    LOOP_ASSERT(i, k_DATA_LENGTH ==
-                                                 out.pubseekoff(0, CUR, OUT1));
+                    LOOP_ASSERT(
+                        i, k_DATA_LENGTH == out.sputn(data, k_DATA_LENGTH));
+                    LOOP_ASSERT(i,
+                                k_DATA_LENGTH == out.pubseekoff(0, CUR, OUT1));
                     LOOP_ASSERT(i, k_DATA_LENGTH == blob.length());
-                    LOOP_ASSERT(i, k_DATA_LENGTH == in.sgetn(result,
-                                                           k_DATA_LENGTH));
-                    LOOP_ASSERT(i, 0 == bsl::memcmp(data,
-                                                    result,
-                                                    k_DATA_LENGTH));
+                    LOOP_ASSERT(
+                        i, k_DATA_LENGTH == in.sgetn(result, k_DATA_LENGTH));
+                    LOOP_ASSERT(i,
+                                0 == bsl::memcmp(data, result, k_DATA_LENGTH));
                     data[i] = '*';
                 }
             }
         }
-        ASSERT(0 <  ta.numAllocations());
+        ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
-      }  break;
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING 'xsgetn' AND 'xsputn' FUNCTIONS
@@ -367,19 +390,47 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             const struct {
-                int d_line;          // source line number
-                int d_bufferSize;    // factory buffer size
-                int d_dataLength;    // length of data to read and write
+                int d_line;        // source line number
+                int d_bufferSize;  // factory buffer size
+                int d_dataLength;  // length of data to read and write
             } DATA[] = {
                 //Line  Buffer Size  Data Length
                 //----  -----------  -----------
-                { L_,   1,           1,         },
-                { L_,   1,           5,         },
-                { L_,   2,           1,         },
-                { L_,   2,           2,         },
-                { L_,   2,           5,         },
-                { L_,   3,           9,         },
-                { L_,   37,          101,       },
+                {
+                    L_,
+                    1,
+                    1,
+                },
+                {
+                    L_,
+                    1,
+                    5,
+                },
+                {
+                    L_,
+                    2,
+                    1,
+                },
+                {
+                    L_,
+                    2,
+                    2,
+                },
+                {
+                    L_,
+                    2,
+                    5,
+                },
+                {
+                    L_,
+                    3,
+                    9,
+                },
+                {
+                    L_,
+                    37,
+                    101,
+                },
             };
             enum { k_DATA_SIZE = sizeof DATA / sizeof *DATA };
 
@@ -388,13 +439,15 @@ int main(int argc, char *argv[])
             const bsl::ios_base::openmode IN1  = bsl::ios_base::in;
 
             for (int i = 0; i < k_DATA_SIZE; ++i) {
-                const int LINE        = DATA[i].d_line;
+                const int LINE          = DATA[i].d_line;
                 const int k_BUFFER_SIZE = DATA[i].d_bufferSize;
                 const int k_DATA_LENGTH = DATA[i].d_dataLength;
 
                 if (verbose) {
-                    P_(i); P_(LINE);
-                    P_(k_BUFFER_SIZE); P(k_DATA_LENGTH);
+                    P_(i);
+                    P_(LINE);
+                    P_(k_BUFFER_SIZE);
+                    P(k_DATA_LENGTH);
                 }
 
                 testBlobBufferFactory fa(&ta, k_BUFFER_SIZE);
@@ -408,29 +461,36 @@ int main(int argc, char *argv[])
                     bsl::memset(HASHMARKS, '#', k_DATA_LENGTH);
 
                     // Write out data.
-                    LOOP2_ASSERT(i, LINE, k_DATA_LENGTH ==
-                                          out.sputn(HASHMARKS, k_DATA_LENGTH));
-                    LOOP2_ASSERT(i, LINE, k_DATA_LENGTH ==
-                                                 out.pubseekoff(0, CUR, OUT1));
+                    LOOP2_ASSERT(i,
+                                 LINE,
+                                 k_DATA_LENGTH ==
+                                     out.sputn(HASHMARKS, k_DATA_LENGTH));
+                    LOOP2_ASSERT(i,
+                                 LINE,
+                                 k_DATA_LENGTH ==
+                                     out.pubseekoff(0, CUR, OUT1));
                     LOOP2_ASSERT(i, LINE, k_DATA_LENGTH == blob.length());
 
                     // Read in data.
                     char *result = (char *)ta.allocate(k_DATA_LENGTH);
-                    LOOP2_ASSERT(i, LINE, k_DATA_LENGTH ==
-                                              in.sgetn(result, k_DATA_LENGTH));
-                    LOOP2_ASSERT(i, LINE, k_DATA_LENGTH ==
-                                                   in.pubseekoff(0, CUR, IN1));
-                    LOOP2_ASSERT(i, LINE, 0 == bsl::memcmp(HASHMARKS,
-                                                           result,
-                                                           k_DATA_LENGTH));
+                    LOOP2_ASSERT(i,
+                                 LINE,
+                                 k_DATA_LENGTH ==
+                                     in.sgetn(result, k_DATA_LENGTH));
+                    LOOP2_ASSERT(
+                        i, LINE, k_DATA_LENGTH == in.pubseekoff(0, CUR, IN1));
+                    LOOP2_ASSERT(
+                        i,
+                        LINE,
+                        0 == bsl::memcmp(HASHMARKS, result, k_DATA_LENGTH));
                     ta.deallocate(HASHMARKS);
                     ta.deallocate(result);
                 }
             }
         }
-        ASSERT(0 <  ta.numAllocations());
+        ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
-      }  break;
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING 'reset' FUNCTION
@@ -465,24 +525,27 @@ int main(int argc, char *argv[])
         }
 
         bslma::TestAllocator ta(veryVeryVerbose);
-        if (verbose) cout << "\nTesting bcesb_OutBlobStreamBuf." << endl;
+        if (verbose)
+            cout << "\nTesting bcesb_OutBlobStreamBuf." << endl;
         {
             enum {
-                k_BUFFER_SIZE_A = 16,    // buffer size for factory "A"
-                k_BUFFER_SIZE_B = 32,    // buffer size for factory "B"
-                k_SEEK_OFFSET   = 37,    // arbitrary offset
-                k_DATA_LENGTH   = 64     // amount of data to write to stream
+                k_BUFFER_SIZE_A = 16,  // buffer size for factory "A"
+                k_BUFFER_SIZE_B = 32,  // buffer size for factory "B"
+                k_SEEK_OFFSET   = 37,  // arbitrary offset
+                k_DATA_LENGTH   = 64   // amount of data to write to stream
             };
 
             testBlobBufferFactory factoryA(&ta, k_BUFFER_SIZE_A);
             factoryA.setGrowFlag(false);
-            bdlbb::Blob mCaI(&factoryA, &ta); bdlbb::Blob* mCa = &mCaI;
+            bdlbb::Blob  mCaI(&factoryA, &ta);
+            bdlbb::Blob *mCa = &mCaI;
             ASSERT(0 == mCa->length());
             ASSERT(0 == mCa->numBuffers());
 
             testBlobBufferFactory factoryB(&ta, k_BUFFER_SIZE_B);
             factoryB.setGrowFlag(false);
-            bdlbb::Blob mCbI(&factoryB, &ta); bdlbb::Blob* mCb = &mCbI;
+            bdlbb::Blob  mCbI(&factoryB, &ta);
+            bdlbb::Blob *mCb = &mCbI;
             ASSERT(0 == mCb->length());
             ASSERT(0 == mCb->numBuffers());
 
@@ -490,7 +553,7 @@ int main(int argc, char *argv[])
             const bsl::ios_base::openmode OUT1 = bsl::ios_base::out;
 
             {
-                bdlbb::OutBlobStreamBuf mX(mCa);
+                bdlbb::OutBlobStreamBuf        mX(mCa);
                 const bdlbb::OutBlobStreamBuf& X = mX;
                 ASSERT(X.data() == mCa);
                 ASSERT(X.data() != mCb);
@@ -528,7 +591,8 @@ int main(int argc, char *argv[])
                 ASSERT(X.data() == mCb);
                 ASSERT(0 == mX.pubseekoff(0, CUR, OUT1));
                 ASSERT(2 * k_DATA_LENGTH == mCa->length());
-                ASSERT(8 == mCa->numBuffers());;
+                ASSERT(8 == mCa->numBuffers());
+                ;
                 ASSERT(0 == mCb->length());
                 ASSERT(0 == mCb->numBuffers());
 
@@ -536,14 +600,15 @@ int main(int argc, char *argv[])
 
                 ASSERT(k_DATA_LENGTH == mX.pubseekoff(0, CUR, OUT1));
                 ASSERT(2 * k_DATA_LENGTH == mCa->length());
-                ASSERT(8 == mCa->numBuffers());;
+                ASSERT(8 == mCa->numBuffers());
+                ;
                 ASSERT(k_DATA_LENGTH == mCb->length());
                 ASSERT(2 == mCb->numBuffers());
 
                 mCbI.removeAll();
 
-                ASSERT(0   == mCb->length());
-                ASSERT(0   == mCb->numBuffers());
+                ASSERT(0 == mCb->length());
+                ASSERT(0 == mCb->numBuffers());
                 ASSERT(mCb == X.data());
 
                 mX.reset();
@@ -553,23 +618,26 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nTesting bcesb_InBlobStreamBuf." << endl;
+        if (verbose)
+            cout << "\nTesting bcesb_InBlobStreamBuf." << endl;
         {
             enum {
-                k_BUFFER_SIZE_A = 16,    // buffer size for factory "A"
-                k_BUFFER_SIZE_B = 32,    // buffer size for factory "B"
-                k_SEEK_OFFSET   = 5     // arbitrary offset
+                k_BUFFER_SIZE_A = 16,  // buffer size for factory "A"
+                k_BUFFER_SIZE_B = 32,  // buffer size for factory "B"
+                k_SEEK_OFFSET   = 5    // arbitrary offset
             };
 
             testBlobBufferFactory factoryA(&ta, k_BUFFER_SIZE_A);
             factoryA.setGrowFlag(false);
-            bdlbb::Blob mCaI(&factoryA, &ta); bdlbb::Blob* mCa = &mCaI;
+            bdlbb::Blob  mCaI(&factoryA, &ta);
+            bdlbb::Blob *mCa = &mCaI;
             ASSERT(0 == mCa->length());
             ASSERT(0 == mCa->numBuffers());
 
             testBlobBufferFactory factoryB(&ta, k_BUFFER_SIZE_B);
             factoryB.setGrowFlag(false);
-            bdlbb::Blob mCbI(&factoryB, &ta); bdlbb::Blob* mCb = &mCbI;
+            bdlbb::Blob  mCbI(&factoryB, &ta);
+            bdlbb::Blob *mCb = &mCbI;
             ASSERT(0 == mCb->length());
             ASSERT(0 == mCb->numBuffers());
 
@@ -577,16 +645,18 @@ int main(int argc, char *argv[])
             const bsl::ios_base::openmode IN1 = bsl::ios_base::in;
 
             {
-                mCa->setLength(10); bsl::memset(mCa->buffer(0).data(), 1, 10);
-                mCb->setLength(10); bsl::memset(mCb->buffer(0).data(), 2, 10);
+                mCa->setLength(10);
+                bsl::memset(mCa->buffer(0).data(), 1, 10);
+                mCb->setLength(10);
+                bsl::memset(mCb->buffer(0).data(), 2, 10);
 
-                bdlbb::InBlobStreamBuf mX(mCa);
+                bdlbb::InBlobStreamBuf        mX(mCa);
                 const bdlbb::InBlobStreamBuf& X = mX;
                 ASSERT(X.data() == mCa);
                 ASSERT(X.data() != mCb);
                 ASSERT(0 == mX.pubseekoff(0, CUR, IN1));
 
-                bsl::istream      in(&mX);
+                bsl::istream in(&mX);
 
                 ASSERT(k_SEEK_OFFSET == mX.pubseekpos(k_SEEK_OFFSET, IN1));
                 char read;
@@ -613,9 +683,9 @@ int main(int argc, char *argv[])
                 ASSERT(k_SEEK_OFFSET == mX.pubseekoff(0, CUR, IN1));
             }
         }
-        ASSERT(0 <  ta.numAllocations());
+        ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
-      }  break;
+      } break;
       case 5: {
       } break;
       case 4: {
@@ -659,35 +729,58 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             const struct {
-                int d_line;          // source line number
-                int d_bufferSize;    // factory buffer size
+                int d_line;        // source line number
+                int d_bufferSize;  // factory buffer size
             } DATA[] = {
                 //Line  Buffer Size
                 //----  -----------
-                { L_,   1,         },
-                { L_,   2,         },
-                { L_,   4,         },
-                { L_,   11,        },
-                { L_,   101,       },
-                { L_,   1024,      },
-                { L_,   4096,      },
+                {
+                    L_,
+                    1,
+                },
+                {
+                    L_,
+                    2,
+                },
+                {
+                    L_,
+                    4,
+                },
+                {
+                    L_,
+                    11,
+                },
+                {
+                    L_,
+                    101,
+                },
+                {
+                    L_,
+                    1024,
+                },
+                {
+                    L_,
+                    4096,
+                },
             };
             enum { k_DATA_SIZE = sizeof DATA / sizeof *DATA };
 
             for (int i = 0; i < k_DATA_SIZE; ++i) {
-                const int LINE        = DATA[i].d_line;
+                const int LINE          = DATA[i].d_line;
                 const int k_BUFFER_SIZE = DATA[i].d_bufferSize;
 
                 testBlobBufferFactory fa(&ta, k_BUFFER_SIZE);
                 fa.setGrowFlag(false);
 
-                bdlbb::Blob blob(&fa, &ta);
-                bdlbb::OutBlobStreamBuf mX(&blob);
-                const bdlbb::OutBlobStreamBuf&         X = mX;
-                const bsl::string  HASHMARKS(k_BUFFER_SIZE, '#');
+                bdlbb::Blob                    blob(&fa, &ta);
+                bdlbb::OutBlobStreamBuf        mX(&blob);
+                const bdlbb::OutBlobStreamBuf& X = mX;
+                const bsl::string              HASHMARKS(k_BUFFER_SIZE, '#');
 
                 if (verbose) {
-                    P_(i); P_(LINE); P(k_BUFFER_SIZE);
+                    P_(i);
+                    P_(LINE);
+                    P(k_BUFFER_SIZE);
                 }
 
                 enum { k_NUM_ITERATIONS = 3 };
@@ -696,23 +789,23 @@ int main(int argc, char *argv[])
                     const int POST_PUT_LENGTH  = PRE_PUT_LENGTH + 1;
                     const int POST_SYNC_LENGTH = (j + 1) * k_BUFFER_SIZE;
 
-                    LOOP3_ASSERT(i, LINE, j,
-                                 PRE_PUT_LENGTH == X.data()->length());
+                    LOOP3_ASSERT(
+                        i, LINE, j, PRE_PUT_LENGTH == X.data()->length());
                     LOOP3_ASSERT(i, LINE, j, j == X.data()->numBuffers());
 
                     mX.sputn(HASHMARKS.c_str(), HASHMARKS.length());
-                    LOOP3_ASSERT(i, LINE, j,
-                                 POST_PUT_LENGTH == X.data()->length());
+                    LOOP3_ASSERT(
+                        i, LINE, j, POST_PUT_LENGTH == X.data()->length());
                     LOOP3_ASSERT(i, LINE, j, j + 1 == X.data()->numBuffers());
 
                     mX.pubsync();
-                    LOOP3_ASSERT(i, LINE, j,
-                                 POST_SYNC_LENGTH == X.data()->length());
+                    LOOP3_ASSERT(
+                        i, LINE, j, POST_SYNC_LENGTH == X.data()->length());
                     LOOP3_ASSERT(i, LINE, j, j + 1 == X.data()->numBuffers());
                 }
             }
         }
-        ASSERT(0 <  ta.numAllocations());
+        ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
       case 1: {
@@ -732,31 +825,35 @@ int main(int argc, char *argv[])
         //   This "test" *exercises* basic functionality, but *tests* nothing.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose)
+            cout << endl
+                 << "BREATHING TEST" << endl
+                 << "==============" << endl;
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
-        if (verbose) cout << "\nTesting bcesb_InBlobStreamBuf." << endl;
+        if (verbose)
+            cout << "\nTesting bcesb_InBlobStreamBuf." << endl;
         {
             typedef bdlbb::InBlobStreamBuf Obj;
 
             enum { k_MAX_k_BUFFER_SIZE = 20 };
-            for(int i = 0; i < k_MAX_k_BUFFER_SIZE; ++i) {
-                const bsl::size_t  k_BUFFER_SIZE = i + 1;
+            for (int i = 0; i < k_MAX_k_BUFFER_SIZE; ++i) {
+                const bsl::size_t k_BUFFER_SIZE = i + 1;
 
                 testBlobBufferFactory fa(&ta, k_BUFFER_SIZE);
                 //fa.setGrowFlag(false);
 
                 bdlbb::Blob blob(&fa, &ta);
                 {
-                    Obj mX(&blob); const Obj&    X = mX;
+                    Obj          mX(&blob);
+                    const Obj&   X = mX;
                     bsl::istream stream(&mX);
                     ASSERT(stream.rdbuf() == &mX);
 
                     if (verbose) {
-                        P_(i); P(k_BUFFER_SIZE);
+                        P_(i);
+                        P(k_BUFFER_SIZE);
                     }
 
                     {
@@ -767,7 +864,7 @@ int main(int argc, char *argv[])
                     }
 
                     {
-                        int posInBuf = 0;
+                        int posInBuf   = 0;
                         int currentBuf = 0;
                         blob.setLength(k_MAX_k_BUFFER_SIZE);
                         for (int j = 0; j < k_MAX_k_BUFFER_SIZE; ++j) {
@@ -776,7 +873,7 @@ int main(int argc, char *argv[])
                                 posInBuf = 0;
                             }
                             *(blob.buffer(currentBuf).data() + posInBuf) =
-                                                                       'A' + j;
+                                'A' + j;
                             if (veryVerbose) {
                                 bsl::cout << "Wrote " << j << " at offset "
                                           << posInBuf << " in buffer "
@@ -784,16 +881,17 @@ int main(int argc, char *argv[])
                             }
                             ++posInBuf;
                         }
-
                     }
 
                     {
-                        int j = 0;
+                        int  j = 0;
                         char c;
                         while (stream >> c) {
                             LOOP_ASSERT(j, c == 'A' + j);
                             if (verbose) {
-                                T_; P_(c); P(j);
+                                T_;
+                                P_(c);
+                                P(j);
                             }
                             ASSERT(stream.rdbuf() == &mX);
                             ASSERT(stream.unget());
@@ -809,7 +907,6 @@ int main(int argc, char *argv[])
                             ASSERT(stream >> c)
                             LOOP_ASSERT(j, c == 'A' + j);
                             ++j;
-
                         }
                         ASSERT(k_MAX_k_BUFFER_SIZE == j);
                     }
@@ -837,15 +934,16 @@ int main(int argc, char *argv[])
                     ASSERT(k_MAX_k_BUFFER_SIZE == str.length());
                     ASSERT('A' == str[0]);
                     ASSERT('A' + k_MAX_k_BUFFER_SIZE - 1 ==
-                                                 str[k_MAX_k_BUFFER_SIZE - 1]);
+                           str[k_MAX_k_BUFFER_SIZE - 1]);
                 }
             }
         }
-        if (verbose) cout << "\nTesting bcesb_OutBlobStreamBuf." << endl;
+        if (verbose)
+            cout << "\nTesting bcesb_OutBlobStreamBuf." << endl;
         {
             enum { k_MAX_k_BUFFER_SIZE = 20 };
-            for(int i = 0; i < k_MAX_k_BUFFER_SIZE; ++i) {
-                const bsl::size_t  k_BUFFER_SIZE = i + 1;
+            for (int i = 0; i < k_MAX_k_BUFFER_SIZE; ++i) {
+                const bsl::size_t k_BUFFER_SIZE = i + 1;
 
                 testBlobBufferFactory fa(&ta, k_BUFFER_SIZE);
                 //fa.setGrowFlag(false);
@@ -853,12 +951,13 @@ int main(int argc, char *argv[])
                 bdlbb::Blob blob(&fa, &ta);
                 {
                     bdlbb::OutBlobStreamBuf outbuf(&blob);
-                    bsl::ostream ostream(&outbuf);
-                    bdlbb::InBlobStreamBuf inbuf(&blob);
-                    bsl::istream istream(&inbuf);
+                    bsl::ostream            ostream(&outbuf);
+                    bdlbb::InBlobStreamBuf  inbuf(&blob);
+                    bsl::istream            istream(&inbuf);
 
                     if (verbose) {
-                        P_(i); P(k_BUFFER_SIZE);
+                        P_(i);
+                        P(k_BUFFER_SIZE);
                     }
 
                     ostream << 12345;
@@ -868,7 +967,9 @@ int main(int argc, char *argv[])
                     istream >> j;
                     LOOP_ASSERT(i, 12345 == j);
                     if (verbose) {
-                        T_; P_(i); P(j);
+                        T_;
+                        P_(i);
+                        P(j);
                     }
 
                     istream.clear();
@@ -878,7 +979,10 @@ int main(int argc, char *argv[])
                     istream >> k;
                     LOOP_ASSERT(i, j == k);
                     if (verbose) {
-                        T_; P_(i); P_(j); P(k);
+                        T_;
+                        P_(i);
+                        P_(j);
+                        P(k);
                     }
 
                     istream.clear();
@@ -897,21 +1001,23 @@ int main(int argc, char *argv[])
                     // Since we cannot truncate the streambuf, we must write at
                     // least as many bytes as already exist in the buffer.
 
-                    int length = bsl::max(3 * (int)k_BUFFER_SIZE,
-                                          blob.length());
+                    int length =
+                        bsl::max(3 * (int)k_BUFFER_SIZE, blob.length());
                     const bsl::string HASHMARKS(length, '#');
                     bsl::string       result;
                     ostream << HASHMARKS << bsl::flush;
                     istream >> result;
                     LOOP_ASSERT(i, HASHMARKS == result);
                     if (verbose) {
-                        T_; P_(i);
-                        P_(HASHMARKS.length()); P(result.length());
+                        T_;
+                        P_(i);
+                        P_(HASHMARKS.length());
+                        P(result.length());
                     }
                 }
             }
         }
-        ASSERT(0 <  ta.numAllocations());
+        ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
 
       } break;

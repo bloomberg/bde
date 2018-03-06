@@ -11,14 +11,14 @@
 
 #include <bslim_testutil.h>
 
-#include <bslma_testallocator.h>                // for testing only
-#include <bslma_testallocatorexception.h>       // for testing only
-#include <bslma_defaultallocatorguard.h>        // for testing only
+#include <bslma_defaultallocatorguard.h>   // for testing only
+#include <bslma_testallocator.h>           // for testing only
+#include <bslma_testallocatorexception.h>  // for testing only
 
 #include <bsl_cstddef.h>
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>  // 'atoi'
+#include <bsl_cstring.h>  // 'memcpy', 'memset'
 #include <bsl_iostream.h>
-#include <bsl_cstring.h>     // 'memcpy', 'memset'
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -54,10 +54,10 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT BSLIM_TESTUTIL_ASSERT
+#define ASSERTV BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP_ASSERT BSLIM_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
@@ -66,11 +66,11 @@ void aSsErT(bool condition, const char *message, int line)
 #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_           BSLIM_TESTUTIL_L_  // current Line number
+#define Q BSLIM_TESTUTIL_Q    // Quote identifier literally.
+#define P BSLIM_TESTUTIL_P    // Print identifier and value.
+#define P_ BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_ BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_ BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                               GLOBAL TYPEDEF
@@ -88,10 +88,11 @@ void checkBlob(int          LINE,
                int          maxLength,
                bdlbb::Blob& mX)
 {
-    const int NUM_BUFFERS = (0 < maxLength) ? 1+(maxLength-1)/bufferSize : 0;
+    const int NUM_BUFFERS =
+        (0 < maxLength) ? 1 + (maxLength - 1) / bufferSize : 0;
     const bdlbb::Blob& X = mX;
 
-    LOOP2_ASSERT(bufferSize, LINE, bufferSize*NUM_BUFFERS == X.totalSize());
+    LOOP2_ASSERT(bufferSize, LINE, bufferSize * NUM_BUFFERS == X.totalSize());
     LOOP2_ASSERT(bufferSize, LINE, length == X.length());
     LOOP2_ASSERT(bufferSize, LINE, NUM_BUFFERS == X.numBuffers());
     for (size_t i = 0; i < static_cast<size_t>(X.numBuffers()); ++i) {
@@ -107,16 +108,17 @@ void checkBlob(int          LINE,
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
+int main(int argc, char *argv[])
+{
+    int test        = argc > 1 ? atoi(argv[1]) : 0;
+    verbose         = argc > 2;
+    veryVerbose     = argc > 3;
     veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    switch (test) { case 0:
+    switch (test) {
+      case 0:
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -130,24 +132,26 @@ int main(int argc, char *argv[]) {
         //
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose)
+            cout << endl
+                 << "BREATHING TEST" << endl
+                 << "==============" << endl;
 
-        if (verbose) cout << "\nTesting bdlbb::PooledBlobBufferFactory."
-                          << "\n--------------------------------------\n";
+        if (verbose)
+            cout << "\nTesting bdlbb::PooledBlobBufferFactory."
+                 << "\n--------------------------------------\n";
         for (int bufferSize = 1;
-             bufferSize < static_cast<int>(32 * sizeof(void*));
-             ++bufferSize)
-        {
-            bslma::TestAllocator ta(veryVeryVerbose);
+             bufferSize < static_cast<int>(32 * sizeof(void *));
+             ++bufferSize) {
+            bslma::TestAllocator         ta(veryVeryVerbose);
             bslma::DefaultAllocatorGuard gard(&ta);
 
             {
                 int maxLength = 0;
                 Obj factory(bufferSize, &ta);
 
-                bdlbb::Blob mX(&factory, &ta);  const bdlbb::Blob& X = mX;
+                bdlbb::Blob        mX(&factory, &ta);
+                const bdlbb::Blob& X = mX;
                 ASSERT(0 == X.length());
                 ASSERT(0 == X.totalSize());
                 ASSERT(0 == X.numBuffers());
@@ -181,7 +185,7 @@ int main(int argc, char *argv[]) {
                 mX.setLength(maxLength = 34);
                 checkBlob(L_, bufferSize, 34, maxLength, mX);
 
-                mX.setLength(maxLength = 512*bufferSize);
+                mX.setLength(maxLength = 512 * bufferSize);
                 checkBlob(L_, bufferSize, maxLength, maxLength, mX);
 
                 mX.removeBuffer(5);
@@ -207,28 +211,29 @@ int main(int argc, char *argv[]) {
                 maxLength += bufferSize;
                 checkBlob(L_, bufferSize, 1, maxLength, mX);
 
-                mX.setLength(bufferSize+3);
-                checkBlob(L_, bufferSize, bufferSize+3, maxLength, mX);
+                mX.setLength(bufferSize + 3);
+                checkBlob(L_, bufferSize, bufferSize + 3, maxLength, mX);
 
                 factory.allocate(&buf);
                 mX.insertBuffer(1, buf);
                 maxLength += bufferSize;
-                checkBlob(L_, bufferSize, 2*bufferSize+3, maxLength, mX);
+                checkBlob(L_, bufferSize, 2 * bufferSize + 3, maxLength, mX);
 
                 factory.allocate(&buf);
                 mX.insertBuffer(50, buf);
                 maxLength += bufferSize;
-                checkBlob(L_, bufferSize, 2*bufferSize+3, maxLength, mX);
+                checkBlob(L_, bufferSize, 2 * bufferSize + 3, maxLength, mX);
 
                 mX.setLength(0);
             }
-            ASSERT(0 <  ta.numAllocations());
+            ASSERT(0 < ta.numAllocations());
             ASSERT(0 == ta.numBytesInUse());
         }
 
-        if (veryVerbose) cout << "\nChecking additional constructors.\n";
-        bslma::TestAllocator  ta(veryVeryVerbose);
-        const int             bufferSize = 42;
+        if (veryVerbose)
+            cout << "\nChecking additional constructors.\n";
+        bslma::TestAllocator ta(veryVeryVerbose);
+        const int            bufferSize = 42;
         using bsls::BlockGrowth;
         BlockGrowth::Strategy growthStrategy = BlockGrowth::BSLS_GEOMETRIC;
         {

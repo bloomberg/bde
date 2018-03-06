@@ -26,8 +26,8 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Guillaume Morin (gmorin1), Herve Bronnimann (hbronnimann)
 //
-//@DESCRIPTION: This component provides an indexed sequence ('bdlbb::Blob')
-// of 'bdlbb::BlobBuffer' objects allocated from potentially multiple
+//@DESCRIPTION: This component provides an indexed sequence ('bdlbb::Blob') of
+// 'bdlbb::BlobBuffer' objects allocated from potentially multiple
 // 'bdlbb::BlobBufferFactory' objects.  A 'bdlbb::BlobBuffer' is a simple
 // in-core value object owning a shared pointer to a memory buffer.  Therefore,
 // the lifetime of the underlying memory is determined by shared ownership
@@ -49,9 +49,9 @@ BSLS_IDENT("$Id: $")
 // insertion/removal of buffers containing some data bytes), as well as several
 // attributes driven by the data length.  The first bytes numbered by the data
 // length belong to the data buffers.  Note that all data buffers, except
-// perhaps the last, contribute all their bytes to the 'bdlbb::Blob' data.
-// The last data buffer contributes anywhere between one and all of its bytes
-// to the 'bdlbb::Blob' data.  The number of data buffers (returned by the
+// perhaps the last, contribute all their bytes to the 'bdlbb::Blob' data.  The
+// last data buffer contributes anywhere between one and all of its bytes to
+// the 'bdlbb::Blob' data.  The number of data buffers (returned by the
 // 'numDataBuffers' method), as well as the last data buffer length (returned
 // by 'lastDataBufferLength'), are maintained by 'bdlbb::Blob' automatically
 // when setting the length to a new value.
@@ -411,14 +411,14 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlbb {
 
-                             // ================
-                             // class BlobBuffer
-                             // ================
+                              // ================
+                              // class BlobBuffer
+                              // ================
 
 class BlobBuffer {
     // 'BlobBuffer' is a simple in-core representation of a shared buffer.
@@ -488,7 +488,7 @@ class BlobBuffer {
         // Return the size of the buffer represented by this object.
 
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object as a hexadecimal dump on the specified 'stream',
         // and return a reference to the modifiable 'stream'.  Note that the
@@ -504,8 +504,8 @@ namespace bslmf {
 
 template <>
 struct IsBitwiseMoveable<BloombergLP::bdlbb::BlobBuffer>
-    : IsBitwiseMoveable<bsl::shared_ptr<char> >::type
-{};
+: IsBitwiseMoveable<bsl::shared_ptr<char> >::type {
+};
 
 }  // close namespace bslmf
 
@@ -526,9 +526,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BlobBuffer& buffer);
     // Format the specified blob 'buffer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
-                         // =======================
-                         // class BlobBufferFactory
-                         // =======================
+                          // =======================
+                          // class BlobBufferFactory
+                          // =======================
 
 class BlobBufferFactory {
     // This class defines a base-level protocol for a 'BlobBuffer' factory.
@@ -544,9 +544,9 @@ class BlobBufferFactory {
         // into the specified 'buffer'.
 };
 
-                                // ==========
-                                // class Blob
-                                // ==========
+                                 // ==========
+                                 // class Blob
+                                 // ==========
 
 class Blob {
     // 'Blob' is an in-core container for 'BlobBuffer' objects.  This class is
@@ -556,25 +556,25 @@ class Blob {
     // event is memory leaked.
 
     // DATA
-    bsl::vector<BlobBuffer>        d_buffers;             // buffer sequence
+    bsl::vector<BlobBuffer>  d_buffers;             // buffer sequence
 
-    int                            d_totalSize;           // capacity of blob
-                                                          // (in bytes)
+    int                      d_totalSize;           // capacity of blob
+                                                    // (in bytes)
 
-    int                            d_dataLength;          // length (in bytes)
-                                                          // of user-managed
-                                                          // data
+    int                      d_dataLength;          // length (in bytes)
+                                                    // of user-managed
+                                                    // data
 
-    int                            d_dataIndex;           // index of the last
-                                                          // data buffer
+    int                      d_dataIndex;           // index of the last
+                                                    // data buffer
 
-    int                            d_preDataIndexLength;  // sum of the lengths
-                                                          // of all data
-                                                          // buffers, excluding
-                                                          // the last one
+    int                      d_preDataIndexLength;  // sum of the lengths
+                                                    // of all data
+                                                    // buffers, excluding
+                                                    // the last one
 
-    BlobBufferFactory             *d_bufferFactory_p;     // factory used to
-                                                          // grow blob (held)
+    BlobBufferFactory       *d_bufferFactory_p;     // factory used to
+                                                    // grow blob (held)
 
     // FRIENDS
     friend bool operator==(const Blob&, const Blob&);
@@ -786,15 +786,15 @@ namespace bslmf {
 
 template <>
 struct IsBitwiseMoveable<BloombergLP::bdlbb::Blob>
-    : IsBitwiseMoveable<bsl::vector<BloombergLP::bdlbb::BlobBuffer> >::type
-{};
+: IsBitwiseMoveable<bsl::vector<BloombergLP::bdlbb::BlobBuffer> >::type {
+};
 }  // close namespace bslmf
 
 namespace bslma {
 
 template <>
-struct UsesBslmaAllocator<BloombergLP::bdlbb::Blob> : bsl::true_type
-{};
+struct UsesBslmaAllocator<BloombergLP::bdlbb::Blob> : bsl::true_type {
+};
 }  // close namespace bslma
 
 namespace bdlbb {
@@ -814,9 +814,9 @@ bool operator!=(const Blob& lhs, const Blob& rhs);
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-                             // ================
-                             // class BlobBuffer
-                             // ================
+                              // ================
+                              // class BlobBuffer
+                              // ================
 
 // CREATORS
 inline
@@ -826,8 +826,7 @@ BlobBuffer::BlobBuffer()
 }
 
 inline
-BlobBuffer::BlobBuffer(const bsl::shared_ptr<char>& buffer,
-                       int                          size)
+BlobBuffer::BlobBuffer(const bsl::shared_ptr<char>& buffer, int size)
 : d_buffer(buffer)
 , d_size(size)
 {
@@ -885,22 +884,22 @@ int BlobBuffer::size() const
 inline
 bool bdlbb::operator==(const BlobBuffer& lhs, const BlobBuffer& rhs)
 {
-    return lhs.d_buffer.get() == rhs.d_buffer.get()
-        && lhs.d_size         == rhs.d_size;
+    return lhs.d_buffer.get() == rhs.d_buffer.get() &&
+           lhs.d_size == rhs.d_size;
 }
 
 inline
 bool bdlbb::operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs)
 {
-    return lhs.d_buffer.get() != rhs.d_buffer.get()
-        || lhs.d_size         != rhs.d_size;
+    return lhs.d_buffer.get() != rhs.d_buffer.get() ||
+           lhs.d_size != rhs.d_size;
 }
 
 namespace bdlbb {
 
-                                // ==========
-                                // class Blob
-                                // ==========
+                                 // ==========
+                                 // class Blob
+                                 // ==========
 
 // MANIPULATORS
 inline
@@ -916,7 +915,7 @@ inline
 const BlobBuffer& Blob::buffer(int index) const
 {
     BSLS_ASSERT_SAFE(0 <= index);
-    BSLS_ASSERT_SAFE(     index < static_cast<int>(d_buffers.size()));
+    BSLS_ASSERT_SAFE(index < static_cast<int>(d_buffers.size()));
 
     return d_buffers[index];
 }

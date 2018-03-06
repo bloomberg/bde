@@ -10,7 +10,7 @@
 #include <bdlbb_blob.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlbb_blob_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlbb_blob_cpp, "$Id$ $CSID$")
 
 #include <bdlb_print.h>
 
@@ -30,44 +30,42 @@ namespace BloombergLP {
 namespace {
 
 typedef bsl::vector<bdlbb::BlobBuffer>::iterator       BlobBufferIterator;
-typedef bsl::vector<bdlbb::BlobBuffer>::const_iterator
-                                                       BlobBufferConstIterator;
+typedef bsl::vector<bdlbb::BlobBuffer>::const_iterator BlobBufferConstIterator;
 
-                      // ==============================
-                      // class InvalidBlobBufferFactory
-                      // ==============================
+                       // ==============================
+                       // class InvalidBlobBufferFactory
+                       // ==============================
 
 class InvalidBlobBufferFactory : private bdlbb::BlobBufferFactory {
-
     // NOT IMPLEMENTED
     InvalidBlobBufferFactory(const InvalidBlobBufferFactory&);
     InvalidBlobBufferFactory& operator=(const InvalidBlobBufferFactory&);
 
   private:
     // PRIVATE CREATORS
-    InvalidBlobBufferFactory()  { }
-    ~InvalidBlobBufferFactory() { }
+    InvalidBlobBufferFactory() {}
+    ~InvalidBlobBufferFactory() {}
 
   public:
     // CLASS METHODS
-    static
-    bdlbb::BlobBufferFactory *factory(
+    static bdlbb::BlobBufferFactory *factory(
                                    bdlbb::BlobBufferFactory *basicFactory = 0);
-        // Return a pointer to a 'BlobBufferFactory' object referring either to
-        // '*basicFactory' if 'basicFactory' is non-null or to the singleton
-        // object managed by this 'class' if it is null.
+        // Return a pointer to a 'BlobBufferFactory' object.  Optionally
+        // specify 'basicFactory' that should be returned if it is non-null.
+        // If 'basicFactory' is not specified or is null return the singleton
+        // object managed by this 'class'.
 
-    static
-    InvalidBlobBufferFactory& singleton();
+    static InvalidBlobBufferFactory& singleton();
         // Return a reference providing modifiable access to the
-        // 'InvalidBlobBufferFactory' singleton object managed by this
-        // 'class'.
+        // 'InvalidBlobBufferFactory' singleton object managed by this 'class'.
 
+    // MANIPULATORS
     virtual void allocate(bdlbb::BlobBuffer *);
         // Allocate a blob buffer from this blob buffer factory, and load it
         // into the specified 'buffer'.
 };
 
+// CLASS METHODS
 inline
 bdlbb::BlobBufferFactory *InvalidBlobBufferFactory::factory(
                                         bdlbb::BlobBufferFactory *basicFactory)
@@ -81,6 +79,7 @@ InvalidBlobBufferFactory& InvalidBlobBufferFactory::singleton()
     return instance;
 }
 
+// MANIPULATORS
 void InvalidBlobBufferFactory::allocate(bdlbb::BlobBuffer *)
 {
     BSLS_ASSERT_OPT(!"Invalid Blob Buffer Factory Used!");
@@ -90,9 +89,9 @@ void InvalidBlobBufferFactory::allocate(bdlbb::BlobBuffer *)
 
 namespace bdlbb {
 
-                             // ================
-                             // class BlobBuffer
-                             // ================
+                              // ================
+                              // class BlobBuffer
+                              // ================
 
 // MANIPULATORS
 BlobBuffer& BlobBuffer::operator=(const BlobBuffer& rhs)
@@ -125,26 +124,25 @@ bsl::ostream& BlobBuffer::print(bsl::ostream& stream, int, int) const
 }  // close package namespace
 
 // FREE OPERATORS
-bsl::ostream& bdlbb::operator<<(bsl::ostream&     stream,
-                                const BlobBuffer& buffer)
+bsl::ostream& bdlbb::operator<<(bsl::ostream& stream, const BlobBuffer& buffer)
 {
     return buffer.print(stream, 0, -1);
 }
 
 namespace bdlbb {
 
-                         // =======================
-                         // class BlobBufferFactory
-                         // =======================
+                          // =======================
+                          // class BlobBufferFactory
+                          // =======================
 
 // CREATORS
 BlobBufferFactory::~BlobBufferFactory()
 {
 }
 
-                                // ==========
-                                // class Blob
-                                // ==========
+                                 // ==========
+                                 // class Blob
+                                 // ==========
 
 // PRIVATE ACCESSORS
 int Blob::assertInvariants() const
@@ -165,10 +163,9 @@ int Blob::assertInvariants() const
     // prevelant client usage of zero-sized buffers is and to decide to either
     // support or disallow it.
 
-    int preDataLength = 0;
+    int                     preDataLength = 0;
     BlobBufferConstIterator dataIter;
-    for (dataIter = d_buffers.begin();
-         dataIter != d_buffers.end();
+    for (dataIter = d_buffers.begin(); dataIter != d_buffers.end();
          ++dataIter) {
         if (preDataLength + dataIter->size() >= d_dataLength) {
             break;
@@ -206,7 +203,8 @@ int Blob::assertInvariants() const
         //..
         //  BSLS_ASSERT(d_dataLength - d_preDataIndexLength < it->size());
         //..
-    } else {
+    }
+    else {
         BSLS_ASSERT(0 == d_preDataIndexLength);
     }
 
@@ -262,7 +260,7 @@ void Blob::slowSetLength(int length)
     // We are decreasing the length.
 
     BSLS_ASSERT(d_preDataIndexLength >= length);
-    int left = d_preDataIndexLength - length;
+    int left     = d_preDataIndexLength - length;
     d_dataLength = d_preDataIndexLength;
 
     do {
@@ -286,8 +284,7 @@ Blob::Blob(bslma::Allocator *basicAllocator)
     BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
-Blob::Blob(BlobBufferFactory *factory,
-           bslma::Allocator  *basicAllocator)
+Blob::Blob(BlobBufferFactory *factory, bslma::Allocator *basicAllocator)
 : d_buffers(basicAllocator)
 , d_totalSize(0)
 , d_dataLength(0)
@@ -309,8 +306,8 @@ Blob::Blob(const BlobBuffer  *buffers,
 , d_preDataIndexLength(0)
 , d_bufferFactory_p(InvalidBlobBufferFactory::factory(factory))
 {
-    for (BlobBufferConstIterator it = d_buffers.begin();
-         it != d_buffers.end(); ++it) {
+    for (BlobBufferConstIterator it = d_buffers.begin(); it != d_buffers.end();
+         ++it) {
         BSLS_ASSERT(0 <= it->size());
         d_totalSize += it->size();
     }
@@ -330,8 +327,7 @@ Blob::Blob(const Blob&        original,
     BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
-Blob::Blob(const Blob&       original,
-           bslma::Allocator *basicAllocator)
+Blob::Blob(const Blob& original, bslma::Allocator *basicAllocator)
 : d_buffers(original.d_buffers, basicAllocator)
 , d_totalSize(original.d_totalSize)
 , d_dataLength(original.d_dataLength)
@@ -369,22 +365,22 @@ void Blob::appendBuffer(const BlobBuffer& buffer)
 
 void Blob::appendDataBuffer(const BlobBuffer& buffer)
 {
-    const int bufferSize = buffer.size();
+    const int bufferSize    = buffer.size();
     const int oldDataLength = d_dataLength;
 
-    d_totalSize  += bufferSize;
+    d_totalSize += bufferSize;
     d_dataLength += bufferSize;
 
     if (d_totalSize == d_dataLength) {
         // Fast path.  At the start, we had 0 or more buffers in the blob and
         // they were all full.
 
-        BSLS_ASSERT_SAFE(d_dataIndex == (int) d_buffers.size() - 1 ||
-                                  (0 == d_dataIndex && 0 == d_buffers.size()));
+        BSLS_ASSERT_SAFE(d_dataIndex == (int)d_buffers.size() - 1 ||
+                         (0 == d_dataIndex && 0 == d_buffers.size()));
 
         d_buffers.push_back(buffer);
         d_preDataIndexLength = oldDataLength;
-        d_dataIndex = static_cast<int>(d_buffers.size()) - 1;
+        d_dataIndex          = static_cast<int>(d_buffers.size()) - 1;
     }
     else if (bufferSize == d_dataLength) {
         // Another fast path.  At the start, there was no data, but empty
@@ -404,14 +400,14 @@ void Blob::appendDataBuffer(const BlobBuffer& buffer)
 
         BSLS_ASSERT_SAFE(d_dataLength > bufferSize);
         BSLS_ASSERT_SAFE(d_dataLength < d_totalSize);
-        BSLS_ASSERT_SAFE((unsigned) d_dataIndex < d_buffers.size());
+        BSLS_ASSERT_SAFE((unsigned)d_dataIndex < d_buffers.size());
         BSLS_ASSERT_SAFE(oldDataLength >= d_preDataIndexLength);
 
-        BlobBuffer& prevBuf     = d_buffers[d_dataIndex];
+        BlobBuffer&    prevBuf        = d_buffers[d_dataIndex];
         const unsigned newPrevBufSize = oldDataLength - d_preDataIndexLength;
         const unsigned trim           = prevBuf.size() - newPrevBufSize;
 
-        BSLS_ASSERT_SAFE(trim <= (unsigned) prevBuf.size());
+        BSLS_ASSERT_SAFE(trim <= (unsigned)prevBuf.size());
 
         prevBuf.setSize(newPrevBufSize);
 
@@ -425,7 +421,7 @@ void Blob::appendDataBuffer(const BlobBuffer& buffer)
 void Blob::insertBuffer(int index, const BlobBuffer& buffer)
 {
     BSLS_ASSERT(0 <= index);
-    BSLS_ASSERT(     index <= static_cast<int>(d_buffers.size()));
+    BSLS_ASSERT(index <= static_cast<int>(d_buffers.size()));
 
     const int bufferSize = buffer.size();
     d_buffers.insert(d_buffers.begin() + index, buffer);
@@ -433,7 +429,7 @@ void Blob::insertBuffer(int index, const BlobBuffer& buffer)
     if (0 != d_dataLength && index <= d_dataIndex) {
         // Newly-inserted buffer is a data buffer.
 
-        d_dataLength         += bufferSize;
+        d_dataLength += bufferSize;
         d_preDataIndexLength += bufferSize;
         ++d_dataIndex;
     }
@@ -448,23 +444,23 @@ void Blob::prependDataBuffer(const BlobBuffer& buffer)
         ++d_dataIndex;
         d_preDataIndexLength += bufferSize;
     }
-    d_totalSize  += bufferSize;
+    d_totalSize += bufferSize;
     d_dataLength += bufferSize;
 }
 
 void Blob::removeAll()
 {
     d_buffers.clear();
-    d_totalSize  = 0;
-    d_dataLength = 0;
-    d_dataIndex  = 0;
+    d_totalSize          = 0;
+    d_dataLength         = 0;
+    d_dataIndex          = 0;
     d_preDataIndexLength = 0;
 }
 
 void Blob::removeBuffer(int index)
 {
     BSLS_ASSERT(0 <= index);
-    BSLS_ASSERT(     index < static_cast<int>(d_buffers.size()));
+    BSLS_ASSERT(index < static_cast<int>(d_buffers.size()));
 
     d_totalSize -= d_buffers[index].size();
     if (d_dataIndex == index) {
@@ -543,12 +539,11 @@ void Blob::removeBuffers(int index, int numBuffers)
 void Blob::removeUnusedBuffers()
 {
     if (numDataBuffers() < numBuffers()) {
-        d_totalSize = d_dataLength > 0
-                      ? d_preDataIndexLength + d_buffers[d_dataIndex].size()
-                      : 0;
+        d_totalSize = d_dataLength > 0 ? d_preDataIndexLength +
+                                             d_buffers[d_dataIndex].size()
+                                       : 0;
 
-        d_buffers.erase(d_buffers.begin() + numDataBuffers(),
-                        d_buffers.end());
+        d_buffers.erase(d_buffers.begin() + numDataBuffers(), d_buffers.end());
     }
 }
 
@@ -556,9 +551,9 @@ void Blob::setLength(int length)
 {
     BSLS_ASSERT(0 <= length);
 
-    if (d_totalSize
-     && d_preDataIndexLength + d_buffers[d_dataIndex].size() >= length
-     && d_preDataIndexLength < length) {
+    if (d_totalSize &&
+        d_preDataIndexLength + d_buffers[d_dataIndex].size() >= length &&
+        d_preDataIndexLength < length) {
         // We are not crossing any buffer boundaries.
 
         d_dataLength = length;
@@ -571,7 +566,7 @@ void Blob::setLength(int length)
 void Blob::swapBufferRaw(int index, BlobBuffer *srcBuffer)
 {
     BSLS_ASSERT(0 <= index);
-    BSLS_ASSERT(     index < numBuffers());
+    BSLS_ASSERT(index < numBuffers());
     BSLS_ASSERT(srcBuffer->size() == buffer(index).size());
 
     d_buffers[index].buffer().swap(srcBuffer->buffer());
@@ -579,8 +574,8 @@ void Blob::swapBufferRaw(int index, BlobBuffer *srcBuffer)
 
 void Blob::trimLastDataBuffer()
 {
-    if (0 != d_dataLength
-     && d_dataLength - d_preDataIndexLength < d_buffers[d_dataIndex].size()) {
+    if (0 != d_dataLength &&
+        d_dataLength - d_preDataIndexLength < d_buffers[d_dataIndex].size()) {
         d_totalSize -= d_buffers[d_dataIndex].size();
         d_buffers[d_dataIndex].setSize(d_dataLength - d_preDataIndexLength);
         d_totalSize += d_dataLength - d_preDataIndexLength;
@@ -628,16 +623,15 @@ void Blob::moveDataBuffers(Blob *srcBlob)
     d_dataIndex          = srcBlob->d_dataIndex;
     d_dataLength         = srcBlob->d_dataLength;
     d_preDataIndexLength = srcBlob->d_preDataIndexLength;
-    d_totalSize          = d_preDataIndexLength
-                                               + d_buffers[d_dataIndex].size();
+    d_totalSize = d_preDataIndexLength + d_buffers[d_dataIndex].size();
 
     srcBlob->d_buffers.erase(srcBlob->d_buffers.begin(),
                              srcBlob->d_buffers.begin() + numSrcDataBuffers);
 
-    srcBlob->d_dataIndex           = 0;
-    srcBlob->d_dataLength          = 0;
-    srcBlob->d_preDataIndexLength  = 0;
-    srcBlob->d_totalSize          -= d_totalSize;
+    srcBlob->d_dataIndex          = 0;
+    srcBlob->d_dataLength         = 0;
+    srcBlob->d_preDataIndexLength = 0;
+    srcBlob->d_totalSize -= d_totalSize;
 }
 
 void Blob::moveAndAppendDataBuffers(Blob *srcBlob)
@@ -651,8 +645,8 @@ void Blob::moveAndAppendDataBuffers(Blob *srcBlob)
     const int numSrcDataBuffers = srcBlob->numDataBuffers();
     const int numDstDataBuffers = numDataBuffers();
 
-    reserveBufferCapacity(static_cast<int>(d_buffers.size())
-                          + numSrcDataBuffers);
+    reserveBufferCapacity(static_cast<int>(d_buffers.size()) +
+                          numSrcDataBuffers);
 
     BlobBufferIterator dstIter = d_buffers.begin() + numDstDataBuffers;
     BlobBufferIterator srcIter = srcBlob->d_buffers.begin();
@@ -664,43 +658,43 @@ void Blob::moveAndAppendDataBuffers(Blob *srcBlob)
         dstIter->setSize(srcIter->size());
     }
 
-    const int totalSizeAdded = srcBlob->d_preDataIndexLength +
-                              srcBlob->d_buffers[numSrcDataBuffers - 1].size();
+    const int totalSizeAdded =
+        srcBlob->d_preDataIndexLength +
+        srcBlob->d_buffers[numSrcDataBuffers - 1].size();
 
-    d_dataIndex          = 0 == length()
-                           ? numSrcDataBuffers - 1
-                           : d_dataIndex + numSrcDataBuffers;
-    d_preDataIndexLength  = d_dataLength + srcBlob->d_preDataIndexLength;
-    d_dataLength         += srcBlob->d_dataLength;
-    d_totalSize          += totalSizeAdded;
+    d_dataIndex = 0 == length() ? numSrcDataBuffers - 1
+                                : d_dataIndex + numSrcDataBuffers;
+    d_preDataIndexLength = d_dataLength + srcBlob->d_preDataIndexLength;
+    d_dataLength += srcBlob->d_dataLength;
+    d_totalSize += totalSizeAdded;
 
     srcBlob->d_buffers.erase(srcBlob->d_buffers.begin(),
                              srcBlob->d_buffers.begin() + numSrcDataBuffers);
 
-    srcBlob->d_dataIndex           = 0;
-    srcBlob->d_dataLength          = 0;
-    srcBlob->d_preDataIndexLength  = 0;
-    srcBlob->d_totalSize          -= totalSizeAdded;
+    srcBlob->d_dataIndex          = 0;
+    srcBlob->d_dataLength         = 0;
+    srcBlob->d_preDataIndexLength = 0;
+    srcBlob->d_totalSize -= totalSizeAdded;
 }
 }  // close package namespace
 
 // FREE OPERATORS
 bool bdlbb::operator==(const Blob& lhs, const Blob& rhs)
 {
-    return lhs.d_buffers            == rhs.d_buffers
-        && lhs.d_totalSize          == rhs.d_totalSize
-        && lhs.d_dataLength         == rhs.d_dataLength
-        && lhs.d_dataIndex          == rhs.d_dataIndex
-        && lhs.d_preDataIndexLength == rhs.d_preDataIndexLength;
+    return lhs.d_buffers == rhs.d_buffers &&
+           lhs.d_totalSize == rhs.d_totalSize &&
+           lhs.d_dataLength == rhs.d_dataLength &&
+           lhs.d_dataIndex == rhs.d_dataIndex &&
+           lhs.d_preDataIndexLength == rhs.d_preDataIndexLength;
 }
 
 bool bdlbb::operator!=(const Blob& lhs, const Blob& rhs)
 {
-    return lhs.d_buffers            != rhs.d_buffers
-        || lhs.d_totalSize          != rhs.d_totalSize
-        || lhs.d_dataLength         != rhs.d_dataLength
-        || lhs.d_dataIndex          != rhs.d_dataIndex
-        || lhs.d_preDataIndexLength != rhs.d_preDataIndexLength;
+    return lhs.d_buffers != rhs.d_buffers ||
+           lhs.d_totalSize != rhs.d_totalSize ||
+           lhs.d_dataLength != rhs.d_dataLength ||
+           lhs.d_dataIndex != rhs.d_dataIndex ||
+           lhs.d_preDataIndexLength != rhs.d_preDataIndexLength;
 }
 
 }  // close enterprise namespace
