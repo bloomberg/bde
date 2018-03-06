@@ -7,9 +7,9 @@
 // should not be used as an example for new development.
 // ----------------------------------------------------------------------------
 
-#include <bdlbb_blob.h>
 #include <bdlbb_blobutil.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
+#include <bdlbb_blob.h>
 
 #include <bslim_testutil.h>
 
@@ -23,8 +23,8 @@
 #include <bsls_types.h>
 
 #include <bsl_cstddef.h>
-#include <bsl_cstdlib.h>  // 'atoi'
-#include <bsl_cstring.h>  // 'memcpy'
+#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstring.h>     // 'memcpy'
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 #include <bsl_sstream.h>
@@ -81,10 +81,10 @@ void aSsErT(bool condition, const char *message, int line)
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT BSLIM_TESTUTIL_ASSERT
-#define ASSERTV BSLIM_TESTUTIL_ASSERTV
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP_ASSERT BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
@@ -93,19 +93,19 @@ void aSsErT(bool condition, const char *message, int line)
 #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define Q BSLIM_TESTUTIL_Q    // Quote identifier literally.
-#define P BSLIM_TESTUTIL_P    // Print identifier and value.
-#define P_ BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_ BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_ BSLIM_TESTUTIL_L_  // current Line number
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                            CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
-                          // =======================
-                          // class BlobBufferFactory
-                          // =======================
+                         // =======================
+                         // class BlobBufferFactory
+                         // =======================
 
 class BlobBufferFactory : public bdlbb::BlobBufferFactory {
     // TBD: doc
@@ -126,21 +126,29 @@ class BlobBufferFactory : public bdlbb::BlobBufferFactory {
     {
     }
 
-    virtual ~BlobBufferFactory() {}
+    virtual ~BlobBufferFactory()
+    {
+    }
 
     // MANIPULATORS
     virtual void allocate(bdlbb::BlobBuffer *buffer)
     {
-        bsl::shared_ptr<char> shptr((char *)d_allocator_p->allocate(d_size),
+        bsl::shared_ptr<char> shptr((char*)d_allocator_p->allocate(d_size),
                                     d_allocator_p);
         buffer->reset(shptr, d_size);
         *buffer->data() = '#';
     }
 
-    virtual void setBufferSize(int bufferSize) { d_size = bufferSize; }
+    virtual void setBufferSize(int bufferSize)
+    {
+        d_size = bufferSize;
+    }
 
     // ACCESSORS
-    virtual int bufferSize() const { return d_size; }
+    virtual int bufferSize() const
+    {
+        return d_size;
+    }
 };
 
 // ============================================================================
@@ -209,12 +217,12 @@ bsl::string g(int length)
 void copyStringToBlob(bdlbb::Blob *dest, const bsl::string& str)
 {
     dest->setLength(static_cast<int>(str.length()));
-    int         numBytesRemaining = static_cast<int>(str.length());
-    const char *data              = str.data();
-    int         bufferIndex       = 0;
+    int numBytesRemaining = static_cast<int>(str.length());
+    const char *data = str.data();
+    int bufferIndex = 0;
     while (numBytesRemaining) {
         bdlbb::BlobBuffer buffer = dest->buffer(bufferIndex);
-        int numBytesToCopy       = bsl::min(numBytesRemaining, buffer.size());
+        int numBytesToCopy = bsl::min(numBytesRemaining, buffer.size());
         bsl::memcpy(buffer.data(), data, numBytesToCopy);
         data += numBytesToCopy;
         numBytesRemaining -= numBytesToCopy;
@@ -227,10 +235,10 @@ void copyBlobToString(bsl::string *dest, const bdlbb::Blob& blob)
 {
     dest->clear();
     int numBytesRemaining = blob.length();
-    int bufferIndex       = 0;
+    int bufferIndex = 0;
     while (numBytesRemaining) {
         bdlbb::BlobBuffer buffer = blob.buffer(bufferIndex);
-        int numBytesToCopy       = bsl::min(numBytesRemaining, buffer.size());
+        int numBytesToCopy = bsl::min(numBytesRemaining, buffer.size());
         dest->append(buffer.data(), buffer.data() + numBytesToCopy);
         numBytesRemaining -= numBytesToCopy;
         ++bufferIndex;
@@ -308,7 +316,8 @@ bsl::string expectedOutCase3[] = {
     "   208:   61626364 65203237 61626364 65203238     |abcde 27abcde 28|\n"
     "   224:   61626364 65203239 61626364 65203330     |abcde 29abcde 30|\n"
     "   240:   61626364 65203331 61626364 65203332     |abcde 31abcde 32|\n"
-    "   256:   61626364 65203333                       |abcde 33        |"};
+    "   256:   61626364 65203333                       |abcde 33        |"
+};
 
 static bool bad_jk(int j, int k, bdlbb::Blob& blob)
 {
@@ -319,20 +328,19 @@ static bool bad_jk(int j, int k, bdlbb::Blob& blob)
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+
     bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failThrow);
     // The line above will not be needed once 'bsls' is updated.
 
-    int test        = argc > 1 ? atoi(argv[1]) : 0;
-    verbose         = argc > 2;
-    veryVerbose     = argc > 3;
+    int test = argc > 1 ? atoi(argv[1]) : 0;
+    verbose = argc > 2;
+    veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    switch (test) {
-      case 0:
+    switch (test) { case 0:
       case 10: {
         // -------------------------------------------------------------------
         // TESTING 'copy' FUNCTIONS WRITING TO BLOB
@@ -375,8 +383,7 @@ int main(int argc, char *argv[])
 
         const bsl::string STR = "abcdefghijklmnopqrstuvwxyz";
 
-        if (verbose)
-            bsl::cout << "\tCopy from character buffer" << bsl::endl;
+        if (verbose) bsl::cout << "\tCopy from character buffer" << bsl::endl;
         {
             static const struct {
                 int d_line;
@@ -389,27 +396,41 @@ int main(int argc, char *argv[])
 
             // NUM BYTES = 0
 
-            {L_, 0, 0, 0},
+            {   L_,        0,        0,            0 },
 
-                {L_, 1, 0, 0}, {L_, 3, 0, 0}, {L_, 10, 0, 0}, {L_, 25, 0, 0},
+            {   L_,        1,        0,            0 },
+            {   L_,        3,        0,            0 },
+            {   L_,       10,        0,            0 },
+            {   L_,       25,        0,            0 },
 
             // Copy data at OFFSET = 0
 
-            {L_, 1, 0, 1},
+            {   L_,        1,        0,            1 },
 
-                {L_, 3, 0, 1}, {L_, 3, 0, 2}, {L_, 3, 0, 3},
+            {   L_,        3,        0,            1 },
+            {   L_,        3,        0,            2 },
+            {   L_,        3,        0,            3 },
 
-                {L_, 10, 0, 1}, {L_, 10, 0, 5}, {L_, 10, 0, 10},
+            {   L_,       10,        0,            1 },
+            {   L_,       10,        0,            5 },
+            {   L_,       10,        0,           10 },
 
-                {L_, 25, 0, 1}, {L_, 25, 0, 12}, {L_, 25, 0, 25},
+            {   L_,       25,        0,            1 },
+            {   L_,       25,        0,           12 },
+            {   L_,       25,        0,           25 },
 
             // Copy data at OFFSET = BLOB_LEN/2
 
-            {L_, 3, 1, 1}, {L_, 3, 1, 2},
+            {   L_,        3,        1,            1 },
+            {   L_,        3,        1,            2 },
 
-                {L_, 10, 5, 1}, {L_, 10, 5, 3}, {L_, 10, 5, 5},
+            {   L_,       10,        5,            1 },
+            {   L_,       10,        5,            3 },
+            {   L_,       10,        5,            5 },
 
-                {L_, 25, 12, 1}, {L_, 25, 12, 7}, {L_, 25, 12, 13},
+            {   L_,       25,       12,            1 },
+            {   L_,       25,       12,            7 },
+            {   L_,       25,       12,           13 },
 
             // Copy data at OFFSET = BLOB_LEN - 1
 
@@ -420,10 +441,10 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int LINE = DATA[i].d_line;
-                const int LEN  = DATA[i].d_blobLength;
-                const int OFF  = DATA[i].d_dstOffset;
-                const int NB   = DATA[i].d_numBytesToCopy;
+                const int   LINE = DATA[i].d_line;
+                const int   LEN  = DATA[i].d_blobLength;
+                const int   OFF  = DATA[i].d_dstOffset;
+                const int   NB   = DATA[i].d_numBytesToCopy;
 
                 if (veryVerbose) {
                     P_(LINE) P_(LEN) P_(OFF) P(NB)
@@ -451,15 +472,16 @@ int main(int argc, char *argv[])
                         bsl::cout << "\nSource = '" << tmp << '\''
                                   << bsl::endl;
                         copyBlobToString(&tmp, exp);
-                        bsl::cout << "\nExp = '" << tmp << '\'' << bsl::endl;
+                        bsl::cout << "\nExp = '" << tmp << '\''
+                                  << bsl::endl;
                     }
 
                     bsl::string src = STR;
 
                     Util::copy(&source, OFF, src.c_str(), NB);
 
-                    LOOP4_ASSERT(
-                        LINE, OFF, LEN, NB, !Util::compare(exp, source));
+                    LOOP4_ASSERT(LINE, OFF, LEN, NB,
+                                 !Util::compare(exp, source));
 
                     if (veryVeryVerbose) {
                         bsl::string tmp;
@@ -467,22 +489,21 @@ int main(int argc, char *argv[])
                         bsl::cout << "\nSource = '" << tmp << '\''
                                   << bsl::endl;
                         copyBlobToString(&tmp, exp);
-                        bsl::cout << "\nExp = '" << tmp << '\'' << bsl::endl;
+                        bsl::cout << "\nExp = '" << tmp << '\''
+                                  << bsl::endl;
                     }
                 }
             }
 
-            if (verbose)
-                cout << "\nNegative Testing." << endl;
+            if (verbose) cout << "\nNegative Testing." << endl;
             {
                 bsls::AssertFailureHandlerGuard hG(
-                    bsls::AssertTest::failTestDriver);
+                                             bsls::AssertTest::failTestDriver);
 
                 BlobBufferFactory  factory(10);
                 const char        *src = "abcdef";
 
-                if (veryVerbose)
-                    cout << "\tBad Blob pointer" << endl;
+                if (veryVerbose) cout << "\tBad Blob pointer" << endl;
                 {
                     Blob blob(&factory);
                     blob.setLength(3);
@@ -491,8 +512,7 @@ int main(int argc, char *argv[])
                     ASSERT_PASS(Util::copy(&blob, 0, src, 1));
                 }
 
-                if (veryVerbose)
-                    cout << "\tBad src pointer" << endl;
+                if (veryVerbose) cout << "\tBad src pointer" << endl;
                 {
                     Blob blob(&factory);
                     blob.setLength(3);
@@ -501,8 +521,7 @@ int main(int argc, char *argv[])
                     ASSERT_PASS(Util::copy(&blob, 0, src, 1));
                 }
 
-                if (veryVerbose)
-                    cout << "\tBad dstOffset" << endl;
+                if (veryVerbose) cout << "\tBad dstOffset" << endl;
                 {
                     Blob blob(&factory);
 
@@ -511,18 +530,17 @@ int main(int argc, char *argv[])
                     // Fails '0 <= dstOffset'
 
                     ASSERT_FAIL(Util::copy(&blob, -1, src, 0));
-                    ASSERT_PASS(Util::copy(&blob, 0, src, 0));
+                    ASSERT_PASS(Util::copy(&blob,  0, src, 0));
 
-                    ASSERT_PASS(Util::copy(&blob, 0, src, 1));
+                    ASSERT_PASS(Util::copy(&blob,  0, src, 1));
 
                     // Fails 'dstOffset + length <= dst->length()'
 
-                    ASSERT_PASS(Util::copy(&blob, 2, src, 1));
-                    ASSERT_FAIL(Util::copy(&blob, 2, src, 2));
+                    ASSERT_PASS(Util::copy(&blob,  2, src, 1));
+                    ASSERT_FAIL(Util::copy(&blob,  2, src, 2));
                 }
 
-                if (veryVerbose)
-                    cout << "\tBad length" << endl;
+                if (veryVerbose) cout << "\tBad length" << endl;
                 {
                     Blob blob(&factory);
                     blob.setLength(3);
@@ -533,8 +551,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose)
-            bsl::cout << "\tCopy from from another blob" << bsl::endl;
+        if (verbose) bsl::cout << "\tCopy from from another blob" << bsl::endl;
         {
             static const struct {
                 int d_line;
@@ -549,68 +566,92 @@ int main(int argc, char *argv[])
 
             // NUM BYTES = 0
 
-            {L_, 0, 0, 0, 0, 0}, {L_, 0, 0, 1, 0, 0}, {L_, 1, 0, 0, 0, 0},
-                {L_, 1, 0, 1, 0, 0},
+            {   L_,     0,    0,    0,    0,      0 },
+            {   L_,     0,    0,    1,    0,      0 },
+            {   L_,     1,    0,    0,    0,      0 },
+            {   L_,     1,    0,    1,    0,      0 },
 
-                {L_, 3, 0, 1, 0, 0}, {L_, 3, 0, 5, 0, 0}, {L_, 3, 0, 10, 0, 0},
+            {   L_,     3,    0,    1,    0,      0 },
+            {   L_,     3,    0,    5,    0,      0 },
+            {   L_,     3,    0,   10,    0,      0 },
 
-                {L_, 10, 0, 1, 0, 0}, {L_, 10, 0, 10, 0, 0},
-                {L_, 10, 0, 20, 0, 0},
+            {   L_,    10,    0,    1,    0,      0 },
+            {   L_,    10,    0,   10,    0,      0 },
+            {   L_,    10,    0,   20,    0,      0 },
 
-                {L_, 25, 0, 1, 0, 0}, {L_, 25, 0, 5, 0, 0},
-                {L_, 25, 0, 10, 0, 0},
+            {   L_,    25,    0,    1,    0,      0 },
+            {   L_,    25,    0,    5,    0,      0 },
+            {   L_,    25,    0,   10,    0,      0 },
 
             // Copy data at DEST & SRC OFFSET = 0
 
-            {L_, 1, 0, 1, 0, 1},
+            {   L_,     1,    0,    1,    0,      1 },
 
-                {L_, 3, 0, 5, 0, 1}, {L_, 3, 0, 5, 0, 2}, {L_, 3, 0, 5, 0, 3},
+            {   L_,     3,    0,    5,    0,      1 },
+            {   L_,     3,    0,    5,    0,      2 },
+            {   L_,     3,    0,    5,    0,      3 },
 
-                {L_, 10, 0, 10, 0, 1}, {L_, 10, 0, 10, 0, 5},
-                {L_, 10, 0, 10, 0, 10},
+            {   L_,    10,    0,   10,    0,      1 },
+            {   L_,    10,    0,   10,    0,      5 },
+            {   L_,    10,    0,   10,    0,     10 },
 
-                {L_, 25, 0, 15, 0, 1}, {L_, 25, 0, 15, 0, 8},
-                {L_, 25, 0, 15, 0, 15},
+            {   L_,    25,    0,   15,    0,      1 },
+            {   L_,    25,    0,   15,    0,      8 },
+            {   L_,    25,    0,   15,    0,     15 },
 
             // Copy data at DEST OFFSET = 0 & SRC OFFSET = SLEN/2
 
-            {L_, 3, 0, 5, 2, 1}, {L_, 3, 0, 5, 2, 2}, {L_, 3, 0, 5, 2, 3},
+            {   L_,     3,    0,    5,    2,      1 },
+            {   L_,     3,    0,    5,    2,      2 },
+            {   L_,     3,    0,    5,    2,      3 },
 
-                {L_, 10, 0, 10, 5, 1}, {L_, 10, 0, 10, 5, 2},
-                {L_, 10, 0, 10, 5, 3},
+            {   L_,    10,    0,   10,    5,      1 },
+            {   L_,    10,    0,   10,    5,      2 },
+            {   L_,    10,    0,   10,    5,      3 },
 
-                {L_, 25, 0, 15, 7, 1}, {L_, 25, 0, 15, 7, 3},
-                {L_, 25, 0, 15, 7, 8},
+            {   L_,    25,    0,   15,    7,      1 },
+            {   L_,    25,    0,   15,    7,      3 },
+            {   L_,    25,    0,   15,    7,      8 },
 
             // Copy data at DEST OFFSET = DLEN/2 & SRC OFFSET = 0
 
-            {L_, 3, 1, 5, 0, 1}, {L_, 3, 1, 5, 0, 2},
+            {   L_,     3,    1,    5,    0,      1 },
+            {   L_,     3,    1,    5,    0,      2 },
 
-                {L_, 10, 5, 10, 0, 1}, {L_, 10, 5, 10, 0, 3},
-                {L_, 10, 5, 10, 0, 5},
+            {   L_,    10,    5,   10,    0,      1 },
+            {   L_,    10,    5,   10,    0,      3 },
+            {   L_,    10,    5,   10,    0,      5 },
 
-                {L_, 25, 12, 15, 0, 1}, {L_, 25, 12, 15, 0, 8},
-                {L_, 25, 12, 15, 0, 13},
+            {   L_,    25,   12,   15,    0,      1 },
+            {   L_,    25,   12,   15,    0,      8 },
+            {   L_,    25,   12,   15,    0,     13 },
 
             // Copy data at DEST OFFSET & SRC OFFSET = LEN/2
 
-            {L_, 3, 1, 5, 2, 1}, {L_, 3, 1, 5, 2, 2},
+            {   L_,     3,    1,    5,    2,      1 },
+            {   L_,     3,    1,    5,    2,      2 },
 
-                {L_, 10, 5, 10, 5, 1}, {L_, 10, 5, 10, 5, 3},
-                {L_, 10, 5, 10, 5, 5},
+            {   L_,    10,    5,   10,    5,      1 },
+            {   L_,    10,    5,   10,    5,      3 },
+            {   L_,    10,    5,   10,    5,      5 },
 
-                {L_, 25, 12, 15, 7, 1}, {L_, 25, 12, 15, 7, 3},
-                {L_, 25, 12, 15, 7, 8},
+            {   L_,    25,   12,   15,    7,      1 },
+            {   L_,    25,   12,   15,    7,      3 },
+            {   L_,    25,   12,   15,    7,      8 },
 
             // Copy data from SRC OFFSET = SLEN - 1
 
-            {L_, 3, 0, 5, 4, 1}, {L_, 3, 1, 5, 4, 1}, {L_, 3, 2, 5, 4, 1},
+            {   L_,     3,    0,    5,    4,      1 },
+            {   L_,     3,    1,    5,    4,      1 },
+            {   L_,     3,    2,    5,    4,      1 },
 
-                {L_, 10, 0, 10, 9, 1}, {L_, 10, 5, 10, 9, 1},
-                {L_, 10, 9, 10, 9, 1},
+            {   L_,    10,    0,   10,    9,      1 },
+            {   L_,    10,    5,   10,    9,      1 },
+            {   L_,    10,    9,   10,    9,      1 },
 
-                {L_, 25, 0, 15, 14, 1}, {L_, 25, 12, 15, 14, 1},
-                {L_, 25, 24, 15, 14, 1},
+            {   L_,    25,    0,   15,   14,      1 },
+            {   L_,    25,   12,   15,   14,      1 },
+            {   L_,    25,   24,   15,   14,      1 },
 
             // Copy data at DEST OFFSET = DLEN - 1
 
@@ -630,12 +671,12 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int LINE = DATA[i].d_line;
-                const int DLEN = DATA[i].d_dstLength;
-                const int DOFF = DATA[i].d_dstOffset;
-                const int SLEN = DATA[i].d_srcLength;
-                const int SOFF = DATA[i].d_srcOffset;
-                const int NB   = DATA[i].d_numBytes;
+                const int   LINE = DATA[i].d_line;
+                const int   DLEN = DATA[i].d_dstLength;
+                const int   DOFF = DATA[i].d_dstOffset;
+                const int   SLEN = DATA[i].d_srcLength;
+                const int   SOFF = DATA[i].d_srcOffset;
+                const int   NB   = DATA[i].d_numBytes;
 
                 if (veryVerbose) {
                     P_(LINE) P_(DLEN) P_(DOFF) P_(SLEN) P_(SOFF) P(NB)
@@ -675,8 +716,8 @@ int main(int argc, char *argv[])
 
                         Util::copy(&dst, DOFF, src, SOFF, NB);
 
-                        LOOP4_ASSERT(
-                            LINE, DOFF, DLEN, NB, !Util::compare(exp, dst));
+                        LOOP4_ASSERT(LINE, DOFF, DLEN, NB,
+                                     !Util::compare(exp, dst));
 
                         if (veryVeryVerbose) {
                             bsl::string tmp;
@@ -691,16 +732,14 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose)
-                cout << "\nNegative Testing." << endl;
+            if (verbose) cout << "\nNegative Testing." << endl;
             {
                 bsls::AssertFailureHandlerGuard hG(
-                    bsls::AssertTest::failTestDriver);
+                                             bsls::AssertTest::failTestDriver);
 
                 BlobBufferFactory factory(10);
 
-                if (veryVerbose)
-                    cout << "\tBad blob pointer" << endl;
+                if (veryVerbose) cout << "\tBad blob pointer" << endl;
                 {
                     Blob dst(&factory);
                     Blob src(&factory);
@@ -711,8 +750,7 @@ int main(int argc, char *argv[])
                     ASSERT_PASS(Util::copy(&dst, 0, src, 0, 1));
                 }
 
-                if (veryVerbose)
-                    cout << "\tBad dstOffset" << endl;
+                if (veryVerbose) cout << "\tBad dstOffset" << endl;
                 {
                     Blob dst(&factory);
                     Blob src(&factory);
@@ -722,18 +760,17 @@ int main(int argc, char *argv[])
                     // Fails '0 <= dstOffset'
 
                     ASSERT_FAIL(Util::copy(&dst, -1, src, 0, 0));
-                    ASSERT_PASS(Util::copy(&dst, 0, src, 0, 0));
+                    ASSERT_PASS(Util::copy(&dst,  0, src, 0, 0));
 
                     dst.setLength(3);
 
                     // Fails 'dstOffset + length <= dst->length()'
 
-                    ASSERT_PASS(Util::copy(&dst, 2, src, 0, 1));
-                    ASSERT_FAIL(Util::copy(&dst, 2, src, 0, 2));
+                    ASSERT_PASS(Util::copy(&dst,  2, src, 0, 1));
+                    ASSERT_FAIL(Util::copy(&dst,  2, src, 0, 2));
                 }
 
-                if (veryVerbose)
-                    cout << "\tBad srcOffset" << endl;
+                if (veryVerbose) cout << "\tBad srcOffset" << endl;
                 {
                     Blob dst(&factory);
                     Blob src(&factory);
@@ -743,18 +780,17 @@ int main(int argc, char *argv[])
                     // Fails '0 <= srcOffset'
 
                     ASSERT_FAIL(Util::copy(&dst, 0, src, -1, 0));
-                    ASSERT_PASS(Util::copy(&dst, 0, src, 0, 0));
+                    ASSERT_PASS(Util::copy(&dst, 0, src,  0, 0));
 
                     src.setLength(3);
 
                     // Fails 'srcOffset + length <= src->length()'
 
-                    ASSERT_PASS(Util::copy(&dst, 0, src, 2, 1));
-                    ASSERT_FAIL(Util::copy(&dst, 0, src, 2, 2));
+                    ASSERT_PASS(Util::copy(&dst,  0, src, 2, 1));
+                    ASSERT_FAIL(Util::copy(&dst,  0, src, 2, 2));
                 }
 
-                if (veryVerbose)
-                    cout << "\tBad length" << endl;
+                if (veryVerbose) cout << "\tBad length" << endl;
                 {
                     Blob dst(&factory);
                     Blob src(&factory);
@@ -796,7 +832,7 @@ int main(int argc, char *argv[])
                             "\n===========================================\n");
 
         static const int MAXALN = 16;
-        static const int BIG    = MAXALN * 2;
+        static const int BIG = MAXALN * 2;
         static const struct {
             int d_line;
             int d_numBufs;
@@ -900,21 +936,21 @@ int main(int argc, char *argv[])
         bdlbb::BlobBuffer buffer;
         factory.allocate(&buffer);
 
-        typedef bsls::Types::UintPtr  UintPtr;
-        char                         *aligned = buffer.data();
+        typedef bsls::Types::UintPtr UintPtr;
+        char *aligned = buffer.data();
         UintPtr alInt = reinterpret_cast<UintPtr>(aligned + MAXALN - 1);
         alInt &= ~UintPtr(MAXALN - 1);
-        aligned        = reinterpret_cast<char *>(alInt);
+        aligned = reinterpret_cast<char*>(alInt);
         ptrdiff_t fuzz = aligned - buffer.data();
 
-        char     copyBuf[BIG * 4];
-        char    *copyBufP = copyBuf;
-        UintPtr  copyBufI = reinterpret_cast<UintPtr>(copyBufP + MAXALN - 1);
+        char copyBuf[BIG * 4];
+        char *copyBufP = copyBuf;
+        UintPtr copyBufI = reinterpret_cast<UintPtr>(copyBufP + MAXALN - 1);
         copyBufI &= ~UintPtr(MAXALN - 1);
-        copyBufP = reinterpret_cast<char *>(copyBufI);
+        copyBufP = reinterpret_cast<char*>(copyBufI);
 
         bdlbb::BlobBuffer buffers[4];
-        buffers[0].reset(buffers[0].buffer(), 0);  // empty
+        buffers[0].reset(buffers[0].buffer(), 0); // empty
         for (int i = 1; i < 4; ++i) {
             bsl::shared_ptr<char> bufferp;
             bufferp.loadAlias(buffer.buffer(), aligned + i - 1);
@@ -925,12 +961,13 @@ int main(int argc, char *argv[])
         // empty The second is aligned to 16 bytes, size 16 The third is
         // misaligned by 1, size 15 The fourth is misaligned by 2, size 14
 
-        int NUMDATA = sizeof(DATA) / sizeof(*DATA);
+        int NUMDATA = sizeof(DATA)/sizeof(*DATA);
         for (int i = 0; i < NUMDATA; ++i) {
-            int          LINE    = DATA[i].d_line;
-            int          NUMBUFS = DATA[i].d_numBufs;
-            const int   *SIZES   = DATA[i].d_sizes;
-            bdlbb::Blob  BLOB;
+
+            int LINE    = DATA[i].d_line;
+            int NUMBUFS = DATA[i].d_numBufs;
+            const int *SIZES = DATA[i].d_sizes;
+            bdlbb::Blob BLOB;
             for (int f = 0; f < NUMBUFS; ++f) {
                 BLOB.appendBuffer(buffers[SIZES[f]]);
             }
@@ -938,63 +975,48 @@ int main(int argc, char *argv[])
                 int sizeMax = BLOB.totalSize() - POS + 1;
                 for (int SIZE = 0; SIZE <= sizeMax; ++SIZE) {
                     for (int ALN = 1; ALN <= MAXALN; ALN <<= 1) {
+
                         if (veryVeryVerbose) {
-                            bsl::cout << "LINE=" << LINE
-                                      << ":"
-                                         " DATA["
-                                      << i
-                                      << "]=("
-                                         " NUMBUFS="
-                                      << NUMBUFS
-                                      << ","
-                                         " ("
-                                      << SIZES[0]
-                                      << ","
-                                         " "
-                                      << SIZES[1]
-                                      << ","
-                                         " "
-                                      << SIZES[2]
-                                      << "),"
-                                         " POS="
-                                      << POS
-                                      << ","
-                                         " SIZE="
-                                      << SIZE
-                                      << ","
-                                         " ALN="
-                                      << ALN << ")";
+                            bsl::cout << "LINE=" << LINE << ":"
+                                " DATA[" << i << "]=("
+                                " NUMBUFS=" << NUMBUFS << ","
+                                " (" << SIZES[0] << ","
+                                " "  << SIZES[1] << ","
+                                " "  << SIZES[2] << "),"
+                                " POS="  << POS  << ","
+                                " SIZE=" << SIZE << ","
+                                " ALN="  << ALN << ")";
                         }
-                        if (POS < 0 || BLOB.totalSize() <= POS ||
-                            BLOB.totalSize() - POS < SIZE || SIZE <= 0) {
+                        if (POS < 0 || BLOB.totalSize() <= POS
+                         || BLOB.totalSize() - POS < SIZE || SIZE <= 0) {
+
                             veryVeryVerbose && (bsl::cout << " BAD ARG\n");
                             BSLS_ASSERTTEST_ASSERT_FAIL(
                                 bdlbb::BlobUtil::getContiguousRangeOrCopy(
-                                    copyBufP, BLOB, POS, SIZE, ALN));
+                                              copyBufP, BLOB, POS, SIZE, ALN));
                             continue;
                         }
                         veryVeryVerbose && (bsl::cout << "\n");
 
                         memset(copyBufP, '#', SIZE + 1);
                         char *out;
-                        BSLS_ASSERTTEST_ASSERT_PASS(
-                            out = bdlbb::BlobUtil::getContiguousRangeOrCopy(
-                                copyBufP, BLOB, POS, SIZE, ALN));
+                        BSLS_ASSERTTEST_ASSERT_PASS(out =
+                                   bdlbb::BlobUtil::getContiguousRangeOrCopy(
+                                              copyBufP, BLOB, POS, SIZE, ALN));
                         ASSERT(0 != out);
                         bsl::pair<int, int> place =
-                            bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB,
+                          bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB,
                                                                       POS);
                         const bdlbb::BlobBuffer& buf =
                             BLOB.buffer(place.first);
-                        char    *p    = buf.data();
-                        int      size = buf.size() - place.second;
-                        UintPtr  v =
-                            reinterpret_cast<UintPtr>(p + place.second);
+                        char *p = buf.data();
+                        int size = buf.size() - place.second;
+                        UintPtr v = reinterpret_cast<UintPtr>(
+                                                             p + place.second);
                         bool isAligned = ((v & UintPtr(ALN - 1)) == 0);
                         if (SIZE <= size && isAligned) {
                             ASSERT(out == p + place.second);
-                        }
-                        else {
+                        } else {
                             char dumBuf[3 * BIG + 1];
                             dumBuf[SIZE] = '#';
                             ASSERT(out == copyBufP);
@@ -1006,8 +1028,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        bdlbb::Blob  BLOB(&buffers[1], 1, &factory);
-        char        *abuf = buffers[1].data();
+        bdlbb::Blob BLOB(&buffers[1], 1, &factory);
+        char *abuf = buffers[1].data();
         struct {
             int d_line;
             int d_bufOffset;  // offset into aligned destination buffer
@@ -1031,38 +1053,31 @@ int main(int argc, char *argv[])
             { L_,  0,  0, BIG+1, 1 }, // length > blob.totalSize() - position
             { L_,  0, BIG, 1,   1 }   // length > blob.totalSize() - position
         };
-        int NUMFAILS = sizeof(FAILS) / sizeof(*FAILS);
+        int NUMFAILS = sizeof(FAILS)/sizeof(*FAILS);
         for (int i = 0; i < NUMFAILS; ++i) {
-            int LINE = FAILS[i].d_line, OFF = FAILS[i].d_bufOffset,
-                POS = FAILS[i].d_position, LEN = FAILS[i].d_length,
-                ALN   = FAILS[i].d_alignment;
+            int LINE = FAILS[i].d_line,
+                OFF =  FAILS[i].d_bufOffset,
+                POS =  FAILS[i].d_position,
+                LEN =  FAILS[i].d_length,
+                ALN =  FAILS[i].d_alignment;
             char *BUF = (OFF < 0) ? NULL : abuf + OFF;
 
             if (veryVeryVerbose) {
-                bsl::cout << "LINE=" << LINE
-                          << ":"
-                             " FAILS["
-                          << i
-                          << "]=("
-                             " OFF="
-                          << OFF
-                          << ","
-                             " POS="
-                          << POS
-                          << ","
-                             " LEN="
-                          << LEN
-                          << ","
-                             " ALN="
-                          << ALN << ")\n";
+                bsl::cout << "LINE=" << LINE << ":"
+                    " FAILS[" << i << "]=("
+                    " OFF="  << OFF << ","
+                    " POS="  << POS  << ","
+                    " LEN="  << LEN << ","
+                    " ALN="  << ALN << ")\n";
             }
             BSLS_ASSERTTEST_ASSERT_FAIL(
-                bdlbb::BlobUtil::getContiguousRangeOrCopy(
-                    BUF, BLOB, POS, LEN, ALN));
+                                   bdlbb::BlobUtil::getContiguousRangeOrCopy(
+                                                    BUF, BLOB, POS, LEN, ALN));
         }
         // One-off alignment is OK for alignment 1:
         BSLS_ASSERTTEST_ASSERT_PASS(
-          bdlbb::BlobUtil::getContiguousRangeOrCopy(abuf + 1, BLOB, 1, 1, 1) );
+            bdlbb::BlobUtil::getContiguousRangeOrCopy(
+                                                     abuf + 1, BLOB, 1, 1, 1));
         verbose && (cout << "\nEnd of Test.\n");
       } break;
       case 8: {
@@ -1091,14 +1106,14 @@ int main(int argc, char *argv[])
                             "\n==========================================\n");
 
         static const struct {
-            int  d_line;
-            int  d_numBufs;   // number of buffers to put into the test blob
-            int  d_sizes[3];  // sizes of the buffers (ignore extras)
-            int  d_length;    // blob.setLength() with this value
-            int  d_numBufs1;  // number of buffers expected after adding 1 byte
-            int  d_numBufs5;  // number of buffers expected after adding 5
-            char d_at1;       // byte expected at *result after adding 1 byte
-            char d_at5;       // byte expected at *result after adding 5 bytes
+            int d_line;
+            int d_numBufs;   // number of buffers to put into the test blob
+            int d_sizes[3];  // sizes of the buffers (ignore extras)
+            int d_length;    // blob.setLength() with this value
+            int d_numBufs1;  // number of buffers expected after adding 1 byte
+            int d_numBufs5;  // number of buffers expected after adding 5
+            char d_at1;      // byte expected at *result after adding 1 byte
+            char d_at5;      // byte expected at *result after adding 5 bytes
         } DATA[] = {
         //    LINE                    NUMBUFS1
         //    |   NUMBUFS     LENGTH  |  NUMBUFS5
@@ -1190,16 +1205,16 @@ int main(int argc, char *argv[])
         bsl::memcpy(buffers[1].data(), "fghij", 5);
         bsl::memcpy(buffers[2].data(), "klmno", 5);
 
-        int NUMDATA = sizeof(DATA) / sizeof(*DATA);
+        int NUMDATA = sizeof(DATA)/sizeof(*DATA);
         for (int i = 0; i < NUMDATA; ++i) {
-            int        LINE     = DATA[i].d_line;
-            int        NUMBUFS  = DATA[i].d_numBufs;
-            const int *SIZES    = DATA[i].d_sizes;
-            int        LENGTH   = DATA[i].d_length;
-            int        NUMBUFS1 = DATA[i].d_numBufs1;
-            int        NUMBUFS5 = DATA[i].d_numBufs5;
-            char       AT1      = DATA[i].d_at1;
-            char       AT5      = DATA[i].d_at5;
+            int LINE = DATA[i].d_line;
+            int NUMBUFS =  DATA[i].d_numBufs;
+            const int *SIZES = DATA[i].d_sizes;
+            int LENGTH = DATA[i].d_length;
+            int NUMBUFS1 = DATA[i].d_numBufs1;
+            int NUMBUFS5 = DATA[i].d_numBufs5;
+            char AT1 = DATA[i].d_at1;
+            char AT5 = DATA[i].d_at5;
 
             bdlbb::Blob BLOB1;
             {
@@ -1207,8 +1222,7 @@ int main(int argc, char *argv[])
                 for (int f = 0; f < NUMBUFS; ++f) {
                     if (SIZES[f]) {
                         BLOB1.appendBuffer(buffers[bufferIndex++]);
-                    }
-                    else {
+                    } else {
                         BLOB1.appendBuffer(emptyBuffer);
                     }
                 }
@@ -1220,8 +1234,7 @@ int main(int argc, char *argv[])
                 for (int f = 0; f < NUMBUFS; ++f) {
                     if (SIZES[f]) {
                         BLOB5.appendBuffer(buffers[bufferIndex++]);
-                    }
-                    else {
+                    } else {
                         BLOB5.appendBuffer(emptyBuffer);
                     }
                 }
@@ -1229,34 +1242,16 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {
-                bsl::cout << "LINE=" << LINE
-                          << ":"
-                             " ["
-                          << i << "]=(" << NUMBUFS
-                          << ","
-                             " ("
-                          << SIZES[0]
-                          << ","
-                             " "
-                          << SIZES[1]
-                          << ","
-                             " "
-                          << SIZES[2]
-                          << "),"
-                             " "
-                          << LENGTH
-                          << ","
-                             " "
-                          << NUMBUFS1
-                          << ","
-                             " "
-                          << NUMBUFS5
-                          << ","
-                             " "
-                          << AT1
-                          << ","
-                             " "
-                          << AT5 << ")\n";
+                bsl::cout << "LINE=" << LINE << ":"
+                    " [" << i << "]=(" << NUMBUFS << ","
+                    " (" << SIZES[0] << ","
+                    " "  << SIZES[1] << ","
+                    " "  << SIZES[2] << "),"
+                    " "  << LENGTH << ","
+                    " "  << NUMBUFS1 << ","
+                    " "  << NUMBUFS5 << ","
+                    " "  << AT1 << ","
+                    " "  << AT5 << ")\n";
             }
 
             ASSERT(BLOB1.length() == LENGTH);
@@ -1269,12 +1264,10 @@ int main(int argc, char *argv[])
 
             char *p1 = 0, *p5 = 0;
 
-            BSLS_ASSERTTEST_ASSERT_PASS(
-                p1 = bdlbb::BlobUtil::getContiguousDataBuffer(
-                    &BLOB1, 1, &factory7));
-            BSLS_ASSERTTEST_ASSERT_PASS(
-                p5 = bdlbb::BlobUtil::getContiguousDataBuffer(
-                    &BLOB5, 5, &factory7));
+            BSLS_ASSERTTEST_ASSERT_PASS(p1 =
+             bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB1, 1, &factory7));
+            BSLS_ASSERTTEST_ASSERT_PASS(p5 =
+             bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB5, 5, &factory7));
 
             ASSERT(p1);
             ASSERT(p5);
@@ -1293,47 +1286,51 @@ int main(int argc, char *argv[])
 
             // Did it put the new buffer, if any, in the right place?
 
-            int                 ante = LENGTH;
+            int ante = LENGTH;
             bsl::pair<int, int> b =
-                bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB5, ante);
+                         bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB5,
+                                                                     ante);
             ASSERT(b.second == 0);
             ASSERT(p5 == BLOB5.buffer(b.first).data());
 
             if (ante == 0) {
                 if (0 == SIZES[0] + SIZES[1] + SIZES[2]) {
                     ASSERT(7 == BLOB5.buffer(b.first).size());
-                }
-                else {
+                } else {
                     ASSERT(5 == BLOB5.buffer(b.first).size());
                 }
-            }
-            else {
+            } else {
                 bsl::pair<int, int> a =
-                    bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB5, ante - 1);
-                ASSERT(a.first == b.first - 1 ||
-                       BLOB5.buffer(b.first - 1).size() == 0);
+                     bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB5,
+                                                                 ante - 1);
+                ASSERT(a.first == b.first - 1
+                    || BLOB5.buffer(b.first - 1).size() == 0);
 
                 // Did it trim the buffer correctly?
 
                 if (ante % 5 == 0) {
                     ASSERT(BLOB5.buffer(a.first).size() == 5);
-                }
-                else {  // better be trimmed
+                } else {  // better be trimmed
                     ASSERT(BLOB5.buffer(a.first).size() == ante % 5);
                 }
             }
+
         }
 
         bdlbb::Blob BLOB;
 
         BSLS_ASSERTTEST_ASSERT_FAIL(
-                    bdlbb::BlobUtil::getContiguousDataBuffer(0, 1, &factory) );
+                      bdlbb::BlobUtil::getContiguousDataBuffer(0, 1,
+                                                                 &factory));
         BSLS_ASSERTTEST_ASSERT_FAIL(
-               bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, -1, &factory) );
+                 bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, -1,
+                                                            &factory));
         BSLS_ASSERTTEST_ASSERT_FAIL(
-                       bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, 1, 0) );
+                         bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, 1,
+                                                                    0));
         BSLS_ASSERTTEST_ASSERT_FAIL(
-               bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, 10, &factory) );
+                 bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, 10,
+                                                            &factory));
 
         verbose && (cout << "\nEnd of Test.\n");
       } break;
@@ -1366,27 +1363,28 @@ int main(int argc, char *argv[])
 
         static const struct {
             int d_line;
-            int d_numBufs;   // number of buffers to add
-            int d_sizes[3];  // sizes of buffers to add (ignore extras)
+            int d_numBufs;  // number of buffers to add
+            int d_sizes[3]; // sizes of buffers to add (ignore extras)
         } DATA[] =
         //      NUMBUFS
         //  LINE  |    +SIZES+
-        {{L_, 0, {0, 0, 0}},
-         {L_, 1, {5, 0, 0}},
+        {   { L_, 0, { 0, 0, 0 } },
+            { L_, 1, { 5, 0, 0 } },
 
-         {L_, 2, {0, 0, 0}},
-         {L_, 2, {5, 0, 0}},
-         {L_, 2, {0, 5, 0}},
-         {L_, 2, {5, 5, 0}},
+            { L_, 2, { 0, 0, 0 } },
+            { L_, 2, { 5, 0, 0 } },
+            { L_, 2, { 0, 5, 0 } },
+            { L_, 2, { 5, 5, 0 } },
 
-         {L_, 3, {0, 0, 0}},
-         {L_, 3, {5, 0, 0}},
-         {L_, 3, {0, 5, 0}},
-         {L_, 3, {5, 5, 0}},
-         {L_, 3, {0, 0, 5}},
-         {L_, 3, {5, 0, 5}},
-         {L_, 3, {0, 5, 5}},
-         {L_, 3, {5, 5, 5}}};
+            { L_, 3, { 0, 0, 0 } },
+            { L_, 3, { 5, 0, 0 } },
+            { L_, 3, { 0, 5, 0 } },
+            { L_, 3, { 5, 5, 0 } },
+            { L_, 3, { 0, 0, 5 } },
+            { L_, 3, { 5, 0, 5 } },
+            { L_, 3, { 0, 5, 5 } },
+            { L_, 3, { 5, 5, 5 } }
+        };
 
         BlobBufferFactory factory(5);
         bdlbb::BlobBuffer buffers[3];
@@ -1400,59 +1398,52 @@ int main(int argc, char *argv[])
         static const char ref[] = "abcdefghijklmno";
         BSLS_ASSERT(sizeof(ref) == 16 && ref[15] == '\0');
 
-        int NUMDATA = sizeof(DATA) / sizeof(*DATA);
+        int NUMDATA = sizeof(DATA)/sizeof(*DATA);
         for (int i = 0; i < NUMDATA; ++i) {
-            int        LINE    = DATA[i].d_line;
-            int        NUMBUFS = DATA[i].d_numBufs;
-            const int *SIZES   = DATA[i].d_sizes;
+            int LINE    = DATA[i].d_line;
+            int NUMBUFS = DATA[i].d_numBufs;
+            const int *SIZES = DATA[i].d_sizes;
 
             bdlbb::Blob BLOB;
-            int         bufferIndex = 0;
+            int bufferIndex = 0;
             for (int f = 0; f < NUMBUFS; ++f) {
                 if (SIZES[f]) {
                     BLOB.appendBuffer(buffers[bufferIndex++]);
-                }
-                else {
+                } else {
                     BLOB.appendBuffer(emptyBuffer);
                 }
             }
 
             if (veryVerbose) {
-                bsl::cout << "LINE=" << LINE
-                          << ":"
-                             " ["
-                          << i << "]=(" << NUMBUFS
-                          << ","
-                             " ("
-                          << SIZES[0]
-                          << ","
-                             " "
-                          << SIZES[1]
-                          << ","
-                             " "
-                          << SIZES[2] << ") )\n";
+                bsl::cout << "LINE=" << LINE << ":"
+                    " [" << i << "]=(" << NUMBUFS << ","
+                    " (" << SIZES[0] << ","
+                    " "  << SIZES[1] << ","
+                    " "  << SIZES[2] << ") )\n";
             }
             for (int j = -1; j <= BLOB.totalSize() + 1; ++j) {
                 for (int k = -1; k <= BLOB.totalSize() - j + 1; ++k) {
                     bsls::AssertFailureHandlerGuard guard(
-                        &bsls::Assert::failThrow);
+                                                    &bsls::Assert::failThrow);
                     char refBuf[sizeof ref];
                     char tstBuf[sizeof ref];
                     veryVeryVerbose &&
                         (bsl::cout << "j=" << j << " k=" << k << "\n");
                     if (!bad_jk(j, k, BLOB)) {
                         bsl::memcpy(refBuf, ref + j, k);
-                        bsl::memset(
-                            refBuf + j + k, '!', sizeof(refBuf) - j - k);
+                        bsl::memset(refBuf + j + k, '!',
+                                                       sizeof(refBuf) - j - k);
                         bsl::memset(tstBuf, 'X', sizeof tstBuf);
                     }
                     if (bad_jk(j, k, BLOB)) {
+
                         BSLS_ASSERTTEST_ASSERT_FAIL(
-                                   bdlbb::BlobUtil::copy(tstBuf, BLOB, j, k) );
-                    }
-                    else if (k) {
+                                  bdlbb::BlobUtil::copy(tstBuf, BLOB, j, k));
+
+                    } else if (k) {
+
                         BSLS_ASSERTTEST_ASSERT_PASS(
-                                   bdlbb::BlobUtil::copy(tstBuf, BLOB, j, k) );
+                                  bdlbb::BlobUtil::copy(tstBuf, BLOB, j, k));
 
                         ASSERT(bsl::memcmp(refBuf, tstBuf, k) == 0);
                         ASSERT(tstBuf[k] == 'X');
@@ -1491,61 +1482,80 @@ int main(int argc, char *argv[])
 
         static const struct {
             int d_line;
-            int d_numBufs;       // number of buffers to put in blob
-            int d_sizes[3];      // sizes of buffers in blob (ignore extras)
-            int d_position;      // position in blob to find
-            int d_expectIndex;   // expected PLACE.first
-            int d_expectOffset;  // expected PLACE.second
+            int d_numBufs;      // number of buffers to put in blob
+            int d_sizes[3];     // sizes of buffers in blob (ignore extras)
+            int d_position;     // position in blob to find
+            int d_expectIndex;  // expected PLACE.first
+            int d_expectOffset; // expected PLACE.second
         } DATA[] = {
-        //     NUMBUFS
-        //  LINE |    +SIZES+    POS    PLACE
-        {L_, 3, {5, 5, 5}, 8, 1, 3},  // typical
 
-            {L_, 1, {5, 0, 0}, 0, 0, 0}, {L_, 1, {5, 0, 0}, 1, 0, 1},
-            {L_, 1, {5, 0, 0}, 5 - 1, 0, 5 - 1},
+         //     NUMBUFS
+         //  LINE |    +SIZES+    POS    PLACE
+            { L_, 3, { 5, 5, 5 },  8,    1, 3 },   // typical
 
-            {L_, 2, {0, 0, 0}, 0, -1, 0}, {L_, 2, {0, 5, 0}, 0, 1, 0},
-            {L_, 2, {5, 0, 0}, 0, 0, 0}, {L_, 2, {5, 5, 0}, 0, 0, 0},
-            {L_, 2, {0, 5, 0}, 1, 1, 1}, {L_, 2, {5, 0, 0}, 1, 0, 1},
-            {L_, 2, {5, 5, 0}, 1, 0, 1}, {L_, 2, {0, 5, 0}, 5 - 1, 1, 5 - 1},
-            {L_, 2, {5, 0, 0}, 5 - 1, 0, 5 - 1},
-            {L_, 2, {5, 5, 0}, 5 - 1, 0, 5 - 1}, {L_, 2, {5, 5, 0}, 5, 1, 0},
-            {L_, 2, {5, 5, 0}, 5 + 1, 1, 1},
-            {L_, 2, {5, 5, 0}, 2 * 5 - 1, 1, 5 - 1},
+            { L_, 1, { 5, 0, 0 },  0,    0, 0 },
+            { L_, 1, { 5, 0, 0 },  1,    0, 1 },
+            { L_, 1, { 5, 0, 0 },  5-1,  0, 5-1 },
 
-            {L_, 3, {0, 5, 0}, 0, 1, 0}, {L_, 3, {5, 0, 0}, 0, 0, 0},
-            {L_, 3, {5, 5, 0}, 0, 0, 0}, {L_, 3, {0, 0, 5}, 0, 2, 0},
-            {L_, 3, {0, 5, 5}, 0, 1, 0}, {L_, 3, {5, 0, 5}, 0, 0, 0},
-            {L_, 3, {5, 5, 5}, 0, 0, 0},
+            { L_, 2, { 0, 0, 0 },  0,   -1, 0 },
+            { L_, 2, { 0, 5, 0 },  0,    1, 0 },
+            { L_, 2, { 5, 0, 0 },  0,    0, 0 },
+            { L_, 2, { 5, 5, 0 },  0,    0, 0 },
+            { L_, 2, { 0, 5, 0 },  1,    1, 1 },
+            { L_, 2, { 5, 0, 0 },  1,    0, 1 },
+            { L_, 2, { 5, 5, 0 },  1,    0, 1 },
+            { L_, 2, { 0, 5, 0 },  5-1,  1, 5-1 },
+            { L_, 2, { 5, 0, 0 },  5-1,  0, 5-1 },
+            { L_, 2, { 5, 5, 0 },  5-1,  0, 5-1 },
+            { L_, 2, { 5, 5, 0 },  5,    1, 0 },
+            { L_, 2, { 5, 5, 0 },  5+1,  1, 1 },
+            { L_, 2, { 5, 5, 0 },  2*5-1, 1, 5-1 },
 
-            {L_, 3, {0, 5, 0}, 1, 1, 1}, {L_, 3, {5, 0, 0}, 1, 0, 1},
-            {L_, 3, {5, 5, 0}, 1, 0, 1}, {L_, 3, {0, 5, 5}, 1, 1, 1},
-            {L_, 3, {5, 0, 5}, 1, 0, 1}, {L_, 3, {5, 5, 5}, 1, 0, 1},
+            { L_, 3, { 0, 5, 0 },  0,    1, 0 },
+            { L_, 3, { 5, 0, 0 },  0,    0, 0 },
+            { L_, 3, { 5, 5, 0 },  0,    0, 0 },
+            { L_, 3, { 0, 0, 5 },  0,    2, 0 },
+            { L_, 3, { 0, 5, 5 },  0,    1, 0 },
+            { L_, 3, { 5, 0, 5 },  0,    0, 0 },
+            { L_, 3, { 5, 5, 5 },  0,    0, 0 },
 
-            {L_, 3, {0, 5, 0}, 5 - 1, 1, 5 - 1},
-            {L_, 3, {5, 0, 0}, 5 - 1, 0, 5 - 1},
-            {L_, 3, {5, 5, 0}, 5 - 1, 0, 5 - 1},
-            {L_, 3, {0, 5, 5}, 5 - 1, 1, 5 - 1},
-            {L_, 3, {5, 0, 5}, 5 - 1, 0, 5 - 1},
-            {L_, 3, {5, 5, 5}, 5 - 1, 0, 5 - 1},
+            { L_, 3, { 0, 5, 0 },  1,    1, 1 },
+            { L_, 3, { 5, 0, 0 },  1,    0, 1 },
+            { L_, 3, { 5, 5, 0 },  1,    0, 1 },
+            { L_, 3, { 0, 5, 5 },  1,    1, 1 },
+            { L_, 3, { 5, 0, 5 },  1,    0, 1 },
+            { L_, 3, { 5, 5, 5 },  1,    0, 1 },
 
-            {L_, 3, {0, 5, 0}, 1, 1, 1}, {L_, 3, {5, 5, 0}, 5, 1, 0},
-            {L_, 3, {0, 5, 5}, 5, 2, 0}, {L_, 3, {5, 0, 5}, 5, 2, 0},
-            {L_, 3, {5, 5, 5}, 5, 1, 0},
+            { L_, 3, { 0, 5, 0 },  5-1,  1, 5-1 },
+            { L_, 3, { 5, 0, 0 },  5-1,  0, 5-1 },
+            { L_, 3, { 5, 5, 0 },  5-1,  0, 5-1 },
+            { L_, 3, { 0, 5, 5 },  5-1,  1, 5-1 },
+            { L_, 3, { 5, 0, 5 },  5-1,  0, 5-1 },
+            { L_, 3, { 5, 5, 5 },  5-1,  0, 5-1 },
 
-            {L_, 3, {5, 5, 0}, 5 + 1, 1, 1}, {L_, 3, {0, 5, 5}, 5 + 1, 2, 1},
-            {L_, 3, {5, 0, 5}, 5 + 1, 2, 1}, {L_, 3, {5, 5, 5}, 5 + 1, 1, 1},
+            { L_, 3, { 0, 5, 0 },  1,    1, 1 },
+            { L_, 3, { 5, 5, 0 },  5,    1, 0 },
+            { L_, 3, { 0, 5, 5 },  5,    2, 0 },
+            { L_, 3, { 5, 0, 5 },  5,    2, 0 },
+            { L_, 3, { 5, 5, 5 },  5,    1, 0 },
 
-            {L_, 3, {5, 5, 0}, 2 * 5 - 1, 1, 5 - 1},
-            {L_, 3, {0, 5, 5}, 2 * 5 - 1, 2, 5 - 1},
-            {L_, 3, {5, 0, 5}, 2 * 5 - 1, 2, 5 - 1},
-            {L_, 3, {5, 5, 5}, 2 * 5 - 1, 1, 5 - 1},
+            { L_, 3, { 5, 5, 0 },  5+1,  1, 1 },
+            { L_, 3, { 0, 5, 5 },  5+1,  2, 1 },
+            { L_, 3, { 5, 0, 5 },  5+1,  2, 1 },
+            { L_, 3, { 5, 5, 5 },  5+1,  1, 1 },
 
-            {L_, 3, {5, 5, 0}, 2 * 5, -1, 0}, {L_, 3, {0, 5, 5}, 2 * 5, -1, 0},
-            {L_, 3, {5, 0, 5}, 2 * 5, -1, 0}, {L_, 3, {5, 5, 5}, 2 * 5, 2, 0},
+            { L_, 3, { 5, 5, 0 },  2*5-1, 1, 5-1 },
+            { L_, 3, { 0, 5, 5 },  2*5-1, 2, 5-1 },
+            { L_, 3, { 5, 0, 5 },  2*5-1, 2, 5-1 },
+            { L_, 3, { 5, 5, 5 },  2*5-1, 1, 5-1 },
 
-            {L_, 3, {5, 5, 5}, 2 * 5 + 1, 2, 1},
-            {L_, 3, {5, 5, 5}, 3 * 5 - 1, 2, 5 - 1},
+            { L_, 3, { 5, 5, 0 },  2*5, -1, 0 },
+            { L_, 3, { 0, 5, 5 },  2*5, -1, 0 },
+            { L_, 3, { 5, 0, 5 },  2*5, -1, 0 },
+            { L_, 3, { 5, 5, 5 },  2*5,  2, 0 },
+
+            { L_, 3, { 5, 5, 5 },  2*5+1, 2, 1 },
+            { L_, 3, { 5, 5, 5 },  3*5-1, 2, 5-1 },
 
             // Negative tests:
 
@@ -1563,74 +1573,61 @@ int main(int argc, char *argv[])
             { L_, 3, { 5, 5, 5 },  3*5, -1, 0 }
         };
 
-            BlobBufferFactory factory(5);
-            bdlbb::BlobBuffer buffer;
-            factory.allocate(&buffer);
-            bdlbb::BlobBuffer emptyBuffer(buffer.buffer(), 0);
+        BlobBufferFactory factory(5);
+        bdlbb::BlobBuffer buffer;
+        factory.allocate(&buffer);
+        bdlbb::BlobBuffer emptyBuffer(buffer.buffer(), 0);
 
-            int NUMDATA = sizeof(DATA) / sizeof(*DATA);
-            for (int i = 0; i < NUMDATA; ++i) {
-                int        NUMBUFS      = DATA[i].d_numBufs;
-                const int *SIZES        = DATA[i].d_sizes;
-                int        POS          = DATA[i].d_position;
-                int        EXPECTINDEX  = DATA[i].d_expectIndex;
-                int        EXPECTOFFSET = DATA[i].d_expectOffset;
+        int NUMDATA = sizeof(DATA)/sizeof(*DATA);
+        for (int i = 0; i < NUMDATA; ++i) {
+            int NUMBUFS = DATA[i].d_numBufs;
+            const int *SIZES = DATA[i].d_sizes;
+            int POS = DATA[i].d_position;
+            int EXPECTINDEX = DATA[i].d_expectIndex;
+            int EXPECTOFFSET = DATA[i].d_expectOffset;
 
-                bdlbb::Blob BLOB;
-                for (int j = 0; j < NUMBUFS; ++j) {
-                    if (SIZES[j]) {
-                        BLOB.appendBuffer(buffer);
-                    }
-                    else {
-                        BLOB.appendBuffer(emptyBuffer);
-                    }
-                }
-                if (veryVerbose) {
-                    bsl::cout << "LINE=" << DATA[i].d_line
-                              << ":"
-                                 " ["
-                              << i << "]=(" << NUMBUFS
-                              << ","
-                                 " ("
-                              << SIZES[0]
-                              << ","
-                                 " "
-                              << SIZES[1]
-                              << ","
-                                 " "
-                              << SIZES[2]
-                              << "),"
-                                 " "
-                              << POS << ") => ";
-                }
-
-                pair<int, int> PLACE;
-                if (0 <= EXPECTINDEX) {
-                    BSLS_ASSERTTEST_ASSERT_PASS(
-                        PLACE = bdlbb::BlobUtil::findBufferIndexAndOffset(
-                            BLOB, POS));
-
-                    if (veryVerbose) {
-                        bsl::cout << " PLACE=(" << PLACE.first
-                                  << ","
-                                     " "
-                                  << PLACE.second << ")";
-                        bsl::cout << bsl::endl;
-                    }
-                    ASSERT(EXPECTINDEX == PLACE.first);
-                    ASSERT(EXPECTOFFSET == PLACE.second);
-                    ASSERT(0 != BLOB.buffer(PLACE.first).size());
-                }
-                else {
-                    BSLS_ASSERTTEST_ASSERT_FAIL(
-                        PLACE = bdlbb::BlobUtil::findBufferIndexAndOffset(
-                            BLOB, POS));
-
-                    ASSERT(EXPECTINDEX == -1);
+            bdlbb::Blob BLOB;
+            for (int j = 0; j < NUMBUFS; ++j) {
+                if (SIZES[j]) {
+                    BLOB.appendBuffer(buffer);
+                } else {
+                    BLOB.appendBuffer(emptyBuffer);
                 }
             }
+            if (veryVerbose) {
+                bsl::cout << "LINE=" << DATA[i].d_line << ":"
+                    " [" << i << "]=(" << NUMBUFS << ","
+                    " (" << SIZES[0] << ","
+                    " "  << SIZES[1] << ","
+                    " "  << SIZES[2] << "),"
+                    " "  << POS << ") => ";
+            }
 
-            verbose && (cout << "\nEnd of Test.\n");
+            pair<int, int> PLACE;
+            if (0 <= EXPECTINDEX) {
+
+                BSLS_ASSERTTEST_ASSERT_PASS(PLACE =
+                       bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB, POS));
+
+                if (veryVerbose) {
+                    bsl::cout <<
+                    " PLACE=(" << PLACE.first << ","
+                           " " << PLACE.second << ")";
+                    bsl::cout << bsl::endl;
+                }
+                ASSERT(EXPECTINDEX == PLACE.first);
+                ASSERT(EXPECTOFFSET == PLACE.second);
+                ASSERT(0 != BLOB.buffer(PLACE.first).size());
+            } else {
+
+                BSLS_ASSERTTEST_ASSERT_FAIL(PLACE =
+                       bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB, POS));
+
+                ASSERT(EXPECTINDEX == -1);
+            }
+        }
+
+        verbose && (cout << "\nEnd of Test.\n");
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1643,9 +1640,8 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "\nTesting 'erase' Function"
-                 << "\n=========================" << endl;
+        if (verbose) cout << "\nTesting 'erase' Function"
+                          << "\n=========================" << endl;
 
         const bsl::string STR      = "HelloWorld";
         const int         BUF_SIZE = static_cast<int>(STR.size());
@@ -1654,6 +1650,7 @@ int main(int argc, char *argv[])
 
             for (int offset = 0; offset < BUF_SIZE; ++offset) {
                 for (int length = 0; length <= BUF_SIZE - offset; ++length) {
+
                     bsl::string sstr = STR;
                     bsl::string estr = STR;
                     estr.erase(offset, length);
@@ -1677,11 +1674,7 @@ int main(int argc, char *argv[])
                     }
 
                     Util::erase(&source, offset, length);
-                    LOOP5_ASSERT(sstr,
-                                 estr,
-                                 bufferSize,
-                                 offset,
-                                 length,
+                    LOOP5_ASSERT(sstr, estr, bufferSize, offset, length,
                                  !Util::compare(exp, source));
 
                     if (veryVeryVerbose) {
@@ -1694,13 +1687,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose)
-            cout << "\nEnd of Test." << endl;
+        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 4: {
-                           // --------------------------------------------------------------------
-                           // TESTING HEXDUMP WITH OFFSET AND LENGTH
-                           // --------------------------------------------------------------------
+        // --------------------------------------------------------------------
+        // TESTING HEXDUMP WITH OFFSET AND LENGTH
+        // --------------------------------------------------------------------
 
         enum {
             k_DYNAMIC_ALLOCATION_THRESHOLD = 32,
@@ -1718,18 +1710,20 @@ int main(int argc, char *argv[])
         bslma::Default::setDefaultAllocatorRaw(&allocator);
         ASSERT(&allocator == bslma::Default::defaultAllocator());
 
-        for (int bufferSize = k_MIN_BUFFER_SIZE;
-             bufferSize <= k_MAX_BUFFER_SIZE;
-             bufferSize += k_INC_BUFFER_SIZE) {
+        for (int bufferSize =  k_MIN_BUFFER_SIZE;
+                 bufferSize <= k_MAX_BUFFER_SIZE;
+                 bufferSize += k_INC_BUFFER_SIZE)
+        {
             BlobBufferFactory factory(bufferSize);
 
-            for (int numBuffers = k_MIN_NUM_BUFFERS;
-                 numBuffers <= k_MAX_NUM_BUFFERS;
-                 numBuffers += k_INC_NUM_BUFFERS) {
+            for (int numBuffers =  k_MIN_NUM_BUFFERS;
+                     numBuffers <= k_MAX_NUM_BUFFERS;
+                     numBuffers += k_INC_NUM_BUFFERS)
+            {
                 if (verbose) {
                     bsl::cout << "[bufferSize = " << bufferSize << ", "
                               << "numBuffers = " << numBuffers << "]"
-                              << bsl::endl;
+                              <<bsl::endl;
                 }
 
                 bdlbb::Blob blob(&factory);
@@ -1737,17 +1731,20 @@ int main(int argc, char *argv[])
                 int totalSize = numBuffers * bufferSize;
                 copyStringToBlob(&blob, g(totalSize));
 
-                for (int offset = 0; offset < totalSize; ++offset) {
-                    for (int length = 0; length < totalSize - offset;
-                         ++length) {
+                for (int offset = 0; offset < totalSize; ++offset)
+                {
+                    for (int length = 0; length < totalSize - offset; ++length)
+                    {
                         if (veryVerbose) {
                             bsl::cout << " offset = " << offset
                                       << ", length = " << length << bsl::endl;
                         }
 
                         bsl::stringstream os;
-                        ASSERT(&os == &bdlbb::BlobUtil::hexDump(
-                                          os, blob, offset, length));
+                        ASSERT(&os == &bdlbb::BlobUtil::hexDump(os,
+                                                               blob,
+                                                               offset,
+                                                               length));
 
                         if (veryVeryVerbose) {
                             bsl::cout << os.str() << bsl::endl;
@@ -1757,7 +1754,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        ASSERT(0 < allocator.numAllocations());
+        ASSERT(0 <  allocator.numAllocations());
         ASSERT(0 == allocator.numBlocksInUse());
 
       } break;
@@ -1786,154 +1783,144 @@ int main(int argc, char *argv[])
         //   static bsl::ostream& hexDump(stream, source);
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "\nTesting 'hexdump' Function"
-                 << "\n==========================" << endl;
+        if (verbose) cout << "\nTesting 'hexdump' Function"
+                          << "\n==========================" << endl;
 
         enum { k_BUF_SIZE = 2048 };
 
         {
-            if (verbose)
-                cout << "(a) 0 buffers" << endl;
+            if (verbose) cout << "(a) 0 buffers" << endl;
             BlobBufferFactory factory(5);
-            bdlbb::Blob       myBlob(&factory);
+            bdlbb::Blob        myBlob(&factory);
 
-            ASSERT(0 == myBlob.numDataBuffers());
+            ASSERT(0 == myBlob.numDataBuffers() );
 
-            char                        buf[k_BUF_SIZE];
+            char buf[k_BUF_SIZE];
             bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream                out(&obuf);
+            bsl::ostream out(&obuf);
             ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
-            ASSERT(0 == strncmp(buf,
-                                expectedOutCase3[0].c_str(),
+            ASSERT(0 == strncmp(buf, expectedOutCase3[0].c_str(),
                                 expectedOutCase3[0].size()));
 
             if (veryVerbose) {
                 bsl::string output(buf, obuf.length());
                 bsl::cout << "Hexdumped String :\n"
-                          << output << "Expected String  :\n"
+                          << output
+                          << "Expected String  :\n"
                           << expectedOutCase3[0] << bsl::endl;
             }
         }
 
         {
-            if (verbose)
-                cout << "(b) 1 buffers" << endl;
+            if (verbose) cout << "(b) 1 buffers" << endl;
             BlobBufferFactory factory(1024);
-            bdlbb::Blob       myBlob(&factory);
+            bdlbb::Blob        myBlob(&factory);
 
-            const char *TEST_STR =
-                "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
+            const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
                 "abcdef 6abcdef 7abcdef 8abcdef 9abcde 10abcde 11abcde 12"
                 "abcde 13abcde 14abcde 15abcde 16abcde 17abcde 18abcde 19"
                 "abcde 20abcde 21abcde 22abcde 23abcde 24abcde 25abcde 26"
                 "abcde 27abcde 28abcde 29abcde 30abcde 31";
 
             copyStringToBlob(&myBlob, TEST_STR);
-            ASSERT(1 == myBlob.numDataBuffers());
+            ASSERT(1 == myBlob.numDataBuffers() );
 
-            char                        buf[k_BUF_SIZE];
+            char buf[k_BUF_SIZE];
             bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream                out(&obuf);
+            bsl::ostream out(&obuf);
             ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
-            ASSERT(0 == strncmp(buf,
-                                expectedOutCase3[1].c_str(),
+            ASSERT(0 == strncmp(buf, expectedOutCase3[1].c_str(),
                                 expectedOutCase3[1].size()));
             if (veryVerbose) {
                 bsl::string output(buf, obuf.length());
                 bsl::cout << "Hexdumped String :\n"
-                          << output << "Expected String  :\n"
+                          << output
+                          << "Expected String  :\n"
                           << expectedOutCase3[1] << bsl::endl;
             }
         }
         {
-            if (verbose)
-                cout << "(c) 31 buffers" << endl;
+            if (verbose) cout << "(c) 31 buffers" << endl;
             BlobBufferFactory factory(8);
-            bdlbb::Blob       myBlob(&factory);
+            bdlbb::Blob        myBlob(&factory);
 
-            const char *TEST_STR =
-                "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
+            const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
                 "abcdef 6abcdef 7abcdef 8abcdef 9abcde 10abcde 11abcde 12"
                 "abcde 13abcde 14abcde 15abcde 16abcde 17abcde 18abcde 19"
                 "abcde 20abcde 21abcde 22abcde 23abcde 24abcde 25abcde 26"
                 "abcde 27abcde 28abcde 29abcde 30abcde 31";
 
             copyStringToBlob(&myBlob, TEST_STR);
-            ASSERT(31 == myBlob.numDataBuffers());
+            ASSERT(31 == myBlob.numDataBuffers() );
 
-            char                        buf[k_BUF_SIZE];
+            char buf[k_BUF_SIZE];
             bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream                out(&obuf);
+            bsl::ostream out(&obuf);
             ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
-            ASSERT(0 == strncmp(buf,
-                                expectedOutCase3[2].c_str(),
+            ASSERT(0 == strncmp(buf, expectedOutCase3[2].c_str(),
                                 expectedOutCase3[2].size()));
             if (veryVerbose) {
                 bsl::string output(buf, obuf.length());
                 bsl::cout << "Hexdumped String :\n"
-                          << output << "Expected String  :\n"
+                          << output
+                          << "Expected String  :\n"
                           << expectedOutCase3[2] << bsl::endl;
             }
         }
         {
-            if (verbose)
-                cout << "(d) 32 buffers" << endl;
+            if (verbose) cout << "(d) 32 buffers" << endl;
             BlobBufferFactory factory(8);
-            bdlbb::Blob       myBlob(&factory);
+            bdlbb::Blob myBlob(&factory);
 
-            const char *TEST_STR =
-                "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
+            const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
                 "abcdef 6abcdef 7abcdef 8abcdef 9abcde 10abcde 11abcde 12"
                 "abcde 13abcde 14abcde 15abcde 16abcde 17abcde 18abcde 19"
                 "abcde 20abcde 21abcde 22abcde 23abcde 24abcde 25abcde 26"
                 "abcde 27abcde 28abcde 29abcde 30abcde 31abcde 32";
 
             copyStringToBlob(&myBlob, TEST_STR);
-            ASSERT(32 == myBlob.numDataBuffers());
+            ASSERT(32 == myBlob.numDataBuffers() );
 
-            char                        buf[k_BUF_SIZE];
+            char buf[k_BUF_SIZE];
             bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream                out(&obuf);
+            bsl::ostream out(&obuf);
             ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
-            ASSERT(0 == strncmp(buf,
-                                expectedOutCase3[3].c_str(),
+            ASSERT(0 == strncmp(buf, expectedOutCase3[3].c_str(),
                                 expectedOutCase3[3].size()));
 
             if (veryVerbose) {
                 bsl::string output(buf, obuf.length());
                 bsl::cout << "Hexdumped String :\n"
-                          << output << "Expected String  :\n"
+                          << output
+                          << "Expected String  :\n"
                           << expectedOutCase3[3] << bsl::endl;
             }
         }
         {
-            if (verbose)
-                cout << "(e) 33 buffers" << endl;
+            if (verbose) cout << "(e) 33 buffers" << endl;
             BlobBufferFactory factory(8);
-            bdlbb::Blob       myBlob(&factory);
+            bdlbb::Blob myBlob(&factory);
 
-            const char *TEST_STR =
-                "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
+            const char *TEST_STR = "abcdef 1abcdef 2abcdef 3abcdef 4abcdef 5"
                 "abcdef 6abcdef 7abcdef 8abcdef 9abcde 10abcde 11abcde 12"
                 "abcde 13abcde 14abcde 15abcde 16abcde 17abcde 18abcde 19"
                 "abcde 20abcde 21abcde 22abcde 23abcde 24abcde 25abcde 26"
                 "abcde 27abcde 28abcde 29abcde 30abcde 31abcde 32abcde 33";
 
             copyStringToBlob(&myBlob, TEST_STR);
-            ASSERT(33 == myBlob.numDataBuffers());
+            ASSERT(33 == myBlob.numDataBuffers() );
 
-            char                        buf[k_BUF_SIZE];
+            char buf[k_BUF_SIZE];
             bdlsb::FixedMemOutStreamBuf obuf(buf, sizeof buf);
-            bsl::ostream                out(&obuf);
+            bsl::ostream out(&obuf);
             ASSERT(&out == &bdlbb::BlobUtil::hexDump(out, myBlob));
-            ASSERT(0 == strncmp(buf,
-                                expectedOutCase3[4].c_str(),
+            ASSERT(0 == strncmp(buf, expectedOutCase3[4].c_str(),
                                 expectedOutCase3[4].size()));
             if (veryVerbose) {
                 bsl::string output(buf, obuf.length());
                 bsl::cout << "Hexdumped String :\n"
-                          << output << "Expected String  :\n"
+                          << output
+                          << "Expected String  :\n"
                           << expectedOutCase3[4] << bsl::endl;
             }
         }
@@ -1949,100 +1936,106 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "\nTesting 'compare' Function"
-                 << "\n=========================" << endl;
+        if (verbose) cout << "\nTesting 'compare' Function"
+                          << "\n=========================" << endl;
 
         const struct {
             int         d_line;
             const char *d_lhs;
             const char *d_rhs;
             const int   d_retValue;
-        } DATA[] = {// Line LHS RHS retValue
-                    // ----   ---         ---          --------
-                    {L_, "", "", 0},
+        } DATA[] = {
+            // Line LHS RHS retValue
+            // ----   ---         ---          --------
+            {   L_,   "",         "",                 0 },
 
-                    {L_, "a", "", 1},
-                    {L_, " ", "", 1},
-                    {L_, "A", "", 1},
-                    {L_, "a", "b", -1},
-                    {L_, "a", "A", 1},
-                    {L_, "a", "a", 0},
-                    {L_, "A", "A", 0},
+            {   L_,   "a",        "",                 1 },
+            {   L_,   " ",        "",                 1 },
+            {   L_,   "A",        "",                 1 },
+            {   L_,   "a",        "b",               -1 },
+            {   L_,   "a",        "A",                1 },
+            {   L_,   "a",        "a",                0 },
+            {   L_,   "A",        "A",                0 },
 
-                    {L_, "ab", "", 1},
-                    {L_, "AB", "", 1},
-                    {L_, "ab", "a", 1},
-                    {L_, "ab", "b", -1},
-                    {L_, "ab", "AB", 1},
-                    {L_, "ZY", "YZ", 1},
-                    {L_, "XU", "X", 1},
-                    {L_, "XU", "W", 1},
-                    {L_, "ab", "ab", 0},
-                    {L_, "AB", "AB", 0},
+            {   L_,   "ab",       "",                 1 },
+            {   L_,   "AB",       "",                 1 },
+            {   L_,   "ab",       "a",                1 },
+            {   L_,   "ab",       "b",               -1 },
+            {   L_,   "ab",       "AB",               1 },
+            {   L_,   "ZY",       "YZ",               1 },
+            {   L_,   "XU",       "X",                1 },
+            {   L_,   "XU",       "W",                1 },
+            {   L_,   "ab",       "ab",               0 },
+            {   L_,   "AB",       "AB",               0 },
 
-                    {L_, "abc", "", 1},
-                    {L_, "XYZ", "", 1},
-                    {L_, "abc", "a", 1},
-                    {L_, "abc", "b", -1},
-                    {L_, "abc", "ab", 1},
-                    {L_, "abc", "ba", -1},
-                    {L_, "XYZ", "Y", -1},
-                    {L_, "XYZ", "W", 1},
-                    {L_, "XYZ", "XY", 1},
-                    {L_, "XYZ", "YZ", -1},
-                    {L_, "abc", "abc", 0},
-                    {L_, "XYZ", "XYZ", 0},
+            {   L_,   "abc",      "",                 1 },
+            {   L_,   "XYZ",      "",                 1 },
+            {   L_,   "abc",      "a",                1 },
+            {   L_,   "abc",      "b",               -1 },
+            {   L_,   "abc",      "ab",               1 },
+            {   L_,   "abc",      "ba",              -1 },
+            {   L_,   "XYZ",      "Y",               -1 },
+            {   L_,   "XYZ",      "W",                1 },
+            {   L_,   "XYZ",      "XY",               1 },
+            {   L_,   "XYZ",      "YZ",              -1 },
+            {   L_,   "abc",      "abc",              0 },
+            {   L_,   "XYZ",      "XYZ",              0 },
 
-                    {L_, "abcde", "", 1},
-                    {L_, "VWXYZ", "", 1},
-                    {L_, "abcde", "a", 1},
-                    {L_, "abcde", "b", -1},
-                    {L_, "abcde", "ab", 1},
-                    {L_, "abcde", "ba", -1},
-                    {L_, "abcde", "abc", 1},
-                    {L_, "abcde", "abce", -1},
-        //                        ^
-        {L_, "abcde", "abcd", 1}, {L_, "abcde", "abcdf", -1},
-        //                         ^
-        {L_, "abcde", "abcde", 0}, {L_, "VWXYZ", "VWXYZ", 0},
+            {   L_,   "abcde",    "",                 1 },
+            {   L_,   "VWXYZ",    "",                 1 },
+            {   L_,   "abcde",    "a",                1 },
+            {   L_,   "abcde",    "b",               -1 },
+            {   L_,   "abcde",    "ab",               1 },
+            {   L_,   "abcde",    "ba",              -1 },
+            {   L_,   "abcde",    "abc",              1 },
+            {   L_,   "abcde",    "abce",            -1 },
+            //                        ^
+            {   L_,   "abcde",    "abcd",             1 },
+            {   L_,   "abcde",    "abcdf",           -1 },
+            //                         ^
+            {   L_,   "abcde",    "abcde",            0 },
+            {   L_,   "VWXYZ",    "VWXYZ",            0 },
 
-            {L_,
-             "abcdefghijklmnopqrstuvwxyz",
-             "abcdefghijklmnopqrstuvwxyz",
-             0},
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdefghijklmnopqrstuvwxyz",   0 },
 
-            {L_,
-             "abcdefghijklmnopqrstuvwxyz",
-             "Abcdefghijklmnopqrstuvwxyz",
-             1},
-        //         ^
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "Abcdefghijklmnopqrstuvwxyz",   1 },
+            //         ^
 
-        {L_, "abcdefghijklmnopqrstuvwxyz", "aBcdefghijklmnopqrstuvwxyz", 1},
-        //          ^
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "aBcdefghijklmnopqrstuvwxyz",   1 },
+            //          ^
 
-        {L_, "abcdefghijklmnopqrstuvwxyz", "abCdefghijklmnopqrstuvwxyz", 1},
-        //           ^
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abCdefghijklmnopqrstuvwxyz",   1 },
+            //           ^
 
-        {L_, "abcdefghijklmnopqrstuvwxyz", "abcDefghijklmnopqrstuvwxyz", 1},
-        //            ^
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcDefghijklmnopqrstuvwxyz",   1 },
+            //            ^
 
-        {L_, "abcdefghijklmnopqrstuvwxyz", "abcdEfghijklmnopqrstuvwxyz", 1},
-        //             ^
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdEfghijklmnopqrstuvwxyz",   1 },
+            //             ^
 
-        {L_, "abcdefghijklmnopqrstuvwxyz", "abcdeFghijklmnopqrstuvwxyz", 1},
-        //              ^
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdeFghijklmnopqrstuvwxyz",   1 },
+            //              ^
 
-        {L_, "abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwXyz", 1},
-        //                                ^
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdefghijklmnopqrstuvwXyz",   1 },
+            //                                ^
 
-        {L_, "abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxYz", 1},
-        //                                 ^
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdefghijklmnopqrstuvwxYz",   1 },
+            //                                 ^
 
-        {L_, "abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyZ", 1},
-        //                                  ^
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
+                      "abcdefghijklmnopqrstuvwxyZ",   1 },
+            //                                  ^
 
-        {L_, "abcdefghijklmnopqrstuvwxyz",
+            {   L_,   "abcdefghijklmnopqrstuvwxyz",
             //                             ^^^^^^
                       "abcdefghijklmnopqrst",         1 },
 
@@ -2066,173 +2059,157 @@ int main(int argc, char *argv[])
             //                                  ^
                       "abcdefghijklmnopqrstuvwxy",    1 },
          };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+        const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE = DATA[i].d_line;
-                const char *LHS  = DATA[i].d_lhs;
-                const int   LLEN = static_cast<int>(bsl::strlen(LHS));
-                const char *RHS  = DATA[i].d_rhs;
-                const int   RLEN = static_cast<int>(bsl::strlen(RHS));
-                const int   RV   = DATA[i].d_retValue;
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int   LINE = DATA[i].d_line;
+            const char *LHS  = DATA[i].d_lhs;
+            const int   LLEN = static_cast<int>(bsl::strlen(LHS));
+            const char *RHS  = DATA[i].d_rhs;
+            const int   RLEN = static_cast<int>(bsl::strlen(RHS));
+            const int   RV   = DATA[i].d_retValue;
 
-                for (int size1 = 1; size1 < 10; ++size1) {
-                    for (int size2 = 5; size2 < 20; ++size2) {
-                        BlobBufferFactory fa(size1), fb(size2);
+            for (int size1 = 1; size1 < 10; ++size1) {
+                for (int size2 = 5; size2 < 20; ++size2) {
+                    BlobBufferFactory fa(size1), fb(size2);
 
-                        bdlbb::Blob        mX(&fa);
-                        const bdlbb::Blob& X = mX;
-                        bdlbb::Blob        mY(&fb);
-                        const bdlbb::Blob& Y = mY;
+                    bdlbb::Blob mX(&fa); const bdlbb::Blob& X = mX;
+                    bdlbb::Blob mY(&fb); const bdlbb::Blob& Y = mY;
 
-                        mX.setLength(LLEN);
-                        mY.setLength(RLEN);
+                    mX.setLength(LLEN);
+                    mY.setLength(RLEN);
 
-                        copyStringToBlob(&mX, LHS);
-                        copyStringToBlob(&mY, RHS);
+                    copyStringToBlob(&mX, LHS);
+                    copyStringToBlob(&mY, RHS);
 
-                        if (veryVerbose) {
-                            P_(LINE) P_(LHS) P_(RHS) P_(RV) P_(size1) P(size2)
-                        }
+                    if (veryVerbose) {
+                        P_(LINE) P_(LHS) P_(RHS) P_(RV)
+                        P_(size1) P(size2)
+                    }
 
-                        const int rv1 = bdlbb::BlobUtil::compare(X, Y);
-                        const int rv2 = bdlbb::BlobUtil::compare(Y, X);
-                        if (RV > 0) {
-                            LOOP4_ASSERT(size1, size2, RV, rv1, rv1 > 0);
-                            LOOP4_ASSERT(size1, size2, RV, rv1, rv2 < 0);
-                        }
-                        else if (RV < 0) {
-                            LOOP4_ASSERT(size1, size2, RV, rv1, rv1 < 0);
-                            LOOP4_ASSERT(size1, size2, RV, rv1, rv2 > 0);
-                        }
-                        else {
-                            LOOP4_ASSERT(size1, size2, RV, rv1, 0 == rv1);
-                            LOOP4_ASSERT(size1, size2, RV, rv1, 0 == rv2);
-                        }
+                    const int rv1 = bdlbb::BlobUtil::compare(X, Y);
+                    const int rv2 = bdlbb::BlobUtil::compare(Y, X);
+                    if (RV > 0) {
+                        LOOP4_ASSERT(size1, size2, RV, rv1, rv1 > 0);
+                        LOOP4_ASSERT(size1, size2, RV, rv1, rv2 < 0);
+                    }
+                    else if (RV < 0) {
+                        LOOP4_ASSERT(size1, size2, RV, rv1, rv1 < 0);
+                        LOOP4_ASSERT(size1, size2, RV, rv1, rv2 > 0);
+                    }
+                    else {
+                        LOOP4_ASSERT(size1, size2, RV, rv1, 0 == rv1);
+                        LOOP4_ASSERT(size1, size2, RV, rv1, 0 == rv2);
                     }
                 }
             }
+        }
 
-            // PREVIOUS TEST CASE
-            for (int bufferSize = 1; bufferSize < 10; ++bufferSize) {
-                for (int bufferSize2 = 5; bufferSize2 < 20; ++bufferSize2) {
-                    const char *TEST_STR  = "abcdefghijklmnopqrstuvwxyz";
-                    const char *TEST_STR2 = "Abcdefghijklmnopqrstuvwxyz";
-                    const char *TEST_STR3 = "abcdefghijklmnopqrstuvwxyZ";
-                    const char *TEST_STR4 = "abcdefghijklmnopqrstuvwxyz1";
+        // PREVIOUS TEST CASE
+        for (int bufferSize = 1; bufferSize < 10; ++bufferSize) {
+            for (int bufferSize2 = 5; bufferSize2 < 20; ++bufferSize2) {
+                const char *TEST_STR = "abcdefghijklmnopqrstuvwxyz";
+                const char *TEST_STR2 = "Abcdefghijklmnopqrstuvwxyz";
+                const char *TEST_STR3 = "abcdefghijklmnopqrstuvwxyZ";
+                const char *TEST_STR4 = "abcdefghijklmnopqrstuvwxyz1";
 
-                    BlobBufferFactory factory(bufferSize);
-                    BlobBufferFactory factory2(bufferSize2);
+                BlobBufferFactory factory(bufferSize);
+                BlobBufferFactory factory2(bufferSize2);
 
-                    // Test same
-                    bdlbb::Blob b1(&factory);
-                    bdlbb::Blob b2(&factory2);
+                // Test same
+                bdlbb::Blob b1(&factory);
+                bdlbb::Blob b2(&factory2);
 
-                    b1.setLength(static_cast<int>(strlen(TEST_STR)));
-                    b2.setLength(static_cast<int>(strlen(TEST_STR)));
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
-                    copyStringToBlob(&b1, TEST_STR);
-                    copyStringToBlob(&b2, TEST_STR);
+                copyStringToBlob(&b1, TEST_STR);
+                copyStringToBlob(&b2, TEST_STR);
 
-                    LOOP2_ASSERT(bufferSize,
-                                 bufferSize2,
-                                 0 == bdlbb::BlobUtil::compare(b1, b2));
+                LOOP2_ASSERT(bufferSize, bufferSize2,
+                             0 == bdlbb::BlobUtil::compare(b1, b2));
 
-                    LOOP2_ASSERT(bufferSize2,
-                                 bufferSize,
-                                 0 == bdlbb::BlobUtil::compare(b2, b1));
+                LOOP2_ASSERT(bufferSize2, bufferSize,
+                             0 == bdlbb::BlobUtil::compare(b2, b1));
 
-                    // Test first char diff
-                    b1.setLength(static_cast<int>(strlen(TEST_STR)));
-                    b2.setLength(static_cast<int>(strlen(TEST_STR2)));
+                // Test first char diff
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR2)));
 
-                    copyStringToBlob(&b1, TEST_STR);
-                    copyStringToBlob(&b2, TEST_STR2);
+                copyStringToBlob(&b1, TEST_STR);
+                copyStringToBlob(&b2, TEST_STR2);
 
-                    LOOP2_ASSERT(bufferSize,
-                                 bufferSize2,
-                                 0 < bdlbb::BlobUtil::compare(b1, b2));
+                LOOP2_ASSERT(bufferSize, bufferSize2,
+                             0 < bdlbb::BlobUtil::compare(b1, b2));
 
-                    LOOP2_ASSERT(bufferSize2,
-                                 bufferSize,
-                                 0 > bdlbb::BlobUtil::compare(b2, b1));
+                LOOP2_ASSERT(bufferSize2, bufferSize,
+                             0 > bdlbb::BlobUtil::compare(b2, b1));
 
-                    b1.setLength(static_cast<int>(strlen(TEST_STR2)));
-                    b2.setLength(static_cast<int>(strlen(TEST_STR)));
+                b1.setLength(static_cast<int>(strlen(TEST_STR2)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
-                    copyStringToBlob(&b1, TEST_STR2);
-                    copyStringToBlob(&b2, TEST_STR);
+                copyStringToBlob(&b1, TEST_STR2);
+                copyStringToBlob(&b2, TEST_STR);
 
-                    LOOP2_ASSERT(bufferSize,
-                                 bufferSize2,
-                                 0 > bdlbb::BlobUtil::compare(b1, b2));
+                LOOP2_ASSERT(bufferSize, bufferSize2,
+                             0 > bdlbb::BlobUtil::compare(b1, b2));
 
-                    LOOP2_ASSERT(bufferSize2,
-                                 bufferSize,
-                                 0 < bdlbb::BlobUtil::compare(b2, b1));
+                LOOP2_ASSERT(bufferSize2, bufferSize,
+                             0 < bdlbb::BlobUtil::compare(b2, b1));
 
-                    // Test last char diff
-                    b1.setLength(static_cast<int>(strlen(TEST_STR)));
-                    b2.setLength(static_cast<int>(strlen(TEST_STR3)));
+                // Test last char diff
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR3)));
 
-                    copyStringToBlob(&b1, TEST_STR);
-                    copyStringToBlob(&b2, TEST_STR3);
+                copyStringToBlob(&b1, TEST_STR);
+                copyStringToBlob(&b2, TEST_STR3);
 
-                    LOOP2_ASSERT(bufferSize,
-                                 bufferSize2,
-                                 0 < bdlbb::BlobUtil::compare(b1, b2));
+                LOOP2_ASSERT(bufferSize, bufferSize2,
+                             0 < bdlbb::BlobUtil::compare(b1, b2));
 
-                    LOOP2_ASSERT(bufferSize2,
-                                 bufferSize,
-                                 0 > bdlbb::BlobUtil::compare(b2, b1));
+                LOOP2_ASSERT(bufferSize2, bufferSize,
+                             0 > bdlbb::BlobUtil::compare(b2, b1));
 
-                    b1.setLength(static_cast<int>(strlen(TEST_STR3)));
-                    b2.setLength(static_cast<int>(strlen(TEST_STR)));
+                b1.setLength(static_cast<int>(strlen(TEST_STR3)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
-                    copyStringToBlob(&b1, TEST_STR3);
-                    copyStringToBlob(&b2, TEST_STR);
+                copyStringToBlob(&b1, TEST_STR3);
+                copyStringToBlob(&b2, TEST_STR);
 
-                    LOOP2_ASSERT(bufferSize,
-                                 bufferSize2,
-                                 0 > bdlbb::BlobUtil::compare(b1, b2));
+                LOOP2_ASSERT(bufferSize, bufferSize2,
+                             0 > bdlbb::BlobUtil::compare(b1, b2));
 
-                    LOOP2_ASSERT(bufferSize2,
-                                 bufferSize,
-                                 0 < bdlbb::BlobUtil::compare(b2, b1));
+                LOOP2_ASSERT(bufferSize2, bufferSize,
+                             0 < bdlbb::BlobUtil::compare(b2, b1));
 
-                    // Test 1 char diff in length
-                    b1.setLength(static_cast<int>(strlen(TEST_STR)));
-                    b2.setLength(static_cast<int>(strlen(TEST_STR4)));
+                // Test 1 char diff in length
+                b1.setLength(static_cast<int>(strlen(TEST_STR)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR4)));
 
-                    copyStringToBlob(&b1, TEST_STR);
-                    copyStringToBlob(&b2, TEST_STR4);
+                copyStringToBlob(&b1, TEST_STR);
+                copyStringToBlob(&b2, TEST_STR4);
 
-                    LOOP2_ASSERT(bufferSize,
-                                 bufferSize2,
-                                 0 > bdlbb::BlobUtil::compare(b1, b2));
+                LOOP2_ASSERT(bufferSize, bufferSize2,
+                             0 > bdlbb::BlobUtil::compare(b1, b2));
 
-                    LOOP2_ASSERT(bufferSize2,
-                                 bufferSize,
-                                 0 < bdlbb::BlobUtil::compare(b2, b1));
+                LOOP2_ASSERT(bufferSize2, bufferSize,
+                             0 < bdlbb::BlobUtil::compare(b2, b1));
 
-                    b1.setLength(static_cast<int>(strlen(TEST_STR4)));
-                    b2.setLength(static_cast<int>(strlen(TEST_STR)));
+                b1.setLength(static_cast<int>(strlen(TEST_STR4)));
+                b2.setLength(static_cast<int>(strlen(TEST_STR)));
 
-                    copyStringToBlob(&b1, TEST_STR4);
-                    copyStringToBlob(&b2, TEST_STR);
+                copyStringToBlob(&b1, TEST_STR4);
+                copyStringToBlob(&b2, TEST_STR);
 
-                    LOOP2_ASSERT(bufferSize,
-                                 bufferSize2,
-                                 0 < bdlbb::BlobUtil::compare(b1, b2));
+                LOOP2_ASSERT(bufferSize, bufferSize2,
+                             0 < bdlbb::BlobUtil::compare(b1, b2));
 
-                    LOOP2_ASSERT(bufferSize2,
-                                 bufferSize,
-                                 0 > bdlbb::BlobUtil::compare(b2, b1));
-                }
+                LOOP2_ASSERT(bufferSize2, bufferSize,
+                             0 > bdlbb::BlobUtil::compare(b2, b1));
             }
+        }
 
-            if (verbose)
-                cout << "\nEnd of Test." << endl;
+        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -2245,13 +2222,12 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "\nTesting 'write' special cases"
-                 << "\n=============================" << endl;
+        if (verbose) cout << "\nTesting 'write' special cases"
+                          << "\n=============================" << endl;
 
         // writing zero bytes from an empty blob
         {
-            bdlbb::Blob         emptyBlob;
+            bdlbb::Blob emptyBlob;
             bslx::TestOutStream blobStream(20150825);
             ASSERT(bdlbb::BlobUtil::write(blobStream, emptyBlob, 0, 0) == 0);
             ASSERT(blobStream.length() == 0);
@@ -2259,7 +2235,7 @@ int main(int argc, char *argv[])
 
         // writing non-zero bytes from an empty blob
         {
-            bdlbb::Blob         emptyBlob;
+            bdlbb::Blob emptyBlob;
             bslx::TestOutStream blobStream(20150825);
             ASSERT(bdlbb::BlobUtil::write(blobStream, emptyBlob, 0, 1) != 0);
             ASSERT(blobStream.length() == 0);
@@ -2275,14 +2251,13 @@ int main(int argc, char *argv[])
 
             // write blob
             bslx::TestOutStream blobStream(20150825);
-            ASSERT(bdlbb::BlobUtil::write(blobStream, nonemptyBlob, 0, 0) ==
-                   0);
+            ASSERT(bdlbb::BlobUtil::write(blobStream, nonemptyBlob, 0, 0)
+                   == 0);
             ASSERT(blobStream.length() == 0);
         }
 
-        if (verbose)
-            cout << "\nTesting 'append and write' functions"
-                 << "\n====================================" << endl;
+        if (verbose) cout << "\nTesting 'append and write' functions"
+                          << "\n====================================" << endl;
 
         static const struct {
             int         d_lineNum;
@@ -2294,179 +2269,32 @@ int main(int argc, char *argv[])
         } DATA[] = {
             //line  dest        source         off   len    result
             //----  ----        ------         ---   ---    -----
-            {
-                L_,
-                "Hello",
-                "World",
-                0,
-                5,
-                "HelloWorld",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                0,
-                4,
-                "HelloWorl",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                0,
-                3,
-                "HelloWor",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                0,
-                2,
-                "HelloWo",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                0,
-                1,
-                "HelloW",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                0,
-                0,
-                "Hello",
-            },
+            { L_,   "Hello",    "World",       0,    5,     "HelloWorld",   },
+            { L_,   "Hello",    "World",       0,    4,     "HelloWorl",    },
+            { L_,   "Hello",    "World",       0,    3,     "HelloWor",     },
+            { L_,   "Hello",    "World",       0,    2,     "HelloWo",      },
+            { L_,   "Hello",    "World",       0,    1,     "HelloW",       },
+            { L_,   "Hello",    "World",       0,    0,     "Hello",        },
 
-            {
-                L_,
-                "Hello",
-                "World",
-                1,
-                4,
-                "Helloorld",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                1,
-                3,
-                "Helloorl",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                1,
-                2,
-                "Helloor",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                1,
-                1,
-                "Helloo",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                1,
-                0,
-                "Hello",
-            },
+            { L_,   "Hello",    "World",       1,    4,     "Helloorld",    },
+            { L_,   "Hello",    "World",       1,    3,     "Helloorl",     },
+            { L_,   "Hello",    "World",       1,    2,     "Helloor",      },
+            { L_,   "Hello",    "World",       1,    1,     "Helloo",       },
+            { L_,   "Hello",    "World",       1,    0,     "Hello",        },
 
-            {
-                L_,
-                "Hello",
-                "World",
-                2,
-                3,
-                "Hellorld",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                2,
-                2,
-                "Hellorl",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                2,
-                1,
-                "Hellor",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                2,
-                0,
-                "Hello",
-            },
+            { L_,   "Hello",    "World",       2,    3,     "Hellorld",     },
+            { L_,   "Hello",    "World",       2,    2,     "Hellorl",      },
+            { L_,   "Hello",    "World",       2,    1,     "Hellor",       },
+            { L_,   "Hello",    "World",       2,    0,     "Hello",        },
 
-            {
-                L_,
-                "Hello",
-                "World",
-                3,
-                2,
-                "Hellold",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                3,
-                1,
-                "Hellol",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                3,
-                0,
-                "Hello",
-            },
+            { L_,   "Hello",    "World",       3,    2,     "Hellold",      },
+            { L_,   "Hello",    "World",       3,    1,     "Hellol",       },
+            { L_,   "Hello",    "World",       3,    0,     "Hello",        },
 
-            {
-                L_,
-                "Hello",
-                "World",
-                4,
-                1,
-                "Hellod",
-            },
-            {
-                L_,
-                "Hello",
-                "World",
-                4,
-                0,
-                "Hello",
-            },
+            { L_,   "Hello",    "World",       4,    1,     "Hellod",       },
+            { L_,   "Hello",    "World",       4,    0,     "Hello",        },
 
-            {
-                L_,
-                "Hello",
-                "World",
-                5,
-                0,
-                "Hello",
-            },
+            { L_,   "Hello",    "World",       5,    0,     "Hello",        },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -2475,7 +2303,7 @@ int main(int argc, char *argv[])
 
             bdlbb::Blob dest1(&factory);  // append(blob, blob);
             bdlbb::Blob dest2(&factory);  // append(blob, const char*,
-                                          //        int, int)
+                                            //        int, int)
             bdlbb::Blob dest4(&factory);  // append(blob, const char*, int)
             bdlbb::Blob source(&factory);
 
@@ -2498,9 +2326,9 @@ int main(int argc, char *argv[])
                 const int   LENGTH = DATA[i].d_length;
                 const char *RESULT = DATA[i].d_result;
 
-                copyStringToBlob(&dest1, DEST);
-                copyStringToBlob(&dest2, DEST);
-                copyStringToBlob(&dest4, DEST);
+                copyStringToBlob(&dest1,  DEST);
+                copyStringToBlob(&dest2,  DEST);
+                copyStringToBlob(&dest4,  DEST);
                 dest3.sputn(DEST, static_cast<int>(bsl::strlen(DEST)));
                 copyStringToBlob(&source, SOURCE);
 
@@ -2519,10 +2347,9 @@ int main(int argc, char *argv[])
                 }
 
                 {
-                    bslx::GenericOutStream<bsl::stringbuf> gos(&dest3,
-                                                               20150825);
-                    Util::write(gos, source, OFFSET, LENGTH);
-                    gos.flush();
+                bslx::GenericOutStream<bsl::stringbuf> gos(&dest3, 20150825);
+                Util::write(gos, source, OFFSET, LENGTH);
+                gos.flush();
                 }
 
                 if (veryVeryVerbose) {
@@ -2531,31 +2358,33 @@ int main(int argc, char *argv[])
                 }
 
                 {
-                    bsl::string result;
-                    copyBlobToString(&result, dest1);
-                    LOOP3_ASSERT(bufferSize, LINE, result, RESULT == result);
+                bsl::string result;
+                copyBlobToString(&result, dest1);
+                LOOP3_ASSERT(bufferSize, LINE, result,
+                             RESULT == result);
                 }
 
                 {
-                    bsl::string result;
-                    copyBlobToString(&result, dest2);
-                    LOOP3_ASSERT(bufferSize, LINE, result, RESULT == result);
-                    if (0 == OFFSET) {
-                        copyBlobToString(&result, dest4);
-                        LOOP3_ASSERT(
-                            bufferSize, LINE, result, RESULT == result);
-                    }
+                bsl::string result;
+                copyBlobToString(&result, dest2);
+                LOOP3_ASSERT(bufferSize, LINE, result,
+                             RESULT == result);
+                if (0 == OFFSET) {
+                    copyBlobToString(&result, dest4);
+                    LOOP3_ASSERT(bufferSize, LINE, result,
+                                 RESULT == result);
+                }
                 }
 
                 {
-                    bsl::string result = dest3.str();
-                    LOOP3_ASSERT(bufferSize, LINE, result, RESULT == result);
+                bsl::string result = dest3.str();
+                LOOP3_ASSERT(bufferSize, LINE, result,
+                             RESULT == result);
                 }
             }
         }
 
-        if (verbose)
-            cout << "\nEnd of Test." << endl;
+        if (verbose) cout << "\nEnd of Test." << endl;
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
