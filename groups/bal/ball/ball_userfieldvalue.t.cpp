@@ -572,7 +572,260 @@ int main(int argc, char *argv[])
 
       } break;
       case 14: {
-        // TBD
+        // --------------------------------------------------------------------
+        // INTEGRAL_TYPE VALUE CTOR
+        //
+        // Concerns:
+        //: 1 The integral-converting value constructor (with or without a
+        //:   supplied allocator) can create an object having type 'e_INT64'
+        //:   from any value of integral type other than 'Int64'.
+        //:
+        //: 2 The argument can be 'const'.
+        //:
+        //: 3 If an allocator is NOT supplied to the value constructor, the
+        //:   default allocator in effect at the time of construction becomes
+        //:   the object allocator for the resulting object.
+        //:
+        //: 4 If an allocator IS supplied to the value constructor, that
+        //:   allocator becomes the object allocator for the resulting object.
+        //:
+        //: 5 Supplying a null allocator address has the same effect as not
+        //:   supplying an allocator.
+        //:
+        //: 6 Supplying an allocator to the value constructor has no effect
+        //:   on subsequent object values.
+        //:
+        //: 7 There is no memory allocation from any allocator.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of (unique)
+        //:   object values (one per row) of type 'int'.
+        //:
+        //: 2 For each row (representing a distinct object value, 'V') in the
+        //:   table described in P-1:  (C-2..7)
+        //:
+        //:   1 Using the default constructor and the 'setInt64' setter, create
+        //:     a control object, 'W', and set it to have the value 'V'.
+        //:
+        //:   2 Execute an inner loop creating three distinct objects, in turn,
+        //:     each object having the same value, 'V', but configured
+        //:     differently: (a) without passing an allocator, (b) passing a
+        //:     null allocator address explicitly, and (c) passing the address
+        //:     of a test allocator distinct from the default allocator.
+        //:
+        //:   3 For each of the three iterations in P-2.2:  (C-2..7)
+        //:
+        //:     1 Create three 'bslma::TestAllocator' objects, and install one
+        //:       as the current default allocator (note that a ubiquitous test
+        //:       allocator is already installed as the global allocator).
+        //:
+        //:     2 Use the value constructor to dynamically create an object,
+        //:       'X', having the value 'V', with its object allocator
+        //:       configured appropriately (see P-2.2), supplying the argument
+        //:       as 'const'; use a distinct test allocator for the object's
+        //:       footprint.  (C-2)
+        //:
+        //:     3 Verify that 'X' has the expected type and that 'X' and 'W'
+        //:       have the same value.
+        //:
+        //:     4 Use the 'allocator' accessor to verify that the allocator is
+        //:       properly installed.  (C-3..6)
+        //:
+        //:     5 Use the appropriate test allocators to verify that no memory
+        //:       is allocated from either allocator.  (C-7)
+        //:
+        //: 3 Using brute-force, verify that values of the various other
+        //:   integral types ('bool', 'char', 'short', etc.) also can be used
+        //:   to create 'e_INT64' user fields.  (C-1)
+        //
+        // Testing:
+        //   UserFieldValue(INTEGRAL_TYPE            value, Allocator *ba = 0);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "INTEGRAL_TYPE VALUE CTOR"
+                          << endl << "========================" << endl;
+
+        if (verbose) cout << "\nTesting 'int' type." << endl;
+        {
+            static const struct {
+                int d_line;   // source line number
+                int d_value;  // value for object
+            } DATA[] = {
+                //LINE  VALUE
+                //----  -----
+                { L_,   -2367,   },
+                { L_,     777,   },
+            };
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE  = DATA[ti].d_line;
+                const int VALUE = DATA[ti].d_value;  // note 'int', not 'Int64'
+
+                if (veryVerbose) { T_ P(VALUE) }
+
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                Obj mW(&scratch);  const Obj& W = mW;  // control
+
+                mW.setInt64(static_cast<Int64>(VALUE));
+
+                for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+
+                    const char CONFIG = cfg;  // how we specify the allocator
+
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    Obj                  *objPtr;
+                    bslma::TestAllocator *objAllocatorPtr;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        objPtr = new (fa) Obj(VALUE);
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'b': {
+                        objPtr = new (fa) Obj(VALUE, 0);
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'c': {
+                        objPtr = new (fa) Obj(VALUE, &sa);
+                        objAllocatorPtr = &sa;
+                      } break;
+                      default: {
+                        ASSERTV(LINE, CONFIG, !"Bad allocator config.");
+                      } break;
+                    }
+                    ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
+
+                    Obj& mX = *objPtr;  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
+
+                    bslma::TestAllocator&  oa = *objAllocatorPtr;
+                    bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+                    // -----------------------------------
+                    // Verify the object's type and value.
+                    // -----------------------------------
+
+                    ASSERTV(LINE, CONFIG, Type::e_INT64 == X.type());
+                    ASSERTV(LINE, CONFIG,             W == X);
+
+                    // ---------------------------------------
+                    // Verify allocator is installed properly.
+                    // ---------------------------------------
+
+                    ASSERTV(LINE, CONFIG, &oa, X.allocator(),
+                            &oa == X.allocator());
+
+                    // Verify no allocation from either allocator.
+
+                    ASSERTV(LINE, CONFIG, oa.numBlocksTotal(),
+                            0 == oa.numBlocksTotal());
+
+                    ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
+
+                    // Reclaim dynamically allocated object under test.
+
+                    fa.deleteObject(objPtr);
+
+                    // Verify all memory is released on object destruction.
+
+                    ASSERTV(LINE, CONFIG, da.numBlocksTotal(),
+                            0 == da.numBlocksTotal());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, sa.numBlocksTotal(),
+                            0 == sa.numBlocksTotal());
+
+                }  // end foreach configuration
+
+            }  // end foreach row
+        }
+
+        if (verbose) cout << "\nTesting other integral types." << endl;
+        {
+            Obj mW;  const Obj& W = mW;  // control
+
+            {
+                const bool VALUE = true;
+
+                mW.setInt64(static_cast<Int64>(VALUE));
+                const Obj X(VALUE);
+                ASSERT(Type::e_INT64 == X.type());
+                ASSERT(            W == X);
+            }
+
+            {
+                const char VALUE = 'x';
+
+                mW.setInt64(static_cast<Int64>(VALUE));
+                const Obj X(VALUE);
+                ASSERT(Type::e_INT64 == X.type());
+                ASSERT(            W == X);
+            }
+
+            {
+                const unsigned char VALUE = 'x';
+
+                mW.setInt64(static_cast<Int64>(VALUE));
+                const Obj X(VALUE);
+                ASSERT(Type::e_INT64 == X.type());
+                ASSERT(            W == X);
+            }
+
+            {
+                const signed char VALUE = -3;
+
+                mW.setInt64(static_cast<Int64>(VALUE));
+                const Obj X(VALUE);
+                ASSERT(Type::e_INT64 == X.type());
+                ASSERT(            W == X);
+            }
+
+            {
+                const short VALUE = -22334;
+
+                mW.setInt64(static_cast<Int64>(VALUE));
+                const Obj X(VALUE);
+                ASSERT(Type::e_INT64 == X.type());
+                ASSERT(            W == X);
+            }
+
+            {
+                const unsigned short VALUE = 1276;
+
+                mW.setInt64(static_cast<Int64>(VALUE));
+                const Obj X(VALUE);
+                ASSERT(Type::e_INT64 == X.type());
+                ASSERT(            W == X);
+            }
+
+            {
+                const unsigned int VALUE = 1276;
+
+                mW.setInt64(static_cast<Int64>(VALUE));
+                const Obj X(VALUE);
+                ASSERT(Type::e_INT64 == X.type());
+                ASSERT(            W == X);
+            }
+
+            {
+                const bsls::Types::Uint64 VALUE = 1111222233334444;
+
+                mW.setInt64(static_cast<Int64>(VALUE));
+                const Obj X(VALUE);
+                ASSERT(Type::e_INT64 == X.type());
+                ASSERT(            W == X);
+            }
+        }
+
       } break;
       case 13: {
         // TBD
@@ -657,7 +910,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'e_INT64' value ctor." << endl;
         {
-
             static const struct {
                 int   d_line;   // source line number
                 Int64 d_value;  // value for object
@@ -725,7 +977,7 @@ int main(int argc, char *argv[])
                     // -----------------------------------
 
                     ASSERTV(LINE, CONFIG, Type::e_INT64 == X.type());
-                    ASSERTV(LINE, CONFIG, W == X);
+                    ASSERTV(LINE, CONFIG,             W == X);
 
                     // ---------------------------------------
                     // Verify allocator is installed properly.
@@ -762,7 +1014,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'e_DOUBLE' value ctor." << endl;
         {
-
             static const struct {
                 int    d_line;   // source line number
                 double d_value;  // value for object
@@ -830,7 +1081,7 @@ int main(int argc, char *argv[])
                     // -----------------------------------
 
                     ASSERTV(LINE, CONFIG, Type::e_DOUBLE == X.type());
-                    ASSERTV(LINE, CONFIG, W == X);
+                    ASSERTV(LINE, CONFIG,              W == X);
 
                     // ---------------------------------------
                     // Verify allocator is installed properly.
@@ -863,11 +1114,24 @@ int main(int argc, char *argv[])
                 }  // end foreach configuration
 
             }  // end foreach row
+
+            if (verbose) cout << "\n\tTesting 'float'." << endl;
+            {
+                Obj mW;  const Obj& W = mW;  // control
+
+                {
+                    const float VALUE = 20.5;
+
+                    mW.setDouble(static_cast<double>(VALUE));
+                    const Obj X(VALUE);
+                    ASSERT(Type::e_DOUBLE == X.type());
+                    ASSERT(             W == X);
+                }
+            }
         }
 
         if (verbose) cout << "\nTesting 'e_DATETIMETZ' value ctor." << endl;
         {
-
             static const struct {
                 int              d_line;   // source line number
                 bdlt::DatetimeTz d_value;  // value for object
@@ -955,7 +1219,7 @@ int main(int argc, char *argv[])
                     // -----------------------------------
 
                     ASSERTV(LINE, CONFIG, Type::e_DATETIMETZ == X.type());
-                    ASSERTV(LINE, CONFIG, W == X);
+                    ASSERTV(LINE, CONFIG,                  W == X);
 
                     // ---------------------------------------
                     // Verify allocator is installed properly.
