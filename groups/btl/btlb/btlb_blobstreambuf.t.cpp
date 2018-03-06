@@ -751,7 +751,7 @@ int main(int argc, char *argv[])
 
                 btlb::Blob blob(&fa, &ta);
                 {
-                    Obj mX(&blob); const Obj&    X = mX;
+                    Obj mX(&blob);
                     bsl::istream stream(&mX);
                     ASSERT(stream.rdbuf() == &mX);
 
@@ -776,7 +776,7 @@ int main(int argc, char *argv[])
                                 posInBuf = 0;
                             }
                             *(blob.buffer(currentBuf).data() + posInBuf) =
-                                                                       'A' + j;
+                                                    static_cast<char>('A' + j);
                             if (veryVerbose) {
                                 bsl::cout << "Wrote " << j << " at offset "
                                           << posInBuf << " in buffer "
