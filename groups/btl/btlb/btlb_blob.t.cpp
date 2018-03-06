@@ -554,8 +554,8 @@ class NullDeleter {
         bsl::memcpy(prologBuffer.data() + sizeof(int),
                     prolog.c_str(),
                     prologLength);
-        BSLS_ASSERT(prologBuffer.size() == static_cast<size_t>(prologLength) +
-                                                                  sizeof(int));
+        BSLS_ASSERT(prologBuffer.size() == prologLength
+                                           + static_cast<int>(sizeof(int)));
 
         blob->prependDataBuffer(prologBuffer);
     }
