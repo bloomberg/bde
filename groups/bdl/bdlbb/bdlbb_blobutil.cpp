@@ -10,14 +10,14 @@
 #include <bdlbb_blobutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlbb_blobutil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlbb_blobutil_cpp, "$Id$ $CSID$")
 
+#include <bdlb_print.h>
 #include <bslma_allocator.h>
 #include <bslma_deallocatorproctor.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
 #include <bsls_types.h>
-#include <bdlb_print.h>
 
 #include <bsl_algorithm.h>
 
@@ -60,9 +60,9 @@ void copyFromPlace(char                *dstBuffer,
 
 namespace bdlbb {
 
-                             // ---------------
-                             // struct BlobUtil
-                             // ---------------
+                              // ---------------
+                              // struct BlobUtil
+                              // ---------------
 
 // CLASS METHODS
 void BlobUtil::append(Blob *dest, const Blob& source, int offset, int length)
@@ -78,8 +78,8 @@ void BlobUtil::append(Blob *dest, const Blob& source, int offset, int length)
     }
 
     bsl::pair<int, int> place = findBufferIndexAndOffset(source, offset);
-    int sourceBufferIndex = place.first;
-    int offsetInThisBuffer = place.second;
+    int                 sourceBufferIndex  = place.first;
+    int                 offsetInThisBuffer = place.second;
 
     const int destStartLength = dest->length();
 
@@ -89,8 +89,8 @@ void BlobUtil::append(Blob *dest, const Blob& source, int offset, int length)
     while (destBufferIndex < dest->numBuffers()) {
         dest->removeBuffer(dest->numBuffers() - 1);
     }
-    dest->reserveBufferCapacity(
-        dest->numDataBuffers() + source.numDataBuffers() - sourceBufferIndex);
+    dest->reserveBufferCapacity(dest->numDataBuffers() +
+                                source.numDataBuffers() - sourceBufferIndex);
 
     // Add aliased source buffer.
 
@@ -137,9 +137,9 @@ void BlobUtil::append(Blob *dest, const Blob& source, int offset, int length)
     int newLength = destStartLength + length;
 
     BSLS_ASSERT(-numBytesRemaining == dest->totalSize() - newLength);
-    BSLS_ASSERT(newLength          <= dest->totalSize());
+    BSLS_ASSERT(newLength <= dest->totalSize());
 
-    (void) newLength; // quash potential compiler warning
+    (void)newLength;  // quash potential compiler warning
 }
 
 void BlobUtil::append(Blob *dest, const char *source, int offset, int length)
@@ -176,7 +176,7 @@ void BlobUtil::append(Blob *dest, const char *source, int offset, int length)
                     numBytesToCopy);
 
         numBytesCopied += numBytesToCopy;
-        numBytesLeft   -= numBytesToCopy;
+        numBytesLeft -= numBytesToCopy;
 
         if (0 < numBytesLeft) {
             ++destBufferIndex;
@@ -198,18 +198,18 @@ void BlobUtil::erase(Blob *blob, int offset, int length)
     }
 
     bsl::pair<int, int> place = findBufferIndexAndOffset(*blob, offset);
-    int currBufferIdx = place.first;
-    int leadingBufferLen = place.second;
+    int                 currBufferIdx    = place.first;
+    int                 leadingBufferLen = place.second;
 
     if (currBufferIdx >= blob->numDataBuffers()) {
         return;                                                       // RETURN
     }
 
     if (leadingBufferLen) {
-        const BlobBuffer& leadingBuffer = blob->buffer(currBufferIdx);
-        bsl::shared_ptr<char>   leadingShptr(leadingBuffer.buffer(),
-            leadingBuffer.data());
-        BlobBuffer        leadingPartialBuffer;
+        const BlobBuffer&     leadingBuffer = blob->buffer(currBufferIdx);
+        bsl::shared_ptr<char> leadingShptr(leadingBuffer.buffer(),
+                                           leadingBuffer.data());
+        BlobBuffer            leadingPartialBuffer;
 
         leadingPartialBuffer.setSize(leadingBufferLen);
 
@@ -247,13 +247,13 @@ void BlobUtil::erase(Blob *blob, int offset, int length)
 
         int       numBytesToAdjust = 0;
         const int lastDataBufLen   = blob->lastDataBufferLength();
-        if (currBufferIdx == blob->numDataBuffers() - 1
-            && lastDataBufLen < currBufferSize) {
+        if (currBufferIdx == blob->numDataBuffers() - 1 &&
+            lastDataBufLen < currBufferSize) {
             numBytesToAdjust = currBufferSize - lastDataBufLen;
         }
 
-        bsl::shared_ptr<char> trailingShptr(
-                      currBlobBuffer.buffer(), currBlobBuffer.data() + length);
+        bsl::shared_ptr<char> trailingShptr(currBlobBuffer.buffer(),
+                                            currBlobBuffer.data() + length);
 
         BlobBuffer trailingPartialBuffer;
         trailingPartialBuffer.setSize(currBufferSize - length);
@@ -292,8 +292,8 @@ bsl::pair<int, int> BlobUtil::findBufferIndexAndOffset(const Blob& blob,
     BSLS_ASSERT(0 <= position);
     BSLS_ASSERT(position < blob.totalSize());
 
-    bsl::pair<int, int> result(0, position);
-    const BlobBuffer *buffer = &(blob.buffer(0));
+    bsl::pair<int, int>  result(0, position);
+    const BlobBuffer    *buffer = &(blob.buffer(0));
     for (; buffer->size() <= result.second; ++buffer) {
         result.first++;
         result.second -= buffer->size();
@@ -313,15 +313,14 @@ void BlobUtil::copy(char        *dstBuffer,
     BSLS_ASSERT(dstBuffer != 0);
 
     if (0 < length) {
-        copyFromPlace(dstBuffer, srcBlob,
-                          findBufferIndexAndOffset(srcBlob, position), length);
+        copyFromPlace(dstBuffer                                   ,
+                      srcBlob                                     ,
+                      findBufferIndexAndOffset(srcBlob, position) ,
+                      length                                      );
     }
 }
 
-void BlobUtil::copy(Blob       *dst,
-                    int         dstOffset,
-                    const char *src,
-                    int         length)
+void BlobUtil::copy(Blob *dst, int dstOffset, const char *src, int length)
 {
     BSLS_ASSERT(0 <= dstOffset);
     BSLS_ASSERT(0 <= length);
@@ -363,10 +362,10 @@ void BlobUtil::copy(Blob        *dst,
         BSLS_ASSERT(dst);
         BSLS_ASSERT(dstOffset <= dst->length() - length);
 
-        bsl::pair<int, int> dstPlace = findBufferIndexAndOffset(*dst,
-                                                                dstOffset);
-        bsl::pair<int, int> srcPlace = findBufferIndexAndOffset(src,
-                                                                srcOffset);
+        bsl::pair<int, int> dstPlace =
+            findBufferIndexAndOffset(*dst, dstOffset);
+        bsl::pair<int, int> srcPlace =
+            findBufferIndexAndOffset(src, srcOffset);
 
         int copied       = 0;
         int dstBufIdx    = dstPlace.first;
@@ -378,9 +377,9 @@ void BlobUtil::copy(Blob        *dst,
             const BlobBuffer& dstBuf = dst->buffer(dstBufIdx);
             const BlobBuffer& srcBuf = src.buffer(srcBufIdx);
 
-            int toCopy = bsl::min(bsl::min(length - copied,
-                                           dstBuf.size() - dstBufOffset),
-                                  srcBuf.size() - srcBufOffset);
+            int toCopy = bsl::min(
+                bsl::min(length - copied, dstBuf.size() - dstBufOffset),
+                srcBuf.size() - srcBufOffset);
 
             bsl::memcpy(dstBuf.data() + dstBufOffset,
                         srcBuf.data() + srcBufOffset,
@@ -421,13 +420,13 @@ char *BlobUtil::getContiguousRangeOrCopy(char        *dstBuffer,
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(0 == (alignment & (alignment - 1)));
     BSLS_ASSERT(0 == (reinterpret_cast<bsls::Types::IntPtr>(dstBuffer) &
-                                                               (alignment-1)));
+                      (alignment - 1)));
 
-    bsl::pair<int, int> place = findBufferIndexAndOffset(srcBlob, position);
-    const BlobBuffer& buffer = srcBlob.buffer(place.first);
-    char *p = buffer.data() + place.second;
-    if (0 != (reinterpret_cast<bsls::Types::IntPtr>(p) & (alignment-1))
-       || buffer.size() - place.second < length) {
+    bsl::pair<int, int>  place  = findBufferIndexAndOffset(srcBlob, position);
+    const BlobBuffer&    buffer = srcBlob.buffer(place.first);
+    char                *p      = buffer.data() + place.second;
+    if (0 != (reinterpret_cast<bsls::Types::IntPtr>(p) & (alignment - 1)) ||
+        buffer.size() - place.second < length) {
         copyFromPlace(dstBuffer, srcBlob, place, length);
         p = dstBuffer;
     }
@@ -442,17 +441,17 @@ char *BlobUtil::getContiguousDataBuffer(Blob              *blob,
     BSLS_ASSERT(blob != 0);
     BSLS_ASSERT(0 < addLength);
 
-    int index = blob->numDataBuffers() - 1;
+    int index  = blob->numDataBuffers() - 1;
     int offset = blob->lastDataBufferLength();
     if (index < 0 || blob->buffer(index).size() - offset < addLength) {
         blob->trimLastDataBuffer();
         int size = offset = 0;
-        while (++index < blob->numBuffers()
-           && 0 == (size = blob->buffer(index).size())) {
+        while (++index < blob->numBuffers() &&
+               0 == (size = blob->buffer(index).size())) {
             ;  // skip past any zero-size buffers
         }
         if (size < addLength) {
-            index = blob->numDataBuffers();   // found nothing usable
+            index = blob->numDataBuffers();  // found nothing usable
             BlobBuffer buffer;
             factory->allocate(&buffer);
             BSLS_ASSERT(addLength <= buffer.size());
@@ -473,8 +472,8 @@ bsl::ostream& BlobUtil::asciiDump(bsl::ostream& stream, const Blob& source)
         const BlobBuffer& buffer = source.buffer(i);
 
         int bytesToWrite = numBytesRemaining < buffer.size()
-                           ? numBytesRemaining
-                           : buffer.size();
+                               ? numBytesRemaining
+                               : buffer.size();
 
         stream.write(buffer.data(), bytesToWrite);
         numBytesRemaining -= bytesToWrite;
@@ -497,31 +496,29 @@ bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream,
         return stream;                                                // RETURN
     }
 
-    enum {
-        k_NUM_STATIC_BUFFERS = 32
-    };
+    enum { k_NUM_STATIC_BUFFERS = 32 };
 
-    typedef bsl::pair<const char*, int> BufferInfo;
+    typedef bsl::pair<const char *, int> BufferInfo;
 
     BufferInfo  staticBuffers[k_NUM_STATIC_BUFFERS];
-    BufferInfo *buffers = staticBuffers;
+    BufferInfo *buffers       = staticBuffers;
     int         numBufferInfo = 0;
 
     bslma::DeallocatorProctor<bslma::Allocator> deallocationGuard(
-                                        0, bslma::Default::defaultAllocator());
+        0, bslma::Default::defaultAllocator());
 
     if (source.numDataBuffers() > k_NUM_STATIC_BUFFERS) {
         // This works because we do not need to call the constructor on a pair
         // of two built-in types.
 
-        buffers = (BufferInfo*) bslma::Default::defaultAllocator()->allocate(
-                                source.numDataBuffers() * sizeof (BufferInfo));
+        buffers = (BufferInfo *)bslma::Default::defaultAllocator()->allocate(
+            source.numDataBuffers() * sizeof(BufferInfo));
         deallocationGuard.reset(buffers);
     }
 
-    bsl::pair<int, int> place = findBufferIndexAndOffset(source, offset);
-    int bufferIndex = place.first;
-    int offsetInThisBuffer = place.second;
+    bsl::pair<int, int> place       = findBufferIndexAndOffset(source, offset);
+    int                 bufferIndex = place.first;
+    int                 offsetInThisBuffer = place.second;
 
     if (bufferIndex >= source.numDataBuffers()) {
         return stream;                                                // RETURN
@@ -537,13 +534,13 @@ bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream,
 
         const BlobBuffer& buffer = source.buffer(bufferIndex);
 
-        int startingIndex     = 0 == numBytesCopied ? offsetInThisBuffer : 0;
+        int startingIndex = 0 == numBytesCopied ? offsetInThisBuffer : 0;
 
         int numBytesAvailable = bufferIndex == source.numDataBuffers() - 1
-                                ? source.lastDataBufferLength()
-                                : buffer.size() - startingIndex;
+                                    ? source.lastDataBufferLength()
+                                    : buffer.size() - startingIndex;
 
-        int numBytesToDump    = bsl::min(numBytesAvailable, numBytesLeft);
+        int numBytesToDump = bsl::min(numBytesAvailable, numBytesLeft);
 
         if (0 == numBytesToDump) {
             ++bufferIndex;
@@ -552,12 +549,12 @@ bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream,
 
         BSLS_ASSERT(0 <= numBytesToDump);
 
-        buffers[numBufferInfo] = bsl::make_pair(buffer.data() + startingIndex,
-                                                numBytesToDump);
+        buffers[numBufferInfo] =
+            bsl::make_pair(buffer.data() + startingIndex, numBytesToDump);
         ++numBufferInfo;
 
         numBytesCopied += numBytesToDump;
-        numBytesLeft   -= numBytesToDump;
+        numBytesLeft -= numBytesToDump;
 
         if (0 < numBytesLeft) {
             ++bufferIndex;
@@ -658,15 +655,16 @@ int BlobUtil::compare(const Blob& a, const Blob& b)
         BSLS_ASSERT(lhsBufIdx < lhsBlob->numDataBuffers());
 
         const BlobBuffer& nextLhsBlobBuffer = lhsBlob->buffer(lhsBufIdx);
-        const int               nextLhsBufSize    = nextLhsBlobBuffer.size();
+        const int         nextLhsBufSize    = nextLhsBlobBuffer.size();
         if (rhsBufSize >= nextLhsBufSize) {
             // The next 'lhs' blob buffer is still the smaller buffer.
 
             lhsBufSize = nextLhsBufSize;
             lhsPtr     = nextLhsBlobBuffer.data();
 
-            rhsPtr     = rhsPtr + numBytesToCompare;
-        } else {
+            rhsPtr = rhsPtr + numBytesToCompare;
+        }
+        else {
             // The new 'lhs' blob buffer is larger than the 'rhs' blob buffer,
             // so swap them so that the smaller buffer is on the left.
 
@@ -679,7 +677,7 @@ int BlobUtil::compare(const Blob& a, const Blob& b)
             rhsPtr     = nextLhsBlobBuffer.data();
 
             using bsl::swap;
-            swap(lhsBlob,   rhsBlob);
+            swap(lhsBlob, rhsBlob);
             swap(lhsBufIdx, rhsBufIdx);
         }
     }

@@ -49,26 +49,25 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlbb {
 
-                      // =============================
-                      // class PooledBlobBufferFactory
-                      // =============================
+                       // =============================
+                       // class PooledBlobBufferFactory
+                       // =============================
 
-class PooledBlobBufferFactory: public BlobBufferFactory {
+class PooledBlobBufferFactory : public BlobBufferFactory {
     // This class implements the 'BlobBufferFactory' protocol and provides a
     // mechanism for allocating 'BlobBuffer' objects of a fixed size passed at
     // construction.
 
     // DATA
-    int                        d_bufferSize;  // size of allocated blob buffers
+    int d_bufferSize;                         // size of allocated blob buffers
 
-    bdlma::ConcurrentPoolAllocator
-                               d_spPool;      // pool used to allocate shared
+    bdlma::ConcurrentPoolAllocator d_spPool;  // pool used to allocate shared
                                               // pointers and buffers
                                               // contiguously
   public:
     // CREATORS
-    PooledBlobBufferFactory(int                          bufferSize,
-                            bslma::Allocator            *basicAllocator = 0);
+    PooledBlobBufferFactory(int               bufferSize,
+                            bslma::Allocator *basicAllocator = 0);
     PooledBlobBufferFactory(int                          bufferSize,
                             bsls::BlockGrowth::Strategy  growthStrategy,
                             bslma::Allocator            *basicAllocator = 0);
@@ -110,9 +109,9 @@ class PooledBlobBufferFactory: public BlobBufferFactory {
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-                      // -----------------------------
-                      // class PooledBlobBufferFactory
-                      // -----------------------------
+                       // -----------------------------
+                       // class PooledBlobBufferFactory
+                       // -----------------------------
 
 // ACCESSORS
 inline

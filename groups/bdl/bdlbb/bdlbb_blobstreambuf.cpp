@@ -10,7 +10,7 @@
 #include <bdlbb_blobstreambuf.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlbb_blobstreambuf_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlbb_blobstreambuf_cpp, "$Id$ $CSID$")
 
 #include <bdlbb_blob.h>
 
@@ -29,9 +29,9 @@ BSLS_IDENT_RCSID(bdlbb_blobstreambuf_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlbb {
 
-                          // =====================
-                          // class InBlobStreamBuf
-                          // =====================
+                           // =====================
+                           // class InBlobStreamBuf
+                           // =====================
 
 // PRIVATE MANIPULATORS
 void InBlobStreamBuf::setGetPosition(bsl::size_t position)
@@ -47,22 +47,23 @@ void InBlobStreamBuf::setGetPosition(bsl::size_t position)
         // chance to actually initialize the streambuf pointers.
 
         BSLS_ASSERT(d_blob_p->numBuffers() != 0);
-        setg(d_blob_p->buffer(0).data(), d_blob_p->buffer(0).data(),
+        setg(d_blob_p->buffer(0).data(),
+             d_blob_p->buffer(0).data(),
              d_blob_p->buffer(0).data() +
-                     bsl::min(d_blob_p->buffer(0).size(), d_blob_p->length()));
+                 bsl::min(d_blob_p->buffer(0).size(), d_blob_p->length()));
     }
 
-    int maxBufPos = static_cast<int>(egptr() - eback())
-                    + d_previousBuffersLength;
+    int maxBufPos =
+        static_cast<int>(egptr() - eback()) + d_previousBuffersLength;
     if (((unsigned)maxBufPos > position &&
-            (unsigned)d_previousBuffersLength <= position)
-      || ((unsigned)maxBufPos == position &&
-             position == (unsigned)d_blob_p->length())) {
+         (unsigned)d_previousBuffersLength <= position) ||
+        ((unsigned)maxBufPos == position &&
+         position == (unsigned)d_blob_p->length())) {
         // We are not crossing any buffer boundaries.
 
         BSLS_ASSERT(position >= (unsigned)d_previousBuffersLength);
         BSLS_ASSERT((position - d_previousBuffersLength) <=
-                          (unsigned)d_blob_p->buffer(d_getBufferIndex).size());
+                    (unsigned)d_blob_p->buffer(d_getBufferIndex).size());
         setg(eback(), eback() + position - d_previousBuffersLength, egptr());
         return;                                                       // RETURN
     }
@@ -72,11 +73,12 @@ void InBlobStreamBuf::setGetPosition(bsl::size_t position)
     if (position > (unsigned)d_previousBuffersLength) {
         // We are moving forward.
 
-        int left = static_cast<int>(position - (d_previousBuffersLength +
-                               d_blob_p->buffer(d_getBufferIndex).size()));
+        int left = static_cast<int>(
+            position - (d_previousBuffersLength +
+                        d_blob_p->buffer(d_getBufferIndex).size()));
         do {
             d_previousBuffersLength +=
-                                     d_blob_p->buffer(d_getBufferIndex).size();
+                d_blob_p->buffer(d_getBufferIndex).size();
             ++d_getBufferIndex;
             left -= d_blob_p->buffer(d_getBufferIndex).size();
         } while (left > 0);
@@ -88,7 +90,7 @@ void InBlobStreamBuf::setGetPosition(bsl::size_t position)
         do {
             --d_getBufferIndex;
             d_previousBuffersLength -=
-                                     d_blob_p->buffer(d_getBufferIndex).size();
+                d_blob_p->buffer(d_getBufferIndex).size();
             left -= d_blob_p->buffer(d_getBufferIndex).size();
         } while (left > 0);
     }
@@ -97,7 +99,8 @@ void InBlobStreamBuf::setGetPosition(bsl::size_t position)
 
     char *base = d_blob_p->buffer(d_getBufferIndex).data();
 
-    setg(base, base + position - d_previousBuffersLength,
+    setg(base,
+         base + position - d_previousBuffersLength,
          base + bsl::min(d_blob_p->buffer(d_getBufferIndex).size(),
                          d_blob_p->length() - d_previousBuffersLength));
 }
@@ -110,12 +113,12 @@ int InBlobStreamBuf::checkInvariant() const
     if (gptr()) {
         BSLS_ASSERT(eback());
         BSLS_ASSERT(egptr());
-        BSLS_ASSERT(gptr() - eback() <= egptr()-eback());
+        BSLS_ASSERT(gptr() - eback() <= egptr() - eback());
         BSLS_ASSERT((unsigned)d_getBufferIndex < numBuffers);
         BSLS_ASSERT(egptr() - eback() <=
-                                  d_blob_p->buffer(d_getBufferIndex).size());
+                    d_blob_p->buffer(d_getBufferIndex).size());
         BSLS_ASSERT(d_previousBuffersLength + egptr() - eback() <=
-                                                           d_blob_p->length());
+                    d_blob_p->length());
     }
     else {
         BSLS_ASSERT(0 == eback());
@@ -128,27 +131,26 @@ int InBlobStreamBuf::checkInvariant() const
 }
 
 // PROTECTED MANIPULATORS
-InBlobStreamBuf::int_type
-InBlobStreamBuf::overflow(InBlobStreamBuf::int_type)
+InBlobStreamBuf::int_type InBlobStreamBuf::overflow(InBlobStreamBuf::int_type)
 {
     return traits_type::eof();
 }
 
-InBlobStreamBuf::int_type
-InBlobStreamBuf::pbackfail(InBlobStreamBuf::int_type c)
+InBlobStreamBuf::int_type InBlobStreamBuf::pbackfail(
+                                                   InBlobStreamBuf::int_type c)
 {
     BSLS_ASSERT(checkInvariant() == 0);
 
     if (gptr() == eback()) {
         if (0 == d_getBufferIndex) {
-             // No put-back position available.
+            // No put-back position available.
 
             return traits_type::eof();                                // RETURN
         }
         else {
             d_getBufferIndex--;
             d_previousBuffersLength -=
-                                     d_blob_p->buffer(d_getBufferIndex).size();
+                d_blob_p->buffer(d_getBufferIndex).size();
 
             char *gbuf = d_blob_p->buffer(d_getBufferIndex).data();
 
@@ -167,16 +169,17 @@ InBlobStreamBuf::pbackfail(InBlobStreamBuf::int_type c)
     }
 }
 
-InBlobStreamBuf::pos_type
-InBlobStreamBuf::seekpos(pos_type position, bsl::ios_base::openmode which)
+InBlobStreamBuf::pos_type InBlobStreamBuf::seekpos(
+                                              pos_type                position,
+                                              bsl::ios_base::openmode which)
 {
     return seekoff(off_type(position), bsl::ios_base::beg, which);
 }
 
-InBlobStreamBuf::pos_type
-InBlobStreamBuf::seekoff(off_type                offset,
-                         bsl::ios_base::seekdir  fixedPosition,
-                         bsl::ios_base::openmode which)
+InBlobStreamBuf::pos_type InBlobStreamBuf::seekoff(
+                                         off_type                offset,
+                                         bsl::ios_base::seekdir  fixedPosition,
+                                         bsl::ios_base::openmode which)
 {
     BSLS_ASSERT(0 == checkInvariant());
 
@@ -191,19 +194,18 @@ InBlobStreamBuf::seekoff(off_type                offset,
     bsl::size_t totalSize = d_blob_p->length();
 
     off_type newoff;
-    switch (fixedPosition)
-    {
-        case bsl::ios_base::beg:
-          newoff = 0;
-          break;
-        case bsl::ios_base::cur:
-          newoff = d_previousBuffersLength + gptr() - eback();
-          break;
-        case bsl::ios_base::end:
-          newoff = totalSize;
-          break;
-        default:
-          return off_type(-1);                                        // RETURN
+    switch (fixedPosition) {
+      case bsl::ios_base::beg:
+        newoff = 0;
+        break;
+      case bsl::ios_base::cur:
+        newoff = d_previousBuffersLength + gptr() - eback();
+        break;
+      case bsl::ios_base::end:
+        newoff = totalSize;
+        break;
+      default:
+        return off_type(-1);                                          // RETURN
     }
 
     newoff += offset;
@@ -235,8 +237,8 @@ InBlobStreamBuf::int_type InBlobStreamBuf::underflow()
     BSLS_ASSERT(egptr() == gptr());
 
     int totalSize = d_blob_p->length();
-    int getPosition =  d_previousBuffersLength
-                       + static_cast<int>(gptr() - eback());
+    int getPosition =
+        d_previousBuffersLength + static_cast<int>(gptr() - eback());
 
     if (getPosition >= totalSize) {
         BSLS_ASSERT(getPosition == totalSize);
@@ -250,7 +252,7 @@ InBlobStreamBuf::int_type InBlobStreamBuf::underflow()
         d_previousBuffersLength += d_blob_p->buffer(d_getBufferIndex).size();
         ++d_getBufferIndex;
         BSLS_ASSERT(d_getBufferIndex < d_blob_p->numBuffers());
-        curOffset = 0; // start of the buffer.
+        curOffset = 0;  // start of the buffer.
     }
     else {
         // This is our offset in this buffer.  The point is that the length of
@@ -259,15 +261,15 @@ InBlobStreamBuf::int_type InBlobStreamBuf::underflow()
         curOffset = egptr() - eback();
     }
 
-    char *gbuf = d_blob_p->buffer(d_getBufferIndex).data();
-    bsl::size_t glen =  d_blob_p->buffer(d_getBufferIndex).size();
+    char        *gbuf = d_blob_p->buffer(d_getBufferIndex).data();
+    bsl::size_t  glen = d_blob_p->buffer(d_getBufferIndex).size();
 
     // We need to figure out where to stop in that buffer.  If this is the last
     // buffer, we may have to stop before the end of the memory since it may
     // not be full at that time.
 
-    bsl::size_t endOffset = bsl::min(totalSize - d_previousBuffersLength,
-                                     (int)glen);
+    bsl::size_t endOffset =
+        bsl::min(totalSize - d_previousBuffersLength, (int)glen);
 
     BSLS_ASSERT(curOffset < endOffset);
     BSLS_ASSERT(endOffset <= glen);
@@ -283,15 +285,14 @@ bsl::streamsize InBlobStreamBuf::xsgetn(char_type       *destination,
     bsl::streamsize numCopied = 0;
     while (0 < numLeft) {
         bsl::streamsize remainingChars = egptr() - gptr();
-        bsl::streamsize canCopy = bsl::min(remainingChars, numLeft);
+        bsl::streamsize canCopy        = bsl::min(remainingChars, numLeft);
 
         bsl::memcpy(destination + numCopied, gptr(), canCopy);
         gbump(static_cast<int>(canCopy));
         numLeft -= canCopy;
 
-        if (   0 < numLeft
-            && gptr() == egptr()
-            && traits_type::eof() == underflow()) {
+        if (0 < numLeft && gptr() == egptr() &&
+            traits_type::eof() == underflow()) {
             return numCopied + canCopy;                               // RETURN
         }
         numCopied += canCopy;
@@ -318,9 +319,9 @@ InBlobStreamBuf::~InBlobStreamBuf()
     BSLS_ASSERT(0 == checkInvariant());
 }
 
-                          // ======================
-                          // class OutBlobStreamBuf
-                          // ======================
+                           // ======================
+                           // class OutBlobStreamBuf
+                           // ======================
 
 // PRIVATE MANIPULATORS
 void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
@@ -328,7 +329,7 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
     BSLS_ASSERT(position <= (unsigned)d_blob_p->totalSize());
     if (d_blob_p->totalSize() == 0) {
         setp(0, 0);
-        d_putBufferIndex = 0;
+        d_putBufferIndex        = 0;
         d_previousBuffersLength = 0;
         return;                                                       // RETURN
     }
@@ -342,17 +343,17 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
         setp(buffer.data(), buffer.data() + buffer.size());
     }
 
-    int maxBufPos = d_previousBuffersLength +
-                    d_blob_p->buffer(d_putBufferIndex).size();
+    int maxBufPos =
+        d_previousBuffersLength + d_blob_p->buffer(d_putBufferIndex).size();
     if (((unsigned)maxBufPos > position &&
-            (unsigned)d_previousBuffersLength <= position) ||
+         (unsigned)d_previousBuffersLength <= position) ||
         ((unsigned)maxBufPos == position &&
-             position == (unsigned)d_blob_p->totalSize())) {
+         position == (unsigned)d_blob_p->totalSize())) {
         // We are not crossing any buffer boundaries.
 
         BSLS_ASSERT(position >= (unsigned)d_previousBuffersLength);
         BSLS_ASSERT((position - d_previousBuffersLength) <=
-                          (unsigned)d_blob_p->buffer(d_putBufferIndex).size());
+                    (unsigned)d_blob_p->buffer(d_putBufferIndex).size());
         const bdlbb::BlobBuffer& buffer = d_blob_p->buffer(d_putBufferIndex);
         setp(buffer.data(), buffer.data() + buffer.size());
         pbump(static_cast<int>(position) - d_previousBuffersLength);
@@ -364,11 +365,12 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
     if (position > (unsigned)d_previousBuffersLength) {
         // We are moving forward.
 
-        int left = static_cast<int>(position - (d_previousBuffersLength +
-                               d_blob_p->buffer(d_putBufferIndex).size()));
+        int left = static_cast<int>(
+            position - (d_previousBuffersLength +
+                        d_blob_p->buffer(d_putBufferIndex).size()));
         do {
             d_previousBuffersLength +=
-                                     d_blob_p->buffer(d_putBufferIndex).size();
+                d_blob_p->buffer(d_putBufferIndex).size();
             ++d_putBufferIndex;
             left -= d_blob_p->buffer(d_putBufferIndex).size();
         } while (left > 0);
@@ -380,7 +382,7 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
         do {
             --d_putBufferIndex;
             d_previousBuffersLength -=
-                                     d_blob_p->buffer(d_putBufferIndex).size();
+                d_blob_p->buffer(d_putBufferIndex).size();
             left -= d_blob_p->buffer(d_putBufferIndex).size();
         } while (left > 0);
     }
@@ -397,7 +399,7 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
     // non-empty blob which finishes on a buffer boundary.
 
     BSLS_ASSERT(position - d_previousBuffersLength <=
-                          (unsigned)d_blob_p->buffer(d_putBufferIndex).size());
+                (unsigned)d_blob_p->buffer(d_putBufferIndex).size());
 
     char *base = d_blob_p->buffer(d_putBufferIndex).data();
 
@@ -415,11 +417,11 @@ int OutBlobStreamBuf::checkInvariant() const
         BSLS_ASSERT(epptr());
         BSLS_ASSERT((unsigned)d_putBufferIndex < numBuffers);
         BSLS_ASSERT(epptr() - pbase() ==
-                                    d_blob_p->buffer(d_putBufferIndex).size());
+                    d_blob_p->buffer(d_putBufferIndex).size());
         BSLS_ASSERT(pptr() - pbase() <=
-                                    d_blob_p->buffer(d_putBufferIndex).size());
+                    d_blob_p->buffer(d_putBufferIndex).size());
         BSLS_ASSERT(d_previousBuffersLength + epptr() - pbase() <=
-                                                        d_blob_p->totalSize());
+                    d_blob_p->totalSize());
     }
     else {
         BSLS_ASSERT(0 == pbase());
@@ -432,8 +434,8 @@ int OutBlobStreamBuf::checkInvariant() const
 }
 
 // PROTECTED MANIPULATORS
-OutBlobStreamBuf::int_type
-OutBlobStreamBuf::overflow(OutBlobStreamBuf::int_type c)
+OutBlobStreamBuf::int_type OutBlobStreamBuf::overflow(
+                                                  OutBlobStreamBuf::int_type c)
 {
     BSLS_ASSERT(0 == checkInvariant());
 
@@ -442,17 +444,16 @@ OutBlobStreamBuf::overflow(OutBlobStreamBuf::int_type c)
     }
 
     if (pptr() == epptr()) {
-
         int currentPos;
         if (0 == d_blob_p->totalSize() && 0 == d_blob_p->length()) {
             currentPos = 0;
         }
         else {
             currentPos = d_previousBuffersLength +
-                                     d_blob_p->buffer(d_putBufferIndex).size();
+                         d_blob_p->buffer(d_putBufferIndex).size();
         }
         if (currentPos >= d_blob_p->totalSize()) {
-            d_blob_p->setLength(currentPos + 1); // grow if necessary
+            d_blob_p->setLength(currentPos + 1);  // grow if necessary
         }
 
         setPutPosition(currentPos);
@@ -465,21 +466,22 @@ OutBlobStreamBuf::overflow(OutBlobStreamBuf::int_type c)
 }
 
 OutBlobStreamBuf::int_type
-OutBlobStreamBuf::pbackfail(OutBlobStreamBuf::int_type)
+    OutBlobStreamBuf::pbackfail(OutBlobStreamBuf::int_type)
 {
     return traits_type::eof();
 }
 
-OutBlobStreamBuf::pos_type
-OutBlobStreamBuf::seekpos(pos_type position, bsl::ios_base::openmode which)
+OutBlobStreamBuf::pos_type OutBlobStreamBuf::seekpos(
+                                              pos_type                position,
+                                              bsl::ios_base::openmode which)
 {
     return seekoff(off_type(position), bsl::ios_base::beg, which);
 }
 
-OutBlobStreamBuf::pos_type
-OutBlobStreamBuf::seekoff(off_type                offset,
-                          bsl::ios_base::seekdir  fixedPosition,
-                          bsl::ios_base::openmode which)
+OutBlobStreamBuf::pos_type OutBlobStreamBuf::seekoff(
+                                         off_type                offset,
+                                         bsl::ios_base::seekdir  fixedPosition,
+                                         bsl::ios_base::openmode which)
 {
     BSLS_ASSERT(0 == checkInvariant());
 
@@ -494,19 +496,18 @@ OutBlobStreamBuf::seekoff(off_type                offset,
     bsl::size_t totalSize = d_blob_p->length();
 
     off_type newoff;
-    switch (fixedPosition)
-    {
-        case bsl::ios_base::beg:
-          newoff = 0;
-          break;
-        case bsl::ios_base::cur:
-          newoff = d_previousBuffersLength + pptr() - pbase();
-          break;
-        case bsl::ios_base::end:
-          newoff = totalSize;
-          break;
-        default:
-          return off_type(-1);                                        // RETURN
+    switch (fixedPosition) {
+      case bsl::ios_base::beg:
+        newoff = 0;
+        break;
+      case bsl::ios_base::cur:
+        newoff = d_previousBuffersLength + pptr() - pbase();
+        break;
+      case bsl::ios_base::end:
+        newoff = totalSize;
+        break;
+      default:
+        return off_type(-1);                                          // RETURN
     }
 
     newoff += offset;
@@ -531,8 +532,8 @@ int OutBlobStreamBuf::sync()
     BSLS_ASSERT(0 == checkInvariant());
 
     int totalSize = d_blob_p->length();
-    int putPosition = d_previousBuffersLength
-                      + static_cast<int>(pptr() - pbase());
+    int putPosition =
+        d_previousBuffersLength + static_cast<int>(pptr() - pbase());
 
     if (putPosition > totalSize) {
         d_blob_p->setLength(putPosition);
@@ -558,22 +559,21 @@ bsl::streamsize OutBlobStreamBuf::xsputn(const char_type *source,
 
     while (0 < numLeft) {
         bsl::streamsize remainingChars = epptr() - pptr();
-        bsl::streamsize canCopy = bsl::min(remainingChars, numLeft);
+        bsl::streamsize canCopy        = bsl::min(remainingChars, numLeft);
 
         bsl::memcpy(pptr(), source + numCopied, canCopy);
         pbump(static_cast<int>(canCopy));
         numCopied += canCopy;
-        numLeft   -= canCopy;
+        numLeft -= canCopy;
 
         if (0 < numLeft) {
             if (traits_type::eof() ==
-                         overflow(traits_type::to_int_type(source[numCopied])))
-            {
+                overflow(traits_type::to_int_type(source[numCopied]))) {
                 return numCopied;                                     // RETURN
             }
             else {
                 numCopied += 1;
-                numLeft   -= 1;
+                numLeft -= 1;
             }
         }
     }
