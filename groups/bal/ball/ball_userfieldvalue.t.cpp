@@ -30,7 +30,15 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
-// TBD
+// The standard approach for testing value-semantic types is followed in the
+// first 10 test cases, with remaining methods (most notably value constructors
+// and the 'reset' method) tested in subsequent cases.  Since two of the five
+// possible user field types can allocate memory, 'bslma::TestAllocator' and
+// 'bslma::TestAllocatorMonitor' are used extensively to verify that dynamic
+// memory use is as expected.  Note that due to the vagaries of member 'swap'
+// for 'bdlb::Variant', memory *may* be allocated from the default allocator in
+// 'case 8' (member and free 'swap').  Finally, a 'gg' function is implemented
+// for this component.
 //
 // Primary Manipulators:
 //: o void setInt64(bsls::Types::Int64 value);
@@ -53,7 +61,7 @@ using namespace bsl;
 //: o ACCESSOR methods are declared 'const'.
 //: o CREATOR/MANIPULATOR/OPERATOR ptr./ref. parameters are declared 'const'.
 //: o No memory is ever allocated from the global allocator.
-//: o No memory is ever allocated from the default allocator.
+//: o Memory comes from the default allocator in 'case 8' only.
 //: o Precondition violations are detected in appropriate build modes.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -494,7 +502,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    // CONCERN: In no case does memory come from the default allocator.
+    // CONCERN: Memory comes from the default allocator in 'case 8' only.
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
@@ -1446,8 +1454,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // SWAP MEMBER AND FREE FUNCTIONS
         //   Ensure that, when member and free 'swap' are implemented, we can
-        //   exchange the values of any two objects that use the same
-        //   allocator.
+        //   exchange the values of any two objects.
         //
         // Concerns:
         //: 1 Both functions exchange the values of the (two) supplied objects.
@@ -1455,11 +1462,10 @@ int main(int argc, char *argv[])
         //: 2 The common object allocator address held by both objects is
         //:   unchanged.
         //:
-        //: 3 Both functions allocate memory from the object allocator if and
-        //:   only if one of the objects is unset and the other object has any
-        //:   outstanding allocations (see the implementation of 'swap' for
-        //:   'bdlb::Variant').  Neither function ever allocates from the
-        //:   default allocator.
+        //: 3 Both functions may allocate memory from the object allocator
+        //:   depending on the types of the field values being exchanged and
+        //:   whether one or both of those types require allocation (see the
+        //:   implementation of member and free 'swap' for 'bdlb::Variant').
         //:
         //: 4 Both functions have standard signatures and return types.
         //:
@@ -1554,10 +1560,11 @@ int main(int argc, char *argv[])
         //:
         //:     1 The values have been exchanged.
         //:
-        //:     2 There was no additional object memory allocation.  (C-6)
+        //:     2 There is additional object memory allocation only when
+        //:       expected.  (C-6)
         //:
-        //: 6 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        //: 6 Use the test allocator from P-2 to verify that memory is
+        //:   allocated from the default allocator only when expected.  (C-3)
         //:
         //: 7 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to swap objects that do not
@@ -1677,11 +1684,16 @@ int main(int argc, char *argv[])
                     T_ P_(LINEJ) P_(X) P_(Y) P(YY)
                 }
 
-                // The following is derived from the behavior of 'swap' for
-                // 'bdlb::Variant'.
+                // Under the circumstances where variant's 'swap' resolves to
+                // 'std::swap', memory allocations that may be incurred differ
+                // between C++03 and C++11.
 
-                bool oneUnsetOtherAllocates = ('V' == TYPEI && 'Y' == MEMJ)
-                                           || ('V' == TYPEJ && 'Y' == MEMI);
+                const bool allocationsExpected =
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+                ('V' == TYPEI && 'Y' == MEMJ) || ('V' == TYPEJ && 'Y' == MEMI);
+#else
+                                TYPEI != TYPEJ && ('Y' == MEMI || 'Y' == MEMJ);
+#endif
 
                 // member 'swap'
                 {
@@ -1694,7 +1706,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINEI, LINEJ, &oa == X.allocator());
                     ASSERTV(LINEI, LINEJ, &oa == Y.allocator());
 
-                    if (oneUnsetOtherAllocates) {
+                    if (allocationsExpected) {
                         ASSERTV(LINEI, LINEJ, oam.isTotalUp());
                     }
                     else {
@@ -1713,7 +1725,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINEI, LINEJ, &oa == X.allocator());
                     ASSERTV(LINEI, LINEJ, &oa == Y.allocator());
 
-                    if (oneUnsetOtherAllocates) {
+                    if (allocationsExpected) {
                         ASSERTV(LINEI, LINEJ, oam.isTotalUp());
                     }
                     else {
@@ -1752,14 +1764,20 @@ int main(int argc, char *argv[])
 
             ASSERTV(YY, X, YY == X);
             ASSERTV(XX, Y, XX == Y);
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
             ASSERT(oam.isTotalSame());
+#else
+            ASSERT(oam.isTotalUp());
+#endif
 
             if (veryVerbose) { T_ P_(X) P(Y) }
         }
 
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         // Verify no memory is allocated from the default allocator.
 
         ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+#endif
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
@@ -1776,18 +1794,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(mA.swap(mB));
                 ASSERT_SAFE_FAIL(mA.swap(mZ));
-            }
-
-            if (veryVerbose) cout << "\t'swap' free function." << endl;
-            {
-                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
-                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
-
-                Obj mA(&oa1);  Obj mB(&oa1);
-                Obj mZ(&oa2);
-
-                ASSERT_SAFE_PASS(swap(mA, mB));
-                ASSERT_SAFE_FAIL(swap(mA, mZ));
             }
         }
 
@@ -3485,7 +3491,7 @@ int main(int argc, char *argv[])
     ASSERTV(globalAllocator.numBlocksTotal(),
             0 == globalAllocator.numBlocksTotal());
 
-    // CONCERN: In no case does memory come from the default allocator.
+    // CONCERN: Memory comes from the default allocator in 'case 8' only.
 
     ASSERTV(defaultAllocator.numBlocksTotal(),
             0 == defaultAllocator.numBlocksTotal());

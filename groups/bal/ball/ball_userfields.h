@@ -77,6 +77,10 @@ BSLS_IDENT("$Id: $")
 #include <ball_userfieldvalue.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -118,6 +122,7 @@ class UserFields {
 
     // FRIENDS
     friend bool operator==(const UserFields&, const UserFields&);
+    friend void swap(UserFields&, UserFields&);
 
   public:
     // TYPES
@@ -174,9 +179,9 @@ class UserFields {
 
     void swap(UserFields& other);
         // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the strong exception
-        // guarantee.  The behavior is undefined unless this object was created
-        // with the same allocator as 'other'.
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as 'other'.
 
     // ACCESSORS
     ConstIterator begin() const;
@@ -250,9 +255,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const UserFields& object);
 // FREE FUNCTIONS
 void swap(ball::UserFields& a, ball::UserFields& b);
     // Swap the value of the specified 'a' object with the value of the
-    // specified 'b' object.  This method provides the strong exception
-    // guarantee.  The behavior is undefined unless both objects were created
-    // with the same allocator.
+    // specified 'b' object.  If 'a' and 'b' were created with the same
+    // allocator, then this method provides the no-throw exception-safety
+    // guarantee; otherwise, it provides the basic guarantee.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -408,9 +413,7 @@ bsl::ostream& ball::operator<<(bsl::ostream& stream, const UserFields& object)
 inline
 void ball::swap(UserFields& a, UserFields& b)
 {
-    BSLS_ASSERT_SAFE(a.allocator() == b.allocator());
-
-    a.swap(b);
+    bslalg::SwapUtil::swap(&a.d_values, &b.d_values);
 }
 
 }  // close enterprise namespace

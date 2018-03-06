@@ -78,6 +78,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimetz.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -92,6 +96,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_TYPELIST
+#include <bslmf_typelist.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -120,22 +128,27 @@ namespace ball {
 class UserFieldValue {
     // This class implements a value-semantic type for representing the value
     // of a user field in a log record.  A user field value acts as a
-    // discriminated union, and may represent a value of any of types described
-    // in 'ball::UserFieldType' or an unset value (indicated type
-    // 'ball::UserFieldType::e_VOID').
+    // discriminated union, and may represent a value of any of the types
+    // described in 'ball::UserFieldType' or an unset value (indicated by type
+    // 'ball::UserFieldType::e_VOID').  Note that 'bdlb::VariantImp' is used
+    // for the type of the data member rather than 'bdlb::Variant' directly so
+    // that the free 'swap' function for this type discovers variant's free
+    // 'swap' function through ADL (DRQS nnnnnnnnn).
 
     // PRIVATE TYPES
-    typedef bdlb::Variant<bsls::Types::Int64,
-                          double,
-                          bsl::string,
-                          bdlt::DatetimeTz,
-                          bsl::vector<char> > ValueVariant;
+    typedef bdlb::VariantImp<bslmf::TypeList<
+                                            bsls::Types::Int64,
+                                            double,
+                                            bsl::string,
+                                            bdlt::DatetimeTz,
+                                            bsl::vector<char> > > ValueVariant;
 
     // DATA
     ValueVariant d_value;  // value
 
     // FRIENDS
     friend bool operator==(const UserFieldValue&, const UserFieldValue&);
+    friend void swap(UserFieldValue&, UserFieldValue&);
 
   public:
     // TRAITS
@@ -224,10 +237,12 @@ class UserFieldValue {
 
     void swap(UserFieldValue& other);
         // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  This method provides the strong exception
-        // guarantee if 'type()' is the same as 'other.type()'; otherwise, it
-        // provides the basic guarantee.  The behavior is undefined unless this
-        // object was created with the same allocator as 'other'.
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee if either 'type()' is the same as
+        // 'other.type()', or neither 'type()' nor 'other.type()' is a type
+        // that requires allocation; otherwise, it provides the basic
+        // guarantee.  The behavior is undefined unless this object was created
+        // with the same allocator as 'other'.
 
     // ACCESSORS
     bool isUnset() const;
@@ -316,10 +331,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, const UserFieldValue& object);
 // FREE FUNCTIONS
 void swap(ball::UserFieldValue& a, ball::UserFieldValue& b);
     // Swap the value of the specified 'a' object with the value of the
-    // specified 'b' object.  This method provides the strong exception
-    // guarantee if 'a.type()' is the same as 'b.type()'; otherwise, it
-    // provides the basic guarantee.  The behavior is undefined unless both
-    // objects were created with the same allocator.
+    // specified 'b' object.  This method provides the no-throw
+    // exception-safety guarantee if either 'a.type()' is the same as
+    // 'b.type()' and 'a' and 'b' were created with the same allocator, or
+    // neither 'a.type()' nor 'b.type()' is a type that requires allocation;
+    // otherwise, it provides the basic guarantee.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -352,7 +368,9 @@ UserFieldValue::UserFieldValue(double value, bslma::Allocator *basicAllocator)
 inline
 UserFieldValue::UserFieldValue(bslstl::StringRef  value,
                                bslma::Allocator  *basicAllocator)
-: d_value(bslmf::MovableRefUtil::move(bsl::string(value, basicAllocator)),
+: d_value(bslmf::MovableRefUtil::move(
+              const_cast<bsl::string&>(static_cast<const bsl::string&>(
+                                         bsl::string(value, basicAllocator)))),
           basicAllocator)
 {
 }
@@ -407,8 +425,9 @@ void UserFieldValue::setDouble(double value)
 inline
 void UserFieldValue::setString(bslstl::StringRef value)
 {
-    d_value.assign(bslmf::MovableRefUtil::move(bsl::string(value,
-                                                           allocator())));
+    d_value.assign(bslmf::MovableRefUtil::move(
+             const_cast<bsl::string&>(static_cast<const bsl::string&>(
+                                           bsl::string(value, allocator())))));
 }
 
 inline
@@ -512,9 +531,7 @@ bsl::ostream& ball::operator<<(bsl::ostream&         stream,
 inline
 void ball::swap(UserFieldValue& a, UserFieldValue& b)
 {
-    BSLS_ASSERT_SAFE(a.allocator() == b.allocator());
-
-    a.swap(b);
+    bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
 }
 
 }  // close enterprise namespace
