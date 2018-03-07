@@ -36,7 +36,7 @@ namespace bdlbb {
 // PRIVATE MANIPULATORS
 void InBlobStreamBuf::setGetPosition(bsl::size_t position)
 {
-    BSLS_ASSERT(position <= (unsigned)d_blob_p->length());
+    BSLS_ASSERT(position <= static_cast<unsigned>(d_blob_p->length()));
     if (d_blob_p->length() == 0) {
         setg(0, 0, 0);
         return;                                                       // RETURN
@@ -55,22 +55,23 @@ void InBlobStreamBuf::setGetPosition(bsl::size_t position)
 
     int maxBufPos =
         static_cast<int>(egptr() - eback()) + d_previousBuffersLength;
-    if (((unsigned)maxBufPos > position &&
-         (unsigned)d_previousBuffersLength <= position) ||
-        ((unsigned)maxBufPos == position &&
-         position == (unsigned)d_blob_p->length())) {
+    if ((static_cast<unsigned>(maxBufPos) > position &&
+         static_cast<unsigned>(d_previousBuffersLength) <= position) ||
+        (static_cast<unsigned>(maxBufPos) == position &&
+         position == static_cast<unsigned>(d_blob_p->length()))) {
         // We are not crossing any buffer boundaries.
 
-        BSLS_ASSERT(position >= (unsigned)d_previousBuffersLength);
+        BSLS_ASSERT(position >=
+                               static_cast<unsigned>(d_previousBuffersLength));
         BSLS_ASSERT((position - d_previousBuffersLength) <=
-                    (unsigned)d_blob_p->buffer(d_getBufferIndex).size());
+             static_cast<unsigned>(d_blob_p->buffer(d_getBufferIndex).size()));
         setg(eback(), eback() + position - d_previousBuffersLength, egptr());
         return;                                                       // RETURN
     }
 
-    BSLS_ASSERT(position != (unsigned)d_previousBuffersLength);
+    BSLS_ASSERT(position != static_cast<unsigned>(d_previousBuffersLength));
 
-    if (position > (unsigned)d_previousBuffersLength) {
+    if (position > static_cast<unsigned>(d_previousBuffersLength)) {
         // We are moving forward.
 
         int left = static_cast<int>(
@@ -95,7 +96,7 @@ void InBlobStreamBuf::setGetPosition(bsl::size_t position)
         } while (left > 0);
     }
 
-    BSLS_ASSERT(position >= (unsigned)d_previousBuffersLength);
+    BSLS_ASSERT(position >= static_cast<unsigned>(d_previousBuffersLength));
 
     char *base = d_blob_p->buffer(d_getBufferIndex).data();
 
@@ -114,7 +115,7 @@ int InBlobStreamBuf::checkInvariant() const
         BSLS_ASSERT(eback());
         BSLS_ASSERT(egptr());
         BSLS_ASSERT(gptr() - eback() <= egptr() - eback());
-        BSLS_ASSERT((unsigned)d_getBufferIndex < numBuffers);
+        BSLS_ASSERT(static_cast<unsigned>(d_getBufferIndex) < numBuffers);
         BSLS_ASSERT(egptr() - eback() <=
                     d_blob_p->buffer(d_getBufferIndex).size());
         BSLS_ASSERT(d_previousBuffersLength + egptr() - eback() <=
@@ -124,7 +125,7 @@ int InBlobStreamBuf::checkInvariant() const
         BSLS_ASSERT(0 == eback());
         BSLS_ASSERT(0 == egptr());
         (void)numBuffers;
-        BSLS_ASSERT((unsigned)d_getBufferIndex <= numBuffers);
+        BSLS_ASSERT(static_cast<unsigned>(d_getBufferIndex) <= numBuffers);
     }
 
     return 0;
@@ -169,13 +170,6 @@ InBlobStreamBuf::int_type InBlobStreamBuf::pbackfail(
     }
 }
 
-InBlobStreamBuf::pos_type InBlobStreamBuf::seekpos(
-                                              pos_type                position,
-                                              bsl::ios_base::openmode which)
-{
-    return seekoff(off_type(position), bsl::ios_base::beg, which);
-}
-
 InBlobStreamBuf::pos_type InBlobStreamBuf::seekoff(
                                          off_type                offset,
                                          bsl::ios_base::seekdir  fixedPosition,
@@ -209,13 +203,20 @@ InBlobStreamBuf::pos_type InBlobStreamBuf::seekoff(
     }
 
     newoff += offset;
-    if (newoff < 0 || totalSize < (unsigned)newoff) {
+    if (newoff < 0 || totalSize < static_cast<unsigned>(newoff)) {
         return off_type(-1);                                          // RETURN
     }
 
     setGetPosition(static_cast<bsl::size_t>(newoff));
 
     return newoff;
+}
+
+InBlobStreamBuf::pos_type InBlobStreamBuf::seekpos(
+                                              pos_type                position,
+                                              bsl::ios_base::openmode which)
+{
+    return seekoff(off_type(position), bsl::ios_base::beg, which);
 }
 
 bsl::streamsize InBlobStreamBuf::showmanyc()
@@ -269,7 +270,7 @@ InBlobStreamBuf::int_type InBlobStreamBuf::underflow()
     // not be full at that time.
 
     bsl::size_t endOffset =
-        bsl::min(totalSize - d_previousBuffersLength, (int)glen);
+        bsl::min(totalSize - d_previousBuffersLength, static_cast<int>(glen));
 
     BSLS_ASSERT(curOffset < endOffset);
     BSLS_ASSERT(endOffset <= glen);
@@ -326,7 +327,7 @@ InBlobStreamBuf::~InBlobStreamBuf()
 // PRIVATE MANIPULATORS
 void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
 {
-    BSLS_ASSERT(position <= (unsigned)d_blob_p->totalSize());
+    BSLS_ASSERT(position <= static_cast<unsigned>(d_blob_p->totalSize()));
     if (d_blob_p->totalSize() == 0) {
         setp(0, 0);
         d_putBufferIndex        = 0;
@@ -345,24 +346,25 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
 
     int maxBufPos =
         d_previousBuffersLength + d_blob_p->buffer(d_putBufferIndex).size();
-    if (((unsigned)maxBufPos > position &&
-         (unsigned)d_previousBuffersLength <= position) ||
-        ((unsigned)maxBufPos == position &&
-         position == (unsigned)d_blob_p->totalSize())) {
+    if ((static_cast<unsigned>(maxBufPos) > position &&
+         static_cast<unsigned>(d_previousBuffersLength) <= position) ||
+        (static_cast<unsigned>(maxBufPos) == position &&
+         position == static_cast<unsigned>(d_blob_p->totalSize()))) {
         // We are not crossing any buffer boundaries.
 
-        BSLS_ASSERT(position >= (unsigned)d_previousBuffersLength);
+        BSLS_ASSERT(position >=
+                               static_cast<unsigned>(d_previousBuffersLength));
         BSLS_ASSERT((position - d_previousBuffersLength) <=
-                    (unsigned)d_blob_p->buffer(d_putBufferIndex).size());
+             static_cast<unsigned>(d_blob_p->buffer(d_putBufferIndex).size()));
         const bdlbb::BlobBuffer& buffer = d_blob_p->buffer(d_putBufferIndex);
         setp(buffer.data(), buffer.data() + buffer.size());
         pbump(static_cast<int>(position) - d_previousBuffersLength);
         return;                                                       // RETURN
     }
 
-    BSLS_ASSERT(position != (unsigned)d_previousBuffersLength);
+    BSLS_ASSERT(position != static_cast<unsigned>(d_previousBuffersLength));
 
-    if (position > (unsigned)d_previousBuffersLength) {
+    if (position > static_cast<unsigned>(d_previousBuffersLength)) {
         // We are moving forward.
 
         int left = static_cast<int>(
@@ -391,7 +393,7 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
     // first call to this method (from the constructor) for a non-empty blob
     // which does not start at the beginning of a buffer.
 
-    BSLS_ASSERT(position >= (unsigned)d_previousBuffersLength);
+    BSLS_ASSERT(position >= static_cast<unsigned>(d_previousBuffersLength));
 
     // The only case where (position - d_previousBuffersLength) ==
     //                                d_blob_p->buffer(d_putBufferIndex).size()
@@ -399,7 +401,7 @@ void OutBlobStreamBuf::setPutPosition(bsl::size_t position)
     // non-empty blob which finishes on a buffer boundary.
 
     BSLS_ASSERT(position - d_previousBuffersLength <=
-                (unsigned)d_blob_p->buffer(d_putBufferIndex).size());
+             static_cast<unsigned>(d_blob_p->buffer(d_putBufferIndex).size()));
 
     char *base = d_blob_p->buffer(d_putBufferIndex).data();
 
@@ -415,7 +417,7 @@ int OutBlobStreamBuf::checkInvariant() const
     if (pptr()) {
         BSLS_ASSERT(pbase());
         BSLS_ASSERT(epptr());
-        BSLS_ASSERT((unsigned)d_putBufferIndex < numBuffers);
+        BSLS_ASSERT(static_cast<unsigned>(d_putBufferIndex) < numBuffers);
         BSLS_ASSERT(epptr() - pbase() ==
                     d_blob_p->buffer(d_putBufferIndex).size());
         BSLS_ASSERT(pptr() - pbase() <=
@@ -427,7 +429,7 @@ int OutBlobStreamBuf::checkInvariant() const
         BSLS_ASSERT(0 == pbase());
         BSLS_ASSERT(0 == epptr());
         (void)numBuffers;
-        BSLS_ASSERT((unsigned)d_putBufferIndex == numBuffers);
+        BSLS_ASSERT(static_cast<unsigned>(d_putBufferIndex) == numBuffers);
     }
 
     return 0;
@@ -471,13 +473,6 @@ OutBlobStreamBuf::int_type
     return traits_type::eof();
 }
 
-OutBlobStreamBuf::pos_type OutBlobStreamBuf::seekpos(
-                                              pos_type                position,
-                                              bsl::ios_base::openmode which)
-{
-    return seekoff(off_type(position), bsl::ios_base::beg, which);
-}
-
 OutBlobStreamBuf::pos_type OutBlobStreamBuf::seekoff(
                                          off_type                offset,
                                          bsl::ios_base::seekdir  fixedPosition,
@@ -511,13 +506,20 @@ OutBlobStreamBuf::pos_type OutBlobStreamBuf::seekoff(
     }
 
     newoff += offset;
-    if (newoff < 0 || totalSize < (unsigned)newoff) {
+    if (newoff < 0 || totalSize < static_cast<unsigned>(newoff)) {
         return off_type(-1);                                          // RETURN
     }
 
     setPutPosition(static_cast<bsl::size_t>(newoff));
 
     return newoff;
+}
+
+OutBlobStreamBuf::pos_type OutBlobStreamBuf::seekpos(
+                                              pos_type                position,
+                                              bsl::ios_base::openmode which)
+{
+    return seekoff(off_type(position), bsl::ios_base::beg, which);
 }
 
 bsl::streamsize OutBlobStreamBuf::showmanyc()
