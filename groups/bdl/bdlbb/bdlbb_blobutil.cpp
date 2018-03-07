@@ -511,8 +511,9 @@ bsl::ostream& BlobUtil::hexDump(bsl::ostream& stream,
         // This works because we do not need to call the constructor on a pair
         // of two built-in types.
 
-        buffers = (BufferInfo *)bslma::Default::defaultAllocator()->allocate(
-            source.numDataBuffers() * sizeof(BufferInfo));
+        buffers = static_cast<BufferInfo *>(
+                      bslma::Default::defaultAllocator()->allocate(
+                                source.numDataBuffers() * sizeof(BufferInfo)));
         deallocationGuard.reset(buffers);
     }
 

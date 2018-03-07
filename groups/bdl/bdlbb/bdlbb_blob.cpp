@@ -43,8 +43,11 @@ class InvalidBlobBufferFactory : private bdlbb::BlobBufferFactory {
 
   private:
     // PRIVATE CREATORS
-    InvalidBlobBufferFactory() {}
-    ~InvalidBlobBufferFactory() {}
+    InvalidBlobBufferFactory();
+        // Default construct an 'InvalidBlobBufferFactory' object.
+
+    ~InvalidBlobBufferFactory();
+        // Destroy this object.
 
   public:
     // CLASS METHODS
@@ -64,6 +67,17 @@ class InvalidBlobBufferFactory : private bdlbb::BlobBufferFactory {
         // Allocate a blob buffer from this blob buffer factory, and load it
         // into the specified 'buffer'.
 };
+
+// PRIVATE CREATORS
+inline
+InvalidBlobBufferFactory::InvalidBlobBufferFactory()
+{
+}
+
+inline
+InvalidBlobBufferFactory::~InvalidBlobBufferFactory()
+{
+}
 
 // CLASS METHODS
 inline

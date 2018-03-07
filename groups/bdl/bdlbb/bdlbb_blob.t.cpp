@@ -44,9 +44,9 @@ using bsl::cerr;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This test driver verifies many claims about 'bdlbb::Blob's that are made
-// in the component-level and class-level documentation, as well as the
-// individual contracts of each function, namely:
+// This test driver verifies many claims about 'bdlbb::Blob's that are made in
+// the component-level and class-level documentation, as well as the individual
+// contracts of each function, namely:
 // - that 'bdlbb::BlobBuffer' is an in-core value-semantic type containing a
 //   memory buffer and length with shared ownership.
 // - that 'bdlbb::Blob' is an in-core exception-neutral value-semantic type

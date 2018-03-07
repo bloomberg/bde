@@ -150,14 +150,14 @@ struct BlobUtil {
 
     static void copy(Blob       *dst,
                      int         dstOffset,
-                     const char *srcBuffer,
+                     const char *src,
                      int         length);
         // Copy into the specified 'dst' starting at the specified 'dstOffset'
-        // the specified 'length' bytes from the specified 'srcBuffer'.  The
-        // behavior is undefined unless '0 <= dstOffset', '0 <= length',
-        // 'dst || 0 == length', 'srcBuffer || 0 == length',
-        // '!dst || dstOffset <= dst->length() - length', and 'srcBuffer'
-        // refers to a buffer with at least 'length' bytes.
+        // the specified 'length' bytes from the specified 'src'.  The behavior
+        // is undefined unless '0 <= dstOffset', '0 <= length',
+        // 'dst || 0 == length', 'src || 0 == length',
+        // '!dst || dstOffset <= dst->length() - length', and 'src' refers to a
+        // buffer with at least 'length' bytes.
 
     static void copy(Blob        *dst,
                      int          dstOffset,
