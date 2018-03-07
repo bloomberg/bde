@@ -468,7 +468,7 @@ OutBlobStreamBuf::int_type OutBlobStreamBuf::overflow(
 }
 
 OutBlobStreamBuf::int_type
-    OutBlobStreamBuf::pbackfail(OutBlobStreamBuf::int_type)
+OutBlobStreamBuf::pbackfail(OutBlobStreamBuf::int_type)
 {
     return traits_type::eof();
 }

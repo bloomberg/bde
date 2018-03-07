@@ -313,10 +313,10 @@ void BlobUtil::copy(char        *dstBuffer,
     BSLS_ASSERT(dstBuffer != 0);
 
     if (0 < length) {
-        copyFromPlace(dstBuffer                                   ,
-                      srcBlob                                     ,
-                      findBufferIndexAndOffset(srcBlob, position) ,
-                      length                                      );
+        copyFromPlace(dstBuffer,
+                      srcBlob,
+                      findBufferIndexAndOffset(srcBlob, position),
+                      length);
     }
 }
 
