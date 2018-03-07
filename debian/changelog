@@ -1,5 +1,12 @@
-bsl-internal (3.7.0.0) unstable; urgency=low
+bsl-internal (3.7.0.1) unstable; urgency=low
 
+  * 746cd3cea Merge pull request #1748 from mgiroux/pr/1746-rebased-releases/3.7.x
+
+ -- mgiroux <mgiroux@bloomberg.net>  Wed, 7 Mar 2018 13:07:27 -0500
+
+bsl-internal (3.7.0.0) git; urgency=low
+
+  * 5f9677a2f Changelog for version 3.7.0.0
   * bd4b836d2 Merge pull request #1744 from bde/review/bump-version-to-3.7.0
   * c2de96678 Bump version to 3.7.0
   * 4a8253143 Merge pull request #1725 from afeher/drqs-116775083-stringref-traits
@@ -167,7 +174,7 @@ bsl-internal (3.7.0.0) unstable; urgency=low
   * 74e4e45bb Merge pull request #1654 from ameredit/remove_old_workaround_in_baljsn_printutil.t.cpp
   * 72ae590e9 Merge pull request #1655 from ameredit/remove_old_workaround_in_balxml_tests
 
- -- mgiroux <mgiroux@bloomberg.net>  Wed, 7 Mar 2018 09:38:33 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 7 Mar 2018 09:41:10 -0500
 
 bsl-internal (3.5.0.0) git; urgency=low
 
