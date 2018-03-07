@@ -658,6 +658,11 @@ ChannelPoolConfiguration::operator=(const ChannelPoolConfiguration& rhs)
     return *this;
 }
 
+void ChannelPoolConfiguration::reset()
+{
+    *this = ChannelPoolConfiguration();
+}
+
 }  // close package namespace
 
 // FREE OPERATORS

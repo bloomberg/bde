@@ -88,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //                               is 'false', those metrics will not
 //                               be collected.
 //
-//   btlmt::ReadDataPolicy
+//   btlmt::ReadDataPolicy::Value
 //           readDataPolicy      indicates the policy for              e_GREEDY
 //                               multiplexing reads from multiple
 //                               channels that have data ready to
@@ -321,7 +321,7 @@ class ChannelPoolConfiguration {
 
     bool                  d_collectTimeMetrics;
 
-    btlmt::ReadDataPolicy::Enum
+    btlmt::ReadDataPolicy::Value
                           d_readDataPolicy;    // read data policy
 
     friend bsl::ostream& operator<<(bsl::ostream&,
@@ -596,7 +596,7 @@ class ChannelPoolConfiguration {
         // metrics are collected.  By default the 'collectTimeMetrics'
         // attribute is set to 'true'.
 
-    int setReadDataPolicy(btlmt::ReadDataPolicy::Enum readDataPolicy);
+    int setReadDataPolicy(btlmt::ReadDataPolicy::Value readDataPolicy);
         // Set the 'readDataPolicy' attribute of this object to the
         // specified 'readDataPolicy' value.  Return 0.
 
@@ -628,6 +628,10 @@ class ChannelPoolConfiguration {
         // corresponding attribute information structure.  Return the value
         // returned from the invocation of 'manipulator' if 'name' identifies
         // an attribute of this class, and -1 otherwise.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
 
     // ACCESSORS
     int minIncomingMessageSize() const;
@@ -662,7 +666,7 @@ class ChannelPoolConfiguration {
         // pool cannot use that estimate of work-load when it attempts to
         // distribute work amongst its managed threads.
 
-    btlmt::ReadDataPolicy::Enum readDataPolicy() const;
+    btlmt::ReadDataPolicy::Value readDataPolicy() const;
         // Return the value of the 'readDataPolicy' attribute of this object.
 
     const double& metricsInterval() const;
@@ -849,7 +853,7 @@ int ChannelPoolConfiguration::setCollectTimeMetrics(
 
 inline
 int ChannelPoolConfiguration::setReadDataPolicy(
-                                    btlmt::ReadDataPolicy::Enum readDataPolicy)
+                                   btlmt::ReadDataPolicy::Value readDataPolicy)
 {
     d_readDataPolicy = readDataPolicy;
     return 0;
@@ -1173,7 +1177,7 @@ bool ChannelPoolConfiguration::collectTimeMetrics() const {
 }
 
 inline
-btlmt::ReadDataPolicy::Enum ChannelPoolConfiguration::readDataPolicy() const
+btlmt::ReadDataPolicy::Value ChannelPoolConfiguration::readDataPolicy() const
 {
     return d_readDataPolicy;
 }

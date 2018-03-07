@@ -8487,7 +8487,7 @@ void TestDriver::testCase42()
 
     using namespace TEST_CASE_READ_DATA_POLICY_OPTIONS;
 
-    btlmt::ReadDataPolicy::Enum POLICIES[] = {
+    btlmt::ReadDataPolicy::Value POLICIES[] = {
         btlmt::ReadDataPolicy::e_GREEDY,
         btlmt::ReadDataPolicy::e_ROUND_ROBIN
     };

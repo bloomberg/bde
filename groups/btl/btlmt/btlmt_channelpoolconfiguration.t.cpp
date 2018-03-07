@@ -41,7 +41,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] int setMaxThreads(int maxThreads);
 // [ 2] int setMetricsInterval(double metricsInterval);
 // [ 2] int setReadTimeout(double readTimeout);
-// [ 2] int setReadDataPolicy(btlmt::ReadDataPolicy::Enum value);
+// [ 2] int setReadDataPolicy(btlmt::ReadDataPolicy::Value value);
 // [ 1] int minIncomingMessageSize() const;
 // [ 1] int typicalIncomingMessageSize() const;
 // [ 1] int maxIncomingMessageSize() const;
@@ -50,7 +50,7 @@ using namespace bsl;  // automatically added by script
 // [ 1] int maxOutgoingMessageSize() const;
 // [ 1] int maxConnections() const;
 // [ 1] int maxThreads() const;
-// [ 1] btlmt::ReadDataPolicy::Enum readDataPolicy() const;
+// [ 1] btlmt::ReadDataPolicy::Value readDataPolicy() const;
 // [ 1] double metricsInterval() const;
 // [ 1] double readTimeout() const;
 //
@@ -144,7 +144,7 @@ const int THREADSTACKSIZE[NUM_VALUES]  = { 1048576, 512, 600, 700, 800, 900,
                                                                          999 };
 const bool COLLECTMETRICS[NUM_VALUES] =
                                      { true, false, true, false, true, false };
-const btlmt::ReadDataPolicy::Enum READDATAPOLICY[NUM_VALUES] =
+const btlmt::ReadDataPolicy::Value READDATAPOLICY[NUM_VALUES] =
 {
     btlmt::ReadDataPolicy::e_GREEDY,
     btlmt::ReadDataPolicy::e_ROUND_ROBIN,
@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
                   } break;
                   case 14: {
                     ASSERT(0 == mA.setReadDataPolicy(READDATAPOLICY[i]));
-                    AssignValue<btlmt::ReadDataPolicy::Enum>
+                    AssignValue<btlmt::ReadDataPolicy::Value>
                                                     visitor(READDATAPOLICY[i]);
                     LOOP2_ASSERT(i, j, 0 ==
                        bdlat_SequenceFunctions::manipulateAttribute(&mB,
@@ -616,12 +616,12 @@ int main(int argc, char *argv[])
                                                                   j + 1));
                 }
                 else if (j == 14) {
-                    btlmt::ReadDataPolicy::Enum value;
-                    GetValue<btlmt::ReadDataPolicy::Enum> gvisitor(&value);
+                    btlmt::ReadDataPolicy::Value value;
+                    GetValue<btlmt::ReadDataPolicy::Value> gvisitor(&value);
                     ASSERT(0 ==
                      bdlat_SequenceFunctions::accessAttribute(mA, gvisitor,
                                                               j + 1));
-                    AssignValue<btlmt::ReadDataPolicy::Enum> avisitor(value);
+                    AssignValue<btlmt::ReadDataPolicy::Value> avisitor(value);
                     ASSERT(0 ==
                      bdlat_SequenceFunctions::manipulateAttribute(&mC,
                                                                   avisitor,
