@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // TESTING 'bdex' STREAMING FUNCTIONALITY
-        //   Void for 'ball::AttributeSET'.
+        //   Void for 'ball::DefaultAttributeContainer'.
         // --------------------------------------------------------------------
 
       } break;

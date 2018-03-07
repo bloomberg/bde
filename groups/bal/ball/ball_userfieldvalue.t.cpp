@@ -208,7 +208,7 @@ const bsls::Types::Int64 A2 = -1242;
 const double             B1 = 10.5;
 const double             B2 = 20.5;
 
-const bsl::string        C1 = "one";
+const char              *C1 = "one";  // *not* 'bsl::string'
 const bsl::string        C2 = SUFFICIENTLY_LONG_STRING;
 
 const bdlt::DatetimeTz   D1(bdlt::Datetime(2000,  1,  1, 0, 1, 2,   3), 240);
@@ -216,7 +216,8 @@ const bdlt::DatetimeTz   D2(bdlt::Datetime(2025, 12, 31, 4, 5, 6, 789), -60);
 
 static bsl::vector<char> fE1()
 {
-    bsl::vector<char> t(C1.rbegin(), C1.rend());
+    bsl::vector<char> t;
+    t.push_back('e');  t.push_back('n');  t.push_back('o');
     return t;
 }
 static bsl::vector<char> fE2()
@@ -3159,7 +3160,6 @@ int main(int argc, char *argv[])
         // PRIMARY MANIPULATORS & DTOR
         //
         // Concerns:
-// TBD
         //: 1 An object created with the default constructor (with or without
         //:   a supplied allocator) has the contractually specified default
         //:   value (unset).
@@ -3185,21 +3185,55 @@ int main(int argc, char *argv[])
         //:
         //: 9 QoI: The default constructor allocates no memory.
         //:
-        //:10 Each attribute is modifiable independently.
+        //:10 Each setter method can set the object to have any value supported
+        //:   by the setter's associated type, regardless of the state of the
+        //:   object prior to the call (i.e., unset or set to hold a value of
+        //:   a different type).
         //:
-        //:11 Each attribute can be set to represent any value that does not
-        //:   violate that attribute's documented constraints.
+        //:11 Any string arguments can be of type 'char *' or 'string'.
         //:
-        //:12 Any string arguments can be of type 'char *' or 'string'.
+        //:12 Any argument can be 'const'.
         //:
-        //:13 Any argument can be 'const'.
+        //:13 Any memory allocation is exception neutral.
         //:
-        //:14 Any memory allocation is exception neutral.
-        //:
-        //:15 QoI: Asserted precondition violations are detected when enabled.
-        //:
+        //:14 The 'allocator' accessor returns the address of the object
+        //:   allocator.
+        //
         // Plan:
-        //: 1 TBD
+        //: 1 Use the default constructor to create three distinct objects, in
+        //:   turn, each configured differently: (a) without passing an
+        //:   allocator, (b) passing a null allocator address explicitly, and
+        //:   (c) passing the address of a test allocator distinct from the
+        //:   default allocator.  (C-1..4, 9, 14)
+        //:
+        //:   1 Verify that the object is in the unset state using the
+        //:     'isUnset' and 'type' accessors, and verify that the 'allocator'
+        //:     accessor returns the address of the object allocator.
+        //:     (C-1..4, 14)
+        //:
+        //:   2 Verify using test allocators that no memory is allocated from
+        //:     any allocator.  (C-9)
+        //:
+        //: 2 Repeat P-1, but this time invoke each setter, in turn, on the
+        //:   unset object.  (C-6..8, 11..12)
+        //:
+        //:   1 Verify 'isUnset' now returns 'false' and that 'type' returns
+        //:     the expected value.  Also verify that the object has the
+        //:     expected value using the appropriate "the" accessor method.
+        //:     (C-11..12)
+        //:
+        //:   2 Verify that any memory allocation comes from the object
+        //:     allocator and that there is no temporary allocation.  (C-6..7)
+        //:
+        //:   3 Destroy the object and verify that any allocated memory is
+        //:     released.  (C-8)
+        //:
+        //: 3 Repeat P-2, but this time invoke each setter, in turn, on the
+        //:   now non-unset object (thus exercising the setters on the
+        //:   cross-product of supported variant types).  (C-5, 10)
+        //:
+        //:   1 Verify that object state and memory allocation, if any, are
+        //:     as expected.  (C-5, 10)
         //
         // Testing:
         //   UserFieldValue(Allocator *ba = 0);
@@ -3259,7 +3293,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { P_(CONFIG) P(X) }
 
-            ASSERTV(CONFIG, X.isUnset());
+            ASSERTV(CONFIG,                 X.isUnset());
+            ASSERTV(CONFIG, Type::e_VOID == X.type());
             ASSERTV(CONFIG, &oa, X.allocator(), &oa == X.allocator());
 
             // Verify no allocation from the object/non-object allocators.
@@ -3284,7 +3319,7 @@ int main(int argc, char *argv[])
                  << endl;
         }
         for (char ft = 'A'; ft <= 'E'; ++ft) {  // iterate over field types
-               const Type::Enum type = charToFieldType(ft);
+               const Type::Enum TYPE = charToFieldType(ft);
 
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
@@ -3327,7 +3362,7 @@ int main(int argc, char *argv[])
 
                 bslma::TestAllocatorMonitor oam(objAllocatorPtr);
 
-                switch (type) {
+                switch (TYPE) {
                   case Type::e_VOID: {
                     BSLS_ASSERT_OPT(false);
                   } break;
@@ -3362,18 +3397,18 @@ int main(int argc, char *argv[])
                                                  veryVeryVeryVerbose);
                     bslma::DefaultAllocatorGuard dag(&scratch);
 
-                    P_(CONFIG) P_(type) P(X)
+                    P_(CONFIG) P_(TYPE) P(X)
                 }
 
-                ASSERTV(CONFIG, type, type == X.type());
-                ASSERTV(CONFIG, type,        !X.isUnset());
+                ASSERTV(CONFIG, TYPE, TYPE == X.type());
+                ASSERTV(CONFIG, TYPE,        !X.isUnset());
                 ASSERTV(CONFIG, &oa, X.allocator(), &oa == X.allocator());
 
-                if (Type::e_STRING == type || Type::e_CHAR_ARRAY == type) {
-                    ASSERTV(CONFIG, type, oam.isInUseUp());
+                if (Type::e_STRING == TYPE || Type::e_CHAR_ARRAY == TYPE) {
+                    ASSERTV(CONFIG, TYPE, oam.isInUseUp());
                 }
                 else {
-                    ASSERTV(CONFIG, type, oam.isTotalSame());
+                    ASSERTV(CONFIG, TYPE, oam.isTotalSame());
                 }
 
                 // Reclaim dynamically allocated object under test.
@@ -3382,19 +3417,18 @@ int main(int argc, char *argv[])
 
                 // Verify all memory is released on object destruction.
 
-                ASSERTV(CONFIG, type,fa.numBlocksInUse(),
+                ASSERTV(CONFIG, TYPE, fa.numBlocksInUse(),
                         0 == fa.numBlocksInUse());
 
-                if (Type::e_STRING == type || Type::e_CHAR_ARRAY == type) {
-                    ASSERTV(CONFIG, type, oa.numBlocksInUse(),
-                            0 == oa.numBlocksInUse());
-                }
-                else {
-                    ASSERTV(CONFIG, type, oa.numBlocksTotal(),
+                ASSERTV(CONFIG, TYPE, oa.numBlocksInUse(),
+                        0 == oa.numBlocksInUse());
+
+                if (Type::e_STRING != TYPE && Type::e_CHAR_ARRAY != TYPE) {
+                    ASSERTV(CONFIG, TYPE, oa.numBlocksTotal(),
                             0 == oa.numBlocksTotal());
                 }
 
-                ASSERTV(CONFIG, type, noa.numBlocksTotal(),
+                ASSERTV(CONFIG, TYPE, noa.numBlocksTotal(),
                         0 == noa.numBlocksTotal());
             }
         }
@@ -3402,11 +3436,15 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << "\nApply each setter to non-unset object." << endl;
         }
+
+        bool typeIAllocates = false;
+        bool typeJAllocates = false;
+
         for (char fti = 'A'; fti <= 'E'; ++fti) {  // iterate over field types
-               const Type::Enum typeI = charToFieldType(fti);
+               const Type::Enum TYPEI = charToFieldType(fti);
 
             for (char ftj = 'A'; ftj <= 'E'; ++ftj) {
-                   const Type::Enum typeJ = charToFieldType(ftj);
+                   const Type::Enum TYPEJ = charToFieldType(ftj);
 
                 bslma::TestAllocator da("default", veryVeryVeryVerbose);
                 bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
@@ -3416,7 +3454,7 @@ int main(int argc, char *argv[])
                 {
                     Obj mX(&oa);  const Obj& X = mX;
 
-                    switch (typeI) {  // initial type of field
+                    switch (TYPEI) {  // initial type of field
                       case Type::e_VOID: {
                         BSLS_ASSERT_OPT(false);
                       } break;
@@ -3441,7 +3479,7 @@ int main(int argc, char *argv[])
                         ASSERT(E1 == X.theCharArray());
                       } break;
                     }
-                    ASSERTV(typeI, typeJ, typeI == X.type());
+                    ASSERTV(TYPEI, TYPEJ, TYPEI == X.type());
 
                     if (veryVerbose) {
                         // DRQS 117439200
@@ -3452,12 +3490,12 @@ int main(int argc, char *argv[])
                                                      veryVeryVeryVerbose);
                         bslma::DefaultAllocatorGuard dag(&scratch);
 
-                        Q("Before:") P_(typeI) P_(typeJ) P(X)
+                        Q("Before:") P_(TYPEI) P_(TYPEJ) P(X)
                     }
 
                     bslma::TestAllocatorMonitor oam(&oa);
 
-                    switch (typeJ) {  // new type of field
+                    switch (TYPEJ) {  // new type of field
                       case Type::e_VOID: {
                         BSLS_ASSERT_OPT(false);
                       } break;
@@ -3482,7 +3520,7 @@ int main(int argc, char *argv[])
                         ASSERT(E2 == X.theCharArray());
                       } break;
                     }
-                    ASSERTV(typeI, typeJ, typeJ == X.type());
+                    ASSERTV(TYPEI, TYPEJ, TYPEJ == X.type());
 
                     if (veryVerbose) {
                         // DRQS 117439200
@@ -3493,32 +3531,41 @@ int main(int argc, char *argv[])
                                                      veryVeryVeryVerbose);
                         bslma::DefaultAllocatorGuard dag(&scratch);
 
-                        Q("After:") P_(typeI) P_(typeJ) P(X)
+                        Q("After:") P_(TYPEI) P_(TYPEJ) P(X)
                     }
 
-                    if ((Type::e_CHAR_ARRAY == typeJ || Type::e_STRING ==typeJ)
-                      && Type::e_CHAR_ARRAY != typeI) {
-                        ASSERTV(typeI, typeJ, oam.isInUseUp());
+                    typeIAllocates =
+                        Type::e_STRING == TYPEI || Type::e_CHAR_ARRAY == TYPEI;
+
+                    typeJAllocates =
+                        Type::e_STRING == TYPEJ || Type::e_CHAR_ARRAY == TYPEJ;
+
+                    if (typeIAllocates && !typeJAllocates) {
+                        ASSERTV(TYPEI, TYPEJ, oa.numBlocksInUse(),
+                                0 == oa.numBlocksInUse());
+                    }
+                    else if (Type::e_CHAR_ARRAY != TYPEI && typeJAllocates) {
+                        ASSERTV(TYPEI, TYPEJ, oam.isInUseUp());
+                    }
+                    else if (Type::e_CHAR_ARRAY == TYPEI && typeJAllocates) {
+                        ASSERTV(TYPEI, TYPEJ, oam.isInUseSame());
                     }
                     else {
-                        ASSERTV(typeI, typeJ,
-                                oam.isInUseSame() || oam.isTotalSame());
+                        ASSERTV(TYPEI, TYPEJ, oam.isTotalSame());
                     }
                 }
 
                 // Verify all memory is released on object destruction.
 
-                if (Type::e_STRING == typeJ || Type::e_CHAR_ARRAY == typeI
-                                            || Type::e_CHAR_ARRAY == typeJ) {
-                    ASSERTV(typeI, typeJ, oa.numBlocksInUse(),
-                            0 == oa.numBlocksInUse());
-                }
-                else {
-                    ASSERTV(typeI, typeJ, oa.numBlocksTotal(),
+                ASSERTV(TYPEI, TYPEJ, oa.numBlocksInUse(),
+                        0 == oa.numBlocksInUse());
+
+                if (!typeIAllocates && !typeJAllocates) {
+                    ASSERTV(TYPEI, TYPEJ, oa.numBlocksTotal(),
                             0 == oa.numBlocksTotal());
                 }
 
-                ASSERTV(typeI, typeJ, da.numBlocksTotal(),
+                ASSERTV(TYPEI, TYPEJ, da.numBlocksTotal(),
                         0 == da.numBlocksTotal());
             }
         }
@@ -3560,7 +3607,7 @@ int main(int argc, char *argv[])
         const Type::Enum        TYPEA = Type::e_STRING;
         const bsl::string       VALUEA("foo");
 
-        const bdlt::DatetimeTz  DATE(bdlt::Datetime(1999,1,1), 0);
+        const bdlt::DatetimeTz  DATE(bdlt::Datetime(1999, 1, 1), 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
