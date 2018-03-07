@@ -17,6 +17,7 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 #include <bsl_fstream.h>
 
