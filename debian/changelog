@@ -1,5 +1,19 @@
-bsl-internal (3.6.0.0) unstable; urgency=low
+bsl-internal (3.7.0.0) unstable; urgency=low
 
+  * bd4b836d2 Merge pull request #1744 from bde/review/bump-version-to-3.7.0
+  * c2de96678 Bump version to 3.7.0
+  * 4a8253143 Merge pull request #1725 from afeher/drqs-116775083-stringref-traits
+  * 83d5cc722 Merge pull request #1738 from cwilson/do-not-allocate-in-bdlt-print-methods-drqs-117439200
+  * 1fb0b734c Merge pull request #1741 from afeher/drqs-114423409-is_convertible
+  * b7f996d14 Merge pull request #1700 from glaptev1/glaptev1/add_comparator_typedef_to_priority_queue-RDSIBDE-1798
+  * f0141cb43 Merge pull request #1734 from mgiroux/review/add-bsl_c_signal.h-include-to-bdl
+  * e2d1ce9aa Merge pull request #1731 from ameredit/SIZE_MAX_missing_on_Linux_03
+  * 908adf460 Merge pull request #1727 from hrosen4/bdldfp-signal_drqs-117019276
+  * 91e37ae8e Merge pull request #1722 from afeher/drqs-116830903-berutil-undefined-behavior
+  * ca2bd0de2 Merge pull request #1724 from rkhlebnikov/master
+  * 127d6212a Merge pull request #1713 from afeher/drqs-116795897-add-int-maps-to-datummaker
+  * ad9b511db Merge pull request #1720 from bde/integration/ameredit_bde_3_3
+  * 7c9c882a3 Changelog for version 3.6.0.0
   * 043819a85 Merge pull request #1718 from bde/review/bump-version-to-3.6.0
   * 522b684f1 Bump all-non-bsl versions to 3.6.0
   * 79cc34858 Merge pull request #1710 from glaptev1/glaptev1/bdldfp_Decimal_formatting_fix_drqs-116871865
@@ -153,7 +167,7 @@ bsl-internal (3.6.0.0) unstable; urgency=low
   * 74e4e45bb Merge pull request #1654 from ameredit/remove_old_workaround_in_baljsn_printutil.t.cpp
   * 72ae590e9 Merge pull request #1655 from ameredit/remove_old_workaround_in_balxml_tests
 
- -- mgiroux <mgiroux@bloomberg.net>  Thu, 22 Feb 2018 14:07:43 -0500
+ -- mgiroux <mgiroux@bloomberg.net>  Wed, 7 Mar 2018 09:38:33 -0500
 
 bsl-internal (3.5.0.0) git; urgency=low
 
