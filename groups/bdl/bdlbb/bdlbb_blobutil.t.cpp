@@ -1005,8 +1005,7 @@ int main(int argc, char *argv[]) {
                                               copyBufP, BLOB, POS, SIZE, ALN));
                         ASSERT(0 != out);
                         bsl::pair<int, int> place =
-                          bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB,
-                                                                      POS);
+                          bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB, POS);
                         const bdlbb::BlobBuffer& buf =
                             BLOB.buffer(place.first);
                         char *p = buf.data();
@@ -1288,8 +1287,7 @@ int main(int argc, char *argv[]) {
 
             int ante = LENGTH;
             bsl::pair<int, int> b =
-                         bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB5,
-                                                                     ante);
+                        bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB5, ante);
             ASSERT(b.second == 0);
             ASSERT(p5 == BLOB5.buffer(b.first).data());
 
@@ -1301,8 +1299,7 @@ int main(int argc, char *argv[]) {
                 }
             } else {
                 bsl::pair<int, int> a =
-                     bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB5,
-                                                                 ante - 1);
+                    bdlbb::BlobUtil::findBufferIndexAndOffset(BLOB5, ante - 1);
                 ASSERT(a.first == b.first - 1
                     || BLOB5.buffer(b.first - 1).size() == 0);
 
@@ -1319,18 +1316,12 @@ int main(int argc, char *argv[]) {
 
         bdlbb::Blob BLOB;
 
-        BSLS_ASSERTTEST_ASSERT_FAIL(
-                      bdlbb::BlobUtil::getContiguousDataBuffer(0, 1,
-                                                                 &factory));
-        BSLS_ASSERTTEST_ASSERT_FAIL(
-                 bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, -1,
-                                                            &factory));
-        BSLS_ASSERTTEST_ASSERT_FAIL(
-                         bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, 1,
-                                                                    0));
-        BSLS_ASSERTTEST_ASSERT_FAIL(
-                 bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, 10,
-                                                            &factory));
+        ASSERT_FAIL(bdlbb::BlobUtil::getContiguousDataBuffer(0, 1, &factory));
+        ASSERT_FAIL(
+                bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, -1, &factory));
+        ASSERT_FAIL(bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, 1, 0));
+        ASSERT_FAIL(
+                bdlbb::BlobUtil::getContiguousDataBuffer(&BLOB, 10, &factory));
 
         verbose && (cout << "\nEnd of Test.\n");
       } break;
@@ -2301,10 +2292,9 @@ int main(int argc, char *argv[]) {
         for (int bufferSize = 1; bufferSize < 10; ++bufferSize) {
             BlobBufferFactory factory(bufferSize);
 
-            bdlbb::Blob dest1(&factory);  // append(blob, blob);
-            bdlbb::Blob dest2(&factory);  // append(blob, const char*,
-                                            //        int, int)
-            bdlbb::Blob dest4(&factory);  // append(blob, const char*, int)
+            bdlbb::Blob dest1(&factory); // append(blob, blob);
+            bdlbb::Blob dest2(&factory); // append(blob, const char*, int, int)
+            bdlbb::Blob dest4(&factory); // append(blob, const char*, int)
             bdlbb::Blob source(&factory);
 
             dest1.setLength(20);

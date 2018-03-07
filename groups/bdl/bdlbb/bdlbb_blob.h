@@ -219,7 +219,7 @@ BSLS_IDENT("$Id: $")
 // copy-pasted into application programs although they can provide a foundation
 // for application utilities):
 //..
-//  void prependProlog(bdlbb::Blob      *blob,
+//  void prependProlog(bdlbb::Blob        *blob,
 //                     const bsl::string&  prolog,
 //                     bslma::Allocator   *allocator = 0);
 //      // Prepend the specified 'prolog' to the specified 'blob', using the
@@ -229,7 +229,7 @@ BSLS_IDENT("$Id: $")
 //      // 'bdlbb::Blob' instance.
 //
 //  template <class DELETER>
-//  void composeMessage(bdlbb::Blob      *blob,
+//  void composeMessage(bdlbb::Blob        *blob,
 //                      const bsl::string&  prolog,
 //                      char * const       *vectors,
 //                      const int          *vectorSizes,
@@ -261,7 +261,7 @@ BSLS_IDENT("$Id: $")
 // A possible implementation using only 'prependBuffer', 'appendBuffer', and
 // 'insertBuffer' could be as follows:
 //..
-//  void prependProlog(bdlbb::Blob      *blob,
+//  void prependProlog(bdlbb::Blob        *blob,
 //                     const bsl::string&  prolog,
 //                     bslma::Allocator   *allocator)
 //  {
@@ -299,7 +299,7 @@ BSLS_IDENT("$Id: $")
 // The 'composeMessage' implementation is simplified by using 'prependProlog':
 //..
 //  template <class DELETER>
-//  void composeMessage(bdlbb::Blob      *blob,
+//  void composeMessage(bdlbb::Blob        *blob,
 //                      const bsl::string&  prolog,
 //                      char * const       *vectors,
 //                      const int          *vectorSizes,

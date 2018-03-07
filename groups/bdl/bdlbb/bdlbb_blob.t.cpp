@@ -2741,8 +2741,7 @@ int main(int argc, char *argv[])
             const int NUM_BUFFERS = 4;
             const int DATA_LENGTH = 4 * BUFFER_SIZE;
             const int TOTAL_SIZE  = 4 * BUFFER_SIZE;
-            const bdlbb::BlobBuffer BUFFERS[NUM_BUFFERS] = { b1, b2,
-                                                               b3, b4 };
+            const bdlbb::BlobBuffer BUFFERS[NUM_BUFFERS] = { b1, b2, b3, b4 };
 
             Obj mX(BUFFERS, NUM_BUFFERS, &fa, &ta);  const Obj& X = mX;
             ASSERT(0           == X.length());
