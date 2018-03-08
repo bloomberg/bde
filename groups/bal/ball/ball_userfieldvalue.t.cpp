@@ -829,7 +829,386 @@ int main(int argc, char *argv[])
 
       } break;
       case 13: {
-        // TBD
+        // --------------------------------------------------------------------
+        // ALLOCATING VALUE CTORS ('e_STRING', 'e_CHAR_ARRAY')
+        //
+        // Concerns:
+        //: 1 The value constructor (with or without a supplied allocator) can
+        //:   create an object having any value.
+        //:
+        //: 2 Any string arguments can be of type 'char *' or 'string'.
+        //:
+        //: 3 Any argument can be 'const'.
+        //:
+        //: 4 If an allocator is NOT supplied to the value constructor, the
+        //:   default allocator in effect at the time of construction becomes
+        //:   the object allocator for the resulting object.
+        //:
+        //: 5 If an allocator IS supplied to the value constructor, that
+        //:   allocator becomes the object allocator for the resulting object.
+        //:
+        //: 6 Supplying a null allocator address has the same effect as not
+        //:   supplying an allocator.
+        //:
+        //: 7 Supplying an allocator to the value constructor has no effect
+        //:   on subsequent object values.
+        //:
+        //: 8 Any memory allocation is from the object allocator.
+        //:
+        //: 9 There is no temporary memory allocation from any allocator.
+        //:
+        //:10 Every object releases any allocated memory at destruction.
+        //:
+        //:11 Any memory allocation is exception neutral.
+        //
+        // Plan:
+        //: 1 Specify a small set of unique object values (in turn, for each of
+        //:   the allocating field types 'string' and 'vector<char>').
+        //:
+        //: 2 For each distinct object value, 'V', described in P-1:
+        //:   (C-1, 3..10)
+        //:
+        //:   1 Using the default constructor and the setter for the field type
+        //:     under test, create a control object, 'W', and set it to have
+        //:     the value 'V'.
+        //:
+        //:   2 Execute an inner loop creating three distinct objects, in turn,
+        //:     each object having the same value, 'V', but configured
+        //:     differently: (a) without passing an allocator, (b) passing a
+        //:     null allocator address explicitly, and (c) passing the address
+        //:     of a test allocator distinct from the default allocator.
+        //:
+        //:   3 For each of the three iterations in P-2.1:  (C-1, 3..10)
+        //:
+        //:     1 Create three 'bslma::TestAllocator' objects, and install one
+        //:       as the current default allocator (note that a ubiquitous test
+        //:       allocator is already installed as the global allocator).
+        //:
+        //:     2 Use the value constructor to dynamically create an object,
+        //:       'X', having the value 'V', with its object allocator
+        //:       configured appropriately (see P-2.1), supplying all the
+        //:       arguments as 'const' and representing string arguments as
+        //:       'char *' and 'string'; use a distinct test allocator for the
+        //:       object's footprint.  (P-3)
+        //:
+        //:     3 Verify that 'X' has the expected type and that 'X' and 'W'
+        //:       have the same value.  (C-1, 7)
+        //:
+        //:     4 Use the 'allocator' accessor to ensure that the object
+        //:       allocator is properly installed.  (C-8)
+        //:
+        //:     5 Use the appropriate test allocators to verify that:
+        //:       (C-4..6, 9..10)
+        //:
+        //:       1 An object that IS expected to allocate memory does so
+        //:         from the object allocator only (irrespective of the
+        //:         specific number of allocations or the total amount of
+        //:         memory allocated).  (C-4, 6)
+        //:
+        //:       2 An object that is expected NOT to allocate memory doesn't.
+        //:
+        //:       3 If an allocator was supplied at construction (P-2.1c), the
+        //:         default allocator doesn't allocate any memory.  (C-5)
+        //:
+        //:       4 No temporary memory is allocated from the object allocator.
+        //:         (C-9)
+        //:
+        //:       5 All object memory is released when the object is destroyed.
+        //:         (C-10)
+        //:
+        //: 3 Repeat the steps in P-2 for the supplied allocator configuration
+        //:   (P-2.1c) on a single value from P-1, but this time create the
+        //:   object as an automatic variable in the presence of injected
+        //:   exceptions (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
+        //:   macros).  (C-2, 11)
+        //
+        // Testing:
+        //   UserFieldValue(bslstl::StringRef        value, Allocator *ba = 0);
+        //   UserFieldValue(const bsl::vector<char>& value, Allocator *ba = 0);
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "ALLOCATING VALUE CTORS ('e_STRING', 'e_CHAR_ARRAY')"
+                 << endl
+                 << "==================================================="
+                 << endl;
+        }
+
+        if (verbose) cout << "\nTesting 'e_STRING' value ctor." << endl;
+        {
+            for (int ti = 1; ti <= 2; ++ti) {
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                Obj mW(&scratch);  const Obj& W = mW;  // control
+                1 == ti ? mW.setString(C1) : mW.setString(C2);
+
+                const char MEM = 1 == ti ? 'N' : 'Y';
+
+                if (veryVerbose) { T_ P_(MEM) P(W) }
+
+                for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+
+                    const char CONFIG = cfg;  // how we specify the allocator
+
+                    if (veryVerbose) { T_ T_ P(CONFIG) }
+
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    Obj                  *objPtr;
+                    bslma::TestAllocator *objAllocatorPtr;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        if (1 == ti) {
+                            objPtr = new (fa) Obj(C1);
+                        }
+                        else {
+                            objPtr = new (fa) Obj(C2);
+                        }
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'b': {
+                        if (1 == ti) {
+                            objPtr = new (fa) Obj(C1, 0);
+                        }
+                        else {
+                            objPtr = new (fa) Obj(C2, 0);
+                        }
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'c': {
+                        if (1 == ti) {
+                            objPtr = new (fa) Obj(C1, &sa);
+                        }
+                        else {
+                            objPtr = new (fa) Obj(C2, &sa);
+                        }
+                        objAllocatorPtr = &sa;
+                      } break;
+                      default: {
+                        ASSERTV(CONFIG, !"Bad allocator config.");
+                      } break;
+                    }
+                    ASSERTV(CONFIG, sizeof(Obj) == fa.numBytesInUse());
+
+                    Obj& mX = *objPtr;  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
+
+                    bslma::TestAllocator&  oa = *objAllocatorPtr;
+                    bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+                    // -----------------------------------
+                    // Verify the object's type and value.
+                    // -----------------------------------
+
+                    ASSERTV(CONFIG, Type::e_STRING == X.type());
+                    ASSERTV(CONFIG,              W == X);
+
+                    // ---------------------------------------
+                    // Verify allocator is installed properly.
+                    // ---------------------------------------
+
+                    ASSERTV(CONFIG, &oa, X.allocator(), &oa == X.allocator());
+
+                    // Verify expected ('Y'/'N') object-memory allocations.
+
+                    ASSERTV(CONFIG, MEM, oa.numBlocksInUse(),
+                            ('N' == MEM) == (0 == oa.numBlocksTotal()));
+
+                    // Verify no temporary memory is allocated from the object
+                    // allocator.
+
+                    ASSERTV(CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
+
+                    // Verify no allocation from the non-object allocator.
+
+                    ASSERTV(CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
+
+                    // Reclaim dynamically allocated object under test.
+
+                    fa.deleteObject(objPtr);
+
+                    // Verify all memory is released on object destruction.
+
+                    ASSERTV(CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(CONFIG, sa.numBlocksInUse(),
+                            0 == sa.numBlocksInUse());
+
+                }  // end foreach configuration
+
+            }  // end foreach value
+        }
+
+        if (verbose) cout << "\nTesting with injected exceptions." << endl;
+        {
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+              if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+              Obj obj(C2, &sa);
+              ASSERTV(Type::e_STRING == obj.type());
+              ASSERTV(            C2 == obj.theString());
+
+#ifdef BDE_BUILD_TARGET_EXC
+              ASSERTV(0 < EXCEPTION_COUNT);
+#endif
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+            ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+        }
+
+        if (verbose) cout << "\nTesting 'e_CHAR_ARRAY' value ctor." << endl;
+        {
+            for (int ti = 1; ti <= 2; ++ti) {
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                Obj mW(&scratch);  const Obj& W = mW;  // control
+                1 == ti ? mW.setCharArray(E1) : mW.setCharArray(E2);
+
+                if (veryVerbose) { T_ P(W) }
+
+                for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+
+                    const char CONFIG = cfg;  // how we specify the allocator
+
+                    if (veryVerbose) { T_ T_ P(CONFIG) }
+
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    Obj                  *objPtr;
+                    bslma::TestAllocator *objAllocatorPtr;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        if (1 == ti) {
+                            objPtr = new (fa) Obj(E1);
+                        }
+                        else {
+                            objPtr = new (fa) Obj(E2);
+                        }
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'b': {
+                        if (1 == ti) {
+                            objPtr = new (fa) Obj(E1, 0);
+                        }
+                        else {
+                            objPtr = new (fa) Obj(E2, 0);
+                        }
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'c': {
+                        if (1 == ti) {
+                            objPtr = new (fa) Obj(E1, &sa);
+                        }
+                        else {
+                            objPtr = new (fa) Obj(E2, &sa);
+                        }
+                        objAllocatorPtr = &sa;
+                      } break;
+                      default: {
+                        ASSERTV(CONFIG, !"Bad allocator config.");
+                      } break;
+                    }
+                    ASSERTV(CONFIG, sizeof(Obj) == fa.numBytesInUse());
+
+                    Obj& mX = *objPtr;  const Obj& X = mX;
+
+                    if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
+
+                    bslma::TestAllocator&  oa = *objAllocatorPtr;
+                    bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+                    // -----------------------------------
+                    // Verify the object's type and value.
+                    // -----------------------------------
+
+                    ASSERTV(CONFIG, Type::e_CHAR_ARRAY == X.type());
+                    ASSERTV(CONFIG,                  W == X);
+
+                    // ---------------------------------------
+                    // Verify allocator is installed properly.
+                    // ---------------------------------------
+
+                    ASSERTV(CONFIG, &oa, X.allocator(), &oa == X.allocator());
+
+                    // Verify expected object-memory allocations.
+
+                    ASSERTV(CONFIG, oa.numBlocksInUse(),
+                            0 < oa.numBlocksInUse());
+
+                    // Verify no temporary memory is allocated from the object
+                    // allocator.
+
+                    ASSERTV(CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
+
+                    // Verify no allocation from the non-object allocator.
+
+                    ASSERTV(CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
+
+                    // Reclaim dynamically allocated object under test.
+
+                    fa.deleteObject(objPtr);
+
+                    // Verify all memory is released on object destruction.
+
+                    ASSERTV(CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(CONFIG, sa.numBlocksInUse(),
+                            0 == sa.numBlocksInUse());
+
+                }  // end foreach configuration
+
+            }  // end foreach value
+        }
+
+        if (verbose) cout << "\nTesting with injected exceptions." << endl;
+        {
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+              if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+              Obj obj(E2, &sa);
+              ASSERTV(Type::e_CHAR_ARRAY == obj.type());
+              ASSERTV(                E2 == obj.theCharArray());
+
+#ifdef BDE_BUILD_TARGET_EXC
+              ASSERTV(0 < EXCEPTION_COUNT);
+#endif
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV(da.numBlocksInUse(), 0 == da.numBlocksInUse());
+            ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+        }
+
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -3410,6 +3789,12 @@ int main(int argc, char *argv[])
                 else {
                     ASSERTV(CONFIG, TYPE, oam.isTotalSame());
                 }
+
+                // Verify no temporary memory is allocated from the object
+                // allocator.
+
+                ASSERTV(CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
+                        oa.numBlocksTotal() == oa.numBlocksInUse());
 
                 // Reclaim dynamically allocated object under test.
 
