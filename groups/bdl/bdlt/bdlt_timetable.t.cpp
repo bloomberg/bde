@@ -907,7 +907,7 @@ int main(int argc, char *argv[])
                     bdlt::Datetime BEFORE = iter->datetime();
                     BEFORE.addTime(0, 0, 0, 0, -1);
 
-                    LOOP_ASSERT(i, *iter == *iter.operator->());
+                    LOOP_ASSERT(i, *iter == iter.operator->());
                     LOOP_ASSERT(i, iter->code() == X.transitionCodeInEffect(
                                                             iter->datetime()));
                     LOOP_ASSERT(i, previousTransitionCode

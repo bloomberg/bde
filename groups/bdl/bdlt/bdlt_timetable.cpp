@@ -88,24 +88,22 @@ bsl::ostream& TimetableTransition::print(bsl::ostream& stream,
                            // -------------------
 
 // MANIPULATORS
-bool Timetable_Day::addTransition(const Datetime& datetime, int code)
+bool Timetable_Day::addTransition(const Time& time, int code)
 {
-    BSLS_ASSERT(24 > datetime.hour());
+    BSLS_ASSERT(24 > time.hour());
 
     BSLS_ASSERT(                                    0 <= code
                 || Timetable::k_UNSET_TRANSITION_CODE == code);
 
-    BSLS_ASSERT(   d_transitions.empty()
-                || d_transitions[0].datetime().date() == datetime.date());
-
     int previousFinalCode = finalTransitionCode();
 
-    bsl::vector<TimetableTransition>::iterator iter =
+    bsl::vector<Timetable_CompactableTransition>::iterator iter =
                                         bsl::lower_bound(d_transitions.begin(),
                                                          d_transitions.end(),
-                                                         datetime);
-    if (iter == d_transitions.end() || iter->d_datetime != datetime) {
-        d_transitions.insert(iter, TimetableTransition(datetime, code));
+                                                         time);
+    if (iter == d_transitions.end() || iter->d_time != time) {
+        d_transitions.insert(iter,
+                             Timetable_CompactableTransition(time, code));
     }
     else {
         iter->d_code = code;
@@ -114,17 +112,14 @@ bool Timetable_Day::addTransition(const Datetime& datetime, int code)
     return previousFinalCode != finalTransitionCode();
 }
 
-bool Timetable_Day::removeTransition(const Datetime& datetime)
+bool Timetable_Day::removeTransition(const Time& time)
 {
-    BSLS_ASSERT(   d_transitions.empty()
-                || d_transitions[0].datetime().date() == datetime.date());
-
-    bsl::vector<TimetableTransition>::iterator iter =
+    bsl::vector<Timetable_CompactableTransition>::iterator iter =
                                         bsl::lower_bound(d_transitions.begin(),
                                                          d_transitions.end(),
-                                                         datetime);
+                                                         time);
 
-    if (iter == d_transitions.end() || iter->d_datetime != datetime) {
+    if (iter == d_transitions.end() || iter->d_time != time) {
         return false;                                                 // RETURN
     }
 
@@ -136,17 +131,14 @@ bool Timetable_Day::removeTransition(const Datetime& datetime)
 }
 
 // ACCESSORS
-int Timetable_Day::transitionCodeInEffect(const Datetime& datetime) const
+int Timetable_Day::transitionCodeInEffect(const Time& time) const
 {
-    BSLS_ASSERT(24 > datetime.hour());
+    BSLS_ASSERT(24 > time.hour());
 
-    BSLS_ASSERT(   d_transitions.empty()
-                || d_transitions[0].datetime().date() == datetime.date());
-
-    bsl::vector<TimetableTransition>::const_iterator iter =
+    bsl::vector<Timetable_CompactableTransition>::const_iterator iter =
                                         bsl::upper_bound(d_transitions.begin(),
                                                          d_transitions.end(),
-                                                         datetime);
+                                                         time);
     if (iter == d_transitions.end()) {
         return finalTransitionCode();                                 // RETURN
     }
@@ -198,19 +190,19 @@ Timetable::~Timetable()
 }
 
 // MANIPULATORS
-void Timetable::addTransition(const Datetime& datetime, int code)
+void Timetable::addTransition(const Date& date, const Time& time, int code)
 {
-    BSLS_ASSERT(24 >  datetime.hour());
-    BSLS_ASSERT(isInRange(datetime.date()));
+    BSLS_ASSERT(24 >  time.hour());
+    BSLS_ASSERT(isInRange(date));
 
     BSLS_ASSERT(                         0 <= code
                 || k_UNSET_TRANSITION_CODE == code);
 
     Timetable_RemoveAllProctor proctor(this);
 
-    bsl::size_t   index = datetime.date() - d_firstDate;
-    Timetable_Day daily(d_timetable[index], d_timetable.allocator());
-    bool          roll  = daily.addTransition(datetime, code);
+    bsl::size_t   index = date - d_firstDate;
+    Timetable_Day daily(d_timetable[index]);
+    bool          roll  = daily.addTransition(time, code);
 
     d_timetable.replace(index, daily);
 
@@ -253,16 +245,16 @@ void Timetable::addTransitions(const DayOfWeek::Enum& dayOfWeek,
     }
 }
 
-void Timetable::removeTransition(const Datetime& datetime)
+void Timetable::removeTransition(const Date& date, const Time& time)
 {
-    BSLS_ASSERT(24 > datetime.hour());
-    BSLS_ASSERT(isInRange(datetime.date()));
+    BSLS_ASSERT(24 > time.hour());
+    BSLS_ASSERT(isInRange(date));
 
     Timetable_RemoveAllProctor proctor(this);
 
-    bsl::size_t   index = datetime.date() - d_firstDate;
-    Timetable_Day daily(d_timetable[index], d_timetable.allocator());
-    bool          roll  = daily.removeTransition(datetime);
+    bsl::size_t   index = date - d_firstDate;
+    Timetable_Day daily(d_timetable[index]);
+    bool          roll  = daily.removeTransition(time);
 
     d_timetable.replace(index, daily);
 

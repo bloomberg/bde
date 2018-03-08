@@ -177,8 +177,7 @@ class TimetableTransition {
     int      d_code;      // code in effect at, and after, 'd_datetime'
 
     // FRIENDS
-    friend class Timetable;
-    friend class Timetable_Day;
+    friend class Timetable_ConstIterator;
 
     friend bool operator==(const TimetableTransition&,
                            const TimetableTransition&);
@@ -285,6 +284,204 @@ void hashAppend(HASHALG& hashAlg, const TimetableTransition& object);
     // integrates with the 'bslh' modular hashing system and effectively
     // provides a 'bsl::hash' specialization for 'TimetableTransition'.
 
+                     // ===============================
+                     // class TimetableTransition_Proxy
+                     // ===============================
+
+class TimetableTransition_Proxy {
+    // This class serves as a proxy for 'Timetable' for use by the arrow
+    // operator of timetable iterators (e.g., 'Timetable_ConstIterator').  An
+    // object of this class behaves as the 'TimetableTransition' object with
+    // which it was constructed.
+
+    // DATA
+    TimetableTransition d_transition;  // proxied transition
+
+  private:
+    // NOT IMPLEMENTED
+    TimetableTransition_Proxy& operator=(const TimetableTransition_Proxy&);
+
+  public:
+    // CREATORS
+    TimetableTransition_Proxy(
+                           const TimetableTransition& transition);  // IMPLICIT
+        // Create a proxy object for the specified 'transition'.
+
+    ~TimetableTransition_Proxy();
+        // Destroy this object.
+
+    TimetableTransition_Proxy(const TimetableTransition_Proxy& original);
+        // Create a proxy object referencing the same 'TimetableTransition'
+        // value as the specified 'original' proxy.
+
+    // ACCESSORS
+    const TimetableTransition *operator->() const;
+        // Return the address providing non-modifiable access to the proxied
+        // 'TimetableTransition' object.
+};
+
+                      // =============================
+                      // class TimetableTransition_Ref
+                      // =============================
+
+class TimetableTransition_Ref : public TimetableTransition {
+    // This private class is used by the arrow operator of the timetable
+    // iterator class.  The objects instantiated from this class serve as
+    // references to 'TimetableTransition' objects.
+
+  private:
+    // NOT IMPLEMENTED
+    TimetableTransition_Ref& operator=(const TimetableTransition_Ref&);
+
+  public:
+    // CREATORS
+    explicit TimetableTransition_Ref(const TimetableTransition& transition);
+        // Create a date reference object using the specified 'transition'.
+
+    TimetableTransition_Ref(const TimetableTransition_Ref& original);
+        // Create a timetable transition reference object having the value of
+        // the specified 'original' object.
+
+    ~TimetableTransition_Ref();
+        // Destroy this object.
+
+    // ACCESSORS
+    TimetableTransition_Proxy operator&() const;
+        // Return a proxy object to this object's referenced
+        // 'TimetableTransition'.
+};
+
+                  // =====================================
+                  // class Timetable_CompactableTransition
+                  // =====================================
+
+class Timetable_CompactableTransition {
+    // This simply-constrained attribute class represents a state transition,
+    // implemented as a time for when the transition occurs, and a code to
+    // indicate the new state.
+
+    // DATA
+    Time d_time;  // time of the transition
+    int  d_code;  // code in effect at, and after, 'd_time'
+
+    // FRIENDS
+    friend class Timetable;
+    friend class Timetable_Day;
+
+    friend bool operator==(const Timetable_CompactableTransition&,
+                           const Timetable_CompactableTransition&);
+    friend bool operator!=(const Timetable_CompactableTransition&,
+                           const Timetable_CompactableTransition&);
+    friend bool operator< (const Timetable_CompactableTransition&,
+                           const Timetable_CompactableTransition&);
+    friend bool operator< (const Timetable_CompactableTransition&,
+                           const Datetime&);
+    friend bool operator< (const Datetime&,
+                           const Timetable_CompactableTransition&);
+
+    template <class HASHALG>
+    friend void hashAppend(HASHALG&, const Timetable_CompactableTransition&);
+
+  private:
+    // PRIVATE CREATORS
+    Timetable_CompactableTransition(const Time& time, int code);
+        // Create a 'Timetable_CompactableTransition' having the specified
+        // 'time' and 'code'.  The behavior is undefined unless
+        // '24 > time.hour()' and
+        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
+
+  public:
+    // CLASS DATA
+    enum { k_UNSET_TRANSITION_CODE =
+                                TimetableTransition::k_UNSET_TRANSITION_CODE };
+                                            // value representing an unset
+                                            // transition code
+    // CREATORS
+    Timetable_CompactableTransition(
+                              const Timetable_CompactableTransition& original);
+        // Create a 'Timetable_CompactableTransition' having the same value as
+        // the specified 'original' object.
+
+    //! ~Timetable_CompactableTransition() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    Timetable_CompactableTransition& operator=(
+                                   const Timetable_CompactableTransition& rhs);
+        // Assign to this object the value of the specified 'rhs' timetable
+        // transition, and return a reference providing modifiable access to
+        // this 'Timetable_CompactableTransition'.
+
+    // ACCESSORS
+    const Time& time() const;
+        // Return the datetime of this transition.
+
+    int code() const;
+        // Return the code of this transition.
+
+                             // Aspects
+
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the (absolute
+        // value of) the optionally specified indentation 'level' and return a
+        // reference to the modifiable 'stream'.  If 'level' is specified,
+        // optionally specify 'spacesPerLevel', the number of spaces per
+        // indentation level for this and all of its nested objects.  If
+        // 'level' is negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, format the entire output on one line,
+        // suppressing all but the initial indentation (as governed by
+        // 'level').  If 'stream' is not valid on entry, this operation has no
+        // effect.
+};
+
+// FREE OPERATORS
+bool operator==(const Timetable_CompactableTransition& lhs,
+                const Timetable_CompactableTransition& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' timetable transitions
+    // have the same value, and 'false' otherwise.  Two timetable transitions
+    // have the same value if they have the same time and code.
+
+bool operator!=(const Timetable_CompactableTransition& lhs,
+                const Timetable_CompactableTransition& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' timetable transitions do
+    // not have the same value, and 'false' otherwise.  Two timetable
+    // transitions do not have the same value if they do not have the same time
+    // or the same code.
+
+bool operator<(const Timetable_CompactableTransition& lhs,
+               const Timetable_CompactableTransition& rhs);
+// TBD only use the time?
+    // Return 'true' if the specified 'lhs' has a value less than the specified
+    // 'rhs', and 'false' otherwise.  Timetable transition 'lhs' has a value
+    // less than timetable transition 'rhs' if 'lhs.time() < rhs.time()', or
+    // 'lhs.time() == rhs.time()' and
+    // 'lhs.transitionCode() < rhs.transitionCode()'.
+
+bool operator<(const Timetable_CompactableTransition& lhs,
+               const Time&                            rhs);
+    // Return 'true' if the specified 'lhs' has a value less than the specified
+    // 'rhs', and 'false' otherwise.  Timetable transition 'lhs' has a value
+    // less than time 'rhs' if 'lhs.time() < rhs'.  The behavior is undefined
+    // unless '24 > rhs.hour()'.
+
+bool operator<(const Time&                            lhs,
+               const Timetable_CompactableTransition& rhs);
+    // Return 'true' if the specified 'lhs' has a value less than the specified
+    // 'rhs', and 'false' otherwise.  Time 'lhs' has a value less than
+    // timetable transition 'rhs' if 'lhs < rhs.time()'.  The behavior is
+    // undefined unless '24 > lhs.hour()'.
+
+// HASH SPECIALIZATIONS
+template <class HASHALG>
+void hashAppend(HASHALG&                               hashAlg,
+                const Timetable_CompactableTransition& object);
+    // Pass the specified 'object' to the specified 'hashAlg'.  This function
+    // integrates with the 'bslh' modular hashing system and effectively
+    // provides a 'bsl::hash' specialization for
+    // 'Timetable_CompactableTransition'.
+
                            // ===================
                            // class Timetable_Day
                            // ===================
@@ -301,12 +498,12 @@ class Timetable_Day {
     // This class implements one day of a timetable.
 
     // DATA
-    int                              d_initialTransitionCode;
+    int                                      d_initialTransitionCode;
                                              // transition code in effect at
                                              // the start of this daily
                                              // timetable
 
-    bsl::vector<TimetableTransition> d_transitions;
+    bsl::vector<Timetable_CompactableTransition> d_transitions;
                                              // ordered vector of transitions
 
     // FRIENDS
@@ -358,16 +555,15 @@ class Timetable_Day {
         // operation, and false otherwise.  The behavior is undefined unless
         // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
-    bool addTransition(const Datetime& datetime, int code);
-        // Add a transition to this daily timetable at the specified 'datetime'
-        // having the specified 'code'.  If 'datetime' is already a transition
+    bool addTransition(const Time& time, int code);
+        // Add a transition to this daily timetable at the specified 'time'
+        // having the specified 'code'.  If 'time' is already a transition
         // point, replace the existing code with 'code'.  Return 'true' if the
         // value returned by 'finalTransitionCode()' prior to this operation is
         // not equal to the value returned by 'finalTransitionCode()' after
         // this operation, and false otherwise.  The behavior is undefined
-        // unless '24 > datetime.hour()',
-        // '0 <= code || k_UNSET_TRANSITION_CODE == code', and all the
-        // resultant transitions in this 'Timetable_Day' have the same date.
+        // unless '24 > time.hour()' and
+        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
     bool removeAllTransitions();
         // Remove all transitions from this daily timetable.  Return 'true' if
@@ -375,16 +571,14 @@ class Timetable_Day {
         // operation is not equal to the value returned by
         // 'finalTransitionCode()' after this operation, and false otherwise.
 
-    bool removeTransition(const Datetime& datetime);
-        // If a transition occurs at the specified 'datetime', remove the
+    bool removeTransition(const Time& time);
+        // If a transition occurs at the specified 'time', remove the
         // transition from this daily timetable.  Otherwise, return without
         // modifying this daily timetable.  Return 'true' if the value returned
         // by 'finalTransitionCode()' prior to this operation is not equal to
         // the value returned by 'finalTransitionCode()' after this operation,
         // and false otherwise.  The behavior is undefined unless
-        // '24 > datetime.hour()', and either there are no transitions in this
-        // 'Timetable_Day' or
-        // 'd_transitions[0].datetime().date() == datetime.date()'.
+        // '24 > time.hour()'.
 
     // ACCESSORS
     int finalTransitionCode() const;
@@ -399,14 +593,12 @@ class Timetable_Day {
     bsl::size_t size() const;
         // Return the number of transitions in this daily timetable.
 
-    int transitionCodeInEffect(const Datetime& datetime) const;
+    int transitionCodeInEffect(const Time& time) const;
         // Return the transition code associated with the latest transition
         // that occurs on or before the specified 'datetime' in this daily
         // timetable.  If this daily timetable has no such transition, return
         // 'initialTransitionCode()'.  The behavior is undefined unless
-        // '24 > datetime.hour()', and either there are no transitions in this
-        // 'Timetable_Day' or
-        // 'd_transitions[0].datetime().date() == datetime.date()'.
+        // '24 > time.hour()'.
 };
 
 // FREE OPERATORS
@@ -762,6 +954,12 @@ class Timetable_ConstIterator {
         // the day at the specified 'dayIndex' in the 'timetable'.
 
   public:
+    // TYPES
+    typedef TimetableTransition       value_type;
+    typedef TimetableTransition_Proxy pointer;
+    typedef TimetableTransition_Ref   reference;
+        // The star operator returns a 'TimetableTransition_Ref' *by* *value*.
+
     // CREATORS
     Timetable_ConstIterator();
         // Create a default iterator.  Note that the use of most methods - as
@@ -794,15 +992,16 @@ class Timetable_ConstIterator {
         // transition of the associated timetable.
 
     // ACCESSORS
-    const TimetableTransition& operator*() const;
-        // Return the element value referenced by this iterator.  The behavior
-        // is undefined unless this iterator references a valid transition in
-        // the timetable.
+    TimetableTransition_Ref operator*() const;
+        // Return a 'TimetableTransition_Ref' object that contains the
+        // transition value referenced by this iterator.  The behavior is
+        // undefined unless this iterator references a valid transition in the
+        // timetable.
 
-    const TimetableTransition *operator->() const;
-        // Return a pointer to the element value referenced by this iterator.
-        // The behavior is undefined unless this iterator references a valid
-        // transition in the timetable.
+    TimetableTransition_Proxy operator->() const;
+        // Return a transition proxy to the element value referenced by this
+        // iterator.  The behavior is undefined unless this iterator references
+        // a valid transition in the timetable.
 };
 
 // FREE OPERATORS
@@ -938,6 +1137,176 @@ void bdlt::hashAppend(HASHALG& hashAlg, const TimetableTransition& object)
 
 namespace bdlt {
 
+                  // -------------------------------------
+                  // class Timetable_CompactableTransition
+                  // -------------------------------------
+
+// PRIVATE CREATORS
+inline
+Timetable_CompactableTransition::Timetable_CompactableTransition(
+                                                              const Time& time,
+                                                              int         code)
+: d_time(time)
+, d_code(code)
+{
+    BSLS_ASSERT_SAFE(24 > time.hour());
+
+    BSLS_ASSERT_SAFE(                         0 <= code
+                     || k_UNSET_TRANSITION_CODE == code);
+}
+
+// CREATORS
+inline
+Timetable_CompactableTransition::Timetable_CompactableTransition(
+                               const Timetable_CompactableTransition& original)
+: d_time(original.d_time)
+, d_code(original.d_code)
+{
+}
+
+// MANIPULATORS
+inline
+Timetable_CompactableTransition& Timetable_CompactableTransition::operator=(
+                                    const Timetable_CompactableTransition& rhs)
+{
+    d_time = rhs.d_time;
+    d_code = rhs.d_code;
+
+    return *this;
+}
+
+// ACCESSORS
+inline
+const Time& Timetable_CompactableTransition::time() const
+{
+    return d_time;
+}
+
+inline
+int Timetable_CompactableTransition::code() const
+{
+    return d_code;
+}
+
+}  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdlt::operator==(const Timetable_CompactableTransition& lhs,
+                      const Timetable_CompactableTransition& rhs)
+{
+    return lhs.d_time == rhs.d_time && lhs.d_code == rhs.d_code;
+}
+
+inline
+bool bdlt::operator!=(const Timetable_CompactableTransition& lhs,
+                      const Timetable_CompactableTransition& rhs)
+{
+    return lhs.d_time != rhs.d_time || lhs.d_code != rhs.d_code;
+}
+
+inline
+bool bdlt::operator<(const Timetable_CompactableTransition& lhs,
+                     const Timetable_CompactableTransition& rhs)
+{
+    return lhs.d_time < rhs.d_time
+        || (lhs.d_time == rhs.d_time && lhs.d_code < rhs.d_code);
+}
+
+inline
+bool bdlt::operator<(const Timetable_CompactableTransition& lhs,
+                     const Time&                            rhs)
+{
+    BSLS_ASSERT_SAFE(24 > rhs.hour());
+
+    return lhs.time() < rhs;
+}
+
+inline
+bool bdlt::operator<(const Time&                            lhs,
+                     const Timetable_CompactableTransition& rhs)
+{
+    BSLS_ASSERT_SAFE(24 > lhs.hour());
+
+    return lhs < rhs.time();
+}
+
+// HASH SPECIALIZATIONS
+template <class HASHALG>
+inline
+void bdlt::hashAppend(HASHALG&                               hashAlg,
+                      const Timetable_CompactableTransition& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    hashAppend(hashAlg, object.d_time);
+    hashAppend(hashAlg, object.d_code);
+}
+
+namespace bdlt {
+
+                     // -------------------------------
+                     // class TimetableTransition_Proxy
+                     // -------------------------------
+
+// CREATORS
+inline
+TimetableTransition_Proxy::TimetableTransition_Proxy(
+                                         const TimetableTransition& transition)
+: d_transition(transition)
+{
+}
+
+inline
+TimetableTransition_Proxy::~TimetableTransition_Proxy()
+{
+}
+
+inline
+TimetableTransition_Proxy::TimetableTransition_Proxy(
+                                     const TimetableTransition_Proxy& original)
+: d_transition(original.d_transition)
+{
+}
+
+// ACCESSORS
+inline
+const TimetableTransition *TimetableTransition_Proxy::operator->() const
+{
+    return &d_transition;
+}
+
+                      // -----------------------------
+                      // class TimetableTransition_Ref
+                      // -----------------------------
+
+// CREATORS
+inline
+TimetableTransition_Ref::TimetableTransition_Ref(
+                                         const TimetableTransition& transition)
+: TimetableTransition(transition)
+{
+}
+
+inline
+TimetableTransition_Ref::TimetableTransition_Ref(
+                                       const TimetableTransition_Ref& original)
+: TimetableTransition(original)
+{
+}
+
+inline
+TimetableTransition_Ref::~TimetableTransition_Ref()
+{
+}
+
+// ACCESSORS
+inline
+TimetableTransition_Proxy TimetableTransition_Ref::operator&() const
+{
+    return *this;
+}
+
                            // -------------------
                            // class Timetable_Day
                            // -------------------
@@ -994,7 +1363,7 @@ bool Timetable_Day::removeAllTransitions()
 inline
 int Timetable_Day::finalTransitionCode() const
 {
-    bsl::vector<TimetableTransition>::const_reverse_iterator iter =
+    bsl::vector<Timetable_CompactableTransition>::const_reverse_iterator iter =
                                                         d_transitions.rbegin();
 
     return iter != d_transitions.rend()
@@ -1066,9 +1435,9 @@ Timetable& Timetable::operator=(const Timetable& rhs)
 }
 
 inline
-void Timetable::addTransition(const Date& date, const Time& time, int code)
+void Timetable::addTransition(const Datetime& datetime, int code)
 {
-    addTransition(Datetime(date, time), code);
+    addTransition(datetime.date(), datetime.time(), code);
 }
 
 inline
@@ -1083,9 +1452,9 @@ void Timetable::removeAll()
 }
 
 inline
-void Timetable::removeTransition(const Date& date, const Time& time)
+void Timetable::removeTransition(const Datetime& datetime)
 {
-    removeTransition(Datetime(date, time));
+    removeTransition(datetime.date(), datetime.time());
 }
 
                                   // Aspects
@@ -1149,19 +1518,19 @@ int Timetable::length() const
 inline
 int Timetable::transitionCodeInEffect(const Date& date, const Time& time) const
 {
-    return transitionCodeInEffect(Datetime(date, time));
+    BSLS_ASSERT_SAFE(24 > time.hour());
+    BSLS_ASSERT_SAFE(isInRange(date));
+
+    bsl::size_t          index = date - d_firstDate;
+    const Timetable_Day& daily = d_timetable[index];
+
+    return daily.transitionCodeInEffect(time);
 }
 
 inline
 int Timetable::transitionCodeInEffect(const Datetime& datetime) const
 {
-    BSLS_ASSERT_SAFE(24 > datetime.hour());
-    BSLS_ASSERT_SAFE(isInRange(datetime.date()));
-
-    bsl::size_t          index = datetime.date() - d_firstDate;
-    const Timetable_Day& daily = d_timetable[index];
-
-    return daily.transitionCodeInEffect(datetime);
+    return transitionCodeInEffect(datetime.date(), datetime.time());
 }
 
                                   // Aspects
@@ -1271,25 +1640,29 @@ Timetable_ConstIterator& Timetable_ConstIterator::
 
 // ACCESSORS
 inline
-const TimetableTransition& Timetable_ConstIterator::operator*() const
+TimetableTransition_Ref Timetable_ConstIterator::operator*() const
 {
     BSLS_ASSERT_SAFE(d_timetable_p);
     BSLS_ASSERT_SAFE(d_dayIndex
                           < static_cast<bsl::size_t>(d_timetable_p->length()));
 
-    return d_timetable_p->d_timetable[d_dayIndex].d_transitions[
+    const Timetable_CompactableTransition& transition =
+                          d_timetable_p->d_timetable[d_dayIndex].d_transitions[
                                                             d_transitionIndex];
+    return TimetableTransition_Ref(TimetableTransition(
+            Datetime(d_timetable_p->firstDate() + static_cast<int>(d_dayIndex),
+                     transition.time()),
+            transition.code()));
 }
 
 inline
-const TimetableTransition *Timetable_ConstIterator::operator->() const
+TimetableTransition_Proxy Timetable_ConstIterator::operator->() const
 {
     BSLS_ASSERT_SAFE(d_timetable_p);
     BSLS_ASSERT_SAFE(d_dayIndex
                           < static_cast<bsl::size_t>(d_timetable_p->length()));
 
-    return &d_timetable_p->d_timetable[d_dayIndex].d_transitions[
-                                                            d_transitionIndex];
+    return TimetableTransition_Proxy(this->operator*());
 }
 
 }  // close package namespace
