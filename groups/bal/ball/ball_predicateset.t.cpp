@@ -59,7 +59,8 @@ using namespace bsl;
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::PS&) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] PRIMITIVE TEST APPARATUS: 'gg' and 'hh'
+// [ 3] Obj& gg(Obj *address, const char *spec);
+// [ 3] AttributeSet& hh(AttributeSet *obj, const char *spec);
 // [ 8] UNUSED
 // [14] USAGE EXAMPLE
 
