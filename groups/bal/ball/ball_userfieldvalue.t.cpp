@@ -19,6 +19,8 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdio.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -111,7 +113,7 @@ using namespace bsl;
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ *] CONCERN: In no case does memory come from the default allocator.
-// [ 4] CONCERN: All accessor methods are declared 'const'.
+// [ *] CONCERN: All accessor methods are declared 'const'.
 // [10] Reserved for BDEX streaming.
 
 // ============================================================================
@@ -215,12 +217,16 @@ const bdlt::DatetimeTz   D1(bdlt::Datetime(2000,  1,  1, 0, 1, 2,   3), 240);
 const bdlt::DatetimeTz   D2(bdlt::Datetime(2025, 12, 31, 4, 5, 6, 789), -60);
 
 static bsl::vector<char> fE1()
+    // Return, *by* *value*, the 'E1' test value for user field type
+    // 'e_CHAR_ARRAY'.
 {
     bsl::vector<char> t;
     t.push_back('e');  t.push_back('n');  t.push_back('o');
     return t;
 }
 static bsl::vector<char> fE2()
+    // Return, *by* *value*, the 'E2' test value for user field type
+    // 'e_CHAR_ARRAY'.
 {
     bsl::vector<char> t(C2.rbegin(), C2.rend());
     return t;
@@ -380,7 +386,7 @@ bool verifyFieldTypeAndValue(const Obj& object, char type, char value)
 // <RESET>      ::= '~'
 //
 // Spec String  Description
-// -----------  -----------------------------------------------------------
+// -----------  ---------------------------------------------------------------
 // "~"          Reset the object to the unset state.
 //
 // "A1"         Set the object to have the value corresponding to 'A1', i.e.,
@@ -388,7 +394,7 @@ bool verifyFieldTypeAndValue(const Obj& object, char type, char value)
 //
 // "B2D1"       Set the object to have the value corresponding to 'B2', then
 //              set it to have the value corresponding to 'D1'.
-// ------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int ggg(Obj *object, const char *spec, bool verboseFlag = true)
     // Configure the specified 'object' according to the specified 'spec',
@@ -818,7 +824,7 @@ int main(int argc, char *argv[])
             }
 
             {
-                const bsls::Types::Uint64 VALUE = 1111222233334444;
+                const bsls::Types::Uint64 VALUE = 1111222233334444ULL;
 
                 mW.setInt64(static_cast<Int64>(VALUE));
                 const Obj X(VALUE);
@@ -1528,9 +1534,8 @@ int main(int argc, char *argv[])
                 const bdlt::DatetimeTz VALUE = DATA[ti].d_value;
 
                 if (veryVerbose) {
-                    // DRQS 117439200
-                    // Printing an 'e_DATETIMETZ' field value incurs an
-                    // allocation from the default allocator.
+                    // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
+                    // incurs an allocation from the default allocator.
 
                     bslma::TestAllocator scratch("scratch",
                                                  veryVeryVeryVerbose);
@@ -1580,9 +1585,9 @@ int main(int argc, char *argv[])
                     Obj& mX = *objPtr;  const Obj& X = mX;
 
                     if (veryVerbose) {
-                        // DRQS 117439200
-                        // Printing an 'e_DATETIMETZ' field value incurs an
-                        // allocation from the default allocator.
+                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
+                        // value incurs an allocation from the default
+                        // allocator.
 
                         bslma::TestAllocator scratch("scratch",
                                                      veryVeryVeryVerbose);
@@ -1754,12 +1759,6 @@ int main(int argc, char *argv[])
       case 10: {
         // --------------------------------------------------------------------
         // BDEX STREAMING
-        //
-        // Concerns:
-        //   N/A
-        //
-        // Plan:
-        //   N/A
         //
         // Testing:
         //   Reserved for BDEX streaming.
@@ -1968,9 +1967,8 @@ int main(int argc, char *argv[])
             Obj mZZ(&scratch);  const Obj& ZZ = gg(&mZZ, SPECI);
 
             if (veryVerbose) {
-                // DRQS 117439200
-                // Printing an 'e_DATETIMETZ' field value incurs an
-                // allocation from the default allocator.
+                // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
+                // incurs an allocation from the default allocator.
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&scratch);
@@ -1990,9 +1988,9 @@ int main(int argc, char *argv[])
                     Obj mX(&oa);  const Obj& X = gg(&mX, SPECJ);
 
                     if (veryVerbose) {
-                        // DRQS 117439200
-                        // Printing an 'e_DATETIMETZ' field value incurs an
-                        // allocation from the default allocator.
+                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
+                        // value incurs an allocation from the default
+                        // allocator.
 
                         bslma::TestAllocator scratch("scratch",
                                                      veryVeryVeryVerbose);
@@ -2268,9 +2266,8 @@ int main(int argc, char *argv[])
             const Obj XX(W, &scratch);
 
             if (veryVerbose) {
-                // DRQS 117439200
-                // Printing an 'e_DATETIMETZ' field value incurs an
-                // allocation from the default allocator.
+                // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
+                // incurs an allocation from the default allocator.
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&scratch);
@@ -2317,9 +2314,8 @@ int main(int argc, char *argv[])
                 const Obj YY(Y, &scratch);
 
                 if (veryVerbose) {
-                    // DRQS 117439200
-                    // Printing an 'e_DATETIMETZ' field value incurs an
-                    // allocation from the default allocator.
+                    // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
+                    // incurs an allocation from the default allocator.
 
                     bslma::TestAllocator scratch("scratch",
                                                  veryVeryVeryVerbose);
@@ -2589,9 +2585,8 @@ int main(int argc, char *argv[])
                 Obj mZZ(&scratch);  const Obj& ZZ = gg(&mZZ, SPEC);
 
                 if (veryVerbose) {
-                    // DRQS 117439200
-                    // Printing an 'e_DATETIMETZ' field value incurs an
-                    // allocation from the default allocator.
+                    // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
+                    // incurs an allocation from the default allocator.
 
                     bslma::TestAllocator scratch("scratch",
                                                  veryVeryVeryVerbose);
@@ -2635,9 +2630,9 @@ int main(int argc, char *argv[])
                     Obj& mX = *objPtr;  const Obj& X = mX;
 
                     if (veryVerbose) {
-                        // DRQS 117439200
-                        // Printing an 'e_DATETIMETZ' field value incurs an
-                        // allocation from the default allocator.
+                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
+                        // value incurs an allocation from the default
+                        // allocator.
 
                         bslma::TestAllocator scratch("scratch",
                                                      veryVeryVeryVerbose);
@@ -2914,9 +2909,9 @@ int main(int argc, char *argv[])
                     Obj mY(&ya);  const Obj& Y = gg(&mY, SPECJ);
 
                     if (veryVerbose) {
-                        // DRQS 117439200
-                        // Printing an 'e_DATETIMETZ' field value incurs an
-                        // allocation from the default allocator.
+                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
+                        // value incurs an allocation from the default
+                        // allocator.
 
                         bslma::TestAllocator scratch("scratch",
                                                      veryVeryVeryVerbose);
@@ -3493,6 +3488,8 @@ int main(int argc, char *argv[])
                 const char        TYPE  = DATA[ti].d_expType;
                 const char        VALUE = DATA[ti].d_expValue;
 
+                if (veryVerbose) { P_(LINE) P(SPEC) }
+
                 Obj mX;
 
                 Obj& mmX = gg(&mX, SPEC);  const Obj& X = mmX;
@@ -3577,18 +3574,20 @@ int main(int argc, char *argv[])
         //:
         //:14 The 'allocator' accessor returns the address of the object
         //:   allocator.
+        //:
+        //:15 The 'allocator' accessor method is declared 'const'.
         //
         // Plan:
         //: 1 Use the default constructor to create three distinct objects, in
         //:   turn, each configured differently: (a) without passing an
         //:   allocator, (b) passing a null allocator address explicitly, and
         //:   (c) passing the address of a test allocator distinct from the
-        //:   default allocator.  (C-1..4, 9, 14)
+        //:   default allocator.  (C-1..4, 9, 14..15)
         //:
         //:   1 Verify that the object is in the unset state using the
         //:     'isUnset' and 'type' accessors, and verify that the 'allocator'
         //:     accessor returns the address of the object allocator.
-        //:     (C-1..4, 14)
+        //:     (C-1..4, 14..15)
         //:
         //:   2 Verify using test allocators that no memory is allocated from
         //:     any allocator.  (C-9)
@@ -3768,9 +3767,8 @@ int main(int argc, char *argv[])
                 }
 
                 if (veryVerbose) {
-                    // DRQS 117439200
-                    // Printing an 'e_DATETIMETZ' field value incurs an
-                    // allocation from the default allocator.
+                    // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
+                    // incurs an allocation from the default allocator.
 
                     bslma::TestAllocator scratch("scratch",
                                                  veryVeryVeryVerbose);
@@ -3867,9 +3865,9 @@ int main(int argc, char *argv[])
                     ASSERTV(TYPEI, TYPEJ, TYPEI == X.type());
 
                     if (veryVerbose) {
-                        // DRQS 117439200
-                        // Printing an 'e_DATETIMETZ' field value incurs an
-                        // allocation from the default allocator.
+                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
+                        // value incurs an allocation from the default
+                        // allocator.
 
                         bslma::TestAllocator scratch("scratch",
                                                      veryVeryVeryVerbose);
@@ -3908,9 +3906,9 @@ int main(int argc, char *argv[])
                     ASSERTV(TYPEI, TYPEJ, TYPEJ == X.type());
 
                     if (veryVerbose) {
-                        // DRQS 117439200
-                        // Printing an 'e_DATETIMETZ' field value incurs an
-                        // allocation from the default allocator.
+                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
+                        // value incurs an allocation from the default
+                        // allocator.
 
                         bslma::TestAllocator scratch("scratch",
                                                      veryVeryVeryVerbose);

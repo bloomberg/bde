@@ -211,7 +211,7 @@ bool veryVeryVerbose;
     };
 
 //..
-// The 'ball::AttributeSet' methods are simple wrappers around operations on a
+// The 'AttributeSet' methods are simple wrappers around operations on a
 // 'bsl::set'.
 //..
     inline

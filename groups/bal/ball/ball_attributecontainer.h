@@ -235,8 +235,7 @@ BSLS_IDENT("$Id: $")
 //          // and return a reference to 'stream'.
 //  };
 //..
-// The 'ball::AttributeSet' methods are simple wrappers around 'bsl::set'
-// methods:
+// The 'AttributeSet' methods are simple wrappers around 'bsl::set' methods:
 //..
 //  inline
 //  AttributeSet::AttributeSet(bslma::Allocator *basicAllocator)
