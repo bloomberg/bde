@@ -78,10 +78,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimetz.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -96,10 +92,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_TYPELIST
-#include <bslmf_typelist.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -130,18 +122,14 @@ class UserFieldValue {
     // of a user field in a log record.  A user field value acts as a
     // discriminated union, and may represent a value of any of the types
     // described in 'ball::UserFieldType' or an unset value (indicated by type
-    // 'ball::UserFieldType::e_VOID').  Note that 'bdlb::VariantImp' is used
-    // for the type of the data member rather than 'bdlb::Variant' directly so
-    // that the free 'swap' function for this type discovers variant's free
-    // 'swap' function through ADL (DRQS nnnnnnnnn).
+    // 'ball::UserFieldType::e_VOID').
 
     // PRIVATE TYPES
-    typedef bdlb::VariantImp<bslmf::TypeList<
-                                            bsls::Types::Int64,
-                                            double,
-                                            bsl::string,
-                                            bdlt::DatetimeTz,
-                                            bsl::vector<char> > > ValueVariant;
+    typedef bdlb::Variant<bsls::Types::Int64,
+                          double,
+                          bsl::string,
+                          bdlt::DatetimeTz,
+                          bsl::vector<char> > ValueVariant;
 
     // DATA
     ValueVariant d_value;  // value
@@ -531,7 +519,9 @@ bsl::ostream& ball::operator<<(bsl::ostream&         stream,
 inline
 void ball::swap(UserFieldValue& a, UserFieldValue& b)
 {
-    bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
+    // 'bdlb::Variant' member 'swap' supports differing allocators.
+
+    a.d_value.swap(b.d_value);
 }
 
 }  // close enterprise namespace
