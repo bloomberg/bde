@@ -310,19 +310,18 @@ int main(int argc, char *argv[])
         }
 
         {
-            int counter = 0;
+            int       counter  = 0;
             const int NUM_TEST = 5;
             {
-                my_Class mX(&counter);
+                bsls::ObjectBuffer<my_Class> mC;
                 for (int i = 0; i < NUM_TEST; ++i) {
-                    new (&mX) my_Class(&counter);
+                    new (mC.buffer()) my_Class(&counter);
                     ASSERT(i == counter);
-                    mX.~my_Class();
+                    mC.object().~my_Class();
                 }
-                new (&mX) my_Class(&counter);
                 ASSERT(NUM_TEST == counter);
             }
-            ASSERT(NUM_TEST + 1 == counter);
+            ASSERT(NUM_TEST == counter);
         }
       } break;
       default: {
