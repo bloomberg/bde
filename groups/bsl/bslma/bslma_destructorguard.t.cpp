@@ -244,33 +244,33 @@ int main(int argc, char *argv[])
         //   several times and verify that the expected destructions occur.
         //
         // Testing:
-        //   bslma::DestructorGuard()
-        //   ~bslma::DestructorGuard()
+        //   bslma::DestructorGuard<TYPE>(&object)
+        //   ~bslma::DestructorGuard<TYPE>();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============\n");
+        if (verbose)
+            printf("\nBREATHING TEST"
+                   "\n==============\n");
 
-        int counter = 0;
-        int i;
-        {
-            my_Class mC(&counter);
+        bsls::ObjectBuffer<my_Class> mC;
+        int                          counter = 0;
+        int                          i;
 
-            for (i = 0; i < 10; ++i) {
-                new (&mC) my_Class(&counter);
+        for (i = 0; i < 10; ++i) {
+            new (mC.buffer()) my_Class(&counter);
 
-                ASSERT(i == counter);
+            ASSERT(i == counter);
 
-                bslma::DestructorGuard<my_Class> mX(&mC);
-
-                ASSERT(i == counter);
+            if (veryVerbose) {
+                P(i);
             }
 
-            new (&mC) my_Class(&counter);
+            bslma::DestructorGuard<my_Class> mX(mC.address());
 
             ASSERT(i == counter);
         }
-        ASSERT(i + 1 == counter);
+
+        ASSERT(i == counter);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -310,19 +310,18 @@ int main(int argc, char *argv[])
         }
 
         {
-            int counter = 0;
+            int       counter  = 0;
             const int NUM_TEST = 5;
             {
-                my_Class mX(&counter);
+                bsls::ObjectBuffer<my_Class> mC;
                 for (int i = 0; i < NUM_TEST; ++i) {
-                    new (&mX) my_Class(&counter);
+                    new (mC.buffer()) my_Class(&counter);
                     ASSERT(i == counter);
-                    mX.~my_Class();
+                    mC.object().~my_Class();
                 }
-                new (&mX) my_Class(&counter);
                 ASSERT(NUM_TEST == counter);
             }
-            ASSERT(NUM_TEST + 1 == counter);
+            ASSERT(NUM_TEST == counter);
         }
       } break;
       default: {
