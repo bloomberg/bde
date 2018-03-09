@@ -78,8 +78,8 @@ namespace BloombergLP {
 namespace btlb {
 
 typedef bdlbb::BlobUtil            BlobUtil;
-typedef bdlbb::BlobUtilAsciiDumper BlobUtilAsciiDumpber;
-typedef bdlbb::BlobUtilHexDumper   BlobUtilHexDumpber;
+typedef bdlbb::BlobUtilAsciiDumper BlobUtilAsciiDumper;
+typedef bdlbb::BlobUtilHexDumper   BlobUtilHexDumper;
 
 }  // close package namespace
 }  // close enterprise namespace
