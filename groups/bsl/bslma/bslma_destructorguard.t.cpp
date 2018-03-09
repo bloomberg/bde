@@ -257,12 +257,17 @@ int main(int argc, char *argv[])
             my_Class mC(&counter);
 
             for (i = 0; i < 10; ++i) {
+                new (&mC) my_Class(&counter);
+
                 ASSERT(i == counter);
 
                 bslma::DestructorGuard<my_Class> mX(&mC);
 
                 ASSERT(i == counter);
             }
+
+            new (&mC) my_Class(&counter);
+
             ASSERT(i == counter);
         }
         ASSERT(i + 1 == counter);
@@ -310,9 +315,11 @@ int main(int argc, char *argv[])
             {
                 my_Class mX(&counter);
                 for (int i = 0; i < NUM_TEST; ++i) {
+                    new (&mX) my_Class(&counter);
                     ASSERT(i == counter);
                     mX.~my_Class();
                 }
+                new (&mX) my_Class(&counter);
                 ASSERT(NUM_TEST == counter);
             }
             ASSERT(NUM_TEST + 1 == counter);
