@@ -31,8 +31,6 @@
 # include <limits.h>
 # include <unistd.h>
 #else
-# include <windows.h>
-# include <winsock2.h>
 # include <direct.h>
 #endif
 
@@ -143,7 +141,7 @@ bool isRelative(const char *path)
 #if defined BSLS_PLATFORM_OS_UNIX
     return '/' != C;
 #else
-    return '\\' != C || (C && ':' != path[1]);
+    return '\\' != C || (C && ':' == path[1]);
 #endif
 }
 
@@ -211,9 +209,13 @@ int main(int argc, char *argv[])
     // to make reliably unique temporary file names.  '$HOSTNAME' is not set in
     // matrix builds, so we can't access the hostname through 'getenv'.
 
+#if BSLS_PLATFORM_OS_WINDOWS
+    const char * const hostName = "windowshost";
+#else
     enum { k_HOST_NAME_BUF_LEN = 256 };
     static char hostName[k_HOST_NAME_BUF_LEN];
-    ASSERT(0 == gethostname(hostName, k_HOST_NAME_BUF_LEN - 1));
+    ASSERT(0 == ::gethostname(hostName, k_HOST_NAME_BUF_LEN - 1));
+#endif
 
     switch(test) { case 0:
       case 6: {
@@ -351,12 +353,13 @@ int main(int argc, char *argv[])
         bsl::sprintf(dirName, "tmp.bdls_processutil.t.case5.%s.%d.dir",
                                                 hostName, Obj::getProcessId());
 
-        (void) FUtil::remove(dirName, true);
-        ASSERT(!FUtil::exists(dirName));
         {
+            // 'FUtil::remove' uses the default allocator on directories, and
             // 'FUtil::createDirectories' uses the default allocator.
 
-            bslma::DefaultAllocatorGuard createDirGuard(&ta);
+            bslma::DefaultAllocatorGuard guard(&ta);
+            (void) FUtil::remove(dirName, true);
+            ASSERT(!FUtil::exists(dirName));
             rc = FUtil::createDirectories(dirName, true);
             ASSERT(0 == rc);
         }
@@ -677,10 +680,14 @@ int main(int argc, char *argv[])
       }
     }
 
+#if BSLS_PLATFORM_OS_UNIX
     // All allocation by 'getProcessName' or 'getPathToExecutable' should
-    // come from the allocator of the passed 'result'.
+    // come from the allocator of the passed 'result'.  The unicode code on
+    // Windows apparently uses the default allocator in 'getProcessName' and
+    // 'getPathToExecutable', so sip this test there.
 
     ASSERTV(da.numAllocations(), 0 == da.numAllocations());
+#endif
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."
