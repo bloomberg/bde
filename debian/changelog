@@ -1,5 +1,9 @@
-bsl-internal (3.6.0.0) unstable; urgency=low
+bsl-internal (3.6.0.1) unstable; urgency=low
 
+  * dfcd96a99 Merge pull request #1747 from mgiroux/pr/1746-rebased-releases/3.6.x
+  * af4617532 Merge pull request #1735 from mgiroux/pr/1734-rebased-releases/3.6.x
+  * ac17f9af7 Merge pull request #1729 from mgiroux/pr/1727-rebased-releases/3.6.x
+  * 7c9c882a3 Changelog for version 3.6.0.0
   * 043819a85 Merge pull request #1718 from bde/review/bump-version-to-3.6.0
   * 522b684f1 Bump all-non-bsl versions to 3.6.0
   * 79cc34858 Merge pull request #1710 from glaptev1/glaptev1/bdldfp_Decimal_formatting_fix_drqs-116871865
@@ -153,7 +157,7 @@ bsl-internal (3.6.0.0) unstable; urgency=low
   * 74e4e45bb Merge pull request #1654 from ameredit/remove_old_workaround_in_baljsn_printutil.t.cpp
   * 72ae590e9 Merge pull request #1655 from ameredit/remove_old_workaround_in_balxml_tests
 
- -- mgiroux <mgiroux@bloomberg.net>  Thu, 22 Feb 2018 14:07:43 -0500
+ -- mgiroux <mgiroux@bloomberg.net>  Wed, 7 Mar 2018 13:07:02 -0500
 
 bsl-internal (3.5.0.0) git; urgency=low
 
