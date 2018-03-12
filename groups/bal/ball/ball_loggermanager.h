@@ -1825,15 +1825,10 @@ class LoggerManager {
         // Return the default trigger threshold level of this logger manager.
 
     bsl::shared_ptr<const Observer> findObserver(
-                                   const bslstl::StringRef& observerName) const
+                                  const bslstl::StringRef& observerName) const;
         // Return a shared pointer to the observer having the specified
         // 'observerName' in the registry of this logger manager, and an empty
-        // shared pointer if there is no such observer otherwise.  Note that
-        // this function is defined inline within the class to work around an
-        // obscure g++ compilation failure building client code.
-    {
-        return d_observer->findObserver(observerName);
-    }
+        // shared pointer if there is no such observer otherwise.
 
     template <class OBSERVER>
     int findObserver(bsl::shared_ptr<const OBSERVER> *result,
@@ -2293,6 +2288,17 @@ inline
 int LoggerManager::defaultTriggerThresholdLevel() const
 {
     return d_defaultThresholdLevels.triggerLevel();
+}
+
+inline
+bsl::shared_ptr<const Observer>
+LoggerManager::findObserver(const bslstl::StringRef& observerName) const
+{
+    // The cast, which shouldn't be necessary, is present to work around an
+    // obscure g++ compilation failure building client code.
+
+    return static_cast<bsl::shared_ptr<const BroadcastObserver> >(d_observer)->
+                                                    findObserver(observerName);
 }
 
 template <class OBSERVER>
