@@ -9,6 +9,7 @@
 
 #include <bdls_processutil.h>
 
+#include <bdlma_sequentialallocator.h>
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
 
@@ -38,6 +39,21 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
+
+//=============================================================================
+//                                 TEST PLAN
+//-----------------------------------------------------------------------------
+// typedef bsl::function<void (const char *path)> Func;
+//
+// CLASS METHODS
+// [ 3] int getPathToExecutable(bsl::string *);
+// [ 2] int getProcessName(bsl::string *);
+// [ 1] int getProcessId();
+//-----------------------------------------------------------------------------
+// [ 6] USAGE EXAMPLE
+// [ 4] GETPATHTOEXECUTABLE DIFFICULT CASES
+// [ 1] BREATHING TEST
+//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -94,29 +110,44 @@ typedef bdls::ProcessUtil     Obj;
 namespace {
 namespace u {
 
+#if defined BSLS_PLATFORM_OS_UNIX
+const char slash = '/';
+#else
+const char slash = '\\';
+#endif
+
 bool isExecutable(const bsl::string& path)
+    // On Unix, return 'true' if the file at the specified 'path' exists, is
+    // not a directory, and is executable (or is a symbolic link to such a
+    // file) and 'false' otherwise.  On Windows, return 'true' if the file
+    // exists and is not a directory.
 {
 #if defined BSLS_PLATFORM_OS_UNIX
     const int executableBits = S_IXUSR | S_IXGRP | S_IXOTH;
 
     struct stat s;
-    int rc = ::lstat(path.c_str(), &s);
-    return 0 == rc && !S_ISLNK(s.st_mode) && (s.st_mode & executableBits);
+    int rc = ::stat(path.c_str(), &s);
+    return 0 == rc && !(s.st_mode & S_IFDIR) && (s.st_mode & executableBits);
 #else
     return FUtil::isRegularFile(path);
 #endif
 }
 
-bool isRelative(const bsl::string& path)
+bool isRelative(const char *path)
 {
-    ASSERT(!path.empty());
-    const char C = *path.c_str();
+    const char C = *path;
+    ASSERT('\0' != C);
 
 #if defined BSLS_PLATFORM_OS_UNIX
     return '/' != C;
 #else
-    return '\\' != C && bsl::string::npos == path.find(':');
+    return '\\' != C || (C && ':' != path[1]);
 #endif
+}
+
+bool isRelative(const bsl::string& path)
+{
+    return isRelative(path.c_str());
 }
 
 int resolvePath(bsl::string *result, const char *origPath)
@@ -169,113 +200,64 @@ int main(int argc, char *argv[])
     // The component under test and the test driver may use the default
     // allocator, but must not leak from it.
 
-    bslma::TestAllocator ta("test",    veryVeryVeryVerbose);
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard defaultGuard(&da);
+    bslma::TestAllocator         ta("test",    veryVeryVeryVerbose);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bdlma::SequentialAllocator   sa(&da);    // for easy breakpoint of default
+    bslma::DefaultAllocatorGuard defaultGuard(&sa);
+
+    // 'hostName' is used in multiple test cases in combination with process id
+    // to make reliably unique temporary file names.  '$HOSTNAME' is not set in
+    // matrix builds, so we can't access the hostname through 'getenv'.
+
+    enum { k_HOST_NAME_BUF_LEN = 256 };
+    static char hostName[k_HOST_NAME_BUF_LEN];
+    ASSERT(0 == ::gethostname(hostName, k_HOST_NAME_BUF_LEN - 1));
 
     switch(test) { case 0:
-      case 4: {
+      case 6: {
         // --------------------------------------------------------------------
-        // 'getExecutablePath' RELATIVE ARGV[0] TEST
+        // USAGE EXAMPLE
         //
-        // Concerns:
-        //: 1 Run test case 2 under circumstances where the executable is
-        //:   specified by a relative path, with spaces in it if we expect that
-        //:   the platform can handle it, and ensure that the test passes where
-        //:   we expect it to.
+        // Concern:
+        //: 1 That the usage example compiles and works.
         //
         // Plan:
-        //: 1 'argv[0]' is always an absolute path on Windows, so there is no
-        //:   point in running this test there.
-        //:
-        //: 2 Create a temp file that is to be a unix shell script.  In it:
-        //:   o Create a test directory.
-        //:   o Copy 'argv[0]' into a file in the test directory.  If we expect
-        //:     to be able to cope with spaces in the file name, choose a file
-        //:     name with spaces.
-        //:   o chdir into that directory.
-        //:   o Run test case 2, with the same verbosity flags passed to this
-        //:     test case.  Do this via an 'exec' so that the return value
-        //:     returned by the test case will be returned by the shell script.
-        //:
-        //: 3 Use 'system' to run the shell script and observe the return
-        //:   value, which will indicate whether TC 2 passed.
+        //: 1 Run the usage example.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-#if defined BSLS_PLATFORM_OS_UNIX
-        if (verbose) cout << "'getExecutablePath' RELATIVE ARGV[0] TEST\n"
-                             "=========================================\n";
+        if (verbose) cout << "USAGE EXAMPLE\n"
+                             "=============\n";
 
-        // 'getenv("HOSTNAME")' doesn't work on Darwin for some reason, even
-        // though 'echo $HOSTNAME' from the shell does.
+        bslma::DefaultAllocatorGuard defaultGuard(&ta);     // Strings use
+                                                            // default alloc.
 
-        bsl::string dirName(&ta);
-        {
-            enum { k_BUF_LEN = 128 };
-            char hostNameBuf[k_BUF_LEN];
-            int hostNameRc = ::gethostname(hostNameBuf, k_BUF_LEN);
-            ASSERT(0 == hostNameRc);
-            hostNameBuf[k_BUF_LEN - 1] = 0;
-
-            char dirNameBuf[1024];
-            bsl::sprintf(dirNameBuf,"tmp.bdls_processutil.t.case4.%s.%d.dir",
-                                             hostNameBuf, Obj::getProcessId());
-            dirName = dirNameBuf;
-        }
-
-        (void) FUtil::remove(dirName, true);
-        ASSERT(!FUtil::exists(dirName));
-        int rc = FUtil::createDirectories(dirName, true);
-        ASSERT(0 == rc);
-
-#if defined BSLS_PLATFORM_OS_CYGWIN || defined BSLS_PLATFORM_OS_HPUX
-        // These two platforms can't deal with spaces in the executable name.
-
-        const bsl::string execName("case4.exec.t", &ta);
-#else
-        const bsl::string execName("case4.exec.a b   c.t", &ta);
-#endif
-        bsl::string cpDst(dirName, &ta);
-        cpDst += '/';
-        cpDst += execName;
-
-        const bsl::string scriptName(dirName + "/case4.script.sh", &ta);
-        FILE *fp = bsl::fopen(scriptName.c_str(), "w");
-        ASSERT(fp);
-        bsl::fprintf(fp, ":\n");
-        bsl::fprintf(fp, "cp '%s' '%s'\n", argv[0], cpDst.c_str());
-        bsl::fprintf(fp, "chmod a+rwx '%s'\n", cpDst.c_str());
-        bsl::fprintf(fp, "cd '%s' >/dev/null 2>&1\n", dirName.c_str());
-        if (veryVerbose) bsl::fprintf(fp, "pwd; ls -l\n");
-        bsl::fprintf(fp, "exec './%s' 2%s%s%s%s\n",
-                                              execName.c_str(),
-                                              verbose ? " v" : "",
-                                              veryVerbose ? " v" : "",
-                                              veryVeryVerbose ? " v" : "",
-                                              veryVeryVeryVerbose ? " v" : "");
-        rc = bsl::fclose(fp);
-        ASSERT(0 == rc);
-
-        bsl::string systemStr("bash ", &ta);
-        if (veryVerbose) {
-            systemStr += "-v ";
-        }
-        systemStr += scriptName;
-        rc = bsl::system(systemStr.c_str());
-        ASSERT(0 == rc);
-        if (0 < rc) {
-            testStatus = bsl::min(101, testStatus + rc);
-        }
-
-        ASSERT(FUtil::exists(dirName));
-        rc = FUtil::remove(dirName, true);
-        ASSERT(0 == rc);
-        ASSERT(!FUtil::exists(dirName));
-#else
-        if (verbose) cout << "Test 4 skipped on Windows.\n";
-#endif
+// Get the current process ID:
+//..
+    const int pid = bdls::ProcessUtil::getProcessId();
+//..
+// All calls to 'getProcessId' will yield the same value:
+//..
+    ASSERT(bdls::ProcessUtil::getProcessId() == pid);
+//..
+// Get the current process name:
+//..
+    bsl::string processName;
+    int rc = bdls::ProcessUtil::getProcessName(&processName);
+    ASSERT(0 == rc);
+    ASSERT(!processName.empty());
+//..
+// All calls to 'getProcessName' will yield the same value:
+//..
+    bsl::string processNameB;
+    rc = bdls::ProcessUtil::getProcessName(&processNameB);
+    ASSERT(0 == rc);
+    ASSERT(processNameB == processName);
+//..
       } break;
-      case 3: {
+      case 5: {
         // --------------------------------------------------------------------
         // LEAKING FILE DESCRIPTORS TEST
         //
@@ -283,65 +265,205 @@ int main(int argc, char *argv[])
         //: 1 Reproduce bug where 'getProcessName' is leaking file descriptors.
         //
         // Plan:
-        //: 1 Call it many times and see if we run out of file descriptors.
+        //: 1 Call all functions in this component many times and see if we run
+        //:   out of file descriptors.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "LEAKING FILE DESCRIPTORS TEST\n"
                              "=============================\n";
 
-        const int firstId = Obj::getProcessId();
 #ifdef BSLS_PLATFORM_OS_UNIX
-        ASSERT(firstId > 0);
-
-        const char *tmpFileName = "tmp.bdls_processutil.case3.eraseMe.txt";
+        char tmpFileName[1024];
+        bsl::sprintf(tmpFileName, "tmp.bdls_processutil.case4.%s.%d.txt",
+                                                hostName, Obj::getProcessId());
         FUtil::remove(tmpFileName);
-#endif
-        bsl::string firstName;
-        ASSERT(0 == Obj::getProcessName(&firstName));
 
-        for (int i = 0; i < 100; ++i) {
+        enum { k_ITERATIONS  = 30,
+               k_MAX_FILE_ID = k_ITERATIONS / 2 };
+#else
+        enum { k_ITERATIONS  = 520 };
+#endif
+
+        const int firstId = Obj::getProcessId();
+        bsl::string firstName(&ta);
+        ASSERT(0 == Obj::getProcessName(&firstName));
+        bsl::string firstExecName(&ta);
+        ASSERT(0 == Obj::getPathToExecutable(&firstExecName));
+
+
+        for (int i = 0; i < k_ITERATIONS; ++i) {
             ASSERT(Obj::getProcessId() == firstId);
-            bsl::string name;
+            bsl::string name(&ta);
             ASSERT(0 == Obj::getProcessName(&name));
             ASSERT(name == firstName);
+            bsl::string execName(&ta);
+            ASSERT(0 == Obj::getPathToExecutable(&execName));
+            ASSERT(execName == firstExecName);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
             FUtil::FileDescriptor fd = FUtil::open(tmpFileName,
                                  FUtil::e_OPEN_OR_CREATE, FUtil::e_READ_WRITE);
-            LOOP2_ASSERT(i, fd, fd < 40);
+            LOOP2_ASSERT(i, fd, fd < k_MAX_FILE_ID);
             FUtil::close(fd);
             FUtil::remove(tmpFileName);
 #endif
         }
       }  break;
-      case 2: {
+      case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'getExecutablePath'
+        // 'getPathToExecutable' RELATIVE ARGV[0] TEST
         //
         // Concerns:
-        //: 1 Ensure that 'getExecutablePath' can find the executable, before
+        //: 1 That 'getPathToExecutable' will reliably deliver a path through
+        //:   which the executable can be accessed, even under difficult
+        //:   conditions.
+        //:   o When the working directory has been changed since task startup.
+        //:   o When the executable name contains spaces.
+        //
+        // Plan:
+        //: 1 Create a temp file that is to be a unix or DOS shell script.  In
+        //:   it:
+        //:   o Create a test directory.
+        //:   o Copy 'argv[0]' into a file in the test directory.  If we expect
+        //:     to be able to cope with spaces in the file name, choose a file
+        //:     name with spaces.
+        //:   o chdir into that directory.
+        //:   o Run the previous test case (which tests 'getPathToExecutable',
+        //:     with the same verbosity flags passed to this test case.
+        //:
+        //: 2 Use 'system' to run the shell script and observe the return
+        //:   value, which will indicate whether that test case passed, and
+        //:   incorporate that value into the value of 'testStatus' for this
+        //:   test driver.
+        //
+        // Testing:
+        //   GETPATHTOEXECUTABLE DIFFICULT CASES
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "'getPathToExecutable' RELATIVE ARGV[0] TEST\n"
+                             "===========================================\n";
+
+        int rc;
+
+        char dirName[1024];
+        bsl::sprintf(dirName, "tmp.bdls_processutil.t.case5.%s.%d.dir",
+                                                hostName, Obj::getProcessId());
+
+        (void) FUtil::remove(dirName, true);
+        ASSERT(!FUtil::exists(dirName));
+        {
+            // 'FUtil::createDirectories' uses the default allocator.
+
+            bslma::DefaultAllocatorGuard createDirGuard(&ta);
+            rc = FUtil::createDirectories(dirName, true);
+            ASSERT(0 == rc);
+        }
+
+#if defined BSLS_PLATFORM_OS_CYGWIN || defined BSLS_PLATFORM_OS_HPUX
+        // These two platforms can't handle spaces in the executable name.
+
+        const char * const execName = "case5.exec.t";
+#elif defined BSLS_PLATFORM_OS_WINDOWS
+        const char * const execName = "case5.exec.a b  c.t.exe";
+#else
+        const char * const execName = "case5.exec.a b  c.t";
+#endif
+
+        const int prevTest = test - 1;  // case # of previous test, the main
+                                        // 'getPathToExecutable' test case
+
+        bsl::string execCpDst(dirName, &ta);    // copy destination of exec
+        execCpDst += u::slash;    // '/' on Unix, '\\' on Windows
+        execCpDst += execName;
+
+#if defined BSLS_PLATFORM_OS_UNIX
+
+        bsl::string scriptName(dirName, &ta);
+        scriptName += "/case5.script.sh";
+        FILE *fp = bsl::fopen(scriptName.c_str(), "w");
+        ASSERT(fp);
+        bsl::fprintf(fp, ":\n");
+        bsl::fprintf(fp, "cp '%s' '%s'\n", argv[0], execCpDst.c_str());
+        bsl::fprintf(fp, "chmod a+rwx '%s'\n", execCpDst.c_str());
+        bsl::fprintf(fp, "cd %s >/dev/null 2>&1\n", dirName);
+        bsl::fprintf(fp, "%s", veryVerbose ? "pwd; ls -l\n" : "");
+        bsl::fprintf(fp, "exec './%s' %d%s%s%s%s\n",
+                                    execName, prevTest,
+                                              verbose ? " v" : "",
+                                              veryVerbose ? " v" : "",
+                                              veryVeryVerbose ? " v" : "",
+                                              veryVeryVeryVerbose ? " v" : "");
+        rc = bsl::fclose(fp);
+        ASSERT(0 == rc);
+
+        scriptName.insert(bsl::size_t(0), veryVerbose ? "sh -v "
+                                                      : "sh ");
+
+#else   // Windows
+
+        bsl::string scriptName(dirName, &ta);
+        scriptName += "\\case5.script.bat";
+        FILE *fp = bsl::fopen(scriptName.c_str(), "w");
+        ASSERT(fp);
+        bsl::fprintf(fp, "%s", !veryVerbose ?  "@echo off\n" : "");
+        bsl::fprintf(fp, "copy \"%s\" \"%s\"\n", argv[0], execCpDst.c_str());
+        bsl::fprintf(fp, "cd %s\n" dirName);
+        bsl::fprintf(fp, "%s", veryVerbose ? "echo %cd%\ndir /o\n" : "");
+        bsl::fprintf(fp, "\".\\%s\" %d%s%s%s%s\n",
+                                    execName, prevTest,
+                                              verbose ? " v" : "",
+                                              veryVerbose ? " v" : "",
+                                              veryVeryVerbose ? " v" : "",
+                                              veryVeryVeryVerbose ? " v" : "");
+        rc = bsl::fclose(fp);
+        ASSERT(0 == rc);
+
+#endif
+
+        rc = bsl::system(scriptName.c_str());
+        ASSERTV(rc, 0 == rc);
+        if (0 < rc) {
+            testStatus = bsl::min(101, testStatus + rc);
+        }
+
+        ASSERT(FUtil::isDirectory(dirName));
+        {
+            // 'FUtil::remove' uses the default allocator on directories
+
+            bslma::DefaultAllocatorGuard removeGuard(&ta);
+            rc = FUtil::remove(dirName, true);
+            ASSERT(0 == rc);
+        }
+        ASSERT(!FUtil::exists(dirName));
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING 'getPathToExecutable'
+        //
+        // Concerns:
+        //: 1 Ensure that 'getPathToExecutable' can find the executable, before
         //:   and after changing the current dirrectory.  Note that some
         //:   platforms will not be able to cope with this.
         //
         // Plan:
         //: 1 Determine if 'argv[0]' is relative.  This is still a useful
         //:   test if 'argv[0]' is absolute, but it's a better test if it's
-        //:   relative, so test case 4 runs this test case with a relative
+        //:   relative, so test case 5 runs this test case with a relative
         //:   'argv[0]'.
         //:
         //: 2 Get the current working directory.
         //:
-        //: 3 Read the executable name with 'getExecutablePath'.  Verify that
+        //: 3 Read the executable name with 'getPathToExecutable'.  Verify that
         //:   it's a valid, executable file.
         //:
         //: 4 Change to the parent of the current directory.
         //:
         //: 5 Determine, based upon the platform and whether the directory
-        //:   "/proc" is available, whether we expect 'getExecutablePath' to
+        //:   "/proc" is available, whether we expect 'getPathToExecutable' to
         //:   now be able to give us a usable path to the executable, and set
         //:   the 'bool' 'expFindExec' accordingly.
         //:
-        //: 6 Call 'getExecutablePath' again.
+        //: 6 Call 'getPathToExecutable' again.
         //:
         //: 7 If we expect the post-chdir tests for the current platform, check
         //:   whether the return code was 0, whether a file exists at the
@@ -354,41 +476,33 @@ int main(int argc, char *argv[])
         //:   traces accordingly but don't fail.
         //
         // Testing:
-        //   int getExecutablePath(bsl::string *);
+        //   int getPathToExecutable(bsl::string *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING 'getExecutablePath'\n"
+        if (verbose) cout << "TESTING 'getPathToExecutable'\n"
                              "===========================\n";
 
-        if (verbose) P(argv[0]);
         ASSERTV(argv[0], FUtil::exists(argv[0]));
         const bsls::Types::Int64 execSize = FUtil::getFileSize(argv[0]);
         ASSERTV(execSize, 8 * 1024 < execSize);
-        if (verbose) P(execSize);
 
         // Detect relative path on Unix or Windows
 
         const bool argv0IsRelative = u::isRelative(argv[0]);
-#if defined BSLS_PLATFORM_OS_WINDOWS
-        ASSERT(!argv0IsRelative);    // 'arvg[0]' is always translated to an
-                                     // absolute path on Windows.
-#endif
 
         bsl::string origCwd(&ta);
         int rc = FUtil::getWorkingDirectory(&origCwd);
         ASSERT(0 == rc);
-        ASSERT("/" != origCwd && 3 < origCwd.length());    // not root
-        if (verbose) P(origCwd);
+        ASSERT(3 < origCwd.length());    // not root
 
-        bsl::string execName("meow", &ta);
-        rc = Obj::getExecutablePath(&execName);
+        bsl::string execNameBeforeCd("meow", &ta);
+        rc = Obj::getPathToExecutable(&execNameBeforeCd);
         ASSERT(0 == rc);
-        if (verbose) cout << "Before 'cd ..': exec: '" << execName << "'\n";
 
-        ASSERTV(execName, FUtil::exists(execName));
-        ASSERTV(execName, u::isExecutable(execName));
-        ASSERTV(execSize, FUtil::getFileSize(execName),
-                                     execSize == FUtil::getFileSize(execName));
+        ASSERTV(execNameBeforeCd, FUtil::exists(execNameBeforeCd));
+        ASSERTV(execNameBeforeCd, u::isExecutable(execNameBeforeCd));
+        ASSERTV(execSize, FUtil::getFileSize(execNameBeforeCd),
+                             execSize == FUtil::getFileSize(execNameBeforeCd));
 
         rc = FUtil::setWorkingDirectory("..");
         ASSERT(0 == rc);
@@ -396,14 +510,12 @@ int main(int argc, char *argv[])
         bsl::string cwd(&ta);
         rc = FUtil::getWorkingDirectory(&cwd);
         ASSERT(0 == rc);
-        if (verbose) P(cwd);
         ASSERTV(origCwd, cwd, origCwd != cwd);
 
         ASSERTV(cwd, argv[0], FUtil::exists(argv[0]), argv0IsRelative,
                                    FUtil::exists(argv[0]) == !argv0IsRelative);
 
         const bool procExists = FUtil::isDirectory("/proc", true);
-        if (verbose) P(procExists);
 
 #if defined BSLS_PLATFORM_OS_AIX || defined BSLS_PLATFORM_OS_LINUX
         const bool expFindExec = procExists || !argv0IsRelative;
@@ -412,54 +524,90 @@ int main(int argc, char *argv[])
 #else
         const bool expFindExec = true;
 #endif
-        if (verbose) P(expFindExec);
 
-        execName = "woof";
-        int geprc = Obj::getExecutablePath(&execName);
+        bsl::string execName("woof", &ta);
+        int gpteRc = Obj::getPathToExecutable(&execName);
         ASSERT(!execName.empty());
         const bool execNameIsRelative = u::isRelative(execName);
         const bool execNameExists = FUtil::exists(execName);
         const bool execNameIsExec = u::isExecutable(execName);
         const bool sizeMatches = execSize == FUtil::getFileSize(execName);
 
-        if (verbose) cout << "After  'cd ..': exec: '" << execName <<
-                       "' is " << (execNameIsExec ? "" : "not ") << "valid.\n";
-
         if (verbose) {
-            P_(execNameIsRelative);
-            P_(execNameExists);
-            P_(execNameIsExec);
+            P_(origCwd);    P_(cwd);   P(procExists);
+            P_(execNameBeforeCd);      P(execName);
+            P_(execNameIsRelative);    P_(execNameExists);   P(execNameIsExec);
             P(sizeMatches);
         }
 
         if (expFindExec) {
-            ASSERTV(execName, expFindExec, geprc, 0 == geprc);
+            ASSERTV(execName, expFindExec, gpteRc, 0 == gpteRc);
             ASSERTV(execName, !execNameIsRelative);
             ASSERTV(execName, expFindExec, execNameExists, execNameExists);
             ASSERTV(execName, expFindExec, execNameIsExec, execNameIsExec);
             ASSERTV(execSize, sizeMatches);
         }
         else {
-            if (0 == geprc)          cout << "Unexpected success rc!\n";
+            // If we did better than expected, issue warning, but not error.
+
+            if (0 == gpteRc)         cout << "Unexpected success rc!\n";
             if (!execNameIsRelative) cout << "Unexpectedly not relative!\n";
             if (execNameExists)      cout << "Unexpectedly existed!\n";
             if (execNameIsExec)      cout << "Unexpectedly executable!\n";
             if (sizeMatches)         cout << "Unexpected matching size!\n";
         }
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'getProcessName'
+        //
+        // Concerns:
+        //: 1 That 'getProcessName' always succeeds.
+        //:
+        //: 2 That the component name (which will be part of the executable
+        //:   file name under normal testing) is part of the found process
+        //:   name.
+        //
+        // Plan:
+        //: 1 Call 'getProcessName'.
+        //:
+        //: 2 Verify that the value returned includes the component name as
+        //:   a substring.
+        //
+        // Testing:
+        //   int getProcessName(bsl::string *);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'getProcessName'\n"
+                             "========================\n";
+
+        const char componentName[] = { "bdls_processutil" };
+
+        ASSERTV(argv[0], bsl::strstr(argv[0], componentName));
+
+        bsl::string name(&ta);
+        int rc = Obj::getProcessName(&name);
+        ASSERTV(rc, 0 == rc);
+
+        ASSERTV(name, bsl::string::npos != name.find(componentName));
+      } break;
       case 1: {
-        // ------------------------------------------------------------
+        // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Testing:
         //   int getProcessId();
-        //   int getProcessName(bsl::string *);
-        // ------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
-        ASSERT(0 != bdls::ProcessUtil::getProcessId());
+        const int pid = bdls::ProcessUtil::getProcessId();
+        ASSERT(0 != pid);
+
+#if defined BSLS_PLATFORM_OS_UNIX
+        ASSERTV(pid, 0 < pid);
+#endif
 
         if (verbose) P(argv[0]);
         const bool argv0IsRelative = u::isRelative(argv[0]);
@@ -492,6 +640,7 @@ int main(int argc, char *argv[])
         ASSERTV(resArgv0, resName, baseArgv0, basename, baseArgv0 == basename);
 
         if (verbose) {
+            P(pid);
             P(argv[0]);
             P(name);
             P(resArgv0);
@@ -525,6 +674,11 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // All allocation by 'getProcessName' or 'getPathToExecutable' should
+    // come from the allocator of the passed 'result'.
+
+    ASSERTV(da.numAllocations(), 0 == da.numAllocations());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."

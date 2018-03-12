@@ -34,12 +34,25 @@ BSLS_IDENT("$Id: $")
 ///-----
 // Get the current process ID:
 //..
-//  int pid = bdls::ProcessUtil::getProcessId();
+//  const int pid = bdls::ProcessUtil::getProcessId();
+//..
+// All calls to 'getProcessId' will yield the same value:
+//..
+//  assert(bdls::ProcessUtil::getProcessId() == pid);
 //..
 // Get the current process name:
 //..
 //  bsl::string processName;
-//  bdls::ProcessUtil::getProcessName(&processName);
+//  int rc = bdls::ProcessUtil::getProcessName(&processName);
+//  assert(0 == rc);
+//  assert(!processName.empty());
+//..
+// All calls to 'getProcessName' will yield the same value:
+//..
+//  bsl::string processNameB;
+//  rc = bdls::ProcessUtil::getProcessName(&processNameB);
+//  assert(0 == rc);
+//  assert(processNameB == processName);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -61,28 +74,33 @@ struct ProcessUtil {
     // operations.
 
     // CLASS METHODS
-    static int getExecutablePath(bsl::string *result);
-        // Return a path with which the executable can be accessed.  Return 0
-        // if '*result' is set to a path which does open any file, which may
-        // be the case if the path is relative and 'chdir' has been called
-        // since process start up.  Note that the highest priority in this
-        // function is to return a path which, when opened, will access the
-        // executable, which may not resemble the 'argv[0]' passed to 'main'.
-
     static int getProcessId();
         // Return the system specific process identifier for the currently
         // running process.
 
     static int getProcessName(bsl::string *result);
         // Load the system specific process name for the currently running
-        // process into the specified 'result'.  The process name may be in
-        // any language on all supported platforms.  To provide that support,
-        // 'result' will be encoded as UTF-8, but it might not be normalized.
-        // Return 0 on success, and a non-zero value otherwise.  Note that the
-        // behavior varies with platform -- the implementation attempts to
-        // return a pathname through which the executable can be accessed,
-        // which may be completely unlike the value of 'argv[0]' specified to
-        // 'main', especially if 'argv[0]' was specified as a relative path.
+        // process into the specified '*result'.  Return 0 on success, and a
+        // non-zero value otherwise.  On failure, '*result' will be unmodified.
+        // Note that the value of '*result' returned is intended to be derived
+        // from the value of 'argv[0]' passed to 'main'; this might not be a
+        // valid path leading to the file's executable; to reliably access the
+        // actual executable file for the process use 'getPathToExecutable'.
+        // Also note that the language in which '*result' is provided is
+        // unspecified; '*result' will be encoded as UTF-8.
+
+    static int getPathToExecutable(bsl::string *result);
+        // Set '*result' to a path with which the executable can be accessed
+        // (which may bear no relation to the command line used to begin this
+        // process).  Return 0 on success, and a non-zero value otherwise.  On
+        // failure, '*result' will not be modified.  The purpose of this method
+        // is to return a path that, when opened, will reliably access this
+        // process's executable.  Note that the value of 'argv[0]' passed to
+        // 'main' may be invalid if it is a relative path and the working
+        // directory has been changed since the process began, so absolute
+        // paths are preferred, even if they bear no resemblance to the command
+        // line (e.g. some Unix platforms provide links to the executable under
+        // the "/proc" virtual file space).
 };
 
 }  // close package namespace
