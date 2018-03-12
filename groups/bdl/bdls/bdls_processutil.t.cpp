@@ -31,6 +31,8 @@
 # include <limits.h>
 # include <unistd.h>
 #else
+# include <windows.h>
+# include <winsock2.h>
 # include <direct.h>
 #endif
 
