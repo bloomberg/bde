@@ -1,5 +1,6 @@
-bsl-internal (3.6.0.1) unstable; urgency=low
+bsl-internal (3.6.0.0) unstable; urgency=low
 
+  * e68175bc6 Changelog for version 3.6.0.1
   * dfcd96a99 Merge pull request #1747 from mgiroux/pr/1746-rebased-releases/3.6.x
   * af4617532 Merge pull request #1735 from mgiroux/pr/1734-rebased-releases/3.6.x
   * ac17f9af7 Merge pull request #1729 from mgiroux/pr/1727-rebased-releases/3.6.x
@@ -157,7 +158,7 @@ bsl-internal (3.6.0.1) unstable; urgency=low
   * 74e4e45bb Merge pull request #1654 from ameredit/remove_old_workaround_in_baljsn_printutil.t.cpp
   * 72ae590e9 Merge pull request #1655 from ameredit/remove_old_workaround_in_balxml_tests
 
- -- mgiroux <mgiroux@bloomberg.net>  Wed, 7 Mar 2018 13:07:02 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 12 Mar 2018 14:53:27 -0400
 
 bsl-internal (3.5.0.0) git; urgency=low
 
