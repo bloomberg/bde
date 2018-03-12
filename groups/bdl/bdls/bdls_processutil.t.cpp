@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
 
     enum { k_HOST_NAME_BUF_LEN = 256 };
     static char hostName[k_HOST_NAME_BUF_LEN];
-    ASSERT(0 == ::gethostname(hostName, k_HOST_NAME_BUF_LEN - 1));
+    ASSERT(0 == gethostname(hostName, k_HOST_NAME_BUF_LEN - 1));
 
     switch(test) { case 0:
       case 6: {
@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
         ASSERT(fp);
         bsl::fprintf(fp, "%s", !veryVerbose ?  "@echo off\n" : "");
         bsl::fprintf(fp, "copy \"%s\" \"%s\"\n", argv[0], execCpDst.c_str());
-        bsl::fprintf(fp, "cd %s\n" dirName);
+        bsl::fprintf(fp, "cd %s\n", dirName);
         bsl::fprintf(fp, "%s", veryVerbose ? "echo %cd%\ndir /o\n" : "");
         bsl::fprintf(fp, "\".\\%s\" %d%s%s%s%s\n",
                                     execName, prevTest,
