@@ -141,7 +141,7 @@ bool isRelative(const char *path)
 #if defined BSLS_PLATFORM_OS_UNIX
     return '/' != C;
 #else
-    return '\\' != C || (C && ':' == path[1]);
+    return '\\' != C && !(C && ':' == path[1]);
 #endif
 }
 
