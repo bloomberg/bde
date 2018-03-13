@@ -2294,9 +2294,9 @@ inline
 bsl::shared_ptr<const Observer>
 LoggerManager::findObserver(const bslstl::StringRef& observerName) const
 {
-    const bsl::shared_ptr<const BroadcastObserver> observer(d_observer);
+    const BroadcastObserver *observerPtr = d_observer.get();
 
-    return observer->findObserver(observerName);
+    return observerPtr->findObserver(observerName);
 }
 
 template <class OBSERVER>
@@ -2305,9 +2305,9 @@ int LoggerManager::findObserver(
                            bsl::shared_ptr<const OBSERVER> *result,
                            const bslstl::StringRef&         observerName) const
 {
-    const bsl::shared_ptr<const BroadcastObserver> observer(d_observer);
+    const BroadcastObserver *observerPtr = d_observer.get();
 
-    return observer->findObserver(result, observerName);
+    return observerPtr->findObserver(result, observerName);
 }
 
 inline
