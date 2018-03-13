@@ -5220,6 +5220,10 @@ int main(int argc, char* argv[])
         ASSERT(Util::makeDecimal64(1234567890123456ull, -382-16+1) ==
                bdldfp::DecimalImpUtil::parse64("1.234567890123456e-382"));
 
+        // {DRQS 118092561}
+        ASSERT(Util::makeDecimal64(bsl::numeric_limits<int32_t>::min(), -3) ==
+               bdldfp::DecimalImpUtil::parse64("-2147483.648"));
+
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic pop
 #endif
