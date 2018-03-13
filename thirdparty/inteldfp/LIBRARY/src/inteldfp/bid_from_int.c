@@ -335,7 +335,7 @@ bid128_from_int64 (BID_SINT64 x _EXC_MASKS_PARAM _EXC_INFO_PARAM) {
   // if integer is negative, use the absolute value
   if ((x & SIGNMASK64) == SIGNMASK64) {
     res.w[BID_HIGH_128W] = 0xb040000000000000ull;
-    res.w[BID_LOW_128W] = ~x + 1;	// 2's complement of x
+    res.w[BID_LOW_128W] = (BID_UINT64)~x + 1u;	// 2's complement of x
   } else {
     res.w[BID_HIGH_128W] = 0x3040000000000000ull;
     res.w[BID_LOW_128W] = x;
