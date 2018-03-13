@@ -2294,11 +2294,9 @@ inline
 bsl::shared_ptr<const Observer>
 LoggerManager::findObserver(const bslstl::StringRef& observerName) const
 {
-    // The cast, which shouldn't be necessary, is present to work around an
-    // obscure g++ compilation failure building client code.
+    const bsl::shared_ptr<const BroadcastObserver> observer(d_observer);
 
-    return static_cast<bsl::shared_ptr<const BroadcastObserver> >(d_observer)->
-                                                    findObserver(observerName);
+    return observer->findObserver(observerName);
 }
 
 template <class OBSERVER>
@@ -2307,7 +2305,9 @@ int LoggerManager::findObserver(
                            bsl::shared_ptr<const OBSERVER> *result,
                            const bslstl::StringRef&         observerName) const
 {
-    return d_observer->findObserver(result, observerName);
+    const bsl::shared_ptr<const BroadcastObserver> observer(d_observer);
+
+    return observer->findObserver(result, observerName);
 }
 
 inline
