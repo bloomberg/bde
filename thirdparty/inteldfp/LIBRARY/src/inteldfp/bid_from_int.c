@@ -49,8 +49,7 @@ bid64_from_int32 (int x _EXC_MASKS_PARAM _EXC_INFO_PARAM) {
   // in the lowest 32bits of the result
   if ((x & SIGNMASK32) == SIGNMASK32) {
     // negative int32
-    x = ~x + 1;	// 2's complement of x
-    res = (unsigned int) x | 0xb1c0000000000000ull;
+    res = (1u + (unsigned int) ~x) | 0xb1c0000000000000ull;
     // (exp << 53)) = biased exp. is 0
   } else {	// positive int32
     res = x | 0x31c0000000000000ull;	// (exp << 53)) = biased exp. is 0
