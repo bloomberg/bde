@@ -170,30 +170,24 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // much longer than 4K, and 4K is short enough not to be worth dynamically
     // allocating.
 
-    enum { k_BUF_LEN = 4 * 1024 };
-    char buf[k_BUF_LEN];
 
-    // Fill 'buf' with non-'\0' so our 'find' later will detect if
-    // 'proc_pidpath' failed to null-terminate its result.
+    bsl::string pidPathBuf(PROC_PIDPATHINFO_MAXSIZE, '\0', allocator);
 
-    bsl::fill(buf + 0, buf + k_BUF_LEN, '*');
-
-    if (proc_pidpath(getProcessId(), buf, k_BUF_LEN) <= 0) {
-        return -1;                                                    // RETURN
-    }
-    if (buf + k_BUF_LEN == bsl::find(buf + 0, buf + k_BUF_LEN, 0)) {
+    int numChars = ::proc_pidpath(getProcessId(),
+                                  &pidPathInfo[0],
+                                  PROC_PIDPATHINFO_MAXSIZE);
+    if (numChars <= 0 || PROC_PIDPATHINFO_MAXSIZE < numChars) {
         return -1;                                                    // RETURN
     }
 
-    result->assign(buf);
+    result->assign(pidPathInfo.c_str(), numChars);
     return 0;
 
 #elif defined BSLS_PLATFORM_OS_HPUX
 
-    bsl::string path(allocator);
-    path.resize(1024);
+    bsl::string path(1024, '\0', allocator);
     int rc = pstat_getcommandline(&path[0],
-                                  path.size(),
+                                  static_cast<Int>(path.size()),
                                   1,
                                   getProcessId());
     if (rc < 0) {
@@ -297,6 +291,9 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
         if (0 < numChars && numChars < k_BUF_LEN) {
             linkBuf.resize(numChars);
             if (u::isExecutable(linkBuf.c_str())) {
+                // Use 'assign', not 'swap' is the buffer of 'linkBuf' has
+                // irreversibly grown to 64K long.
+
                 result->assign(linkBuf);
                 return 0;                                             // RETURN
             }

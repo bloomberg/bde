@@ -81,26 +81,26 @@ struct ProcessUtil {
     static int getProcessName(bsl::string *result);
         // Load the system specific process name for the currently running
         // process into the specified '*result'.  Return 0 on success, and a
-        // non-zero value otherwise.  On failure, '*result' will be unmodified.
-        // Note that the value of '*result' returned is intended to be derived
-        // from the value of 'argv[0]' passed to 'main'; this might not be a
-        // valid path leading to the file's executable; to reliably access the
-        // actual executable file for the process use 'getPathToExecutable'.
-        // Also note that the language in which '*result' is provided is
-        // unspecified; '*result' will be encoded as UTF-8.
+        // non-zero value otherwise.  The language in which '*result' is
+        // provided is unspecified; '*result' will be encoded as UTF-8, but
+        // might not be normalized.  On failure, '*result' will be unmodified.
+        // Note that the primary purpose of this method is to provide an
+        // identifier for the current process, and '*result' may not be a valid
+        // path to the executable; to access the actual task file for the
+        // process use 'getPathToExecutable' below.
 
     static int getPathToExecutable(bsl::string *result);
         // Set '*result' to a path with which the executable can be accessed
         // (which may bear no relation to the command line used to begin this
         // process).  Return 0 on success, and a non-zero value otherwise.  On
-        // failure, '*result' will not be modified.  The purpose of this method
-        // is to return a path that, when opened, will reliably access this
-        // process's executable.  Note that the value of 'argv[0]' passed to
-        // 'main' may be invalid if it is a relative path and the working
-        // directory has been changed since the process began, so absolute
-        // paths are preferred, even if they bear no resemblance to the command
-        // line (e.g. some Unix platforms provide links to the executable under
-        // the "/proc" virtual file space).
+        // failure, '*result' will not be modified.  Note that the purpose of
+        // this method is to return a path that, when opened, will reliably
+        // access this process's executable.  Also note that the value of
+        // 'argv[0]' passed to 'main' may be invalid if it is a relative path
+        // and the working directory has been changed since the process began,
+        // so absolute paths are preferred, even if they bear no resemblance to
+        // the command line (e.g. some Unix platforms provide links to the
+        // executable under the "/proc" virtual file space).
 };
 
 }  // close package namespace
