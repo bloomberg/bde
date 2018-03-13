@@ -174,13 +174,13 @@ int ProcessUtil::getProcessName(bsl::string *result)
     bsl::string pidPathBuf(PROC_PIDPATHINFO_MAXSIZE, '\0', allocator);
 
     int numChars = ::proc_pidpath(getProcessId(),
-                                  &pidPathInfo[0],
+                                  &pidPathBuf[0],
                                   PROC_PIDPATHINFO_MAXSIZE);
     if (numChars <= 0 || PROC_PIDPATHINFO_MAXSIZE < numChars) {
         return -1;                                                    // RETURN
     }
 
-    result->assign(pidPathInfo.c_str(), numChars);
+    result->assign(pidPathBuf.c_str(), numChars);
     return 0;
 
 #elif defined BSLS_PLATFORM_OS_HPUX
