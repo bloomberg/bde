@@ -108,9 +108,6 @@ int ProcessUtil::getProcessName(bsl::string *result)
 {
     BSLS_ASSERT(result);
 
-    bslma::Allocator *allocator = result->allocator().mechanism();
-    (void) allocator;    // suppress 'unused' warnings
-
 #if defined BSLS_PLATFORM_OS_AIX
 
     enum { k_BUF_LEN = 64 * 1024 };
@@ -118,7 +115,7 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // Fill 'argsBuf' with non-'\0' so our 'find' later will detect if
     // '::getargs' failed to null-terminate its result.
 
-    bsl::string argsBuf(k_BUF_LEN, '*', allocator);
+    bsl::string argsBuf(k_BUF_LEN, '\0');
 
     struct procentry64  procBuf;
     procBuf.pi_pid = getProcessId();
@@ -129,17 +126,13 @@ int ProcessUtil::getProcessName(bsl::string *result)
     if (0 != ::getargs(&procBuf, sizeof(procBuf), &argsBuf[0], k_BUF_LEN)) {
         return -1;                                                    // RETURN
     }
-    const bsl::size_t pos = argsBuf.find('\0');
-    BSLMF_ASSERT(k_BUF_LEN < bsl::string::npos);
-    if (k_BUF_LEN <= pos) {
-        return -1;                                                    // RETURN
-    }
+    argsBuf[k_BUF_LEN - 1] = 0;
 
     // 'assign' here, not 'swap' since the buffer for 'argsBuf' is irreversibly
     // extremely large and the returned value will nearly always be much
     // shorter.
 
-    result->assign(argsBuf.c_str(), pos);
+    result->assign(argsBuf.c_str());
     return 0;
 
 #elif defined BSLS_PLATFORM_OS_CYGWIN
@@ -171,7 +164,7 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // allocating.
 
 
-    bsl::string pidPathBuf(PROC_PIDPATHINFO_MAXSIZE, '\0', allocator);
+    bsl::string pidPathBuf(PROC_PIDPATHINFO_MAXSIZE, '\0');
 
     int numChars = ::proc_pidpath(getProcessId(),
                                   &pidPathBuf[0],
@@ -185,7 +178,7 @@ int ProcessUtil::getProcessName(bsl::string *result)
 
 #elif defined BSLS_PLATFORM_OS_HPUX
 
-    bsl::string path(1024, '\0', allocator);
+    bsl::string path(1024, '\0');
     int rc = pstat_getcommandline(&path[0],
                                   static_cast<Int>(path.size()),
                                   1,
@@ -228,7 +221,7 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // specified on the command line as a relative path.  The following code
     // yields the full path.
 
-    bsl::wstring wResult(allocator);
+    bsl::wstring wResult;
     for (unsigned wSize = MAX_PATH; wSize <= 4 * MAX_PATH; wSize *= 2) {
         wResult.resize(wSize, L'\0');
         DWORD length = GetModuleFileNameW(0, &wResult[0], wResult.length());
@@ -238,7 +231,7 @@ int ProcessUtil::getProcessName(bsl::string *result)
         else if (length < wResult.length()) {  // Success
             wResult.resize(length);
 
-            bsl::string utf8Path(allocator);
+            bsl::string utf8Path(result->allocator().mechanism());
             int rc = bdlde::CharConvertUtf16::utf16ToUtf8(&utf8Path, wResult);
             if (0 != rc) {
                 return -1;                                            // RETURN
@@ -259,13 +252,11 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
 {
     BSLS_ASSERT(result);
 
-    bslma::Allocator *allocator = result->allocator().mechanism();
-    (void) allocator;    // suppress 'unused' warnings
-    int rc;
-
     // Our first priority is to give a path to the executable file.  Our second
     // priority is to give a path that looks something like 'argv[0]'.  First,
     // we attempt methods that give us a nice looking result.
+
+    int rc;
 
 #if defined BSLS_PLATFORM_OS_LINUX
 
@@ -281,7 +272,7 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
     if (0 == rc && S_ISLNK(s.st_mode)) {
         enum { k_BUF_LEN = 64 * 1024 };
 
-        bsl::string linkBuf(k_BUF_LEN, '\0', allocator);
+        bsl::string linkBuf(k_BUF_LEN, '\0');
 
         // If successful, 'readlink' returns the number of bytes in the result.
 
@@ -306,7 +297,7 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
     // is prone to yielding relative paths, but if there's an executable file
     // at the yielded path, that is good enough.
 
-    bsl::string processName(allocator);
+    bsl::string processName(result->allocator().mechanism());
     rc = getProcessName(&processName);
     if (0 == rc && u::isExecutable(processName)) {
         result->swap(processName);

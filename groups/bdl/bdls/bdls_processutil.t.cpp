@@ -201,9 +201,6 @@ int main(int argc, char *argv[])
     // allocator, but must not leak from it.
 
     bslma::TestAllocator         ta("test",    veryVeryVeryVerbose);
-    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-    bdlma::SequentialAllocator   sa(&da);    // for easy breakpoint of default
-    bslma::DefaultAllocatorGuard defaultGuard(&sa);
 
     // 'hostName' is used in multiple test cases in combination with process id
     // to make reliably unique temporary file names.  '$HOSTNAME' is not set in
@@ -679,15 +676,6 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
-
-#if BSLS_PLATFORM_OS_UNIX
-    // All allocation by 'getProcessName' or 'getPathToExecutable' should
-    // come from the allocator of the passed 'result'.  The unicode code on
-    // Windows apparently uses the default allocator in 'getProcessName' and
-    // 'getPathToExecutable', so sip this test there.
-
-    ASSERTV(da.numAllocations(), 0 == da.numAllocations());
-#endif
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."
