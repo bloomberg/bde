@@ -1387,6 +1387,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "CONFIGURED STACK DEPTH TEST\n"
                              "===========================\n";
 
+        P(BSLS_PLATFORM_CMP_VERSION);
+
         expectedDefaultAllocations = -1;    // turn off default alloc checking
 
         if (!CAN_FIND_SYMBOLS) break;    // This test won't work unless we can
@@ -1424,7 +1426,8 @@ int main(int argc, char *argv[])
                 ++pos;
             }
 
-            ASSERT(numRecurserInTrace + 1 == RECORDED_FRAMES);
+            LOOP3_ASSERT(report, numRecurserInTrace, RECORDED_FRAMES,
+                                    numRecurserInTrace + 1 == RECORDED_FRAMES);
             ss.str("");
         }
       }  break;
@@ -3337,6 +3340,8 @@ int main(int argc, char *argv[])
             bsl::size_t pos = 0;
             ASSERT(npos != (pos = outStr.find("TestAlloc1", pos)));
             if (CAN_FIND_SYMBOLS) {
+                // Windows sometimes mangles symbols backwards.
+
                 ASSERT(npos != (pos = outStr.find("BloombergLP",pos)));
                 ASSERT(npos != (pos = outStr.find("StackTraceTestAllocator",
                                                                 pos)));

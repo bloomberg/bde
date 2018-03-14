@@ -480,8 +480,8 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 
 namespace BloombergLP {
-
 namespace balst {
+
                        // =============================
                        // class StackTraceTestAllocator
                        // =============================
@@ -599,7 +599,7 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
     StackTraceTestAllocator(bslma::Allocator *basicAllocator = 0);
     explicit
     StackTraceTestAllocator(int               numRecordedFrames,
-                                  bslma::Allocator *basicAllocator = 0);
+                            bslma::Allocator *basicAllocator = 0);
         // Create a test allocator.  Optionally specify 'numRecordedFrames',
         // the number of stack trace frame pointers to be saved for every
         // allocation.  Specifying a larger value of 'numRecordedFrames' means
@@ -706,8 +706,8 @@ bsl::size_t StackTraceTestAllocator::numBlocksInUse() const
 {
     return d_numBlocksInUse;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

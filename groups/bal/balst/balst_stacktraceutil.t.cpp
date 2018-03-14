@@ -567,11 +567,14 @@ void expandPath(bsl::string *result, const char *basename)
     const char *underscore = bsl::strchr(basename, '_');
     ASSERT(underscore);    ASSERT(3 < underscore - basename);
 
-    *result = "groups/";
+    const char slash = static_cast<char>(PLAT_WIN ? '\\' : '/');
+
+    *result = "groups";
+    *result += slash;
     result->append(basename, 3);
-    result->append("/");
+    *result += slash;
     result->append(basename, underscore - basename);
-    result->append("/");
+    *result += slash;
     result->append(basename);
 }
 
@@ -1373,7 +1376,7 @@ void top(bslma::Allocator *alloc)
     ASSERT(!topCalled);
     topCalled = true;
 
-    const bool demangle = true;
+    const bool demangle = !PLAT_WIN;
 
     bsl::vector<const char *> matches(alloc);
     matches.push_back(demangle ? "top(BloombergLP::bslma::Allocator" : "top");
@@ -1914,6 +1917,10 @@ int main(int argc, char *argv[])
                 ASSERT(':' == expName[pos]);
                 expName.insert(pos + 2, 1, '.');
             }
+	    else if (FORMAT_WINDOWS) {
+                bsl::size_t pos = expName.find("(");
+		expName.resize(pos);
+	    }
 
             // Search for enterprise namespace to get past func return type.
 
@@ -2382,6 +2389,10 @@ int main(int argc, char *argv[])
         (*foilOptimizer(CASE_4::bottom))(false, 3.7);    // no demangling
         ASSERT(case_4_top_called_mangle);
 
+	if (PLAT_WIN) {
+	    break;
+	}
+
         (*foilOptimizer(CASE_4::bottom))(true,  3.7);    // demangling
         ASSERT(case_4_top_called_demangle);
       } break;
@@ -2417,10 +2428,10 @@ int main(int argc, char *argv[])
         (*foilOptimizer(case_5_bottom))(false, false, &depth);
         ASSERT(startDepth == depth);
 
-        case_5_bottom(true,  false, &depth);    // demangle, hbpa
+        case_5_bottom(false, true,  &depth);    // no demangle, test alloc
         ASSERT(startDepth == depth);
 
-        case_5_bottom(false, true,  &depth);    // no demangle, test alloc
+        case_5_bottom(true,  false, &depth);    // demangle, hbpa
         ASSERT(startDepth == depth);
 
         case_5_bottom(true,  true,  &depth);    // demangle, test alloc
@@ -2452,6 +2463,10 @@ int main(int argc, char *argv[])
 
         (*foilOptimizer(TC::bottom))(false, 3.7);    // no demangling
         ASSERT(case_4_top_called_mangle);
+
+        if (PLAT_WIN) {
+            break;
+        }
 
         (*foilOptimizer(TC::bottom))(true,  3.7);    // demangling
         ASSERT(case_4_top_called_demangle);
@@ -2485,6 +2500,10 @@ int main(int argc, char *argv[])
         (void) (*foilOptimizer(TC::bottom))(false);    // no demangling
 
         ASSERT(calledCase3TopMangle);
+
+        if (PLAT_WIN) {
+            break;
+        }
 
         (void) (*foilOptimizer(TC::bottom))(true);     // demangling
 

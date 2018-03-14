@@ -264,7 +264,8 @@ struct StackAddressUtil {
     // 'k_IGNORE_FRAMES' instructs the caller as to whether the first frame is
     // such an unwanted frame.
 
-#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN) ||    \
+   (defined BSLS_PLATFORM_OS_WINDOWS && 1800 <= BSLS_PLATFORM_CMP_VERSION)
     enum { k_IGNORE_FRAMES = 1 };
 #else
     enum { k_IGNORE_FRAMES = 0 };
