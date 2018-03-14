@@ -1,7 +1,6 @@
-include(bde_package)
-
-function(process_package retPackage)
-    default_process_package(package ${ARGN})
+bde_prefixed_override(bslstp process_package)
+function(bslstp_process_package retPackage)
+    process_package_base("" package ${ARGN})
 
     bde_struct_get_field(objlib ${package} OBJ_TARGET)
     bde_struct_get_field(tests ${package} TEST_TARGETS)

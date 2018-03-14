@@ -1,18 +1,16 @@
 include(bde_package)
 include(bde_utils)
 include(bde_struct)
-include(bde_interface_target)
 include(bde_uor)
 
-function(process_uor retUOR listFile)
+bde_prefixed_override(inteldfp process_standalone_package)
+function(inteldfp_process_standalone_package retUOR listFile installOpts)
     bde_assert_no_extra_args()
 
     get_filename_component(listDir ${listFile} DIRECTORY)
     get_filename_component(rootDir ${listDir} DIRECTORY)
 
     set(TARGET inteldfp)
-
-    bde_struct_create(package BDE_PACKAGE_TYPE NAME ${TARGET})
 
     set(headers
         ${rootDir}/LIBRARY/src/inteldfp/bid128_2_str.h
@@ -30,9 +28,8 @@ function(process_uor retUOR listFile)
         ${rootDir}/LIBRARY/src/inteldfp/bid_wrap_names.h
         ${rootDir}/LIBRARY/src/inteldfp/dfp754.h
     )
-    bde_struct_set_field(${package} HEADERS ${headers})
 
-    bde_struct_set_field(${package} SOURCES
+    set(sources
         ${rootDir}/LIBRARY/src/inteldfp/bid64_acos.c
         ${rootDir}/LIBRARY/src/inteldfp/bid64_acosh.c
         ${rootDir}/LIBRARY/src/inteldfp/bid64_asin.c
@@ -321,21 +318,17 @@ function(process_uor retUOR listFile)
         ${rootDir}/LIBRARY/float128/sqrt_macros.h
     )
 
-    bde_add_interface_target(${TARGET})
-    bde_struct_set_field(${package} INTERFACE_TARGET ${TARGET})
+    add_library(${TARGET} ${sources} ${headers})
 
     # Set up PIC
     # This code does not work in 3.8, but will be fixed in later versions.
     # The -fPIC flag is set explicitely in the compile options for now.
     if(${bde_ufid_is_shr} OR ${bde_ufid_is_pic})
-        bde_interface_target_set_property(
-            ${TARGET}
-                POSITION_INDEPENDENT_CODE PUBLIC 1
-        )
+        set_target_properties(${TARGET} PROPERTIES POSITION_INDEPENDENT_CODE 1)
     endif()
 
     # Common compile definitions.
-    bde_interface_target_compile_definitions(
+    target_compile_definitions(
         ${TARGET}
         PRIVATE
             "DECIMAL_CALL_BY_REFERENCE=0"
@@ -345,7 +338,7 @@ function(process_uor retUOR listFile)
 
     include(bde_ufid)
 
-    bde_interface_target_compile_options(
+    target_compile_options(
         ${TARGET}
         PRIVATE
             $<$<C_COMPILER_ID:AppleClang>:
@@ -376,13 +369,13 @@ function(process_uor retUOR listFile)
     include (TestBigEndian)
     test_big_endian(IS_BIG_ENDIAN)
 
-    bde_interface_target_compile_definitions(
+    target_compile_definitions(
         ${TARGET}
         PRIVATE
             "BID_BIG_ENDIAN=$<BOOL:${IS_BIG_ENDIAN}>"
     )
 
-    bde_interface_target_compile_definitions(
+    target_compile_definitions(
         ${TARGET}
         PRIVATE
             $<${bde_ufid_is_mt}: _REENTRANT>
@@ -424,21 +417,33 @@ function(process_uor retUOR listFile)
             >
     )
 
-    bde_interface_target_include_directories(
+    target_include_directories(
         ${TARGET}
         PUBLIC
             $<BUILD_INTERFACE:${rootDir}/LIBRARY/src>
-            $<INSTALL_INTERFACE:include>
     )
 
+    bde_struct_get_field(component ${installOpts} COMPONENT)
+    bde_struct_get_field(includeInstallDir ${installOpts} INCLUDE_DIR)
     install(
         FILES ${headers}
-        COMPONENT "${TARGET}-headers"
-        DESTINATION "include/${TARGET}"
+        COMPONENT "${component}-headers"
+        DESTINATION "${includeInstallDir}/${TARGET}"
     )
 
-    add_library(${TARGET} "")
-    bde_create_standalone_uor(uor ${TARGET} ${package})
+    target_include_directories(
+        ${TARGET}
+        PUBLIC
+            $<INSTALL_INTERFACE:${includeInstallDir}>
+    )
+
+    bde_struct_create(
+        uor
+        BDE_UOR_TYPE
+        NAME "${TARGET}"
+        TARGET "${TARGET}"
+    )
+    standalone_package_install(${uor} ${listFile} ${installOpts})
 
     bde_return(${uor})
 endfunction()

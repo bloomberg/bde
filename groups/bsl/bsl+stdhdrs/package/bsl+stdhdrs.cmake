@@ -3,25 +3,25 @@ include(bde_package)
 include(bde_struct)
 include(bde_utils)
 
-function(process_package retPackage listFile uorName)
-    bde_assert_no_extra_args()
+include(bde_struct)
+include(bde_utils)
 
+bde_prefixed_override(stdhdrs package_process_components)
+function(stdhdrs_package_process_components package listFile)
     get_filename_component(packageName ${listFile} NAME_WE)
     get_filename_component(listDir ${listFile} DIRECTORY)
     get_filename_component(rootDir ${listDir} DIRECTORY)
 
-    # Sources and headers
-    bde_utils_add_meta_file("${listDir}/${packageName}.pub" rawHeaders TRACK)
-    bde_utils_list_template_substitute(headers "%" "${rootDir}/%" ${rawHeaders})
+    bde_utils_add_meta_file("${listDir}/${packageName}.pub" headers TRACK)
+    bde_utils_list_template_substitute(headers "%" "${rootDir}/%" ${headers})
+    bde_struct_set_field(${package} HEADERS ${headers})
+        # Custom header logic
+endfunction()
 
-    bde_struct_create(
-        package
-        BDE_PACKAGE_TYPE
-        NAME ${packageName}
-        HEADERS "${headers}"
-    )
-
-    bde_create_package_interfaces(${package} ${listFile})
+bde_prefixed_override(stdhdrs package_setup_interface)
+function(stdhdrs_package_setup_interface package listFile)
+    get_filename_component(listDir ${listFile} DIRECTORY)
+    get_filename_component(rootDir ${listDir} DIRECTORY)
 
     # Include directories
     bde_struct_get_field(packageInterface ${package} INTERFACE_TARGET)
@@ -29,22 +29,42 @@ function(process_package retPackage listFile uorName)
         ${packageInterface}
         INTERFACE
             $<BUILD_INTERFACE:${rootDir}>
-            $<INSTALL_INTERFACE:"include/stlport">
     )
+endfunction()
+
+bde_prefixed_override(stdhdrs package_install)
+function(stdhdrs_package_install package listFile installOpts)
+    bde_struct_get_field(headers ${package} HEADERS)
+
+    get_filename_component(listDir ${listFile} DIRECTORY)
+    get_filename_component(rootDir ${listDir} DIRECTORY)
+
+    bde_struct_get_field(component ${installOpts} COMPONENT)
+    bde_struct_get_field(exportSet ${installOpts} EXPORT_SET)
+    bde_struct_get_field(includeDir ${installOpts} INCLUDE_DIR)
 
     # Custom install of all headers in 'stlport'.
     # Note that this code correctly handles install of subdirs.
-    foreach(file IN LISTS rawHeaders)
-        get_filename_component(dir ${file} DIRECTORY)
-        string(CONCAT fullFile ${rootDir} "/" ${file})
+    foreach(header IN LISTS headers)
+        get_filename_component(fullDir ${header} DIRECTORY)
+        string(REPLACE ${rootDir} "" dir ${fullDir})
         install(
-            FILES ${fullFile}
-            DESTINATION "include/stlport/${dir}"
-            COMPONENT "${uorName}-headers"
+            FILES ${header}
+            DESTINATION "${includeDir}/stlport/${dir}"
+            COMPONENT ${component}-headers
         )
     endforeach()
 
-    bde_create_package_target(${package})
+    # CMake config
+    bde_struct_get_field(packageInterface ${package} INTERFACE_TARGET)
+    bde_interface_target_include_directories(
+        ${packageInterface}
+        INTERFACE
+            $<INSTALL_INTERFACE:${includeDir}/stlport>
+    )
 
-    bde_return(${package})
+    bde_install_interface_target(
+        ${packageInterface}
+        EXPORT ${exportSet}InterfaceTargets
+    )
 endfunction()
