@@ -247,6 +247,11 @@ typedef long      unsigned int UintPtr;
 
 typedef bsls::Types::IntPtr    IntPtr;
 
+bool narcissicStack = false;    // If 'true', indicates that 'k_IGNORE_FRAMES'
+                                // is one too low -- Windows intermittently
+                                // changes whether 'getStackAddresses' gets its
+                                // own frame or not.
+
 }  // close unnamed namespace
 
 // ============================================================================
@@ -730,7 +735,7 @@ void topOfTheStack(void *, void *, void *, void *)
     bool ns3  = false;
     bool ns4  = false;
 
-    for (int i = 0; i < len; ++i) {
+    for (int i = narcissicStack; i < len; ++i) {
         const bsl::string& s = st[i].symbolName();
         const bsl::size_t npos = bsl::string::npos;
 
@@ -757,7 +762,13 @@ void topOfTheStack(void *, void *, void *, void *)
         }
     }
 
-    ASSERT(tots && rabo && lffs && tc10 && ns2 && ns3 && ns4);
+    ASSERT(tots);
+    ASSERT(rabo);
+    ASSERT(lffs);
+    ASSERT(tc10);
+    ASSERT(ns2);
+    ASSERT(ns3);
+    ASSERT(ns4);
 #endif
 }
 
@@ -1066,7 +1077,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
         if (DEBUG_ON || !PLAT_WIN) {
             // check that the names are right
 
-            bool dot = '.' == *st[0].symbolName().c_str();
+            bool dot = '.' == *st[narcissicStack].symbolName().c_str();
 
             const char *match = ".case_5_top";
             match += !dot;
@@ -1083,7 +1094,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
                 // for globals
 
                 const char *sfnMatch = "balst_stacktraceutil.t.cpp";
-                const char *sfn = st[0].sourceFileName().c_str();
+                const char *sfn = st[narcissicStack].sourceFileName().c_str();
                 sfn = nullGuard(sfn);
 
                 int sfnMatchLen = (int) bsl::strlen(sfnMatch);
@@ -1480,12 +1491,14 @@ void top(bslma::Allocator *alloc)
             ASSERT(!rc);
             LOOP_ASSERT(st.length(), st.length() == na);
 
+            int ii = narcissicStack;
+
             const char *sn;
-            sn = st[0].symbolName().c_str();
+            sn = st[ii].symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "top"));
-            sn = st[1].symbolName().c_str();
+            sn = st[++ii].symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "bottom"));
-            sn = st[2].symbolName().c_str();
+            sn = st[++ii].symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "main"));
 
             LOOP_ASSERT(st, !problem());
@@ -1500,12 +1513,14 @@ void top(bslma::Allocator *alloc)
         if (!PLAT_WIN || DEBUG_ON) {
             LOOP_ASSERT(st.length(), 3 == st.length());
 
+            int ii = narcissicStack;
+
             const char *sn;
-            sn = st[0].symbolName().c_str();
+            sn = st[ii].symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "top"));
-            sn = st[1].symbolName().c_str();
+            sn = st[++ii].symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "bottom"));
-            sn = st[2].symbolName().c_str();
+            sn = st[++ii].symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "main"));
         }
 
@@ -1791,6 +1806,20 @@ int main(int argc, char *argv[])
     }
     else {
         out_p = &dummyOstream;
+    }
+
+    if (PLAT_WIN) {
+        // Windows intermittently has a narcissic stack, that is,
+        // 'k_IGNORE_FRAMES' should be 1 higher than it is.
+
+        ST st(&ta);
+        int rc = Util::loadStackTraceFromStack(&st, 1, false);
+        ASSERT(0 == rc);
+
+        narcissicStack = bsl::string::npos != st[0].mangledSymbolName().find(
+                                                    "loadStackTraceFromStack");
+
+        if (veryVerbose) P(narcissicStack);
     }
 
     switch (test) { case 0:
@@ -2322,7 +2351,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < DATA_POINTS; ++i) {
             balst::StackTrace& stackTrace = traces[i];
-            const balst::StackTraceFrame& frame = stackTrace[0];
+            const balst::StackTraceFrame& frame = stackTrace[narcissicStack];
 
             UintPtr thisAddress = (UintPtr) frame.address();
             IntPtr offset = frame.offsetFromSymbol();
@@ -2376,7 +2405,8 @@ int main(int argc, char *argv[])
 
         if (verbose || problem()) {
             for (int i = 0; i < DATA_POINTS; ++i) {
-                *out_p << '(' << i << ")(0): " << traces[i][0] << endl;
+                *out_p << '(' << i << ")(0): " << traces[i][narcissicStack] <<
+                                                                          endl;
             }
         }
       }  break;
