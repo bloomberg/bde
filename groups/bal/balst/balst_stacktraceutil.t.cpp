@@ -2043,8 +2043,15 @@ int main(int argc, char *argv[])
                     bdls::PathUtil::getBasename(&basename,
                                                 frame.sourceFileName());
 
-                    cout << "Test:Symbol-file:line: " << expMangled << '-' <<
+                    if (veryVeryVerbose) {
+                        cout << "SymbolName-file:line: " << name << '-' <<
                                  basename << ':' << frame.lineNumber() << endl;
+                    }
+                    else {
+                        cout << "ExpSymbol-file:line: " << expMangled <<
+                                '-' << basename << ':' << frame.lineNumber() <<
+                                                                          endl;
+                    }
                 }
             }
             else {
