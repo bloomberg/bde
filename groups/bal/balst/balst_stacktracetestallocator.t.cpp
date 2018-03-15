@@ -10,6 +10,7 @@
 #include <balst_stacktracetestallocator.h>
 
 #include <balst_stacktrace.h>
+#include <balst_stacktraceutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslmt_barrier.h>
@@ -308,6 +309,9 @@ static int veryVerbose;
 static int veryVeryVerbose;
 
 static const bsl::size_t npos = bsl::string::npos;
+static bool narcissicStack = false;         // On Windows, the stack trace
+                                            // intermittently captures its own
+                                            // image.
 
 // ============================================================================
 //                    GLOBAL HELPER #DEFINES FOR TESTING
@@ -1090,6 +1094,20 @@ int main(int argc, char *argv[])
 
     ASSERT(voidFuncsSize <= sizeof voidFuncs / sizeof *voidFuncs);
 
+    if (e_WINDOWS) {
+        // Windows intermittently has a narcissic stack, that is,
+        // 'k_IGNORE_FRAMES' should be 1 higher than it is.
+
+        balst::StackTrace st;
+        int rc = balst::StackTraceUtil::loadStackTraceFromStack(&st, 1, false);
+        ASSERT(0 == rc);
+
+        narcissicStack = bsl::string::npos != st[0].mangledSymbolName().find(
+                                                    "loadStackTraceFromStack");
+
+        if (veryVerbose) P(narcissicStack);
+    }
+
     switch (test) { case 0:
       case 22: {
         // --------------------------------------------------------------------
@@ -1432,8 +1450,9 @@ int main(int argc, char *argv[])
                 ++pos;
             }
 
-            LOOP3_ASSERT(report, numRecurserInTrace, RECORDED_FRAMES,
-                                    numRecurserInTrace + 1 == RECORDED_FRAMES);
+            LOOP4_ASSERT(report, numRecurserInTrace, RECORDED_FRAMES,
+                                                                narcissicStack,
+                   numRecurserInTrace + 1 + narcissicStack == RECORDED_FRAMES);
             ss.str("");
         }
       }  break;

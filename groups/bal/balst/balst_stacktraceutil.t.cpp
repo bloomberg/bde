@@ -1083,7 +1083,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
             match += !dot;
             int len = (int) bsl::strlen(match);
             bsl::string symbolName(&ta);
-            stripReturnType(&symbolName, st[0].symbolName());
+            stripReturnType(&symbolName, st[narcissicStack].symbolName());
             const char *sn = symbolName.c_str();
             LOOP3_ASSERT(sn, match, len,
                                    !demangle || !bsl::strncmp(sn, match, len));
@@ -1110,7 +1110,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
 
             bool finished = false;
             int recursersFound = 0;
-            for (int i = 1; i < st.length(); ++i) {
+            for (int i = 1 + narcissicStack; i < st.length(); ++i) {
                 stripReturnType(&symbolName, st[i].symbolName());
                 sn = symbolName.c_str();
                 if (!sn || !*sn) {
@@ -1472,26 +1472,29 @@ void top(bslma::Allocator *alloc)
     matches.push_back("main");
 
     {
-        enum { IGNORE_FRAMES = bsls::StackAddressUtil::k_IGNORE_FRAMES };
+        enum { k_MAX_IGNORE_FRAMES = 2 };
+        const int ignoreFrames = bsls::StackAddressUtil::k_IGNORE_FRAMES +
+                                                                narcissicStack;
+        ASSERT(ignoreFrames <= k_MAX_IGNORE_FRAMES);
 
-        void *addresses[3 + IGNORE_FRAMES];
+        void *addresses[3 + k_MAX_IGNORE_FRAMES];
         bsl::memset(addresses, 0, sizeof(addresses));
         int na = bsls::StackAddressUtil::getStackAddresses(addresses,
-                                                           3 + IGNORE_FRAMES);
-        na -= IGNORE_FRAMES;
+                                                           3 + ignoreFrames);
+        na -= ignoreFrames;
 
         if (!PLAT_WIN || DEBUG_ON) {
             LOOP_ASSERT(na, 3 == na);
 
             ST st;
             int rc = Util::loadStackTraceFromAddressArray(
-                                                     &st,
-                                                     addresses + IGNORE_FRAMES,
-                                                     na);
+                                                      &st,
+                                                      addresses + ignoreFrames,
+                                                      na);
             ASSERT(!rc);
             LOOP_ASSERT(st.length(), st.length() == na);
 
-            int ii = narcissicStack;
+            int ii = 0;
 
             const char *sn;
             sn = st[ii].symbolName().c_str();
@@ -1507,11 +1510,11 @@ void top(bslma::Allocator *alloc)
 
     {
         ST st;
-        int rc = Util::loadStackTraceFromStack(&st, 3);
+        int rc = Util::loadStackTraceFromStack(&st, 3 + narcissicStack);
         ASSERT(!rc);
 
         if (!PLAT_WIN || DEBUG_ON) {
-            LOOP_ASSERT(st.length(), 3 == st.length());
+            LOOP_ASSERT(st.length(), 3 + narcissicStack == st.length());
 
             int ii = narcissicStack;
 
