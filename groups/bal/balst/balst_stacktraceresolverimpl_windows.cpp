@@ -212,9 +212,9 @@ int StackTraceResolverImpl<ObjectFileFormat::Windows>::resolve(
 
     return 0;
 }
-}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

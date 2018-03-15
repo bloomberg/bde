@@ -506,9 +506,7 @@ Obj g(const char *spec)
 }
 
 class EqualityTester {
-
-  // DATA
-  private:
+    // DATA
     const Obj   *A;
     const Obj   *B;
 
