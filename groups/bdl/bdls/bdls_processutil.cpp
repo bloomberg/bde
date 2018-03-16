@@ -115,7 +115,8 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // Fill 'argsBuf' with non-'\0' so our 'find' later will detect if
     // '::getargs' failed to null-terminate its result.
 
-    bsl::string argsBuf(k_BUF_LEN, '\0');
+    bsl::string argsBuf(k_BUF_LEN, '*');
+    char *buf = &argsBuf[0], *bufEnd = buf + k_BUF_LEN;
 
     struct procentry64  procBuf;
     procBuf.pi_pid = getProcessId();
@@ -123,10 +124,12 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // '::getargs' should fill the beginning of 'argsBuf' with null-terminated
     // 'argv[0]', which might be a relative path.
 
-    if (0 != ::getargs(&procBuf, sizeof(procBuf), &argsBuf[0], k_BUF_LEN)) {
+    if (0 != ::getargs(&procBuf, sizeof(procBuf), buf, k_BUF_LEN)) {
         return -1;                                                    // RETURN
     }
-    argsBuf[k_BUF_LEN - 1] = 0;
+    if (bufEnd == bsl::find(buf, bufEnd, '\0')) {
+        return -1;                                                    // RETURN
+    }
 
     // 'assign' here, not 'swap' since the buffer for 'argsBuf' is irreversibly
     // extremely large and the returned value will nearly always be much
