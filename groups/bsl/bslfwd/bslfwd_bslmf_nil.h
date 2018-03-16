@@ -26,7 +26,7 @@
 
 namespace BloombergLP {
     namespace bslmf {
-        class Nil;
+        struct Nil;
     }  // close namespace bslmf
 
     typedef bslmf::Nil bslmf_Nil;
@@ -35,7 +35,7 @@ namespace BloombergLP {
 #else
 
 namespace BloombergLP {
-    class bslmf_Nil;
+    struct bslmf_Nil;
 }
 
 #endif
