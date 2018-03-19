@@ -210,8 +210,10 @@ const bsls::Types::Int64 A2 = -1242;
 const double             B1 = 10.5;
 const double             B2 = 20.5;
 
+const bsl::string        S  = SUFFICIENTLY_LONG_STRING;
+
 const char              *C1 = "one";  // *not* 'bsl::string'
-const bsl::string        C2 = SUFFICIENTLY_LONG_STRING;
+const bslstl::StringRef  C2 = S;      // the interface takes 'StringRef'
 
 const bdlt::DatetimeTz   D1(bdlt::Datetime(2000,  1,  1, 0, 1, 2,   3), 240);
 const bdlt::DatetimeTz   D2(bdlt::Datetime(2025, 12, 31, 4, 5, 6, 789), -60);
@@ -1066,9 +1068,9 @@ int main(int argc, char *argv[])
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
               if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
-              Obj obj(C2, &sa);
+              Obj obj(S, &sa);
               ASSERTV(Type::e_STRING == obj.type());
-              ASSERTV(            C2 == obj.theString());
+              ASSERTV(             S == obj.theString());
 
 #ifdef BDE_BUILD_TARGET_EXC
               ASSERTV(0 < EXCEPTION_COUNT);
@@ -3618,6 +3620,10 @@ int main(int argc, char *argv[])
         //:
         //:   1 Verify that object state and memory allocation, if any, are
         //:     as expected.  (C-5, 10)
+        //:
+        //: 4 Test 'setString' and 'setCharArray' in the presence of injected
+        //:   exceptions (using the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*'
+        //:   macros).  (C-13)
         //
         // Testing:
         //   UserFieldValue(Allocator *ba = 0);
@@ -3957,6 +3963,57 @@ int main(int argc, char *argv[])
                 ASSERTV(TYPEI, TYPEJ, da.numBlocksTotal(),
                         0 == da.numBlocksTotal());
             }
+        }
+
+        if (verbose) cout << "\nTesting 'setString' with injected exceptions."
+                          << endl;
+        {
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+              if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+              Obj obj(&sa);
+              obj.setString(S);
+              ASSERTV(Type::e_STRING == obj.type());
+              ASSERTV(             S == obj.theString());
+
+#ifdef BDE_BUILD_TARGET_EXC
+              ASSERTV(0 < EXCEPTION_COUNT);
+#endif
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+        }
+
+        if (verbose) cout <<
+                          "\nTesting 'setCharArray' with injected exceptions."
+                          << endl;
+        {
+            bslma::TestAllocator da("default",  veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+              if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+              Obj obj(&sa);
+              obj.setCharArray(E2);
+              ASSERTV(Type::e_CHAR_ARRAY == obj.type());
+              ASSERTV(                E2 == obj.theCharArray());
+
+#ifdef BDE_BUILD_TARGET_EXC
+              ASSERTV(0 < EXCEPTION_COUNT);
+#endif
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+            ASSERTV(sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
         }
 
       } break;

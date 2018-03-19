@@ -86,10 +86,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_MOVABLEREF
-#include <bslmf_movableref.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
@@ -356,11 +352,9 @@ UserFieldValue::UserFieldValue(double value, bslma::Allocator *basicAllocator)
 inline
 UserFieldValue::UserFieldValue(bslstl::StringRef  value,
                                bslma::Allocator  *basicAllocator)
-: d_value(bslmf::MovableRefUtil::move(
-              const_cast<bsl::string&>(static_cast<const bsl::string&>(
-                                         bsl::string(value, basicAllocator)))),
-          basicAllocator)
+: d_value(basicAllocator)
 {
+    d_value.assignTo<bsl::string>(value);
 }
 
 inline
@@ -413,9 +407,7 @@ void UserFieldValue::setDouble(double value)
 inline
 void UserFieldValue::setString(bslstl::StringRef value)
 {
-    d_value.assign(bslmf::MovableRefUtil::move(
-             const_cast<bsl::string&>(static_cast<const bsl::string&>(
-                                           bsl::string(value, allocator())))));
+    d_value.assignTo<bsl::string>(value);
 }
 
 inline
