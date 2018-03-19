@@ -22,27 +22,18 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>
 #include <bsl_iostream.h>
 
-#if !defined BSLS_PLATFORM_OS_WINDOWS
+#include <sys/types.h>        // must precede 'stat.h'
+#include <sys/stat.h>         // 'stat'
+
+#if defined BSLS_PLATFORM_OS_UNIX
 # include <unistd.h>           // 'getpid'
-# include <sys/stat.h>         // 'stat'
-# include <sys/types.h>
 
 # if defined BSLS_PLATFORM_OS_AIX
 #   include <bslmf_assert.h>
 #   include <sys/procfs.h>
 #   include <procinfo.h>
-# elif defined BSLS_PLATFORM_OS_CYGWIN
-#   ifndef   _REENTRANT
-#     define _REENTRANT
-#   endif
-
-#   include <bsl_fstream.h>
-#   include <fcntl.h>
-#   include <procfs.h>
 # elif defined BSLS_PLATFORM_OS_DARWIN
 #   include <libproc.h>
-# elif defined BSLS_PLATFORM_OS_HPUX
-#   include <sys/pstat.h>
 # elif defined BSLS_PLATFORM_OS_LINUX
 #   include <bslma_deallocatorguard.h>
 #   include <bsls_types.h>
@@ -67,15 +58,17 @@ bool isExecutable(const char *path)
     // file) and 'false' otherwise.  On Windows, return 'true' if the file
     // exists and is not a directory.
 {
-#if defined BSLS_PLATFORM_OS_UNIX
     const int executableBits = S_IXUSR | S_IXGRP | S_IXOTH;
 
+#if defined BSLS_PLATFORM_OS_UNIX
     struct stat s;
     int rc = ::stat(path, &s);
-    return 0 == rc && !(s.st_mode & S_IFDIR) && (s.st_mode & executableBits);
-#else
-    return BloombergLP::bdls::FilesystemUtil::isRegularFile(path);
+#else    // Windows
+    struct _stat s;
+    int rc = ::_stat(path, &s);
 #endif
+
+    return 0 == rc && !(s.st_mode & S_IFDIR) && (s.st_mode & executableBits);
 }
 
 inline
@@ -138,28 +131,6 @@ int ProcessUtil::getProcessName(bsl::string *result)
     result->assign(argsBuf.c_str());
     return 0;
 
-#elif defined BSLS_PLATFORM_OS_CYGWIN
-
-    enum { NUM_ELEMENTS = 6 + 30 + 8 };  // "/proc/<pid>/cmdline" -- way more
-                                         // than enough
-
-    char procfs[NUM_ELEMENTS];
-    bsl::sprintf(procfs, "/proc/%d/cmdline", getProcessId());
-
-    bsl::ifstream ifs;
-    ifs.open(procfs, bsl::ios_base::in | bsl::ios_base::binary);
-    if (ifs.fail()) {
-        return -1;                                                    // RETURN
-    }
-    ifs >> *result;
-
-    bsl::string::size_type pos = result->find('\0');
-    if (bsl::string::npos != pos) {
-        result->resize(pos);
-    }
-
-    return 0;
-
 #elif defined BSLS_PLATFORM_OS_DARWIN
 
     // We empirically determined that 'proc_pidpath' won't tolerate a buffer
@@ -179,28 +150,6 @@ int ProcessUtil::getProcessName(bsl::string *result)
     result->assign(pidPathBuf.c_str(), numChars);
     return 0;
 
-#elif defined BSLS_PLATFORM_OS_HPUX
-
-    bsl::string path(1024, '\0');
-    int rc = pstat_getcommandline(&path[0],
-                                  static_cast<Int>(path.size()),
-                                  1,
-                                  getProcessId());
-    if (rc < 0) {
-        return -1;                                                    // RETURN
-    }
-
-    bsl::string::size_type pos = path.find_first_of(' ');
-    if (bsl::string::npos != pos) {
-        path.resize(pos);
-    }
-
-    // Using 'assign' not 'swap', as 'path' has already irreversibly grown to
-    // a 1024 byte buffer, and the final value will probably be much shorter.
-
-    result->assign(path);
-    return 0;
-
 #elif defined BSLS_PLATFORM_OS_LINUX
 
     // We read '::program_invocation_name', which will just yield 'argv[0]',
@@ -213,37 +162,34 @@ int ProcessUtil::getProcessName(bsl::string *result)
 
 #elif defined BSLS_PLATFORM_OS_SOLARIS
 
-    // '::getexecname' will return an absolute path with symlinks resolved.
+    // '::getexecname' will return 'argv[0]' with symlinks resolved.
 
     result->assign(::getexecname());
     return 0;
 
 #elif defined BSLS_PLATFORM_OS_WINDOWS
 
-    // On Windows, 'argv[0]' is always an absolute path, even if it was
-    // specified on the command line as a relative path.  The following code
-    // yields the full path.
+    // This code seems to be returning 'argv[0]' except that, on Windows,
+    // 'argv[0]' is always an absolute path, even if it was specified on the
+    // command line as a relative path.  The following code yields the full
+    // path.
 
-    bsl::wstring wResult;
-    for (unsigned wSize = MAX_PATH; wSize <= 4 * MAX_PATH; wSize *= 2) {
-        wResult.resize(wSize, L'\0');
-        DWORD length = GetModuleFileNameW(0, &wResult[0], wResult.length());
-        if (length == 0) {  // Error
-            return 1;                                                 // RETURN
+    bsl::wstring wResult(64 * 1024, '*');
+    DWORD length = GetModuleFileNameW(0, &wResult[0], wResult.length());
+    if (0 < length && length < wResult.length()) {
+        wResult.resize(length);
+
+        bsl::string utf8Path(result->allocator().mechanism());
+        int rc = bdlde::CharConvertUtf16::utf16ToUtf8(&utf8Path, wResult);
+        if (0 != rc) {
+            return -1;                                                // RETURN
         }
-        else if (length < wResult.length()) {  // Success
-            wResult.resize(length);
 
-            bsl::string utf8Path(result->allocator().mechanism());
-            int rc = bdlde::CharConvertUtf16::utf16ToUtf8(&utf8Path, wResult);
-            if (0 != rc) {
-                return -1;                                            // RETURN
-            }
-
-            result->swap(utf8Path);
-            return 0;                                                 // RETURN
-        }
+        result->swap(utf8Path);
+        return 0;                                                     // RETURN
     }
+
+    // Error
 
     return -1;
 #else
