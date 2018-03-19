@@ -197,7 +197,9 @@ class TimetableTransition {
 
   private:
     // PRIVATE CREATORS
-    TimetableTransition() {}  // TBD
+    TimetableTransition();
+        // Create a 'TimetableTransition' having datetime value
+        // 'Datetime(Date())' and code 'k_UNSET_TRANSITION_CODE'.
 
     TimetableTransition(const Datetime& datetime, int code);
         // Create a 'TimetableTransition' having the specified 'datetime' and
@@ -262,7 +264,6 @@ bool operator!=(const TimetableTransition& lhs,
 
 bool operator<(const TimetableTransition& lhs,
                const TimetableTransition& rhs);
-// TBD only use the datetime?
     // Return 'true' if the specified 'lhs' has a value less than the specified
     // 'rhs', and 'false' otherwise.  Timetable transition 'lhs' has a value
     // less than timetable transition 'rhs' if
@@ -303,8 +304,10 @@ class TimetableTransition_Ref : public TimetableTransition {
     // NOT IMPLEMENTED
     TimetableTransition_Ref& operator=(const TimetableTransition_Ref&);
 
-    // TBD
-    TimetableTransition_Ref() {}
+    // PRIVATE CREATORS
+    TimetableTransition_Ref();
+        // Create a date reference object using the default
+        // 'TimetableTransition' constructor.
 
   public:
     // CREATORS
@@ -319,14 +322,10 @@ class TimetableTransition_Ref : public TimetableTransition {
         // Destroy this object.
 
     // MANIPULATORS
-    TimetableTransition_Ref& operator=(const TimetableTransition& rhs)
-    {
-        d_datetime = rhs.d_datetime;
-        d_code     = rhs.d_code;
-
-        return *this;
-    }
-        // TBD
+    TimetableTransition_Ref& operator=(const TimetableTransition& rhs);
+        // Assign to this object the value of the specified 'rhs' timetable
+        // transition, and return a reference providing modifiable access to
+        // this 'TimetableTransition_Ref'.
 
     // ACCESSORS
     const TimetableTransition *operator->() const;
@@ -372,7 +371,9 @@ class Timetable_CompactableTransition {
                                             // value representing an unset
                                             // transition code
     // CREATORS
-    Timetable_CompactableTransition() {}  // TBD
+    Timetable_CompactableTransition();
+        // Create a 'Timetable_CompactableTransition' having time value
+        // 'Time(0)' and code 'k_UNSET_TRANSITION_CODE'.
 
     Timetable_CompactableTransition(
                               const Timetable_CompactableTransition& original);
@@ -435,7 +436,6 @@ bool operator!=(const Timetable_CompactableTransition& lhs,
 
 bool operator<(const Timetable_CompactableTransition& lhs,
                const Timetable_CompactableTransition& rhs);
-// TBD only use the time?
     // Return 'true' if the specified 'lhs' has a value less than the specified
     // 'rhs', and 'false' otherwise.  Timetable transition 'lhs' has a value
     // less than timetable transition 'rhs' if 'lhs.time() < rhs.time()', or
@@ -509,19 +509,18 @@ class Timetable_Day {
     // CREATORS
     explicit
     Timetable_Day(bslma::Allocator *basicAllocator = 0);
-    // TBD
         // Create an empty 'Timetable_Day' (i.e., a daily timetable having no
         // transitions) whose initial transition code is
-        // 'k_UNSET_TRANSITION_CODE'.  The specified 'basicAllocator' is used
-        // to supply memory.  The behavior is undefined unless
-        // '0 != basicAllocator'.
+        // 'k_UNSET_TRANSITION_CODE'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     Timetable_Day(const Timetable_Day&  original,
                   bslma::Allocator     *basicAllocator = 0);
-    // TBD
         // Create a 'Timetable_Day' having the same value as the specified
-        // 'original' object.  The specified 'basicAllocator' is used to supply
-        // memory.  The behavior is undefined unless '0 != basicAllocator'.
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     ~Timetable_Day();
         // Destroy this object.
@@ -1028,6 +1027,13 @@ bool operator!=(const Timetable_ConstIterator& lhs,
 
 // PRIVATE CREATORS
 inline
+TimetableTransition::TimetableTransition()
+: d_datetime(Date())
+, d_code(k_UNSET_TRANSITION_CODE)
+{
+}
+
+inline
 TimetableTransition::TimetableTransition(const Datetime& datetime, int code)
 : d_datetime(datetime)
 , d_code(code)
@@ -1129,6 +1135,13 @@ namespace bdlt {
                   // -------------------------------------
 
 // CREATORS
+inline
+Timetable_CompactableTransition::Timetable_CompactableTransition()
+: d_time(0)
+, d_code(k_UNSET_TRANSITION_CODE)
+{
+}
+
 inline
 Timetable_CompactableTransition::Timetable_CompactableTransition(
                                const Timetable_CompactableTransition& original)
@@ -1235,6 +1248,13 @@ namespace bdlt {
                       // class TimetableTransition_Ref
                       // -----------------------------
 
+// PRIVATE CREATORS
+inline
+TimetableTransition_Ref::TimetableTransition_Ref()
+: TimetableTransition()
+{
+}
+
 // CREATORS
 inline
 TimetableTransition_Ref::TimetableTransition_Ref(
@@ -1253,6 +1273,17 @@ TimetableTransition_Ref::TimetableTransition_Ref(
 inline
 TimetableTransition_Ref::~TimetableTransition_Ref()
 {
+}
+
+// MANIPULATORS
+inline
+TimetableTransition_Ref& TimetableTransition_Ref::operator=(
+                                                const TimetableTransition& rhs)
+{
+    d_datetime = rhs.d_datetime;
+    d_code     = rhs.d_code;
+
+    return *this;
 }
 
 // ACCESSORS
