@@ -101,7 +101,10 @@ bool Timetable_Day::addTransition(const Time& time, int code)
                                         bsl::lower_bound(d_transitions.begin(),
                                                          d_transitions.end(),
                                                          time);
-    if (iter == d_transitions.end() || iter->d_time != time) {
+    if (iter == d_transitions.end()) {
+        d_transitions.emplace_back(time, code);
+    }
+    else if (iter->d_time != time) {
         d_transitions.insert(iter,
                              Timetable_CompactableTransition(time, code));
     }
@@ -280,7 +283,7 @@ void Timetable::removeTransitions(const Date& date)
     Timetable_RemoveAllProctor proctor(this);
 
     bsl::size_t   index = date - d_firstDate;
-    Timetable_Day daily(d_timetable[index], d_timetable.allocator());
+    Timetable_Day daily(d_timetable[index]);
     bool          roll  = daily.removeAllTransitions();
 
     d_timetable.replace(index, daily);
@@ -335,7 +338,7 @@ void Timetable::setInitialTransitionCode(int code)
         Timetable_RemoveAllProctor proctor(this);
 
         bsl::size_t   index = 0;
-        Timetable_Day daily(d_timetable[index], d_timetable.allocator());
+        Timetable_Day daily(d_timetable[index]);
         bool          roll  = daily.setInitialTransitionCode(code);
 
         d_timetable.replace(index, daily);
@@ -365,7 +368,7 @@ void Timetable::setValidRange(const Date& firstDate, const Date& lastDate)
 
         bsl::size_t n = static_cast<bsl::size_t>(lastDate - firstDate + 1);
 
-        Timetable_Day daily(d_timetable.allocator());
+        Timetable_Day daily;
         daily.setInitialTransitionCode(d_initialTransitionCode);
 
         for (bsl::size_t i = 0; i < n; ++i) {
@@ -384,7 +387,7 @@ void Timetable::setValidRange(const Date& firstDate, const Date& lastDate)
 
         bsl::size_t n = static_cast<bsl::size_t>(lastDate - firstDate + 1);
 
-        Timetable_Day daily(d_timetable.allocator());
+        Timetable_Day daily;
         daily.setInitialTransitionCode(initialTransitionCode);
 
         for (bsl::size_t i = 0; i < n; ++i) {
@@ -398,7 +401,7 @@ void Timetable::setValidRange(const Date& firstDate, const Date& lastDate)
         if (firstDate < d_firstDate) {
             bsl::size_t n = static_cast<bsl::size_t>(d_firstDate - firstDate);
 
-            Timetable_Day daily(d_timetable.allocator());
+            Timetable_Day daily;
             daily.setInitialTransitionCode(d_initialTransitionCode);
 
             for (bsl::size_t i = 0; i < n; ++i) {
@@ -414,7 +417,7 @@ void Timetable::setValidRange(const Date& firstDate, const Date& lastDate)
         if (lastDate > d_lastDate) {
             bsl::size_t n = static_cast<bsl::size_t>(lastDate - d_lastDate);
 
-            Timetable_Day daily(d_timetable.allocator());
+            Timetable_Day daily;
             daily.setInitialTransitionCode(
                                      d_timetable.back().finalTransitionCode());
 

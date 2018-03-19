@@ -146,6 +146,7 @@ BSLS_IDENT("$Id: $")
 #include <bslh_hash.h>
 
 #include <bslma_allocator.h>
+#include <bslma_default.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bsls_assert.h>
@@ -177,6 +178,7 @@ class TimetableTransition {
     int      d_code;      // code in effect at, and after, 'd_datetime'
 
     // FRIENDS
+    friend class TimetableTransition_Ref;
     friend class Timetable_ConstIterator;
 
     friend bool operator==(const TimetableTransition&,
@@ -195,6 +197,8 @@ class TimetableTransition {
 
   private:
     // PRIVATE CREATORS
+    TimetableTransition() {}  // TBD
+
     TimetableTransition(const Datetime& datetime, int code);
         // Create a 'TimetableTransition' having the specified 'datetime' and
         // 'code'.  The behavior is undefined unless '24 > datetime.hour()' and
@@ -284,42 +288,6 @@ void hashAppend(HASHALG& hashAlg, const TimetableTransition& object);
     // integrates with the 'bslh' modular hashing system and effectively
     // provides a 'bsl::hash' specialization for 'TimetableTransition'.
 
-                     // ===============================
-                     // class TimetableTransition_Proxy
-                     // ===============================
-
-class TimetableTransition_Proxy {
-    // This class serves as a proxy for 'Timetable' for use by the arrow
-    // operator of timetable iterators (e.g., 'Timetable_ConstIterator').  An
-    // object of this class behaves as the 'TimetableTransition' object with
-    // which it was constructed.
-
-    // DATA
-    TimetableTransition d_transition;  // proxied transition
-
-  private:
-    // NOT IMPLEMENTED
-    TimetableTransition_Proxy& operator=(const TimetableTransition_Proxy&);
-
-  public:
-    // CREATORS
-    TimetableTransition_Proxy(
-                           const TimetableTransition& transition);  // IMPLICIT
-        // Create a proxy object for the specified 'transition'.
-
-    ~TimetableTransition_Proxy();
-        // Destroy this object.
-
-    TimetableTransition_Proxy(const TimetableTransition_Proxy& original);
-        // Create a proxy object referencing the same 'TimetableTransition'
-        // value as the specified 'original' proxy.
-
-    // ACCESSORS
-    const TimetableTransition *operator->() const;
-        // Return the address providing non-modifiable access to the proxied
-        // 'TimetableTransition' object.
-};
-
                       // =============================
                       // class TimetableTransition_Ref
                       // =============================
@@ -329,9 +297,14 @@ class TimetableTransition_Ref : public TimetableTransition {
     // iterator class.  The objects instantiated from this class serve as
     // references to 'TimetableTransition' objects.
 
+    friend class Timetable_ConstIterator;
+
   private:
     // NOT IMPLEMENTED
     TimetableTransition_Ref& operator=(const TimetableTransition_Ref&);
+
+    // TBD
+    TimetableTransition_Ref() {}
 
   public:
     // CREATORS
@@ -345,10 +318,20 @@ class TimetableTransition_Ref : public TimetableTransition {
     ~TimetableTransition_Ref();
         // Destroy this object.
 
+    // MANIPULATORS
+    TimetableTransition_Ref& operator=(const TimetableTransition& rhs)
+    {
+        d_datetime = rhs.d_datetime;
+        d_code     = rhs.d_code;
+
+        return *this;
+    }
+        // TBD
+
     // ACCESSORS
-    TimetableTransition_Proxy operator&() const;
-        // Return a proxy object to this object's referenced
-        // 'TimetableTransition'.
+    const TimetableTransition *operator->() const;
+        // Return the address providing non-modifiable access to the proxied
+        // 'TimetableTransition' object.
 };
 
                   // =====================================
@@ -382,14 +365,6 @@ class Timetable_CompactableTransition {
     template <class HASHALG>
     friend void hashAppend(HASHALG&, const Timetable_CompactableTransition&);
 
-  private:
-    // PRIVATE CREATORS
-    Timetable_CompactableTransition(const Time& time, int code);
-        // Create a 'Timetable_CompactableTransition' having the specified
-        // 'time' and 'code'.  The behavior is undefined unless
-        // '24 > time.hour()' and
-        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
-
   public:
     // CLASS DATA
     enum { k_UNSET_TRANSITION_CODE =
@@ -397,10 +372,18 @@ class Timetable_CompactableTransition {
                                             // value representing an unset
                                             // transition code
     // CREATORS
+    Timetable_CompactableTransition() {}  // TBD
+
     Timetable_CompactableTransition(
                               const Timetable_CompactableTransition& original);
         // Create a 'Timetable_CompactableTransition' having the same value as
         // the specified 'original' object.
+
+    Timetable_CompactableTransition(const Time& time, int code);
+        // Create a 'Timetable_CompactableTransition' having the specified
+        // 'time' and 'code'.  The behavior is undefined unless
+        // '24 > time.hour()' and
+        // '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
     //! ~Timetable_CompactableTransition() = default;
         // Destroy this object.
@@ -525,7 +508,8 @@ class Timetable_Day {
 
     // CREATORS
     explicit
-    Timetable_Day(bslma::Allocator *basicAllocator);
+    Timetable_Day(bslma::Allocator *basicAllocator = 0);
+    // TBD
         // Create an empty 'Timetable_Day' (i.e., a daily timetable having no
         // transitions) whose initial transition code is
         // 'k_UNSET_TRANSITION_CODE'.  The specified 'basicAllocator' is used
@@ -533,12 +517,13 @@ class Timetable_Day {
         // '0 != basicAllocator'.
 
     Timetable_Day(const Timetable_Day&  original,
-                  bslma::Allocator     *basicAllocator);
+                  bslma::Allocator     *basicAllocator = 0);
+    // TBD
         // Create a 'Timetable_Day' having the same value as the specified
         // 'original' object.  The specified 'basicAllocator' is used to supply
         // memory.  The behavior is undefined unless '0 != basicAllocator'.
 
-    //! ~Timetable_Day() = default;
+    ~Timetable_Day();
         // Destroy this object.
 
     // MANIPULATORS
@@ -936,6 +921,8 @@ class Timetable_ConstIterator {
     bsl::size_t      d_transitionIndex;  // index of the referenced transition
                                          // in the referenced daily timetable
 
+    mutable TimetableTransition_Ref d_ref;
+
     // FRIENDS
     friend class Timetable;
 
@@ -955,9 +942,9 @@ class Timetable_ConstIterator {
 
   public:
     // TYPES
-    typedef TimetableTransition       value_type;
-    typedef TimetableTransition_Proxy pointer;
-    typedef TimetableTransition_Ref   reference;
+    typedef TimetableTransition      value_type;
+    typedef TimetableTransition_Ref *pointer;
+    typedef TimetableTransition_Ref  reference;
         // The star operator returns a 'TimetableTransition_Ref' *by* *value*.
 
     // CREATORS
@@ -992,13 +979,13 @@ class Timetable_ConstIterator {
         // transition of the associated timetable.
 
     // ACCESSORS
-    TimetableTransition_Ref operator*() const;
+    TimetableTransition operator*() const;
         // Return a 'TimetableTransition_Ref' object that contains the
         // transition value referenced by this iterator.  The behavior is
         // undefined unless this iterator references a valid transition in the
         // timetable.
 
-    TimetableTransition_Proxy operator->() const;
+    const TimetableTransition_Ref *operator->() const;
         // Return a transition proxy to the element value referenced by this
         // iterator.  The behavior is undefined unless this iterator references
         // a valid transition in the timetable.
@@ -1141,7 +1128,15 @@ namespace bdlt {
                   // class Timetable_CompactableTransition
                   // -------------------------------------
 
-// PRIVATE CREATORS
+// CREATORS
+inline
+Timetable_CompactableTransition::Timetable_CompactableTransition(
+                               const Timetable_CompactableTransition& original)
+: d_time(original.d_time)
+, d_code(original.d_code)
+{
+}
+
 inline
 Timetable_CompactableTransition::Timetable_CompactableTransition(
                                                               const Time& time,
@@ -1153,15 +1148,6 @@ Timetable_CompactableTransition::Timetable_CompactableTransition(
 
     BSLS_ASSERT_SAFE(                         0 <= code
                      || k_UNSET_TRANSITION_CODE == code);
-}
-
-// CREATORS
-inline
-Timetable_CompactableTransition::Timetable_CompactableTransition(
-                               const Timetable_CompactableTransition& original)
-: d_time(original.d_time)
-, d_code(original.d_code)
-{
 }
 
 // MANIPULATORS
@@ -1245,37 +1231,6 @@ void bdlt::hashAppend(HASHALG&                               hashAlg,
 
 namespace bdlt {
 
-                     // -------------------------------
-                     // class TimetableTransition_Proxy
-                     // -------------------------------
-
-// CREATORS
-inline
-TimetableTransition_Proxy::TimetableTransition_Proxy(
-                                         const TimetableTransition& transition)
-: d_transition(transition)
-{
-}
-
-inline
-TimetableTransition_Proxy::~TimetableTransition_Proxy()
-{
-}
-
-inline
-TimetableTransition_Proxy::TimetableTransition_Proxy(
-                                     const TimetableTransition_Proxy& original)
-: d_transition(original.d_transition)
-{
-}
-
-// ACCESSORS
-inline
-const TimetableTransition *TimetableTransition_Proxy::operator->() const
-{
-    return &d_transition;
-}
-
                       // -----------------------------
                       // class TimetableTransition_Ref
                       // -----------------------------
@@ -1301,11 +1256,6 @@ TimetableTransition_Ref::~TimetableTransition_Ref()
 }
 
 // ACCESSORS
-inline
-TimetableTransition_Proxy TimetableTransition_Ref::operator&() const
-{
-    return *this;
-}
 
                            // -------------------
                            // class Timetable_Day
@@ -1315,18 +1265,22 @@ TimetableTransition_Proxy TimetableTransition_Ref::operator&() const
 inline
 Timetable_Day::Timetable_Day(bslma::Allocator *basicAllocator)
 : d_initialTransitionCode(k_UNSET_TRANSITION_CODE)
-, d_transitions(basicAllocator)
+, d_transitions(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
 }
 
 inline
 Timetable_Day::Timetable_Day(const Timetable_Day&  original,
                              bslma::Allocator     *basicAllocator)
 : d_initialTransitionCode(original.d_initialTransitionCode)
-, d_transitions(original.d_transitions, basicAllocator)
+, d_transitions(original.d_transitions,
+                bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT_SAFE(0 != basicAllocator);
+}
+
+inline
+Timetable_Day::~Timetable_Day()
+{
 }
 
 // MANIPULATORS
@@ -1640,7 +1594,7 @@ Timetable_ConstIterator& Timetable_ConstIterator::
 
 // ACCESSORS
 inline
-TimetableTransition_Ref Timetable_ConstIterator::operator*() const
+TimetableTransition Timetable_ConstIterator::operator*() const
 {
     BSLS_ASSERT_SAFE(d_timetable_p);
     BSLS_ASSERT_SAFE(d_dayIndex
@@ -1649,20 +1603,21 @@ TimetableTransition_Ref Timetable_ConstIterator::operator*() const
     const Timetable_CompactableTransition& transition =
                           d_timetable_p->d_timetable[d_dayIndex].d_transitions[
                                                             d_transitionIndex];
-    return TimetableTransition_Ref(TimetableTransition(
+    return TimetableTransition(
             Datetime(d_timetable_p->firstDate() + static_cast<int>(d_dayIndex),
                      transition.time()),
-            transition.code()));
+            transition.code());
 }
 
 inline
-TimetableTransition_Proxy Timetable_ConstIterator::operator->() const
+const TimetableTransition_Ref *Timetable_ConstIterator::operator->() const
 {
     BSLS_ASSERT_SAFE(d_timetable_p);
     BSLS_ASSERT_SAFE(d_dayIndex
                           < static_cast<bsl::size_t>(d_timetable_p->length()));
 
-    return TimetableTransition_Proxy(this->operator*());
+    d_ref = this->operator*();
+    return &d_ref;
 }
 
 }  // close package namespace

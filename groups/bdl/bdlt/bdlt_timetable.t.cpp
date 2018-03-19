@@ -907,7 +907,7 @@ int main(int argc, char *argv[])
                     bdlt::Datetime BEFORE = iter->datetime();
                     BEFORE.addTime(0, 0, 0, 0, -1);
 
-                    LOOP_ASSERT(i, *iter == iter.operator->());
+                    LOOP_ASSERT(i, *iter == *iter.operator->());
                     LOOP_ASSERT(i, iter->code() == X.transitionCodeInEffect(
                                                             iter->datetime()));
                     LOOP_ASSERT(i, previousTransitionCode
@@ -1742,7 +1742,8 @@ int main(int argc, char *argv[])
         //:
         //: 2 The address of the target object's allocator is unchanged.
         //:
-        //: 3 Any memory allocation is from the target object's allocator.
+        //: 3 Any non-temporary memory allocation is from the target object's
+        //:   allocator.
         //:
         //: 4 The signature and return type are standard.
         //:
@@ -1860,7 +1861,8 @@ int main(int argc, char *argv[])
         //:     3 All object memory is released when the object is destroyed.
         //:
         //: 6 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        //:   allocated for non-temporary values from the default allocator.
+        //:   (C-3)
         //
         // Testing:
         //   Timetable& operator=(const Timetable& rhs);
@@ -1956,15 +1958,15 @@ int main(int argc, char *argv[])
 
                     LOOP2_ASSERT(ti, tj, sam.isInUseSame());
 
-                    LOOP2_ASSERT(ti, tj, !da.numBlocksTotal());
+                    LOOP2_ASSERT(ti, tj, 0 == da.numBytesInUse());
                 }
 
                 // Verify all memory is released on object destruction.
 
-                LOOP3_ASSERT(ti, tj, da.numBlocksInUse(),
-                             0 == da.numBlocksInUse());
-                LOOP3_ASSERT(ti, tj, oa.numBlocksInUse(),
-                             0 == oa.numBlocksInUse());
+                LOOP3_ASSERT(ti, tj, da.numBytesInUse(),
+                             0 == da.numBytesInUse());
+                LOOP3_ASSERT(ti, tj, oa.numBytesInUse(),
+                             0 == oa.numBytesInUse());
             }
 
             // self-assignment
@@ -2007,13 +2009,13 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(ti, sam.isInUseSame());
 
-                LOOP_ASSERT(ti, !da.numBlocksTotal());
+                LOOP_ASSERT(ti, 0 == da.numBytesInUse());
             }
 
             // Verify all memory is released on object destruction.
 
-            LOOP2_ASSERT(ti, oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
-            LOOP2_ASSERT(ti, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+            LOOP2_ASSERT(ti, oa.numBytesInUse(), 0 == oa.numBytesInUse());
+            LOOP2_ASSERT(ti, da.numBytesInUse(), 0 == da.numBytesInUse());
         }
       } break;
       case 8: {
@@ -2236,9 +2238,10 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Verify no memory is allocated from the default allocator.
+        // Verify no memory is allocated from the default allocator for the
+        // methods under test.
 
-        LOOP_ASSERT(da.numBlocksTotal(), !da.numBlocksTotal());
+        LOOP_ASSERT(da.numBytesInUse(), 0 == da.numBytesInUse());
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
@@ -2406,8 +2409,7 @@ int main(int argc, char *argv[])
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                Obj mZ(&scratch);   const Obj& Z = gg(&mZ, SPEC);
-
+                Obj mZ(&scratch);   const Obj& Z  = gg(&mZ,  SPEC);
                 Obj mZZ(&scratch);  const Obj& ZZ = gg(&mZZ, SPEC);
 
                 if (veryVerbose) { T_ P_(Z) P(ZZ) }
@@ -2420,7 +2422,7 @@ int main(int argc, char *argv[])
                     bslma::TestAllocator da("default",   veryVeryVeryVerbose);
                     bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma::Default::setDefaultAllocatorRaw(&da);
+                    bslma::DefaultAllocatorGuard dag(&da);
 
                     Obj                  *objPtr;
                     bslma::TestAllocator *objAllocatorPtr;
@@ -2520,10 +2522,10 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(ti) P(Z) }
 
-                bslma::TestAllocator da("default",  veryVeryVeryVerbose);
-                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+                bslma::TestAllocator da("default", veryVeryVeryVerbose);
+                bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
-                bslma::Default::setDefaultAllocatorRaw(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -3531,8 +3533,6 @@ int main(int argc, char *argv[])
                  << endl;
         }
         {
-            bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
-
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
@@ -3687,8 +3687,6 @@ int main(int argc, char *argv[])
                 ASSERT(1 == X.transitionCodeInEffect(
                                                bdlt::Datetime(X.lastDate())));
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-            ASSERT(allocations == defaultAllocator.numAllocations());
         }
 
         if (verbose) {
@@ -3696,8 +3694,6 @@ int main(int argc, char *argv[])
                  << endl;
         }
         {
-            bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
-
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
@@ -3761,8 +3757,6 @@ int main(int argc, char *argv[])
                 ASSERT(    3 == X.transitionCodeInEffect(MID_B));
                 ASSERT(    2 == X.transitionCodeInEffect(LAST));
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-            ASSERT(allocations == defaultAllocator.numAllocations());
         }
 
         if (verbose) cout << "\nTesting 'removeAll'." << endl;
