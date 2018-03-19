@@ -47,18 +47,16 @@ BID_TYPE0_FUNCTION_ARGTYPE1_OTHER_ARGTYPE2(BID_UINT32, bid32_scalbn, BID_UINT32,
 	else {
        exp64 = (BID_SINT64) exponent_x + (BID_SINT64) n;
 	   if(exp64<0) exp64=0;
-	   if(exp64>DECIMAL_MAX_EXPON_32) exp64=DECIMAL_MAX_EXPON_32;
-       exponent_x = exp64;
-     res = very_fast_get_BID32 (sign_x, exponent_x, coefficient_x);	// 0
+	   else if(exp64>DECIMAL_MAX_EXPON_32) exp64=DECIMAL_MAX_EXPON_32;
+     res = very_fast_get_BID32 (sign_x, (int)exp64, coefficient_x);	// 0
 	}
     BID_RETURN (res);
   }
 
   exp64 = (BID_SINT64) exponent_x + (BID_SINT64) n;
-  exponent_x = exp64;
 
-  if ((BID_UINT32) exponent_x <= DECIMAL_MAX_EXPON_32) {
-    res = very_fast_get_BID32 (sign_x, exponent_x, coefficient_x);
+  if (0 <= exp64 && exp64 <= DECIMAL_MAX_EXPON_32) {
+    res = very_fast_get_BID32 (sign_x, (int)exp64, coefficient_x);
     BID_RETURN (res);
   }
   // check for overflow
@@ -68,19 +66,21 @@ BID_TYPE0_FUNCTION_ARGTYPE1_OTHER_ARGTYPE2(BID_UINT32, bid32_scalbn, BID_UINT32,
 	   && (exp64 > DECIMAL_MAX_EXPON_32)) {
       // coefficient_x < 10^15, scale by 10
       coefficient_x = (coefficient_x << 1) + (coefficient_x << 3);
-      exponent_x--;
       exp64--;
     }
     if (exp64 <= DECIMAL_MAX_EXPON_32) {
-      res = very_fast_get_BID32 (sign_x, exponent_x, coefficient_x);
+      res = very_fast_get_BID32 (sign_x, (int)exp64, coefficient_x);
       BID_RETURN (res);
     } else
-      exponent_x = 0x7fffffff;	// overflow
+      exp64 = 0x7fffffff;	// overflow
   }
   // exponent < 0
+  else if (exp64 < -MAX_FORMAT_DIGITS_32) {
+      exp64 = -MAX_FORMAT_DIGITS_32 - 1;
+  }
   // the BID pack routine will round the coefficient
   rmode = rnd_mode;
-  res = get_BID32 (sign_x, exponent_x, coefficient_x, rmode, pfpsf);
+  res = get_BID32 (sign_x, (int)exp64, coefficient_x, rmode, pfpsf);
   BID_RETURN (res);
 
 }
