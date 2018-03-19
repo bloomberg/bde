@@ -58,12 +58,14 @@ bool isExecutable(const char *path)
     // file) and 'false' otherwise.  On Windows, return 'true' if the file
     // exists and is not a directory.
 {
+#if defined BSLS_PLATFORM_OS_UNIX
     const int executableBits = S_IXUSR | S_IXGRP | S_IXOTH;
 
-#if defined BSLS_PLATFORM_OS_UNIX
     struct stat s;
     int rc = ::stat(path, &s);
 #else    // Windows
+    const int executableBits = S_IEXEC;
+
     struct _stat s;
     int rc = ::_stat(path, &s);
 #endif
