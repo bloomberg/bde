@@ -8,20 +8,18 @@ include(layers/ufid)
 include(layers/install_pkg_config)
 include(layers/install_cmake_config)
 
-bde_prefixed_override(bdeproj project_initialize)
-function(bdeproj_project_initialize retProj listDir)
+bde_prefixed_override(bdeproj project_setup_interface)
+function(bdeproj_project_setup_interface proj)
     bde_assert_no_extra_args()
 
-    project_initialize_base("" proj ${listDir})
+    project_setup_interface_base("" ${ARGV})
 
-    bde_add_interface_target(bsl_override_std)
+    bde_struct_get_field(interfaceTarget ${proj} INTERFACE_TARGET)
     bde_interface_target_compile_definitions(
-        bsl_override_std
-            PUBLIC
-                $<$<NOT:$<BOOL:$<TARGET_PROPERTY:SUPPRESS_BSL_OVERRIDES_STD>>>:BSL_OVERRIDES_STD>
+        ${interfaceTarget}
+        PUBLIC
+            $<$<NOT:$<BOOL:$<TARGET_PROPERTY:SUPPRESS_BSL_OVERRIDES_STD>>>:BSL_OVERRIDES_STD>
     )
-
-    bde_struct_append_field(${proj} COMMON_INTERFACE_TARGETS bsl_override_std)
 
     bde_return(${proj})
 endfunction()
@@ -39,8 +37,6 @@ function(bdeproj_project_process_uors proj listDir)
         ${listDir}/groups/btl
     )
 
-    # Note, that thirdparty libraries do not use COMMON_INTERFACE_TARGETS
-    bde_struct_set_field(${proj} COMMON_INTERFACE_TARGETS "")
     bde_project_process_standalone_packages(
         ${proj}
         ${listDir}/thirdparty/decnumber
