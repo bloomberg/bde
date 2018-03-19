@@ -15,25 +15,25 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlt_iso8601utilconfiguration
 //
 //@DESCRIPTION: This component provides a namespace, 'bdlt::Iso8601Util',
-// containing functions that convert 'bdlt' date, time, and datetime objects to
-// and from ("generate" and "parse", respectively) corresponding string
-// representations that are compliant with the ISO 8601 standard.  The version
-// of the ISO 8601 standard that is the basis for this component can be found
-// at:
+// containing functions that convert 'bsls' timeinterval and 'bdlt' date, time,
+// and datetime objects to and from ("generate" and "parse", respectively)
+// corresponding string representations that are compliant with the ISO 8601
+// standard.  The version of the ISO 8601 standard that is the basis for this
+// component can be found at:
 //..
 //  http://dotat.at/tmp/ISO_8601-2004_E.pdf
 //..
 // In general terms, 'Iso8601Util' functions support what ISO 8601 refers to as
 // *complete* *representations* in *extended* *format*.  We first present a
 // brief overview before delving into the details of the ISO 8601
-// representations that are supported for each of the relevant 'bdlt'
-// vocabulary types.
+// representations that are supported for each of the relevant vocabulary
+// types.
 //
 // Each function that *generates* ISO 8601 strings (named 'generate' and
-// 'generateRaw') takes a 'bdlt' object and a 'char *' buffer, 'bsl::string',
-// or 'bsl::ostream', and writes an ISO 8601 representation of the object to
-// the buffer, string, or stream.  The "raw" functions are distinguished from
-// their non-"raw" counterparts in three respects:
+// 'generateRaw') takes an object and a 'char *' buffer, 'bsl::string', or
+// 'bsl::ostream', and writes an ISO 8601 representation of the object to the
+// buffer, string, or stream.  The "raw" functions are distinguished from their
+// non-"raw" counterparts in three respects:
 //
 //: o The length of the 'char *' buffer is not supplied to the 'generateRaw'
 //:   functions.
@@ -52,11 +52,11 @@ BSLS_IDENT("$Id: $")
 // object, which is discussed shortly.)
 //
 // Each function that *parses* ISO 8601 strings (named 'parse') take the
-// address of a target 'bdlt' object and a 'const char *' (paired with a
-// 'length' argument) or 'bslstl::StringRef', and loads the object with the
-// result of parsing the character string.  Since parsing can fail, the parse
-// functions return an 'int' status value (0 for success and a non-zero value
-// for failure).  Note that, besides elementary syntactical considerations, the
+// address of a target object and a 'const char *' (paired with a 'length'
+// argument) or 'bslstl::StringRef', and loads the object with the result of
+// parsing the character string.  Since parsing can fail, the parse functions
+// return an 'int' status value (0 for success and a non-zero value for
+// failure).  Note that, besides elementary syntactical considerations, the
 // validity of parsed strings are subject to the semantic constraints imposed
 // by the various 'isValid*' class methods, (i.e., 'Date::isValidYearMonthDay',
 // 'Time::isValid', etc.).
@@ -83,17 +83,19 @@ BSLS_IDENT("$Id: $")
 ///ISO 8601 String Generation
 ///--------------------------
 // Strings produced by the 'generate' and 'generateRaw' functions are a
-// straightforward transposition of the attributes of the source 'bdlt' value
-// into an appropriate ISO 8601 format, and are best illustrated by a few
-// examples.  Note that for 'Datetime' and 'DatetimeTz', the fractional second
-// is generated with the precision specified in the configuration.  Also note
-// that for 'Time' and 'TimeTz', the fractional second is generated with the
+// straightforward transposition of the attributes of the source value into an
+// appropriate ISO 8601 format, and are best illustrated by a few examples.
+// Note that for 'Datetime' and 'DatetimeTz', the fractional second is
+// generated with the precision specified in the configuration.  Also note that
+// for 'Time' and 'TimeTz', the fractional second is generated with the
 // precision specified in the configuration up to a maximum precision of 6.
 //..
 //  +--------------------------------------+---------------------------------+
 //  |             Object Value             |    Generated ISO 8601 String    |
 //  |                                      |  (using default configuration)  |
 //  +======================================+=================================+
+//  |  bsls::TimeInterval(1000, 3000000)   |  PT16M40.003S                   |
+//  +--------------------------------------+---------------------------------+
 //  |  Date(2002, 03, 17)                  |  2002-03-17                     |
 //  +--------------------------------------+---------------------------------+
 //  |  Time(15, 46, 09, 330)               |  15:46:09.330                   |
@@ -148,13 +150,13 @@ BSLS_IDENT("$Id: $")
 ///Zone Designators
 /// - - - - - - - -
 // The zone designator is optional, and can be present when parsing for *any*
-// type, i.e., even for 'Date', 'Time', and 'Datetime'.  If a zone designator
-// is parsed for a 'Date', it must be valid, so it can affect the status value
-// that is returned in that case, but it is otherwise ignored.  For 'Time' and
-// 'Datetime', any zone designator present in the parsed string will affect the
-// resulting object value (unless the zone designator denotes UTC) because the
-// result is converted to UTC.  If the zone designator is absent, it is treated
-// as if '+00:00' were specified:
+// type other than bsls::TimeInterval, i.e., even for 'Date', 'Time', and
+// 'Datetime'.  If a zone designator is parsed for a 'Date', it must be valid,
+// so it can affect the status value that is returned in that case, but it is
+// otherwise ignored.  For 'Time' and 'Datetime', any zone designator present
+// in the parsed string will affect the resulting object value (unless the zone
+// designator denotes UTC) because the result is converted to UTC.  If the zone
+// designator is absent, it is treated as if '+00:00' were specified:
 //..
 //  +------------------------------------+-----------------------------------+
 //  |       Parsed ISO 8601 String       |        Result Object Value        |
@@ -195,8 +197,10 @@ BSLS_IDENT("$Id: $")
 // six).  For 'Datetime', 'DatetimeTz', 'Time', and 'TimeTz', if more than six
 // digits are included in the fractional second, values are rounded to a full
 // microsecond; i.e., values greater than or equal to .5 microseconds are
-// rounded up.  These roundings may incur a carry of one second into the
-// 'second' attribute:
+// rounded up.  For 'bsls::TimeInterval', if more than nine digits are included
+// in the fractional second, values are rounded to a full nanosecond; i.e.,
+// values greater than or equal to .5 microseconds are rounded up.  These
+// roundings may incur a carry of one second into the 'second' attribute:
 //..
 //  +--------------------------------------+---------------------------------+
 //  |        Parsed ISO 8601 String        |      Result Object Value        |
@@ -334,6 +338,47 @@ BSLS_IDENT("$Id: $")
 //                                                 # fractional second
 //
 // <ZONE>                  ::=  (+|-)hh{:}mm|Z     # zone designator
+//..
+//
+///Summary of Supported ISO 8601 Duration Representations
+///- - - - - - - - - - - - - - - - - - - - - - -
+// The syntax description below summarizes the ISO 8601 string representations
+// for durations supported by this component.  Although not quoted (for
+// readability), '[.,PWDTHMS]' are literal characters that can occur in ISO
+// 8601 strings.  The characters '[wdhms]' each denote a decimal digit, '{}'
+// brackets optional elements, '()' is used for grouping, and '|' separates
+// alternatives:
+//..
+// <Date Duration>      ::=  {w+W}{d+D}
+//
+// <Time Duration>      ::=  T{h+H}{m+M}{s+{(.|,)s+}S}         # must contain
+//                                                             # at least one
+//                                                             # optional field
+//                                                             # (i.e. "T" is
+//                                                             # not valid)
+//
+// <Generated Duration> ::=  P<Date Duration><Time Duration>   # all values
+//                                                             # guaranteed to
+//                                                             # be less than
+//                                                             # their modulus
+//                                                             # (weeks can be
+//                                                             # be up to 14
+//                                                             # digits), and
+//                                                             # it must
+//                                                             # contain the
+//                                                             # seconds
+//                                                             # portion
+//
+// <Parsed Duration>    ::=  P<Date Duration>{<Time Duration>} # must contain
+//                                                             # at least one
+//                                                             # optional field
+//                                                             # in <Date
+//                                                             # Duration> or
+//                                                             # must contain
+//                                                             # a <Time
+//                                                             # Duration>
+//                                                             # (i.e. "P" is
+//                                                             # not valid)
 //..
 //
 ///Usage
@@ -529,6 +574,11 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+namespace bsls {
+
+class TimeInterval;
+
+} // close namespace bsls
 namespace bdlt {
 
 class Date;
@@ -562,16 +612,18 @@ struct Iso8601Util {
         // produced by the 'generate' functions taking a 'bufferLength'
         // argument.
 
-        k_DATE_STRLEN       = 10,  // 'bdlt::Date'
-        k_DATETZ_STRLEN     = 16,  // 'bdlt::DateTz'
+        k_DATE_STRLEN         = 10,  // 'bdlt::Date'
+        k_DATETZ_STRLEN       = 16,  // 'bdlt::DateTz'
 
-        k_TIME_STRLEN       = 15,  // 'bdlt::Time'
-        k_TIMETZ_STRLEN     = 21,  // 'bdlt::TimeTz'
+        k_TIME_STRLEN         = 15,  // 'bdlt::Time'
+        k_TIMETZ_STRLEN       = 21,  // 'bdlt::TimeTz'
 
-        k_DATETIME_STRLEN   = 26,  // 'bdlt::Datetime'
-        k_DATETIMETZ_STRLEN = 32,  // 'bdlt::DatetimeTz'
+        k_DATETIME_STRLEN     = 26,  // 'bdlt::Datetime'
+        k_DATETIMETZ_STRLEN   = 32,  // 'bdlt::DatetimeTz'
 
-        k_MAX_STRLEN        = k_DATETIMETZ_STRLEN
+        k_TIMEINTERVAL_STRLEN = 38,  // 'bsls::TimeInterval'
+
+        k_MAX_STRLEN          = k_TIMEINTERVAL_STRLEN
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , BDEPU_DATE_STRLEN         = k_DATE_STRLEN
@@ -593,6 +645,13 @@ struct Iso8601Util {
     };
 
     // CLASS METHODS
+    static int generate(char                            *buffer,
+                        int                              bufferLength,
+                        const bsls::TimeInterval&        object);
+    static int generate(char                            *buffer,
+                        int                              bufferLength,
+                        const bsls::TimeInterval&        object,
+                        const Iso8601UtilConfiguration&  configuration);
     static int generate(char                            *buffer,
                         int                              bufferLength,
                         const Date&                      object);
@@ -649,6 +708,11 @@ struct Iso8601Util {
         // this component (counting a null terminator, if any).
 
     static int generate(bsl::string                     *string,
+                        const bsls::TimeInterval&        object);
+    static int generate(bsl::string                     *string,
+                        const bsls::TimeInterval&        object,
+                        const Iso8601UtilConfiguration&  configuration);
+    static int generate(bsl::string                     *string,
                         const Date&                      object);
     static int generate(bsl::string                     *string,
                         const Date&                      object,
@@ -686,6 +750,13 @@ struct Iso8601Util {
         // the number of characters in the formatted string.  The previous
         // contents of 'string' (if any) are discarded.
 
+    static bsl::ostream& generate(
+                                bsl::ostream&                   stream,
+                                const bsls::TimeInterval&       object);
+    static bsl::ostream& generate(
+                                bsl::ostream&                   stream,
+                                const bsls::TimeInterval&       object,
+                                const Iso8601UtilConfiguration& configuration);
     static bsl::ostream& generate(
                                 bsl::ostream&                   stream,
                                 const Date&                     object);
@@ -736,6 +807,11 @@ struct Iso8601Util {
         // a reference to 'stream'.  Note that 'stream' is not null terminated.
 
     static int generateRaw(char                            *buffer,
+                           const bsls::TimeInterval&        object);
+    static int generateRaw(char                            *buffer,
+                           const bsls::TimeInterval&        object,
+                           const Iso8601UtilConfiguration&  configuration);
+    static int generateRaw(char                            *buffer,
                            const Date&                      object);
     static int generateRaw(char                            *buffer,
                            const Date&                      object,
@@ -775,6 +851,27 @@ struct Iso8601Util {
         // sufficient capacity.  Note that a buffer of size 'k_MAX_STRLEN + 1'
         // is large enough to hold any string generated by this component
         // (counting a null terminator, if any).
+
+    static int parse(bsls::TimeInterval *result,
+                     const char         *string,
+                     int                 length);
+        // Parse the specified initial 'length' characters of the specified ISO
+        // 8601 'string' as a 'bsls::TimeInterval' value, and load the value
+        // into the specified 'result'.  Return 0 on success, and a non-zero
+        // value (with no effect) otherwise.  'string' is assumed to be of the
+        // form:
+        //..
+        //  <Parsed Duration>
+        //..
+        // See "Summary of Supported ISO 8601 Duration Representations" for a
+        // complete description of this format.
+        //
+        // *Exactly* 'length' characters are parsed; parsing will fail if a
+        // proper prefix of 'string' matches the expected format, but the
+        // entire 'length' characters do not.  If an optional fractional second
+        // having more than nine digits is present in 'string', it is rounded
+        // to the nearest value in nanoseconds.  The behavior is undefined
+        // unless '0 <= length'.
 
     static int parse(Date *result, const char *string, int length);
         // Parse the specified initial 'length' characters of the specified ISO
@@ -891,6 +988,25 @@ struct Iso8601Util {
         // "hh:mm:ss" portion of 'string' is "24:00:00", then the fractional
         // second must be absent or 0, and the zone designator must be absent
         // or indicate UTC.  The behavior is undefined unless '0 <= length'.
+
+    static int parse(bsls::TimeInterval      *result,
+                     const bslstl::StringRef& string);
+        // Parse the specified ISO 8601 'string' as a 'bsls::TimeInterval'
+        // value, and load the value into the specified 'result'.  Return 0 on
+        // success, and a non-zero value (with no effect) otherwise.  'string'
+        // is assumed to be of the form:
+        //..
+        //  <Parsed Duration>
+        //..
+        // See "Summary of Supported ISO 8601 Duration Representations" for a
+        // complete description of this format.
+        //
+        // *Exactly* 'string.length()' characters are parsed; parsing will fail
+        // if a proper prefix of 'string' matches the expected format, but the
+        // entire 'string.length()' characters do not.  If an optional
+        // fractional second having more than nine digits is present in
+        // 'string', it is rounded to the nearest value in nanoseconds.  The
+        // behavior is undefined unless '0 <= length'.
 
     static int parse(Date *result, const bslstl::StringRef& string);
         // Parse the specified ISO 8601 'string' as a 'Date' value, and load
@@ -1086,6 +1202,20 @@ struct Iso8601Util {
 
 // CLASS METHODS
 inline
+int Iso8601Util::generate(char                     *buffer,
+                          int                       bufferLength,
+                          const bsls::TimeInterval& object)
+{
+    BSLS_ASSERT_SAFE(buffer);
+    BSLS_ASSERT_SAFE(0 <= bufferLength);
+
+    return generate(buffer,
+                    bufferLength,
+                    object,
+                    Iso8601UtilConfiguration::defaultConfiguration());
+}
+
+inline
 int Iso8601Util::generate(char *buffer, int bufferLength, const Date& object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -1160,6 +1290,17 @@ Iso8601Util::generate(char *buffer, int bufferLength, const DatetimeTz& object)
 }
 
 inline
+int Iso8601Util::generate(bsl::string              *string,
+                          const bsls::TimeInterval& object)
+{
+    BSLS_ASSERT_SAFE(string);
+
+    return generate(string,
+                    object,
+                    Iso8601UtilConfiguration::defaultConfiguration());
+}
+
+inline
 int Iso8601Util::generate(bsl::string *string, const Date& object)
 {
     BSLS_ASSERT_SAFE(string);
@@ -1217,6 +1358,32 @@ int Iso8601Util::generate(bsl::string *string, const DatetimeTz& object)
     return generate(string,
                     object,
                     Iso8601UtilConfiguration::defaultConfiguration());
+}
+
+inline
+bsl::ostream& Iso8601Util::generate(bsl::ostream&             stream,
+                                    const bsls::TimeInterval& object)
+{
+    return generate(stream,
+                    object,
+                    Iso8601UtilConfiguration::defaultConfiguration());
+}
+
+inline
+bsl::ostream& Iso8601Util::generate(
+                                 bsl::ostream&                   stream,
+                                 const bsls::TimeInterval&       object,
+                                 const Iso8601UtilConfiguration& configuration)
+{
+    char buffer[k_TIMEINTERVAL_STRLEN + 1];
+
+    const int len = generate(buffer,
+                             k_TIMEINTERVAL_STRLEN,
+                             object,
+                             configuration);
+    BSLS_ASSERT_SAFE(k_TIMEINTERVAL_STRLEN >= len);
+
+    return stream.write(buffer, len);
 }
 
 inline
@@ -1357,6 +1524,16 @@ bsl::ostream& Iso8601Util::generate(
 }
 
 inline
+int Iso8601Util::generateRaw(char *buffer, const bsls::TimeInterval& object)
+{
+    BSLS_ASSERT_SAFE(buffer);
+
+    return generateRaw(buffer,
+                       object,
+                       Iso8601UtilConfiguration::defaultConfiguration());
+}
+
+inline
 int Iso8601Util::generateRaw(char *buffer, const Date& object)
 {
     BSLS_ASSERT_SAFE(buffer);
@@ -1414,6 +1591,15 @@ int Iso8601Util::generateRaw(char *buffer, const DatetimeTz& object)
     return generateRaw(buffer,
                        object,
                        Iso8601UtilConfiguration::defaultConfiguration());
+}
+
+inline
+int Iso8601Util::parse(bsls::TimeInterval *result,
+                       const bslstl::StringRef& string)
+{
+    BSLS_ASSERT_SAFE(string.data());
+
+    return parse(result, string.data(), static_cast<int>(string.length()));
 }
 
 inline
