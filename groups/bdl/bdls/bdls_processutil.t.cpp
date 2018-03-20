@@ -247,14 +247,16 @@ int main(int argc, char *argv[])
 //..
     bsl::string processName;
     int rc = bdls::ProcessUtil::getProcessName(&processName);
-    ASSERT(0 == rc);
+    ASSERT(0 == rc);    // failure extremely unlikely -- assume success for
+                        // example
     ASSERT(!processName.empty());
 //..
 // All calls to 'getProcessName' will yield the same value:
 //..
     bsl::string processNameB;
     rc = bdls::ProcessUtil::getProcessName(&processNameB);
-    ASSERT(0 == rc);
+    ASSERT(0 == rc);    // failure extremely unlikely -- assume success for
+                        // example
     ASSERT(processNameB == processName);
 //..
       } break;

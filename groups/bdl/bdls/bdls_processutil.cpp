@@ -139,15 +139,15 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // much longer than 4K, and 4K is short enough not to be worth dynamically
     // allocating.
 
-
     bsl::string pidPathBuf(PROC_PIDPATHINFO_MAXSIZE, '\0');
 
     int numChars = ::proc_pidpath(getProcessId(),
                                   &pidPathBuf[0],
                                   PROC_PIDPATHINFO_MAXSIZE);
-    if (numChars <= 0 || PROC_PIDPATHINFO_MAXSIZE < numChars) {
+    if (numChars <= 0) {
         return -1;                                                    // RETURN
     }
+    BSLS_ASSERT(numChars <= PROC_PIDPATHINFO_MAXSIZE);
 
     result->assign(pidPathBuf.c_str(), numChars);
     return 0;

@@ -21,14 +21,29 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdls::ProcessUtil: portable utility methods related to processes
 //
-//@AUTHOR: Bruce Szablak (bszablak)
+//@AUTHOR: Bruce Szablak (bszablak), Bill Chapman (bchapman2)
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component, 'bdls::ProcessUtil', defines a
 // platform-independent interface for processes.  Currently, it provides a
-// utility to get the current process ID, and a utility to get the name of the
-// process executable.
+// utility to get the current process ID, a utility to get the name of the
+// process, and a utility to get a filename through which the executable can be
+// accessed.
+//
+///'getProcessName' vs 'getPathToExecutable'
+///-----------------------------------------
+// The 'getProcessName' function is intended to yield a process name that will
+// be meaningful to the programmer, recognizably related to the value of
+// 'argv[0]' passed to the application, and usually a valid path to the
+// executable file.  However, in some cases, especially when 'argv[0]' was a
+// relative path and the working directory has changed since 'main' was called,
+// this will not be a usable path for accessing the executable file, and
+// 'getPathToExecutable' should be used.  Note that the return value of
+// 'getPathToExecutable' may be completely unrelated to the value of 'argv[0]'
+// passed to main, and the value returned by that function may vary when called
+// multiple times in the same program.  'getPathToExecutable' will not succeed
+// unless it returns a valid path to the executable file.
 //
 ///Usage
 ///-----
@@ -44,14 +59,16 @@ BSLS_IDENT("$Id: $")
 //..
 //  bsl::string processName;
 //  int rc = bdls::ProcessUtil::getProcessName(&processName);
-//  assert(0 == rc);
+//  assert(0 == rc);    // failure extremely unlikely -- assume success for
+//                      // example
 //  assert(!processName.empty());
 //..
 // All calls to 'getProcessName' will yield the same value:
 //..
 //  bsl::string processNameB;
 //  rc = bdls::ProcessUtil::getProcessName(&processNameB);
-//  assert(0 == rc);
+//  assert(0 == rc);    // failure extremely unlikely -- assume success for
+//                      // example
 //  assert(processNameB == processName);
 //..
 
@@ -93,14 +110,10 @@ struct ProcessUtil {
         // Set '*result' to a path with which the executable can be accessed
         // (which may bear no relation to the command line used to begin this
         // process).  Return 0 on success, and a non-zero value otherwise.  On
-        // failure, '*result' will not be modified.  Note that the purpose of
-        // this method is to return a path that, when opened, will reliably
-        // access this process's executable.  Also note that the value of
-        // 'argv[0]' passed to 'main' may be invalid if it is a relative path
-        // and the working directory has been changed since the process began,
-        // so absolute paths are preferred, even if they bear no resemblance to
-        // the command line (e.g. some Unix platforms provide links to the
-        // executable under the "/proc" virtual file space).
+        // failure, '*result' will not be modified.  Note that the returned
+        // value of '*result' may not correspond to the value of 'argv[0]'
+        // passed to 'main'.  Some systems provide more reliable alternatives,
+        // such as through the "/proc" file system.
 };
 
 }  // close package namespace
