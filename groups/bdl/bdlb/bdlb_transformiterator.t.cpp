@@ -101,6 +101,17 @@ void aSsErT(bool condition, const char *message, int line)
 //..
 //..
 
+        struct X : bsl::random_access_iterator_tag {
+            #if __cplusplus < 201103L
+            typedef bsl::string& result_type;
+            #endif
+            std::string b, a;
+            bsl::string& operator()(bsl::string& s) {
+                b += "(";
+                a += ")";
+                return s = b + s + a;
+            }
+        };
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -156,10 +167,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBREATHING TEST"
                              "\n==============\n";
 
-        double d[] = { 1, 4, 9, 16, 25, 36 };
+        double d[] = { 1, 4, 9, 16, 25 };
         typedef bdlb::TransformIterator<double(*)(double), double *> Ti;
 
-        ASSERT(21 == bsl::accumulate(Ti(d + 0, sqrt), Ti(d + 6, sqrt), 0.0));
+        ASSERT(15 == bsl::accumulate(Ti(d + 0, sqrt), Ti(d + 5, sqrt), 0.0));
+
+        bsl::string s[] = { "1", "2", "3", "4", "5" };
+        typedef bdlb::TransformIterator<X, bsl::string *> Ts;
+        ASSERT("(1)((2))(((3)))((((4))))(((((5)))))" ==
+               bsl::accumulate(Ts(s + 0, X()), Ts(s + 5, X()), bsl::string()));
       } break;
       default: {
          cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
