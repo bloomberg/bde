@@ -15,6 +15,7 @@
 #include <bdlf_placeholder.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
+#include <bdlt_timeunitratio.h>
 
 #include <bslim_testutil.h>
 #include <bslma_defaultallocatorguard.h>
@@ -108,13 +109,14 @@ using namespace bsl;  // automatically added by script
 //
 // ACCESSORS
 // [21] bsls::SystemClockType::Enum clockType() const;
+// [23] bsls::TimeInterval now() const;
 //-----------------------------------------------------------------------------
 // [01] BREATHING TEST
 // [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
 // [22] CLOCK REPLACEMENT BREATHING TEST
-// [23] USAGE EXAMPLE
+// [24] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -786,7 +788,7 @@ void my_Server::newConnection(my_Server::Connection *connection)
     // setup the timeout for data arrival
     d_scheduler.scheduleEvent(
           &connection->d_timerId,
-          bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
+          d_scheduler.now() + d_ioTimeout,
           bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
@@ -810,7 +812,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
     // setup the timeout for data arrival
     d_scheduler.scheduleEvent(
           &connection->d_timerId,
-          bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
+          d_scheduler.now() + d_ioTimeout,
           bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
@@ -2222,7 +2224,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES:
         //
@@ -2276,6 +2278,81 @@ int main(int argc, char *argv[])
 
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING NOW ACCESSOR
+        //
+        // Concern:
+        //   That the 'now' accessor correctly returns the current time
+        //   according to the clock the object was constructed with, or a test
+        //   time source.
+        //
+        // Plan:
+        //   Create objects with all values of 'clockType', and verify that the
+        //   value returned by the 'now' accessor is as expected.  Then create
+        //   a test time source and verify that the value returned by the 'now'
+        //   accessor matches that of the test time source.
+        //
+        // Testing:
+        //   bsls::TimeInterval now() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING NOW ACCESSOR\n"
+                             "====================\n";
+
+        const bsls::SystemClockType::Enum realTime =
+                                            bsls::SystemClockType::e_REALTIME;
+        const bsls::SystemClockType::Enum monotonic =
+                                            bsls::SystemClockType::e_MONOTONIC;
+
+        ASSERT(realTime != monotonic);
+
+        bslma::TestAllocator ta(veryVeryVerbose);
+
+        if (verbose) cout << "Realtime clock\n";
+        {
+            Obj x(realTime, &ta);    const Obj& X = x;
+
+            ASSERT(realTime == X.clockType());
+
+            bsls::TimeInterval xnow = X.now();
+            bsls::TimeInterval cnow = bsls::SystemTime::now(X.clockType());
+            ASSERT(xnow <= cnow);
+
+            cnow = bsls::SystemTime::now(X.clockType());
+            xnow = X.now();
+            ASSERT(cnow <= xnow);
+        }
+
+        if (verbose) cout << "Monotonic clock\n";
+        {
+            Obj x(monotonic, &ta);    const Obj& X = x;
+
+            ASSERT(monotonic == X.clockType());
+
+            bsls::TimeInterval xnow = X.now();
+            bsls::TimeInterval cnow = bsls::SystemTime::now(X.clockType());
+            ASSERT(xnow <= cnow);
+
+            cnow = bsls::SystemTime::now(X.clockType());
+            xnow = X.now();
+            ASSERT(cnow <= xnow);
+        }
+
+        if (verbose) cout << "Test time source\n";
+        {
+            Obj x(&ta);    const Obj& X = x;
+
+            bdlmt::EventSchedulerTestTimeSource timeSource(&x);
+
+            ASSERT(X.now() == timeSource.now());
+
+            timeSource.advanceTime(bsls::TimeInterval(
+                                              bdlt::TimeUnitRatio::k_S_PER_D));
+            ASSERT(X.now() == timeSource.now());
+        }
+
       } break;
       case 22: {
         // --------------------------------------------------------------------
