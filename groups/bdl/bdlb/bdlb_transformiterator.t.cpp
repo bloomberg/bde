@@ -105,6 +105,8 @@ void aSsErT(bool condition, const char *message, int line)
             #if __cplusplus < 201103L
             typedef bsl::string& result_type;
             #endif
+            X(bslma::Allocator *l) : b(l), a(l) { }
+            X(const X& o, bslma::Allocator *l) : b(o.b, l), a(o.a, l) { }
             std::string b, a;
             bsl::string& operator()(bsl::string& s) {
                 b += "(";
@@ -174,8 +176,10 @@ int main(int argc, char *argv[])
 
         bsl::string s[] = { "1", "2", "3", "4", "5" };
         typedef bdlb::TransformIterator<X, bsl::string *> Ts;
+        bslma::Allocator *a = 0;
         ASSERT("(1)((2))(((3)))((((4))))(((((5)))))" ==
-               bsl::accumulate(Ts(s + 0, X()), Ts(s + 5, X()), bsl::string()));
+               bsl::accumulate(
+                   Ts(s + 0, X(a), a), Ts(s + 5, X(a), a), bsl::string(a)));
       } break;
       default: {
          cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
