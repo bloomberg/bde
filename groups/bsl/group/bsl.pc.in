@@ -1,0 +1,11 @@
+prefix=/opt/bb
+libdir=${prefix}/@bde_install_lib_suffix@
+includedir=${prefix}/include
+
+Name: @component@
+Description: The @component@ library.
+Version: 4.0.0
+Requires:
+Requires.private: @pc_depends@
+Cflags: -I\${includedir} -I${includedir}/stlport -D_POSIX_PTHREAD_SEMANTICS -DBSL_OVERRIDES_STD
+Libs: -L\${libdir} -l@component@ -lpthread -lrt
