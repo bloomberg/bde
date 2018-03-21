@@ -201,6 +201,106 @@ int main(int argc, char *argv[])
     bslma::TestAllocatorMonitor gam(&ga), dam(&da);
 
     switch (test) { case 0:
+      case 8: {
+        // --------------------------------------------------------------------
+        // REF TEST
+        //
+        // Concerns:
+        //:
+        //: 1 The 'ref' method accepts different common types for representing
+        //:   string content and produces a 'Datum' that presents itself as a
+        //:   string, yet refers to the contents given as an argument.
+        //:   Therefore the method will not copy the string contents, but
+        //:   create a reference to them.
+        //:
+        //: 2 The 'ref' method will create a reference to a string of length
+        //:   greater than 64KiB where the length will not fit into a 16bit
+        //:   integer.  On 32bit platforms the 'Datum' will need to allocate a
+        //:   string reference to accomodate for a count with more than 16bit.
+        //:   Check that the allocator of the 'DatumMaker' is used for that.
+        //:
+        //
+        // Plan:
+        //:
+        //: 1 Given a test string, present it as an argument to the function
+        //:   'ref' under test using different argument types.  For each one
+        //:   check that the 'StringRef' obtained from the result points to the
+        //:   original data.
+        //:
+        //: 2 Create a string with 70,000 characters and pass it to the 'ref()'
+        //:   method of a 'DatumMaker' equipped with a counting allocator.
+        //:   Check that directly deleting the 'Datum' obtained from the call
+        //:   with the allocator will end up with an in-use count of zero.
+        //:   That check should work regardless of whether an allocation was
+        //:   necessary or not.
+        //:
+        //
+        // Testing:
+        //   bdld::Datum ref(const bslstl::StringRef&) const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "REF TEST" << endl
+                          << "========" << endl;
+
+        bdlma::LocalSequentialAllocator<64> sa(&ta);
+        bdld::DatumMaker dm(&sa);
+
+        static const char text[] =
+                                "This is the sample text with lots of content";
+        static const int textLen = sizeof(text) - 1;
+
+        const bslstl::StringRef asStringRef(text, textLen);
+        const bsl::string       asBslString(text, textLen, &ta);
+        const char       *const asCharPtr = text;
+
+        {  // as array
+            const bdld::Datum referencing = dm.ref(text);
+            ASSERT(referencing.isString());
+            const bslstl::StringRef sref = referencing.theString();
+            ASSERT(sref.data() == text);
+            ASSERT(sref.length() == textLen);
+        }
+        {  // as string ref
+            const bdld::Datum referencing = dm.ref(asStringRef);
+            ASSERT(referencing.isString());
+            const bslstl::StringRef sref = referencing.theString();
+            ASSERT(sref.data() == text);
+            ASSERT(sref.length() == textLen);
+        }
+        {  // as string
+            const bdld::Datum referencing = dm.ref(asBslString);
+            ASSERT(referencing.isString());
+            const bslstl::StringRef sref = referencing.theString();
+            ASSERT(sref.data() == asBslString.data());
+            ASSERT(sref.length() == asBslString.length());
+        }
+        {  // as char *
+            const bdld::Datum referencing = dm.ref(asCharPtr);
+            ASSERT(referencing.isString());
+            const bslstl::StringRef sref = referencing.theString();
+            ASSERT(sref.data() == text);
+            ASSERT(sref.length() == textLen);
+        }
+
+        {  // long string
+            bslma::TestAllocator localTa(&ta);
+            bdld::DatumMaker     dmTest(&localTa);
+
+            const int k_LENGTH_OVER_64KiB = 70000;
+
+            const bsl::string longString(k_LENGTH_OVER_64KiB, 'x', &ta);
+            const bdld::Datum referencing = dmTest.ref(longString);
+            ASSERT(referencing.isString());
+            const bslstl::StringRef sref = referencing.theString();
+            ASSERT(sref.data() == longString.data());
+            ASSERT(sref.length() == longString.length());
+
+            bdld::Datum::destroy(referencing, &localTa);
+            ASSERT(localTa.numBlocksInUse() == 0);
+        }
+      } break;
+
       case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
