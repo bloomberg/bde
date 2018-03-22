@@ -110,7 +110,7 @@ using namespace BloombergLP;
 // [24] DRQS 107733386: pause queue can be indefinitely deferred
 // [25] DRQS 112259433: 'drain' and 'deleteQueue' can deadlock
 // [26] DRQS 113734461: 'deleteQueue' copies cleanupFunctor
-// [27] DRQS 118269630: 'drain' acquires wrong type of lock
+// [27] DRQS 118269630: 'drain' may not drain underlying threadpool
 // [28] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
@@ -1467,22 +1467,23 @@ int main(int argc, char *argv[]) {
       }  break;
       case 27: {
         // --------------------------------------------------------------------
-        // DRQS 118269630: 'drain' acquires wrong type of lock
+        // DRQS 118269630: 'drain' may not drain underlying threadpool
         //
         // Concerns:
-        //: 1 That 'drain' appropriately acquires a lock to prevent race
-        //:   conditions between 'drain' and 'enqueueJob'.
+        //: 1 That 'drain' appropriately reaches completion without causing
+        //:   race conditions between 'drain' and 'enqueueJob'.
         //
         // Plan:
         //: 1 Recreate the scenario and verify the race no longer occurs.
         //
         // Testing:
-        //   DRQS 118269630: 'drain' acquires wrong type of lock
+        //   DRQS 118269630: 'drain' may not drain underlying threadpool
         // --------------------------------------------------------------------
 
         if (verbose) {
-            cout << "DRQS 118269630: 'drain' acquires wrong type of lock\n"
-                 << "===================================================\n";
+            cout
+            << "DRQS 118269630: 'drain' may not drain underlying threadpool\n"
+            << "===========================================================\n";
         }
 
         Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
