@@ -538,44 +538,29 @@ int MultiQueueThreadPool::start()
 
 void MultiQueueThreadPool::drain()
 {
-    if (d_threadPoolIsOwned) {
-        while (1) {
-            {
-                bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+    while (1) {
+        {
+            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-                if (   e_STATE_STOPPED == d_state
-                    || 0               == d_threadPool_p->enabled()) {
-                    return;                                           // RETURN
+            if (   e_STATE_STOPPED == d_state
+                || 0               == d_threadPool_p->enabled()) {
+                return;                                               // RETURN
+            }
+
+            if (0 == d_numActiveQueues) {
+                if (d_threadPoolIsOwned) {
+                    if (   0 == d_threadPool_p->numActiveThreads()
+                        && 0 == d_threadPool_p->numPendingJobs()) {
+                        return;                                       // RETURN
+                    }
                 }
-
-                if (0 == d_numActiveQueues) {
-                    d_threadPool_p->drain();
-                    d_threadPool_p->start();
-
+                else {
                     return;                                           // RETURN
                 }
             }
-
-            bslmt::ThreadUtil::yield();
         }
-    }
-    else {
-        while (1) {
-            {
-                bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-                if (   e_STATE_STOPPED == d_state
-                    || 0               == d_threadPool_p->enabled()) {
-                    return;                                           // RETURN
-                }
-
-                if (0 == d_numActiveQueues) {
-                    return;                                           // RETURN
-                }
-            }
-
-            bslmt::ThreadUtil::yield();
-        }
+        bslmt::ThreadUtil::yield();
     }
 }
 
