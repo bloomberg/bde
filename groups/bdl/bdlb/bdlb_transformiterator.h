@@ -7,21 +7,126 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: To be the best transform iterator possible, given the constraints.
+//@PURPOSE: Provide a wrapping iterator that invokes a functor on dereference.
 //
 //@CLASSES:
-// bdlb::TransformIterator: Be a darn good transform iterator.
+//  bdlb::TransformIterator: functor-invoking iterator wrapper
 //
-//@DESCRIPTION: 'bdlb::TransformIterator' iterates and transforms.
+//@DESCRIPTION: This component implements a class template,
+// 'bdlb::TransformIterator', that stores an underlying iterator and a
+// one-argument functor.  Iterator operations are passed through to the
+// underlying iterator, with the exception of dereference.  For dereference,
+// the functor is invoked on the result of dereferencing the underlying
+// iterator, and the result of the functor invocation is returned.
+//
+// Note that 'bdlb::TransformIterator' is more useful in C++11 or later than in
+// C++03, because lambdas can be used as the functor.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1:
-/// - - - - -
+///Example 1: Summing Absolute Values
+/// - - - - - - - - - - - - - - - - -
+// Suppose we have a sequence of numbers and we would like to sum their
+// absolute values.  We can use 'bdlb::TransformIterator' for this purpose.
 //
+// First, we set up the numbers:
 //..
+//  int data[5] = { 1, -1, 2, -2, 3 };
+//..
+// Then we create the transform iterators that will convert a number to its
+// absolute value.  We need ones for the beginning and end of the sequence:
+//..
+//  bdlb::TransformIterator<int(int), int*> dataBegin(data + 0, bsl::abs);
+//  bdlb::TransformIterator<int(int), int*> dataEnd  (data + 5, bsl::abs);
+//..
+// Now, we compute the sum of the absolute values of the numbers:
+//..
+//  int sum = bsl::accumulate(dataBegin, dataEnd, 0);
+//..
+// Finally, we verify that we have computed the sum correctly:
+//..
+//  assert(9 == sum);
+//..
+//
+///Example 2: Totalling a Grocery List
+///- - - - - - - - - - - - - - - - - -
+// Suppose we have a shopping list of products and we want to compute how much
+// it will cost to buy the items.  We can use 'bdlb::TransformIterator' to do
+// the computation, looking up the price of each item.
+//
+// First, we set up the price list:
+//..
+//  bsl::map<bsl::string, double> prices;
+//  prices["pudding"] = 1.25;
+//  prices["apple"] = 0.33;
+//  prices["milk"] = 2.50;
+//..
+// Then, we set up our shopping list:
+//..
+// bsl::list<bsl::string> list;
+// list.push_back("milk");
+// list.push_back("milk");
+// list.push_back("pudding");
+//..
+// Next, we create a functor that will return a price given a product.  The
+// following rather prolix functor at namespace scope is necessary for C++03:
+//..
+//  #if __cplusplus < 201103L
+//  class Pricer {
+//    private:
+//      // PRIVATE DATA
+//      bsl::map<bsl::string, double> *d_prices;  // the price list;
+//
+//    public:
+//      // PUBLIC CREATORS
+//      Pricer(bsl::map<bsl::string, double>& prices);
+//          // Create an object of this type using the specified 'prices'.
+//
+//      // PUBLIC TYPES
+//      typedef double result_type;
+//
+//      // PUBLIC ACCESSORS
+//      double operator()(const bsl::string& product) const;
+//          // Return the price of the specified 'product'.
+//  };
+//
+//  // PUBLIC CREATORS
+//  Pricer::Pricer(bsl::map<bsl::string, double>& prices)
+//  : d_prices(&prices)
+//  {
+//  }
+//
+//  double Pricer::operator()(const bsl::string& product) const
+//  {
+//      return (*d_prices)[product];
+//  }
+//  #endif
+//..
+// Then we create the functor object.  In C++11 or later, the explicit functor
+// class above is unnecessary since we can use a lambda:
+//..
+//  #if __cplusplus < 201103L
+//  Pricer pricer(prices);
+//  #else
+//  auto pricer = [&](const bsl::string &product) { return prices[product]; };
+//  #endif
+//..
+// Next, we create a pair of transform iterators to process our grocery list:
+//..
+//  typedef bdlb::TransformIterator<Pricer,
+//                                  bsl::list<bsl::string>::iterator> ti;
+//  ti groceryBegin(list.begin(), pricer);
+//  ti groceryEnd(list.end(), pricer);
+//..
+// Now, we add up the prices of our groceries:
+//..
+//  double total = std::accumulate(groceryBegin, groceryEnd, 0.0);
+//..
+// Finally, we verify that we have the correct total:
+//..
+//  assert(6.25 == total);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
