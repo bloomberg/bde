@@ -4336,6 +4336,12 @@ class DatumMaker {
                    ) const;
 
 #endif
+
+    bdld::Datum ref(const bslstl::StringRef& string) const;
+        // Return a 'bdld::Datum' object that references, but does not own the
+        // specified 'string', possibly using the allocator of this object to
+        // obtain memory.  Note that this can be used to refer to string
+        // literals.  See 'bdld::Datum::createStringRef()'.
 };
 
 // ============================================================================
@@ -11112,6 +11118,11 @@ bdld::Datum DatumMaker::im(int             key_01,
 
 #endif
 
+inline
+bdld::Datum DatumMaker::ref(const bslstl::StringRef& string) const
+{
+    return bdld::Datum::createStringRef(string, d_allocator_p);
+}
 
 }  // close package namespace
 }  // close enterprise namespace
