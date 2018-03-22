@@ -17,6 +17,7 @@
 #include <bsl_string.h>
 
 using namespace BloombergLP;
+using namespace bdlb;
 using namespace bsl;
 
 // ============================================================================
@@ -24,17 +25,97 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
+// The component under test is implemented using contained constructor proxy
+// objects for a generic functor type and a generic iterator type.  (Use of the
+// proxy objects allows the functor and iterator to be initialized with an
+// allocator even if the allocator is not used.)
+//
+// Because of the possibility that neither contained object uses allocators,
+// this component uses a form of implementation inheritance that supplies an
+// 'allocator()' method only when at least one of the contained objects does
+// use an allocator.  Testing is required to demonstrate that the 'allocator()'
+// method is or is not present as appropriate, and that it reurns the allocator
+// supplied to the constructor of the object.  Additionally, this componet sets
+// its 'UsesBslmaAllocator' allocator trait to true if either of its contained
+// objects uses allocators, and to false if neither does.  Testing is required
+// to demonstrate that this is done correctly.
+//
+// This component is an iterator, and tags itself as such by inheritance from
+// 'bsl::iterator', supplying appropriate template arguments.  For iterator
+// categories other than input iterator, dereferencing an iterator must provide
+// a reference type.  Accordingly, this component sets its iterator category to
+// input iterator if the functor does not return a reference type, otherwise
+// passing through the iterator category of the underlying iterator.  Testing
+// is required to demonstrate that the category and other iterator parameters
+// are correctly determined.
+//
+// As per the above, this component must be able to determine the return type
+// of the functor.  In C++11 and onward, language features allow this to be
+// determined, but in C++03 the return type must be supplied as a 'result_type'
+// member of the functor.  This component is specialized for pointers to
+// functions, from which it can determine the result type, and otherwise uses
+// 'bslmf::ResultType' in C++03.  Testing is required to demonstrate that this
+// component picks up the correct result type in both C++03 and C++11.
+//
+// The remit of this component is to pass on iterator operations to the
+// contained iterator, and to apply the functor to the derefenced contained
+// iterator when this component is itself dereferenced.  Testing is required to
+// demonstrate that this occurs correctly, including for indexed dereference
+// ('operator[](difference_type)') when the underlying iterator support it, and
+// pointer dereference (operator->()) when the functor returns a reference.
+//
+// Functors used by this component can maintain state.  Testing is required to
+// demonstrate that such stateful functors maintain their state throughout the
+// iteration process.
+//
+// This component supports pairwise comparison operations on objects of this
+// type, comparing only the contained iterators.  Testing is required to
+// demonstrate that contained functors do not participate.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
+// [ 2] TransformIterator();
+// [ 2] TransformIterator(Allocator *);
+// [ 2] TransformIterator(const ITERATOR&, FUNCTOR, Allocator * = 0);
+// [ 2] TransformIterator(const TransformIterator&, Allocator * = 0);
 //
 // MANIPULATORS
+// [ 3] TransformIterator& operator=(const TransformIterator&);
+// [ 3] TransformIterator& operator++();
+// [ 3] TransformIterator& operator++(int);
+// [ 3] TransformIterator& operator--();
+// [ 3] TransformIterator& operator--(int);
+// [ 3] TransformIterator& operator+=(difference_type);
+// [ 3] TransformIterator& operator-=(difference_type);
+// [ 3] Traits::reference operator*();
+// [ 3] pointer operator->();
+// [ 3] reference operator[](difference_type);
+// [ 3] FUNCTOR& functor();
+// [ 3] ITERATOR& iterator();
+// [ 3] void swap(TransformIterator&);
 //
 // ACCESSORS
+// [ 4] reference operator*() const;
+// [ 4] pointer operator->() const;
+// [ 4] reference operator[](difference_type n) const;
+// [ 4] TransformIterator operator+(difference_type) const;
+// [ 4] TransformIterator operator-(difference_type) const;
+// [ 4] const FUNCTOR& functor() const;
+// [ 4] const ITERATOR& iterator() const;
 //
+// FREE FUNCTIONS
+// [ 5] bool operator==(const TI&, const TI&);
+// [ 5] bool operator!=(const TI&, const TI&);
+// [ 5] bool operator<(const TI&, const TI&);
+// [ 5] bool operator<=(const TI&, const TI&);
+// [ 5] bool operator>(const TI&, const TI&);
+// [ 5] bool operator>=(const TI&, const TI&);
+//
+// TRAITS
+// [ 6] bslma::UsesBslmaAllocator
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -102,6 +183,12 @@ void aSsErT(bool condition, const char *message, int line)
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+namespace {
+
+                            // ===================
+                            // class Parenthesizer
+                            // ===================
+
 class Parenthesizer {
     // Wrap strings in increasingly nested levels of parentheses.
 
@@ -133,6 +220,11 @@ class Parenthesizer {
         // 's'.
 };
 
+                            // -------------------
+                            // class Parenthesizer
+                            // -------------------
+
+// PUBLIC CREATORS
 Parenthesizer::Parenthesizer(bslma::Allocator *basicAllocator)
 : d_before(basicAllocator)
 , d_after(basicAllocator)
@@ -146,15 +238,147 @@ Parenthesizer::Parenthesizer(const Parenthesizer&  other,
 {
 }
 
+// PUBLIC MANIPULATORS
 bsl::string& Parenthesizer::operator()(bsl::string& s)
 {
     return s = (d_before += "(") + s + (d_after += ")");
 }
 
-// USAGE EXAMPLE
+                       // =============================
+                       // class FunctorWithoutAllocator
+                       // =============================
+
+class FunctorWithoutAllocator {
+    // A functor that does not use allocators.
+  public:
+    // PUBLIC TYPES
+    typedef int result_type;
+
+    // PUBLIC MANIPULATORS
+    int operator()(int n) const;
+        // Return the specified 'n'.
+};
+
+                       // -----------------------------
+                       // class FunctorWithoutAllocator
+                       // -----------------------------
+
+int FunctorWithoutAllocator::operator()(int n) const
+{
+    return n;
+}
+
+                         // ==========================
+                         // class FunctorWithAllocator
+                         // ==========================
+
+class FunctorWithAllocator {
+    // A functor that does not use allocators.
+
+  public:
+    // PUBLIC TYPES
+    typedef int result_type;
+
+    // PUBLIC CREATORS
+    explicit FunctorWithAllocator(bslma::Allocator * = 0);
+        // Create an object of this type.
+
+    FunctorWithAllocator(const FunctorWithAllocator &, bslma::Allocator * = 0);
+        // Create an object of this type.
+
+    // PUBLIC MANIPULATORS
+    int operator()(int n) const;
+        // Return the specified 'n'.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(FunctorWithAllocator,
+                                   bslma::UsesBslmaAllocator);
+};
+
+                       // --------------------------
+                       // class FunctorWithAllocator
+                       // --------------------------
+
+// PUBLIC CREATORS
+FunctorWithAllocator::FunctorWithAllocator(bslma::Allocator *)
+{
+}
+
+FunctorWithAllocator::FunctorWithAllocator(const FunctorWithAllocator&  ,
+                                           bslma::Allocator            *)
+{
+}
+
+// PUBLIC MANIPULATORS
+int FunctorWithAllocator::operator()(int n) const
+{
+    return n;
+}
+
+                       // ==============================
+                       // class IteratorWithoutAllocator
+                       // ==============================
+
+class IteratorWithoutAllocator : bsl::reverse_iterator<int *> {
+    // An iterator that does not use allocators.
+
+  public:
+    IteratorWithoutAllocator(int *iterator);
+        // Create an object of this type using the specified 'iterator'.
+};
+
+                       // ------------------------------
+                       // class IteratorWithoutAllocator
+                       // ------------------------------
+
+IteratorWithoutAllocator::IteratorWithoutAllocator(int *iterator)
+: bsl::reverse_iterator<int *>(iterator)
+{
+}
+
+                        // ===========================
+                        // class IteratorWithAllocator
+                        // ===========================
+
+class IteratorWithAllocator : bsl::reverse_iterator<int *> {
+    // An iterator that uses allocators.
+
+  public:
+    // PUBLIC CREATORS
+    IteratorWithAllocator(int *iterator, bslma::Allocator * = 0);
+        // Create an object of this type using the specified 'iterator'..
+
+    IteratorWithAllocator(const IteratorWithAllocator&  other,
+                          bslma::Allocator             * = 0);
+        // Create a copy of the specified 'other' object.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(IteratorWithAllocator,
+                                   bslma::UsesBslmaAllocator);
+};
+
+                        // ---------------------------
+                        // class IteratorWithAllocator
+                        // ---------------------------
+
+IteratorWithAllocator::IteratorWithAllocator(int *iterator, bslma::Allocator *)
+: bsl::reverse_iterator<int *>(iterator)
+{
+}
+
+IteratorWithAllocator::IteratorWithAllocator(
+                                           const IteratorWithAllocator&  other,
+                                           bslma::Allocator             *)
+: bsl::reverse_iterator<int *>(other)
+{
+}
+
+                                   // =============
+                                   // USAGE EXAMPLE
+                                   // =============
 
 // Next, we create a functor that will return a price given a product.  The
-// following rather prolix functor at namespace scope is necessary for C++03:
+// following prolix functor at namespace scope is necessary for C++03:
 //..
 #if __cplusplus < 201103L
 class Pricer {
@@ -188,6 +412,8 @@ double Pricer::operator()(const bsl::string& product) const
 #endif
 //..
 
+}  // close unnamed namespace
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -203,7 +429,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 2: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -295,42 +521,260 @@ int main(int argc, char *argv[])
     ASSERT(6.25 == total);
 //..
       } break;
-      case 1: {
+      case 6: {
         // --------------------------------------------------------------------
-        // BREATHING TEST
-        //   This case exercises (but does not fully test) basic functionality.
+        // TESTING TRAITS
+        //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The class is functional enough to enable comprehensive
-        //:   testing in subsequent cases
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //: 1 Create an object, using the ctor with functional object.
-        //:
-        //: 2 Assign value to dereferenced iterator.
-        //:
-        //: 3 Check that functional object was invoked with correct value.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //   BREATHING TEST
+        //   bslma::UsesBslmaAllocator
         // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nBREATHING TEST"
+        if (verbose) cout << "\nTESTING TRAITS"
                              "\n==============\n";
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING FREE FUNCTIONS
+        //
+        // Concerns:
+        //: 1 'TransformIterator' objects can be compared when the underlying
+        //:   iterators can be compared.
+        //:
+        //: 2 Such comparisons disregard the functors of the objects.
+        //
+        // Plan:
+        //: 1 Create 'TransformIterator' objects holding reverse iterators into
+        //:   an array of integers and verify that comparisons are correct.
+        //:   (C-1)
+        //:
+        //: 2 When comparing these objects, use different functors and verify
+        //:   that comparisons are not affected.
+        //:   (C-2)
+        //
+        // Testing:
+        //   bool operator==(const TI&, const TI&);
+        //   bool operator!=(const TI&, const TI&);
+        //   bool operator<(const TI&, const TI&);
+        //   bool operator<=(const TI&, const TI&);
+        //   bool operator>(const TI&, const TI&);
+        //   bool operator>=(const TI&, const TI&);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING FREE FUNCTIONS"
+                             "\n======================\n";
 
-        double d[] = { 1, 4, 9, 16, 25 };
-        typedef bdlb::TransformIterator<double(*)(double), double *> Ti;
+        double a[1] = {.785};
 
-        ASSERT(15 == bsl::accumulate(Ti(d + 0, sqrt), Ti(d + 5, sqrt), 0.0));
+        typedef bsl::reverse_iterator<double *> ri;
+        typedef TransformIterator<double (*)(double), ri> Obj;
 
-        typedef bdlb::TransformIterator<Parenthesizer, bsl::string *> Ts;
-        bslma::TestAllocator allocator("bdlb", veryVeryVeryVerbose);
-        bsl::string s[5] = { "1", "2", "3", "4", "5" };
-        Parenthesizer parenthesizer(&allocator);
-        ASSERT("(1)((2))(((3)))((((4))))(((((5)))))" ==
-               bsl::accumulate(Ts(s + 0, parenthesizer, &allocator),
-                               Ts(s + 5, parenthesizer, &allocator),
-                               bsl::string(&allocator)));
+        Obj iterators[4] = {
+            Obj(ri(a + 0), bsl::sin),
+            Obj(ri(a + 0), bsl::cos),
+            Obj(ri(a + 1), bsl::sin),
+            Obj(ri(a + 1), bsl::cos),
+        };
+
+        bool expected_eq[4][4] = {
+            true,  true,  false, false,
+            true,  true,  false, false,
+            false, false, true,  true,
+            false, false, true,  true,
+        };
+
+        bool expected_lt[4][4] = {
+            false, false, false, false,
+            false, false, false, false,
+            true,  true,  false, false,
+            true,  true,  false, false,
+        };
+
+        if (veryVerbose) {
+            cout << "\toperator==\n";
+        }
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                bool expected = expected_eq[i][j];
+                if (veryVeryVerbose) {
+                    P_(i) P_(j) P(expected)
+                }
+                ASSERT(expected == (iterators[i] == iterators[j]));
+            }
+        }
+
+        if (veryVerbose) {
+            cout << "\toperator!=\n";
+        }
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                bool expected = !expected_eq[i][j];
+                if (veryVeryVerbose) {
+                    P_(i) P_(j) P(expected)
+                }
+                ASSERT(expected == (iterators[i] != iterators[j]));
+            }
+        }
+
+        if (veryVerbose) {
+            cout << "\toperator<\n";
+        }
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                bool expected = expected_lt[i][j];
+                if (veryVeryVerbose) {
+                    P_(i) P_(j) P(expected)
+                }
+                ASSERT(expected == (iterators[i] < iterators[j]));
+            }
+        }
+
+        if (veryVerbose) {
+            cout << "\toperator<=\n";
+        }
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                bool expected = expected_lt[i][j] || expected_eq[i][j];
+                if (veryVeryVerbose) {
+                    P_(i) P_(j) P(expected)
+                }
+                ASSERT(expected == (iterators[i] <= iterators[j]));
+            }
+        }
+
+        if (veryVerbose) {
+            cout << "\toperator>\n";
+        }
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                bool expected = !expected_lt[i][j] && !expected_eq[i][j];
+                if (veryVeryVerbose) {
+                    P_(i) P_(j) P(expected)
+                }
+                ASSERT(expected == (iterators[i] > iterators[j]));
+            }
+        }
+
+        if (veryVerbose) {
+            cout << "\toperator>=\n";
+        }
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                bool expected = !expected_lt[i][j];
+                if (veryVeryVerbose) {
+                    P_(i) P_(j) P(expected)
+                }
+                ASSERT(expected == (iterators[i] >= iterators[j]));
+            }
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING ACCESSORS
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   reference operator*() const;
+        //   pointer operator->() const;
+        //   reference operator[](difference_type n) const;
+        //   TransformIterator operator+(difference_type) const;
+        //   TransformIterator operator-(difference_type) const;
+        //   const FUNCTOR& functor() const;
+        //   const ITERATOR& iterator() const;
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING ACCESSORS"
+                             "\n=================\n";
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING MANIPULATORS
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   TransformIterator& operator=(const TransformIterator&);
+        //   TransformIterator& operator++();
+        //   TransformIterator& operator++(int);
+        //   TransformIterator& operator--();
+        //   TransformIterator& operator--(int);
+        //   TransformIterator& operator+=(difference_type);
+        //   TransformIterator& operator-=(difference_type);
+        //   Traits::reference operator*();
+        //   pointer operator->();
+        //   reference operator[](difference_type);
+        //   FUNCTOR& functor();
+        //   ITERATOR& iterator();
+        //   void swap(TransformIterator&);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING MANIPULATORS"
+                             "\n====================\n";
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING CREATORS
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   TransformIterator();
+        //   TransformIterator(Allocator *);
+        //   TransformIterator(const ITERATOR&, FUNCTOR, Allocator * = 0);
+        //   TransformIterator(const TransformIterator&, Allocator * = 0);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING CREATORS"
+                             "\n================\n";
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                             "\n=============\n";
       } break;
       default: {
          cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
