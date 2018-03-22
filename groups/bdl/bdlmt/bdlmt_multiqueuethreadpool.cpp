@@ -538,26 +538,44 @@ int MultiQueueThreadPool::start()
 
 void MultiQueueThreadPool::drain()
 {
-    while (1) {
-        {
-            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+    if (d_threadPoolIsOwned) {
+        while (1) {
+            {
+                bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-            if (   e_STATE_STOPPED == d_state
-                || 0               == d_threadPool_p->enabled()) {
-                return;                                               // RETURN
-            }
-
-            if (0 == d_numActiveQueues) {
-                if (d_threadPoolIsOwned) {
-                    d_threadPool_p->drain();
-                    d_threadPool_p->start();
+                if (   e_STATE_STOPPED == d_state
+                    || 0               == d_threadPool_p->enabled()) {
+                    return;                                           // RETURN
                 }
 
-                return;                                               // RETURN
-            }
-        }
+                if (0 == d_numActiveQueues) {
+                    d_threadPool_p->drain();
+                    d_threadPool_p->start();
 
-        bslmt::ThreadUtil::yield();
+                    return;                                           // RETURN
+                }
+            }
+
+            bslmt::ThreadUtil::yield();
+        }
+    }
+    else {
+        while (1) {
+            {
+                bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
+
+                if (   e_STATE_STOPPED == d_state
+                    || 0               == d_threadPool_p->enabled()) {
+                    return;                                           // RETURN
+                }
+
+                if (0 == d_numActiveQueues) {
+                    return;                                           // RETURN
+                }
+            }
+
+            bslmt::ThreadUtil::yield();
+        }
     }
 }
 
