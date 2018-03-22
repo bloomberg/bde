@@ -115,7 +115,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we create a pair of transform iterators to process our grocery list:
 //..
-//  typedef bdlb::TransformIterator<Pricer,
+//  typedef bdlb::TransformIterator<bsl::function<double(const bsl::string&)>,
 //                                  bsl::list<bsl::string>::iterator> ti;
 //  ti groceryBegin(list.begin(), pricer);
 //  ti groceryEnd(list.end(), pricer);
