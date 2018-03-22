@@ -247,16 +247,16 @@ int main(int argc, char *argv[])
 //..
     bsl::string processName;
     int rc = bdls::ProcessUtil::getProcessName(&processName);
-    ASSERT(0 == rc);    // failure extremely unlikely -- assume success for
-                        // example
-    ASSERT(!processName.empty());
+    if (0 != rc) {
+        processName = "unknown";
+    }
 //..
-// All calls to 'getProcessName' will yield the same value:
+// All calls to 'getProcessName' will yield the same value.  Note that if
+// the call does not succeed, 'processNameB' will not be modified.
 //..
-    bsl::string processNameB;
-    rc = bdls::ProcessUtil::getProcessName(&processNameB);
-    ASSERT(0 == rc);    // failure extremely unlikely -- assume success for
-                        // example
+    bsl::string processNameB("unknown");
+    (void) bdls::ProcessUtil::getProcessName(&processNameB);
+//
     ASSERT(processNameB == processName);
 //..
       } break;
@@ -292,7 +292,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == Obj::getProcessName(&firstName));
         bsl::string firstExecName(&ta);
         ASSERT(0 == Obj::getPathToExecutable(&firstExecName));
-
 
         for (int i = 0; i < k_ITERATIONS; ++i) {
             ASSERT(Obj::getProcessId() == firstId);

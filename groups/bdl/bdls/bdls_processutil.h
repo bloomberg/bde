@@ -59,16 +59,16 @@ BSLS_IDENT("$Id: $")
 //..
 //  bsl::string processName;
 //  int rc = bdls::ProcessUtil::getProcessName(&processName);
-//  assert(0 == rc);    // failure extremely unlikely -- assume success for
-//                      // example
-//  assert(!processName.empty());
+//  if (0 != rc) {
+//      processName = "unknown";
+//  }
 //..
-// All calls to 'getProcessName' will yield the same value:
+// All calls to 'getProcessName' will yield the same value.  Note that if
+// the call does not succeed, 'processNameB' will not be modified.
 //..
-//  bsl::string processNameB;
-//  rc = bdls::ProcessUtil::getProcessName(&processNameB);
-//  assert(0 == rc);    // failure extremely unlikely -- assume success for
-//                      // example
+//  bsl::string processNameB("unknown");
+//  (void) bdls::ProcessUtil::getProcessName(&processNameB);
+//
 //  assert(processNameB == processName);
 //..
 
@@ -82,6 +82,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bdls {
+
                              // ==================
                              // struct ProcessUtil
                              // ==================
