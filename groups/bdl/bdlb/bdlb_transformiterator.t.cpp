@@ -396,7 +396,7 @@ class IteratorWithAllocator : public bsl::reverse_iterator<int *> {
 
     IteratorWithAllocator(const IteratorWithAllocator&  other,
                           bslma::Allocator             *basicAllocator = 0);
-        // Create a copy of the specified 'other' object. Optionally specify
+        // Create a copy of the specified 'other' object.  Optionally specify
         // 'basicAllocator' to set as the allocator of the new object.
 
     // PUBLIC ACCESSORS
@@ -623,6 +623,15 @@ int main(int argc, char *argv[])
         //: 1 Create all four possible versions of the transform iterator with
         //:   its members using or not using allocators, and verify that the
         //:   trait is correct.  (C-1)
+        //:
+        //: 2 For versions that have an 'allocator()' method, construct an
+        //:   object using a test allocator and verify that the object itself
+        //:   and its allocator-using subobjects return that allocator.
+        //:   (C-2,3,4)
+        //:
+        //: 3 For versions that should not have an 'allocator()' method, use
+        //:   inheritance to cause a situation where the test would fail to
+        //:   compile if the 'allocator()' method were present.  (C-2)
         //
         // Testing:
         //   bslma::UsesBslmaAllocator
@@ -700,10 +709,21 @@ int main(int argc, char *argv[])
             ASSERT(!bslma::UsesBslmaAllocator<Obj>::value);
 
             struct FakeAllocatorMethod {
+                // This object contains a member named 'allocator' that is not
+                // a method.
+
+              public:
+                // PUBLIC TYPES
                 enum { allocator = -1 };
             };
 
-            struct DerivedTransformIterator : FakeAllocatorMethod, Obj {
+            struct DerivedTransformIterator : public FakeAllocatorMethod,
+                                              public Obj {
+                // This object inherits from both the transform iterator and
+                // the fake allocator class.  If the transform iterator has a
+                // public 'allocator()' method, asking for the 'allocator'
+                // member of this class will be ambiguous and will fail to
+                // compile.
             };
 
             ASSERT(-1 == DerivedTransformIterator::allocator);
