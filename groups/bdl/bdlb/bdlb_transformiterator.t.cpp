@@ -785,19 +785,24 @@ int main(int argc, char *argv[])
                 cout << "\tusing function pointer\n";
             }
             {
-                typedef TransformIterator<int(*)(int), int *> Obj;
+                typedef TransformIterator<int (*)(int), int *> Obj;
+
                 Obj begin(DATA + 0, bsl::abs);
                 Obj end(DATA + NUM_DATA, bsl::abs);
+
                 ASSERT(9 == std::accumulate(begin, end, 0));
             }
             if (veryVerbose) {
                 cout << "\tusing bsl::function\n";
             }
             {
-                int (*abs)(int) = &bsl::abs;
                 typedef TransformIterator<bsl::function<int(int)>, int *> Obj;
+
+                int (*abs)(int) = &bsl::abs;  // Pick correct overload of abs.
+
                 Obj begin(DATA + 0, abs);
                 Obj end(DATA + NUM_DATA, abs);
+
                 ASSERT(9 == std::accumulate(begin, end, 0));
             }
         }
@@ -811,12 +816,16 @@ int main(int argc, char *argv[])
                 cout << "\tusing function object and allocators\n";
             }
             {
-                bsl::string   DATA[]   = {"1", "2", "3"};
-                size_t        NUM_DATA = sizeof DATA / sizeof *DATA;
-                Parenthesizer parenthesizer(&ta);
                 typedef TransformIterator<Parenthesizer, bsl::string *> Obj;
+
+                bsl::string DATA[]   = {"1", "2", "3"};
+                size_t      NUM_DATA = sizeof DATA / sizeof *DATA;
+
+                Parenthesizer parenthesizer(&ta);
+
                 Obj begin(DATA + 0, parenthesizer, &ta);
                 Obj end(DATA + NUM_DATA, parenthesizer, &ta);
+
                 ASSERT("(1)((2))(((3)))" ==
                        bsl::accumulate(begin, end, bsl::string()));
                 ASSERT("(1)" == DATA[0]);
@@ -827,15 +836,19 @@ int main(int argc, char *argv[])
                 cout << "\tusing bsl::function and allocators\n";
             }
             {
-                bsl::string   DATA[]   = {"1", "2", "3"};
-                size_t        NUM_DATA = sizeof DATA / sizeof *DATA;
-                Parenthesizer parenthesizer(&ta);
                 typedef TransformIterator<
                     bsl::function<bsl::string&(bsl::string&)>,
                     bsl::string *>
                     Obj;
+
+                bsl::string DATA[]   = {"1", "2", "3"};
+                size_t      NUM_DATA = sizeof DATA / sizeof *DATA;
+
+                Parenthesizer parenthesizer(&ta);
+
                 Obj begin(DATA + 0, parenthesizer, &ta);
                 Obj end(DATA + NUM_DATA, parenthesizer, &ta);
+
                 ASSERT("(1)((2))(((3)))" ==
                        bsl::accumulate(begin, end, bsl::string()));
                 ASSERT("(1)" == DATA[0]);
