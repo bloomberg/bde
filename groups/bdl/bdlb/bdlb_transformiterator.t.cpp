@@ -34,11 +34,11 @@ using namespace bsl;
 // this component uses a form of implementation inheritance that supplies an
 // 'allocator()' method only when at least one of the contained objects does
 // use an allocator.  Testing is required to demonstrate that the 'allocator()'
-// method is or is not present as appropriate, and that it reurns the allocator
-// supplied to the constructor of the object.  Additionally, this componet sets
-// its 'UsesBslmaAllocator' allocator trait to true if either of its contained
-// objects uses allocators, and to false if neither does.  Testing is required
-// to demonstrate that this is done correctly.
+// method is or is not present as appropriate, and that it returns the
+// allocator supplied to the constructor of the object.  Additionally, this
+// componet sets its 'UsesBslmaAllocator' allocator trait to true if either of
+// its contained objects uses allocators, and to false if neither does.
+// Testing is required to demonstrate that this is done correctly.
 //
 // This component is an iterator, and tags itself as such by inheritance from
 // 'bsl::iterator', supplying appropriate template arguments.  For iterator
@@ -58,7 +58,7 @@ using namespace bsl;
 // component picks up the correct result type in both C++03 and C++11.
 //
 // The remit of this component is to pass on iterator operations to the
-// contained iterator, and to apply the functor to the derefenced contained
+// contained iterator, and to apply the functor to the dereferenced contained
 // iterator when this component is itself dereferenced.  Testing is required to
 // demonstrate that this occurs correctly, including for indexed dereference
 // ('operator[](difference_type)') when the underlying iterator support it, and
@@ -204,8 +204,8 @@ class Parenthesizer {
     #endif
 
     // PUBLIC CREATORS
-    Parenthesizer(bslma::Allocator *basicAllocator);
-        // Create an object of this type using the specified 'basicAllocator'
+    explicit Parenthesizer(bslma::Allocator *basicAllocator);
+        // Create a Parenthesizer object using the specified 'basicAllocator'
         // to supply memory.
 
     Parenthesizer(const Parenthesizer&  other,
@@ -218,6 +218,9 @@ class Parenthesizer {
         // Increment the parentheses nesting level, modify the specified string
         // 's' to be wrapped in those parentheses, and return a reference to
         // 's'.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(Parenthesizer, bslma::UsesBslmaAllocator);
 };
 
                             // -------------------
@@ -323,7 +326,7 @@ class IteratorWithoutAllocator : bsl::reverse_iterator<int *> {
     // An iterator that does not use allocators.
 
   public:
-    IteratorWithoutAllocator(int *iterator);
+    explicit IteratorWithoutAllocator(int *iterator);
         // Create an object of this type using the specified 'iterator'.
 };
 
@@ -345,7 +348,7 @@ class IteratorWithAllocator : bsl::reverse_iterator<int *> {
 
   public:
     // PUBLIC CREATORS
-    IteratorWithAllocator(int *iterator, bslma::Allocator * = 0);
+    explicit IteratorWithAllocator(int *iterator, bslma::Allocator * = 0);
         // Create an object of this type using the specified 'iterator'..
 
     IteratorWithAllocator(const IteratorWithAllocator&  other,
@@ -384,11 +387,11 @@ IteratorWithAllocator::IteratorWithAllocator(
 class Pricer {
   private:
     // PRIVATE DATA
-    bsl::map<bsl::string, double> *d_prices;  // the price list;
+    bsl::map<bsl::string, double> *d_prices_p;  // the price list;
 
   public:
     // PUBLIC CREATORS
-    Pricer(bsl::map<bsl::string, double>& prices);
+    explicit Pricer(bsl::map<bsl::string, double>& prices);
         // Create an object of this type using the specified 'prices'.
 
     // PUBLIC TYPES
@@ -401,13 +404,13 @@ class Pricer {
 
 // PUBLIC CREATORS
 Pricer::Pricer(bsl::map<bsl::string, double>& prices)
-: d_prices(&prices)
+: d_prices_p(&prices)
 {
 }
 
 double Pricer::operator()(const bsl::string& product) const
 {
-    return (*d_prices)[product];
+    return (*d_prices_p)[product];
 }
 #endif
 //..
@@ -758,23 +761,88 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //   Extracted from component header file.
+        // BREATHING TEST
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        //: 1 Basic functionality of this component works as expected.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        //: 1 Exercise some instances and verify their operation.  (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   BREATHING TEST
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nUSAGE EXAMPLE"
-                             "\n=============\n";
+        if (verbose) cout << "\nBREATHING TEST"
+                             "\n==============\n";
+
+        if (veryVerbose) {
+            cout << "Simple Transformation\n";
+        }
+        {
+            int    DATA[]   = {-1, 1, -2, 2, 3};
+            size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+            if (veryVerbose) {
+                cout << "\tusing function pointer\n";
+            }
+            {
+                typedef TransformIterator<int(*)(int), int *> Obj;
+                Obj begin(DATA + 0, bsl::abs);
+                Obj end(DATA + NUM_DATA, bsl::abs);
+                ASSERT(9 == std::accumulate(begin, end, 0));
+            }
+            if (veryVerbose) {
+                cout << "\tusing bsl::function\n";
+            }
+            {
+                int (*abs)(int) = &bsl::abs;
+                typedef TransformIterator<bsl::function<int(int)>, int *> Obj;
+                Obj begin(DATA + 0, abs);
+                Obj end(DATA + NUM_DATA, abs);
+                ASSERT(9 == std::accumulate(begin, end, 0));
+            }
+        }
+
+        if (veryVerbose) {
+            cout << "Stateful Functor\n";
+        }
+        {
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+            if (veryVerbose) {
+                cout << "\tusing function object and allocators\n";
+            }
+            {
+                bsl::string   DATA[]   = {"1", "2", "3"};
+                size_t        NUM_DATA = sizeof DATA / sizeof *DATA;
+                Parenthesizer parenthesizer(&ta);
+                typedef TransformIterator<Parenthesizer, bsl::string *> Obj;
+                Obj begin(DATA + 0, parenthesizer, &ta);
+                Obj end(DATA + NUM_DATA, parenthesizer, &ta);
+                ASSERT("(1)((2))(((3)))" ==
+                       bsl::accumulate(begin, end, bsl::string()));
+                ASSERT("(1)" == DATA[0]);
+                ASSERT("((2))" == DATA[1]);
+                ASSERT("(((3)))" == DATA[2]);
+            }
+            if (veryVerbose) {
+                cout << "\tusing bsl::function and allocators\n";
+            }
+            {
+                bsl::string   DATA[]   = {"1", "2", "3"};
+                size_t        NUM_DATA = sizeof DATA / sizeof *DATA;
+                Parenthesizer parenthesizer(&ta);
+                typedef TransformIterator<
+                    bsl::function<bsl::string&(bsl::string&)>,
+                    bsl::string *>
+                    Obj;
+                Obj begin(DATA + 0, parenthesizer, &ta);
+                Obj end(DATA + NUM_DATA, parenthesizer, &ta);
+                ASSERT("(1)((2))(((3)))" ==
+                       bsl::accumulate(begin, end, bsl::string()));
+                ASSERT("(1)" == DATA[0]);
+                ASSERT("((2))" == DATA[1]);
+                ASSERT("(((3)))" == DATA[2]);
+            }
+        }
       } break;
       default: {
          cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
