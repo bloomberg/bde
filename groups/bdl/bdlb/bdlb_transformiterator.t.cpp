@@ -111,8 +111,9 @@ using namespace bsl;
 // [ 5] bool operator>(const TI&, const TI&);
 // [ 5] bool operator>=(const TI&, const TI&);
 //
-// TRAITS
+// ALLOCATOR TRAITS
 // [ 6] bslma::UsesBslmaAllocator
+// [ 6] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
@@ -257,7 +258,7 @@ class FunctorWithoutAllocator {
     // PUBLIC TYPES
     typedef int result_type;
 
-    // PUBLIC MANIPULATORS
+    // PUBLIC ACCESSORS
     int operator()(int n) const;
         // Return the specified 'n'.
 };
@@ -266,6 +267,7 @@ class FunctorWithoutAllocator {
                        // class FunctorWithoutAllocator
                        // -----------------------------
 
+// PUBLIC ACCESSORS
 int FunctorWithoutAllocator::operator()(int n) const
 {
     return n;
@@ -278,20 +280,30 @@ int FunctorWithoutAllocator::operator()(int n) const
 class FunctorWithAllocator {
     // A functor that does not use allocators.
 
+  private:
+    bslma::Allocator *d_allocator_p;  // the allocator for this object
+
   public:
     // PUBLIC TYPES
     typedef int result_type;
 
     // PUBLIC CREATORS
-    explicit FunctorWithAllocator(bslma::Allocator * = 0);
-        // Create an object of this type.
+    FunctorWithAllocator();
+    explicit FunctorWithAllocator(bslma::Allocator *basicAllocator);
+        // Create an object of this type.  Optionally specify 'basicAllocator'
+        // to set as the allocator of the new object.
 
-    FunctorWithAllocator(const FunctorWithAllocator &, bslma::Allocator * = 0);
-        // Create an object of this type.
+    FunctorWithAllocator(const FunctorWithAllocator&  ,
+                         bslma::Allocator            *basicAllocator = 0);
+        // Create an object of this type.  Optionally specify 'basicAllocator'
+        // to set as the allocator of the new object.
 
-    // PUBLIC MANIPULATORS
+    // PUBLIC ACCESSORS
     int operator()(int n) const;
         // Return the specified 'n'.
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator of this object.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(FunctorWithAllocator,
@@ -303,29 +315,45 @@ class FunctorWithAllocator {
                        // --------------------------
 
 // PUBLIC CREATORS
-FunctorWithAllocator::FunctorWithAllocator(bslma::Allocator *)
+FunctorWithAllocator::FunctorWithAllocator()
+: d_allocator_p(0)
 {
 }
 
-FunctorWithAllocator::FunctorWithAllocator(const FunctorWithAllocator&  ,
-                                           bslma::Allocator            *)
+FunctorWithAllocator::FunctorWithAllocator(bslma::Allocator *basicAllocator)
+: d_allocator_p(basicAllocator)
 {
 }
 
-// PUBLIC MANIPULATORS
+FunctorWithAllocator::FunctorWithAllocator(
+                                   const FunctorWithAllocator&  ,
+                                   bslma::Allocator            *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+// PUBLIC ACCESSORS
 int FunctorWithAllocator::operator()(int n) const
 {
     return n;
+}
+
+bslma::Allocator *FunctorWithAllocator::allocator() const
+{
+    return d_allocator_p;
 }
 
                        // ==============================
                        // class IteratorWithoutAllocator
                        // ==============================
 
-class IteratorWithoutAllocator : bsl::reverse_iterator<int *> {
+class IteratorWithoutAllocator : public bsl::reverse_iterator<int *> {
     // An iterator that does not use allocators.
 
   public:
+    IteratorWithoutAllocator();
+        // Create an object of this type.
+
     explicit IteratorWithoutAllocator(int *iterator);
         // Create an object of this type using the specified 'iterator'.
 };
@@ -333,6 +361,10 @@ class IteratorWithoutAllocator : bsl::reverse_iterator<int *> {
                        // ------------------------------
                        // class IteratorWithoutAllocator
                        // ------------------------------
+
+IteratorWithoutAllocator::IteratorWithoutAllocator()
+{
+}
 
 IteratorWithoutAllocator::IteratorWithoutAllocator(int *iterator)
 : bsl::reverse_iterator<int *>(iterator)
@@ -343,17 +375,33 @@ IteratorWithoutAllocator::IteratorWithoutAllocator(int *iterator)
                         // class IteratorWithAllocator
                         // ===========================
 
-class IteratorWithAllocator : bsl::reverse_iterator<int *> {
+class IteratorWithAllocator : public bsl::reverse_iterator<int *> {
     // An iterator that uses allocators.
+
+  private:
+    bslma::Allocator *d_allocator_p;  // the allocator for this object
 
   public:
     // PUBLIC CREATORS
-    explicit IteratorWithAllocator(int *iterator, bslma::Allocator * = 0);
-        // Create an object of this type using the specified 'iterator'..
+    IteratorWithAllocator();
+    explicit IteratorWithAllocator(bslma::Allocator *basicAllocator);
+        // Create an object of this type.  Optionally specify 'basicAllocator'
+        // to set as the allocator of the new object.
+
+    explicit IteratorWithAllocator(int *iterator);
+    IteratorWithAllocator(int *iterator, bslma::Allocator *basicAllocator);
+        // Create an object of this type using the specified 'iterator'.
+        // Optionally specify 'basicAllocator' to set as the allocator of the
+        // new object.
 
     IteratorWithAllocator(const IteratorWithAllocator&  other,
-                          bslma::Allocator             * = 0);
-        // Create a copy of the specified 'other' object.
+                          bslma::Allocator             *basicAllocator = 0);
+        // Create a copy of the specified 'other' object. Optionally specify
+        // 'basicAllocator' to set as the allocator of the new object.
+
+    // PUBLIC ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator of this object.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(IteratorWithAllocator,
@@ -364,16 +412,42 @@ class IteratorWithAllocator : bsl::reverse_iterator<int *> {
                         // class IteratorWithAllocator
                         // ---------------------------
 
-IteratorWithAllocator::IteratorWithAllocator(int *iterator, bslma::Allocator *)
+// PUBLIC CREATORS
+IteratorWithAllocator::IteratorWithAllocator()
+: d_allocator_p(0)
+{
+}
+
+IteratorWithAllocator::IteratorWithAllocator(bslma::Allocator *basicAllocator)
+: d_allocator_p(basicAllocator)
+{
+}
+
+IteratorWithAllocator::IteratorWithAllocator(int *iterator)
 : bsl::reverse_iterator<int *>(iterator)
+, d_allocator_p(0)
+{
+}
+
+IteratorWithAllocator::IteratorWithAllocator(int              *iterator,
+                                             bslma::Allocator *basicAllocator)
+: bsl::reverse_iterator<int *>(iterator)
+, d_allocator_p(basicAllocator)
 {
 }
 
 IteratorWithAllocator::IteratorWithAllocator(
-                                           const IteratorWithAllocator&  other,
-                                           bslma::Allocator             *)
+                                  const IteratorWithAllocator&  other,
+                                  bslma::Allocator             *basicAllocator)
 : bsl::reverse_iterator<int *>(other)
+, d_allocator_p(basicAllocator)
 {
+}
+
+// PUBLIC ACCESSORS
+bslma::Allocator *IteratorWithAllocator::allocator() const
+{
+    return d_allocator_p;
 }
 
                                    // =============
@@ -526,23 +600,114 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING TRAITS
-        //   Extracted from component header file.
+        // TESTING TRAITS AND 'allocator()'
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        //: 1 The transform iterator should have an affirmative allocator trait
+        //:   if either its functor or underlying iterator uses allocators, and
+        //:   a negative one if neither do.
+        //
+        //: 2 The transform iterator should have an 'allocator()' method if
+        //:   if either its functor or underlying iterator uses allocators, and
+        //:   not have such a method if neither use allocators.
+        //:
+        //: 3 If the transform iterator has an 'allocator()' method, it should
+        //:   return the allocator with which the object was initialized, if
+        //:   one was provided.
+        //:
+        //: 4 The allocator of the subobjects should be the same as the
+        //:   allocator with which the object was initialized, if one was
+        //:   provided.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        //: 1 Create all four possible versions of the transform iterator with
+        //:   its members using or not using allocators, and verify that the
+        //:   trait is correct.  (C-1)
         //
         // Testing:
         //   bslma::UsesBslmaAllocator
+        //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTESTING TRAITS"
-                             "\n==============\n";
+        if (verbose) cout << "\nTESTING TRAITS AND 'allocator()'"
+                             "\n================================\n";
+
+        if (veryVerbose) {
+            cout << "functor with allocator, iterator with allocator\n";
+        }
+        {
+            typedef bdlb::TransformIterator<FunctorWithAllocator,
+                                            IteratorWithAllocator>
+                Obj;
+
+            ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+
+            Obj        mX(&ta);
+            const Obj& X = mX;
+
+            ASSERT(&ta == X.allocator());
+            ASSERT(&ta == X.functor().allocator());
+            ASSERT(&ta == X.iterator().allocator());
+        }
+
+        if (veryVerbose) {
+            cout << "functor without allocator, iterator with allocator\n";
+        }
+        {
+            typedef bdlb::TransformIterator<FunctorWithoutAllocator,
+                                            IteratorWithAllocator>
+                Obj;
+
+            ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+
+            Obj        mX(&ta);
+            const Obj& X = mX;
+
+            ASSERT(&ta == X.allocator());
+            ASSERT(&ta == X.iterator().allocator());
+        }
+
+        if (veryVerbose) {
+            cout << "functor with allocator, iterator without allocator\n";
+        }
+        {
+            typedef bdlb::TransformIterator<FunctorWithAllocator,
+                                            IteratorWithoutAllocator>
+                Obj;
+
+            ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+
+            bslma::TestAllocator ta(veryVeryVeryVerbose);
+
+            Obj        mX(&ta);
+            const Obj& X = mX;
+
+            ASSERT(&ta == X.allocator());
+            ASSERT(&ta == X.functor().allocator());
+        }
+
+        if (veryVerbose) {
+            cout << "functor without allocator, iterator without allocator\n";
+        }
+        {
+            typedef bdlb::TransformIterator<FunctorWithoutAllocator,
+                                            IteratorWithoutAllocator>
+                Obj;
+
+            ASSERT(!bslma::UsesBslmaAllocator<Obj>::value);
+
+            struct FakeAllocatorMethod {
+                enum { allocator = -1 };
+            };
+
+            struct DerivedTransformIterator : FakeAllocatorMethod, Obj {
+            };
+
+            ASSERT(-1 == DerivedTransformIterator::allocator);
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
