@@ -516,6 +516,11 @@ bool operator>=(const TransformIterator<FUNCTOR, ITERATOR>& lhs,
     // equal to the iterator of the specified 'rhs'.  Note that the functors
     // are not compared.
 
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
           // --------------------------------------------------------
           // struct bdlb::TransformIterator_AllocatorOfIteratorMethod
           // --------------------------------------------------------
@@ -754,8 +759,6 @@ void TransformIterator<FUNCTOR, ITERATOR>::swap(
 }
 
 }  // close package namespace
-
-                            // INLINE DEFINITIONS
 
 // FREE FUNCTIONS
 template <class FUNCTOR, class ITERATOR>
