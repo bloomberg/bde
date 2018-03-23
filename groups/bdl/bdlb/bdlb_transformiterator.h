@@ -327,11 +327,11 @@ struct TransformIterator_AllocatorOfFunctorMethod<BASE, true>
 
 template <class FUNCTOR, class ITERATOR>
 class TransformIterator
-: TransformIterator_Traits<FUNCTOR, ITERATOR>::iterator_type,
-  TransformIterator_AllocatorOfIteratorMethod<
+: public TransformIterator_Traits<FUNCTOR, ITERATOR>::iterator_type,
+  public TransformIterator_AllocatorOfIteratorMethod<
       TransformIterator<FUNCTOR, ITERATOR>,
       bslma::UsesBslmaAllocator<ITERATOR>::value>,
-  TransformIterator_AllocatorOfFunctorMethod<
+  public TransformIterator_AllocatorOfFunctorMethod<
       TransformIterator<FUNCTOR, ITERATOR>,
       !bslma::UsesBslmaAllocator<ITERATOR>::value &&
           bslma::UsesBslmaAllocator<FUNCTOR>::value> {
