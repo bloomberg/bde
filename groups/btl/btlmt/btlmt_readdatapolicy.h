@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Rohan Bhindwale (rbhindwale)
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'btlmt::ReadDataPolicy::Enum', which enumerates the set of policies for
+// 'btlmt::ReadDataPolicy::Value', which enumerates the set of policies for
 // reading data from a collection of channels that have data available.
 //
 ///Enumerators
@@ -42,11 +42,11 @@ BSLS_IDENT("$Id: $")
 // The following snippets of code provide a simple illustration of using
 // 'btlmt::ReadDataPolicy'.
 //
-// First, we create a variable 'value' of type 'btlmt::ReadDataPolicy::Enum'
+// First, we create a variable 'value' of type 'btlmt::ReadDataPolicy::Value'
 // and initialize it with the enumerator value
 // 'btlmt::ReadDataPolicy::e_GREEDY':
 //..
-//  btlmt::ReadDataPolicy::Enum value = btlmt::ReadDataPolicy::e_GREEDY;
+//  btlmt::ReadDataPolicy::Value value = btlmt::ReadDataPolicy::e_GREEDY;
 //..
 // Now, we store the address of its ASCII representation in a pointer variable,
 // 'asciiValue', of type 'const char *':
@@ -67,8 +67,28 @@ BSLS_IDENT("$Id: $")
 #include <btlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BDLAT_ENUMERATORINFO
+#include <bdlat_enumeratorinfo.h>
+#endif
+
+#ifndef INCLUDED_BDLAT_TYPETRAITS
+#include <bdlat_typetraits.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
+#endif
+
+#ifndef INCLUDED_BSL_OSTREAM
+#include <bsl_ostream.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -80,7 +100,7 @@ namespace btlmt {
 
 struct ReadDataPolicy {
     // This 'struct' provides a namespace for enumerating the set of policies
-    // for reading data from a channel.  See 'Enum' in the TYPES sub-section
+    // for reading data from a channel.  See 'Value' in the TYPES sub-section
     // for details.
     //
     // This class:
@@ -91,7 +111,7 @@ struct ReadDataPolicy {
 
   public:
     // TYPES
-    enum Enum {
+    enum Value {
         e_GREEDY = 0, // Read data repeatedly from a channel until the data for
                       // that channel is exhausted before moving onto the next
                       // channel to read data.
@@ -100,12 +120,45 @@ struct ReadDataPolicy {
                       // round-robin manner.
     };
 
-  public:
+    enum {
+        NUM_ENUMERATORS = 2
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdlat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+
     // CLASS METHODS
-    static bsl::ostream& print(bsl::ostream&        stream,
-                               ReadDataPolicy::Enum value,
-                               int                  level          = 0,
-                               int                  spacesPerLevel = 4);
+    static const char *toString(Value value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumeration 'value'.
+
+    static int fromString(Value        *result,
+                          const char   *string,
+                          int           stringLength);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string' of the specified 'stringLength'.  Return 0 on
+        // success, and a non-zero value with no effect on 'result' otherwise
+        // (i.e., 'string' does not match any enumerator).
+
+    static int fromString(Value              *result,
+                          const bsl::string&  string);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'string' does not match any
+        // enumerator).
+
+    static int fromInt(Value *result, int number);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'number'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'number' does not match any
+        // enumerator).
+
+    static bsl::ostream& print(bsl::ostream&         stream,
+                               ReadDataPolicy::Value value,
+                               int                   level          = 0,
+                               int                   spacesPerLevel = 4);
         // Write the string representation of the specified enumeration 'value'
         // to the specified output 'stream', and return a reference to
         // 'stream'.  Optionally specify an initial indentation 'level', whose
@@ -117,9 +170,9 @@ struct ReadDataPolicy {
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  See 'toAscii' for
         // what constitutes the string representation of a
-        // 'ReadDataPolicy::Enum' value.
+        // 'ReadDataPolicy::Value' value.
 
-    static const char *toAscii(ReadDataPolicy::Enum value);
+    static const char *toAscii(ReadDataPolicy::Value value);
         // Return the non-modifiable string representation corresponding to the
         // specified enumeration 'value', if it exists, and a unique (error)
         // string otherwise.  The string representation of 'value' matches its
@@ -139,30 +192,51 @@ struct ReadDataPolicy {
 };
 
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream& stream, ReadDataPolicy::Enum value);
+bsl::ostream& operator<<(bsl::ostream& stream, ReadDataPolicy::Value value);
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
     // reference to 'stream'.  See 'toAscii' for what constitutes the string
-    // representation of a 'btlmt::ReadDataPolicy::Enum' value.  Note that this
-    // method has the same behavior as
+    // representation of a 'btlmt::ReadDataPolicy::Value' value.  Note that
+    // this method has the same behavior as
     //..
     //  btlmt::ReadDataPolicy::print(stream, value, 0, -1);
     //..
 
 }  // close package namespace
 
+// TRAITS
+BDLAT_DECL_ENUMERATION_TRAITS(btlmt::ReadDataPolicy)
+
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-                              // ----------------
+namespace btlmt {
+                              // ---------------------
                               // struct ReadDataPolicy
-                              // ----------------
+                              // ---------------------
+
+// CLASS METHODS
+inline
+int ReadDataPolicy::fromString(Value *result, const bsl::string& string)
+{
+    return fromString(result,
+                      string.c_str(),
+                      static_cast<int>(string.length()));
+}
+
+inline
+const char *ReadDataPolicy::toString(ReadDataPolicy::Value value)
+{
+    return toAscii(value);
+}
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline
-bsl::ostream& btlmt::operator<<(bsl::ostream&        stream,
-                                ReadDataPolicy::Enum value)
+bsl::ostream& btlmt::operator<<(bsl::ostream&         stream,
+                                ReadDataPolicy::Value value)
 {
     return ReadDataPolicy::print(stream, value, 0, -1);
 }
@@ -172,7 +246,7 @@ bsl::ostream& btlmt::operator<<(bsl::ostream&        stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

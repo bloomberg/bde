@@ -548,12 +548,20 @@ void MultiQueueThreadPool::drain()
             }
 
             if (0 == d_numActiveQueues) {
-                if (d_threadPoolIsOwned) {
-                    d_threadPool_p->drain();
-                    d_threadPool_p->start();
+                // If the thread pool is shared, no further checks can be
+                // performed.
+
+                if (!d_threadPoolIsOwned) {
+                    return;                                           // RETURN
                 }
 
-                return;                                               // RETURN
+                // If the thread pool is not shared, wait for the pool to
+                // drain.
+
+                if (   0 == d_threadPool_p->numActiveThreads()
+                    && 0 == d_threadPool_p->numPendingJobs()) {
+                    return;                                           // RETURN
+                }
             }
         }
 

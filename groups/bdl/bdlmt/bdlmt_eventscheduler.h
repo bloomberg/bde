@@ -128,6 +128,10 @@ BSLS_IDENT("$Id: $")
 // (which matches the epoch used in
 // 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
+// The current epoch time for a particular 'bdlmt::EventScheduler' instance
+// according to the correct clock is available via the
+// 'bdlmt::EventScheduler::now' accessor.
+//
 ///Event Clock Substitution
 ///------------------------
 // For testing purposes, a class 'bdlmt::EventSchedulerTestTimeSource' is
@@ -146,7 +150,8 @@ BSLS_IDENT("$Id: $")
 // value on construction, and will advance only when explicitly instructed to
 // do so by a call to 'bdlt::EventSchedulerTestTimeSource::advanceTime'.  The
 // current value of the internal clock can be accessed by calling
-// 'bdlt::EventSchedulerTestTimeSource::now'.
+// 'bdlt::EventSchedulerTestTimeSource::now', or 'bdlmt::EventScheduler::now'
+// on the instance supplied to the 'bdlmt::EventSchedulerTestTimeSource'.
 //
 // Note that the initial value of 'bdlt::EventSchedulerTestTimeSource::now' is
 // intentionally not synchronized with 'bdlt::CurrentTime::now'.  All test
@@ -291,7 +296,7 @@ BSLS_IDENT("$Id: $")
 //     // setup the timeout for data arrival
 //     d_scheduler.scheduleEvent(
 //        &connection->d_timerId,
-//        bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
+//        d_scheduler.now() + d_ioTimeout,
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //
@@ -315,7 +320,7 @@ BSLS_IDENT("$Id: $")
 //     // setup the timeout for data arrival
 //     d_scheduler.scheduleEvent(
 //        &connection->d_timerId,
-//        bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
+//        d_scheduler.now() + d_ioTimeout,
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //..
@@ -837,6 +842,12 @@ class EventScheduler {
         // Return the value of the clock type that this object was created
         // with.
 
+    bsls::TimeInterval now() const;
+        // Return the current epoch time, an absolute time represented as an
+        // interval from some epoch, which is determined by the clock indicated
+        // at construction (see {Supported Clock-Types} in the component
+        // documentation).
+
     int numEvents() const;
         // Return the number of pending one-time events in this scheduler.
 
@@ -1190,6 +1201,12 @@ inline
 bsls::SystemClockType::Enum EventScheduler::clockType() const
 {
     return d_clockType;
+}
+
+inline
+bsls::TimeInterval EventScheduler::now() const
+{
+    return d_currentTimeFunctor();
 }
 
 inline

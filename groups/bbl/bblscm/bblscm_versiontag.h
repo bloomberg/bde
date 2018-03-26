@@ -46,12 +46,12 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-// For the 3.6.x release series, 'bbl' is being versioned independently of
+// For the 3.7.x release series, 'bbl' is being versioned independently of
 // 'bsl'.
 #define BBL_VERSION_MAJOR     3
     // Provide the major version number of the current (latest) BBL release.
 
-#define BBL_VERSION_MINOR     6
+#define BBL_VERSION_MINOR     7
     // Provide the minor version number of the current (latest) BBL release.
 
 #define BBL_VERSION BSL_MAKE_VERSION(BBL_VERSION_MAJOR, \

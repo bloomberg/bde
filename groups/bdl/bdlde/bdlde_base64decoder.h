@@ -452,8 +452,8 @@ class Base64Decoder {
 
     // TBD doc
 
-    int d_stack;
-    int d_bitsInStack;
+    unsigned d_stack;
+    int      d_bitsInStack;
 
   private:
     // NOT IMPLEMENTED

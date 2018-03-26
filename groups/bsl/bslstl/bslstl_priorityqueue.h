@@ -389,6 +389,7 @@ class priority_queue {
   public:
     // PUBLIC TYPES
     typedef          CONTAINER                  container_type;
+    typedef          COMPARATOR                 value_compare;
     typedef typename CONTAINER::value_type      value_type;
     typedef typename CONTAINER::reference       reference;
     typedef typename CONTAINER::const_reference const_reference;

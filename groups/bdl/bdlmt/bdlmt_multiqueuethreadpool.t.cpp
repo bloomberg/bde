@@ -110,7 +110,8 @@ using namespace BloombergLP;
 // [24] DRQS 107733386: pause queue can be indefinitely deferred
 // [25] DRQS 112259433: 'drain' and 'deleteQueue' can deadlock
 // [26] DRQS 113734461: 'deleteQueue' copies cleanupFunctor
-// [27] USAGE EXAMPLE 1
+// [27] DRQS 118269630: 'drain' may not drain underlying threadpool
+// [28] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -308,7 +309,7 @@ static void waitOnBarrier(bslmt::Barrier *barrier, int numIterations)
 }
 
 struct Sleeper {
-    int                   d_sleepMicroSeconds;
+    int                    d_sleepMicroSeconds;
     static bsls::AtomicInt s_finished;
 
     Sleeper(double sleepSeconds)
@@ -328,7 +329,7 @@ struct Reproducer {
     const bsl::vector<int> *d_handles;
     int                     d_handleIdx;
     int                     d_handleIdxIncrement;
-    static bsls::AtomicInt   s_counter;        // submit until counter == 0
+    static bsls::AtomicInt  s_counter;        // submit until counter == 0
 
     Reproducer(Obj                    *threadPool,
                const bsl::vector<int> *handles,
@@ -496,6 +497,30 @@ void case26DeleteQueue(Obj *queue, int queueId, bool *cleanupDone)
         queueId, bdlf::BindUtil::bind(&case26CleanupFunctor, cleanupDone));
 }
 
+class Case27DrainThread {
+    Obj *d_obj_p;
+
+  public:
+    Case27DrainThread(Obj *obj)
+    : d_obj_p(obj)
+    {
+        BSLS_ASSERT(obj);
+    }
+    
+    void operator()() {
+        for (int i = 0; i < 10000; ++i) {
+            d_obj_p->drain();
+            bslmt::ThreadUtil::microSleep(10);
+        }
+    }
+};
+
+static bsls::AtomicInt s_case27Count(0);
+
+void case27Counter()
+{
+    --s_case27Count;
+}
 
 // ============================================================================
 //          CLASSES AND HELPER FUNCTIONS FOR TESTING USAGE EXAMPLES
@@ -1359,7 +1384,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1439,6 +1464,50 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // DRQS 118269630: 'drain' may not drain underlying threadpool
+        //
+        // Concerns:
+        //: 1 That 'drain' appropriately reaches completion without causing
+        //:   race conditions between 'drain' and 'enqueueJob'.
+        //
+        // Plan:
+        //: 1 Recreate the scenario and verify the race no longer occurs.
+        //
+        // Testing:
+        //   DRQS 118269630: 'drain' may not drain underlying threadpool
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout
+            << "DRQS 118269630: 'drain' may not drain underlying threadpool\n"
+            << "===========================================================\n";
+        }
+
+        Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
+
+        mX.start();
+        int queueId = mX.createQueue();
+
+        Case27DrainThread         drainThread(&mX);
+        bslmt::ThreadUtil::Handle drainThreadHandle;
+
+        ASSERT(0 == bslmt::ThreadUtil::create(&drainThreadHandle,
+                                              drainThread));
+
+        for (int i = 0; i < 1000; ++i) {
+            ASSERT(0 == mX.enqueueJob(queueId, case27Counter));
+            ++s_case27Count;
+            bslmt::ThreadUtil::microSleep(100);
+        }
+
+        ASSERT(0 == bslmt::ThreadUtil::join(drainThreadHandle));
+
+        bslmt::ThreadUtil::microSleep(100000);
+
+        ASSERT(0 == s_case27Count);
       }  break;
       case 26: {
         // --------------------------------------------------------------------

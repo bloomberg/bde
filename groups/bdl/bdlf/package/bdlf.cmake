@@ -1,8 +1,9 @@
 include(bde_interface_target)
 include(bde_struct)
 
-function(process_package retPackage)
-    default_process_package(package ${ARGN})
+bde_prefixed_override(bdlf process_package)
+function(bdlf_process_package retPackage)
+    process_package_base("" package ${ARGN})
 
     bde_struct_get_field(testInterface ${package} TEST_INTERFACE_TARGET)
     bde_interface_target_compile_options(

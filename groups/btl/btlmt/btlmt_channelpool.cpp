@@ -421,7 +421,7 @@ class Channel {
 
     bool                             d_enableReadFlag;   // are we reading?
 
-    btlmt::ReadDataPolicy::Enum      d_readDataPolicy;   // read policy to
+    btlmt::ReadDataPolicy::Value     d_readDataPolicy;   // read policy to
                                                          // decide how to read
                                                          // data from multiple
                                                          // data-ready channels
