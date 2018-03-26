@@ -1,4 +1,3 @@
-// bdlb_transformiterator.h                                           -*-C++-*-
 #ifndef INCLUDED_BDLB_TRANSFORMITERATOR
 #define INCLUDED_BDLB_TRANSFORMITERATOR
 
@@ -38,8 +37,10 @@ BSLS_IDENT("$Id: $")
 // Then we create the transform iterators that will convert a number to its
 // absolute value.  We need ones for the beginning and end of the sequence:
 //..
-//  bdlb::TransformIterator<int(*)(int), int*> dataBegin(data + 0, bsl::abs);
-//  bdlb::TransformIterator<int(*)(int), int*> dataEnd  (data + 5, bsl::abs);
+//  int (*abs)(int) = &bsl::abs;
+
+//  bdlb::TransformIterator<int(*)(int), int*> dataBegin(data + 0, abs);
+//  bdlb::TransformIterator<int(*)(int), int*> dataEnd  (data + 5, abs);
 //..
 // Now, we compute the sum of the absolute values of the numbers:
 //..
@@ -122,7 +123,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we add up the prices of our groceries:
 //..
-//  double total = std::accumulate(groceryBegin, groceryEnd, 0.0);
+//  double total = bsl::accumulate(groceryBegin, groceryEnd, 0.0);
 //..
 // Finally, we verify that we have the correct total:
 //..
@@ -220,35 +221,34 @@ struct TransformIterator_Traits {
     // In C++03, the functor must have a 'result_type' type member.  The
     // specializations below transform function pointers to 'bsl::function' so
     // this works for those types as well.
-    typedef typename bslmf::ResultType<FUNCTOR>::type functor_result_type;
+    typedef typename bslmf::ResultType<FUNCTOR>::type ResultType;
 #else
     // In C++11, the result type can be determined automatically.  Note that
     // various iterations of the language standard might want to instead use
     // 'std::result_of' or 'std::invoke_result' (which have been variously
     // added and then deprecated), but the following works from C++11 onwards.
     typedef decltype(bsl::declval<FUNCTOR>()(*bsl::declval<ITERATOR>()))
-                                                      functor_result_type;
+                                                      ResultType;
 #endif
 
     // Define the iterator traits class of the underlying iterator.
-    typedef typename bsl::iterator_traits<ITERATOR> base_iterator_traits;
+    typedef typename bsl::iterator_traits<ITERATOR> BaseIteratorTraits;
 
     // Define the iterator category of the transform iterator.  If the functor
     // returns a reference type, we pass through the iterator category of the
     // underlying iterator, otherwise we use the input iterator tag (because
     // all the other tags require that dereferencing produces a reference).
     typedef typename bsl::conditional<
-        bsl::is_reference<functor_result_type>::value,
-        typename base_iterator_traits::iterator_category,
+        bsl::is_reference<ResultType>::value,
+        typename BaseIteratorTraits::iterator_category,
         bsl::input_iterator_tag>::type iterator_category;
 
     // Define the remaining standard types of the transform iterator.
-    typedef typename base_iterator_traits::difference_type difference_type;
+    typedef typename BaseIteratorTraits::difference_type difference_type;
     typedef typename bsl::remove_cv<
-        typename bsl::remove_reference<functor_result_type>::type>::type
-                                                                value_type;
-    typedef functor_result_type                                 reference;
-    typedef typename bsl::remove_reference<functor_result_type>::type *pointer;
+        typename bsl::remove_reference<ResultType>::type>::type  value_type;
+    typedef ResultType                                           reference;
+    typedef typename bsl::remove_reference<ResultType>::type    *pointer;
 
     // Define the standard iterator specialization that will apply to the
     // transform iterator.
@@ -256,8 +256,8 @@ struct TransformIterator_Traits {
                           value_type,
                           difference_type,
                           pointer,
-                          functor_result_type>
-        iterator_type;
+                          ResultType>
+        Iterator;
 };
 
 // Specialize the transform iterator traits template for functors that are
@@ -327,7 +327,7 @@ struct TransformIterator_AllocatorOfFunctorMethod<BASE, true>
 
 template <class FUNCTOR, class ITERATOR>
 class TransformIterator
-: public TransformIterator_Traits<FUNCTOR, ITERATOR>::iterator_type,
+: public TransformIterator_Traits<FUNCTOR, ITERATOR>::Iterator,
   public TransformIterator_AllocatorOfIteratorMethod<
       TransformIterator<FUNCTOR, ITERATOR>,
       bslma::UsesBslmaAllocator<ITERATOR>::value>,
@@ -342,7 +342,7 @@ class TransformIterator
   private:
     // PRIVATE TYPES
     typedef TransformIterator_Traits<FUNCTOR, ITERATOR> Traits;
-    typedef typename Traits::iterator_type              iterator_type;
+    typedef typename Traits::Iterator                   Iterator;
 
     // PRIVATE DATA
     bslalg::ConstructorProxy<ITERATOR> d_iteratorProxy;
@@ -350,12 +350,11 @@ class TransformIterator
 
   public:
     // PUBLIC TYPES
-
-    // 'difference_type' is needed for 'operator[]' declarations.  The other
-    // iterator types will be available to clients via inheritance.
-    using typename iterator_type::difference_type;
-    using typename iterator_type::reference;
-    using typename iterator_type::pointer;
+    typedef typename Iterator::difference_type   difference_type;
+    typedef typename Iterator::reference         reference;
+    typedef typename Iterator::pointer           pointer;
+    typedef typename Iterator::value_type        value_type;
+    typedef typename Iterator::iterator_category iterator_category;
 
     // PUBLIC CREATORS
     TransformIterator();

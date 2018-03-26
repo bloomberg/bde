@@ -543,8 +543,10 @@ int main(int argc, char *argv[])
 // Then we create the transform iterators that will convert a number to its
 // absolute value.  We need ones for the beginning and end of the sequence:
 //..
-    bdlb::TransformIterator<int(*)(int), int*> dataBegin(data + 0, bsl::abs);
-    bdlb::TransformIterator<int(*)(int), int*> dataEnd  (data + 5, bsl::abs);
+    int (*abs)(int) = &bsl::abs;
+
+    bdlb::TransformIterator<int(*)(int), int*> dataBegin(data + 0, abs);
+    bdlb::TransformIterator<int(*)(int), int*> dataEnd  (data + 5, abs);
 //..
 // Now, we compute the sum of the absolute values of the numbers:
 //..
@@ -593,7 +595,7 @@ int main(int argc, char *argv[])
 //..
 // Now, we add up the prices of our groceries:
 //..
-    double total = std::accumulate(groceryBegin, groceryEnd, 0.0);
+    double total = bsl::accumulate(groceryBegin, groceryEnd, 0.0);
 //..
 // Finally, we verify that we have the correct total:
 //..
@@ -763,14 +765,17 @@ int main(int argc, char *argv[])
 
         double a[1] = {.785};
 
-        typedef bsl::reverse_iterator<double *> ri;
+        typedef bsl::reverse_iterator<double *>           ri;
         typedef TransformIterator<double (*)(double), ri> Obj;
 
+        double (*sin)(double) = &bsl::sin;
+        double (*cos)(double) = &bsl::cos;
+
         Obj iterators[4] = {
-            Obj(ri(a + 0), bsl::sin),
-            Obj(ri(a + 0), bsl::cos),
-            Obj(ri(a + 1), bsl::sin),
-            Obj(ri(a + 1), bsl::cos),
+            Obj(ri(a + 0), sin),
+            Obj(ri(a + 0), cos),
+            Obj(ri(a + 1), sin),
+            Obj(ri(a + 1), cos),
         };
 
         bool expected_eq[4][4] = {
@@ -1378,16 +1383,19 @@ int main(int argc, char *argv[])
         {
             int    DATA[]   = {-1, 1, -2, 2, 3};
             size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            int (*abs)(int) = &bsl::abs;
+
             if (veryVerbose) {
                 cout << "\tusing function pointer\n";
             }
             {
                 typedef TransformIterator<int (*)(int), int *> Obj;
 
-                Obj begin(DATA + 0, bsl::abs);
-                Obj end(DATA + NUM_DATA, bsl::abs);
+                Obj begin(DATA + 0, abs);
+                Obj end(DATA + NUM_DATA, abs);
 
-                ASSERT(9 == std::accumulate(begin, end, 0));
+                ASSERT(9 == bsl::accumulate(begin, end, 0));
             }
             if (veryVerbose) {
                 cout << "\tusing bsl::function\n";
@@ -1395,12 +1403,10 @@ int main(int argc, char *argv[])
             {
                 typedef TransformIterator<bsl::function<int(int)>, int *> Obj;
 
-                int (*abs)(int) = &bsl::abs;  // Pick correct overload of abs.
-
                 Obj begin(DATA + 0, abs);
                 Obj end(DATA + NUM_DATA, abs);
 
-                ASSERT(9 == std::accumulate(begin, end, 0));
+                ASSERT(9 == bsl::accumulate(begin, end, 0));
             }
         }
 
@@ -1423,11 +1429,14 @@ int main(int argc, char *argv[])
                 Obj begin(DATA + 0, parenthesizer, &ta);
                 Obj end(DATA + NUM_DATA, parenthesizer, &ta);
 
-                ASSERT("(1)((2))(((3)))" ==
-                       bsl::accumulate(begin, end, bsl::string()));
-                ASSERT("(1)" == DATA[0]);
-                ASSERT("((2))" == DATA[1]);
-                ASSERT("(((3)))" == DATA[2]);
+                bsl::string result;
+                for (; begin != end; ++begin) {
+                    result += *begin;
+                }
+                ASSERT("(1)((2))(((3)))" == result);
+                LOOP_ASSERT(DATA[0], "(1)" == DATA[0]);
+                LOOP_ASSERT(DATA[1], "((2))" == DATA[1]);
+                LOOP_ASSERT(DATA[2], "(((3)))" == DATA[2]);
             }
             if (veryVerbose) {
                 cout << "\tusing bsl::function and allocators\n";
@@ -1446,11 +1455,14 @@ int main(int argc, char *argv[])
                 Obj begin(DATA + 0, parenthesizer, &ta);
                 Obj end(DATA + NUM_DATA, parenthesizer, &ta);
 
-                ASSERT("(1)((2))(((3)))" ==
-                       bsl::accumulate(begin, end, bsl::string()));
-                ASSERT("(1)" == DATA[0]);
-                ASSERT("((2))" == DATA[1]);
-                ASSERT("(((3)))" == DATA[2]);
+                bsl::string result;
+                for (; begin != end; ++begin) {
+                    result += *begin;
+                }
+                ASSERT("(1)((2))(((3)))" == result);
+                LOOP_ASSERT(DATA[0], "(1)" == DATA[0]);
+                LOOP_ASSERT(DATA[1], "((2))" == DATA[1]);
+                LOOP_ASSERT(DATA[2], "(((3)))" == DATA[2]);
             }
         }
       } break;
