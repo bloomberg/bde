@@ -557,8 +557,8 @@ bslma::Allocator *TransformIterator_AllocatorOfFunctorMethod<BASE, true>
 template <class FUNCTOR, class ITERATOR>
 inline
 TransformIterator<FUNCTOR, ITERATOR>::TransformIterator()
-: d_iteratorProxy()
-, d_functorProxy()
+: d_iteratorProxy(0)
+, d_functorProxy(0)
 {
 }
 
