@@ -18,11 +18,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an attribute class for specifying BER decoding options.
 //
 //@CLASSES:
-//  bdem::balber::BerDecoderOptions: options for decoding objects in BDE format
+//  balber::BerDecoderOptions: options for decoding objects in BDE format
 //
 //@AUTHOR: Alexander Libman (alibman1@bloomberg.net)
 //
-//@DESCRIPTION: Schema of options records for 'bdem' codecs
+//@DESCRIPTION: Schema of options records for 'balber' codecs
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
