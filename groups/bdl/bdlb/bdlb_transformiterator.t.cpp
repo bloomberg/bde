@@ -867,12 +867,11 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING ACCESSORS
-        //   Extracted from component header file.
         //
         // Concerns:
         //: 1 The accessor methods should do what they are supposed to, some
         //:   forwarding to the underlying iterator, some querying the object
-        //:   itself, and the dereference operator invoking the functor.
+        //:   itself, and the dereference operators invoking the functor.
         //
         // Plan:
         //: 1 Create a transform iterator, apply the various accessors, and
@@ -937,16 +936,16 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING MANIPULATORS
-        //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        //: 1 The manipulator methods should do what they are supposed to, some
+        //:   forwarding to the underlying iterator, some querying or modifying
+        //:   the object itself, and the dereference operators invoking the
+        //:   functor.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        //: 1 Create a transform iterator, apply the various manipulators, and
+        //:   verify that the results are correct.  (C-1)
         //
         // Testing:
         //   TransformIterator& operator=(const TransformIterator&);
@@ -965,6 +964,118 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING MANIPULATORS"
                              "\n====================\n";
+
+        typedef TransformIterator<Parenthesizer, bsl::string *> Obj;
+
+        bsl::string DATA[] = { "a", "b", "c" };
+
+        bslma::TestAllocator ta;
+
+        Obj        mX(DATA + 1, Parenthesizer(&ta), &ta);
+        const Obj& X = mX;
+
+        if (veryVerbose) {
+            cout << "operator=(const TransformIterator&)\n";
+        }
+        {
+            Obj        mY(&ta);
+            const Obj& Y = mY;
+            mY = X;
+            ASSERT(&DATA[1] == Y.iterator());
+        }
+
+        if (veryVerbose) {
+            cout << "operator++()\n";
+        }
+        {
+            const Obj &Y = ++mX;
+            ASSERT(bsls::Util::addressOf(Y) == bsls::Util::addressOf(X));
+            ASSERT(&DATA[2] == X.iterator());
+        }
+
+        if (veryVerbose) {
+            cout << "operator--()\n";
+        }
+        {
+            const Obj &Y = --mX;
+            ASSERT(bsls::Util::addressOf(Y) == bsls::Util::addressOf(X));
+            ASSERT(&DATA[1] == X.iterator());
+        }
+
+        if (veryVerbose) {
+            cout << "operator++(int)\n";
+        }
+        {
+            const Obj Y = mX++;
+            ASSERT(&DATA[1] == Y.iterator());
+            ASSERT(&DATA[2] == X.iterator());
+        }
+
+        if (veryVerbose) {
+            cout << "operator--(int)\n";
+        }
+        {
+            const Obj Y = mX--;
+            ASSERT(&DATA[2] == Y.iterator());
+            ASSERT(&DATA[1] == X.iterator());
+        }
+
+        if (veryVerbose) {
+            cout << "operator+=(difference_type)\n";
+        }
+        {
+            const Obj &Y = mX += 1;
+            ASSERT(bsls::Util::addressOf(Y) == bsls::Util::addressOf(X));
+            ASSERT(&DATA[2] == X.iterator());
+        }
+
+        if (veryVerbose) {
+            cout << "operator-=(difference_type)\n";
+        }
+        {
+            const Obj &Y = mX -= 1;
+            ASSERT(bsls::Util::addressOf(Y) == bsls::Util::addressOf(X));
+            ASSERT(&DATA[1] == X.iterator());
+        }
+
+        if (veryVerbose) {
+            cout << "operator*()\n";
+        }
+        ASSERT("(b)" == *mX);
+
+        if (veryVerbose) {
+            cout << "operator->()\n";
+        }
+        ASSERT(0 == bsl::strcmp("(((b)))", mX->c_str()));
+
+        if (veryVerbose) {
+            cout << "operator[](difference_type n)\n";
+        }
+        ASSERT("(((c)))" == mX[1]);
+
+        if (veryVerbose) {
+            cout << "functor()\n";
+        }
+        mX.functor() = Parenthesizer(&ta);
+        ASSERT("(a)" == X.functor()(DATA[0]));
+
+        if (veryVerbose) {
+            cout << "iterator()\n";
+        }
+        mX.iterator() = &DATA[0];
+        ASSERT(&DATA[0] == X.iterator());
+
+        if (veryVerbose) {
+            cout << "swap(TransformIterator&)\n";
+        }
+        {
+            Obj        mY(&DATA[2], Parenthesizer(&ta), &ta);
+            const Obj& Y = mY;
+
+            mX.swap(mY);
+            ASSERT("((((c))))" == *X);
+            ASSERT("(((a)))" == *Y);
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
