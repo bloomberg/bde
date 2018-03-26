@@ -4,6 +4,7 @@
 #include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
+#include <bslma_default.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
@@ -1080,16 +1081,16 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING CREATORS
-        //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        //: 1 The various forms of constructor for the transform iterator
+        //:   correctly initialize the new object, and pass allocators to the
+        //:   constructors of the subobjects that need them.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        //: 1 For each of the four combinations of the two subobjects having or
+        //:   not having allocators, create an object using each constructor
+        //:   and verify that the objects are correct.  (C-1)
         //
         // Testing:
         //   TransformIterator();
@@ -1099,6 +1100,261 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING CREATORS"
                              "\n================\n";
+
+        bslma::TestAllocator ta;
+
+        int DATA[] = { 1, 2, 3 };
+
+        if (veryVerbose) {
+            cout << "functor with allocator, iterator with allocator\n";
+        }
+        {
+            typedef TransformIterator<FunctorWithAllocator,
+                                      IteratorWithAllocator>
+                Obj;
+
+            if (veryVerbose) {
+                cout << "\tTI()\n";
+            }
+            {
+                Obj        mX;
+                const Obj& X = mX;
+
+                ASSERT(bslma::Default::allocator(0) ==
+                       bslma::Default::allocator(X.allocator()));
+                ASSERT(bslma::Default::allocator(0) ==
+                       bslma::Default::allocator(X.functor().allocator()));
+                ASSERT(bslma::Default::allocator(0) ==
+                       bslma::Default::allocator(X.iterator().allocator()));
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(Allocator *)\n";
+            }
+            {
+                Obj        mX(&ta);
+                const Obj& X = mX;
+
+                ASSERT(&ta == X.allocator());
+                ASSERT(&ta == X.functor().allocator());
+                ASSERT(&ta == X.iterator().allocator());
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(const ITERATOR&, FUNCTOR, Allocator *)\n";
+            }
+            {
+                Obj        mX(IteratorWithAllocator(&DATA[1], &ta),
+                              FunctorWithAllocator(&ta),
+                              &ta);
+                const Obj& X = mX;
+
+                ASSERT(&ta == X.allocator());
+                ASSERT(&ta == X.functor().allocator());
+                ASSERT(&ta == X.iterator().allocator());
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
+                ASSERT(DATA[0] == *X);
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(const TI&, Allocator *)\n";
+            }
+            {
+                Obj        mY(IteratorWithAllocator(&DATA[1], &ta),
+                              FunctorWithAllocator(&ta),
+                              &ta);
+                const Obj& Y = mY;
+                Obj        mX(Y, &ta);
+                const Obj& X = mX;
+
+                ASSERT(&ta == X.allocator());
+                ASSERT(&ta == X.functor().allocator());
+                ASSERT(&ta == X.iterator().allocator());
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
+                ASSERT(DATA[0] == *X);
+            }
+        }
+
+        if (veryVerbose) {
+            cout << "functor without allocator, iterator with allocator\n";
+        }
+        {
+            typedef TransformIterator<FunctorWithoutAllocator,
+                                      IteratorWithAllocator>
+                Obj;
+
+            if (veryVerbose) {
+                cout << "\tTI()\n";
+            }
+            {
+                Obj        mX;
+                const Obj& X = mX;
+
+                ASSERT(bslma::Default::allocator(0) ==
+                       bslma::Default::allocator(X.allocator()));
+                ASSERT(bslma::Default::allocator(0) ==
+                       bslma::Default::allocator(X.iterator().allocator()));
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(Allocator *)\n";
+            }
+            {
+                Obj        mX(&ta);
+                const Obj& X = mX;
+
+                ASSERT(&ta == X.allocator());
+                ASSERT(&ta == X.iterator().allocator());
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(const ITERATOR&, FUNCTOR, Allocator *)\n";
+            }
+            {
+                Obj        mX(IteratorWithAllocator(&DATA[1], &ta),
+                              FunctorWithoutAllocator(),
+                              &ta);
+                const Obj& X = mX;
+
+                ASSERT(&ta == X.allocator());
+                ASSERT(&ta == X.iterator().allocator());
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
+                ASSERT(DATA[0] == *X);
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(const TI&, Allocator *)\n";
+            }
+            {
+                Obj        mY(IteratorWithAllocator(&DATA[1], &ta),
+                              FunctorWithoutAllocator(),
+                              &ta);
+                const Obj& Y = mY;
+                Obj        mX(Y, &ta);
+                const Obj& X = mX;
+
+                ASSERT(&ta == X.allocator());
+                ASSERT(&ta == X.iterator().allocator());
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
+                ASSERT(DATA[0] == *X);
+            }
+        }
+
+        if (veryVerbose) {
+            cout << "functor with allocator, iterator without allocator\n";
+        }
+        {
+            typedef TransformIterator<FunctorWithAllocator,
+                                      IteratorWithoutAllocator>
+                Obj;
+
+            if (veryVerbose) {
+                cout << "\tTI()\n";
+            }
+            {
+                Obj        mX;
+                const Obj& X = mX;
+
+                ASSERT(bslma::Default::allocator(0) ==
+                       bslma::Default::allocator(X.allocator()));
+                ASSERT(bslma::Default::allocator(0) ==
+                       bslma::Default::allocator(X.functor().allocator()));
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(Allocator *)\n";
+            }
+            {
+                Obj        mX(&ta);
+                const Obj& X = mX;
+
+                ASSERT(&ta == X.allocator());
+                ASSERT(&ta == X.functor().allocator());
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(const ITERATOR&, FUNCTOR, Allocator *)\n";
+            }
+            {
+                Obj        mX((IteratorWithoutAllocator(&DATA[1])),
+                              FunctorWithAllocator(&ta),
+                              &ta);
+                const Obj& X = mX;
+
+                ASSERT(&ta == X.allocator());
+                ASSERT(&ta == X.functor().allocator());
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
+                ASSERT(DATA[0] == *X);
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(const TI&, Allocator *)\n";
+            }
+            {
+                Obj        mY((IteratorWithoutAllocator(&DATA[1])),
+                              FunctorWithAllocator(&ta),
+                              &ta);
+                const Obj& Y = mY;
+                Obj        mX(Y, &ta);
+                const Obj& X = mX;
+
+                ASSERT(&ta == X.allocator());
+                ASSERT(&ta == X.functor().allocator());
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
+                ASSERT(DATA[0] == *X);
+            }
+        }
+
+        if (veryVerbose) {
+            cout << "functor without allocator, iterator without allocator\n";
+        }
+        {
+            typedef TransformIterator<FunctorWithoutAllocator,
+                                      IteratorWithoutAllocator>
+                Obj;
+
+            if (veryVerbose) {
+                cout << "\tTI()\n";
+            }
+            {
+                Obj mX;  (void)mX;
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(Allocator *)\n";
+            }
+            {
+                Obj mX(&ta);  (void)mX;
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(const ITERATOR&, FUNCTOR, Allocator *)\n";
+            }
+            {
+                Obj        mX((IteratorWithoutAllocator(&DATA[1])),
+                              FunctorWithoutAllocator(),
+                              &ta);
+                const Obj& X = mX;
+
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
+                ASSERT(DATA[0] == *X);
+            }
+
+            if (veryVerbose) {
+                cout << "\tTI(const TI&, Allocator *)\n";
+            }
+            {
+                Obj        mY((IteratorWithoutAllocator(&DATA[1])),
+                              FunctorWithoutAllocator(),
+                              &ta);
+                const Obj& Y = mY;
+                Obj        mX(Y, &ta);
+                const Obj& X = mX;
+
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
+                ASSERT(DATA[0] == *X);
+            }
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
