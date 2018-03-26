@@ -36,8 +36,8 @@ using namespace bsl;
 //                              --------
 // A 'bdlt::Timetable' is a value-semantic type that represents a timetable of
 // state transitions.  Two timetables have the same value if they have the same
-// valid range (or are both empty), the same transitions, and each
-// corresponding pair of transitions has the same transition code.
+// valid range (or are both empty), the same number of transitions, and each
+// corresponding pair of transitions has the same value.
 //
 // We have chosen the primary manipulators for 'bdlt::Timetable' to be
 // 'addTransition(const Datetime& datetime, int code)',
@@ -423,12 +423,12 @@ int parseTransition(const char     **endPos,
 }
 
 int ggg(Obj *object, const char *spec, bool verboseFlag = true)
-    // TBD
     // Configure the specified 'object' according to the specified 'spec',
-    // using only the primary manipulators 'addDay', 'addHoliday',
-    // 'addHolidayCode', 'addWeekendDay', and 'addWeekendDaysTransition'.
-    // Optionally specify a 'false' 'verboseFlag' to suppress 'spec' syntax
-    // error messages.  Return the index of the first invalid character, and a
+    // using only the primary manipulators
+    // 'addTransition(const Datetime& datetime, int code)',
+    // 'setInitialTransitionCode', 'setValidRange', and 'reset'.  Optionally
+    // specify a 'false' 'verboseFlag' to suppress 'spec' syntax error
+    // messages.  Return the index of the first invalid character, and a
     // negative value otherwise.  Note that this function is used to implement
     // 'gg' as well as allowing for verification of syntax error detection.
 {
@@ -592,8 +592,9 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    bslma::TestAllocator         defaultAllocator("default",
+                                                  veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 18: {
@@ -2030,7 +2031,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 The common object allocator address in both objects is unchanged.
         //:
-        //: 3 Neither function allocates memory from any allocator.
+        //: 3 The member function allocates memory from any allocator.
         //:
         //: 4 Both functions have standard signatures.
         //:
@@ -2073,7 +2074,8 @@ int main(int argc, char *argv[])
         //:
         //:     2 The object allocator address is unchanged.
         //:
-        //:     3 There was no additional object memory allocation.
+        //:     3 For the member function, there was no additional object
+        //:       memory allocation.
         //:
         //:   4 For each row 'R2' in the table of P-3:
         //:
@@ -2101,10 +2103,12 @@ int main(int argc, char *argv[])
         //:
         //:       2 The object allocator addresses are unchanged.
         //:
-        //:       3 There was no additional object memory allocation.
+        //:       3 There method works correctly when the objects have
+        //:         different allocators.
         //:
         //: 5 Use the test allocator from P-2 to verify that no memory is ever
-        //:   allocated from the default allocator.  (C-3)
+        //:   allocated from the default allocator when using the member
+        //:   'swap'.  (C-3)
         //:
         //: 6 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to swap objects that do not
@@ -2145,8 +2149,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout << "\nCreate a table of distinct object values."
                                                                        << endl;
@@ -2157,6 +2161,7 @@ int main(int argc, char *argv[])
             const char *const SPEC1 = SPECS[ti];
 
             bslma::TestAllocator oa("object",       veryVeryVeryVerbose);
+            bslma::TestAllocator oa2("object2",     veryVeryVeryVerbose);
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             Obj        mW(&oa);
@@ -2188,6 +2193,9 @@ int main(int argc, char *argv[])
 
             // free function 'swap'
             {
+                // While not required, when the allocator is the same no
+                // allocation should occur.
+
                 bslma::TestAllocatorMonitor oam(&oa);
 
                 swap(mW, mW);
@@ -2208,6 +2216,10 @@ int main(int argc, char *argv[])
                 const Obj& Y = gg(&mY, SPEC2);
                 const Obj  YY(Y, &scratch);
 
+                Obj        mZ(&oa2);
+                const Obj& Z = gg(&mZ, SPEC2);
+                const Obj  ZZ(Z, &scratch);
+
                 if (veryVerbose) { T_ P_(tj) P_(X) P_(Y) P_(YY) }
 
                 // member 'swap'
@@ -2223,8 +2235,11 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(ti, tj, oam.isTotalSame());
                 }
 
-                // free function 'swap'
+                // free function 'swap', same allocator
                 {
+                    // While not required, when the allocator is the same no
+                    // allocation should occur.
+
                     bslma::TestAllocatorMonitor oam(&oa);
 
                     swap(mX, mY);
@@ -2234,6 +2249,16 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(ti, tj, &oa == X.allocator());
                     LOOP2_ASSERT(ti, tj, &oa == Y.allocator());
                     LOOP2_ASSERT(ti, tj, oam.isTotalSame());
+                }
+
+                // free function 'swap', different allocator
+                {
+                    swap(mX, mZ);
+
+                    LOOP4_ASSERT(ti, tj, X, XX, X == ZZ);
+                    LOOP4_ASSERT(ti, tj, Z, ZZ, Z == XX);
+                    LOOP2_ASSERT(ti, tj, &oa  == X.allocator());
+                    LOOP2_ASSERT(ti, tj, &oa2 == Z.allocator());
                 }
             }
         }
@@ -2260,20 +2285,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(mA.swap(mB));
                 ASSERT_SAFE_FAIL(mC.swap(mZ));
-            }
-
-            if (veryVerbose) cout << "\t'swap' free function" << endl;
-            {
-                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
-                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
-
-                Obj mA(&oa1);
-                Obj mB(&oa1);
-                Obj mC(&oa1);
-                Obj mZ(&oa2);
-
-                ASSERT_SAFE_PASS(swap(mA, mB));
-                ASSERT_SAFE_FAIL(swap(mC, mZ));
             }
         }
       } break;

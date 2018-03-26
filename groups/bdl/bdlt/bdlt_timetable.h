@@ -1104,6 +1104,43 @@ void bdlt::hashAppend(HASHALG& hashAlg, const TimetableTransition& object)
 
 namespace bdlt {
 
+                      // -----------------------------
+                      // class TimetableTransition_Ref
+                      // -----------------------------
+
+// PRIVATE CREATORS
+inline
+TimetableTransition_Ref::TimetableTransition_Ref()
+: TimetableTransition()
+{
+}
+
+// CREATORS
+inline
+TimetableTransition_Ref::TimetableTransition_Ref(
+                                         const TimetableTransition& transition)
+: TimetableTransition(transition)
+{
+}
+
+inline
+TimetableTransition_Ref::TimetableTransition_Ref(
+                                       const TimetableTransition_Ref& original)
+: TimetableTransition(original)
+{
+}
+
+// MANIPULATORS
+inline
+TimetableTransition_Ref& TimetableTransition_Ref::operator=(
+                                                const TimetableTransition& rhs)
+{
+    d_datetime = rhs.d_datetime;
+    d_code     = rhs.d_code;
+
+    return *this;
+}
+
                   // -------------------------------------
                   // class Timetable_CompactableTransition
                   // -------------------------------------
@@ -1217,43 +1254,6 @@ void bdlt::hashAppend(HASHALG&                               hashAlg,
 
 namespace bdlt {
 
-                      // -----------------------------
-                      // class TimetableTransition_Ref
-                      // -----------------------------
-
-// PRIVATE CREATORS
-inline
-TimetableTransition_Ref::TimetableTransition_Ref()
-: TimetableTransition()
-{
-}
-
-// CREATORS
-inline
-TimetableTransition_Ref::TimetableTransition_Ref(
-                                         const TimetableTransition& transition)
-: TimetableTransition(transition)
-{
-}
-
-inline
-TimetableTransition_Ref::TimetableTransition_Ref(
-                                       const TimetableTransition_Ref& original)
-: TimetableTransition(original)
-{
-}
-
-// MANIPULATORS
-inline
-TimetableTransition_Ref& TimetableTransition_Ref::operator=(
-                                                const TimetableTransition& rhs)
-{
-    d_datetime = rhs.d_datetime;
-    d_code     = rhs.d_code;
-
-    return *this;
-}
-
                            // -------------------
                            // class Timetable_Day
                            // -------------------
@@ -1297,6 +1297,8 @@ bool Timetable_Day::removeAllTransitions()
 inline
 bool Timetable_Day::setInitialTransitionCode(int code)
 {
+    BSLS_ASSERT_SAFE(0 <= code || k_UNSET_TRANSITION_CODE == code);
+
     bool rv = d_initialTransitionCode != code && d_transitions.empty();
 
     d_initialTransitionCode = code;
@@ -1407,7 +1409,7 @@ void Timetable::reset()
 inline
 void Timetable::swap(Timetable& other)
 {
-    // 'swap' is undefined for objects with non-equal allocators.
+    // Member 'swap' is undefined for objects with non-equal allocators.
 
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
@@ -1511,15 +1513,23 @@ inline
 bsl::ostream& bdlt::operator<<(bsl::ostream&    stream,
                                const Timetable& timetable)
 {
-    timetable.print(stream, 0, -1);
-    return stream;
+    return timetable.print(stream, 0, -1);
 }
 
 // FREE FUNCTIONS
 inline
 void bdlt::swap(Timetable& a, Timetable& b)
 {
-    a.swap(b);
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+    }
+    else {
+        Timetable futureA(b, a.allocator());
+        Timetable futureB(a, b.allocator());
+
+        futureA.swap(a);
+        futureB.swap(b);
+    }
 }
 
 // HASH SPECIALIZATIONS
@@ -1537,9 +1547,9 @@ void bdlt::hashAppend(HASHALG& hashAlg, const Timetable& object)
 
 namespace bdlt {
 
-                      // =============================
+                      // -----------------------------
                       // class Timetable_ConstIterator
-                      // =============================
+                      // -----------------------------
 
 // PRIVATE CREATORS
 inline
@@ -1590,6 +1600,8 @@ TimetableTransition Timetable_ConstIterator::operator*() const
     BSLS_ASSERT_SAFE(d_timetable_p);
     BSLS_ASSERT_SAFE(d_dayIndex
                           < static_cast<bsl::size_t>(d_timetable_p->length()));
+    BSLS_ASSERT_SAFE(d_transitionIndex
+                              < d_timetable_p->d_timetable[d_dayIndex].size());
 
     const Timetable_CompactableTransition& transition =
                           d_timetable_p->d_timetable[d_dayIndex].d_transitions[

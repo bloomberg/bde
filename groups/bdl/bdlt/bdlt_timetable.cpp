@@ -23,7 +23,7 @@ class Timetable_ResetProctor {
     // upon destruction.
 
     // DATA
-    Timetable *d_timetable_p;  // managed array
+    Timetable *d_timetable_p;  // managed timetable
 
   private:
     // NOT IMPLEMENTED
@@ -37,7 +37,7 @@ class Timetable_ResetProctor {
         // 'timetable'.
     : d_timetable_p(timetable)
     {
-        BSLS_ASSERT(timetable);
+        BSLS_ASSERT_SAFE(timetable);
     }
 
     ~Timetable_ResetProctor()
@@ -125,11 +125,11 @@ bool Timetable_Day::removeTransition(const Time& time)
         return false;                                                 // RETURN
     }
 
-    int code = finalTransitionCode();
+    int previousFinalCode = finalTransitionCode();
 
     d_transitions.erase(iter);
 
-    return finalTransitionCode() != code;
+    return previousFinalCode != finalTransitionCode();
 }
 
 // ACCESSORS
@@ -174,6 +174,9 @@ Timetable::Timetable(const Date&       firstDate,
 , d_timetable(basicAllocator)
 {
     BSLS_ASSERT(firstDate <= lastDate);
+
+    BSLS_ASSERT(                         0 <= initialTransitionCode
+                || k_UNSET_TRANSITION_CODE == initialTransitionCode);
 
     setValidRange(firstDate, lastDate);
 }
@@ -489,7 +492,7 @@ Timetable_ConstIterator& Timetable_ConstIterator::operator++()
 
 Timetable_ConstIterator& Timetable_ConstIterator::operator--()
 {
-    BSLS_ASSERT_SAFE(0 < d_dayIndex || 0 < d_transitionIndex);
+    BSLS_ASSERT(0 < d_dayIndex || 0 < d_transitionIndex);
 
     if (d_transitionIndex) {
         --d_transitionIndex;
