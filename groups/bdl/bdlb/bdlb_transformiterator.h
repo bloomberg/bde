@@ -253,10 +253,10 @@ struct TransformIterator_Traits {
     // Define the standard iterator specialization that will apply to the
     // transform iterator.
     typedef bsl::iterator<iterator_category,
-                          difference_type,
                           value_type,
-                          reference,
-                          pointer>
+                          difference_type,
+                          pointer,
+                          functor_result_type>
         iterator_type;
 };
 
@@ -354,6 +354,8 @@ class TransformIterator
     // 'difference_type' is needed for 'operator[]' declarations.  The other
     // iterator types will be available to clients via inheritance.
     using typename iterator_type::difference_type;
+    using typename iterator_type::reference;
+    using typename iterator_type::pointer;
 
     // PUBLIC CREATORS
     TransformIterator();
@@ -404,11 +406,11 @@ class TransformIterator
         // Subtract the specified 'n' from the underlying iterator and return a
         // reference to this object.
 
-    typename Traits::reference operator*();
+    reference operator*();
         // Return the result of applying the functor to the dereferenced
         // iterator.
 
-    typename Traits::pointer operator->();
+    pointer operator->();
         // Return the address of the result of applying the functor to the
         // dereferenced iterator.  Note that the functor must return a
         // reference type for this method to be used.
@@ -418,7 +420,7 @@ class TransformIterator
         // that.  Alternatively, remove this method altogether as has been done
         // for 'istreambuf_iterator' in latest C++.
 
-    typename Traits::reference operator[](difference_type n);
+    reference operator[](difference_type n);
         // Return the result of applying the functor to the indexed dereference
         // by the specified 'n' of the underlying iterator.
 
@@ -429,11 +431,11 @@ class TransformIterator
         // Return a reference to the iterator of this object.
 
     // PUBLIC ACCESSORS
-    typename Traits::reference operator*() const;
+    reference operator*() const;
         // Return the result of applying the functor to the dereferenced
         // iterator.
 
-    typename Traits::pointer operator->() const;
+    pointer operator->() const;
         // Return the address of the result applying the functor to the
         // dereferenced iterator.  Note that the functor must return a
         // reference type for this method to be used.
@@ -443,7 +445,7 @@ class TransformIterator
         // that.  Alternatively, remove this method altogether as has been done
         // for 'istreambuf_iterator' in latest C++.
 
-    typename Traits::reference operator[](difference_type n) const;
+    reference operator[](difference_type n) const;
         // Return the result of applying the functor to the indexed dereference
         // by the specified 'n' of the underlying iterator.
 
@@ -656,7 +658,7 @@ TransformIterator<FUNCTOR, ITERATOR>::operator-=(difference_type n)
 
 template <class FUNCTOR, class ITERATOR>
 inline
-typename TransformIterator<FUNCTOR, ITERATOR>::Traits::reference
+typename TransformIterator<FUNCTOR, ITERATOR>::reference
 TransformIterator<FUNCTOR, ITERATOR>::operator*()
 {
     return functor()(*iterator());
@@ -664,15 +666,15 @@ TransformIterator<FUNCTOR, ITERATOR>::operator*()
 
 template <class FUNCTOR, class ITERATOR>
 inline
-typename TransformIterator<FUNCTOR, ITERATOR>::Traits::pointer
+typename TransformIterator<FUNCTOR, ITERATOR>::pointer
 TransformIterator<FUNCTOR, ITERATOR>::operator->()
 {
-    return BSLS_UTIL_ADDRESSOF(functor()(*iterator()));
+    return bsls::Util::addressOf(functor()(*iterator()));
 }
 
 template <class FUNCTOR, class ITERATOR>
 inline
-typename TransformIterator<FUNCTOR, ITERATOR>::Traits::reference
+typename TransformIterator<FUNCTOR, ITERATOR>::reference
 TransformIterator<FUNCTOR, ITERATOR>::operator[](difference_type n)
 {
     return functor()(iterator()[n]);
@@ -695,7 +697,7 @@ ITERATOR& TransformIterator<FUNCTOR, ITERATOR>::iterator()
 // ACCESSORS
 template <class FUNCTOR, class ITERATOR>
 inline
-typename TransformIterator<FUNCTOR, ITERATOR>::Traits::reference
+typename TransformIterator<FUNCTOR, ITERATOR>::reference
 TransformIterator<FUNCTOR, ITERATOR>::operator*() const
 {
     return functor()(*iterator());
@@ -703,15 +705,15 @@ TransformIterator<FUNCTOR, ITERATOR>::operator*() const
 
 template <class FUNCTOR, class ITERATOR>
 inline
-typename TransformIterator<FUNCTOR, ITERATOR>::Traits::pointer
+typename TransformIterator<FUNCTOR, ITERATOR>::pointer
 TransformIterator<FUNCTOR, ITERATOR>::operator->() const
 {
-    return BSLS_UTIL_ADDRESSOF(functor()(*iterator()));
+    return bsls::Util::addressOf(functor()(*iterator()));
 }
 
 template <class FUNCTOR, class ITERATOR>
 inline
-typename TransformIterator<FUNCTOR, ITERATOR>::Traits::reference
+typename TransformIterator<FUNCTOR, ITERATOR>::reference
 TransformIterator<FUNCTOR, ITERATOR>::operator[](difference_type n) const
 {
     return functor()(iterator()[n]);

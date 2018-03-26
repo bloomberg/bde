@@ -9,8 +9,9 @@
 #include <bsls_asserttest.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_iostream.h>
 #include <bsl_cmath.h>
+#include <bsl_cstring.h>
+#include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_map.h>
 #include <bsl_numeric.h>
@@ -195,8 +196,8 @@ class Parenthesizer {
 
   private:
     // PRIVATE DATA
-    bsl::string d_before;
-    bsl::string d_after;
+    mutable bsl::string d_before;  // opening parentheses
+    mutable bsl::string d_after;   // closing parentheses
 
   public:
     // PUBLIC TYPES
@@ -214,8 +215,8 @@ class Parenthesizer {
         // Create a copy of the specified 'other' object using the specified
         // 'basicAllocator' to supply memory.
 
-    // PUBLIC MANIPULATORS
-    bsl::string& operator()(bsl::string& s);
+    // PUBLIC ACCESSORS
+    bsl::string& operator()(bsl::string& s) const;
         // Increment the parentheses nesting level, modify the specified string
         // 's' to be wrapped in those parentheses, and return a reference to
         // 's'.
@@ -242,8 +243,8 @@ Parenthesizer::Parenthesizer(const Parenthesizer&  other,
 {
 }
 
-// PUBLIC MANIPULATORS
-bsl::string& Parenthesizer::operator()(bsl::string& s)
+// PUBLIC ACCESSORS
+bsl::string& Parenthesizer::operator()(bsl::string& s) const
 {
     return s = (d_before += "(") + s + (d_after += ")");
 }
@@ -505,7 +506,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    switch (test) { case 0:
+    switch (test) { case 0:  // zero is always the leading case.
       case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -869,13 +870,13 @@ int main(int argc, char *argv[])
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        //: 1 The accessor methods should do what they are supposed to, some
+        //:   forwarding to the underlying iterator, some querying the object
+        //:   itself, and the dereference operator invoking the functor.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        //: 1 Create a transform iterator, apply the various accessors, and
+        //:   verify that the results are correct.  (C-1)
         //
         // Testing:
         //   reference operator*() const;
@@ -888,6 +889,50 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING ACCESSORS"
                              "\n=================\n";
+
+        typedef TransformIterator<Parenthesizer, bsl::string *> Obj;
+
+        bsl::string DATA[] = { "a", "b", "c" };
+
+        bslma::TestAllocator ta;
+
+        Obj        mX(DATA + 1, Parenthesizer(&ta), &ta);
+        const Obj& X = mX;
+
+        if (veryVerbose) {
+            cout << "operator*() const\n";
+        }
+        ASSERT("(b)" == *X);
+
+        if (veryVerbose) {
+            cout << "operator->() const\n";
+        }
+        ASSERT(0 == bsl::strcmp("(((b)))", X->c_str()));
+
+        if (veryVerbose) {
+            cout << "operator[](difference_type n) const\n";
+        }
+        ASSERT("(((c)))" == X[1]);
+
+        if (veryVerbose) {
+            cout << "operator+(difference_type) const\n";
+        }
+        ASSERT(&DATA[2] == (X + 1).iterator());
+
+        if (veryVerbose) {
+            cout << "operator-(difference_type) const\n";
+        }
+        ASSERT(&DATA[0] == (X - 1).iterator());
+
+        if (veryVerbose) {
+            cout << "functor() const\n";
+        }
+        ASSERT("((((a))))" == X.functor()(DATA[0]));
+
+        if (veryVerbose) {
+            cout << "iterator() const\n";
+        }
+        ASSERT(&DATA[1] == X.iterator());
       } break;
       case 3: {
         // --------------------------------------------------------------------
