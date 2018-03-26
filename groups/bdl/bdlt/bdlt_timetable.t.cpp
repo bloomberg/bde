@@ -41,7 +41,7 @@ using namespace bsl;
 //
 // We have chosen the primary manipulators for 'bdlt::Timetable' to be
 // 'addTransition(const Datetime& datetime, int code)',
-// 'setInitialTransitionCode', 'setValidRange', and 'removeAll'.
+// 'setInitialTransitionCode', 'setValidRange', and 'reset'.
 //
 // We have chosen the basic accessors for 'bdlt::Timetable' to be 'allocator',
 // 'firstDate', 'initialTransitionCode', 'lastDate', 'length', and
@@ -77,11 +77,11 @@ using namespace bsl;
 // [13] void addTransition(date, time, code);
 // [ 2] void addTransition(const Datetime& datetime, int code);
 // [13] void addTransitions(dow, time, code, firstDate, lastDate);
-// [ 2] void removeAll();
 // [15] void removeTransition(const Date& date, const Time& time);
 // [15] void removeTransition(const Datetime& datetime);
 // [14] void removeTransitions(const Date& date);
 // [15] void removeTransitions(dayOfWeek, time, firstDate, lastDate);
+// [ 2] void reset();
 // [ 2] void setInitialTransitionCode(int code);
 // [ 2] void setValidRange(const Date& firstDate, const Date& lastDate);
 // [ 8] void swap(Timetable& other);
@@ -240,7 +240,7 @@ static const int DEFAULT_SPECS_NUM_TRANSITION[] = {
 //                           // Represents a 'firstDate' and 'lastDate' to be
 //                           // used with 'setValidRange'.
 //
-// <REMOVE_ALL>      ::= R   // Represents an invocation of 'removeAll'.
+// <REMOVE_ALL>      ::= R   // Represents an invocation of 'reset'.
 //
 // <TRANSITION_LIST> ::= <EMPTY> | <TRANSITION> | <TRANSITION><TRANSITION_LIST>
 //
@@ -525,7 +525,7 @@ int ggg(Obj *object, const char *spec, bool verboseFlag = true)
             }
         }
         else if ('R' == *input) {
-            object->removeAll();
+            object->reset();
             ++input;
             endPos = input;
 
@@ -637,23 +637,23 @@ int main(int argc, char *argv[])
 // Then, we define the codes for start-of-trading and end-of-trading and
 // populate the typical transitions into the timetable:
 //..
-    const int TRADING    = 0;
-    const int NO_TRADING = 1;
+    const int k_TRADING    = 0;
+    const int k_NO_TRADING = 1;
 
-    timetable.setInitialTransitionCode(NO_TRADING);
+    timetable.setInitialTransitionCode(k_NO_TRADING);
 
     for (int i = 0; i < 5; ++ i) {
         timetable.addTransitions(static_cast<bdlt::DayOfWeek::Enum>(
                                                    bdlt::DayOfWeek::e_MON + i),
                                  bdlt::Time(8, 30),
-                                 TRADING,
+                                 k_TRADING,
                                  timetable.firstDate(),
                                  timetable.lastDate());
 
         timetable.addTransitions(static_cast<bdlt::DayOfWeek::Enum>(
                                                    bdlt::DayOfWeek::e_MON + i),
                                  bdlt::Time(16, 30),
-                                 NO_TRADING,
+                                 k_NO_TRADING,
                                  timetable.firstDate(),
                                  timetable.lastDate());
     }
@@ -665,34 +665,34 @@ int main(int argc, char *argv[])
 // Then, we add a half-day on November 23, 2018:
 //..
     timetable.addTransition(bdlt::Datetime(2018, 11, 23, 12, 30),
-                            NO_TRADING);
+                            k_NO_TRADING);
 
     timetable.removeTransition(bdlt::Datetime(2018, 11, 23, 16, 30));
 //..
 // Finally, we verify the transition code in effect at a few datetimes.
 //..
-    ASSERT(NO_TRADING == timetable.transitionCodeInEffect(
+    ASSERT(k_NO_TRADING == timetable.transitionCodeInEffect(
                                         bdlt::Datetime(2018,  1, 15,  8,  0)));
 
-    ASSERT(TRADING    == timetable.transitionCodeInEffect(
+    ASSERT(k_TRADING    == timetable.transitionCodeInEffect(
                                         bdlt::Datetime(2018,  1, 15,  8, 30)));
 
-    ASSERT(TRADING    == timetable.transitionCodeInEffect(
+    ASSERT(k_TRADING    == timetable.transitionCodeInEffect(
                                         bdlt::Datetime(2018,  1, 15, 16,  0)));
 
-    ASSERT(NO_TRADING == timetable.transitionCodeInEffect(
+    ASSERT(k_NO_TRADING == timetable.transitionCodeInEffect(
                                         bdlt::Datetime(2018,  1, 15, 16, 30)));
 
-    ASSERT(NO_TRADING == timetable.transitionCodeInEffect(
+    ASSERT(k_NO_TRADING == timetable.transitionCodeInEffect(
                                         bdlt::Datetime(2018, 11, 23,  8,  0)));
 
-    ASSERT(TRADING    == timetable.transitionCodeInEffect(
+    ASSERT(k_TRADING    == timetable.transitionCodeInEffect(
                                         bdlt::Datetime(2018, 11, 23,  8, 30)));
 
-    ASSERT(TRADING    == timetable.transitionCodeInEffect(
+    ASSERT(k_TRADING    == timetable.transitionCodeInEffect(
                                         bdlt::Datetime(2018, 11, 23, 12,  0)));
 
-    ASSERT(NO_TRADING == timetable.transitionCodeInEffect(
+    ASSERT(k_NO_TRADING == timetable.transitionCodeInEffect(
                                         bdlt::Datetime(2018, 11, 23, 12, 30)));
 //..
       } break;
@@ -973,7 +973,7 @@ int main(int argc, char *argv[])
             iter = X.begin();
             ASSERT_SAFE_PASS(*iter);
             ASSERT_SAFE_PASS(iter.operator->());
-            mX.removeAll();
+            mX.reset();
             ASSERT_SAFE_FAIL(*iter);
             ASSERT_SAFE_FAIL(iter.operator->());
         }
@@ -3432,7 +3432,7 @@ int main(int argc, char *argv[])
         //   The basic concern is that the default constructor, the destructor,
         //   and the primary manipulators:
         //      - addTransition(const Datetime& datetime, int code)
-        //      - removeAll
+        //      - reset
         //      - setValidRange
         //   operate as expected.
         //
@@ -3445,7 +3445,7 @@ int main(int argc, char *argv[])
         //:     a. properly handles duplicates
         //:     b. is exception-neutral
         //:
-        //: 3 That 'removeAll'
+        //: 3 That 'reset'
         //:     a. produces the expected value (empty)
         //:     b. leaves the object in a consistent state
         //:
@@ -3483,7 +3483,7 @@ int main(int argc, char *argv[])
         //   Timetable(bslma::Allocator *basicAllocator = 0);
         //   ~Timetable();
         //   void addTransition(const Datetime& datetime, int code);
-        //   void removeAll();
+        //   void reset();
         //   void setInitialTransitionCode(int code);
         //   void setValidRange(const Date& firstDate, const Date& lastDate);
         // --------------------------------------------------------------------
@@ -3759,7 +3759,7 @@ int main(int argc, char *argv[])
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
-        if (verbose) cout << "\nTesting 'removeAll'." << endl;
+        if (verbose) cout << "\nTesting 'reset'." << endl;
         {
             const bdlt::Date FIRST_DATE(2018, 1, 3);
             const bdlt::Date  LAST_DATE(2018, 1, 7);
@@ -3821,7 +3821,7 @@ int main(int argc, char *argv[])
             ASSERT(    3 == X.transitionCodeInEffect(MID_B));
             ASSERT(    2 == X.transitionCodeInEffect(LAST));
 
-            mX.removeAll();
+            mX.reset();
 
             ASSERT(0 == X.length());
 

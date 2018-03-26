@@ -13,39 +13,39 @@ BSLS_IDENT_RCSID(bdlt_timetable_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-                     // ================================
-                     // class Timetable_RemoveAllProctor
-                     // ================================
+                       // ============================
+                       // class Timetable_ResetProctor
+                       // ============================
 
-class Timetable_RemoveAllProctor {
+class Timetable_ResetProctor {
     // This class implements a proctor that, unless its 'release' method has
-    // previously been invoked, automatically invokes 'removeAll' on a
-    // 'Timetable' upon destruction.
+    // previously been invoked, automatically invokes 'reset' on a 'Timetable'
+    // upon destruction.
 
     // DATA
     Timetable *d_timetable_p;  // managed array
 
   private:
     // NOT IMPLEMENTED
-    Timetable_RemoveAllProctor(const Timetable_RemoveAllProctor&);
-    Timetable_RemoveAllProctor& operator=(const Timetable_RemoveAllProctor&);
+    Timetable_ResetProctor(const Timetable_ResetProctor&);
+    Timetable_ResetProctor& operator=(const Timetable_ResetProctor&);
 
   public:
     // CREATORS
-    Timetable_RemoveAllProctor(Timetable *timetable)
-        // Create a 'removeAll' proctor that conditionally manages the
-        // specified 'timetable'.
+    Timetable_ResetProctor(Timetable *timetable)
+        // Create a 'reset' proctor that conditionally manages the specified
+        // 'timetable'.
     : d_timetable_p(timetable)
     {
         BSLS_ASSERT(timetable);
     }
 
-    ~Timetable_RemoveAllProctor()
+    ~Timetable_ResetProctor()
         // Destroy this object and, if 'release' has not been invoked, invoke
-        // the managed timetable's 'removeAll' method.
+        // the managed timetable's 'reset' method.
     {
         if (d_timetable_p) {
-            d_timetable_p->removeAll();
+            d_timetable_p->reset();
         }
     }
 
@@ -92,8 +92,7 @@ bool Timetable_Day::addTransition(const Time& time, int code)
 {
     BSLS_ASSERT(24 > time.hour());
 
-    BSLS_ASSERT(                                    0 <= code
-                || Timetable::k_UNSET_TRANSITION_CODE == code);
+    BSLS_ASSERT(0 <= code || Timetable::k_UNSET_TRANSITION_CODE == code);
 
     int previousFinalCode = finalTransitionCode();
 
@@ -188,20 +187,15 @@ Timetable::Timetable(const Timetable&  original,
 {
 }
 
-Timetable::~Timetable()
-{
-}
-
 // MANIPULATORS
 void Timetable::addTransition(const Date& date, const Time& time, int code)
 {
     BSLS_ASSERT(24 >  time.hour());
     BSLS_ASSERT(isInRange(date));
 
-    BSLS_ASSERT(                         0 <= code
-                || k_UNSET_TRANSITION_CODE == code);
+    BSLS_ASSERT(0 <= code || k_UNSET_TRANSITION_CODE == code);
 
-    Timetable_RemoveAllProctor proctor(this);
+    Timetable_ResetProctor proctor(this);
 
     bsl::size_t   index = date - d_firstDate;
     Timetable_Day daily(d_timetable[index]);
@@ -233,8 +227,7 @@ void Timetable::addTransitions(const DayOfWeek::Enum& dayOfWeek,
     BSLS_ASSERT(isInRange(firstDate));
     BSLS_ASSERT(isInRange(lastDate));
 
-    BSLS_ASSERT(                         0 <= code
-                || k_UNSET_TRANSITION_CODE == code);
+    BSLS_ASSERT(0 <= code || k_UNSET_TRANSITION_CODE == code);
 
     Date correctedFirstDate = DateUtil::nextDayOfWeekInclusive(dayOfWeek,
                                                                firstDate);
@@ -253,7 +246,7 @@ void Timetable::removeTransition(const Date& date, const Time& time)
     BSLS_ASSERT(24 > time.hour());
     BSLS_ASSERT(isInRange(date));
 
-    Timetable_RemoveAllProctor proctor(this);
+    Timetable_ResetProctor proctor(this);
 
     bsl::size_t   index = date - d_firstDate;
     Timetable_Day daily(d_timetable[index]);
@@ -280,7 +273,7 @@ void Timetable::removeTransitions(const Date& date)
 {
     BSLS_ASSERT(isInRange(date));
 
-    Timetable_RemoveAllProctor proctor(this);
+    Timetable_ResetProctor proctor(this);
 
     bsl::size_t   index = date - d_firstDate;
     Timetable_Day daily(d_timetable[index]);
@@ -327,15 +320,14 @@ void Timetable::removeTransitions(const DayOfWeek::Enum& dayOfWeek,
 
 void Timetable::setInitialTransitionCode(int code)
 {
-    BSLS_ASSERT(                         0 <= code
-                || k_UNSET_TRANSITION_CODE == code);
+    BSLS_ASSERT(0 <= code || k_UNSET_TRANSITION_CODE == code);
 
     d_initialTransitionCode = code;
 
     if (   0 < d_timetable.length()
         && d_timetable.front().initialTransitionCode()
                                                   != d_initialTransitionCode) {
-        Timetable_RemoveAllProctor proctor(this);
+        Timetable_ResetProctor proctor(this);
 
         bsl::size_t   index = 0;
         Timetable_Day daily(d_timetable[index]);
@@ -361,7 +353,7 @@ void Timetable::setValidRange(const Date& firstDate, const Date& lastDate)
 {
     BSLS_ASSERT(firstDate <= lastDate);
 
-    Timetable_RemoveAllProctor proctor(this);
+    Timetable_ResetProctor proctor(this);
 
     if (d_firstDate > d_lastDate) {
         // The 'Timetable' has the default constructed value.
@@ -381,7 +373,7 @@ void Timetable::setValidRange(const Date& firstDate, const Date& lastDate)
 
         int initialTransitionCode = d_initialTransitionCode;
 
-        removeAll();
+        reset();
 
         d_initialTransitionCode = initialTransitionCode;
 
