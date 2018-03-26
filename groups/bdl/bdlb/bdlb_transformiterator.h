@@ -38,8 +38,8 @@ BSLS_IDENT("$Id: $")
 // Then we create the transform iterators that will convert a number to its
 // absolute value.  We need ones for the beginning and end of the sequence:
 //..
-//  bdlb::TransformIterator<int(int), int*> dataBegin(data + 0, bsl::abs);
-//  bdlb::TransformIterator<int(int), int*> dataEnd  (data + 5, bsl::abs);
+//  bdlb::TransformIterator<int(*)(int), int*> dataBegin(data + 0, bsl::abs);
+//  bdlb::TransformIterator<int(*)(int), int*> dataEnd  (data + 5, bsl::abs);
 //..
 // Now, we compute the sum of the absolute values of the numbers:
 //..
