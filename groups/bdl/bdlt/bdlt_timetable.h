@@ -703,6 +703,10 @@ class Timetable {
         // 'firstDate' and 'lastDate' are within the valid range of this
         // timetable, and '0 <= code || k_UNSET_TRANSITION_CODE == code'.
 
+    void removeAllTransitions();
+        // Remove all transitions from this timetable.  The removal of a
+        // transition invalidates all iterators.
+
     void removeTransition(const Date& date, const Time& time);
         // If a transition occurs on the specified 'date' at the specified
         // 'time', remove the transition from this timetable.  Otherwise,
@@ -1385,6 +1389,20 @@ inline
 void Timetable::addTransition(const Datetime& datetime, int code)
 {
     addTransition(datetime.date(), datetime.time(), code);
+}
+
+inline
+void Timetable::removeAllTransitions()
+{
+    Date firstDate = d_firstDate;
+    Date lastDate  = d_lastDate;
+
+    d_firstDate = Date(9999, 12, 31);
+    d_lastDate  = Date(   1,  1,  1);
+
+    d_timetable.removeAll();
+
+    setValidRange(firstDate, lastDate);
 }
 
 inline

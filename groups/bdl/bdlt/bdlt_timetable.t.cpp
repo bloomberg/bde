@@ -77,18 +77,19 @@ using namespace bsl;
 // [13] void addTransition(date, time, code);
 // [ 2] void addTransition(const Datetime& datetime, int code);
 // [13] void addTransitions(dow, time, code, firstDate, lastDate);
-// [15] void removeTransition(const Date& date, const Time& time);
-// [15] void removeTransition(const Datetime& datetime);
-// [14] void removeTransitions(const Date& date);
-// [15] void removeTransitions(dayOfWeek, time, firstDate, lastDate);
+// [14] void removeAllTransitions();
+// [16] void removeTransition(const Date& date, const Time& time);
+// [16] void removeTransition(const Datetime& datetime);
+// [15] void removeTransitions(const Date& date);
+// [16] void removeTransitions(dayOfWeek, time, firstDate, lastDate);
 // [ 2] void reset();
 // [ 2] void setInitialTransitionCode(int code);
 // [ 2] void setValidRange(const Date& firstDate, const Date& lastDate);
 // [ 8] void swap(Timetable& other);
 //
 // ACCESSORS
-// [16] Timetable::const_iterator begin() const;
-// [16] Timetable::const_iterator end() const;
+// [17] Timetable::const_iterator begin() const;
+// [17] Timetable::const_iterator end() const;
 // [ 4] const Date& firstDate() const;
 // [ 4] int initialTransitionCode() const;
 // [11] bool isInRange(const Date& date) const;
@@ -105,11 +106,11 @@ using namespace bsl;
 // [ 5] ostream& operator<<(ostream&, const Timetable&);
 //
 // FREE FUNCTIONS
-// [17] void hashAppend(HASHALG&, const Timetable&);
+// [18] void hashAppend(HASHALG&, const Timetable&);
 // [ 8] void swap(Timetable& a, Timetable& b);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [18] USAGE EXAMPLE
+// [19] USAGE EXAMPLE
 // [10] TESTING BDEX STREAMING
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec, bool vF);
@@ -597,7 +598,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -697,7 +698,7 @@ int main(int argc, char *argv[])
                                         bdlt::Datetime(2018, 11, 23, 12, 30)));
 //..
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING: hashAppend
         //
@@ -740,7 +741,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // CONST ITERATOR BASIC METHODS
         //   Ensure we can create a 'const' iterator, inspect the value at
@@ -979,7 +980,7 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(iter.operator->());
         }
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING 'removeTransition' METHODS
         //   The manipulators operate as expected.
@@ -1220,7 +1221,7 @@ int main(int argc, char *argv[])
                                              bdlt::Date(2019, 1, 2)));
         }
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING 'removeTransitions(const Date& date)'
         //   The manipulator operates as expected.
@@ -1310,6 +1311,94 @@ int main(int argc, char *argv[])
 
             ASSERT_PASS(mX.removeTransitions(bdlt::Date(2018, 1, 1)));
             ASSERT_FAIL(mX.removeTransitions(bdlt::Date(2019, 1, 1)));
+        }
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'removeAllTransitions()'
+        //   The manipulator operates as expected.
+        //
+        // Concerns:
+        //: 1 The non-primary manipulator operates as expected.
+        //
+        // Plan:
+        //: 1 Directly test that the non-primary manipulator, invoked on a set
+        //:   of objects created with the generator function, returns the
+        //:   expected value.  (C-1)
+        //
+        // Testing:
+        //   void removeAllTransitions();
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << endl
+                 << "TESTING 'removeAllTransitions()'"
+                 << endl
+                 << "================================"
+                 << endl;
+        }
+
+        if (verbose) {
+            cout << "\nTesting 'removeAllTransitions()'."
+                 << endl;
+        }
+        {
+            const char *specX = "!20171225_20171231";
+            const char *specY = "!20171225_20171231";
+
+            Obj mX;  const Obj& X = gg(&mX, specX);
+            Obj mY;  const Obj& Y = gg(&mY, specY);
+
+            mX.removeAllTransitions();
+
+            ASSERT(X == Y);
+        }
+        {
+            const char *specX = "!20171225_20171231 0@20171226_1217";
+            const char *specY = "!20171225_20171231";
+
+            Obj mX;  const Obj& X = gg(&mX, specX);
+            Obj mY;  const Obj& Y = gg(&mY, specY);
+
+            mX.removeAllTransitions();
+
+            ASSERT(X == Y);
+        }
+        {
+            const char *specX = "!20171225_20171231 0@20171226_1217"
+                                " 1@20171226_1456 2@20171227_0123";
+            const char *specY = "!20171225_20171231";
+
+            Obj mX;  const Obj& X = gg(&mX, specX);
+            Obj mY;  const Obj& Y = gg(&mY, specY);
+
+            mX.removeAllTransitions();
+
+            ASSERT(X == Y);
+        }
+        {
+            const char *specX = "!20171225_20171231 0@20171226_1217"
+                                " 1@20171226_1456 2@20171227_0123";
+            const char *specY = "!20171225_20171231";
+
+            Obj mX;  const Obj& X = gg(&mX, specX);
+            Obj mY;  const Obj& Y = gg(&mY, specY);
+
+            mX.removeAllTransitions();
+
+            ASSERT(X == Y);
+        }
+        {
+            const char *specX = "I0 !20171225_20171231 0@20171226_1217"
+                                " 1@20171226_1456 2@20171227_0123";
+            const char *specY = "I0 !20171225_20171231";
+
+            Obj mX;  const Obj& X = gg(&mX, specX);
+            Obj mY;  const Obj& Y = gg(&mY, specY);
+
+            mX.removeAllTransitions();
+
+            ASSERT(X == Y);
         }
       } break;
       case 13: {
