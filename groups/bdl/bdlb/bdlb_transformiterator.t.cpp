@@ -572,10 +572,10 @@ int main(int argc, char *argv[])
 //..
 // Then, we set up our shopping list:
 //..
-   bsl::list<bsl::string> list;
-   list.push_back("milk");
-   list.push_back("milk");
-   list.push_back("pudding");
+    bsl::list<bsl::string> list;
+    list.push_back("milk");
+    list.push_back("milk");
+    list.push_back("pudding");
 //..
 // Then we create the functor object.  In C++11 or later, the explicit functor
 // class above is unnecessary since we can use a lambda:
