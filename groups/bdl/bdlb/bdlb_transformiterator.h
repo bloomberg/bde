@@ -1,3 +1,4 @@
+// bdlb_transformiterator.h                                           -*-C++-*-
 #ifndef INCLUDED_BDLB_TRANSFORMITERATOR
 #define INCLUDED_BDLB_TRANSFORMITERATOR
 
@@ -66,10 +67,10 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we set up our shopping list:
 //..
-// bsl::list<bsl::string> list;
-// list.push_back("milk");
-// list.push_back("milk");
-// list.push_back("pudding");
+//  bsl::list<bsl::string> list;
+//  list.push_back("milk");
+//  list.push_back("milk");
+//  list.push_back("pudding");
 //..
 // Next, we create a functor that will return a price given a product.  The
 // following rather prolix functor at namespace scope is necessary for C++03:
