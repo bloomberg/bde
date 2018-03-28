@@ -8,6 +8,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_nameof.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cmath.h>
@@ -622,6 +623,10 @@ int main(int argc, char *argv[])
         //: 4 The allocator of the subobjects should be the same as the
         //:   allocator with which the object was initialized, if one was
         //:   provided.
+        //:
+        //: 5 The iterator traits of the transform iterator should correspond
+        //:   correctly to the traits of the underlying iterator and the return
+        //:   type of the functor.
         //
         // Plan:
         //: 1 Create all four possible versions of the transform iterator with
@@ -636,6 +641,10 @@ int main(int argc, char *argv[])
         //: 3 For versions that should not have an 'allocator()' method, use
         //:   inheritance to cause a situation where the test would fail to
         //:   compile if the 'allocator()' method were present.  (C-2)
+        //:
+        //: 4 Create transform iterators based on a variety of iterator
+        //:   categories and functor return types and verify that the trait
+        //:   types of the iterators are set correctly.  (C-5)
         //
         // Testing:
         //   bslma::UsesBslmaAllocator
@@ -731,6 +740,150 @@ int main(int argc, char *argv[])
             };
 
             ASSERT(-1 == DerivedTransformIterator::allocator);
+        }
+
+        if (veryVerbose) {
+            cout << "input iterator, functor returns reference\n";
+        }
+        {
+            typedef bsl::iterator<bsl::input_iterator_tag, int>   Itr;
+            typedef bdlb::TransformIterator<char& (*)(int&), Itr> Obj;
+            ASSERT((bsl::is_same<Itr::iterator_category,
+                                 Obj::iterator_category>::value));
+            ASSERT((bsl::is_same<Itr::difference_type,
+                                 Obj::difference_type>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::value_type>().name(),
+                        (bsl::is_same<Obj::value_type, char>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::pointer>().name(),
+                        (bsl::is_same<Obj::pointer, char *>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::reference>().name(),
+                        (bsl::is_same<Obj::reference, char&>::value));
+        }
+
+        if (veryVerbose) {
+            cout << "input iterator, functor returns value\n";
+        }
+        {
+            typedef bsl::iterator<bsl::input_iterator_tag, int>  Itr;
+            typedef bdlb::TransformIterator<char (*)(int&), Itr> Obj;
+            ASSERT((bsl::is_same<bsl::input_iterator_tag,
+                                 Obj::iterator_category>::value));
+            ASSERT((bsl::is_same<Itr::difference_type,
+                                 Obj::difference_type>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::value_type>().name(),
+                        (bsl::is_same<Obj::value_type, char>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::pointer>().name(),
+                        (bsl::is_same<Obj::pointer, char *>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::reference>().name(),
+                        (bsl::is_same<Obj::reference, char>::value));
+        }
+
+        if (veryVerbose) {
+            cout << "forward iterator, functor returns reference\n";
+        }
+        {
+            typedef bsl::iterator<bsl::forward_iterator_tag, int> Itr;
+            typedef bdlb::TransformIterator<char& (*)(int&), Itr> Obj;
+            ASSERT((bsl::is_same<Itr::iterator_category,
+                                 Obj::iterator_category>::value));
+            ASSERT((bsl::is_same<Itr::difference_type,
+                                 Obj::difference_type>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::value_type>().name(),
+                        (bsl::is_same<Obj::value_type, char>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::pointer>().name(),
+                        (bsl::is_same<Obj::pointer, char *>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::reference>().name(),
+                        (bsl::is_same<Obj::reference, char&>::value));
+        }
+
+        if (veryVerbose) {
+            cout << "forward iterator, functor returns value\n";
+        }
+        {
+            typedef bsl::iterator<bsl::forward_iterator_tag, int> Itr;
+            typedef bdlb::TransformIterator<char (*)(int&), Itr>  Obj;
+            ASSERT((bsl::is_same<bsl::input_iterator_tag,
+                                 Obj::iterator_category>::value));
+            ASSERT((bsl::is_same<Itr::difference_type,
+                                 Obj::difference_type>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::value_type>().name(),
+                        (bsl::is_same<Obj::value_type, char>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::pointer>().name(),
+                        (bsl::is_same<Obj::pointer, char *>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::reference>().name(),
+                        (bsl::is_same<Obj::reference, char>::value));
+        }
+
+        if (veryVerbose) {
+            cout << "bidirectional iterator, functor returns reference\n";
+        }
+        {
+            typedef bsl::iterator<bsl::bidirectional_iterator_tag, int> Itr;
+            typedef bdlb::TransformIterator<char& (*)(int&), Itr>       Obj;
+            ASSERT((bsl::is_same<Itr::iterator_category,
+                                 Obj::iterator_category>::value));
+            ASSERT((bsl::is_same<Itr::difference_type,
+                                 Obj::difference_type>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::value_type>().name(),
+                        (bsl::is_same<Obj::value_type, char>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::pointer>().name(),
+                        (bsl::is_same<Obj::pointer, char *>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::reference>().name(),
+                        (bsl::is_same<Obj::reference, char&>::value));
+        }
+
+        if (veryVerbose) {
+            cout << "bidirectional iterator, functor returns value\n";
+        }
+        {
+            typedef bsl::iterator<bsl::bidirectional_iterator_tag, int> Itr;
+            typedef bdlb::TransformIterator<char (*)(int&), Itr>        Obj;
+            ASSERT((bsl::is_same<bsl::input_iterator_tag,
+                                 Obj::iterator_category>::value));
+            ASSERT((bsl::is_same<Itr::difference_type,
+                                 Obj::difference_type>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::value_type>().name(),
+                        (bsl::is_same<Obj::value_type, char>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::pointer>().name(),
+                        (bsl::is_same<Obj::pointer, char *>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::reference>().name(),
+                        (bsl::is_same<Obj::reference, char>::value));
+        }
+
+        if (veryVerbose) {
+            cout << "random access iterator, functor returns reference\n";
+        }
+        {
+            typedef bsl::iterator<bsl::random_access_iterator_tag, int> Itr;
+            typedef bdlb::TransformIterator<char& (*)(int&), Itr>       Obj;
+            ASSERT((bsl::is_same<Itr::iterator_category,
+                                 Obj::iterator_category>::value));
+            ASSERT((bsl::is_same<Itr::difference_type,
+                                 Obj::difference_type>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::value_type>().name(),
+                        (bsl::is_same<Obj::value_type, char>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::pointer>().name(),
+                        (bsl::is_same<Obj::pointer, char *>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::reference>().name(),
+                        (bsl::is_same<Obj::reference, char&>::value));
+        }
+
+        if (veryVerbose) {
+            cout << "random access iterator, functor returns value\n";
+        }
+        {
+            typedef bsl::iterator<bsl::random_access_iterator_tag, int> Itr;
+            typedef bdlb::TransformIterator<char (*)(int&), Itr>        Obj;
+            ASSERT((bsl::is_same<bsl::input_iterator_tag,
+                                 Obj::iterator_category>::value));
+            ASSERT((bsl::is_same<Itr::difference_type,
+                                 Obj::difference_type>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::value_type>().name(),
+                        (bsl::is_same<Obj::value_type, char>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::pointer>().name(),
+                        (bsl::is_same<Obj::pointer, char *>::value));
+            LOOP_ASSERT(bsls::NameOf<Obj::reference>().name(),
+                        (bsl::is_same<Obj::reference, char>::value));
         }
       } break;
       case 5: {
