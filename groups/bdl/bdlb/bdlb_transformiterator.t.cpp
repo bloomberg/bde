@@ -453,6 +453,19 @@ bslma::Allocator *IteratorWithAllocator::allocator() const
     return d_allocator_p;
 }
 
+                                // ===================
+                                // struct FakeIterator
+                                // ===================
+
+template <class IteratorType>
+struct FakeIterator : public IteratorType {
+    // This class is used to test how the transform iterator sets traits.
+
+    // PUBLIC ACCESSORS
+    typename IteratorType::reference operator*() const;
+        // Unimplemented dereference operator used in C++11 'declval' test.
+};
+
                                    // =============
                                    // USAGE EXAMPLE
                                    // =============
@@ -746,8 +759,9 @@ int main(int argc, char *argv[])
             cout << "input iterator, functor returns reference\n";
         }
         {
-            typedef bsl::iterator<bsl::input_iterator_tag, int>   Itr;
-            typedef bdlb::TransformIterator<char& (*)(int&), Itr> Obj;
+            typedef FakeIterator<bsl::iterator<bsl::input_iterator_tag, int> >
+                                                                 Itr;
+            typedef bdlb::TransformIterator<char& (*)(int), Itr> Obj;
             ASSERT((bsl::is_same<Itr::iterator_category,
                                  Obj::iterator_category>::value));
             ASSERT((bsl::is_same<Itr::difference_type,
@@ -764,8 +778,9 @@ int main(int argc, char *argv[])
             cout << "input iterator, functor returns value\n";
         }
         {
-            typedef bsl::iterator<bsl::input_iterator_tag, int>  Itr;
-            typedef bdlb::TransformIterator<char (*)(int&), Itr> Obj;
+            typedef FakeIterator<bsl::iterator<bsl::input_iterator_tag, int> >
+                                                                Itr;
+            typedef bdlb::TransformIterator<char (*)(int), Itr> Obj;
             ASSERT((bsl::is_same<bsl::input_iterator_tag,
                                  Obj::iterator_category>::value));
             ASSERT((bsl::is_same<Itr::difference_type,
@@ -782,8 +797,9 @@ int main(int argc, char *argv[])
             cout << "forward iterator, functor returns reference\n";
         }
         {
-            typedef bsl::iterator<bsl::forward_iterator_tag, int> Itr;
-            typedef bdlb::TransformIterator<char& (*)(int&), Itr> Obj;
+            typedef FakeIterator<
+                bsl::iterator<bsl::forward_iterator_tag, int> >  Itr;
+            typedef bdlb::TransformIterator<char& (*)(int), Itr> Obj;
             ASSERT((bsl::is_same<Itr::iterator_category,
                                  Obj::iterator_category>::value));
             ASSERT((bsl::is_same<Itr::difference_type,
@@ -800,8 +816,9 @@ int main(int argc, char *argv[])
             cout << "forward iterator, functor returns value\n";
         }
         {
-            typedef bsl::iterator<bsl::forward_iterator_tag, int> Itr;
-            typedef bdlb::TransformIterator<char (*)(int&), Itr>  Obj;
+            typedef FakeIterator<
+                bsl::iterator<bsl::forward_iterator_tag, int> > Itr;
+            typedef bdlb::TransformIterator<char (*)(int), Itr> Obj;
             ASSERT((bsl::is_same<bsl::input_iterator_tag,
                                  Obj::iterator_category>::value));
             ASSERT((bsl::is_same<Itr::difference_type,
@@ -818,8 +835,9 @@ int main(int argc, char *argv[])
             cout << "bidirectional iterator, functor returns reference\n";
         }
         {
-            typedef bsl::iterator<bsl::bidirectional_iterator_tag, int> Itr;
-            typedef bdlb::TransformIterator<char& (*)(int&), Itr>       Obj;
+            typedef FakeIterator<
+                bsl::iterator<bsl::bidirectional_iterator_tag, int> > Itr;
+            typedef bdlb::TransformIterator<char& (*)(int), Itr>      Obj;
             ASSERT((bsl::is_same<Itr::iterator_category,
                                  Obj::iterator_category>::value));
             ASSERT((bsl::is_same<Itr::difference_type,
@@ -836,8 +854,9 @@ int main(int argc, char *argv[])
             cout << "bidirectional iterator, functor returns value\n";
         }
         {
-            typedef bsl::iterator<bsl::bidirectional_iterator_tag, int> Itr;
-            typedef bdlb::TransformIterator<char (*)(int&), Itr>        Obj;
+            typedef FakeIterator<
+                bsl::iterator<bsl::bidirectional_iterator_tag, int> > Itr;
+            typedef bdlb::TransformIterator<char (*)(int), Itr>       Obj;
             ASSERT((bsl::is_same<bsl::input_iterator_tag,
                                  Obj::iterator_category>::value));
             ASSERT((bsl::is_same<Itr::difference_type,
@@ -854,8 +873,9 @@ int main(int argc, char *argv[])
             cout << "random access iterator, functor returns reference\n";
         }
         {
-            typedef bsl::iterator<bsl::random_access_iterator_tag, int> Itr;
-            typedef bdlb::TransformIterator<char& (*)(int&), Itr>       Obj;
+            typedef FakeIterator<
+                bsl::iterator<bsl::random_access_iterator_tag, int> > Itr;
+            typedef bdlb::TransformIterator<char& (*)(int), Itr>      Obj;
             ASSERT((bsl::is_same<Itr::iterator_category,
                                  Obj::iterator_category>::value));
             ASSERT((bsl::is_same<Itr::difference_type,
@@ -872,8 +892,9 @@ int main(int argc, char *argv[])
             cout << "random access iterator, functor returns value\n";
         }
         {
-            typedef bsl::iterator<bsl::random_access_iterator_tag, int> Itr;
-            typedef bdlb::TransformIterator<char (*)(int&), Itr>        Obj;
+            typedef FakeIterator<
+                bsl::iterator<bsl::random_access_iterator_tag, int> > Itr;
+            typedef bdlb::TransformIterator<char (*)(int), Itr>       Obj;
             ASSERT((bsl::is_same<bsl::input_iterator_tag,
                                  Obj::iterator_category>::value));
             ASSERT((bsl::is_same<Itr::difference_type,
