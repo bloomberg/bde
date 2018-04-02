@@ -963,12 +963,11 @@ MiniReader::searchCommentCDataOrEndElementName(const bsl::string& name)
             node.d_qualifiedName = d_scanPtr;
             d_scanPtr += name.length();
             char *nameEnd = d_scanPtr;
-            if (bsl::isspace(static_cast<unsigned char>(*d_scanPtr))) {
-                if (skipSpaces() == 0) {
-                    d_scanPtr = d_endPtr;
-                    *nameEnd = '\0';
-                    return e_STRINGTYPE_NONE;                         // RETURN
-                }
+            // If we have attributes (and/or spaces), skip them
+            if (scanForSymbol('>') == 0) {
+                d_scanPtr = d_endPtr;
+                *nameEnd = '\0';
+                return e_STRINGTYPE_NONE;                             // RETURN
             }
             if (*d_scanPtr != '>') {
                 continue;                                           // CONTINUE
