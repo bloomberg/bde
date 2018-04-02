@@ -220,14 +220,25 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_BYTEORDER_NTOHS_CONSTANT(x)                                      \
              static_cast<unsigned short>(                                     \
-                            (static_cast<unsigned short>(x) >> 8) | ((x) << 8))
+                            (static_cast<unsigned short>(x) >> 8) |           \
+                            (static_cast<unsigned short>(x) << 8))
 
-#define BSLS_BYTEORDER_NTOHL_CONSTANT(x)                                      \
+// The "NO_MSB" versions of the byte-swapping macros always move a 0 bit into
+// the most significant bit of the result, in order to avoid undefined behavior
+// caused by left shifting a 1 into the sign bit of a signed positive value.
+// These versions are invoked by the user versions of the macros, which first
+// test whether that bit is 1, and if so, perform the operation on the
+// complement of the value and complement the result.  The "NO_MSB" macros are
+// intrended to be private to the implementation.
+#define BSLS_BYTEORDER_NTOHL_CONSTANT_NO_MSB(x)                               \
                     ((((x) >> 24) & 0x000000FF) | (((x) & 0x00FF0000) >>  8)  \
-                   | (((x) & 0x0000FF00) <<  8) | (((x) & 0x000000FF) << 24))
+ /* note 0x7F */   | (((x) & 0x0000FF00) <<  8) | (((x) & 0x0000007F) << 24))
+#define BSLS_BYTEORDER_NTOHL_CONSTANT(x)                                      \
+        ((x) & 0x80 ? ~BSLS_BYTEORDER_NTOHL_CONSTANT_NO_MSB(~(x))             \
+                    :  BSLS_BYTEORDER_NTOHL_CONSTANT_NO_MSB(x))
 
-#define BSLS_BYTEORDER_NTOHLL_CONSTANT(x)                                     \
-                                        ((((x) & 0x00000000000000FFLL) << 56) \
+#define BSLS_BYTEORDER_NTOHLL_CONSTANT_NO_MSB(x)                              \
+ /* note 0x7F */                        ((((x) & 0x000000000000007FLL) << 56) \
                                        | (((x) & 0x000000000000FF00LL) << 40) \
                                        | (((x) & 0x0000000000FF0000LL) << 24) \
                                        | (((x) & 0x00000000FF000000LL) <<  8) \
@@ -235,6 +246,9 @@ BSLS_IDENT("$Id: $")
                                        | (((x) & 0x0000FF0000000000LL) >> 24) \
                                        | (((x) & 0x00FF000000000000LL) >> 40) \
                                        | (((x) >> 56) & 0x00000000000000FFLL))
+#define BSLS_BYTEORDER_NTOHLL_CONSTANT(x)                                     \
+        ((x) & 0x80 ? ~BSLS_BYTEORDER_NTOHLL_CONSTANT_NO_MSB(~(x))            \
+                    :  BSLS_BYTEORDER_NTOHLL_CONSTANT_NO_MSB(x))
 
 #define BSLS_BYTEORDER_HTONS_CONSTANT(x)  BSLS_BYTEORDER_NTOHS_CONSTANT(x)
 
