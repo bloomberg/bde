@@ -229,7 +229,7 @@ BSLS_IDENT("$Id: $")
 // These versions are invoked by the user versions of the macros, which first
 // test whether that bit is 1, and if so, perform the operation on the
 // complement of the value and complement the result.  The "NO_MSB" macros are
-// intrended to be private to the implementation.
+// intended to be private to the implementation.
 #define BSLS_BYTEORDER_NTOHL_CONSTANT_NO_MSB(x)                               \
                     ((((x) >> 24) & 0x000000FF) | (((x) & 0x00FF0000) >>  8)  \
  /* note 0x7F */   | (((x) & 0x0000FF00) <<  8) | (((x) & 0x0000007F) << 24))
