@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 // 'CHAR_TRAITS::lt' in lexicographical fashion.  If 'CHAR_TRAITS::lt'
 // determines that strings are non-equal (smaller or larger), then this is the
 // result.  Otherwise, the lengths of the strings are compared and the shorter
-// string is declared smaller.  Lexicographical comparison returns equality
+// string is declared the smaller.  Lexicographical comparison returns equality
 // only when both strings have the same length and the same character value in
 // each respective position.
 //
