@@ -214,15 +214,15 @@ BSLS_IDENT("$Id: $")
 //  assert(t == s);
 //..
 // Then, we will create three 'string' objects: the first representing a street
-// name, the second a state, and the third a zipcode.  We will then concatenate
-// them into a single address 'string' and print the contents of that 'string'
-// on standard output:
+// name, the second a state, and the third a ZIP code.  We will then
+// concatenate them into a single address 'string' and print the contents of
+// that 'string' on standard output:
 //..
 //  const bsl::string street  = "731 Lexington Avenue";
 //  const bsl::string state   = "NY";
-//  const bsl::string zipcode = "10022";
+//  const bsl::string zipCode = "10022";
 //
-//  const bsl::string fullAddress = street + " " + state + " " + zipcode;
+//  const bsl::string fullAddress = street + " " + state + " " + zipCode;
 //
 //  bsl::cout << fullAddress << bsl::endl;
 //..
@@ -293,7 +293,7 @@ BSLS_IDENT("$Id: $")
 //      //
 //      // This class:
 //      //: o supports a complete set of *value-semantic* operations
-//      //:   o except for 'bslx' serialization
+//      //:   o except for BDEX serialization
 //      //: o is *exception-neutral* (agnostic)
 //      //: o is *alias-safe*
 //      //: o is 'const' *thread-safe*
@@ -788,7 +788,7 @@ typedef basic_string<wchar_t> wstring;
 template <class ORIGINAL_TRAITS>
 class String_Traits {
     // This 'class' provides an implementation of the 'find' function for the
-    // parameterized 'ORIGINAL_TRAITS' type.  This is an alternate
+    // (template parameter) type 'ORIGINAL_TRAITS'.  This is an alternate
     // representation for Sun's 'char_traits::find' that returns an incorrect
     // result for character types other than 'char' (such as 'wchar').
 
@@ -865,13 +865,13 @@ class String_Imp {
     // string class and provides methods to help encapsulate internal string
     // implementation details.  It is parameterized by 'CHAR_TYPE' and
     // 'SIZE_TYPE' only, and implements the portion of 'basic_string' that does
-    // not need to know about its parameterized 'CHAR_TRAITS' or 'ALLOCATOR'.
-    // It contains the following data fields: pointer to string, short string
-    // buffer, length, and capacity.  The purpose of the short string buffer is
-    // to implement a "short string optimization" such that strings with
-    // lengths shorter than a certain number of characters are stored directly
-    // inside the string object (inside the short string buffer), and thereby
-    // avoid memory allocations/deallocations.
+    // not need to know about its (template parameter) types 'CHAR_TRAITS' or
+    // 'ALLOCATOR'.  It contains the following data fields: pointer to string,
+    // short string buffer, length, and capacity.  The purpose of the short
+    // string buffer is to implement a "short string optimization" such that
+    // strings with lengths shorter than a certain number of characters are
+    // stored directly inside the string object (inside the short string
+    // buffer), and thereby avoid memory allocations/deallocations.
 
   public:
     // TYPES
@@ -1036,11 +1036,11 @@ class String_ClearProctor {
     typedef typename FULL_STRING_TYPE::size_type size_type;
 
     // DATA
-    FULL_STRING_TYPE* d_string_p;     // pointer to the string supplied at
-                                      // construction (held, not owned)
+    FULL_STRING_TYPE *d_string_p;        // pointer to the string supplied at
+                                         // construction (held, not owned)
 
-    size_type    d_originalLength;    // original length of the string supplied
-                                      // at construction
+    size_type         d_originalLength;  // original length of the string
+                                         // supplied at construction
 
   public:
     // CREATORS
@@ -1059,7 +1059,6 @@ class String_ClearProctor {
         // restored.
 };
 
-
                         // =======================
                         // class bsl::basic_string
                         // =======================
@@ -1073,9 +1072,10 @@ class basic_string
     // This class template provides an STL-compliant 'string' that conforms to
     // the 'bslma::Allocator' model.  For the requirements of a string class,
     // consult the second revision of the ISO/IEC 14882 Programming Language
-    // C++ (2003).  Note that the parameterized 'CHAR_TYPE' must be *equal* to
-    // 'ALLOCATOR::value_type'.  In addition, this implementation offers strong
-    // exception guarantees (see below), with the general rules that:
+    // C++ (2003).  Note that the (template parameter) 'CHAR_TYPE' must be
+    // *equal* to 'ALLOCATOR::value_type'.  In addition, this implementation
+    // offers strong exception guarantees (see below), with the general rules
+    // that:
     //
     //: 1 any method that would result in a string of length larger than the
     //:   size returned by 'max_size' throws 'std::length_error', and
@@ -1137,7 +1137,7 @@ class basic_string
                       BloombergLP::bslmf::IsBitwiseMoveable<ALLOCATOR>::value);
         // 'CHAR_TYPE' is required to be a POD as per the Standard, which makes
         // 'CHAR_TYPE' bitwise-movable, so 'basic_string' is bitwise-movable as
-        // long as the (template parameter) 'ALLOCATOR' type is also
+        // long as the (template parameter) type 'ALLOCATOR' is also
         // bitwise-movable.
 
   private:
@@ -1171,7 +1171,6 @@ class basic_string
         // Throw 'out_of_range' with the specified 'message' if the specified
         // 'outOfRange' is 'true'.   Otherwise, this method has no effect.
 
-
     // PRIVATE MANIPULATORS
 
     // Note: '...Raw' functions are low level private manipulators and they do
@@ -1200,12 +1199,12 @@ class basic_string
     basic_string& privateAppend(const CHAR_TYPE *characterString,
                                 size_type        numChars,
                                 const char      *message);
-        // Append characters from the specified 'characterString' array of
-        // characters of the specified 'numChars' length to this string, and
-        // return a reference providing modifiable access to this string.
-        // Throw 'length_error' with the specified 'message' if
-        // 'numChars > max_size() - length()'.  The behavior is undefined
-        // unless 'characterString' array is at least 'numChars' long.
+        // Append to this string the specified initial 'numChars' characters
+        // from the specified 'characterString', and return a reference
+        // providing modifiable access to this string.  Throw 'length_error'
+        // with the specified 'message' if 'numChars > max_size() - length()'.
+        // The behavior is undefined unless 'characterString' is at least
+        // 'numChars' long.
 
     basic_string& privateAppend(size_type   numChars,
                                 CHAR_TYPE   character,
@@ -1279,13 +1278,14 @@ class basic_string
                                         const char  *message);
         // Assign to this string the value of the string described by the
         // specified 'first' and 'second' values, and return a reference
-        // providing modifiable access to this string.  The parametrized
-        // 'FIRST_TYPE' and 'SECOND_TYPE' may resolve to 'const CHAR_TYPE*' and
-        // 'size_type', 'size_type' and 'CHAR_TYPE', or a pair of iterators.
-        // This call will clear the string and then dispatch to the
-        // corresponding 'privateAppend' function.  Throw 'length_error' with
-        // the specified 'message' if the length of the string described by
-        // 'first' and 'second' is greater than 'max_length'.
+        // providing modifiable access to this string.  The (template
+        // parameter) types 'FIRST_TYPE' and 'SECOND_TYPE' may resolve to
+        // 'const CHAR_TYPE *' and 'size_type', 'size_type' and 'CHAR_TYPE', or
+        // a pair of iterators.  This method clears the string and then
+        // dispatches to the corresponding 'privateAppend' function.  Throw
+        // 'length_error' with the specified 'message' if the length of the
+        // string described by 'first' and 'second' is greater than
+        // 'max_size()'.
 
     Imp& privateBase();
         // Return a reference providing modifiable access to the base object
@@ -1316,32 +1316,33 @@ class basic_string
         // represented by the specified 'first' and 'last' iterators.  The
         // behavior is undefined unless 'first' and 'last' refer to a sequence
         // of valid values where 'first' is at a position at or before 'last'.
-        // Note that since the parameterized 'INPUT_ITER' type can also resolve
-        // to an integral type, use the 'privateReplaceDispatch' to
+        // Note that since the (template parameter) type 'INPUT_ITER' can also
+        // resolve to an integral type, use the 'privateReplaceDispatch' to
         // disambiguate between the integral type and iterator types.
 
     basic_string& privateInsertRaw(size_type        outPosition,
                                    const CHAR_TYPE *characterString,
                                    size_type        numChars);
         // Insert into this object at the specified 'outPosition' the specified
-        // 'numChars' starting at the specified 'characterString'.  The
-        // behavior is undefined unless and 'numChars <= max_size() - length()'
-        // and 'characterString' array is at least 'numChars' long.  Note that
-        // this method is alias-safe, i.e., it works correctly even if
+        // initial 'numChars' from the specified 'characterString'.  The
+        // behavior is undefined unless 'numChars <= max_size() - length()' and
+        // 'characterString' is at least 'numChars' long.  Note that this
+        // method is alias-safe, i.e., it works correctly even if
         // 'characterString' points into this string object.
 
     basic_string& privateReplaceRaw(size_type        outPosition,
                                     size_type        outNumChars,
                                     const CHAR_TYPE *characterString,
                                     size_type        numChars);
-        // Replace the specified 'outNumChars' characters of this object
-        // starting at the specified 'outPosition' by the specified 'numChars'
-        // starting at the specified 'characterString', and return a reference
-        // providing modifiable access to this string.  The behavior is
-        // undefined unless 'outPosition <= length()',
+        // Replace the specified 'outNumChars' characters of this string
+        // starting at the specified 'outPosition' with the specified initial
+        // 'numChars' from the specified 'characterString', and return a
+        // reference providing modifiable access to this string.  The behavior
+        // is undefined unless 'outPosition <= length()',
         // 'outNumChars <= length()', 'outPosition <= length() - outNumChars',
-        // 'numChars <= max_size()', and
-        // 'length() - outNumChars <= max_size() - numChars'.  Note that this
+        // 'numChars <= max_size()',
+        // 'length() - outNumChars <= max_size() - numChars', and
+        // 'characterString' is at least 'numChars' long.  Note that this
         // method is alias-safe, i.e., it works correctly even if
         // 'characterString' points into this string object.
 
@@ -1350,11 +1351,11 @@ class basic_string
                                     size_type numChars,
                                     CHAR_TYPE character);
         // Replace the specified 'outNumChars' characters of this string
-        // starting at the specified 'outPosition' by the specified 'numChars'
-        // copies of the specified 'character', and return a reference
-        // providing modifiable access to this string.  The behavior is
-        // undefined unless 'outPosition <= length()',
-        // 'outNumChars <= length()', 'outPosition <= length() - outNumChars'
+        // starting at the specified 'outPosition' with the specified
+        // 'numChars' copies of the specified 'character', and return a
+        // reference providing modifiable access to this string.  The behavior
+        // is undefined unless 'outPosition <= length()',
+        // 'outNumChars <= length()', 'outPosition <= length() - outNumChars',
         // and 'length() <= max_size() - numChars'.
 
     template <class INPUT_ITER>
@@ -1462,11 +1463,11 @@ class basic_string
                           const CHAR_TYPE *other,
                           size_type        otherNumChars) const;
         // Lexicographically compare the substring of this string starting at
-        // the specified 'lhsPosition' of length 'lhsNumChars' with the string
-        // constructed from the specified 'otherNumChars' characters in the
-        // array starting at the specified 'other' address, and return a
-        // negative value if this string is less than 'other', a positive value
-        // if it is more than 'other', and 0 in case of equality.  The behavior
+        // the specified 'lhsPosition' of length 'lhsNumChars' with the
+        // specified initial 'otherNumChars' characters in the specified
+        // 'other' string, and return a negative value if the indicated
+        // substring of this string is less than 'other', a positive value if
+        // it is greater than 'other', and 0 in case of equality.  The behavior
         // is undefined unless 'lhsPosition <= length()',
         // 'lhsNumChars <= length()', and
         // 'lhsPosition <= length() - lhsNumChars'.
@@ -1521,7 +1522,7 @@ class basic_string
                  const ALLOCATOR&                             basicAllocator);
         // Create a string that has the same value as the specified 'original'
         // string by moving the contents of 'original' to the new string.
-        // Optionally specify the 'basicAllocator' used to supply memory.  If
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is not specified, then a default-constructed
         // allocator is used.  'original' is left in a valid but unspecified
         // state.
@@ -1535,29 +1536,34 @@ class basic_string
         // 'position' in the specified 'original' string.  If 'numChars' equals
         // 'npos', then the remaining length of the string is used (i.e.,
         // 'numChars' is set to 'original.length() - position').  Optionally
-        // specify the 'basicAllocator' used to supply memory.  If
+        // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is not specified, a default-constructed allocator
         // is used.  Throw 'out_of_range' if 'position > original.length()' or
         // 'numChars != npos' and 'position + numChars < original.length()'.
 
     basic_string(const CHAR_TYPE  *characterString,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR());   // IMPLICIT
+        // Create a string having the same value as the specified
+        // null-terminated 'characterString' (of length
+        // 'CHAR_TRAITS::length(characterString)').  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
+        // specified, a default-constructed allocator is used.
+
     basic_string(const CHAR_TYPE  *characterString,
                  size_type         numChars,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR());
-        // Create a string that has the same value as the substring of the
-        // optionally specified 'numChars' length starting at the specified
-        // 'position' in the specified 'characterString'.  If 'numChars' is not
-        // specified, 'CHAR_TRAITS::length(characterString)' is used.
-        // Optionally specify the 'basicAllocator' used to supply memory.  If
+        // Create a string having the same value as the specified initial
+        // 'numChars' characters in the specified 'characterString'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is not specified, a default-constructed allocator
-        // is used.  Throw 'out_of_range' if 'numChars >= npos'.
+        // is used.  Throw 'out_of_range' if 'numChars >= npos'.  The behavior
+        // is undefined unless 'characterString' is at least 'numChars' long.
 
     basic_string(size_type        numChars,
                  CHAR_TYPE        character,
                  const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a string of the specified 'numChars' length whose every
-        // position contains the specified 'character'.  Optionally specify the
+        // position contains the specified 'character'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // specified, a default-constructed allocator is used.
 
@@ -1566,12 +1572,13 @@ class basic_string
                  INPUT_ITER       last,
                  const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a string from the characters in the range starting at the
-        // specified 'first' and ending at the specified 'last' iterators of
-        // the parameterized 'INPUT_ITER' type.  Optionally specify the
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
-        // specified, a default-constructed allocator is used.  The behavior is
-        // undefined unless 'first' and 'last' refer to a sequence of valid
-        // values where 'first' is at a position at or before 'last'.
+        // specified 'first' iterator and ending right before the specified
+        // 'last' iterator of the (template parameter) type 'INPUT_ITER'.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is not specified, a default-constructed allocator
+        // is used.  The behavior is undefined unless 'first' and 'last' refer
+        // to a sequence of valid values where 'first' is at a position at or
+        // before 'last'.
 
     template <class ALLOC2>
     basic_string(
@@ -1582,7 +1589,7 @@ class basic_string
         // compiler's library, instantiated with the same character type and
         // traits type, but not necessarily the same allocator type.  The
         // resulting string will contain the same sequence of characters as
-        // 'original'.  Optionally specify the 'basicAllocator' used to supply
+        // 'original'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is not specified, then a
         // default-constructed allocator is used.
 
@@ -1590,8 +1597,8 @@ class basic_string
                  const ALLOCATOR& basicAllocator = ALLOCATOR());    // IMPLICIT
         // Create a string that has the same value as the specified 'strRef'
         // string.  The resulting string will contain the same sequence of
-        // characters as 'strRef'.  Optionally specify the 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is not specified, then a
+        // characters as 'strRef'.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is not specified, then a
         // default-constructed allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -1599,7 +1606,7 @@ class basic_string
                  const ALLOCATOR&                 basicAllocator =
                                                                   ALLOCATOR());
         // Create a string and insert (in order) each 'CHAR_TYPE' object in the
-        // specified 'values' initializer list.  Optionally specify the
+        // specified 'values' initializer list.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // specified, then a default-constructed allocator is used.
 #endif
@@ -1635,7 +1642,8 @@ class basic_string
         // this string.
 
     basic_string& operator=(const CHAR_TYPE *rhs);
-        // Assign to this string the value of the specified 'rhs' string, and
+        // Assign to this string the value of the specified null-terminated
+        // 'rhs' string (of length 'CHAR_TRAITS::length(characterString)'), and
         // return a reference providing modifiable access to this string.
 
     basic_string& operator=(CHAR_TYPE character);
@@ -1721,59 +1729,74 @@ class basic_string
 
                          // *** 21.3.6 modifiers: ***
 
-    basic_string& operator+=(const basic_string&  rhs);
-    basic_string& operator+=(const CHAR_TYPE     *rhs);
-        // Append the specified 'rhs' at the end of this string, and return a
+    basic_string& operator+=(const basic_string& rhs);
+        // Append the specified 'rhs' string to this string, and return a
         // reference providing modifiable access to this string.
 
+    basic_string& operator+=(const CHAR_TYPE *rhs);
+        // Append the specified null-terminated 'rhs' string (of length
+        // 'CHAR_TRAITS::length(rhs)') to this string, and return a reference
+        // providing modifiable access to this string.
+
     basic_string& operator+=(CHAR_TYPE character);
-        // Append the specified 'character' at the end of this string, and
-        // return a reference providing modifiable access to this string.
+        // Append the specified 'character' to this string, and return a
+        // reference providing modifiable access to this string.
 
     basic_string& operator+=(
                   const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
-        // Append the specified 'strRef' at the end of this string.  Return a
-        // reference providing modifiable access to this string.
+        // Append the specified 'strRef' to this string, and return a reference
+        // providing modifiable access to this string.
 
     basic_string& append(const basic_string& suffix);
+        // Append to this string the specified 'suffix', and return a reference
+        // providing modifiable access to this string.
+
     basic_string& append(const basic_string& suffix,
                          size_type           position,
-                         size_type           numChars);
-        // Append at the end of this string the first specified 'numChars'
-        // characters starting at the specified 'position' in the specified
-        // 'suffix', or the tail of 'suffix' starting at 'position' if
-        // 'position + numChars' is larger than the length of 'suffix'.  Return
-        // a reference providing modifiable access to this string.  Throw
-        // 'out_of_range' if 'position > suffix.length()'.
+                         size_type           numChars = npos);
+        // Append to this string the optionally specified 'numChars' characters
+        // starting at the specified 'position' in the specified 'suffix', or
+        // the tail of 'suffix' starting at 'position' if
+        // 'position + numChars > suffix.length()'.  If 'numChars' is not
+        // specified, 'npos' is used.  Return a reference providing modifiable
+        // access to this string.  Throw 'out_of_range' if
+        // 'position > suffix.length()'.
 
     basic_string& append(const CHAR_TYPE *characterString,
                          size_type        numChars);
-        // Append at the end of this string the specified 'numChars' characters
-        // from the array starting at the specified 'characterString' address,
-        // and return a reference providing modifiable access to this string.
+        // Append to this string the specified initial 'numChars' characters
+        // from the specified 'characterString', and return a reference
+        // providing modifiable access to this string.  The behavior is
+        // undefined unless 'characterString' is at least 'numChars' long.
 
     basic_string& append(const CHAR_TYPE *characterString);
-        // Append the specified 'characterString' (of length
-        // 'CHAR_TRAITS::length(characterString)') at the end of this string,
-        // and return a reference providing modifiable access to this string.
+        // Append the specified null-terminated 'characterString' (of length
+        // 'CHAR_TRAITS::length(characterString)') to this string, and return a
+        // reference providing modifiable access to this string.
 
     basic_string& append(size_type numChars, CHAR_TYPE character);
-        // Append a number equal to the specified 'numChars' of copies of the
-        // specified 'character' at the end of this string, and return a
-        // reference providing modifiable access to this string.
+        // Append the specified 'numChars' copies of the specified 'character'
+        // to this string, and return a reference providing modifiable access
+        // to this string.
 
     template <class INPUT_ITER>
     basic_string& append(INPUT_ITER first, INPUT_ITER last);
-        // Append to the end of this string a string built from the characters
-        // in the range starting at the specified 'first' and ending before the
-        // specified 'last' iterators of the 'iterator', 'const_iterator' or
-        // parameterized 'INPUT_ITER' type, respectively.  Return a reference
-        // providing modifiable access to this string.  The behavior is
-        // undefined unless 'first' and 'last' refer to a sequence of valid
-        // values where 'first' is at a position at or before 'last'.
+        // Append to this string the characters in the range starting at the
+        // specified 'first' iterator and ending right before the specified
+        // 'last' iterator of the (template parameter) type 'INPUT_ITER'.
+        // Return a reference providing modifiable access to this string.  The
+        // behavior is undefined unless 'first' and 'last' refer to a sequence
+        // of valid values where 'first' is at a position at or before 'last'.
 
-    void push_back(CHAR_TYPE   character);
-        // Append the specified 'character' at the end of this string.
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    basic_string& append(std::initializer_list<CHAR_TYPE> values);
+        // Append to this string each 'CHAR_TYPE' object in the specified
+        // 'values' initializer list, and return a reference providing
+        // modifiable access to this string.
+#endif
+
+    void push_back(CHAR_TYPE character);
+        // Append the specified 'character' to this string.
 
     basic_string& assign(const basic_string& replacement);
         // Assign to this string the value of the specified 'replacement'
@@ -1781,7 +1804,7 @@ class basic_string
         // the 'ALLOCATOR' type has trait
         // 'propagate_on_container_copy_assignment', and return a reference
         // providing modifiable access to this string.  Note that this method
-        // has exactly the same behaviour as corresponding 'operator='.
+        // has exactly the same behavior as the corresponding 'operator='.
 
     basic_string& assign(
                       BloombergLP::bslmf::MovableRef<basic_string> replacement)
@@ -1795,49 +1818,51 @@ class basic_string
         // 'get_allocator() == rhs.get_allocator()' (after accounting for the
         // aforementioned trait).  'replacement' is left in a valid but
         // unspecified state.  Note that this method has exactly the same
-        // behaviour as corresponding 'operator='.
+        // behavior as the corresponding 'operator='.
 
     basic_string& assign(const basic_string& replacement,
                          size_type           position,
-                         size_type           numChars);
-        // Assign to this string the value of the substring of the specified
-        // 'numChars' length or 'replacement.length() - position', whichever is
-        // smaller, starting at the specified 'position' in the specified
-        // 'replacement' string, and return a reference providing modifiable
+                         size_type           numChars = npos);
+        // Assign to this string the value of the optionally specified
+        // 'numChars' characters starting at the specified 'position' in the
+        // specified 'replacement' string, or the suffix of 'replacement'
+        // starting at 'position' if
+        // 'position + numChars > replacement.length()'.  If 'numChars' is not
+        // specified, 'npos' is used.  Return a reference providing modifiable
         // access to this string.  Throw 'out_of_range' if
-        // 'position > other.length()'.
+        // 'position > replacement.length()'.
 
     basic_string& assign(const CHAR_TYPE *characterString);
         // Assign to this string the value of the specified null-terminated
-        // 'characterString', and return a reference providing modifiable
-        // access to this string.
+        // 'characterString' (of length
+        // 'CHAR_TRAITS::length(characterString)'), and return a reference
+        // providing modifiable access to this string.
 
     basic_string& assign(const CHAR_TYPE *characterString,
                          size_type        numChars);
-        // Assign to this string the value of the string constructed from the
-        // specified 'numChars' characters in the array starting at the
-        // specified 'characterString' address, and return a reference
-        // providing modifiable access to this string.
+        // Assign to this string the specified initial 'numChars' characters in
+        // the specified 'characterString', and return a reference providing
+        // modifiable access to this string.  The behavior is undefined unless
+        // 'characterString' is at least 'numChars' long.
 
     basic_string& assign(
                   const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
         // Assign to this string the value of the specified 'strRef' string
         // reference, and return a reference providing modifiable access to
-        // this string.  Note that this method has exactly the same behaviour
-        // as corresponding 'operator='.
+        // this string.  Note that this method has exactly the same behavior as
+        // the corresponding 'operator='.
 
     basic_string& assign(size_type numChars, CHAR_TYPE character);
         // Assign to this string the value of a string of the specified
-        // 'numChars' length whose every characters equal the specified
+        // 'numChars' length whose every character is equal to the specified
         // 'character', and return a reference providing modifiable access to
         // this string.
 
     template <class INPUT_ITER>
     basic_string& assign(INPUT_ITER first, INPUT_ITER last);
-        // Assign to this string the value of a string built from the
-        // characters in the range starting at the specified 'first' and ending
-        // before the specified 'last' iterators of the 'iterator',
-        // 'const_iterator' or parameterized 'INPUT_ITER' type, respectively.
+        // Assign to this string the characters in the range starting at the
+        // specified 'first' iterator and ending right before the specified
+        // 'last' iterator of the (template parameter) type 'INPUT_ITER'.
         // Return a reference providing modifiable access to this string.  The
         // behavior is undefined unless 'first' and 'last' refer to a sequence
         // of valid values where 'first' is at a position at or before 'last'.
@@ -1859,27 +1884,28 @@ class basic_string
     basic_string& insert(size_type           outPosition,
                          const basic_string& other,
                          size_type           position,
-                         size_type           numChars);
-        // Insert at the specified 'outPosition' in this string a copy of the
-        // substring of the specified 'numChars' length or
-        // 'other.length() - position', whichever is smaller, starting at the
-        // specified 'position' in the specified 'other' string, and return a
-        // reference providing modifiable access to this string.  Throw
-        // 'out_of_range' if 'position > length()'.
+                         size_type           numChars = npos);
+        // Insert at the specified 'outPosition' in this string the optionally
+        // specified 'numChars' characters starting at the specified 'position'
+        // in the specified 'other' string, or the suffix of 'other' starting
+        // at 'position' if 'position + numChars > other.length()'.  If
+        // 'numChars' is not specified, 'npos' is used.  Return a reference
+        // providing modifiable access to this string.  Throw 'out_of_range' if
+        // 'outPosition > length()' or 'position > other.length()'.
 
     basic_string& insert(size_type        position,
                          const CHAR_TYPE *characterString,
                          size_type        numChars);
-        // Insert at the specified 'position' in this string a copy of the
-        // string constructed from the specified 'numChars' characters in the
-        // array starting at the specified 'characterString' address, and
-        // return a reference providing modifiable access to this string.
-        // Throw 'out_of_range' if 'position > length()'.
+        // Insert at the specified 'position' in this string the specified
+        // initial 'numChars' characters in the specified 'characterString',
+        // and return a reference providing modifiable access to this string.
+        // Throw 'out_of_range' if 'position > length()'.  The behavior is
+        // undefined unless 'characterString' is at least 'numChars' long.
 
     basic_string& insert(size_type        position,
                          const CHAR_TYPE *characterString);
-        // Insert at the specified 'position' in this string a copy of the
-        // string constructed from the specified 'characterString' (of length
+        // Insert at the specified 'position' in this string the specified
+        // null-terminated 'characterString' (of length
         // 'CHAR_TRAITS::length(characterString)'), and return a reference
         // providing modifiable access to this string.  Throw 'out_of_range' if
         // 'position > length()'.
@@ -1887,47 +1913,47 @@ class basic_string
     basic_string& insert(size_type position,
                          size_type numChars,
                          CHAR_TYPE character);
-        // Insert at the specified 'position' in this string a number equal to
-        // the specified 'numChars' of copies of the specified 'character', and
-        // return a reference providing modifiable access to this string.
-        // Throw 'out_of_range' if 'position > length()'.
+        // Insert at the specified 'position' in this string the specified
+        // 'numChars' copies of the specified 'character', and return a
+        // reference providing modifiable access to this string.  Throw
+        // 'out_of_range' if 'position > length()'.
 
     iterator insert(const_iterator position, CHAR_TYPE character);
-        // Insert at the specified 'position' in this string a copy of the
-        // specified 'character', and return an iterator providing modifiable
-        // access to the inserted character.  The behavior is undefined unless
-        // 'position' is a valid iterator on this string.
+        // Insert the specified 'character' at the specified 'position' in this
+        // string, and return an iterator providing modifiable access to the
+        // inserted character.  The behavior is undefined unless 'position' is
+        // a valid iterator on this string.
 
     iterator insert(const_iterator position,
                     size_type      numChars,
                     CHAR_TYPE      character);
-        // Insert at the specified 'position' in this string a specified
-        // 'numChars' number of copies of the specified 'character', and return
-        // an iterator providing modifiable access to the first inserted
-        // character, or a non-const copy of the 'position' iterator, if
-        // 'numChars == 0'.  The behavior is undefined unless 'position' is a
-        // valid iterator on this string.
+        // Insert at the specified 'position' in this string the specified
+        // 'numChars' copies of the specified 'character', and return an
+        // iterator providing modifiable access to the first inserted
+        // character, or a non-'const' copy of 'position' if '0 == numChars'.
+        // The behavior is undefined unless 'position' is a valid iterator on
+        // this string.
 
     template <class INPUT_ITER>
     iterator insert(const_iterator position,
                     INPUT_ITER     first,
                     INPUT_ITER     last);
-        // Insert at the specified 'position' in this string a string built
-        // from the characters in the range starting at the specified 'first'
-        // and ending before the specified 'last' iterators, and return an
-        // iterator providing modifiable access to the first inserted
-        // character, or a non-const copy of the 'position' iterator, if
-        // 'first == last'.  The behavior is undefined unless 'position' is a
-        // valid iterator on this string, and 'first' and 'last' refer to a
-        // sequence of valid values where 'first' is at a position at or before
-        // 'last'.
+        // Insert at the specified 'position' in this string the characters in
+        // the range starting at the specified 'first' iterator and ending
+        // right before the specified 'last' iterator of the (template
+        // parameter) type 'INPUT_ITER', and return an iterator providing
+        // modifiable access to the first inserted character, or a non-'const'
+        // copy of 'position' if 'first == last'.  The behavior is undefined
+        // unless 'position' is a valid iterator on this string, and 'first'
+        // and 'last' refer to a sequence of valid values where 'first' is at a
+        // position at or before 'last'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     iterator insert(const_iterator                   position,
                     std::initializer_list<CHAR_TYPE> values);
         // Insert at the specified 'position' in this string each 'CHAR_TYPE'
-        // object in the specified 'values' initializer list and return an
-        // iterator to the first newly inserted element.  If an exception is
+        // object in the specified 'values' initializer list, and return an
+        // iterator to the first newly-inserted character.  If an exception is
         // thrown (other than by the copy constructor, move constructor,
         // assignment operator, and move assignment operator of 'CHAR_TYPE'),
         // '*this' is unaffected.  The behavior is undefined unless 'position'
@@ -1970,45 +1996,49 @@ class basic_string
     basic_string& replace(size_type           outPosition,
                           size_type           outNumChars,
                           const basic_string& replacement);
-        // Replace the substring of this string starting at the specified
-        // 'outPosition' of length 'outNumChars' or 'length() - outPosition',
-        // whichever is smaller, by the specified 'replacement', and return a
-        // reference providing modifiable access to this string.  Throw
-        // 'out_of_range' if 'outPosition > length()'.
+        // Replace the specified 'outNumChars' characters starting at the
+        // specified 'outPosition' in this string (or the suffix of this string
+        // starting at 'outPosition' if 'outPosition + outNumChars > length()')
+        // with the specified 'replacement' string, and return a reference
+        // providing modifiable access to this string.  Throw 'out_of_range' if
+        // 'outPosition > length()'.
 
     basic_string& replace(size_type           outPosition,
                           size_type           outNumChars,
                           const basic_string& replacement,
                           size_type           position,
-                          size_type           numChars);
-        // Replace the substring of this string starting at the specified
-        // 'outPosition' of length 'outNumChars' or 'length() - outPosition',
-        // whichever is smaller, by the substring of the specified 'numChars'
-        // length or 'replacement.length() - position', whichever is smaller,
-        // starting at the specified 'position' in the specified 'replacement'.
-        // Return a reference providing modifiable access to this string.
-        // Throw 'out_of_range' if 'outPosition > length()' or
-        // 'position > string.length()'.
+                          size_type           numChars = npos);
+        // Replace the specified 'outNumChars' characters starting at the
+        // specified 'outPosition' in this string (or the suffix of this string
+        // starting at 'outPosition' if 'outPosition + outNumChars > length()')
+        // with the optionally specified 'numChars' characters starting at the
+        // specified 'position' in the specified 'replacement' string (or the
+        // suffix of 'replacement' starting at 'position' if
+        // 'position + numChars > replacement.length()').  If 'numChars' is not
+        // specified, 'npos' is used.  Return a reference providing modifiable
+        // access to this string.  Throw 'out_of_range' if
+        // 'outPosition > length()' or 'position > replacement.length()'.
 
     basic_string& replace(size_type        outPosition,
                           size_type        outNumChars,
                           const CHAR_TYPE *characterString,
                           size_type        numChars);
-        // Replace the substring of this string starting at the specified
-        // 'outPosition' of length 'outNumChars' or 'length() - outPosition',
-        // whichever is smaller, by a copy of the string constructed from the
-        // specified 'numChars' characters in the array starting at the
-        // specified 'characterString' address.  Return a reference providing
-        // modifiable access to this string.  Throw 'out_of_range' if
-        // 'outPosition > length()'.
+        // Replace the specified 'outNumChars' characters starting at the
+        // specified 'outPosition' in this string (or the suffix of this string
+        // starting at 'outPosition' if 'outPosition + outNumChars > length()')
+        // with the specified initial 'numChars' characters in the specified
+        // 'characterString'.  Return a reference providing modifiable access
+        // to this string.  Throw 'out_of_range' if 'outPosition > length()'.
+        // The behavior is undefined unless 'characterString' is at least
+        // 'numChars' long.
 
     basic_string& replace(size_type        outPosition,
                           size_type        outNumChars,
                           const CHAR_TYPE *characterString);
-        // Replace the substring of this string starting at the specified
-        // 'outPosition' of length 'outNumChars' or 'length() - outPosition',
-        // whichever is smaller, by the null-terminated specified
-        // 'characterString' (of length
+        // Replace the specified 'outNumChars' characters starting at the
+        // specified 'outPosition' in this string (or the suffix of this string
+        // starting at 'outPosition' if 'outPosition + outNumChars > length()')
+        // with the specified null-terminated 'characterString' (of length
         // 'CHAR_TRAITS::length(characterString)').  Return a reference
         // providing modifiable access to this string.  Throw 'out_of_range' if
         // 'outPosition > length()'.
@@ -2017,19 +2047,19 @@ class basic_string
                           size_type outNumChars,
                           size_type numChars,
                           CHAR_TYPE character);
-        // Replace the substring of this string starting at the specified
-        // 'outPosition' of length 'outNumChars' or 'length() - outPosition',
-        // whichever is smaller, by a number equal to the specified 'numChars'
-        // of copies of the specified 'character'.  Return a reference
-        // providing modifiable access to this string.  Throw 'out_of_range' if
-        // 'outPosition > length()'.
+        // Replace the specified 'outNumChars' characters starting at the
+        // specified 'outPosition' in this string (or the suffix of this string
+        // starting at 'outPosition' if 'outPosition + outNumChars > length()')
+        // with the specified 'numChars' copies of the specified 'character'.
+        // Return a reference providing modifiable access to this string.
+        // Throw 'out_of_range' if 'outPosition > length()'.
 
     basic_string& replace(const_iterator      first,
                           const_iterator      last,
                           const basic_string& replacement);
         // Replace the substring in the range starting at the specified 'first'
-        // position and ending right before the specified 'last' position, by
-        // the specified 'replacement'.  Return a reference providing
+        // position and ending right before the specified 'last' position with
+        // the specified 'replacement' string.  Return a reference providing
         // modifiable access to this string.  The behavior is undefined unless
         // 'first' and 'last' are both within the range '[cbegin() .. cend()]'
         // and 'first <= last'.
@@ -2039,19 +2069,20 @@ class basic_string
                           const CHAR_TYPE *characterString,
                           size_type        numChars);
         // Replace the substring in the range starting at the specified 'first'
-        // position and ending right before the specified 'last' position, by a
-        // copy of the string constructed from the specified 'numChars'
-        // characters in the array starting at the specified 'characterString'
-        // address.  Return a reference providing modifiable access to this
-        // string.  The behavior is undefined unless 'first' and 'last' are
-        // both within the range '[cbegin() .. cend()]' and 'first <= last'.
+        // position and ending right before the specified 'last' position with
+        // the specified initial 'numChars' characters in the specified
+        // 'characterString'.  Return a reference providing modifiable access
+        // to this string.  The behavior is undefined unless 'first' and 'last'
+        // are both within the range '[cbegin() .. cend()]', 'first <= last',
+        // and 'characterString' is at least 'numChars' long.
 
     basic_string& replace(const_iterator   first,
                           const_iterator   last,
                           const CHAR_TYPE *characterString);
         // Replace the substring in the range starting at the specified 'first'
-        // position and ending right before the specified 'last' position, by
-        // the null-terminated specified 'characterString'.  Return a reference
+        // position and ending right before the specified 'last' position with
+        // the specified null-terminated 'characterString' (of length
+        // 'CHAR_TRAITS::length(characterString)').  Return a reference
         // providing modifiable access to this string.  The behavior is
         // undefined unless 'first' and 'last' are both within the range
         // '[cbegin() .. cend()]' and 'first <= last'.
@@ -2061,11 +2092,11 @@ class basic_string
                           size_type      numChars,
                           CHAR_TYPE      character);
         // Replace the substring in the range starting at the specified 'first'
-        // position and ending right before the specified 'last' position, by a
-        // number equal to the specified 'numChars' of copies of the specified
-        // 'character'.  Return a reference providing modifiable access to this
-        // string.  The behavior is undefined unless 'first' and 'last' are
-        // both within the range '[cbegin() .. cend()]' and 'first <= last'.
+        // position and ending right before the specified 'last' position with
+        // the specified 'numChars' copies of the specified 'character'.
+        // Return a reference providing modifiable access to this string.  The
+        // behavior is undefined unless 'first' and 'last' are both within the
+        // range '[cbegin() .. cend()]' and 'first <= last'.
 
     template <class INPUT_ITER>
     basic_string& replace(const_iterator first,
@@ -2073,15 +2104,15 @@ class basic_string
                           INPUT_ITER     stringFirst,
                           INPUT_ITER     stringLast);
         // Replace the substring in the range starting at the specified 'first'
-        // position and ending right before the specified 'last' position, by a
-        // string built from the characters in the range starting at the
-        // specified 'stringFirst' and ending before the specified 'stringLast'
-        // iterators of the 'iterator', 'const_iterator', or parameterized
-        // 'INPUT_ITER' type, respectively.  Return a reference providing
-        // modifiable access to this string.  The behavior is undefined unless
-        // 'first' and 'last' are both within the range '[cbegin() .. cend()]',
-        // 'first <= last', and '[stringFirst .. stringLast)' is a valid
-        // iterator range.
+        // position and ending right before the specified 'last' position with
+        // the characters in the range starting at the specified 'stringFirst'
+        // iterator and ending right before the specified 'stringLast' iterator
+        // of the (template parameter) type 'INPUT_ITER'.  Return a reference
+        // providing modifiable access to this string.  The behavior is
+        // undefined unless 'first' and 'last' are both within the range
+        // '[cbegin() .. cend()]', 'first <= last', and 'stringFirst' and
+        // 'stringLast' refer to a sequence of valid values where 'stringFirst'
+        // is at a position at or before 'stringLast'.
 
     void swap(basic_string& other)
              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
@@ -2174,11 +2205,14 @@ class basic_string
     size_type copy(CHAR_TYPE *characterString,
                    size_type  numChars,
                    size_type  position = 0) const;
-        // Copy the specified 'numChars' or 'length() - position', whichever is
-        // smaller, characters from this string into the specified
+        // Copy from this string, starting from the optionally specified
+        // 'position', the specified 'numChars' or 'length() - position'
+        // characters, whichever is smaller, into the specified
         // 'characterString' buffer, and return the number of characters
-        // copied.  Throw 'out_of_range' if 'position > length()'.  Note that
-        // the output 'characterString' is *not* null-terminated.
+        // copied.  If 'position' is not specified, 0 is used.  Throw
+        // 'out_of_range' if 'position > length()'.  The behavior is undefined
+        // unless 'characterString' is at least 'numChars' long.  Note that the
+        // output 'characterString' is *not* null-terminated.
 
                      // *** 21.3.7 string operations: ***
 
@@ -2385,73 +2419,83 @@ class basic_string
 
     int compare(const basic_string& other) const BSLS_CPP11_NOEXCEPT;
         // Lexicographically compare this string with the specified 'other'
-        // string (using 'CHAR_TRAITS::lt' to compare characters), and return a
-        // negative value if this string is less than 'other', a positive value
-        // if it is more than 'other', and 0 in case of equality.  See
-        // "Lexicographical Comparisons" for definitions.
+        // string, and return a negative value if this string is less than
+        // 'other', a positive value if it is greater than 'other', and 0 in
+        // case of equality.  'CHAR_TRAITS::lt' is used to compare characters.
+        // See {Lexicographical Comparisons}.
 
     int compare(size_type           position,
                 size_type           numChars,
                 const basic_string& other) const;
-        // Lexicographically compare the substring of this string starting at
-        // the specified 'lhsPosition' of length 'lhsNumChars' or 'length() -
-        // lhsPosition', whichever is smaller, with the specified 'other'
-        // string (using 'CHAR_TRAITS::lt' to compare characters), and return a
-        // negative value if this string is less than 'other', a positive value
-        // if it is more than 'other', and 0 in case of equality.  See
-        // "Lexicographical Comparisons" for definitions.
+        // Lexicographically compare the substring of this string of the
+        // specified 'numChars' length starting at the specified 'position' (or
+        // the suffix of this string starting at 'position' if
+        // 'position + numChars > length()') with the specified 'other' string,
+        // and return a negative value if the indicated substring of this
+        // string is less than 'other', a positive value if it is greater than
+        // 'other', and 0 in case of equality.  'CHAR_TRAITS::lt' is used to
+        // compare characters.  See {Lexicographical Comparisons}.
 
     int compare(size_type           lhsPosition,
                 size_type           lhsNumChars,
                 const basic_string& other,
                 size_type           otherPosition,
-                size_type           otherNumChars) const;
-        // Lexicographically compare the substring of this string starting at
-        // the specified 'lhsPosition' of length 'lhsNumChars' or
-        // 'length() - lhsPosition', whichever is smaller, with the substring
-        // of the specified 'other' string starting at the specified
-        // 'otherPosition' of length 'otherNumChars' or
-        // 'length() - otherPosition', whichever is smaller, (using
-        // 'CHAR_TRAITS::lt' to compare characters), and return a negative
-        // value if this string is less than 'other', a positive value if it is
-        // more than 'other', and 0 in case of equality.  Throw 'out_of_range'
-        // if 'lhsPosition > length()' or 'otherPosition > other.length()'.
-        // See "Lexicographical Comparisons" for definitions.
+                size_type           otherNumChars = npos) const;
+        // Lexicographically compare the substring of this string of the
+        // specified 'lhsNumChars' length starting at the specified
+        // 'lhsPosition' (or the suffix of this string starting at
+        // 'lhsPosition' if 'lhsPosition + lhsNumChars > length()') with the
+        // substring of the specified 'other' string of the optionally
+        // specified 'otherNumChars' length starting at the specified
+        // 'otherPosition' (or the suffix of 'other' starting at
+        // 'otherPosition' if
+        // 'otherPosition + otherNumChars > other.length()').  If 'numChars' is
+        // not specified, 'npos' is used.  Return a negative value if the
+        // indicated substring of this string is less than the indicated
+        // substring of 'other', a positive value if it is greater than the
+        // indicated substring of 'other', and 0 in case of equality.
+        // 'CHAR_TRAITS::lt' is used to compare characters.  Throw
+        // 'out_of_range' if 'lhsPosition > length()' or
+        // 'otherPosition > other.length()'.  See {Lexicographical
+        // Comparisons}.
 
     int compare(const CHAR_TYPE *other) const;
-        // Lexicographically compare this string with the null-terminated
-        // specified 'other' string (of length 'CHAR_TRAITS::length(other)',
-        // using 'CHAR_TRAITS::lt' to compare characters), and return a
-        // negative value if this string is less than 'other', a positive value
-        // if it is more than 'other', and 0 in case of equality.  See
-        // "Lexicographical Comparisons" for definitions.
+        // Lexicographically compare this string with the specified
+        // null-terminated 'other' string (of length
+        // 'CHAR_TRAITS::length(other)'), and return a negative value if this
+        // string is less than 'other', a positive value if it is greater than
+        // 'other', and 0 in case of equality.  'CHAR_TRAITS::lt' is used to
+        // compare characters.  See {Lexicographical Comparisons}.
 
     int compare(size_type        lhsPosition,
                 size_type        lhsNumChars,
                 const CHAR_TYPE *other,
                 size_type        otherNumChars) const;
-        // Lexicographically compare the substring of this string starting at
-        // the specified 'lhsPosition' of length 'lhsNumChars' or
-        // 'length() - lhsPosition', whichever is smaller, with the string
-        // constructed from the specified 'numChars' characters in the array
-        // starting at the specified 'other' address, and return a negative
-        // value if this string is less than 'other', a positive value if it is
-        // more than 'other', and 0 in case of equality.  Throw 'out_of_range'
-        // if 'lhsPosition > length()'.  See "Lexicographical Comparisons" for
-        // definitions.
+        // Lexicographically compare the substring of this string of the
+        // specified 'lhsNumChars' length starting at the specified
+        // 'lhsPosition' (or the suffix of this string starting at
+        // 'lhsPosition' if 'lhsPosition + lhsNumChars > length()') with the
+        // specified 'other' string of the specified 'otherNumChars' length,
+        // and return a negative value if the indicated substring of this
+        // string is less than 'other', a positive value if it is greater than
+        // 'other', and 0 in case of equality.  'CHAR_TRAITS::lt' is used to
+        // compare characters.  Throw 'out_of_range' if
+        // 'lhsPosition > length()'.  See {Lexicographical Comparisons}.
 
     int compare(size_type        lhsPosition,
                 size_type        lhsNumChars,
                 const CHAR_TYPE *other) const;
-        // Lexicographically compare the substring of this string starting at
-        // the specified 'lhsPosition' of length 'lhsNumChars' or
-        // 'length() - lhsPosition', whichever is smaller, with the
-        // null-terminated specified 'other' string (of length
-        // 'CHAR_TRAITS::length(other)', using 'CHAR_TRAITS::lt' to compare
-        // characters), and return a negative value if this string is less than
-        // 'other', a positive value if it is more than 'other', and 0 in case
-        // of equality.  Throw 'out_of_range' if 'lhsPosition > length()'.  See
-        // "Lexicographical Comparisons" for definitions.
+        // Lexicographically compare the substring of this string of the
+        // specified 'lhsNumChars' length starting at the specified
+        // 'lhsPosition' (or the suffix of this string starting at
+        // 'lhsPosition' if 'lhsPosition + lhsNumChars > length()') with the
+        // specified null-terminated 'other' string (of length
+        // 'CHAR_TRAITS::length(other)'), and return a negative value if the
+        // indicated substring of this string is less than 'other', a positive
+        // value if it is greater than 'other', and 0 in case of equality.
+        // 'CHAR_TRAITS::lt' is used to compare characters.  Throw
+        // 'out_of_range' if 'lhsPosition > length()'.  See {Lexicographical
+        // Comparisons}.
 
                 // *** BDE compatibility with platform libraries: ***
 
@@ -2540,7 +2584,7 @@ bool operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                const CHAR_TYPE                                  *rhs);
     // Return 'true' if the specified 'lhs' string has a lexicographically
     // smaller value than the specified 'rhs' string, and 'false' otherwise.
-    // See "Lexicographical Comparisons" for definitions.
+    // See {Lexicographical Comparisons}.
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
@@ -2565,7 +2609,7 @@ bool operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                const CHAR_TYPE                                  *rhs);
     // Return 'true' if the specified 'lhs' string has a lexicographically
     // larger value than the specified 'rhs' string, and 'false' otherwise.
-    // See "Lexicographical Comparisons" for definitions.
+    // See {Lexicographical Comparisons}.
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
@@ -2590,8 +2634,7 @@ bool operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs);
     // Return 'true' if the specified 'lhs' string has a value
     // lexicographically smaller than or or equal to the specified 'rhs'
-    // string, and 'false' otherwise.  See "Lexicographical Comparisons" for
-    // definitions.
+    // string, and 'false' otherwise.  See {Lexicographical Comparisons}.
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
@@ -2616,8 +2659,7 @@ bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                 const CHAR_TYPE                                  *rhs);
     // Return 'true' if the specified 'lhs' string has a value
     // lexicographically larger than or equal to the specified 'rhs' string,
-    // and 'false' otherwise.  See "Lexicographical Comparisons" for
-    // definitions.
+    // and 'false' otherwise.  See {Lexicographical Comparisons}.
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
@@ -2655,7 +2697,7 @@ std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
 operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&          os,
            const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& str);
     // Write the string specified by 'str' into the output stream specified by
-    // 'os' and return 'os'.  If the string is shorter than 'os.width()', then
+    // 'os', and return 'os'.  If the string is shorter than 'os.width()', then
     // it is padded to 'os.width()' with the current 'os.fill()' character.
     // The padding, if any, is output after the string (on the right) if
     // 'os.flags() | ios::left' is non-zero and before the string otherwise.
@@ -2666,9 +2708,9 @@ std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&
 operator>>(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
            basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& str);
     // Replace the contents of the specified 'str' string with a word read from
-    // the specified 'is' input stream and return 'is'.  The word begins at the
-    // first non-whitespace character on the input stream and ends when another
-    // whitespace character (or eof) is found.  The trailing whitespace
+    // the specified 'is' input stream, and return 'is'.  The word begins at
+    // the first non-whitespace character on the input stream and ends when
+    // another whitespace character (or eof) is found.  The trailing whitespace
     // character is left on the input stream.  If 'is.good()' is not true on
     // entry or if eof is found before any non-whitespace characters, then
     // 'str' is unchanged and 'is.fail()' is becomes true.  If eof is detected
@@ -2687,7 +2729,7 @@ void swap(basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& a,
     // 'propagate_on_container_swap' is 'true' or 'a' and 'b' allocators
     // compare equal, then this method provides the no-throw exception-safety
     // guarantee and has 'O[1]' complexity; otherwise, this method has
-    // 'O[n + m]' complexity where 'n' and 'm' are the lenghts of 'a' and 'b',
+    // 'O[n + m]' complexity where 'n' and 'm' are the lengths of 'a' and 'b',
     // respectively.  Note that 'a' and 'b' are left in valid but unspecified
     // states if an exception is thrown (in the case where
     // 'propagate_on_container_swap' is 'false' and 'a' and 'b' allocators
@@ -2700,7 +2742,7 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
         CHAR_TYPE                                       delim);
     // Replace the contents of the specified 'str' string by extracting
     // characters from the specified 'is' stream until the specified 'delim'
-    // character is extracted and return 'is'.  The 'delim' character is
+    // character is extracted, and return 'is'.  The 'delim' character is
     // removed from the input stream but is not appended to 'str'.  If an 'eof'
     // is detected before 'delim', then the characters up to the 'eof' are put
     // into 'str' and 'is.eof()' becomes true.  If 'is.good()' is false on
@@ -2714,7 +2756,7 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
         basic_string<CHAR_TYPE,CHAR_TRAITS, ALLOCATOR>& str);
     // Replace the contents of the specified 'str' string by extracting
     // characters from the specified 'is' stream until a newline character
-    // (is.widen('\n') is extracted and return 'is'.  The newline character is
+    // (is.widen('\n') is extracted, and return 'is'.  The newline character is
     // removed from the input stream but is not appended to 'str'.  If an 'eof'
     // is detected before the newline, then the characters up to the 'eof' are
     // put into 'str' and 'is.eof()' becomes true.  If 'is.good()' is false on
@@ -2722,14 +2764,14 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
     // because because the stream is at eof), 'str' will become empty and
     // 'is.fail()' will become true.
 
-int  stoi(const string&  str, std::size_t* pos = 0, int base = 10);
-int  stoi(const wstring& str, std::size_t* pos = 0, int base = 10);
-long stol(const string&  str, std::size_t* pos = 0, int base = 10);
-long stol(const wstring& str, std::size_t* pos = 0, int base = 10);
-unsigned long stoul(const string&  str, std::size_t* pos = 0, int base = 10);
-unsigned long stoul(const wstring& str, std::size_t* pos = 0, int base = 10);
-long long stoll(const string&  str, std::size_t* pos = 0, int base = 10);
-long long stoll(const wstring& str, std::size_t* pos = 0, int base = 10);
+int  stoi(const string&  str, std::size_t *pos = 0, int base = 10);
+int  stoi(const wstring& str, std::size_t *pos = 0, int base = 10);
+long stol(const string&  str, std::size_t *pos = 0, int base = 10);
+long stol(const wstring& str, std::size_t *pos = 0, int base = 10);
+unsigned long stoul(const string&  str, std::size_t *pos = 0, int base = 10);
+unsigned long stoul(const wstring& str, std::size_t *pos = 0, int base = 10);
+long long stoll(const string&  str, std::size_t *pos = 0, int base = 10);
+long long stoll(const wstring& str, std::size_t *pos = 0, int base = 10);
 unsigned long long stoull(const string&   str,
                           std::size_t    *pos = 0,
                           int             base = 10);
@@ -2756,12 +2798,12 @@ unsigned long long stoull(const wstring&  str,
     // numbers where the absolute value falls in the valid range for the
     // corresponding signed conversion.
 
-float  stof(const string&  str, std::size_t* pos =0);
-float  stof(const wstring& str, std::size_t* pos =0);
-double stod(const string&  str, std::size_t* pos =0);
-double stod(const wstring& str, std::size_t* pos =0);
-long double stold(const string&  str, std::size_t* pos =0);
-long double stold(const wstring& str, std::size_t* pos =0);
+float  stof(const string&  str, std::size_t *pos =0);
+float  stof(const wstring& str, std::size_t *pos =0);
+double stod(const string&  str, std::size_t *pos =0);
+double stod(const wstring& str, std::size_t *pos =0);
+long double stold(const string&  str, std::size_t *pos =0);
+long double stold(const wstring& str, std::size_t *pos =0);
     // Parses 'str' interpreting its contents as a floating point number. In
     // C++11 if the number in 'str' is prefixed with '0x' or '0X' the string
     // will be interpreted as a hex number.  If there is no leading 0x or 0X
@@ -2874,7 +2916,7 @@ template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void hashAppend(HASHALG&                                               hashAlg,
                 const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input);
     // Pass the specified 'input' string to the specified 'hashAlg' hashing
-    // algorithm of (template parameter) type 'HASHALG'.
+    // algorithm of the (template parameter) type 'HASHALG'.
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 std::size_t
@@ -2898,7 +2940,7 @@ void hashAppend(
     HASHALG&                                                           hashAlg,
     const native_std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& input);
     // Pass the specified 'input' string to the specified 'hashAlg' hashing
-    // algorithm of (template parameter) type 'HASHALG'.  Note that this
+    // algorithm of the (template parameter) type 'HASHALG'.  Note that this
     // function violates the BDE coding standard, adding a function for a
     // namespace for a different package, and none of the function parameters
     // are from this package either.  This is necessary in order to provide an
@@ -3065,7 +3107,6 @@ void String_ClearProctor<FULL_STRING_TYPE>::release()
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 const typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::npos;
-
 
 // PRIVATE CLASS METHODS
 template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4425,6 +4466,20 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(INPUT_ITER first,
                          "string<...>::append<Iter>(i,j): string too long");
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
+                                       std::initializer_list<CHAR_TYPE> values)
+{
+    return privateAppend(
+                     values.begin(),
+                     values.end(),
+                     "string<...>::append(initializer_list): string too long");
+}
+#endif
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::push_back(
                                                            CHAR_TYPE character)
@@ -5191,7 +5246,7 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position) const
 {
-    // Note: deliberately not inlined (see comment in non-const version).
+    // Note: deliberately not inlined (see comment in non-'const' version).
 
     privateThrowOutOfRange(position >= length(),
                            "const string<...>::at(n): invalid position");
@@ -5249,7 +5304,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::c_str() const
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
-const CHAR_TYPE*
+const CHAR_TYPE *
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::data() const
                                                             BSLS_CPP11_NOEXCEPT
 {
@@ -5816,8 +5871,8 @@ bool bsl::operator==(const CHAR_TYPE                                  *lhs,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 inline
-bool bsl::operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
-                     const CHAR_TYPE*                                 rhs)
+bool bsl::operator==(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
+                     const CHAR_TYPE                                  *rhs)
 {
     BSLS_ASSERT_SAFE(rhs);
 
@@ -6243,7 +6298,7 @@ bsl::operator<<(std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&          os,
         bool            left   = (os.flags() & Ostrm::left) != 0;
         std::streamsize w      = os.width(0);
 
-        std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>* buf = os.rdbuf();
+        std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS> *buf = os.rdbuf();
 
         if (w > 0 && std::size_t(w) > n) {
             padLen = std::size_t(w) - n;
@@ -6277,7 +6332,7 @@ bsl::operator>>(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
     typename Istrm::sentry sentry(is);
 
     if (sentry) {
-        std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>* buf = is.rdbuf();
+        std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS> *buf = is.rdbuf();
         typedef std::ctype<CHAR_TYPE> CType;
 
         const std::locale& loc   = is.getloc();
@@ -6337,7 +6392,7 @@ bsl::getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&    is,
     std::size_t nread = 0;
     typename Istrm::sentry sentry(is, true);
     if (sentry) {
-        std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS>* buf = is.rdbuf();
+        std::basic_streambuf<CHAR_TYPE, CHAR_TRAITS> *buf = is.rdbuf();
         str.clear();
 
         while (nread < str.max_size()) {
@@ -6413,9 +6468,9 @@ void bslh::hashAppend(
 // Type traits for STL *sequence* containers:
 //: o A sequence container defines STL iterators.
 //: o A sequence container is bitwise movable if the allocator is bitwise
-//:     movable.
-//: o A sequence container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+//:   movable.
+//: o A sequence container uses 'bslma' allocators if the (template parameter)
+//:   type 'ALLOCATOR' is convertible from 'bslma::Allocator *'.
 
 namespace BloombergLP {
 
