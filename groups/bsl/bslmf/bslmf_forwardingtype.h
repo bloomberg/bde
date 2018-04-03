@@ -558,10 +558,17 @@ struct ForwardingType_Imp<UNREF_TYPE,
         // is a const reference, then the constness will be reinstated on
         // return.
 
+# if defined(BSLS_PLATFORM_CMP_MSVC)
         // We use a C-style cast because Visual Studio 2013, 2015, and early
         // versions of Visual Studio 2017 create a temporary with various
         // formulations using C++ casts.
         return TargetType(v);
+# else
+        // However, other platforms are known to complain about casting away
+        // the 'const' qualifier in 'Type' (i.e., in 'const UNREF&') unless a
+        // 'const_cast' is explicitly used.
+        return const_cast<TargetType>(v);
+# endif
     }
 #else
     typedef const UNREF_TYPE& TargetType;
