@@ -20,7 +20,9 @@ BSLS_IDENT("$Id: $")
 // iterator, and the result of the functor invocation is returned.
 //
 // Note that 'bdlb::TransformIterator' is more useful in C++11 or later than in
-// C++03, because lambdas can be used as the functor.
+// C++03, because lambdas can be used as the functor.  In C++03, the functor
+// type must be either a pointer to function or a function object type from
+// which 'bslmf::ResultType' can determine a result type.
 //
 ///Usage
 ///-----
@@ -115,7 +117,9 @@ BSLS_IDENT("$Id: $")
 //  auto pricer = [&](const bsl::string &product) { return prices[product]; };
 //  #endif
 //..
-// Next, we create a pair of transform iterators to process our grocery list:
+// Next, we create a pair of transform iterators to process our grocery list.
+// (Note that we use 'bsl::function' as the functor type to abstract away the
+// difference between the C++03 and C++11 function objects bwing used.)
 //..
 //  typedef bdlb::TransformIterator<bsl::function<double(const bsl::string&)>,
 //                                  bsl::list<bsl::string>::iterator> ti;
