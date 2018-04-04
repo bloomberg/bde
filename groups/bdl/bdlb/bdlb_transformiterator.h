@@ -19,10 +19,21 @@ BSLS_IDENT("$Id: $")
 // the functor is invoked on the result of dereferencing the underlying
 // iterator, and the result of the functor invocation is returned.
 //
+// The template expects two parameters.  The first parameter, designated
+// 'FUNCTOR', is the type of a callable object that can be invoked with a
+// single argument.  When compiling with C++03, this type must be either a
+// function pointer or otherwise have a type from which 'bslmf::ResultType' can
+// determine the result type of invoking the functor (see {bslmf_resulttype}).
+// The second parameter, designated 'ITERATOR', is the type of an object that
+// models an iterator from which values may be obtained, i.e., a type such that
+// 'bsl::iterator<ITERATOR>' exists and for which
+// 'bsl::iterator<ITERATOR>::iterator_category' derives from
+// 'bsl::input_iterator_tag' (see {bsl_iterator}).  (Note that object pointer
+// types qualify.)
+//
 // Note that 'bdlb::TransformIterator' is more useful in C++11 or later than in
-// C++03, because lambdas can be used as the functor.  In C++03, the functor
-// type must be either a pointer to function or a function object type from
-// which 'bslmf::ResultType' can determine a result type.
+// C++03, because lambdas can be used as function objects to match a 'FUNCTOR'
+// of type 'bsl::function<RETURN_TYPE(INPUT_TYPE)>'.
 //
 ///Usage
 ///-----
@@ -41,7 +52,7 @@ BSLS_IDENT("$Id: $")
 // absolute value.  We need ones for the beginning and end of the sequence:
 //..
 //  int (*abs)(int) = &bsl::abs;
-
+//
 //  bdlb::TransformIterator<int(*)(int), int*> dataBegin(data + 0, abs);
 //  bdlb::TransformIterator<int(*)(int), int*> dataEnd  (data + 5, abs);
 //..
@@ -77,7 +88,7 @@ BSLS_IDENT("$Id: $")
 // Next, we create a functor that will return a price given a product.  The
 // following rather prolix functor at namespace scope is necessary for C++03:
 //..
-//  #if __cplusplus < 201103L
+//  #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 //  class Pricer {
 //    private:
 //      // PRIVATE DATA
@@ -111,7 +122,7 @@ BSLS_IDENT("$Id: $")
 // Then we create the functor object.  In C++11 or later, the explicit functor
 // class above is unnecessary since we can use a lambda:
 //..
-//  #if __cplusplus < 201103L
+//  #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 //  Pricer pricer(prices);
 //  #else
 //  auto pricer = [&](const bsl::string &product) { return prices[product]; };
@@ -119,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we create a pair of transform iterators to process our grocery list.
 // (Note that we use 'bsl::function' as the functor type to abstract away the
-// difference between the C++03 and C++11 function objects bwing used.)
+// difference between the C++03 and C++11 function objects being used.)
 //..
 //  typedef bdlb::TransformIterator<bsl::function<double(const bsl::string&)>,
 //                                  bsl::list<bsl::string>::iterator> ti;
@@ -175,7 +186,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removereference.h>
 #endif
 
-#if __cplusplus < 201103L
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 
 #ifndef INCLUDED_BSLMF_RESULTTYPE
 #include <bslmf_resulttype.h>
@@ -220,49 +231,53 @@ struct TransformIterator_Traits {
 
     // PUBLIC TYPES
 
-    // Define the result type returned by the functor.  This is not necessarily
-    // the same type as the dereference of the iterator.
-#if __cplusplus < 201103L
-    // In C++03, the functor must have a 'result_type' type member.  The
-    // specializations below transform function pointers to 'bsl::function' so
-    // this works for those types as well.
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
     typedef typename bslmf::ResultType<FUNCTOR>::type ResultType;
+        // Define the result type returned by the functor.  This is not
+        // necessarily the same type as the dereference of the iterator.  In
+        // C++03, the functor must have a 'result_type' type member.  The
+        // specializations below transform function pointers to 'bsl::function'
+        // so this works for those types as well.
 #else
-    // In C++11, the result type can be determined automatically.  Note that
-    // various iterations of the language standard might want to instead use
-    // 'std::result_of' or 'std::invoke_result' (which have been variously
-    // added and then deprecated), but the following works from C++11 onwards.
     typedef decltype(bsl::declval<FUNCTOR>()(*bsl::declval<ITERATOR>()))
                                                       ResultType;
+        // Define the result type returned by the functor.  This is not
+        // necessarily the same type as the dereference of the iterator.  In
+        // C++11, the result type can be determined automatically.  Note that
+        // various iterations of the language standard might want to instead
+        // use 'std::result_of' or 'std::invoke_result' (which have been
+        // variously added and then deprecated), but the following works from
+        // C++11 onwards.
 #endif
 
-    // Define the iterator traits class of the underlying iterator.
     typedef typename bsl::iterator_traits<ITERATOR> BaseIteratorTraits;
+        // Define the iterator traits class of the underlying iterator.
 
-    // Define the iterator category of the transform iterator.  If the functor
-    // returns a reference type, we pass through the iterator category of the
-    // underlying iterator, otherwise we use the input iterator tag (because
-    // all the other tags require that dereferencing produces a reference).
     typedef typename bsl::conditional<
         bsl::is_reference<ResultType>::value,
         typename BaseIteratorTraits::iterator_category,
         bsl::input_iterator_tag>::type iterator_category;
+        // Define the iterator category of the transform iterator.  If the
+        // functor returns a reference type, we pass through the iterator
+        // category of the underlying iterator, otherwise we use the input
+        // iterator tag (because all the other tags require that dereferencing
+        // produces a reference).
 
-    // Define the remaining standard types of the transform iterator.
     typedef typename BaseIteratorTraits::difference_type difference_type;
     typedef typename bsl::remove_cv<
         typename bsl::remove_reference<ResultType>::type>::type  value_type;
     typedef ResultType                                           reference;
     typedef typename bsl::remove_reference<ResultType>::type    *pointer;
+        // Define the remaining standard types of the transform iterator.
 
-    // Define the standard iterator specialization that will apply to the
-    // transform iterator.
     typedef bsl::iterator<iterator_category,
                           value_type,
                           difference_type,
                           pointer,
                           ResultType>
         Iterator;
+        // Define the standard iterator specialization that will apply to the
+        // transform iterator.
 };
 
 // Specialize the transform iterator traits template for functors that are
@@ -330,10 +345,13 @@ struct TransformIterator_AllocatorOfFunctorMethod<BASE, true>
         // return the allocator of the functor of the class.
 };
 
+                       // =============================
+                       // class bdlb::TransformIterator
+                       // =============================
+
 template <class FUNCTOR, class ITERATOR>
 class TransformIterator
-: public TransformIterator_Traits<FUNCTOR, ITERATOR>::Iterator,
-  public TransformIterator_AllocatorOfIteratorMethod<
+: public TransformIterator_AllocatorOfIteratorMethod<
       TransformIterator<FUNCTOR, ITERATOR>,
       bslma::UsesBslmaAllocator<ITERATOR>::value>,
   public TransformIterator_AllocatorOfFunctorMethod<
@@ -360,6 +378,13 @@ class TransformIterator
     typedef typename Iterator::pointer           pointer;
     typedef typename Iterator::value_type        value_type;
     typedef typename Iterator::iterator_category iterator_category;
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION_IF(
+        TransformIterator,
+        bslma::UsesBslmaAllocator,
+        bslma::UsesBslmaAllocator<ITERATOR>::value ||
+        bslma::UsesBslmaAllocator<FUNCTOR> ::value)
 
     // PUBLIC CREATORS
     TransformIterator();
@@ -418,11 +443,6 @@ class TransformIterator
         // Return the address of the result of applying the functor to the
         // dereferenced iterator.  Note that the functor must return a
         // reference type for this method to be used.
-        //
-        // To be done: For input iterators, have a proxy object that holds the
-        // result of the functor call and implements operatr->, and return
-        // that.  Alternatively, remove this method altogether as has been done
-        // for 'istreambuf_iterator' in latest C++.
 
     reference operator[](difference_type n);
         // Return the result of applying the functor to the indexed dereference
@@ -471,13 +491,6 @@ class TransformIterator
     void swap(TransformIterator& other);
         // Exchange the functor and iterator of this object with those of the
         // specified 'other' object.
-
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION_IF(
-        TransformIterator,
-        bslma::UsesBslmaAllocator,
-        bslma::UsesBslmaAllocator<ITERATOR>::value ||
-        bslma::UsesBslmaAllocator<FUNCTOR> ::value)
 };
 
 // FREE FUNCTIONS

@@ -203,7 +203,7 @@ class Parenthesizer {
 
   public:
     // PUBLIC TYPES
-    #if __cplusplus < 201103L
+    #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
     typedef bsl::string& result_type;
     #endif
 
@@ -473,7 +473,7 @@ struct FakeIterator : public IteratorType {
 // Next, we create a functor that will return a price given a product.  The
 // following prolix functor at namespace scope is necessary for C++03:
 //..
-#if __cplusplus < 201103L
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 class Pricer {
   private:
     // PRIVATE DATA
@@ -594,7 +594,7 @@ int main(int argc, char *argv[])
 // Then we create the functor object.  In C++11 or later, the explicit functor
 // class above is unnecessary since we can use a lambda:
 //..
-    #if __cplusplus < 201103L
+    #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
     Pricer pricer(prices);
     #else
     auto pricer = [&](const bsl::string &product) { return prices[product]; };
@@ -602,7 +602,7 @@ int main(int argc, char *argv[])
 //..
 // Next, we create a pair of transform iterators to process our grocery list.
 // (Note that we use 'bsl::function' as the functor type to abstract away the
-// difference between the C++03 and C++11 function objects bwing used.)
+// difference between the C++03 and C++11 function objects being used.)
 //..
     typedef bdlb::TransformIterator<bsl::function<double(const bsl::string&)>,
                                     bsl::list<bsl::string>::iterator> ti;
