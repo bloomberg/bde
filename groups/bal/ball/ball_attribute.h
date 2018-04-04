@@ -139,10 +139,10 @@ class Attribute {
 
     Value        d_value;      // attribute value
 
-    mutable int  d_hashValue;  // hash value (-1 means unset)
+    mutable int  d_hashValue;  // hash value (-1 indicates it is unset)
 
     mutable int  d_hashSize;   // hash size from which the hash value was
-                               // calculated
+                               // calculated (0 indicates hash value is unset)
 
     // FRIENDS
     friend bool operator==(const Attribute&, const Attribute&);
@@ -158,7 +158,7 @@ class Attribute {
         // Return a hash value calculated from the specified 'attribute' using
         // the specified 'size' as the number of slots.  The hash value is
         // guaranteed to be in the range '[0 .. size - 1]'.  The behavior is
-        // undefined unless '0 <= size'.
+        // undefined unless '0 < size'.
 
     // CREATORS
     Attribute(const char       *name,
@@ -283,6 +283,7 @@ Attribute::Attribute(const char       *name,
 : d_name(name)
 , d_value(basicAllocator)
 , d_hashValue(-1)
+, d_hashSize(0)
 {
     d_value.assign<int>(value);
 }
@@ -294,6 +295,7 @@ Attribute::Attribute(const char         *name,
 : d_name(name)
 , d_value(basicAllocator)
 , d_hashValue(-1)
+, d_hashSize(0)
 {
     d_value.assign<bsls::Types::Int64>(value);
 }
@@ -305,6 +307,7 @@ Attribute::Attribute(const char               *name,
 : d_name(name)
 , d_value(basicAllocator)
 , d_hashValue(-1)
+, d_hashSize(0)
 {
     d_value.assign<bsl::string>(bsl::string(value.data(), value.length()));
 }
@@ -316,6 +319,7 @@ Attribute::Attribute(const char       *name,
 : d_name(name)
 , d_value(value, basicAllocator)
 , d_hashValue(-1)
+, d_hashSize(0)
 {
 }
 

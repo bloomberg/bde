@@ -17,6 +17,7 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bslim_testutil.h>
+#include <bsls_asserttest.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
@@ -24,7 +25,7 @@
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -41,14 +42,14 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 // [13] static int hash(const ball::PredicateSet&, int size);
 // [ 2] ball::PredicateSet(bslma::Allocator *basicAllocator = 0);
-// [ 7] ball::PredicateSet(const ball::PredicateSet&, bdema::Alct * = 0)
+// [ 7] ball::PredicateSet(const PredicateSet&, Allocator * = 0)
 // [ 2] ~ball::PredicateSet();
 // [ 2] int addPredicate(const ball::Predicate& predicate);
 // [ 2] int removePredicate(const ball::Predicate& predicate);
 // [11] void removeAllPredicates();
 // [ 9] const ball::PredicateSet& operator=(const ball::PS& other)
 // [ 4] int numPredicates() const;
-// [12] bool evaluate(const ball::AttributeSet& context) const;
+// [12] bool evaluate(const AttributeContainerList& containerList) const;
 // [ 4] bool isMember(const ball::Predicate&) const;
 // [10] const_iterator begin() const;
 // [10] const_iterator end() const;
@@ -58,7 +59,8 @@ using namespace bsl;  // automatically added by script
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::PS&) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] PRIMITIVE TEST APPARATUS: 'gg' and 'hh'
+// [ 3] Obj& gg(Obj *address, const char *spec);
+// [ 3] AttributeSet& hh(AttributeSet *obj, const char *spec);
 // [ 8] UNUSED
 // [14] USAGE EXAMPLE
 
@@ -124,7 +126,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef ball::PredicateSet              Obj;
 typedef ball::DefaultAttributeContainer AttributeSet;
 
-typedef bsls::Types::Int64             Int64;
+typedef bsls::Types::Int64              Int64;
 
 
 const char* NAMES[] = { "",                                       // A
@@ -280,7 +282,7 @@ static Obj& gg(Obj *obj, const char *spec)
     return *obj;
 }
 
-// gg function for 'ball::AttributeSet'; used for testing 'evaluate' method
+// 'gg' function for 'AttributeSet'; used for testing 'evaluate' method.
 
 static AttributeSet& hh(AttributeSet *obj, const char *spec)
 {
@@ -513,6 +515,18 @@ int main(int argc, char *argv[])
             }
             LOOP_ASSERT(i, DATA[i].d_hash == hash);
         }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard guard;
+
+            const Obj X;
+
+            ASSERT_PASS(Obj::hash(X,  1));
+            ASSERT_FAIL(Obj::hash(X,  0));
+            ASSERT_FAIL(Obj::hash(X, -1));
+        }
+
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -523,11 +537,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set of pairs of a 'ball::PredicateSet' object and a
-        //   'ball::AttributeSet' object.  For each pair, verify that the
-        //   'evaluate' method returns the expected value.
+        //   'AttributeSet' object.  For each pair, verify that the 'evaluate'
+        //   method returns the expected value.
         //
         // Testing:
-        //   bool evaluate(const ball::AttributeSet& context) const;
+        //   bool evaluate(const AttributeContainerList& containerList) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'evaluate'"
@@ -832,7 +846,7 @@ int main(int argc, char *argv[])
         //   to assert that both x and y have the same value as w.
         //
         // Testing:
-        //   ball::PredicateSet(const ball::PredicateSet&, bdema::Alct * = 0)
+        //   ball::PredicateSet(const PredicateSet&, Allocator * = 0)
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Copy Constructor"
                           << "\n========================" << endl;
@@ -1212,8 +1226,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, compareText(os.str(), PDATA[i].d_output));
         }
 
-     } break;
-     case 4: {
+      } break;
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING BASIC ACCESSORS
         //   Every predicate added must be verified by 'isMember'.
@@ -1301,7 +1315,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   Obj& gg(Obj *address, const char *spec);
-        //   ball::AttributeSet& hh(ball::AttributeSet *obj, const char *spec);
+        //   AttributeSet& hh(AttributeSet *obj, const char *spec);
         // --------------------------------------------------------------------
         if (verbose) cout << endl
             << "Testing 'gg' and 'hh' generator functions" << endl

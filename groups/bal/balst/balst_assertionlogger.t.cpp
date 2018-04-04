@@ -332,7 +332,7 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-        ball::TestObserver               to(cout);
+        ball::TestObserver               to(&cout);
         ball::LoggerManagerConfiguration c;
         ball::LoggerManagerScopedGuard   lmsg(&to, c);
 
@@ -389,7 +389,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         bsl::ostringstream               o;
-        ball::TestObserver               to(o);
+        ball::TestObserver               to(&o);
         ball::LoggerManagerConfiguration c;
         ball::LoggerManagerScopedGuard   lmsg(&to, c);
         bsls::AssertFailureHandlerGuard  guard(

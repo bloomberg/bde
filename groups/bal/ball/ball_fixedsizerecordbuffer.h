@@ -25,10 +25,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Ujjwal Bhoota (ubhoota)
 //
 //@DESCRIPTION: This component provides a concrete thread-safe implementation
-// of the 'ball::RecordBuffer' protocol.  The sum of sizes of all records
-// contained in a 'ball::FixedSizeRecordBuffer' object *plus* the amount of
-// memory allocated by the 'ball::FixedSizeRecordBuffer' object itself is
-// guaranteed to be less than or equal to an upper bound specified at creation.
+// of the 'ball::RecordBuffer' protocol, 'ball::FixedSizeRecordBuffer':
 //..
 //              ( ball::FixedSizeRecordBuffer )
 //                            |              ctor
@@ -79,7 +76,7 @@ BSLS_IDENT("$Id: $")
 //..
 // First we create a record buffer.
 //..
-//    bdlmca::DefaultDeleter<ball::Record> recordDeleter(basicAllocator);
+//    bdlma::DefaultDeleter<ball::Record> recordDeleter(basicAllocator);
 //    ball::FixedSizeRecordBuffer recordBuffer(MAX_TOTAL_SIZE, basicAllocator);
 //..
 // Note that since the record buffer will contain shared pointers to the

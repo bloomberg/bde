@@ -230,10 +230,10 @@ class Observer {
         // distributed in a human or machine readable form.
 
     virtual void releaseRecords();
-        // Discard any shared reference to a 'Record' object that was supplied
-        // to the 'publish' method, and is held by this observer.  Note that
+        // Discard any shared references to 'Record' objects that were supplied
+        // to the 'publish' method, and are held by this observer.  Note that
         // this operation should be called if resources underlying the
-        // previously provided shared-pointers must be released.
+        // previously provided shared pointers must be released.
 };
 
 }  // close package namespace

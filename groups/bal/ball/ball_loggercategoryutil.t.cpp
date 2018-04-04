@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    BloombergLP::ball::TestObserver  testObserver(bsl::cout);
+    BloombergLP::ball::TestObserver  testObserver(&bsl::cout);
     BloombergLP::ball::TestObserver *TO = &testObserver;
 
     switch (test) { case 0:  // Zero is always the leading case.

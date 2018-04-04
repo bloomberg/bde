@@ -10,11 +10,11 @@
 
 #include <ball_administration.h>
 
-#include <ball_loggermanagerconfiguration.h> // for testing only
-#include <ball_loggermanager.h>              // for testing only
-#include <ball_severity.h>                   // for testing only
-#include <ball_testobserver.h>               // for testing only
-#include <ball_defaultobserver.h>            // for testing only
+#include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>
+#include <ball_severity.h>
+#include <ball_streamobserver.h>
+#include <ball_testobserver.h>
 
 #include <bslim_testutil.h>
 
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    ball::TestObserver  testObserver(cout);
+    ball::TestObserver  testObserver(&cout);
     ball::TestObserver *TO = &testObserver;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 // First we initialize the logger manager (for the purposes of this example,
 // we use a minimal configuration):
 //..
-     ball::DefaultObserver observer(&cout);
+     ball::StreamObserver observer(&cout);
      ball::LoggerManagerConfiguration configuration;
      ball::LoggerManagerScopedGuard guard(&observer, configuration);
 //..

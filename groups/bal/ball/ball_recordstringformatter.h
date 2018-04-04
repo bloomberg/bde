@@ -60,6 +60,7 @@ BSLS_IDENT("$Id: $")
 //                                     fields)
 //  %p - process Id
 //  %t - thread Id
+//  %T - thread Id in hex
 //  %s - severity
 //  %f - filename (as provided by '__FILE__')
 //  %F - filename abbreviated (basename of '__FILE__' only)

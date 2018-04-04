@@ -1,31 +1,20 @@
 // ball_fileobserver2.t.cpp                                           -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_fileobserver2.h>
 
 #include <ball_context.h>
-#include <ball_defaultobserver.h>             // for testing only
-#include <ball_log.h>                         // for testing only
-#include <ball_loggermanager.h>               // for testing only
-#include <ball_loggermanagerconfiguration.h>  // for testing only
-#include <ball_multiplexobserver.h>           // for testing only
+#include <ball_log.h>
+#include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>
 #include <ball_recordattributes.h>
 #include <ball_recordstringformatter.h>
 #include <ball_severity.h>
+#include <ball_streamobserver.h>
 #include <ball_userfieldvalue.h>
 
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-
-#include <bslmt_threadutil.h>
+#include <bdlb_tokenizer.h>
 
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
 #include <bdls_processutil.h>
 
 #include <bdlt_currenttime.h>
@@ -39,14 +28,20 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
+
+#include <bslmt_threadutil.h>
+
 #include <bslstl_stringref.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
-
-#include <bdlb_tokenizer.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstddef.h>
@@ -57,8 +52,6 @@
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-
-#include <bsl_c_stdio.h>  // tempname()
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <glob.h>
@@ -85,44 +78,51 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
 
-//=============================================================================
-//                                   TEST PLAN
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                              TEST PLAN
+// ----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The component under test defines an observer ('ball::FileObserver2') that
+// writes log records to a file.
+// ----------------------------------------------------------------------------
 // CREATORS
-// [ 1] ball::FileObserver(bslma::Allocator)
-// [ 1] ~ball::FileObserver()
+// [ 1] FileObserver2(bslma::Allocator *);
+// [ 1] ~FileObserver2();
 //
 // MANIPULATORS
-// [ 1] publish(const ball::Record& record, const ball::Context& context)
-// [ 1] void disableFileLogging()
-// [ 2] void disableLifetimeRotation()
-// [ 2] void disableSizeRotation()
-// [ 1] void disablePublishInLocalTime()
-// [ 9] void disableTimeIntervalRotation();
-// [ 1] int enableFileLogging(const char *fileName, bool timestampFlag = false)
-// [ 1] void enablePublishInLocalTime()
-// [ 1] void publish(const ball::Record& record, const ball::Context& context)
-// [ 2] void forceRotation()
-// [ 2] void rotateOnSize(int size)
-// [ 9] void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval);
-// [ 2] void rotateOnLifetime(bdlt::DatetimeInterval timeInterval)
-// [10] void rotateOnTimeInterval(const DtInterval& i, const Datetime& r);
+// [ 1] void disableFileLogging();
+// [ 2] void disableLifetimeRotation();
+// [ 1] void disablePublishInLocalTime();
+// [ 2] void disableSizeRotation();
+// [ 8] void disableTimeIntervalRotation();
+// [ 1] int  enableFileLogging(const char *fileName);
+// [ 1] int  enableFileLogging(const char *fileName, bool timestampFlag);
+// [ 1] void enablePublishInLocalTime();
+// [ 1] void publish(const Record& record, const Context& context);
+// [ 1] void publish(const shared_ptr<Record>&, const Context&);
+// [ 2] void forceRotation();
+// [ 2] void rotateOnSize(int size);
+// [ 2] void rotateOnLifetime(DatetimeInterval& interval);
+// [ 8] void rotateOnTimeInterval(const DatetimeInterval& interval);
+// [ 9] void rotateOnTimeInterval(const DtInterval& i, const Datetime& s);
 // [ 1] void setLogFileFunctor(const logRecordFunctor& logFileFunctor);
-// [ 3] void setMaxLogFiles();
-// [ 6] void setOnFileRotationCallback(const OnFileRotationCallback&);
-// [ 3] int removeExcessLogFiles();
+// [ 5] void setOnFileRotationCallback(const OnFileRotationCallback&);
 //
 // ACCESSORS
-// [ 1] bool isFileLoggingEnabled() const
-// [ 1] bool isPublishInLocalTimeEnabled() const
-// [ 2] bdlt::DatetimeInterval rotationLifetime() const
-// [ 2] int rotationSize() const
-// [ 3] int maxLogFiles() const;
-//-----------------------------------------------------------------------------
-// [ 5] CONCERN: Rotated log filenames are as expected
-// [ 8] CONCERN: 'rotateOnSize' triggers correctly for existing files
-// [ 7] CONCERN: Rotation on size is based on file size
-// [12] CONCERN: Published Records Show Current Local-Time Offset
+// [ 1] bool isFileLoggingEnabled() const;
+// [ 1] bool isPublishInLocalTimeEnabled() const;
+// [ 2] DatetimeInterval rotationLifetime() const;
+// [ 2] int rotationSize() const;
+// ----------------------------------------------------------------------------
+// [13] USAGE EXAMPLE
+// [12] CONCERN: CURRENT LOCAL-TIME OFFSET IN TIMESTAMP
+// [11] CONCERN: TIME CALLBACKS ARE CALLED
+// [10] CONCERN: ROTATION CAN BE ENABLED AFTER FILE LOGGING
+// [ 7] CONCERN: ROTATION CALLBACK TRIGGERS CORRECTLY FOR EXISTING FILE
+// [ 6] CONCERN: ROTATION ON SIZE WORKS FOR EXISTING FILES
+// [ 4] CONCERN: ROTATED LOG FILENAMES ARE AS EXPECTED
+// [ 3] CONCERN: LOGGING TO A FAILING STREAM
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -143,6 +143,10 @@ void aSsErT(bool condition, const char *message, int line)
         }
     }
 }
+
+}  // close unnamed namespace
+
+namespace {
 
 void aSsErT2(bool condition, const char *message, int line)
 {
@@ -182,26 +186,115 @@ void aSsErT2(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-//=============================================================================
-//              GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
-//-----------------------------------------------------------------------------
-static bool verbose = 0;
-static bool veryVerbose = 0;
-static bool veryVeryVerbose = 0;
-static bool veryVeryVeryVerbose = 0;
+// ============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+// ----------------------------------------------------------------------------
+static bool verbose;
+static bool veryVerbose;
+static bool veryVeryVerbose;
+static bool veryVeryVeryVerbose;
 
 typedef ball::FileObserver2  Obj;
-typedef bdls::FilesystemUtil FileUtil;
+typedef bdls::FilesystemUtil FsUtil;
+typedef bsls::Types::Int64   Int64;
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace {
 
+class TempDirectoryGuard {
+    // This class implements a scoped temporary directory guard.  The guard
+    // tries to create a temporary directory in the system-wide temp directory
+    // and falls back to the current directory.
+
+    // DATA
+    bsl::string       d_dirName;      // path to the created directory
+    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
+
+    // NOT IMPLEMENTED
+    TempDirectoryGuard(const TempDirectoryGuard&);
+    TempDirectoryGuard& operator=(const TempDirectoryGuard&);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(TempDirectoryGuard,
+                                   bslma::UsesBslmaAllocator);
+
+    // CREATORS
+    explicit TempDirectoryGuard(bslma::Allocator *basicAllocator = 0)
+        // Create temporary directory in the system-wide temp or current
+        // directory.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
+    : d_dirName(bslma::Default::allocator(basicAllocator))
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        bsl::string tmpPath(d_allocator_p);
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        char tmpPathBuf[MAX_PATH];
+        GetTempPath(MAX_PATH, tmpPathBuf);
+        tmpPath.assign(tmpPathBuf);
+#else
+        const char *envTmpPath = bsl::getenv("TMPDIR");
+        if (envTmpPath) {
+            tmpPath.assign(envTmpPath);
+        }
+#endif
+
+        int res = bdls::PathUtil::appendIfValid(&tmpPath, "ball_");
+        ASSERTV(tmpPath, 0 == res);
+
+        res = bdls::FilesystemUtil::createTemporaryDirectory(&d_dirName,
+                                                             tmpPath);
+        ASSERTV(tmpPath, 0 == res);
+    }
+
+    ~TempDirectoryGuard()
+        // Destroy this object and remove the temporary directory (recursively)
+        // created at construction.
+    {
+        bdls::FilesystemUtil::remove(d_dirName, true);
+    }
+
+    // ACCESSORS
+    const bsl::string& getTempDirName() const
+        // Return a 'const' reference to the name of the created temporary
+        // directory.
+    {
+        return d_dirName;
+    }
+};
+
+void enableFileLogging(
+                    bsl::shared_ptr<ball::FileObserver2>& observer,
+                    const bsl::string&                    fileName,
+                    const bool                            addTimestamp = false)
+    // Enable file logging for the specified 'observer' to the specified
+    // 'fileName'.  Optionally specify 'addTimestamp' to append timestamp to
+    // the filename.
+{
+    ASSERT(false == observer->isFileLoggingEnabled());
+
+    if (!addTimestamp) {
+        ASSERT(0     == observer->enableFileLogging(fileName.c_str()));
+        ASSERT(true  == observer->isFileLoggingEnabled());
+        ASSERT(1     == observer->enableFileLogging(fileName.c_str()));
+    }
+    else {
+        ASSERT(0     == observer->enableFileLogging(fileName.c_str(),
+                                                    addTimestamp));
+        ASSERT(true  == observer->isFileLoggingEnabled());
+        ASSERT(1     == observer->enableFileLogging(fileName.c_str(),
+                                                    addTimestamp));
+    }
+}
+
 bsl::string::size_type replaceSecondSpace(bsl::string *s, char value)
-    // Replace the second space character (' ') in the specified 'string' with
-    // the specified 'value'.  Return the index position of the character that
-    // was replaced on success, and 'bsl::string::npos' otherwise.
+    // Replace the second space character (' ') in the specified string 's'
+    // with the specified 'value'.  Return the index position of the character
+    // that was replaced on success, and 'bsl::string::npos' otherwise.
 {
     bsl::string::size_type index = s->find(' ');
     if (bsl::string::npos != index) {
@@ -214,8 +307,9 @@ bsl::string::size_type replaceSecondSpace(bsl::string *s, char value)
 }
 
 bdlt::Datetime getCurrentLocalTime()
+    // Return current local time as a 'bdlt::Datetime' value.
 {
-    time_t currentTime = time(0);
+    time_t    currentTime = time(0);
     struct tm localtm;
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     localtm = *localtime(&currentTime);
@@ -229,32 +323,34 @@ bdlt::Datetime getCurrentLocalTime()
 }
 
 void logRecord1(bsl::ostream& stream, const ball::Record& record)
+    // Output the specified 'record' into the specified 'stream'.
 {
     ball::Severity::Level severityLevel =
         (ball::Severity::Level) record.fixedFields().severity();
 
     stream << '\n';
 
-    const int SIZE = 64;
-    char      buffer[SIZE];
+    const int k_SIZE = 64;
+    char      buffer[k_SIZE];
     const int fractionalSecondPrecision = 3;
 
     const int numBytesWritten = record.fixedFields().timestamp().printToBuffer(
                                                     buffer,
-                                                    SIZE,
+                                                    k_SIZE,
                                                     fractionalSecondPrecision);
     stream.write(buffer, numBytesWritten);
 
     stream << " ";
-    stream << record.fixedFields().processID()      << ":";
-    stream << record.fixedFields().threadID()       << " ";
+    stream << record.fixedFields().processID()       << ":";
+    stream << record.fixedFields().threadID()        << " ";
     stream << ball::Severity::toAscii(severityLevel) << " ";
-    stream << record.fixedFields().fileName()       << ":";
-    stream << record.fixedFields().lineNumber()     << " ";
-    stream << record.fixedFields().category()       << " ";
-    stream << record.fixedFields().message ()       << " ";
+    stream << record.fixedFields().fileName()        << ":";
+    stream << record.fixedFields().lineNumber()      << " ";
+    stream << record.fixedFields().category()        << " ";
+    stream << record.fixedFields().message ()        << " ";
 
     const ball::UserFields& customFields = record.customFields();
+
     for (int i = 0; i < customFields.length(); ++i) {
         stream << customFields[i] << "*";
     }
@@ -263,20 +359,22 @@ void logRecord1(bsl::ostream& stream, const ball::Record& record)
 }
 
 void logRecord2(bsl::ostream& stream, const ball::Record& record)
+    // Output the specified 'record' into the specified 'stream'.
 {
     ball::Severity::Level severityLevel =
         (ball::Severity::Level) record.fixedFields().severity();
 
     stream << '\n';
 
-    stream << record.fixedFields().message ()       << " ";
-    stream << record.fixedFields().category()       << " ";
-    stream << record.fixedFields().fileName()       << ":";
+    stream << record.fixedFields().message ()        << " ";
+    stream << record.fixedFields().category()        << " ";
+    stream << record.fixedFields().fileName()        << ":";
     stream << ball::Severity::toAscii(severityLevel) << " ";
-    stream << record.fixedFields().threadID()       << " ";
-    stream << record.fixedFields().processID()      << ":";
+    stream << record.fixedFields().threadID()        << " ";
+    stream << record.fixedFields().processID()       << ":";
 
     const ball::UserFields& customFields = record.customFields();
+
     for (int i = 0; i < customFields.length(); ++i) {
         stream << customFields[i] << "*";
     }
@@ -284,76 +382,30 @@ void logRecord2(bsl::ostream& stream, const ball::Record& record)
     stream << '\n' << bsl::flush;
 }
 
-bsl::string tempFileName(bool verboseFlag)
-{
-    bsl::string result;
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
-    GetTempPath(MAX_PATH, tmpPathBuf);
-    GetTempFileName(tmpPathBuf, "ball", 0, tmpNameBuf);
-    result = tmpNameBuf;
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-    char tmpPathBuf[L_tmpnam];
-    result = tempnam(tmpPathBuf, "ball");
-#else
-    char *fn = tempnam(0, "ball");
-    result = fn;
-    bsl::free(fn);
-#endif
-
-    if (verboseFlag) cout << "\tUse " << result << " as a base filename."
-                          << endl;
-    // Test Invariant:
-    BSLS_ASSERT(!result.empty());
-    return result;
-}
-
-
-void removeFilesByPrefix(const char *prefix)
-{
-#ifdef BSLS_PLATFORM_OS_UNIX
-    glob_t globbuf;
-    bsl::string filename = prefix;
-    filename += "*";
-    glob(filename.c_str(), 0, 0, &globbuf);
-    for (int i = 0; i < (int)globbuf.gl_pathc; i++)
-        unlink(globbuf.gl_pathv[i]);
-    globfree(&globbuf);
-#endif
-}
-
 int readFileIntoString(int                lineNum,
-                       const bsl::string& filename,
+                       const bsl::string& fileName,
                        bsl::string&       fileContent)
+    // Read the content of the specified 'fileName' file into the specified
+    // 'fileContent' string.  Return the number of lines read from the file.
 {
+    bsl::ifstream fs;
+
 #ifdef BSLS_PLATFORM_OS_UNIX
     glob_t globbuf;
-    LOOP_ASSERT(lineNum, 0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
-    LOOP_ASSERT(lineNum, 1 == globbuf.gl_pathc);
+    ASSERTV(lineNum, 0 == glob((fileName + "*").c_str(), 0, 0, &globbuf));
+    ASSERTV(lineNum, 1 == globbuf.gl_pathc);
 
-    bsl::ifstream fs;
     fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
     globfree(&globbuf);
-    LOOP_ASSERT(lineNum, fs.is_open());
-    fileContent = "";
-    bsl::string lineContent;
-    int lines = 0;
-    while (getline(fs, lineContent))
-    {
-        fileContent += lineContent;
-        fileContent += '\n';
-        lines++;
-    }
-    fs.close();
-    //bsl::cerr << "number of lines: " << lines << endl;
-    return lines;
 #else
-    bsl::ifstream fs;
-    fs.open(filename.c_str(), bsl::ifstream::in);
-    LOOP_ASSERT(lineNum, fs.is_open());
+    fs.open(fileName.c_str(), bsl::ifstream::in);
+#endif
+
+    ASSERTV(lineNum, fs.is_open());
     fileContent = "";
+
     bsl::string lineContent;
-    int lines = 0;
+    int         lines = 0;
     while (getline(fs, lineContent))
     {
         fileContent += lineContent;
@@ -361,9 +413,7 @@ int readFileIntoString(int                lineNum,
         lines++;
     }
     fs.close();
-    //bsl::cerr << "number of lines: " << lines << endl;
     return lines;
-#endif
 }
 
 class LogRotationCallbackTester {
@@ -375,64 +425,66 @@ class LogRotationCallbackTester {
 
     // PRIVATE TYPES
     struct Rep {
-        int         d_invocations;
-        int         d_status;
-        bsl::string d_rotatedFileName;
-
-        explicit Rep(bslma::Allocator *allocator)
-        : d_invocations(0)
-        , d_status(0)
-        , d_rotatedFileName(allocator)
-        {
-        }
-
       private:
         // NOT IMPLEMENTED
         Rep(const Rep&);
         Rep& operator=(const Rep&);
+
+      public:
+        // DATA
+        int         d_invocations;
+        int         d_status;
+        bsl::string d_rotatedFileName;
+
+        // TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(Rep, bslma::UsesBslmaAllocator);
+
+        // CREATORS
+        explicit Rep(bslma::Allocator *basicAllocator)
+            // Create an object with default attribute values.  Use the
+            // specified 'basicAllocator' to supply memory.
+        : d_invocations(0)
+        , d_status(0)
+        , d_rotatedFileName(basicAllocator)
+        {
+        }
+    };
+
+    enum {
+        k_UNINITIALIZED = INT_MIN
     };
 
     // DATA
     bsl::shared_ptr<Rep> d_rep;
 
   public:
-    // PUBLIC CONSTANTS
 
-    enum {
-        UNINITIALIZED = INT_MIN
-    };
-
-    explicit LogRotationCallbackTester(bslma::Allocator *allocator)
-        // Create a callback tester that will use the specified 'status' and
-        // 'logFileName' to record the arguments to the function call
-        // operator.  Set '*status' to 'UNINITIALIZED' and set '*logFileName'
-        // to the empty string.
-    : d_rep()
+    // CREATORS
+    explicit LogRotationCallbackTester(bslma::Allocator *basicAllocator)
+        // Create a callback tester object with default attribute values.  Use
+        // the specified 'basicAllocator' to supply memory.
     {
-        d_rep.createInplace(allocator, allocator);
+        d_rep.createInplace(basicAllocator, basicAllocator);
         reset();
     }
 
-    void operator()(int                status,
-                    const bsl::string& rotatedFileName)
+    // MANIPULATORS
+    void operator()(int status, const bsl::string& rotatedFileName)
         // Set the value at the status address supplied at construction to the
         // specified 'status', and set the value at the log file name address
-        // supplied at construction to the specified 'logFileName'.
+        // supplied at construction to the specified 'rotateFileName'.
     {
         ++d_rep->d_invocations;
         d_rep->d_status          = status;
         d_rep->d_rotatedFileName = rotatedFileName;
-
     }
 
     void reset()
-        // Set '*status' to 'UNINITIALIZED' and set '*logFileName' to the
-        // empty string.
+        // Reset the attributes of this object to their default values.
     {
         d_rep->d_invocations     = 0;
-        d_rep->d_status          = UNINITIALIZED;
-        d_rep->d_rotatedFileName = "";
-
+        d_rep->d_status          = k_UNINITIALIZED;
+        d_rep->d_rotatedFileName.clear();
     }
 
     // ACCESSORS
@@ -443,17 +495,16 @@ class LogRotationCallbackTester {
 
     int status() const { return d_rep->d_status; }
         // Return the status passed to the most recent invocation of the
-        // function-call operation, or 'UNINITIALIZED' if 'numInvocations' is
+        // function-call operation, or 'k_UNINITIALIZED' if 'numInvocations' is
         // 0.
 
     const bsl::string& rotatedFileName() const
-        // Return a reference to the non-modifiable file name supplied to the
-        // most recent invocation of the function-call operator, or the empty
-        // string if 'numInvocations' is 0.
+        // Return a 'const' reference to the file name supplied to the most
+        // recent invocation of the function-call operator, or the empty string
+        // if 'numInvocations' is 0.
     {
         return d_rep->d_rotatedFileName;
     }
-
 };
 
 typedef LogRotationCallbackTester RotCb;
@@ -471,27 +522,22 @@ class ReentrantRotationCallback {
   public:
 
     explicit ReentrantRotationCallback(Obj *observer)
+        // Create a rotation callback for the specified 'observer'.
     : d_observer_p(observer)
     {
     }
 
-    void operator()(int                status,
-                    const bsl::string& rotatedFileName);
-        // Set the value at the status address supplied at construction to the
-        // specified 'status', and set the value at the log file name address
-        // supplied at construction to the specified 'logFileName'.
+    void operator()(int, const bsl::string&);
+        // Disables file logging for the observer supplied at construction.
 };
 
-void ReentrantRotationCallback::operator()(int                status,
-                                           const bsl::string& rotatedFileName)
+void ReentrantRotationCallback::operator()(int, const bsl::string& )
 {
-    (void)status;           // Suppress compiler warning.
-    (void)rotatedFileName;
-
     d_observer_p->disableFileLogging();
 }
 
-void publishRecord(Obj *mX, const char *message)
+void publishRecord(Obj *observer, const char *message)
+    // Publish the specified 'message' to the specified 'observer' object.
 {
     ball::RecordAttributes attr(bdlt::CurrentTime::utc(),
                                1,
@@ -501,18 +547,19 @@ void publishRecord(Obj *mX, const char *message)
                                "CATEGORY",
                                32,
                                message);
-    ball::Record record(attr, ball::UserFields());
 
+    ball::Record  record(attr, ball::UserFields());
     ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
 
-    mX->publish(record, context);
+    observer->publish(record, context);
 }
 
 
-int getNumLines(const char *filename)
+int getNumLines(const char *fileName)
+    // Return the number of lines in the file with the specified 'fileName'.
 {
     bsl::ifstream fs;
-    fs.open(filename, bsl::ifstream::in);
+    fs.open(fileName, bsl::ifstream::in);
     fs.clear();
     ASSERT(fs.is_open());
 
@@ -524,23 +571,6 @@ int getNumLines(const char *filename)
     }
     fs.close();
     return numLines;
-}
-
-bsls::Types::Int64 getFileSize(const char *filename)
-{
-    bsl::ifstream fs;
-    fs.open(filename, bsl::ifstream::in);
-    fs.clear();
-    ASSERT(fs.is_open());
-
-    bsls::Types::Int64 fileSize = 0;
-
-    bsl::string line;
-    while (getline(fs, line)) {
-        fileSize += line.length() + 1;
-    }
-    fs.close();
-    return fileSize;
 }
 
 struct TestCurrentTimeCallback {
@@ -580,19 +610,18 @@ void TestCurrentTimeCallback::setUtcDatetime(const bdlt::Datetime &utcTime)
 struct TestLocalTimeOffsetCallback {
   private:
     // DATA
-    static int s_localTimeOffsetInSeconds;
-    static int s_loadCount;
+    static bsls::Types::Int64 s_localTimeOffsetInSeconds;
+    static int                s_loadCount;
 
   public:
     // CLASS METHODS
-    static bsls::TimeInterval loadLocalTimeOffset(
-                                           const bdlt::Datetime&  utcDatetime);
+    static bsls::TimeInterval loadLocalTimeOffset(const bdlt::Datetime&);
         // Return the local time offset that was set by the previous call to
         // the 'setLocalTimeOffset' method.  If the 'setLocalTimeOffset' method
-        // has not been called, load 0.  Note that the specified 'utcDateime'
-        // is ignored.
+        // has not been called, load 0.
 
-    static void setLocalTimeOffset(int localTimeOffsetInSeconds);
+    static void setLocalTimeOffset(
+                                  bsls::Types::Int64 localTimeOffsetInSeconds);
         // Set the specified 'localTimeOffsetInSeconds' as the value loaded by
         // calls to the loadLocalTimeOffset' method.
 
@@ -601,20 +630,18 @@ struct TestLocalTimeOffsetCallback {
         // called since the start of process.
 };
 
-int TestLocalTimeOffsetCallback::s_localTimeOffsetInSeconds = 0;
-int TestLocalTimeOffsetCallback::s_loadCount                = 0;
+bsls::Types::Int64 TestLocalTimeOffsetCallback::s_localTimeOffsetInSeconds = 0;
+int                TestLocalTimeOffsetCallback::s_loadCount                = 0;
 
 bsls::TimeInterval TestLocalTimeOffsetCallback::loadLocalTimeOffset(
-                                            const bdlt::Datetime&  utcDatetime)
+                                                         const bdlt::Datetime&)
 {
-    (void)utcDatetime;  // Supress compiler warning.
-
     ++s_loadCount;
-    return bsls::TimeInterval(s_localTimeOffsetInSeconds);
+    return bsls::TimeInterval(s_localTimeOffsetInSeconds, 0);
 }
 
 void TestLocalTimeOffsetCallback::setLocalTimeOffset(
-                                                  int localTimeOffsetInSeconds)
+                                   bsls::Types::Int64 localTimeOffsetInSeconds)
 {
     s_localTimeOffsetInSeconds = localTimeOffsetInSeconds;
 }
@@ -639,74 +666,28 @@ void splitStringIntoLines(bsl::vector<bsl::string> *result,
     }
 }
 
-void getDatetimeField(bsl::string       *result,
-                      const bsl::string& filename,
-                      int                recordNumber)
+void getDatetimeField(bsl::string        *result,
+                      const bsl::string&  fileName,
+                      int                 recordNumber)
 {
     ASSERT(1 <= recordNumber);
 
     bsl::string fileContent;
-    int lineCount = readFileIntoString(__LINE__, filename, fileContent);
+
+    int lineCount = readFileIntoString(__LINE__, fileName, fileContent);
+
     ASSERT(recordNumber * 2 <= lineCount);
 
     bsl::vector<bsl::string> lines;
     splitStringIntoLines(&lines, fileContent.c_str());
 
     int recordIndex = recordNumber  - 1;
-    ASSERT(0                              <= recordIndex);
-    ASSERT(static_cast<int>(lines.size()) >  recordIndex);
+
+    ASSERT(0 <= recordIndex);
+    ASSERT(static_cast<int>(lines.size()) > recordIndex);
 
     const bsl::string& s = lines[recordIndex];
     *result = s.substr(0, s.find_first_of(' '));
-}
-
-                          // ======================
-                          // class TempLogFileGuard
-                          // ======================
-
-class TempLogFileGuard {
-     // This class enables file based logging on the supplied
-     // 'bael_FileObserver2' for a temporary file name, and, on its
-     // destruction, disables logging and deletes the created temporary file.
-
-     // DATA
-     bsl::string  d_tempFileName;
-     Obj         *d_observer_p;
-
-  public:
-
-     // CREATORS
-     TempLogFileGuard(Obj *observer);
-        // Enable file based logging on the specified 'observer' supplying a
-        // temporary file name as the log file target.
-
-     ~TempLogFileGuard();
-        // Disable file based logging on the observer supplied at
-        // construction, and remove any temporary file created by this object.
-};
-
-                          // ----------------------
-                          // class TempLogFileGuard
-                          // ----------------------
-
-inline
-TempLogFileGuard::TempLogFileGuard(Obj *observer)
-: d_observer_p(observer)
-{
-    BSLS_ASSERT(observer);
-
-    d_tempFileName = tempFileName(veryVerbose);
-
-    int rc = d_observer_p->enableFileLogging(d_tempFileName.c_str());
-
-    BSLS_ASSERT(0 == rc);
-}
-
-inline
-TempLogFileGuard::~TempLogFileGuard()
-{
-    d_observer_p->disableFileLogging();
-    bdls::FilesystemUtil::remove(d_tempFileName.c_str());
 }
 
 }  // close unnamed namespace
@@ -718,22 +699,102 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
 
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator allocator("Test", veryVeryVeryVerbose);
-    bslma::TestAllocator *Z = &allocator;
-    bslma::TestAllocator defaultAllocator("Default", veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
+      case 13: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                          << "\n=============" << endl;
+
+        // This is standard preamble to create the directory and filename for
+        // the test.
+        TempDirectoryGuard tempDirGuard;
+
+        bsl::string fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Publication Through the Logger Manager
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// This example demonstrates using a 'ball::FileObserver2' within the 'ball'
+// logging system.
+//
+// First, we initialize the 'ball' logging subsystem with the default
+// configuration:
+//..
+    ball::LoggerManagerConfiguration configuration;
+    ball::LoggerManagerScopedGuard   guard(configuration);
+
+    ball::LoggerManager& manager = ball::LoggerManager::singleton();
+//..
+// Note that the application is now prepared to log messages using the 'ball'
+// logging subsystem, but until the application registers an observer, all log
+// records will be discarded.
+//
+// Then, we create a shared pointer to a 'ball::FileObserver2' object,
+// 'observerPtr', having default attributes:
+//..
+    bslma::Allocator *alloc =  bslma::Default::globalAllocator(0);
+    bsl::shared_ptr<ball::FileObserver2> observerPtr(
+                                             new(*alloc) ball::FileObserver2(),
+                                             alloc);
+//..
+// Next, we configure the log file rotation rules:
+//..
+    observerPtr->rotateOnSize(1024 * 128);
+        // Rotate the file when its size becomes greater than or equal to 128
+        // megabytes.
+
+    observerPtr->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
+        // Rotate the file every 24 hours.
+//..
+// Note that in this configuration the user may end up with multiple log files
+// for a specific day (because of the rotation-on-size rule).
+//
+// Then, we enable logging to a file:
+//..
+//  observerPtr->enableFileLogging("/var/log/task/task.log");
+//      // Create and log records to a file named "/var/log/task/task.log".
+    observerPtr->enableFileLogging(fileName.c_str());  // test driver only
+//..
+// Finally, we register the file observer with the logger manager.  Upon
+// successful registration, the observer will start to receive log records via
+// the 'publish' method:
+//..
+    int rc = manager.registerObserver(observerPtr, "fileObserver");
+    ASSERT(0 == rc);
+//..
+
+      } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING: Published Records Show Current Local-Time Offset
+        // TESTING CURRENT LOCAL-TIME OFFSET IN TIMESTAMP
         //   Per DRQS 13681097, log records observe DST time transitions when
         //   the default logging functor is used and the 'publishInLocalTime'
         //   attribute is 'true'.
@@ -807,31 +868,33 @@ int main(int argc, char *argv[])
         //:
         //: 4 When publishing in local time is enabled, confirm that there
         //:   exactly 1 request for local time offset for each published
-        //:   record.  (C-3);
+        //:   record.  (C-3)
+        //
+        // Testing:
+        //   CONCERN: CURRENT LOCAL-TIME OFFSET IN TIMESTAMP
         // --------------------------------------------------------------------
 
-        if (verbose) cout
-         << endl
-         << "TESTING: Published Records Show Current Local-Time Offset" <<endl
-         << "=========================================================" <<endl;
+        if (verbose) cout << "\nTESTING CURRENT LOCAL-TIME OFFSET IN TIMESTAMP"
+                          << "\n=============================================="
+                          << endl;
 
         const bdlt::Datetime UTC_ARRAY[] = { bdlt::EpochUtil::epoch(),
-                                        bdlt::Datetime(2001,
-                                                         9,
-                                                        11,
-                                                     8 + 4, // UTC
-                                                        46,
-                                                        30,
-                                                         0),
-                                        bdlt::Datetime(9999,
-                                                        12,
-                                                        31,
-                                                        23,
-                                                        59,
-                                                        59,
-                                                       999)
+                                             bdlt::Datetime(2017,
+                                                            1,
+                                                            1,
+                                                            12,
+                                                            46,
+                                                            30,
+                                                            0),
+                                             bdlt::Datetime(9999,
+                                                            12,
+                                                            31,
+                                                            23,
+                                                            59,
+                                                            59,
+                                                            999)
                                       };
-        const int NUM_UTC_ARRAY = sizeof UTC_ARRAY / sizeof *UTC_ARRAY;
+        enum { NUM_UTC_ARRAY = sizeof UTC_ARRAY / sizeof *UTC_ARRAY };
 
         if (verbose) cout << "\nTest TestCurrentTimeCallback: Direct" << endl;
         {
@@ -845,7 +908,7 @@ int main(int argc, char *argv[])
 
                 bdlt::Datetime resultAsDatetime =
                               bdlt::EpochUtil::convertFromTimeInterval(result);
-                LOOP_ASSERT(i, utcDatetime == resultAsDatetime);
+                ASSERTV(i, utcDatetime == resultAsDatetime);
             }
         }
 
@@ -870,8 +933,8 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::microSleep(0, 2); // two seconds
                 bdlt::Datetime result2 = bdlt::CurrentTime::utc();
 
-                LOOP_ASSERT(i, utcDatetime == result1);
-                LOOP_ASSERT(i, result2     == result1);
+                ASSERTV(i, utcDatetime == result1);
+                ASSERTV(i, result2     == result1);
             }
 
            // Restore original system-time callback.
@@ -880,17 +943,17 @@ int main(int argc, char *argv[])
                                                   originalCurrentTimeCallback);
         }
 
-        const int     LTO_ARRAY[] = { -86399, -1, 0, 1, 86399 };
-        const int NUM_LTO_ARRAY   = sizeof LTO_ARRAY / sizeof *LTO_ARRAY;
+        const Int64 LTO_ARRAY[] = { -86399, -1, 0, 1, 86399 };
+        enum { NUM_LTO_ARRAY = sizeof LTO_ARRAY / sizeof *LTO_ARRAY };
 
         int loadCount = TestLocalTimeOffsetCallback::loadCount();
-        ASSERT(0 ==  loadCount);
+        ASSERT(0 == loadCount);
 
-        if (verbose) cout << "\nTest TestLocalTimeOffsetCallback: Direct"
-                          << endl;
+        if (verbose)
+            cout << "\nTest TestLocalTimeOffsetCallback: Direct" << endl;
         {
             for (int i = 0; i < NUM_LTO_ARRAY; ++i) {
-                int localTimeOffset = LTO_ARRAY[i];
+                Int64 localTimeOffset = LTO_ARRAY[i];
 
                 if (veryVerbose) { T_ P_(i) P(localTimeOffset) }
 
@@ -901,14 +964,14 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P_(j) P(utcDatetime) }
 
-                    bsls::Types::Int64 result =
+                    Int64 result =
                         TestLocalTimeOffsetCallback::loadLocalTimeOffset(
                                                                utcDatetime)
                                                                .totalSeconds();
                     ++loadCount;
 
-                    LOOP2_ASSERT(i, j, localTimeOffset == result);
-                    LOOP2_ASSERT(i, j, loadCount       ==
+                    ASSERTV(i, j, localTimeOffset == result);
+                    ASSERTV(i, j, loadCount       ==
                                      TestLocalTimeOffsetCallback::loadCount());
                 }
             }
@@ -924,7 +987,7 @@ int main(int argc, char *argv[])
                             &TestLocalTimeOffsetCallback::loadLocalTimeOffset);
 
             for (int i = 0; i < NUM_LTO_ARRAY; ++i) {
-                int localTimeOffset = LTO_ARRAY[i];
+                Int64 localTimeOffset = LTO_ARRAY[i];
 
                 if (veryVerbose) { T_ P_(i) P(localTimeOffset) }
 
@@ -935,13 +998,13 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ T_ P_(j) P(utcDatetime) }
 
-                    bsls::Types::Int64 result =
+                    Int64 result =
                         bdlt::LocalTimeOffset::localTimeOffset(utcDatetime)
                                                                .totalSeconds();
                     ++loadCount;
 
-                    LOOP2_ASSERT(i, j, localTimeOffset == result);
-                    LOOP2_ASSERT(i, j, loadCount       ==
+                    ASSERTV(i, j, localTimeOffset == result);
+                    ASSERTV(i, j, loadCount       ==
                                      TestLocalTimeOffsetCallback::loadCount());
                 }
             }
@@ -950,192 +1013,251 @@ int main(int argc, char *argv[])
                                               originalLocalTimeOffsetCallback);
         }
 
-        if (verbose) cout << "\nTest Logger" << endl;
-
-        if (veryVerbose) cout << "\tConfigure Logger and Callbacks" << endl;
-
-        ball::LoggerManagerConfiguration configuration;
-
-        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_TRACE,
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_OFF));
-
-        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
-
-        Obj mX(&ta);  const Obj& X = mX;
-
-        ball::LoggerManager::initSingleton(&mX, configuration);
-
-        bsl::string BASENAME = tempFileName(veryVerbose);
-        if (veryVeryVerbose) { T_; T_; P(BASENAME); }
-        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str(), true));
-
-        bsl::string logfilename;
-        ASSERT(X.isFileLoggingEnabled(&logfilename));
-        if (veryVeryVerbose) { T_; T_; P(logfilename); }
-
-        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
-
-        int                 logRecordCount  = 0;
-        int                 testLocalTimeOffsetInSeconds;
-        bsl::string         datetimeField;
-        bsl::ostringstream  expectedDatetimeField;
-        const bdlt::Datetime testUtcDatetime = UTC_ARRAY[1];
-
-        bdlt::CurrentTime::CurrentTimeCallback originalCurrentTimeCallback =
-                                     bdlt::CurrentTime::setCurrentTimeCallback(
-                                         &TestCurrentTimeCallback::load);
-        TestCurrentTimeCallback::setUtcDatetime(testUtcDatetime);
-
-        bdlt::LocalTimeOffset::LocalTimeOffsetCallback
-            originalLocalTimeOffsetCallback =
-                        bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
-                            &TestLocalTimeOffsetCallback::loadLocalTimeOffset);
-
-        int expectedLoadCount = TestLocalTimeOffsetCallback::loadCount();
-
-        if (veryVerbose) cout << "\tLog with Publish In Local Time Disabled"
-                              << endl;
-
-        ASSERT(!X.isPublishInLocalTimeEnabled());
-
-        BALL_LOG_TRACE << "log 1" << BALL_LOG_END; ++logRecordCount;
-        getDatetimeField(&datetimeField, logfilename, logRecordCount);
-
-        const int SIZE = 32;
-        char buffer[SIZE];
-        bsl::memset(buffer, 'X', SIZE);
-
-        testUtcDatetime.printToBuffer(buffer, SIZE, 3);
-
-        bsl::string EXP(buffer);
-
-        if (veryVerbose) { T_
-                           P_(EXP)
-                           P(datetimeField) }
-        ASSERT(EXP == datetimeField);
-        ASSERT(expectedLoadCount           ==
-                                     TestLocalTimeOffsetCallback::loadCount());
-
-        BALL_LOG_TRACE << "log 2" << BALL_LOG_END; ++logRecordCount;
-        getDatetimeField(&datetimeField, logfilename, logRecordCount);
-
-        bsl::memset(buffer, 'X', SIZE);
-
-        testUtcDatetime.printToBuffer(buffer, SIZE, 3);
-
-        EXP.assign(buffer);
-
-        if (veryVerbose) { T_
-                           P_(EXP)
-                           P(datetimeField) }
-        ASSERT(EXP == datetimeField);
-        ASSERT(expectedLoadCount           ==
-                                     TestLocalTimeOffsetCallback::loadCount());
-
-        if (veryVerbose) cout << "\tLog with Publish In Local Time Enabled"
-                              << endl;
-
-        mX.enablePublishInLocalTime();
-        ASSERT(X.isPublishInLocalTimeEnabled());
-
-        testLocalTimeOffsetInSeconds = -1 * 60 * 60;
-        TestLocalTimeOffsetCallback::setLocalTimeOffset(
-                                                 testLocalTimeOffsetInSeconds);
-
-        if (veryVerbose) { T_ P(testLocalTimeOffsetInSeconds); }
-
-        BALL_LOG_TRACE << "log 3" << BALL_LOG_END; ++logRecordCount;
-                                                   ++expectedLoadCount;
-        getDatetimeField(&datetimeField, logfilename, logRecordCount);
-        bsl::memset(buffer, 'X', SIZE);
-
-        bdlt::Datetime DT = testUtcDatetime +
-                           bdlt::DatetimeInterval(0,
-                                                  0,
-                                                  0,
-                                                  testLocalTimeOffsetInSeconds,
-                                                  0);
-        DT.printToBuffer(buffer, SIZE, 3);
-
-        EXP.assign(buffer);
-
-        if (veryVerbose) { T_
-                           P_(EXP)
-                           P(datetimeField) }
-        ASSERT(EXP == datetimeField);
-        ASSERT(expectedLoadCount           ==
-                                     TestLocalTimeOffsetCallback::loadCount());
-
-        testLocalTimeOffsetInSeconds = -2 * 60 * 60;
-        TestLocalTimeOffsetCallback::setLocalTimeOffset(
-                                                 testLocalTimeOffsetInSeconds);
-
-        if (veryVerbose) { T_ P(testLocalTimeOffsetInSeconds); }
-
-        BALL_LOG_TRACE << "log 4" << BALL_LOG_END; ++logRecordCount;
-                                                   ++expectedLoadCount;
-        getDatetimeField(&datetimeField, logfilename, logRecordCount);
-
-        bsl::memset(buffer, 'X', SIZE);
-
-        DT = testUtcDatetime +
-                           bdlt::DatetimeInterval(0,
-                                                  0,
-                                                  0,
-                                                  testLocalTimeOffsetInSeconds,
-                                                  0);
-        DT.printToBuffer(buffer, SIZE, 3);
-
-        EXP.assign(buffer);
-
-        if (veryVerbose) { T_
-                           P_(EXP)
-                           P(datetimeField) }
-        ASSERT(EXP == datetimeField);
-        ASSERT(expectedLoadCount           ==
-                                     TestLocalTimeOffsetCallback::loadCount());
-
-        mX.disablePublishInLocalTime();
-        ASSERT(!X.isPublishInLocalTimeEnabled());
-
-        BALL_LOG_TRACE << "log 5" << BALL_LOG_END; ++logRecordCount;
-                                                // ++expectedLoadCount;
-        getDatetimeField(&datetimeField, logfilename, logRecordCount);
-
-        bsl::memset(buffer, 'X', SIZE);
-
-        testUtcDatetime.printToBuffer(buffer, SIZE, 3);
-
-        EXP.assign(buffer);
-
-        if (veryVerbose) { T_
-                           P_(EXP)
-                           P(datetimeField) }
-        ASSERT(EXP == datetimeField);
-        ASSERT(expectedLoadCount           ==
-                                     TestLocalTimeOffsetCallback::loadCount());
-
-        if (veryVerbose) cout
-                           << "\tLog with Publish In Local Time Disabled Again"
-                           << endl;
-
-        if (veryVerbose) cout << "\tCleanup" << endl;
-
-        bdlt::CurrentTime::setCurrentTimeCallback(originalCurrentTimeCallback);
-        bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
-                                              originalLocalTimeOffsetCallback);
-
-        mX.disableFileLogging();
-        FileUtil::remove(logfilename.c_str());
-
-        ball::LoggerManager::shutDownSingleton();
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'rotateOnTimeInterval' after 'enableFileLogging'
+        // TESTING TIME CALLBACKS
+        //
+        // Concern:
+        //:  1 Time converting callbacks are invoked when log string is
+        //:    generated.
+        //
+        // Plan:
+        //:  1 Call logging and verify that the installed test time callbacks
+        //:    are invoked as expected.
+        //
+        // Testing:
+        //   CONCERN: TIME CALLBACKS ARE CALLED
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING TIME CALLBACKS"
+                          << "\n======================" << endl;
+
+        const bdlt::Datetime UTC_ARRAY[] = { bdlt::EpochUtil::epoch(),
+                                             bdlt::Datetime(2017,
+                                                            1,
+                                                            1,
+                                                            12,
+                                                            46,
+                                                            30,
+                                                            0),
+                                             bdlt::Datetime(9999,
+                                                            12,
+                                                            31,
+                                                            23,
+                                                            59,
+                                                            59,
+                                                            999)
+                                          };
+        enum { NUM_UTC_ARRAY = sizeof UTC_ARRAY / sizeof *UTC_ARRAY };
+
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
+
+        ball::LoggerManagerConfiguration configuration;
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
+
+        ball::LoggerManagerScopedGuard guard(configuration);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        {
+            bslma::TestAllocator         da("da", veryVeryVeryVerbose);
+            bslma::TestAllocator         ta("ta", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            TempDirectoryGuard tempDirGuard;
+
+            bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+            bsl::shared_ptr<const Obj> X = mX;
+
+            ASSERT(0 == manager.registerObserver(mX, "testObserver"));
+
+            bsl::string baseName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&baseName, "testLog");
+
+            if (veryVeryVerbose) { T_; T_; P(baseName); }
+
+            enableFileLogging(mX, baseName, true);
+
+            // Fetch the actual file name with timestamp appended.
+            bsl::string fileName;
+            ASSERT(true == X->isFileLoggingEnabled(&fileName));
+
+            if (veryVeryVerbose) { T_; T_; P(fileName); }
+
+            BALL_LOG_SET_CATEGORY("TestCategory");
+
+            int                  logRecordCount = 0;
+            int                  testLocalTimeOffsetInSeconds;
+            bsl::string          datetimeField;
+            bsl::ostringstream   expectedDatetimeField;
+            const bdlt::Datetime testUtcDatetime = UTC_ARRAY[1];
+
+            bdlt::CurrentTime::CurrentTimeCallback
+                originalCurrentTimeCallback =
+                    bdlt::CurrentTime::setCurrentTimeCallback(
+                                               &TestCurrentTimeCallback::load);
+            TestCurrentTimeCallback::setUtcDatetime(testUtcDatetime);
+
+            bdlt::LocalTimeOffset::LocalTimeOffsetCallback
+                originalLocalTimeOffsetCallback =
+                    bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
+                            &TestLocalTimeOffsetCallback::loadLocalTimeOffset);
+
+            int expectedLoadCount = TestLocalTimeOffsetCallback::loadCount();
+
+            if (veryVerbose)
+                cout << "\tLog with Publish In Local Time Disabled" << endl;
+
+            ASSERT(false == X->isPublishInLocalTimeEnabled());
+
+            BALL_LOG_TRACE << "log 1";
+            ++logRecordCount;
+
+            getDatetimeField(&datetimeField, fileName, logRecordCount);
+
+            const int SIZE = 32;
+            char      buffer[SIZE];
+            bsl::memset(buffer, 'X', SIZE);
+
+            testUtcDatetime.printToBuffer(buffer, SIZE, 3);
+
+            bsl::string EXP(buffer);
+
+            if (veryVerbose) { T_ P_(EXP) P(datetimeField) }
+
+            ASSERT(EXP == datetimeField);
+            ASSERT(expectedLoadCount ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+
+            BALL_LOG_TRACE << "log 2";
+            ++logRecordCount;
+
+            getDatetimeField(&datetimeField, fileName, logRecordCount);
+
+            bsl::memset(buffer, 'X', SIZE);
+
+            testUtcDatetime.printToBuffer(buffer, SIZE, 3);
+
+            EXP.assign(buffer);
+
+            if (veryVerbose) { T_ P_(EXP) P(datetimeField) }
+
+            ASSERT(EXP == datetimeField);
+            ASSERT(expectedLoadCount ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+
+            if (veryVerbose)
+                cout << "\tLog with Publish In Local Time Enabled" << endl;
+
+            mX->enablePublishInLocalTime();
+            ASSERT(X->isPublishInLocalTimeEnabled());
+
+            testLocalTimeOffsetInSeconds = -1 * 60 * 60;
+            TestLocalTimeOffsetCallback::setLocalTimeOffset(
+                                                 testLocalTimeOffsetInSeconds);
+
+            if (veryVerbose) { T_ P(testLocalTimeOffsetInSeconds); }
+
+            BALL_LOG_TRACE << "log 3";
+            ++logRecordCount;
+            ++expectedLoadCount;
+
+            getDatetimeField(&datetimeField, fileName, logRecordCount);
+            bsl::memset(buffer, 'X', SIZE);
+
+            bdlt::Datetime DT = testUtcDatetime +
+                           bdlt::DatetimeInterval(0,
+                                                  0,
+                                                  0,
+                                                  testLocalTimeOffsetInSeconds,
+                                                  0);
+            DT.printToBuffer(buffer, SIZE, 3);
+
+            EXP.assign(buffer);
+
+            if (veryVerbose) { T_ P_(EXP) P(datetimeField) }
+
+            ASSERT(EXP == datetimeField);
+            ASSERT(expectedLoadCount ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+
+            testLocalTimeOffsetInSeconds = -2 * 60 * 60;
+            TestLocalTimeOffsetCallback::setLocalTimeOffset(
+                    testLocalTimeOffsetInSeconds);
+
+            if (veryVerbose) { T_ P(testLocalTimeOffsetInSeconds); }
+
+            BALL_LOG_TRACE << "log 4";
+            ++logRecordCount;
+            ++expectedLoadCount;
+
+            getDatetimeField(&datetimeField, fileName, logRecordCount);
+
+            bsl::memset(buffer, 'X', SIZE);
+
+            DT = testUtcDatetime +
+                           bdlt::DatetimeInterval(0,
+                                                  0,
+                                                  0,
+                                                  testLocalTimeOffsetInSeconds,
+                                                  0);
+            DT.printToBuffer(buffer, SIZE, 3);
+
+            EXP.assign(buffer);
+
+            if (veryVerbose) { T_ P_(EXP) P(datetimeField) }
+
+            ASSERT(EXP == datetimeField);
+            ASSERT(expectedLoadCount ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+
+            mX->disablePublishInLocalTime();
+            ASSERT(false == X->isPublishInLocalTimeEnabled());
+
+            BALL_LOG_TRACE << "log 5";
+            ++logRecordCount;
+
+            getDatetimeField(&datetimeField, fileName, logRecordCount);
+
+            bsl::memset(buffer, 'X', SIZE);
+
+            testUtcDatetime.printToBuffer(buffer, SIZE, 3);
+
+            EXP.assign(buffer);
+
+            if (veryVerbose) { T_ P_(EXP) P(datetimeField) }
+
+            ASSERT(EXP == datetimeField);
+            ASSERT(expectedLoadCount ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+
+            if (veryVerbose)
+                cout << "\tLog with Publish In Local Time Disabled Again"
+                     << endl;
+
+            if (veryVerbose) cout << "\tCleanup" << endl;
+
+            bdlt::CurrentTime::setCurrentTimeCallback(
+                                                  originalCurrentTimeCallback);
+            bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
+                                              originalLocalTimeOffsetCallback);
+
+            mX->disableFileLogging();
+
+            // Deregister here as we used local allocator for the observer.
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
+        }
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING 'rotateOnTimeInterval' AFTER 'enableFileLogging'
         //
         // Concern:
         //: 1 'rotateOnTimeInterval' does not cause rotation immediately if
@@ -1144,51 +1266,66 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Invoke 'enableFileLogging' before 'rotateOnTimeInterval' and
         //:   verify rotation does not occur.
+        //
+        // Testing:
+        //   CONCERN: ROTATION CAN BE ENABLED AFTER FILE LOGGING
         // --------------------------------------------------------------------
         if (verbose) cout
-                << "\nTESTING 'rotateOnTimeInterval' after 'enableFileLogging'"
+                << "\nTESTING 'rotateOnTimeInterval' AFTER 'enableFileLogging'"
                 << "\n========================================================"
                 << endl;
 
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
+
         ball::LoggerManagerConfiguration configuration;
-
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_TRACE,
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
+        ball::LoggerManagerScopedGuard guard(configuration);
 
-        Obj mX(&ta);  const Obj& X = mX;
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
-        // Set callback to monitor rotation.
+        {
+            bslma::TestAllocator         da("da", veryVeryVeryVerbose);
+            bslma::TestAllocator         ta("ta", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
 
-        RotCb cb(Z);
-        mX.setOnFileRotationCallback(cb);
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-        ball::LoggerManager::initSingleton(&mX, configuration);
+            bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+            bsl::shared_ptr<const Obj> X = mX;
 
-        const bsl::string BASENAME = tempFileName(veryVerbose);
+            ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
-        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
-        ASSERT(X.isFileLoggingEnabled());
-        ASSERT(0 == cb.numInvocations());
+            // Set callback to monitor rotation.
 
-        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+            RotCb cb(&ta);
+            mX->setOnFileRotationCallback(cb);
 
-        mX.rotateOnTimeInterval(bdlt::DatetimeInterval(1));
+            enableFileLogging(mX, fileName);
+            ASSERT(0 == cb.numInvocations());
 
-        BALL_LOG_TRACE << "log" << BALL_LOG_END;
+            BALL_LOG_SET_CATEGORY("TestCategory");
 
-        ASSERT(0 == cb.numInvocations());
+            mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1));
 
-        mX.disableFileLogging();
-        FileUtil::remove(BASENAME.c_str());
+            BALL_LOG_TRACE << "log";
 
-        ball::LoggerManager::shutDownSingleton();
+            ASSERT(0 == cb.numInvocations());
+
+            mX->disableFileLogging();
+
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
+        }
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING TIME-BASED ROTATION
         //
@@ -1209,115 +1346,144 @@ int main(int argc, char *argv[])
         //:   rotation occurs on the scheduled time.  (C-2)
         //
         // Testing:
-        //  void rotateOnTimeInterval(const DtInterval& i, const Datetime& r);
+        //  void rotateOnTimeInterval(const DtInterval& i, const Datetime& s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Time-Based Rotation"
+        if (verbose) cout << "\nTESTING TIME-BASED ROTATION"
                           << "\n===========================" << endl;
 
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
+
         ball::LoggerManagerConfiguration configuration;
-
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_TRACE,
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
 
-        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
+        ball::LoggerManagerScopedGuard guard(configuration);
 
-        Obj mX(&ta);  const Obj& X = mX;
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
-        // Set callback to monitor rotation.
-
-        RotCb cb(Z);
-
-        mX.setOnFileRotationCallback(cb);
-        mX.enablePublishInLocalTime();
-        ball::LoggerManager::initSingleton(&mX, configuration);
-
-        const bsl::string BASENAME = tempFileName(veryVerbose);
-
-        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
-        ASSERT(X.isFileLoggingEnabled());
-        ASSERT(0 == cb.numInvocations());
-
-        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
-
-        if (veryVerbose) cout <<
-                         "Test lower bound of absolute time reference" << endl;
         {
-            mX.disableFileLogging();
+            bslma::TestAllocator         da("da", veryVeryVeryVerbose);
+            bslma::TestAllocator         ta("ta", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
 
-            // Ensure log file did not exist
+            bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+            bsl::shared_ptr<const Obj> X = mX;
 
-            FileUtil::remove(BASENAME.c_str());
+            ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
-            mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 2),
-                                    bdlt::Datetime(1, 1, 1));
+            RotCb cb(&ta);
 
-            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
+            mX->setOnFileRotationCallback(cb);
+            mX->enablePublishInLocalTime();
 
-            bslmt::ThreadUtil::microSleep(0, 2);
-            BALL_LOG_TRACE << "log" << BALL_LOG_END;
+            {
+                TempDirectoryGuard tempDirGuard;
+                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
+                // Set callback to monitor rotation.
 
-            cb.reset();
+                enableFileLogging(mX, fileName);
+                ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+
+                mX->disableFileLogging();
+            }
+
+            if (veryVerbose)
+                cout << "Test lower bound of absolute time reference." << endl;
+            {
+                BALL_LOG_SET_CATEGORY("TestCategory");
+
+                TempDirectoryGuard tempDirGuard;
+                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+                mX->rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 2),
+                                         bdlt::Datetime(1, 1, 1));
+
+                enableFileLogging(mX, fileName);
+
+                bslmt::ThreadUtil::microSleep(0, 2);
+
+                ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+
+                BALL_LOG_TRACE << "log";
+
+                ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+                ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
+
+                mX->disableFileLogging();
+                cb.reset();
+            }
+
+            if (veryVerbose)
+                cout << "Test upper bound of absolute time reference." << endl;
+            {
+                BALL_LOG_SET_CATEGORY("TestCategory");
+
+                TempDirectoryGuard tempDirGuard;
+                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+                mX->rotateOnTimeInterval(
+                                     bdlt::DatetimeInterval(0, 0, 0, 2),
+                                     bdlt::Datetime(9999, 12, 31, 23, 59, 59));
+
+                enableFileLogging(mX, fileName);
+
+                bslmt::ThreadUtil::microSleep(0, 2);
+
+                ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+
+                BALL_LOG_TRACE << "log";
+
+                ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+                ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
+
+                mX->disableFileLogging();
+                cb.reset();
+            }
+
+            if (veryVerbose)
+                cout << "Test absolute time reference." << endl;
+            {
+                BALL_LOG_SET_CATEGORY("TestCategory");
+
+                TempDirectoryGuard tempDirGuard;
+                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+                bdlt::Datetime startTime = bdlt::CurrentTime::local();
+                startTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
+
+                mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1), startTime);
+
+                enableFileLogging(mX, fileName);
+
+                BALL_LOG_TRACE << "log";
+                bslmt::ThreadUtil::microSleep(0, 2);        // 2s
+                ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+
+                bslmt::ThreadUtil::microSleep(250000, 1);  // 3.25s
+                BALL_LOG_TRACE << "log";
+
+                ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+                ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
+
+                mX->disableFileLogging();
+                cb.reset();
+            }
+
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
         }
-
-        if (veryVerbose) cout <<
-                         "Test upper bound of absolute time reference" << endl;
-        {
-            mX.disableFileLogging();
-
-            // Ensure log file did not exist
-
-            FileUtil::remove(BASENAME.c_str());
-
-            mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 2),
-                                    bdlt::Datetime(9999, 12, 31, 23, 59, 59));
-
-            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
-
-            bslmt::ThreadUtil::microSleep(0, 2);
-            BALL_LOG_TRACE << "log" << BALL_LOG_END;
-
-            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
-
-            cb.reset();
-        }
-
-        if (veryVerbose) cout << "Testing absolute time reference" << endl;
-        {
-            // Reset reference start time.
-
-            mX.disableFileLogging();
-
-            // Ensure log file did not exist
-
-            FileUtil::remove(BASENAME.c_str());
-
-            bdlt::Datetime refTime = bdlt::CurrentTime::local();
-            refTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
-            mX.rotateOnTimeInterval(bdlt::DatetimeInterval(1), refTime);
-            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
-
-            BALL_LOG_TRACE << "log" << BALL_LOG_END;
-            LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
-
-            bslmt::ThreadUtil::microSleep(250000, 3);  // 3.25s
-            BALL_LOG_TRACE << "log" << BALL_LOG_END;
-
-
-            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            ASSERT(1 == FileUtil::exists(cb.rotatedFileName().c_str()));
-        }
-
-        ball::LoggerManager::shutDownSingleton();
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING TIME-BASED ROTATION
         //
@@ -1337,8 +1503,8 @@ int main(int argc, char *argv[])
         //:
         //: 6 A delay between 'enableFileLogging' and 'rotateOnTimeInterval',
         //:   when 'rotateOnItemInterval' uses the current time as its
-        //:   reference start time, does not incur an erroneuous rotation
-        //:   (drqs 87930585).
+        //:   reference start time, does not incur an erroneous rotation
+        //:   (DRQS 87930585).
         //
         // Plan:
         //: 1 Configure rotation for 1 second.  Log a record before 1 second,
@@ -1362,21 +1528,28 @@ int main(int argc, char *argv[])
         //:    immediately rotated. (C-6)
         //:
         // Testing:
-        //  void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval);
+        //  void rotateOnTimeInterval(const DatetimeInterval& interval);
         //  void disableTimeIntervalRotation();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Time-Based Rotation"
+        if (verbose) cout << "\nTESTING TIME-BASED ROTATION"
                           << "\n===========================" << endl;
 
         if (veryVerbose) cout << "Test normal rotation" << endl;
         {
-            Obj mX(Z); const Obj& X = mX;
-            RotCb cb(Z);
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            Obj mX(&ta); const Obj& X = mX;
+
+            RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
             mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 1));
 
-            TempLogFileGuard guard(&mX);
+            ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
 
             bslmt::ThreadUtil::microSleep(250000, 0);
             publishRecord(&mX, "test message 1");
@@ -1387,17 +1560,27 @@ int main(int argc, char *argv[])
             publishRecord(&mX, "test message 2");
 
             ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+
+            mX.disableFileLogging();
         }
 
         if (veryVerbose) cout << "Test delayed logging" << endl;
         {
-            // Rotate every 500ms.
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            Obj mX(Z); const Obj& X = mX;
-            RotCb cb(Z);
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            // Rotate every 1s.
+
+            Obj mX(&ta); const Obj& X = mX;
+
+            RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
             mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 1));
-            TempLogFileGuard guard(&mX);
+
+            ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
 
             bslmt::ThreadUtil::microSleep(100000, 1);       // 1.1 s
             publishRecord(&mX, "test message 1");
@@ -1412,18 +1595,27 @@ int main(int argc, char *argv[])
             // Verify we are back on schedule.
             bslmt::ThreadUtil::microSleep(250000, 0);  // .25s
             publishRecord(&mX, "test message 3");
-
             ASSERTV(cb.numInvocations(), 3 == cb.numInvocations());
+
+            mX.disableFileLogging();
         }
 
-        if (veryVerbose) cout <<
-                           "Test rotation between scheduled rotations" << endl;
+        if (veryVerbose)
+            cout << "Test rotation between scheduled rotations" << endl;
         {
-            Obj mX(Z); const Obj& X = mX;
-            RotCb cb(Z);
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            Obj mX(&ta); const Obj& X = mX;
+
+            RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
             mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 1));
-            TempLogFileGuard guard(&mX);
+
+            ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
 
             bslmt::ThreadUtil::microSleep(500000, 0);  // .5s
             mX.forceRotation();
@@ -1432,50 +1624,65 @@ int main(int argc, char *argv[])
             bslmt::ThreadUtil::microSleep(600000, 0);  // .6s
 
             publishRecord(&mX, "test message 1");
-
             ASSERTV(cb.numInvocations(), 2 == cb.numInvocations());
+
+            mX.disableFileLogging();
         }
 
-        if (veryVerbose) cout <<
-                       "Test disabling file logging between rotations" << endl;
+        if (veryVerbose)
+            cout << "Test disabling file logging between rotations" << endl;
         {
-            Obj mX(Z); const Obj& X = mX;
-            RotCb cb(Z);
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            Obj mX(&ta); const Obj& X = mX;
+
+            RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
             mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 1));
 
-            bsl::string BASENAME = tempFileName(veryVerbose);
-            int rc = mX.enableFileLogging(BASENAME.c_str());
-            ASSERTV(rc, 0 == rc);
+            ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
 
             bslmt::ThreadUtil::microSleep(0, 2);
             ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
             mX.disableFileLogging();
-            rc = mX.enableFileLogging(BASENAME.c_str());
-            ASSERTV(rc, 0 == rc);
+            ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
 
             // This rotation should happen immediately.
 
             publishRecord(&mX, "test message 1");
-
             ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
-            bdls::FilesystemUtil::remove(BASENAME.c_str());
+
+            mX.disableFileLogging();
         }
 
         if (veryVerbose) cout << "Test 'disableTimeIntervalRotation" << endl;
         {
-            Obj mX(Z); const Obj& X = mX;
-            RotCb cb(Z);
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            Obj mX(&ta); const Obj& X = mX;
+
+            RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
             mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 0, 500));
-            TempLogFileGuard guard(&mX);
+
+            ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
 
             bslmt::ThreadUtil::microSleep(0, 1);
             mX.disableTimeIntervalRotation();
 
             publishRecord(&mX, "test message 1");
             ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
+
+            mX.disableFileLogging();
         }
 
         if (veryVerbose) cout << "\tTest a delayed rotateOnTimeInterval"
@@ -1484,13 +1691,19 @@ int main(int argc, char *argv[])
         {
             // Test if there is a delay between 'enableFileLogging' and
             // 'rotateOnTimeInterval'.
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            Obj mX(Z); const Obj& X = mX;
-            RotCb cb(Z);
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            Obj mX(&ta); const Obj& X = mX;
+
+            RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
             mX.enablePublishInLocalTime();
 
-            TempLogFileGuard guard(&mX);
+            ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
 
             // Delay, so that the time stamps for the file log and reference
             // start time (which is supplied by a default parameter value on
@@ -1507,11 +1720,13 @@ int main(int argc, char *argv[])
             // Verify the callback has not been invoked.
 
             ASSERT(0 == cb.numInvocations());
+
+            mX.disableFileLogging();
         }
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
-        // ROTATE WHEN OPENING EXISTING FILE
+        // TESTING ROTATION CALLBACK WITH EXISTING FILE
         //
         // Concerns:
         //: 1 'rotateOnSize' triggers a rotation as expected even if the log
@@ -1524,45 +1739,56 @@ int main(int argc, char *argv[])
         //:   rotated.  (C-1)
         //
         // Testing:
-        //  CONCERN: 'rotateOnSize' triggers correctly for existing files
+        //  CONCERN: ROTATION CALLBACK TRIGGERS CORRECTLY FOR EXISTING FILE
         // --------------------------------------------------------------------
-        ball::LoggerManagerConfiguration configuration;
 
+        if (verbose) cout << "\nTESTING ROTATION CALLBACK WITH EXISTING FILE"
+                          << "\n============================================"
+                          << endl;
+
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
+
+        ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_TRACE,
-                                              ball::Severity::e_OFF,
-                                              ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
+
+        ball::LoggerManagerScopedGuard guard(configuration);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        BALL_LOG_SET_CATEGORY("TestCategory");
 
         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
-        Obj mX(&ta);  const Obj& X = mX;
+        bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+        bsl::shared_ptr<const Obj> X = mX;
 
-        // Set callback to monitor rotation.
+        ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
-        RotCb cb(Z);
-        mX.setOnFileRotationCallback(cb);
-
-        ball::LoggerManager::initSingleton(&mX, configuration);
+        RotCb cb(&ta);
+        mX->setOnFileRotationCallback(cb);
 
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
-            const bsl::string BASENAME = tempFileName(veryVerbose);
-
-            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             if (verbose) cout << "Testing setup." << endl;
             {
-                ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
-                mX.rotateOnSize(1);
-                ASSERT(X.isFileLoggingEnabled());
+                enableFileLogging(mX, fileName);
+                mX->rotateOnSize(1);
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
 
-                ASSERT(1 == FileUtil::exists(BASENAME.c_str()));
+                ASSERT(1 == FsUtil::exists(fileName.c_str()));
 
-                ASSERT(2 == getNumLines(BASENAME.c_str()));
-                ASSERT(X.isFileLoggingEnabled());
+                ASSERT(2 == getNumLines(fileName.c_str()));
                 ASSERT(0 == cb.numInvocations());
             }
 
@@ -1573,28 +1799,27 @@ int main(int argc, char *argv[])
                 memset(buffer, 'x', sizeof buffer);
                 buffer[sizeof buffer - 1] = '\0';
 
-                BALL_LOG_TRACE << buffer << BALL_LOG_END;
-                mX.disableFileLogging();
+                BALL_LOG_TRACE << buffer;
+                mX->disableFileLogging();
 
-                ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
+                enableFileLogging(mX, fileName);
 
-                BALL_LOG_TRACE << 'x' << BALL_LOG_END;
+                BALL_LOG_TRACE << 'x';
 
                 ASSERT(0 == cb.numInvocations());
 
-                BALL_LOG_TRACE << buffer << BALL_LOG_END;
-                BALL_LOG_TRACE << 'x' << BALL_LOG_END;
+                BALL_LOG_TRACE << buffer;
+                BALL_LOG_TRACE << 'x';
 
-                ASSERT(1 == FileUtil::exists(BASENAME.c_str()));
+                ASSERT(1 == FsUtil::exists(fileName.c_str()));
                 ASSERT(1 == cb.numInvocations());
-                ASSERT(1 ==
-                         FileUtil::exists(cb.rotatedFileName().c_str()));
+                ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
             }
         }
-
-        ball::LoggerManager::shutDownSingleton();
+        // Deregister here as we used local allocator for the observer.
+        ASSERT(0 == manager.deregisterObserver("testObserver"));
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING ROTATE ON SIZE ON EXISTING FILE
         //
@@ -1607,68 +1832,80 @@ int main(int argc, char *argv[])
         //:   file logging.  Enable 'rotateOnSize', start logging again and
         //:   verify that the file is rotated on first log.  (C-1)
         //
-        // Concern:
-        //  CONCERN: Rotation on size is based on file size
+        // Testing:
+        //  CONCERN: ROTATION ON SIZE WORKS FOR EXISTING FILES
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Test-case infrastructure setup." << endl;
+        if (verbose)
+            cout << "\nTESTING ROTATE ON SIZE ON EXISTING FILE"
+                 << "\n=======================================" << endl;
+
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
 
         ball::LoggerManagerConfiguration configuration;
-
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_TRACE,
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
+
+        ball::LoggerManagerScopedGuard guard(configuration);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        BALL_LOG_SET_CATEGORY("TestCategory");
 
         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
-        Obj mX(&ta); const Obj& X = mX;
+        bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+        bsl::shared_ptr<const Obj> X = mX;
 
-        ball::LoggerManager::initSingleton(&mX, configuration);
+        ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
-        RotCb cb(Z);
-        mX.setOnFileRotationCallback(cb);
+        RotCb cb(&ta);
+        mX->setOnFileRotationCallback(cb);
 
         {
-            const bsl::string BASENAME = tempFileName(veryVerbose);
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
-            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
-            ASSERT(X.isFileLoggingEnabled());
+            enableFileLogging(mX, fileName);
 
             char buffer[1024];
             memset(buffer, 'x', sizeof buffer);
             buffer[sizeof buffer - 1] = '\0';
 
-            BALL_LOG_TRACE << buffer << BALL_LOG_END;
+            BALL_LOG_TRACE << buffer;
 
-            mX.disableFileLogging();
-            ASSERT(!X.isFileLoggingEnabled());
+            mX->disableFileLogging();
+            ASSERT(false == X->isFileLoggingEnabled());
 
-            ASSERT(1024 < getFileSize(BASENAME.c_str()));
+            ASSERT(1024 < FsUtil::getFileSize(fileName.c_str()));
 
-            ASSERT(0 == X.rotationSize());
-            mX.rotateOnSize(1);
-            ASSERT(1 == X.rotationSize());
+            ASSERT(0 == X->rotationSize());
+            mX->rotateOnSize(1);
+            ASSERT(1 == X->rotationSize());
 
-            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
-            ASSERT(X.isFileLoggingEnabled());
+            enableFileLogging(mX, fileName);
 
-            BALL_LOG_TRACE << "x" << BALL_LOG_END;
+            BALL_LOG_TRACE << "x";
 
-            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
-            LOOP_ASSERT(cb.status(), 0 == cb.status());
+            ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+            ASSERTV(cb.status(),         0 == cb.status());
 
-            ASSERT(1 == FileUtil::exists(cb.rotatedFileName()));
+            ASSERT(1 == FsUtil::exists(cb.rotatedFileName()));
         }
 
-        ball::LoggerManager::shutDownSingleton();
+        // Deregister here as we used local allocator for the observer.
+        ASSERT(0 == manager.deregisterObserver("testObserver"));
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
-        // TESTING Log file rotation callback
+        // TESTING LOG FILE ROTATION CALLBACK
         //
         // Concerns:
         //: 1 Rotation callback is invoked when a rotation occurs, regardless
@@ -1712,24 +1949,32 @@ int main(int argc, char *argv[])
         //    void setOnFileRotationCallback(const OnFileRotationCallback&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Log Rotation Callback"
-                          << "\n=============================" << endl;
+        if (verbose) cout << "\nTESTING LOG FILE ROTATION CALLBACK"
+                          << "\n==================================" << endl;
 
         if (veryVerbose) cout <<
                 "\tTest a rotation that will fail without a callback." << endl;
         {
-            Obj mX(Z); const Obj& X = mX;
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator         ta("test", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(&ta); const Obj& X = mX;
             mX.forceRotation();
 
-            ASSERT(0 == defaultAllocator.numBytesInUse());
+            ASSERT(0 == da.numBytesInUse());
         }
 
-        if (veryVerbose) cout <<
-                   "\tTest a rotation that will fail with a callback." << endl;
+        if (veryVerbose)
+            cout << "\tTest a rotation that fails with a callback." << endl;
         {
-            Obj mX(Z); const Obj& X = mX;
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator         ta("test",    veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
 
-            RotCb cb(Z);
+            Obj mX(&ta); const Obj& X = mX;
+
+            RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
 
             ASSERT(0 == cb.numInvocations());
@@ -1738,106 +1983,113 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == cb.numInvocations());
             ASSERT(0 != cb.status());
+
+            ASSERT(0 == da.numBytesInUse());
         }
 
-        if (veryVerbose) cout <<
-                     "\tTest a rotation that succeed with a callback." << endl;
+        if (veryVerbose)
+            cout << "\tTest a rotation that renames old log files." << endl;
         {
-            Obj mX(Z); const Obj& X = mX;
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            RotCb cb(Z);
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            Obj mX; const Obj& X = mX;
+
+            RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
             ASSERT(0 == cb.numInvocations());
 
-            const bsl::string BASENAME = tempFileName(veryVerbose);
+            ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
 
-            ASSERT(0 == mX.enableFileLogging((BASENAME + ".%T").c_str()));
+            bsl::string logName;
+            ASSERT(true == X.isFileLoggingEnabled(&logName));
 
-            bsl::vector<bsl::string> files(Z);
+            for (int i = 0; i < 3; ++i) {
+                // A sleep is required because timestamp resolution is 1 second
+                bslmt::ThreadUtil::microSleep(0, 1);
+
+                ASSERTV(i, cb.numInvocations(), 0 == cb.numInvocations());
+
+                mX.forceRotation();
+
+                ASSERTV(i, cb.numInvocations(), 1 == cb.numInvocations());
+                ASSERTV(i, cb.status(), 0 == cb.status());
+                ASSERTV(i, logName, cb.rotatedFileName(),
+                        logName != cb.rotatedFileName());
+
+                if (veryVeryVerbose) {
+                    P(cb.rotatedFileName());
+                }
+
+                cb.reset();
+            }
+        }
+
+        if (veryVerbose)
+            cout << "\tTest a rotation that succeed with a callback." << endl;
+        {
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog.%T");
+
+            Obj mX; const Obj& X = mX;
+
+            RotCb cb(&ta);
+            mX.setOnFileRotationCallback(cb);
+            ASSERT(0 == cb.numInvocations());
+
+            ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
+
             for (int i = 0; i < 3; ++i) {
                 // A sleep is required because timestamp resolution is 1 second
                 bslmt::ThreadUtil::microSleep(0, 1);
 
                 bsl::string logName;
-                ASSERT(X.isFileLoggingEnabled(&logName));
+                ASSERT(true == X.isFileLoggingEnabled(&logName));
+
+                ASSERTV(i, cb.numInvocations(), 0 == cb.numInvocations());
 
                 mX.forceRotation();
-                LOOP2_ASSERT(i, cb.numInvocations(), 1 == cb.numInvocations());
-                LOOP2_ASSERT(i, cb.status(), 0 == cb.status());
-                LOOP3_ASSERT(i, logName, cb.rotatedFileName(),
-                             logName == cb.rotatedFileName());
+
+                ASSERTV(i, cb.numInvocations(), 1 == cb.numInvocations());
+                ASSERTV(i, cb.status(), 0 == cb.status());
+                ASSERTV(i, logName, cb.rotatedFileName(),
+                        logName == cb.rotatedFileName());
 
                 if (veryVeryVerbose) {
                     P(cb.rotatedFileName());
                 }
-                files.push_back(cb.rotatedFileName());
                 cb.reset();
-            }
-
-            for (bsl::size_t i = 0; i < files.size(); ++i) {
-                FileUtil::remove(files[i]);
-            }
-        }
-        if (veryVerbose) cout <<
-                       "\tTest a rotation that renames old log files." << endl;
-        {
-            Obj mX(Z); const Obj& X = mX;
-
-            RotCb cb(Z);
-            mX.setOnFileRotationCallback(cb);
-            ASSERT(0 == cb.numInvocations());
-
-            const bsl::string BASENAME = tempFileName(veryVerbose);
-
-            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
-
-            bsl::vector<bsl::string> files(Z);
-            bsl::string logName;
-            ASSERT(X.isFileLoggingEnabled(&logName));
-
-            for (int i = 0; i < 3; ++i) {
-                // A sleep is required because timestamp resolution is 1 second
-                bslmt::ThreadUtil::microSleep(0, 1);
-
-                mX.forceRotation();
-                ASSERT(1       == cb.numInvocations());
-                ASSERT(0       == cb.status());
-                ASSERT(logName != cb.rotatedFileName());
-
-                if (veryVeryVerbose) {
-                    P(cb.rotatedFileName());
-                }
-
-                files.push_back(cb.rotatedFileName());
-                cb.reset();
-            }
-            files.push_back(logName);
-
-            for (bsl::size_t i = 0; i < files.size(); ++i) {
-                 FileUtil::remove(files[i]);
             }
         }
 
         if (veryVerbose) cout << "\tTest a with publication rotation" << endl;
         {
-            Obj mX(Z); const Obj& X = mX;
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            RotCb cb(Z);
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            Obj mX; const Obj& X = mX;
+
+            RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
             ASSERT(0 == cb.numInvocations());
 
-            const bsl::string BASENAME = tempFileName(veryVerbose);
-
-            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str(), true));
+            ASSERT(0 == mX.enableFileLogging(fileName.c_str(), true));
             mX.rotateOnSize(1);
 
-            ASSERT(X.isFileLoggingEnabled());
+            ASSERT(true == X.isFileLoggingEnabled());
 
             char buffer[1025];  // rotateOnSize is specified in multiples of 1K
             bsl::memset(buffer, 'x', sizeof(buffer));
             buffer[sizeof(buffer) - 1] = 0;
-
-            bsl::vector<bsl::string> files(Z);
 
             publishRecord(&mX, buffer);
 
@@ -1847,13 +2099,12 @@ int main(int argc, char *argv[])
 
                 publishRecord(&mX, buffer);
 
-                LOOP2_ASSERT(i, cb.numInvocations(), 1 == cb.numInvocations());
-                LOOP2_ASSERT(i, cb.numInvocations(), 0 == cb.status());
+                ASSERTV(i, cb.numInvocations(), 1 == cb.numInvocations());
+                ASSERTV(i, cb.numInvocations(), 0 == cb.status());
 
                 if (veryVeryVerbose) {
                     P(cb.rotatedFileName());
                 }
-                files.push_back(cb.rotatedFileName());
                 cb.reset();
             }
 
@@ -1868,26 +2119,23 @@ int main(int argc, char *argv[])
 
                 publishRecord(&mX, buffer);
 
-                LOOP2_ASSERT(i, cb.numInvocations(), 1 == cb.numInvocations());
-                LOOP2_ASSERT(i, cb.numInvocations(), 0 == cb.status());
+                ASSERTV(i, cb.numInvocations(), 1 == cb.numInvocations());
+                ASSERTV(i, cb.numInvocations(), 0 == cb.status());
 
                 if (veryVeryVerbose) {
                     P(cb.rotatedFileName());
                 }
 
-                files.push_back(cb.rotatedFileName());
                 cb.reset();
-            }
-
-            for (bsl::size_t i = 0; i < files.size(); ++i) {
-                FileUtil::remove(files[i]);
             }
         }
 
         if (veryVerbose) cout << "\tTest a re-entrant rotation" << endl;
         {
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            Obj mX(Z); const Obj& X = mX;
+            Obj mX(&ta); const Obj& X = mX;
+
             ReentrantRotationCallback cb(&mX);
 
             mX.setOnFileRotationCallback(cb);
@@ -1896,9 +2144,9 @@ int main(int argc, char *argv[])
                                  //  the task.
         }
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
-        // TESTING: ROTATED FILENAME
+        // TESTING ROTATED FILENAME
         //
         // Concerns:
         //: 1 A timestamp is appended to the filename if the rotated file has
@@ -1941,11 +2189,11 @@ int main(int argc, char *argv[])
         //:   in local-time or UTC, respectively.
         //
         // Testing:
-        //  CONCERN: Rotated log filenames are as expected
+        //  CONCERN: ROTATED LOG FILENAMES ARE AS EXPECTED
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING: ROTATED FILENAME"
-                          << "\n=========================" << endl;
+        if (verbose) cout << "\nTESTING ROTATED FILENAME"
+                          << "\n========================" << endl;
 
 
         if (veryVerbose) cout << "Test infrastructure setup." << endl;
@@ -1954,27 +2202,33 @@ int main(int argc, char *argv[])
 
         if (veryVeryVerbose) { P(processId) }
 
-         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
 
         ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_TRACE,
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
 
-        Obj mX(&ta); const Obj& X = mX;
+        ball::LoggerManagerScopedGuard guard(configuration);
 
-        ball::LoggerManager::initSingleton(&mX, configuration);
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
-        const bsl::string BASENAME = tempFileName(veryVerbose);
+        BALL_LOG_SET_CATEGORY("TestCategory");
 
-        RotCb cb(Z);
-        mX.setOnFileRotationCallback(cb);
-        mX.enablePublishInLocalTime();
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
-        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+        bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+        bsl::shared_ptr<const Obj> X = mX;
 
+        ASSERT(0 == manager.registerObserver(mX, "testObserver"));
+
+        RotCb cb(&ta);
+        mX->setOnFileRotationCallback(cb);
+        mX->enablePublishInLocalTime();
 
         if (verbose) cout << "Test table of file names" << endl;
         {
@@ -2000,7 +2254,7 @@ int main(int argc, char *argv[])
 
             };
 
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int   LINE = DATA[ti].d_line;
@@ -2010,17 +2264,17 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { P_(LINE) P_(SUF) P_(PAT) P(UNI) }
 
+                TempDirectoryGuard tempDirGuard;
+                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "testLog");
+
                 bdlt::Datetime startDatetime, endDatetime;
 
                 // loop until startDatetime is equal to endDatetime
                 do {
                     startDatetime = getCurrentLocalTime();
 
-                    LOOP_ASSERT(LINE, 0 == mX.enableFileLogging(
-                                    (BASENAME + SUF).c_str()));
-                    LOOP_ASSERT(LINE, X.isFileLoggingEnabled());
-                    LOOP_ASSERT(LINE, 1 == mX.enableFileLogging(
-                                    (BASENAME + SUF).c_str()));
+                    enableFileLogging(mX, fileName + SUF);
 
                     endDatetime = getCurrentLocalTime();
 
@@ -2032,12 +2286,11 @@ int main(int argc, char *argv[])
                         // opened because startDatetime and endDatetime are
                         // different; will try it again
                         bsl::string fn;
-                        ASSERT(1 == mX.isFileLoggingEnabled(&fn));
-                        mX.disableFileLogging();
-                        ASSERT(0 == FileUtil::remove(fn.c_str()));
+                        ASSERT(true == mX->isFileLoggingEnabled(&fn));
+                        mX->disableFileLogging();
+                        ASSERT(0 == FsUtil::remove(fn.c_str()));
                     }
-
-                } while (!X.isFileLoggingEnabled());
+                } while (!X->isFileLoggingEnabled());
 
                 ASSERTV(LINE, startDatetime.year()   == endDatetime.year());
                 ASSERTV(LINE, startDatetime.month()  == endDatetime.month());
@@ -2046,12 +2299,12 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, startDatetime.minute() == endDatetime.minute());
                 ASSERTV(LINE, startDatetime.second() == endDatetime.second());
 
-                BALL_LOG_INFO<< "log" << BALL_LOG_END;
+                BALL_LOG_INFO<< "log";
 
                 // now construct the name of the log file from startDatetime
 
                 bsl::ostringstream oss;
-                oss << BASENAME;
+                oss << fileName;
                 for (const char *c = PAT; *c != '\0'; ++c) {
                     switch (*c) {
                       case 'Y': {
@@ -2088,22 +2341,22 @@ int main(int argc, char *argv[])
                 }
 
 
-                const bsl::string LOGNAME = oss.str().c_str();
+                const bsl::string actualFileName(oss.str());
 
-                if (veryVeryVerbose) { P(LOGNAME) }
+                if (veryVeryVerbose) { P(actualFileName) }
 
-                LOOP2_ASSERT(LINE, LOGNAME.c_str(),
-                             1 == FileUtil::exists(LOGNAME.c_str()));
+                ASSERTV(LINE, actualFileName,
+                        1 == FsUtil::exists(actualFileName));
 
                 bslmt::ThreadUtil::microSleep(0, 1);
-                mX.forceRotation();
+                mX->forceRotation();
 
-                mX.disableFileLogging();
+                mX->disableFileLogging();
 
-                LOOP2_ASSERT(LINE, LOGNAME.c_str(),
-                             1 == FileUtil::exists(LOGNAME.c_str()));
+                ASSERTV(LINE, actualFileName,
+                        1 == FsUtil::exists(actualFileName));
 
-                bsl::string ROTATED_NAME = LOGNAME;
+                bsl::string rotatedFileName(actualFileName);
                 if (!UNI) {
                     oss << '.';
                     oss << bsl::setw(4) << bsl::setfill('0')
@@ -2120,65 +2373,71 @@ int main(int argc, char *argv[])
                     oss << bsl::setw(2) << bsl::setfill('0')
                         << startDatetime.second();
 
-                    ROTATED_NAME = oss.str();
+                    rotatedFileName = oss.str();
 
-                    if (veryVeryVerbose) { P(ROTATED_NAME) }
+                    if (veryVeryVerbose) { P(rotatedFileName) }
 
-                    ASSERTV(LINE, ROTATED_NAME.c_str(),
-                            1 == FileUtil::exists(ROTATED_NAME.c_str()));
-                    ASSERTV(LINE, 2 == getNumLines(ROTATED_NAME.c_str()));
+                    ASSERTV(LINE, rotatedFileName,
+                            1 == FsUtil::exists(rotatedFileName));
+                    ASSERTV(LINE, 2 == getNumLines(rotatedFileName.c_str()));
                 }
 
-                if (veryVeryVerbose) { P(ROTATED_NAME) }
+                if (veryVeryVerbose) { P(rotatedFileName) }
 
                 ASSERTV(ti, cb.numInvocations(), 1 == cb.numInvocations());
                 ASSERTV(ti, cb.status(), 0 == cb.status());
                 ASSERTV(ti, cb.rotatedFileName(),
-                        ROTATED_NAME == cb.rotatedFileName());
+                        rotatedFileName == cb.rotatedFileName());
 
                 cb.reset();
-                removeFilesByPrefix(BASENAME.c_str());
             }
         }
 
         if (verbose) cout << "Testing filename time-stamp uses "
                           << "'isPublishInLocalTimeEnabled'" << endl;
         {
-            const char *UTC_PATTERN = "utc_%T";
+            TempDirectoryGuard tempDirGuard;
+
+            if (veryVerbose)
+                cout << "\tTesting utc pattern in filename." << endl;
             {
-                // Testing UTC filename time stamp.
+                // Testing UTC timestamp in filename.
+                bsl::string fileName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "utc_%T");
 
                 bdlt::Datetime start = bdlt::CurrentTime::utc();
 
-                mX.disablePublishInLocalTime();
-                mX.enableFileLogging(UTC_PATTERN);
+                mX->disablePublishInLocalTime();
+                enableFileLogging(mX, fileName);
 
-                BALL_LOG_INFO << "log" << BALL_LOG_END;
+                BALL_LOG_INFO << "log";
 
                 bdlt::Datetime end = bdlt::CurrentTime::utc();
 
-                bsl::string logFilename;
-                ASSERT(X.isFileLoggingEnabled(&logFilename));
+                bsl::string actualFileName;
+                ASSERT(true == X->isFileLoggingEnabled(&actualFileName));
 
-                mX.disableFileLogging();
+                mX->disableFileLogging();
 
-                // Verify the time stamp in the filename.
-                bsl::string   year(logFilename.substr(4,  4));
-                bsl::string  month(logFilename.substr(8,  2));
-                bsl::string    day(logFilename.substr(10, 2));
-                bsl::string   hour(logFilename.substr(13, 2));
-                bsl::string minute(logFilename.substr(15, 2));
-                bsl::string second(logFilename.substr(17, 2));
+                // Actual file name suffix should follow the pattern
+                // YYYYMMDD_hhmmss and should be UTC time.
+                size_t      pos = actualFileName.find("utc_") + 4;
+                bsl::string year(actualFileName.substr(  pos +  0, 4));
+                bsl::string month(actualFileName.substr( pos +  4, 2));
+                bsl::string day(actualFileName.substr(   pos +  6, 2));
+                bsl::string hour(actualFileName.substr(  pos +  9, 2));
+                bsl::string minute(actualFileName.substr(pos + 11, 2));
+                bsl::string second(actualFileName.substr(pos + 13, 2));
 
                 bdlt::Datetime timestamp(bsl::atoi(year.c_str()),
-                                        bsl::atoi(month.c_str()),
-                                        bsl::atoi(day.c_str()),
-                                        bsl::atoi(hour.c_str()),
-                                        bsl::atoi(minute.c_str()),
-                                        bsl::atoi(second.c_str()));
+                                         bsl::atoi(month.c_str()),
+                                         bsl::atoi(day.c_str()),
+                                         bsl::atoi(hour.c_str()),
+                                         bsl::atoi(minute.c_str()),
+                                         bsl::atoi(second.c_str()));
 
                 if (veryVerbose) {
-                    P(logFilename);
+                    P(actualFileName);
                     P_(year); P_(month); P_(day);
                     P_(hour); P_(minute); P(second);
                 }
@@ -2189,45 +2448,45 @@ int main(int argc, char *argv[])
                         start,
                         end,
                         start <= timestamp && timestamp <= end);
-
-                FileUtil::remove(logFilename.c_str());
             }
 
-            const char *LOCAL_PATTERN = "local_%T";
             {
-                // Testing UTC filename time stamp.
+                // Testing local timestamp in filename.
+                bsl::string fileName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "local_%T");
 
                 bdlt::Datetime start = bdlt::CurrentTime::local();
 
-                mX.enablePublishInLocalTime();
-                mX.enableFileLogging(LOCAL_PATTERN);
+                mX->enablePublishInLocalTime();
+                enableFileLogging(mX, fileName);
 
-                BALL_LOG_INFO << "log" << BALL_LOG_END;
+                BALL_LOG_INFO << "log";
 
                 bdlt::Datetime end = bdlt::CurrentTime::local();
 
-                bsl::string logFilename;
-                ASSERT(X.isFileLoggingEnabled(&logFilename));
+                bsl::string actualFileName;
+                ASSERT(true == X->isFileLoggingEnabled(&actualFileName));
 
-                mX.disableFileLogging();
+                mX->disableFileLogging();
 
                 // Verify the time stamp in the filename.
-                bsl::string   year(logFilename.substr(6,  4));
-                bsl::string  month(logFilename.substr(10,  2));
-                bsl::string    day(logFilename.substr(12, 2));
-                bsl::string   hour(logFilename.substr(15, 2));
-                bsl::string minute(logFilename.substr(17, 2));
-                bsl::string second(logFilename.substr(19, 2));
+                size_t      pos = actualFileName.find("local_") + 6;
+                bsl::string year(actualFileName.substr(  pos +  0, 4));
+                bsl::string month(actualFileName.substr( pos +  4, 2));
+                bsl::string day(actualFileName.substr(   pos +  6, 2));
+                bsl::string hour(actualFileName.substr(  pos +  9, 2));
+                bsl::string minute(actualFileName.substr(pos + 11, 2));
+                bsl::string second(actualFileName.substr(pos + 13, 2));
 
                 bdlt::Datetime timestamp(bsl::atoi(year.c_str()),
-                                        bsl::atoi(month.c_str()),
-                                        bsl::atoi(day.c_str()),
-                                        bsl::atoi(hour.c_str()),
-                                        bsl::atoi(minute.c_str()),
-                                        bsl::atoi(second.c_str()));
+                                         bsl::atoi(month.c_str()),
+                                         bsl::atoi(day.c_str()),
+                                         bsl::atoi(hour.c_str()),
+                                         bsl::atoi(minute.c_str()),
+                                         bsl::atoi(second.c_str()));
 
                 if (veryVerbose) {
-                    P(logFilename);
+                    P(actualFileName);
                     P_(year); P_(month); P_(day);
                     P_(hour); P_(minute); P(second);
                 }
@@ -2238,52 +2497,61 @@ int main(int argc, char *argv[])
                         start,
                         end,
                         start <= timestamp && timestamp <= end);
-
-                FileUtil::remove(logFilename.c_str());
             }
-        }
 
-        ball::LoggerManager::shutDownSingleton();
+            // Deregister here as we used local allocator for the observer.
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
+        }
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
-        // CAPTURE ERROR MESSAGE WHEN THE STREAM FAILS
+        // TESTING LOGGING TO A FAILING STREAM
         //
         // Concerns:
-        //   That an error message is written to stderr when the stream fails.
+        //:  1 An error message is written to stderr when the stream fails.
         //
         // Plan:
-        //   Set the OS to limit the total size of any file we write to to
-        //   a fairly small amount, then use BALL to write more than that.
-        //   while doing this, capture the stderr output and verify a message
-        //   has been written.
+        //:  1 Set the OS to limit the total size of any file we write to a
+        //:    fairly small amount, then use BALL to write more than that.
+        //:    While doing this, capture the stderr output and verify a message
+        //:    has been written.
+        //
+        // Testing:
+        //   CONCERN: LOGGING TO A FAILING STREAM
         // --------------------------------------------------------------------
+
+        if (verbose) cerr << "\nTESTING LOGGING TO A FAILING STREAM."
+                          << "\n====================================" << endl;
 
 #if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_CYGWIN)
         // 'setrlimit' is not implemented on Cygwin.
 
-        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
-
-        ball::LoggerManagerConfiguration configuration;
-
         // Publish synchronously all messages regardless of their severity.
         // This configuration also guarantees that the observer will only see
         // each message only once.
-        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_TRACE,
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_OFF));
+        ball::LoggerManagerConfiguration configuration;
 
-        ball::MultiplexObserver multiplexObserver;
-        ball::LoggerManager::initSingleton(&multiplexObserver,
-                                          configuration);
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
+
+        ball::LoggerManagerScopedGuard guard(configuration);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        BALL_LOG_SET_CATEGORY("TestCategory");
 
         if (verbose) cout << "Testing output when the stream fails"
                           << " (UNIX only)."
                           << endl;
         {
-            bsl::string smallFile = tempFileName(veryVerbose);
+            bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
+
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
 
             // Set the limit of the file size we can produce to 2048 bytes.
             struct rlimit rlim;
@@ -2300,42 +2568,42 @@ int main(int argc, char *argv[])
             act.sa_flags = 0;
             ASSERT(0 == sigaction(SIGXFSZ, &act, &oact));
 
-            Obj mX(&ta);  const Obj& X = mX;
+            bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+            bsl::shared_ptr<const Obj> X = mX;
 
-            multiplexObserver.registerObserver(&mX);
+            ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
             bsl::stringstream os;
-
-            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
 
             // we want to capture the error message that will be written to
             // stderr (not cerr).  Redirect stderr to a file.  We can't
             // redirect it back; we'll have to use 'ASSERT2' (which outputs to
-            // cout, not cerr) from now on and report a summary to to cout at
-            // the end of this case.
+            // cout, not cerr) from now on and report a summary to cout at the
+            // end of this case.
 
-            bsl::string stderrFN = tempFileName(veryVerbose);
-            ASSERT(stderr == freopen(stderrFN.c_str(), "w", stderr));
+            bsl::string stderrFileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&stderrFileName, "stderrLog");
 
-            ASSERT2(0 == mX.enableFileLogging(smallFile.c_str(), true));
-            ASSERT2(X.isFileLoggingEnabled());
-            ASSERT2(1 == mX.enableFileLogging(smallFile.c_str(), true));
+            ASSERT(stderr == freopen(stderrFileName.c_str(), "w", stderr));
 
-            for (int i = 0 ; i < 40 ;  ++i) {
-                BALL_LOG_TRACE << "log"  << BALL_LOG_END;
+            enableFileLogging(mX, fileName, true);
+
+            for (int i = 0; i < 40; ++i) {
+                BALL_LOG_TRACE << "log";
             }
 
             fflush(stderr);
             bsl::fstream stderrFs;
-            stderrFs.open(stderrFN.c_str(), bsl::ios_base::in);
+            stderrFs.open(stderrFileName.c_str(), bsl::ios_base::in);
 
             bsl::string line;
             ASSERT2(getline(stderrFs, line));  // caught an error message
 
             const bool fail = (bsl::string::npos ==
-                                     line.find("ERROR: ball::FileObserver2:"));
+                                            line.find("Error on file stream"));
             ASSERT(!fail);
             if (fail) cout << "line: " << line << endl;
+
 #ifndef BSLS_PLATFORM_CMP_IBM
             // On native IBM, after the error, even when the stream fails,
             // logging will be attempted over and over again, which results in
@@ -2343,298 +2611,126 @@ int main(int argc, char *argv[])
             ASSERT2(!getline(stderrFs, line));  // and only one message
 #endif
 
-            mX.disableFileLogging();
-            removeFilesByPrefix(smallFile.c_str());
-            multiplexObserver.deregisterObserver(&mX);
+            mX->disableFileLogging();
+
+            // Deregister here as we used local allocator for the observer.
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
         }
 #else
         if (verbose) {
             cout << "Skipping case 4 on Windows and Cygwin..." << endl;
         }
 #endif
-
-        ball::LoggerManager::shutDownSingleton();
-      } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING LOG FILE ROTATION
-        //
-        // Concerns:
-        //   The number of existing log files should not exceed the value of
-        //   of 'd_maxLogFiles'.
-        //
-        // Plan:
-        //   Set up the file observer so that it would have generated many log
-        //   files if there were no limit.  Verify that the number of log
-        //   files that actually exist does not exceed 'd_maxLogFiles'.
-        //
-        // Testing:
-        //   void setMaxLogFiles();
-        //   int maxLogFiles() const;
-        //   int removeExcessLogFiles();
-        // --------------------------------------------------------------------
-
-        static bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
-        ball::LoggerManagerConfiguration configuration;
-
-        // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only see
-        // each message only once.
-
-        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_TRACE,
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_OFF));
-
-        ball::MultiplexObserver multiplexObserver;
-        ball::LoggerManagerScopedGuard guard(&multiplexObserver,
-                                            configuration,
-                                            &ta);
-        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
-
-        if (verbose) cout << "Testing log file deletion." << endl;
-        {
-            if (verbose) cout << "\t log file opened with timestamp" << endl;
-
-            Obj mX(&ta);  const Obj& X = mX;
-            multiplexObserver.registerObserver(&mX);
-
-            ASSERT(bdlt::DatetimeInterval(0)       == X.rotationLifetime());
-            mX.rotateOnLifetime(bdlt::DatetimeInterval(0,0,0,1));
-            ASSERT(bdlt::DatetimeInterval(0,0,0,1) == X.rotationLifetime());
-
-            multiplexObserver.deregisterObserver(&mX);
-// TBD
-#if 0
-            ASSERT(0 == X.maxLogFiles());
-            mX.setMaxLogFiles(5);
-            ASSERT(5 == X.maxLogFiles());
-
-            bsl::string filename = tempFileName(veryVerbose);
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-            ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
-            ASSERT(X.isFileLoggingEnabled());
-
-            for (int i = 0 ; i < 20; ++i) {
-                BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bslmt::ThreadUtil::microSleep(1000 * 1000);
-            }
-
-            glob_t globbuf;
-            ASSERT(0 == glob((filename + ".*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            mX.disableFileLogging();
-
-            mX.setMaxLogFiles(2);
-            ASSERT(3 == mX.removeExcessLogFiles());
-            ASSERT(0 == glob((filename + ".*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            multiplexObserver.deregisterObserver(&mX);
-            globfree(&globbuf);
-            removeFilesByPrefix(filename.c_str());
-#endif
-#endif
-        }
-
-        if (verbose) cout << "\t log file opened without timestamp" << endl;
-        {
-            Obj mX(&ta);  const Obj& X = mX;
-            multiplexObserver.registerObserver(&mX);
-
-            ASSERT(bdlt::DatetimeInterval(0)       == X.rotationLifetime());
-            mX.rotateOnLifetime(bdlt::DatetimeInterval(0,0,0,1));
-            ASSERT(bdlt::DatetimeInterval(0,0,0,1) == X.rotationLifetime());
-
-            multiplexObserver.deregisterObserver(&mX);
-// TBD
-#if 0
-            ASSERT(0 == X.maxLogFiles());
-            mX.setMaxLogFiles(5);
-            ASSERT(5 == X.maxLogFiles());
-
-            bsl::string filename = tempFileName(veryVerbose);
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-            ASSERT(0 == mX.enableFileLogging(filename.c_str(), false));
-            ASSERT(X.isFileLoggingEnabled());
-
-            for (int i = 0 ; i < 20; ++i) {
-                BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bslmt::ThreadUtil::microSleep(1000 * 1000);
-            }
-
-            glob_t globbuf;
-            ASSERT(0 == glob((filename + ".*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            mX.disableFileLogging();
-
-            mX.setMaxLogFiles(2);
-            ASSERT(2 == mX.removeExcessLogFiles());
-            ASSERT(0 == glob((filename + ".*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            multiplexObserver.deregisterObserver(&mX);
-            globfree(&globbuf);
-            removeFilesByPrefix(filename.c_str());
-#endif
-#endif
-        }
-
-        if (verbose) cout << "\t log file name containing timestamp" << endl;
-        {
-            Obj mX(&ta);  const Obj& X = mX;
-            multiplexObserver.registerObserver(&mX);
-
-            ASSERT(bdlt::DatetimeInterval(0)       == X.rotationLifetime());
-            mX.rotateOnLifetime(bdlt::DatetimeInterval(0,0,0,1));
-            ASSERT(bdlt::DatetimeInterval(0,0,0,1) == X.rotationLifetime());
-
-            multiplexObserver.deregisterObserver(&mX);
-// TBD
-#if 0
-            ASSERT(0 == X.maxLogFiles());
-            mX.setMaxLogFiles(5);
-            ASSERT(5 == X.maxLogFiles());
-
-            bsl::string filename = tempFileName(veryVerbose);
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
-            ASSERT(0 == mX.enableFileLogging((filename + "%s").c_str(),
-                                             false));
-            ASSERT(X.isFileLoggingEnabled());
-
-            for (int i = 0 ; i < 20; ++i) {
-                BALL_LOG_TRACE << "log" << BALL_LOG_END;
-                bslmt::ThreadUtil::microSleep(1000 * 1000);
-            }
-
-            glob_t globbuf;
-            ASSERT(0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            mX.disableFileLogging();
-
-            mX.setMaxLogFiles(2);
-            ASSERT(3 == mX.removeExcessLogFiles());
-            ASSERT(0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            multiplexObserver.deregisterObserver(&mX);
-            globfree(&globbuf);
-            removeFilesByPrefix(filename.c_str());
-#endif
-#endif
-        }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // Rotation functions test
+        // TESTING ROTATION METHODS
         //
         // Concerns:
-        //   1. 'rotateOnSize' triggers a rotation when expected.
-        //   2. 'disableSizeRotation' disables rotation on size
-        //   3. 'forceRotation' triggers a rotation
-        //   4. 'rotateOnLifetime' triggers a rotation when expected
-        //   5. 'disableLifetimeRotation' disables rotation on lifetime
+        //:  1 'rotateOnSize' triggers a rotation when expected.
+        //:
+        //:  2 'disableSizeRotation' disables rotation on size.
+        //:
+        //:  3 'forceRotation' triggers a rotation.
+        //:
+        //:  4 'rotateOnLifetime' triggers a rotation when expected.
+        //:
+        //:  5 'disableLifetimeRotation' disables rotation on lifetime.
         //
-        // Test plan:
-        //   We will exercise both rotation rules to verify that they work
-        //   properly using glob to count the files and proper timing.  We will
-        //   also verify that the size rule is followed by checking the size of
-        //   log files.
-        //
-        // Tactics:
-        //   - Ad-Hoc Data Selection Method
-        //   - Brute Force Implementation Technique
+        // Plan:
+        //:  1 We will exercise both rotation rules to verify that they work
+        //:    properly using glob to count the files and proper timing.  We
+        //:    will also verify that the size rule is followed by checking the
+        //:    size of log files.
         //
         // Testing:
-        //   void disableLifetimeRotation()
-        //   void disableSizeRotation()
-        //   void forceRotation()
-        //   void rotateOnSize(int size)
-        //   void rotateOnLifetime(bdlt::DatetimeInterval timeInterval)
-        //   bdlt::DatetimeInterval rotationLifetime() const
-        //   int rotationSize() const
+        //   void disableLifetimeRotation();
+        //   void disableSizeRotation();
+        //   void forceRotation();
+        //   void rotateOnSize(int size);
+        //   void rotateOnLifetime(DatetimeInterval& interval);
+        //   DatetimeInterval rotationLifetime() const;
+        //   int rotationSize() const;
         // --------------------------------------------------------------------
 
-            ball::LoggerManagerConfiguration configuration;
+        if (verbose) cout << "\nTESTING ROTATION METHODS"
+                          << "\n========================" << endl;
 
-            // Publish synchronously all messages regardless of their severity.
-            // This configuration also guarantees that the observer will only
-            // see each message only once.
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
 
-            ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_TRACE,
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_OFF));
+        ball::LoggerManagerConfiguration configuration;
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
 
-            ball::MultiplexObserver multiplexObserver;
-            ball::LoggerManager::initSingleton(&multiplexObserver,
-                                              configuration);
+        ball::LoggerManagerScopedGuard guard(configuration);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        BALL_LOG_SET_CATEGORY("TestCategory");
 
 #ifdef BSLS_PLATFORM_OS_UNIX
         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
-            bsl::string filename = tempFileName(veryVerbose);
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            Obj mX(&ta);  const Obj& X = mX;
-            multiplexObserver.registerObserver(&mX);
+            bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+            bsl::shared_ptr<const Obj> X = mX;
 
-            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+            ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
             if (verbose) cout << "Testing setup." << endl;
             {
-                ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str(), true));
+                enableFileLogging(mX, fileName, true);
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
                 bsl::ifstream fs;
                 fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
                 globfree(&globbuf);
                 ASSERT(fs.is_open());
-                int linesNum = 0;
+
+                int         linesNum = 0;
                 bsl::string line;
+
                 while (getline(fs, line)) {
                     ++linesNum;
                 }
                 fs.close();
+
                 ASSERT(2 == linesNum);
-                ASSERT(X.isFileLoggingEnabled());
+                ASSERT(true == X->isFileLoggingEnabled());
             }
 
             if (verbose) cout << "Testing lifetime-constrained rotation."
                               << endl;
 
             {
-                ASSERT(bdlt::DatetimeInterval(0) ==
-                       X.rotationLifetime());
+                ASSERT(bdlt::DatetimeInterval(0) == X->rotationLifetime());
 
-                mX.rotateOnLifetime(bdlt::DatetimeInterval(0,0,0,3));
+                mX->rotateOnLifetime(bdlt::DatetimeInterval(0,0,0,3));
+
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
-                       X.rotationLifetime());
+                       X->rotationLifetime());
 
                 bslmt::ThreadUtil::microSleep(0, 4);
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
 
                 // Check that a rotation occurred.
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
 
                 // Check the number of lines in the file.
@@ -2643,48 +2739,54 @@ int main(int argc, char *argv[])
                 fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
                 fs.clear();
                 globfree(&globbuf);
+
                 ASSERT(fs.is_open());
-                int linesNum = 0;
+
+                int         linesNum = 0;
                 bsl::string line(&ta);
+
                 while (getline(fs, line)) {
                     ++linesNum;
                 }
                 fs.close();
+
                 ASSERT(4 == linesNum);
 
-                mX.disableLifetimeRotation();
+                mX->disableLifetimeRotation();
                 bslmt::ThreadUtil::microSleep(0, 4);
-                BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
+                BALL_LOG_FATAL << "log 3";
 
                 // Check that no rotation occurred.
 
-                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
                 fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
                 fs.clear();
                 globfree(&globbuf);
                 ASSERT(fs.is_open());
+
                 linesNum = 0;
                 while (getline(fs, line)) {
                     ++linesNum;
                 }
                 fs.close();
+
                 ASSERT(6 == linesNum);
             }
 
             if (verbose) cout << "Testing forced rotation." << endl;
             {
                 bslmt::ThreadUtil::microSleep(0, 2);
-                mX.forceRotation();
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-                BALL_LOG_INFO <<  "log 3" << BALL_LOG_END;
-                BALL_LOG_WARN <<  "log 4" << BALL_LOG_END;
+                mX->forceRotation();
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
+                BALL_LOG_INFO  << "log 3";
+                BALL_LOG_WARN  << "log 4";
 
                 // Check that the rotation occurred.
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(3 == globbuf.gl_pathc);
 
                 bsl::ifstream fs;
@@ -2692,23 +2794,26 @@ int main(int argc, char *argv[])
                 fs.clear();
                 globfree(&globbuf);
                 ASSERT(fs.is_open());
-                int linesNum = 0;
+
+                int         linesNum = 0;
                 bsl::string line(&ta);
+
                 while (getline(fs, line)) {
                     ++linesNum;
                 }
                 fs.close();
+
                 ASSERT(8 == linesNum);
             }
 
             if (verbose) cout << "Testing size-constrained rotation." << endl;
             {
                 bslmt::ThreadUtil::microSleep(0, 2);
-                ASSERT(0 == X.rotationSize());
-                mX.rotateOnSize(1);
-                ASSERT(1 == X.rotationSize());
-                for (int i = 0 ; i < 15; ++i) {
-                    BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                ASSERT(0 == X->rotationSize());
+                mX->rotateOnSize(1);
+                ASSERT(1 == X->rotationSize());
+                for (int i = 0; i < 15; ++i) {
+                    BALL_LOG_TRACE << "log";
 
                     // We sleep because otherwise, the loop is too fast to make
                     // the timestamp change so we cannot observe the rotation.
@@ -2717,96 +2822,98 @@ int main(int argc, char *argv[])
                 }
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(4 <= globbuf.gl_pathc);
 
                 // We are not checking the last one since we do not have any
                 // information on its size.
 
-                bsl::ifstream fs;
                 for (int i = 0; i < (int)globbuf.gl_pathc - 3; ++i) {
-                    ASSERT(1024 < getFileSize(globbuf.gl_pathv[i + 2]));
+                    ASSERT(1024 <
+                                 FsUtil::getFileSize(globbuf.gl_pathv[i + 2]));
                 }
 
-                int oldNumFiles = (int)globbuf.gl_pathc;
+                size_t oldNumFiles = globbuf.gl_pathc;
                 globfree(&globbuf);
 
-                ASSERT(1 == X.rotationSize());
-                mX.disableSizeRotation();
-                ASSERT(0 == X.rotationSize());
+                ASSERT(1 == X->rotationSize());
+                mX->disableSizeRotation();
+                ASSERT(0 == X->rotationSize());
 
-                for (int i = 0 ; i < 15; ++i) {
-                    BALL_LOG_TRACE << "log" << BALL_LOG_END;
+                for (int i = 0; i < 15; ++i) {
+                    BALL_LOG_TRACE << "log";
                     bslmt::ThreadUtil::microSleep(50 * 1000);
                 }
 
                 // Verify that no rotation occurred.
 
-                ASSERT(0 == glob((filename + ".20*").c_str(), 0, 0, &globbuf));
-                ASSERT(oldNumFiles == (int)globbuf.gl_pathc);
+                ASSERT(0 == glob((fileName + ".2*").c_str(), 0, 0, &globbuf));
+                ASSERT(oldNumFiles == globbuf.gl_pathc);
                 globfree(&globbuf);
             }
 
-            mX.disableFileLogging();
-            removeFilesByPrefix(filename.c_str());
-            multiplexObserver.deregisterObserver(&mX);
+            mX->disableFileLogging();
+
+            // Deregister here as we used local allocator for the observer.
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
         }
 
+        // Test with no timestamp.
+
+        if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
-            // Test with no timestamp.
+            // Create a temporary directory for log files.
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            if (verbose) cout << "Test-case infrastructure setup." << endl;
+            bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+            bsl::shared_ptr<const Obj> X = mX;
 
-            bsl::string filename = tempFileName(veryVerbose);
-
-            Obj mX(&ta);  const Obj& X = mX;
-            multiplexObserver.registerObserver(&mX);
-
-            BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+            ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
             if (verbose) cout << "Testing setup." << endl;
             {
-                ASSERT(0 == mX.enableFileLogging(filename.c_str(), false));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str(), false));
+                enableFileLogging(mX, fileName);
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + "*").c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
                 bsl::ifstream fs;
                 fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
                 globfree(&globbuf);
                 ASSERT(fs.is_open());
-                int linesNum = 0;
+
+                int         linesNum = 0;
                 bsl::string line;
                 while (getline(fs, line)) {
                     ++linesNum;
                 }
                 fs.close();
-                ASSERT(2 == linesNum);
-                ASSERT(X.isFileLoggingEnabled());
+                ASSERT(2    == linesNum);
+                ASSERT(true == X->isFileLoggingEnabled());
             }
 
             if (verbose) cout << "Testing lifetime-constrained rotation."
                               << endl;
             {
-                ASSERT(bdlt::DatetimeInterval(0) ==
-                       X.rotationLifetime());
+                ASSERT(bdlt::DatetimeInterval(0) == X->rotationLifetime());
 
-                mX.rotateOnLifetime(bdlt::DatetimeInterval(0,0,0,3));
+                mX->rotateOnLifetime(bdlt::DatetimeInterval(0,0,0,3));
 
                 ASSERT(bdlt::DatetimeInterval(0,0,0,3) ==
-                       X.rotationLifetime());
+                       X->rotationLifetime());
+
                 bslmt::ThreadUtil::microSleep(0, 4);
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
 
                 // Check that a rotation occurred.
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + "*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
 
                 // Check the number of lines in the file.
@@ -2816,7 +2923,8 @@ int main(int argc, char *argv[])
                 fs.clear();
                 globfree(&globbuf);
                 ASSERT(fs.is_open());
-                int linesNum = 0;
+
+                int         linesNum = 0;
                 bsl::string line(&ta);
                 while (getline(fs, line)) {
                     ++linesNum;
@@ -2824,18 +2932,21 @@ int main(int argc, char *argv[])
                 fs.close();
                 ASSERT(4 == linesNum);
 
-                mX.disableLifetimeRotation();
+                mX->disableLifetimeRotation();
+
                 bslmt::ThreadUtil::microSleep(0, 4);
-                BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
+
+                BALL_LOG_FATAL << "log 3";
 
                 // Check that no rotation occurred.
 
-                ASSERT(0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((fileName + "*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
                 fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
                 fs.clear();
                 globfree(&globbuf);
                 ASSERT(fs.is_open());
+
                 linesNum = 0;
                 while (getline(fs, line)) {
                     ++linesNum;
@@ -2844,54 +2955,72 @@ int main(int argc, char *argv[])
                 ASSERT(6 == linesNum);
             }
 
-            mX.disableFileLogging();
-            removeFilesByPrefix(filename.c_str());
-            multiplexObserver.deregisterObserver(&mX);
+            mX->disableFileLogging();
+
+            // Deregister here as we used local allocator for the observer.
+            ASSERT(0 == manager.deregisterObserver("testObserver"));
         }
 #endif
-
-        ball::LoggerManager::shutDownSingleton();
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // Publishing test
+        // TESTING THRESHOLDS AND OUTPUT FORMATS
         //
         // Concerns:
-        //   1. publish() logs in the default format
-        //   2. publish() publishes all messages to a file if file logging
-        //      is enabled
-        //   3. the name of the log file should be in accordance with what is
-        //      defined by the pattern if file logging is enabled by a pattern
-        //   4. setLogFileFunctor can change the format effectively
+        //:  1 'publish' logs in the default format.
+        //:
+        //:  2 'publish' publishes all messages to a file if file logging is
+        //:    enabled.
+        //:
+        //:  3 The name of the log file should be in accordance with what is
+        //:    defined by the pattern if file logging is enabled by a pattern.
+        //:
+        //:  4 'setLogFileFunctor' can change the format effectively.
         //
         // Plan:
-        //   We will set up the observer and check if logged messages are in
-        //   the expected format and contain the expected data by comparing the
-        //   output of this observer with 'ball::DefaultObserver', that we
-        //   slightly modify.  Then, We will use different manipulators and
-        //   functors to affect output format and verify that it has changed
-        //   where expected.
-        //
-        // Tactics:
-        //   - Ad-Hoc Data Selection Method
-        //   - Brute Force Implementation Technique
+        //:  1 We will set up the observer and check if logged messages are in
+        //:    the expected format and contain the expected data by comparing
+        //:    the output of this observer with 'ball::StreamObserver', that we
+        //:    slightly modify.  Then, we will use different manipulators and
+        //:    functors to affect output format and verify that it has changed
+        //:    where expected.
         //
         // Testing:
-        //   ball::FileObserver(ball::Severity::Level, bslma::Allocator)
-        //   ~ball::FileObserver()
-        //   publish(const ball::Record& record, const ball::Context& context)
-        //   void disableFileLogging()
-        //   int enableFileLogging(const char *fileName, bool timestampFlag)
-        //   void publish(const ball::Record&, const ball::Context&)
-        //   bool isFileLoggingEnabled() const
-        //   void setLogFileFunctor(const logRecordFunctor& logFileFunctor);
-        //   bool isPublishInLocalTimeEnabled() const;
+        //   FileObserver(ball::Severity::Level, bslma::Allocator);
+        //   ~FileObserver();
+        //   void disableFileLogging();
+        //   int  enableFileLogging(const char *fileName);
+        //   int  enableFileLogging(const char *fileName, bool timestampFlag);
+        //   void publish(const Record& record, const Context& context);
+        //   void publish(const shared_ptr<Record>&, const Context&);
         //   void disablePublishInLocalTime();
         //   void enablePublishInLocalTime();
-        //   bdlt::DatetimeInterval localTimeOffset();
+        //   void setLogFileFunctor(const logRecordFunctor& logFileFunctor);
+        //   DatetimeInterval localTimeOffset();
+        //   bool isFileLoggingEnabled() const;
+        //   bool isPublishInLocalTimeEnabled() const;
         // --------------------------------------------------------------------
 
-        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
+        if (verbose) cout << "\nTESTING THRESHOLDS AND OUTPUT FORMATS"
+                             "\n=====================================" << endl;
+
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
+
+        ball::LoggerManagerConfiguration configuration;
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
+
+        ball::LoggerManagerScopedGuard guard(configuration);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        BALL_LOG_SET_CATEGORY("TestCategory");
+
 // TBD fix this for Windows !!!
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 #if (!defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR >= 10)\
@@ -2900,29 +3029,22 @@ int main(int argc, char *argv[])
         // us.
         unsetenv("TZ");
 #endif
+
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
         {
-            ball::LoggerManagerConfiguration configuration;
-
-            // Publish synchronously all messages regardless of their severity.
-            // This configuration also guarantees that the observer will only
-            // see each message only once.
-
-            ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_TRACE,
-                                                  ball::Severity::e_OFF,
-                                                  ball::Severity::e_OFF));
-
-            ball::MultiplexObserver multiplexObserver;
-            ball::LoggerManager::initSingleton(&multiplexObserver,
-                                              configuration);
 
             if (verbose) cout << "Testing default output format." << endl;
             {
-                Obj mX;  const Obj& X = mX;
+                TempDirectoryGuard tempDirGuard;
+                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+                bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+                bsl::shared_ptr<const Obj> X = mX;
+
                 bsl::ostringstream dos;
 
-                time_t currentTime = time(0);
+                time_t    currentTime = time(0);
                 struct tm localtm, gmtm;
 #ifdef BSLS_PLATFORM_OS_WINDOWS
                 localtm = *localtime(&currentTime);
@@ -2937,25 +3059,20 @@ int main(int argc, char *argv[])
                 bdlt::DatetimeUtil::convertFromTm(&currentUTCTime, gmtm);
 
                 ASSERT(currentLocalTime - currentUTCTime ==
-                                                          X.localTimeOffset());
+                                                         X->localTimeOffset());
 
-                ball::DefaultObserver defaultObserver(&dos);
-                ball::MultiplexObserver localMultiObserver;
-                localMultiObserver.registerObserver(&mX);
-                localMultiObserver.registerObserver(&defaultObserver);
-                multiplexObserver.registerObserver(&localMultiObserver);
+                bsl::shared_ptr<ball::StreamObserver>
+                                refX(new (ta) ball::StreamObserver(&dos), &ta);
 
-                bsl::string filename = tempFileName(veryVerbose);
-                ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str(), true));
+                ASSERT(0 == manager.registerObserver(mX,   "testObserver"));
+                ASSERT(0 == manager.registerObserver(refX, "refObserver"));
 
-                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+                enableFileLogging(mX, fileName, true);
 
-                BALL_LOG_WARN << "log WARN" << BALL_LOG_END;
+                BALL_LOG_WARN << "log WARN";
 
                 bsl::string os;
-                ASSERT(2 == readFileIntoString(__LINE__, filename, os));
+                ASSERT(2 == readFileIntoString(__LINE__, fileName, os));
 
                 // Replace the spaces after pid, __FILE__
                 {
@@ -2966,45 +3083,47 @@ int main(int argc, char *argv[])
                 }
 
                 ASSERT(dos.str() == os);
-                mX.disableFileLogging();
-                removeFilesByPrefix(filename.c_str());
-                multiplexObserver.deregisterObserver(&localMultiObserver);
+                mX->disableFileLogging();
 
+                // Deregister here as we used local allocator for the observer.
+                ASSERT(0 == manager.deregisterObserver("testObserver"));
+                ASSERT(0 == manager.deregisterObserver("refObserver"));
             }
 
             if (verbose) cout << "Testing format with local time offset."
                               << endl;
             {
-                Obj mX(&ta);  const Obj& X = mX;
-                ASSERT(!X.isPublishInLocalTimeEnabled());
-                mX.enablePublishInLocalTime();
-                ASSERT( X.isPublishInLocalTimeEnabled());
+                TempDirectoryGuard tempDirGuard;
+                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-                mX.disablePublishInLocalTime();
-                ASSERT(!X.isPublishInLocalTimeEnabled());
+                bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+                bsl::shared_ptr<const Obj> X = mX;
 
-                mX.enablePublishInLocalTime();
-                ASSERT( X.isPublishInLocalTimeEnabled());
+                ASSERT(false == X->isPublishInLocalTimeEnabled());
+                mX->enablePublishInLocalTime();
+                ASSERT(true  == X->isPublishInLocalTimeEnabled());
+
+                mX->disablePublishInLocalTime();
+                ASSERT(false == X->isPublishInLocalTimeEnabled());
+
+                mX->enablePublishInLocalTime();
+                ASSERT(true == X->isPublishInLocalTimeEnabled());
 
                 bsl::ostringstream testOs, dos;
 
-                ball::DefaultObserver defaultObserver(&dos);
-                ball::MultiplexObserver localMultiObserver;
-                localMultiObserver.registerObserver(&mX);
-                localMultiObserver.registerObserver(&defaultObserver);
-                multiplexObserver.registerObserver(&localMultiObserver);
+                bsl::shared_ptr<ball::StreamObserver>
+                                refX(new (ta) ball::StreamObserver(&dos), &ta);
 
-                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+                ASSERT(0 == manager.registerObserver(mX,   "testObserver"));
+                ASSERT(0 == manager.registerObserver(refX, "refObserver"));
 
-                bsl::string filename = tempFileName(veryVerbose);
-                ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str(), true));
+                enableFileLogging(mX, fileName, true);
 
-                BALL_LOG_FATAL << "log FATAL" << BALL_LOG_END;
+                BALL_LOG_FATAL << "log FATAL";
 
                 bsl::string os;
-                ASSERT(2 == readFileIntoString(__LINE__, filename, os));
+                ASSERT(2 == readFileIntoString(__LINE__, fileName, os));
 
                 testOs << "\nFATAL " << __FILE__ << ":" << __LINE__ - 1 <<
                           " ball::FileObserverTest log FATAL " << "\n";
@@ -3016,7 +3135,7 @@ int main(int argc, char *argv[])
                     dos.str(temp);
                 }
 
-                LOOP2_ASSERT(dos.str(), os, dos.str() != os);
+                ASSERTV(dos.str(), os, dos.str() != os);
                 ASSERT(testOs.str() != os);
 
                 // Now let's verify the actual difference.
@@ -3034,10 +3153,12 @@ int main(int argc, char *argv[])
                 } else {
                     ASSERT(0 && "can't substr(11,2), string too short");
                 }
+
 #ifdef BSLS_PLATFORM_OS_UNIX
                 tzset();
-                time_t currentTime;
+                time_t     currentTime;
                 struct tm *ts;
+
                 ::time(&currentTime);
                 ts = ::localtime(&currentTime);
 #ifdef BSLS_PLATFORM_OS_FREEBSD
@@ -3056,8 +3177,9 @@ int main(int argc, char *argv[])
                 _tzset();
                 long difference = _timezone / 3600;
 #endif
-                LOOP2_ASSERT((fileObsHour + difference + 24) % 24,
-                             defaultObsHour,
+
+                ASSERTV((fileObsHour + difference + 24) % 24,
+                        defaultObsHour,
                        (fileObsHour + difference + 24) % 24 == defaultObsHour);
                 {
                     bsl::string temp = dos.str();
@@ -3078,333 +3200,313 @@ int main(int argc, char *argv[])
                     ASSERT(0 && "can't substr(10), string too short");
                 }
 
-                mX.disableFileLogging();
-                removeFilesByPrefix(filename.c_str());
-                multiplexObserver.deregisterObserver(&localMultiObserver);
+                mX->disableFileLogging();
 
+                // Deregister here as we used local allocator for the observer.
+                ASSERT(0 == manager.deregisterObserver("testObserver"));
+                ASSERT(0 == manager.deregisterObserver("refObserver"));
             }
 
             if (verbose) cout << "Testing file logging." << endl;
             {
-                const bsl::string filename = tempFileName(veryVerbose);
+                TempDirectoryGuard tempDirGuard;
+                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-                Obj mX(&ta);  const Obj& X = mX;
-                ASSERT(-1 == mX.enableFileLogging("/bogus/path/foo"));
-                multiplexObserver.registerObserver(&mX);
+                bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+                bsl::shared_ptr<const Obj> X = mX;
 
-                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+                ASSERT(-1 == mX->enableFileLogging("/bogus/path/foo"));
 
-                ASSERT(0 == mX.enableFileLogging(filename.c_str()));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str()));
+                ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-                BALL_LOG_INFO <<  "log 3" << BALL_LOG_END;
-                BALL_LOG_WARN <<  "log 4" << BALL_LOG_END;
-                BALL_LOG_ERROR << "log 5" << BALL_LOG_END;
-                BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
+                enableFileLogging(mX, fileName);
+
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
+                BALL_LOG_INFO  << "log 3";
+                BALL_LOG_WARN  << "log 4";
+                BALL_LOG_ERROR << "log 5";
+                BALL_LOG_FATAL << "log 6";
 
                 bsl::string os;
-                ASSERT(12 == readFileIntoString(__LINE__, filename, os));
+                ASSERT(12    == readFileIntoString(__LINE__, fileName, os));
+                ASSERT(true  == X->isFileLoggingEnabled());
 
-                ASSERT( X.isFileLoggingEnabled());
-                mX.disableFileLogging();
-                ASSERT(!X.isFileLoggingEnabled());
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-                BALL_LOG_INFO <<  "log 3" << BALL_LOG_END;
-                BALL_LOG_WARN <<  "log 4" << BALL_LOG_END;
-                BALL_LOG_ERROR << "log 5" << BALL_LOG_END;
-                BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
+                mX->disableFileLogging();
+                ASSERT(false == X->isFileLoggingEnabled());
 
-                ASSERT(12 == readFileIntoString(__LINE__, filename, os));
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
+                BALL_LOG_INFO  << "log 3";
+                BALL_LOG_WARN  << "log 4";
+                BALL_LOG_ERROR << "log 5";
+                BALL_LOG_FATAL << "log 6";
 
-                ASSERT(0 == mX.enableFileLogging(filename.c_str()));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str()));
+                ASSERT(12 == readFileIntoString(__LINE__, fileName, os));
 
-                BALL_LOG_TRACE << "log 7" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 8" << BALL_LOG_END;
-                BALL_LOG_INFO <<  "log 9" << BALL_LOG_END;
-                BALL_LOG_WARN <<  "log 1" << BALL_LOG_END;
-                BALL_LOG_ERROR << "log 2" << BALL_LOG_END;
-                BALL_LOG_FATAL << "log 3" << BALL_LOG_END;
+                enableFileLogging(mX, fileName);
 
-                ASSERT(24 == readFileIntoString(__LINE__, filename, os));
+                BALL_LOG_TRACE << "log 7";
+                BALL_LOG_DEBUG << "log 8";
+                BALL_LOG_INFO  << "log 9";
+                BALL_LOG_WARN  << "log 1";
+                BALL_LOG_ERROR << "log 2";
+                BALL_LOG_FATAL << "log 3";
 
-                mX.disableFileLogging();
-                removeFilesByPrefix(filename.c_str());
-                multiplexObserver.deregisterObserver(&mX);
+                ASSERT(24 == readFileIntoString(__LINE__, fileName, os));
 
+                mX->disableFileLogging();
+
+                // Deregister here as we used local allocator for the observer.
+                ASSERT(0 == manager.deregisterObserver("testObserver"));
             }
-
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-            if (verbose) cout << "Testing file logging with timestamp."
-                              << endl;
+            if (verbose)
+                cout << "Testing file logging with timestamp." << endl;
             {
-                bsl::string filename = tempFileName(veryVerbose);
+                TempDirectoryGuard tempDirGuard;
+                bsl::string        fileName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-                Obj mX(&ta);  const Obj& X = mX;
-                multiplexObserver.registerObserver(&mX);
+                bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+                bsl::shared_ptr<const Obj> X = mX;
 
-                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+                ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
-                ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
-                ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str(), true));
+                enableFileLogging(mX, fileName, true);
 
-                BALL_LOG_TRACE << "log 1" << BALL_LOG_END;
-                BALL_LOG_DEBUG << "log 2" << BALL_LOG_END;
-                BALL_LOG_INFO <<  "log 3" << BALL_LOG_END;
-                BALL_LOG_WARN <<  "log 4" << BALL_LOG_END;
-                BALL_LOG_ERROR << "log 5" << BALL_LOG_END;
-                BALL_LOG_FATAL << "log 6" << BALL_LOG_END;
+                BALL_LOG_TRACE << "log 1";
+                BALL_LOG_DEBUG << "log 2";
+                BALL_LOG_INFO  << "log 3";
+                BALL_LOG_WARN  << "log 4";
+                BALL_LOG_ERROR << "log 5";
+                BALL_LOG_FATAL << "log 6";
 
                 bsl::string os;
-                ASSERT(12 == readFileIntoString(__LINE__, filename, os));
+                ASSERT(12 == readFileIntoString(__LINE__, fileName, os));
 
-                mX.disableFileLogging();
-                removeFilesByPrefix(filename.c_str());
-                multiplexObserver.deregisterObserver(&mX);
+                mX->disableFileLogging();
+
+                // Deregister here as we used local allocator for the observer.
+                ASSERT(0 == manager.deregisterObserver("testObserver"));
             }
-
 
             if (verbose) cout << "Testing '%%' in file name pattern." << endl;
             {
                 static const struct {
                     int         d_lineNum;           // source line number
                     const char *d_patternSuffix_p;   // pattern suffix
-                    const char *d_filenameSuffix_p;  // filename suffix
+                    const char *d_fileNameSuffix_p;  // filename suffix
                 } DATA[] = {
                     //line  pattern suffix  filename suffix
                     //----  --------------  ---------------
-                    { L_,   "foo",          "foo"                           },
-                    { L_,   "foo%",         "foo%"                          },
-                    { L_,   "foo%bar",      "foo%bar"                       },
-                    { L_,   "foo%%",        "foo"                           },
-                    { L_,   "foo%%bar",     "foobar"                        },
-                    { L_,   "foo%%%",       "foo%"                          },
-                    { L_,   "foo%%%bar",    "foo%bar"                       },
+                    { L_,   "foo",          "foo"           },
+                    { L_,   "foo%",         "foo%"          },
+                    { L_,   "foo%bar",      "foo%bar"       },
+                    { L_,   "foo%%",        "foo"           },
+                    { L_,   "foo%%bar",     "foobar"        },
+                    { L_,   "foo%%%",       "foo%"          },
+                    { L_,   "foo%%%bar",    "foo%bar"       },
                 };
                 const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
                 for (int ti = 0; ti < NUM_DATA; ++ti) {
                     const int   LINE     = DATA[ti].d_lineNum;
                     const char *PATTERN  = DATA[ti].d_patternSuffix_p;
-                    const char *FILENAME = DATA[ti].d_filenameSuffix_p;
+                    const char *FILENAME = DATA[ti].d_fileNameSuffix_p;
 
-                    bsl::string baseName = tempFileName(veryVerbose);
-                    bsl::string pattern(baseName);   pattern  += PATTERN;
-                    bsl::string expected(baseName);  expected += FILENAME;
-                    bsl::string actual;
+                    TempDirectoryGuard tempDirGuard;
+                    bsl::string        baseName(tempDirGuard.getTempDirName());
+                    bdls::PathUtil::appendRaw(&baseName, "testLog");
+
+                    bsl::string pattern(baseName  + PATTERN);
+                    bsl::string expected(baseName + FILENAME);
 
                     Obj mX(&ta);  const Obj& X = mX;
 
-                    LOOP_ASSERT(LINE, 0 == mX.enableFileLogging(
-                                                      pattern.c_str(), false));
-                    LOOP_ASSERT(LINE, X.isFileLoggingEnabled(&actual));
+                    ASSERT(0 == mX.enableFileLogging(pattern.c_str()));
+
+                    bsl::string actual;
+                    ASSERTV(LINE, true == X.isFileLoggingEnabled(&actual));
 
                     if (veryVeryVerbose) {
                         P_(PATTERN);  P_(expected);  P(actual);
                     }
 
-                    LOOP_ASSERT(LINE, expected == actual);
+                    ASSERTV(LINE, expected == actual);
 
                     mX.disableFileLogging();
 
                     // look for the file with the expected name
                     glob_t globbuf;
-                    LOOP_ASSERT(LINE, 0 == glob(expected.c_str(),
-                                                0, 0, &globbuf));
-                    LOOP_ASSERT(LINE, 1 == globbuf.gl_pathc);
-
-                    removeFilesByPrefix(expected.c_str());
+                    ASSERTV(LINE, 0 == glob(expected.c_str(), 0, 0, &globbuf));
+                    ASSERTV(LINE, 1 == globbuf.gl_pathc);
+                    globfree(&globbuf);
                 }
             }
 
             if (verbose) cout << "Testing functors with the same format."
                               << endl;
             {
-                // create three FileObservers
-                Obj mX1(&ta);  const Obj& X1 = mX1;
-                Obj mX2(&ta);  const Obj& X2 = mX2;
-                Obj mX3(&ta);  const Obj& X3 = mX3;
+                TempDirectoryGuard tempDirGuard;
+                bsl::string        baseName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&baseName, "testLog");
 
-                // connect them to a MultiplexObserver
-                ball::MultiplexObserver localMultiObserver;
-                localMultiObserver.registerObserver(&mX1);
-                localMultiObserver.registerObserver(&mX2);
-                localMultiObserver.registerObserver(&mX3);
-                multiplexObserver.registerObserver(&localMultiObserver);
+                // Create observers.
+                bsl::shared_ptr<Obj>       mX1(new (ta) Obj(&ta), &ta);
+                bsl::shared_ptr<const Obj> X1 = mX1;
+                bsl::shared_ptr<Obj>       mX2(new (ta) Obj(&ta), &ta);
+                bsl::shared_ptr<const Obj> X2 = mX2;
+                bsl::shared_ptr<Obj>       mX3(new (ta) Obj(&ta), &ta);
+                bsl::shared_ptr<const Obj> X3 = mX3;
 
-                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+                // Register with logger manager.
+                ASSERT(0 == manager.registerObserver(mX1, "testObserver1"));
+                ASSERT(0 == manager.registerObserver(mX2, "testObserver2"));
+                ASSERT(0 == manager.registerObserver(mX3, "testObserver3"));
 
-                // obtain a temporary filename
-                bsl::string baseName = tempFileName(veryVerbose);
+                bsl::string fileName1 = baseName + "1";
+                bsl::string fileName2 = baseName + "2";
+                bsl::string fileName3 = baseName + "3";
 
-                // derive three temporary filenames from the basename
-                bsl::string filename1 = baseName + "1";
-                bsl::string filename2 = baseName + "2";
-                bsl::string filename3 = baseName + "3";
+                // Enable file logging and set the formatting functor.
+                enableFileLogging(mX1, fileName1);
 
-                // enable file logging and set the formatting functor
-                ASSERT(0 == mX1.enableFileLogging(filename1.c_str(), false));
-                ASSERT(X1.isFileLoggingEnabled());
-                ASSERT(1 == mX1.enableFileLogging(filename1.c_str(), false));
+                enableFileLogging(mX2, fileName2);
+                mX2->setLogFileFunctor(ball::RecordStringFormatter());
 
-                ASSERT(0 == mX2.enableFileLogging(filename2.c_str(), false));
-                ASSERT(X2.isFileLoggingEnabled());
-                ASSERT(1 == mX2.enableFileLogging(filename2.c_str(), false));
-                mX2.setLogFileFunctor(ball::RecordStringFormatter());
+                enableFileLogging(mX3, fileName3);
+                mX3->setLogFileFunctor(&logRecord1);
 
-                ASSERT(0 == mX3.enableFileLogging(filename3.c_str(), false));
-                ASSERT(X3.isFileLoggingEnabled());
-                ASSERT(1 == mX3.enableFileLogging(filename3.c_str(), false));
-                mX3.setLogFileFunctor(&logRecord1);
-
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
+                BALL_LOG_WARN << "log";
 
                 bsl::string file1, file2, file3;
 
-                ASSERT(2 == readFileIntoString(__LINE__, filename1, file1));
-                ASSERT(2 == readFileIntoString(__LINE__, filename2, file2));
-                ASSERT(2 == readFileIntoString(__LINE__, filename3, file3));
+                ASSERT(2 == readFileIntoString(__LINE__, fileName1, file1));
+                ASSERT(2 == readFileIntoString(__LINE__, fileName2, file2));
+                ASSERT(2 == readFileIntoString(__LINE__, fileName3, file3));
 
                 if (veryVeryVerbose) { P_(file1);  P_(file2);  P(file3); }
                 ASSERT(file1 == file2);
                 ASSERT(file1 == file3);
                 ASSERT(file2 == file3);
 
-                mX1.disableFileLogging();
-                mX2.disableFileLogging();
-                mX3.disableFileLogging();
-                removeFilesByPrefix(filename1.c_str());
-                removeFilesByPrefix(filename2.c_str());
-                removeFilesByPrefix(filename3.c_str());
+                mX1->disableFileLogging();
+                mX2->disableFileLogging();
+                mX3->disableFileLogging();
 
-                multiplexObserver.deregisterObserver(&localMultiObserver);
+                // Deregister here as we used local allocator for the observer.
+                ASSERT(0 == manager.deregisterObserver("testObserver1"));
+                ASSERT(0 == manager.deregisterObserver("testObserver2"));
+                ASSERT(0 == manager.deregisterObserver("testObserver3"));
             }
 
             if (verbose) cout << "Testing functors with different formats."
                               << endl;
             {
-                // create three FileObservers
-                Obj mX1(&ta);  const Obj& X1 = mX1;
-                Obj mX2(&ta);  const Obj& X2 = mX2;
-                Obj mX3(&ta);  const Obj& X3 = mX3;
+                TempDirectoryGuard tempDirGuard;
+                bsl::string        baseName(tempDirGuard.getTempDirName());
+                bdls::PathUtil::appendRaw(&baseName, "testLog");
 
-                // connect them to a MultiplexObserver
-                ball::MultiplexObserver localMultiObserver;
-                localMultiObserver.registerObserver(&mX1);
-                localMultiObserver.registerObserver(&mX2);
-                localMultiObserver.registerObserver(&mX3);
-                multiplexObserver.registerObserver(&localMultiObserver);
+                // Create observers.
+                bsl::shared_ptr<Obj>       mX1(new (ta) Obj(&ta), &ta);
+                bsl::shared_ptr<const Obj> X1 = mX1;
+                bsl::shared_ptr<Obj>       mX2(new (ta) Obj(&ta), &ta);
+                bsl::shared_ptr<const Obj> X2 = mX2;
+                bsl::shared_ptr<Obj>       mX3(new (ta) Obj(&ta), &ta);
+                bsl::shared_ptr<const Obj> X3 = mX3;
 
-                BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+                // Register with logger manager.
+                ASSERT(0 == manager.registerObserver(mX1, "testObserver1"));
+                ASSERT(0 == manager.registerObserver(mX2, "testObserver2"));
+                ASSERT(0 == manager.registerObserver(mX3, "testObserver3"));
 
-                // obtain a temporary filename
-                bsl::string baseName = tempFileName(veryVerbose);
+                bsl::string fileName1 = baseName + "1";
+                bsl::string fileName2 = baseName + "2";
+                bsl::string fileName3 = baseName + "3";
 
-                // derive three temporary filenames from the basename
-                bsl::string filename1 = baseName + "1";
-                bsl::string filename2 = baseName + "2";
-                bsl::string filename3 = baseName + "3";
+                // Enable file logging and set the formatting functor.
+                enableFileLogging(mX1, fileName1);
 
-                // enable file logging and set the formatting functor
-                ASSERT(0 == mX1.enableFileLogging(filename1.c_str(), false));
-                ASSERT(X1.isFileLoggingEnabled());
-                ASSERT(1 == mX1.enableFileLogging(filename1.c_str(), false));
+                enableFileLogging(mX2, fileName2);
+                mX2->setLogFileFunctor(ball::RecordStringFormatter(
+                                                  "\n%p %t %s %f %c %m %u\n"));
 
-                ASSERT(0 == mX2.enableFileLogging(filename2.c_str(), false));
-                ASSERT(X2.isFileLoggingEnabled());
-                ASSERT(1 == mX2.enableFileLogging(filename2.c_str(), false));
-                mX2.setLogFileFunctor(ball::RecordStringFormatter(
-                                       "\n%p %t %s %f %c %m %u\n"));
+                enableFileLogging(mX3, fileName3);
+                mX3->setLogFileFunctor(&logRecord2);
 
-                ASSERT(0 == mX3.enableFileLogging(filename3.c_str(), false));
-                ASSERT(X3.isFileLoggingEnabled());
-                ASSERT(1 == mX3.enableFileLogging(filename3.c_str(), false));
-                mX3.setLogFileFunctor(&logRecord2);
-
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
+                BALL_LOG_WARN << "log";
 
                 bsl::string file1, file2, file3;
 
-                ASSERT(2 == readFileIntoString(__LINE__, filename1, file1));
-                ASSERT(2 == readFileIntoString(__LINE__, filename2, file2));
-                ASSERT(2 == readFileIntoString(__LINE__, filename3, file3));
+                ASSERT(2 == readFileIntoString(__LINE__, fileName1, file1));
+                ASSERT(2 == readFileIntoString(__LINE__, fileName2, file2));
+                ASSERT(2 == readFileIntoString(__LINE__, fileName3, file3));
 
                 ASSERT(file1 != file2);
                 ASSERT(file1 != file3);
                 ASSERT(file2 != file3);
 
-                // at this point we have three different logs produced by these
-                // three fileobservers configured with different formats; now
+                // At this point we have three different logs produced by these
+                // three file observers configured with different formats; now
                 // we are going to reuse one of these fileobserver and change
                 // its functors to see if the resulting log should be identical
                 // to one of those known logs in file1, file2, and file3
 
-                bsl::string filename1a = tempFileName(veryVerbose);
+                bsl::string fileName1a = baseName + "1a";
                 bsl::string fileContent;
 
-                mX1.disableFileLogging();
-                ASSERT(!X1.isFileLoggingEnabled());
-                ASSERT(0 == mX1.enableFileLogging(filename1a.c_str(), false));
-                ASSERT( X1.isFileLoggingEnabled());
-                ASSERT(1 == mX1.enableFileLogging(filename1.c_str(), false));
+                mX1->disableFileLogging();
+                enableFileLogging(mX1, fileName1a);
+                mX1->setLogFileFunctor(ball::RecordStringFormatter(
+                                                  "\n%p %t %s %f %c %m %u\n"));
 
-                mX1.setLogFileFunctor(ball::RecordStringFormatter(
-                                       "\n%p %t %s %f %c %m %u\n"));
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
-                ASSERT(2 == readFileIntoString(__LINE__, filename1a,
+                BALL_LOG_WARN << "log";
+
+                ASSERT(2 == readFileIntoString(__LINE__, fileName1a,
                                                fileContent));
                 ASSERT(file2 == fileContent);
 
-                bsl::string filename1b = tempFileName(veryVerbose);
-                mX1.disableFileLogging();
-                ASSERT(!X1.isFileLoggingEnabled());
-                ASSERT(0 == mX1.enableFileLogging(filename1b.c_str(), false));
-                ASSERT( X1.isFileLoggingEnabled());
-                ASSERT(1 == mX1.enableFileLogging(filename1.c_str(), false));
+                bsl::string fileName1b = baseName + "1b";
 
-                mX1.setLogFileFunctor(&logRecord2);
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
-                ASSERT(2 == readFileIntoString(__LINE__, filename1b,
+                mX1->disableFileLogging();
+                enableFileLogging(mX1, fileName1b);
+                mX1->setLogFileFunctor(&logRecord2);
+
+                BALL_LOG_WARN << "log";
+
+                ASSERT(2 == readFileIntoString(__LINE__, fileName1b,
                                                fileContent));
                 ASSERT(file3 == fileContent);
 
-                bsl::string filename1c = tempFileName(veryVerbose);
-                mX1.disableFileLogging();
-                ASSERT(!X1.isFileLoggingEnabled());
-                ASSERT(0 == mX1.enableFileLogging(filename1c.c_str(), false));
-                ASSERT( X1.isFileLoggingEnabled());
-                ASSERT(1 == mX1.enableFileLogging(filename1.c_str(), false));
+                bsl::string fileName1c = baseName + "1c";
 
-                mX1.setLogFileFunctor(ball::RecordStringFormatter(
-                                       "\n%p %t %s %f %c %m %u\n"));
-                BALL_LOG_WARN << "log" << BALL_LOG_END;
-                ASSERT(2 == readFileIntoString(__LINE__, filename1c,
+                mX1->disableFileLogging();
+                enableFileLogging(mX1, fileName1c);
+
+                mX1->setLogFileFunctor(ball::RecordStringFormatter(
+                                                  "\n%p %t %s %f %c %m %u\n"));
+
+                BALL_LOG_WARN << "log";
+
+                ASSERT(2 == readFileIntoString(__LINE__, fileName1c,
                                                fileContent));
                 ASSERT(file2 == fileContent);
 
-                mX1.disableFileLogging();
-                mX2.disableFileLogging();
-                mX3.disableFileLogging();
-                removeFilesByPrefix(filename1.c_str());
-                removeFilesByPrefix(filename2.c_str());
-                removeFilesByPrefix(filename3.c_str());
-                removeFilesByPrefix(filename1a.c_str());
-                removeFilesByPrefix(filename1b.c_str());
-                removeFilesByPrefix(filename1c.c_str());
-                multiplexObserver.deregisterObserver(&localMultiObserver);
+                mX1->disableFileLogging();
+                mX2->disableFileLogging();
+                mX3->disableFileLogging();
+
+                // Deregister here as we used local allocator for the observer.
+                ASSERT(0 == manager.deregisterObserver("testObserver1"));
+                ASSERT(0 == manager.deregisterObserver("testObserver2"));
+                ASSERT(0 == manager.deregisterObserver("testObserver3"));
             }
 #endif
         }
 #endif
-
-        ball::LoggerManager::shutDownSingleton();
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -3420,27 +3522,38 @@ int main(int argc, char *argv[])
         // Testing:
         //   CONCERN: 'ball::FileObserver2' is able to write to a file over 2GB
         // --------------------------------------------------------------------
-        ball::LoggerManagerConfiguration configuration;
 
+        // This configuration guarantees that the logger manager will publish
+        // all messages regardless of their severity and the observer will see
+        // each message only once.
+
+        ball::LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_TRACE,
-                                                     ball::Severity::e_OFF,
-                                                     ball::Severity::e_OFF));
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
+
+        ball::LoggerManagerScopedGuard guard(configuration);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        BALL_LOG_SET_CATEGORY("TestCategory");
 
         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
-        Obj mX(&ta);  const Obj& X = mX;
-        ball::LoggerManager::initSingleton(&mX, configuration);
+        TempDirectoryGuard tempDirGuard;
+        bsl::string        fileName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-        const bsl::string BASENAME = tempFileName(veryVerbose);
+        bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
+        bsl::shared_ptr<const Obj> X = mX;
 
-        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
-        ASSERT(X.isFileLoggingEnabled());
+        ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
-        BALL_LOG_SET_CATEGORY("ball::FileObserverTest");
+        enableFileLogging(mX, fileName);
 
-        P(BASENAME);
+        if (veryVerbose) { P(fileName); }
 
         char buffer[1026];
         memset(buffer, 'x', sizeof buffer);
@@ -3448,12 +3561,13 @@ int main(int argc, char *argv[])
 
         // Write over 5 GB
         for (int i = 0; i < 5000000; ++i) {
-            BALL_LOG_WARN << buffer << BALL_LOG_END;
+            BALL_LOG_WARN << buffer;
         }
 
-        //FileUtil::remove(BASENAME.c_str());
+        mX->disableFileLogging();
 
-        ball::LoggerManager::shutDownSingleton();
+        // Deregister here as we used local allocator for the observer.
+        ASSERT(0 == manager.deregisterObserver("testObserver"));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

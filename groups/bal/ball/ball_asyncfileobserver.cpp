@@ -1,22 +1,13 @@
 // ball_asyncfileobserver.cpp                                         -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_asyncfileobserver.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 
-#include <ball_defaultobserver.h>             // for testing only
 #include <ball_log.h>                         // for testing only
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
-#include <ball_multiplexobserver.h>           // for testing only
+#include <ball_streamobserver.h>              // for testing only
 
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
@@ -26,21 +17,23 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_threadattributes.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
 
-// IMPLEMENTATION NOTE: 'shutdownThread' clears the queue in order to simplify
-// the implementation.  To guarantee that a thread sees the
-// 'd_shuttingDownFlag' a ('ball::Transmission::e_END') record is appended
-// to the queue, otherwise the publication thread may be blocked indefinitely
-// on 'popFront'.  Unfortunately that potentially leaves a bogus record in the
-// queue after the publication thread is shutdown -- to avoid dealing with that
-// record (when the thread is restarted) the queue is cleared.  Alternative
-// designs are possible, but are not perceived to be worth the added
-// complexity.
+///IMPLEMENTATION NOTES
+///--------------------
+// To guarantee that the publication thread sees the 'd_shuttingDownFlag', a
+// ('ball::Transmission::e_END') record is appended to the queue; otherwise,
+// the thread may be blocked indefinitely on 'popFront'.  Unfortunately, that
+// potentially leaves a bogus record in the queue after the publication thread
+// is shut down.  To avoid having to deal with that 'e_END' record when the
+// thread is restarted, 'shutdownThread' clears the queue in order to simplify
+// the implementation.  Alternative designs are possible, but are not perceived
+// to be worth the added complexity.
 
 namespace BloombergLP {
 namespace ball {
@@ -48,11 +41,11 @@ namespace ball {
 namespace {
 
 enum {
-    DEFAULT_FIXED_QUEUE_SIZE = 8192,
-    FORCE_WARN_THRESHOLD     = 5000
+    k_DEFAULT_FIXED_QUEUE_SIZE = 8192,
+    k_FORCE_WARN_THRESHOLD     = 5000
 };
 
-static const char LOG_CATEGORY[] = "BALL.ASYNCFILEOBSERVER";
+static const char *const k_LOG_CATEGORY = "BALL.ASYNCFILEOBSERVER";
 
 static void populateWarnRecord(ball::Record *record,
                                int           lineNumber,
@@ -78,8 +71,8 @@ static void populateWarnRecord(ball::Record *record,
 void AsyncFileObserver::logDroppedMessageWarning(int numDropped)
 {
     // Log the record, unconditionally, to the file observer (i.e., without
-    // consulting the logger manager as to whether WARN is enabled) to avoid
-    // an observer->loggermanager dependency.
+    // consulting the logger manager as to whether WARN is enabled) to avoid an
+    // observer->loggermanager dependency.
 
     populateWarnRecord(&d_droppedRecordWarning, __LINE__, numDropped);
     Context context(Transmission::e_PASSTHROUGH, 0, 0);
@@ -93,10 +86,10 @@ void AsyncFileObserver::publishThreadEntryPoint()
                                           bslmt::ThreadUtil::selfIdAsUint64());
 
     while (!done) {
-        AsyncRecord asyncRecord = d_recordQueue.popFront();
+        AsyncFileObserver_Record asyncRecord = d_recordQueue.popFront();
 
-        // Publish the next log record on the queue only if the observer is
-        // not shutting down.
+        // Publish the next log record on the queue only if the observer is not
+        // shutting down.
 
         if (Transmission::e_END == asyncRecord.d_context.transmissionCause()
             || d_shuttingDownFlag) {
@@ -110,13 +103,13 @@ void AsyncFileObserver::publishThreadEntryPoint()
         // Publish the count of dropped records.  To avoid repeatedly
         // publishing this information when the record queue is full, we
         // publish the number of dropped records only when the queue becomes
-        // half empty or when a sufficient number of records have been
-        // dropped.  Finally, we publish the dropped record count if the
-        // observer is shutting down, so the information is not lost.
+        // half empty or when a sufficient number of records have been dropped.
+        // Finally, we publish the dropped record count if the observer is
+        // shutting down, so the information is not lost.
 
         if (0 < d_dropCount.loadRelaxed()) {
             if (d_recordQueue.length() <= d_recordQueue.size() / 2
-            ||  d_dropCount.loadRelaxed() >= FORCE_WARN_THRESHOLD
+            ||  d_dropCount.loadRelaxed() >= k_FORCE_WARN_THRESHOLD
             ||  d_shuttingDownFlag) {
                 int numDropped = d_dropCount.swap(0);
                 BSLS_ASSERT(0 < numDropped); // No other thread should have
@@ -143,7 +136,7 @@ int AsyncFileObserver::stopThread()
     if (bslmt::ThreadUtil::invalidHandle() != d_threadHandle) {
         // Push an empty record with 'e_END' set in context.
 
-        AsyncRecord asyncRecord;
+        AsyncFileObserver_Record asyncRecord;
         bsl::shared_ptr<const Record> record(
                                     new (*d_allocator_p) Record(d_allocator_p),
                                     d_allocator_p);
@@ -190,17 +183,28 @@ void AsyncFileObserver::construct()
             bdlf::MemFnUtil::memFn(&AsyncFileObserver::publishThreadEntryPoint,
                                    this));
     d_droppedRecordWarning.fixedFields().setFileName(__FILE__);
-    d_droppedRecordWarning.fixedFields().setCategory(LOG_CATEGORY);
+    d_droppedRecordWarning.fixedFields().setCategory(k_LOG_CATEGORY);
     d_droppedRecordWarning.fixedFields().setSeverity(Severity::e_WARN);
     d_droppedRecordWarning.fixedFields().setProcessID(
                                             bdls::ProcessUtil::getProcessId());
 }
 
 // CREATORS
+AsyncFileObserver::AsyncFileObserver(bslma::Allocator *basicAllocator)
+: d_fileObserver(Severity::e_WARN, basicAllocator)
+, d_recordQueue(k_DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
+, d_shuttingDownFlag(0)
+, d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
+, d_droppedRecordWarning(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    construct();
+}
+
 AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
                                      bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
-, d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
+, d_recordQueue(k_DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_shuttingDownFlag(0)
 , d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
@@ -213,7 +217,7 @@ AsyncFileObserver::AsyncFileObserver(Severity::Level   stdoutThreshold,
                                      bool              publishInLocalTime,
                                      bslma::Allocator *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
-, d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
+, d_recordQueue(k_DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_shuttingDownFlag(0)
 , d_dropRecordsOnFullQueueThreshold(Severity::e_OFF)
 , d_droppedRecordWarning(basicAllocator)
@@ -258,6 +262,26 @@ AsyncFileObserver::~AsyncFileObserver()
 }
 
 // MANIPULATORS
+void AsyncFileObserver::publish(const bsl::shared_ptr<const Record>& record,
+                                const Context&                       context)
+{
+    BSLS_ASSERT(record);
+
+    AsyncFileObserver_Record asyncRecord;
+
+    asyncRecord.d_record  = record;
+    asyncRecord.d_context = context;
+
+    if (record->fixedFields().severity() > d_dropRecordsOnFullQueueThreshold) {
+        if (0 != d_recordQueue.tryPushBack(asyncRecord)) {
+            d_dropCount.addRelaxed(1);
+        }
+    }
+    else {
+        d_recordQueue.pushBack(asyncRecord);
+    }
+}
+
 void AsyncFileObserver::releaseRecords()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
@@ -270,20 +294,10 @@ void AsyncFileObserver::releaseRecords()
     }
 }
 
-void AsyncFileObserver::publish(const bsl::shared_ptr<const Record>& record,
-                                const Context&                       context)
+int AsyncFileObserver::shutdownPublicationThread()
 {
-    AsyncRecord asyncRecord;
-    asyncRecord.d_record  = record;
-    asyncRecord.d_context = context;
-    if (record->fixedFields().severity() > d_dropRecordsOnFullQueueThreshold) {
-        if (0 != d_recordQueue.tryPushBack(asyncRecord)) {
-            d_dropCount.addRelaxed(1);
-        }
-    }
-    else {
-        d_recordQueue.pushBack(asyncRecord);
-    }
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    return shutdownThread();
 }
 
 int AsyncFileObserver::startPublicationThread()
@@ -296,12 +310,6 @@ int AsyncFileObserver::stopPublicationThread()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return stopThread();
-}
-
-int AsyncFileObserver::shutdownPublicationThread()
-{
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    return shutdownThread();
 }
 
 }  // close package namespace

@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_userfieldvalue_cpp,"$Id$ $CSID$")
 
+#include <bslim_printer.h>
+
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
@@ -52,14 +54,19 @@ ball::UserFieldType::Enum UserFieldValue::type() const
                                   // Aspects
 
 bsl::ostream& UserFieldValue::print(bsl::ostream& stream,
-                                    int           /* level */,
-                                    int           /* spacesPerLevel */) const
+                                    int           level,
+                                    int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
     }
 
-    return stream << d_value;
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start(true);    // 'true' -> suppress '['
+    stream << d_value;
+    printer.end(true);      // 'true' -> suppress ']'
+
+    return stream;
 }
 
 }  // close package namespace

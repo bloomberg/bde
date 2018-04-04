@@ -20,6 +20,7 @@
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_types.h>
 
 #include <bsl_climits.h>
@@ -30,16 +31,22 @@
 #include <bsl_string.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-// [ 4] USAGE EXAMPLE
+// The component under test consists of a trivial scoped guard that has one
+// constructor and a destructor.  It is sufficient to test the guard in a
+// single test case (case 1) using brute force.
+// ----------------------------------------------------------------------------
+// CREATORS
+// [ 1] ScopedAttributes(const AttributeContainer *attributes);
+// [ 1] ~ScopedAttributes();
+// ----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -89,23 +96,28 @@ void aSsErT(bool condition, const char *message, int line)
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+#define ASSERT_SAFE_PASS(EXPR)     BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR)     BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)          BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)          BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-//=============================================================================
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/VARIABLES FOR TESTING
-//-----------------------------------------------------------------------------
-int verbose;
-int veryVerbose;
-int veryVeryVerbose;
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+typedef ball::ScopedAttributes Obj;
+
+bool verbose;
+bool veryVerbose;
+bool veryVeryVerbose;
+
+// ============================================================================
 //                             USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // 'AttributeSet', as defined in the 'ball_attributecontainer' component
 // documentation.
@@ -113,11 +125,11 @@ int veryVeryVerbose;
      // attributeset.h
 
     class AttributeSet : public ball::AttributeContainer {
-        // A simple set based implementation of the 'ball::AttributeContainer'
+        // A simple set-based implementation of the 'ball::AttributeContainer'
         // protocol used for testing.
 
 //..
-// To defined an stl-set (or hash set) for 'ball::Attribute' values, we must
+// To define an STL set (or hash set) for 'ball::Attribute' values, we must
 // define a comparison (or hash) operation for attribute values.  Here we
 // define a comparison functor that compares attributes by name, then by
 // value-type, and finally by value.
@@ -125,8 +137,8 @@ int veryVeryVerbose;
         struct AttributeComparator {
             bool operator()(const ball::Attribute& lhs,
                             const ball::Attribute& rhs) const
-                // Return 'true' if the specified 'lhs' is ordered before the
-                // specified 'rhs'.
+                // Return 'true' if the specified 'lhs' attribute is ordered
+                // before the specified 'rhs' attribute, and 'false' otherwise.
             {
                 int cmp = bsl::strcmp(lhs.name(), rhs.name());
                 if (0 != cmp) {
@@ -138,17 +150,18 @@ int veryVeryVerbose;
                 }
                 switch (lhs.value().typeIndex()) {
                   case 0: // unset
-                    return true;
+                    return true;                                      // RETURN
                   case 1: // int
                     return lhs.value().the<int>() < rhs.value().the<int>();
+                                                                      // RETURN
                   case 2: // int64
                     return lhs.value().the<bsls::Types::Int64>()
-                        <  rhs.value().the<bsls::Types::Int64>();
-                 case 3: // string
+                         < rhs.value().the<bsls::Types::Int64>();     // RETURN
+                  case 3: // string
                    return lhs.value().the<bsl::string>()
-                       <  rhs.value().the<bsl::string>();
+                        < rhs.value().the<bsl::string>();             // RETURN
                 }
-                BSLS_ASSERT(false);
+                BSLS_ASSERT_OPT(false);
                 return false;
             }
         };
@@ -170,7 +183,7 @@ int veryVeryVerbose;
 
         // CREATORS
         AttributeSet(bslma::Allocator *basicAllocator = 0);
-            // Create this attribute set.
+            // Create an attribute set.
 
         virtual ~AttributeSet();
             // Destroy this attribute set.
@@ -180,7 +193,7 @@ int veryVeryVerbose;
             // Add the specified 'value' to this attribute set.
 
         bool remove(const ball::Attribute& value);
-            // Remove the specified 'value' from this attribute set, return
+            // Remove the specified 'value' from this attribute set.  Return
             // 'true' if the attribute was found, and 'false' if 'value' was
             // not a member of this set.
 
@@ -198,8 +211,8 @@ int veryVeryVerbose;
     };
 
 //..
-// The 'ball::AttributeContainer' methods are simple wrappers around
-// operations on an 'bsl::set'.
+// The 'AttributeSet' methods are simple wrappers around operations on a
+// 'bsl::set'.
 //..
     inline
     AttributeSet::AttributeSet(bslma::Allocator *basicAllocator)
@@ -250,35 +263,24 @@ int veryVeryVerbose;
         return stream;
     }
 
-//=============================================================================
-//                         CASE 3 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-
-//=============================================================================
-//                         CASE 2 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-//=============================================================================
-//                         CASE 1 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
 
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
+    verbose         = argc > 2;
+    veryVerbose     = argc > 3;
     veryVeryVerbose = argc > 4;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
+      case 2: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
         //
         // Concerns:
         //   The usage example provided in the component header file must
@@ -293,11 +295,17 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nTesting usage example"
-                          << "\n====================="
+
+        if (verbose) cout << endl << "USAGE EXAMPLE"
+                          << endl << "============="
                           << endl;
-///USAGE
+
+///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Installing a 'ball::AttributeContainer'
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // In the following code fragment, we will use a 'ball::ScopedAttributes' to
 // install a 'ball::AttributeContainer' in the current context.
 //
@@ -327,23 +335,160 @@ int main(int argc, char *argv[])
         ASSERT(true == context->hasAttribute(a1));
         ASSERT(true == context->hasAttribute(a2));
 //..
-// When 'attributeGuard' goes out of scope and is destroyed, 'attributes'
-// are removed from the current thread's attribute context, which prevents the
+// When 'attributeGuard' goes out of scope and is destroyed, 'attributes' are
+// removed from the current thread's attribute context, which prevents the
 // attribute context from referring to an invalid memory address (on the
 // stack).
 //..
     }
+
     ASSERT(!context->hasAttribute(a1));
     ASSERT(!context->hasAttribute(a2));
 //..
 
       } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // METHODS TEST
+        //
+        // Concerns:
+        //: 1 The constructor adds the supplied attribute container to the
+        //:   context.
+        //:
+        //: 2 The destructor removes the attribute container supplied at
+        //:   construction from the context.
+        //:
+        //: 3 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using brute force, verify that as scoped guards are created the
+        //:   expected attributes are added to the context, and that as the
+        //:   guards go out of scope the attributes are removed from the
+        //:   context.  (C-1..2)
+        //:
+        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered.  (C-3)
+        //
+        // Testing:
+        //   ScopedAttributes(const AttributeContainer *attributes);
+        //   ~ScopedAttributes();
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << endl << "METHODS TEST"
+                          << endl << "============"
+                          << endl;
+
+        ball::AttributeContext *context = ball::AttributeContext::getContext();
+
+        ball::Attribute a1("abc", 111);
+
+        ball::Attribute a2("def", 222);
+        ball::Attribute a3("ghi", 333);
+
+        ball::Attribute a4("jkl", 444);
+        ball::Attribute a5("mno", 555);
+        ball::Attribute a6("pqr", 666);
+
+        AttributeSet as1;
+        as1.insert(a1);
+
+        AttributeSet as23;
+        as23.insert(a2);
+        as23.insert(a3);
+
+        AttributeSet as456;
+        as456.insert(a4);
+        as456.insert(a5);
+        as456.insert(a6);
+
+        ASSERT(!context->hasAttribute(a1));
+        ASSERT(!context->hasAttribute(a2));
+        ASSERT(!context->hasAttribute(a3));
+        ASSERT(!context->hasAttribute(a4));
+        ASSERT(!context->hasAttribute(a5));
+        ASSERT(!context->hasAttribute(a6));
+
+        if (verbose) cout << "\nBreathing test." << endl;
+        {
+            Obj mX(&as1);
+            ASSERT( context->hasAttribute(a1));
+        }
+        ASSERT(!context->hasAttribute(a1));
+
+        if (verbose) {
+            cout << "\nAdd multiple attribute containers across nested scopes."
+                 << endl;
+        }
+        {
+            Obj mX(&as1);
+            ASSERT( context->hasAttribute(a1));
+            ASSERT(!context->hasAttribute(a2));
+            ASSERT(!context->hasAttribute(a3));
+            ASSERT(!context->hasAttribute(a4));
+            ASSERT(!context->hasAttribute(a5));
+            ASSERT(!context->hasAttribute(a6));
+
+            Obj mY(&as23);
+            ASSERT( context->hasAttribute(a1));
+            ASSERT( context->hasAttribute(a2));
+            ASSERT( context->hasAttribute(a3));
+            ASSERT(!context->hasAttribute(a4));
+            ASSERT(!context->hasAttribute(a5));
+            ASSERT(!context->hasAttribute(a6));
+
+            {
+                Obj mZ(&as456);
+                ASSERT( context->hasAttribute(a1));
+                ASSERT( context->hasAttribute(a2));
+                ASSERT( context->hasAttribute(a3));
+                ASSERT( context->hasAttribute(a4));
+                ASSERT( context->hasAttribute(a5));
+                ASSERT( context->hasAttribute(a6));
+            }
+            ASSERT( context->hasAttribute(a1));
+            ASSERT( context->hasAttribute(a2));
+            ASSERT( context->hasAttribute(a3));
+            ASSERT(!context->hasAttribute(a4));
+            ASSERT(!context->hasAttribute(a5));
+            ASSERT(!context->hasAttribute(a6));
+        }
+        ASSERT(!context->hasAttribute(a1));
+        ASSERT(!context->hasAttribute(a2));
+        ASSERT(!context->hasAttribute(a3));
+        ASSERT(!context->hasAttribute(a4));
+        ASSERT(!context->hasAttribute(a5));
+        ASSERT(!context->hasAttribute(a6));
+
+        if (verbose) cout << "\nRedundantly add attribute containers." << endl;
+        {
+            Obj mX(&as1);
+            ASSERT( context->hasAttribute(a1));
+
+            {
+                Obj mY(&as1);
+                ASSERT( context->hasAttribute(a1));
+            }
+            ASSERT( context->hasAttribute(a1));
+        }
+        ASSERT(!context->hasAttribute(a1));
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard guard;
+
+            ASSERT_SAFE_FAIL_RAW(Obj(0));
+
+            const AttributeSet as;  const AttributeSet *p = &as;
+
+            ASSERT_SAFE_PASS(Obj(p + 0));
+        }
+
+      } break;
       default: {
           cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
           testStatus = -1;
       }
-    };
+    }
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

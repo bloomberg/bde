@@ -77,6 +77,10 @@ BSLS_IDENT("$Id: $")
 #include <ball_userfieldvalue.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -87,6 +91,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -114,6 +122,7 @@ class UserFields {
 
     // FRIENDS
     friend bool operator==(const UserFields&, const UserFields&);
+    friend void swap(UserFields&, UserFields&);
 
   public:
     // TYPES
@@ -170,9 +179,9 @@ class UserFields {
 
     void swap(UserFields& other);
         // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.   This method provides the no-throw
-        // exception guarantee if 'allocator' is the same as
-        // 'other.allocator()', and the basic exception guarantee otherwise.
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as 'other'.
 
     // ACCESSORS
     ConstIterator begin() const;
@@ -246,9 +255,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const UserFields& object);
 // FREE FUNCTIONS
 void swap(ball::UserFields& a, ball::UserFields& b);
     // Swap the value of the specified 'a' object with the value of the
-    // specified 'b' object.  This method provides the no-throw exception
-    // guarantee if 'a.allocator()' is the same as 'b.allocator()', and the
-    // basic exception guarantee otherwise.
+    // specified 'b' object.  If 'a' and 'b' were created with the same
+    // allocator, then this method provides the no-throw exception-safety
+    // guarantee; otherwise, it provides the basic guarantee.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -337,6 +346,8 @@ UserFieldValue& UserFields::value(int index)
 inline
 void UserFields::swap(UserFields& other)
 {
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
     d_values.swap(other.d_values);
 }
 
@@ -400,9 +411,9 @@ bsl::ostream& ball::operator<<(bsl::ostream& stream, const UserFields& object)
 
 // FREE FUNCTIONS
 inline
-void swap(ball::UserFields& a, ball::UserFields& b)
+void ball::swap(UserFields& a, UserFields& b)
 {
-    a.swap(b);
+    bslalg::SwapUtil::swap(&a.d_values, &b.d_values);
 }
 
 }  // close enterprise namespace

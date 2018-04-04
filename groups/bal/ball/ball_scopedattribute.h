@@ -36,7 +36,7 @@
 //
 //     ball::ScopedAttribute attribute("request", request.selectionName());
 //
-//     BALL_LOG_TRACE << "Handling request: " << request << BALL_LOG_END;
+//     BALL_LOG_TRACE << "Handling request: " << request;
 //
 //     // handle request here
 //  }

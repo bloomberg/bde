@@ -17,11 +17,12 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a multiplexing observer that forwards to other observers.
 //
+//@DEPRECATED: Use 'ball_broadcastobserver' instead.
+//
 //@CLASSES:
 //    ball::MultiplexObserver: multiplexing observer that forwards log records
 //
-//@SEE_ALSO: ball_record, ball_context, ball_defaultobserver,
-//           ball_loggermanager
+//@SEE_ALSO: ball_record, ball_context, ball_streamobserver, ball_loggermanager
 //
 //@AUTHOR: Steve Downey (sdowney)
 //
@@ -76,7 +77,7 @@ BSLS_IDENT("$Id: $")
 // the three registered observers performs distinct actions upon receipt of log
 // records:
 //..
-//    (1) 'defaultObserver', an instance of 'ball::DefaultObserver', formats
+//    (1) 'defaultObserver', an instance of 'ball::StreamObserver', formats
 //        the records it receives and outputs them to 'stdout'.
 //    (2) 'logfileObserver', an instance of 'my_LogfileObserver' (assumed to
 //        be a concrete class derived from 'ball::Observer') writes selected
@@ -89,9 +90,9 @@ BSLS_IDENT("$Id: $")
 // First we create the three downstream observers that will be registered with
 // multiplexor observer:
 //..
-//     ball::DefaultObserver   defaultObserver;
-//     my_LogfileObserver     logfileObserver;
-//     my_EncryptingObserver  encryptingObserver;
+//     ball::StreamObserver   defaultObserver(&bsl::cout);
+//     my_LogfileObserver     logfileObserver(&bsl::cout);
+//     my_EncryptingObserver  encryptingObserver(&bsl::cout);
 //..
 // Next, we create an initially empty multiplexing observer 'multiplexor' and
 // register the three downstream observers 'multiplexor':

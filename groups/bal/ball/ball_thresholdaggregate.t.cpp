@@ -11,6 +11,7 @@
 #include <ball_thresholdaggregate.h>
 
 #include <bslim_testutil.h>
+#include <bsls_asserttest.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
@@ -18,7 +19,7 @@
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -354,6 +355,17 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, 0 <= hash);
             LOOP_ASSERT(LINE, hash < HDATA[i].d_size);
             LOOP_ASSERT(LINE, HDATA[i].d_hash == hash);
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard guard;
+
+            const Obj X(10, 20, 30, 40);
+
+            ASSERT_PASS(Obj::hash(X,  1));
+            ASSERT_FAIL(Obj::hash(X,  0));
+            ASSERT_FAIL(Obj::hash(X, -1));
         }
 
       } break;

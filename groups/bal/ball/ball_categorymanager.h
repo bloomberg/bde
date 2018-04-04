@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::CategoryManager: manager of category registry
 //
-//@SEE_ALSO: ball_loggermanager, ball_loggercategoryutil
+//@SEE_ALSO: ball_category, ball_loggermanager, ball_loggercategoryutil
 //
 //@AUTHOR: Hong Shi (hshi2), Mike Verschell (hversche)
 //
@@ -36,20 +36,21 @@ BSLS_IDENT("$Id: $")
 // component-level documentation for a typical interpretation of these four
 // thresholds.)
 //
-// A category is represented by a 'ball::Category' object.  Instances of
-// 'ball::Category' cannot be created directly; instead, they are created by
-// the 'ball::CategoryManager' class.  'ball::CategoryManager' manages a
-// registry of categories and exposes methods to add new categories to the
-// registry ('addCategory') and modify the threshold levels of existing
-// categories ('setThresholdLevels').  'ball::Category' provides accessors for
-// direct access to the name and threshold levels of a given category, and a
-// single manipulator to set the four threshold levels levels.
+// A category is represented by a 'ball::Category' object.  Although instances
+// of 'ball::Category' can be created directly, within the BALL logging
+// framework they are generally created by the 'ball::CategoryManager' class.
+// 'ball::CategoryManager' manages a registry of categories and exposes methods
+// to add new categories to the registry ('addCategory') and modify the
+// threshold levels of existing categories ('setThresholdLevels').
+// 'ball::Category' provides accessors for direct access to the name and
+// threshold levels of a given category, and a single manipulator to set the
+// four threshold levels levels (see 'ball_category').
 //
 ///Thread Safety
 ///-------------
-// 'ball::Category' and 'ball::CategoryManager' are *thread-safe*, meaning
-// that any operation on the same instance can be safely invoked from any
-// thread concurrently with any other operation.
+// 'ball::CategoryManager' is *thread-safe*, meaning that any operation on the
+// same instance can be safely invoked from any thread concurrently with any
+// other operation.
 //
 ///Usage
 ///-----
@@ -197,6 +198,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readerwriterlock.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
 #endif
@@ -232,10 +237,11 @@ class CategoryManager {
                                                       // indices in
                                                       // 'd_categories'
 
-    volatile int                     d_ruleSequenceNum;
-                                                      // sequence number
-                                                      // indicating the number
-                                                      // of rule changes
+    volatile bsls::Types::Int64      d_ruleSetSequenceNumber;
+                                                      // sequence number that
+                                                      // is incremented each
+                                                      // time the rule set is
+                                                      // changed
 
     RuleSet                          d_ruleSet;       // rule set that contains
                                                       // all registered rules
@@ -267,11 +273,11 @@ class CategoryManager {
         // specified 'categoryName' and the specified 'recordLevel',
         // 'passLevel', 'triggerLevel', and 'triggerAllLevel' threshold values,
         // respectively.  Return the address of the newly-created, modifiable
-        // category.  The behavior is undefined unless 'categoryName' is
-        // null-terminated, a category having 'categoryName' does not already
-        // exist in the registry, and each of the specified threshold values is
-        // in the range '[0 .. 255]'.  Note that the category registry should
-        // be properly synchronized before calling this method.
+        // category.  The behavior is undefined unless a category having
+        // 'categoryName' does not already exist in the registry and each of
+        // the specified threshold values is in the range '[0 .. 255]'.  Note
+        // that the category registry should be properly synchronized before
+        // calling this method.
 
   public:
     // CREATORS
@@ -285,7 +291,7 @@ class CategoryManager {
 
     // MANIPULATORS
     Category& operator[](int index);
-        // Return a reference to the modifiable category at the specified
+        // Return a non-'const' reference to the category at the specified
         // 'index' in the registry of this category manager.  The behavior is
         // undefined unless '0 <= index < length()'.
 
@@ -300,9 +306,10 @@ class CategoryManager {
         // respectively, if there is no category having 'categoryName' and each
         // of the specified threshold values is in the range '[0 .. 255]'.
         // Return the address of the newly-created, modifiable category on
-        // success, and 0 otherwise.  The behavior is undefined unless
-        // 'categoryName' is null-terminated.  Note that if a category having
-        // 'categoryName' already exists in the registry, 0 is returned.
+        // success, and 0 otherwise.  The behavior is undefined unless a lock
+        // is not held by this thread on the mutex returned by 'rulesetMutex'.
+        // Note that if a category having 'categoryName' already exists in the
+        // registry, 0 is returned.
 
     Category *addCategory(CategoryHolder *categoryHolder,
                           const char     *categoryName,
@@ -320,14 +327,14 @@ class CategoryManager {
         // and the specified 'categoryHolder' is non-null, then also load into
         // 'categoryHolder' the returned category and its maximum level and
         // link 'categoryHolder' to the category.  The behavior is undefined
-        // unless 'categoryName' is null-terminated.  Note that if a category
-        // having 'categoryName' already exists in the registry, 0 is returned.
+        // unless a lock is not held by this thread on the mutex returned by
+        // 'rulesetMutex'.  Note that if a category having 'categoryName'
+        // already exists in the registry, 0 is returned.
 
     Category *lookupCategory(const char *categoryName);
         // Return the address of the modifiable category having the specified
         // 'categoryName' in the registry of this category manager, or 0 if no
-        // such category exists.  The behavior is undefined unless
-        // 'categoryName' is null-terminated.
+        // such category exists.
 
     Category *lookupCategory(CategoryHolder *categoryHolder,
                              const char     *categoryName);
@@ -336,8 +343,7 @@ class CategoryManager {
         // such category exists.  If a category is returned and the specified
         // 'categoryHolder' is non-null, then also load into 'categoryHolder'
         // the returned category and its maximum level and link
-        // 'categoryHolder' to the category if it has not yet been linked.  The
-        // behavior is undefined unless 'categoryName' is null-terminated.
+        // 'categoryHolder' to the category if it has not yet been linked.
 
     void resetCategoryHolders();
         // Reset the category holders to which all categories in the registry
@@ -362,40 +368,47 @@ class CategoryManager {
         // 'categoryName' and each of the specified threshold values is in the
         // range '[0 .. 255]'.  Return the address of the (possibly
         // newly-created) modifiable category on success, and 0 otherwise (with
-        // no effect on any category).  The behavior is undefined unless
-        // 'categoryName' is null-terminated.
+        // no effect on any category).  The behavior is undefined unless a lock
+        // is not held by this thread on the mutex returned by 'rulesetMutex'.
 
     int addRule(const Rule& rule);
         // Add the specified 'rule' to the set of (unique) rules maintained by
         // this object.  Return the number of rules added (i.e., 1 on success
-        // and 0 if a rule with the same value is already present).
+        // and 0 if a rule with the same value is already present).  The
+        // behavior is undefined unless a lock is not held by this thread on
+        // the mutex returned by 'rulesetMutex'.
 
     int addRules(const RuleSet& ruleSet);
         // Add each rule in the specified 'ruleSet' to the set of (unique)
         // rules maintained by this object.  Return the number of rules added.
-        // Note that each rule having the same value as an existing rule will
-        // be ignored.
+        // The behavior is undefined unless a lock is not held by this thread
+        // on the mutex returned by 'rulesetMutex'.  Note that each rule having
+        // the same value as an existing rule will be ignored.
 
     int removeRule(const Rule& rule);
         // Remove the specified 'rule' from the set of (unique) rules
         // maintained by this object.  Return the number of rules removed
         // (i.e., 1 on success and 0 if no rule having the same value is
-        // found).
+        // found).  The behavior is undefined unless a lock is not held by this
+        // thread on the mutex returned by 'rulesetMutex'.
 
     int removeRules(const RuleSet& ruleSet);
         // Remove each rule in the specified 'ruleSet' from the set of rules
-        // maintained by this object.  Return the number of rules removed.
+        // maintained by this object.  Return the number of rules removed.  The
+        // behavior is undefined unless a lock is not held by this thread on
+        // the mutex returned by 'rulesetMutex'.
 
     void removeAllRules();
         // Remove every rule from the set of rules maintained by this object.
+        // The behavior is undefined unless a lock is not held by this thread
+        // on the mutex returned by 'rulesetMutex'.
 
     bslmt::Mutex& rulesetMutex();
-        // Return a reference to the modifiable mutex that is used to guard
-        // against concurrent accesses to the rule set.  A lock to the returned
-        // mutex should be acquired before accessing the properties of
-        // 'ruleSet()'.  The behavior is undefined if a lock is acquired and
-        // any of the rule methods on this object (other than 'ruleSet()') are
-        // called.
+        // Return a non-'const' reference to the mutex that is used to guard
+        // against concurrent access to the rule set.  A lock on the returned
+        // mutex should be acquired before accessing the properties of the rule
+        // set returned by 'ruleSet'.  The behavior is undefined unless a lock
+        // is acquired solely for the purpose of calling 'ruleSet'.
 
     template <class CATEGORY_VISITOR>
     void visitCategories(const CATEGORY_VISITOR& visitor);
@@ -408,14 +421,10 @@ class CategoryManager {
         //..
 
     // ACCESSORS
-    int ruleSequenceNumber() const;
-        // Return the rule sequence number indicating the number of rule
-        // changes.
-
     const Category& operator[](int index) const;
-        // Return a reference to the non-modifiable category at the specified
-        // 'index' in the registry of this category manager.  The behavior is
-        // undefined unless '0 <= index < length()'.
+        // Return a 'const' reference to the category at the specified 'index'
+        // in the registry of this category manager.  The behavior is undefined
+        // unless '0 <= index < length()'.
 
     int length() const;
         // Return the number of categories in the registry of this category
@@ -424,13 +433,19 @@ class CategoryManager {
     const Category *lookupCategory(const char *categoryName) const;
         // Return the address of the non-modifiable category having the
         // specified 'categoryName' in the registry of this category manager,
-        // or 0 if no such category exists.  The behavior is undefined unless
-        // 'categoryName' is null-terminated.
+        // or 0 if no such category exists.
 
     const RuleSet& ruleSet() const;
-        // Return a reference to the non-modifiable rule set maintained by
-        // this object.  Note that the 'rulesetMutex()' should be locked prior
-        // to accessing this set.
+        // Return a 'const' reference to the rule set maintained by this
+        // category manager.  The mutex returned by 'rulesetMutex' should be
+        // locked prior to accessing the rule set.
+
+    bsls::Types::Int64 ruleSetSequenceNumber() const;
+        // Return the sequence number that tracks changes to the rule set
+        // maintained by this category manager.  The value returned by this
+        // method is guaranteed to monotonically increase between calls before
+        // and after the rule set is changed, and is otherwise implementation
+        // defined.
 
     template <class CATEGORY_VISITOR>
     void visitCategories(const CATEGORY_VISITOR& visitor) const;
@@ -443,6 +458,118 @@ class CategoryManager {
         //..
 };
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+                        // =========================
+                        // class CategoryManagerIter
+                        // =========================
+
+class CategoryManagerIter {
+    // This class defines an iterator providing sequential, read-only access to
+    // the categories in the registry of a category manager.  The order of the
+    // iteration is undefined.
+    //
+    // !DEPRECATED!: Use the 'CategoryManager::visitCategories' accessor
+    // instead.
+
+    // DATA
+    const CategoryManager *d_cm_p;   // associated category manager (held)
+    int                    d_index;  // index into category manager
+
+  private:
+    // NOT IMPLEMENTED
+    CategoryManagerIter(const CategoryManagerIter&);
+    CategoryManagerIter& operator=(const CategoryManagerIter&);
+    bool operator==(const CategoryManagerIter&) const;
+    bool operator!=(const CategoryManagerIter&) const;
+
+  public:
+    // CREATORS
+    explicit CategoryManagerIter(const CategoryManager& categoryManager);
+        // Create an iterator providing non-modifiable access to the categories
+        // in the specified 'categoryManager' that is initialized to refer to
+        // the first category in the sequence of categories in the registry of
+        // 'categoryManager', if one exists, and is initialized to be invalid
+        // otherwise.  The order of iteration is undefined.  The behavior is
+        // undefined unless the lifetime of 'categoryManager' is at least as
+        // long as the lifetime of this iterator.
+
+    //! ~CategoryManagerIter() = default;
+        // Destroy this iterator.
+
+    // MANIPULATORS
+    void operator++();
+        // Advance this iterator to refer to the next unvisited category.  If
+        // no such category exists, this iterator becomes invalid.  The
+        // behavior is undefined unless this iterator is initially valid.  Note
+        // that the order of iteration is undefined.
+
+    // ACCESSORS
+    operator const void *() const;
+        // Return a non-zero value if this iterator is valid, and 0 otherwise.
+
+    const Category& operator()() const;
+        // Return a 'const' reference to the category currently referred to by
+        // this iterator.  The behavior is undefined unless this iterator is
+        // valid.
+};
+
+                        // ==========================
+                        // class CategoryManagerManip
+                        // ==========================
+
+class CategoryManagerManip {
+    // This class defines an iterator providing sequential, modifiable access
+    // to the categories in the registry of a category manager.  The order of
+    // the iteration is undefined.
+    //
+    // !DEPRECATED!: Use the 'CategoryManager::visitCategories' manipulator
+    // instead.
+
+    // DATA
+    CategoryManager *d_cm_p;   // associated category manager (held)
+    int              d_index;  // index into category manager
+
+  private:
+    // NOT IMPLEMENTED
+    CategoryManagerManip(const CategoryManagerManip&);
+    CategoryManagerManip& operator=(const CategoryManagerManip&);
+    bool operator==(const CategoryManagerManip&) const;
+    bool operator!=(const CategoryManagerManip&) const;
+
+  public:
+    // CREATORS
+    explicit CategoryManagerManip(CategoryManager *categoryManager);
+        // Create an iterator providing modifiable access to the categories in
+        // the specified 'categoryManager' that is initialized to refer to the
+        // first category in the sequence of categories in the registry of
+        // 'categoryManager', if one exists, and is initialized to be invalid
+        // otherwise.  The order of iteration is undefined.  The behavior is
+        // undefined unless the lifetime of 'categoryManager' is at least as
+        // long as the lifetime of this iterator.
+
+    //! ~CategoryManagerManip() = default;
+        // Destroy this iterator.
+
+    // MANIPULATORS
+    void advance();
+        // Advance this iterator to refer to the next unvisited category.  If
+        // no such category exists, this iterator becomes invalid.  The
+        // behavior is undefined unless this iterator is initially valid.  Note
+        // that the order of iteration is undefined.
+
+    Category& operator()();
+        // Return a non-'const' reference to the category currently referred to
+        // by this iterator.  The behavior is undefined unless this iterator is
+        // valid.
+
+    // ACCESSORS
+    operator const void *() const;
+        // Return a non-zero value if this iterator is valid, and 0 otherwise.
+};
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -450,16 +577,6 @@ class CategoryManager {
                         // ---------------------
                         // class CategoryManager
                         // ---------------------
-
-// CREATORS
-inline
-CategoryManager::CategoryManager(bslma::Allocator *basicAllocator)
-: d_registry(bdlb::CStringLess(), basicAllocator)
-, d_ruleSet(bslma::Default::allocator(basicAllocator))
-, d_categories(basicAllocator)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-}
 
 // MANIPULATORS
 inline
@@ -488,31 +605,29 @@ void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor)
 
 // ACCESSORS
 inline
-int CategoryManager::ruleSequenceNumber() const
-{
-    return d_ruleSequenceNum;
-}
-
-inline
 int CategoryManager::length() const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
-    const int length = static_cast<int>(d_categories.size());
-    return length;
+    return static_cast<int>(d_categories.size());
 }
 
 inline
 const Category& CategoryManager::operator[](int index) const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
-    const Category& category = *d_categories[index];
-    return category;
+    return *d_categories[index];
 }
 
 inline
 const RuleSet& CategoryManager::ruleSet() const
 {
     return d_ruleSet;
+}
+
+inline
+bsls::Types::Int64 CategoryManager::ruleSetSequenceNumber() const
+{
+    return d_ruleSetSequenceNumber;
 }
 
 template <class CATEGORY_VISITOR>
@@ -525,6 +640,75 @@ void CategoryManager::visitCategories(const CATEGORY_VISITOR& visitor) const
         visitor(*it);
     }
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
+                        // -------------------------
+                        // class CategoryManagerIter
+                        // -------------------------
+
+// CREATORS
+inline
+CategoryManagerIter::CategoryManagerIter(
+                                        const CategoryManager& categoryManager)
+: d_cm_p(&categoryManager)
+, d_index(0)
+{
+}
+
+// MANIPULATORS
+inline
+void CategoryManagerIter::operator++()
+{
+    ++d_index;
+}
+
+// ACCESSORS
+inline
+CategoryManagerIter::operator const void *() const
+{
+    return (0 <= d_index && d_index < d_cm_p->length()) ? this : 0;
+}
+
+inline
+const Category& CategoryManagerIter::operator()() const
+{
+    return d_cm_p->operator[](d_index);
+}
+
+                        // --------------------------
+                        // class CategoryManagerManip
+                        // --------------------------
+
+// CREATORS
+inline
+CategoryManagerManip::CategoryManagerManip(CategoryManager *categoryManager)
+: d_cm_p(categoryManager)
+, d_index(0)
+{
+}
+
+// MANIPULATORS
+inline
+void CategoryManagerManip::advance()
+{
+    ++d_index;
+}
+
+inline
+Category& CategoryManagerManip::operator()()
+{
+    return d_cm_p->operator[](d_index);
+}
+
+// ACCESSORS
+inline
+CategoryManagerManip::operator const void *() const
+{
+    return (0 <= d_index && d_index < d_cm_p->length()) ? this : 0;
+}
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 }  // close package namespace
 }  // close enterprise namespace

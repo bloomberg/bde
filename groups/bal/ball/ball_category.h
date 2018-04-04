@@ -331,10 +331,10 @@ class CategoryHolder {
         e_UNINITIALIZED_CATEGORY = 256, // indicates no logger manager
         e_DYNAMIC_CATEGORY       = 257  // corresponding category is dynamic
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BALL_UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
-      , BALL_DYNAMIC_CATEGORY = e_DYNAMIC_CATEGORY
-      , UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
-      , DYNAMIC_CATEGORY       = e_DYNAMIC_CATEGORY
+      , BAEL_UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
+      , BAEL_DYNAMIC_CATEGORY       = e_DYNAMIC_CATEGORY
+      , UNINITIALIZED_CATEGORY      = e_UNINITIALIZED_CATEGORY
+      , DYNAMIC_CATEGORY            = e_DYNAMIC_CATEGORY
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // This enumeration defines distinguished values for category holder
@@ -437,11 +437,30 @@ class CategoryManagerImpUtil {
                         // class Category
                         // --------------
 
+// CLASS METHODS
+inline
+bool Category::areValidThresholdLevels(int recordLevel,
+                                       int passLevel,
+                                       int triggerLevel,
+                                       int triggerAllLevel)
+{
+    enum { k_BITS_PER_CHAR = 8 };
+
+    return !((recordLevel | passLevel | triggerLevel | triggerAllLevel)
+             >> k_BITS_PER_CHAR);
+}
+
 // ACCESSORS
 inline
 const char *Category::categoryName() const
 {
     return d_categoryName.c_str();
+}
+
+inline
+bool Category::isEnabled(int level) const
+{
+    return d_threshold >= level;
 }
 
 inline

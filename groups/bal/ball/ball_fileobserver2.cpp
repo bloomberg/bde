@@ -1,12 +1,4 @@
 // ball_fileobserver2.cpp                                             -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <ball_fileobserver2.h>
 
 #include <bsls_ident.h>
@@ -18,12 +10,11 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <ball_userfields.h>
 #include <ball_userfieldvalue.h>
 
-#include <ball_defaultobserver.h>             // for testing only
 #include <ball_log.h>                         // for testing only
 #include <ball_loggermanager.h>               // for testing only
 #include <ball_loggermanagerconfiguration.h>  // for testing only
-#include <ball_multiplexobserver.h>           // for testing only
 #include <ball_recordstringformatter.h>       // for testing only
+#include <ball_streamobserver.h>              // for testing only
 
 #include <bdlf_memfn.h>
 
@@ -39,6 +30,7 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bslmt_lockguard.h>
 
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -64,24 +56,22 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <windows.h>
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#define snprintf _snprintf
+#endif
+
 namespace BloombergLP {
 namespace ball {
 
 namespace {
 
-// Messages written to 'stderr' are prefixed with a unique string to allow
-// them to be easily identified.
-
-static const char errorMsgPrefix[] = { "ERROR: ball::FileObserver2:" };
-static const char warnMsgPrefix[]  = { "WARN: ball::FileObserver2:" };
-
 enum {
     // status code for the call back function.
 
-    ROTATE_SUCCESS                  =  0,
-    ROTATE_RENAME_ERROR             = -1,
-    ROTATE_NEW_LOG_ERROR            = -2,
-    ROTATE_RENAME_AND_NEW_LOG_ERROR = -3
+    k_ROTATE_SUCCESS                  =  0,
+    k_ROTATE_RENAME_ERROR             = -1,
+    k_ROTATE_NEW_LOG_ERROR            = -2,
+    k_ROTATE_RENAME_AND_NEW_LOG_ERROR = -3
 };
 
 static int getErrorCode(void)
@@ -98,11 +88,7 @@ static int getErrorCode(void)
 static bsl::string getTimestampSuffix(const bdlt::Datetime& timestamp)
     // Return the specified 'timestamp' in the 'YYYYMMDD_hhmmss' format.
 {
-    char buffer[20];
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#define snprintf _snprintf
-#endif
+    char buffer[16];
 
     snprintf(buffer,
              sizeof buffer,
@@ -113,10 +99,6 @@ static bsl::string getTimestampSuffix(const bdlt::Datetime& timestamp)
              timestamp.hour(),
              timestamp.minute(),
              timestamp.second());
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#undef snprintf
-#endif
 
     return bsl::string(buffer);
 }
@@ -253,10 +235,18 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
                                                   FileUtil::e_KEEP);
 
     if (fd == FileUtil::k_INVALID_FD) {
-        fprintf(
-           stderr,
-           "%s Cannot open log file %s: %s.  File logging will be disabled!\n",
-           errorMsgPrefix, filename, bsl::strerror(getErrorCode()));
+        char errorBuffer[256];
+
+        snprintf(errorBuffer,
+                 sizeof errorBuffer,
+                 "Cannot open log file %s: %s. "
+                 "File logging will be disabled!",
+                 filename,
+                 bsl::strerror(getErrorCode()));
+        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_ERROR,
+                                                 __FILE__,
+                                                 __LINE__,
+                                                 errorBuffer);
         return -1;                                                    // RETURN
     }
 
@@ -265,11 +255,18 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
     BSLS_ASSERT(streamBuf);
 
     if (0 != streamBuf->reset(fd, true, true, true)) {
-        fprintf(
-              stderr,
-              "%s Cannot close previous log file %s: %s.  "
-              "File logging will be disabled!\n",
-              warnMsgPrefix, filename, bsl::strerror(getErrorCode()));
+        char errorBuffer[256];
+
+        snprintf(errorBuffer,
+                 sizeof errorBuffer,
+                 "Cannot close previous log file %s: %s. "
+                 "File logging will be disabled!",
+                 filename,
+                 bsl::strerror(getErrorCode()));
+        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
+                                                 __FILE__,
+                                                 __LINE__,
+                                                 errorBuffer);
         return -1;                                                    // RETURN
     }
 
@@ -279,6 +276,7 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
 
         stream->seekp(0, bsl::ios::end);
     }
+
     stream->clear();
     return 0;
 }
@@ -295,16 +293,18 @@ bool fuzzyEqual(const bdlt::Datetime&         a,
     // Note that 'abs(long long)' not available across platforms (C++11).
 
     bsls::Types::Int64 distance = (a - b).totalMilliseconds();
+
     if (distance < 0) {
         distance = -distance;
     }
+
     return distance < (interval.totalMilliseconds() / 10);
 }
 
 static bdlt::Datetime computeNextRotationTime(
-                     const bdlt::Datetime&          referenceStartTimeLocal,
-                     const bdlt::DatetimeInterval&  interval,
-                     const bdlt::Datetime&          fileCreationTimeUtc)
+                         const bdlt::Datetime&         referenceStartTimeLocal,
+                         const bdlt::DatetimeInterval& interval,
+                         const bdlt::Datetime&         fileCreationTimeUtc)
     // Return the UTC time for the next scheduled file rotation after the
     // specified 'fileCreationTimeUtc', for a schedule that has a start
     // reference time indicated by the specified 'referenceStartTimeLocal' and
@@ -323,16 +323,15 @@ static bdlt::Datetime computeNextRotationTime(
     // common reference time).
 
     bdlt::Datetime fileCreationTimeLocal =
-                            fileCreationTimeUtc +
-                            localTimeOffsetInterval(fileCreationTimeUtc);
+        fileCreationTimeUtc + localTimeOffsetInterval(fileCreationTimeUtc);
 
     // If the reference start time is (effectively) equal to the file creation
-    // time, don't rotate until at least one interval has occurred.  A
-    // fuzzy comparison is required because the time stamps come from
-    // different sources, which may occur in close proximity during the
-    // configuration of logging at task startup (the 'fileCreationTime' is
-    // determined when logging is enabled, while the 'referenceStartTimeLocal'
-    // may be determined on a call to 'rotateOnTimeInterval').
+    // time, don't rotate until at least one interval has occurred.  A fuzzy
+    // comparison is required because the time stamps come from different
+    // sources, which may occur in close proximity during the configuration of
+    // logging at task startup (the 'fileCreationTime' is determined when
+    // logging is enabled, while the 'referenceStartTimeLocal' may be
+    // determined on a call to 'rotateOnTimeInterval').
 
     if (fuzzyEqual(referenceStartTimeLocal, fileCreationTimeLocal, interval)) {
         return fileCreationTimeUtc + interval;                        // RETURN
@@ -378,7 +377,7 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
         timestamp.addSeconds(localTimeOffsetInSeconds);
     }
 
-    char buffer[256];
+    char  buffer[256];
     char *ptr = buffer;
 
     *ptr = '\n';
@@ -386,14 +385,11 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
 
     const int fractionalSecondPrecision = 3;
 
-    int length = timestamp.printToBuffer(
-         ptr, static_cast<int>(sizeof(buffer)) - 1, fractionalSecondPrecision);
+    int length = timestamp.printToBuffer(ptr,
+                                         static_cast<int>(sizeof(buffer)) - 1,
+                                         fractionalSecondPrecision);
 
     ptr += length;
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#define snprintf _snprintf
-#endif
 
     snprintf(ptr,
              sizeof(buffer) - length - 1,
@@ -404,10 +400,6 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
              fixedFields.fileName(),
              fixedFields.lineNumber());
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#undef snprintf
-#endif
-
     stream << buffer;
     stream << fixedFields.category();
     stream << ' ';
@@ -415,8 +407,9 @@ void FileObserver2::logRecordDefault(bsl::ostream& stream,
     stream.write(message.data(), message.length());
     stream << ' ';
 
-    const ball::UserFields& customFields = record.customFields();
-    const int numCustomFields = customFields.length();
+    const ball::UserFields& customFields    = record.customFields();
+    const int               numCustomFields = customFields.length();
+
     for (int i = 0; i < numCustomFields; ++i) {
         stream << customFields[i] << ' ';
     }
@@ -436,12 +429,20 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
 
     BSLS_ASSERT(d_logFilePattern.size() > 0);
 
-    int returnStatus = ROTATE_SUCCESS;
+    int returnStatus = k_ROTATE_SUCCESS;
 
     if (0 != d_logStreamBuf.clear()) {
-        fprintf(stderr, "%s Unable to close old log file: %s\n",
-                warnMsgPrefix, d_logFileName.c_str());
-        returnStatus = ROTATE_RENAME_ERROR;                           // RETURN
+        char errorBuffer[256];
+
+        snprintf(errorBuffer,
+                 sizeof errorBuffer,
+                 "Unable to close old log file: %s.",
+                 d_logFileName.c_str());
+        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
+                                                 __FILE__,
+                                                 __LINE__,
+                                                 errorBuffer);
+        returnStatus = k_ROTATE_RENAME_ERROR;
     }
 
     *rotatedLogFileName = d_logFileName;
@@ -455,6 +456,7 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
 
     if (bdls::FilesystemUtil::exists(d_logFileName.c_str())) {
         bdlt::Datetime timeStampSuffix(oldLogFileTimestamp);
+
         if (d_publishInLocalTime) {
             timeStampSuffix += localTimeOffsetInterval(oldLogFileTimestamp);
         }
@@ -467,10 +469,19 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
             *rotatedLogFileName = newFileName;
         }
         else {
-            fprintf(stderr, "%s Cannot rename %s to %s: %s\n",
-                    warnMsgPrefix, d_logFileName.c_str(), newFileName.c_str(),
-                    bsl::strerror(getErrorCode()));
-            returnStatus = ROTATE_RENAME_ERROR;
+            char errorBuffer[256];
+
+            snprintf(errorBuffer,
+                     sizeof errorBuffer,
+                     "Cannot rename %s to %s: %s.",
+                     d_logFileName.c_str(),
+                     newFileName.c_str(),
+                     bsl::strerror(getErrorCode()));
+            bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
+                                                     __FILE__,
+                                                     __LINE__,
+                                                     errorBuffer);
+            returnStatus = k_ROTATE_RENAME_ERROR;
         }
     }
 
@@ -482,11 +493,20 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
     }
 
     if (0 != openLogFile(&d_logOutStream, d_logFileName.c_str())) {
-        fprintf(stderr, "%s Cannot open new log file: %s\n",
-                errorMsgPrefix, d_logFileName.c_str());
-        return ROTATE_SUCCESS != returnStatus
-               ? ROTATE_RENAME_AND_NEW_LOG_ERROR
-               : ROTATE_NEW_LOG_ERROR;                                // RETURN
+        char errorBuffer[256];
+
+        snprintf(errorBuffer,
+                 sizeof errorBuffer,
+                 "Cannot open new log file: %s. "
+                 "File logging will be disabled!",
+                 d_logFileName.c_str());
+        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_ERROR,
+                                                 __FILE__,
+                                                 __LINE__,
+                                                 errorBuffer);
+        return k_ROTATE_SUCCESS != returnStatus
+               ? k_ROTATE_RENAME_AND_NEW_LOG_ERROR
+               : k_ROTATE_NEW_LOG_ERROR;                              // RETURN
     }
 
     return returnStatus;
@@ -515,15 +535,20 @@ int FileObserver2::rotateIfNecessary(bsl::string           *rotatedLogFileName,
     }
 
     if (d_rotationInterval.totalSeconds()
-     && d_nextRotationTimeUtc <= currentLogTimeUtc) {
+        && d_nextRotationTimeUtc <= currentLogTimeUtc) {
         return rotateFile(rotatedLogFileName);                        // RETURN
     }
+
     return 1;
 }
 
 // CREATORS
 FileObserver2::FileObserver2(bslma::Allocator *basicAllocator)
-: d_logStreamBuf(bdls::FilesystemUtil::k_INVALID_FD, false)
+: d_logStreamBuf(bdls::FilesystemUtil::k_INVALID_FD,
+                 false,
+                 true,
+                 false,
+                 basicAllocator)
 , d_logOutStream(&d_logStreamBuf)
 , d_logFilePattern(basicAllocator)
 , d_logFileName(basicAllocator)
@@ -534,7 +559,9 @@ FileObserver2::FileObserver2(bslma::Allocator *basicAllocator)
 , d_publishInLocalTime(false)
 , d_rotationSize(0)
 , d_rotationInterval(0)
-, d_onRotationCb()
+, d_onRotationCb(bsl::allocator_arg_t(),
+                 bsl::allocator<FileObserver2::OnFileRotationCallback>(
+                                                               basicAllocator))
 , d_rotationCbMutex()
 {
 }
@@ -550,6 +577,7 @@ FileObserver2::~FileObserver2()
 void FileObserver2::disableFileLogging()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
     if (d_logStreamBuf.isOpened()) {
         d_logStreamBuf.clear();
     }
@@ -560,22 +588,25 @@ void FileObserver2::disableLifetimeRotation()
     disableTimeIntervalRotation();
 }
 
-void FileObserver2::disableTimeIntervalRotation()
+void FileObserver2::disablePublishInLocalTime()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    d_rotationInterval.setTotalSeconds(0);
+
+    d_publishInLocalTime = false;
 }
 
 void FileObserver2::disableSizeRotation()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
     d_rotationSize = 0;
 }
 
-void FileObserver2::disablePublishInLocalTime()
+void FileObserver2::disableTimeIntervalRotation()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    d_publishInLocalTime = false;
+
+    d_rotationInterval.setTotalSeconds(0);
 }
 
 int FileObserver2::enableFileLogging(const char *logFilenamePattern)
@@ -583,9 +614,11 @@ int FileObserver2::enableFileLogging(const char *logFilenamePattern)
     BSLS_ASSERT(logFilenamePattern);
 
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
     if (d_logStreamBuf.isOpened()) {
         return 1;                                                     // RETURN
     }
+
     d_logFilePattern = logFilenamePattern;
 
     getLogFileName(&d_logFileName,
@@ -665,9 +698,18 @@ void FileObserver2::publish(const Record& record, const Context&)
             d_logFileFunctor(d_logOutStream, record);
 
             if (!d_logOutStream) {
-                fprintf(stderr, "%s Error on file stream for %s: %s\n",
-                        errorMsgPrefix,
-                        d_logFileName.c_str(), bsl::strerror(getErrorCode()));
+                char errorBuffer[256];
+
+                snprintf(errorBuffer,
+                         sizeof errorBuffer,
+                         "Error on file stream for %s: %s.",
+                         d_logFileName.c_str(),
+                         bsl::strerror(getErrorCode()));
+                bsls::Log::platformDefaultMessageHandler(
+                                                    bsls::LogSeverity::e_ERROR,
+                                                    __FILE__,
+                                                    __LINE__,
+                                                    errorBuffer);
 
                 d_logStreamBuf.clear();
             }
@@ -676,6 +718,7 @@ void FileObserver2::publish(const Record& record, const Context&)
 
     if (0 >= rotationStatus) {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_rotationCbMutex);
+
         if (d_onRotationCb) {
             d_onRotationCb(rotationStatus, rotatedFileName);
         }
@@ -695,18 +738,19 @@ void FileObserver2::rotateOnTimeInterval(
 }
 
 void FileObserver2::rotateOnTimeInterval(
-                              const bdlt::DatetimeInterval& interval,
-                              const bdlt::Datetime&         referenceStartTime)
+                                       const bdlt::DatetimeInterval& interval,
+                                       const bdlt::Datetime&         startTime)
 {
     BSLS_ASSERT(0 < interval.totalMilliseconds());
 
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
     d_rotationInterval = interval;
 
     // Reference time is stored as local time as conversion to UTC time may
     // cause an underflow (or overflow).
 
-    d_rotationReferenceLocalTime = referenceStartTime;
+    d_rotationReferenceLocalTime = startTime;
 
     // Need to determine the next rotation time if the file is already opened.
 
@@ -764,33 +808,41 @@ bool FileObserver2::isFileLoggingEnabled(bsl::string *result) const
 bool FileObserver2::isPublishInLocalTimeEnabled() const
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
     return d_publishInLocalTime;
+}
+
+bdlt::DatetimeInterval FileObserver2::localTimeOffset() const
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+    bdlt::Datetime timestamp = d_logStreamBuf.isOpened()
+                               ? d_logFileTimestampUtc
+                               : bdlt::CurrentTime::utc();
+
+    return localTimeOffsetInterval(timestamp);
 }
 
 bdlt::DatetimeInterval FileObserver2::rotationLifetime() const
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
     return d_rotationInterval;
 }
 
 int FileObserver2::rotationSize() const
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
     return d_rotationSize;
-}
-
-bdlt::DatetimeInterval FileObserver2::localTimeOffset() const
-{
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    bdlt::Datetime timestamp = d_logStreamBuf.isOpened()
-                               ? d_logFileTimestampUtc
-                              : bdlt::CurrentTime::utc();
-
-    return localTimeOffsetInterval(timestamp);
 }
 
 }  // close package namespace
 }  // close enterprise namespace
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+#undef snprintf
+#endif
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

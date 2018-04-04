@@ -8,7 +8,10 @@ BSLS_IDENT_RCSID(ball_rule_cpp,"$Id$ $CSID$")
 #include <ball_defaultattributecontainer.h>     // for testing only
 
 #include <bdlb_hashutil.h>
+
 #include <bslim_printer.h>
+
+#include <bsls_assert.h>
 
 #include <bsl_iostream.h>
 
@@ -22,6 +25,8 @@ namespace ball {
 // CLASS METHODS
 int Rule::hash(const Rule& rule, int size)
 {
+    BSLS_ASSERT(0 < size);
+
     if (rule.d_hashValue < 0 || rule.d_hashSize != size) {
         rule.d_hashValue = PredicateSet::hash(rule.d_predicateSet, size)
                       + ThresholdAggregate::hash(rule.d_thresholds, size)

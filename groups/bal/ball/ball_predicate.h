@@ -95,6 +95,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -137,7 +141,8 @@ class Predicate {
     static int hash(const Predicate& predicate, int size);
         // Return a hash value calculated from the specified 'predicate' using
         // the specified 'size' as the number of slots.  The hash value is
-        // guaranteed to be in the range '[0 .. size - 1]'.
+        // guaranteed to be in the range '[0 .. size - 1]'.  The behavior is
+        // undefined unless '0 < size'.
 
     // CREATORS
     Predicate(const bslstl::StringRef&  name,
@@ -250,6 +255,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Predicate& predicate);
 inline
 int Predicate::hash(const Predicate& predicate, int size)
 {
+    BSLS_ASSERT_SAFE(0 < size);
+
     return Attribute::hash(predicate.d_attribute, size);
 }
 
