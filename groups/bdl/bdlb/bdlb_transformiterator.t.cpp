@@ -600,7 +600,9 @@ int main(int argc, char *argv[])
     auto pricer = [&](const bsl::string &product) { return prices[product]; };
     #endif
 //..
-// Next, we create a pair of transform iterators to process our grocery list:
+// Next, we create a pair of transform iterators to process our grocery list.
+// (Note that we use 'bsl::function' as the functor type to abstract away the
+// difference between the C++03 and C++11 function objects bwing used.)
 //..
     typedef bdlb::TransformIterator<bsl::function<double(const bsl::string&)>,
                                     bsl::list<bsl::string>::iterator> ti;
