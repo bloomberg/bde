@@ -1535,16 +1535,7 @@ int main(int argc, char *argv[])
                 const int              LINE  = DATA[ti].d_line;
                 const bdlt::DatetimeTz VALUE = DATA[ti].d_value;
 
-                if (veryVerbose) {
-                    // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
-                    // incurs an allocation from the default allocator.
-
-                    bslma::TestAllocator scratch("scratch",
-                                                 veryVeryVeryVerbose);
-                    bslma::DefaultAllocatorGuard dag(&scratch);
-
-                    T_ P(VALUE)
-                }
+                if (veryVerbose) { T_ P(VALUE) }
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -1586,17 +1577,7 @@ int main(int argc, char *argv[])
 
                     Obj& mX = *objPtr;  const Obj& X = mX;
 
-                    if (veryVerbose) {
-                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
-                        // value incurs an allocation from the default
-                        // allocator.
-
-                        bslma::TestAllocator scratch("scratch",
-                                                     veryVeryVeryVerbose);
-                        bslma::DefaultAllocatorGuard dag(&scratch);
-
-                        T_ T_ P_(CONFIG) P(X)
-                    }
+                    if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
                     bslma::TestAllocator&  oa = *objAllocatorPtr;
                     bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
@@ -1974,15 +1955,7 @@ int main(int argc, char *argv[])
             Obj  mZ(&scratch);  const Obj&  Z = gg(&mZ,  SPECI);
             Obj mZZ(&scratch);  const Obj& ZZ = gg(&mZZ, SPECI);
 
-            if (veryVerbose) {
-                // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
-                // incurs an allocation from the default allocator.
-
-                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&scratch);
-
-                T_ P_(LINEI) P_(Z) P(ZZ)
-            }
+            if (veryVerbose) { T_ P_(LINEI) P_(Z) P(ZZ) }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const int         LINEJ   = DATA[tj].d_line;
@@ -1995,17 +1968,7 @@ int main(int argc, char *argv[])
                 {
                     Obj mX(&oa);  const Obj& X = gg(&mX, SPECJ);
 
-                    if (veryVerbose) {
-                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
-                        // value incurs an allocation from the default
-                        // allocator.
-
-                        bslma::TestAllocator scratch("scratch",
-                                                     veryVeryVeryVerbose);
-                        bslma::DefaultAllocatorGuard dag(&scratch);
-
-                        T_ P_(LINEJ) P(X)
-                    }
+                    if (veryVerbose) { T_ P_(LINEJ) P(X) }
 
                     ASSERTV(LINEI, LINEJ, Z, X,
                             (Z == X) == (LINEI == LINEJ));
@@ -2273,15 +2236,7 @@ int main(int argc, char *argv[])
                   Obj mW(&oa);  const Obj& W = gg(&mW, SPECI);
             const Obj XX(W, &scratch);
 
-            if (veryVerbose) {
-                // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
-                // incurs an allocation from the default allocator.
-
-                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&scratch);
-
-                T_ P_(LINEI) P_(W) P(XX)
-            }
+            if (veryVerbose) { T_ P_(LINEI) P_(W) P(XX) }
 
             // member 'swap'
             {
@@ -2321,16 +2276,7 @@ int main(int argc, char *argv[])
                       Obj mY(&oa);  const Obj& Y = gg(&mY, SPECJ);
                 const Obj YY(Y, &scratch);
 
-                if (veryVerbose) {
-                    // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
-                    // incurs an allocation from the default allocator.
-
-                    bslma::TestAllocator scratch("scratch",
-                                                 veryVeryVeryVerbose);
-                    bslma::DefaultAllocatorGuard dag(&scratch);
-
-                    T_ P_(LINEJ) P_(X) P_(Y) P(YY)
-                }
+                if (veryVerbose) { T_ P_(LINEJ) P_(X) P_(Y) P(YY) }
 
                 // Under the circumstances where variant's 'swap' resolves to
                 // 'std::swap', memory allocations that may be incurred differ
@@ -2592,16 +2538,7 @@ int main(int argc, char *argv[])
                 Obj  mZ(&scratch);  const Obj&  Z = gg(&mZ,  SPEC);
                 Obj mZZ(&scratch);  const Obj& ZZ = gg(&mZZ, SPEC);
 
-                if (veryVerbose) {
-                    // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
-                    // incurs an allocation from the default allocator.
-
-                    bslma::TestAllocator scratch("scratch",
-                                                 veryVeryVeryVerbose);
-                    bslma::DefaultAllocatorGuard dag(&scratch);
-
-                    T_ P_(Z) P(ZZ)
-                }
+                if (veryVerbose) { T_ P_(Z) P(ZZ) }
 
                 for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
@@ -2637,17 +2574,7 @@ int main(int argc, char *argv[])
 
                     Obj& mX = *objPtr;  const Obj& X = mX;
 
-                    if (veryVerbose) {
-                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
-                        // value incurs an allocation from the default
-                        // allocator.
-
-                        bslma::TestAllocator scratch("scratch",
-                                                     veryVeryVeryVerbose);
-                        bslma::DefaultAllocatorGuard dag(&scratch);
-
-                            T_ T_ P_(CONFIG) P(X)
-                    }
+                    if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
                     bslma::TestAllocator&  oa = *objAllocatorPtr;
                     bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
@@ -2916,17 +2843,7 @@ int main(int argc, char *argv[])
                     Obj mX(&xa);  const Obj& X = gg(&mX, SPECI);
                     Obj mY(&ya);  const Obj& Y = gg(&mY, SPECJ);
 
-                    if (veryVerbose) {
-                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
-                        // value incurs an allocation from the default
-                        // allocator.
-
-                        bslma::TestAllocator scratch("scratch",
-                                                     veryVeryVeryVerbose);
-                        bslma::DefaultAllocatorGuard dag(&scratch);
-
-                        T_ T_ T_ P_(EXP) P_(CONFIG) P_(X) P(Y)
-                    }
+                    if (veryVerbose) { T_ T_ T_ P_(EXP) P_(CONFIG) P_(X) P(Y) }
 
                     // Verify value, commutativity, and no memory allocation.
 
@@ -3778,16 +3695,7 @@ int main(int argc, char *argv[])
                   } break;
                 }
 
-                if (veryVerbose) {
-                    // DRQS 117439200: Printing an 'e_DATETIMETZ' field value
-                    // incurs an allocation from the default allocator.
-
-                    bslma::TestAllocator scratch("scratch",
-                                                 veryVeryVeryVerbose);
-                    bslma::DefaultAllocatorGuard dag(&scratch);
-
-                    P_(CONFIG) P_(TYPE) P(X)
-                }
+                if (veryVerbose) { P_(CONFIG) P_(TYPE) P(X) }
 
                 ASSERTV(CONFIG, TYPE, TYPE == X.type());
                 ASSERTV(CONFIG, TYPE,        !X.isUnset());
@@ -3876,17 +3784,7 @@ int main(int argc, char *argv[])
                     }
                     ASSERTV(TYPEI, TYPEJ, TYPEI == X.type());
 
-                    if (veryVerbose) {
-                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
-                        // value incurs an allocation from the default
-                        // allocator.
-
-                        bslma::TestAllocator scratch("scratch",
-                                                     veryVeryVeryVerbose);
-                        bslma::DefaultAllocatorGuard dag(&scratch);
-
-                        Q("Before:") P_(TYPEI) P_(TYPEJ) P(X)
-                    }
+                    if (veryVerbose) { Q("Before:") P_(TYPEI) P_(TYPEJ) P(X) }
 
                     bslma::TestAllocatorMonitor oam(&oa);
 
@@ -3917,17 +3815,7 @@ int main(int argc, char *argv[])
                     }
                     ASSERTV(TYPEI, TYPEJ, TYPEJ == X.type());
 
-                    if (veryVerbose) {
-                        // DRQS 117439200: Printing an 'e_DATETIMETZ' field
-                        // value incurs an allocation from the default
-                        // allocator.
-
-                        bslma::TestAllocator scratch("scratch",
-                                                     veryVeryVeryVerbose);
-                        bslma::DefaultAllocatorGuard dag(&scratch);
-
-                        Q("After:") P_(TYPEI) P_(TYPEJ) P(X)
-                    }
+                    if (veryVerbose) { Q("After:") P_(TYPEI) P_(TYPEJ) P(X) }
 
                     typeIAllocates =
                         Type::e_STRING == TYPEI || Type::e_CHAR_ARRAY == TYPEI;
