@@ -551,8 +551,6 @@ int main(int argc, char *argv[])
               } break;
             }
 
-            Obj& mX = *objPtr;
-
             ASSERTV(CONFIG, oa.numBlocksInUse(),  0 !=  oa.numBlocksInUse());
             ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
