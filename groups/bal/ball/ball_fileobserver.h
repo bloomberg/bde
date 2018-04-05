@@ -473,14 +473,14 @@ class FileObserver : public Observer {
         // 'stdoutThreshold' level, and has file logging initially disabled.
         // If 'stdoutThreshold' is not specified, log records are published to
         // 'stdout' if their severity is at least as severe as
-        // 'Severity::e_WARN'.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  Note that
-        // 'isPublishInLocalTimeEnabled' returns 'false' following construction
-        // indicating that the timestamp attribute of published records will be
-        // written in UTC time (see 'enablePublishInLocalTime').  Also note
-        // that independent default record formats are in effect for 'stdout'
-        // and file logging (see 'setLogFormat').
+        // 'Severity::e_WARN'.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  Note that 'isPublishInLocalTimeEnabled'
+        // returns 'false' following construction indicating that the timestamp
+        // attribute of published records will be written in UTC time (see
+        // 'enablePublishInLocalTime').  Also note that independent default
+        // record formats are in effect for 'stdout' and file logging (see
+        // 'setLogFormat').
 
     FileObserver(Severity::Level   stdoutThreshold,
                  bool              publishInLocalTime,
@@ -827,7 +827,7 @@ void FileObserver::releaseRecords()
 inline
 void FileObserver::rotateOnLifetime(const bdlt::DatetimeInterval& timeInterval)
 {
-    d_fileObserver2.rotateOnLifetime(timeInterval);
+    d_fileObserver2.rotateOnTimeInterval(timeInterval);
 }
 
 inline

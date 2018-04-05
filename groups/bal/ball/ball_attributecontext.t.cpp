@@ -666,8 +666,7 @@ extern "C" void *oldUsageExample(void *args)
 
     AttributeSet attributes;
     attributes.insert(attr);
-    ball::AttributeContext::iterator it =
-                                       attrContext->addAttributes(&attributes);
+    attrContext->addAttributes(&attributes);
 
     ASSERT(attrContext->hasRelevantActiveRules(cat1));
     ASSERT(attrContext->hasRelevantActiveRules(cat2));
@@ -1015,7 +1014,7 @@ extern "C" void *case4ContextThread(void *args)
         }
 
         for (int j = 0; j < NUM_CATEGORIES; ++j) {
-            LOOP2_ASSERT(i, j, j - 1 > i ==
+            LOOP2_ASSERT(i, j, (j - 1 > i) ==
                                       X.hasRelevantActiveRules(CATEGORIES[j]));
 
             X.determineThresholdLevels(&levels, CATEGORIES[j]);

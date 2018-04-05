@@ -98,7 +98,7 @@ using namespace bdlf::PlaceHolders;
 // manipulators.  We also test that internal broadcast observer implemented in
 // this version of the logger manager correctly forwards published log messages
 // to all registered observers.  Finally, we test the logger manager scoped
-// guard which is used so simplify the initialization and destruction of the
+// guard that is used so simplify the initialization and destruction of the
 // logger manager singleton for client applications.
 //
 // ----------------------------------------------------------------------------
@@ -510,12 +510,12 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
                 *passLevel       = category->passLevel();
                 *triggerLevel    = category->triggerLevel();
                 *triggerAllLevel = category->triggerAllLevel();
-                return SUCCESS;                                     // RETURN
+                return SUCCESS;                                       // RETURN
             }
 
             const char *newEnd = bsl::strrchr(buffer.c_str(), delimiter);
             if (0 == newEnd) {
-                return FAILURE;                                     // RETURN
+                return FAILURE;                                       // RETURN
             }
             buffer.resize(newEnd - buffer.data());
         }
@@ -709,8 +709,8 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3 {
 //..
     class Information {
         // This (incomplete) class is a simple aggregate of a "heading" and
-        // "contents" pertaining to that heading.  It serves to illustrate
-        // how to log the string representation of an object.
+        // "contents" pertaining to that heading.  It serves to illustrate how
+        // to log the string representation of an object.
 
         bsl::string d_heading;
         bsl::string d_contents;
@@ -891,7 +891,7 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4 {
                               __FILE__,
                               __LINE__,
                               "Attempt to take factorial of negative value.");
-            return n;
+            return n;                                                 // RETURN
         }
 
         enum { MAX_ARGUMENT = 13 };  // maximum value accepted by 'factorial'
@@ -902,7 +902,7 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4 {
                               __FILE__,
                               __LINE__,
                               "Result too large for 'int'.");
-            return -n;
+            return -n;                                                // RETURN
         }
 //..
 // The remaining code proceeds mostly as expected, but adds one last message
@@ -1022,9 +1022,9 @@ void inheritThresholdLevels(int        *recordLevel,
 void verifyLoggerManagerDefaults(const ball::LoggerManager&  manager,
                                  bslma::Allocator           *expectedAllocator,
                                  ball::Observer             *expectedObserver)
-    // This function verifies defaults for the specified 'manager'.  Note
-    // that expected Observer is passed to verify legacy API (where raw
-    // pointer to Observer is supplied during singleton initialization).
+    // This function verifies defaults for the specified 'manager'.  Note that
+    // expected Observer is passed to verify legacy API (where raw pointer to
+    // Observer is supplied during singleton initialization).
 {
     bslma::Allocator *oa = bslma::Default::globalAllocator(expectedAllocator);
 
@@ -1622,6 +1622,7 @@ class TestObserverVisitor {
 
   public:
     // CREATORS
+    explicit
     TestObserverVisitor(const ball::LoggerManager *loggerManager)
     : d_loggerManager_p(loggerManager)
     {
@@ -2108,8 +2109,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { P(ga.numBytesInUse()) }
 
-        // Logging another log record with a small message. Such a small
-        // message will NOT result into additional memory allocation.
+        // Logging another log record with a small message.  Such a small
+        // message will NOT result in additional memory allocation.
         char smallMessage[] = { "This is a small log message" };
 
         logger.logMessage(*category,
@@ -2122,7 +2123,7 @@ int main(int argc, char *argv[])
 
         ASSERTV(B, ga.numBytesInUse(), B == ga.numBytesInUse());
 
-        // Same, but with a big message. Such a big message will result into
+        // Same, but with a big message.  Such a big message will result in
         // additional memory allocation.
         char bigMessage[1024];
         bsl::memset(bigMessage, 'X', sizeof (bigMessage) - 1);
@@ -2655,7 +2656,7 @@ int main(int argc, char *argv[])
         //:   observer when the logger manager is being destroyed.
         //
         // Plan:
-        //: 1 Create a 'TestDestroyObserver' objects which has a count of its
+        //: 1 Create a 'TestDestroyObserver' objects that has a count of its
         //:   'releaseRecords' called.
         //:
         //: 2 Install the observer to a logger manager object with limited life
@@ -5398,7 +5399,7 @@ int main(int argc, char *argv[])
                 X.visitObservers(TestObserverVisitor(&X));
             }
 
-            // Adding under "default" name. Testing that "default" does not
+            // Adding under "default" name.  Testing that "default" does not
             // have any special meaning (and is not clashing with internal
             // name).
             ASSERT(0 == mX.registerObserver(observer3, "default"));

@@ -480,8 +480,6 @@ class CategoryManagerIter {
     // NOT IMPLEMENTED
     CategoryManagerIter(const CategoryManagerIter&);
     CategoryManagerIter& operator=(const CategoryManagerIter&);
-    bool operator==(const CategoryManagerIter&) const;
-    bool operator!=(const CategoryManagerIter&) const;
 
   public:
     // CREATORS
@@ -534,8 +532,6 @@ class CategoryManagerManip {
     // NOT IMPLEMENTED
     CategoryManagerManip(const CategoryManagerManip&);
     CategoryManagerManip& operator=(const CategoryManagerManip&);
-    bool operator==(const CategoryManagerManip&) const;
-    bool operator!=(const CategoryManagerManip&) const;
 
   public:
     // CREATORS

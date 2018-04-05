@@ -9,6 +9,7 @@ BSLS_IDENT_RCSID(ball_streamobserver_cpp,"$Id$ $CSID$")
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
 #include <ball_userfields.h>
+#include <ball_userfieldvalue.h>
 
 #include <bdlt_datetime.h>
 

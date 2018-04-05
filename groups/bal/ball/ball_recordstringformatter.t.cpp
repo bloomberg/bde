@@ -1465,7 +1465,7 @@ int main(int argc, char *argv[])
                                                      TVALUES[j2].d_secs,
                                                      TVALUES[j2].d_msecs));
 
-                        int isSame = (i1 == j1) && (i2 == j2);
+                        bool isSame = (i1 == j1) && (i2 == j2);
                         LOOP4_ASSERT(FVALUES[i1].d_lineNum,
                                      TVALUES[i2].d_lineNum,
                                      FVALUES[j1].d_lineNum,

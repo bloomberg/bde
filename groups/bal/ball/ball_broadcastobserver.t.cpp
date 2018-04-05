@@ -43,17 +43,17 @@ using namespace bsl;
 // [ 2] ~BroadcastObserver();
 // [ 3] void deregisterAllObservers();
 // [ 3] int deregisterObserver(const StringRef& name);
-// [ 4] Observer *findObserver(const StringRef& name);
-// [ 4] const Observer *findObserver(const StringRef& name) const;
-// [ 4] findObserver(const shared_ptr<OBSERVER> *, const StringRef&);
-// [ 4] findObserver(const shared_ptr<const OBSERVER> *, const StringRef&);
+// [ 4] shared_ptr<Observer> findObserver(const StringRef& name);
+// [ 4] int findObserver(shared_ptr<OBSERVER> *, const StringRef&);
 // [ 5] void publish(const Record& record, const Context& context);
 // [ 6] void publish(const shared_ptr<const Record>& r, const Context& c);
-// [ 3] int registerObserver(const shared_ptr<Obs>&, const StringRef& n);
-// [ 8] void visitObservers(OBSERVER_VISITOR visitor);
-// [ 8] void visitObservers(OBSERVER_VISITOR visitor) const;
+// [ 3] int registerObserver(const shared_ptr<Observer>&, name);
 // [ 6] void releaseRecords();
+// [ 8] void visitObservers(OBSERVER_VISITOR& visitor);
+// [ 4] shared_ptr<const Observer> findObserver(name) const;
+// [ 4] int findObserver(shared_ptr<const OBSERVER> *, name) const;
 // [ 4] int numRegisteredObservers() const;
+// [ 8] void visitObservers(const OBSERVER_VISITOR& visitor) const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] USAGE EXAMPLE
@@ -133,7 +133,7 @@ class my_OstreamObserver : public ball::Observer {
     }
 
     void publish(const bsl::shared_ptr<const ball::Record>& record,
-                 const ball::Context&                        context);
+                 const ball::Context&                       context);
 };
 
 // my_ostreamobserver.cpp
@@ -281,13 +281,15 @@ namespace UsageExample {
 
       public:
         // CREATORS
-        ConfigurableObserver() : d_configureFlag(false)
+        ConfigurableObserver()
+        : d_configureFlag(false)
         {
         }
 
         // MANIPULATORS
-        void configure() {
+        void configure()
             // Configure this observer.
+        {
             d_configureFlag = true;
         }
 
@@ -313,7 +315,7 @@ namespace UsageExample {
         }
     };
 
-}  // close UsageExample namespace
+}  // close namespace UsageExample
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -407,8 +409,8 @@ int main(int argc, char *argv[])
         //:   'registeredObservers' accessor.  (C-1)
         //
         // Testing:
-        //   void visitObservers(OBSERVER_VISITOR visitor);
-        //   void visitObservers(OBSERVER_VISITOR visitor) const;
+        //   void visitObservers(OBSERVER_VISITOR& visitor);
+        //   void visitObservers(const OBSERVER_VISITOR& visitor) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING 'visitObservers' METHOD"
@@ -958,10 +960,10 @@ int main(int argc, char *argv[])
         //: 4 Verify that basic accessors return expected values.
         //
         // Testing:
-        //   Observer *findObserver(const StringRef& name);
-        //   const Observer *findObserver(const StringRef& name) const;
-        //   findObserver(const shared_ptr<OBSERVER> *, const StringRef&);
-        //   findObserver(const shared_ptr<const OBSERVER> *,const StringRef&);
+        //   shared_ptr<Observer> findObserver(const StringRef& name);
+        //   int findObserver(shared_ptr<OBSERVER> *, const StringRef&);
+        //   shared_ptr<const Observer> findObserver(name) const;
+        //   int findObserver(shared_ptr<const OBSERVER> *, name) const;
         //   int numRegisteredObservers() const;
         // --------------------------------------------------------------------
 
@@ -1264,9 +1266,9 @@ int main(int argc, char *argv[])
         //:   they fulfill their contractual obligations.
         //
         // Testing:
-        //   int registerObserver(const shared_ptr<Obs>&, const StringRef& n);
-        //   int deregisterObserver(const StringRef& name);
         //   void deregisterAllObservers();
+        //   int deregisterObserver(const StringRef& name);
+        //   int registerObserver(const shared_ptr<Observer>&, name);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PRIMARY MANIPULATORS" << endl

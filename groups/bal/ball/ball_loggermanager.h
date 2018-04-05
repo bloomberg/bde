@@ -493,12 +493,12 @@ BSLS_IDENT("$Id: $")
 //              *passLevel       = category->passLevel();
 //              *triggerLevel    = category->triggerLevel();
 //              *triggerAllLevel = category->triggerAllLevel();
-//              return SUCCESS;                                     // RETURN
+//              return SUCCESS;                                       // RETURN
 //          }
 //
 //          const char *newEnd = bsl::strrchr(buffer.c_str(), delimiter);
 //          if (0 == newEnd) {
-//              return FAILURE;                                     // RETURN
+//              return FAILURE;                                       // RETURN
 //          }
 //          buffer.resize(newEnd - buffer.data());
 //      }
@@ -685,8 +685,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  class Information {
 //      // This (incomplete) class is a simple aggregate of a "heading" and
-//      // "contents" pertaining to that heading.  It serves to illustrate
-//      // how to log the string representation of an object.
+//      // "contents" pertaining to that heading.  It serves to illustrate how
+//      // to log the string representation of an object.
 //
 //      bsl::string d_heading;
 //      bsl::string d_contents;
@@ -836,7 +836,7 @@ BSLS_IDENT("$Id: $")
 //                            __FILE__,
 //                            __LINE__,
 //                            "Attempt to take factorial of negative value.");
-//          return n;
+//          return n;                                                 // RETURN
 //      }
 //
 //      enum { MAX_ARGUMENT = 13 };  // maximum value accepted by 'factorial'
@@ -847,7 +847,7 @@ BSLS_IDENT("$Id: $")
 //                            __FILE__,
 //                            __LINE__,
 //                            "Result too large for 'int'.");
-//          return -n;
+//          return -n;                                                // RETURN
 //      }
 //..
 // The remaining code proceeds mostly as expected, but adds one last message
@@ -924,7 +924,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compiler_features.h>
+#include <bsls_compilerfeatures.h>
 #endif
 
 #ifndef INCLUDED_BSL_FUNCTIONAL
@@ -1989,8 +1989,6 @@ class LoggerManagerCategoryIter {
     // NOT IMPLEMENTED
     LoggerManagerCategoryIter(const LoggerManagerCategoryIter&);
     LoggerManagerCategoryIter& operator=(const LoggerManagerCategoryIter&);
-    bool operator==(const LoggerManagerCategoryIter&) const;
-    bool operator!=(const LoggerManagerCategoryIter&) const;
 
   public:
     // CREATORS
@@ -2042,8 +2040,6 @@ class LoggerManagerCategoryManip {
     // NOT IMPLEMENTED
     LoggerManagerCategoryManip(const LoggerManagerCategoryManip&);
     LoggerManagerCategoryManip& operator=(const LoggerManagerCategoryManip&);
-    bool operator==(const LoggerManagerCategoryManip&) const;
-    bool operator!=(const LoggerManagerCategoryManip&) const;
 
   public:
     // CREATORS

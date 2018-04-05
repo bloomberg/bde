@@ -40,6 +40,7 @@
 #include <bsls_types.h>
 
 #include <bsl_climits.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdio.h>      // 'remove'
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -382,12 +383,14 @@ bsl::string readPartialFile(bsl::string&   fileName,
     // specified 'startOffset' to the end-of-file and return it as a string.
 {
     bsl::string result;
-    result.reserve(FsUtil::getFileSize(fileName) + 1 - startOffset);
+    result.reserve(static_cast<bsl::string::size_type>(
+                             FsUtil::getFileSize(fileName) + 1 - startOffset));
 
     FILE *fp = fopen(fileName.c_str(), "r");
     BSLS_ASSERT_OPT(fp);
 
-    BSLS_ASSERT_OPT(0 == fseek(fp, startOffset, SEEK_SET));
+    int rc = fseek(fp, static_cast<long>(startOffset), SEEK_SET);
+    BSLS_ASSERT_OPT(0 == rc);
 
     int c;
     while (EOF != (c = getc(fp))) {
@@ -454,7 +457,7 @@ class LogRotationCallbackTester {
     void operator()(int status, const bsl::string& rotatedFileName)
         // Set the value at the status address supplied at construction to the
         // specified 'status', and set the value at the log file name address
-        // supplied at construction to the specified 'rotateFileName'.
+        // supplied at construction to the specified 'rotatedFileName'.
     {
         ++d_rep->d_invocations;
         d_rep->d_status          = status;

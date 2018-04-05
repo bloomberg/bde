@@ -1007,7 +1007,7 @@ int main(int argc, char *argv[])
         Holder initialValue; initialValue.reset();
         const int NUM_HOLDERS = 10;
         bsl::vector<Holder> holders(NUM_HOLDERS, initialValue, &ta);
-        Obj mX(&ta);  const Obj& X = mX;
+        Obj mX(&ta);
 
         const Entry *C = mX.addCategory("C", 255, 255, 255, 255);
         for (bsl::size_t i = 0; i < holders.size(); ++i) {
@@ -2261,13 +2261,13 @@ int main(int argc, char *argv[])
         const Entry *pCat  = pmCat;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int LINE             = DATA[i].d_line;
-            const int LEVEL            = DATA[i].d_level;
-            const int RECORD_LEVEL     = DATA[i].d_recordLevel;
-            const int PASS_LEVEL       = DATA[i].d_passLevel;
-            const int TRIGGER_LEVEL    = DATA[i].d_triggerLevel;
-            const int TRIGGERALL_LEVEL = DATA[i].d_triggerAllLevel;
-            const int ENABLED          = DATA[i].d_expIsEnabled;
+            const int  LINE             = DATA[i].d_line;
+            const int  LEVEL            = DATA[i].d_level;
+            const int  RECORD_LEVEL     = DATA[i].d_recordLevel;
+            const int  PASS_LEVEL       = DATA[i].d_passLevel;
+            const int  TRIGGER_LEVEL    = DATA[i].d_triggerLevel;
+            const int  TRIGGERALL_LEVEL = DATA[i].d_triggerAllLevel;
+            const bool ENABLED          = DATA[i].d_expIsEnabled;
 
             if (veryVerbose) {
                 P_(LINE); P_(LEVEL); P_(RECORD_LEVEL); P_(PASS_LEVEL);
