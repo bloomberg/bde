@@ -40,6 +40,7 @@
 #include <bsls_types.h>
 
 #include <bsl_climits.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdio.h>      // 'remove'
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -454,7 +455,7 @@ class LogRotationCallbackTester {
     void operator()(int status, const bsl::string& rotatedFileName)
         // Set the value at the status address supplied at construction to the
         // specified 'status', and set the value at the log file name address
-        // supplied at construction to the specified 'rotateFileName'.
+        // supplied at construction to the specified 'rotatedFileName'.
     {
         ++d_rep->d_invocations;
         d_rep->d_status          = status;

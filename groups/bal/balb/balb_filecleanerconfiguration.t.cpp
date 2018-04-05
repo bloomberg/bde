@@ -48,12 +48,12 @@ using namespace bsl;
 // [ 4] const bsl::string& filePattern() const;
 // [ 4] bsls::TimeInterval maxFileAge() const;
 // [ 4] int minNumFiles() const;
-// [  ] bsl::ostream& print(bsl::ostream& stream, int level, int spacesPerLev);
+// [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
 // FREE FUNCTIONS
 // [ 6] bool operator==(const FCC& lhs, const FCC& rhs);
 // [ 6] bool operator!=(const FCC& lhs, const FCC& rhs);
-// [  ] bsl::ostream& operator<<(bsl::ostream&, const balb::FCC&);
+// [ 5] ostream& operator<<(ostream&, const balb::FCC&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] USAGE EXAMPLE
@@ -1160,7 +1160,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TEST TEMPLATE
+        // PRINT AND OUTPUT OPERATOR (<<)
         //
         // Concerns:
         //: 1 First concern.
@@ -1169,7 +1169,16 @@ int main(int argc, char *argv[])
         //: 1 Plan.
         //
         // Testing:
+        //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
+        //   ostream& operator<<(ostream&, const balb::FCC&);
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "PRINT AND OUTPUT OPERATOR (<<)" << endl
+                          << "==============================" << endl;
+
+        // TBD
+
       } break;
       case 4: {
         // --------------------------------------------------------------------

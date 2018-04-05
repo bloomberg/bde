@@ -227,13 +227,13 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
     }
 }
 
-const char *const DEFAULT_CATEGORY_NAME = "";
-const char *const TRIGGER_BEGIN =
+const char *const k_DEFAULT_CATEGORY_NAME = "";
+const char *const k_TRIGGER_BEGIN =
                                  "--- BEGIN RECORD DUMP CAUSED BY TRIGGER ---";
-const char *const TRIGGER_END =    "--- END RECORD DUMP CAUSED BY TRIGGER ---";
-const char *const TRIGGER_ALL_BEGIN =
+const char *const k_TRIGGER_END =  "--- END RECORD DUMP CAUSED BY TRIGGER ---";
+const char *const k_TRIGGER_ALL_BEGIN =
                              "--- BEGIN RECORD DUMP CAUSED BY TRIGGER ALL ---";
-const char *const TRIGGER_ALL_END =
+const char *const k_TRIGGER_ALL_END =
                                "--- END RECORD DUMP CAUSED BY TRIGGER ALL ---";
 
 void copyAttributesWithoutMessage(ball::Record                  *record,
@@ -248,7 +248,7 @@ void copyAttributesWithoutMessage(ball::Record                  *record,
     record->fixedFields().setSeverity(srcAttribute.severity());
 }
 
-const char *const INTERNAL_OBSERVER_NAME = "__oBsErVeR__";
+const char *const k_INTERNAL_OBSERVER_NAME = "__oBsErVeR__";
 
 }  // close unnamed namespace
 
@@ -350,7 +350,7 @@ void Logger::logMessage(const Category&            category,
 
             copyAttributesWithoutMessage(handle.get(), record->fixedFields());
 
-            handle->fixedFields().setMessage(TRIGGER_BEGIN);
+            handle->fixedFields().setMessage(k_TRIGGER_BEGIN);
 
             d_observer->publish(handle, triggerContext);
 
@@ -358,7 +358,7 @@ void Logger::logMessage(const Category&            category,
 
             publish(Transmission::e_TRIGGER);
 
-            handle->fixedFields().setMessage(TRIGGER_END);
+            handle->fixedFields().setMessage(k_TRIGGER_END);
 
             d_observer->publish(handle, triggerContext);
         }
@@ -384,7 +384,7 @@ void Logger::logMessage(const Category&            category,
 
             copyAttributesWithoutMessage(handle.get(), record->fixedFields());
 
-            handle->fixedFields().setMessage(TRIGGER_ALL_BEGIN);
+            handle->fixedFields().setMessage(k_TRIGGER_ALL_BEGIN);
 
             d_observer->publish(handle, triggerContext);
 
@@ -392,7 +392,7 @@ void Logger::logMessage(const Category&            category,
 
             d_publishAll(Transmission::e_TRIGGER_ALL);
 
-            handle->fixedFields().setMessage(TRIGGER_ALL_END);
+            handle->fixedFields().setMessage(k_TRIGGER_ALL_END);
 
             d_observer->publish(handle, triggerContext);
         }
@@ -584,7 +584,7 @@ LoggerManager::LoggerManager(
 
     constructObject(configuration);
 
-    int rc = registerObserver(observerWrapper, INTERNAL_OBSERVER_NAME);
+    int rc = registerObserver(observerWrapper, k_INTERNAL_OBSERVER_NAME);
     BSLS_ASSERT(0 == rc);
     (void)rc;
 }
@@ -618,7 +618,7 @@ void LoggerManager::constructObject(
                                             d_allocator_p);
     d_loggers.insert(d_logger_p);
     d_defaultCategory_p = d_categoryManager.addCategory(
-                                   DEFAULT_CATEGORY_NAME,
+                                   k_DEFAULT_CATEGORY_NAME,
                                    d_defaultThresholdLevels.recordLevel(),
                                    d_defaultThresholdLevels.passLevel(),
                                    d_defaultThresholdLevels.triggerLevel(),
@@ -706,10 +706,10 @@ LoggerManager& LoggerManager::initSingleton(
     initSingletonImpl(configuration, globalAllocator);
 
     // Note that this call can fail if we call 'initSingleton' more than once.
-    s_singleton_p->registerObserver(observerWrapper, INTERNAL_OBSERVER_NAME);
+    s_singleton_p->registerObserver(observerWrapper, k_INTERNAL_OBSERVER_NAME);
 
     // But we check that there is an observer registered under internal name.
-    BSLS_ASSERT(s_singleton_p->findObserver(INTERNAL_OBSERVER_NAME));
+    BSLS_ASSERT(s_singleton_p->findObserver(k_INTERNAL_OBSERVER_NAME));
 
     return *s_singleton_p;
 }
@@ -823,8 +823,8 @@ void LoggerManager::logMessage(int severity, Record *record)
 char *LoggerManager::obtainMessageBuffer(bslmt::Mutex **mutex,
                                          int           *bufferSize)
 {
-    const int   DEFAULT_LOGGER_BUFFER_SIZE = 8192;
-    static char buffer[DEFAULT_LOGGER_BUFFER_SIZE];
+    const int   k_DEFAULT_LOGGER_BUFFER_SIZE = 8192;
+    static char buffer[k_DEFAULT_LOGGER_BUFFER_SIZE];
 
     static bsls::ObjectBuffer<bslmt::Mutex> staticMutex;
     BSLMT_ONCE_DO {
@@ -838,7 +838,7 @@ char *LoggerManager::obtainMessageBuffer(bslmt::Mutex **mutex,
 
     staticMutex.object().lock();
     *mutex      = &staticMutex.object();
-    *bufferSize = DEFAULT_LOGGER_BUFFER_SIZE;
+    *bufferSize = k_DEFAULT_LOGGER_BUFFER_SIZE;
 
     return buffer;
 }
@@ -1211,8 +1211,9 @@ const Category *LoggerManager::setCategory(CategoryHolder *categoryHolder,
     }
 
     return category ? category
-                    : d_categoryManager.lookupCategory(categoryHolder,
-                                                       DEFAULT_CATEGORY_NAME);
+                    : d_categoryManager.lookupCategory(
+                                                      categoryHolder,
+                                                      k_DEFAULT_CATEGORY_NAME);
 }
 
 Category *LoggerManager::setCategory(const char *categoryName,
@@ -1275,7 +1276,7 @@ void LoggerManager::setMaxNumCategories(int length)
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 Observer *LoggerManager::observer()
 {
-    return findObserver(INTERNAL_OBSERVER_NAME).get();
+    return findObserver(k_INTERNAL_OBSERVER_NAME).get();
 }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
@@ -1360,7 +1361,7 @@ const Category *LoggerManager::lookupCategory(const char *categoryName) const
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 const Observer *LoggerManager::observer() const
 {
-    return findObserver(INTERNAL_OBSERVER_NAME).get();
+    return findObserver(k_INTERNAL_OBSERVER_NAME).get();
 }
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 

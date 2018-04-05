@@ -25,6 +25,7 @@
 #include <bdlsb_memoutstreambuf.h>
 
 #include <bdlt_currenttime.h>
+#include <bdlt_date.h>
 #include <bdlt_datetime.h>
 
 #include <bslim_testutil.h>

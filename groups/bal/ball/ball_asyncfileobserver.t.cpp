@@ -31,6 +31,7 @@
 
 #include <bsl_climits.h>
 #include <bsl_cmath.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdio.h>      // 'remove'
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -112,7 +113,7 @@ using bsl::flush;
 // ACCESSORS
 // [ 1] void getLogFormat(const char** logF, const char** stdoutF) const;
 // [ 1] bool isFileLoggingEnabled() const;
-// [ X] bool isFileLoggingEnabled(bsl::string *result) const;
+// [ 1] bool isFileLoggingEnabled(bsl::string *result) const;
 // [ 3] bool isPublicationThreadRunning() const;
 // [ 1] bool isPublishInLocalTimeEnabled() const;
 // [ 1] bool isStdoutLoggingPrefixEnabled() const;

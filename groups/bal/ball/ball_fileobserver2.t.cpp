@@ -111,6 +111,7 @@ using bsl::flush;
 //
 // ACCESSORS
 // [ 1] bool isFileLoggingEnabled() const;
+// [ 1] bool isFileLoggingEnabled(bsl::string *result) const;
 // [ 1] bool isPublishInLocalTimeEnabled() const;
 // [ 2] DatetimeInterval rotationLifetime() const;
 // [ 2] int rotationSize() const;
@@ -472,7 +473,7 @@ class LogRotationCallbackTester {
     void operator()(int status, const bsl::string& rotatedFileName)
         // Set the value at the status address supplied at construction to the
         // specified 'status', and set the value at the log file name address
-        // supplied at construction to the specified 'rotateFileName'.
+        // supplied at construction to the specified 'rotatedFileName'.
     {
         ++d_rep->d_invocations;
         d_rep->d_status          = status;
@@ -2998,6 +2999,7 @@ int main(int argc, char *argv[])
         //   void setLogFileFunctor(const logRecordFunctor& logFileFunctor);
         //   DatetimeInterval localTimeOffset();
         //   bool isFileLoggingEnabled() const;
+        //   bool isFileLoggingEnabled(bsl::string *result) const;
         //   bool isPublishInLocalTimeEnabled() const;
         // --------------------------------------------------------------------
 
