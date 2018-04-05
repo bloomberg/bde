@@ -139,12 +139,12 @@ typedef ball::ThresholdAggregate Obj;
 #define VD4 0
 
 static const struct {
-    int d_line;            // line number
-    int d_recordLevel;     // record level
-    int d_passLevel;       // pass level
-    int d_triggerLevel;    // trigger level
-    int d_triggerAllLevel; // trigger all level
-    int d_isValidFlag;     // if the above levels are valid
+    int  d_line;            // line number
+    int  d_recordLevel;     // record level
+    int  d_passLevel;       // pass level
+    int  d_triggerLevel;    // trigger level
+    int  d_triggerAllLevel; // trigger all level
+    bool d_isValidFlag;     // if the above levels are valid
 } DATA[] = {
     ///line    record    pass     trigger  triggerAll is
     ///no.     level     level     level     level    valid

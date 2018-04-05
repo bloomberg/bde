@@ -383,12 +383,14 @@ bsl::string readPartialFile(bsl::string&   fileName,
     // specified 'startOffset' to the end-of-file and return it as a string.
 {
     bsl::string result;
-    result.reserve(FsUtil::getFileSize(fileName) + 1 - startOffset);
+    result.reserve(static_cast<bsl::string::size_type>(
+                             FsUtil::getFileSize(fileName) + 1 - startOffset));
 
     FILE *fp = fopen(fileName.c_str(), "r");
     BSLS_ASSERT_OPT(fp);
 
-    BSLS_ASSERT_OPT(0 == fseek(fp, startOffset, SEEK_SET));
+    int rc = fseek(fp, static_cast<long>(startOffset), SEEK_SET);
+    BSLS_ASSERT_OPT(0 == rc);
 
     int c;
     while (EOF != (c = getc(fp))) {

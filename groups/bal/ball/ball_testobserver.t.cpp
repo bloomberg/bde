@@ -174,7 +174,7 @@ bool isNthRecord(const ball::Record& record, int nth)
     const ball::RecordAttributes& attr = record.fixedFields();
 
     if (nth == attr.lineNumber() && nth == attr.processID()
-     && nth == attr.severity()   && nth == attr.threadID()) {
+     && nth == attr.severity()   && nth == static_cast<int>(attr.threadID())) {
         return true;                                                  // RETURN
     }
 

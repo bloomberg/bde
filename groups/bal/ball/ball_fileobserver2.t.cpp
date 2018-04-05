@@ -1544,7 +1544,7 @@ int main(int argc, char *argv[])
             bsl::string        fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            Obj mX(&ta); const Obj& X = mX;
+            Obj mX(&ta);
 
             RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
@@ -1575,7 +1575,7 @@ int main(int argc, char *argv[])
 
             // Rotate every 1s.
 
-            Obj mX(&ta); const Obj& X = mX;
+            Obj mX(&ta);
 
             RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
@@ -1610,7 +1610,7 @@ int main(int argc, char *argv[])
             bsl::string        fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            Obj mX(&ta); const Obj& X = mX;
+            Obj mX(&ta);
 
             RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
@@ -1639,7 +1639,7 @@ int main(int argc, char *argv[])
             bsl::string        fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            Obj mX(&ta); const Obj& X = mX;
+            Obj mX(&ta);
 
             RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
@@ -1669,7 +1669,7 @@ int main(int argc, char *argv[])
             bsl::string        fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            Obj mX(&ta); const Obj& X = mX;
+            Obj mX(&ta);
 
             RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
@@ -1698,7 +1698,7 @@ int main(int argc, char *argv[])
             bsl::string        fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-            Obj mX(&ta); const Obj& X = mX;
+            Obj mX(&ta);
 
             RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
@@ -1960,7 +1960,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         ta("test", veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj mX(&ta); const Obj& X = mX;
+            Obj mX(&ta);
             mX.forceRotation();
 
             ASSERT(0 == da.numBytesInUse());
@@ -1973,7 +1973,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator         ta("test",    veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
 
-            Obj mX(&ta); const Obj& X = mX;
+            Obj mX(&ta);
 
             RotCb cb(&ta);
             mX.setOnFileRotationCallback(cb);
@@ -2135,7 +2135,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-            Obj mX(&ta); const Obj& X = mX;
+            Obj mX(&ta);
 
             ReentrantRotationCallback cb(&mX);
 

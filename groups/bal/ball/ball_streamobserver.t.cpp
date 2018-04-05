@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
                           << "\n============================" << endl;
 
         {
-            Obj mX(&bsl::cout);  const Obj& X = mX;
+            Obj mX(&bsl::cout);
         }
 
         if (verbose) cout << "Publish a single message." << endl;
