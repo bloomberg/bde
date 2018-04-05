@@ -437,6 +437,7 @@ function(inteldfp_process_standalone_package retUOR listFile installOpts)
             $<INSTALL_INTERFACE:${includeInstallDir}>
     )
 
+    # Don't create interfaces to only use our own build/usage reqiurements
     bde_struct_create(
         uor
         BDE_UOR_TYPE
