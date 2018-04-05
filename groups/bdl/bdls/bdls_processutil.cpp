@@ -226,8 +226,9 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
         bsls::Types::Int64 numChars = ::readlink(linkName,
                                                  &linkBuf[0],
                                                  k_BUF_LEN);
+
         if (0 < numChars && numChars < k_BUF_LEN) {
-            linkBuf.resize(numChars);
+            linkBuf.resize(static_cast<bsl::string::size_type>(numChars));
             if (u::isExecutable(linkBuf.c_str())) {
                 // Use 'assign', not 'swap' is the buffer of 'linkBuf' has
                 // irreversibly grown to 64K long.
