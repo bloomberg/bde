@@ -331,6 +331,8 @@ class BerDecoder_Node {
   private:
     // PRIVATE MANIPULATORS
     int decode(bsl::vector<char> *variable, bdlat_TypeCategory::Array);
+    int decode(bsl::vector<unsigned char> *variable,
+               bdlat_TypeCategory::Array);
     template <typename TYPE>
     int decode(TYPE *variable, bdlat_TypeCategory::Array);
     template <typename TYPE>
@@ -427,7 +429,11 @@ class BerDecoder_Node {
         // positioned at the first byte of the body field.
 
     int readVectorChar(bsl::vector<char> *variable);
-        // Read the node body content into specified 'variable'.  Return zero
+        // Load the node body content into the specified 'variable'.  Return 0
+        // on success, and a non-zero value otherwise.
+
+    int readVectorUnsignedChar(bsl::vector<unsigned char> *variable);
+        // Load the node body content into the specified 'variable'.  Return 0
         // on success, and a non-zero value otherwise.
 
     // ACCESSORS
@@ -1078,7 +1084,8 @@ template <typename TYPE>
 inline
 int BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Array)
 {
-    // Note: 'bsl::vector<char>' is handled as a special case in the CPP file.
+    // Note: 'bsl::vector<char>' and 'bsl::vector<unsigned char>' are
+    // handled as special cases in the CPP file.
 
     return this->decodeArray(variable);
 }
