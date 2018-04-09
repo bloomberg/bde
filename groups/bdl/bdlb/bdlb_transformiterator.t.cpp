@@ -197,7 +197,7 @@ class Parenthesizer {
     // Wrap strings in increasingly nested levels of parentheses.
 
   private:
-    // PRIVATE DATA
+    // DATA
     mutable bsl::string d_before;  // opening parentheses
     mutable bsl::string d_after;   // closing parentheses
 
@@ -207,7 +207,7 @@ class Parenthesizer {
     typedef bsl::string& result_type;
     #endif
 
-    // PUBLIC CREATORS
+    // CREATORS
     explicit Parenthesizer(bslma::Allocator *basicAllocator);
         // Create a Parenthesizer object using the specified 'basicAllocator'
         // to supply memory.
@@ -217,11 +217,14 @@ class Parenthesizer {
         // Create a copy of the specified 'other' object using the specified
         // 'basicAllocator' to supply memory.
 
-    // PUBLIC ACCESSORS
+    // ACCESSORS
     bsl::string& operator()(bsl::string& s) const;
         // Increment the parentheses nesting level, modify the specified string
         // 's' to be wrapped in those parentheses, and return a reference to
         // 's'.
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used to supply memory for this object.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Parenthesizer, bslma::UsesBslmaAllocator);
@@ -231,7 +234,7 @@ class Parenthesizer {
                             // class Parenthesizer
                             // -------------------
 
-// PUBLIC CREATORS
+// CREATORS
 Parenthesizer::Parenthesizer(bslma::Allocator *basicAllocator)
 : d_before(basicAllocator)
 , d_after(basicAllocator)
@@ -245,10 +248,15 @@ Parenthesizer::Parenthesizer(const Parenthesizer&  other,
 {
 }
 
-// PUBLIC ACCESSORS
+// ACCESSORS
 bsl::string& Parenthesizer::operator()(bsl::string& s) const
 {
     return s = (d_before += "(") + s + (d_after += ")");
+}
+
+bslma::Allocator *Parenthesizer::allocator() const
+{
+    return d_before.allocator().mechanism();
 }
 
                        // =============================
@@ -261,7 +269,7 @@ class FunctorWithoutAllocator {
     // PUBLIC TYPES
     typedef int result_type;
 
-    // PUBLIC ACCESSORS
+    // ACCESSORS
     int operator()(int n) const;
         // Return the specified 'n'.
 };
@@ -270,7 +278,7 @@ class FunctorWithoutAllocator {
                        // class FunctorWithoutAllocator
                        // -----------------------------
 
-// PUBLIC ACCESSORS
+// ACCESSORS
 int FunctorWithoutAllocator::operator()(int n) const
 {
     return n;
@@ -290,7 +298,7 @@ class FunctorWithAllocator {
     // PUBLIC TYPES
     typedef int result_type;
 
-    // PUBLIC CREATORS
+    // CREATORS
     FunctorWithAllocator();
     explicit FunctorWithAllocator(bslma::Allocator *basicAllocator);
         // Create an object of this type.  Optionally specify 'basicAllocator'
@@ -301,7 +309,7 @@ class FunctorWithAllocator {
         // Create an object of this type.  Optionally specify 'basicAllocator'
         // to set as the allocator of the new object.
 
-    // PUBLIC ACCESSORS
+    // ACCESSORS
     int operator()(int n) const;
         // Return the specified 'n'.
 
@@ -317,7 +325,7 @@ class FunctorWithAllocator {
                        // class FunctorWithAllocator
                        // --------------------------
 
-// PUBLIC CREATORS
+// CREATORS
 FunctorWithAllocator::FunctorWithAllocator()
 : d_allocator_p(0)
 {
@@ -335,7 +343,7 @@ FunctorWithAllocator::FunctorWithAllocator(
 {
 }
 
-// PUBLIC ACCESSORS
+// ACCESSORS
 int FunctorWithAllocator::operator()(int n) const
 {
     return n;
@@ -385,7 +393,7 @@ class IteratorWithAllocator : public bsl::reverse_iterator<int *> {
     bslma::Allocator *d_allocator_p;  // the allocator for this object
 
   public:
-    // PUBLIC CREATORS
+    // CREATORS
     IteratorWithAllocator();
     explicit IteratorWithAllocator(bslma::Allocator *basicAllocator);
         // Create an object of this type.  Optionally specify 'basicAllocator'
@@ -402,7 +410,7 @@ class IteratorWithAllocator : public bsl::reverse_iterator<int *> {
         // Create a copy of the specified 'other' object.  Optionally specify
         // 'basicAllocator' to set as the allocator of the new object.
 
-    // PUBLIC ACCESSORS
+    // ACCESSORS
     bslma::Allocator *allocator() const;
         // Return the allocator of this object.
 
@@ -415,7 +423,7 @@ class IteratorWithAllocator : public bsl::reverse_iterator<int *> {
                         // class IteratorWithAllocator
                         // ---------------------------
 
-// PUBLIC CREATORS
+// CREATORS
 IteratorWithAllocator::IteratorWithAllocator()
 : d_allocator_p(0)
 {
@@ -447,7 +455,7 @@ IteratorWithAllocator::IteratorWithAllocator(
 {
 }
 
-// PUBLIC ACCESSORS
+// ACCESSORS
 bslma::Allocator *IteratorWithAllocator::allocator() const
 {
     return d_allocator_p;
@@ -457,12 +465,12 @@ bslma::Allocator *IteratorWithAllocator::allocator() const
                                 // struct FakeIterator
                                 // ===================
 
-template <class IteratorType>
-struct FakeIterator : public IteratorType {
+template <class ITERATOR_TYPE>
+struct FakeIterator : public ITERATOR_TYPE {
     // This class is used to test how the transform iterator sets traits.
 
-    // PUBLIC ACCESSORS
-    typename IteratorType::reference operator*() const;
+    // ACCESSORS
+    typename ITERATOR_TYPE::reference operator*() const;
         // Unimplemented dereference operator used in C++11 'declval' test.
 };
 
@@ -476,23 +484,24 @@ struct FakeIterator : public IteratorType {
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 class Pricer {
   private:
-    // PRIVATE DATA
-    bsl::map<bsl::string, double> *d_prices_p;  // the price list;
+    // DATA
+    bsl::map<bsl::string, double> *d_prices_p;  // price list
 
   public:
-    // PUBLIC CREATORS
-    explicit Pricer(bsl::map<bsl::string, double>& prices);
-        // Create an object of this type using the specified 'prices'.
-
     // PUBLIC TYPES
     typedef double result_type;
 
-    // PUBLIC ACCESSORS
+    // CREATORS
+    explicit Pricer(bsl::map<bsl::string, double>& prices);
+        // Create an object of this type using the specified 'prices'.  The
+        // lifetime of 'prices' must be at least as long as this object.
+
+    // ACCESSORS
     double operator()(const bsl::string& product) const;
         // Return the price of the specified 'product'.
 };
 
-// PUBLIC CREATORS
+// CREATORS
 Pricer::Pricer(bsl::map<bsl::string, double>& prices)
 : d_prices_p(&prices)
 {
@@ -554,7 +563,7 @@ int main(int argc, char *argv[])
 //..
     int data[5] = { 1, -1, 2, -2, 3 };
 //..
-// Then we create the transform iterators that will convert a number to its
+// Then, we create the transform iterators that will convert a number to its
 // absolute value.  We need ones for the beginning and end of the sequence:
 //..
     int (*abs)(int) = &bsl::abs;
@@ -571,8 +580,8 @@ int main(int argc, char *argv[])
     ASSERT(9 == sum);
 //..
 //
-///Example 2: Totalling a Grocery List
-///- - - - - - - - - - - - - - - - - -
+///Example 2: Totaling a Grocery List
+/// - - - - - - - - - - - - - - - - -
 // Suppose we have a shopping list of products and we want to compute how much
 // it will cost to buy the items.  We can use 'bdlb::TransformIterator' to do
 // the computation, looking up the price of each item.
@@ -591,7 +600,7 @@ int main(int argc, char *argv[])
     list.push_back("milk");
     list.push_back("pudding");
 //..
-// Then we create the functor object.  In C++11 or later, the explicit functor
+// Then, we create the functor object.  In C++11 or later, the explicit functor
 // class above is unnecessary since we can use a lambda:
 //..
     #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -601,8 +610,8 @@ int main(int argc, char *argv[])
     #endif
 //..
 // Next, we create a pair of transform iterators to process our grocery list.
-// (Note that we use 'bsl::function' as the functor type to abstract away the
-// difference between the C++03 and C++11 function objects being used.)
+// Note that we use 'bsl::function' as the functor type to abstract away the
+// difference between the C++03 and C++11 function objects being used.
 //..
     typedef bdlb::TransformIterator<bsl::function<double(const bsl::string&)>,
                                     bsl::list<bsl::string>::iterator> ti;

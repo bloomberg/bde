@@ -28,8 +28,8 @@ BSLS_IDENT("$Id: $")
 // models an iterator from which values may be obtained, i.e., a type such that
 // 'bsl::iterator<ITERATOR>' exists and for which
 // 'bsl::iterator<ITERATOR>::iterator_category' derives from
-// 'bsl::input_iterator_tag' (see {bsl_iterator}).  (Note that object pointer
-// types qualify.)
+// 'bsl::input_iterator_tag' (see {bslstl_iterator}).  Note that object pointer
+// types qualify.
 //
 // Note that 'bdlb::TransformIterator' is more useful in C++11 or later than in
 // C++03, because lambdas can be used as function objects to match a 'FUNCTOR'
@@ -48,8 +48,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  int data[5] = { 1, -1, 2, -2, 3 };
 //..
-// Then we create the transform iterators that will convert a number to its
-// absolute value.  We need ones for the beginning and end of the sequence:
+// Then, we create the transform iterators that will convert a number to its
+// absolute value.  We need iterators for both the beginning and end of the
+// sequence:
 //..
 //  int (*abs)(int) = &bsl::abs;
 //
@@ -65,11 +66,12 @@ BSLS_IDENT("$Id: $")
 //  assert(9 == sum);
 //..
 //
-///Example 2: Totalling a Grocery List
-///- - - - - - - - - - - - - - - - - -
+///Example 2: Totaling a Grocery List
+/// - - - - - - - - - - - - - - - - -
 // Suppose we have a shopping list of products and we want to compute how much
-// it will cost to buy the items.  We can use 'bdlb::TransformIterator' to do
-// the computation, looking up the price of each item.
+// it will cost to buy the selected items.  We can use
+// 'bdlb::TransformIterator' to do the computation, looking up the price of
+// each item.
 //
 // First, we set up the price list:
 //..
@@ -91,23 +93,24 @@ BSLS_IDENT("$Id: $")
 //  #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 //  class Pricer {
 //    private:
-//      // PRIVATE DATA
-//      bsl::map<bsl::string, double> *d_prices;  // the price list;
+//      // DATA
+//      bsl::map<bsl::string, double> *d_prices;  // price list
 //
 //    public:
-//      // PUBLIC CREATORS
-//      Pricer(bsl::map<bsl::string, double>& prices);
-//          // Create an object of this type using the specified 'prices'.
-//
 //      // PUBLIC TYPES
 //      typedef double result_type;
 //
-//      // PUBLIC ACCESSORS
+//      // CREATORS
+//      Pricer(bsl::map<bsl::string, double>& prices);
+//          // Create a Pricer object using the specified 'prices'.  The
+//          // lifetime of 'prices' must be at least as long as this object.
+//
+//      // ACCESSORS
 //      double operator()(const bsl::string& product) const;
 //          // Return the price of the specified 'product'.
 //  };
 //
-//  // PUBLIC CREATORS
+//  // CREATORS
 //  Pricer::Pricer(bsl::map<bsl::string, double>& prices)
 //  : d_prices(&prices)
 //  {
@@ -119,7 +122,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //  #endif
 //..
-// Then we create the functor object.  In C++11 or later, the explicit functor
+// Then, we create the functor object.  In C++11 or later, the explicit functor
 // class above is unnecessary since we can use a lambda:
 //..
 //  #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -129,8 +132,8 @@ BSLS_IDENT("$Id: $")
 //  #endif
 //..
 // Next, we create a pair of transform iterators to process our grocery list.
-// (Note that we use 'bsl::function' as the functor type to abstract away the
-// difference between the C++03 and C++11 function objects being used.)
+// Note that we use 'bsl::function' as the functor type to abstract away the
+// difference between the C++03 and C++11 function objects being used.
 //..
 //  typedef bdlb::TransformIterator<bsl::function<double(const bsl::string&)>,
 //                                  bsl::list<bsl::string>::iterator> ti;
@@ -150,6 +153,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #include <bslalg_constructorproxy.h>
 #endif
@@ -164,10 +171,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ENABLEIF
-#include <bslmf_enableif.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISREFERENCE
@@ -198,6 +201,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_util.h>
 #endif
 
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>
+#endif
+
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
 #endif
@@ -213,21 +220,18 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlb {
 
-                       // =============================
-                       // class bdlb::TransformIterator
-                       // =============================
-
+// FORWARD DECLARATIONS
 template <class FUNCTOR, class ITERATOR>
 class TransformIterator;
 
-                   // =====================================
-                   // struct bdlb::TransformIterator_Traits
-                   // =====================================
+                      // ===============================
+                      // struct TransformIterator_Traits
+                      // ===============================
 
 template <class FUNCTOR, class ITERATOR>
 struct TransformIterator_Traits {
-    // This component-private class defines various types that will be used in
-    // the implementation of the transform iterator.
+    // This component-private class defines various types that are used in the
+    // implementation of the transform iterator.
 
     // PUBLIC TYPES
 
@@ -256,7 +260,7 @@ struct TransformIterator_Traits {
     typedef typename bsl::conditional<
         bsl::is_reference<ResultType>::value,
         typename BaseIteratorTraits::iterator_category,
-        bsl::input_iterator_tag>::type iterator_category;
+        bsl::input_iterator_tag>::type                  iterator_category;
         // Define the iterator category of the transform iterator.  If the
         // functor returns a reference type, we pass through the iterator
         // category of the underlying iterator, otherwise we use the input
@@ -274,8 +278,7 @@ struct TransformIterator_Traits {
                           value_type,
                           difference_type,
                           pointer,
-                          ResultType>
-        Iterator;
+                          ResultType>        Iterator;
         // Define the standard iterator specialization that will apply to the
         // transform iterator.
 };
@@ -295,59 +298,60 @@ struct TransformIterator_Traits<RESULT(ARGUMENT), ITERATOR>
 : public TransformIterator_Traits<bsl::function<RESULT(ARGUMENT)>, ITERATOR> {
 };
 
-
 // The transform iterator uses allocators only if at least one of its iterator
 // or its functor do.  Retrieving the allocator of the transform iterator, if
 // it exists, therefore can be implemented by querying subobjects.  We will use
 // implementation inheritance to supply the transform iterator with an
 // allocator method that will exist only when necessary.
 
-          // ========================================================
-          // struct bdlb::TransformIterator_AllocatorOfIteratorMethod
-          // ========================================================
+             // ==================================================
+             // struct TransformIterator_AllocatorOfIteratorMethod
+             // ==================================================
 
-template <class BASE, bool>
+template <class BASE_TYPE, bool>
 struct TransformIterator_AllocatorOfIteratorMethod {
     // The 'TransformIterator_AllocatorOfIteratorMethod' class template has an
     // allocator method when its boolean template parameter is 'true', which
     // will be made to be the case when the iterator of the transform iterator
-    // uses allocators.
+    // uses allocators.  The transform iterator type itself is supplied as
+    // 'BASE_TYPE'.
 };
 
-template <class BASE>
-struct TransformIterator_AllocatorOfIteratorMethod<BASE, true>
-{
-    // PUBLIC ACCESSORS
+template <class BASE_TYPE>
+struct TransformIterator_AllocatorOfIteratorMethod<BASE_TYPE, true> {
+    // ACCESSORS
     bslma::Allocator *allocator() const;
-        // Assume that this class is a base class of a transform iterator, and
-        // return the allocator of the iterator of the class.
+        // Return the allocator used by the underlying iterator of the
+        // associated transform iterator to supply memory.  Note that this
+        // class must be a base class of the transform iterator.
 };
 
-          // =======================================================
-          // struct bdlb::TransformIterator_AllocatorOfFunctorMethod
-          // =======================================================
+             // =================================================
+             // struct TransformIterator_AllocatorOfFunctorMethod
+             // =================================================
 
-template <class BASE, bool>
+template <class BASE_TYPE, bool>
 struct TransformIterator_AllocatorOfFunctorMethod {
     // The 'TransformIterator_AllocatorOfFunctorMethod' class template has an
     // allocator method when its boolean template parameter is 'true', which
     // will be made to be the case when the iterator of the transform iterator
     // does not use allocators and the functor of the transform iterator uses
-    // allocators.
+    // allocators.  The transform iterator type itself is supplied as
+    // 'BASE_TYPE'.
 };
 
-template <class BASE>
-struct TransformIterator_AllocatorOfFunctorMethod<BASE, true>
-{
-    // PUBLIC ACCESSORS
+template <class BASE_TYPE>
+struct TransformIterator_AllocatorOfFunctorMethod<BASE_TYPE, true> {
+    // ACCESSORS
     bslma::Allocator *allocator() const;
-        // Assume that this class is a base class of a transform iterator, and
-        // return the allocator of the functor of the class.
+        // Return the allocator used by the transforming functor of the
+        // associated transform iterator to supply memory.  Note that this
+        // class must be a base class of the transform iterator.
 };
 
-                       // =============================
-                       // class bdlb::TransformIterator
-                       // =============================
+                          // =======================
+                          // class TransformIterator
+                          // =======================
 
 template <class FUNCTOR, class ITERATOR>
 class TransformIterator
@@ -362,14 +366,15 @@ class TransformIterator
     // an iterator, pass through all iterator-related operations to the held
     // iterator, and on dereference, call the functor on the result of
     // dereferencing the iterator and return the result of the call instead.
+
   private:
     // PRIVATE TYPES
     typedef TransformIterator_Traits<FUNCTOR, ITERATOR> Traits;
     typedef typename Traits::Iterator                   Iterator;
 
-    // PRIVATE DATA
-    bslalg::ConstructorProxy<ITERATOR> d_iteratorProxy;
-    bslalg::ConstructorProxy<FUNCTOR>  d_functorProxy;
+    // DATA
+    bslalg::ConstructorProxy<ITERATOR> d_iterator;  // underlying iterator
+    bslalg::ConstructorProxy<FUNCTOR>  d_functor;   // transforming functor
 
   public:
     // PUBLIC TYPES
@@ -386,184 +391,293 @@ class TransformIterator
         bslma::UsesBslmaAllocator<ITERATOR>::value ||
         bslma::UsesBslmaAllocator<FUNCTOR> ::value)
 
-    // PUBLIC CREATORS
+    // CREATORS
     TransformIterator();
-        // Construct an object of this type.
-
     explicit TransformIterator(bslma::Allocator *basicAllocator);
-        // Construct an object of this type using the specified
-        // 'basicAllocator' to allocate memory.
+        // Construct an object of this type.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     TransformIterator(const ITERATOR&   iterator,
                       FUNCTOR           functor,
                       bslma::Allocator *basicAllocator = 0);
         // Create a 'TransformIterator' using the specified 'iterator' and
-        // 'functor'.  Optionally specify 'basicAllocator' from which to
-        // allocate memory.
+        // 'functor'.  Optionally specify 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
 
-    TransformIterator(const TransformIterator&  other,
+    TransformIterator(const TransformIterator&  original,
                       bslma::Allocator         *basicAllocator = 0);
-        // Create a copy of the specified 'TransformIterator' object 'other'.
-        // Optionally specify 'basicAllocator' from which to allocate memory.
+        // Create a 'TransformIterator' object having the same value as the
+        // specified 'original' object.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
-    // PUBLIC MANIPULATORS
-    TransformIterator& operator=(const TransformIterator& other);
-        // Assign the specified 'other' object to this one and return a
-        // reference to this object.
+    //! ~TransformIterator() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    TransformIterator& operator=(const TransformIterator& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+    TransformIterator& operator+=(difference_type offset);
+        // Advance the the underlying iterator of this object by the specified
+        // (signed) 'offset', and return a reference providing modifiable
+        // access to this object.  The behavior is undefined if so advancing
+        // the underlying iterator is undefined.
+
+    TransformIterator& operator-=(difference_type offset);
+        // Regress the the underlying iterator of this object by the specified
+        // (signed) 'offset', and return a reference providing modifiable
+        // access to this object.  The behavior is undefined if so regressing
+        // the underlying iterator is undefined.
 
     TransformIterator& operator++();
-        // Increment the iterator of this object and return a reference to this
-        // object.
-
-    TransformIterator operator++(int);
-        // Create a copy of this object, increment the iterator of this object,
-        // then return the copy.
+        // Increment the underlying iterator of this object, and return a
+        // reference providing modifiable access to this object.  The behavior
+        // is undefined if incrementing the underlying iterator is undefined.
 
     TransformIterator& operator--();
-        // Decrement the iterator of this object and return a reference to this
-        // object.
-
-    TransformIterator operator--(int);
-        // Create a copy of this object, decrement the iterator of this object,
-        // then return the copy.
-
-    TransformIterator& operator+=(difference_type n);
-        // Add the specified 'n' to the underlying iterator and return a
-        // reference to this object.
-
-    TransformIterator& operator-=(difference_type n);
-        // Subtract the specified 'n' from the underlying iterator and return a
-        // reference to this object.
+        // Decrement the underlying iterator of this object, and return a
+        // reference providing modifiable access to this object.  The behavior
+        // is undefined if decrementing the underlying iterator is undefined.
 
     reference operator*();
-        // Return the result of applying the functor to the dereferenced
-        // iterator.
+        // Return the result of applying the functor of this object to the
+        // result of dereferencing the underlying iterator.  The behavior is
+        // undefined if dereferencing the underlying iterator is undefined.
+        // Note that the behavior of this method is equivalent to:
+        //..
+        //  functor()(*iterator())
+        //..
 
     pointer operator->();
-        // Return the address of the result of applying the functor to the
-        // dereferenced iterator.  Note that the functor must return a
-        // reference type for this method to be used.
+        // Return the address of the result of applying the functor of this
+        // object to the result of dereferencing the underlying iterator.  The
+        // behavior is undefined if dereferencing the underlying iterator is
+        // undefined.  Note that the behavior of this method is equivalent to:
+        //..
+        //  &functor()(*iterator())
+        //..
+        // Also note that the functor must return a reference type for this
+        // method to be used.
 
-    reference operator[](difference_type n);
-        // Return the result of applying the functor to the indexed dereference
-        // by the specified 'n' of the underlying iterator.
+    reference operator[](difference_type offset);
+        // Return the result of applying the functor of this object to the
+        // result of dereferencing the underlying iterator advanced by the
+        // specified (signed) 'offset'.  The behavior is undefined if so
+        // advancing or dereferencing the underlying iterator is undefined.
+        // Note that the behavior of this method is equivalent to:
+        //..
+        //  functor()(iterator()[offset])
+        //..
 
     FUNCTOR& functor();
-        // Return a reference to the functor of this object.
+        // Return a reference providing modifiable access to the functor of
+        // this object.
 
     ITERATOR& iterator();
-        // Return a reference to the iterator of this object.
+        // Return a reference providing modifiable access to the underlying
+        // iterator of this object.
 
-    // PUBLIC ACCESSORS
+                                  // Aspects
+
+    void swap(TransformIterator& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object by applying 'swap' to each of the functor
+        // and underlying iterator fields of the two objects.
+
+    // ACCESSORS
     reference operator*() const;
-        // Return the result of applying the functor to the dereferenced
-        // iterator.
+        // Return the result of applying the functor of this object to the
+        // result of dereferencing the underlying iterator.  The behavior is
+        // undefined if dereferencing the underlying iterator is undefined.
+        // Note that the behavior of this method is equivalent to:
+        //..
+        //  functor()(*iterator())
+        //..
 
     pointer operator->() const;
-        // Return the address of the result applying the functor to the
-        // dereferenced iterator.  Note that the functor must return a
-        // reference type for this method to be used.
-        //
-        // To be done: For input iterators, have a proxy object that holds the
-        // result of the functor call and implements operatr->, and return
-        // that.  Alternatively, remove this method altogether as has been done
-        // for 'istreambuf_iterator' in latest C++.
+        // Return the address of the result of applying the functor of this
+        // object to the result of dereferencing the underlying iterator.  The
+        // behavior is undefined if dereferencing the underlying iterator is
+        // undefined.  Note that the behavior of this method is equivalent to:
+        //..
+        //  &functor()(*iterator())
+        //..
+        // Also note that the functor must return a reference type for this
+        // method to be used.
 
-    reference operator[](difference_type n) const;
-        // Return the result of applying the functor to the indexed dereference
-        // by the specified 'n' of the underlying iterator.
+    reference operator[](difference_type offset) const;
+        // Return the result of applying the functor of this object to the
+        // result of dereferencing the underlying iterator advanced by the
+        // specified (signed) 'offset'.  The behavior is undefined if so
+        // advancing or dereferencing the underlying iterator is undefined.
+        // Note that the behavior of this method is equivalent to:
+        //..
+        //  functor()(iterator()[offset])
+        //..
 
-    TransformIterator operator+(difference_type n) const;
-        // Return a copy of this object with its iterator moved forward by the
-        // specified 'n'.
+    TransformIterator operator+(difference_type offset) const;
+        // Return a copy of this object with its iterator advanced by the
+        // specified (signed) 'offset'.
 
-    TransformIterator operator-(difference_type n) const;
-        // Return a copy of this object with its iterator moved backward by
-        // the specified 'n'.
+    TransformIterator operator-(difference_type offset) const;
+        // Return a copy of this object with its iterator regressed by the
+        // specified (signed) 'offset'.
 
     const FUNCTOR& functor() const;
-        // Return a const reference to the functor of this object.
+        // Return a 'const' reference to the functor of this object.
 
     const ITERATOR& iterator() const;
-        // Return a const reference to the iterator of this object.
-
-    // ASPECTS
-    void swap(TransformIterator& other);
-        // Exchange the functor and iterator of this object with those of the
-        // specified 'other' object.
+        // Return a 'const' reference to the underlying iterator of this
+        // object.
 };
 
-// FREE FUNCTIONS
+// FREE OPERATORS
 
 template <class FUNCTOR, class ITERATOR>
 bool operator==(const TransformIterator<FUNCTOR, ITERATOR>& lhs,
                 const TransformIterator<FUNCTOR, ITERATOR>& rhs);
-    // Return 'true' iff the specified 'lhs' and 'rhs' have equal iterators.
-    // Note that the functors are not compared.
+    // Return 'true' if the underlying iterator of the specified 'lhs' compares
+    // equal to the underlying iterator of the specified 'rhs', and 'false'
+    // otherwise.  The behavior is undefined if comparing the underlying
+    // iterators in this way is undefined.  Note that the functors are not
+    // compared.
 
 template <class FUNCTOR, class ITERATOR>
 bool operator!=(const TransformIterator<FUNCTOR, ITERATOR>& lhs,
                 const TransformIterator<FUNCTOR, ITERATOR>& rhs);
-    // Return 'true' iff the specified 'lhs' and 'rhs' have unequal iterators.
-    // Note that the functors are not compared.
+    // Return 'true' if the underlying iterator of the specified 'lhs' compares
+    // unequal to the underlying iterator of the specified 'rhs', and 'false'
+    // otherwise.  The behavior is undefined if comparing the underlying
+    // iterators in this way is undefined.  Note that the functors are not
+    // compared.
 
 template <class FUNCTOR, class ITERATOR>
 bool operator<(const TransformIterator<FUNCTOR, ITERATOR>& lhs,
                const TransformIterator<FUNCTOR, ITERATOR>& rhs);
-    // Return 'true' iff the iterator of the specified 'lhs' is less than the
-    // iterator of the specified 'rhs'.  Note that the functors are not
+    // Return 'true' if the underlying iterator of the specified 'lhs' compares
+    // less than the underlying iterator of the specified 'rhs', and 'false'
+    // otherwise.  The behavior is undefined if comparing the underlying
+    // iterators in this way is undefined.  Note that the functors are not
     // compared.
 
 template <class FUNCTOR, class ITERATOR>
 bool operator>(const TransformIterator<FUNCTOR, ITERATOR>& lhs,
                const TransformIterator<FUNCTOR, ITERATOR>& rhs);
-    // Return 'true' iff the iterator of the specified 'lhs' is greater than
-    // the iterator of the specified 'rhs'.  Note that the functors are not
+    // Return 'true' if the underlying iterator of the specified 'lhs' compares
+    // greater than the underlying iterator of the specified 'rhs', and 'false'
+    // otherwise.  The behavior is undefined if comparing the underlying
+    // iterators in this way is undefined.  Note that the functors are not
     // compared.
 
 template <class FUNCTOR, class ITERATOR>
 bool operator<=(const TransformIterator<FUNCTOR, ITERATOR>& lhs,
                 const TransformIterator<FUNCTOR, ITERATOR>& rhs);
-    // Return 'true' iff the iterator of the specified 'lhs' is less than or
-    // equal to the iterator of the specified 'rhs'.  Note that the functors
+    // Return 'true' if the underlying iterator of the specified 'lhs' compares
+    // less than or equal to the underlying iterator of the specified 'rhs',
+    // and 'false' otherwise.  The behavior is undefined if comparing the
+    // underlying iterators in this way is undefined.  Note that the functors
     // are not compared.
 
 template <class FUNCTOR, class ITERATOR>
 bool operator>=(const TransformIterator<FUNCTOR, ITERATOR>& lhs,
                 const TransformIterator<FUNCTOR, ITERATOR>& rhs);
-    // Return 'true' iff the iterator of the specified 'lhs' is greater than or
-    // equal to the iterator of the specified 'rhs'.  Note that the functors
+    // Return 'true' if the underlying iterator of the specified 'lhs' compares
+    // greater than or equal to the underlying iterator of the specified 'rhs',
+    // and 'false' otherwise.  The behavior is undefined if comparing the
+    // underlying iterators in this way is undefined.  Note that the functors
     // are not compared.
 
+template <class FUNCTOR, class ITERATOR>
+TransformIterator<FUNCTOR, ITERATOR> operator++(
+                                TransformIterator<FUNCTOR, ITERATOR>& iterator,
+                                int);
+    // Increment the underlying iterator of the specified 'iterator', and
+    // return a copy of 'iterator' *before* the increment.  The behavior is
+    // undefined if incrementing the underlying iterator is undefined.
+
+template <class FUNCTOR, class ITERATOR>
+TransformIterator<FUNCTOR, ITERATOR> operator--(
+                                TransformIterator<FUNCTOR, ITERATOR>& iterator,
+                                int);
+    // Decrement the underlying iterator of the specified 'iterator', and
+    // return a copy of 'iterator' *before* the decrement.  The behavior is
+    // undefined if decrementing the underlying iterator is undefined.
+
+template <class FUNCTOR, class ITERATOR>
+TransformIterator<FUNCTOR, ITERATOR> operator+(
+       const TransformIterator<FUNCTOR, ITERATOR>&                    iterator,
+       typename TransformIterator<FUNCTOR, ITERATOR>::difference_type offset);
+    // Return a copy of the specified 'iterator' object with its underlying
+    // iterator advanced by the specified (signed) 'offset' from that of
+    // 'iterator'.  The behavior is undefined if so advancing the underlying
+    // iterator is undefined.
+
+template <class FUNCTOR, class ITERATOR>
+TransformIterator<FUNCTOR, ITERATOR> operator+(
+      typename TransformIterator<FUNCTOR, ITERATOR>::difference_type offset,
+      const TransformIterator<FUNCTOR, ITERATOR>&                    iterator);
+    // Return a copy of the specified 'iterator' object with its underlying
+    // iterator advanced by the specified (signed) 'offset' from that of
+    // 'iterator'.  The behavior is undefined if so advancing the underlying
+    // iterator is undefined.
+
+template <class FUNCTOR, class ITERATOR>
+TransformIterator<FUNCTOR, ITERATOR> operator-(
+       const TransformIterator<FUNCTOR, ITERATOR>&                    iterator,
+       typename TransformIterator<FUNCTOR, ITERATOR>::difference_type offset);
+    // Return a copy of the specified 'iterator' object with its underlying
+    // iterator regressed by the specified (signed) 'offset' from that of
+    // 'iterator'.  The behavior is undefined if so regressing the underlying
+    // iterator is undefined.
+
+template <class FUNCTOR, class ITERATOR>
+typename TransformIterator<FUNCTOR, ITERATOR>::difference_type operator-(
+                                const TransformIterator<FUNCTOR, ITERATOR>& a,
+                                const TransformIterator<FUNCTOR, ITERATOR>& b);
+    // Return the result of subtracting the underlying iterator of the
+    // specified 'a' object from the underlying iterator of the specified 'b'
+    // object.  The behavior is undefined if this subtraction is undefined.
+
+// FREE FUNCTIONS
+template <class FUNCTOR, class ITERATOR>
+void swap(TransformIterator<FUNCTOR, ITERATOR>& a,
+          TransformIterator<FUNCTOR, ITERATOR>& b);
+    // Efficiently exchange the values of the specified 'a' and 'b' objects by
+    // applying 'swap' to each of the functor and underlying iterator fields of
+    // the two objects.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-          // --------------------------------------------------------
-          // struct bdlb::TransformIterator_AllocatorOfIteratorMethod
-          // --------------------------------------------------------
+             // --------------------------------------------------
+             // struct TransformIterator_AllocatorOfIteratorMethod
+             // --------------------------------------------------
 
-// PUBLIC ACCESSORS
-template <class BASE>
+// ACCESSORS
+template <class BASE_TYPE>
 inline
-bslma::Allocator *TransformIterator_AllocatorOfIteratorMethod<BASE, true>
+bslma::Allocator *TransformIterator_AllocatorOfIteratorMethod<BASE_TYPE, true>
 ::allocator() const
 {
-    return static_cast<const BASE&>(*this).iterator().allocator();
+    return static_cast<const BASE_TYPE&>(*this).iterator().allocator();
 }
 
-          // -------------------------------------------------------
-          // struct bdlb::TransformIterator_AllocatorOfFunctorMethod
-          // -------------------------------------------------------
+             // -------------------------------------------------
+             // struct TransformIterator_AllocatorOfFunctorMethod
+             // -------------------------------------------------
 
-// PUBLIC ACCESSORS
-template <class BASE>
+// ACCESSORS
+template <class BASE_TYPE>
 inline
-bslma::Allocator *TransformIterator_AllocatorOfFunctorMethod<BASE, true>
+bslma::Allocator *TransformIterator_AllocatorOfFunctorMethod<BASE_TYPE, true>
 ::allocator() const
 {
-    return static_cast<const BASE&>(*this).functor().allocator();
+    return static_cast<const BASE_TYPE&>(*this).functor().allocator();
 }
 
                           //------------------------
@@ -574,8 +688,8 @@ bslma::Allocator *TransformIterator_AllocatorOfFunctorMethod<BASE, true>
 template <class FUNCTOR, class ITERATOR>
 inline
 TransformIterator<FUNCTOR, ITERATOR>::TransformIterator()
-: d_iteratorProxy(0)
-, d_functorProxy(0)
+: d_iterator(0)
+, d_functor(0)
 {
 }
 
@@ -583,8 +697,8 @@ template <class FUNCTOR, class ITERATOR>
 inline
 TransformIterator<FUNCTOR, ITERATOR>::TransformIterator(
                                               bslma::Allocator *basicAllocator)
-: d_iteratorProxy(basicAllocator)
-, d_functorProxy(basicAllocator)
+: d_iterator(basicAllocator)
+, d_functor(basicAllocator)
 {
 }
 
@@ -594,18 +708,18 @@ TransformIterator<FUNCTOR, ITERATOR>::TransformIterator(
                                               const ITERATOR&   iterator,
                                               FUNCTOR           functor,
                                               bslma::Allocator *basicAllocator)
-: d_iteratorProxy(iterator, basicAllocator)
-, d_functorProxy(functor, basicAllocator)
+: d_iterator(iterator, basicAllocator)
+, d_functor(functor, basicAllocator)
 {
 }
 
 template <class FUNCTOR, class ITERATOR>
 inline
 TransformIterator<FUNCTOR, ITERATOR>::TransformIterator(
-                                      const TransformIterator&  other,
+                                      const TransformIterator&  original,
                                       bslma::Allocator         *basicAllocator)
-: d_iteratorProxy(other.iterator(), basicAllocator)
-, d_functorProxy(other.functor(), basicAllocator)
+: d_iterator(original.iterator(), basicAllocator)
+, d_functor(original.functor(), basicAllocator)
 {
 }
 
@@ -613,11 +727,29 @@ TransformIterator<FUNCTOR, ITERATOR>::TransformIterator(
 template <class FUNCTOR, class ITERATOR>
 inline
 TransformIterator<FUNCTOR, ITERATOR>&
-TransformIterator<FUNCTOR, ITERATOR>::operator=(const TransformIterator& other)
+TransformIterator<FUNCTOR, ITERATOR>::operator=(const TransformIterator& rhs)
 {
-    iterator() = other.iterator();
-    functor()  = other.functor();
+    iterator() = rhs.iterator();
+    functor()  = rhs.functor();
 
+    return *this;
+}
+
+template <class FUNCTOR, class ITERATOR>
+inline
+TransformIterator<FUNCTOR, ITERATOR>&
+TransformIterator<FUNCTOR, ITERATOR>::operator+=(difference_type offset)
+{
+    iterator() += offset;
+    return *this;
+}
+
+template <class FUNCTOR, class ITERATOR>
+inline
+TransformIterator<FUNCTOR, ITERATOR>&
+TransformIterator<FUNCTOR, ITERATOR>::operator-=(difference_type offset)
+{
+    iterator() -= offset;
     return *this;
 }
 
@@ -632,44 +764,10 @@ TransformIterator<FUNCTOR, ITERATOR>::operator++()
 
 template <class FUNCTOR, class ITERATOR>
 inline
-TransformIterator<FUNCTOR, ITERATOR>
-TransformIterator<FUNCTOR, ITERATOR>::operator++(int)
-{
-    return TransformIterator(iterator()++, functor());
-}
-
-template <class FUNCTOR, class ITERATOR>
-inline
 TransformIterator<FUNCTOR, ITERATOR>&
 TransformIterator<FUNCTOR, ITERATOR>::operator--()
 {
     --iterator();
-    return *this;
-}
-
-template <class FUNCTOR, class ITERATOR>
-inline
-TransformIterator<FUNCTOR, ITERATOR>
-TransformIterator<FUNCTOR, ITERATOR>::operator--(int)
-{
-    return TransformIterator(iterator()--, functor());
-}
-
-template <class FUNCTOR, class ITERATOR>
-inline
-TransformIterator<FUNCTOR, ITERATOR>&
-TransformIterator<FUNCTOR, ITERATOR>::operator+=(difference_type n)
-{
-    iterator() += n;
-    return *this;
-}
-
-template <class FUNCTOR, class ITERATOR>
-inline
-TransformIterator<FUNCTOR, ITERATOR>&
-TransformIterator<FUNCTOR, ITERATOR>::operator-=(difference_type n)
-{
-    iterator() -= n;
     return *this;
 }
 
@@ -692,23 +790,35 @@ TransformIterator<FUNCTOR, ITERATOR>::operator->()
 template <class FUNCTOR, class ITERATOR>
 inline
 typename TransformIterator<FUNCTOR, ITERATOR>::reference
-TransformIterator<FUNCTOR, ITERATOR>::operator[](difference_type n)
+TransformIterator<FUNCTOR, ITERATOR>::operator[](difference_type offset)
 {
-    return functor()(iterator()[n]);
+    return functor()(iterator()[offset]);
 }
 
 template <class FUNCTOR, class ITERATOR>
 inline
 FUNCTOR& TransformIterator<FUNCTOR, ITERATOR>::functor()
 {
-    return d_functorProxy.object();
+    return d_functor.object();
 }
 
 template <class FUNCTOR, class ITERATOR>
 inline
 ITERATOR& TransformIterator<FUNCTOR, ITERATOR>::iterator()
 {
-    return d_iteratorProxy.object();
+    return d_iterator.object();
+}
+
+                                  // Aspects
+
+template <class FUNCTOR, class ITERATOR>
+inline
+void TransformIterator<FUNCTOR, ITERATOR>::swap(
+                                   TransformIterator<FUNCTOR, ITERATOR>& other)
+{
+    using bsl::swap;
+    swap(functor(), other.functor());
+    swap(iterator(), other.iterator());
 }
 
 // ACCESSORS
@@ -731,55 +841,44 @@ TransformIterator<FUNCTOR, ITERATOR>::operator->() const
 template <class FUNCTOR, class ITERATOR>
 inline
 typename TransformIterator<FUNCTOR, ITERATOR>::reference
-TransformIterator<FUNCTOR, ITERATOR>::operator[](difference_type n) const
+TransformIterator<FUNCTOR, ITERATOR>::operator[](difference_type offset) const
 {
-    return functor()(iterator()[n]);
+    return functor()(iterator()[offset]);
 }
 
 template <class FUNCTOR, class ITERATOR>
 inline
 TransformIterator<FUNCTOR, ITERATOR>
-TransformIterator<FUNCTOR, ITERATOR>::operator+(difference_type n) const
+TransformIterator<FUNCTOR, ITERATOR>::operator+(difference_type offset) const
 {
-    return TransformIterator(iterator() + n, functor());
+    return TransformIterator(iterator() + offset, functor());
 }
 
 template <class FUNCTOR, class ITERATOR>
 inline
 TransformIterator<FUNCTOR, ITERATOR>
-TransformIterator<FUNCTOR, ITERATOR>::operator-(difference_type n) const
+TransformIterator<FUNCTOR, ITERATOR>::operator-(difference_type offset) const
 {
-    return TransformIterator(iterator() - n, functor());
+    return TransformIterator(iterator() - offset, functor());
 }
 
 template <class FUNCTOR, class ITERATOR>
 inline
 const FUNCTOR& TransformIterator<FUNCTOR, ITERATOR>::functor() const
 {
-    return d_functorProxy.object();
+    return d_functor.object();
 }
 
 template <class FUNCTOR, class ITERATOR>
 inline
 const ITERATOR& TransformIterator<FUNCTOR, ITERATOR>::iterator() const
 {
-    return d_iteratorProxy.object();
-}
-
-// ASPECTS
-template <class FUNCTOR, class ITERATOR>
-inline
-void TransformIterator<FUNCTOR, ITERATOR>::swap(
-                                   TransformIterator<FUNCTOR, ITERATOR>& other)
-{
-    using bsl::swap;
-    swap(functor(), other.functor());
-    swap(iterator(), other.iterator());
+    return d_iterator.object();
 }
 
 }  // close package namespace
 
-// FREE FUNCTIONS
+// FREE OPERATORS
 template <class FUNCTOR, class ITERATOR>
 inline
 bool bdlb::operator==(const TransformIterator<FUNCTOR, ITERATOR>& lhs,
@@ -826,6 +925,69 @@ bool bdlb::operator>=(const TransformIterator<FUNCTOR, ITERATOR>& lhs,
                       const TransformIterator<FUNCTOR, ITERATOR>& rhs)
 {
     return lhs.iterator() >= rhs.iterator();
+}
+
+template <class FUNCTOR, class ITERATOR>
+bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator++(
+                                TransformIterator<FUNCTOR, ITERATOR>& iterator,
+                                int)
+{
+    return TransformIterator<FUNCTOR, ITERATOR>(iterator.iterator()++,
+                                                iterator.functor());
+}
+
+template <class FUNCTOR, class ITERATOR>
+bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator--(
+                                TransformIterator<FUNCTOR, ITERATOR>& iterator,
+                                int)
+{
+    return TransformIterator<FUNCTOR, ITERATOR>(iterator.iterator()--,
+                                                iterator.functor());
+}
+
+template <class FUNCTOR, class ITERATOR>
+bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator+(
+       const TransformIterator<FUNCTOR, ITERATOR>&                    iterator,
+       typename TransformIterator<FUNCTOR, ITERATOR>::difference_type offset)
+{
+    return TransformIterator<FUNCTOR, ITERATOR>(iterator.iterator() + offset,
+                                                iterator.functor());
+}
+
+template <class FUNCTOR, class ITERATOR>
+bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator+(
+       typename TransformIterator<FUNCTOR, ITERATOR>::difference_type offset,
+       const TransformIterator<FUNCTOR, ITERATOR>&                    iterator)
+{
+    return TransformIterator<FUNCTOR, ITERATOR>(iterator.iterator() + offset,
+                                                iterator.functor());
+}
+
+template <class FUNCTOR, class ITERATOR>
+bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator-(
+       const TransformIterator<FUNCTOR, ITERATOR>&                    iterator,
+       typename TransformIterator<FUNCTOR, ITERATOR>::difference_type offset)
+{
+    return TransformIterator<FUNCTOR, ITERATOR>(iterator.iterator() - offset,
+                                                iterator.functor());
+}
+
+template <class FUNCTOR, class ITERATOR>
+typename bdlb::TransformIterator<FUNCTOR, ITERATOR>::difference_type
+bdlb::operator-(const TransformIterator<FUNCTOR, ITERATOR>& a,
+                const TransformIterator<FUNCTOR, ITERATOR>& b)
+{
+    return a.iterator() - b.iterator();
+}
+
+// FREE FUNCTIONS
+template <class FUNCTOR, class ITERATOR>
+void bdlb::swap(TransformIterator<FUNCTOR, ITERATOR>& a,
+                TransformIterator<FUNCTOR, ITERATOR>& b)
+{
+    using bsl::swap;
+    swap(a.functor(), b.functor());
+    swap(a.iterator(), b.iterator());
 }
 
 }  // close enterprise namespace
