@@ -528,7 +528,6 @@ class TransformIterator
 };
 
 // FREE OPERATORS
-
 template <class FUNCTOR, class ITERATOR>
 bool operator==(const TransformIterator<FUNCTOR, ITERATOR>& lhs,
                 const TransformIterator<FUNCTOR, ITERATOR>& rhs);

@@ -190,8 +190,6 @@ void aSsErT(bool condition, const char *message, int line)
 //                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-namespace {
-
                             // ===================
                             // class Parenthesizer
                             // ===================
@@ -516,8 +514,6 @@ double Pricer::operator()(const bsl::string& product) const
 }
 #endif
 //..
-
-}  // close unnamed namespace
 
 //=============================================================================
 //                                 MAIN PROGRAM
