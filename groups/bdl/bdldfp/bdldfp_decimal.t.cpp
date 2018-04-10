@@ -14,6 +14,8 @@
 #include <bslx_testoutstream.h>
 #include <bslx_versionfunctions.h>
 
+#include <bslstl_pair.h>
+
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_cstdlib.h>
