@@ -39,7 +39,7 @@ using namespace bsl;
 // use an allocator.  Testing is required to demonstrate that the 'allocator()'
 // method is or is not present as appropriate, and that it returns the
 // allocator supplied to the constructor of the object.  Additionally, this
-// componet sets its 'UsesBslmaAllocator' allocator trait to true if either of
+// component sets its 'UsesBslmaAllocator' allocator trait to true if either of
 // its contained objects uses allocators, and to false if neither does.
 // Testing is required to demonstrate that this is done correctly.
 //
@@ -85,9 +85,9 @@ using namespace bsl;
 // MANIPULATORS
 // [ 3] TransformIterator& operator=(const TransformIterator&);
 // [ 3] TransformIterator& operator++();
-// [ 3] TransformIterator& operator++(int);
+// [ 3] TransformIterator& operator++(TransformIterator&, int);
 // [ 3] TransformIterator& operator--();
-// [ 3] TransformIterator& operator--(int);
+// [ 3] TransformIterator& operator--(TransformIterator&, int);
 // [ 3] TransformIterator& operator+=(difference_type);
 // [ 3] TransformIterator& operator-=(difference_type);
 // [ 3] Traits::reference operator*();
@@ -96,13 +96,12 @@ using namespace bsl;
 // [ 3] FUNCTOR& functor();
 // [ 3] ITERATOR& iterator();
 // [ 3] void swap(TransformIterator&);
+// [ 3] void swap(TransformIterator&, TransformIterator&);
 //
 // ACCESSORS
 // [ 4] reference operator*() const;
 // [ 4] pointer operator->() const;
 // [ 4] reference operator[](difference_type n) const;
-// [ 4] TransformIterator operator+(difference_type) const;
-// [ 4] TransformIterator operator-(difference_type) const;
 // [ 4] const FUNCTOR& functor() const;
 // [ 4] const ITERATOR& iterator() const;
 //
@@ -113,6 +112,10 @@ using namespace bsl;
 // [ 5] bool operator<=(const TI&, const TI&);
 // [ 5] bool operator>(const TI&, const TI&);
 // [ 5] bool operator>=(const TI&, const TI&);
+// [ 4] TransformIterator operator+(TransformIterator, difference_type);
+// [ 4] TransformIterator operator+(difference_type, TransformIterator);
+// [ 4] TransformIterator operator-(TransformIterator, difference_type);
+// [ 4] difference_type operator-(TransformIterator, TransformIterator);
 //
 // ALLOCATOR TRAITS
 // [ 6] bslma::UsesBslmaAllocator
@@ -1072,8 +1075,10 @@ int main(int argc, char *argv[])
         //   reference operator*() const;
         //   pointer operator->() const;
         //   reference operator[](difference_type n) const;
-        //   TransformIterator operator+(difference_type) const;
-        //   TransformIterator operator-(difference_type) const;
+        //   TransformIterator operator+(TransformIterator, difference_type);
+        //   TransformIterator operator+(difference_type, TransformIterator);
+        //   TransformIterator operator-(TransformIterator, difference_type);
+        //   difference_type operator-(TransformIterator, TransformIterator);
         //   const FUNCTOR& functor() const;
         //   const ITERATOR& iterator() const;
         // --------------------------------------------------------------------
@@ -1105,14 +1110,24 @@ int main(int argc, char *argv[])
         ASSERT("(((c)))" == X[1]);
 
         if (veryVerbose) {
-            cout << "operator+(difference_type) const\n";
+            cout << "operator+(TransformIterator, difference_type)\n";
         }
         ASSERT(&DATA[2] == (X + 1).iterator());
 
         if (veryVerbose) {
-            cout << "operator-(difference_type) const\n";
+            cout << "operator+(difference_type, TransformIterator)\n";
+        }
+        ASSERT(&DATA[2] == (1 + X).iterator());
+
+        if (veryVerbose) {
+            cout << "operator-(TransformIterator, difference_type)\n";
         }
         ASSERT(&DATA[0] == (X - 1).iterator());
+
+        if (veryVerbose) {
+            cout << "operator-(TransformIterator, TransformIterator)\n";
+        }
+        ASSERT(-2 == (X - 1) - (X + 1));
 
         if (veryVerbose) {
             cout << "functor() const\n";
@@ -1141,9 +1156,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   TransformIterator& operator=(const TransformIterator&);
         //   TransformIterator& operator++();
-        //   TransformIterator& operator++(int);
+        //   TransformIterator& operator++(TransformIterator&, int);
         //   TransformIterator& operator--();
-        //   TransformIterator& operator--(int);
+        //   TransformIterator& operator--(TransformIterator&, int);
         //   TransformIterator& operator+=(difference_type);
         //   TransformIterator& operator-=(difference_type);
         //   Traits::reference operator*();
@@ -1152,6 +1167,7 @@ int main(int argc, char *argv[])
         //   FUNCTOR& functor();
         //   ITERATOR& iterator();
         //   void swap(TransformIterator&);
+        //   void swap(TransformIterator&, TransformIterator&);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING MANIPULATORS"
                              "\n====================\n";
@@ -1266,6 +1282,19 @@ int main(int argc, char *argv[])
             mX.swap(mY);
             ASSERT("((((c))))" == *X);
             ASSERT("(((a)))" == *Y);
+        }
+
+        if (veryVerbose) {
+            cout << "swap(TransformIterator&, (TransformIterator&)\n";
+        }
+        {
+            Obj        mY(&DATA[0], Parenthesizer(&ta), &ta);
+            const Obj& Y = mY;
+
+            using bsl::swap;
+            swap(mX, mY);
+            ASSERT("((((a))))" == *X);
+            ASSERT("((((((c))))))" == *Y);
         }
       } break;
       case 2: {

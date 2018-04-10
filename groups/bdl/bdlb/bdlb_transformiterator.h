@@ -519,14 +519,6 @@ class TransformIterator
         //  functor()(iterator()[offset])
         //..
 
-    TransformIterator operator+(difference_type offset) const;
-        // Return a copy of this object with its iterator advanced by the
-        // specified (signed) 'offset'.
-
-    TransformIterator operator-(difference_type offset) const;
-        // Return a copy of this object with its iterator regressed by the
-        // specified (signed) 'offset'.
-
     const FUNCTOR& functor() const;
         // Return a 'const' reference to the functor of this object.
 
@@ -848,22 +840,6 @@ TransformIterator<FUNCTOR, ITERATOR>::operator[](difference_type offset) const
 
 template <class FUNCTOR, class ITERATOR>
 inline
-TransformIterator<FUNCTOR, ITERATOR>
-TransformIterator<FUNCTOR, ITERATOR>::operator+(difference_type offset) const
-{
-    return TransformIterator(iterator() + offset, functor());
-}
-
-template <class FUNCTOR, class ITERATOR>
-inline
-TransformIterator<FUNCTOR, ITERATOR>
-TransformIterator<FUNCTOR, ITERATOR>::operator-(difference_type offset) const
-{
-    return TransformIterator(iterator() - offset, functor());
-}
-
-template <class FUNCTOR, class ITERATOR>
-inline
 const FUNCTOR& TransformIterator<FUNCTOR, ITERATOR>::functor() const
 {
     return d_functor.object();
@@ -928,6 +904,7 @@ bool bdlb::operator>=(const TransformIterator<FUNCTOR, ITERATOR>& lhs,
 }
 
 template <class FUNCTOR, class ITERATOR>
+inline
 bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator++(
                                 TransformIterator<FUNCTOR, ITERATOR>& iterator,
                                 int)
@@ -937,6 +914,7 @@ bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator++(
 }
 
 template <class FUNCTOR, class ITERATOR>
+inline
 bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator--(
                                 TransformIterator<FUNCTOR, ITERATOR>& iterator,
                                 int)
@@ -946,6 +924,7 @@ bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator--(
 }
 
 template <class FUNCTOR, class ITERATOR>
+inline
 bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator+(
        const TransformIterator<FUNCTOR, ITERATOR>&                    iterator,
        typename TransformIterator<FUNCTOR, ITERATOR>::difference_type offset)
@@ -955,6 +934,7 @@ bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator+(
 }
 
 template <class FUNCTOR, class ITERATOR>
+inline
 bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator+(
        typename TransformIterator<FUNCTOR, ITERATOR>::difference_type offset,
        const TransformIterator<FUNCTOR, ITERATOR>&                    iterator)
@@ -964,6 +944,7 @@ bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator+(
 }
 
 template <class FUNCTOR, class ITERATOR>
+inline
 bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator-(
        const TransformIterator<FUNCTOR, ITERATOR>&                    iterator,
        typename TransformIterator<FUNCTOR, ITERATOR>::difference_type offset)
@@ -973,6 +954,7 @@ bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::operator-(
 }
 
 template <class FUNCTOR, class ITERATOR>
+inline
 typename bdlb::TransformIterator<FUNCTOR, ITERATOR>::difference_type
 bdlb::operator-(const TransformIterator<FUNCTOR, ITERATOR>& a,
                 const TransformIterator<FUNCTOR, ITERATOR>& b)
@@ -982,6 +964,7 @@ bdlb::operator-(const TransformIterator<FUNCTOR, ITERATOR>& a,
 
 // FREE FUNCTIONS
 template <class FUNCTOR, class ITERATOR>
+inline
 void bdlb::swap(TransformIterator<FUNCTOR, ITERATOR>& a,
                 TransformIterator<FUNCTOR, ITERATOR>& b)
 {
@@ -991,6 +974,7 @@ void bdlb::swap(TransformIterator<FUNCTOR, ITERATOR>& a,
 }
 
 }  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------

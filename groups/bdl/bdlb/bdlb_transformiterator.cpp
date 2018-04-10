@@ -2,7 +2,7 @@
 #include <bdlb_transformiterator.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
+BSLS_IDENT_RCSID(bdlb_transformiterator_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
