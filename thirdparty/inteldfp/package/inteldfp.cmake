@@ -2,6 +2,7 @@ include(bde_package)
 include(bde_utils)
 include(bde_struct)
 include(bde_uor)
+include(bde_ufid)
 
 bde_prefixed_override(inteldfp process_standalone_package)
 function(inteldfp_process_standalone_package retUOR listFile installOpts)
@@ -318,7 +319,7 @@ function(inteldfp_process_standalone_package retUOR listFile installOpts)
         ${rootDir}/LIBRARY/float128/sqrt_macros.h
     )
 
-    add_library(${TARGET} ${sources} ${headers})
+    bde_ufid_add_library(${TARGET} ${sources} ${headers})
 
     # Set up PIC
     # This code does not work in 3.8, but will be fixed in later versions.
@@ -335,8 +336,6 @@ function(inteldfp_process_standalone_package retUOR listFile installOpts)
             "DECIMAL_GLOBAL_ROUNDING=1"
             "DECIMAL_GLOBAL_EXCEPTION_FLAGS=0"
     )
-
-    include(bde_ufid)
 
     target_compile_options(
         ${TARGET}

@@ -45,7 +45,7 @@ function(pcre2_process_standalone_package retUOR listFile isntallOpts)
         ${rootDir}/pcre2_xclass.c
     )
 
-    add_library(${TARGET} ${headers} ${sources})
+    bde_ufid_add_library(${TARGET} ${sources} ${headers})
 
     # Set up PIC
     # This code does not work in 3.8, but will be fixed in later versions.
