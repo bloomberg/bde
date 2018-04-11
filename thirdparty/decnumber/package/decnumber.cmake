@@ -38,7 +38,7 @@ function(decnumber_process_standalone_package retUOR listFile installOpts)
         ${rootDir}/decQuad.c
         ${rootDir}/decSingle.c
     )
-    add_library(${TARGET} ${sources} ${headers})
+    bde_ufid_add_library(${TARGET} ${sources} ${headers})
 
     # Set up PIC
     # This code does not work in 3.8, but will be fixed in later versions.

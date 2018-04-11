@@ -1,8 +1,8 @@
 include(bde_package)
 
-bde_prefixed_override(bslstl process_package)
-function(bslstl_process_package retPackage)
-    process_package_base("" package ${ARGN})
+bde_prefixed_override(bslstl package_setup_interface)
+function(bslstl_package_setup_interface package)
+    package_setup_interface_base("" ${ARGV})
 
     bde_struct_get_field(testInterface ${package} TEST_INTERFACE_TARGET)
     bde_interface_target_compile_options(
@@ -12,10 +12,4 @@ function(bslstl_process_package retPackage)
                 /bigobj
             >
     )
-
-    bde_struct_get_field(objlib ${package} OBJ_TARGET)
-    bde_struct_get_field(tests ${package} TEST_TARGETS)
-    set_target_properties(${objlib} ${tests} PROPERTIES SUPPRESS_BSL_OVERRIDES_STD ON)
-
-    bde_return(${package})
 endfunction()
