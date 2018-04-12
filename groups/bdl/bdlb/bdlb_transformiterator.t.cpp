@@ -28,52 +28,54 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test is implemented using contained constructor proxy
-// objects for a generic functor type and a generic iterator type.  (Use of the
-// proxy objects allows the functor and iterator to be initialized with an
-// allocator even if the allocator is not used.)
+// The type under test, 'TransformIterator', is implemented using contained
+// constructor proxy objects for a generic functor type and a generic iterator
+// type.  (Use of the proxy objects allows the functor and iterator to be
+// initialized with an allocator even if the allocator is not used.)
 //
 // Because of the possibility that neither contained object uses allocators,
-// this component uses a form of implementation inheritance that supplies an
-// 'allocator()' method only when at least one of the contained objects does
-// use an allocator.  Testing is required to demonstrate that the 'allocator()'
+// 'TransformIterator' uses a form of implementation inheritance that supplies
+// an 'allocator' method only when at least one of the contained objects does
+// use an allocator.  Testing is required to demonstrate that the 'allocator'
 // method is or is not present as appropriate, and that it returns the
-// allocator supplied to the constructor of the object.  Additionally, this
-// component sets its 'UsesBslmaAllocator' allocator trait to true if either of
-// its contained objects uses allocators, and to false if neither does.
-// Testing is required to demonstrate that this is done correctly.
+// allocator supplied to the constructor of the object.  Additionally,
+// 'TransformIterator' sets its 'UsesBslmaAllocator' allocator trait to true if
+// either of its contained objects uses allocators, and to false if neither
+// does.  Testing is required to demonstrate that this is done correctly.
 //
-// This component is an iterator, and tags itself as such by inheritance from
-// 'bsl::iterator', supplying appropriate template arguments.  For iterator
-// categories other than input iterator, dereferencing an iterator must provide
-// a reference type.  Accordingly, this component sets its iterator category to
-// input iterator if the functor does not return a reference type, otherwise
-// passing through the iterator category of the underlying iterator.  Testing
-// is required to demonstrate that the category and other iterator parameters
-// are correctly determined.
+// 'TransformIterator' is an iterator, and tags itself as such by inheritance
+// from 'bsl::iterator', supplying appropriate template arguments.  For
+// iterator categories other than input iterator, dereferencing an iterator
+// must provide a reference type.  Accordingly, 'TransformIterator' sets its
+// iterator category to input iterator if the functor does not return a
+// reference type, otherwise passing through the iterator category of the
+// underlying iterator.  Testing is required to demonstrate that the category
+// and other iterator parameters are correctly determined.
 //
-// As per the above, this component must be able to determine the return type
-// of the functor.  In C++11 and onward, language features allow this to be
-// determined, but in C++03 the return type must be supplied as a 'result_type'
-// member of the functor.  This component is specialized for pointers to
-// functions, from which it can determine the result type, and otherwise uses
-// 'bslmf::ResultType' in C++03.  Testing is required to demonstrate that this
-// component picks up the correct result type in both C++03 and C++11.
+// As per the above, 'TransformIterator' must be able to determine the return
+// type of the functor.  In C++11 and onward, language features allow this to
+// be determined, but in C++03 the return type must be supplied as a
+// 'result_type' member of the functor.  'TransformIterator' is specialized for
+// pointers to functions, from which it can determine the result type, and
+// otherwise uses 'bslmf::ResultType' in C++03.  Testing is required to
+// demonstrate that 'TransformIterator' picks up the correct result type in
+// both C++03 and C++11.
 //
-// The remit of this component is to pass on iterator operations to the
+// The remit of 'TransformIterator' is to pass on iterator operations to the
 // contained iterator, and to apply the functor to the dereferenced contained
-// iterator when this component is itself dereferenced.  Testing is required to
-// demonstrate that this occurs correctly, including for indexed dereference
-// ('operator[](difference_type)') when the underlying iterator support it, and
-// pointer dereference (operator->()) when the functor returns a reference.
+// iterator when 'TransformIterator' is itself dereferenced.  Testing is
+// required to demonstrate that this occurs correctly, including for indexed
+// dereference ('operator[](difference_type)') when the underlying iterator
+// supports it, and pointer dereference ('operator->()') when the functor
+// returns a reference.
 //
-// Functors used by this component can maintain state.  Testing is required to
-// demonstrate that such stateful functors maintain their state throughout the
-// iteration process.
+// Functors used by 'TransformIterator' can maintain state.  Testing is
+// required to demonstrate that such stateful functors maintain their state
+// throughout the iteration process.
 //
-// This component supports pairwise comparison operations on objects of this
-// type, comparing only the contained iterators.  Testing is required to
-// demonstrate that contained functors do not participate.
+// Pairwise comparison operations of 'TransformIterator' objects are supported,
+// comparing only the contained iterators.  Testing is required to demonstrate
+// that contained functors do not participate.
 //
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -84,19 +86,16 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 3] TransformIterator& operator=(const TransformIterator&);
-// [ 3] TransformIterator& operator++();
-// [ 3] TransformIterator& operator++(TransformIterator&, int);
-// [ 3] TransformIterator& operator--();
-// [ 3] TransformIterator& operator--(TransformIterator&, int);
 // [ 3] TransformIterator& operator+=(difference_type);
 // [ 3] TransformIterator& operator-=(difference_type);
+// [ 3] TransformIterator& operator++();
+// [ 3] TransformIterator& operator--();
 // [ 3] Traits::reference operator*();
 // [ 3] pointer operator->();
 // [ 3] reference operator[](difference_type);
 // [ 3] FUNCTOR& functor();
 // [ 3] ITERATOR& iterator();
 // [ 3] void swap(TransformIterator&);
-// [ 3] void swap(TransformIterator&, TransformIterator&);
 //
 // ACCESSORS
 // [ 4] reference operator*() const;
@@ -105,17 +104,22 @@ using namespace bsl;
 // [ 4] const FUNCTOR& functor() const;
 // [ 4] const ITERATOR& iterator() const;
 //
-// FREE FUNCTIONS
+// FREE OPERATORS
 // [ 5] bool operator==(const TI&, const TI&);
 // [ 5] bool operator!=(const TI&, const TI&);
 // [ 5] bool operator<(const TI&, const TI&);
-// [ 5] bool operator<=(const TI&, const TI&);
 // [ 5] bool operator>(const TI&, const TI&);
+// [ 5] bool operator<=(const TI&, const TI&);
 // [ 5] bool operator>=(const TI&, const TI&);
+// [ 3] TransformIterator& operator++(TransformIterator&, int);
+// [ 3] TransformIterator& operator--(TransformIterator&, int);
 // [ 4] TransformIterator operator+(TransformIterator, difference_type);
 // [ 4] TransformIterator operator+(difference_type, TransformIterator);
 // [ 4] TransformIterator operator-(TransformIterator, difference_type);
 // [ 4] difference_type operator-(TransformIterator, TransformIterator);
+//
+// FREE FUNCTIONS
+// [ 3] void swap(TransformIterator&, TransformIterator&);
 //
 // ALLOCATOR TRAITS
 // [ 6] bslma::UsesBslmaAllocator
@@ -482,37 +486,39 @@ struct FakeIterator : public ITERATOR_TYPE {
 // Next, we create a functor that will return a price given a product.  The
 // following prolix functor at namespace scope is necessary for C++03:
 //..
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-class Pricer {
-  private:
-    // DATA
-    bsl::map<bsl::string, double> *d_prices_p;  // price list
+    #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    class Pricer {
+      private:
+        // DATA
+        const bsl::map<bsl::string, double> *d_prices_p;  // price list
 
-  public:
-    // PUBLIC TYPES
-    typedef double result_type;
+      public:
+        // PUBLIC TYPES
+        typedef double result_type;
+
+        // CREATORS
+        explicit Pricer(const bsl::map<bsl::string, double> *prices);
+            // Create a 'Pricer' object using the specified 'prices'.  The
+            // lifetime of 'prices' must be at least as long as this object.
+
+        // ACCESSORS
+        double operator()(const bsl::string& product) const;
+            // Return the price of the specified 'product'.
+    };
 
     // CREATORS
-    explicit Pricer(bsl::map<bsl::string, double>& prices);
-        // Create an object of this type using the specified 'prices'.  The
-        // lifetime of 'prices' must be at least as long as this object.
+    Pricer::Pricer(const bsl::map<bsl::string, double> *prices)
+    : d_prices_p(prices)
+    {
+    }
 
-    // ACCESSORS
-    double operator()(const bsl::string& product) const;
-        // Return the price of the specified 'product'.
-};
-
-// CREATORS
-Pricer::Pricer(bsl::map<bsl::string, double>& prices)
-: d_prices_p(&prices)
-{
-}
-
-double Pricer::operator()(const bsl::string& product) const
-{
-    return (*d_prices_p)[product];
-}
-#endif
+    double Pricer::operator()(const bsl::string& product) const
+    {
+        bsl::map<bsl::string, double>::const_iterator i =
+                                                     d_prices_p->find(product);
+        return i == d_prices_p->end() ? 0.0 : i->second;
+    }
+    #endif
 //..
 
 //=============================================================================
@@ -528,6 +534,9 @@ int main(int argc, char *argv[])
     int veryVeryVeryVerbose = argc > 5; (void)veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // zero is always the leading case.
       case 7: {
@@ -603,7 +612,7 @@ int main(int argc, char *argv[])
 // class above is unnecessary since we can use a lambda:
 //..
     #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    Pricer pricer(prices);
+    Pricer pricer(&prices);
     #else
     auto pricer = [&](const bsl::string &product) { return prices[product]; };
     #endif
@@ -1682,9 +1691,28 @@ int main(int argc, char *argv[])
       }
     }
 
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
+
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
 
     return testStatus;
 }
+
+// ----------------------------------------------------------------------------
+// Copyright 2018 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -69,9 +69,8 @@ BSLS_IDENT("$Id: $")
 ///Example 2: Totaling a Grocery List
 /// - - - - - - - - - - - - - - - - -
 // Suppose we have a shopping list of products and we want to compute how much
-// it will cost to buy the selected items.  We can use
-// 'bdlb::TransformIterator' to do the computation, looking up the price of
-// each item.
+// it will cost to buy selected items.  We can use 'bdlb::TransformIterator' to
+// do the computation, looking up the price of each item.
 //
 // First, we set up the price list:
 //..
@@ -94,15 +93,15 @@ BSLS_IDENT("$Id: $")
 //  class Pricer {
 //    private:
 //      // DATA
-//      bsl::map<bsl::string, double> *d_prices;  // price list
+//      const bsl::map<bsl::string, double> *d_prices_p;  // price list
 //
 //    public:
 //      // PUBLIC TYPES
 //      typedef double result_type;
 //
 //      // CREATORS
-//      Pricer(bsl::map<bsl::string, double>& prices);
-//          // Create a Pricer object using the specified 'prices'.  The
+//      explicit Pricer(const bsl::map<bsl::string, double> *prices);
+//          // Create a 'Pricer' object using the specified 'prices'.  The
 //          // lifetime of 'prices' must be at least as long as this object.
 //
 //      // ACCESSORS
@@ -111,14 +110,16 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  // CREATORS
-//  Pricer::Pricer(bsl::map<bsl::string, double>& prices)
-//  : d_prices(&prices)
+//  Pricer::Pricer(const bsl::map<bsl::string, double> *prices)
+//  : d_prices_p(prices)
 //  {
 //  }
 //
 //  double Pricer::operator()(const bsl::string& product) const
 //  {
-//      return (*d_prices)[product];
+//      bsl::map<bsl::string, double>::const_iterator i =
+//                                                   d_prices_p->find(product);
+//      return i == d_prices_p->end() ? 0.0 : i->second;
 //  }
 //  #endif
 //..
@@ -126,7 +127,7 @@ BSLS_IDENT("$Id: $")
 // class above is unnecessary since we can use a lambda:
 //..
 //  #ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-//  Pricer pricer(prices);
+//  Pricer pricer(&prices);
 //  #else
 //  auto pricer = [&](const bsl::string &product) { return prices[product]; };
 //  #endif
@@ -151,10 +152,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
@@ -189,12 +186,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removereference.h>
 #endif
 
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-
-#ifndef INCLUDED_BSLMF_RESULTTYPE
-#include <bslmf_resulttype.h>
-#endif
-
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
 #endif
 
 #ifndef INCLUDED_BSLS_UTIL
@@ -215,6 +208,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
+#endif
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+#ifndef INCLUDED_BSLMF_RESULTTYPE
+#include <bslmf_resulttype.h>
+#endif
+
 #endif
 
 namespace BloombergLP {
@@ -394,15 +395,16 @@ class TransformIterator
     // CREATORS
     TransformIterator();
     explicit TransformIterator(bslma::Allocator *basicAllocator);
-        // Construct an object of this type.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create a 'TransformIterator' object whose underlying iterator and
+        // functor have default values.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 
     TransformIterator(const ITERATOR&   iterator,
                       FUNCTOR           functor,
                       bslma::Allocator *basicAllocator = 0);
-        // Create a 'TransformIterator' using the specified 'iterator' and
-        // 'functor'.  Optionally specify 'basicAllocator' used to supply
+        // Create a 'TransformIterator' object using the specified 'iterator'
+        // and 'functor'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
@@ -422,13 +424,13 @@ class TransformIterator
         // return a reference providing modifiable access to this object.
 
     TransformIterator& operator+=(difference_type offset);
-        // Advance the the underlying iterator of this object by the specified
+        // Advance the underlying iterator of this object by the specified
         // (signed) 'offset', and return a reference providing modifiable
         // access to this object.  The behavior is undefined if so advancing
         // the underlying iterator is undefined.
 
     TransformIterator& operator-=(difference_type offset);
-        // Regress the the underlying iterator of this object by the specified
+        // Regress the underlying iterator of this object by the specified
         // (signed) 'offset', and return a reference providing modifiable
         // access to this object.  The behavior is undefined if so regressing
         // the underlying iterator is undefined.
