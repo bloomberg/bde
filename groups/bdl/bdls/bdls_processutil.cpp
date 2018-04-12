@@ -160,9 +160,14 @@ int ProcessUtil::getProcessName(bsl::string *result)
 
 #elif defined BSLS_PLATFORM_OS_SOLARIS
 
-    // '::getexecname' will return 'argv[0]' with symlinks resolved.
+    // '::getexecname' will return 'argv[0]' with symlinks resolved, or 0 if it
+    // fails.
 
-    result->assign(::getexecname());
+    const char *execName = ::getexecname();
+    if (!execName) {
+        return -1;                                                    // RETURN
+    }
+    result->assign(execName);
     return 0;
 
 #elif defined BSLS_PLATFORM_OS_WINDOWS
