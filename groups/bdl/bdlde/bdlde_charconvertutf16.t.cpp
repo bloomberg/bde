@@ -12,8 +12,11 @@
 
 #include <bdlde_charconvertstatus.h>
 
-#include <bslim_testutil.h>
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
+#include <bslim_testutil.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 
@@ -224,6 +227,8 @@ typedef bdlde::CharConvertStatus Status;
 // ============================================================================
 //                             GLOBAL VARIABLES
 // ----------------------------------------------------------------------------
+
+bslma::Allocator& ta = bslma::NewDeleteAllocator::singleton();
 
 static const bdlde::ByteOrder::Enum e_BACKWARDS =
                          bdlde::ByteOrder::e_HOST ==
@@ -4434,6 +4439,9 @@ int main(int argc, char**argv)
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 15: {
         // --------------------------------------------------------------------
@@ -4442,6 +4450,8 @@ int main(int argc, char**argv)
 
         if (verbose) cout << "USAGE EXAMPLE 2\n"
                              "===============\n";
+
+        bslma::DefaultAllocatorGuard daGuard(&ta);
 
 // The following snippets of code illustrate a typical use of the
 // 'bdlde::CharConvertUtf16' struct's utility functions, first converting from
@@ -4679,7 +4689,7 @@ int main(int argc, char**argv)
 
         if (veryVerbose) cout << "Output to bsl::wstring\n";
         {
-            bsl::wstring s, sBack;
+            bsl::wstring s(&ta), sBack(&ta);
 
             int rc = Util::utf8ToUtf16(&s, charUtf8MultiLang, 0, '?');
             ASSERT(0 == rc);
@@ -4702,7 +4712,7 @@ int main(int argc, char**argv)
             ASSERT(swappedRangeEquals(
                               sBegin(s), sEnd(s), sBegin(sBack), sEnd(sBack)));
 
-            bsl::string rs;
+            bsl::string rs(&ta);
             rc = Util::utf16ToUtf8(&rs, sBack.c_str(), 0, '?', e_BACKWARDS);
             ASSERT(0 == rc);
             ASSERT(rs == charUtf8MultiLang);
@@ -4713,7 +4723,7 @@ int main(int argc, char**argv)
             ASSERT(0 == rc);
             ASSERT(rs == charUtf8MultiLang);
 
-            bsl::vector<char> vc;
+            bsl::vector<char> vc(&ta);
             rc = Util::utf16ToUtf8(
                        &vc, bslstl::StringRefWide(sBack), 0, '?', e_BACKWARDS);
             ASSERT(0 == rc);
@@ -4724,7 +4734,7 @@ int main(int argc, char**argv)
 
         if (veryVerbose) cout << "Output to bsl::vector<unsigned short>\n";
         {
-            bsl::vector<unsigned short> v, vBack;
+            bsl::vector<unsigned short> v(&ta), vBack(&ta);
 
             int rc = Util::utf8ToUtf16(
                                &v,     charUtf8MultiLang, 0, '?');
@@ -4748,7 +4758,7 @@ int main(int argc, char**argv)
             ASSERT(swappedRangeEquals(
                               vBegin(v), vEnd(v), vBegin(vBack), vEnd(vBack)));
 
-            bsl::string rs;
+            bsl::string rs(&ta);
             rc = Util::utf16ToUtf8(&rs, vBegin(vBack), 0, '?', e_BACKWARDS);
             ASSERT(0 == rc);
             ASSERT(rs == charUtf8MultiLang);
@@ -4756,8 +4766,8 @@ int main(int argc, char**argv)
 
         if (veryVerbose) cout << "Output to unsigned short memory segment\n";
         {
-            bsl::vector<unsigned short> vus;
-            bsl::vector<char>           vc;
+            bsl::vector<unsigned short> vus(&ta);
+            bsl::vector<char>           vc(&ta);
 
             enum { SEG_SIZE = 1 << 20 };
 
@@ -4773,7 +4783,7 @@ int main(int argc, char**argv)
             ASSERT(nw > nc);
             ASSERT(bsl::find(&vus[0], &vus[0] + SEG_SIZE, 0) == &vus[nw - 1]);
 
-            bsl::vector<unsigned short> vusb;
+            bsl::vector<unsigned short> vusb(&ta);
 
             vusb.resize(SEG_SIZE);
 
@@ -4805,8 +4815,8 @@ int main(int argc, char**argv)
 
         if (veryVerbose) cout << "Output to wchar_t memory segment\n";
         {
-            bsl::vector<wchar_t> vw;
-            bsl::vector<char>    vc;
+            bsl::vector<wchar_t> vw(&ta);
+            bsl::vector<char>    vc(&ta);
 
             enum { SEG_SIZE = 1 << 20 };
 
@@ -4822,7 +4832,7 @@ int main(int argc, char**argv)
             ASSERT(nw > nc);
             ASSERT(bsl::find(&vw[0], &vw[0] + SEG_SIZE, 0) == &vw[nw - 1]);
 
-            bsl::vector<wchar_t> vwb;
+            bsl::vector<wchar_t> vwb(&ta);
 
             vwb.resize(SEG_SIZE);
 
@@ -4880,7 +4890,8 @@ int main(int argc, char**argv)
                                                       k_QUAD = 4, k_ZERO = 5 };
         enum { k_NUM_SNIPPETS = k_ZERO + 1 };
 
-        bsl::string utf8s[k_NUM_SNIPPETS];
+        bsl::vector<bsl::string> utf8s(&ta);
+        utf8s.resize(k_NUM_SNIPPETS);
         utf8s[k_ASCII]   = "Hello";
         utf8s[k_GREEK]   = "\xce\x97\xce\x95\xce\xbb";
         utf8s[k_CHINESE] = "\xe4\xb8\xad\xe5\x8d\x8e";
@@ -4888,7 +4899,8 @@ int main(int argc, char**argv)
         utf8s[k_QUAD]    = "\xf2\x94\xb4\xa5\xf3\xb8\xac\x83";
         utf8s[k_ZERO].push_back(0);
 
-        bsl::wstring utf16s[k_NUM_SNIPPETS];
+        bsl::vector<bsl::wstring> utf16s(&ta);
+        utf16s.resize(k_NUM_SNIPPETS);
         ASSERT(0 == Obj::utf8ToUtf16(&utf16s[k_ASCII],   utf8s[k_ASCII]));
         ASSERT(0 == Obj::utf8ToUtf16(&utf16s[k_GREEK],   utf8s[k_GREEK]));
         ASSERT(0 == Obj::utf8ToUtf16(&utf16s[k_CHINESE], utf8s[k_CHINESE]));
@@ -4930,29 +4942,36 @@ int main(int argc, char**argv)
                                         numCodePoints[tk] + numCodePoints[tm] +
                                                              numCodePoints[tn];
 
-                            const bsl::string utf8In = utf8s[ti] + utf8s[tj] +
-                                             utf8s[tk] + utf8s[tm] + utf8s[tn];
+                            bsl::string utf8In(&ta);
+                            utf8In += utf8s[ti];
+                            utf8In += utf8s[tj];
+                            utf8In += utf8s[tk];
+                            utf8In += utf8s[tm];
+                            utf8In += utf8s[tn];
                             ASSERT(utf8In.length() == utf8s[ti].length() +
                                      utf8s[tj].length() + utf8s[tk].length() +
                                      utf8s[tm].length() + utf8s[tn].length());
                             ASSERT(zeroThere == (bsl::strlen(utf8In.c_str()) <
                                                              utf8In.length()));
 
-                            const bsl::wstring expectedUtf16 = utf16s[ti] +
-                                         utf16s[tj] + utf16s[tk] + utf16s[tm] +
-                                         utf16s[tn];
+                            bsl::wstring expectedUtf16(&ta);
+                            expectedUtf16 += utf16s[ti];
+                            expectedUtf16 += utf16s[tj];
+                            expectedUtf16 += utf16s[tk];
+                            expectedUtf16 += utf16s[tm];
+                            expectedUtf16 += utf16s[tn];
                             ASSERT(expectedUtf16.length() ==
                                     utf16s[ti].length() +
                                     utf16s[tj].length() + utf16s[tk].length() +
                                     utf16s[tm].length() + utf16s[tn].length());
-                            bsl::wstring utf16;
+                            bsl::wstring utf16(&ta);
                             bsl::size_t nc = -1;
                             ASSERT(0 == Obj::utf8ToUtf16(&utf16, utf8In, &nc));
                             ASSERT(expectedUtf16 == utf16);
                             ASSERTV(nc, NUM_CODE_POINTS, ti, tj, tk,
                                                     tn, NUM_CODE_POINTS == nc);
 
-                            bsl::string utf8Out;
+                            bsl::string utf8Out(&ta);
                             nc = -1;
                             ASSERT(0 == Obj::utf16ToUtf8(&utf8Out, utf16,&nc));
                             ASSERT(utf8In == utf8Out);
@@ -5040,9 +5059,9 @@ int main(int argc, char**argv)
 
         enum { NUM_DATA = sizeof DATA / (3 * sizeof(wchar_t)) };
 
-        bsl::vector<unsigned short> srcVec;
-        bsl::vector<char> dstVec, dstVecB;
-        bsl::string       dstStr, dstStrB;
+        bsl::vector<unsigned short> srcVec(&ta);
+        bsl::vector<char> dstVec(&ta), dstVecB(&ta);
+        bsl::string       dstStr(&ta), dstStrB(&ta);
         bsl::size_t       nc, nc2, nw, nw2;
 
         if (veryVerbose) cout << "Unswapped broken glass test\n";
@@ -5054,8 +5073,10 @@ int main(int argc, char**argv)
                 for (int kk = 0; kk < NUM_DATA; ++kk) {
                     const wchar_t *KKSTRING = &DATA[kk][0];
 
-                    bsl::wstring WSTRING;
-                    WSTRING = WSTRING + IISTRING + JJSTRING + KKSTRING;
+                    bsl::wstring WSTRING(&ta);
+                    WSTRING += IISTRING;
+                    WSTRING += JJSTRING;
+                    WSTRING += KKSTRING;
                     WSTRING.push_back(0);
 
                     wchar_t *START = WSTRING.begin();
@@ -5253,8 +5274,10 @@ int main(int argc, char**argv)
                 for (int kk = 0; kk < NUM_DATA; ++kk) {
                     const wchar_t *KKSTRING = &DATA[kk][0];
 
-                    bsl::wstring WSTRING;
-                    WSTRING = WSTRING + IISTRING + JJSTRING + KKSTRING;
+                    bsl::wstring WSTRING(&ta);
+                    WSTRING += IISTRING;
+                    WSTRING += JJSTRING;
+                    WSTRING += KKSTRING;
                     WSTRING.push_back(0);
 
                     wchar_t *START = WSTRING.begin();
@@ -5509,8 +5532,8 @@ int main(int argc, char**argv)
 
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        bsl::vector<unsigned short> dst,  dstB;
-        bsl::wstring                wStr, wStrB;
+        bsl::vector<unsigned short> dst(&ta),  dstB(&ta);
+        bsl::wstring                wStr(&ta), wStrB(&ta);
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const char *ISTRING = DATA[i].d_string;
@@ -5524,8 +5547,11 @@ int main(int argc, char**argv)
                     for (int m = 0; m < NUM_DATA; ++m) {
                         const char *MSTRING = DATA[m].d_string;
 
-                        bsl::string INPUT = bsl::string("") +
-                                             ISTRING + KSTRING + MSTRING + 'a';
+                        bsl::string INPUT(&ta);
+                        INPUT += ISTRING;
+                        INPUT += KSTRING;
+                        INPUT += MSTRING;
+                        INPUT += 'a';
 
                         char *END = INPUT.begin() + INPUT.length() - 1;
                         for (char *start = INPUT.begin();
@@ -5780,7 +5806,7 @@ int main(int argc, char**argv)
 
         char * const utf8BrokenEnd = utf8Broken + sizeof(utf8Broken) - 1;
 
-        bsl::vector<unsigned short> dstVec, dstVecB;
+        bsl::vector<unsigned short> dstVec(&ta), dstVecB(&ta);
 
         for (char *start = utf8Broken; start < utf8BrokenEnd; ++start) {
             char *end = start == utf8Broken ? start
@@ -5812,7 +5838,7 @@ int main(int argc, char**argv)
         }
         ASSERT(bsl::strlen(utf8Broken) == sizeof(utf8Broken) - 1);
 
-        bsl::wstring dstWstring, dstWstringB;
+        bsl::wstring dstWstring(&ta), dstWstringB(&ta);
 
         for (char *start = utf8Broken; start < utf8BrokenEnd; ++start) {
             char *end = start == utf8Broken ? start
@@ -5905,21 +5931,22 @@ int main(int argc, char**argv)
 
             bsl::size_t numExpectedWords =
                       errorWord ? NUM_EXPECTED_UTF16 : NUM_EXPECTED_UTF16_ZERO;
-            const bsl::wstring expectedW(
+            bsl::wstring expectedW(&ta);
+            expectedW.assign(
                     errorWord ? expectedUtf16
                               : expectedUtf16Zero,
                     errorWord ? expectedUtf16 +     NUM_EXPECTED_UTF16     -1
                               : expectedUtf16Zero + NUM_EXPECTED_UTF16_ZERO-1);
             ASSERT(expectedW.length() + 1 == numExpectedWords);
 
-            bsl::vector<unsigned short> expectedV;
+            bsl::vector<unsigned short> expectedV(&ta);
             {
                 const wchar_t *wPtr = expectedW.c_str();
                 do {
                     expectedV.push_back((unsigned short) *wPtr);
                 } while (0 != *wPtr++);
             }
-            bsl::wstring utf16Wstring;
+            bsl::wstring utf16Wstring(&ta);
 
             {
                 bsl::size_t nCodePoints;
@@ -5964,7 +5991,7 @@ int main(int argc, char**argv)
             }
 
             {
-                bsl::vector<unsigned short> utf16Vec;
+                bsl::vector<unsigned short> utf16Vec(&ta);
                 bsl::size_t nCodePoints;
                 int rc = Util::utf8ToUtf16(&utf16Vec,
                                            (const char *) errorUnsignedIn,
@@ -6022,7 +6049,7 @@ int main(int argc, char**argv)
             const bsl::size_t expectedCodePoints = bsl::strlen(expected) + 1;
 
             {
-                bsl::vector<char> utf8Vec;
+                bsl::vector<char> utf8Vec(&ta);
                 bsl::size_t nCodePoints;
                 int rc = Util::utf16ToUtf8(&utf8Vec,
                                            errorUtf16InOrig,
@@ -6036,7 +6063,7 @@ int main(int argc, char**argv)
             }
 
             {
-                bsl::string utf8String;
+                bsl::string utf8String(&ta);
                 bsl::size_t nCodePoints, nBytes;
                 const unsigned short *errorUtf16In = errorUtf16InOrig;
                 int rc = Util::utf16ToUtf8(&utf8String,
@@ -6070,7 +6097,6 @@ int main(int argc, char**argv)
 
         enum { CAPACITY = 1 << 20 };
 
-        bslma::TestAllocator ta;
         unsigned short *utf16S = (unsigned short *)
                                 ta.allocate(CAPACITY * sizeof(unsigned short));
         wchar_t *utf16W = (wchar_t *) ta.allocate(CAPACITY * sizeof(wchar_t));
@@ -6223,7 +6249,7 @@ int main(int argc, char**argv)
 
                 ASSERT(0 == utf16W[numWords16W - 1]);
 
-                bsl::vector<char> utf8VecB;
+                bsl::vector<char> utf8VecB(&ta);
                 rc = Util::utf16ToUtf8(&utf8VecB,
                                        bslstl::StringRefWide(
                                                          utf16W,
@@ -8774,6 +8800,9 @@ int main(int argc, char**argv)
         testStatus = -1;
       }
     }
+
+    bsls::Types::Int64 numAllocations = da.numAllocations();
+    LOOP_ASSERT(numAllocations, 0 == numAllocations);
 
     return testStatus;
 }
