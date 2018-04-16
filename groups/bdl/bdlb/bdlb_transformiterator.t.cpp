@@ -1408,7 +1408,7 @@ int main(int argc, char *argv[])
                 ASSERT(DATA[0] == *X);
 
                 Obj        mY = TransformIteratorUtil::make(
-                                  mX.iterator(), mX.functor(), mX.allocator());
+                                     X.iterator(), X.functor(), X.allocator());
                 const Obj& Y  = mY;
 
                 ASSERT(&ta == Y.allocator());
@@ -1484,7 +1484,7 @@ int main(int argc, char *argv[])
                 ASSERT(DATA[0] == *X);
 
                 Obj        mY = TransformIteratorUtil::make(
-                                  mX.iterator(), mX.functor(), mX.allocator());
+                                     X.iterator(), X.functor(), X.allocator());
                 const Obj& Y  = mY;
 
                 ASSERT(&ta == Y.allocator());
@@ -1558,7 +1558,7 @@ int main(int argc, char *argv[])
                 ASSERT(DATA[0] == *X);
 
                 Obj        mY = TransformIteratorUtil::make(
-                                  mX.iterator(), mX.functor(), mX.allocator());
+                                     X.iterator(), X.functor(), X.allocator());
                 const Obj& Y  = mY;
 
                 ASSERT(&ta == Y.allocator());
