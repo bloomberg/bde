@@ -1417,8 +1417,7 @@ int main(int argc, char *argv[])
                 const Obj& Y = TransformIteratorUtil::make(
                     X.iterator(), X.functor(), X.allocator());
 
-                ASSERT(&ta == Y.allocator() ||
-                       bslma::Default::allocator(0) == Y.allocator());
+                ASSERT(&ta == Y.allocator() || 0 == Y.allocator());
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == Y.iterator());
                 ASSERT(DATA[0] == *Y);
             }
@@ -1491,8 +1490,7 @@ int main(int argc, char *argv[])
                 const Obj& Y = TransformIteratorUtil::make(
                     X.iterator(), X.functor(), X.allocator());
 
-                ASSERT(&ta == Y.allocator() ||
-                       bslma::Default::allocator(0) == Y.allocator());
+                ASSERT(&ta == Y.allocator() || 0 == Y.allocator());
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == Y.iterator());
                 ASSERT(DATA[0] == *Y);
             }
@@ -1564,8 +1562,7 @@ int main(int argc, char *argv[])
                 const Obj& Y = TransformIteratorUtil::make(
                     X.iterator(), X.functor(), X.allocator());
 
-                ASSERT(&ta == Y.allocator() ||
-                       bslma::Default::allocator(0) == Y.allocator());
+                ASSERT(&ta == Y.allocator() || 0 == Y.allocator());
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == Y.iterator());
                 ASSERT(DATA[0] == *Y);
             }
