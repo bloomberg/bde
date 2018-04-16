@@ -11,15 +11,18 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bdlb::TransformIterator: functor-invoking iterator wrapper
+//  bdlb::TransformIteratorUtil: utility for creating transform iterators
 //
 //@DESCRIPTION: This component implements a class template,
 // 'bdlb::TransformIterator', that stores an underlying iterator and a
 // one-argument functor.  Iterator operations are passed through to the
 // underlying iterator, with the exception of dereference.  For dereference,
 // the functor is invoked on the result of dereferencing the underlying
-// iterator, and the result of the functor invocation is returned.
+// iterator, and the result of the functor invocation is returned.  This
+// component also implements a utility class, 'bdlb::TransformIteratorUtil',
+// that provides a function template for creating 'TransformIterator' objects.
 //
-// The template expects two parameters.  The first parameter, designated
+// The templates expect two parameters.  The first parameter, designated
 // 'FUNCTOR', is the type of a callable object that can be invoked with a
 // single argument.  When compiling with C++03, this type must be either a
 // function pointer or otherwise have a type from which 'bslmf::ResultType' can
@@ -148,6 +151,25 @@ BSLS_IDENT("$Id: $")
 // Finally, we verify that we have the correct total:
 //..
 //  assert(6.25 == total);
+//..
+///Example 3: Totaling the Grocery List Again
+/// - - - - - - - - - - - - - - - - - - - - -
+// In the previous example, we explicitly named the instantiated transform
+// iterator type, and needed to use 'bsl::function' to insulate differences
+// between C++03 and C++11.  We can use 'bdlb::TransformIteratorUtil' to create
+// the iterators instead.
+//
+// First, we compute the total in this new way.  Notice that we do not need to
+// supply the iterator or functor types explicitly.
+//..
+//  double retotal = bsl::accumulate(
+//      bdlb::TransformIteratorUtil::make(list.begin(), pricer),
+//      bdlb::TransformIteratorUtil::make(list.end(), pricer),
+//      0.0);
+//..
+// Finally, we again verify that we have the correct total:
+//..
+//  assert(6.25 == retotal);
 //..
 
 #ifndef INCLUDED_BDLSCM_VERSION
@@ -527,6 +549,27 @@ class TransformIterator
     const ITERATOR& iterator() const;
         // Return a 'const' reference to the underlying iterator of this
         // object.
+};
+
+                          // ===========================
+                          // class TransformIteratorUtil
+                          // ===========================
+
+struct TransformIteratorUtil {
+    // This 'struct' provides a namespace for a function template that
+    // simplifies the creation of 'TransformIterators' by allowing type
+    // deduction to discover the types of the functor and underlying iterator.
+
+    // CLASS METHODS
+    template <class FUNCTOR, class ITERATOR>
+    static TransformIterator<FUNCTOR, ITERATOR> make(
+                                         const ITERATOR&   iterator,
+                                         const FUNCTOR&    functor,
+                                         bslma::Allocator *basicAllocator = 0);
+        // Create a 'TransformIterator' object constructed with the specified
+        // 'iterator' and 'functor'.  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.
 };
 
 // FREE OPERATORS
@@ -961,6 +1004,21 @@ bdlb::operator-(const TransformIterator<FUNCTOR, ITERATOR>& a,
                 const TransformIterator<FUNCTOR, ITERATOR>& b)
 {
     return a.iterator() - b.iterator();
+}
+                        // ---------------------------
+                        // class TransformIteratorUtil
+                        // ---------------------------
+
+// CLASS METHODS
+template <class FUNCTOR, class ITERATOR>
+inline
+bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::TransformIteratorUtil::make(
+                                              const ITERATOR&   iterator,
+                                              const FUNCTOR&    functor,
+                                              bslma::Allocator *basicAllocator)
+{
+    return TransformIterator<FUNCTOR, ITERATOR>(
+        iterator, functor, basicAllocator);
 }
 
 // FREE FUNCTIONS
