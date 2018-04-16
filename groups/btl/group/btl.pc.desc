@@ -1,0 +1,5 @@
+set(uor_description "Basic Transport Library \(btl\) package.")
+
+if (CMAKE_HOST_SYSTEM_NAME STREQUAL "SunOS")
+    set(uor_extra_link_libraries "-lnsl -lsocket")
+endif()

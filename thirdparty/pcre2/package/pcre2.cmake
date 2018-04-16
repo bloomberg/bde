@@ -65,7 +65,7 @@ function(pcre2_process_standalone_package retUOR listFile isntallOpts)
 
     # JIT support. Supported except 64-bit sparc.
     if(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND ${bde_ufid_is_64})
-        message(WARNING "JIT support is disabled for " ${CMAKE_SYSTEM_NAME})
+        message(STATUS "JIT support is disabled for " ${CMAKE_SYSTEM_NAME})
     else()
         target_compile_definitions(
             ${TARGET}

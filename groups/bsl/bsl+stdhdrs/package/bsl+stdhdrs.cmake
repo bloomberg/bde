@@ -24,11 +24,14 @@ function(stdhdrs_package_setup_interface package listFile)
     get_filename_component(rootDir ${listDir} DIRECTORY)
 
     # Include directories
+    # Important: the '/' before '${rootDir}' forces Ninja generator to
+    # produce the absolute path. This is critical to use Ninja generator
+    # with SunOS compilers.
     bde_struct_get_field(packageInterface ${package} INTERFACE_TARGET)
     bde_interface_target_include_directories(
         ${packageInterface}
         INTERFACE
-            $<BUILD_INTERFACE:${rootDir}>
+            $<BUILD_INTERFACE:/${rootDir}>
     )
 endfunction()
 
