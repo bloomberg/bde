@@ -83,6 +83,7 @@ using namespace bsl;
 // [ 2] TransformIterator(Allocator *);
 // [ 2] TransformIterator(const ITERATOR&, FUNCTOR, Allocator * = 0);
 // [ 2] TransformIterator(const TransformIterator&, Allocator * = 0);
+// [ 2] TransformIteratorUtil::make(...);
 //
 // MANIPULATORS
 // [ 3] TransformIterator& operator=(const TransformIterator&);
@@ -633,6 +634,25 @@ int main(int argc, char *argv[])
 // Finally, we verify that we have the correct total:
 //..
     ASSERT(6.25 == total);
+//..
+///Example 3: Totaling the Grocery List Again
+/// - - - - - - - - - - - - - - - - - - - - -
+// In the previous example, we explicitly named the instantiated transform
+// iterator type, and needed to use 'bsl::function' to insulate differences
+// between C++03 and C++11.  We can use 'bdlb::TransformIteratorUtil' to create
+// the iterators instead.
+//
+// First, we compute the total in this new way.  Notice that we do not need to
+// supply the iterator or functor types explicitly.
+//..
+    double retotal = bsl::accumulate(
+        bdlb::TransformIteratorUtil::make(list.begin(), pricer),
+        bdlb::TransformIteratorUtil::make(list.end(), pricer),
+        0.0);
+//..
+// Finally, we again verify that we have the correct total:
+//..
+    ASSERT(6.25 == retotal);
 //..
       } break;
       case 6: {
@@ -1310,17 +1330,25 @@ int main(int argc, char *argv[])
         //: 1 The various forms of constructor for the transform iterator
         //:   correctly initialize the new object, and pass allocators to the
         //:   constructors of the subobjects that need them.
+        //:
+        //: 2 The transform iterator utility 'make' method correctly creates
+        //:   transform iterator objects.
         //
         // Plan:
         //: 1 For each of the four combinations of the two subobjects having or
         //:   not having allocators, create an object using each constructor
         //:   and verify that the objects are correct.  (C-1)
+        //:
+        //: 2 For each of the four combinations of the two subobjects having or
+        //:   not having allocators, create an object using the utility 'make'
+        //:   method and verify that the objects are correct.  (C-2)
         //
         // Testing:
         //   TransformIterator();
         //   TransformIterator(Allocator *);
         //   TransformIterator(const ITERATOR&, FUNCTOR, Allocator * = 0);
         //   TransformIterator(const TransformIterator&, Allocator * = 0);
+        //   TransformIteratorUtil::make(...);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING CREATORS"
                              "\n================\n";
@@ -1378,6 +1406,16 @@ int main(int argc, char *argv[])
                 ASSERT(&ta == X.iterator().allocator());
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
                 ASSERT(DATA[0] == *X);
+
+                Obj        mY = TransformIteratorUtil::make(
+                                  mX.iterator(), mX.functor(), mX.allocator());
+                const Obj& Y  = mY;
+
+                ASSERT(&ta == Y.allocator());
+                ASSERT(&ta == Y.functor().allocator());
+                ASSERT(&ta == Y.iterator().allocator());
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == Y.iterator());
+                ASSERT(DATA[0] == *Y);
             }
 
             if (veryVerbose) {
@@ -1444,6 +1482,15 @@ int main(int argc, char *argv[])
                 ASSERT(&ta == X.iterator().allocator());
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
                 ASSERT(DATA[0] == *X);
+
+                Obj        mY = TransformIteratorUtil::make(
+                                  mX.iterator(), mX.functor(), mX.allocator());
+                const Obj& Y  = mY;
+
+                ASSERT(&ta == Y.allocator());
+                ASSERT(&ta == Y.iterator().allocator());
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == Y.iterator());
+                ASSERT(DATA[0] == *Y);
             }
 
             if (veryVerbose) {
@@ -1509,6 +1556,15 @@ int main(int argc, char *argv[])
                 ASSERT(&ta == X.functor().allocator());
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
                 ASSERT(DATA[0] == *X);
+
+                Obj        mY = TransformIteratorUtil::make(
+                                  mX.iterator(), mX.functor(), mX.allocator());
+                const Obj& Y  = mY;
+
+                ASSERT(&ta == Y.allocator());
+                ASSERT(&ta == Y.functor().allocator());
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == Y.iterator());
+                ASSERT(DATA[0] == *Y);
             }
 
             if (veryVerbose) {
@@ -1562,6 +1618,13 @@ int main(int argc, char *argv[])
 
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
                 ASSERT(DATA[0] == *X);
+
+                Obj        mY =
+                      TransformIteratorUtil::make(mX.iterator(), mX.functor());
+                const Obj& Y  = mY;
+
+                ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == Y.iterator());
+                ASSERT(DATA[0] == *Y);
             }
 
             if (veryVerbose) {
