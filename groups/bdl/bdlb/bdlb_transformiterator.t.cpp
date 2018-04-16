@@ -1414,13 +1414,11 @@ int main(int argc, char *argv[])
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
                 ASSERT(DATA[0] == *X);
 
-                Obj        mY = TransformIteratorUtil::make(
-                                     X.iterator(), X.functor(), X.allocator());
-                const Obj& Y  = mY;
+                const Obj& Y = TransformIteratorUtil::make(
+                    X.iterator(), X.functor(), X.allocator());
 
-                ASSERT(&ta == Y.allocator());
-                ASSERT(&ta == Y.functor().allocator());
-                ASSERT(&ta == Y.iterator().allocator());
+                ASSERT(&ta == Y.allocator() ||
+                       bslma::Default::allocator(0) == Y.allocator());
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == Y.iterator());
                 ASSERT(DATA[0] == *Y);
             }
@@ -1490,12 +1488,11 @@ int main(int argc, char *argv[])
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
                 ASSERT(DATA[0] == *X);
 
-                Obj        mY = TransformIteratorUtil::make(
-                                     X.iterator(), X.functor(), X.allocator());
-                const Obj& Y  = mY;
+                const Obj& Y = TransformIteratorUtil::make(
+                    X.iterator(), X.functor(), X.allocator());
 
-                ASSERT(&ta == Y.allocator());
-                ASSERT(&ta == Y.iterator().allocator());
+                ASSERT(&ta == Y.allocator() ||
+                       bslma::Default::allocator(0) == Y.allocator());
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == Y.iterator());
                 ASSERT(DATA[0] == *Y);
             }
@@ -1564,12 +1561,11 @@ int main(int argc, char *argv[])
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == X.iterator());
                 ASSERT(DATA[0] == *X);
 
-                Obj        mY = TransformIteratorUtil::make(
-                                     X.iterator(), X.functor(), X.allocator());
-                const Obj& Y  = mY;
+                const Obj& Y = TransformIteratorUtil::make(
+                    X.iterator(), X.functor(), X.allocator());
 
-                ASSERT(&ta == Y.allocator());
-                ASSERT(&ta == Y.functor().allocator());
+                ASSERT(&ta == Y.allocator() ||
+                       bslma::Default::allocator(0) == Y.allocator());
                 ASSERT(bsl::reverse_iterator<int *>(&DATA[1]) == Y.iterator());
                 ASSERT(DATA[0] == *Y);
             }
