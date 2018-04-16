@@ -569,7 +569,10 @@ struct TransformIteratorUtil {
         // Create a 'TransformIterator' object constructed with the specified
         // 'iterator' and 'functor'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // installed default allocator is used.  Note that if the compiler does
+        // not implement the return-value optimization, this function may 
+        // return a copy created with the default allocator even if a different
+        // allocator is supplied.
 };
 
 // FREE OPERATORS
