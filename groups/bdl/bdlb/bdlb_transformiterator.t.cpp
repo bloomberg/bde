@@ -723,6 +723,9 @@ int main(int argc, char *argv[])
             ASSERT(&ta == X.allocator());
             ASSERT(&ta == X.functor().allocator());
             ASSERT(&ta == X.iterator().allocator());
+            ASSERT(&ta == mX.allocator());
+            ASSERT(&ta == mX.functor().allocator());
+            ASSERT(&ta == mX.iterator().allocator());
         }
 
         if (veryVerbose) {
@@ -742,6 +745,8 @@ int main(int argc, char *argv[])
 
             ASSERT(&ta == X.allocator());
             ASSERT(&ta == X.iterator().allocator());
+            ASSERT(&ta == mX.allocator());
+            ASSERT(&ta == mX.iterator().allocator());
         }
 
         if (veryVerbose) {
@@ -761,6 +766,8 @@ int main(int argc, char *argv[])
 
             ASSERT(&ta == X.allocator());
             ASSERT(&ta == X.functor().allocator());
+            ASSERT(&ta == mX.allocator());
+            ASSERT(&ta == mX.functor().allocator());
         }
 
         if (veryVerbose) {
