@@ -79,9 +79,12 @@ function(decnumber_process_standalone_package retUOR listFile installOpts)
             $<$<C_COMPILER_ID:SunPro>:
                 -temp=/bb/data/tmp
                 $<IF:${bde_ufid_is_64}, -m64, -m32>
+                $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -xcode=pic32>
             >
             $<$<C_COMPILER_ID:XL>:
                 $<IF:${bde_ufid_is_64}, -q64, -q32>
+                $<$<OR:${bde_ufid_is_shr},${bde_ufid_is_pic}>: -qpic>
+                $<${bde_ufid_is_mt}: -qthreaded>
             >
     )
 
