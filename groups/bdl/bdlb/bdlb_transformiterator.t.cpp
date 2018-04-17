@@ -563,37 +563,11 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Summing Absolute Values
-/// - - - - - - - - - - - - - - - - -
-// Suppose we have a sequence of numbers and we would like to sum their
-// absolute values.  We can use 'bdlb::TransformIterator' for this purpose.
-//
-// First, we set up the numbers:
-//..
-    int data[5] = { 1, -1, 2, -2, 3 };
-//..
-// Then, we create the transform iterators that will convert a number to its
-// absolute value.  We need ones for the beginning and end of the sequence:
-//..
-    int (*abs)(int) = &bsl::abs;
-
-    bdlb::TransformIterator<int(*)(int), int*> dataBegin(data + 0, abs);
-    bdlb::TransformIterator<int(*)(int), int*> dataEnd  (data + 5, abs);
-//..
-// Now, we compute the sum of the absolute values of the numbers:
-//..
-    int sum = bsl::accumulate(dataBegin, dataEnd, 0);
-//..
-// Finally, we verify that we have computed the sum correctly:
-//..
-    ASSERT(9 == sum);
-//..
-//
-///Example 2: Totaling a Grocery List
+///Example 1: Totaling a Grocery List
 /// - - - - - - - - - - - - - - - - -
 // Suppose we have a shopping list of products and we want to compute how much
-// it will cost to buy the items.  We can use 'bdlb::TransformIterator' to do
-// the computation, looking up the price of each item.
+// it will cost to buy selected items.  We can use 'bdlb::TransformIterator' to
+// do the computation, looking up the price of each item.
 //
 // First, we set up the price list:
 //..
@@ -618,41 +592,79 @@ int main(int argc, char *argv[])
     auto pricer = [&](const bsl::string &product) { return prices[product]; };
     #endif
 //..
-// Next, we create a pair of transform iterators to process our grocery list.
-// Note that we use 'bsl::function' as the functor type to abstract away the
-// difference between the C++03 and C++11 function objects being used.
+// Now, we need a pair of transform iterators to process our grocery list.  We
+// can use 'TransormIteratorUtil::make' to create those iterators, avoiding the
+// need to explicitly name types.  We create the iterators and process the list
+// in one step, follows:
 //..
-    typedef bdlb::TransformIterator<bsl::function<double(const bsl::string&)>,
-                                    bsl::list<bsl::string>::iterator> ti;
-    ti groceryBegin(list.begin(), pricer);
-    ti groceryEnd(list.end(), pricer);
-//..
-// Now, we add up the prices of our groceries:
-//..
-    double total = bsl::accumulate(groceryBegin, groceryEnd, 0.0);
+    double total = bsl::accumulate(
+        bdlb::TransformIteratorUtil::make(list.begin(), pricer),
+        bdlb::TransformIteratorUtil::make(list.end(), pricer),
+        0.0);
 //..
 // Finally, we verify that we have the correct total:
 //..
     ASSERT(6.25 == total);
 //..
-///Example 3: Totaling the Grocery List Again
-/// - - - - - - - - - - - - - - - - - - - - -
-// In the previous example, we explicitly named the instantiated transform
-// iterator type, and needed to use 'bsl::function' to insulate differences
-// between C++03 and C++11.  We can use 'bdlb::TransformIteratorUtil' to create
-// the iterators instead.
 //
-// First, we compute the total in this new way.  Notice that we do not need to
-// supply the iterator or functor types explicitly.
+///Example 2: Totaling the Grocery List Again
+/// - - - - - - - - - - - - - - - - - - - - -
+// In the previous example, we did not explicitly name our iterator type.  We
+// may want to do so, however, if we intend to reuse iterators, or store them
+// in data structures.  We will rework the previous example using explicitly
+// typed iterators.  We also demonstrate how a single iterator type can deal
+// with multiple functors.
+//
+// First, we notice that we have two different functor types depending on
+// whether we compile as C++03 or C++11.  To abstract away the difference, we
+// will use a 'bsl::function' functor type that is conformable to both:
 //..
-    double retotal = bsl::accumulate(
-        bdlb::TransformIteratorUtil::make(list.begin(), pricer),
-        bdlb::TransformIteratorUtil::make(list.end(), pricer),
-        0.0);
+    typedef bdlb::TransformIterator<bsl::function<double(const bsl::string&)>,
+                                    bsl::list<bsl::string>::iterator> ti;
 //..
-// Finally, we again verify that we have the correct total:
+// Then, we create a pair of these iterators to traverse our list:
+//..
+    ti groceryBegin(list.begin(), pricer);
+    ti groceryEnd(list.end(), pricer);
+//..
+// Now, we add up the prices of our groceries:
+//..
+    double retotal = bsl::accumulate(groceryBegin, groceryEnd, 0.0);
+//..
+// Finally, we verify that we have the correct total:
 //..
     ASSERT(6.25 == retotal);
+//..
+//
+///Example 3: Summing Absolute Values
+/// - - - - - - - - - - - - - - - - -
+// Suppose we have a sequence of numbers and we would like to sum their
+// absolute values.  We can use 'bdlb::TransformIterator' for this purpose.
+//
+// First, we set up the numbers:
+//..
+    int data[5] = { 1, -1, 2, -2, 3 };
+//..
+// Then, we need a functor that will return the absolute value of a number.
+// Rather than write a functor object, we can use a simple pointer to function
+// as a functor:
+//..
+    int (*abs)(int) = &bsl::abs;
+//..
+// Next, we create the transform iterators that will convert a number to its
+// absolute value.  We need iterators for both the beginning and end of the
+// sequence:
+//..
+    bdlb::TransformIterator<int(*)(int), int*> dataBegin(data + 0, abs);
+    bdlb::TransformIterator<int(*)(int), int*> dataEnd  (data + 5, abs);
+//..
+// Now, we compute the sum of the absolute values of the numbers:
+//..
+    int sum = bsl::accumulate(dataBegin, dataEnd, 0);
+//..
+// Finally, we verify that we have computed the sum correctly:
+//..
+    ASSERT(9 == sum);
 //..
       } break;
       case 6: {
