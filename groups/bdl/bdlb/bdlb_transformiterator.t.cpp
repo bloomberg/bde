@@ -83,7 +83,9 @@ using namespace bsl;
 // [ 2] TransformIterator(Allocator *);
 // [ 2] TransformIterator(const ITERATOR&, FUNCTOR, Allocator * = 0);
 // [ 2] TransformIterator(const TransformIterator&, Allocator * = 0);
-// [ 2] TransformIteratorUtil::make(...);
+//
+// CLASS METHODS
+// [ 2] TransformIterator TransformIteratorUtil::make(...);
 //
 // MANIPULATORS
 // [ 3] TransformIterator& operator=(const TransformIterator&);
@@ -593,9 +595,9 @@ int main(int argc, char *argv[])
     #endif
 //..
 // Now, we need a pair of transform iterators to process our grocery list.  We
-// can use 'TransormIteratorUtil::make' to create those iterators, avoiding the
-// need to explicitly name types.  We create the iterators and process the list
-// in one step, follows:
+// can use 'TransformIteratorUtil::make' to create those iterators, avoiding
+// the need to explicitly name types.  We create the iterators and process the
+// list in one step, as follows:
 //..
     double total = bsl::accumulate(
         bdlb::TransformIteratorUtil::make(list.begin(), pricer),
@@ -620,12 +622,12 @@ int main(int argc, char *argv[])
 // will use a 'bsl::function' functor type that is conformable to both:
 //..
     typedef bdlb::TransformIterator<bsl::function<double(const bsl::string&)>,
-                                    bsl::list<bsl::string>::iterator> ti;
+                                    bsl::list<bsl::string>::iterator> Iterator;
 //..
 // Then, we create a pair of these iterators to traverse our list:
 //..
-    ti groceryBegin(list.begin(), pricer);
-    ti groceryEnd(list.end(), pricer);
+    Iterator groceryBegin(list.begin(), pricer);
+    Iterator groceryEnd(list.end(), pricer);
 //..
 // Now, we add up the prices of our groceries:
 //..
@@ -655,8 +657,8 @@ int main(int argc, char *argv[])
 // absolute value.  We need iterators for both the beginning and end of the
 // sequence:
 //..
-    bdlb::TransformIterator<int(*)(int), int*> dataBegin(data + 0, abs);
-    bdlb::TransformIterator<int(*)(int), int*> dataEnd  (data + 5, abs);
+    bdlb::TransformIterator<int(*)(int), int *> dataBegin(data + 0, abs);
+    bdlb::TransformIterator<int(*)(int), int *> dataEnd  (data + 5, abs);
 //..
 // Now, we compute the sum of the absolute values of the numbers:
 //..
@@ -1350,8 +1352,8 @@ int main(int argc, char *argv[])
         //:   correctly initialize the new object, and pass allocators to the
         //:   constructors of the subobjects that need them.
         //:
-        //: 2 The transform iterator utility 'make' method correctly creates
-        //:   transform iterator objects.
+        //: 2 The transform iterator utility 'make' class method correctly
+        //:   creates transform iterator objects.
         //
         // Plan:
         //: 1 For each of the four combinations of the two subobjects having or
@@ -1367,7 +1369,7 @@ int main(int argc, char *argv[])
         //   TransformIterator(Allocator *);
         //   TransformIterator(const ITERATOR&, FUNCTOR, Allocator * = 0);
         //   TransformIterator(const TransformIterator&, Allocator * = 0);
-        //   TransformIteratorUtil::make(...);
+        //   TransformIterator TransformIteratorUtil::make(...);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTESTING CREATORS"
                              "\n================\n";
