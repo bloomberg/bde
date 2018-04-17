@@ -1981,8 +1981,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
         "\nCreate a table of distinct object values and expected memory usage."
@@ -2120,7 +2120,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 The common object allocator address in both objects is unchanged.
         //:
-        //: 3 The member function allocates memory from any allocator.
+        //: 3 The member function does not allocate memory from any allocator.
         //:
         //: 4 Both functions have standard signatures.
         //:
@@ -2192,8 +2192,8 @@ int main(int argc, char *argv[])
         //:
         //:       2 The object allocator addresses are unchanged.
         //:
-        //:       3 There method works correctly when the objects have
-        //:         different allocators.
+        //:       3 The method works correctly when the objects have different
+        //:         allocators.
         //:
         //: 5 Use the test allocator from P-2 to verify that no memory is ever
         //:   allocated from the default allocator when using the member

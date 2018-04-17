@@ -363,7 +363,7 @@ class Timetable_CompactableTransition {
                                    const Timetable_CompactableTransition& rhs);
         // Assign to this object the value of the specified 'rhs' compactable
         // transition, and return a reference providing modifiable access to
-        // this 'Timetable_CompactableTransition'.
+        // this object.
 
     // ACCESSORS
     const Time& time() const;
@@ -792,10 +792,10 @@ class Timetable {
         // this timetable, and 'false' otherwise.
 
     const Date& lastDate() const;
-        // Return a reference providing non-modifiable access to the latest
-        // date in the valid range of this timetable.  The behavior is
-        // undefined if this timetable does not have a valid range (i.e., it is
-        // in the default constructed (empty) state).
+        // Return a 'const' reference to the latest date in the valid range of
+        // this timetable.  The behavior is undefined if this timetable does
+        // not have a valid range (i.e., it is in the default constructed
+        // (empty) state).
 
     int length() const;
         // Return the number of days in the valid range of this timetable,
@@ -860,10 +860,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Timetable& timetable);
 
 // FREE FUNCTIONS
 void swap(Timetable& a, Timetable& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee.  The behavior is
+    // undefined unless the two objects were created with the same allocator.
 
 // HASH SPECIALIZATIONS
 template <class HASHALG>
