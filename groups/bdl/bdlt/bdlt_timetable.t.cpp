@@ -928,6 +928,14 @@ int main(int argc, char *argv[])
                     Iterator iter3(--iter2);
                     ASSERT(iter2 == iterOrig);
                     ASSERT(iter3 == iterOrig);
+
+                    Iterator iter4(iterOrig);
+                    ASSERT(iterOrig == iter4++);
+                    ASSERT(iter     == iter4);
+
+                    Iterator iter5(iter4);
+                    ASSERT(iter4    == iter5--);
+                    ASSERT(iterOrig == iter5);
                 }
 
                 ASSERT(iter == X.end());
@@ -971,6 +979,16 @@ int main(int argc, char *argv[])
             ASSERT_PASS(--iter);
             ASSERT_PASS(++iter);
             ASSERT_FAIL(++iter);
+
+            iter = X.begin();
+            ASSERT_PASS(iter++);
+            ASSERT_PASS(iter--);
+            ASSERT_FAIL(iter--);
+
+            iter = X.end();
+            ASSERT_PASS(iter--);
+            ASSERT_PASS(iter++);
+            ASSERT_FAIL(iter++);
 
             iter = X.begin();
             ASSERT_SAFE_PASS(*iter);
