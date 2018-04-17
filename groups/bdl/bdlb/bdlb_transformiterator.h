@@ -109,9 +109,9 @@ BSLS_IDENT("$Id: $")
 //  #endif
 //..
 // Now, we need a pair of transform iterators to process our grocery list.  We
-// can use 'TransormIteratorUtil::make' to create those iterators, avoiding the
-// need to explicitly name types.  We create the iterators and process the list
-// in one step, follows:
+// can use 'TransformIteratorUtil::make' to create those iterators, avoiding
+// the need to explicitly name types.  We create the iterators and process the
+// list in one step, as follows:
 //..
 //  double total = bsl::accumulate(
 //      bdlb::TransformIteratorUtil::make(list.begin(), pricer),
@@ -136,12 +136,12 @@ BSLS_IDENT("$Id: $")
 // will use a 'bsl::function' functor type that is conformable to both:
 //..
 //  typedef bdlb::TransformIterator<bsl::function<double(const bsl::string&)>,
-//                                  bsl::list<bsl::string>::iterator> ti;
+//                                  bsl::list<bsl::string>::iterator> Iterator;
 //..
 // Then, we create a pair of these iterators to traverse our list:
 //..
-//  ti groceryBegin(list.begin(), pricer);
-//  ti groceryEnd(list.end(), pricer);
+//  Iterator groceryBegin(list.begin(), pricer);
+//  Iterator groceryEnd(list.end(), pricer);
 //..
 // Now, we add up the prices of our groceries:
 //..
@@ -171,8 +171,8 @@ BSLS_IDENT("$Id: $")
 // absolute value.  We need iterators for both the beginning and end of the
 // sequence:
 //..
-//  bdlb::TransformIterator<int(*)(int), int*> dataBegin(data + 0, abs);
-//  bdlb::TransformIterator<int(*)(int), int*> dataEnd  (data + 5, abs);
+//  bdlb::TransformIterator<int(*)(int), int *> dataBegin(data + 0, abs);
+//  bdlb::TransformIterator<int(*)(int), int *> dataEnd  (data + 5, abs);
 //..
 // Now, we compute the sum of the absolute values of the numbers:
 //..
@@ -568,7 +568,7 @@ class TransformIterator
 
 struct TransformIteratorUtil {
     // This 'struct' provides a namespace for a function template that
-    // simplifies the creation of 'TransformIterators' by allowing type
+    // simplifies the creation of 'TransformIterator' objects by allowing type
     // deduction to discover the types of the functor and underlying iterator.
 
     // CLASS METHODS
@@ -577,7 +577,7 @@ struct TransformIteratorUtil {
                                          const ITERATOR&   iterator,
                                          const FUNCTOR&    functor,
                                          bslma::Allocator *basicAllocator = 0);
-        // Create a 'TransformIterator' object constructed with the specified
+        // Return a 'TransformIterator' object constructed with the specified
         // 'iterator' and 'functor'.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.  Note that if the compiler does
@@ -1019,21 +1019,6 @@ bdlb::operator-(const TransformIterator<FUNCTOR, ITERATOR>& a,
 {
     return a.iterator() - b.iterator();
 }
-                        // ---------------------------
-                        // class TransformIteratorUtil
-                        // ---------------------------
-
-// CLASS METHODS
-template <class FUNCTOR, class ITERATOR>
-inline
-bdlb::TransformIterator<FUNCTOR, ITERATOR> bdlb::TransformIteratorUtil::make(
-                                              const ITERATOR&   iterator,
-                                              const FUNCTOR&    functor,
-                                              bslma::Allocator *basicAllocator)
-{
-    return TransformIterator<FUNCTOR, ITERATOR>(
-        iterator, functor, basicAllocator);
-}
 
 // FREE FUNCTIONS
 template <class FUNCTOR, class ITERATOR>
@@ -1046,6 +1031,25 @@ void bdlb::swap(TransformIterator<FUNCTOR, ITERATOR>& a,
     swap(a.iterator(), b.iterator());
 }
 
+                        // ---------------------------
+                        // class TransformIteratorUtil
+                        // ---------------------------
+
+namespace bdlb {
+
+// CLASS METHODS
+template <class FUNCTOR, class ITERATOR>
+inline
+TransformIterator<FUNCTOR, ITERATOR> TransformIteratorUtil::make(
+                                              const ITERATOR&   iterator,
+                                              const FUNCTOR&    functor,
+                                              bslma::Allocator *basicAllocator)
+{
+    return TransformIterator<FUNCTOR, ITERATOR>(
+        iterator, functor, basicAllocator);
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
