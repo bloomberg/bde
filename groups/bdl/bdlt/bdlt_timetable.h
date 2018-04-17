@@ -861,8 +861,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Timetable& timetable);
 // FREE FUNCTIONS
 void swap(Timetable& a, Timetable& b);
     // Exchange the values of the specified 'a' and 'b' objects.  This function
-    // provides the no-throw exception-safety guarantee.  The behavior is
-    // undefined unless the two objects were created with the same allocator.
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // HASH SPECIALIZATIONS
 template <class HASHALG>
