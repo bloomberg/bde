@@ -505,7 +505,7 @@ Timetable_ConstIterator& Timetable_ConstIterator::operator--()
             --d_dayIndex;
         }
 
-        BSLS_ASSERT_SAFE(0 < d_timetable_p->d_timetable[d_dayIndex].size());
+        BSLS_ASSERT(0 < d_timetable_p->d_timetable[d_dayIndex].size());
 
         d_transitionIndex = d_timetable_p->d_timetable[d_dayIndex].size() - 1;
     }
