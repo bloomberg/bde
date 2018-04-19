@@ -20,7 +20,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 33 components having 9 levels of physical
+ The 'bdlt' package currently has 34 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -42,6 +42,7 @@
      bdlt_datetimeutil
      bdlt_datetz
      bdlt_epochutil
+     bdlt_timetable
 
   4. bdlt_datetime
      bdlt_dateutil
@@ -163,6 +164,9 @@
 :
 : 'bdlt_time':
 :      Provide a value-semantic type representing time-of-day.
+:
+: 'bdlt_timetable':
+:      Provide a repository for accessing timetable information.
 :
 : 'bdlt_timetz':
 :      Provide a representation of a time with time zone offset.
