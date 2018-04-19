@@ -827,6 +827,13 @@ int BerEncoder::encodeImpl(const TYPE&                value,
             return k_FAILURE;                                         // RETURN
         }
     }
+    else {
+
+         if(d_options->disableUnselectedChoiceEncoding()) {
+            return k_FAILURE;                                         // RETURN
+         }
+
+    }
 
     if (!isUntagged) {
         // According to X.694 (clause 20.4), an XML choice (not anonymous)
