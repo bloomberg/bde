@@ -125,6 +125,18 @@
         </xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name='DisableUnselectedChoiceEncoding' type='xs:boolean'
+                  default='false'
+                  bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            This encode option allows users to control if it is an error to
+            try and encoded any element with an unselected choice.  By default
+            the encoder allows unselected choices by eliding them from the
+            encoding.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>
