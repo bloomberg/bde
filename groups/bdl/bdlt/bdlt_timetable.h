@@ -1539,14 +1539,15 @@ void bdlt::swap(Timetable& a, Timetable& b)
 {
     if (a.allocator() == b.allocator()) {
         a.swap(b);
-    }
-    else {
-        Timetable futureA(b, a.allocator());
-        Timetable futureB(a, b.allocator());
 
-        futureA.swap(a);
-        futureB.swap(b);
+        return;                                                       // RETURN
     }
+
+    Timetable futureA(b, a.allocator());
+    Timetable futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
 }
 
 // HASH SPECIALIZATIONS
