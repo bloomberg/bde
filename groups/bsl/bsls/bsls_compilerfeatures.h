@@ -526,12 +526,10 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // clang supports __attribute__((noreturn)) in earlier versions
 #endif
-// TBD: need help here - can we fix up to get the earliest version on darwin
-//      that supports <type_traits> header; what about non-darwin platforms?
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)
-#if __APPLE_CC__ >= 6000
+#if (__cplusplus >= 201103L ||                                                \
+    (defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)))           \
+    && __has_include(<type_traits>)
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#endif
 #endif
 #endif
 
