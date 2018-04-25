@@ -19,6 +19,7 @@
 //#include <ball_userfields.h>
 
 #include <bdlt_currenttime.h>
+#include <bdlt_timeunitratio.h>
 
 #include <bslim_testutil.h>
 
@@ -33,6 +34,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_platform.h>
 #include <bsls_systemtime.h>
 #include <bsls_types.h>
 
@@ -85,7 +87,8 @@
 // [ 1] BALL_LOGTHROTTLEVA_ERROR
 // [ 1] BALL_LOGTHROTTLEVA_FATAL
 // ----------------------------------------------------------------------------
-// [ 9] PRINTF-BASED USAGE EXAMPLE
+// [10] PRINTF-BASED USAGE EXAMPLE
+// [ 9] BLOCK-BASED USAGE EXAMPLE
 // [ 8] STREAM-BASED USAGE EXAMPLE
 // [ 7] MULTI PERIOD STREAM TEST
 // [ 6] MULTI PERIOD PRINTF TEST
@@ -259,7 +262,7 @@ enum TestType {
 }  // close unnamed namespace
 
 bsl::ostream& operator<<(bsl::ostream& stream, u::TestType testType)
-    // Stream the specified 'testType' to the specied 'stream', and return
+    // Stream the specified 'testType' to the specified 'stream', and return
     // 'stream'.
 {
     switch (testType) {
@@ -277,7 +280,7 @@ const char FILL = static_cast<char>(0xbb);
 
 inline
 char *messageBuffer(int *bufferSize = 0)
-    // Return the currrent message buffer, and if the specified 'bufferSize' is
+    // Return the current message buffer, and if the specified 'bufferSize' is
     // non-zero, update the '*bufferSize' with the buffer size.
 {
     int dummyBufferSize;
@@ -413,44 +416,46 @@ double RadiationMeterReceiver::yield()
 //
 ///Usage
 ///-----
+/// Code global to all usage examples:
+//..
+    enum {
+        k_NUM_INFO  = 20,
+        k_NUM_DEBUG =  5,
+        k_NUM_TRACE =  1 };
 //
-///Example 1: 'stream'-Style Macro Usage
-///- - - - - - - - - - - - - - - - - - -
-// Suppose a computer is reading 'double's from a radio receiver, ten per
+    const Int64 k_HOUR = bdlt::TimeUnitRatio::k_NANOSECONDS_PER_HOUR;
+//..
+//
+///Example 1: 'stream-Style' Throttling Macro Usage
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose a computer is reading 'double' values from a radio receiver, ten per
 // second, which represent readings of radiation detected by a Geiger counter
-// on a spacecraft and transmitted to a ground control at Jet Propulsion
-// Laboratories in California.
+// on a spacecraft and is transmitting them to a ground control at Jet
+// Propulsion Laboratories in California.
 //
-// The readings are returned by the 'RadiationMeterReceiver' object, from a
-// manipulator 'double yield();', which blocks until it returns.  If called in
-// a tight loop, it will return ten readings from the spacecraft per second.
+// The readings are returned by the 'double yield()' manipulator of a
+// 'RadiationMeterReceiver' object (the implementation of which is omitted).
+// The 'yield' method blocks until it obtains a reading to return.  If called
+// in a tight loop, 'yield' returns ten readings per second.
 //
 // Readings range from 0 to 100.
-//: o Readings above 10 are a concern, but not very serious.  We will report
-//:   those with an 'INFO' severity, and not more than one per hour.
-//: o Readings above 30 are more of a worry.  We will report those with a a
-//:   'WARN' severity, and not more than five per hour.
-//: o Readings above 60 are very serious, which will be reported with 'ERROR'
-//:   severity, and not more than twenty per hour.
-//: o Readings above 90 are potentially catastrophic, will be reported with
-//:   'FATAL' severity, with no limit on the number of readings reported.
+//: o Readings above 10 but not greater than 30 are a concern, but are not very
+//:   serious.  We will report those with an 'e_TRACE' severity, and at most
+//:   one per hour.
+//: o Readings above 30 but not greater than 60 are more of a worry.  We will
+//:   report those with an 'e_DEBUG' severity, and at most five per hour.
+//: o Readings above 60 but not greater than 90 are very serious, which will be
+//:   reported with an 'e_INFO' severity, and at most twenty per hour.
+//: o Readings above 90 are potentially catastrophic, and will be reported with
+//:   an 'e_WARN' severity, with no limit on the number of readings reported.
 //
-// We are to write a daemon process, which will loop gathering readings until
-// it reads an impossible value of -1.0, which indicates that the daemon is to
-// terminate.
-
+// We are to write a daemon process, which will loop gathering readings.  A
+// reading of an impossible value of -1.0 will indicate termination.
+//..
     void radiationMonitorStreamDaemon()
         // Daemon to run the radiation monitor for a finite period of time.
     {
         BALL_LOG_SET_CATEGORY("RADIATION.MONITOR");
-//
-        enum {
-            k_SECOND_NS = 1000 * 1000 * 1000,
-            k_NUM_ERROR = 20,
-            k_NUM_WARN  =  5,
-            k_NUM_INFO  =  1 };
-//
-        const Int64 k_HOUR = 60LL * 60 * k_SECOND_NS; // an hour in nanoseconds
 //
         RadiationMeterReceiver receiver;
 //
@@ -459,123 +464,114 @@ double RadiationMeterReceiver::yield()
         double reading;
         while (-1.0 != (reading = receiver.yield())) {
 //..
-// First, we deal with 'fatal' messages:
+// First, we deal with 'e_WARN' readings:
 //..
             if      (90 < reading) {
-                BALL_LOG_FATAL << "Fatal radiation reading of " << reading;
+                BALL_LOG_WARN << "Serious Radiation reading of " << reading;
             }
 //..
-// Next, we deal with 'error' messages that aren't as severe as 'fatal':
+// Next, we deal with 'e_INFO' readings that aren't as severe as 'e_WARN':
 //..
             else if (60 < reading) {
-                BALL_LOGTHROTTLE_ERROR(k_NUM_ERROR, k_HOUR) <<
-                                      "Error radiation reading of " << reading;
+                BALL_LOGTHROTTLE_INFO(k_NUM_INFO, k_HOUR) <<
+                                            "Radiation reading of " << reading;
             }
 //..
 // Now, we deal with 'warning' messages less severe than 'error' readings:
 //..
             else if (30 < reading) {
-                BALL_LOGTHROTTLE_WARN(k_NUM_WARN, k_HOUR) <<
-                                    "Warning radiation reading of " << reading;
+                BALL_LOGTHROTTLE_DEBUG(k_NUM_DEBUG, k_HOUR) <<
+                                            "Radiation reading of " << reading;
             }
 //..
 // Finally, we deal with 'info' messages less severe than 'warning' readings:
 //..
             else if (10 < reading) {
-                BALL_LOGTHROTTLE_INFO(k_NUM_INFO, k_HOUR) <<
-                                       "Info radiation reading of " << reading;
+                BALL_LOGTHROTTLE_TRACE(k_NUM_TRACE, k_HOUR) <<
+                                            "Radiation reading of " << reading;
             }
         }
 
         BALL_LOG_DEBUG << "Finished gathering data.";
     }
 //..
-// Where the values returned by 'receiver.yield()' are:
+// The values returned by 'receiver.yield()' are:
 //..
 //  0 0 12.3 0 10.5 33.1 11.9 53.7 0 0 46.1 14.7 67.4 43.9 53.3 98.2 0 22.3
 //  77.3 36.2 0 17.7 52.5 0 43.2 0 72.9 0 51.9 71.2 92.4 0 0 11.8 33.1 0 47.2
 //  15.5 35.7 0 22.3 17.6 0 52.7 0 22.1 -1
 //..
-// Where
-//: o 13 readings of '0.0', which don't produce output, occurred.
-//: o 9 readings in the range '10.0 < x <= 30.0', which correspond to 'INFO'
-//:   level traces, occurred.
-//: o 13 readings in the range '30.0 < x <= 60.0' which correspond to 'WARN'
-//:   level traces, occurred.
-//: o 5 readings in the range '60.0 < x <= 90.0', which correspond to 'ERROR'
-//:   level traces, occurred.
-//: o 2 readings in the range '90.0 < x', which correspond to 'FATAL' level
-//:   traces, occurred.
+// Where:
+//: o 13 readings of 0.0, which don't produce output, occurred.
+//: o 9 readings in the range '10.0 < reading <= 30.0', which correspond to
+//:   'e_TRACE' level messages, occurred.
+//: o 13 readings in the range '30.0 < reading <= 60.0', which correspond to
+//:   'e_DEBUG' level messages, occurred.
+//: o 5 readings in the range '60.0 < reading <= 90.0', which correspond to
+//:   'e_INFO' level messages, occurred.
+//: o 2 readings in the range '90.0 < reading', which correspond to 'e_WARN'
+//:   level messages, occurred.
 //
-// Note that only 1 'INFO' trace and 5 'WARN' traces are permitted by the
-// throttle within the (very long) time period of one hour, so the other traces
-// at those levels will be suppressed.
+// Note that only 1 'e_TRACE' trace and 5 'e_DEBUG' messages are permitted by
+// the throttle within the (very long) time period of one hour, so the other
+// messages at those levels will be suppressed.
 //
 // 'radiationMonitorPrintfDaemon' produces output like:
 //..
-//  23AUG2017_17:07:33.401 38510 140675422017312 DEBUG ball_logthrottle.t.cpp
-//  438 RADIATION.MONITOR Start gathering data.
+//  24APR2018_16:36:22.791 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
+//  460 RADIATION.MONITOR Start gathering data.
 //
-//  23AUG2017_17:07:33.704 38510 140675422017312 INFO ball_logthrottle.t.cpp
-//  473 RADIATION.MONITOR Info radiation reading of 12.3
+//  24APR2018_16:36:23.094 61260 139907579877152 TRACE ball_logthrottle.t.cpp
+//  488 RADIATION.MONITOR Radiation reading of 12.3
 //
-//  23AUG2017_17:07:34.007 38510 140675422017312 WARN ball_logthrottle.t.cpp
-//  464 RADIATION.MONITOR Warning radiation reading of 33.1
+//  24APR2018_16:36:23.396 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
+//  481 RADIATION.MONITOR Radiation reading of 33.1
 //
-//  23AUG2017_17:07:34.208 38510 140675422017312 WARN ball_logthrottle.t.cpp
-//  464 RADIATION.MONITOR Warning radiation reading of 53.7
+//  24APR2018_16:36:23.597 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
+//  481 RADIATION.MONITOR Radiation reading of 53.7
 //
-//  23AUG2017_17:07:34.511 38510 140675422017312 WARN ball_logthrottle.t.cpp
-//  464 RADIATION.MONITOR Warning radiation reading of 46.1
+//  24APR2018_16:36:23.901 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
+//  481 RADIATION.MONITOR Radiation reading of 46.1
 //
-//  23AUG2017_17:07:34.713 38510 140675422017312 ERROR ball_logthrottle.t.cpp
-//  455 RADIATION.MONITOR Error radiation reading of 67.4
+//  24APR2018_16:36:24.102 61260 139907579877152 INFO ball_logthrottle.t.cpp
+//  474 RADIATION.MONITOR Radiation reading of 67.4
 //
-//  23AUG2017_17:07:34.814 38510 140675422017312 WARN ball_logthrottle.t.cpp
-//  464 RADIATION.MONITOR Warning radiation reading of 43.9
+//  24APR2018_16:36:24.203 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
+//  481 RADIATION.MONITOR Radiation reading of 43.9
 //
-//  23AUG2017_17:07:34.915 38510 140675422017312 WARN ball_logthrottle.t.cpp
-//  464 RADIATION.MONITOR Warning radiation reading of 53.3
+//  24APR2018_16:36:24.304 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
+//  481 RADIATION.MONITOR Radiation reading of 53.3
 //
-//  23AUG2017_17:07:35.016 38510 140675422017312 FATAL ball_logthrottle.t.cpp
-//  446 RADIATION.MONITOR Fatal radiation reading of 98.2
+//  24APR2018_16:36:24.404 61260 139907579877152 WARN ball_logthrottle.t.cpp
+//  468 RADIATION.MONITOR Serious Radiation reading of 98.2
 //
-//  23AUG2017_17:07:35.318 38510 140675422017312 ERROR ball_logthrottle.t.cpp
-//  455 RADIATION.MONITOR Error radiation reading of 77.3
+//  24APR2018_16:36:24.706 61260 139907579877152 INFO ball_logthrottle.t.cpp
+//  474 RADIATION.MONITOR Radiation reading of 77.3
 //
-//  23AUG2017_17:07:36.124 38510 140675422017312 ERROR ball_logthrottle.t.cpp
-//  455 RADIATION.MONITOR Error radiation reading of 72.9
+//  24APR2018_16:36:25.513 61260 139907579877152 INFO ball_logthrottle.t.cpp
+//  474 RADIATION.MONITOR Radiation reading of 72.9
 //
-//  23AUG2017_17:07:36.426 38510 140675422017312 ERROR ball_logthrottle.t.cpp
-//  455 RADIATION.MONITOR Error radiation reading of 71.2
+//  24APR2018_16:36:25.816 61260 139907579877152 INFO ball_logthrottle.t.cpp
+//  474 RADIATION.MONITOR Radiation reading of 71.2
 //
-//  23AUG2017_17:07:36.529 38510 140675422017312 FATAL ball_logthrottle.t.cpp
-//  446 RADIATION.MONITOR Fatal radiation reading of 92.4
+//  24APR2018_16:36:25.918 61260 139907579877152 WARN ball_logthrottle.t.cpp
+//  468 RADIATION.MONITOR Serious Radiation reading of 92.4
 //
-//  23AUG2017_17:07:38.041 38510 140675422017312 DEBUG ball_logthrottle.t.cpp
-//  477 RADIATION.MONITOR Finished gathering data.
+//  24APR2018_16:36:27.429 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
+//  493 RADIATION.MONITOR Finished gathering data.
 //..
-// Note that 8 'INFO' messages and 8 'WARN' messages were suppressed by the
+// Note that 8 'TRACE' messages and 8 'DEBUG' messages were suppressed by the
 // throttling.
 //
+///Example 2: 'BLOCK-Style' Throttling Macro Usage
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Here, we just repeat exactly the same code, using the 'BLOCK'-style
+// throttling macros instead of the 'stream'-style throttling macros:
 //..
-///Example 2: A 'printf'-Style Macro Usage
-///- - - - - - - - - - - - - - - - - - - -
-// Here, we just repeat exactly the same code, using the 'printf'-style macros
-// instead of the 'stream'-style macros:
-//..
-    void radiationMonitorPrintfDaemon()
+    void radiationMonitorBlockDaemon()
         // Daemon to run the radiation monitor for a finite period of time.
     {
         BALL_LOG_SET_CATEGORY("RADIATION.MONITOR");
-//
-        enum {
-            k_SECOND_NS = 1000 * 1000 * 1000,
-            k_NUM_ERROR = 20,
-            k_NUM_WARN  =  5,
-            k_NUM_INFO  =  1 };
-//
-        const Int64 k_HOUR = 60LL * 60 * k_SECOND_NS; // an hour in nanoseconds
 //
         RadiationMeterReceiver receiver;
 //
@@ -587,41 +583,101 @@ double RadiationMeterReceiver::yield()
 // First, we deal with 'fatal' messages:
 //..
             if      (90 < reading) {
-                BALL_LOGVA_FATAL("Fatal radiation reading of %g", reading);
+                BALL_LOG_WARN << "Serious radiation reading of " << reading;
             }
 //..
 // Next, we deal with 'error' messages that aren't as severe as 'fatal':
 //..
             else if (60 < reading) {
-                BALL_LOGTHROTTLEVA_ERROR(
-                                     k_NUM_ERROR,
-                                     k_HOUR,
-                                     "Error radiation reading of %g", reading);
+                BALL_LOGTHROTTLE_INFO_BLOCK(k_NUM_INFO, k_HOUR) {
+                    BALL_LOG_OUTPUT_STREAM <<
+                                            "Radiation reading of " << reading;
+                }
             }
 //..
 // Now, we deal with 'warning' messages less severe than 'error' readings:
 //..
             else if (30 < reading) {
-                BALL_LOGTHROTTLEVA_WARN(
-                                   k_NUM_WARN,
+                BALL_LOGTHROTTLE_DEBUG_BLOCK(k_NUM_DEBUG, k_HOUR) {
+                    BALL_LOG_OUTPUT_STREAM <<
+                                            "Radiation reading of " << reading;
+                }
+            }
+//..
+// Finally, we deal with 'info' messages less severe than 'warning' readings.
+// Note that in the above two output statements there was only one statement
+// in the block, so we can just replace the block with a single statement,
+// which we'll do this time.
+//..
+            else if (10 < reading) {
+                BALL_LOGTHROTTLE_TRACE_BLOCK(k_NUM_TRACE, k_HOUR)
+                         BALL_LOG_OUTPUT_STREAM << "Radiation reading of "
+                                                                    << reading;
+            }
+        }
+
+        BALL_LOG_DEBUG << "Finished gathering data.";
+    }
+//..
+// If the values returned by 'receiver.yield()' match those from Usage Example
+// 1, then the output will be identical to that example.
+//..
+///Example 3: 'printf-Style' Throttling Macro Usage
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// Here, we just repeat exactly the same code, using the 'printf'-style
+// throttling macros:
+//..
+    void radiationMonitorPrintfDaemon()
+        // Daemon to run the radiation monitor for a finite period of time.
+    {
+        BALL_LOG_SET_CATEGORY("RADIATION.MONITOR");
+//
+        RadiationMeterReceiver receiver;
+//
+        BALL_LOGVA_DEBUG("Start gathering data.");
+
+        double reading;
+        while (-1.0 != (reading = receiver.yield())) {
+//..
+// First, we deal with 'fatal' messages:
+//..
+            if      (90 < reading) {
+                BALL_LOGVA_WARN("Serious radiation reading of %g", reading);
+            }
+//..
+// Next, we deal with 'error' messages that aren't as severe as 'fatal':
+//..
+            else if (60 < reading) {
+                BALL_LOGTHROTTLEVA_INFO(
+                                     k_NUM_INFO,
+                                     k_HOUR,
+                                     "Radiation reading of %g", reading);
+            }
+//..
+// Now, we deal with 'warning' messages less severe than 'error' readings:
+//..
+            else if (30 < reading) {
+                BALL_LOGTHROTTLEVA_DEBUG(
+                                   k_NUM_DEBUG,
                                    k_HOUR,
-                                   "Warning radiation reading of %g", reading);
+                                   "Radiation reading of %g", reading);
             }
 //..
 // Finally, we deal with 'info' messages less severe than 'warning' readings:
 //..
             else if (10 < reading) {
-                BALL_LOGTHROTTLEVA_INFO(
-                                      k_NUM_INFO,
+                BALL_LOGTHROTTLEVA_TRACE(
+                                      k_NUM_TRACE,
                                       k_HOUR,
-                                      "Info radiation reading of %g", reading);
+                                      "Radiation reading of %g", reading);
             }
         }
 
         BALL_LOGVA_DEBUG("Finished gathering data.");
     }
 //..
-// The output would be identical to the output produced by usage example 1.
+// If the values returned by 'receiver.yield()' match those from Usage Example
+// 1, then the output will be identical to that example.
 
 }  // close namespace Usage
 
@@ -935,7 +991,7 @@ int main(int argc, char *argv[])
     TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // PRINTF-BASED USAGE EXAMPLE
         //
@@ -967,10 +1023,45 @@ int main(int argc, char *argv[])
                                 BloombergLP::ball::Severity::e_TRACE,
                                 0,
                                 0);
-//                                BloombergLP::ball::Severity::e_TRACE,
-//                                BloombergLP::ball::Severity::e_TRACE);
 
         Usage::radiationMonitorPrintfDaemon();
+
+        if (veryVerbose) cout << oss.str();
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // BLOCK-BASED USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 Demonstrate the usage of the block-based macros.
+        //
+        // Plan:
+        //: 2 Demonstrate and execute
+        //
+        // Testing:
+        //   BLOCK-BASED USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "BLOCK-BASED USAGE EXAMPLE\n"
+                             "==========================\n";
+
+        bsl::ostringstream oss;
+        BloombergLP::ball::StreamObserver sobs(&oss);
+
+        BloombergLP::ball::LoggerManagerConfiguration lmc;
+        BloombergLP::ball::LoggerManagerScopedGuard lmg(&sobs, lmc, &ta);
+
+        // Re "sieve" category: (1) if recorded, then also published;
+        // (2) never triggered.
+
+        BloombergLP::ball::Administration::addCategory(
+                                "RADIATION.MONITOR",
+                                BloombergLP::ball::Severity::e_TRACE,
+                                BloombergLP::ball::Severity::e_TRACE,
+                                0,
+                                0);
+
+        Usage::radiationMonitorBlockDaemon();
 
         if (veryVerbose) cout << oss.str();
       } break;
@@ -1006,8 +1097,6 @@ int main(int argc, char *argv[])
                                 BloombergLP::ball::Severity::e_TRACE,
                                 0,
                                 0);
-//                                BloombergLP::ball::Severity::e_TRACE,
-//                                BloombergLP::ball::Severity::e_TRACE);
 
         Usage::radiationMonitorStreamDaemon();
 
@@ -1220,7 +1309,7 @@ int main(int argc, char *argv[])
         enum { k_NUM_LEVELS = sizeof levels / sizeof *levels };
 
         enum { k_MSM = 5,                   // max simultaneous messages
-               k_NPM = 10 * 1000 * 1000 };  // nanosecondss per message
+               k_NPM = 10 * 1000 * 1000 };  // nanoseconds per message
 
         const double betweenTrialsTime = 1e-9 * 2   * k_MSM * k_NPM;
         const double attemptTime       = 1e-9 * 0.5 * k_NPM;
