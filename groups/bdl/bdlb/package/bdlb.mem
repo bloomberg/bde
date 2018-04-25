@@ -27,4 +27,5 @@ bdlb_stringrefutil
 bdlb_testinputiterator
 bdlb_tokenizer
 bdlb_topologicalsortutil
+bdlb_transformiterator
 bdlb_variant
