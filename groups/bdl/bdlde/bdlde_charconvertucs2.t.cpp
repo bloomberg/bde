@@ -10,17 +10,21 @@
 
 #include <bdlde_charconvertucs2.h>
 
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
+
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 
-#include <bsls_stopwatch.h>
-
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
 
 //=============================================================================
 //                                TEST PLAN
@@ -101,6 +105,8 @@ static void aSsErT(int c, const char *s, int i)
 // ============================================================================
 //                           CUSTOM TEST APPARATUS
 // ----------------------------------------------------------------------------
+
+bslma::Allocator& ta = bslma::NewDeleteAllocator::singleton();
 
 // 'ArrayPrinter(pointer, length)' simplifies printing out array values from
 // LOOP_ASSERT failures.
@@ -343,7 +349,7 @@ void loadUCS2Hello(bsl::vector<unsigned short> *result)
 //..
 void checkCppRoundTrip()
 {
-    bsl::vector<unsigned short> result;
+    bsl::vector<unsigned short> result(&ta);
 
     // "&Eacute;cole", the French word for School.  '&Eacute;' is the HTML
     // entity corresponding to "Unicode-E WITH ACUTE, LATIN CAPITAL LETTER"
@@ -360,7 +366,7 @@ void checkCppRoundTrip()
     ASSERT( 0   == result[5]);
     ASSERT( 6   == result.size());
 
-    bsl::string    result2;
+    bsl::string    result2(&ta);
     bsl::size_t    charsWritten = 0;
 
     // Reversing the conversion returns the original string:
@@ -382,15 +388,11 @@ void checkCppRoundTrip()
 //..
 // In this example, a UTF-8 input string is converted then returned.
 //..
-bsl::vector<unsigned short> processUtf8(const bsl::string &strU8)
+void processUtf8(bsl::vector<unsigned short> *result, const bsl::string &strU8)
+
 {
-    bsl::vector<unsigned short> result;
-
-    BloombergLP::bdlde::CharConvertUcs2::utf8ToUcs2(&result, strU8.c_str());
-
-    return result;
+    BloombergLP::bdlde::CharConvertUcs2::utf8ToUcs2(result, strU8.c_str());
 }
-
 
 
 // Enumeration of the return codes expected from the functions being tested.
@@ -558,7 +560,7 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                      makeArrayPrinter(expected_output, bytesWritten),
                      0 == strcmp(outputBuffer, expected_output));
 
-    bsl::string  cppOutput;
+    bsl::string  cppOutput(&ta);
     bsl::size_t  cppCharsWritten = 0;
 
     retVal = bdlde::CharConvertUcs2::ucs2ToUtf8(
@@ -1170,7 +1172,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
                                  expected_output,
                                  charsWritten * sizeof *outputBuffer));
 
-    bsl::vector<unsigned short> cppOutput;
+    bsl::vector<unsigned short> cppOutput(&ta);
     retVal = bdlde::CharConvertUcs2::utf8ToUcs2(&cppOutput,
                                                input);
     bsl::size_t cppCharsWritten = cppOutput.size();
@@ -2469,8 +2471,8 @@ int runPlainTextPerformanceTest(void)
     delete [] utf8Buffer_p;
     delete [] ucs2Buffer_p;
 
-    bsl::string                 cppPrideUtf8;
-    bsl::vector<unsigned short> cppPrideUcs2;
+    bsl::string                 cppPrideUtf8(&ta);
+    bsl::vector<unsigned short> cppPrideUcs2(&ta);
 
     s.reset();
     s.start();
@@ -2525,11 +2527,16 @@ int runPlainTextPerformanceTest(void)
 
 int main(int argc, char**argv)
 {
-    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int     verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int                test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int             verbose = argc > 2;
+    int         veryVerbose = argc > 3;
+    int     veryVeryVerbose = argc > 4;    (void) veryVeryVerbose;
+    int veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 7: {
@@ -2546,7 +2553,7 @@ int main(int argc, char**argv)
         //   USAGE EXAMPLE 3
         // --------------------------------------------------------------------
 
-        bsl::vector<unsigned short> result;
+        bsl::vector<unsigned short> result(&ta);
         loadUCS2Hello(&result);
         ASSERT('H' == result[0]);
         ASSERT('e' == result[1]);
@@ -2557,8 +2564,8 @@ int main(int argc, char**argv)
 
         checkCppRoundTrip();
 
-        bsl::string source ="\xc3\x89" "cole";
-        result = processUtf8(source);
+        bsl::string source("\xc3\x89" "cole", &ta);
+        processUtf8(&result, source);
         ASSERT(0xc9 == result[0]); // Unicode-E WITH ACUTE, LATIN CAPITAL
                                    // LETTER
         ASSERT('c'  == result[1]);
@@ -2583,7 +2590,11 @@ int main(int argc, char**argv)
         // --------------------------------------------------------------------
 
         testCFunction2();
+
+        bsl::string str(&ta);
+
         processUtf8("");
+        str.clear();
         processUtf8("\x01\x20\x7f\xc3\xbf\xdf\xbf\xe0\xa0\x80\xef\xbf\xbf");
       } break;
 
@@ -2794,7 +2805,7 @@ int main(int argc, char**argv)
                 }
 
                 if (OK == RETURN) {
-                    bsl::string cppResult;
+                    bsl::string cppResult(&ta);
 
                     int retVal = bdlde::CharConvertUcs2::ucs2ToUtf8(
                                           &cppResult,
@@ -3182,7 +3193,7 @@ int main(int argc, char**argv)
 
                 unsigned short              results[256] = {0};
                 bsl::size_t                 charsWritten = -1;
-                bsl::vector<unsigned short> cppResult;
+                bsl::vector<unsigned short> cppResult(&ta);
 
                 int retVal = bdlde::CharConvertUcs2::utf8ToUcs2(
                                       results,
@@ -3278,7 +3289,7 @@ int main(int argc, char**argv)
                                         = sizeof results / sizeof *results;
                     bsl::size_t   charsWritten = -1;
 
-                    bsl::vector<unsigned short> cppResult;
+                    bsl::vector<unsigned short> cppResult(&ta);
 
                     int           expectedRetVal = INVALID_INPUT_CHARACTER;
 
@@ -3457,6 +3468,14 @@ int main(int argc, char**argv)
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
+    }
+
+    bsls::Types::Int64 numAllocations = da.numAllocations();
+    LOOP_ASSERT(numAllocations, 0 == numAllocations);
+
+    if (testStatus > 0) {
+        bsl::cerr << "Error, non-zero test status = " << testStatus << "."
+                  << bsl::endl;
     }
 
     return testStatus;
