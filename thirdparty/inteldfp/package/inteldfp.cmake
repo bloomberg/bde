@@ -448,5 +448,13 @@ function(inteldfp_process_standalone_package retUOR listFile installOpts)
     )
     standalone_package_install(${uor} ${listFile} ${installOpts})
 
+    # Meta data install
+    install(
+        DIRECTORY ${listDir}
+        COMPONENT "${component}-meta"
+        DESTINATION "share/bdemeta/thirdparty/${component}"
+        EXCLUDE_FROM_ALL
+    )
+
     bde_return(${uor})
 endfunction()
