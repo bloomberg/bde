@@ -861,8 +861,8 @@ static void* decrementUint64TestThread(void *ptr)
     Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
 
     args->d_mutex.lock();
-    args->d_startSig.signal();
     args->d_countStarted++;
+    args->d_startSig.signal();
     args->d_mutex.unlock();
 
     args->d_barrier.wait();
