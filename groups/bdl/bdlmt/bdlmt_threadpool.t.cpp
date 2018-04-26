@@ -28,6 +28,7 @@
 
 #include <bdlt_currenttime.h> // For test only
 #include <bslmt_barrier.h>    // For test only
+#include <bslmt_latch.h>    // For test only
 #include <bslmt_lockguard.h>  // For test only
 #include <bslmt_threadattributes.h>     // For test only
 #include <bslmt_threadutil.h>     // For test only
@@ -175,7 +176,7 @@ struct TestJobFunctionArgs1 {
 extern "C" {
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
-void TestSynchronousSignals(void *ptr)
+void TestSynchronousSignals(void *)
 {
     sigset_t blockedSet;
     sigemptyset(&blockedSet);
@@ -361,7 +362,7 @@ namespace THREADPOOL_USAGE_EXAMPLE {
         if (file) {
             char  buffer[1024];
             size_t nread;
-            int wordLen = job->d_word->length();
+            size_t wordLen = job->d_word->length();
             const char *word = job->d_word->c_str();
 
             nread = fread(buffer, 1, sizeof(buffer) - 1, file);
@@ -479,7 +480,7 @@ namespace THREADPOOL_USAGE_EXAMPLE {
         if (file) {
             char  buffer[1024];
             size_t nread;
-            int wordLen = job->d_word->length();
+            size_t wordLen = job->d_word->length();
             const char *word = job->d_word->c_str();
 
             nread = fread(buffer, 1, sizeof(buffer) - 1, file);
@@ -559,6 +560,39 @@ namespace THREADPOOL_USAGE_EXAMPLE {
 // ----------------------------------------------------------------------------
 
 namespace case14 {
+                            // ===================
+                            // OnceBlockingFunctor
+                            // ===================
+class OnceBlockingFunctor {
+    // A thread-safe functor that blocks in its 'operator()' until its latches
+    // 'arrive' method is called.
+
+  private:
+    // CLASS DATA
+    bslmt::Latch *d_latch_p;
+
+  public:
+    // CREATORS
+    OnceBlockingFunctor(bslmt::Latch *latch);
+        // Create a 'OnceBlockingFunctor' object that uses the specified
+        // 'latch'.
+
+    // ACCESSORS
+    void operator()();
+        // Block until 'arrive' is called on the latch.
+};
+
+// CREATORS
+OnceBlockingFunctor::OnceBlockingFunctor(bslmt::Latch *latch)
+: d_latch_p(latch)
+{
+}
+
+// ACCESSORS
+void OnceBlockingFunctor::operator()()
+{
+    d_latch_p->wait();
+}
 
                             // ===================
                             // CopyCountingFunctor
@@ -642,6 +676,7 @@ CopyCountingFunctor& CopyCountingFunctor::operator=(
 // ACCESSORS
 void CopyCountingFunctor::operator()()
 {
+    (void)foo; // To avoid warning of unused field.
 }
 
 }  // close namespace case14
@@ -676,7 +711,7 @@ bsls::AtomicInt depthCounter;
 
 extern "C" {
 
-void TestJobFunction7(void *ptr)
+void TestJobFunction7(void *)
     // This function is used to simulate a thread pool job.  It enqueues itself
     // in the pool if the depth limit is not reached.
 {
@@ -748,7 +783,7 @@ int testTimingJobFunction(const int N)
     for (int i = 0; i < N; ++i) {
         result = 1 / (1 + result);
     }
-    return result;
+    return static_cast<int>(result);
 }
 
 // ============================================================================
@@ -801,51 +836,61 @@ int main(int argc, char *argv[])
             cout << "TESTING MOVING ENQUEUEJOB METHOD" << endl
                  << "================================" << endl;
 
-        {
-            enum {
-                NUM_ITERATIONS = 1000,
-                MIN_THREADS    = 1,
-                MAX_THREADS    = 10000, // should not matter
-                IDLE_TIME      = 0
+        enum {
+            MIN_THREADS    = 1, // must be 1 for the blocking to work
+            MAX_THREADS    = 1, // must be 1 for the blocking to work
+            IDLE_TIME      = 0
+        };
 
-            };
-            bslmt::ThreadAttributes attributes;
-            Obj                     mX(attributes,
-                                       MIN_THREADS,
-                                       MAX_THREADS,
-                                       IDLE_TIME,
-                                       &testAllocator);
-            mX.start();
+        bslmt::Latch latch(1); // The latch has to outlive the pool
+        bslmt::ThreadAttributes attributes;
+        Obj                     mX(attributes,
+                                   MIN_THREADS,
+                                   MAX_THREADS,
+                                   IDLE_TIME,
+                                   &testAllocator);
+        mX.start();
 
-            int counter = 0;
+        // Stop the pool from running jobs until we are done with the
+        // counting of copies, otherwise race conditions will arise.
 
-            case14::CopyCountingFunctor f(&counter);
+        case14::OnceBlockingFunctor blocker(&latch);
+        ASSERT(0 == mX.enqueueJob(blocker));
 
-            LOOP_ASSERT(counter, 0 == counter);
+        // Counter to count the number of copies made of the functor.
 
-            Obj::Job job(bsl::allocator_arg_t(), &testAllocator, f);
+        int counter = 0;
 
-            LOOP_ASSERT(counter, counter > 0);
+        case14::CopyCountingFunctor f(&counter);
 
-            const int buildCopyCounter = counter;
+        LOOP_ASSERT(counter, 0 == counter);  // Sanity check
 
-            counter = 0;
+        Obj::Job job(bsl::allocator_arg_t(), &testAllocator, f);
 
-            ASSERT(0 == mX.enqueueJob(bslmf::MovableRefUtil::move(job)));
-
-            LOOP_ASSERT(counter, 0 == counter);
+        LOOP_ASSERT(counter, counter > 0);  // We had copies made
 
 #ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
-            // Moving of rvalues are only supported in C++11 mode.
-
-            ASSERT(0 == mX.enqueueJob(Obj::Job(bsl::allocator_arg_t(),
-                                          &testAllocator,
-                                          f)));
-
-            LOOP2_ASSERT(buildCopyCounter, counter,
-                         buildCopyCounter == counter);
+        const int buildCopyCounter = counter;
+            // This is how many copies it takes to build a 'Job'.
 #endif
-        }
+
+        counter = 0;  // Count again
+
+        ASSERT(0 == mX.enqueueJob(bslmf::MovableRefUtil::move(job)));
+
+        LOOP_ASSERT(counter, 0 == counter);  // Mustn't have made copies
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+        // Moving of rvalues are only supported in C++11 mode.
+
+        ASSERT(0 == mX.enqueueJob(Obj::Job(bsl::allocator_arg_t(),
+                                  &testAllocator,
+                                  f)));
+
+        LOOP2_ASSERT(buildCopyCounter, counter,    // Only made the copies
+                     buildCopyCounter == counter); // needed for construction.
+#endif
+        latch.arrive();
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -1283,7 +1328,8 @@ int main(int argc, char *argv[])
 
             // (Allow 30% tolerance)
 
-            duration += duration * 0.3;
+            duration += static_cast<bsls::Types::Int64>(
+                                          static_cast<double>(duration) * 0.3);
 
             if (veryVerbose) {
                 T_ P_(t1) P_(t2) P(duration)
@@ -1292,7 +1338,7 @@ int main(int argc, char *argv[])
             // This suspends for AT LEAST duration... one millisecond has 1000
             // microseconds.
 
-            bslmt::ThreadUtil::microSleep(duration * 1000);
+            bslmt::ThreadUtil::microSleep(static_cast<int>(duration * 1000));
             bslmt::ThreadUtil::yield();
             ASSERT(BURST == x.numActiveThreads());
 
