@@ -51,7 +51,13 @@ struct PipeUtil {
         // Load into the specified 'pipeName' the system-dependent canonical
         // pipe name corresponding to the specified 'baseName'.  Return 0 on
         // success, and a nonzero value if 'baseName' cannot be part of a pipe
-        // name on this system.
+        // name on this system.  On Unix systems, if 'baseName' is not a full
+        // path name, the canonical name will be prefixed with the directory
+        // specified by the 'SOCKDIR' environment variable if it is set,
+        // otherwise with the directory specified by the 'TMPDIR' environment
+        // variable if it is set, and otherwise by the current directory.  On
+        // Windows systems, if 'baseName' is not a full path name, the
+        // canonical name will be prefixed with "\\.\pipe\".
 
     static int send(const bslstl::StringRef& pipeName,
                     const bslstl::StringRef& message);
