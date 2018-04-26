@@ -166,7 +166,7 @@ BSLS_IDENT("$Id: $")
 //       if (file) {
 //           char  buffer[1024];
 //           size_t nread;
-//           int wordLen = job->d_word->length();
+//           size_t wordLen = job->d_word->length();
 //           const char *word = job->d_word->c_str();
 //
 //           nread = fread(buffer, 1, sizeof(buffer) - 1, file);
@@ -276,7 +276,7 @@ BSLS_IDENT("$Id: $")
 //      if (file) {
 //          char  buffer[1024];
 //          size_t nread;
-//          int wordLen = job->d_word->length();
+//          size_t wordLen = job->d_word->length();
 //          const char *word = job->d_word->c_str();
 //
 //          nread = fread(buffer, 1, sizeof(buffer) - 1, file);
