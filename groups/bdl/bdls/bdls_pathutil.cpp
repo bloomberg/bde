@@ -49,29 +49,6 @@ bool isSeparator(char ch)
 #endif
 }
 
-                               // ===========
-                               // IsSeparator
-                               // ===========
-
-struct IsSeparator {
-    // This struct is a predicate functor for finding path separators.
-
-    // ACCESSORS
-    bool operator()(char ch) const;
-        // Return 'true' if the specified 'ch' character is a path separator;
-        // and return 'false' otherwise.
-};
-
-                               // -----------
-                               // IsSeparator
-                               // -----------
-
-bool IsSeparator::operator()(char ch) const
-{
-    return isSeparator(ch);
-}
-
-
 static
 void findFirstNonSeparatorChar(size_t     *resultOffset,
                                const char *path,
@@ -129,7 +106,7 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
 
         const char *rootNameEndPtr = bsl::find_if(path + 3,
                                                   path + length,
-                                                  IsSeparator());
+                                                  &isSeparator);
 
         if (rootNameEndPtr != path + length) {
             ++rootNameEndPtr;
@@ -138,7 +115,7 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
 
         const char *resultOffsetPtr = bsl::find_if(path + rootNameEnd,
                                                    path + length,
-                                                   IsSeparator());
+                                                   &isSeparator);
         if (resultOffsetPtr != path + length) {
             ++resultOffsetPtr;
         }
@@ -162,7 +139,7 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
             const char *rootNameEndPtr =
                  bsl::find_if(path + UNCW_UNCPREFIXLEN,
                               path + length,
-                              IsSeparator());
+                              &isSeparator);
 
             if (rootNameEndPtr != path + length) {
                 ++rootNameEndPtr;
@@ -171,7 +148,7 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
 
             const char *resultOffsetPtr = bsl::find_if(path + rootNameEnd,
                                                        path + length,
-                                                       IsSeparator());
+                                                       &isSeparator);
             if (resultOffsetPtr != path + length) {
                 ++resultOffsetPtr;
             }
