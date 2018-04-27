@@ -454,6 +454,8 @@ inline EqualityTester::~EqualityTester()
 void testCase##NUMBER(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
 DEFINE_TEST_CASE(19) {
+        (void)veryVeryVerbose;
+
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -2265,7 +2267,7 @@ DEFINE_TEST_CASE(17) {
 
                 const Obj W(g(SPEC), &testAllocator);
                 Obj mX(W, &testAllocator); const Obj &X = mX;
-                const int BT = testAllocator.numBytesTotal();
+                const bsls::Types::Int64 BT = testAllocator.numBytesTotal();
                 {
                    // Verify that X does not change after exceptions in
                    // reserveCapacity by comparing it to the control W.
@@ -2277,8 +2279,8 @@ DEFINE_TEST_CASE(17) {
                 LOOP_ASSERT(LINE, W == X);
 
                 // Memory allocated should be as specified.
-                const int expAlloc = (testAllocator.numBytesTotal() -
-                                      BT) / sizeof(Element);
+                const bsls::Types::Int64 expAlloc =
+                        (testAllocator.numBytesTotal() - BT) / sizeof(Element);
                 if (veryVerbose) {
                   cout << "\t\t\t"; P(expAlloc);
                 }
@@ -5635,8 +5637,9 @@ DEFINE_TEST_CASE(10) {
                                                                testAllocator) {
                           BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
                             in.reset();
-                            const int V_N = EXTEND[vj];
-                            const int AL = testAllocator.allocationLimit();
+                            const int                V_N = EXTEND[vj];
+                            const bsls::Types::Int64 AL  =
+                                               testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
             //--------------^
             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, in);
@@ -5772,7 +5775,8 @@ DEFINE_TEST_CASE(10) {
                 if (i < LOD1) {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) { in.reset();
-                    const int AL = testAllocator.allocationLimit();
+                    const bsls::Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
                     t1 = X1;
@@ -5793,7 +5797,8 @@ DEFINE_TEST_CASE(10) {
                 else if (i < LOD2) {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) { in.reset();
-                    const int AL = testAllocator.allocationLimit();
+                    const bsls::Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
                     t1 = X1;
@@ -5814,7 +5819,8 @@ DEFINE_TEST_CASE(10) {
                 else {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) { in.reset();
-                    const int AL = testAllocator.allocationLimit();
+                    const bsls::Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == in.isEmpty());
                     t1 = X1;
@@ -5997,7 +6003,8 @@ DEFINE_TEST_CASE(9) {
 
                           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
-                            const int AL = testAllocator.allocationLimit();
+                            const bsls::Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
 
                             Obj mU(&testAllocator); stretchRemoveAll(&mU, U_N);
@@ -6067,7 +6074,8 @@ DEFINE_TEST_CASE(9) {
 
                 for (int tj = 0; tj < NUM_EXTEND; ++tj) {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    const int AL = testAllocator.allocationLimit();
+                    const bsls::Types::Int64 AL =
+                                               testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
                     const int N = EXTEND[tj];
@@ -6135,11 +6143,15 @@ DEFINE_TEST_CASE(8) {
                 cout << "\t g = " << g(spec) << endl;
                 cout << "\tgg = " << X       << endl;
             }
-            const int TOTAL_BLOCKS_BEFORE = testAllocator.numBlocksTotal();
-            const int IN_USE_BYTES_BEFORE = testAllocator.numBytesInUse();
+            const bsls::Types::Int64 TOTAL_BLOCKS_BEFORE =
+                                                testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 IN_USE_BYTES_BEFORE =
+                                                 testAllocator.numBytesInUse();
             LOOP_ASSERT(ti, X == g(spec));
-            const int TOTAL_BLOCKS_AFTER = testAllocator.numBlocksTotal();
-            const int IN_USE_BYTES_AFTER = testAllocator.numBytesInUse();
+            const bsls::Types::Int64 TOTAL_BLOCKS_AFTER  =
+                                                testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 IN_USE_BYTES_AFTER  =
+                                                 testAllocator.numBytesInUse();
             LOOP_ASSERT(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
             LOOP_ASSERT(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
         }
@@ -7066,24 +7078,30 @@ DEFINE_TEST_CASE(3) {
 
                 // Create identical objects using the gg function.
                 {
-                    int blocks1A = testAllocator.numBlocksTotal();
-                    int bytes1A = testAllocator.numBytesInUse();
+                    bsls::Types::Int64 blocks1A =
+                                                testAllocator.numBlocksTotal();
+                    bsls::Types::Int64 bytes1A  =
+                                                 testAllocator.numBytesInUse();
 
                     gg(&mX, SPEC);
 
-                    int blocks2A = testAllocator.numBlocksTotal();
-                    int bytes2A = testAllocator.numBytesInUse();
+                    bsls::Types::Int64 blocks2A =
+                                                testAllocator.numBlocksTotal();
+                    bsls::Types::Int64 bytes2A  =
+                                                 testAllocator.numBytesInUse();
 
                     gg(&mY, SPEC);
 
-                    int blocks3A = testAllocator.numBlocksTotal();
-                    int bytes3A = testAllocator.numBytesInUse();
+                    bsls::Types::Int64 blocks3A =
+                                                testAllocator.numBlocksTotal();
+                    bsls::Types::Int64 bytes3A  =
+                                                 testAllocator.numBytesInUse();
 
-                    int blocks12A = blocks2A - blocks1A;
-                    int bytes12A = bytes2A - bytes1A;
+                    bsls::Types::Int64 blocks12A = blocks2A - blocks1A;
+                    bsls::Types::Int64 bytes12A = bytes2A - bytes1A;
 
-                    int blocks23A = blocks3A - blocks2A;
-                    int bytes23A = bytes3A - bytes2A;
+                    bsls::Types::Int64 blocks23A = blocks3A - blocks2A;
+                    bsls::Types::Int64 bytes23A = bytes3A - bytes2A;
 
                     if (veryVerbose) { P_(bytes12A);  P_(bytes23A);
                                        P_(blocks12A); P(blocks23A); }
@@ -7100,24 +7118,30 @@ DEFINE_TEST_CASE(3) {
                 // Apply both functions under test to the respective objects.
                 {
 
-                    int blocks1B = testAllocator.numBlocksTotal();
-                    int bytes1B = testAllocator.numBytesInUse();
+                    bsls::Types::Int64 blocks1B =
+                                                testAllocator.numBlocksTotal();
+                    bsls::Types::Int64 bytes1B  =
+                                                 testAllocator.numBytesInUse();
 
                     stretch(&mX, size);
 
-                    int blocks2B = testAllocator.numBlocksTotal();
-                    int bytes2B = testAllocator.numBytesInUse();
+                    bsls::Types::Int64 blocks2B =
+                                                testAllocator.numBlocksTotal();
+                    bsls::Types::Int64 bytes2B  =
+                                                 testAllocator.numBytesInUse();
 
                     stretchRemoveAll(&mY, size);
 
-                    int blocks3B = testAllocator.numBlocksTotal();
-                    int bytes3B = testAllocator.numBytesInUse();
+                    bsls::Types::Int64 blocks3B =
+                                                testAllocator.numBlocksTotal();
+                    bsls::Types::Int64 bytes3B  =
+                                                 testAllocator.numBytesInUse();
 
-                    int blocks12B = blocks2B - blocks1B;
-                    int bytes12B = bytes2B - bytes1B;
+                    bsls::Types::Int64 blocks12B = blocks2B - blocks1B;
+                    bsls::Types::Int64 bytes12B = bytes2B - bytes1B;
 
-                    int blocks23B = blocks3B - blocks2B;
-                    int bytes23B = bytes3B - bytes2B;
+                    bsls::Types::Int64 blocks23B = blocks3B - blocks2B;
+                    bsls::Types::Int64 bytes23B = bytes3B - bytes2B;
 
                     if (veryVerbose) { P_(bytes12B);  P_(bytes23B);
                                        P_(blocks12B); P(blocks23B); }
