@@ -1283,8 +1283,10 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
 
                 stretchRemoveAll(&x, STRETCH_SIZE);
 
-                const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
 
                 if (veryVerbose) cout << "\t\tinsert(di, sa, si, ne)" << endl;
                 {
@@ -1990,8 +1992,10 @@ DEFINE_TEST_CASE(18) { // TBD doc here and above
 
                 stretchRemoveAll(&x, STRETCH_SIZE);
 
-                const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
 
                 if (veryVerbose) cout << "\t\tinsert(di, sa, si, ne)" << endl;
                 {
@@ -2127,8 +2131,10 @@ DEFINE_TEST_CASE(17) {
                 const Obj::InitialCapacity NE(ne);
                 Obj mX(NE, &testAllocator);  const Obj &X = mX;
                 LOOP_ASSERT(ne, W == X);
-                const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                 if (veryVerbose) P_(X);
                 for (int i = 0; i < ne; ++i) {
                     mX.append(V0);
@@ -2278,8 +2284,10 @@ DEFINE_TEST_CASE(17) {
                 }
                 LOOP_ASSERT(LINE, expAlloc == ALLOC);
 
-                const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
 
                 if (veryVerbose) P_(X);
                 for (int i = X.length(); i < NE; ++i) {
@@ -2306,8 +2314,10 @@ DEFINE_TEST_CASE(17) {
                 Obj mX(W, &testAllocator);  const Obj &X = mX;
                 mX.reserveCapacityRaw(NE);
                 LOOP_ASSERT(LINE, W == X);
-                const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
                 if (veryVerbose) P_(X);
                 for (int i = X.length(); i < NE; ++i) {
                     mX.append(V0);
@@ -3045,8 +3055,10 @@ DEFINE_TEST_CASE(14) {
 
                 stretchRemoveAll(&x, STRETCH_SIZE);
 
-                const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
 
                 if (veryVerbose) cout << "\t\treplace(di, sa, si, ne)" << endl;
                 {
@@ -4265,8 +4277,10 @@ DEFINE_TEST_CASE(13) {
 
                 stretchRemoveAll(&x, STRETCH_SIZE);
 
-                const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
 
                 if (veryVerbose) cout << "\t\tinsert(di, sa, si, ne)" << endl;
                 {
@@ -4971,8 +4985,10 @@ DEFINE_TEST_CASE(13) {
 
                 stretchRemoveAll(&x, STRETCH_SIZE);
 
-                const int NUM_BLOCKS = testAllocator.numBlocksTotal();
-                const int NUM_BYTES  = testAllocator.numBytesInUse();
+                const bsls::Types::Int64 NUM_BLOCKS =
+                                                testAllocator.numBlocksTotal();
+                const bsls::Types::Int64 NUM_BYTES  =
+                                                 testAllocator.numBytesInUse();
 
                 if (veryVerbose) cout << "\t\tinsert(di, sa, si, ne)" << endl;
                 {
@@ -7277,12 +7293,12 @@ DEFINE_TEST_CASE(2) {
             if (verbose) cout << "\tOn an object of initial length 0." << endl;
             Obj mX(&testAllocator);  const Obj& X = mX;
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.pushBack(V0);
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB + 1 == AA); // ADJUST
             ASSERT(B  - 0 == A);  // ADJUST
@@ -7294,12 +7310,12 @@ DEFINE_TEST_CASE(2) {
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.pushBack(V0);
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.pushBack(V1);
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(2 == X.length());
             ASSERT(BB + 0 == AA); // ADJUST
@@ -7312,12 +7328,12 @@ DEFINE_TEST_CASE(2) {
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.pushBack(V0); mX.pushBack(V1);
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.pushBack(V2);
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB + 1 == AA); // ADJUST
             ASSERT(B  - 0 == A);  // ADJUST
@@ -7331,12 +7347,12 @@ DEFINE_TEST_CASE(2) {
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.pushBack(V0); mX.pushBack(V1); mX.pushBack(V2);
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.pushBack(V3);
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB + 0 == AA); // ADJUST
             ASSERT(B  - 0 == A);  // ADJUST
@@ -7351,12 +7367,12 @@ DEFINE_TEST_CASE(2) {
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.pushBack(V0); mX.pushBack(V1); mX.pushBack(V2); mX.pushBack(V3);
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.pushBack(V4);
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB + 0 == AA); // ADJUST
             ASSERT(B  - 0 == A);  // ADJUST
@@ -7376,12 +7392,12 @@ DEFINE_TEST_CASE(2) {
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.pushBack(V0);
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.popFront();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(0 == X.length());
             ASSERT(BB + 0 == AA); // ADJUST
@@ -7392,12 +7408,12 @@ DEFINE_TEST_CASE(2) {
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.pushBack(V0); mX.pushBack(V1);
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.popFront();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB + 0 == AA); // ADJUST
             ASSERT(B  - 0 == A);  // ADJUST
@@ -7409,12 +7425,12 @@ DEFINE_TEST_CASE(2) {
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.pushBack(V0); mX.pushBack(V1); mX.pushBack(V2);
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.popFront();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB + 0 == AA); // ADJUST
             ASSERT(B  - 0 == A);  // ADJUST
@@ -7427,12 +7443,12 @@ DEFINE_TEST_CASE(2) {
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.pushBack(V0); mX.pushBack(V1); mX.pushBack(V2); mX.pushBack(V3);
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.popFront();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB + 0 == AA); // ADJUST
             ASSERT(B  - 0 == A);  // ADJUST
@@ -7454,15 +7470,15 @@ DEFINE_TEST_CASE(2) {
             mX.reserveCapacity(5);
             ASSERT(1 == X.length());
             ASSERT(V0 == X[0]);
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.pushBack(V1);
             mX.pushBack(V2);
             mX.pushBack(V3);
             mX.pushBack(V4);
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB + 0 == AA); // ADJUST
             ASSERT(B  - 0 == A);  // ADJUST
@@ -7482,14 +7498,14 @@ DEFINE_TEST_CASE(2) {
             ASSERT(2 == X.length());
             ASSERT(V0 == X[0]);
             ASSERT(V1 == X[1]);
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.pushBack(V2);
             mX.pushBack(V3);
             mX.pushBack(V4);
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB + 0 == AA); // ADJUST
             ASSERT(B  - 0 == A);  // ADJUST
@@ -7510,13 +7526,13 @@ DEFINE_TEST_CASE(2) {
             ASSERT(V0 == X[0]);
             ASSERT(V1 == X[1]);
             ASSERT(V2 == X[2]);
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.pushBack(V3);
             mX.pushBack(V4);
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB + 0 == AA); // ADJUST
             ASSERT(B  - 0 == A);  // ADJUST
@@ -7538,12 +7554,12 @@ DEFINE_TEST_CASE(2) {
             ASSERT(V1 == X[1]);
             ASSERT(V2 == X[2]);
             ASSERT(V3 == X[3]);
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.pushBack(V4);
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB + 0 == AA); // ADJUST
             ASSERT(B  - 0 == A);  // ADJUST
@@ -7563,12 +7579,12 @@ DEFINE_TEST_CASE(2) {
             Obj mX(&testAllocator);  const Obj& X = mX;
             ASSERT(0 == X.length());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.removeAll();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB == AA);   // always
             ASSERT(B - 0 == A); // ADJUST
@@ -7580,12 +7596,12 @@ DEFINE_TEST_CASE(2) {
             mX.pushBack(V0);
             ASSERT(1 == X.length());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.removeAll();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB == AA);    // always
             ASSERT(B - 0 == A);  // ADJUST
@@ -7597,12 +7613,12 @@ DEFINE_TEST_CASE(2) {
             mX.pushBack(V0); mX.pushBack(V1);
             ASSERT(2 == X.length());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.removeAll();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB == AA);    // always
             ASSERT(B - 0 == A);  // ADJUST
@@ -7614,12 +7630,12 @@ DEFINE_TEST_CASE(2) {
             mX.pushBack(V0); mX.pushBack(V1); mX.pushBack(V2);
             ASSERT(3 == X.length());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.removeAll();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB == AA);    // always
             ASSERT(B - 0 == A);  // ADJUST
@@ -7635,12 +7651,12 @@ DEFINE_TEST_CASE(2) {
             bsl::vector<Element> buffer;
             buffer.push_back(V0);
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.removeAll(&buffer);
-            const int AA = testAllocator.numBlocksTotal();
-            const int A = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB == AA);    // always
             ASSERT(B - 0 == A);  // ADJUST
@@ -7659,12 +7675,12 @@ DEFINE_TEST_CASE(2) {
             Obj mX(&testAllocator);  const Obj& X = mX;
             ASSERT(0 == X.length());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.removeAll();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB == AA);   // always
             ASSERT(B - 0 == A); // ADJUST
@@ -7676,12 +7692,12 @@ DEFINE_TEST_CASE(2) {
             mX.pushBack(V0);
             ASSERT(1 == X.length());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.removeAll();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB == AA);    // always
             ASSERT(B - 0 == A);  // ADJUST
@@ -7693,12 +7709,12 @@ DEFINE_TEST_CASE(2) {
             mX.pushBack(V0); mX.pushBack(V1);
             ASSERT(2 == X.length());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.removeAll();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB == AA);    // always
             ASSERT(B - 0 == A);  // ADJUST
@@ -7710,12 +7726,12 @@ DEFINE_TEST_CASE(2) {
             mX.pushBack(V0); mX.pushBack(V1); mX.pushBack(V2);
             ASSERT(3 == X.length());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 BB = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 B  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\tBEFORE: "; P_(BB); P_(B); P(X); }
             mX.removeAll();
-            const int AA = testAllocator.numBlocksTotal();
-            const int A = testAllocator.numBlocksInUse();
+            const bsls::Types::Int64 AA = testAllocator.numBlocksTotal();
+            const bsls::Types::Int64 A  = testAllocator.numBlocksInUse();
             if (veryVerbose) { cout << "\t\t AFTER: "; P_(AA); P_(A); P(X); }
             ASSERT(BB == AA);    // always
             ASSERT(B - 0 == A);  // ADJUST
@@ -7809,6 +7825,8 @@ DEFINE_TEST_CASE(2) {
       }
 
 DEFINE_TEST_CASE(1) {
+        (void)veryVerbose;
+
         // --------------------------------------------------------------------
         // BREATHING TEST:
         //   We want to exercise basic value-semantic functionality.  In
@@ -7869,7 +7887,7 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x1 <op> x1." << endl;
-        ASSERT(X1 == X1 == 1);          ASSERT(X1 != X1 == 0);
+        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 2) Create a second object x2 (copy from x1)."
@@ -7883,8 +7901,8 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2." << endl;
-        ASSERT(X2 == X1 == 1);          ASSERT(X2 != X1 == 0);
-        ASSERT(X2 == X2 == 1);          ASSERT(X2 != X2 == 0);
+        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 3) Append an element value A to x1)."
@@ -7899,8 +7917,8 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x1 <op> x1, x2." << endl;
-        ASSERT(X1 == X1 == 1);          ASSERT(X1 != X1 == 0);
-        ASSERT(X1 == X2 == 0);          ASSERT(X1 != X2 == 1);
+        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
+        ASSERT((X1 == X2) == 0);          ASSERT((X1 != X2) == 1);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 4) Append the same element value A to x2)."
@@ -7915,8 +7933,8 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2." << endl;
-        ASSERT(X2 == X1 == 1);          ASSERT(X2 != X1 == 0);
-        ASSERT(X2 == X2 == 1);          ASSERT(X2 != X2 == 0);
+        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 5) Append another element value B to x2)."
@@ -7932,8 +7950,8 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2." << endl;
-        ASSERT(X2 == X1 == 0);          ASSERT(X2 != X1 == 1);
-        ASSERT(X2 == X2 == 1);          ASSERT(X2 != X2 == 0);
+        ASSERT((X2 == X1) == 0);          ASSERT((X2 != X1) == 1);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 6) Remove all elements from x1."
@@ -7947,8 +7965,8 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x1 <op> x1, x2." << endl;
-        ASSERT(X1 == X1 == 1);          ASSERT(X1 != X1 == 0);
-        ASSERT(X1 == X2 == 0);          ASSERT(X1 != X2 == 1);
+        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
+        ASSERT((X1 == X2) == 0);          ASSERT((X1 != X2) == 1);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 7) Create a third object x3 (default ctor)."
@@ -7963,9 +7981,9 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x3 <op> x1, x2, x3." << endl;
-        ASSERT(X3 == X1 == 1);          ASSERT(X3 != X1 == 0);
-        ASSERT(X3 == X2 == 0);          ASSERT(X3 != X2 == 1);
-        ASSERT(X3 == X3 == 1);          ASSERT(X3 != X3 == 0);
+        ASSERT((X3 == X1) == 1);          ASSERT((X3 != X1) == 0);
+        ASSERT((X3 == X2) == 0);          ASSERT((X3 != X2) == 1);
+        ASSERT((X3 == X3) == 1);          ASSERT((X3 != X3) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 8) Create a fourth object x4 (copy of x2)."
@@ -7983,10 +8001,10 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x4 <op> x1, x2, x3, x4." << endl;
-        ASSERT(X4 == X1 == 0);          ASSERT(X4 != X1 == 1);
-        ASSERT(X4 == X2 == 1);          ASSERT(X4 != X2 == 0);
-        ASSERT(X4 == X3 == 0);          ASSERT(X4 != X3 == 1);
-        ASSERT(X4 == X4 == 1);          ASSERT(X4 != X4 == 0);
+        ASSERT((X4 == X1) == 0);          ASSERT((X4 != X1) == 1);
+        ASSERT((X4 == X2) == 1);          ASSERT((X4 != X2) == 0);
+        ASSERT((X4 == X3) == 0);          ASSERT((X4 != X3) == 1);
+        ASSERT((X4 == X4) == 1);          ASSERT((X4 != X4) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 9) Assign x2 = x1 (non-empty becomes empty)."
@@ -8001,10 +8019,10 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2, x3, x4." << endl;
-        ASSERT(X2 == X1 == 1);          ASSERT(X2 != X1 == 0);
-        ASSERT(X2 == X2 == 1);          ASSERT(X2 != X2 == 0);
-        ASSERT(X2 == X3 == 1);          ASSERT(X2 != X3 == 0);
-        ASSERT(X2 == X4 == 0);          ASSERT(X2 != X4 == 1);
+        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
+        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
+        ASSERT((X2 == X3) == 1);          ASSERT((X2 != X3) == 0);
+        ASSERT((X2 == X4) == 0);          ASSERT((X2 != X4) == 1);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n10) Assign x3 = x4 (empty becomes non-empty)."
@@ -8021,10 +8039,10 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x3 <op> x1, x2, x3, x4." << endl;
-        ASSERT(X3 == X1 == 0);          ASSERT(X3 != X1 == 1);
-        ASSERT(X3 == X2 == 0);          ASSERT(X3 != X2 == 1);
-        ASSERT(X3 == X3 == 1);          ASSERT(X3 != X3 == 0);
-        ASSERT(X3 == X4 == 1);          ASSERT(X3 != X4 == 0);
+        ASSERT((X3 == X1) == 0);          ASSERT((X3 != X1) == 1);
+        ASSERT((X3 == X2) == 0);          ASSERT((X3 != X2) == 1);
+        ASSERT((X3 == X3) == 1);          ASSERT((X3 != X3) == 0);
+        ASSERT((X3 == X4) == 1);          ASSERT((X3 != X4) == 0);
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n11) Assign x4 = x4 (aliasing)."
@@ -8041,10 +8059,10 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x4 <op> x1, x2, x3, x4." << endl;
-        ASSERT(X4 == X1 == 0);          ASSERT(X4 != X1 == 1);
-        ASSERT(X4 == X2 == 0);          ASSERT(X4 != X2 == 1);
-        ASSERT(X4 == X3 == 1);          ASSERT(X4 != X3 == 0);
-        ASSERT(X4 == X4 == 1);          ASSERT(X4 != X4 == 0);
+        ASSERT((X4 == X1) == 0);          ASSERT((X4 != X1) == 1);
+        ASSERT((X4 == X2) == 0);          ASSERT((X4 != X2) == 1);
+        ASSERT((X4 == X3) == 1);          ASSERT((X4 != X3) == 0);
+        ASSERT((X4 == X4) == 1);          ASSERT((X4 != X4) == 0);
       }
 
 // ============================================================================

@@ -3223,8 +3223,8 @@ int main(int argc, char *argv[])
             BEGIN_EXCEP_TEST_AOBJ(mX) {
                 mX.forcePushBack(e);
             } END_EXCEP_TEST_AOBJ
-            ASSERT(ii + 1 == X.length());
-            ASSERT(u::myBack(X) == e);
+            ASSERTV(X, ii + 1 == X.length());
+            ASSERTV(X, u::myBack(X) == e);
         }
 
         bsl::vector<AElement> v(&ta);
@@ -3232,9 +3232,9 @@ int main(int argc, char *argv[])
             mX.removeAll(&v);
         } END_EXCEP_TEST_AOBJ_AVEC
 
-        ASSERT(10 == v.size());
+        ASSERTV(X, 10 == v.size());
         for (int ii = 0; ii < 10; ++ii) {
-            ASSERT('A' + ii == v[ii].data());
+            ASSERTV(X, 'A' + ii == v[ii].data());
         }
         v.clear();
 
@@ -3243,17 +3243,17 @@ int main(int argc, char *argv[])
             BEGIN_EXCEP_TEST_AOBJ(mX) {
                 mX.forcePushFront(e);
             } END_EXCEP_TEST_AOBJ
-            ASSERT(11 - ii == X.length());
-            ASSERT(u::myFront(X) == e);
+            ASSERTV(X, 11 - ii == X.length());
+            ASSERTV(X, u::myFront(X) == e);
         }
 
         BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, v) {
             mX.removeAll(&v);
         } END_EXCEP_TEST_AOBJ_AVEC
 
-        ASSERT(10 == v.size());
+        ASSERTV(X, 10 == v.size());
         for (int ii = 0; ii < 10; ++ii) {
-            ASSERT('A' + ii + 1 == v[ii].data());
+            ASSERTV(X, 'A' + ii + 1 == v[ii].data());
         }
       } break;
       case 18: {

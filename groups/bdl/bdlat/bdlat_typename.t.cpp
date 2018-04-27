@@ -2338,11 +2338,14 @@ class MyIntWrapper {
 
 const char* bdlat_TypeName_name(const MyIntWrapper& object)
 {
+    (void)object;
     return "MyIntWrapper";
 }
 
 const char* bdlat_TypeName_xsdName(const MyIntWrapper& object, int format)
 {
+    (void)object;
+    (void)format;
     return "integer";
 }
 

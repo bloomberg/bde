@@ -2705,9 +2705,9 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");
+            Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");  (void)X;
 
-            Obj mY;  const Obj& Y = gg(&mY, "@2012/1/1 30 14");
+            Obj mY;  const Obj& Y = gg(&mY, "@2012/1/1 30 14");  (void)Y;
 
             ASSERT_SAFE_PASS(X.rbeginHolidayCodes(X.beginHolidays()));
             ASSERT_SAFE_FAIL(X.rbeginHolidayCodes(Y.beginHolidays()));
@@ -2960,9 +2960,9 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");
+            Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");  (void)X;
 
-            Obj mY;  const Obj& Y = gg(&mY, "@2012/1/1 30 14");
+            Obj mY;  const Obj& Y = gg(&mY, "@2012/1/1 30 14");  (void)Y;
 
             ASSERT_SAFE_PASS(X.beginHolidayCodes(X.beginHolidays()));
             ASSERT_SAFE_FAIL(X.beginHolidayCodes(Y.beginHolidays()));
@@ -4871,7 +4871,6 @@ int main(int argc, char *argv[])
         Obj mVB;  const Obj& VB = gg(&mVB, DEFAULT_SPECS[1]);
         Obj mVC;  const Obj& VC = gg(&mVC, DEFAULT_SPECS[2]);
         Obj mVD;  const Obj& VD = gg(&mVD, DEFAULT_SPECS[3]);
-        Obj mVE;  const Obj& VE = gg(&mVE, DEFAULT_SPECS[4]);
 
         static const char **SPECS = DEFAULT_SPECS;
 
@@ -7324,6 +7323,7 @@ int main(int argc, char *argv[])
             ASSERT_FAIL(X.numHolidayCodes(bdlt::Date( 100, 1, 6)));
 
             Obj mY;  const Obj& Y = gg(&mY, "@2012/01/01ua 30 14mwf");
+            (void)Y;
 
             ASSERT_SAFE_PASS(X.isWeekendDay(bdlt::DayOfWeek::e_SUN));
             ASSERT_SAFE_FAIL(Y.isWeekendDay(bdlt::DayOfWeek::e_SUN));

@@ -3394,7 +3394,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ T_ P_(ti); P(V[ti]); }
             }
 
-            Obj x(&ta);    const Obj& X = x;
+            Obj x(&ta);
 
             if (verbose) cout << "\t\t'pushBack' && 'length'\n";
             {

@@ -275,8 +275,8 @@ const double Point::DEFAULT_Y = 0;
      // default value of 'Y' attribute
 
 const bdlat_AttributeInfo Point::ATTRIBUTE_INFO_ARRAY[] = {
-    {ATTRIBUTE_ID_X, "X", sizeof("X") - 1, "X coordinate"},
-    {ATTRIBUTE_ID_Y, "Y", sizeof("Y") - 1, "Y coordinate"}
+    {ATTRIBUTE_ID_X, "X", sizeof("X") - 1, "X coordinate", 0},
+    {ATTRIBUTE_ID_Y, "Y", sizeof("Y") - 1, "Y coordinate", 0}
 };
 
                                // -------------
@@ -633,6 +633,8 @@ bool mine::bdlat_sequenceHasAttribute(const MySequence&  object,
                                       const char        *attributeName,
                                       int                attributeNameLength)
 {
+    (void)object;
+
     return bdlb::String::areEqualCaseless("name",
                                           attributeName,
                                           attributeNameLength)
@@ -647,6 +649,8 @@ bool mine::bdlat_sequenceHasAttribute(const MySequence&  object,
 bool mine::bdlat_sequenceHasAttribute(const MySequence& object,
                                       int               attributeId)
 {
+    (void)object;
+
     return MySequence::NAME_ATTRIBUTE_ID   == attributeId
         || MySequence::AGE_ATTRIBUTE_ID    == attributeId
         || MySequence::SALARY_ATTRIBUTE_ID == attributeId;

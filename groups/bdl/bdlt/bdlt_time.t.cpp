@@ -782,7 +782,7 @@ int main(int argc, char *argv[])
         // In SAFE build mode, verify all methods that should ASSERT do ASSERT.
 
         {
-            int hour = 0;
+            int hour = 0;  (void)hour;
 
             ASSERT_SAFE_FAIL(INVALID.getTime(&hour));
         }
@@ -2124,11 +2124,11 @@ if (veryVerbose)
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(1, 0, 0, 0);  const Obj X = mX;
+            Obj mX(1, 0, 0, 0);  const Obj X = mX;  (void)X;
 
-            Obj mY(1, 0, 0, 0);  const Obj Y = mY;
+            Obj mY(1, 0, 0, 0);  const Obj Y = mY;  (void)Y;
 
-            Obj mZ;              const Obj Z = mZ;
+            Obj mZ;              const Obj Z = mZ;  (void)Z;
 
             ASSERT_SAFE_PASS(X <  Y);
             ASSERT_SAFE_FAIL(X <  Z);

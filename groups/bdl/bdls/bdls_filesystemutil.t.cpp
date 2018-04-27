@@ -5319,7 +5319,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == Util::map(fd,
                               &startAddress,
                               0,
-                              threeGig,
+                              static_cast<bsl::size_t>(threeGig),
                               bdls::MemoryUtil::k_ACCESS_READ));
 
         bytesRead = 0;
@@ -5349,7 +5349,8 @@ int main(int argc, char *argv[])
         ASSERT(threeGig == bytesRead);
         ASSERT(static_cast<char *>(startAddress) + threeGig == address);
 
-        ASSERT(0 == Util::unmap(startAddress, threeGig));
+        ASSERT(0 == Util::unmap(startAddress,
+                                static_cast<bsl::size_t>(threeGig)));
 
         ASSERT(0 == Util::close(fd));
 

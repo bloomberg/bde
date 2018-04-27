@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 
         // test all 8 modes
 
-        for (int mode=0; mode<sizeof(modes)/sizeof(*modes); ++mode) {
+        for (unsigned int mode=0; mode<sizeof(modes)/sizeof(*modes); ++mode) {
             // do not try to set executable bit when on HP-UX
 #ifdef BSLS_PLATFORM_OS_HPUX
             if (mode & bdls::MemoryUtil::k_ACCESS_EXECUTE) {
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 #endif
             // test read & write
 
-            for (int op=0;
+            for (unsigned int op=0;
                 op<sizeof(operations)/sizeof(*operations);
                 ++op)
             {

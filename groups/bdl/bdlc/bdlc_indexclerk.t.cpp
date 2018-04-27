@@ -3012,7 +3012,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting default 'bslma::Allocator' argument."
                           << endl;
 
-        int currentTestAllocatorUsage = objectAllocator.numBlocksTotal();
+        bsls::Types::Int64 currentTestAllocatorUsage =
+                                              objectAllocator.numBlocksTotal();
         {
             Obj mC;                             const Obj& C = mC;
             ASSERT(0 == mC.getIndex());

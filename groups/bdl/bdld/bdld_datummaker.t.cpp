@@ -1342,6 +1342,7 @@ int main(int argc, char *argv[])
         };
 
         const int sizeOfArr = static_cast<int>(sizeof(arr) / sizeof(*arr));
+        (void)sizeOfArr;
 
         const bdld::DatumArrayRef aRef(arr, 5);
 

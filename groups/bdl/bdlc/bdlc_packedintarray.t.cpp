@@ -1580,7 +1580,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             mX.append(k_INT8_MAX);
 
-            Obj mY;  const Obj& Y= mY;
+            Obj mY;  const Obj& Y = mY;
             mY.append(k_INT8_MAX);
 
             Iterator iter;
@@ -1635,6 +1635,8 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(X.end() - X.begin());
             ASSERT_SAFE_PASS(X.begin() - X.end());
             ASSERT_SAFE_FAIL(X.begin() - Y.end());
+
+            (void)Y;
         }
         {
             bsls::AssertFailureHandlerGuard
@@ -1643,7 +1645,7 @@ int main(int argc, char *argv[])
             UnsignedObj mX;  const UnsignedObj& X = mX;
             mX.append(k_INT8_MAX);
 
-            UnsignedObj mY;  const UnsignedObj& Y= mY;
+            UnsignedObj mY;  const UnsignedObj& Y = mY;
             mY.append(k_INT8_MAX);
 
             UnsignedIterator iter;
@@ -1698,6 +1700,8 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(X.end() - X.begin());
             ASSERT_SAFE_PASS(X.begin() - X.end());
             ASSERT_SAFE_FAIL(X.begin() - Y.end());
+
+            (void)Y;
         }
       } break;
       case 21: {
@@ -1774,10 +1778,8 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj        mX;
-            const Obj& X = mX;
-            Obj        mY;
-            const Obj& Y= mY;
+            Obj mX;  const Obj& X = mX;
+            Obj mY;  const Obj& Y = mY;
 
             ASSERT_SAFE_PASS(X.begin() <  X.end());
             ASSERT_SAFE_PASS(X.begin() <  X.end());
@@ -1788,15 +1790,16 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(X.begin() <= Y.end());
             ASSERT_SAFE_FAIL(X.begin() >  Y.end());
             ASSERT_SAFE_FAIL(X.begin() >= Y.end());
+
+            (void)X;
+            (void)Y;
         }
         {
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            UnsignedObj        mX;
-            const UnsignedObj& X = mX;
-            UnsignedObj        mY;
-            const UnsignedObj& Y= mY;
+            UnsignedObj mX;  const UnsignedObj& X = mX;
+            UnsignedObj mY;  const UnsignedObj& Y = mY;
 
             ASSERT_SAFE_PASS(X.begin() <  X.end());
             ASSERT_SAFE_PASS(X.begin() <= X.end());
@@ -1806,6 +1809,9 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(X.begin() <= Y.end());
             ASSERT_SAFE_FAIL(X.begin() >  Y.end());
             ASSERT_SAFE_FAIL(X.begin() >= Y.end());
+
+            (void)X;
+            (void)Y;
         }
       } break;
       case 20: {

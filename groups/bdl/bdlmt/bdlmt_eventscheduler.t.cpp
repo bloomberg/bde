@@ -222,7 +222,7 @@ typedef Obj::RecurringEventHandle          RecurringEventHandle;
 // only assert when we *know* that the condition could not have happened (by
 // measuring elapsed times).
 
-static const float DECI_SEC = 1.0/10;    // 1 deci-second (a tenth of a second)
+static const float DECI_SEC = 0.1f;      // 1 deci-second (a tenth of a second)
 
 static const int   DECI_SEC_IN_MICRO_SEC = 100000;
                                // number of microseconds in a tenth of a second
@@ -1947,9 +1947,9 @@ namespace EVENTSCHEDULER_TEST_CASE_2 {
 
 struct TestCase2Data {
     int               d_line;
-    int               d_startTime;         // in 1/10th of a sec.
+    float             d_startTime;         // in 1/10th of a sec.
     bool              d_isClock;
-    int               d_periodicInterval;  // in 1/10th of a sec.
+    float             d_periodicInterval;  // in 1/10th of a sec.
     int               d_executionTime;     // in 1/10th of a sec.
     bool              d_delayed;
 };
@@ -1971,11 +1971,11 @@ bool testCallbacks(int                  *failures,
     // the thinking here is that this loop, scheduling the events, will take
     // insignificant time
     for (int i = 0; i < NUM_DATA; ++i) {
-        const int  LINE             = DATA[i].d_line;
-        const int  STARTTIME        = DATA[i].d_startTime;
-        const bool ISCLOCK          = DATA[i].d_isClock;
-        const int  PERIODICINTERVAL = DATA[i].d_periodicInterval;
-        const int  EXECUTIONTIME    = DATA[i].d_executionTime;
+        const int   LINE             = DATA[i].d_line;
+        const float STARTTIME        = DATA[i].d_startTime;
+        const bool  ISCLOCK          = DATA[i].d_isClock;
+        const float PERIODICINTERVAL = DATA[i].d_periodicInterval;
+        const int   EXECUTIONTIME    = DATA[i].d_executionTime;
 
         if (ISCLOCK) {
             testObjects[i] = new TestClass(
@@ -2007,7 +2007,7 @@ bool testCallbacks(int                  *failures,
 
     x.start();
     float delta = .5;
-    microSleep((totalTime + delta) * DECI_SEC_IN_MICRO_SEC, 0);
+    microSleep(static_cast<int>(totalTime + delta) * DECI_SEC_IN_MICRO_SEC, 0);
     x.stop();
     double finishTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
     finishTime = (finishTime - now.totalSecondsAsDouble()) * 10 - delta;
@@ -2017,11 +2017,11 @@ bool testCallbacks(int                  *failures,
 
     bool result = true;
     for (int i = 0; i < NUM_DATA; ++i) {
-        const int  LINE             = DATA[i].d_line;
-        const int  STARTTIME        = DATA[i].d_startTime;
-        const bool ISCLOCK          = DATA[i].d_isClock;
-        const int  PERIODICINTERVAL = DATA[i].d_periodicInterval;
-        const bool DELAYED          = DATA[i].d_delayed;
+        const int   LINE             = DATA[i].d_line;
+        const float STARTTIME        = DATA[i].d_startTime;
+        const bool  ISCLOCK          = DATA[i].d_isClock;
+        const float PERIODICINTERVAL = DATA[i].d_periodicInterval;
+        const bool  DELAYED          = DATA[i].d_delayed;
 
         if (veryVerbose) {
             cout << *testObjects[i] << endl;
@@ -2040,7 +2040,8 @@ bool testCallbacks(int                  *failures,
         }
         if (ISCLOCK) {
             if (!testObjects[i]->delayed()) {
-                int n1 = (finishTime - STARTTIME) / PERIODICINTERVAL + 1;
+                int n1 = static_cast<int>((finishTime - STARTTIME)
+                                                       / PERIODICINTERVAL) + 1;
                     // this formula is bogus in general but works for the data
                     // and relies on totalTime being a float
                 int n2 = testObjects[i]->numExecuted();
@@ -4368,7 +4369,7 @@ int main(int argc, char *argv[])
 
                 bsls::TimeInterval       T (1 * DECI_SEC);
                 const bsls::TimeInterval T2(2 * DECI_SEC);
-                const int TI = DECI_SEC;
+                const int TI = DECI_SEC_IN_MICRO_SEC;
                 const int T3  =  3 * DECI_SEC_IN_MICRO_SEC;
                 const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
                 const int T13 = 13 * DECI_SEC_IN_MICRO_SEC;
