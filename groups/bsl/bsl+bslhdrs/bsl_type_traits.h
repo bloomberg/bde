@@ -176,7 +176,6 @@ namespace bsl {
     using native_std::make_unsigned;
 
     // 20.10.7.4, array modifications:
-    using native_std::remove_extent;
     using native_std::remove_all_extents;
 
     // 20.10.7.6, other transformations:
@@ -184,7 +183,6 @@ namespace bsl {
 #if BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
     using native_std::aligned_union;
 #endif
-    using native_std::decay;
     using native_std::common_type;
 #if !BSL_TYPE_TRAITS_MININAL_VC2010_TRAITS
     using native_std::underlying_type;
@@ -208,6 +206,15 @@ namespace bsl {
     // These traits are provided by BDE, and have additional members for
     // Bloomberg legacy code still using the pre-standard interface.
 
+    using native_std::add_const;
+    using native_std::add_cv;
+    using native_std::add_lvalue_reference;
+    using native_std::add_pointer;
+    using native_std::add_rvalue_reference;
+    using native_std::add_volatile;
+    using native_std::conditional;
+    using native_std::decay;
+    using native_std::enable_if;
     using native_std::is_void;
     using native_std::is_integral;
     using native_std::is_floating_point;
@@ -233,18 +240,11 @@ namespace bsl {
     using native_std::is_same;
     using native_std::is_convertible;
     using native_std::remove_const;
+    using native_std::remove_extent;
     using native_std::remove_volatile;
     using native_std::remove_cv;
-    using native_std::add_const;
-    using native_std::add_volatile;
-    using native_std::add_cv;
     using native_std::remove_reference;
-    using native_std::add_lvalue_reference;
-    using native_std::add_rvalue_reference;
     using native_std::remove_pointer;
-    using native_std::add_pointer;
-    using native_std::enable_if;
-    using native_std::conditional;
 #endif
 }  // close package namespace
 
@@ -264,6 +264,7 @@ namespace bsl {
 #include <bslmf_addrvaluereference.h>
 #include <bslmf_addvolatile.h>
 #include <bslmf_conditional.h>
+#include <bslmf_decay.h>
 #include <bslmf_enableif.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isarithmetic.h>
@@ -294,6 +295,7 @@ namespace bsl {
 #include <bslmf_isvolatile.h>
 #include <bslmf_removeconst.h>
 #include <bslmf_removecv.h>
+#include <bslmf_removeextent.h>
 #include <bslmf_removepointer.h>
 #include <bslmf_removereference.h>
 #include <bslmf_removevolatile.h>
