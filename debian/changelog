@@ -1,5 +1,16 @@
-bsl-internal (3.7.1.0) unstable; urgency=low
+bsl-internal (3.8.0.0) unstable; urgency=low
 
+  * d2de1340b Merge pull request #1842 from mgiroux/review/bump-version-to-3.8.0
+  * 01fa8fcce Bump version for non-bsl packages to 3.8.0
+  * 9b46c1c5e Merge pull request #1840 from hversche/move-btlb-to-bdlbb-releases-3.7.x
+  * 2caa2f5b9 Merge pull request #1839 from mgiroux/review/bump-bdl-to-3.7.2
+  * 61a2bb78f Merge pull request #1831 from hversche/pr/1783-rebased-releases/3.7.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 1 May 2018 14:17:17 -0400
+
+bsl-internal (3.7.1.0) git; urgency=low
+
+  * d3f8629c5 Changelog for version 3.7.1.0
   * fa5b68a2d Merge pull request #1804 from mgiroux/bump-version-to-3.7.1
   * 7fdb0281c Bump bsl and bal versions to 3.7.1
   * fe1718d4a Merge pull request #1789 from hversche/pr/1786-rebased-releases/3.7.x
@@ -7,7 +18,7 @@ bsl-internal (3.7.1.0) unstable; urgency=low
   * b44357844 Merge pull request #1767 from hversche/pr/1736-rebased-releases/3.7.x
   * 599993724 Merge pull request #1759 from hrosen4/pr/1757-rebased-releases/3.7.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 10 Apr 2018 10:03:05 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 10 Apr 2018 10:52:34 -0400
 
 bsl-internal (3.7.0.1) git; urgency=low
 
