@@ -1095,7 +1095,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             mX.append("a");
 
-            Obj mY;  const Obj& Y= mY;
+            Obj mY;  const Obj& Y = mY;
             mY.append("a");
 
             Iterator iter;
@@ -1156,6 +1156,8 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(X.end()   - X.begin());
             ASSERT_SAFE_PASS(X.begin() - X.end());
             ASSERT_SAFE_FAIL(X.begin() - Y.end());
+
+            (void)Y;
         }
       } break;
       case 21: {
@@ -1211,10 +1213,8 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj        mX;
-            const Obj& X = mX;
-            Obj        mY;
-            const Obj& Y= mY;
+            Obj mX;  const Obj& X = mX;
+            Obj mY;  const Obj& Y = mY;
 
             ASSERT_SAFE_PASS(X.begin()  <  X.end());
             ASSERT_SAFE_PASS(X.begin()  <  X.end());
@@ -1235,6 +1235,9 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(Iterator() >  X.begin());
             ASSERT_SAFE_FAIL(X.begin()  >= Iterator());
             ASSERT_SAFE_FAIL(Iterator() >= X.begin());
+
+            (void)X;
+            (void)Y;
         }
       } break;
       case 20: {

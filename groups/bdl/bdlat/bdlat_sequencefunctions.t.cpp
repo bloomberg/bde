@@ -275,8 +275,8 @@ const double Point::DEFAULT_Y = 0;
      // default value of 'Y' attribute
 
 const bdlat_AttributeInfo Point::ATTRIBUTE_INFO_ARRAY[] = {
-    {ATTRIBUTE_ID_X, "X", sizeof("X") - 1, "X coordinate"},
-    {ATTRIBUTE_ID_Y, "Y", sizeof("Y") - 1, "Y coordinate"}
+    {ATTRIBUTE_ID_X, "X", sizeof("X") - 1, "X coordinate", 0},
+    {ATTRIBUTE_ID_Y, "Y", sizeof("Y") - 1, "Y coordinate", 0}
 };
 
                                // -------------
@@ -629,7 +629,7 @@ int mine::bdlat_sequenceAccessAttributes(const MySequence& object,
     return retVal;
 }
 
-bool mine::bdlat_sequenceHasAttribute(const MySequence&  object,
+bool mine::bdlat_sequenceHasAttribute(const MySequence&,
                                       const char        *attributeName,
                                       int                attributeNameLength)
 {
@@ -644,8 +644,7 @@ bool mine::bdlat_sequenceHasAttribute(const MySequence&  object,
                                           attributeNameLength);
 }
 
-bool mine::bdlat_sequenceHasAttribute(const MySequence& object,
-                                      int               attributeId)
+bool mine::bdlat_sequenceHasAttribute(const MySequence&, int attributeId)
 {
     return MySequence::NAME_ATTRIBUTE_ID   == attributeId
         || MySequence::AGE_ATTRIBUTE_ID    == attributeId

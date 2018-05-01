@@ -248,7 +248,7 @@ void sleepUntilMs(int ms)
     }
 }
 
-static const float DECI_SEC = 1.0/10;    // 1 deci-second (a tenth of a second)
+static const float DECI_SEC = 0.1f;      // 1 deci-second (a tenth of a second)
 
 static const int   DECI_SEC_IN_MICRO_SEC = 100000;
                                // number of microseconds in a tenth of a second
@@ -692,7 +692,7 @@ class my_Session{
 };
 
 // MANIPULATORS
-int my_Session::processData(void *data, int length)
+int my_Session::processData(void *, int)
 {
     return 0;
 }
@@ -754,7 +754,7 @@ void my_Server::newConnection(my_Server::Connection *connection)
           bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
-void my_Server::closeConnection(my_Server::Connection *connection)
+void my_Server::closeConnection(my_Server::Connection *)
 {
 }
 
@@ -1649,7 +1649,6 @@ void test6_a()
 
         x.cancelAllClocks();
         myMicroSleep(T6, 0);
-        bsls::TimeInterval elapsed = bdlt::CurrentTime::now() - now;
         ASSERT( 0 == testObj1.numExecuted() );
         ASSERT( 0 == testObj2.numExecuted() );
     }
@@ -2039,9 +2038,9 @@ namespace TIMER_EVENT_SCHEDULER_TEST_CASE_2
 
 struct testCase2Data {
     int               d_line;
-    int               d_startTime;         // in 1/10th of a sec.
+    float             d_startTime;         // in 1/10th of a sec.
     bool              d_isClock;
-    int               d_periodicInterval;  // in 1/10th of a sec.
+    float             d_periodicInterval;  // in 1/10th of a sec.
     int               d_executionTime;     // in 1/10th of a sec.
     bool              d_delayed;
 };
@@ -2062,12 +2061,11 @@ bool testCallbacks(int                  *failures,
 
     // the assumption is this loop will complete in insignificant time
     for (int i = 0; i < NUM_DATA; ++i) {
-        const int  LINE             = DATA[i].d_line;
-        const int  STARTTIME        = DATA[i].d_startTime;
-        const bool ISCLOCK          = DATA[i].d_isClock;
-        const int  PERIODICINTERVAL = DATA[i].d_periodicInterval;
-        const int  EXECUTIONTIME    = DATA[i].d_executionTime;
-//      const bool DELAYED          = DATA[i].d_delayed;
+        const int   LINE             = DATA[i].d_line;
+        const float STARTTIME        = DATA[i].d_startTime;
+        const bool  ISCLOCK          = DATA[i].d_isClock;
+        const float PERIODICINTERVAL = DATA[i].d_periodicInterval;
+        const int   EXECUTIONTIME    = DATA[i].d_executionTime;
 
         if (ISCLOCK) {
             testObjects[i] = new TestClass(
@@ -2109,12 +2107,11 @@ bool testCallbacks(int                  *failures,
 
     bool result = true;
     for (int i = 0; i < NUM_DATA; ++i) {
-        const int  LINE             = DATA[i].d_line;
-        const int  STARTTIME        = DATA[i].d_startTime;
-        const bool ISCLOCK          = DATA[i].d_isClock;
-        const int  PERIODICINTERVAL = DATA[i].d_periodicInterval;
-//      const int  EXECUTIONTIME    = DATA[i].d_executionTime;
-        const bool DELAYED          = DATA[i].d_delayed;
+        const int   LINE             = DATA[i].d_line;
+        const float STARTTIME        = DATA[i].d_startTime;
+        const bool  ISCLOCK          = DATA[i].d_isClock;
+        const float PERIODICINTERVAL = DATA[i].d_periodicInterval;
+        const bool  DELAYED          = DATA[i].d_delayed;
 
         if (veryVerbose) {
             cout << *testObjects[i] << endl;
@@ -2241,7 +2238,6 @@ void test1_b()
     TestClass1 testObj1;
     TestClass1 testObj2;
 
-    bsls::TimeInterval now = bdlt::CurrentTime::now();
     Handle h1 = x.startClock(T3,
                              bdlf::MemFnUtil::memFn(&TestClass1::callback,
                                                     &testObj1));
@@ -4788,7 +4784,6 @@ int main(int argc, char *argv[])
           const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
           const int T3  = 3 * DECI_SEC_IN_MICRO_SEC;
           const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
-          const int T20 = 20 * DECI_SEC_IN_MICRO_SEC;
 
           bslma::TestAllocator ta(veryVeryVerbose);
 
@@ -4871,7 +4866,6 @@ int main(int argc, char *argv[])
 
           const int T3  =  3 * DECI_SEC_IN_MICRO_SEC;
           const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
-          const int T20 = 20 * DECI_SEC_IN_MICRO_SEC;
 
           bslma::TestAllocator ta(veryVeryVerbose);
 

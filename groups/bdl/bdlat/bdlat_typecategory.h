@@ -262,7 +262,11 @@ BSLS_IDENT("$Id: $")
 //      }
 //
 //      assert(0);
-//      return static_cast<bdlat_TypeCategory::Value>(-1);
+//
+//      // Note that this 'return' is never reached and hence the returned
+//      // value is immaterial.
+//
+//      return bdlat_TypeCategory::e_SIMPLE_CATEGORY;
 //  }
 //
 //  template <typename MANIPULATOR>

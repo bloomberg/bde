@@ -169,7 +169,7 @@ struct TestJobFunctionArgs1 {
 extern "C" {
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
-void TestSynchronousSignals(void *ptr)
+void TestSynchronousSignals(void *)
 {
     sigset_t blockedSet;
     sigemptyset(&blockedSet);
@@ -255,7 +255,7 @@ void testJobFunction3(void *ptr)
 
 }
 
-int testJobFunction4(const int N)
+double testJobFunction4(const int N)
     // This function is used to simulate a thread pool job.  It accepts an int
     // which controls the time taken by that job.  We let the job compute some
     // quantity (the actually job does not matter, only the time it takes).
@@ -691,17 +691,6 @@ extern "C" {
 }
 
 // ============================================================================
-//                          CASE 9 RELATED ENTITIES
-// ----------------------------------------------------------------------------
-
-static void counter(int *result, int num) {
-    while(num > 0) {
-        *result += 1;
-        --num;
-    }
-}
-
-// ============================================================================
 //                          CASE 6 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 enum {
@@ -718,7 +707,7 @@ bsls::AtomicInt depthCounter;
 
 extern "C" {
 
-void testJobFunction5(void *ptr)
+void testJobFunction5(void *)
     // This function is used to simulate a thread pool job.  It enqueues itself
     // in the pool if the depth limit is not reached.
 {
@@ -805,6 +794,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(counter, counter > 0);
 
         const int buildCopyCounter = counter;
+        (void)buildCopyCounter;
 
         counter = 0;
 

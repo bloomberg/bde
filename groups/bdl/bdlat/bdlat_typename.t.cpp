@@ -2336,12 +2336,12 @@ class MyIntWrapper {
     int value() const { return d_value; }
 };
 
-const char* bdlat_TypeName_name(const MyIntWrapper& object)
+const char* bdlat_TypeName_name(const MyIntWrapper&)
 {
     return "MyIntWrapper";
 }
 
-const char* bdlat_TypeName_xsdName(const MyIntWrapper& object, int format)
+const char* bdlat_TypeName_xsdName(const MyIntWrapper&, int)
 {
     return "integer";
 }
