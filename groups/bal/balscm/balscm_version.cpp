@@ -8,7 +8,7 @@ namespace BloombergLP {
 
 // For the 3.7.x release series, 'bal' is versioned independently of 'bsl'.
 
-#define BAL_VERSION_PATCH 1
+#define BAL_VERSION_PATCH 0
 
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)
