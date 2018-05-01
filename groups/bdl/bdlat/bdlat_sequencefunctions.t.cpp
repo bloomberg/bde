@@ -629,12 +629,10 @@ int mine::bdlat_sequenceAccessAttributes(const MySequence& object,
     return retVal;
 }
 
-bool mine::bdlat_sequenceHasAttribute(const MySequence&  object,
+bool mine::bdlat_sequenceHasAttribute(const MySequence&,
                                       const char        *attributeName,
                                       int                attributeNameLength)
 {
-    (void)object;
-
     return bdlb::String::areEqualCaseless("name",
                                           attributeName,
                                           attributeNameLength)
@@ -646,11 +644,8 @@ bool mine::bdlat_sequenceHasAttribute(const MySequence&  object,
                                           attributeNameLength);
 }
 
-bool mine::bdlat_sequenceHasAttribute(const MySequence& object,
-                                      int               attributeId)
+bool mine::bdlat_sequenceHasAttribute(const MySequence&, int attributeId)
 {
-    (void)object;
-
     return MySequence::NAME_ATTRIBUTE_ID   == attributeId
         || MySequence::AGE_ATTRIBUTE_ID    == attributeId
         || MySequence::SALARY_ATTRIBUTE_ID == attributeId;

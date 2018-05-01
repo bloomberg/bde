@@ -258,7 +258,7 @@ class Figure {
 const char Figure::CLASS_NAME[] = "Figure";
 
 const bdlat_SelectionInfo Figure::SELECTION_INFO_ARRAY[] = {
-    {SELECTION_ID_CIRCLE, "Circle", sizeof("Circle") - 1, "Circle", 0},
+    {SELECTION_ID_CIRCLE,  "Circle",  sizeof("Circle") - 1,  "Circle",  0},
     {SELECTION_ID_POLYGON, "Polygon", sizeof("Polygon") - 1, "Polygon", 0}
 };
 

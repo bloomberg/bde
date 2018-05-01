@@ -4369,7 +4369,7 @@ int main(int argc, char *argv[])
 
                 bsls::TimeInterval       T (1 * DECI_SEC);
                 const bsls::TimeInterval T2(2 * DECI_SEC);
-                const int TI = DECI_SEC_IN_MICRO_SEC;
+                const int TI  =      DECI_SEC_IN_MICRO_SEC;
                 const int T3  =  3 * DECI_SEC_IN_MICRO_SEC;
                 const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
                 const int T13 = 13 * DECI_SEC_IN_MICRO_SEC;

@@ -7911,7 +7911,7 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x1 <op> x1." << endl;
-        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
+        ASSERT( (X1 == X1));          ASSERT(!(X1 != X1));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 2) Create a second object x2 (copy from x1)."
@@ -7925,8 +7925,8 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2." << endl;
-        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
-        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
+        ASSERT( (X2 == X1));          ASSERT(!(X2 != X1));
+        ASSERT( (X2 == X2));          ASSERT(!(X2 != X2));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 3) Append an element value A to x1)."
@@ -7941,8 +7941,8 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x1 <op> x1, x2." << endl;
-        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
-        ASSERT((X1 == X2) == 0);          ASSERT((X1 != X2) == 1);
+        ASSERT( (X1 == X1));          ASSERT(!(X1 != X1));
+        ASSERT(!(X1 == X2));          ASSERT( (X1 != X2));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 4) Append the same element value A to x2)."
@@ -7957,8 +7957,8 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2." << endl;
-        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
-        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
+        ASSERT( (X2 == X1));          ASSERT(!(X2 != X1));
+        ASSERT( (X2 == X2));          ASSERT(!(X2 != X2));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 5) Append another element value B to x2)."
@@ -7974,8 +7974,8 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2." << endl;
-        ASSERT((X2 == X1) == 0);          ASSERT((X2 != X1) == 1);
-        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
+        ASSERT(!(X2 == X1));          ASSERT( (X2 != X1));
+        ASSERT( (X2 == X2));          ASSERT(!(X2 != X2));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 6) Remove all elements from x1."
@@ -7989,8 +7989,8 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x1 <op> x1, x2." << endl;
-        ASSERT((X1 == X1) == 1);          ASSERT((X1 != X1) == 0);
-        ASSERT((X1 == X2) == 0);          ASSERT((X1 != X2) == 1);
+        ASSERT( (X1 == X1));          ASSERT(!(X1 != X1));
+        ASSERT(!(X1 == X2));          ASSERT( (X1 != X2));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 7) Create a third object x3 (default ctor)."
@@ -8005,9 +8005,9 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x3 <op> x1, x2, x3." << endl;
-        ASSERT((X3 == X1) == 1);          ASSERT((X3 != X1) == 0);
-        ASSERT((X3 == X2) == 0);          ASSERT((X3 != X2) == 1);
-        ASSERT((X3 == X3) == 1);          ASSERT((X3 != X3) == 0);
+        ASSERT( (X3 == X1));          ASSERT(!(X3 != X1));
+        ASSERT(!(X3 == X2));          ASSERT( (X3 != X2));
+        ASSERT( (X3 == X3));          ASSERT(!(X3 != X3));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 8) Create a fourth object x4 (copy of x2)."
@@ -8025,10 +8025,10 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x4 <op> x1, x2, x3, x4." << endl;
-        ASSERT((X4 == X1) == 0);          ASSERT((X4 != X1) == 1);
-        ASSERT((X4 == X2) == 1);          ASSERT((X4 != X2) == 0);
-        ASSERT((X4 == X3) == 0);          ASSERT((X4 != X3) == 1);
-        ASSERT((X4 == X4) == 1);          ASSERT((X4 != X4) == 0);
+        ASSERT(!(X4 == X1));          ASSERT( (X4 != X1));
+        ASSERT( (X4 == X2));          ASSERT(!(X4 != X2));
+        ASSERT(!(X4 == X3));          ASSERT( (X4 != X3));
+        ASSERT( (X4 == X4));          ASSERT(!(X4 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n 9) Assign x2 = x1 (non-empty becomes empty)."
@@ -8043,10 +8043,10 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x2 <op> x1, x2, x3, x4." << endl;
-        ASSERT((X2 == X1) == 1);          ASSERT((X2 != X1) == 0);
-        ASSERT((X2 == X2) == 1);          ASSERT((X2 != X2) == 0);
-        ASSERT((X2 == X3) == 1);          ASSERT((X2 != X3) == 0);
-        ASSERT((X2 == X4) == 0);          ASSERT((X2 != X4) == 1);
+        ASSERT( (X2 == X1));          ASSERT(!(X2 != X1));
+        ASSERT( (X2 == X2));          ASSERT(!(X2 != X2));
+        ASSERT( (X2 == X3));          ASSERT(!(X2 != X3));
+        ASSERT(!(X2 == X4));          ASSERT( (X2 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n10) Assign x3 = x4 (empty becomes non-empty)."
@@ -8063,10 +8063,10 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x3 <op> x1, x2, x3, x4." << endl;
-        ASSERT((X3 == X1) == 0);          ASSERT((X3 != X1) == 1);
-        ASSERT((X3 == X2) == 0);          ASSERT((X3 != X2) == 1);
-        ASSERT((X3 == X3) == 1);          ASSERT((X3 != X3) == 0);
-        ASSERT((X3 == X4) == 1);          ASSERT((X3 != X4) == 0);
+        ASSERT(!(X3 == X1));          ASSERT( (X3 != X1));
+        ASSERT(!(X3 == X2));          ASSERT( (X3 != X2));
+        ASSERT( (X3 == X3));          ASSERT(!(X3 != X3));
+        ASSERT( (X3 == X4));          ASSERT(!(X3 != X4));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) cout << "\n11) Assign x4 = x4 (aliasing)."
@@ -8083,10 +8083,10 @@ DEFINE_TEST_CASE(1) {
 
         if (verbose) cout <<
             "\tb) Try equality operators: x4 <op> x1, x2, x3, x4." << endl;
-        ASSERT((X4 == X1) == 0);          ASSERT((X4 != X1) == 1);
-        ASSERT((X4 == X2) == 0);          ASSERT((X4 != X2) == 1);
-        ASSERT((X4 == X3) == 1);          ASSERT((X4 != X3) == 0);
-        ASSERT((X4 == X4) == 1);          ASSERT((X4 != X4) == 0);
+        ASSERT(!(X4 == X1));          ASSERT( (X4 != X1));
+        ASSERT(!(X4 == X2));          ASSERT( (X4 != X2));
+        ASSERT( (X4 == X3));          ASSERT(!(X4 != X3));
+        ASSERT( (X4 == X4));          ASSERT(!(X4 != X4));
       }
 
 // ============================================================================

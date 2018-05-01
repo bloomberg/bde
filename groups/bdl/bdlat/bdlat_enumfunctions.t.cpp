@@ -160,21 +160,16 @@ int PolygonType::fromInt(PolygonType::Value *result, int number)
 }
 
 int PolygonType::fromString(PolygonType::Value *result,
-                            const char         *string,
-                            int                 stringLength)
+                            const char         *,
+                            int                 )
 {
-    (void)string;
-    (void)stringLength;
-
     *result = RHOMBUS;
     return 0;
 }
 
 inline
-const char *PolygonType::toString(PolygonType::Value value)
+const char *PolygonType::toString(PolygonType::Value)
 {
-    (void)value;
-
     return "rhombus";
 }
 

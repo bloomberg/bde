@@ -148,7 +148,7 @@ void testIsNullFootprint(TYPE *)
     bsl::memset(d_bucket.buffer(), 0, sizeof(Bucket));
     ASSERT(Traits::isNull(d_bucket.object()));
 
-    for (unsigned int i = 0; i < sizeof(Bucket); ++i) {
+    for (bsl::size_t i = 0; i < sizeof(Bucket); ++i) {
         bsl::memset(d_bucket.buffer(), 0, sizeof(Bucket));
         d_bucket.buffer()[i] = 1;
         ASSERT(!Traits::isNull(d_bucket.object()));
@@ -166,7 +166,7 @@ void testIsRemovedFootprint(TYPE *)
     bsl::memset(d_bucket.buffer(), 0xFF, sizeof(Bucket));
     ASSERT(Traits::isRemoved(d_bucket.object()));
 
-    for (unsigned int i = 0; i < sizeof(Bucket); ++i) {
+    for (bsl::size_t i = 0; i < sizeof(Bucket); ++i) {
         bsl::memset(d_bucket.buffer(), 0xFF, sizeof(Bucket));
         d_bucket.buffer()[i] = 0;
         ASSERT(!Traits::isRemoved(d_bucket.object()));

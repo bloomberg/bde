@@ -692,10 +692,8 @@ class my_Session{
 };
 
 // MANIPULATORS
-int my_Session::processData(void *data, int length)
+int my_Session::processData(void *, int)
 {
-    (void)data;
-    (void)length;
     return 0;
 }
 
@@ -756,9 +754,8 @@ void my_Server::newConnection(my_Server::Connection *connection)
           bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
-void my_Server::closeConnection(my_Server::Connection *connection)
+void my_Server::closeConnection(my_Server::Connection *)
 {
-    (void)connection;
 }
 
 void my_Server::dataAvailable(my_Server::Connection *connection,

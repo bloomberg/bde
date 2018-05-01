@@ -2705,9 +2705,9 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");  (void)X;
+            Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");
 
-            Obj mY;  const Obj& Y = gg(&mY, "@2012/1/1 30 14");  (void)Y;
+            Obj mY;  const Obj& Y = gg(&mY, "@2012/1/1 30 14");
 
             ASSERT_SAFE_PASS(X.rbeginHolidayCodes(X.beginHolidays()));
             ASSERT_SAFE_FAIL(X.rbeginHolidayCodes(Y.beginHolidays()));
@@ -2728,6 +2728,8 @@ int main(int argc, char *argv[])
 
             ASSERT_SAFE_PASS(X.rendHolidayCodes(bdlt::Date(2014, 1, 15)));
             ASSERT_SAFE_FAIL(X.rendHolidayCodes(bdlt::Date(2014, 1, 16)));
+
+            (void)Y;
         }
       } break;
       case 21: {
@@ -2960,9 +2962,9 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");  (void)X;
+            Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");
 
-            Obj mY;  const Obj& Y = gg(&mY, "@2012/1/1 30 14");  (void)Y;
+            Obj mY;  const Obj& Y = gg(&mY, "@2012/1/1 30 14");
 
             ASSERT_SAFE_PASS(X.beginHolidayCodes(X.beginHolidays()));
             ASSERT_SAFE_FAIL(X.beginHolidayCodes(Y.beginHolidays()));
@@ -2983,6 +2985,8 @@ int main(int argc, char *argv[])
 
             ASSERT_PASS(X.rendHolidayCodes(bdlt::Date(2014, 1, 15)));
             ASSERT_FAIL(X.rendHolidayCodes(bdlt::Date(2014, 1, 16)));
+
+            (void)Y;
         }
       } break;
       case 20: {
