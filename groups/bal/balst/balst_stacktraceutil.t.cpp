@@ -44,6 +44,7 @@
 #include <bsl_vector.h>
 
 #include <ctype.h>
+#include <math.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -215,14 +216,18 @@ typedef bsls::StackAddressUtil Address;
 
 #if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_CLANG)
 # define u_STATIC
+    enum { e_STATIC_DISABLED = 1 };
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 # if BSLS_PLATFORM_CMP_VERSION >= 1700 || BSLS_PLATFORM_CMP_VERSION < 2000
 #   define u_STATIC
+    enum { e_STATIC_DISABLED = 1 };
 # else
 #   define u_STATIC static
+    enum { e_STATIC_DISABLED = 0 };
 # endif
 #else
 # define u_STATIC static
+    enum { e_STATIC_DISABLED = 0 };
 #endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BSLS_PLATFORM_CPU_64_BIT)
@@ -1107,26 +1112,26 @@ void case_5_top(bool demangle, bool useTestAllocator)
                                                                    "function");
                 const bool funcFrame =
                                 bsl::strstr(sn, "bsl") && !funcMatch.isEmpty();
-                if (!funcFrame) {
-                    LOOP3_ASSERT(i, sn, match, bsl::strstr(sn, match));
-                    if (demangle && !FORMAT_DLADDR) {
-                        LOOP4_ASSERT(i, sn, match, len,
-                                                !bsl::strncmp(sn, match, len));
-                    }
+                const bool isMatch = bsl::strstr(sn, match);
+
+                ASSERTV(sn, funcFrame || isMatch);
+                if (demangle && isMatch && !FORMAT_DLADDR) {
+                    ASSERTV(i, sn, match, len, !bsl::strncmp(sn, match, len));
                 }
 
-                ++recursersFound;
+                recursersFound += isMatch;
 
-                if (!(funcFrame && FORMAT_ELF && !FORMAT_DWARF) &&
+                const char *sfnMatch = funcFrame
+                                     ? "bslstl_function.h"
+                                     : "balst_stacktraceutil.t.cpp";
+                const char *sfn = st[i].sourceFileName().c_str();
+
+                if (!(FORMAT_ELF && !FORMAT_DWARF &&
+                                            (!isMatch || e_STATIC_DISABLED)) &&
                                                   !FORMAT_DLADDR && DEBUG_ON) {
                     // 'case_5_bottom' is static, so the source file name will
                     // be known on elf, thus it will be known for all
                     // platforms other than Mach-O.
-
-                    const char *sfnMatch = funcFrame
-                                         ? "bslstl_function.h"
-                                         : "balst_stacktraceutil.t.cpp";
-                    const char *sfn = st[i].sourceFileName().c_str();
 
                     ASSERT(!FORMAT_DWARF || '/' == sfn[0]);
                     if ('/' == sfn[0]) {
@@ -1137,7 +1142,15 @@ void case_5_top(bool demangle, bool useTestAllocator)
                     int sfnLen = (int) bsl::strlen(sfn);
                     sfn += bsl::max(0, sfnLen - sfnMatchLen);
 
-                    LOOP2_ASSERT(sfn, sfnMatch, !bsl::strcmp(sfn, sfnMatch));
+                    ASSERTV(sn, funcFrame, sfn, sfnMatch, e_STATIC_DISABLED,
+                                                  !bsl::strcmp(sfn, sfnMatch));
+
+                    if (veryVerbose) cout << "File name for " << sn << " of "
+                                                       << sfn << " matched.\n";
+                }
+                else {
+                    if (veryVerbose) cout << "File name for " << sn << " of "
+                                   << sfnMatch << " not attempted to match.\n";
                 }
             }
 
@@ -1852,6 +1865,21 @@ int main(int argc, char *argv[])
         TC::pushVec(&v, L_, &bsls::TimeInterval::totalNanoseconds,
                          "BloombergLP::bsls::TimeInterval::totalNanoseconds()",
                                     "totalNanoseconds", "bsls_timeinterval.h");
+        TC::pushVec(&v, L_, &bsls::TimeInterval::totalNanoseconds,
+                         "BloombergLP::bsls::TimeInterval::totalNanoseconds()",
+                                    "totalNanoseconds", "bsls_timeinterval.h");
+
+//      This part of the test was eliminated, because the lib containing
+//      'math.h' symbols seems to be stripped of DWARF symbols, so we aren't
+//      really able to test DWARF here.
+//
+//      ASSERT(0.0 == ::sin(0.0));              // make sure the lib is loaded
+//      typedef double (*SinCall)(double);      // Avoid compiler complaints
+//                                              // about 'sin' being
+//      SinCall sinPtr = &bsl::sin;             // overloaeded.
+//
+//      TC::pushVec(&v, L_, sinPtr, "", "sin", 0);
+
 
         bsl::vector<void *> addressVec(&ta);
         for (unsigned ii = 0; ii < v.size(); ++ii) {
@@ -1889,10 +1917,15 @@ int main(int argc, char *argv[])
 
             // Search for enterprise namespace to get past func return type.
 
-            const char *name = bsl::strstr(frame.symbolName().c_str(),
-                                           "BloombergLP");
+            const bool blp = bsl::string::npos != expName.find("BloombergLP");
+            const char *name = blp ? bsl::strstr(frame.symbolName().c_str(),
+                                                 "BloombergLP")
+                                   : frame.symbolName().c_str();
             ASSERTV(LINE, expName, frame.symbolName().c_str(), name);
-            if (name) {
+            if (expName.empty()) {
+                ASSERTV(LINE, expMangled, name, bsl::strstr(name, expMangled));
+            }
+            else {
                 ASSERTV(LINE, expName, name,
                                           0 == bsl::strncmp(expName.c_str(),
                                                             name,
@@ -1900,28 +1933,30 @@ int main(int argc, char *argv[])
             }
 
             const char * const mangledName = frame.mangledSymbolName().c_str();
-            ASSERTV(LINE, mangledName, bsl::strstr(mangledName,"BloombergLP"));
+            ASSERTV(LINE, mangledName, !blp ||
+                                       bsl::strstr(mangledName,"BloombergLP"));
             ASSERTV(LINE, mangledName, expMangled,
                                          bsl::strstr(mangledName, expMangled));
 
             if (DEBUG_ON && (!FORMAT_ELF || FORMAT_DWARF) && !FORMAT_DLADDR) {
-                ASSERTV(LINE, expName, frame.isSourceFileNameKnown());
-                ASSERTV(LINE, expName, frame.lineNumber() > 10);
+                ASSERTV(LINE, expName, !sourceName ||
+                                                frame.isSourceFileNameKnown());
+                if (frame.isSourceFileNameKnown()) {
+                    if (sourceName) {
+                        ASSERTV(LINE, frame.sourceFileName(), sourceName,
+                                    bsl::strstr(frame.sourceFileName().c_str(),
+                                                                  sourceName));
 
-                if (!frame.isSourceFileNameKnown() || frame.lineNumber() < 0) {
-                    continue;
-                }
-
-                ASSERTV(LINE, frame.sourceFileName(), sourceName,
-                      bsl::strstr(frame.sourceFileName().c_str(), sourceName));
-
-                TC::expandPath(&path, sourceName);
-                const char *foundName = bsl::strstr(
-                           frame.sourceFileName().c_str(), path.c_str());
-                ASSERTV(LINE, expName, frame.sourceFileName(), path,foundName);
-                if (foundName) {
-                    ASSERTV(LINE, path, foundName,
+                        TC::expandPath(&path, sourceName);
+                        const char *foundName = bsl::strstr(
+                                 frame.sourceFileName().c_str(), path.c_str());
+                        ASSERTV(LINE, expName, frame.sourceFileName(),
+                                                               path,foundName);
+                        if (foundName) {
+                            ASSERTV(LINE, path, foundName,
                                         !bsl::strcmp(path.c_str(), foundName));
+                        }
+                    }
                 }
 
                 ASSERTV(LINE, expName, frame.lineNumber(),

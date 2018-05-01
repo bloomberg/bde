@@ -231,28 +231,100 @@ const char *StackTraceResolver_DwarfReader::stringForAt(unsigned id)
 {
     static const char rn[] = { "dwarfStringForAt:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (id) {
       // Dwarf 3
 
+      CASE(e_DW_AT_sibling);
+      CASE(e_DW_AT_location);
       CASE(e_DW_AT_name);
       CASE(e_DW_AT_ordering);
+      CASE(e_DW_AT_byte_size);
+      CASE(e_DW_AT_bit_offset);
+      CASE(e_DW_AT_bit_size);
       CASE(e_DW_AT_stmt_list);
       CASE(e_DW_AT_low_pc);
       CASE(e_DW_AT_high_pc);
       CASE(e_DW_AT_language);
+      CASE(e_DW_AT_discr);
+      CASE(e_DW_AT_discr_value);
+      CASE(e_DW_AT_visibility);
+      CASE(e_DW_AT_import);
+      CASE(e_DW_AT_string_length);
+      CASE(e_DW_AT_common_reference);
       CASE(e_DW_AT_comp_dir);
+      CASE(e_DW_AT_const_value);
+      CASE(e_DW_AT_containing_type);
+      CASE(e_DW_AT_default_value);
+      CASE(e_DW_AT_inline);
+      CASE(e_DW_AT_is_optional);
+      CASE(e_DW_AT_lower_bound);
       CASE(e_DW_AT_producer);
+      CASE(e_DW_AT_prototyped);
+      CASE(e_DW_AT_return_addr);
+      CASE(e_DW_AT_start_scope);
+      CASE(e_DW_AT_bit_stride);
+      CASE(e_DW_AT_upper_bound);
+      CASE(e_DW_AT_abstract_origin);
+      CASE(e_DW_AT_accessibility);
+      CASE(e_DW_AT_address_class);
+      CASE(e_DW_AT_artificial);
       CASE(e_DW_AT_base_types);
+      CASE(e_DW_AT_calling_convention);
+      CASE(e_DW_AT_count);
+      CASE(e_DW_AT_data_member_location);
+      CASE(e_DW_AT_decl_column);
+      CASE(e_DW_AT_decl_file);
+      CASE(e_DW_AT_decl_line);
+      CASE(e_DW_AT_declaration);
+      CASE(e_DW_AT_discr_list);
+      CASE(e_DW_AT_encoding);
+      CASE(e_DW_AT_external);
+      CASE(e_DW_AT_frame_base);
+      CASE(e_DW_AT_friend);
       CASE(e_DW_AT_identifier_case);
       CASE(e_DW_AT_macro_info);
+      CASE(e_DW_AT_namelist_item);
+      CASE(e_DW_AT_priority);
       CASE(e_DW_AT_segment);
+      CASE(e_DW_AT_specification);
+      CASE(e_DW_AT_static_link);
+      CASE(e_DW_AT_type);
+      CASE(e_DW_AT_use_location);
+      CASE(e_DW_AT_variable_parameter);
+      CASE(e_DW_AT_virtuality);
+      CASE(e_DW_AT_vtable_elem_location);
+      CASE(e_DW_AT_allocated);
+      CASE(e_DW_AT_associated);
+      CASE(e_DW_AT_data_location);
+      CASE(e_DW_AT_byte_stride);
       CASE(e_DW_AT_entry_pc);
       CASE(e_DW_AT_use_UTF8);
+      CASE(e_DW_AT_extension);
       CASE(e_DW_AT_ranges);
+      CASE(e_DW_AT_trampoline);
+      CASE(e_DW_AT_call_column);
+      CASE(e_DW_AT_call_file);
+      CASE(e_DW_AT_call_line);
       CASE(e_DW_AT_description);
+      CASE(e_DW_AT_binary_scale);
+      CASE(e_DW_AT_decimal_scale);
+      CASE(e_DW_AT_small);
+      CASE(e_DW_AT_decimal_sign);
+      CASE(e_DW_AT_digit_count);
+      CASE(e_DW_AT_picture_string);
+      CASE(e_DW_AT_mutable);
+      CASE(e_DW_AT_threads_scaled);
+      CASE(e_DW_AT_explicit);
+      CASE(e_DW_AT_object_pointer);
+      CASE(e_DW_AT_endianity);
+      CASE(e_DW_AT_elemental);
+      CASE(e_DW_AT_pure);
+      CASE(e_DW_AT_recursive);
 
       // Dwarf 4
 
@@ -262,13 +334,20 @@ const char *StackTraceResolver_DwarfReader::stringForAt(unsigned id)
       CASE(e_DW_AT_const_expr);
       CASE(e_DW_AT_enum_class);
       CASE(e_DW_AT_linkage_name);
-      default: {
-        u_eprintf("%s unrecognized 'e_DW_AT_? value = 0x%x\n", rn, id);
+      CASE(e_DW_AT_lo_user);
+      CASE(e_DW_AT_hi_user);
 
-        return "e_DW_AT_????";                                        // RETURN
+      default: {
+        u_eprintf("%s unrecognized 'DW_AT_? value = 0x%x\n", rn, id);
+
+        return "DW_AT_????";                                          // RETURN
       }
     }
 #undef CASE
+
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 const char *StackTraceResolver_DwarfReader::stringForForm(
@@ -276,8 +355,10 @@ const char *StackTraceResolver_DwarfReader::stringForForm(
 {
     static const char rn[] = { "dwarfStringForForm:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (id) {
       // DWARF version 3
@@ -311,12 +392,15 @@ const char *StackTraceResolver_DwarfReader::stringForForm(
       CASE(e_DW_FORM_flag_present);
       CASE(e_DW_FORM_ref_sig8);
       default: {
-        u_eprintf("%s unrecognized 'e_DW_FORM_?' value = 0x%x\n", rn, id);
+        u_eprintf("%s unrecognized 'DW_FORM_?' value = 0x%x\n", rn, id);
 
-        return "e_DW_FORM_????";                                      // RETURN
+        return "DW_FORM_????";                                        // RETURN
       }
     }
 #undef CASE
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 const char *StackTraceResolver_DwarfReader::stringForInlineState(
@@ -324,27 +408,34 @@ const char *StackTraceResolver_DwarfReader::stringForInlineState(
 {
     static const char rn[] = { "dwarfStringForInlineState:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (inlineState) {
       CASE(e_DW_INL_declared_inlined);
       default: {
-        u_eprintf("%s unrecognized 'e_DW_INL_?' value = 0x%x\n", rn,
+        u_eprintf("%s unrecognized 'DW_INL_?' value = 0x%x\n", rn,
                                                                   inlineState);
 
-        return "e_DW_INL_????";                                       // RETURN
+        return "DW_INL_????";                                         // RETURN
       }
     }
 #undef CASE
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 const char *StackTraceResolver_DwarfReader::stringForLNE(unsigned id)
 {
     static const char rn[] = { "dwarfStringForLNE:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (id) {
       // version 3 values
@@ -357,20 +448,25 @@ const char *StackTraceResolver_DwarfReader::stringForLNE(unsigned id)
 
       CASE(e_DW_LNE_set_discriminator);
       default: {
-        u_eprintf("%s unrecognized 'e_DW_LNE_?' value = %u\n", rn, id);
+        u_eprintf("%s unrecognized 'DW_LNE_?' value = %u\n", rn, id);
 
-        return "e_DW_LNE_????";                                       // RETURN
+        return "DW_LNE_????";                                         // RETURN
       }
     }
 #undef CASE
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 const char *StackTraceResolver_DwarfReader::stringForLNS(unsigned id)
 {
     static const char rn[] = { "dwarfStringForLNS:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (id) {
       CASE(e_DW_LNS_copy);
@@ -386,28 +482,86 @@ const char *StackTraceResolver_DwarfReader::stringForLNS(unsigned id)
       CASE(e_DW_LNS_set_epilogue_begin);
       CASE(e_DW_LNS_set_isa);
       default: {
-        u_eprintf("%s unrecognized 'e_DW_LNS_?' value = %u\n", rn, id);
+        u_eprintf("%s unrecognized 'DW_LNS_?' value = %u\n", rn, id);
 
-        return "e_DW_LNS_????";                                       // RETURN
+        return "DW_LNS_????";                                         // RETURN
       }
     }
 #undef CASE
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 const char *StackTraceResolver_DwarfReader::stringForTag(unsigned tag)
 {
     static const char rn[] = { "dwarfStringForTag:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (tag) {
       // version 3 values
 
+      CASE(e_DW_TAG_array_type);
+      CASE(e_DW_TAG_class_type);
+      CASE(e_DW_TAG_entry_point);
+      CASE(e_DW_TAG_enumeration_type);
       CASE(e_DW_TAG_formal_parameter);
       CASE(e_DW_TAG_imported_declaration);
+      CASE(e_DW_TAG_label);
+      CASE(e_DW_TAG_lexical_block);
+      CASE(e_DW_TAG_member);
+      CASE(e_DW_TAG_pointer_type);
+      CASE(e_DW_TAG_reference_type);
       CASE(e_DW_TAG_compile_unit);
+      CASE(e_DW_TAG_string_type);
+      CASE(e_DW_TAG_structure_type);
+      CASE(e_DW_TAG_subroutine_type);
+      CASE(e_DW_TAG_typedef);
+      CASE(e_DW_TAG_union_type);
+      CASE(e_DW_TAG_unspecified_parameters);
+      CASE(e_DW_TAG_variant);
+      CASE(e_DW_TAG_common_block);
+      CASE(e_DW_TAG_common_inclusion);
+      CASE(e_DW_TAG_inheritance);
+      CASE(e_DW_TAG_inlined_subroutine);
+      CASE(e_DW_TAG_module);
+      CASE(e_DW_TAG_ptr_to_member_type);
+      CASE(e_DW_TAG_set_type);
+      CASE(e_DW_TAG_subrange_type);
+      CASE(e_DW_TAG_with_stmt);
+      CASE(e_DW_TAG_access_declaration);
+      CASE(e_DW_TAG_base_type);
+      CASE(e_DW_TAG_catch_block);
+      CASE(e_DW_TAG_const_type);
+      CASE(e_DW_TAG_constant);
+      CASE(e_DW_TAG_enumerator);
+      CASE(e_DW_TAG_file_type);
+      CASE(e_DW_TAG_friend);
+      CASE(e_DW_TAG_namelist);
+      CASE(e_DW_TAG_namelist_item);
+      CASE(e_DW_TAG_packed_type);
+      CASE(e_DW_TAG_subprogram);
+      CASE(e_DW_TAG_template_type_parameter);
+      CASE(e_DW_TAG_template_value_parameter);
+      CASE(e_DW_TAG_thrown_type);
+      CASE(e_DW_TAG_try_block);
+      CASE(e_DW_TAG_variant_part);
+      CASE(e_DW_TAG_variable);
+      CASE(e_DW_TAG_volatile_type);
+      CASE(e_DW_TAG_dwarf_procedure);
+      CASE(e_DW_TAG_restrict_type);
+      CASE(e_DW_TAG_interface_type);
+      CASE(e_DW_TAG_namespace);
+      CASE(e_DW_TAG_imported_module);
+      CASE(e_DW_TAG_unspecified_type);
       CASE(e_DW_TAG_partial_unit);
+      CASE(e_DW_TAG_imported_unit);
+      CASE(e_DW_TAG_condition);
+      CASE(e_DW_TAG_shared_type);
       CASE(e_DW_TAG_lo_user);
       CASE(e_DW_TAG_hi_user);
 
@@ -417,19 +571,23 @@ const char *StackTraceResolver_DwarfReader::stringForTag(unsigned tag)
       CASE(e_DW_TAG_type_unit);
       CASE(e_DW_TAG_rvalue_reference_type);
       CASE(e_DW_TAG_template_alias);
+
       default: {
-        if (tag < e_DW_TAG_lo_user || tag > e_DW_TAG_hi_user) {
-            u_eprintf("%s unrecognized 'e_DW_TAG_?' value = 0x%x\n", rn, tag);
-        }
-        else {
+        if (e_DW_TAG_lo_user <= tag && tag <= e_DW_TAG_hi_user) {
             u_eprintf("%s unrecognized user-defined 'e_DW_TAG_?'"
                                                    " value = 0x%x\n", rn, tag);
         }
+        else {
+            u_eprintf("%s unrecognized 'DW_TAG_?' value = 0x%x\n", rn, tag);
+        }
 
-        return "e_DW_TAG_????";                                       // RETURN
+        return "DW_TAG_????";                                         // RETURN
       }
     }
 #undef CASE
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 // CREATORS

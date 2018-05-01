@@ -102,6 +102,8 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
     // TYPES
     typedef bsls::Types::UintPtr UintPtr;   // 32 bit unsigned on 32 bit, 64
                                             // bit unsigned on 64 bit.
+    typedef bsls::Types::IntPtr  IntPtr;    // 32 bit signed on 32 bit, 64
+                                            // bit signed on 64 bit.
 
     typedef bdls::FilesystemUtil::Offset
                                  Offset;    // Usually used for relative

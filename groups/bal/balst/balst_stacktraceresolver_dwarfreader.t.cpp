@@ -408,29 +408,108 @@ int main(int argc, char *argv[])
 #define u_CHECK(id, type)                                                     \
         {                                                                     \
             const char *str_p = Obj::stringFor ## type (id);                  \
-            bsl::strcpy(buf, "Obj::");                                        \
+            bsl::strcpy(buf, "Obj::e_");                                      \
             bsl::strcat(buf, str_p);                                          \
             ASSERTV(L_, #type, id, buf, !bsl::strcmp(buf, #id));              \
             ASSERTV(L_, #type, str_p, !bsl::strchr(str_p, '?'));              \
             intValues.insert(id);                                             \
         }
 
+        u_CHECK(Obj::e_DW_AT_sibling, At);
+        u_CHECK(Obj::e_DW_AT_location, At);
         u_CHECK(Obj::e_DW_AT_name, At);
         u_CHECK(Obj::e_DW_AT_ordering, At);
+        u_CHECK(Obj::e_DW_AT_byte_size, At);
+        u_CHECK(Obj::e_DW_AT_bit_offset, At);
+        u_CHECK(Obj::e_DW_AT_bit_size, At);
         u_CHECK(Obj::e_DW_AT_stmt_list, At);
         u_CHECK(Obj::e_DW_AT_low_pc, At);
         u_CHECK(Obj::e_DW_AT_high_pc, At);
         u_CHECK(Obj::e_DW_AT_language, At);
+        u_CHECK(Obj::e_DW_AT_discr, At);
+        u_CHECK(Obj::e_DW_AT_discr_value, At);
+        u_CHECK(Obj::e_DW_AT_visibility, At);
+        u_CHECK(Obj::e_DW_AT_import, At);
+        u_CHECK(Obj::e_DW_AT_string_length, At);
+        u_CHECK(Obj::e_DW_AT_common_reference, At);
         u_CHECK(Obj::e_DW_AT_comp_dir, At);
+        u_CHECK(Obj::e_DW_AT_const_value, At);
+        u_CHECK(Obj::e_DW_AT_containing_type, At);
+        u_CHECK(Obj::e_DW_AT_default_value, At);
+        u_CHECK(Obj::e_DW_AT_inline, At);
+        u_CHECK(Obj::e_DW_AT_is_optional, At);
+        u_CHECK(Obj::e_DW_AT_lower_bound, At);
         u_CHECK(Obj::e_DW_AT_producer, At);
+        u_CHECK(Obj::e_DW_AT_prototyped, At);
+        u_CHECK(Obj::e_DW_AT_return_addr, At);
+        u_CHECK(Obj::e_DW_AT_start_scope, At);
+        u_CHECK(Obj::e_DW_AT_bit_stride, At);
+        u_CHECK(Obj::e_DW_AT_upper_bound, At);
+        u_CHECK(Obj::e_DW_AT_abstract_origin, At);
+        u_CHECK(Obj::e_DW_AT_accessibility, At);
+        u_CHECK(Obj::e_DW_AT_address_class, At);
+        u_CHECK(Obj::e_DW_AT_artificial, At);
         u_CHECK(Obj::e_DW_AT_base_types, At);
+        u_CHECK(Obj::e_DW_AT_calling_convention, At);
+        u_CHECK(Obj::e_DW_AT_count, At);
+        u_CHECK(Obj::e_DW_AT_data_member_location, At);
+        u_CHECK(Obj::e_DW_AT_decl_column, At);
+        u_CHECK(Obj::e_DW_AT_decl_file, At);
+        u_CHECK(Obj::e_DW_AT_decl_line, At);
+        u_CHECK(Obj::e_DW_AT_declaration, At);
+        u_CHECK(Obj::e_DW_AT_discr_list, At);
+        u_CHECK(Obj::e_DW_AT_encoding, At);
+        u_CHECK(Obj::e_DW_AT_external, At);
+        u_CHECK(Obj::e_DW_AT_frame_base, At);
+        u_CHECK(Obj::e_DW_AT_friend, At);
         u_CHECK(Obj::e_DW_AT_identifier_case, At);
         u_CHECK(Obj::e_DW_AT_macro_info, At);
+        u_CHECK(Obj::e_DW_AT_namelist_item, At);
+        u_CHECK(Obj::e_DW_AT_priority, At);
         u_CHECK(Obj::e_DW_AT_segment, At);
+        u_CHECK(Obj::e_DW_AT_specification, At);
+        u_CHECK(Obj::e_DW_AT_static_link, At);
+        u_CHECK(Obj::e_DW_AT_type, At);
+        u_CHECK(Obj::e_DW_AT_use_location, At);
+        u_CHECK(Obj::e_DW_AT_variable_parameter, At);
+        u_CHECK(Obj::e_DW_AT_virtuality, At);
+        u_CHECK(Obj::e_DW_AT_vtable_elem_location, At);
+        u_CHECK(Obj::e_DW_AT_allocated, At);
+        u_CHECK(Obj::e_DW_AT_associated, At);
+        u_CHECK(Obj::e_DW_AT_data_location, At);
+        u_CHECK(Obj::e_DW_AT_byte_stride, At);
         u_CHECK(Obj::e_DW_AT_entry_pc, At);
         u_CHECK(Obj::e_DW_AT_use_UTF8, At);
+        u_CHECK(Obj::e_DW_AT_extension, At);
         u_CHECK(Obj::e_DW_AT_ranges, At);
+        u_CHECK(Obj::e_DW_AT_trampoline, At);
+        u_CHECK(Obj::e_DW_AT_call_column, At);
+        u_CHECK(Obj::e_DW_AT_call_file, At);
+        u_CHECK(Obj::e_DW_AT_call_line, At);
         u_CHECK(Obj::e_DW_AT_description, At);
+        u_CHECK(Obj::e_DW_AT_binary_scale, At);
+        u_CHECK(Obj::e_DW_AT_decimal_scale, At);
+        u_CHECK(Obj::e_DW_AT_small, At);
+        u_CHECK(Obj::e_DW_AT_decimal_sign, At);
+        u_CHECK(Obj::e_DW_AT_digit_count, At);
+        u_CHECK(Obj::e_DW_AT_picture_string, At);
+        u_CHECK(Obj::e_DW_AT_mutable, At);
+        u_CHECK(Obj::e_DW_AT_threads_scaled, At);
+        u_CHECK(Obj::e_DW_AT_explicit, At);
+        u_CHECK(Obj::e_DW_AT_object_pointer, At);
+        u_CHECK(Obj::e_DW_AT_endianity, At);
+        u_CHECK(Obj::e_DW_AT_elemental, At);
+        u_CHECK(Obj::e_DW_AT_pure, At);
+        u_CHECK(Obj::e_DW_AT_recursive, At);
+
+        u_CHECK(Obj::e_DW_AT_signature, At);
+        u_CHECK(Obj::e_DW_AT_main_subprogram, At);
+        u_CHECK(Obj::e_DW_AT_data_bit_offset, At);
+        u_CHECK(Obj::e_DW_AT_const_expr, At);
+        u_CHECK(Obj::e_DW_AT_enum_class, At);
+        u_CHECK(Obj::e_DW_AT_linkage_name, At);
+        u_CHECK(Obj::e_DW_AT_lo_user, At);
+        u_CHECK(Obj::e_DW_AT_hi_user, At);
 
         u_CHECK(Obj::e_DW_AT_signature, At);
         u_CHECK(Obj::e_DW_AT_main_subprogram, At);
@@ -448,10 +527,13 @@ int main(int argc, char *argv[])
                 intValues.erase(ii);
             }
             else {
-                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_AT_????"));
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "DW_AT_????"));
             }
         }
+        intValues.erase(Obj::e_DW_AT_lo_user);
+        intValues.erase(Obj::e_DW_AT_hi_user);
         ASSERTV(intValues.empty());
+        intValues.clear();
 
         u_CHECK(Obj::e_DW_FORM_addr, Form);
         u_CHECK(Obj::e_DW_FORM_block2, Form);
@@ -490,10 +572,11 @@ int main(int argc, char *argv[])
                 intValues.erase(ii);
             }
             else {
-                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_FORM_????"));
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "DW_FORM_????"));
             }
         }
         ASSERTV(intValues.empty());
+        intValues.clear();
 
         u_CHECK(Obj::e_DW_INL_declared_inlined, InlineState);
 
@@ -507,10 +590,11 @@ int main(int argc, char *argv[])
                 intValues.erase(ii);
             }
             else {
-                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_INL_????"));
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "DW_INL_????"));
             }
         }
         ASSERTV(intValues.empty());
+        intValues.clear();
 
         u_CHECK(Obj::e_DW_LNE_end_sequence, LNE);
         u_CHECK(Obj::e_DW_LNE_set_address, LNE);
@@ -528,10 +612,11 @@ int main(int argc, char *argv[])
                 intValues.erase(ii);
             }
             else {
-                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_LNE_????"));
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "DW_LNE_????"));
             }
         }
         ASSERTV(intValues.empty());
+        intValues.clear();
 
         u_CHECK(Obj::e_DW_LNS_copy, LNS);
         u_CHECK(Obj::e_DW_LNS_advance_pc, LNS);
@@ -556,15 +641,69 @@ int main(int argc, char *argv[])
                 intValues.erase(ii);
             }
             else {
-                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_LNS_????"));
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "DW_LNS_????"));
             }
         }
         ASSERTV(intValues.empty());
+        intValues.clear();
 
+        u_CHECK(Obj::e_DW_TAG_array_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_class_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_entry_point, Tag);
+        u_CHECK(Obj::e_DW_TAG_enumeration_type, Tag);
         u_CHECK(Obj::e_DW_TAG_formal_parameter, Tag);
         u_CHECK(Obj::e_DW_TAG_imported_declaration, Tag);
+        u_CHECK(Obj::e_DW_TAG_label, Tag);
+        u_CHECK(Obj::e_DW_TAG_lexical_block, Tag);
+        u_CHECK(Obj::e_DW_TAG_member, Tag);
+        u_CHECK(Obj::e_DW_TAG_pointer_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_reference_type, Tag);
         u_CHECK(Obj::e_DW_TAG_compile_unit, Tag);
+        u_CHECK(Obj::e_DW_TAG_string_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_structure_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_subroutine_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_typedef, Tag);
+        u_CHECK(Obj::e_DW_TAG_union_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_unspecified_parameters, Tag);
+        u_CHECK(Obj::e_DW_TAG_variant, Tag);
+        u_CHECK(Obj::e_DW_TAG_common_block, Tag);
+        u_CHECK(Obj::e_DW_TAG_common_inclusion, Tag);
+        u_CHECK(Obj::e_DW_TAG_inheritance, Tag);
+        u_CHECK(Obj::e_DW_TAG_inlined_subroutine, Tag);
+        u_CHECK(Obj::e_DW_TAG_module, Tag);
+        u_CHECK(Obj::e_DW_TAG_ptr_to_member_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_set_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_subrange_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_with_stmt, Tag);
+        u_CHECK(Obj::e_DW_TAG_access_declaration, Tag);
+        u_CHECK(Obj::e_DW_TAG_base_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_catch_block, Tag);
+        u_CHECK(Obj::e_DW_TAG_const_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_constant, Tag);
+        u_CHECK(Obj::e_DW_TAG_enumerator, Tag);
+        u_CHECK(Obj::e_DW_TAG_file_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_friend, Tag);
+        u_CHECK(Obj::e_DW_TAG_namelist, Tag);
+        u_CHECK(Obj::e_DW_TAG_namelist_item, Tag);
+        u_CHECK(Obj::e_DW_TAG_packed_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_subprogram, Tag);
+        u_CHECK(Obj::e_DW_TAG_template_type_parameter, Tag);
+        u_CHECK(Obj::e_DW_TAG_template_value_parameter, Tag);
+        u_CHECK(Obj::e_DW_TAG_thrown_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_try_block, Tag);
+        u_CHECK(Obj::e_DW_TAG_variant_part, Tag);
+        u_CHECK(Obj::e_DW_TAG_variable, Tag);
+        u_CHECK(Obj::e_DW_TAG_volatile_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_dwarf_procedure, Tag);
+        u_CHECK(Obj::e_DW_TAG_restrict_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_interface_type, Tag);
+        u_CHECK(Obj::e_DW_TAG_namespace, Tag);
+        u_CHECK(Obj::e_DW_TAG_imported_module, Tag);
+        u_CHECK(Obj::e_DW_TAG_unspecified_type, Tag);
         u_CHECK(Obj::e_DW_TAG_partial_unit, Tag);
+        u_CHECK(Obj::e_DW_TAG_imported_unit, Tag);
+        u_CHECK(Obj::e_DW_TAG_condition, Tag);
+        u_CHECK(Obj::e_DW_TAG_shared_type, Tag);
         u_CHECK(Obj::e_DW_TAG_lo_user, Tag);
         u_CHECK(Obj::e_DW_TAG_hi_user, Tag);
 
@@ -583,7 +722,7 @@ int main(int argc, char *argv[])
                 intValues.erase(ii);
             }
             else {
-                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "e_DW_TAG_????"));
+                ASSERTV(L_, ii, str_p, !bsl::strcmp(str_p, "DW_TAG_????"));
             }
         }
         ASSERTV(intValues.empty());

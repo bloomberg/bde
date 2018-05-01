@@ -158,10 +158,7 @@ struct ObjectFileFormat {
     typedef Elf Policy;
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_ELF 1
 
-# if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)        \
-    && BSLS_PLATFORM_CMP_VERSION < 70100
-    // DWARF support is implemented only for Linux g++ < 7.1.0.
-
+# if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
 # endif
 
