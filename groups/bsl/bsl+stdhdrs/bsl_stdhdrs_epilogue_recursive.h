@@ -367,6 +367,9 @@
 # ifndef INCLUDED_BSLMF_REMOVECONST
 #   include <bslmf_removeconst.h>
 # endif
+# ifndef INCLUDED_BSLMF_REMOVEEXTENT
+#   include <bslmf_removeextent.h>
+# endif
 # ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #   include <bslmf_removereference.h>
 # endif
@@ -411,6 +414,9 @@
 # endif
 # ifndef INCLUDED_BSLMF_ADDVOLATILE
 #   include <bslmf_addvolatile.h>
+# endif
+# ifndef INCLUDED_BSLMF_DECAY
+#   include <bslmf_decay.h>
 # endif
 # ifndef INCLUDED_BSLMF_ISARITHMETIC
 #   include <bslmf_isarithmetic.h>
