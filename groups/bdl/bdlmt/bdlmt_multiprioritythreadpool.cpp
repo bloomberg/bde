@@ -178,7 +178,7 @@ MultipriorityThreadPool::MultipriorityThreadPool(
                               const bslmt::ThreadAttributes&  threadAttributes,
                               bslma::Allocator               *basicAllocator)
 : d_queue(numPriorities, bslma::Default::allocator(basicAllocator))
-, d_threadAttributes(threadAttributes)
+, d_threadAttributes(threadAttributes, bslma::Default::allocator(basicAllocator))
 , d_threadGroup(bslma::Default::allocator(basicAllocator))
 , d_numThreads(numThreads)
 , d_threadStartState(e_STOPPED)

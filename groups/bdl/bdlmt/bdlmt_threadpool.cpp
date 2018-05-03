@@ -350,7 +350,7 @@ ThreadPool::ThreadPool(const bslmt::ThreadAttributes&  threadAttributes,
                        int                             maxIdleTime,
                        bslma::Allocator               *basicAllocator)
 : d_queue(basicAllocator)
-, d_threadAttributes(threadAttributes)
+, d_threadAttributes(threadAttributes, basicAllocator)
 , d_maxThreads(maxThreads)
 , d_minThreads(minThreads)
 , d_threadCount(0)
