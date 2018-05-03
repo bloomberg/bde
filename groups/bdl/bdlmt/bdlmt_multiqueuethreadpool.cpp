@@ -13,8 +13,6 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 #include <bslmt_threadutil.h>
 #include <bslmt_writelockguard.h>
 
-#include <bslma_default.h>
-
 #include <bsls_assert.h>
 
 #include <bsl_memory.h>
@@ -343,7 +341,7 @@ MultiQueueThreadPool::MultiQueueThreadPool(
                               int                             maxThreads,
                               int                             maxIdleTime,
                               bslma::Allocator               *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
+: d_allocator_p(basicAllocator)
 , d_threadPoolIsOwned(true)
 , d_queuePool(bdlf::BindUtil::bind(&createMultiQueueThreadPool_Queue,
                                    bdlf::PlaceHolders::_1,
@@ -367,7 +365,7 @@ MultiQueueThreadPool::MultiQueueThreadPool(
 
 MultiQueueThreadPool::MultiQueueThreadPool(ThreadPool       *threadPool,
                                            bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
+: d_allocator_p(basicAllocator)
 , d_threadPool_p(threadPool)
 , d_threadPoolIsOwned(false)
 , d_queuePool(bdlf::BindUtil::bind(&createMultiQueueThreadPool_Queue,

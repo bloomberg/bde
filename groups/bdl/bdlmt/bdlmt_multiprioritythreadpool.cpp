@@ -39,8 +39,6 @@ BSLS_IDENT_RCSID(bdlmt_multiprioritythreadpool_cpp,"$Id$ $CSID$")
 // that the threads all wait before processing any jobs, and similarly, when
 // stopping, they must stop before processing any other jobs.
 
-#include <bslma_default.h>
-
 #include <bdlf_bind.h>
 #include <bdlf_memfn.h>
 
@@ -158,8 +156,8 @@ MultipriorityThreadPool::MultipriorityThreadPool(
                                               int               numThreads,
                                               int               numPriorities,
                                               bslma::Allocator *basicAllocator)
-: d_queue(numPriorities, bslma::Default::allocator(basicAllocator))
-, d_threadGroup(bslma::Default::allocator(basicAllocator))
+: d_queue(numPriorities, basicAllocator)
+, d_threadGroup(basicAllocator)
 , d_numThreads(numThreads)
 , d_threadStartState(e_STOPPED)
 , d_threadSuspendState(e_RESUMED)
@@ -177,9 +175,9 @@ MultipriorityThreadPool::MultipriorityThreadPool(
                               int                             numPriorities,
                               const bslmt::ThreadAttributes&  threadAttributes,
                               bslma::Allocator               *basicAllocator)
-: d_queue(numPriorities, bslma::Default::allocator(basicAllocator))
-, d_threadAttributes(threadAttributes, bslma::Default::allocator(basicAllocator))
-, d_threadGroup(bslma::Default::allocator(basicAllocator))
+: d_queue(numPriorities, basicAllocator)
+, d_threadAttributes(threadAttributes, basicAllocator)
+, d_threadGroup(basicAllocator)
 , d_numThreads(numThreads)
 , d_threadStartState(e_STOPPED)
 , d_threadSuspendState(e_RESUMED)
