@@ -208,7 +208,7 @@ FixedThreadPool::FixedThreadPool(
 , d_gateCount(0)
 , d_numThreadsReady(0)
 , d_threadGroup(basicAllocator)
-, d_threadAttributes(threadAttributes)
+, d_threadAttributes(threadAttributes, basicAllocator)
 , d_numThreads(numThreads)
 {
     BSLS_ASSERT_OPT(0 != d_numThreads);
@@ -228,6 +228,7 @@ FixedThreadPool::FixedThreadPool(int               numThreads,
 , d_gateCount(0)
 , d_numThreadsReady(0)
 , d_threadGroup(basicAllocator)
+, d_threadAttributes(basicAllocator)
 , d_numThreads(numThreads)
 {
     BSLS_ASSERT_OPT(0 != d_numThreads);
