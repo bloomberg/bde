@@ -221,6 +221,18 @@ int bloombergLP_bdls_FileSystemUtil_isNotFilePermissionsError(
     // open one of the files, which may manifest as one of the following 3
     // values.
 
+#ifdef BSLS_PLATFORM_OS_SOLARIS
+
+    // The Solaris 'glob' function sometimes tries to treat files as
+    // directories, which normally aborts the traversal.  So on Solaris we
+    // treat 'ENOTDIR' as an error that can be safely and completely ignored
+    // (not even reported).
+
+    if (ENOTDIR == errorNum) {
+        return 0;                                                     // RETURN
+    }
+#endif
+
     return EPERM != errorNum && EACCES != errorNum && ENOENT != errorNum;
 }
 

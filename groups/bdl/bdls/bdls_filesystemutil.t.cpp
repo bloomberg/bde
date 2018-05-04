@@ -2428,48 +2428,115 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // SIMPLE MATCHING TEST
+        // MATCHING TESTS
         //
         // Concerns:
         //
-        // Unix "glob()", which is called by 'Obj::visitPaths', which is called
-        // by 'Obj::findMatchingPaths', is failing on IBM 64 bit, unfortunately
-        // the test driver has not detected or reproduced this error.  This
-        // test case is an attempt to get this test driver reproducing the
-        // problem.
+        //: 1 Unix "glob()", which is called by 'Obj::visitPaths', which is
+        //:   called by 'Obj::findMatchingPaths', is failing on IBM 64 bit,
+        //:   unfortunately the test driver has not detected or reproduced this
+        //:   error.  This test case is an attempt to get this test driver
+        //:   reproducing the problem.
+        //:
+        //: 2 Unix "glob()", which is called by 'Obj::visitPaths', which is
+        //:   called by 'Obj::findMatchingPaths', on Solaris, may try to use
+        //:   files as directories and fail when cannot.  On Solaris we should
+        //:   ignore such errors.
         //
         // Plan:
-        //   Run the usage example 1
+        //: 1 Create files with the pattern "woof.a.n".  Use
+        //:   'Obj::findMatchingPaths' with the pattern "woof.a.?" to find
+        //:   them.  Verify that they are found.  (C-1)
+        //:
+        //: 2 Create a directory structure that has a file that matches a
+        //:   pattern that is for a directory in the search pattern.  Verify
+        //:   that the 'Obj::findMatchingPaths' call succeeds anyway.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Simple matching test\n"
-                             "====================\n";
+        if (verbose) cout << "MATCHING TESTS\n"
+                             "==============n";
 
-        for (int i=0; i<4; ++i) {
-            char name[16];
-            sprintf(name, "woof.a.%d", i);
-            Obj::FileDescriptor fd =
-                       Obj::open(name,
-                                 Obj::e_OPEN_OR_CREATE,
-                                 Obj::e_READ_WRITE);
-            Obj::close(fd);
+        if (veryVerbose) cout << "Simple 'findMatchingPaths' test.\n";
+        {
+            for (int i = 0; i < 4; ++i) {
+                char name[16];
+                sprintf(name, "woof.a.%d", i);
+                Obj::FileDescriptor fd = Obj::open(name,
+                                                   Obj::e_OPEN_OR_CREATE,
+                                                   Obj::e_READ_WRITE);
+                Obj::close(fd);
+            }
+
+            vector<string> paths;
+            int rc = Obj::findMatchingPaths(&paths, "woof.a.?");
+            ASSERT(4 == rc);
+            sort(paths.begin(), paths.end());
+
+            ASSERT(paths.size() == 4);
+            ASSERT(paths[0] == "woof.a.0");
+            ASSERT(paths[1] == "woof.a.1");
+            ASSERT(paths[2] == "woof.a.2");
+            ASSERT(paths[3] == "woof.a.3");
+
+            ASSERT(0 == Obj::remove("woof.a.0"));
+            ASSERT(0 == Obj::remove("woof.a.1"));
+            ASSERT(0 == Obj::remove("woof.a.2"));
+            ASSERT(0 == Obj::remove("woof.a.3"));
         }
 
-        vector<string> vs;
-        int rc = Obj::findMatchingPaths(&vs, "woof.a.?");
-        ASSERT(4 == rc);
-        sort(vs.begin(), vs.end());
+        if (veryVerbose) cout << "Test 'ENOTDIR' failure mode.\n";
+        {
+            // Create directories and files of this tree:
+            //   tmp
+            //   |--px0
+            //   |  `-- log
+            //   |       `-- a.log
+            //   |--px1
+            //   |   `-- log
+            //   |         `-- a.log
+            //   |--px2
+            //   |  `-- log
+            //   |       `-- a.log
+            //   `-- px_not_dir
 
-        ASSERT(vs.size() == 4);
-        ASSERT(vs[0] == "woof.a.0");
-        ASSERT(vs[1] == "woof.a.1");
-        ASSERT(vs[2] == "woof.a.2");
-        ASSERT(vs[3] == "woof.a.3");
+            const char *name0 = "tmp" PS "px0" PS "log" PS "a.log";
+            const char *name1 = "tmp" PS "px1" PS "log" PS "a.log";
+            const char *name2 = "tmp" PS "px2" PS "log" PS "a.log";
+            const char *name3 = "tmp" PS "px_not_dir";
 
-        ASSERT(0 == Obj::remove("woof.a.0"));
-        ASSERT(0 == Obj::remove("woof.a.1"));
-        ASSERT(0 == Obj::remove("woof.a.2"));
-        ASSERT(0 == Obj::remove("woof.a.3"));
+            ASSERT(Obj::createDirectories(name0) == 0);
+            ASSERT(Obj::createDirectories(name1) == 0);
+            ASSERT(Obj::createDirectories(name2) == 0);
+            ASSERT(Obj::createDirectories(name3) == 0);
+
+            Obj::FileDescriptor fd = Obj::open(name0,
+                                               Obj::e_OPEN_OR_CREATE,
+                                               Obj::e_READ_WRITE);
+            Obj::close(fd);
+            fd = Obj::open(name1, Obj::e_OPEN_OR_CREATE, Obj::e_READ_WRITE);
+            Obj::close(fd);
+            fd = Obj::open(name2, Obj::e_OPEN_OR_CREATE, Obj::e_READ_WRITE);
+            Obj::close(fd);
+            fd = Obj::open(name3, Obj::e_OPEN_OR_CREATE, Obj::e_READ_WRITE);
+            Obj::close(fd);
+
+            // Verify that "px_not_a_dir" does not kill our 'glob' traversal
+
+            vector<string> paths;
+            int rc = Obj::findMatchingPaths(&paths,
+                                            "tmp" PS "*" PS "log" PS "*");
+            ASSERTV(rc, 3 == rc);
+            sort(paths.begin(), paths.end());
+
+            ASSERTV(paths.size(), paths.size() == 3);
+            ASSERTV(paths[0], paths[0] == name0);
+            ASSERTV(paths[1], paths[1] == name1);
+            ASSERTV(paths[2], paths[2] == name2);
+
+            // Clean up the directories
+
+            ASSERT(Obj::remove("tmp", true) == 0);
+        }
       } break;
       case 7: {
         // --------------------------------------------------------------------
