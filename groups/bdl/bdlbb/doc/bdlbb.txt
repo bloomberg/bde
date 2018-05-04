@@ -1,0 +1,44 @@
+ bdlbb.h
+
+@PURPOSE: Provide flexible, efficient management of message buffers.
+
+@MNEMONIC: Basic Development Library Blobs (bdlbb)
+
+@AUTHOR: Steven Breitstein (sbreitstein)
+
+@SEE_ALSO: bslma
+
+@DESCRIPTION: This package defines, 'bdlbb::Blob', a vocabulary type for
+ other 'bdl' packages.  A 'bdlbb::Blob' object consists of a sequence of
+ 'bdlbb::BlobBuffer' objects, each of which have a shared pointer to
+ underlying memory.  A protocol is defined for factories to manage
+ 'bdlbb::BlobBuffer' objects, and a concrete implementation is provided.
+ Other components define non-primitive operations on 'bdlbb::Blob's.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlbb' package currently has 4 components having 2 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  2. bdlbb_blobstreambuf
+     bdlbb_blobutil
+     bdlbb_pooledblobbufferfactory
+
+  1. bdlbb_blob
+..
+
+/Component Synopsis
+/------------------
+: 'bdlbb_blob':
+:      Provide an indexed set of buffers from multiple sources.
+:
+: 'bdlbb_blobstreambuf':
+:      Provide blob implementing the 'streambuf' interface.
+:
+: 'bdlbb_blobutil':
+:      Provide a suite of utilities for I/O operations on 'bdlbb::Blob'.
+:
+: 'bdlbb_pooledblobbufferfactory':
+:      Provide a concrete implementation of 'bdlbb::BlobBufferFactory'.

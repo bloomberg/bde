@@ -38,6 +38,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BDLBB_POOLEDBLOBBUFFERFACTORY
+#include <bdlbb_pooledblobbufferfactory.h>
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BTLB_BLOB
 #include <btlb_blob.h>
 #endif
@@ -46,80 +52,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_concurrentpoolallocator.h>
 #endif
 
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace BloombergLP {
 namespace btlb {
 
-                      // =============================
-                      // class PooledBlobBufferFactory
-                      // =============================
-
-class PooledBlobBufferFactory: public BlobBufferFactory {
-    // This class implements the 'BlobBufferFactory' protocol and provides a
-    // mechanism for allocating 'BlobBuffer' objects of a fixed size passed at
-    // construction.
-
-    // DATA
-    int                        d_bufferSize;  // size of allocated blob buffers
-
-    bdlma::ConcurrentPoolAllocator
-                               d_spPool;      // pool used to allocate shared
-                                              // pointers and buffers
-                                              // contiguously
-  public:
-    // CREATORS
-    PooledBlobBufferFactory(int                          bufferSize,
-                            bslma::Allocator            *basicAllocator = 0);
-    PooledBlobBufferFactory(int                          bufferSize,
-                            bsls::BlockGrowth::Strategy  growthStrategy,
-                            bslma::Allocator            *basicAllocator = 0);
-    PooledBlobBufferFactory(int                          bufferSize,
-                            bsls::BlockGrowth::Strategy  growthStrategy,
-                            int                          maxBlocksPerChunk,
-                            bslma::Allocator            *basicAllocator = 0);
-        // Create a pooled factory for allocating 'BlobBuffer' objects of the
-        // specified 'bufferSize'.  Optionally specify a 'growthStrategy' used
-        // to control the growth of internal memory chunks (from which memory
-        // blocks are dispensed).  If 'growthStrategy' is not specified,
-        // geometric growth is used.  If 'growthStrategy' is specified,
-        // optionally specify a 'maxBlocksPerChunk', indicating the maximum
-        // number of blocks to be allocated at once when the underlying pool
-        // must be replenished.  If 'maxBlocksPerChunk' is not specified, an
-        // implementation-defined value is used.  If geometric growth is used,
-        // the chunk size grows starting at the value returned by 'blockSize',
-        // doubling in size until the size is exactly
-        // 'blockSize() * maxBlocksPerChunk'.  If constant growth is used, the
-        // chunk size is always 'maxBlocksPerChunk'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  The behavior is
-        // undefined unless '0 < bufferSize', and '1 <= maxBlocksPerChunk'.
-
-    ~PooledBlobBufferFactory();
-        // Destroy this factory.
-
-    // MANIPULATORS
-    void allocate(BlobBuffer *buffer);
-        // Allocate a new buffer with the buffer size specified at construction
-        // and load it into the specified 'buffer'.
-
-    // ACCESSORS
-    int bufferSize() const;
-        // Return the buffer size specified at construction of this factory.
-};
-
-// ============================================================================
-//                             INLINE DEFINITIONS
-// ============================================================================
-
-                      // -----------------------------
-                      // class PooledBlobBufferFactory
-                      // -----------------------------
-
-// ACCESSORS
-inline
-int PooledBlobBufferFactory::bufferSize() const
-{
-    return d_bufferSize;
-}
+typedef bdlbb::PooledBlobBufferFactory PooledBlobBufferFactory;
 
 }  // close package namespace
 }  // close enterprise namespace
