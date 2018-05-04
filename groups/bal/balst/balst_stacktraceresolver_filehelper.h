@@ -148,24 +148,19 @@ class StackTraceResolver_FileHelper {
     // this object.
 
     // PRIVATE TYPES
-    typedef bdls::FilesystemUtil           FilesystemUtil;
-                                                // shorthand for class
-                                                // 'bdls::FilesystemUtil'
-    typedef FilesystemUtil::FileDescriptor FdType;    // shorthand for file
-                                                      // descriptor
-    typedef FilesystemUtil::Offset         Offset;
-    typedef bsls::Types::UintPtr           UintPtr;
-    typedef bsls::Types::IntPtr            IntPtr;
+    typedef bdls::FilesystemUtil    FilesystemUtil;
+    typedef FilesystemUtil::Offset  Offset;
+    typedef bsls::Types::UintPtr    UintPtr;
+    typedef bsls::Types::IntPtr     IntPtr;
 
     // DATA
-    FdType d_fd;  // file descriptor
+    FilesystemUtil::FileDescriptor d_fd;  // file descriptor
 
   private:
     // NOT IMPLEMENTED
-    StackTraceResolver_FileHelper(
-                                   const StackTraceResolver_FileHelper&);
+    StackTraceResolver_FileHelper(const StackTraceResolver_FileHelper&);
     StackTraceResolver_FileHelper& operator=(
-                                   const StackTraceResolver_FileHelper&);
+                                         const StackTraceResolver_FileHelper&);
   public:
     // CREATORS
     explicit
@@ -180,7 +175,8 @@ class StackTraceResolver_FileHelper {
         // Open the file referred to by the specified 'fileName' for read-only
         // access and set 'd_fd' to the file descriptor.  Return 0 on success
         // and a non-zero value otherwise.  If this object already had a file
-        // descriptor open, close it before opening 'fileName'.
+        // descriptor open, close it before opening 'fileName'.  If the 'open'
+        // call fails, 'd_fd' will be set to 'FilesystemUtil::k_INVALID_FD'.
 
     // ACCESSORS
     char *loadString(Offset            offset,
@@ -238,7 +234,7 @@ int StackTraceResolver_FileHelper::readExact(void    *buf,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

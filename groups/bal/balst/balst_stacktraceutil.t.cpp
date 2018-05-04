@@ -1568,7 +1568,7 @@ void bottom(bslma::Allocator *alloc)
 
 // First, we define a routine 'recurseExample3' which will recurse the
 // specified 'depth' times, then call 'traceExample3'.
-
+//..
     void traceExample3();    // forward declaration
 
     static void recurseExample3(int *depth)
@@ -1634,7 +1634,7 @@ void bottom(bslma::Allocator *alloc)
 // specified 'depth' times, then call 'traceExample2'.
 //..
     void traceExample2();    // forward declaration
-//
+
     static void recurseExample2(int *depth)
         // Recurse the specified 'depth' number of times, then call
         // 'traceExample2', which will print a stack-trace.
@@ -1645,11 +1645,11 @@ void bottom(bslma::Allocator *alloc)
         else {
             traceExample2();
         }
-//
+
         ++*depth;   // Prevent compiler from optimizing tail recursion as a
                     // loop.
     }
-//
+
     void traceExample2()
     {
 //..
@@ -1690,7 +1690,7 @@ void bottom(bslma::Allocator *alloc)
 //..
         for (int i = 0; i < stackTrace.length(); ++i) {
             const balst::StackTraceFrame& frame = stackTrace[i];
-//
+
             const char *symbol = frame.isSymbolNameKnown()
                                ? frame.symbolName().c_str()
                                : "--unknown__";
@@ -1720,7 +1720,7 @@ void bottom(bslma::Allocator *alloc)
 // specified 'depth' times, then call 'traceExample1':
 //..
     void traceExample1();    // forward declaration
-//
+
     void recurseExample1(int *depth)
         // Recurse the specified 'depth' number of times, then call
         // 'traceExample1'.
@@ -1731,7 +1731,7 @@ void bottom(bslma::Allocator *alloc)
         else {
             traceExample1();
         }
-//
+
         ++*depth;   // Prevent compiler from optimizing tail recursion as a
                     // loop.
     }

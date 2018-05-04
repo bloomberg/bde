@@ -202,7 +202,7 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a routine 'recurseExample3' which will recurse the
 // specified 'depth' times, then call 'traceExample3'.
-//
+//..
 //  void traceExample3();    // forward declaration
 //
 //  static void recurseExample3(int *depth)

@@ -39,7 +39,8 @@ StackTraceResolver_FileHelper::StackTraceResolver_FileHelper()
 StackTraceResolver_FileHelper::~StackTraceResolver_FileHelper()
 {
     if (FilesystemUtil::k_INVALID_FD != d_fd) {
-        bdls::FilesystemUtil::close(d_fd);
+        FilesystemUtil::close(d_fd);
+        d_fd = FilesystemUtil::k_INVALID_FD;
     }
 }
 
@@ -51,14 +52,12 @@ int StackTraceResolver_FileHelper::initialize(const char *fileName)
     }
 
     if (FilesystemUtil::k_INVALID_FD != d_fd) {
-        bdls::FilesystemUtil::close(d_fd);
-        d_fd = FilesystemUtil::k_INVALID_FD;
+        FilesystemUtil::close(d_fd);
     }
 
-    d_fd = bdls::FilesystemUtil::open(
-                        fileName,
-                        bdls::FilesystemUtil::e_OPEN,        // already exists
-                        bdls::FilesystemUtil::e_READ_ONLY);  // not writable
+    d_fd = FilesystemUtil::open(fileName,
+                                FilesystemUtil::e_OPEN,       // already exists
+                                FilesystemUtil::e_READ_ONLY); // not writable
 
     return FilesystemUtil::k_INVALID_FD == d_fd;    // 0 on success
 }
@@ -141,7 +140,7 @@ bsls::Types::UintPtr StackTraceResolver_FileHelper::readBytes(
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

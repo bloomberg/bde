@@ -3558,7 +3558,7 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
 
     balst::StackTraceResolver_FileHelper helper;
     int rc = helper.initialize(name);
-    if (0 != rc) {
+    if (rc) {
         return -1;                                                    // RETURN
     }
 
