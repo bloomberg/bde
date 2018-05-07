@@ -7,6 +7,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>   // for testing only
 
+#include <algorithm>
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -19,6 +21,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #else
 # include <unistd.h>
 # include <stdint.h>    // 'SIZE_MAX', cannot include on all Windows platforms
+# include <stdlib.h>    // 'mkstemp'
 #endif
 
 #ifndef SIZE_MAX
@@ -62,15 +65,28 @@ bool OutputRedirector::generateTempFileName()
         return false;                                                 // RETURN
     }
 #else
-    char *fn = tempnam(0, "bsls");
-    if (fn) {
-        strncpy(d_fileName, fn, k_PATH_BUFFER_SIZE);
-        free(fn);
-        if (d_fileName[k_PATH_BUFFER_SIZE - 1] != '\0') {
-            // Uh-oh! 'strncpy' didn't pad with zeroes.  Just fail here.
-            return false;                                             // RETURN
-        }
-    } else {
+    static const char patternBuf[] = { "/tmp/bslsXXXXXX" };
+
+    std::fill(d_fileName, d_fileName + sizeof(d_fileName), 0xa5);
+    ::strncpy(d_fileName, patternBuf, sizeof(d_fileName));
+    if ('\0' != d_fileName[sizeof(d_fileName) - 1]) {
+        return false;                                                 // RETURN
+    }
+    if (0 != ::strcmp(d_fileName, patternBuf)) {
+        return false;                                                 // RETURN
+    }
+
+    const int fd = ::mkstemp(d_fileName);
+    if (fd < 0) {
+        // 'mkstemp' failed.
+
+        return false;                                                 // RETURN
+    }
+    int rc = ::close(fd);
+    if (0 != rc) {
+        return false;                                                 // RETURN
+    }
+    if ('\0' != d_fileName[sizeof(d_fileName) - 1]) {
         return false;                                                 // RETURN
     }
 #endif
@@ -96,6 +112,7 @@ OutputRedirector::OutputRedirector(Stream which,
 , d_veryVerbose(veryVerbose)
 {
     BSLS_ASSERT(which == e_STDOUT_STREAM || which == e_STDERR_STREAM);
+
     d_fileName[0] = '\0';
     memset(&d_originalStat, 0, sizeof(struct stat));
 }
@@ -210,6 +227,7 @@ void OutputRedirector::enable()
     // '\n' when we read the file.  However, since we are using the size of the
     // written file to know how much to read, having extra characters will lead
     // to a faulty size reading.
+
     if (_setmode(_fileno(redirectedStream()), _O_BINARY) < 0) {
         if (d_veryVerbose) {
             fprintf(nonRedirectedStream(),
@@ -250,6 +268,7 @@ bool OutputRedirector::load()
 
     if (tempOutputSize < 0 || incremented < 0) {
         // Protect against overflow or negative value
+
         if (d_veryVerbose) {
             fprintf(nonRedirectedStream(),
                     "Bad value from 'ftell': %ld",
@@ -259,9 +278,11 @@ bool OutputRedirector::load()
     }
 
     // Conversion to 'unsigned long' is safe because 'incremented' > 0
+
     if (static_cast<unsigned long>(incremented) > SIZE_MAX) {
         // Our 'incremented' will not fit in a size_t, so it is too big for our
         // buffer.
+
         if (d_veryVerbose) {
             fprintf(nonRedirectedStream(),
                     "Bad value from 'ftell': %ld",
@@ -272,11 +293,13 @@ bool OutputRedirector::load()
 
     // Conversion to 'size_t' is safe because 'tempOutputSize' is nonnegative
     // and 'tempOutputSize'+1 is no larger than 'SIZE_MAX'.
+
     d_outputSize = static_cast<size_t>(tempOutputSize);
 
     if (static_cast<size_t>(incremented) > k_OUTPUT_REDIRECTOR_BUFFER_SIZE) {
         // Refuse to load output if it will not all fit in the scratch buffer,
         // INCLUDING the final null byte.
+
         if (d_veryVerbose) {
             fprintf(nonRedirectedStream(),
                     "Error "
@@ -297,9 +320,11 @@ bool OutputRedirector::load()
 
     if (charsRead < 0 || static_cast<unsigned long>(charsRead)!=d_outputSize) {
         // We failed to read all output from the capture file.
+
         if (d_veryVerbose) {
             if (ferror(redirectedStream())) {
                 // We encountered a file error, not 'EOF'.
+
                 fprintf(nonRedirectedStream(),
                         "Error "
                             __FILE__
@@ -318,6 +343,7 @@ bool OutputRedirector::load()
         } else if (static_cast<unsigned long>(charsRead) >= d_outputSize) {
             // This case should never happen.  This assignment is safe because
             // the total buffer size is enough to hold 'd_outputSize' + 1.
+
             d_outputBuffer[d_outputSize] = '\0';
         } else {
             d_outputBuffer[charsRead] = '\0';
@@ -328,6 +354,7 @@ bool OutputRedirector::load()
 
     } else {
         // We have read all output from the capture file.
+
         d_outputBuffer[d_outputSize] = '\0';
     }
 
@@ -350,6 +377,7 @@ void OutputRedirector::clear()
 int OutputRedirector::compare(const char *expected) const
 {
     BSLS_ASSERT(expected);
+
     return compare(expected, strlen(expected));
 }
 
@@ -392,6 +420,7 @@ bool OutputRedirector::isRedirecting() const
 FILE *OutputRedirector::nonRedirectedStream() const
 {
     // This should return the opposite values
+
     if (d_stream == e_STDOUT_STREAM) {
         return stderr;                                                // RETURN
     } else {
