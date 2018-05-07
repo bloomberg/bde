@@ -67,7 +67,11 @@
 
 #else
 
-# define TRACE_PRINTF (void)
+static inline
+void TRACE_PRINTF(const char *, ...)
+    // do nothing
+{
+}
 
 #endif
 
