@@ -195,6 +195,14 @@ BSLS_IDENT("$Id: $")
 //      specification in 'MSG'.  Note that each use of these macros must be
 //      terminated by a ';'.
 //..
+// A closely-related 'printf'-style macro, 'BALL_LOGVA', requires that the
+// severity be explicitly supplied as an argument:
+//..
+//  BALL_LOGVA(SEVERITY, MSG, ...);
+//      where 'MSG' is a 'printf'-style format string directing how to format
+//      the '...' arguments following it.  The resulting formatted message
+//      string is logged with the specified 'SEVERITY'.
+//..
 //
 ///Macros for Logging Code Blocks
 /// - - - - - - - - - - - - - - -
@@ -912,6 +920,7 @@ const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(
 
 // BALL_LOG_STREAM_CONST_IMP requires its argument to be a compile-time
 // constant.
+
 #define BALL_LOG_STREAM_CONST_IMP(SEVERITY)                                   \
 for (const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =       \
                BloombergLP::ball::Log::categoryHolderIfEnabled<(SEVERITY)>(   \
@@ -928,6 +937,7 @@ for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                       \
 
 // BALL_LOG_STREAM_IMP allows its argument to be calculated at run-time, at a
 // cost in performance.
+
 #define BALL_LOG_STREAM_IMP(SEVERITY)                                         \
 for (const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =       \
                          ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER); \
@@ -1003,6 +1013,7 @@ for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                       \
 
 // BALL_LOGCB_STREAM_CONST_IMP requires its first argument to be a compile-time
 // constant.
+
 #define BALL_LOGCB_STREAM_CONST_IMP(SEVERITY, CALLBACK)                       \
 for (const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =       \
                BloombergLP::ball::Log::categoryHolderIfEnabled<(SEVERITY)>(   \
@@ -1015,11 +1026,12 @@ for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                       \
                                          __LINE__,                            \
                                          (SEVERITY));                         \
      ball_log_cAtEgOrYhOlDeR                                                  \
-     && (CALLBACK(&BALL_LOG_RECORD->customFields()), true);      \
+     && (CALLBACK(&BALL_LOG_RECORD->customFields()), true);                   \
      ball_log_cAtEgOrYhOlDeR = 0)
 
 // BALL_LOGCB_STREAM_IMP allows its first argument to be calculated at
 // run-time, at a cost in performance.
+
 #define BALL_LOGCB_STREAM_IMP(SEVERITY, CALLBACK)                             \
 for (const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =       \
                          ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER); \
@@ -1103,60 +1115,71 @@ for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                       \
 
 #define BALL_LOGCB_END ""
 
+                 // ====================================
+                 // Implementation Details: Do *NOT* Use
+                 // ====================================
+
+// BALL_LOGVA_CONST_IMP requires its first argument to be a compile-time
+// constant, while all the others may be variables.
+
+#define BALL_LOGVA_CONST_IMP(SEVERITY, ...)                                   \
+do {                                                                          \
+    if (const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =    \
+               BloombergLP::ball::Log::categoryHolderIfEnabled<(SEVERITY)>(   \
+                      ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER))) { \
+        BloombergLP::ball::Log_Formatter ball_log_fOrMaTtEr(                  \
+                                       ball_log_cAtEgOrYhOlDeR->category(),   \
+                                       __FILE__,                              \
+                                       __LINE__,                              \
+                                       (SEVERITY));                           \
+        BloombergLP::ball::Log::format(ball_log_fOrMaTtEr.messageBuffer(),    \
+                                       ball_log_fOrMaTtEr.messageBufferLen(), \
+                                       __VA_ARGS__);                          \
+    }                                                                         \
+} while(0)
+
                        // =====================
                        // 'printf'-style macros
                        // =====================
 
-// ----------------------------------------------------------------------------
-// Usage: BALL_LOGVA(SEVERITY, msg, arg1, arg2, ... argN);
-//
-// Log a message with the specified 'SEVERITY', formatting the specified 0 or
-// more arguments 'arg1, arg2, ... argN' according to the specified
-// 'printf'-style format string 'msg'.
+// BALL_LOGVA allows all its arguments to be calculated at run-time, at a cost
+// in performance.
 
 #define BALL_LOGVA(SEVERITY, ...)                                             \
 do {                                                                          \
-    if (BALL_LOG_THRESHOLD >= (SEVERITY)) {                                   \
-        if (BloombergLP::ball::Log::isCategoryEnabled(                        \
-                         ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER), \
-                         (SEVERITY))) {                                       \
-            BloombergLP::ball::Log_Formatter ball_log_fOrMaTtEr(              \
-                                                           BALL_LOG_CATEGORY, \
-                                                           __FILE__,          \
-                                                           __LINE__,          \
-                                                           (SEVERITY));       \
-            BloombergLP::ball::Log::format(                                   \
-                                       ball_log_fOrMaTtEr.messageBuffer(),    \
+    const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =        \
+                         ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER); \
+    if (ball_log_cAtEgOrYhOlDeR->threshold() >= (SEVERITY) &&                 \
+           BloombergLP::ball::Log::isCategoryEnabled(ball_log_cAtEgOrYhOlDeR, \
+                                                     (SEVERITY))) {           \
+        BloombergLP::ball::Log_Formatter ball_log_fOrMaTtEr(                  \
+                                       ball_log_cAtEgOrYhOlDeR->category(),   \
+                                       __FILE__,                              \
+                                       __LINE__,                              \
+                                       (SEVERITY));                           \
+        BloombergLP::ball::Log::format(ball_log_fOrMaTtEr.messageBuffer(),    \
                                        ball_log_fOrMaTtEr.messageBufferLen(), \
                                        __VA_ARGS__);                          \
-        }                                                                     \
     }                                                                         \
 } while(0)
 
-// ----------------------------------------------------------------------------
-// Usage: BALL_LOGVA_{SEVERITY}(msg, arg1, arg2, ... argN);
-//
-// Log a message with the specified 'ball::Severity::e_{SEVERITY}', formatting
-// the specified 0 or more arguments 'arg1, arg2, ... argN' according to the
-// specified 'printf'-style format string 'msg'.
-
 #define BALL_LOGVA_TRACE(...)                                                 \
-    BALL_LOGVA(BloombergLP::ball::Severity::e_TRACE, __VA_ARGS__)
+    BALL_LOGVA_CONST_IMP(BloombergLP::ball::Severity::e_TRACE, __VA_ARGS__)
 
 #define BALL_LOGVA_DEBUG(...)                                                 \
-    BALL_LOGVA(BloombergLP::ball::Severity::e_DEBUG, __VA_ARGS__)
+    BALL_LOGVA_CONST_IMP(BloombergLP::ball::Severity::e_DEBUG, __VA_ARGS__)
 
 #define BALL_LOGVA_INFO( ...)                                                 \
-    BALL_LOGVA(BloombergLP::ball::Severity::e_INFO,  __VA_ARGS__)
+    BALL_LOGVA_CONST_IMP(BloombergLP::ball::Severity::e_INFO,  __VA_ARGS__)
 
 #define BALL_LOGVA_WARN( ...)                                                 \
-    BALL_LOGVA(BloombergLP::ball::Severity::e_WARN,  __VA_ARGS__)
+    BALL_LOGVA_CONST_IMP(BloombergLP::ball::Severity::e_WARN,  __VA_ARGS__)
 
 #define BALL_LOGVA_ERROR(...)                                                 \
-    BALL_LOGVA(BloombergLP::ball::Severity::e_ERROR, __VA_ARGS__)
+    BALL_LOGVA_CONST_IMP(BloombergLP::ball::Severity::e_ERROR, __VA_ARGS__)
 
 #define BALL_LOGVA_FATAL(...)                                                 \
-    BALL_LOGVA(BloombergLP::ball::Severity::e_FATAL, __VA_ARGS__)
+    BALL_LOGVA_CONST_IMP(BloombergLP::ball::Severity::e_FATAL, __VA_ARGS__)
 
                        // ==============
                        // Utility Macros
