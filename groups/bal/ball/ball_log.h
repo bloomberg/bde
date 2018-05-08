@@ -199,9 +199,13 @@ BSLS_IDENT("$Id: $")
 // severity be explicitly supplied as an argument:
 //..
 //  BALL_LOGVA(SEVERITY, MSG, ...);
-//      where 'MSG' is a 'printf'-style format string directing how to format
-//      the '...' arguments following it.  The resulting formatted message
-//      string is logged with the specified 'SEVERITY'.
+//      Format the specified '...' optional arguments, if any, according to the
+//      'printf'-style format specification in the specified 'MSG' (assumed to
+//      be of type convertible to 'const char *') and log the resulting
+//      formatted message string with the specified 'SEVERITY'.  The behavior
+//      is undefined unless the number and types of optional arguments are
+//      compatible with the format specification in 'MSG'.  Note that each use
+//      of this macro must be terminated by a ';'.
 //..
 //
 ///Macros for Logging Code Blocks
