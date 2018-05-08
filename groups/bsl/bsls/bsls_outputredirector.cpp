@@ -65,9 +65,14 @@ bool OutputRedirector::generateTempFileName()
         return false;                                                 // RETURN
     }
 #else
-    static const char patternBuf[] = { "/tmp/bslsXXXXXX" };
+    static const char patternBuf[] = { "/tmp/bsls_outputredirector_XXXXXX" };
+
+    // Fill 'd_fileName' with garbage.
 
     std::fill(d_fileName, d_fileName + sizeof(d_fileName), 0xa5);
+
+    // Copy in the pattern.
+
     ::strncpy(d_fileName, patternBuf, sizeof(d_fileName));
     if ('\0' != d_fileName[sizeof(d_fileName) - 1]) {
         return false;                                                 // RETURN
