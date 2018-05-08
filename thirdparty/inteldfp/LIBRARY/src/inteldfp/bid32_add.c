@@ -170,7 +170,7 @@ BID_TYPE_FUNCTION_ARG2(BID_UINT32, bid32_add, x, y)
 
     CB = (BID_UINT64)coefficient_b;
     if (sign_a ^ sign_b) {
-        CB = ~(CB - 1);
+        CB = -CB;
     }
 
 	SU = (BID_UINT64)coefficient_a * bid_power10_table_128[diff_dec_expon].w[0];
