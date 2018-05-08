@@ -15,7 +15,6 @@ BSLS_IDENT_RCSID(bdlmt_threadpool_cpp,"$Id$ $CSID$")
 #include <bslmt_lockguard.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
-#include <bslma_default.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>

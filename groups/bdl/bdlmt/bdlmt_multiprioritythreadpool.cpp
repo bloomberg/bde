@@ -157,6 +157,7 @@ MultipriorityThreadPool::MultipriorityThreadPool(
                                               int               numPriorities,
                                               bslma::Allocator *basicAllocator)
 : d_queue(numPriorities, basicAllocator)
+, d_threadAttributes(basicAllocator)
 , d_threadGroup(basicAllocator)
 , d_numThreads(numThreads)
 , d_threadStartState(e_STOPPED)
