@@ -676,7 +676,10 @@ class TestVisitor {
     void operator()(DatumArrayRef v);
         // Store the specified 'v' of 'Datum::e_ARRAY' type in 'd_type'.
 
-   void operator()(DatumIntMapRef v);
+    // *** WARNING***
+    // Put this back when all visitors are implemented properly in client code.
+    // See DRQS 107705012
+    // void operator()(DatumIntMapRef v);
         // Store the specified 'v' of 'Datum::e_INT_MAP' type in 'd_type'.
 
     void operator()(DatumMapRef v);
@@ -804,12 +807,15 @@ void TestVisitor::operator()(DatumMapRef v)
     d_visitedFlag = true;
 }
 
-void TestVisitor::operator()(DatumIntMapRef v)
-{
-    (void)v;
-    d_type = Datum::e_INT_MAP;
-    d_visitedFlag = true;
-}
+// *** WARNING***
+// Put this back when all visitors are implemented properly in
+// client code.  See DRQS 107705012
+//void TestVisitor::operator()(DatumIntMapRef v)
+//{
+//    (void)v;
+//    d_type = Datum::e_INT_MAP;
+//    d_visitedFlag = true;
+//}
 
 void TestVisitor::operator()(DatumBinaryRef v)
 {
@@ -4363,7 +4369,7 @@ int main(int argc, char *argv[])
 
 // *** WARNING***
 // Put this back when all visitors are implemented properly in client code.
-// See DRQS 1007705012
+// See DRQS 107705012
 #if 0
         if (verbose) cout <<
             "\tTesting 'apply' with Datum having empty int-map value." << endl;
