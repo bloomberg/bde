@@ -7,8 +7,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>   // for testing only
 
-#include <algorithm>
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -65,19 +63,12 @@ bool OutputRedirector::generateTempFileName()
         return false;                                                 // RETURN
     }
 #else
-    static const char patternBuf[] = { "/tmp/bsls_outputredirector_XXXXXX" };
-
-    // Fill 'd_fileName' with garbage.
-
-    std::fill(d_fileName, d_fileName + sizeof(d_fileName), 0xa5);
-
     // Copy in the pattern.
 
-    ::strncpy(d_fileName, patternBuf, sizeof(d_fileName));
+    ::strncpy(d_fileName,
+              "/tmp/bsls_outputredirector_XXXXXX",
+              sizeof(d_fileName));
     if ('\0' != d_fileName[sizeof(d_fileName) - 1]) {
-        return false;                                                 // RETURN
-    }
-    if (0 != ::strcmp(d_fileName, patternBuf)) {
         return false;                                                 // RETURN
     }
 
@@ -89,9 +80,6 @@ bool OutputRedirector::generateTempFileName()
     }
     int rc = ::close(fd);
     if (0 != rc) {
-        return false;                                                 // RETURN
-    }
-    if ('\0' != d_fileName[sizeof(d_fileName) - 1]) {
         return false;                                                 // RETURN
     }
 #endif
