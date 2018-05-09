@@ -40,8 +40,105 @@ BSLS_IDENT("$Id: $")
 // particular, no effort is made to verify the existence or accessibility of
 // any segment of any path.
 //
-///Parsing and Performance
-///-----------------------
+///Terminology
+///-----------
+// To introduce the terminology explored in this section, lets start with a
+// Unix example:
+//..
+//  "/foo/bar/myfile.txt"
+//..
+// The elements of this path would be:
+//..
+//            Path: "/foo/bar/myfile.txt"
+//            Root: "/"                       # the starting separator(s)
+//  Leaf(Basename): "myfile.txt"
+//         Dirname: "/foo/bar/"
+//..
+//
+///Separator
+///- - - - -
+// A platform dependent character that separates elements of a path, such as
+// directory names from each other and file names.  The separator character is
+// the '/' (slash) on Unix (and the like) systems and '\' (backslash) on
+// Windows systems.
+//
+///Path
+/// - -
+// An optional root, followed by optional directories, followed by an optional
+// leaf.
+//
+///Root
+/// - -
+// The root, if present, is at the beginning of a path and its presence
+// determines if a path is absolute (the root is present) or relative (the root
+// is not present).  The textual rules for what a root is are platform
+// dependent.  See {'Unix Root'} and {'Window Root'}.
+//
+// See also {'Parsing and Performance (rootEnd argument)'} for important notes
+// about speeding up functions (especially on Windows) by not reparsing roots
+// every time a function is called.
+//
+///Unix Root
+///  -  -  -
+// The Unix root consists of the separator characters at the beginning of a
+// path, so the root of "/one" is "/", the root of "//two" is "//", while the
+// root of "somefile" is "" (there is no root, relative path).
+//
+///Windows Root
+///  -  -  -  -
+// The Windows root is much more complicated than the Unix root, because
+// Windows has three different flavors of paths: local (LFS), UNC, and Long UNC
+// UNC (LUNC):
+//
+//: LFS: root consists of a drive letter followed by a colon (the name part)
+//:      and then zero or more separators (the directory part).  E.g.,
+//:      "c:\hello.txt", root is "c:\"; "c:tmp" root is "c:"
+//:
+//: UNC: root consists of two separators followed by a hostname and
+//:      separator (the name part), and then a shared folder followed by one
+//:      or more separators (the directory part).  e.g.,
+//:      "\\servername\sharefolder\output\test.t" root is
+//:      "\\servername\sharefolder\"
+//:
+//: LUNC: root starts with "\\?\".  Then follows either "UNC" followed by
+//:       a UNC root, or an LFS root.  The "\\?\" is included as part of
+//:       the root name.  e.g.,
+//:      "\\?\UNC\servername\folder\hello" root is "\\?\UNC\servername\dir\"
+//:      while "\\?\c:\windows\test" root is "\\?\\c:\"
+//
+///Leaf (a.k.a. Basename)
+/// - - - - - - - - - - -
+// The leaf is the rightmost filename following the root, in other words: the
+// last element of the path unless the path ends with a separator character, in
+// which case there is no leaf.  Note that several methods in this utility
+// require a leaf to be present to function (such as 'getDirName').  Note that
+// a relative path may contain a leaf only.  Examples:
+//..
+//  Path                            Leaf
+//  ----                            ----
+//  "/tmp/foo/bar.txt"              "bar.txt"
+//  "c:\tmp\foo\bar.txt"            "bar.txt"
+//  "\\server\share\tmp\foo.txt"    "foo.txt"
+//  "/tmp/foo/"                     not present
+//..
+//
+///Dirname
+///- - - -
+// Dirname is the part of the path that contains the root but not the leaf.  In
+// other words, the part until the last separator.  Note that a relative path
+// may contain directories only.  Also not that several methods in this utility
+// will not function if the path does not contain a leaf.  Examples:
+//..
+//  Path                            Dirname
+//  ----                            -------
+//  "/tmp/foo/bar.txt"              "/tmp/foo/"
+//  "c:\tmp\foo\bar.txt"            "c:\tmp\foo\"
+//  "\\server\share\tmp\foo.txt"    "\\server\share\tmp\"
+//  "foo.txt"                       empty
+//..
+//
+///Parsing and Performance (rootEnd argument)
+///------------------------------------------
 // Most methods of this component will perform basic parsing of the beginning
 // part of the path to determine what part of it is the "root" as defined for
 // the current platform.  This parsing is trivial on Unix platforms but is
@@ -125,7 +222,8 @@ namespace bdls {
 struct PathUtil {
     // This struct contains utility methods for platform-independent
     // manipulation of filesystem paths.  No method of this struct provides
-    // any filesystem operations.
+    // any filesystem operations or accesses the filesystem as part of its
+    // implementation.
 
     // CLASS METHODS
     static int appendIfValid(bsl::string              *path,
@@ -134,6 +232,7 @@ struct PathUtil {
         // if 'filename' represents a relative path.  Return 0 on success, and
         // a non-zero value otherwise.  Note that any filesystem separator
         // characters at the end of 'filename' or 'path' will be discarded.
+        // See {'Terminology'} for the definition of separator.
 
     static void appendRaw(bsl::string *path,
                           const char  *filename,
@@ -147,7 +246,8 @@ struct PathUtil {
         // undefined if 'filename' represents an absolute path or if either
         // 'filename' or 'path' ends with the filesystem separator character.
         // The behavior is also undefined if 'filename' points to any part of
-        // 'path' (i.e., 'filename' may not be an alias for 'path').
+        // 'path' (i.e., 'filename' may not be an alias for 'path').  See
+        // {'Parsing and Performance (rootEnd argument)'}.
 
     static int popLeaf(bsl::string *path, int rootEnd = -1);
         // Remove from the specified 'path' the rightmost filename following
@@ -155,7 +255,9 @@ struct PathUtil {
         // specified 'rootEnd' offset is non-negative, it is taken as the
         // position in 'path' of the character following the root.  Return 0 on
         // success, and a nonzero value otherwise; in particular, return a
-        // nonzero value if 'path' does not have a leaf.
+        // nonzero value if 'path' does not have a leaf.  See
+        // {'Parsing and Performance (rootEnd argument)'}.  See also
+        // {'Terminology'} for the definition of leaf and root.
 
     static int getBasename(bsl::string              *leaf,
                            const bslstl::StringRef&  path,
@@ -166,7 +268,9 @@ struct PathUtil {
         // non-negative, it is taken as the position in 'path' of the character
         // following the root.  Return 0 on success, and a non-zero value
         // otherwise; in particular, return nonzero if 'path' does not have a
-        // leaf.  Note that 'getBasename' is a synonym for 'getLeaf'.
+        // leaf.  Note that 'getBasename' is a synonym for 'getLeaf'.  See
+        // {'Parsing and Performance (rootEnd argument)'}.  See also
+        // {'Terminology'} for the definition of leaf and root.
 
     static int getDirname(bsl::string              *dirname,
                           const bslstl::StringRef&  path,
@@ -179,7 +283,9 @@ struct PathUtil {
         // success, and a non-zero value otherwise; in particular, return a
         // nonzero value if 'path' does not have a leaf.  Note that in the
         // case of a relative path with a single filename, the function will
-        // succeed and 'dirname' will be the empty string.
+        // succeed and 'dirname' will be the empty string.  See
+        // {'Parsing and Performance (rootEnd argument)'}.  See also
+        // {'Terminology'} for the definition of directories and root.
 
     static int getLeaf(bsl::string              *leaf,
                        const bslstl::StringRef&  path,
@@ -190,7 +296,9 @@ struct PathUtil {
         // non-negative, it is taken as the position in 'path' of the character
         // following the root.  Return 0 on success, and a non-zero value
         // otherwise; in particular, return nonzero if 'path' does not have a
-        // leaf.  Note that 'getBasename' is a synonym for 'getLeaf'.
+        // leaf.  Note that 'getBasename' is a synonym for 'getLeaf'.  See
+        // {'Parsing and Performance (rootEnd argument)'}.  See also
+        // {'Terminology'} for the definition of leaf and root.
 
     static int getRoot(bsl::string              *root,
                        const bslstl::StringRef&  path,
@@ -201,30 +309,40 @@ struct PathUtil {
         // following the root.  Return 0 on success, and a non-zero value
         // otherwise; in particular, return a nonzero value if 'path' is
         // relative.  Note that the meaning of the root part is
-        // platform-dependent.
+        // platform-dependent.  See
+        // {'Parsing and Performance (rootEnd argument)'}.  See also
+        // {'Terminology'} for the definition of root.
 
     static bool isAbsolute(const bslstl::StringRef& path, int rootEnd = -1);
         // Return 'true' if the specified 'path' is absolute (has a root), and
         // 'false' otherwise.  If the optionally specified 'rootEnd' offset is
         // non-negative, it is taken as the position in 'path' of the character
-        // following the root.
+        // following the root.  See
+        // {'Parsing and Performance (rootEnd argument)'}.  See also
+        // {'Terminology'} for the definition of root.
 
     static bool isRelative(const bslstl::StringRef& path, int rootEnd = -1);
         // Return 'true' if the specified 'path' is relative (lacks a root),
         // and 'false' otherwise.  If the optionally specified 'rootEnd' offset
         // is non-negative, it is taken as the position in 'path' of the
-        // character following the root.
+        // character following the root.  See
+        // {'Parsing and Performance (rootEnd argument)'}.  See also
+        // {'Terminology'} for the definition of root.
 
     static bool hasLeaf(const bslstl::StringRef& path, int rootEnd = -1);
         // Return 'true' if the specified 'path' has a filename following the
         // root, and 'false' otherwise.  If the optionally specified 'rootEnd'
         // offset is non-negative, it is taken as the position in 'path' of
-        // the character following the root.
+        // the character following the root.  See
+        // {'Parsing and Performance (rootEnd argument)'}.  See also
+        // {'Terminology'} for the definition of leaf.
 
     static int getRootEnd(const bslstl::StringRef& path);
         // Return the 0-based position in the specified 'path' of the character
         // following the root.  Note that a return value of 0 indicates a
-        // relative path.
+        // relative path.  See
+        // {'Parsing and Performance (rootEnd argument)'}.  See also
+        // {'Terminology'} for the definition of root.
 };
 
 // ============================================================================

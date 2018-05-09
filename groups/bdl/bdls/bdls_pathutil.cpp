@@ -100,12 +100,12 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
     // UNC: root consists of two separators followed by a hostname and
     //      separator (the name part), and then a shared folder followed by one
     //      or more separators (the directory part).  e.g.,
-    //      \\servername\sharefolder\output\test.t
+    //      "\\servername\sharefolder\output\test.t"
     //
-    // LUNC: root consists of "\\?\".  Then follows either "UNC" followed by
+    // LUNC: root starts with "\\?\".  Then follows either "UNC" followed by
     //       a UNC root, or an LFS root.  The "\\?\" is included as part of
     //       the root name.  e.g.,
-    //      \\?\UNC\servername\folder\hello or \\?\c:\windows\test
+    //      "\\?\UNC\servername\folder\hello" or "\\?\c:\windows\test"
 #define UNCW_PREFIX "\\\\?\\"
 #define UNCW_PREFIXLEN 4
 #define UNCW_UNCPREFIX UNCW_PREFIX "UNC\\"
