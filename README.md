@@ -52,7 +52,7 @@ For more details on building the BDE repository, please see the
 
 For more details on the waf-based build system for building BDE-style
 repositories, please see
-[its documentation page](http://bloomberg.github.io/bde-tools/waf.html).
+[its build instructions page](http://bloomberg.github.io/bde-tools/tutorials.html#use-waf-to-build-bde).
 
 License
 -------
