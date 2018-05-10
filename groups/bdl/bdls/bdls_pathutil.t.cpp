@@ -163,6 +163,13 @@ struct Parameters {
    {L_, "\\\\server\\dir\\one\\two\\\\",
         "\\\\server\\dir\\", "two", "\\\\server\\dir\\one",
          2, 0, 0},
+   {L_, "\\\\?\\UNC\\server\\dir\\one\\two\\\\",
+        "\\\\?\\UNC\\server\\dir\\", "two", "\\\\?\\UNC\\server\\dir\\one",
+         2, 0, 0},
+   {L_, "\\\\?\\c:one\\two\\\\", "\\\\?\\c:", "two", "\\\\?\\c:one",
+         2, 0, 0},
+   {L_, "\\\\?\\c:\\one\\two\\\\", "\\\\?\\c:\\", "two", "\\\\?\\c:\\one",
+         2, 0, 0},
    {L_, "/", "/", 0, 0,
          0, 0, 0},
    {L_, "c:/", "c:/", 0, 0,
@@ -640,7 +647,7 @@ int main(int argc, char *argv[])
             }
             else {
                 ASSERT(0 == bdls::PathUtil::getRoot(&root, iTest));
-                ASSERT(root == pi.d_root);
+                ASSERTV(root, root == pi.d_root);
             }
 
             // Verify getLeaf, getDirName
