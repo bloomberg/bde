@@ -39,8 +39,9 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
 #include <bsl_iomanip.h>
-#include <bsl_iostream.h>
+#include <bsl_ios.h>
 #include <bsl_memory.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
 #include <bsl_c_errno.h>
