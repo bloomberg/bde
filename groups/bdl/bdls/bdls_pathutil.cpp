@@ -51,6 +51,7 @@ bool IsSeparator::operator()(char ch) const
 IsSeparator isSeparator;
 
 // LOCAL CONSTANTS
+static
 const char k_separators[] =
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     "\\/"
