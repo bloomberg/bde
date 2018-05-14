@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 #define BTL_VERSION_MAJOR 3
     // BTL release major version
 
-#define BTL_VERSION_MINOR 7
+#define BTL_VERSION_MINOR 9
     // BTL release minor version
 
 #define BTL_VERSION BSL_MAKE_VERSION(BTL_VERSION_MAJOR, \
