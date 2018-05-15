@@ -297,7 +297,7 @@ class Throttle {
     // FRIENDS
     template <int                MAX_SIMULTANEOUS_ACTIONS,
               bsls::Types::Int64 NANOSECONDS_PER_ACTION>
-    friend struct Throttle_InitHelper;
+    friend class Throttle_InitHelper;
 
   public:
     // MANIPULATORS
@@ -497,7 +497,7 @@ bsls::Types::Int64 Throttle::nanosecondsPerAction() const
 
 #define BDLMT_THROTTLE_INIT(maxSimultaneousActions,                           \
                             nanosecondsPerAction) {                           \
-    -BloombergLP::bdlmt::Throttle::k_TEN_YEARS_NANOSECONDS,                   \
+    { -BloombergLP::bdlmt::Throttle::k_TEN_YEARS_NANOSECONDS },               \
     BloombergLP::bdlmt::Throttle_InitHelper<                                  \
                                          (maxSimultaneousActions),            \
                                          (nanosecondsPerAction)>::k_npaValue, \
@@ -511,7 +511,7 @@ bsls::Types::Int64 Throttle::nanosecondsPerAction() const
 
 #define BDLMT_THROTTLE_INIT_REALTIME(maxSimultaneousActions,                  \
                                      nanosecondsPerAction) {                  \
-    -BloombergLP::bdlmt::Throttle::k_TEN_YEARS_NANOSECONDS,                   \
+    { -BloombergLP::bdlmt::Throttle::k_TEN_YEARS_NANOSECONDS },               \
     BloombergLP::bdlmt::Throttle_InitHelper<                                  \
                                          (maxSimultaneousActions),            \
                                          (nanosecondsPerAction)>::k_npaValue, \
