@@ -4174,7 +4174,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
         for (int i = 0; i < NUM_VALUES; ++i) {
             bool enabled = VALUES[i] <= Sev::e_WARN;
-            Holder holder = { 0, 0, 0 };
+            Holder holder = { { 0 }, { 0 }, { 0 } };
             ASSERT(enabled == Obj::isCategoryEnabled(&holder, VALUES[i]));
         }
 
@@ -4200,7 +4200,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             for (int j = 0; j < NUM_VALUES; ++j) {
                 bool enabled =
                         VALUES[j] <= Thresholds::maxLevel(thresholds[i]);
-                Holder holder = { 0, category, 0 };
+                Holder holder = { { 0 }, { category }, { 0 } };
                 LOOP2_ASSERT(i, j,
                              enabled ==
                              Obj::isCategoryEnabled(&holder, VALUES[j]));
@@ -4211,7 +4211,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             for (int j = 0; j < NUM_VALUES; ++j) {
                 bool enabled =
                         VALUES[j] <= Thresholds::maxLevel(thresholds[i]);
-                Holder holder = { 0, category, 0 };
+                Holder holder = { { 0 }, { category } , { 0 } };
                 LOOP2_ASSERT(i, j,
                              enabled ==
                              Obj::isCategoryEnabled(&holder, VALUES[j]));
@@ -4231,7 +4231,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                         bsl::max(Thresholds::maxLevel(thresholds[i]),
                                  Thresholds::maxLevel(thresholds[j]));
                     bool enabled = VALUES[k] <= maxLevel;
-                    Holder holder = { 0, category, 0 };
+                    Holder holder = { { 0 }, { category }, { 0 } };
                     LOOP3_ASSERT(i, j, k,
                                  enabled ==
                                  Obj::isCategoryEnabled(&holder, VALUES[k]));
@@ -4615,7 +4615,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             const int     SEVERITY    = DATA[i].d_severity;
             const bool    RESULT      = DATA[i].d_expResult;
 
-            Holder mH = { THRESHOLD, 0, 0 };
+            Holder mH = { { THRESHOLD }, { 0 }, { 0 } };
             if (USE_CAT) {
                 const Cat *CATEGORY = CM.addCategory(CAT_NAME, THRESHOLD - 2,
                                                      1, 1, 1);
@@ -8592,9 +8592,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 const Cat *CATEGORY  = DATA[i].d_category;
 
                 Holder BALL_LOG_CATEGORYHOLDER = {
-                    THRESHOLD,
-                    const_cast<Cat *>(CATEGORY),
-                    0
+                    { THRESHOLD },
+                    { const_cast<Cat *>(CATEGORY) },
+                    { 0 }
                 };
 
                 LOOP3_ASSERT(LINE, THRESHOLD, BALL_LOG_THRESHOLD,
@@ -8771,7 +8771,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             // Holders must be declared 'static' so that their lifetimes exceed
             // that of the logger manager singleton.
 
-            static Holder mH = { Holder::e_UNINITIALIZED_CATEGORY, 0, 0 };
+            static Holder mH = { { Holder::e_UNINITIALIZED_CATEGORY }, { 0 },
+                                                                       { 0 } };
             const Holder& H = mH;
 
             ball::Log::setCategory(&mH, "EQUITY.NYSE"); // creates new category
@@ -8779,7 +8780,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                       H.category()->categoryName()));
             ASSERT(192 == H.threshold());
 
-            static Holder mH2 = { Holder::e_UNINITIALIZED_CATEGORY, 0, 0 };
+            static Holder mH2 = { { Holder::e_UNINITIALIZED_CATEGORY }, { 0 },
+                                                                       { 0 } };
             const Holder& H2 = mH2;
 
             ball::Log::setCategory(&mH2, "EQUITY.IEX");  // gets *Default*
