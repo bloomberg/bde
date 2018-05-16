@@ -59,7 +59,7 @@ using namespace bsl;
 // [ 4] int maxSupportedVersion(Enum);
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 // ----------------------------------------------------------------------------
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -116,7 +116,8 @@ typedef Obj::Day           Enum;
 typedef Obj::Enum          Enum;
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
-enum { ABOVE_ENUM_RANGE = Obj::e_SAT + 1 };
+enum {BELOW_ENUM_RANGE = static_cast<int>(Obj::e_SUN) - 1,
+      ABOVE_ENUM_RANGE = static_cast<int>(Obj::e_SAT) + 1 };
 
 typedef bslx::TestInStream  In;
 typedef bslx::TestOutStream Out;
@@ -144,7 +145,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard allocatorGuard(&dfltAlloc);
 
     switch (test) { case 0:
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -192,6 +193,158 @@ if (verbose) {  // added in test driver
 //..
 //  MON
 //..
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING INCREMENT AND DECREMENT OPERATORS
+        //
+        // Concerns:
+        //: 1
+        //
+        //: 2
+        //:
+        //
+        //: 3
+        //:
+        //
+        //: 4
+        //
+        //: 5
+        //
+        //: 6
+        //
+        // Plan:
+        //: 1
+        //:
+        //:
+        //
+        //: 2
+        //:
+        //
+        //: 3
+        //
+        //: 4
+        //:
+        //
+        // Testing:
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose) cout
+                        << endl
+                        << "TESTING INCREMENT AND DECREMENT OPERATORS" << endl
+                        << "=========================================" << endl;
+
+        const Enum SUN(Obj::e_SUN);
+        const Enum MON(Obj::e_MON);
+        const Enum TUE(Obj::e_TUE);
+        const Enum WED(Obj::e_WED);
+        const Enum THU(Obj::e_THU);
+        const Enum FRI(Obj::e_FRI);
+        const Enum SAT(Obj::e_SAT);
+
+        //                              +0/+7   +1   +2   +3   +4   +5   +6
+        //                              -0/-7   -6   -5   -4   -3   -2   -1
+        //                              -----   ---  ---  ---  ---  ---  ---
+        const Enum SUN_UNITS_PACK[] = { SUN,    MON, TUE, WED, THU, FRI, SAT };
+        const Enum MON_UNITS_PACK[] = { MON,    TUE, WED, THU, FRI, SAT, SUN };
+        const Enum TUE_UNITS_PACK[] = { TUE,    WED, THU, FRI, SAT, SUN, MON };
+        const Enum WED_UNITS_PACK[] = { WED,    THU, FRI, SAT, SUN, MON, TUE };
+        const Enum THU_UNITS_PACK[] = { THU,    FRI, SAT, SUN, MON, TUE, WED };
+        const Enum FRI_UNITS_PACK[] = { FRI,    SAT, SUN, MON, TUE, WED, THU };
+        const Enum SAT_UNITS_PACK[] = { SAT,    SUN, MON, TUE, WED, THU, FRI };
+
+        //                             +0   +10  +20  +30  +40  +50  +60
+        //                             -0   -60  -50  -40  -30  -20  -10
+        //                             ---  ---  ---  ---  ---  ---  ---
+        const Enum SUN_TENS_PACK[] = { SUN, WED, SAT, TUE, FRI, MON, THU };
+        const Enum MON_TENS_PACK[] = { MON, THU, SUN, WED, SAT, TUE, FRI };
+        const Enum TUE_TENS_PACK[] = { TUE, FRI, MON, THU, SUN, WED, SAT };
+        const Enum WED_TENS_PACK[] = { WED, SAT, TUE, FRI, MON, THU, SUN };
+        const Enum THU_TENS_PACK[] = { THU, SUN, WED, SAT, TUE, FRI, MON };
+        const Enum FRI_TENS_PACK[] = { FRI, MON, THU, SUN, WED, SAT, TUE };
+        const Enum SAT_TENS_PACK[] = { SAT, TUE, FRI, MON, THU, SUN, WED };
+
+        static const struct {
+            int         d_line;           // source line number
+            const Enum  d_originalValue;  //
+            const Enum *d_unitsValues;    // level
+            const Enum *d_tensValues;     // spaces per level
+        } DATA[] = {
+
+            //line   original  units expected   tens expected
+            //----   --------  --------------   -------------
+            { L_,    SUN,      SUN_UNITS_PACK,  SUN_TENS_PACK },
+            { L_,    MON,      MON_UNITS_PACK,  MON_TENS_PACK },
+            { L_,    TUE,      TUE_UNITS_PACK,  TUE_TENS_PACK },
+            { L_,    WED,      WED_UNITS_PACK,  WED_TENS_PACK },
+            { L_,    THU,      THU_UNITS_PACK,  THU_TENS_PACK },
+            { L_,    FRI,      FRI_UNITS_PACK,  FRI_TENS_PACK },
+            { L_,    SAT,      SAT_UNITS_PACK,  SAT_TENS_PACK },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (verbose) cout << "\nTesting 'print'." << endl;
+
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE     = DATA[ti].d_line;
+            const Enum  ORIGINAL = DATA[ti].d_originalValue;
+            const Enum *UNITS    = DATA[ti].d_unitsValues;
+            const Enum *TENS     = DATA[ti].d_tensValues;
+
+            ASSERTV(ORIGINAL, UNITS[0], (ORIGINAL + 0),
+                    UNITS[0] == ORIGINAL + 0);
+            ASSERTV(ORIGINAL, UNITS[0], (ORIGINAL - 0),
+                    UNITS[0] == ORIGINAL - 0);
+            ASSERTV(ORIGINAL, UNITS[0], (ORIGINAL + 7),
+                    UNITS[0] == ORIGINAL + 7);
+            ASSERTV(ORIGINAL, UNITS[0], (ORIGINAL + (-7)),
+                    UNITS[0] == ORIGINAL + (-7));
+            ASSERTV(ORIGINAL, UNITS[0], (ORIGINAL - 7),
+                    UNITS[0] == ORIGINAL - 7);
+            ASSERTV(ORIGINAL, UNITS[0], (ORIGINAL - (-7)),
+                    UNITS[0] == ORIGINAL - (-7));
+
+            for (int tj = 1; tj < 7 ; ++tj) {
+                int ntj = 0 - tj;
+
+                ASSERTV(ORIGINAL, tj, UNITS[tj], (ORIGINAL + tj),
+                        UNITS[tj] == ORIGINAL + tj);
+                ASSERTV(ORIGINAL, tj, UNITS[7 - tj], (ORIGINAL + ntj),
+                        UNITS[7 - tj] == ORIGINAL + ntj);
+                ASSERTV(ORIGINAL, tj, UNITS[7 - tj], (ORIGINAL - tj),
+                        UNITS[7 - tj] == ORIGINAL - tj);
+                ASSERTV(ORIGINAL, tj, UNITS[tj], (ORIGINAL - ntj),
+                        UNITS[tj] == ORIGINAL - ntj);
+            }
+
+            ASSERTV(ORIGINAL, TENS[0], (ORIGINAL + 0),
+                    TENS[0] == ORIGINAL + 0);
+            ASSERTV(ORIGINAL, TENS[0], (ORIGINAL - 0),
+                    TENS[0] == ORIGINAL - 0);
+            ASSERTV(ORIGINAL, TENS[0], (ORIGINAL + 70),
+                    TENS[0] == ORIGINAL + 70);
+            ASSERTV(ORIGINAL, TENS[0], (ORIGINAL + (-70)),
+                    TENS[0] == ORIGINAL + (-70));
+            ASSERTV(ORIGINAL, TENS[0], (ORIGINAL - 70),
+                    TENS[0] == ORIGINAL - 70);
+            ASSERTV(ORIGINAL, TENS[0], (ORIGINAL - (-70)),
+                    TENS[0] == ORIGINAL - (-70));
+
+            for (int tj = 1; tj < 7 ; ++tj) {
+                int ntj = 0 - tj * 10;
+
+                ASSERTV(ORIGINAL, tj, TENS[tj], (ORIGINAL + tj * 10),
+                        TENS[tj] == ORIGINAL + tj * 10);
+                ASSERTV(ORIGINAL, tj, TENS[7 - tj], (ORIGINAL + ntj),
+                        TENS[7 - tj] == ORIGINAL + ntj);
+                ASSERTV(ORIGINAL, tj, TENS[7 - tj], (ORIGINAL - tj * 10),
+                        TENS[7 - tj] == ORIGINAL - tj * 10);
+                ASSERTV(ORIGINAL, tj, TENS[tj], (ORIGINAL - ntj),
+                        TENS[tj] == ORIGINAL - ntj);
+            }
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -688,7 +841,7 @@ if (verbose) {  // added in test driver
             Out out(VERSION_SELECTOR, &allocator);
 
             // Stream out "new" value.
-            out.putInt8(static_cast<char>(Obj::e_SUN - 1));
+            out.putInt8(static_cast<char>(BELOW_ENUM_RANGE));
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -715,7 +868,7 @@ if (verbose) {  // added in test driver
             Out out(VERSION_SELECTOR, &allocator);
 
             // Stream out "new" value.
-            out.putInt8(static_cast<char>(Obj::e_SAT + 1));
+            out.putInt8(static_cast<char>(ABOVE_ENUM_RANGE));
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -1309,7 +1462,7 @@ if (verbose) {  // added in test driver
             {  L_,     Obj::e_SAT,           1, "SAT"                      },
 #if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
             {  L_,     0,                    0, "(* Unknown Enumerator *)" },
-            {  L_,     Obj::e_SAT + 1,       0, "(* Unknown Enumerator *)" },
+            {  L_,     ABOVE_ENUM_RANGE,     0, "(* Unknown Enumerator *)" },
             {  L_,     19,                   0, "(* Unknown Enumerator *)" },
 #endif
         };
