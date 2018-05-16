@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_ISO8601UTIL
 #define INCLUDED_BDLT_ISO8601UTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide conversions between date/time objects and ISO 8601 strings.
@@ -553,25 +551,14 @@ BSLS_IDENT("$Id: $")
 //  assert(         0 == bsl::strcmp(buffer, "08:59:59+0400"));
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_ISO8601UTILCONFIGURATION
 #include <bdlt_iso8601utilconfiguration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace bsls {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_BASICACTUAL360
 #define INCLUDED_BBLDC_BASICACTUAL360
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide stateless functions for the Actual/360 convention.
@@ -61,13 +59,9 @@ BSLS_IDENT("$Id: $")
 //  assert(yearsDiff < 1.0167 && yearsDiff > 1.0166);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
 
 namespace BloombergLP {
 namespace bbldc {

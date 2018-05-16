@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_ATTRIBUTECONTAINER
 #define INCLUDED_BALL_ATTRIBUTECONTAINER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for containers holding logging attributes.
@@ -317,13 +315,9 @@ BSLS_IDENT("$Id: $")
 // [ [ uuid = 3938908 ] [ luw = 1 ] [ firmNumber = 9001 ] ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

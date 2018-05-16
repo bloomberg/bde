@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_ASYNCFILEOBSERVER
 #define INCLUDED_BALL_ASYNCFILEOBSERVER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an asynchronous observer that logs to a file and 'stdout'.
@@ -463,73 +461,31 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == rc);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_CONTEXT
 #include <ball_context.h>
-#endif
-
-#ifndef INCLUDED_BALL_FILEOBSERVER
 #include <ball_fileobserver.h>
-#endif
-
-#ifndef INCLUDED_BALL_FILEOBSERVER2
 #include <ball_fileobserver2.h>
-#endif
-
-#ifndef INCLUDED_BALL_OBSERVER
 #include <ball_observer.h>
-#endif
-
-#ifndef INCLUDED_BALL_RECORD
 #include <ball_record.h>
-#endif
-
-#ifndef INCLUDED_BALL_RECORDSTRINGFORMATTER
 #include <ball_recordstringformatter.h>
-#endif
-
-#ifndef INCLUDED_BALL_SEVERITY
 #include <ball_severity.h>
-#endif
 
-#ifndef INCLUDED_BDLCC_FIXEDQUEUE
 #include <bdlcc_fixedqueue.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
 #include <bdlt_datetimeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

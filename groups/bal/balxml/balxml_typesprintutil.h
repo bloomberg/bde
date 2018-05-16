@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALXML_TYPESPRINTUTIL
 #define INCLUDED_BALXML_TYPESPRINTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility for printing types using XML formatting.
@@ -184,113 +182,41 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALXML_ENCODEROPTIONS
 #include <balxml_encoderoptions.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
 #include <bdlat_arrayfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 #include <bdlat_customizedtypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ENUMFUNCTIONS
 #include <bdlat_enumfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_FORMATTINGMODE
 #include <bdlat_formattingmode.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPECATEGORY
 #include <bdlat_typecategory.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIMETZ
 #include <bdlt_datetimetz.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETZ
 #include <bdlt_datetz.h>
-#endif
-
-#ifndef INCLUDED_BDLT_ISO8601UTIL
 #include <bdlt_iso8601util.h>
-#endif
-
-#ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
-#endif
-
-#ifndef INCLUDED_BDLT_TIMETZ
 #include <bdlt_timetz.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCLASS
 #include <bslmf_isclass.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BDLB_FLOAT
 #include <bdlb_float.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOMANIP
 #include <bsl_iomanip.h>
-#endif
-
-#ifndef INCLUDED_BSL_ISTREAM
 #include <bsl_istream.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOS
 #include <bsl_ios.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_LOGGERCATEGORYUTIL
 #define INCLUDED_BALL_LOGGERCATEGORYUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a suite of utility functions for category management.
@@ -130,9 +128,7 @@ BSLS_IDENT("$Id: $")
 //     [ EQ.MARKET.NYSE, 194, 98, 66, 34 ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

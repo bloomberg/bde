@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_STRINGREFUTIL
 #define INCLUDED_BDLB_STRINGREFUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utility functions on 'bslstl::StringRef'-erenced strings.
@@ -142,13 +140,9 @@ BSLS_IDENT("$Id: $")
 // world!" sub-sequence within the 'rawInput' byte array while the data at
 // 'rawInput' remains *unchanged*.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>  // 'bslstl::StringRef'
-#endif
 
 namespace BloombergLP {
 namespace bdlb {

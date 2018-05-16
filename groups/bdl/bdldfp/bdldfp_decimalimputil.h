@@ -3,9 +3,7 @@
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL
 #define INCLUDED_BDLDFP_DECIMALIMPUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide a unified low-level interface for decimal floating point.
@@ -128,68 +126,27 @@ BSLS_IDENT("$Id$")
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALFORMATCONFIG
 #include <bdldfp_decimalformatconfig.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
 #include <bdldfp_decimalimputil_inteldfp.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #include <bdldfp_decimalplatform.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_UINT128
 #include <bdldfp_uint128.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_UINT128
 #include <bdldfp_uint128.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_CPP11
 #include <bsls_cpp11.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_CMATH
 #include <bsl_cmath.h>
-#endif
-
-#ifndef INCLUDED_BSL_C_ERRNO
 #include <bsl_c_errno.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSTREAM
 #include <bsl_iostream.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSL_C_SIGNAL
 #include <bsl_c_signal.h>  // Formerly transitively included via decContext.h
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE

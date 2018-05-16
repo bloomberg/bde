@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_BITMASKUTIL
 #define INCLUDED_BDLB_BITMASKUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide simple mask values of 'uint32_t' and 'uint64_t' types.
@@ -117,25 +115,14 @@ BSLS_IDENT("$Id: $")
 //  assert(expZero == ~expOne);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLB_BITUTIL
 #include <bdlb_bitutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDINT
 #include <bsl_cstdint.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlb {

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLF_BIND
 #define INCLUDED_BDLF_BIND
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a signature-specific function object (functor).
@@ -864,85 +862,31 @@ BSLS_IDENT("$Id: $")
 //  Here it is: 10 14
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLF_MEMFN
 #include <bdlf_memfn.h>
-#endif
-
-#ifndef INCLUDED_BDLF_PLACEHOLDER
 #include <bdlf_placeholder.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #include <bslalg_constructorproxy.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ARRAYTOPOINTER
 #include <bslmf_arraytopointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_FORWARDINGTYPE
 #include <bslmf_forwardingtype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
 #include <bslmf_haspointersemantics.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_IF
 #include <bslmf_if.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
 #include <bslmf_memberfunctionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_RESULTTYPE
 #include <bslmf_resulttype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_TAG
 #include <bslmf_tag.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_VOIDTYPE
 #include <bslmf_voidtype.h>
-#endif
 
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
 
 namespace BloombergLP {
 

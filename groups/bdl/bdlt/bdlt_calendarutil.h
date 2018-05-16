@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_CALENDARUTIL
 #define INCLUDED_BDLT_CALENDARUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide common date manipulations requiring a calendar.
@@ -113,25 +111,13 @@ BSLS_IDENT("$Id: $")
 //  assert(expected == result);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_CALENDAR
 #include <bdlt_calendar.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DAYOFWEEK
 #include <bdlt_dayofweek.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

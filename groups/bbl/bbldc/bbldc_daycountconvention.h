@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_DAYCOUNTCONVENTION
 #define INCLUDED_BBLDC_DAYCOUNTCONVENTION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an enumeration of 'bbldc' day-count conventions.
@@ -66,13 +64,9 @@ BSLS_IDENT("$Id: $")
 //  ISMA_30_360
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bbldc {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_PERIODICMAACTUALACTUAL
 #define INCLUDED_BBLDC_PERIODICMAACTUALACTUAL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide stateless functions for period-based ICMA Actual/Actual.
@@ -61,17 +59,11 @@ BSLS_IDENT("$Id: $")
 //  assert(yearsDiff > 0.1983 && yearsDiff < 0.1985);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
 
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace bbldc {

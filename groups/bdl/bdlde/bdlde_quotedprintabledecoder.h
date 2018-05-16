@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLDE_QUOTEDPRINTABLEDECODER
 #define INCLUDED_BDLDE_QUOTEDPRINTABLEDECODER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide automata converting to and from Quoted-Printable encodings.
@@ -123,21 +121,11 @@ BSLS_IDENT("$Id: $")
 ///- - -
 // TBD
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_QUEUE
 #include <bsl_queue.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlde {

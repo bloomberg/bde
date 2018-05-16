@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_TESTLOADER
 #define INCLUDED_BALTZO_TESTLOADER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a test implementation of the 'baltzo::Loader' protocol.
@@ -126,41 +124,19 @@ BSLS_IDENT("$Id: $")
 //  assert(newYorkTimeZone == resultNewYork);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALTZO_LOADER
 #include <baltzo_loader.h>
-#endif
-
-#ifndef INCLUDED_BALTZO_ZONEINFO
 #include <baltzo_zoneinfo.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLDFP_DECIMALSTORAGE
 #define INCLUDED_BDLDFP_DECIMALSTORAGE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Utilities for working with Decimal Storage types.
@@ -25,13 +23,9 @@ BSLS_IDENT("$Id$")
 ///Example 1: TBD
 /// - - - - - - -
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_INTELIMPWRAPPER
 #include <bdldfp_intelimpwrapper.h>
-#endif
 
 namespace BloombergLP {
 namespace bdldfp {

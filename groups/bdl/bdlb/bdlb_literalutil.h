@@ -1,10 +1,7 @@
 // bdlb_literalutil.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLB_LITERALUTIL
 #define INCLUDED_BDLB_LITERALUTIL
-
-#ifndef INCLUDED_BSLS_IDENT
 # include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide utility routines for programming language literals.
@@ -20,10 +17,7 @@ BSLS_IDENT("$Id$")
 #ifndef INCLUDED_BSLSCM_VERSION
 # include <bdlscm_version.h>
 #endif
-
-#ifndef INCLUDED_BSL_STRING
 # include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlb {

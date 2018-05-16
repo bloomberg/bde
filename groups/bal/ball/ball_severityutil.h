@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_SEVERITYUTIL
 #define INCLUDED_BALL_SEVERITYUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a suite of utility functions on 'ball::Severity' levels.
@@ -81,13 +79,9 @@ BSLS_IDENT("$Id: $")
 //    assert(ball::Severity::e_FATAL == triggerAll);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_SEVERITY
 #include <ball_severity.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

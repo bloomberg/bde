@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALL_LOGFILECLEANERUTIL
 #define INCLUDED_BALL_LOGFILECLEANERUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility class for removing log files.
@@ -131,29 +129,15 @@ BSLS_IDENT("$Id: $")
 // overrides the file rotation callback currently installed in the file
 // observer.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALB_FILECLEANERCONFIGURATION
 #include <balb_filecleanerconfiguration.h>
-#endif
-
-#ifndef INCLUDED_BALB_FILECLEANERUTIL
 #include <balb_filecleanerutil.h>
-#endif
 
-#ifndef INCLUDED_BDLF_BIND
 #include <bdlf_bind.h>
-#endif
-
-#ifndef INCLUDED_BDLF_PLACEHOLDER
 #include <bdlf_placeholder.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

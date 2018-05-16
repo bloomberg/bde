@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_OBSERVER
 #define INCLUDED_BALL_OBSERVER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Define a protocol for receiving and processing log records.
@@ -187,13 +185,9 @@ BSLS_IDENT("$Id: $")
 //             Thread ID:  33
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

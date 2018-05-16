@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_ATTRIBUTECONTEXT
 #define INCLUDED_BALL_ATTRIBUTECONTEXT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a container for storing attributes and caching results.
@@ -293,37 +291,19 @@ BSLS_IDENT("$Id: $")
 //  context->removeAttributes(it);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_ATTRIBUTECONTAINERLIST
 #include <ball_attributecontainerlist.h>
-#endif
-
-#ifndef INCLUDED_BALL_RULESET
 #include <ball_ruleset.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

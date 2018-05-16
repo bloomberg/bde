@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_STACKTRACEUTIL
 #define INCLUDED_BALST_STACKTRACEUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide low-level utilities for obtaining & printing a stack-trace.
@@ -238,21 +236,13 @@ BSLS_IDENT("$Id: $")
 // 0x804f806 0x804f7dc 0x804f7d5 0x804f7d5 0x804f7d5 0x804fbea 0x341e9c
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALST_STACKTRACE
 #include <balst_stacktrace.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace balst {

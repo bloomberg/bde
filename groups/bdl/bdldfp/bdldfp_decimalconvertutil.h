@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL
 #define INCLUDED_BDLDFP_DECIMALCONVERTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide decimal floating-point conversion functions.
@@ -327,44 +325,20 @@ BSLS_IDENT("$Id$")
 //  assert(number == restored);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
 #include <bdldfp_decimalconvertutil_inteldfp.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL
 #include <bdldfp_decimalimputil.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALUTIL
 #include <bdldfp_decimalutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSL_C_SIGNAL
 #include <bsl_c_signal.h>  // Formerly transitively included via decContext.h
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {

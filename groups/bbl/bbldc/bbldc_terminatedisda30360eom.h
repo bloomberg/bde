@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_TERMINATEDISDA30360EOM
 #define INCLUDED_BBLDC_TERMINATEDISDA30360EOM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide stateless functions for ISDA 30/360 eom convention.
@@ -69,17 +67,11 @@ BSLS_IDENT("$Id: $")
 //  assert(0.25 == yearsDiff);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 namespace bbldc {

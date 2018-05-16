@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLMA_BUFFEREDSEQUENTIALALLOCATOR
 #define INCLUDED_BDLMA_BUFFEREDSEQUENTIALALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an efficient managed allocator using an external buffer.
@@ -185,37 +183,17 @@ BSLS_IDENT("$Id: $")
 // assured that the memory allocation performance is optimized (i.e., minimal
 // use of dynamic allocation).
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_BUFFEREDSEQUENTIALPOOL
 #include <bdlma_bufferedsequentialpool.h>
-#endif
-
-#ifndef INCLUDED_BDLMA_MANAGEDALLOCATOR
 #include <bdlma_managedallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENT
 #include <bsls_alignment.h>
-#endif
-
-#ifndef INCLUDED_BSLS_BLOCKGROWTH
 #include <bsls_blockgrowth.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

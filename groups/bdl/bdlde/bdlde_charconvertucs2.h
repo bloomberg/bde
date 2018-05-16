@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLDE_CHARCONVERTUCS2
 #define INCLUDED_BDLDE_CHARCONVERTUCS2
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 
 BSLS_IDENT("$Id: $")
 
@@ -271,25 +269,13 @@ BSLS_IDENT("$Id: $")
 // }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLDE_CHARCONVERTSTATUS
 #include <bdlde_charconvertstatus.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>            // 'bsl::size_t'
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 

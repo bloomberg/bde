@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
 #define INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide utility to implement decimal 'float's on the Intel library.
@@ -26,39 +24,20 @@ BSLS_IDENT("$Id$")
 ///-----
 // This section shows the intended use of this component.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #include <bdldfp_decimalplatform.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALSTORAGE
 #include <bdldfp_decimalstorage.h>
-#endif
 
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-
-#ifndef INCLUDED_BDLDFP_INTELIMPWRAPPER
 #include <bdldfp_intelimpwrapper.h>
-#endif
 
-#ifndef INCLUDED_BSL_LOCALE
 #include <bsl_locale.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_C_ERRNO
 #include <bsl_c_errno.h>
-#endif
 
 namespace BloombergLP {
 namespace bdldfp {

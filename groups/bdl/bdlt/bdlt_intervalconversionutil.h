@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_INTERVALCONVERSIONUTIL
 #define INCLUDED_BDLT_INTERVALCONVERSIONUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functions to convert between time-interval representations.
@@ -63,37 +61,17 @@ BSLS_IDENT("$Id: $")
 //  displayTime(timeSinceEpoch);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
 #include <bdlt_datetimeinterval.h>
-#endif
-
-#ifndef INCLUDED_BDLT_TIMEUNITRATIO
 #include <bdlt_timeunitratio.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_BUILDTARGET
 #include <bsls_buildtarget.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

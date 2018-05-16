@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_INTEGERCOLLECTOR
 #define INCLUDED_BALM_INTEGERCOLLECTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a container for collecting integral metric values.
@@ -78,33 +76,17 @@ BSLS_IDENT("$Id: $")
 //      assert(3        == record.max());
 //..
 
-#ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
-#endif
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALM_METRICID
 #include <balm_metricid.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRICRECORD
 #include <balm_metricrecord.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_CALENDAR
 #define INCLUDED_BDLT_CALENDAR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide fast repository for accessing weekend/holiday information.
@@ -459,65 +457,29 @@ BSLS_IDENT("$Id: $")
 //                       MyCalendarUtil::modifiedFollowing(31, 7, 2015, cal2));
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_CALENDARREVERSEITERATORADAPTER
 #include <bdlt_calendarreverseiteratoradapter.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DAYOFWEEK
 #include <bdlt_dayofweek.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DAYOFWEEKSET
 #include <bdlt_dayofweekset.h>
-#endif
-
-#ifndef INCLUDED_BDLT_PACKEDCALENDAR
 #include <bdlt_packedcalendar.h>
-#endif
 
-#ifndef INCLUDED_BDLC_BITARRAY
 #include <bdlc_bitarray.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
 
-#ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLB_SCHEDULEGENERATIONUTIL
 #define INCLUDED_BBLB_SCHEDULEGENERATIONUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functions for generating schedules of dates.
@@ -117,25 +115,13 @@ BSLS_IDENT("$Id: $")
 //  assert(bdlt::Date(2015,  1, 23) == schedule[3]);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_CALENDAR
 #include <bdlt_calendar.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DAYOFWEEK
 #include <bdlt_dayofweek.h>
-#endif
 
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace bblb {

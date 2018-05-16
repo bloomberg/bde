@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLDE_UTF8UTIL
 #define INCLUDED_BDLDE_UTF8UTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide basic utilities for UTF-8 encodings.
@@ -240,17 +238,11 @@ BSLS_IDENT("$Id: $")
 //  assert(static_cast<int>(string.length()) == result - start);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
 
 namespace BloombergLP {
 

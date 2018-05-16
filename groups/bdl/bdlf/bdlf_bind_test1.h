@@ -14,9 +14,7 @@
 // argument.  There is no code other than in the test driver.  It is not
 // intended for public use.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
 #endif
 

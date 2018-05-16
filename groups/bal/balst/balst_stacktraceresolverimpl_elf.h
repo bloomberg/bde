@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_STACKTRACERESOLVERIMPL_ELF
 #define INCLUDED_BALST_STACKTRACERESOLVERIMPL_ELF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility to resolve ELF symbols in a stack trace.
@@ -42,43 +40,22 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALST_OBJECTFILEFORMAT
 #include <balst_objectfileformat.h>
-#endif
 
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
-
-#ifndef INCLUDED_BALST_STACKTRACE
 #include <balst_stacktrace.h>
-#endif
-
-#ifndef INCLUDED_BALST_STACKTRACEFRAME
 #include <balst_stacktraceframe.h>
-#endif
-
-#ifndef INCLUDED_BALST_STACKTRACERESOLVER_FILEHELPER
 #include <balst_stacktraceresolver_filehelper.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_HEAPBYPASSALLOCATOR
 #include <bdlma_heapbypassallocator.h>
-#endif
 
-#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
 #include <bdls_filesystemutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace balst {

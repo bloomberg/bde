@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLDFP_UINT128
 #define INCLUDED_BDLDFP_UINT128
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a representation of a 128-bit 'int' for bitwise operations.
@@ -118,13 +116,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that primitive 64-bit words can be promoted to 128-bit addresses.
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 namespace bdldfp {

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLF_PLACEHOLDER
 #define INCLUDED_BDLF_PLACEHOLDER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a parameterized placeholder and specialized placeholders.
@@ -33,17 +31,10 @@ BSLS_IDENT("$Id: $")
 ///-----
 // TBD
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
 namespace BloombergLP {
 

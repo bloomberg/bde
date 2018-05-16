@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_CALENDARBUS252
 #define INCLUDED_BBLDC_CALENDARBUS252
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide stateless functions for calendar-based BUS-252.
@@ -56,25 +54,13 @@ BSLS_IDENT("$Id: $")
 //  assert(yearsDiff > 0.2063 && yearsDiff < 0.2064);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_CALENDAR
 #include <bdlt_calendar.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 namespace bbldc {

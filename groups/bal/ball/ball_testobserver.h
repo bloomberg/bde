@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_TESTOBSERVER
 #define INCLUDED_BALL_TESTOBSERVER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an instrumented observer for testing.
@@ -138,53 +136,23 @@ BSLS_IDENT("$Id: $")
 // (as verified by the 'numPublishedRecords' method); only 'to1' produces a
 // printed output, because it has been set to verbose mode.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_CONTEXT
 #include <ball_context.h>
-#endif
-
-#ifndef INCLUDED_BALL_OBSERVER
 #include <ball_observer.h>
-#endif
-
-#ifndef INCLUDED_BALL_RECORD
 #include <ball_record.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLMA_INFREQUENTDELETEBLOCKLIST
 #define INCLUDED_BDLMA_INFREQUENTDELETEBLOCKLIST
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide allocation and management of infrequently deleted blocks.
@@ -173,25 +171,13 @@ BSLS_IDENT("$Id: $")
 // is also destroyed, which in turn automatically deallocates all of its
 // managed memory blocks.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

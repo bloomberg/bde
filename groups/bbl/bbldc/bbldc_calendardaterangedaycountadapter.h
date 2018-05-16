@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_CALENDARDATERANGEDAYCOUNTADAPTER
 #define INCLUDED_BBLDC_CALENDARDATERANGEDAYCOUNTADAPTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a parameterized day-count convention implementation.
@@ -84,37 +82,19 @@ BSLS_IDENT("$Id: $")
 //  assert(yearsDiff > 0.2063 && yearsDiff < 0.2064);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BBLDC_DATERANGEDAYCOUNT
 #include <bbldc_daterangedaycount.h>
-#endif
 
-#ifndef INCLUDED_BDLT_CALENDAR
 #include <bdlt_calendar.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bbldc {

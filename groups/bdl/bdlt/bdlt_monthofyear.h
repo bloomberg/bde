@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_MONTHOFYEAR
 #define INCLUDED_BDLT_MONTHOFYEAR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Enumerate the set of month-of-year values.
@@ -68,13 +66,9 @@ BSLS_IDENT("$Id: $")
 //  APR
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

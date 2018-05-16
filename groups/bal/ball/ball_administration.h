@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_ADMINISTRATION
 #define INCLUDED_BALL_ADMINISTRATION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a suite of utility functions for logging administration.
@@ -182,9 +180,7 @@ BSLS_IDENT("$Id: $")
 // again with an argument value of either 0 or one that is greater than
 // 'NUM_CATEGORIES').
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

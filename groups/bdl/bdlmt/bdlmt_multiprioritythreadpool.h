@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLMT_MULTIPRIORITYTHREADPOOL
 #define INCLUDED_BDLMT_MULTIPRIORITYTHREADPOOL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a mechanism to parallelize a prioritized sequence of jobs.
@@ -374,63 +372,31 @@ BSLS_IDENT("$Id: $")
 //         }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLCC_MULTIPRIORITYQUEUE
 #include <bdlcc_multipriorityqueue.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
 #include <bslmt_threadattributes.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADGROUP
 #include <bslmt_threadgroup.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
-#endif
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
-    #ifndef INCLUDED_BSL_C_SIGNAL
     #include <bsl_c_signal.h>
-    #endif
 #endif
-
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
 
 namespace BloombergLP {
 

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALJSN_TOKENIZER
 #define INCLUDED_BALJSN_TOKENIZER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a tokenizer for extracting JSON data from a 'streambuf'.
@@ -127,29 +125,15 @@ BSLS_IDENT("$Id: $")
 //  assert(10022           == address.d_zipcode);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_BUFFEREDSEQUENTIALALLOCATOR
 #include <bdlma_bufferedsequentialallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNEDBUFFER
 #include <bsls_alignedbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
-#endif
 
 namespace BloombergLP {
 namespace baljsn {

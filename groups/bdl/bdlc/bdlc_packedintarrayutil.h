@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLC_PACKEDINTARRAYUTIL
 #define INCLUDED_BDLC_PACKEDINTARRAYUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide common non-primitive operations on 'bdlc::PackedIntArray'.
@@ -66,17 +64,11 @@ BSLS_IDENT("$Id: $")
 //  assert(iterator != array.end() && 19 == *iterator);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLC_PACKEDINTARRAY
 #include <bdlc_packedintarray.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlc {

@@ -80,53 +80,23 @@
 //  assert(retVal.theInteger() == 3);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLD_DATUM
 #include <bdld_datum.h>
-#endif
-
-#ifndef INCLUDED_BDLD_DATUMARRAYBUILDER
 #include <bdld_datumarraybuilder.h>
-#endif
-
-#ifndef INCLUDED_BDLD_DATUMMAPBUILDER
 #include <bdld_datummapbuilder.h>
-#endif
-
-#ifndef INCLUDED_BDLD_DATUMMAPOWNINGKEYSBUILDER
 #include <bdld_datummapowningkeysbuilder.h>
-#endif
-
-#ifndef INCLUDED_BDLD_DATUMINTMAPBUILDER
 #include <bdld_datumintmapbuilder.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
-#endif
 
-#ifndef INCLUDED_BDLB_NULLABLEVALUE
 #include <bdlb_nullablevalue.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdld {

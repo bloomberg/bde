@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLMA_ALIGNEDALLOCATOR
 #define INCLUDED_BDLMA_ALIGNEDALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide a protocol for memory allocators that support alignment.
@@ -232,25 +230,14 @@ BSLS_IDENT("$Id$")
 //  assert(0 == ((bsl::size_t)address & (4096 - 1)));
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ANNOTATION
 #include <bsls_annotation.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

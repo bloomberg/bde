@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_FIXUTIL
 #define INCLUDED_BDLT_FIXUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide conversions between date/time objects and FIX strings.
@@ -448,25 +446,14 @@ BSLS_IDENT("$Id: $")
 //  assert(         0 == bsl::strcmp(buffer, "20050131-08:59:59+04:00"));
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_FIXUTILCONFIGURATION
 #include <bdlt_fixutilconfiguration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

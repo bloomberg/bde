@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_SCOPEDATTRIBUTES
 #define INCLUDED_BALL_SCOPEDATTRIBUTES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a class to add and remove attributes automatically.
@@ -81,21 +79,11 @@ BSLS_IDENT("$Id: $")
 //  assert(!context->hasAttribute(a2));
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_ATTRIBUTECONTAINER
 #include <ball_attributecontainer.h>
-#endif
-
-#ifndef INCLUDED_BALL_ATTRIBUTECONTAINERLIST
 #include <ball_attributecontainerlist.h>
-#endif
-
-#ifndef INCLUDED_BALL_ATTRIBUTECONTEXT
 #include <ball_attributecontext.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

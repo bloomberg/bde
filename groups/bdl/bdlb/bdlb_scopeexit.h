@@ -1,10 +1,7 @@
 // bdlb_scopeexit.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDLB_SCOPEEXIT
 #define INCLUDED_BDLB_SCOPEEXIT
-
-#ifndef INCLUDED_BSLS_IDENT
 #  include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a general-purpose guard object for scope-exit logic.
@@ -204,67 +201,27 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_DECAY
 #include <bslmf_decay.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISNOTHROWMOVECONSTRUCTIBLE
 #include <bslmf_isnothrowmoveconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_UTIL
 #include <bslmf_util.h>
-#endif
 
-#ifndef INCLUDED_BSLS_BUILDTARGET
 #include <bsls_buildtarget.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_CPP11
 #include <bsls_cpp11.h>
-#endif
 
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#ifndef INCLUDED_BSL_TYPE_TRAITS
 #include <bsl_type_traits.h>
 #endif
-#endif
-
-#ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
-#endif
 
 #ifdef BDE_BUILD_TARGET_EXC
 #define BDLB_SCOPEEXIT_NOEXCEPT_SPEC BSLS_CPP11_NOEXCEPT_SPECIFICATION

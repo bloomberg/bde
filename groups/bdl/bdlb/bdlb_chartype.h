@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLB_CHARTYPE
 #define INCLUDED_BDLB_CHARTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Supply local-independent version of '<ctype.h>' functionality.
@@ -323,13 +321,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -FABC01

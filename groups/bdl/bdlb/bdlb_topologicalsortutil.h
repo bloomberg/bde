@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_TOPOLOGICALSORTUTIL
 #define INCLUDED_BDLB_TOPOLOGICALSORTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility to topologically sort a collection of inputs.
@@ -414,41 +412,18 @@ BSLS_IDENT("$Id: $")
 //  assert(results5[2] == 3);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSL_QUEUE
 #include <bsl_queue.h>
-#endif
-
-#ifndef INCLUDED_BSL_UNORDERED_MAP
 #include <bsl_unordered_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
-#endif
-
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
 
 
 namespace BloombergLP {

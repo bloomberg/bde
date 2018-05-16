@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_PATTERNUTIL
 #define INCLUDED_BALL_PATTERNUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility class for string pattern matching.
@@ -69,9 +67,7 @@ BSLS_IDENT("$Id: $")
 //     assert(false == ball::PatternUtil::isMatch("ETQ", "E*Q"));
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

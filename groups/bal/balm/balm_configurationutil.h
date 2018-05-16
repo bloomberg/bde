@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_CONFIGURATIONUTIL
 #define INCLUDED_BALM_CONFIGURATIONUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace for metrics configuration utilities.
@@ -239,17 +237,10 @@ BSLS_IDENT("$Id: $")
 //  WARNING: myCategory.numRequests = 150
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALM_METRICDESCRIPTION
 #include <balm_metricdescription.h>
-#endif
-
-#ifndef INCLUDED_BALM_PUBLICATIONTYPE
 #include <balm_publicationtype.h>
-#endif
 
 namespace BloombergLP {
 namespace balm {

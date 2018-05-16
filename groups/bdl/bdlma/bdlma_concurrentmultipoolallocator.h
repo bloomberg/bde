@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLMA_CONCURRENTMULTIPOOLALLOCATOR
 #define INCLUDED_BDLMA_CONCURRENTMULTIPOOLALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an allocator to manage pools of varying object sizes.
@@ -281,25 +279,14 @@ BSLS_IDENT("$Id: $")
 //  my_NamedGraphContainer container(&basicAllocator);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_CONCURRENTMULTIPOOL
 #include <bdlma_concurrentmultipool.h>
-#endif
-
-#ifndef INCLUDED_BDLMA_MANAGEDALLOCATOR
 #include <bdlma_managedallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

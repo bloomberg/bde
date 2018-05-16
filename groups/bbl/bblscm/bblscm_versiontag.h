@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLSCM_VERSIONTAG
 #define INCLUDED_BBLSCM_VERSIONTAG
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide versioning information for the 'bbl' package group.
@@ -37,13 +35,8 @@ BSLS_IDENT("$Id: $")
 //  #endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLSCM_VERSIONTAG
 #include <bslscm_versiontag.h>
-#endif
 
 
 // For the 3.7.x release series, 'bbl' is being versioned independently of

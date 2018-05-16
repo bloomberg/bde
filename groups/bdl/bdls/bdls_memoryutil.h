@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLS_MEMORYUTIL
 #define INCLUDED_BDLS_MEMORYUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a set of portable utilities for memory manipulation.
@@ -63,9 +61,7 @@ BSLS_IDENT("$Id: $")
 //  bdls::MemoryUtil::free(data);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
 namespace BloombergLP {
 

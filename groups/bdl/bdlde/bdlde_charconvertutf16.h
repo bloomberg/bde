@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLDE_CHARCONVERTUTF16
 #define INCLUDED_BDLDE_CHARCONVERTUTF16
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide fast, safe conversion between UTF-8 and UTF-16 encodings.
@@ -289,29 +287,14 @@ BSLS_IDENT("$Id: $")
 //  assert(utf16CodePointsWritten       == uf8CodePointsWritten);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLDE_BYTEORDER
 #include <bdlde_byteorder.h>
-#endif
-
-#ifndef INCLUDED_BDLDE_CHARCONVERTSTATUS
 #include <bdlde_charconvertstatus.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>            // 'bsl::size_t'
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 

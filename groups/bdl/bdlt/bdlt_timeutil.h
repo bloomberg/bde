@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_TIMEUTIL
 #define INCLUDED_BDLT_TIMEUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide common non-primitive operations on 'bdlt::Time'.
@@ -106,17 +104,11 @@ BSLS_IDENT("$Id: $")
 // Note that the millisecond and/or second fields of 'bdlt::Time' are ignored
 // depending on the conversion method that is called.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

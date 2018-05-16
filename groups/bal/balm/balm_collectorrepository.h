@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_COLLECTORREPOSITORY
 #define INCLUDED_BALM_COLLECTORREPOSITORY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a repository for collectors.
@@ -105,57 +103,24 @@ BSLS_IDENT("$Id: $")
 //  [ Test.C4: 1 6 6 6 ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALM_COLLECTOR
 #include <balm_collector.h>
-#endif
-
-#ifndef INCLUDED_BALM_INTEGERCOLLECTOR
 #include <balm_integercollector.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRICID
 #include <balm_metricid.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRICRECORD
 #include <balm_metricrecord.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRICREGISTRY
 #include <balm_metricregistry.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_RWMUTEX
 #include <bslmt_rwmutex.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace balm {

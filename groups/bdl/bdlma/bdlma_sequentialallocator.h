@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLMA_SEQUENTIALALLOCATOR
 #define INCLUDED_BDLMA_SEQUENTIALALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a managed allocator using dynamically-allocated buffers.
@@ -197,41 +195,18 @@ BSLS_IDENT("$Id: $")
 //      my_DoubleStack dstack(&sequentialAlloc);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_MANAGEDALLOCATOR
 #include <bdlma_managedallocator.h>
-#endif
-
-#ifndef INCLUDED_BDLMA_SEQUENTIALPOOL
 #include <bdlma_sequentialpool.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENT
 #include <bsls_alignment.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_BLOCKGROWTH
 #include <bsls_blockgrowth.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

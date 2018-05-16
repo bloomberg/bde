@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLBB_BLOBSTREAMBUF
 #define INCLUDED_BDLBB_BLOBSTREAMBUF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide blob implementing the 'streambuf' interface.
@@ -38,29 +36,15 @@ BSLS_IDENT("$Id: $")
 // 'bdlbb::OutBlobStreamBuf' can therefore respectively read from and write to
 // this buffer as if there were a single continuous index.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLBB_BLOB
 #include <bdlbb_blob.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOS
 #include <bsl_ios.h>  // for 'bsl::streamsize'
-#endif
-
-#ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>  // bsl::size_t
-#endif
 
 namespace BloombergLP {
 namespace bdlbb { class Blob; }

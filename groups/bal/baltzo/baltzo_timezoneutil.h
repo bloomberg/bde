@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_TIMEZONEUTIL
 #define INCLUDED_BALTZO_TIMEZONEUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities for converting times among different time zones.
@@ -421,53 +419,22 @@ BSLS_IDENT("$Id: $")
 //  assert(bdlt::Datetime(2010, 11,  7, 6, 0, 0) == period.utcEndTime());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALTZO_DEFAULTZONEINFOCACHE
 #include <baltzo_defaultzoneinfocache.h>
-#endif
-
-#ifndef INCLUDED_BALTZO_DSTPOLICY
 #include <baltzo_dstpolicy.h>
-#endif
-
-#ifndef INCLUDED_BALTZO_LOCALTIMEVALIDITY
 #include <baltzo_localtimevalidity.h>
-#endif
-
-#ifndef INCLUDED_BALTZO_TIMEZONEUTILIMP
 #include <baltzo_timezoneutilimp.h>
-#endif
-
-#ifndef INCLUDED_BALTZO_LOCALDATETIME
 #include <baltzo_localdatetime.h>
-#endif
 
-#ifndef INCLUDED_BDLT_CURRENTTIME
 #include <bdlt_currenttime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIMETZ
 #include <bdlt_datetimetz.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {

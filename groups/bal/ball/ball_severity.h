@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_SEVERITY
 #define INCLUDED_BALL_SEVERITY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Enumerate a set of logging severity levels.
@@ -98,17 +96,11 @@ BSLS_IDENT("$Id: $")
 // Setting the global threshold to 'ALL' causes all messages to be published;
 // setting it to 'OFF' disables logging.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #if BSLS_PLATFORM_HAS_MACRO_PUSH_POP

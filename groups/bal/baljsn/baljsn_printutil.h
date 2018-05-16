@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALJSN_PRINTUTIL
 #define INCLUDED_BALJSN_PRINTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility for encoding simple types in the JSON format.
@@ -81,65 +79,27 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALJSN_ENCODEROPTIONS
 #include <baljsn_encoderoptions.h>
-#endif
 
-#ifndef INCLUDED_BDLB_FLOAT
 #include <bdlb_float.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL
 #include <bdldfp_decimalconvertutil.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALUTIL
 #include <bdldfp_decimalutil.h>
-#endif
 
-#ifndef INCLUDED_BDLT_ISO8601UTIL
 #include <bdlt_iso8601util.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_C_STDIO
 #include <bsl_c_stdio.h>
-#endif
-
-#ifndef INCLUDED_BSL_CMATH
 #include <bsl_cmath.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOMANIP
 #include <bsl_iomanip.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOS
 #include <bsl_ios.h>
-#endif
-
-#ifndef INCLUDED_BSL_LIMITS
 #include <bsl_limits.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace baljsn {
