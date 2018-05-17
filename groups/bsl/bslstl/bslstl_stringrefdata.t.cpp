@@ -7,6 +7,8 @@
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 
+#include <bsls_asserttest.h>
+
 #include <string>
 
 #include <stdio.h>
@@ -50,6 +52,9 @@ using namespace BloombergLP;
 //:   o copy-assignment
 //:   o swap
 //-----------------------------------------------------------------------------
+// CLASS METHODS
+// [12] size_t cStringLength(const CHAR_TYPE *data);
+//
 // CREATORS
 // [ 2] bslstl::StringRefData();
 // [ 2] bslstl::StringRefData(const char *begin, const char *end);
@@ -68,7 +73,7 @@ using namespace BloombergLP;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [10] Reserved for 'bslx' streaming.
 // [11] TYPE TRAITS
 
@@ -134,6 +139,13 @@ void aSsErT(int c, const char *s, int i) {
 #define P_(X) dbg_print(#X " = ", X, ", "); // P(X) without '\n'
 #define L_ __LINE__                         // current Line number
 #define T_ putchar('\t');                   // Print a tab (w/o newline)
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
 
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -294,7 +306,7 @@ int main(int argc, char *argv[])
     // CONCERN: This test driver is reusable w/other, similar components.
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -336,6 +348,89 @@ ASSERT(&*strObj.end()   == strRef.end());
 ASSERT(&*strObj.begin() == strRf2.begin());
 ASSERT(&*strObj.end()   == strRf2.end());
 //..
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'cStringLength'
+        //
+        // Concerns:
+        //: 1 'cStringLength' returns the same value as 'strlen'.
+        //:
+        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Check return value of 'cStringLength' for known strings. (C-1)
+        //:
+        //: 2 Test the asserted preconditions using the 'BSLS_ASSERTTEST_*'
+        //:   macros. (C-2)
+        //
+        // Testing:
+        //   TYPE TRAITS
+        //   size_t cStringLength(const CHAR_TYPE *data);
+        // --------------------------------------------------------------------
+          if (verbose) printf("\n"
+                              "TESTING 'cStringLength'\n"
+                              "=======================\n");
+
+          if (verbose) printf("\nchar\n");
+          {
+              typedef bslstl::StringRefData<char>    RefData;
+
+              const char data[] = "123456789012345678901234567890";
+              native_std::size_t numLetters = (sizeof(data) / sizeof(*data)) - 1;
+              ASSERT(0 != data[numLetters - 1]);
+              ASSERT(0 == data[numLetters    ]);
+
+              native_std::size_t sizes[] = { 0, 1, 2, 7, 30 };
+              enum { NUM_SIZES = sizeof(sizes) / sizeof(*sizes) };
+
+              for (int i = 0; i < NUM_SIZES; ++i) {
+                  native_std::size_t size = sizes[i];
+                  const char *input = data + numLetters - size;
+                  LOOP3_ASSERT(i, size,
+                               RefData::cStringLength(input),
+                               size == RefData::cStringLength(input));
+              }
+
+
+              if (verbose) printf("\tNegative Testing.\n");
+              {
+                  bsls::AssertTestHandlerGuard g;
+
+                  ASSERT_SAFE_PASS(RefData::cStringLength(""));
+                  ASSERT_SAFE_FAIL(RefData::cStringLength( 0));
+              }
+          }
+
+          if (verbose) printf("\nwchar_t\n");
+          {
+              typedef bslstl::StringRefData<wchar_t> WRefData;
+
+              const wchar_t data[] = L"123456789012345678901234567890";
+              native_std::size_t numLetters = (sizeof(data) / sizeof(*data)) - 1;
+              ASSERT(0 != data[numLetters - 1]);
+              ASSERT(0 == data[numLetters    ]);
+
+              native_std::size_t sizes[] = { 0, 1, 2, 7, 30 };
+              enum { NUM_SIZES = sizeof(sizes) / sizeof(*sizes) };
+
+              for (int i = 0; i < NUM_SIZES; ++i) {
+                  native_std::size_t size = sizes[i];
+                  const wchar_t *input = data + numLetters - size;
+                  LOOP3_ASSERT(i, size,
+                               WRefData::cStringLength(input),
+                               size == WRefData::cStringLength(input));
+              }
+
+
+              if (verbose) printf("\tNegative Testing.\n");
+              {
+                  bsls::AssertTestHandlerGuard g;
+
+                  ASSERT_SAFE_PASS(WRefData::cStringLength(L""));
+                  ASSERT_SAFE_FAIL(WRefData::cStringLength(  0));
+              }
+          }
       } break;
       case 11: {
         // --------------------------------------------------------------------

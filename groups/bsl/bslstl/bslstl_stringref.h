@@ -860,7 +860,7 @@ StringRefImp<CHAR_TYPE>::StringRefImp(const_iterator begin, const_iterator end)
 template <class CHAR_TYPE>
 inline
 StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data)
-: Base(data, data + native_std::char_traits<CHAR_TYPE>::length(data))
+: Base(data, data + Base::cStringLength(data))
 {
     BSLS_ASSERT_SAFE(data);
 }
