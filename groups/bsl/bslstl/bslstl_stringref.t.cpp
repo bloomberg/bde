@@ -265,7 +265,7 @@ namespace bslstl {
 
 void debugprint(const StringRef& value)
 {
-    for (int i = 0; i != value.length(); ++i) {
+    for (size_t i = 0; i != value.length(); ++i) {
         putchar(value[i]);
     }
 }
