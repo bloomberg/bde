@@ -1,0 +1,4 @@
+*                       _       OPTS_FILE       = bdlde.opts
+
+unix-linux-*-*-*                    _   DEF_CXXFLAGS    = -mcrc32
+
