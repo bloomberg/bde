@@ -222,10 +222,6 @@ class LocalTimeDescriptor {
                         bool                      dstInEffectFlag,
                         const bslstl::StringRef&  description,
                         bslma::Allocator         *basicAllocator = 0);
-    LocalTimeDescriptor(int                       utcOffsetInSeconds,
-                        bool                      dstInEffectFlag,
-                        const char               *description,
-                        bslma::Allocator         *basicAllocator = 0);
         // Create a 'LocalTimeDescriptor' object having the specified
         // 'utcOffsetInSeconds', 'dstInEffectFlag', and 'description' attribute
         // values.  Optionally specify a 'basicAllocator' used to supply
@@ -249,7 +245,6 @@ class LocalTimeDescriptor {
         // return a non-'const' reference to this object.
 
     void setDescription(const bslstl::StringRef&  value);
-    void setDescription(const char               *value);
         // Set the 'description' attribute of this object to the specified
         // 'value'.  Note that 'value' is not canonical, and is intended for
         // debugging only.
@@ -382,23 +377,6 @@ baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
 , d_description(description.begin(), description.end(), basicAllocator)
 {
     BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(utcOffsetInSeconds));
-    BSLS_ASSERT_SAFE(0 != description.data());
-}
-
-inline
-baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
-                                          int               utcOffsetInSeconds,
-                                          bool              dstInEffectFlag,
-                                          const char       *description,
-                                          bslma::Allocator *basicAllocator)
-: d_utcOffsetInSeconds(utcOffsetInSeconds)
-, d_dstInEffectFlag(dstInEffectFlag)
-, d_description(basicAllocator)
-{
-    BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(utcOffsetInSeconds));
-    BSLS_ASSERT_SAFE(description);
-
-    bsl::string(description, basicAllocator).swap(d_description);
 }
 
 inline
@@ -433,17 +411,7 @@ inline
 void baltzo::LocalTimeDescriptor::setDescription(
                                                 const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(0 != value.data());
-
     d_description.assign(value.begin(), value.end());
-}
-
-inline
-void baltzo::LocalTimeDescriptor::setDescription(const char* value)
-{
-    BSLS_ASSERT_SAFE(value);
-
-    bsl::string(value, d_description.allocator()).swap(d_description);
 }
 
 inline

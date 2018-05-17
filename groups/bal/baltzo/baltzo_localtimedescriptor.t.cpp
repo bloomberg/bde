@@ -2517,7 +2517,6 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            const int  UTC    = 5 * 60 * 60;
             const bool FLAG   = true;
             const char DESC[] = "EST";
 
@@ -2528,12 +2527,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Obj(UTC_MAX    , FLAG, DESC));
                 ASSERT_SAFE_FAIL(Obj(UTC_MAX + 1, FLAG, DESC));
-            }
-
-            if (veryVerbose) cout << "\t'description'" << endl;
-            {
-                ASSERT_SAFE_PASS(Obj(UTC, FLAG, ""));
-                ASSERT_SAFE_FAIL(Obj(UTC, FLAG, 0 ));
             }
         }
       } break;
@@ -2897,12 +2890,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(obj.setUtcOffsetInSeconds(UTC_MAX    ));
                 ASSERT_SAFE_FAIL(obj.setUtcOffsetInSeconds(UTC_MAX + 1));
-            }
-
-            if (veryVerbose) cout << "\tdescription" << endl;
-            {
-                ASSERT_SAFE_PASS(obj.setDescription(""));
-                ASSERT_SAFE_FAIL(obj.setDescription( 0));
             }
         }
       } break;
