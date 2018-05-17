@@ -1374,16 +1374,16 @@ Crc32cCalculator::Crc32cCalculator()
 #if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
 
 #  if defined(BSLS_PLATFORM_CMP_CLANG)
-#    define BMQP_SSE4_2 bit_SSE42
+#    define BDLDE_SSE4_2 bit_SSE42
 #  elif defined(BSLS_PLATFORM_CMP_GNU)
-#    define BMQP_SSE4_2 bit_SSE4_2
+#    define BDLDE_SSE4_2 bit_SSE4_2
 #  endif
 
-#  ifdef BMQP_SSE4_2
+#  ifdef BDLDE_SSE4_2
     unsigned int eax, ebx, ecx, edx;
     __cpuid(1, eax, ebx, ecx, edx);
 
-    if (ecx & BMQP_SSE4_2) { // SSE 4.2 Support for CRC32-C
+    if (ecx & BDLDE_SSE4_2) { // SSE 4.2 Support for CRC32-C
 
 #    ifdef BSLS_PLATFORM_CPU_64_BIT
         BSLS_LOG_INFO("Using hardware version for CRC32-C computation "
@@ -1396,7 +1396,7 @@ Crc32cCalculator::Crc32cCalculator()
                       "32-bit mode)");
         g_crc32cFn = crc32cHardwareSerial;
 #    endif // BSLS_PLATFORM_CPU_64_BIT
-#undef BMQP_SSE4_2
+#undef BDLDE_SSE4_2
     }
     else {
         BSLS_LOG_INFO("Using software version for CRC32-C computation "
@@ -1469,7 +1469,7 @@ unsigned int Crc32c::calculate(const void   *data,
     }
 
     Crc32cCalculator& calculator = Crc32cCalculator::instance();
-     return calculator(static_cast<const unsigned char *>(data), length, crc);
+    return calculator(static_cast<const unsigned char *>(data), length, crc);
 }
 
                              // ------------------

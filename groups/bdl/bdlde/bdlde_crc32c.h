@@ -207,18 +207,14 @@ BSLS_IDENT("$Id$")
 // The following code illustrates how to calculate and update a CRC32-C
 // checksum for a message over the course of building the full message.
 //
-// First, let's initialize the utility.
+// First, prepare a message.
 //..
-//  bmqp::Crc32c::initialize();
-//..
-// Now, compute a checksum.
-//..
-//  // Prepare a message
 //  bsl::string message = "This is a test message.";
-//
-//  // Generate a checksum for 'message'
-//  unsigned int checksum = bmqp::Crc32c::calculate(message.c_str(),
-//                                                  message.size());
+//..
+// Then generate a checksum for 'message'.
+//..
+//  unsigned int checksum = bdlde::Crc32c::calculate(message.c_str(),
+//                                                   message.size());
 //..
 // Finally, if we learn that our message has grown by another chunk and we want
 // to compute the checksum of the original message plus the new chunk, let's
@@ -229,9 +225,9 @@ BSLS_IDENT("$Id$")
 //  message += newChunk;
 //
 //  // Update checksum using previous value as starting point
-//  checksum = bmqp::Crc32c::calculate(newChunk.c_str(),
-//                                     newChunk.size(),
-//                                     checksum);
+//  checksum = bdlde::Crc32c::calculate(newChunk.c_str(),
+//                                      newChunk.size(),
+//                                      checksum);
 //..
 //
 

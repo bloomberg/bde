@@ -40,20 +40,21 @@ using namespace bsl;
 // CLASS METHODS
 // [2] static int Crc32c::calculate(const void *, unsigned int, unsigned int);
 // [2] static int Crc32c_Impl::calculateSoftware(const void *, uint, uint);
-// [2] static int Crc32c_Impl::calculateHardwareSerial(const void *, uint,uint);
+// [2] static int Crc32c_Impl::calculateHardwareSerial(const void *,uint,uint);
 // [3] static int Crc32c::calculate(const void *, unsigned int, unsigned int);
 // [3] static int Crc32c_Impl::calculateSoftware(const void *, uint, uint);
-// [3] static int Crc32c_Impl::calculateHardwareSerial(const void *, uint,uint);
+// [3] static int Crc32c_Impl::calculateHardwareSerial(const void *,uint,uint);
 // [4] static int Crc32c::calculate(const void *, unsigned int, unsigned int);
 // [4] static int Crc32c_Impl::calculateSoftware(const void *, uint, uint);
 // [5] static int Crc32c::calculate(const void *, unsigned int, unsigned int);
 // [6] static int Crc32c_Impl::calculateSoftware(const void *, uint, uint);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 7] USAGE EXAMPLE
 // [-1] DEFAULT PERFORMANCE TEST
 // [-2] SOFTWARE PERFORMANCE TEST
-// [-3] BENCHMARK: THROUGPUT DEFAULT & SOFTWARE
-// [-4] PERFORMANCE TEST: DEFAULT & FOLLY
+// [-3] THROUGPUT DEFAULT & SOFTWARE BENCHMARK
+// [-4] DEFAULT & FOLLY PERFORMANCE TEST
 // [-5] PERFORMANCE TEST ON USER INPUT
 // ----------------------------------------------------------------------------
 
@@ -1575,6 +1576,49 @@ int main(int argc, char* argv[])
     bsls::TimeUtil::initialize();
 
     switch(test) { case 0:
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 1
+        //
+        // Concerns:
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Run the usage example 1
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Usage Example 1"
+                          << "\n=======================" << endl;
+
+///Example 1: Computing and updating a checksum
+/// - - - - - - - - - - - - - - - - - - - - - -
+// The following code illustrates how to calculate and update a CRC32-C
+// checksum for a message over the course of building the full message.
+//
+// First, prepare a message.
+//..
+        bsl::string message = "This is a test message.";
+//..
+// Then generate a checksum for 'message'.
+//..
+        unsigned int checksum = bdlde::Crc32c::calculate(message.c_str(),
+                                                         message.size());
+//..
+// Finally, if we learn that our message has grown by another chunk and we want
+// to compute the checksum of the original message plus the new chunk, let's
+// update the checksum by using it as a starting point.
+//..
+        // New chunk
+        bsl::string newChunk = "This is a chunk appended to original message";
+        message += newChunk;
+
+        // Update checksum using previous value as starting point
+        checksum = bdlde::Crc32c::calculate(newChunk.c_str(),
+                                            newChunk.size(),
+                                            checksum);
+//..
+      } break;
       case  6: {
         test6_multithreadedCrc32cSoftware();
       } break;
