@@ -251,23 +251,19 @@ struct Administration {
                                   int         triggerAllLevel);
         // Set the threshold levels of each category currently in the registry
         // of the logger manager singleton whose name matches the specified
-        // 'pattern' (which may be optionally terminated with '*') to the
-        // specified 'recordLevel', 'passLevel', 'triggerLevel', and
-        // 'triggerAllLevel' values, respectively, if each of the threshold
-        // values is in the range '[0 .. 255]'.  Return the number of
-        // categories whose threshold levels were set, and a negative value if
-        // any of the threshold values were invalid.  The behavior is undefined
-        // unless the logger manager singleton has been initialized and is not
-        // in the process of being shut down.  Note that the only patterns
-        // supported are of the form (1) "<prefix>*", which matches every
-        // category name in the registry of the form "<prefix><suffix>" (either
-        // "<prefix>" or "<suffix>" may be the empty string), and (2) "X",
-        // where X is a sequence of 0 or more characters constituting a valid
-        // category name that matches at most one category in the registry;
-        // that is, only a '*' located at the end of 'pattern' is recognized as
-        // a special character.  Also note that this function has no effect on
-        // the threshold levels of categories added to the registry after it is
-        // called.
+        // 'pattern' to the specified 'recordLevel', 'passLevel',
+        // 'triggerLevel', and 'triggerAllLevel' values, respectively, if each
+        // of the threshold values is in the range '[0 .. 255]'.  Return the
+        // number of categories whose threshold levels were set, and a negative
+        // value if any of the threshold values were invalid.  'pattern' is
+        // assumed to be of the form "X" or "X*" where X is a sequence of 0 or
+        // more characters and '*' matches any string (including the empty
+        // string).  The behavior is undefined unless the logger manager
+        // singleton has been initialized and is not in the process of being
+        // shut down.  Note that only a '*' located at the end of 'pattern' is
+        // recognized as a special character.  Also note that this function has
+        // no effect on the threshold levels of categories added to the
+        // registry after it is called.
 
     static void resetDefaultThresholdLevels();
         // Reset the default threshold levels to the original
