@@ -27,7 +27,7 @@
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -38,15 +38,14 @@ using namespace bsl;  // automatically added by script
 // 'addCategoryHierarchically', 'setThresholdLevelsHierarchically', and
 // 'setThresholdLevels' (deprecated).  These methods are tested using a
 // table-based approach where the following test data consisting of valid and
-// invalid threshold level values, category names, and regular expressions are
-// populated.
+// invalid threshold level values, category names, and patterns are populated.
 //
 // Note that places where test drivers in this family are likely to require
 // adjustment are indicated by the tag: "ADJUST".
 //-----------------------------------------------------------------------------
 // [ 1] static ball::Category *addCategoryHierarchically(*lm, *name);
 // [ 2] static int setTLHierarchically(*lm, *name, int, int, int, int);
-// [ 3] static int setThresholdLevels(*lm, *re, int, int, int, int);
+// [ 3] static int setThresholdLevels(*lm, *pat, int, int, int, int);
 //-----------------------------------------------------------------------------
 // [ 4] USAGE EXAMPLE
 //=============================================================================
@@ -179,8 +178,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Our concern is that 'setThresholdLevels' behaves correctly with
-        //   representative threshold level values (both valid and invalid)
-        //   and regular expressions.
+        //   representative threshold level values (both valid and invalid) and
+        //   patterns.
         //
         // Plan:
         //   Initialize the logger manager singleton and populate its category
@@ -188,14 +187,14 @@ int main(int argc, char *argv[])
         //   'setThresholdLevels' has no effect on existing categories when
         //   invalid threshold level values are passed as arguments.  Next
         //   test 'setThresholdLevels' with the cross product of a tabulated
-        //   set of regular expressions and a tabulated set of valid threshold
-        //   level values.  Verify using appropriate asserts that the
-        //   categories that match a given regular expression are indeed
-        //   modified by 'setThresholdLevels' whereas the categories that fail
-        //   to match the regular expression are unaffected.
+        //   set of patterns and a tabulated set of valid threshold level
+        //   values.  Verify using appropriate asserts that the categories that
+        //   match a given pattern are indeed modified by 'setThresholdLevels'
+        //   whereas the categories that fail to match the pattern are
+        //   unaffected.
         //
         // Testing:
-        //   static int setThresholdLevels(*lm, *re, int, int, int, int);
+        //   static int setThresholdLevels(*lm, *pat, int, int, int, int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Testing 'setThresholdLevels'" << endl
@@ -232,13 +231,13 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "Testing with invalid threshold levels." << endl;
         {
-            const char *RE[] = {                                      // ADJUST
+            const char *PAT[] = {                                     // ADJUST
                 "",
                 "x",
                 "*",
                 "x*",
             };
-            const int NUM_RE = sizeof RE / sizeof *RE;
+            const int NUM_PAT = sizeof PAT / sizeof *PAT;
 
             static const struct {
                 int d_line;             // line number
@@ -286,10 +285,10 @@ int main(int argc, char *argv[])
                     P_(TRIGGER_LEVEL); P(TRIGGERALL_LEVEL);
                 }
 
-                for (int re = 0; re < NUM_RE; ++re) {
+                for (int pat = 0; pat < NUM_PAT; ++pat) {
                     const int r =
                       Obj::setThresholdLevels(LM,
-                                              RE[re],
+                                              PAT[pat],
                                               RECORD_LEVEL,
                                               PASS_LEVEL,
                                               TRIGGER_LEVEL,
@@ -314,13 +313,13 @@ int main(int argc, char *argv[])
 
             static const struct {
                 int         d_line;           // line number
-                const char *d_re;             // regular expression
+                const char *d_pat;            // pattern
                 int         d_numMatch;       // expected number of matches
                 int         d_matchMask[SZ];  // d_matchMask[i] == 1 if
                                               // NAME[i] matches, otherwise 0
-            } REDATA[] = {
-                // line    regular
-                // no.     expression     # matches    match mask
+            } PATDATA[] = {
+                // line
+                // no.     pattern        # matches    match mask
                 // ----    ----------     ---------    -------------- // ADJUST
                 {  L_,     "",               1,        { 1, 0, 0, 0 }        },
                 {  L_,     "x",              1,        { 0, 1, 0, 0 }        },
@@ -331,7 +330,7 @@ int main(int argc, char *argv[])
                 {  L_,     "x*y",            0,        { 0, 0, 0, 0 }        },
                 {  L_,     "xy*",            1,        { 0, 0, 0, 1 }        },
             };
-            const int NUM_REDATA = sizeof REDATA / sizeof *REDATA;
+            const int NUM_PATDATA = sizeof PATDATA / sizeof *PATDATA;
 
             static const struct {
                 int d_line;             // line number
@@ -374,14 +373,14 @@ int main(int argc, char *argv[])
                     P_(TRIGGER_LEVEL); P(TRIGGERALL_LEVEL);
                 }
 
-                for (int re = 0; re < NUM_REDATA; ++re) {
-                    const int   RELINE  = REDATA[re].d_line;
-                    const char *RE      = REDATA[re].d_re;
-                    const int   MATCHES = REDATA[re].d_numMatch;
-                    const int  *MASK    = REDATA[re].d_matchMask;
+                for (int pat = 0; pat < NUM_PATDATA; ++pat) {
+                    const int   PATLINE = PATDATA[pat].d_line;
+                    const char *PAT     = PATDATA[pat].d_pat;
+                    const int   MATCHES = PATDATA[pat].d_numMatch;
+                    const int  *MASK    = PATDATA[pat].d_matchMask;
 
                     if (veryVeryVerbose) {
-                        T_(); T_(); P_(RELINE); P_(RE); P(MATCHES);
+                        T_(); T_(); P_(PATLINE); P_(PAT); P(MATCHES);
                     }
 
                     for (int n = 0; n < NUM_NAME; ++n) {
@@ -394,12 +393,12 @@ int main(int argc, char *argv[])
                     }
 
                     const int r = Obj::setThresholdLevels(LM,
-                                                          RE,
+                                                          PAT,
                                                           RECORD_LEVEL,
                                                           PASS_LEVEL,
                                                           TRIGGER_LEVEL,
                                                           TRIGGERALL_LEVEL);
-                    LOOP_ASSERT(RELINE, MATCHES == r);
+                    LOOP_ASSERT(PATLINE, MATCHES == r);
 
                     for (int n = 0; n < NUM_NAME; ++n) {
                          const Cat *p = LM->lookupCategory(NAME[n]);

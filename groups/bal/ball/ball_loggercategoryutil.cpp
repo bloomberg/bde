@@ -153,14 +153,14 @@ int LoggerCategoryUtil::setThresholdLevelsHierarchically(
 }
 
 int LoggerCategoryUtil::setThresholdLevels(LoggerManager *loggerManager,
-                                           const char    *regularExpression,
+                                           const char    *pattern,
                                            int            recordLevel,
                                            int            passLevel,
                                            int            triggerLevel,
                                            int            triggerAllLevel)
 {
     BSLS_ASSERT(loggerManager);
-    BSLS_ASSERT(regularExpression);
+    BSLS_ASSERT(pattern);
 
     if (!Category::areValidThresholdLevels(recordLevel,
                                            passLevel,
@@ -169,10 +169,10 @@ int LoggerCategoryUtil::setThresholdLevels(LoggerManager *loggerManager,
         return -1;                                                    // RETURN
     }
 
-    bsl::size_t len = bsl::strlen(regularExpression);
+    bsl::size_t len = bsl::strlen(pattern);
 
-    if (0 == len || '*' != regularExpression[len - 1]) {
-        Category *category = loggerManager->lookupCategory(regularExpression);
+    if (0 == len || '*' != pattern[len - 1]) {
+        Category *category = loggerManager->lookupCategory(pattern);
         if (!category) {
             return 0;                                                 // RETURN
         }
@@ -184,7 +184,7 @@ int LoggerCategoryUtil::setThresholdLevels(LoggerManager *loggerManager,
         return 1;                                                     // RETURN
     }
 
-    bsl::string truncated(regularExpression, &regularExpression[len - 1]);
+    bsl::string truncated(pattern, &pattern[len - 1]);
 
     return setThresholdLevelsHierarchically(loggerManager,
                                             truncated.c_str(),
