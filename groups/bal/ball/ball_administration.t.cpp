@@ -43,7 +43,7 @@ using namespace bsl;
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
 // [ 1] static int addCategory(const char *name, int, int, int, int);
-// [ 1] static int setThresholdLevels(const char *pat, int, int, int, int);
+// [ 1] static int setThresholdLevels(const char *pat, int, int, int,int);
 // [ 1] static int setDefaultCategoryThresholds(int, int, int, int);
 // [ 1] static void resetDefaultCategoryThresholds();
 // [ 1] static int setDefaultThresholdLevels(int, int, int, int);
@@ -927,7 +927,7 @@ int main(int argc, char *argv[])
 
         static const struct {
             int         d_lineNum;  // source line number
-            const char *d_pat;      // category name pattern
+            const char *d_pat_p;    // category name pattern
             int         d_numSet;   // # of categories set
         } PAT_DATA[] = {
             // line   pattern         # set                           // ADJUST
@@ -944,7 +944,7 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_PAT_DATA; ++ti) {
             const int   LINE    = PAT_DATA[ti].d_lineNum;
-            const char *PAT     = PAT_DATA[ti].d_pat;
+            const char *PAT     = PAT_DATA[ti].d_pat_p;
             const int   NUM_SET = PAT_DATA[ti].d_numSet;
 
             if (veryVeryVerbose) { P_(LINE); P_(PAT); P(NUM_SET); }
