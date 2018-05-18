@@ -313,13 +313,12 @@ int main(int argc, char *argv[])
 
             static const struct {
                 int         d_line;           // line number
-                const char *d_pat;            // pattern
+                const char *d_pat_p;          // pattern
                 int         d_numMatch;       // expected number of matches
                 int         d_matchMask[SZ];  // d_matchMask[i] == 1 if
                                               // NAME[i] matches, otherwise 0
             } PATDATA[] = {
-                // line
-                // no.     pattern        # matches    match mask
+                // line    pattern        # matches    match mask
                 // ----    ----------     ---------    -------------- // ADJUST
                 {  L_,     "",               1,        { 1, 0, 0, 0 }        },
                 {  L_,     "x",              1,        { 0, 1, 0, 0 }        },
@@ -375,7 +374,7 @@ int main(int argc, char *argv[])
 
                 for (int pat = 0; pat < NUM_PATDATA; ++pat) {
                     const int   PATLINE = PATDATA[pat].d_line;
-                    const char *PAT     = PATDATA[pat].d_pat;
+                    const char *PAT     = PATDATA[pat].d_pat_p;
                     const int   MATCHES = PATDATA[pat].d_numMatch;
                     const int  *MASK    = PATDATA[pat].d_matchMask;
 
