@@ -15,6 +15,7 @@ bdlt_datetz
 bdlt_dateutil
 bdlt_dayofweek
 bdlt_dayofweekset
+bdlt_dayofweekutil
 bdlt_defaultcalendarcache
 bdlt_epochutil
 bdlt_fixutil

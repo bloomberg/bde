@@ -214,13 +214,6 @@ struct DayOfWeek {
 };
 
 // FREE OPERATORS
-DayOfWeek::Enum& operator++(DayOfWeek::Enum& day);
-DayOfWeek::Enum operator++(DayOfWeek::Enum& day, int);
-BSLS_CPP11_CONSTEXPR DayOfWeek::Enum operator+(DayOfWeek::Enum day, int shift);
-DayOfWeek::Enum& operator--(DayOfWeek::Enum& day);
-DayOfWeek::Enum operator--(DayOfWeek::Enum& day, int);
-BSLS_CPP11_CONSTEXPR DayOfWeek::Enum operator-(DayOfWeek::Enum day, int shift);
-
 bsl::ostream& operator<<(bsl::ostream& stream, DayOfWeek::Enum value);
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
@@ -337,75 +330,6 @@ int DayOfWeek::maxSupportedBdexVersion()
 }
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
-
-inline
-DayOfWeek::Enum& operator++(DayOfWeek::Enum& day)
-{
-    //rollover
-
-    if (day == DayOfWeek::e_SAT) {
-        return day = DayOfWeek::e_SUN;                                // RETURN
-    }
-
-    int temp = day;
-    return day = static_cast<DayOfWeek::Enum>(++temp);
-}
-
-inline
-DayOfWeek::Enum operator++(DayOfWeek::Enum& day, int)
-{
-  DayOfWeek::Enum temp(day);
-  ++day;
-  return temp;
-}
-
-inline
-BSLS_CPP11_CONSTEXPR DayOfWeek::Enum operator+(DayOfWeek::Enum day,
-                                               int             shift)
-{
-    // Adding a maximum (7) to the initial value to avoid negative result when
-    // adding negative values.
-
-    return ((static_cast<int>(day) + 7 + (shift % 7)) % 7)
-           ? static_cast<DayOfWeek::Enum>(
-                               ((static_cast<int>(day) + 7 + (shift % 7)) % 7))
-           : DayOfWeek::e_SAT;
-}
-
-inline
-DayOfWeek::Enum& operator--(DayOfWeek::Enum& day)
-{
-    // Rollover.
-
-    if (day == DayOfWeek::e_SUN) {
-        return day = DayOfWeek::e_SAT;                                // RETURN
-    }
-
-    int temp = day;
-    return day = static_cast<DayOfWeek::Enum>(--temp);
-}
-
-inline
-DayOfWeek::Enum operator--(DayOfWeek::Enum& day, int)
-{
-  DayOfWeek::Enum temp(day);
-  --day;
-  return temp;
-}
-
-inline
-BSLS_CPP11_CONSTEXPR DayOfWeek::Enum operator-(DayOfWeek::Enum day,
-                                               int             shift)
-{
-    // Adding a maximum (7) to the initial value to avoid negative result of
-    // substraction.
-
-    return ((static_cast<int>(day) + 7 - (shift % 7)) % 7)
-           ? static_cast<DayOfWeek::Enum>(
-                               ((static_cast<int>(day) + 7 - (shift % 7)) % 7))
-           : DayOfWeek::e_SAT;
-}
-
 
 }  // close package namespace
 
