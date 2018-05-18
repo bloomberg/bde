@@ -26,8 +26,7 @@
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
-
+using namespace bsl;
 
 //=============================================================================
 //                             TEST PLAN
@@ -44,7 +43,7 @@ using namespace bsl;  // automatically added by script
 // adjustment are indicated by the tag: "ADJ".
 //-----------------------------------------------------------------------------
 // [ 1] static int addCategory(const char *name, int, int, int, int);
-// [ 1] static int setThresholdLevels(const char *re, int, int, int, int);
+// [ 1] static int setThresholdLevels(const char *pat, int, int, int,int);
 // [ 1] static int setDefaultCategoryThresholds(int, int, int, int);
 // [ 1] static void resetDefaultCategoryThresholds();
 // [ 1] static int setDefaultThresholdLevels(int, int, int, int);
@@ -346,8 +345,8 @@ int main(int argc, char *argv[])
         //:
         //: 4  'setAllThresholdLevels' returns 0 on success.
         //:
-        //: 5 If the supplied pass-through level is not in the ranage [0..255]
-        //:   the 'setAllThresholdLevels' returns a non-zero value
+        //: 5 If the supplied pass-through level is not in the range '[0..255]'
+        //:   the 'setAllThresholdLevels' returns a non-zero value.
         //
         // Plan:
         //: 1 Manually call method with valid values and verify the return is
@@ -585,7 +584,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   static int addCategory(const char *name, int, int, int, int);
-        //   static int setThresholdLevels(const char *re, int, int, int, int);
+        //   static int setThresholdLevels(const char *pat, int, int, int,int);
         //   static int setDefaultCategoryThresholds(int, int, int, int);
         //   static void resetDefaultCategoryThresholds();
         //   static int setDefaultThresholdLevels(int, int, int, int);
@@ -924,14 +923,14 @@ int main(int argc, char *argv[])
                                                == Obj::triggerAllLevel(XNAME));
         }
 
-        if (veryVerbose) cout << "\tTesting regular expressions." << endl;
+        if (veryVerbose) cout << "\tTesting patterns." << endl;
 
         static const struct {
             int         d_lineNum;  // source line number
-            const char *d_re;       // regular expression
+            const char *d_pat_p;    // category name pattern
             int         d_numSet;   // # of categories set
-        } RE_DATA[] = {
-            // line   r.e.            # set                           // ADJUST
+        } PAT_DATA[] = {
+            // line   pattern         # set                           // ADJUST
             // ----   ----------      ----
             {  L_,    "E.G.M.Ax",      0                                     },
             {  L_,    "E.G.M.A",       1                                     },
@@ -941,16 +940,16 @@ int main(int argc, char *argv[])
             {  L_,    "E.*",           4                                     },
             {  L_,    "*",             6                                     },
         };
-        const int NUM_RE_DATA = sizeof RE_DATA / sizeof RE_DATA[0];
+        const int NUM_PAT_DATA = sizeof PAT_DATA / sizeof PAT_DATA[0];
 
-        for (int ti = 0; ti < NUM_RE_DATA; ++ti) {
-            const int   LINE    = RE_DATA[ti].d_lineNum;
-            const char *RE      = RE_DATA[ti].d_re;
-            const int   NUM_SET = RE_DATA[ti].d_numSet;
+        for (int ti = 0; ti < NUM_PAT_DATA; ++ti) {
+            const int   LINE    = PAT_DATA[ti].d_lineNum;
+            const char *PAT     = PAT_DATA[ti].d_pat_p;
+            const int   NUM_SET = PAT_DATA[ti].d_numSet;
 
-            if (veryVeryVerbose) { P_(LINE); P_(RE); P(NUM_SET); }
+            if (veryVeryVerbose) { P_(LINE); P_(PAT); P(NUM_SET); }
 
-            ASSERT(NUM_SET == Obj::setThresholdLevels(RE, 16, 32, 64, 128));
+            ASSERT(NUM_SET == Obj::setThresholdLevels(PAT, 16, 32, 64, 128));
         }
       } break;
       default: {
