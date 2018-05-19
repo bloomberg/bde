@@ -28,12 +28,12 @@ BSLS_IDENT("$Id: $")
 // containing a suite of utility functions to facilitate administration of the
 // 'ball' logging subsystem from a console operator's perspective.  Utilities
 // are provided for adding a category to the registry maintained by the
-// singleton instance of 'ball::LoggerManager' (hereafter "the logger
-// manager"), for setting the threshold levels of a category, for setting a
-// limit on the maximum number of categories allowed, and for retrieving the
-// threshold levels of (established) categories.  Note that a precondition of
-// all of the utility functions is that the logger manager singleton must be
-// initialized and not in the process of being shut down.
+// singleton instance of 'ball::LoggerManager' (hereafter the "logger
+// manager"), for setting the threshold levels of one or more categories, for
+// setting a limit on the maximum number of categories allowed, and for
+// retrieving the threshold levels of (established) categories.  Note that a
+// precondition of all of the utility functions is that the logger manager
+// singleton must be initialized and not in the process of being shut down.
 //
 ///Usage
 ///-----
@@ -128,10 +128,10 @@ BSLS_IDENT("$Id: $")
 //             Trigger level:     67
 //             Trigger-all level: 35
 //..
-// The following is similar to the first for-loop above, but this time the
+// The following is similar to the first 'for'-loop above, but this time the
 // 'setThresholdLevels' method is used to modify the threshold levels of
-// existing categories.  The 'setThresholdLevels' method returns 1 to indicate
-// the number of existing categories that were affected by the call:
+// existing categories.  The 'setThresholdLevels' method returns 1 in each case
+// indicating the number of existing categories that were affected by the call:
 //..
 //     for (int i = 0; i < NUM_CATEGORIES; ++i) {
 //         const int returnValue =
@@ -179,8 +179,9 @@ BSLS_IDENT("$Id: $")
 //..
 // Following this call to 'setMaxNumCategories', subsequent calls to
 // 'addCategory' will fail (until such time as 'setMaxNumCategories' is called
-// again with an argument value of either 0 or one that is greater than
-// 'NUM_CATEGORIES').
+// again with an argument value that is either 0 or is greater than
+// 'NUM_CATEGORIES', where 0 indicates the category registry has unlimited
+// capacity).
 
 #ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
@@ -243,26 +244,26 @@ struct Administration {
         // undefined unless the logger manager singleton has been initialized
         // and is not in the process of being shut down.
 
-    static int setThresholdLevels(const char *regularExpression,
+    static int setThresholdLevels(const char *pattern,
                                   int         recordLevel,
                                   int         passLevel,
                                   int         triggerLevel,
                                   int         triggerAllLevel);
-        // Set the threshold levels of each category in the registry of the
-        // logger manager singleton whose name matches the specified
-        // 'regularExpression' to the specified 'recordLevel', 'passLevel',
+        // Set the threshold levels of each category currently in the registry
+        // of the logger manager singleton whose name matches the specified
+        // 'pattern' to the specified 'recordLevel', 'passLevel',
         // 'triggerLevel', and 'triggerAllLevel' values, respectively, if each
         // of the threshold values is in the range '[0 .. 255]'.  Return the
-        // number of categories whose threshold levels were set, or a negative
-        // value if the threshold values were invalid.  The behavior is
-        // undefined unless the logger manager singleton has been initialized
-        // and is not in the process of being shut down.  Note that the only
-        // regular expressions supported in this release are of the form (1)
-        // "X*" which matches every category name in the registry of the form
-        // "XY" ("X" may be the empty string), and (2) "X" where X is a valid
-        // category name which matches at most one category in the registry;
-        // that is, only a '*' located at the end of 'regularExpression' is
-        // recognized as a special character.
+        // number of categories whose threshold levels were set, and a negative
+        // value if any of the threshold values were invalid.  'pattern' is
+        // assumed to be of the form "X" or "X*" where X is a sequence of 0 or
+        // more characters and '*' matches any string (including the empty
+        // string).  The behavior is undefined unless the logger manager
+        // singleton has been initialized and is not in the process of being
+        // shut down.  Note that only a '*' located at the end of 'pattern' is
+        // recognized as a special character.  Also note that this function has
+        // no effect on the threshold levels of categories added to the
+        // registry after it is called.
 
     static void resetDefaultThresholdLevels();
         // Reset the default threshold levels to the original
@@ -272,29 +273,29 @@ struct Administration {
 
     static int recordLevel(const char *categoryName);
         // Return the record threshold level currently set for the category
-        // having the specified 'categoryName' or a negative value if no such
+        // having the specified 'categoryName', and a negative value if no such
         // category exists.  The behavior is undefined unless the logger
         // manager singleton has been initialized and is not in the process of
         // being shut down.
 
     static int passLevel(const char *categoryName);
         // Return the pass threshold level currently set for the category
-        // having the specified 'categoryName' or a negative value if no such
+        // having the specified 'categoryName', and a negative value if no such
         // category exists.  The behavior is undefined unless the logger
         // manager singleton has been initialized and is not in the process of
         // being shut down.
 
     static int triggerLevel(const char *categoryName);
         // Return the trigger threshold level currently set for the category
-        // having the specified 'categoryName' or a negative value if no such
+        // having the specified 'categoryName', and a negative value if no such
         // category exists.  The behavior is undefined unless the logger
         // manager singleton has been initialized and is not in the process of
         // being shut down.
 
     static int triggerAllLevel(const char *categoryName);
         // Return the trigger-all threshold level currently set for the
-        // category having the specified 'categoryName' or a negative value if
-        // no such category exists.  The behavior is undefined unless the
+        // category having the specified 'categoryName', and a negative value
+        // if no such category exists.  The behavior is undefined unless the
         // logger manager singleton has been initialized and is not in the
         // process of being shut down.
 
