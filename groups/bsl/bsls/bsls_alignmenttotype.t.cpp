@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
 
 #undef  CHECK_ALIGNMENT
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+#ifdef BSLS_ALIGNMENTTOTYPE_USES_ALIGNAS
 
 #undef  CHECK_ALIGNMENT
 #define CHECK_ALIGNMENT(N)                                                    \
