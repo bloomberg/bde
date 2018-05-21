@@ -5887,7 +5887,8 @@ int main(int argc, char *argv[])
                                    cat3->categoryName()));
 
         ball::CategoryHolder cat4Holder =
-                        {ball::CategoryHolder::e_UNINITIALIZED_CATEGORY, 0, 0};
+                        { { ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },
+                                                                { 0 }, { 0 } };
         const Cat *cat4 = mX.setCategory(&cat4Holder, "sImPle");
         ASSERT(cat4);
         ASSERT(cat4 == X.lookupCategory("simple"));
@@ -5960,7 +5961,8 @@ int main(int argc, char *argv[])
         ASSERT(11   == cat2->triggerAllLevel());
 
         ball::CategoryHolder cat3Holder =
-                        {ball::CategoryHolder::e_UNINITIALIZED_CATEGORY, 0, 0};
+                  { { ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },
+                                                                { 0 }, { 0 } };
         const Cat *cat3 = mX.setCategory(&cat3Holder, "third");
         ASSERT(cat3);
         ASSERT(cat3 == X.lookupCategory("third"));
@@ -6177,6 +6179,7 @@ int main(int argc, char *argv[])
               } break;
               default: {
                   ASSERTV(CONFIG, !"Bad allocator config.");
+                  continue;
               }
             }
 
@@ -6303,6 +6306,7 @@ int main(int argc, char *argv[])
               } break;
               default: {
                   ASSERTV(CONFIG, !"Bad allocator config.");
+                  continue;
               }
             }
 
