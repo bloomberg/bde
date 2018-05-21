@@ -678,7 +678,7 @@ class TestVisitor {
 
     // *** WARNING***
     // Put this back when all visitors are implemented properly in client code.
-    // See DRQS 1007705012
+    // See DRQS 107705012
     // void operator()(DatumIntMapRef v);
         // Store the specified 'v' of 'Datum::e_INT_MAP' type in 'd_type'.
 
@@ -809,7 +809,7 @@ void TestVisitor::operator()(DatumMapRef v)
 
 // *** WARNING***
 // Put this back when all visitors are implemented properly in
-// client code.  See DRQS 1007705012
+// client code.  See DRQS 107705012
 //void TestVisitor::operator()(DatumIntMapRef v)
 //{
 //    (void)v;
@@ -4369,7 +4369,7 @@ int main(int argc, char *argv[])
 
 // *** WARNING***
 // Put this back when all visitors are implemented properly in client code.
-// See DRQS 1007705012
+// See DRQS 107705012
 #if 0
         if (verbose) cout <<
             "\tTesting 'apply' with Datum having empty int-map value." << endl;

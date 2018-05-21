@@ -4128,7 +4128,7 @@ void Datum::apply(BDLD_VISITOR& visitor) const
           case e_EXTENDED_INTERNAL_INT_MAP:
             // *** WARNING***
             // Put this back when all visitors are implemented properly in
-            // client code.  See DRQS 1007705012
+            // client code.  See DRQS 107705012
             // visitor(theIntMap());
             break;
           case e_EXTENDED_INTERNAL_MAP:
@@ -4252,7 +4252,7 @@ void Datum::apply(BDLD_VISITOR& visitor) const
       case e_INTERNAL_INT_MAP:
           // *** WARNING***
           // Put this back when all visitors are implemented properly in
-          // client code.  See DRQS 1007705012
+          // client code.  See DRQS 107705012
           // visitor(theIntMap());
           break;
       case e_INTERNAL_UNINITIALIZED:

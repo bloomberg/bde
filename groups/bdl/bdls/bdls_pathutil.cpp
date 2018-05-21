@@ -27,20 +27,19 @@ namespace bdls {
 
 namespace {
 
-// LOCAL CONSTANTS
-const char k_separator[] =
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    "\\/"
-#else
-    "/"
-#endif
-    ;
+struct IsSeparator {
+    // This functor is used to determine whether a character is any kind of
+    // separator.
 
-// STATIC HELPER FUNCTIONS
-static
-bool isSeparator(char ch)
-    // Return 'true' if the specified 'ch' character is a path separator; and
-    // return 'false' otherwise.
+    // ACCESSOR
+    bool operator()(char ch) const;
+        // Return 'true' if the specified 'ch' character is a path separator
+        // and return 'false' otherwise.
+};
+
+// ACCESSOR
+inline
+bool IsSeparator::operator()(char ch) const
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     return ch == '\\' || ch == '/';
@@ -49,28 +48,17 @@ bool isSeparator(char ch)
 #endif
 }
 
-                               // ===========
-                               // IsSeparator
-                               // ===========
+IsSeparator isSeparator;
 
-struct IsSeparator {
-    // This struct is a predicate functor for finding path separators.
-
-    // ACCESSORS
-    bool operator()(char ch) const;
-        // Return 'true' if the specified 'ch' character is a path separator;
-        // and return 'false' otherwise.
-};
-
-                               // -----------
-                               // IsSeparator
-                               // -----------
-
-bool IsSeparator::operator()(char ch) const
-{
-    return isSeparator(ch);
-}
-
+// LOCAL CONSTANTS
+static
+const char k_separators[] =
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    "\\/"
+#else
+    "/"
+#endif
+    ;
 
 static
 void findFirstNonSeparatorChar(size_t     *resultOffset,
@@ -81,7 +69,6 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
     // character not equal to '/' on unix platforms).  Optionally specify
     // 'length' indicating the length of 'path'.  If 'length' is not supplied,
     // call 'strlen' on 'path' to determine its length.
-
 {
     BSLS_ASSERT(resultOffset);
     BSLS_ASSERT(path);
@@ -129,7 +116,7 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
 
         const char *rootNameEndPtr = bsl::find_if(path + 3,
                                                   path + length,
-                                                  IsSeparator());
+                                                  isSeparator);
 
         if (rootNameEndPtr != path + length) {
             ++rootNameEndPtr;
@@ -138,7 +125,7 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
 
         const char *resultOffsetPtr = bsl::find_if(path + rootNameEnd,
                                                    path + length,
-                                                   IsSeparator());
+                                                   isSeparator);
         if (resultOffsetPtr != path + length) {
             ++resultOffsetPtr;
         }
@@ -162,7 +149,7 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
             const char *rootNameEndPtr =
                  bsl::find_if(path + UNCW_UNCPREFIXLEN,
                               path + length,
-                              IsSeparator());
+                              isSeparator);
 
             if (rootNameEndPtr != path + length) {
                 ++rootNameEndPtr;
@@ -171,7 +158,7 @@ void findFirstNonSeparatorChar(size_t     *resultOffset,
 
             const char *resultOffsetPtr = bsl::find_if(path + rootNameEnd,
                                                        path + length,
-                                                       IsSeparator());
+                                                       isSeparator);
             if (resultOffsetPtr != path + length) {
                 ++resultOffsetPtr;
             }
@@ -285,7 +272,7 @@ int PathUtil::appendIfValid(bsl::string              *path,
     // Erase trailing separators from 'path'.
 
     if (!path->empty()) {
-        bsl::size_t lastChar = path->find_last_not_of(k_separator);
+        bsl::size_t lastChar = path->find_last_not_of(k_separators);
 
         // If 'path' is *all* separator characters (i.e., no non-seperator was
         // found), the resulting 'path' should be 1 separator character.
@@ -320,7 +307,7 @@ void PathUtil::appendRaw(bsl::string *path,
         }
         if (hasLeaf(path->c_str(), rootEnd)
          || (rootEnd > 0 && !isSeparator((*path)[rootEnd-1]))) {
-            path->push_back(k_separator[0]);
+            path->push_back(k_separators[0]);
         }
         path->append(filename, length);
     }
