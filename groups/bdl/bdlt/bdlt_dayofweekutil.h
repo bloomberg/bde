@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide common non-primitive operations on 'bdlt::DayOfWeek::Enum'.
 //
 //@CLASSES:
-//  bdlt::DayOfWeekUtil: functions operating on day-of-week enumeration
+//  bdlt::DayOfWeekUtil: functions operating on the day-of-week enumeration
 //
 //@SEE_ALSO: bdlt_dayofweek
 //
 //@DESCRIPTION: This component provides a utility 'struct',
-// 'bdlt::DayOfWeekUtil', that defines functions to determine the day of the
-// week shifted from a given date by a certain number of days.
+// 'bdlt::DayOfWeekUtil', that defines functions to determine the day of week
+// shifted from a given date by a certain number of days.
 //
 ///Usage
 ///------
@@ -32,12 +32,12 @@ BSLS_IDENT("$Id: $")
 //  bdlt::DayOfWeek::Enum current = bdlt::DayOfWeek::e_FRI;
 //..
 // Next, we calculate previous and following event days using
-// 'bdlt::DayOfWeekUtil::wrap' function:
+// 'bdlt::DayOfWeekUtil::add' function:
 //..
-//  bdlt::DayOfWeek::Enum previous  = bdlt::DayOfWeekUtil::wrap(current, -10);
-//  bdlt::DayOfWeek::Enum following = bdlt::DayOfWeekUtil::wrap(current,  10);
+//  bdlt::DayOfWeek::Enum previous  = bdlt::DayOfWeekUtil::add(current, -10);
+//  bdlt::DayOfWeek::Enum following = bdlt::DayOfWeekUtil::add(current,  10);
 //..
-// Finally, we want to verify, that days of week were calculated correctly:
+// Finally, we verify the resultant days of week:
 //..
 //  assert(bdlt::DayOfWeek::e_TUE == previous );
 //  assert(bdlt::DayOfWeek::e_MON == following);
@@ -63,16 +63,21 @@ struct DayOfWeekUtil {
     // that operate on 'bdlt::DayOfWeek::Enum' objects.
 
     // CLASS METHODS
-    static BSLS_CPP11_CONSTEXPR DayOfWeek::Enum wrap(DayOfWeek::Enum dayOfWeek,
+    static BSLS_CPP11_CONSTEXPR DayOfWeek::Enum add(DayOfWeek::Enum dayOfWeek,
                                                      int             numDays);
         // Return the 'DayOfWeek::Enum' value that is the specified (signed)
-        // 'numDays' from the specified 'dayOfWeek'.  Note that this method
-        // "wraps" 'dayOfWeek' to a later or earlier day of the week according
-        // to whether 'numDays' is positive or negative.  For example, the
-        // following both hold 'true':
+        // 'numDays' from the specified 'dayOfWeek'.  Note that the days of
+        // week are closed under this operation (in the expected manner). For
+        // example, the following hold 'true':
         //..
-        //  DayOfWeek::e_TUE == DayOfWeekUtil::wrap(DayOfWeek::e_WED,  6);
-        //  DayOfWeek::e_THU == DayOfWeekUtil::wrap(DayOfWeek::e_WED, -6);
+        //  DayOfWeek::e_MON == DayOfWeekUtil::add(DayOfWeek::e_SUN,  1);
+        //  DayOfWeek::e_SAT == DayOfWeekUtil::add(DayOfWeek::e_SUN, -1);
+        //  DayOfWeek::e_SAT == DayOfWeekUtil::add(DayOfWeek::e_SUN,  6);
+        //  DayOfWeek::e_MON == DayOfWeekUtil::add(DayOfWeek::e_SUN, -6);
+        //  DayOfWeek::e_SUN == DayOfWeekUtil::add(DayOfWeek::e_SUN,  7);
+        //  DayOfWeek::e_SUN == DayOfWeekUtil::add(DayOfWeek::e_SUN, -7);
+        //  DayOfWeek::e_MON == DayOfWeekUtil::add(DayOfWeek::e_SUN,  8);
+        //  DayOfWeek::e_SAT == DayOfWeekUtil::add(DayOfWeek::e_SUN, -8);
         //..
 };
 
@@ -86,17 +91,15 @@ struct DayOfWeekUtil {
 
 // CLASS METHODS
 inline
-BSLS_CPP11_CONSTEXPR DayOfWeek::Enum DayOfWeekUtil::wrap(
+BSLS_CPP11_CONSTEXPR DayOfWeek::Enum DayOfWeekUtil::add(
                                                      DayOfWeek::Enum dayOfWeek,
                                                      int             numDays)
 {
     // Adding an additional 7 days to the initial value to avoid negative
     // result of substraction.
 
-    return ((static_cast<int>(dayOfWeek) + 7 + (numDays % 7)) % 7)
-           ? static_cast<DayOfWeek::Enum>(
-                       ((static_cast<int>(dayOfWeek) + 7 + (numDays % 7)) % 7))
-           : DayOfWeek::e_SAT;
+    return static_cast<DayOfWeek::Enum>(
+            ((static_cast<int>(dayOfWeek) - 1 + numDays % 7) % 7 + 7) % 7 + 1);
 }
 
 }  // close package namespace

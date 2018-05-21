@@ -19,10 +19,10 @@ using bsl::endl;
 //                              Overview
 //                              --------
 // The component under test consists of a single static member function that
-// calculates the day of the week shifted from a given date by a certain number
-// of days.
+// calculates the day of the week shifted from a given day of week by a certain
+// number of days.
 //-----------------------------------------------------------------------------
-// [ 1] static DayOfWeek::Enum wrap(DayOfWeek::Enum dayOfWeek, int num);
+// [ 1] static DayOfWeek::Enum add(DayOfWeek::Enum dayOfWeek, int num);
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -95,10 +95,10 @@ typedef bdlt::DayOfWeek::Enum Enum;
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    const int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    const bool         verbose = argc > 2;
+    const bool     veryVerbose = argc > 3;
+    const bool veryVeryVerbose = argc > 4;
 
     (void) veryVerbose;
     (void) veryVeryVerbose;
@@ -141,12 +141,12 @@ int main(int argc, char *argv[])
     bdlt::DayOfWeek::Enum current = bdlt::DayOfWeek::e_FRI;
 //..
 // Next, we calculate previous and following event days using
-// 'bdlt::DayOfWeekUtil::wrap' function:
+// 'bdlt::DayOfWeekUtil::add' function:
 //..
-    bdlt::DayOfWeek::Enum previous  = bdlt::DayOfWeekUtil::wrap(current, -10);
-    bdlt::DayOfWeek::Enum following = bdlt::DayOfWeekUtil::wrap(current,  10);
+    bdlt::DayOfWeek::Enum previous  = bdlt::DayOfWeekUtil::add(current, -10);
+    bdlt::DayOfWeek::Enum following = bdlt::DayOfWeekUtil::add(current,  10);
 //..
-// Finally, we want to verify, that days of week were calculated correctly:
+// Finally, we verify the resultant days of week:
 //..
     ASSERT(bdlt::DayOfWeek::e_TUE == previous );
     ASSERT(bdlt::DayOfWeek::e_MON == following);
@@ -154,29 +154,29 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'wrap'
+        // TESTING 'add'
         //
         // Concerns:
-        //: 1 The 'wrap' function correctly conducts
+        //: 1 The 'add' function correctly conducts
         //:   'end of the week/beginning of the next week' rollover.
         //:
-        //: 2 The 'wrap' function correctly conducts
+        //: 2 The 'add' function correctly conducts
         //:   'beginning of the week/end of the previous week' rollover.
         //:
-        //: 3 The 'wrap' function correctly handles any shift from the range of
-        //:   integer values (including null value and integer limits).
+        //: 3 The 'add' function correctly handles any shift from the range of
+        //:   integer values (including zero value and integer limits).
         //
         // Plan:
         //: 1 For each value from day-of-week enumeration call
-        //:   bdlt::DayOfWeekUtil::wrap' function with different shifts (both
+        //:   bdlt::DayOfWeekUtil::add' function with different shifts (both
         //:   positive and negative, including zero and integer limits) and
         //:   verify the correctness of the results.  (C-1..3)
         //
         // Testing:
-        //   static DayOfWeek::Enum wrap(DayOfWeek::Enum dayOfWeek, int num);
+        //   static DayOfWeek::Enum add(DayOfWeek::Enum dayOfWeek, int num);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING 'wrap'\n"
+        if (verbose) cout << "\nTESTING 'add'\n"
                                "==============\n";
 
         const Enum SUN(bdlt::DayOfWeek::e_SUN);
@@ -237,9 +237,6 @@ int main(int argc, char *argv[])
                 T_ P_(LINE) P(ORIGIN);
             }
 
-            Enum zeroResult = Util::wrap(ORIGIN,  0);
-            ASSERTV(LINE, zeroResult, UNITS[0] == zeroResult);
-
             for (int tj = 1; tj < 7 ; ++tj) {
                 if (veryVeryVerbose) {
                     T_ T_ P(tj);
@@ -247,15 +244,15 @@ int main(int argc, char *argv[])
 
                 int  aNum    =     tj;
                 int  sNum    = 0 - tj;
-                Enum aResult = Util::wrap(ORIGIN, aNum);  // addition
-                Enum sResult = Util::wrap(ORIGIN, sNum);  // subtraction
+                Enum aResult = Util::add(ORIGIN, aNum);  // addition
+                Enum sResult = Util::add(ORIGIN, sNum);  // subtraction
 
                 ASSERTV(LINE, aNum, aResult, UNITS[    tj] == aResult);
                 ASSERTV(LINE, sNum, sResult, UNITS[7 - tj] == sResult);
             }
 
-            Enum aSevenResult = Util::wrap(ORIGIN, +7);
-            Enum sSevenResult = Util::wrap(ORIGIN, -7);
+            Enum aSevenResult = Util::add(ORIGIN, +7);
+            Enum sSevenResult = Util::add(ORIGIN, -7);
 
             ASSERTV(LINE, aSevenResult, UNITS[0] == aSevenResult);
             ASSERTV(LINE, sSevenResult, UNITS[0] == sSevenResult);
@@ -267,24 +264,29 @@ int main(int argc, char *argv[])
 
                 int  aNum    =     tj * 10;
                 int  sNum    = 0 - tj * 10;
-                Enum aResult = Util::wrap(ORIGIN, aNum);
-                Enum sResult = Util::wrap(ORIGIN, sNum);
+                Enum aResult = Util::add(ORIGIN, aNum);
+                Enum sResult = Util::add(ORIGIN, sNum);
 
                 ASSERTV(LINE, aNum, aResult, TENS[    tj] == aResult);
                 ASSERTV(LINE, sNum, sResult, TENS[7 - tj] == sResult);
             }
 
-            Enum aSeventyResult = Util::wrap(ORIGIN, +70);
-            Enum sSeventyResult = Util::wrap(ORIGIN, -70);
+            Enum aSeventyResult = Util::add(ORIGIN, +70);
+            Enum sSeventyResult = Util::add(ORIGIN, -70);
 
             ASSERTV(LINE, aSeventyResult, TENS[0] == aSeventyResult);
             ASSERTV(LINE, sSeventyResult, TENS[0] == sSeventyResult);
 
-            Enum aLimitResult = Util::wrap(ORIGIN, INT_MAX);
-            Enum sLimitResult = Util::wrap(ORIGIN, INT_MIN);
+            // Testing zero and extreme values.
 
-            const Enum A_EXP_LIMIT_RESULT = Util::wrap(ORIGIN, INT_MAX % 7);
-            const Enum S_EXP_LIMIT_RESULT = Util::wrap(ORIGIN, INT_MIN % 7);
+            Enum zeroResult = Util::add(ORIGIN,  0);
+            ASSERTV(LINE, zeroResult, UNITS[0] == zeroResult);
+
+            Enum aLimitResult = Util::add(ORIGIN, INT_MAX);
+            Enum sLimitResult = Util::add(ORIGIN, INT_MIN);
+
+            const Enum A_EXP_LIMIT_RESULT = Util::add(ORIGIN, INT_MAX % 7);
+            const Enum S_EXP_LIMIT_RESULT = Util::add(ORIGIN, INT_MIN % 7);
 
             ASSERTV(LINE, A_EXP_LIMIT_RESULT, aLimitResult,
                     A_EXP_LIMIT_RESULT  == aLimitResult);
