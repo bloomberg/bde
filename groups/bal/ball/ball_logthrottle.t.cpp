@@ -10,13 +10,9 @@
 #include <ball_log.h>
 #include <ball_loggermanager.h>
 #include <ball_loggermanagerconfiguration.h>
-//#include <ball_predicate.h>
 #include <ball_record.h>
-//#include <ball_rule.h>
 #include <ball_streamobserver.h>
 #include <ball_testobserver.h>
-//#include <ball_thresholdaggregate.h>
-//#include <ball_userfields.h>
 
 #include <bdlt_currenttime.h>
 #include <bdlt_timeunitratio.h>
@@ -61,9 +57,10 @@
 //                              --------
 // The component under test consists of a large number of preprocessor macros.
 //
-// No 'class'es, 'struct's, or functions are tested directly by this test
-// driver.  The 'class'es, 'struct's, and functions accessed by the macros are
-// furnished by other components, particularly 'ball_log' and 'bdlmt_throttle'.
+// Only macros are tested by this test driver -- no 'class'es, 'struct's, or
+// functions are tested directly.  The 'class'es, 'struct's, and functions
+// accessed by the macros are furnished by other components, particularly
+// 'ball_log' and 'bdlmt_throttle'.
 // ----------------------------------------------------------------------------
 // [ 3] BALL_LOGTHROTTLE_TRACE_BLOCK
 // [ 3] BALL_LOGTHROTTLE_DEBUG_BLOCK
@@ -96,11 +93,9 @@
 // [ 4] MULTITHREADED PRINTF
 // ----------------------------------------------------------------------------
 
-// Warning: the following 'using' declarations interfere with the testing of
-// the macros defined in this component.  Please do not un-comment them.
-//
-// using namespace BloombergLP;
-// using namespace bsl;
+// Please do not include the entire 'BloombergLP' or 'bsl' namespaces into
+// this component, because we want to make sure that the macros under test
+// work properly without them.
 
 using bsl::cout;
 using bsl::cerr;
@@ -196,7 +191,6 @@ static bool veryVeryVeryVerbose;
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-#include <bsls_atomic.h>
                             // -----------------
                             // unnamed namespace
                             // -----------------
@@ -238,6 +232,8 @@ void doubleSleep(double timeInSeconds)
 }
 
 ball::Severity::Level nextSev()
+    // Return a different severity from the 'enum' 'ball::Severity::Level'
+    // every time this is called, rotating through the defined values.
 {
     static const ball::Severity::Level severities[] = {
                                         BloombergLP::ball::Severity::e_TRACE,
@@ -280,8 +276,8 @@ const char FILL = static_cast<char>(0xbb);
 
 inline
 char *messageBuffer(int *bufferSize = 0)
-    // Return the current message buffer, and if the specified 'bufferSize' is
-    // non-zero, update the '*bufferSize' with the buffer size.
+    // Return the current message buffer, and if the optionally specified
+    // 'bufferSize' is non-zero, update the '*bufferSize' with the buffer size.
 {
     int dummyBufferSize;
     bufferSize = bufferSize ? bufferSize : &dummyBufferSize;
@@ -416,21 +412,30 @@ double RadiationMeterReceiver::yield()
 //
 ///Usage
 ///-----
-/// Code global to all usage examples:
+// This section illustrates the indended use of this component.
+//
+// Code global to all three usage examples.
 //..
     enum {
-        k_NUM_INFO  = 20,
-        k_NUM_DEBUG =  5,
-        k_NUM_TRACE =  1 };
+        k_NUM_INFO  = 20,       // max # of info messages in a very short time
+        k_NUM_DEBUG =  5,       // max # of debug messages in a very short time
+        k_NUM_TRACE =  1 };     // max # of trace messages in a very short time
 //
-    const Int64 k_HOUR = bdlt::TimeUnitRatio::k_NANOSECONDS_PER_HOUR;
+    const Int64 k_NS_PER_HOUR = bdlt::TimeUnitRatio::k_NANOSECONDS_PER_HOUR;
+//
+    const Int64 k_NS_PER_INFO  = k_NS_PER_HOUR / k_NUM_INFO;
+                   // long-term minimum nanoseconds per info message permitted
+    const Int64 k_NS_PER_DEBUG = k_NS_PER_HOUR / k_NUM_DEBUG;
+                   // long-term minimum nanoseconds per debug message permitted
+    const Int64 k_NS_PER_TRACE = k_NS_PER_HOUR / k_NUM_TRACE;
+                   // long-term minimum nanoseconds per trace message permitted
 //..
 //
-///Example 1: 'stream-Style' Throttling Macro Usage
-/// - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: C++ Stream-Style Throttling Macro Usage
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose a computer is reading 'double' values from a radio receiver, ten per
 // second, which represent readings of radiation detected by a Geiger counter
-// on a spacecraft and is transmitting them to a ground control at Jet
+// on a spacecraft, and is transmitting them to a ground control at Jet
 // Propulsion Laboratories in California.
 //
 // The readings are returned by the 'double yield()' manipulator of a
@@ -441,19 +446,20 @@ double RadiationMeterReceiver::yield()
 // Readings range from 0 to 100.
 //: o Readings above 10 but not greater than 30 are a concern, but are not very
 //:   serious.  We will report those with an 'e_TRACE' severity, and at most
-//:   one per hour.
+//:   one per hour (i.e. messages will be throttled).
 //: o Readings above 30 but not greater than 60 are more of a worry.  We will
 //:   report those with an 'e_DEBUG' severity, and at most five per hour.
-//: o Readings above 60 but not greater than 90 are very serious, which will be
+//: o Readings above 60 but not greater than 90 are very serious.  They will be
 //:   reported with an 'e_INFO' severity, and at most twenty per hour.
 //: o Readings above 90 are potentially catastrophic, and will be reported with
-//:   an 'e_WARN' severity, with no limit on the number of readings reported.
+//:   an 'e_WARN' severity, with no limit on the number of readings reported
+//:   (i.e. no throttling).
 //
 // We are to write a daemon process, which will loop gathering readings.  A
 // reading of an impossible value of -1.0 will indicate termination.
 //..
     void radiationMonitorStreamDaemon()
-        // Daemon to run the radiation monitor for a finite period of time.
+        // Daemon to run the radiation monitor.
     {
         BALL_LOG_SET_CATEGORY("RADIATION.MONITOR");
 //
@@ -470,24 +476,25 @@ double RadiationMeterReceiver::yield()
                 BALL_LOG_WARN << "Serious Radiation reading of " << reading;
             }
 //..
-// Next, we deal with 'e_INFO' readings that aren't as severe as 'e_WARN':
+// Next, we deal with 'e_INFO' readings, which aren't as severe as 'e_WARN':
 //..
             else if (60 < reading) {
-                BALL_LOGTHROTTLE_INFO(k_NUM_INFO, k_HOUR) <<
+                BALL_LOGTHROTTLE_INFO(k_NUM_INFO, k_NS_PER_INFO) <<
                                             "Radiation reading of " << reading;
             }
 //..
-// Now, we deal with 'warning' messages less severe than 'error' readings:
+// Now, we deal with 'e_DEBUG' messages less severe than 'e_INFO' readings:
 //..
             else if (30 < reading) {
-                BALL_LOGTHROTTLE_DEBUG(k_NUM_DEBUG, k_HOUR) <<
+                BALL_LOGTHROTTLE_DEBUG(k_NUM_DEBUG, k_NS_PER_DEBUG) <<
                                             "Radiation reading of " << reading;
             }
 //..
-// Finally, we deal with 'info' messages less severe than 'warning' readings:
+// Finally, we deal with 'e_TRACE' messages less severe than "e_DEBUG'
+// readings:
 //..
             else if (10 < reading) {
-                BALL_LOGTHROTTLE_TRACE(k_NUM_TRACE, k_HOUR) <<
+                BALL_LOGTHROTTLE_TRACE(k_NUM_TRACE, k_NS_PER_TRACE) <<
                                             "Radiation reading of " << reading;
             }
         }
@@ -503,16 +510,16 @@ double RadiationMeterReceiver::yield()
 //..
 // Where:
 //: o 13 readings of 0.0, which don't produce output, occurred.
-//: o 9 readings in the range '10.0 < reading <= 30.0', which correspond to
-//:   'e_TRACE' level messages, occurred.
-//: o 13 readings in the range '30.0 < reading <= 60.0', which correspond to
-//:   'e_DEBUG' level messages, occurred.
-//: o 5 readings in the range '60.0 < reading <= 90.0', which correspond to
-//:   'e_INFO' level messages, occurred.
+//: o 9 readings in the range '(10.0 .. 30.0]', which correspond to 'e_TRACE'
+//:   level messages, occurred.
+//: o 13 readings in the range '(30.0 .. 60.0]', which correspond to 'e_DEBUG'
+//:   level messages, occurred.
+//: o 5 readings in the range '(60.0 .. 90.0]', which correspond to 'e_INFO'
+//:   level messages, occurred.
 //: o 2 readings in the range '90.0 < reading', which correspond to 'e_WARN'
 //:   level messages, occurred.
 //
-// Note that only 1 'e_TRACE' trace and 5 'e_DEBUG' messages are permitted by
+// Note that only 1 'e_TRACE' message and 5 'e_DEBUG' messages are permitted by
 // the throttle within the (very long) time period of one hour, so the other
 // messages at those levels will be suppressed.
 //
@@ -560,13 +567,13 @@ double RadiationMeterReceiver::yield()
 //  24APR2018_16:36:27.429 61260 139907579877152 DEBUG ball_logthrottle.t.cpp
 //  493 RADIATION.MONITOR Finished gathering data.
 //..
-// Note that 8 'TRACE' messages and 8 'DEBUG' messages were suppressed by the
-// throttling.
+// Note that 8 'e_TRACE' messages and 8 'e_DEBUG' messages were suppressed by
+// the throttling.
 //
-///Example 2: 'BLOCK-Style' Throttling Macro Usage
-///- - - - - - - - - - - - - - - - - - - - - - - -
-// Here, we just repeat exactly the same code, using the 'BLOCK'-style
-// throttling macros instead of the 'stream'-style throttling macros:
+///Example 2: BLOCK-Style Throttling Macro Usage
+///- - - - - - - - - - - - - - - - - - - - - - -
+// Here, we just repeat exactly the same code, using the BLOCK-style throttling
+// macros instead of the stream-style throttling macros:
 //..
     void radiationMonitorBlockDaemon()
         // Daemon to run the radiation monitor for a finite period of time.
@@ -580,39 +587,41 @@ double RadiationMeterReceiver::yield()
         double reading;
         while (-1.0 != (reading = receiver.yield())) {
 //..
-// First, we deal with 'fatal' messages:
+// First, we deal with 'e_WARN' messages:
 //..
             if      (90 < reading) {
-                BALL_LOG_WARN << "Serious radiation reading of " << reading;
+                BALL_LOG_WARN_BLOCK {
+                    BALL_LOG_OUTPUT_STREAM <<
+                                    "Serious radiation reading of " << reading;
+                }
             }
 //..
-// Next, we deal with 'error' messages that aren't as severe as 'fatal':
+// Next, we deal with 'e_INFO' messages that aren't as severe as 'e_WARN':
 //..
             else if (60 < reading) {
-                BALL_LOGTHROTTLE_INFO_BLOCK(k_NUM_INFO, k_HOUR) {
+                BALL_LOGTHROTTLE_INFO_BLOCK(k_NUM_INFO, k_NS_PER_INFO) {
                     BALL_LOG_OUTPUT_STREAM <<
                                             "Radiation reading of " << reading;
                 }
             }
 //..
-// Now, we deal with 'warning' messages less severe than 'error' readings:
+// Now, we deal with 'e_DEBUG' messages less severe than 'e_INFO' readings:
 //..
             else if (30 < reading) {
-                BALL_LOGTHROTTLE_DEBUG_BLOCK(k_NUM_DEBUG, k_HOUR) {
+                BALL_LOGTHROTTLE_DEBUG_BLOCK(k_NUM_DEBUG, k_NS_PER_DEBUG) {
                     BALL_LOG_OUTPUT_STREAM <<
                                             "Radiation reading of " << reading;
                 }
             }
 //..
-// Finally, we deal with 'info' messages less severe than 'warning' readings.
-// Note that in the above two output statements there was only one statement
-// in the block, so we can just replace the block with a single statement,
-// which we'll do this time.
+// Finally, we deal with 'e_TRACE' messages less severe than 'e_DEBUG'
+// readings.
 //..
             else if (10 < reading) {
-                BALL_LOGTHROTTLE_TRACE_BLOCK(k_NUM_TRACE, k_HOUR)
-                         BALL_LOG_OUTPUT_STREAM << "Radiation reading of "
+                BALL_LOGTHROTTLE_TRACE_BLOCK(k_NUM_TRACE, k_NS_PER_TRACE) {
+                    BALL_LOG_OUTPUT_STREAM << "Radiation reading of "
                                                                     << reading;
+                }
             }
         }
 
@@ -622,9 +631,9 @@ double RadiationMeterReceiver::yield()
 // If the values returned by 'receiver.yield()' match those from Usage Example
 // 1, then the output will be identical to that example.
 //..
-///Example 3: 'printf-Style' Throttling Macro Usage
-/// - - - - - - - - - - - - - - - - - - - - - - - -
-// Here, we just repeat exactly the same code, using the 'printf'-style
+///Example 3: printf-Style Throttling Macro Usage
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// Here, we just repeat exactly the same code, using the printf-style
 // throttling macros:
 //..
     void radiationMonitorPrintfDaemon()
@@ -639,36 +648,37 @@ double RadiationMeterReceiver::yield()
         double reading;
         while (-1.0 != (reading = receiver.yield())) {
 //..
-// First, we deal with 'fatal' messages:
+// First, we deal with 'e_WARN' messages:
 //..
             if      (90 < reading) {
                 BALL_LOGVA_WARN("Serious radiation reading of %g", reading);
             }
 //..
-// Next, we deal with 'error' messages that aren't as severe as 'fatal':
+// Next, we deal with 'e_INFO' messages that aren't as severe as 'e_WARN':
 //..
             else if (60 < reading) {
                 BALL_LOGTHROTTLEVA_INFO(
                                      k_NUM_INFO,
-                                     k_HOUR,
+                                     k_NS_PER_INFO,
                                      "Radiation reading of %g", reading);
             }
 //..
-// Now, we deal with 'warning' messages less severe than 'error' readings:
+// Now, we deal with 'e_DEBUG' messages less severe than 'e_INFO' readings:
 //..
             else if (30 < reading) {
                 BALL_LOGTHROTTLEVA_DEBUG(
                                    k_NUM_DEBUG,
-                                   k_HOUR,
+                                   k_NS_PER_DEBUG,
                                    "Radiation reading of %g", reading);
             }
 //..
-// Finally, we deal with 'info' messages less severe than 'warning' readings:
+// Finally, we deal with 'e_TRACE' messages less severe than 'e_DEBUG'
+// readings:
 //..
             else if (10 < reading) {
                 BALL_LOGTHROTTLEVA_TRACE(
                                       k_NUM_TRACE,
-                                      k_HOUR,
+                                      k_NS_PER_TRACE,
                                       "Radiation reading of %g", reading);
             }
         }
@@ -691,10 +701,10 @@ void testMain(BloombergLP::ball::TestObserver *TO,
               u::TestType                      testType,
               TestAllocator                   *alloc)
     // This function runs the multi period test, one 'period' being the
-    // 'nanosecondsPerMessage' passed to the throttle.  Use the specified
+    // 'NANOSECONDS_PER_MESSAGE' passed to the throttle.  Use the specified
     // observer '*TO', and the specified 'alloc' for memory allocation.  The
     // specified 'testType' indicates whether we are to perform a stream-style
-    // or 'printf'-style test.
+    // or printf-style test.
     //
     // Note that this test, described in test cases 5 and 6 where it is called,
     // is single threaded.
@@ -1074,6 +1084,10 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Compile and execute Example 1 from the component doc.
+        //:
+        //: 2 If 'veryVeryVerbose' is set, create a second radiation monitor
+        //:   and dump out the raw results returned by it before doing the
+        //:   usage example.
         //
         // Testing:
         //   STREAM-BASED USAGE EXAMPLE
@@ -1081,6 +1095,21 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "STREAM-BASED USAGE EXAMPLE\n"
                              "==========================\n";
+
+        if (veryVeryVerbose) {
+            Usage::RadiationMeterReceiver receiver;
+
+            cout << "Raw radiation readings:\n";
+
+            const double start = u::doubleClock();
+            double value;
+            do {
+                value = receiver.yield();
+                cout << ' ' << value;
+            } while (0 <= value);
+            cout << endl;
+            cout << "In " << (u::doubleClock() - start) << " seconds\n";
+        }
 
         bsl::ostringstream oss;
         BloombergLP::ball::StreamObserver sobs(&oss);
@@ -1286,8 +1315,12 @@ int main(int argc, char *argv[])
         //:
         //: 2 Call 'oneTest' with every combination of threshhold vs attempt
         //:   severities, waiting
-        //:   '2 * maxSimultaneousActions * nanosecondsPerAction' between
+        //:   '2 * MAX_SIMULTANEOUS_ACTIONS * NANOSECONDS_PER_MESSAGE' between
         //:   calls.
+        //:
+        //: 3 Put the macros without '{}'s in the statement constrolled by an
+        //:   'if' with an 'else' to verify that the macros expand to a single
+        //:   C++ statment.
         //
         // Testing:
         //   BALL_LOGTHROTTLE_TRACE_BLOCK
