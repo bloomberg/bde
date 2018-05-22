@@ -790,7 +790,7 @@ int main(int argc, char *argv[])
             CHECK_ALIGNMENT(FuncPtr, int);
 #endif // end defined(BSLS_PLATFORM_CPU_64_BIT)
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+#ifdef BSLS_ALIGNMENTTOTYPE_USES_ALIGNAS
 
 #undef  CHECK_OVERALIGNED
 #define CHECK_OVERALIGNED(N)                                                  \
