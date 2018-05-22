@@ -210,6 +210,9 @@ class StringRefData {
   public:
     // CLASS METHODS
     static native_std::size_t cStringLength(const CHAR_TYPE *data);
+        // Return the number of 'CHAR_TYPE' characters in the specified
+        // null-terminated 'data' string, up to but not including the terminal
+        // null value.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(StringRefData, bsl::is_trivially_copyable);
