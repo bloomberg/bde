@@ -33,7 +33,7 @@
 BID_TYPE_FUNCTION_ARG2(BID_UINT32, bid32_add, x, y)
 
   BID_UINT128 Tmp;
-  BID_SINT64 S, sign_ab;
+  BID_SINT64 S;
   BID_UINT64 SU, CB, P, Q, R;
   BID_UINT32 sign_x, sign_y, coefficient_x, coefficient_y, res;
   BID_UINT32 sign_a, sign_b, coefficient_a, coefficient_b;
@@ -168,9 +168,10 @@ BID_TYPE_FUNCTION_ARG2(BID_UINT32, bid32_add, x, y)
 	  }
   }
 
-    sign_ab = ((BID_SINT64)(sign_a ^ sign_b))<<32;
-    sign_ab = ((BID_SINT64) sign_ab) >> 63;
-    CB = ((BID_UINT64)coefficient_b + sign_ab) ^ sign_ab;
+    CB = (BID_UINT64)coefficient_b;
+    if (sign_a ^ sign_b) {
+        CB = -CB;
+    }
 
 	SU = (BID_UINT64)coefficient_a * bid_power10_table_128[diff_dec_expon].w[0];
 	S = SU + CB;
