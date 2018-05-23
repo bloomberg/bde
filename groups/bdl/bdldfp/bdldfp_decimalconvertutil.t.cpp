@@ -4,8 +4,11 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_default.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
 
@@ -536,11 +539,13 @@ int main(int argc, char* argv[])
     int         veryVerbose = argc > 3;
     int     veryVeryVerbose = argc > 4;
 
-    bslma::TestAllocator defaultAllocator("default");
+    bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
+    bslma::TestAllocatorMonitor dam(&defaultAllocator);
 
-    bslma::TestAllocator globalAllocator("global");
+    bslma::TestAllocator globalAllocator("global", veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocatorMonitor gam(&globalAllocator);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
     typedef BDEC::DecimalConvertUtil Util;
@@ -8598,10 +8603,11 @@ int main(int argc, char* argv[])
 
     // CONCERN: No memory came from the global or default allocator.
 
-    LOOP2_ASSERT(test, globalAllocator.numBlocksTotal(),
-                 0 == globalAllocator.numBlocksTotal());
-    LOOP2_ASSERT(test, defaultAllocator.numBlocksTotal(),
-                 0 == defaultAllocator.numBlocksTotal());
+    if (!veryVerbose){
+        ASSERT(dam.isTotalSame());
+    }
+    ASSERT(gam.isTotalSame());
+
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

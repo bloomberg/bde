@@ -851,7 +851,8 @@ const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(
 
 #define BALL_LOG_SET_CATEGORY(CATEGORY)                                       \
     static BloombergLP::ball::CategoryHolder BALL_LOG_CATEGORYHOLDER = {      \
-        BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY, 0, 0     \
+        { BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },      \
+                                                             { 0 }, { 0 }     \
     };                                                                        \
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!BALL_LOG_CATEGORY)) {          \
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                                   \
@@ -863,9 +864,10 @@ const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(
     const BloombergLP::ball::Category *BALL_LOG_DYNAMIC_CATEGORY =            \
                                BloombergLP::ball::Log::setCategory(CATEGORY); \
     BloombergLP::ball::CategoryHolder BALL_LOG_CATEGORYHOLDER = {             \
-        BloombergLP::ball::CategoryHolder::e_DYNAMIC_CATEGORY,                \
-        const_cast<BloombergLP::ball::Category *>(BALL_LOG_DYNAMIC_CATEGORY), \
-        0                                                                     \
+        { BloombergLP::ball::CategoryHolder::e_DYNAMIC_CATEGORY },            \
+        { const_cast<BloombergLP::ball::Category *>(                          \
+                                                BALL_LOG_DYNAMIC_CATEGORY) }, \
+        { 0 }                                                                 \
     };
 
                        // ==========================
@@ -883,7 +885,8 @@ const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(
     const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(int)  \
     {                                                                         \
         static BloombergLP::ball::CategoryHolder holder = {                   \
-            BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY, 0, 0 \
+            { BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },  \
+                                                                 { 0 }, { 0 } \
         };                                                                    \
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!holder.category())) {      \
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \

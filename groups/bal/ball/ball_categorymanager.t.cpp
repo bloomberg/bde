@@ -265,8 +265,6 @@ const int LEVELS[][4]  = {
     { 200, 250, 100, 150 }
 };
 
-const int NUM_LEVELS = sizeof LEVELS / sizeof *LEVELS;
-
 const int *LA = LEVELS[0],
           *LB = LEVELS[1],
           *LC = LEVELS[2],
@@ -1435,9 +1433,9 @@ int main(int argc, char *argv[])
             const bsls::Types::Int64 NUM_BYTES = testAllocator.numBytesInUse();
 
             Holder mX = {
-                Holder::e_DYNAMIC_CATEGORY,
-                const_cast<Entry *>(CATEGORY),
-                NEXT
+                { Holder::e_DYNAMIC_CATEGORY },
+                { const_cast<Entry *>(CATEGORY) },
+                { NEXT }
             };
             const Holder& X = mX;
             LOOP3_ASSERT(LINE, Holder::e_DYNAMIC_CATEGORY, X.threshold(),

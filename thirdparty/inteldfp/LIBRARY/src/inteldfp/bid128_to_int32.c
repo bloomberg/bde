@@ -619,8 +619,9 @@ if ((C1.w[1] > 0x0001ed09bead87c0ull)
       // shift right C* by Ex-128 = bid_shiftright128[ind]
       shift = bid_shiftright128[ind - 1];	// 0 <= shift <= 102
       if (ind - 1 <= 21) {	// 0 <= ind - 1 <= 21
-	Cstar.w[0] =
-	  (Cstar.w[0] >> shift) | (Cstar.w[1] << (64 - shift));
+        if (shift > 0) {
+	      Cstar.w[0] = (Cstar.w[0] >> shift) | (Cstar.w[1] << (64 - shift));
+        }
 	// redundant, it will be 0! Cstar.w[1] = (Cstar.w[1] >> shift);
       } else {	// 22 <= ind - 1 <= 33
 	Cstar.w[0] = (Cstar.w[0] >> (shift - 64));	// 2 <= shift - 64 <= 38
@@ -3206,8 +3207,9 @@ if ((C1.w[1] > 0x0001ed09bead87c0ull)
       // shift right C* by Ex-128 = bid_shiftright128[ind]
       shift = bid_shiftright128[ind - 1];	// 0 <= shift <= 102
       if (ind - 1 <= 21) {	// 0 <= ind - 1 <= 21
-	Cstar.w[0] =
-	  (Cstar.w[0] >> shift) | (Cstar.w[1] << (64 - shift));
+	    if (shift > 0) {
+          Cstar.w[0] = (Cstar.w[0] >> shift) | (Cstar.w[1] << (64 - shift));
+        }
 	// redundant, it will be 0! Cstar.w[1] = (Cstar.w[1] >> shift);
       } else {	// 22 <= ind - 1 <= 33
 	Cstar.w[0] = (Cstar.w[0] >> (shift - 64));	// 2 <= shift - 64 <= 38

@@ -11,10 +11,10 @@ BSLS_IDENT("$Id: $")
 //  ball::Category: container for a name and associated threshold levels
 //  ball::CategoryHolder: *private* holder of a category and its maximum level
 //  ball::CategoryManagerImpUtil: *private* used in creating a category manager
-
-//@AUTHOR: Henry Verschell (hversche)
 //
 //@SEE_ALSO: ball_categorymanager
+//
+//@AUTHOR: Henry Verschell (hversche)
 //
 //@DESCRIPTION: This component primarily provides a class, 'ball::Category',
 // used to describe the properties of a logging category.  A 'ball::Category'

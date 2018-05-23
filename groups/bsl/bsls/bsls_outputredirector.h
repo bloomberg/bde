@@ -85,6 +85,7 @@ class OutputRedirector {
     // the scratch buffer is truncated, and the captured output is moved into
     // the scratch buffer.  When this is done, there is no longer any captured
     // output.
+
   public:
     // TYPES
     enum Stream {

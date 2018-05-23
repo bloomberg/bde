@@ -168,10 +168,6 @@ bslma::TestAllocator ta("test", veryVeryVeryVerbose); // test allocator
 
 const Uint64 epsilon = 100;         // 100 nanoseconds
 
-const double maxOver = 0.2;         // 'u::sleep' can take quite a bit more
-                                    // time than was requested.
-const double minSleep = 0.000001;   // 10 microseconds
-
 const int numThreads = 40;
 
 TimeInterval start, end;
@@ -871,7 +867,6 @@ void multiThreadedMain(TestMode mode)
 namespace Case_Minus_1_Events_Dropped {
 
 const Int64     period          = 100 * u::k_MILLI;
-const double    sleepTime       = 2.0 * period / u::k_SECOND;
 const double    shortSleepTime  = 0.0001;
 const int       eventsPerPeriodPerThread = 10;
 const int       eventsPerPeriod = eventsPerPeriodPerThread * u::numThreads;
@@ -2081,16 +2076,16 @@ int main(int argc, char *argv[])
 
 #undef  INIT
 #define INIT(maxSimultaneousActions, secondsPerAction)                        \
-    L_, e_CMD_INIT, (maxSimultaneousActions),                                 \
-                          static_cast<Int64>((secondsPerAction) * 1e9), 0, 0, 0
+    { L_, e_CMD_INIT, (maxSimultaneousActions),                               \
+                        static_cast<Int64>((secondsPerAction) * 1e9), 0, 0, 0 }
 
 #undef  MILLI_SLEEP
 #define MILLI_SLEEP(timeInMillisecs)                                          \
-    L_, e_CMD_SLEEP, -1, -1, -1, (timeInMillisecs)/1000.0, 0
+    { L_, e_CMD_SLEEP, -1, -1, -1, (timeInMillisecs)/1000.0, 0 }
 
 #undef  REQUEST
 #define REQUEST(numActions, expected)                                         \
-    L_, e_CMD_REQUEST, -1, -1, (numActions), 0, (expected)
+    { L_, e_CMD_REQUEST, -1, -1, (numActions), 0, (expected) }
 
         static const struct Data {
             int         d_line;
@@ -2960,6 +2955,7 @@ int main(int argc, char *argv[])
               } break;
               default: {
                 ASSERTV(mm, 0);
+                continue;
               }
             }
             if (veryVerbose) {
@@ -3027,6 +3023,7 @@ int main(int argc, char *argv[])
               } break;
               default: {
                 ASSERTV(mm, 0);
+                continue;
               }
             }
             if (veryVerbose) {

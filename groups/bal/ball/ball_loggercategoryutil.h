@@ -88,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //     lm.addCategory("EQ.MARKET", 193, 97, 65, 33);
 //     printAllCategories();
 //..
-// The following is printed out by 'printallCategories':
+// The following is printed out by 'printAllCategories':
 //..
 //     [ EQ, 192, 96, 64, 32 ]
 //     [ EQ.MARKET, 193, 97, 65, 33 ]
@@ -176,28 +176,27 @@ struct LoggerCategoryUtil {
         // null-terminated.
 
     static int setThresholdLevels(LoggerManager *loggerManager,
-                                  const char    *regularExpression,
+                                  const char    *pattern,
                                   int            recordLevel,
                                   int            passLevel,
                                   int            triggerLevel,
                                   int            triggerAllLevel);
         // DEPRECATED:: Use 'setThresholdLevelsHierarchically' instead.
         //
-        // Set the threshold levels of each category in the specified
-        // 'loggerManager' whose name matches the specified 'regularExpression'
-        // to the specified 'recordLevel', 'passLevel', 'triggerLevel', and
-        // 'triggerAllLevel' values, respectively, if each of the threshold
-        // values is in the range '[0 .. 255]'.  Return the number of
-        // categories whose threshold levels were set, or a negative value if
-        // the threshold values were invalid.  The behavior is undefined unless
-        // 'loggerManager' is non-null and 'regularExpression' is
-        // null-terminated.  Note that the only regular expressions supported
-        // in this release are of the form (1) "X*", matching every category
-        // name in the registry of the form "XY", where X and Y are arbitrary
-        // strings (including the empty string), and (2) "X", matching at most
-        // one category in the registry, where X is an arbitrary string not
-        // ending in '*'; that is, only a '*' located at the end of
-        // 'regularExpression' is recognized as a special character.
+        // Set the threshold levels of each category currently in the registry
+        // of the specified 'loggerManager' whose name matches the specified
+        // 'pattern' to the specified 'recordLevel', 'passLevel',
+        // 'triggerLevel', and 'triggerAllLevel' values, respectively, if each
+        // of the threshold values is in the range '[0 .. 255]'.  Return the
+        // number of categories whose threshold levels were set, and a negative
+        // value if any of the threshold values were invalid.  'pattern' is
+        // assumed to be of the form "X" or "X*" where X is a sequence of 0 or
+        // more characters and '*' matches any string (including the empty
+        // string).  The behavior is undefined unless 'loggerManager' is not in
+        // the process of being destroyed.  Note that only a '*' located at the
+        // end of 'pattern' is recognized as a special character.  Also note
+        // that this function has no effect on the threshold levels of
+        // categories added to the registry after it is called.
 };
 
 }  // close package namespace

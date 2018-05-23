@@ -186,6 +186,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_nullablevaluefunctions.h>
 #include <bdlat_sequencefunctions.h>
 #include <bdlat_typecategory.h>
+#include <bdlat_typename.h>
 
 #include <bslma_allocator.h>
 
@@ -767,6 +768,18 @@ int BerEncoder::encodeImpl(const TYPE&                value,
         if (0 != bdlat_ChoiceFunctions::accessSelection(value, visitor)) {
             return k_FAILURE;                                         // RETURN
         }
+    }
+    else {
+
+         if (d_options->disableUnselectedChoiceEncoding()) {
+
+            this->logError(tagClass,
+                           tagNumber,
+                           bdlat_TypeName::name(value));
+
+            return k_FAILURE;                                         // RETURN
+         }
+
     }
 
     if (!isUntagged) {

@@ -83,6 +83,11 @@ class BerEncoderOptions {
         // encoded as binary integers.  By default these types are encoded as
         // strings in the ISO 8601 format.
 
+    bool d_disableUnselectedChoiceEncoding;
+        // This encode option allows users to control if it is an error to
+        // try and encoded any element with an unselected choice.  By default
+        // the encoder allows unselected choice by eliding from the encoding.
+
   public:
     // TYPES
     enum {
@@ -91,6 +96,7 @@ class BerEncoderOptions {
       , e_ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS                  = 2
       , e_ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
       , e_ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION = 4
+      , e_ATTRIBUTE_ID_DISABLE_UNSELECTED_CHOICE_ENCODING   = 5
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_ID_TRACE_LEVEL                          =
                             e_ATTRIBUTE_ID_TRACE_LEVEL
@@ -107,7 +113,7 @@ class BerEncoderOptions {
     };
 
     enum {
-        k_NUM_ATTRIBUTES = 5
+        k_NUM_ATTRIBUTES = 6
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
@@ -119,6 +125,7 @@ class BerEncoderOptions {
       , e_ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS                  = 2
       , e_ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = 3
       , e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION = 4
+      , e_ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING   = 5
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_INDEX_TRACE_LEVEL                          =
                          e_ATTRIBUTE_INDEX_TRACE_LEVEL
@@ -140,6 +147,7 @@ class BerEncoderOptions {
     static const bool DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS;
     static const bool DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY;
     static const int  DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION;
+    static const bool DEFAULT_INITIALIZER_DISABLE_UNSELECTED_CHOICE_ENCODING;
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
@@ -261,6 +269,10 @@ class BerEncoderOptions {
         // to the specified 'value'.  The behavior is undefined unless
         // 'value == 3 || value == 6'.
 
+    void setDisableUnselectedChoiceEncoding(bool value);
+        // Set the 'DisableUnselectedChoiceEncoding' attribute of this object
+        // to the specified 'value'.
+
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -334,6 +346,10 @@ class BerEncoderOptions {
 
     int datetimeFractionalSecondPrecision() const;
         // Return a reference to the non-modifiable
+        // 'DatetimeFractionalSecondPrecision' attribute of this object.
+
+    bool disableUnselectedChoiceEncoding() const;
+        // Return  the value of the non-modifiable
         // 'DatetimeFractionalSecondPrecision' attribute of this object.
 };
 
@@ -409,6 +425,10 @@ STREAM& BerEncoderOptions::bdexStreamIn(STREAM& stream, int version)
                                            stream,
                                            d_datetimeFractionalSecondPrecision,
                                            1);
+            bslx::InStreamFunctions::bdexStreamIn(
+                                             stream,
+                                             d_disableUnselectedChoiceEncoding,
+                                             1);
           } break;
           default: {
             stream.invalidate();
@@ -457,6 +477,13 @@ int BerEncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
+    ret = manipulator(&d_disableUnselectedChoiceEncoding,
+                        ATTRIBUTE_INFO_ARRAY[
+                        e_ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -492,6 +519,12 @@ int BerEncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
                       &d_datetimeFractionalSecondPrecision,
                       ATTRIBUTE_INFO_ARRAY[
                       e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
+      } break;
+      case e_ATTRIBUTE_ID_DISABLE_UNSELECTED_CHOICE_ENCODING: {
+        return manipulator(
+                        &d_disableUnselectedChoiceEncoding,
+                        ATTRIBUTE_INFO_ARRAY[
+                        e_ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
       } break;
       default:
         return k_NOT_FOUND;
@@ -545,6 +578,12 @@ void BerEncoderOptions::setDatetimeFractionalSecondPrecision(int value)
     d_datetimeFractionalSecondPrecision = value;
 }
 
+inline
+void BerEncoderOptions::setDisableUnselectedChoiceEncoding(bool value)
+{
+    d_disableUnselectedChoiceEncoding = value;
+}
+
 // ACCESSORS
 template <class STREAM>
 STREAM& BerEncoderOptions::bdexStreamOut(STREAM& stream, int version) const
@@ -568,6 +607,10 @@ STREAM& BerEncoderOptions::bdexStreamOut(STREAM& stream, int version) const
                                            stream,
                                            d_datetimeFractionalSecondPrecision,
                                            1);
+        bslx::OutStreamFunctions::bdexStreamOut(
+                                             stream,
+                                             d_disableUnselectedChoiceEncoding,
+                                             1);
       } break;
       default: {
         stream.invalidate();
@@ -616,6 +659,14 @@ int BerEncoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
+    ret = accessor(d_disableUnselectedChoiceEncoding,
+                   ATTRIBUTE_INFO_ARRAY[
+                        e_ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
+
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
     return ret;
 }
 
@@ -650,6 +701,12 @@ int BerEncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
             d_datetimeFractionalSecondPrecision,
             ATTRIBUTE_INFO_ARRAY[
             e_ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION]);
+      } break;
+      case e_ATTRIBUTE_ID_DISABLE_UNSELECTED_CHOICE_ENCODING: {
+        return accessor(
+                        d_disableUnselectedChoiceEncoding,
+                        ATTRIBUTE_INFO_ARRAY[
+                        e_ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING]);
       } break;
       default:
         return k_NOT_FOUND;
@@ -702,6 +759,12 @@ int BerEncoderOptions::datetimeFractionalSecondPrecision() const
     return d_datetimeFractionalSecondPrecision;
 }
 
+inline
+bool BerEncoderOptions::disableUnselectedChoiceEncoding() const
+{
+    return d_disableUnselectedChoiceEncoding;
+}
+
 }  // close package namespace
 
 
@@ -717,7 +780,9 @@ bool balber::operator==(const BerEncoderOptions& lhs,
          && lhs.encodeDateAndTimeTypesAsBinary() ==
                                            rhs.encodeDateAndTimeTypesAsBinary()
          && lhs.datetimeFractionalSecondPrecision() ==
-                                       rhs.datetimeFractionalSecondPrecision();
+                                        rhs.datetimeFractionalSecondPrecision()
+         && lhs.disableUnselectedChoiceEncoding() ==
+                                         rhs.disableUnselectedChoiceEncoding();
 }
 
 inline
@@ -730,7 +795,9 @@ bool balber::operator!=(const BerEncoderOptions& lhs,
          || lhs.encodeDateAndTimeTypesAsBinary() !=
                                            rhs.encodeDateAndTimeTypesAsBinary()
          || lhs.datetimeFractionalSecondPrecision() !=
-                                       rhs.datetimeFractionalSecondPrecision();
+                                        rhs.datetimeFractionalSecondPrecision()
+         || lhs.disableUnselectedChoiceEncoding() ==
+                                         rhs.disableUnselectedChoiceEncoding();
 }
 
 inline
