@@ -11181,11 +11181,45 @@ int main(int argc, char *argv[])
         // TESTING ANONYMOUS CHOICES
         //
         // Concerns:
+        //: 1 If 'balber::BerEncoderOptions' is not specified then the encoder
+        //:   will successfully encode an input with an unselected choice
+        //
+        //: 2 If 'balber::BerEncoderOptions' is specified but the
+        //:   'disableUnselectedChoiceEncoding' is set to 'false' then
+        //:   the encoder will successfully encode an input with an unselected
+        //:   choice
+        //:
+        //: 3 If 'balber::BerEncoderOptions' is specified but the
+        //:   'disableUnselectedChoiceEncoding' is set to 'true' then
+        //:   the encoder will fail to encode an input with an unselected
+        //:   choice
         //
         // Plan:
+        //: 1 Create two 'balber::BerEncoderOptions' objects.  Set the
+        //:   'disableUnselectedChoiceEncoding' option in one encoder options
+        //:   object to 'true' and to 'false' in the another object.
+        //:
+        //: 2 Create three 'balber::BerEncoder' objects passing the two
+        //:   'balber::BerEncoderOptions' objects created in step 1 to the
+        //:   first two encoder objects.  The third encoder object is not
+        //:   passed any encoder options.
+        //:
+        //: 3 Populate two 'MyChoice' objects.  Ensuring that the first
+        //:   defaults to an unselected choice.  The second populated with
+        //:   a choice value
+        //:
+        //: 4 Encode the two 'MyChoice' objects onto a
+        //:   'bdlsb::MemOutStreamBuf' using each of the created
+        //:   'balber::BerEncoder' objects.
+        //:
+        //: 5 Ensure that the encoder fails to encode the object when
+        //:   'disableUnselectedChoiceEncoding' option is set and the
+        //:   objects choice is unselected.  Otherwise the encoding
+        //:   should be successful.
+        //:
         //
         // Testing:
-        //
+        //  Encoding of anonymous choices
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTesting Anonymous Choice"
@@ -11197,10 +11231,49 @@ int main(int argc, char *argv[])
 
             test::MySequenceWithAnonymousChoice value;
             value.attribute1() = 34;
+            ASSERT(value.choice().isUndefinedValue());
             value.attribute2() = "Hello";
 
             ASSERT(0 == encoder.encode(&osb, value));
             printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+        {
+            balber::BerEncoderOptions options;
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MySequenceWithAnonymousChoice value;
+            value.attribute1() = 34;
+            ASSERT(value.choice().isUndefinedValue());
+            value.attribute2() = "Hello";
+
+            balber::BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, value));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+        {
+            balber::BerEncoderOptions options;
+            options.setDisableUnselectedChoiceEncoding(true);
+
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MySequenceWithAnonymousChoice value;
+            value.attribute1() = 34;
+            ASSERT(value.choice().isUndefinedValue());
+            value.attribute2() = "Hello";
+
+            balber::BerEncoder encoderDisableUnselectedChoices(&options);
+            ASSERT(0 != encoderDisableUnselectedChoices.encode(&osb, value));
+            printDiagnostic(encoderDisableUnselectedChoices);
 
             if (veryVerbose) {
                 P(osb.length())
@@ -11235,6 +11308,84 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == encoder.encode(&osb, value));
             printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+        {
+            balber::BerEncoderOptions options;
+
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MySequenceWithAnonymousChoice value;
+            value.attribute1() = 34;
+            value.choice().makeMyChoice1(58);
+            value.attribute2() = "Hello";
+
+            balber::BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, value));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+        {
+            balber::BerEncoderOptions options;
+
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MySequenceWithAnonymousChoice value;
+            value.attribute1() = 34;
+            value.choice().makeMyChoice2("World!");
+            value.attribute2() = "Hello";
+
+            balber::BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, value));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+        {
+            balber::BerEncoderOptions options;
+            options.setDisableUnselectedChoiceEncoding(true);
+
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MySequenceWithAnonymousChoice value;
+            value.attribute1() = 34;
+            value.choice().makeMyChoice1(58);
+            value.attribute2() = "Hello";
+
+            balber::BerEncoder encoderDisableUnselectedChoices(&options);
+            ASSERT(0 == encoderDisableUnselectedChoices.encode(&osb, value));
+            printDiagnostic(encoderDisableUnselectedChoices);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+        {
+            balber::BerEncoderOptions options;
+            options.setDisableUnselectedChoiceEncoding(true);
+
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MySequenceWithAnonymousChoice value;
+            value.attribute1() = 34;
+            value.choice().makeMyChoice2("World!");
+            value.attribute2() = "Hello";
+
+            balber::BerEncoder encoderDisableUnselectedChoices(&options);
+            ASSERT(0 == encoderDisableUnselectedChoices.encode(&osb, value));
+            printDiagnostic(encoderDisableUnselectedChoices);
 
             if (veryVerbose) {
                 P(osb.length())
@@ -11352,11 +11503,45 @@ int main(int argc, char *argv[])
         // TESTING CHOICES
         //
         // Concerns:
+        //: 1 If 'balber::BerEncoderOptions' is not specified then the encoder
+        //:   will successfully encode an input with an unselected choice
+        //
+        //: 2 If 'balber::BerEncoderOptions' is specified but the
+        //:   'disableUnselectedChoiceEncoding' is set to 'false' then
+        //:   the encoder will successfully encode an input with an unselected
+        //:   choice
+        //:
+        //: 3 If 'balber::BerEncoderOptions' is specified but the
+        //:   'disableUnselectedChoiceEncoding' is set to 'true' then
+        //:   the encoder will fail to encode an input with an unselected
+        //:   choice
         //
         // Plan:
+        //: 1 Create two 'balber::BerEncoderOptions' objects.  Set the
+        //:   'disableUnselectedChoiceEncoding' option in one encoder options
+        //:   object to 'true' and to 'false' in the another object.
+        //:
+        //: 2 Create three 'balber::BerEncoder' objects passing the two
+        //:   'balber::BerEncoderOptions' objects created in step 1 to the
+        //:   first two encoder objects.  The third encoder object is not
+        //:   passed any encoder options.
+        //:
+        //: 3 Populate two 'MyChoice' objects.  Ensuring that the first
+        //:   defaults to an unselected choice.  The second populated with
+        //:   a choice value
+        //:
+        //: 4 Encode the two 'MyChoice' objects onto a
+        //:   'bdlsb::MemOutStreamBuf' using each of the created
+        //:   'balber::BerEncoder' objects.
+        //:
+        //: 5 Ensure that the encoder fails to encode the object when
+        //:   'disableUnselectedChoiceEncoding' option is set and the
+        //:   objects choice is unselected.  Otherwise the encoding
+        //:   should be successful.
+        //:
         //
         // Testing:
-        //
+        //  Encoding of choices
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTesting Choices"
@@ -11367,9 +11552,44 @@ int main(int argc, char *argv[])
             bdlsb::MemOutStreamBuf osb;
 
             test::MyChoice value;
+            ASSERT(value.isUndefinedValue());
 
             ASSERT(0 == encoder.encode(&osb, value));
             printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+        {
+            balber::BerEncoderOptions options;
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MyChoice value;
+            ASSERT(value.isUndefinedValue());
+
+            balber::BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, value));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+        {
+            balber::BerEncoderOptions options;
+            options.setDisableUnselectedChoiceEncoding(true);
+
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MyChoice value;
+            ASSERT(value.isUndefinedValue());
+
+            balber::BerEncoder encoderDisableUnselectedChoices(&options);
+            ASSERT(0 != encoderDisableUnselectedChoices.encode(&osb, value));
+            printDiagnostic(encoderDisableUnselectedChoices);
 
             if (veryVerbose) {
                 P(osb.length())
@@ -11387,6 +11607,45 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == encoder.encode(&osb, value));
             printDiagnostic(encoder);
+
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+        {
+            balber::BerEncoderOptions options;
+
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MyChoice value;
+            value.makeSelection1();
+            value.selection1() = 34;
+
+            balber::BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, value));
+            printDiagnostic(encoder);
+
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+        {
+            balber::BerEncoderOptions options;
+            options.setDisableUnselectedChoiceEncoding(true);
+
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MyChoice value;
+            value.makeSelection1();
+            value.selection1() = 34;
+
+            balber::BerEncoder encoderDisableUnselectedChoices(&options);
+            ASSERT(0 == encoderDisableUnselectedChoices.encode(&osb, value));
+            printDiagnostic(encoderDisableUnselectedChoices);
 
             if (veryVerbose) {
                 P(osb.length())
