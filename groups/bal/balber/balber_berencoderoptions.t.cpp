@@ -43,6 +43,7 @@ using namespace bsl;
 //: o 'setEncodeEmptyArrays'
 //: o 'setEncodeDateAndTimeTypesAsBinary'
 //: o 'setDatetimeFractionalSecondPrecision'
+//: o 'setDisableUnselectedChoiceEncoding'
 //
 // Basic Accessors:
 //: o 'traceLevel'
@@ -50,6 +51,7 @@ using namespace bsl;
 //: o 'encodeEmptyArrays'
 //: o 'encodeDateAndTimeTypesAsBinary'
 //: o 'datetimeFractionalSecondPrecision'
+//: o 'disableUnselectedChoiceEncoding'
 //
 // Certain standard value-semantic-type test cases are omitted:
 //: o [ 8] -- 'swap' is not implemented for this class.
@@ -78,6 +80,7 @@ using namespace bsl;
 // [ 3] setEncodeEmptyArrays(bool value);
 // [ 3] setEncodeDateAndTimeTypesAsBinary(bool value);
 // [ 3] setDatetimeFractionalSecondPrecision(int value);
+// [ 3] setDisableUnselectedChoiceEncoding(bool value);
 //
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
@@ -232,6 +235,7 @@ int main(int argc, char *argv[])
     const bool ENCODE_EMPTY_ARRAYS                  = true;
     const bool ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = true;
     const int  DATETIME_FRACTIONAL_SECOND_PRECISION = 6;
+    const bool DISABLE_UNSELECTED_CHOICE_ENCODING   = true;
 
     balber::BerEncoderOptions options;
     ASSERT(0 == options.traceLevel());
@@ -239,6 +243,7 @@ int main(int argc, char *argv[])
     ASSERT(true == options.encodeEmptyArrays());
     ASSERT(false == options.encodeDateAndTimeTypesAsBinary());
     ASSERT(3     == options.datetimeFractionalSecondPrecision());
+    ASSERT(false == options.disableUnselectedChoiceEncoding());
 //..
 // Next, we populate that object to with non-default values:
 //..
@@ -256,6 +261,9 @@ int main(int argc, char *argv[])
 
     options.setDatetimeFractionalSecondPrecision(DATETIME_FRACTIONAL_SECOND_PRECISION);
     ASSERT(DATETIME_FRACTIONAL_SECOND_PRECISION == options.datetimeFractionalSecondPrecision());
+
+    options.setDisableUnselectedChoiceEncoding(DISABLE_UNSELECTED_CHOICE_ENCODING);
+    ASSERT(DISABLE_UNSELECTED_CHOICE_ENCODING == options.disableUnselectedChoiceEncoding());
 
 //..
       } break;
@@ -603,6 +611,7 @@ int main(int argc, char *argv[])
         //   bool  encodeEmptyArrays() const;
         //   bool  encodeDateAndTimeTypesAsBinary() const;
         //   int   datetimeFractionalSecondPrecision() const;
+        //   bool  disableUnselectedChoiceEncoding() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -656,6 +665,7 @@ int main(int argc, char *argv[])
         //   setEncodeEmptyArrays(bool value);
         //   setEncodeDateAndTimeTypesAsBinary(bool value);
         //   setDatetimeFractionalSecondPrecision(int value);
+        //   setDisableUnselectedChoiceEncoding(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -694,6 +704,7 @@ int main(int argc, char *argv[])
         const bool  D3   = true;         // 'encodeEmptyArrays'
         const bool  D4   = false;        // 'encodeDateAndTimeTypesAsBinary'
         const int   D5   = 3;            // 'datetimeFractionalSecondPrecision'
+        const int   D6   = false;        // 'disableUnselectedChoiceEncoding'
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -713,6 +724,8 @@ int main(int argc, char *argv[])
                      D4 == X.encodeDateAndTimeTypesAsBinary());
         LOOP2_ASSERT(D5, X.datetimeFractionalSecondPrecision(),
                      D5 == X.datetimeFractionalSecondPrecision());
+        LOOP2_ASSERT(D6, X.disableUnselectedChoiceEncoding(),
+                     D6 == X.disableUnselectedChoiceEncoding());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -749,6 +762,7 @@ int main(int argc, char *argv[])
         typedef bool  T3;        // 'encodeEmptyArrays'
         typedef bool  T4;        // 'encodeDateAndTimeTypesAsBinary'
         typedef int   T5;        // 'datetimeFractionalSecondPrecision'
+        typedef int   T6;        // 'disableUnselectedChoiceEncoding'
 
         // Attribute 1 Values: 'traceLevel'
 
@@ -775,6 +789,11 @@ int main(int argc, char *argv[])
         const T5 D5 = 3;    // default value
         const T5 A5 = 6;
 
+        // Attribute 6 Values: 'disableUnselectedChoiceEncoding'
+
+        const T6 D6 = false;    // default value
+        const T6 A6 = true;
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
@@ -790,6 +809,7 @@ int main(int argc, char *argv[])
         ASSERT(D3 == W.encodeEmptyArrays());
         ASSERT(D4 == W.encodeDateAndTimeTypesAsBinary());
         ASSERT(D5 == W.datetimeFractionalSecondPrecision());
+        ASSERT(D6 == W.disableUnselectedChoiceEncoding());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -811,6 +831,7 @@ int main(int argc, char *argv[])
         ASSERT(D3 == X.encodeEmptyArrays());
         ASSERT(D4 == X.encodeDateAndTimeTypesAsBinary());
         ASSERT(D5 == X.datetimeFractionalSecondPrecision());
+        ASSERT(D6 == X.disableUnselectedChoiceEncoding());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -828,6 +849,7 @@ int main(int argc, char *argv[])
         mX.setEncodeEmptyArrays(A3);
         mX.setEncodeDateAndTimeTypesAsBinary(A4);
         mX.setDatetimeFractionalSecondPrecision(A5);
+        mX.setDisableUnselectedChoiceEncoding(A6);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
@@ -837,6 +859,7 @@ int main(int argc, char *argv[])
         ASSERT(A3 == X.encodeEmptyArrays());
         ASSERT(A4 == X.encodeDateAndTimeTypesAsBinary());
         ASSERT(A5 == X.datetimeFractionalSecondPrecision());
+        ASSERT(A6 == X.disableUnselectedChoiceEncoding());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -855,6 +878,7 @@ int main(int argc, char *argv[])
         mY.setEncodeEmptyArrays(A3);
         mY.setEncodeDateAndTimeTypesAsBinary(A4);
         mY.setDatetimeFractionalSecondPrecision(A5);
+        mY.setDisableUnselectedChoiceEncoding(A6);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
@@ -864,6 +888,7 @@ int main(int argc, char *argv[])
         ASSERT(A3 == Y.encodeEmptyArrays());
         ASSERT(A4 == X.encodeDateAndTimeTypesAsBinary());
         ASSERT(A5 == Y.datetimeFractionalSecondPrecision());
+        ASSERT(A6 == Y.disableUnselectedChoiceEncoding());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
@@ -887,6 +912,7 @@ int main(int argc, char *argv[])
         ASSERT(A3 == Z.encodeEmptyArrays());
         ASSERT(A4 == Z.encodeDateAndTimeTypesAsBinary());
         ASSERT(A5 == Z.datetimeFractionalSecondPrecision());
+        ASSERT(A6 == Z.disableUnselectedChoiceEncoding());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -906,6 +932,7 @@ int main(int argc, char *argv[])
         mZ.setEncodeEmptyArrays(D3);
         mZ.setEncodeDateAndTimeTypesAsBinary(D4);
         mZ.setDatetimeFractionalSecondPrecision(D5);
+        mZ.setDisableUnselectedChoiceEncoding(D6);
 
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
@@ -915,6 +942,7 @@ int main(int argc, char *argv[])
         ASSERT(D3 == Z.encodeEmptyArrays());
         ASSERT(D4 == Z.encodeDateAndTimeTypesAsBinary());
         ASSERT(D5 == Z.datetimeFractionalSecondPrecision());
+        ASSERT(D6 == Z.disableUnselectedChoiceEncoding());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -938,6 +966,7 @@ int main(int argc, char *argv[])
         ASSERT(A3 == W.encodeEmptyArrays());
         ASSERT(A4 == W.encodeDateAndTimeTypesAsBinary());
         ASSERT(A5 == W.datetimeFractionalSecondPrecision());
+        ASSERT(A6 == W.disableUnselectedChoiceEncoding());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -961,6 +990,7 @@ int main(int argc, char *argv[])
         ASSERT(D3 == W.encodeEmptyArrays());
         ASSERT(D4 == W.encodeDateAndTimeTypesAsBinary());
         ASSERT(D5 == W.datetimeFractionalSecondPrecision());
+        ASSERT(D6 == W.disableUnselectedChoiceEncoding());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -984,6 +1014,7 @@ int main(int argc, char *argv[])
         ASSERT(A3 == X.encodeEmptyArrays());
         ASSERT(A4 == X.encodeDateAndTimeTypesAsBinary());
         ASSERT(A5 == X.datetimeFractionalSecondPrecision());
+        ASSERT(A6 == X.disableUnselectedChoiceEncoding());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
