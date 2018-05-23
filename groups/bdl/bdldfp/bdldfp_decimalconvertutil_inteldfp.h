@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
 #define INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide decimal floating-point conversion functions for Intel DFP.
@@ -28,27 +26,14 @@ BSLS_IDENT("$Id$")
 ///Example 1: TBD
 /// - - - - - - -
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #include <bdldfp_decimalplatform.h>
-#endif
 
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-
-#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL
 #include <bdldfp_decimalimputil.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_INTELIMPWRAPPER
 #include <bdldfp_intelimpwrapper.h>
-#endif
 
 namespace BloombergLP {
 namespace bdldfp {

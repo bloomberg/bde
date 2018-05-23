@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLC_COMPACTEDARRAY
 #define INCLUDED_BDLC_COMPACTEDARRAY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compacted array of 'const' user-defined objects.

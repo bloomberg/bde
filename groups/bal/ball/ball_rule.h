@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_RULE
 #define INCLUDED_BALL_RULE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an object having a pattern, thresholds, and predicates.
@@ -101,37 +99,18 @@ BSLS_IDENT("$Id: $")
 //  assert(ball::Severity::INFO == rule.triggerAllLevel());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_PATTERNUTIL
 #include <ball_patternutil.h>
-#endif
-
-#ifndef INCLUDED_BALL_PREDICATESET
 #include <ball_predicateset.h>
-#endif
-
-#ifndef INCLUDED_BALL_THRESHOLDAGGREGATE
 #include <ball_thresholdaggregate.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

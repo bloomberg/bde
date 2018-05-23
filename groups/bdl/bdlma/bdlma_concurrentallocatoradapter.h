@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLMA_CONCURRENTALLOCATORADAPTER
 #define INCLUDED_BDLMA_CONCURRENTALLOCATORADAPTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-enabled adapter for the allocator protocol.
@@ -227,25 +225,14 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt { class Mutex; }

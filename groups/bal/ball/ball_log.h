@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_LOG
 #define INCLUDED_BALL_LOG
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide macros and utility functions to facilitate logging.
@@ -794,41 +792,18 @@ BSLS_IDENT("$Id: $")
 //      }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_CATEGORY
 #include <ball_category.h>
-#endif
-
-#ifndef INCLUDED_BALL_CATEGORYMANAGER
 #include <ball_categorymanager.h>
-#endif
-
-#ifndef INCLUDED_BALL_LOGGERMANAGER
 #include <ball_loggermanager.h>
-#endif
-
-#ifndef INCLUDED_BALL_SEVERITY
 #include <ball_severity.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ANNOTATION
 #include <bsls_annotation.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
 
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -AQQ01

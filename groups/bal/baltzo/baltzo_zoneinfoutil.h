@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_ZONEINFOUTIL
 #define INCLUDED_BALTZO_ZONEINFOUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utility operations on 'baltzo::Zoneinfo' objects.
@@ -350,29 +348,15 @@ BSLS_IDENT("$Id: $")
 //  assert(firstTransition == secondTransition);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALTZO_LOCALTIMEVALIDITY
 #include <baltzo_localtimevalidity.h>
-#endif
-
-#ifndef INCLUDED_BALTZO_ZONEINFO
 #include <baltzo_zoneinfo.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIMETZ
 #include <bdlt_datetimetz.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {

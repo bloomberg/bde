@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALJSN_ENCODEROPTIONS
 #define INCLUDED_BALJSN_ENCODEROPTIONS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an attribute class for specifying JSON encoding options.
@@ -145,45 +143,21 @@ BSLS_IDENT("$Id: $")
 //  assert(DOUBLE_PRECISION == options.maxDoublePrecision());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SELECTIONINFO
 #include <bdlat_selectioninfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
 #include <bdlat_typetraits.h>
-#endif
 
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BALJSN_ENCODINGSTYLE
 #include <baljsn_encodingstyle.h>
-#endif
 
-#ifndef INCLUDED_BSL_LIMITS
 #include <bsl_limits.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 

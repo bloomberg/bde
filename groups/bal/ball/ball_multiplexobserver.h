@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_MULTIPLEXOBSERVER
 #define INCLUDED_BALL_MULTIPLEXOBSERVER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a multiplexing observer that forwards to other observers.
@@ -131,41 +129,19 @@ BSLS_IDENT("$Id: $")
 // Similarly, observers may be unregistered at any time.  This capability
 // allows for extremely flexible observation scenarios.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_OBSERVER
 #include <ball_observer.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_READLOCKGUARD
 #include <bslmt_readlockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_RWMUTEX
 #include <bslmt_rwmutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_WRITELOCKGUARD
 #include <bslmt_writelockguard.h>
-#endif
 
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
-
-#ifndef INCLUDED_BSL_SET
 #include <bsl_set.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

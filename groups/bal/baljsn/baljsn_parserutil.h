@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALJSN_PARSERUTIL
 #define INCLUDED_BALJSN_PARSERUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility for decoding JSON data into simple types.
@@ -70,37 +68,18 @@ BSLS_IDENT("$Id: $")
 //  assert(21                      == employee.d_age);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_ISO8601UTIL
 #include <bdlt_iso8601util.h>
-#endif
 
-#ifndef INCLUDED_BSL_LIMITS
 #include <bsl_limits.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
-#endif
 
 namespace BloombergLP {
 namespace baljsn {

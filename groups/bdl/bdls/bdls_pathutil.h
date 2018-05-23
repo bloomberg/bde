@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLS_PATHUTIL
 #define INCLUDED_BDLS_PATHUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide portable file path manipulation.
@@ -200,17 +198,11 @@ BSLS_IDENT("$Id: $")
 //   assert("22jan08/log.txt/22jan08/log.txt" == otherPath);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLMA_BUFFERIMPUTIL
 #define INCLUDED_BDLMA_BUFFERIMPUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide pure procedures for allocating memory from a buffer.
@@ -172,17 +170,10 @@ BSLS_IDENT("$Id: $")
 // 'replenishBuffer' guarantees that the buffer will have sufficient space to
 // satisfy the allocation request of the specified 'size'.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENT
 #include <bsls_alignment.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

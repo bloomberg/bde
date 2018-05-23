@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLDE_MD5
 #define INCLUDED_BDLDE_MD5
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a value-semantic type encoding a message in an MD5 digest.
@@ -105,25 +103,13 @@ BSLS_IDENT("$Id: $")
 // Data Security, Inc. MD5 Message-Digest Algorithm that was published in the
 // aforementioned RFC 1321.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNEDBUFFER
 #include <bsls_alignedbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlde {

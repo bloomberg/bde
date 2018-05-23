@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 #define INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace defining customized type functions.
@@ -448,62 +446,26 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
 #include <bdlat_bdeatoverrides.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
 #include <bdlat_typetraits.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETZ
 #include <bdlt_datetz.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIMETZ
 #include <bdlt_datetimetz.h>
-#endif
-
-#ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
-#endif
-
-#ifndef INCLUDED_BDLT_TIMETZ
 #include <bdlt_timetz.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
 #include <bslalg_hastrait.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 
 

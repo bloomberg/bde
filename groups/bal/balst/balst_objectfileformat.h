@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_OBJECTFILEFORMAT
 #define INCLUDED_BALST_OBJECTFILEFORMAT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide platform-dependent object file format trait definitions.
@@ -120,13 +118,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 

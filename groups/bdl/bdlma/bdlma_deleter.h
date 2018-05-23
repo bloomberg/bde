@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLMA_DELETER
 #define INCLUDED_BDLMA_DELETER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for deleting objects of parameterized type.
@@ -61,9 +59,7 @@ BSLS_IDENT("$Id: $")
 // downside, that the lifetime of 'deleter' must be longer than the lifetime of
 // all associated instances.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLS_PROCESSUTIL
 #define INCLUDED_BDLS_PROCESSUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 
@@ -72,13 +70,9 @@ BSLS_IDENT("$Id: $")
 //  assert(processNameB == processName);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace bdls {

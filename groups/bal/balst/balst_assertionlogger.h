@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_ASSERTIONLOGGER
 #define INCLUDED_BALST_ASSERTIONLOGGER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide configurable logging handler for assertion failures.
@@ -132,13 +130,9 @@ BSLS_IDENT("$Id: $")
 //  // ]  { } ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_SEVERITY
 #include <ball_severity.h>
-#endif
 
 namespace BloombergLP {
 namespace balst {

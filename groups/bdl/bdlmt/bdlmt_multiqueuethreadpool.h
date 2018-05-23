@@ -3,9 +3,7 @@
 #ifndef INCLUDED_BDLMT_MULTIQUEUETHREADPOOL
 #define INCLUDED_BDLMT_MULTIQUEUETHREADPOOL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a pool of queues, each processed serially by a thread pool.
@@ -318,65 +316,28 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLMT_THREADPOOL
 #include <bdlmt_threadpool.h>
-#endif
 
-#ifndef INCLUDED_BDLCC_OBJECTPOOL
 #include <bdlcc_objectpool.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEXASSERT
 #include <bslmt_mutexassert.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_READERWRITERMUTEX
 #include <bslmt_readerwritermutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_READLOCKGUARD
 #include <bslmt_readlockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_SEMAPHORE
 #include <bslmt_semaphore.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
-#ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
-#endif
-
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt { class Latch; }

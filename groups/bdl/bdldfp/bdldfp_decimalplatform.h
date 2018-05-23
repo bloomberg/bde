@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #define INCLUDED_BDLDFP_DECIMALPLATFORM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide decimal floating-point platform information macros.
@@ -92,17 +90,11 @@ BSLS_IDENT("$Id$")
 //..
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
 // C99 decimal support on xlC/Aix issues should be resolved (see
 // DRQS 39471014).

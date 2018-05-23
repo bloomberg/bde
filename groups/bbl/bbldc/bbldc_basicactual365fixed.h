@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_BASICACTUAL365FIXED
 #define INCLUDED_BBLDC_BASICACTUAL365FIXED
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide stateless functions for the Actual/365 (fixed) convention.
@@ -63,13 +61,9 @@ BSLS_IDENT("$Id: $")
 //  assert(yearsDiff > 1.0027 && yearsDiff < 1.0028);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
 
 namespace BloombergLP {
 namespace bbldc {

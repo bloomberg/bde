@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLDFP_INTELIMPWRAPPER
 #define INCLUDED_BDLDFP_INTELIMPWRAPPER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide a central mechanism to configure the Intel DFP library.
@@ -25,21 +23,13 @@ BSLS_IDENT("$Id$")
 ///-----
 // This section shows the intended use of this component.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #include <bdldfp_decimalplatform.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
 
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
 

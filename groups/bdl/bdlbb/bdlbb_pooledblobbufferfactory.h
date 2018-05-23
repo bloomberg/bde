@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLBB_POOLEDBLOBBUFFERFACTORY
 #define INCLUDED_BDLBB_POOLEDBLOBBUFFERFACTORY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a concrete implementation of 'bdlbb::BlobBufferFactory'.
@@ -34,17 +32,11 @@ BSLS_IDENT("$Id: $")
 // factory allocates the shared pointer representation together with the buffer
 // (contiguously).
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLBB_BLOB
 #include <bdlbb_blob.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
 #include <bdlma_concurrentpoolallocator.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlbb {

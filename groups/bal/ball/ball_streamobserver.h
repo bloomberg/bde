@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALL_STREAMOBSERVER
 #define INCLUDED_BALL_STREAMOBSERVER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an observer that emits log records to a stream.
@@ -72,25 +70,15 @@ BSLS_IDENT("$Id: $")
 //  01JAN0001_24:00:00.000 0 0 OFF  0
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_OBSERVER
 #include <ball_observer.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_NULLOUTPUTITERATOR
 #define INCLUDED_BDLB_NULLOUTPUTITERATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an output iterator type that discards output.
@@ -101,13 +99,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlb {

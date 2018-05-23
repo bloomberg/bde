@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_ISO8601UTILCONFIGURATION
 #define INCLUDED_BDLT_ISO8601UTILCONFIGURATION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an attribute class to configure ISO 8601 string generation.
@@ -158,21 +156,12 @@ BSLS_IDENT("$Id: $")
 // established *once*, early in 'main', and not changed throughout the lifetime
 // of a process.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

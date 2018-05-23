@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLSB_FIXEDMEMINSTREAMBUF
 #define INCLUDED_BDLSB_FIXEDMEMINSTREAMBUF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an input 'basic_streambuf' using a client buffer.
@@ -115,29 +113,14 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOS
 #include <bsl_ios.h>       // for 'bsl::streamsize'
-#endif
-
-#ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && defined(min)
     // Note: on Windows -> WinDef.h:#define min(a,b) ...

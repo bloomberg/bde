@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_BASICBASICDAYCOUNTADAPTER
 #define INCLUDED_BBLDC_BASICBASICDAYCOUNTADAPTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a parameterized day-count convention implementation.
@@ -65,13 +63,9 @@ BSLS_IDENT("$Id: $")
 //  assert(0.1999 < yearsDiff && 0.2001 > yearsDiff);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BBLDC_BASICDAYCOUNT
 #include <bbldc_basicdaycount.h>
-#endif
 
 namespace BloombergLP {
 

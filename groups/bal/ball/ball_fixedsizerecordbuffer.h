@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_FIXEDSIZERECORDBUFFER
 #define INCLUDED_BALL_FIXEDSIZERECORDBUFFER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-safe fixed-size buffer of record handles.
@@ -127,49 +125,22 @@ BSLS_IDENT("$Id: $")
 //    }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_COUNTINGALLOCATOR
 #include <ball_countingallocator.h>
-#endif
-
-#ifndef INCLUDED_BALL_RECORD
 #include <ball_record.h>
-#endif
-
-#ifndef INCLUDED_BALL_RECORDBUFFER
 #include <ball_recordbuffer.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_RECURSIVEMUTEX
 #include <bslmt_recursivemutex.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

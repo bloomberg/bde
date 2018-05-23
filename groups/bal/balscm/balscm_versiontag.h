@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALSCM_VERSIONTAG
 #define INCLUDED_BALSCM_VERSIONTAG
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide versioning information for the 'bal' package group.
@@ -51,9 +49,7 @@ BSLS_IDENT("$Id: $")
 //  #endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSIONTAG
 #include <bslscm_versiontag.h>
-#endif
 
 // For the 3.7.x release series, 'bal' is being versioned independently of
 // 'bsl'.

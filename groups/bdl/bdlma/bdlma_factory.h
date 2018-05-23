@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLMA_FACTORY
 #define INCLUDED_BDLMA_FACTORY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for creator/deleter of parameterized objects.
@@ -66,13 +64,9 @@ BSLS_IDENT("$Id: $")
 // of 'factory' must be longer than the lifetime of all associated object
 // instances.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_DELETER
 #include <bdlma_deleter.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

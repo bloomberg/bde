@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLAT_BDEATOVERRIDES
 #define INCLUDED_BDLAT_BDEATOVERRIDES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide macros to map 'bdeat' names to 'bdlat' names.
@@ -15,9 +13,7 @@ BSLS_IDENT("$Id: $")
 // replace 'bdeat' class names with the names of their successor classes in
 // this package.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 

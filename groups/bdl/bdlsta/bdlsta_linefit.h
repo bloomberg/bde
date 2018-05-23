@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLSTA_LINEFIT
 #define INCLUDED_BDLSTA_LINEFIT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -LL01 // Link is just too long
@@ -63,17 +61,11 @@ BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: +LL01
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_CMATH
 #include <bsl_cmath.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlsta {

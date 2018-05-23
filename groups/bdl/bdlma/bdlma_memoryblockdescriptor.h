@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLMA_MEMORYBLOCKDESCRIPTOR
 #define INCLUDED_BDLMA_MEMORYBLOCKDESCRIPTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a class describing a block of memory.
@@ -56,17 +54,10 @@ BSLS_IDENT("$Id: $")
 //
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

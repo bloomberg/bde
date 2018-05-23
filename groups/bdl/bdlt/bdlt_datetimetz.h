@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_DATETIMETZ
 #define INCLUDED_BDLT_DATETIMETZ
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a representation of a date and time with time zone offset.
@@ -232,41 +230,20 @@ BSLS_IDENT("$Id: $")
 //  Estimated Delivery Time in Los Angeles: 18OCT2014_06:48:56.000-0800
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETZ
 #include <bdlt_datetz.h>
-#endif
-
-#ifndef INCLUDED_BDLT_TIMETZ
 #include <bdlt_timetz.h>
-#endif
 
-#ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALXML_CONFIGSCHEMA
 #define INCLUDED_BALXML_CONFIGSCHEMA
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT_RCSID(baexml_configschema_h,"$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
@@ -27,14 +25,9 @@ BSLS_IDENT_PRAGMA_ONCE
 // 'baexml' schema.  This in-core representation of the schema
 // is used to validate XML configuration data used to initialize the service.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#define INCLUDED_BSL_OSTREAM
-#endif
 
 namespace BloombergLP {
 

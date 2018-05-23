@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_NUMERICPARSEUTIL
 #define INCLUDED_BDLB_NUMERICPARSEUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide conversions from text into fundamental numeric types.
@@ -158,18 +156,11 @@ BSLS_IDENT("$Id: $")
 //  assert(rest.empty());
 //..
 
-
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 

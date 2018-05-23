@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALXML_MINIREADER
 #define INCLUDED_BALXML_MINIREADER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide light-weight implementation of 'balxml::Reader' protocol.
@@ -279,53 +277,21 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALXML_READER
 #include <balxml_reader.h>
-#endif
-
-#ifndef INCLUDED_BALXML_ELEMENTATTRIBUTE
 #include <balxml_elementattribute.h>
-#endif
-
-#ifndef INCLUDED_BALXML_NAMESPACEREGISTRY
 #include <balxml_namespaceregistry.h>
-#endif
-
-#ifndef INCLUDED_BALXML_PREFIXSTACK
 #include <balxml_prefixstack.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSL_FSTREAM
 #include <bsl_fstream.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDLIB
 #include <bsl_cstdlib.h>
-#endif
 
 namespace BloombergLP  {
 

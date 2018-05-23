@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLDE_CHARCONVERTSTATUS
 #define INCLUDED_BDLDE_CHARCONVERTSTATUS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide masks for interpreting status from charconvert functions.
@@ -73,13 +71,9 @@ BSLS_IDENT("$Id: $")
 // INVALID_INPUT_BIT
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlde {

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_METRICRECORD
 #define INCLUDED_BALM_METRICRECORD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 
 //@PURPOSE: Provide an aggregated record of the value of a metric.
@@ -145,17 +143,11 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //      assert(5 == requestSize.max());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALM_METRICID
 #include <balm_metricid.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_PUBLISHER
 #define INCLUDED_BALM_PUBLISHER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 
 //@PURPOSE: Provide a protocol to publish recorded metric values.
@@ -216,9 +214,7 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //         MyCategory.EventMessageSize [count = 2, total = 9, min = 3, max = 6]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
 namespace BloombergLP {
 

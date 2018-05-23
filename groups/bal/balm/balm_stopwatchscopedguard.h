@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_STOPWATCHSCOPEDGUARD
 #define INCLUDED_BALM_STOPWATCHSCOPEDGUARD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a scoped guard for recording elapsed time.
@@ -151,37 +149,16 @@ BSLS_IDENT("$Id: $")
 //
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALM_COLLECTOR
 #include <balm_collector.h>
-#endif
-
-#ifndef INCLUDED_BALM_COLLECTORREPOSITORY
 #include <balm_collectorrepository.h>
-#endif
-
-#ifndef INCLUDED_BALM_DEFAULTMETRICSMANAGER
 #include <balm_defaultmetricsmanager.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRIC
 #include <balm_metric.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRICSMANAGER
 #include <balm_metricsmanager.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_STOPWATCH
 #include <bsls_stopwatch.h>
-#endif
 
 namespace BloombergLP {
 

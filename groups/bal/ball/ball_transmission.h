@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_TRANSMISSION
 #define INCLUDED_BALL_TRANSMISSION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Enumerate the set of states for log record transmission.
@@ -162,17 +160,11 @@ BSLS_IDENT("$Id: $")
 //                  [ dump all messages archived for *all* threads ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #if defined(BSLS_PLATFORM_CMP_MSVC) && defined(PASSTHROUGH)

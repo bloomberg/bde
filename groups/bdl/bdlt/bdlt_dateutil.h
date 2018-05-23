@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_DATEUTIL
 #define INCLUDED_BDLT_DATEUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide common non-primitive operations on date objects.
@@ -144,25 +142,13 @@ BSLS_IDENT("$Id: $")
 // used 'addMonthsNoEom' instead of 'addMonthsEom', this adjustment would not
 // have occurred.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DAYOFWEEK
 #include <bdlt_dayofweek.h>
-#endif
-
-#ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
 #include <bdlt_serialdateimputil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

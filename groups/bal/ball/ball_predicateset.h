@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_PREDICATESET
 #define INCLUDED_BALL_PREDICATESET
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a container for predicates.
@@ -57,37 +55,18 @@ BSLS_IDENT("$Id: $")
 //  assert(false == predicateSet.isMember(p1));
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_ATTRIBUTE
 #include <ball_attribute.h>
-#endif
-
-#ifndef INCLUDED_BALL_PREDICATE
 #include <ball_predicate.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_UNORDERED_SET
 #include <bsl_unordered_set.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

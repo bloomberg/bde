@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_TIMETABLE
 #define INCLUDED_BDLT_TIMETABLE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a repository for accessing timetable information.

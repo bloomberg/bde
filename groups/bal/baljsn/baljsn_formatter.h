@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALJSN_FORMATTER
 #define INCLUDED_BALJSN_FORMATTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a formatter for encoding data in the JSON format.
@@ -126,25 +124,15 @@ BSLS_IDENT("$Id: $")
 //  bsl::cout << os.str() << bsl::endl;
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALJSN_PRINTUTIL
 #include <baljsn_printutil.h>
-#endif
 
-#ifndef INCLUDED_BDLB_PRINT
 #include <bdlb_print.h>
-#endif
 
-#ifndef INCLUDED_BDLC_BITARRAY
 #include <bdlc_bitarray.h>
-#endif
 
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
 
 namespace BloombergLP {
 namespace baljsn {

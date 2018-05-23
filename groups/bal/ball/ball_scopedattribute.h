@@ -44,41 +44,19 @@
 // Attribute "request" will be set in the calling thread and will affect
 // publication of any BALL messages for the lifetime of 'attribute'.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_ATTRIBUTE
 #include <ball_attribute.h>
-#endif
-
-#ifndef INCLUDED_BALL_ATTRIBUTECONTAINER
 #include <ball_attributecontainer.h>
-#endif
-
-#ifndef INCLUDED_BALL_ATTRIBUTECONTAINERLIST
 #include <ball_attributecontainerlist.h>
-#endif
-
-#ifndef INCLUDED_BALL_ATTRIBUTECONTEXT
 #include <ball_attributecontext.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

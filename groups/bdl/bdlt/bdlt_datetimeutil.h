@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_DATETIMEUTIL
 #define INCLUDED_BDLT_DATETIMEUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide common non-primitive operations on 'bdlt::Datetime'.
@@ -167,21 +165,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_CTIME
 #include <bsl_ctime.h>            // 'bsl::tm'
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

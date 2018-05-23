@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_CATEGORYMANAGER
 #define INCLUDED_BALL_CATEGORYMANAGER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a manager of named categories each having "thresholds".
@@ -158,65 +156,27 @@ BSLS_IDENT("$Id: $")
 //    [ EQUITY.GRAPHICS.MATH.ACKERMANN, 197, 101, 69, 37 ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_CATEGORY
 #include <ball_category.h>
-#endif
-
-#ifndef INCLUDED_BALL_RULESET
 #include <ball_ruleset.h>
-#endif
-
-#ifndef INCLUDED_BALL_THRESHOLDAGGREGATE
 #include <ball_thresholdaggregate.h>
-#endif
 
-#ifndef INCLUDED_BDLB_CSTRINGLESS
 #include <bdlb_cstringless.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_READLOCKGUARD
 #include <bslmt_readlockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_READERWRITERLOCK
 #include <bslmt_readerwriterlock.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_NEW
 #include <bsl_new.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALXML_VALIDATINGREADER
 #define INCLUDED_BALXML_VALIDATINGREADER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a common reader protocol for parsing and validating XML.
@@ -266,13 +264,9 @@ BSLS_IDENT("$Id: $")
 //}
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALXML_READER
 #include <balxml_reader.h>
-#endif
 
 namespace BloombergLP {
 

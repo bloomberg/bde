@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLF_MEMFN
 #define INCLUDED_BDLF_MEMFN
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide member function pointer wrapper classes and utility.
@@ -168,49 +166,20 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #include <bslalg_constructorproxy.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_FORWARDINGTYPE
 #include <bslmf_forwardingtype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
 #include <bslmf_haspointersemantics.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
 #include <bslmf_memberfunctionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
-#endif
 
 
 namespace BloombergLP {

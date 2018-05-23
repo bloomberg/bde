@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALB_FILECLEANERUTIL
 #define INCLUDED_BALB_FILECLEANERUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility class for configuration-based file removal.
@@ -57,13 +55,9 @@ BSLS_IDENT("$Id: $")
 //  balb::FileCleanerUtil::removeFiles(config);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALB_FILECLEANERCONFIGURATION
 #include <balb_filecleanerconfiguration.h>
-#endif
 
 namespace BloombergLP {
 namespace balb {

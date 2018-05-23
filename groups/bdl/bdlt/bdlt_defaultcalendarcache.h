@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_DEFAULTCALENDARCACHE
 #define INCLUDED_BDLT_DEFAULTCALENDARCACHE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a process-wide default 'bdlt::CalendarCache' object.
@@ -116,13 +114,9 @@ BSLS_IDENT("$Id: $")
 // Note that destruction of the default cache would typically be done in 'main'
 // just prior to program termination.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
 namespace BloombergLP {
 

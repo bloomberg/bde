@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_OBSERVERADAPTER
 #define INCLUDED_BALL_OBSERVERADAPTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a helper for implementing the 'ball::Observer' protocol.
@@ -134,17 +132,11 @@ BSLS_IDENT("$Id: $")
 //  22FEB2012_00:12:12.000 203 33  0
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_OBSERVER
 #include <ball_observer.h>
-#endif
 
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_LOGGERMANAGER
 #define INCLUDED_BALL_LOGGERMANAGER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a manager of core logging functionality.
@@ -871,77 +869,30 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_BROADCASTOBSERVER
 #include <ball_broadcastobserver.h>
-#endif
-
-#ifndef INCLUDED_BALL_CATEGORYMANAGER
 #include <ball_categorymanager.h>
-#endif
-
-#ifndef INCLUDED_BALL_LOGGERMANAGERCONFIGURATION
 #include <ball_loggermanagerconfiguration.h>
-#endif
-
-#ifndef INCLUDED_BALL_RECORD
 #include <ball_record.h>
-#endif
-
-#ifndef INCLUDED_BALL_RECORDBUFFER
 #include <ball_recordbuffer.h>
-#endif
-
-#ifndef INCLUDED_BALL_THRESHOLDAGGREGATE
 #include <ball_thresholdaggregate.h>
-#endif
-
-#ifndef INCLUDED_BALL_TRANSMISSION
 #include <ball_transmission.h>
-#endif
 
-#ifndef INCLUDED_BDLCC_OBJECTPOOL
 #include <bdlcc_objectpool.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_READERWRITERMUTEX
 #include <bslmt_readerwritermutex.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
-
-#ifndef INCLUDED_BSL_SET
 #include <bsl_set.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

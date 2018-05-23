@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALBER_BERCONSTANTS
 #define INCLUDED_BALBER_BERCONSTANTS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide namespace for BER-related constants.
@@ -33,13 +31,9 @@ BSLS_IDENT("$Id: $")
 ///-----
 // TBD
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #undef UNIVERSAL

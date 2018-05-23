@@ -3,9 +3,7 @@
 #ifndef INCLUDED_BALB_ASSERTIONTRACKERSINGLETON
 #define INCLUDED_BALB_ASSERTIONTRACKERSINGLETON
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 
 //@PURPOSE: Provide a means to install an assertion tracker singleton.
 //
@@ -130,41 +128,20 @@
 //  assert(ac_p->getAssertionCount() == 2);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALB_ASSERTIONTRACKER
 #include <balb_assertiontracker.h>
-#endif
 
-#ifndef INCLUDED_BDLF_BIND
 #include <bdlf_bind.h>
-#endif
-
-#ifndef INCLUDED_BDLF_PLACEHOLDER
 #include <bdlf_placeholder.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_ONCE
 #include <bslmt_once.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
 namespace BloombergLP {
 namespace balb {

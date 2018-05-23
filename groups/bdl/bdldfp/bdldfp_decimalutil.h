@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLDFP_DECIMALUTIL
 #define INCLUDED_BDLDFP_DECIMALUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide utilities dealing with floating point decimal objects.
@@ -71,33 +69,16 @@ BSLS_IDENT("$Id$")
 // 2 - implement as second priority (most probably after the 'E')
 // N - Do not implement unless explicitly requested
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALFORMATCONFIG
 #include <bdldfp_decimalformatconfig.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #include <bdldfp_decimalplatform.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_UINT128
 #include <bdldfp_uint128.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace bdldfp {

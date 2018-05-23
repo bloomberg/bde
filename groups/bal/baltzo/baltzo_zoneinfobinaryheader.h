@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_ZONEINFOBINARYHEADER
 #define INCLUDED_BALTZO_ZONEINFOBINARYHEADER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an attribute class for Zoneinfo binary-file header data.
@@ -158,21 +156,12 @@ BSLS_IDENT("$Id: $")
 //  assert( 50  == header.abbrevDataSize());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {

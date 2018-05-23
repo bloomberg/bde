@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLS_PIPEUTIL
 #define INCLUDED_BDLS_PIPEUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide basic portable named-pipe utilities.
@@ -27,13 +25,9 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component, 'bdls::PipeUtil', provides portable utility
 // methods for named pipes.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 
 namespace BloombergLP {

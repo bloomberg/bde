@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_LOADER
 #define INCLUDED_BALTZO_LOADER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for obtaining information about a time zone.
@@ -207,9 +205,7 @@ BSLS_IDENT("$Id: $")
 //  transition to EST at 06NOV2011_06:00:00.000 UTC
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {

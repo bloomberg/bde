@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLMA_GUARDINGALLOCATOR
 #define INCLUDED_BDLMA_GUARDINGALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a memory allocator that guards against buffer overruns.
@@ -293,17 +291,11 @@ BSLS_IDENT("$Id: $")
 // code, resulting in a core file that will be more amenable to revealing the
 // issue when analyzed in a debugger.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

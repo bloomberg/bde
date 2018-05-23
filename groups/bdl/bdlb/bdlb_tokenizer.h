@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_TOKENIZER
 #define INCLUDED_BDLB_TOKENIZER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide access to user-described tokens via string references.
@@ -509,25 +507,14 @@ BSLS_IDENT("$Id: $")
 //  assert(EXPECTED3 == result3);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
 
 namespace BloombergLP {
 

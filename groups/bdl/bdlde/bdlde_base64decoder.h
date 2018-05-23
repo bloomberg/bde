@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLDE_BASE64DECODER
 #define INCLUDED_BDLDE_BASE64DECODER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide automata for converting to and from Base64 encodings.
@@ -397,13 +395,9 @@ BSLS_IDENT("$Id: $")
 // } // Close namespace BloombergLP
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 

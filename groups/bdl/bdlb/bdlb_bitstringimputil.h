@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_BITSTRINGIMPUTIL
 #define INCLUDED_BDLB_BITSTRINGIMPUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functional bit-manipulation of 'uint64_t' values.
@@ -179,29 +177,15 @@ BSLS_IDENT("$Id: $")
 //  assert(7 == bdlb::BitStringImpUtil::find1AtMinIndexRaw(0xffff0180));
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLB_BITMASKUTIL
 #include <bdlb_bitmaskutil.h>
-#endif
-
-#ifndef INCLUDED_BDLB_BITUTIL
 #include <bdlb_bitutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDINT
 #include <bsl_cstdint.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlb {

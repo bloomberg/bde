@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLSCM_VERSION
 #define INCLUDED_BBLSCM_VERSION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide source control management (versioning) information.
@@ -70,17 +68,11 @@ BSLS_IDENT("$Id: $")
 // Note that 'ident' and 'what' typically will display many version strings
 // unrelated to 'bbl' depending on the libraries used by 'a.out'.
 
-#ifndef INCLUDED_BBLSCM_VERSIONTAG
 #include <bblscm_versiontag.h>     // 'BBL_VERSION_MAJOR', 'BBL_VERSION_MINOR'
-#endif
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_LINKCOERCION
 #include <bsls_linkcoercion.h>
-#endif
 
 namespace BloombergLP {
 

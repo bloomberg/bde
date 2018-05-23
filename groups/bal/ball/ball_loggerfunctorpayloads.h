@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_LOGGERFUNCTORPAYLOADS
 #define INCLUDED_BALL_LOGGERFUNCTORPAYLOADS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a suite of logger manager singleton functor payloads.
@@ -236,9 +234,7 @@ BSLS_IDENT("$Id: $")
 //   }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

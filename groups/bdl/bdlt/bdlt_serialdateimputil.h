@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_SERIALDATEIMPUTIL
 #define INCLUDED_BDLT_SERIALDATEIMPUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide low-level support functions for date-value manipulation.
@@ -23,9 +21,7 @@ BSLS_IDENT("$Id: $")
 // implementations are allowed: 'bdlt_posixdateimputil' (required in Bloomberg
 // code) and 'bdlt_prolepticdateimputil' (an option for open source code).
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
 #ifndef BDE_OPENSOURCE_PUBLICATION
     #ifdef BDE_USE_PROLEPTIC_DATES
@@ -34,13 +30,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifdef BDE_USE_PROLEPTIC_DATES
-#ifndef INCLUDED_BDLT_PROLEPTICDATEIMPUTIL
 #include <bdlt_prolepticdateimputil.h>
-#endif
 #else
-#ifndef INCLUDED_BDLT_POSIXDATEIMPUTIL
 #include <bdlt_posixdateimputil.h>
-#endif
 #endif
 
 namespace BloombergLP {

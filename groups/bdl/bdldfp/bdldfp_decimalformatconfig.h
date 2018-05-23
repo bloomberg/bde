@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLDFP_DECIMALFORMATCONFIG
 #define INCLUDED_BDLDFP_DECIMALFORMATCONFIG
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide an attribute class to configure decimal formatting.
@@ -66,13 +64,9 @@ BSLS_IDENT("$Id$")
 //: o 'exponent': specify the character to use for exponent when 'style' is
 //:   'e_SCIENTIFIC' or 'e_NATURAL'.
 
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bdldfp {

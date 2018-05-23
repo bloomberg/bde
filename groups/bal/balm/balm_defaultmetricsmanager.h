@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_DEFAULTMETRICSMANAGER
 #define INCLUDED_BALM_DEFAULTMETRICSMANAGER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide for a default instance of the metrics manager.
@@ -104,17 +102,11 @@ BSLS_IDENT("$Id: $")
 // 'balm::DefaultMetricsManager::create()' must also explicitly call
 // 'balm::DefaultMetricsManager::destroy()'.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 

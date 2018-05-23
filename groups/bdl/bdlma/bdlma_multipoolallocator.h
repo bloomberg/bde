@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLMA_MULTIPOOLALLOCATOR
 #define INCLUDED_BDLMA_MULTIPOOLALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a memory-pooling allocator of heterogeneous block sizes.
@@ -608,29 +606,15 @@ BSLS_IDENT("$Id: $")
 // destruction rapidly decreases in relative terms as the list grows larger
 // (increasing 'n').
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_MANAGEDALLOCATOR
 #include <bdlma_managedallocator.h>
-#endif
-
-#ifndef INCLUDED_BDLMA_MULTIPOOL
 #include <bdlma_multipool.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

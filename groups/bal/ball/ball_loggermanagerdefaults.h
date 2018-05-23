@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_LOGGERMANAGERDEFAULTS
 #define INCLUDED_BALL_LOGGERMANAGERDEFAULTS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide constrained default attributes for the logger manager.
@@ -138,13 +136,9 @@ BSLS_IDENT("$Id: $")
 // ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

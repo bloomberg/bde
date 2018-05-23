@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_DEFAULTZONEINFOCACHE
 #define INCLUDED_BALTZO_DEFAULTZONEINFOCACHE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide facilities to manage a default Zoneinfo cache object.
@@ -208,13 +206,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALTZO_ZONEINFOCACHE
 #include <baltzo_zoneinfocache.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {

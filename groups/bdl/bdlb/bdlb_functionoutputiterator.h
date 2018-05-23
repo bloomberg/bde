@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_FUNCTIONOUTPUTITERATOR
 #define INCLUDED_BDLB_FUNCTIONOUTPUTITERATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provides an output iterator for a client-supplied functor.
@@ -165,13 +163,9 @@ BSLS_IDENT("$Id: $")
 //  assert(28 == accumulator.total());
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlb {
