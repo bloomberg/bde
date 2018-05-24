@@ -494,7 +494,7 @@ class ObjectPool_CreatorConverter {
     // constructor.
 
     // DATA
-    TYPE d_creator;
+    const TYPE& d_creator;
 
   public:
     // CREATORS
