@@ -294,7 +294,7 @@ struct AlignmentToType {
 #ifdef BSLS_ALIGNMENTTOTYPE_USES_ALIGNAS
 
     // TYPES
-    class alignas(ALIGNMENT) Type { char d_c[ALIGNMENT]; };
+    class Type { alignas(ALIGNMENT) char d_c[ALIGNMENT]; };
 
 #else
 
