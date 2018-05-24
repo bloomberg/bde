@@ -1600,7 +1600,7 @@ int main(int argc, char* argv[])
 //..
         bsl::string message = "This is a test message.";
 //..
-// Then generate a checksum for 'message'.
+// Now, generate a checksum for 'message'.
 //..
         unsigned int checksum = bdlde::Crc32c::calculate(message.c_str(),
                                                          message.size());
