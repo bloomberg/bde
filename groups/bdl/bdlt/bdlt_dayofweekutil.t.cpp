@@ -133,20 +133,21 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
-// Suppose we have some event occuring every ten days. Today is the day of the
-// performance, Friday, and we want to know when the previous one took place
-// and when the next one will be.
+// Suppose we have some event occurring every ten days.  Today is the day of
+// the performance, Friday, and we want to know when the previous one took
+// place and when the next one will be.
+//
 // First, we create a 'bdlt::DayOfWeek' variable for the current day:
 //..
     bdlt::DayOfWeek::Enum current = bdlt::DayOfWeek::e_FRI;
 //..
-// Next, we calculate previous and following event days using
+// Next, we calculate previous and following event days using the
 // 'bdlt::DayOfWeekUtil::add' function:
 //..
     bdlt::DayOfWeek::Enum previous  = bdlt::DayOfWeekUtil::add(current, -10);
     bdlt::DayOfWeek::Enum following = bdlt::DayOfWeekUtil::add(current,  10);
 //..
-// Finally, we verify the resultant days of week:
+// Finally, we verify the resultant days of the week:
 //..
     ASSERT(bdlt::DayOfWeek::e_TUE == previous );
     ASSERT(bdlt::DayOfWeek::e_MON == following);
