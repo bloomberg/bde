@@ -366,8 +366,9 @@ BSLS_IDENT("$Id$")
 // And we may have another number 1, which we know to be accurate to 6
 // significant digits.  We would display the former number as '1.00' and the
 // latter number as '1.00000'.  The decimal floating-point types are able to
-// store both numbers *and* their precision using so call cohorts.  The '1.00'
-// will be stored as '100e-2' while '1.00000' will be stored as 100000e-5.
+// store both numbers *and* their precision using so called cohorts.  The
+// '1.00' will be stored as '100e-2' while '1.00000' will be stored as
+// '100000e-5'.
 //
 // Cohorts compare equal, and mostly behave the same way in calculation except
 // when it comes to the accuracy of the result.  If I have a number that is
