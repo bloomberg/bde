@@ -16,7 +16,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a utility 'struct',
 // 'bdlt::DayOfWeekUtil', that defines a function to determine the day of the
-// week shifted from a given date by a certain number of days.
+// week that results from shifting a given 'bdlt::DayOfWeek::Enum' value by a
+// given (signed) number of days.
 //
 ///Usage
 ///------
@@ -25,8 +26,8 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Basic Usage
 /// - - - - - - - - - - -
 // Suppose we have some event occurring every ten days.  Today is the day of
-// the performance, Friday, and we want to know when the previous one took
-// place and when the next one will be.
+// the performance, assumed to be a Friday, and we want to know when the
+// previous one took place and when the next one will be.
 //
 // First, we create a 'bdlt::DayOfWeek' variable for the current day:
 //..
@@ -38,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //  bdlt::DayOfWeek::Enum previous  = bdlt::DayOfWeekUtil::add(current, -10);
 //  bdlt::DayOfWeek::Enum following = bdlt::DayOfWeekUtil::add(current,  10);
 //..
-// Finally, we verify the resultant days of the week:
+// Finally, we verify the resultant day-of-week values:
 //..
 //  assert(bdlt::DayOfWeek::e_TUE == previous );
 //  assert(bdlt::DayOfWeek::e_MON == following);
@@ -61,15 +62,15 @@ namespace bdlt {
 
 struct DayOfWeekUtil {
     // This 'struct' provides a namespace for common non-primitive procedures
-    // that operate on 'bdlt::DayOfWeek::Enum' objects.
+    // that operate on 'bdlt::DayOfWeek::Enum' values.
 
     // CLASS METHODS
     static BSLS_CPP11_CONSTEXPR DayOfWeek::Enum add(DayOfWeek::Enum dayOfWeek,
-                                                     int             numDays);
+                                                    int             numDays);
         // Return the 'DayOfWeek::Enum' value that is the specified (signed)
-        // 'numDays' from the specified 'dayOfWeek'.  Note that the days of
-        // week are closed under this operation (in the expected manner).  For
-        // example, the following hold 'true':
+        // 'numDays' from the specified 'dayOfWeek'.  Note that
+        // 'DayOfWeek::Enum' is closed under this operation (in the expected
+        // manner).  For example, the following hold 'true':
         //..
         //  DayOfWeek::e_MON == DayOfWeekUtil::add(DayOfWeek::e_SUN,  1);
         //  DayOfWeek::e_SAT == DayOfWeekUtil::add(DayOfWeek::e_SUN, -1);
