@@ -774,8 +774,7 @@ int BerEncoder::encodeImpl(const TYPE&                value,
          if (d_options->disableUnselectedChoiceEncoding()) {
 
             this->logError(tagClass,
-                           tagNumber,
-                           bdlat_TypeName::name(value));
+                           tagNumber);
 
             return k_FAILURE;                                         // RETURN
          }
@@ -1094,9 +1093,7 @@ int BerEncoder_UniversalElementVisitor::operator()(const TYPE& value)
                               d_formattingMode,
                               TypeCategory())) {
         d_encoder->logError(BerConstants::e_UNIVERSAL,
-                            tagNumber,
-                            0  // bdlat_TypeName::name(value)
-                           );
+                            tagNumber);
         return k_FAILURE;
     }
 

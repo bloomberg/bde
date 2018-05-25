@@ -796,7 +796,7 @@ bool balber::operator!=(const BerEncoderOptions& lhs,
                                            rhs.encodeDateAndTimeTypesAsBinary()
          || lhs.datetimeFractionalSecondPrecision() !=
                                         rhs.datetimeFractionalSecondPrecision()
-         || lhs.disableUnselectedChoiceEncoding() ==
+         || lhs.disableUnselectedChoiceEncoding() !=
                                          rhs.disableUnselectedChoiceEncoding();
 }
 
