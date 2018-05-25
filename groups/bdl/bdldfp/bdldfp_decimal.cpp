@@ -58,9 +58,9 @@ namespace {
 template <class CHARTYPE>
 class NotIsSpace {
     // Helper function object type used to skip spaces in strings
-    const bsl::ctype<CHARTYPE>& d_ctype;
+    const bsl::ctype<CHARTYPE> *d_ctype;
   public:
-    explicit NotIsSpace(const bsl::ctype<CHARTYPE>& ctype);
+    explicit NotIsSpace(const bsl::ctype<CHARTYPE> *ctype);
         // Construct a 'NotIsSpace' object, using the specified 'ctype'.
     bool operator()(CHARTYPE character) const;
         // Return 'true' if the specified 'character' is a space (according to
@@ -72,7 +72,7 @@ class NotIsSpace {
                     // ----------------
 
 template <class CHARTYPE>
-NotIsSpace<CHARTYPE>::NotIsSpace(const bsl::ctype<CHARTYPE>& ctype)
+NotIsSpace<CHARTYPE>::NotIsSpace(const bsl::ctype<CHARTYPE> *ctype)
 : d_ctype(ctype)
 {
 }
@@ -81,7 +81,7 @@ template <class CHARTYPE>
 bool
 NotIsSpace<CHARTYPE>::operator()(CHARTYPE character) const
 {
-    return !this->d_ctype.is(bsl::ctype_base::space, character);
+    return !this->d_ctype->is(bsl::ctype_base::space, character);
 }
 
                          // Print helper function
@@ -187,7 +187,7 @@ doGetCommon(ITER_TYPE                    begin,
         }
     }
     // spaces between sign and value
-    begin = bsl::find_if(begin, end, NotIsSpace<CHAR_TYPE>(ctype));
+    begin = bsl::find_if(begin, end, NotIsSpace<CHAR_TYPE>(&ctype));
     // non-fractional part
     while (begin != end && to != toEnd
              && (ctype.is(bsl::ctype_base::digit, *begin)

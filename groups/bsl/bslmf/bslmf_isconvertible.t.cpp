@@ -126,7 +126,7 @@ void aSsErT(bool condition, const char *message, int line)
     // Macros to provide simple cv-qualifier decorations for types, enabling a
     // more table-like presentation of a sequence of test cases.
 
-#if BSLS_PLATFORM_CMP_VERSION >= 1910 && BSLS_PLATFORM_CMP_VERSION <= 1912
+#if BSLS_PLATFORM_CMP_VERSION >= 1910 && BSLS_PLATFORM_CMP_VERSION <= 1914
 # define BSLMF_ISCONVERTIBLE_MSVC_VOLATILE_BUG
     // Microsoft Visual Studio 2017 has a bug in its 'is_convertible'
     // implementation when it is used with 'volatile' qualified non-fundamental
