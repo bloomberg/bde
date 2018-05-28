@@ -14,10 +14,16 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_dayofweek
 //
-//@DESCRIPTION: This component provides a utility 'struct',
-// 'bdlt::DayOfWeekUtil', that defines a function to determine the day of the
-// week that results from shifting a given 'bdlt::DayOfWeek::Enum' value by a
-// given (signed) number of days.
+//@DESCRIPTION: This utility component provides a 'struct',
+// 'bdlt::DayOfWeekUtil', that serves as a namespace for functions operating on
+// the day-of-week enumeration.
+//
+// This component provides the following (static) methods:
+//..
+//  'add'                      Determine the day of the week that results from
+//                             shifting a given 'bdlt::DayOfWeek::Enum' value
+//                             by a given (signed) number of days.
+//..
 //
 ///Usage
 ///------
