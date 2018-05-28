@@ -1,5 +1,5 @@
 {
-    "uors": ["bsl", "bdl", "btl", "bal", "bbl",
+    "uors": ["bsl", "bdl", "bal", "bbl",
              "inteldfp", "decnumber",
              "pcre2"],
     "rssuite_uors": ["bsl", "bdl", "bbl"],

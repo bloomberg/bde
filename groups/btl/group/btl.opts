@@ -1,3 +1,0 @@
-*        _  OPTS_FILE    =  btl.opts
-
-windows  _  STL_DEFINES  =  /DFD_SETSIZE=256
