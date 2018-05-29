@@ -320,12 +320,12 @@ int populateBufferLengthsSorted(bsl::vector<int> *bufferLengths)
     bufferLengths->push_back(16379);
     bufferLengths->push_back(16384);    // 16 Ki
     bufferLengths->push_back(16389);
-    // bufferLengths->push_back(65536);    // 64 Ki
-    // bufferLengths->push_back(262144);   // 256 Ki
-    // bufferLengths->push_back(1048576);  // 1 Mi
-    // bufferLengths->push_back(4194304);  // 4 Mi
-    // bufferLengths->push_back(16777216); // 16 Mi
-    // bufferLengths->push_back(67108864); // 64 Mi
+    bufferLengths->push_back(65536);    // 64 Ki
+    bufferLengths->push_back(262144);   // 256 Ki
+    bufferLengths->push_back(1048576);  // 1 Mi
+    bufferLengths->push_back(4194304);  // 4 Mi
+    bufferLengths->push_back(16777216); // 16 Mi
+    bufferLengths->push_back(67108864); // 64 Mi
 
     bsl::sort(bufferLengths->begin(), bufferLengths->end());
 
