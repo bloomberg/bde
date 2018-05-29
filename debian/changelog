@@ -1,11 +1,24 @@
-bsl-internal (3.9.0.0) unstable; urgency=low
+bsl-internal (3.9.1.0) unstable; urgency=low
 
+  * a653842e0 Bump bal/bdl/bbl versions to 3.9.1
+  * 6510bf374 Merge pull request #1908 from bde/review/pr/1906-rebased-releases/3.9.x
+  * 193d1ad92 Merge pull request #1891 from hversche/pr/1890-rebased-releases/3.9.x
+  * ec8140b86 Merge pull request #1887 from bchapman/pr/1866-rebased-releases/3.9.x
+  * c66671ccb Merge pull request #1879 from cwilson/pr/1870-rebased-releases/3.9.x
+  * dc3778367 Merge pull request #1878 from mgiroux/pr/1877-rebased-releases/3.9.x
+  * 4b140d9f9 Merge pull request #1874 from cwilson/pr/1867-rebased-releases/3.9.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 29 May 2018 13:27:55 -0400
+
+bsl-internal (3.9.0.0) git; urgency=low
+
+  * 0e8fa237c Changelog for version 3.9.0.0
   * 2bd36c9cc Bump bal/bbl/bdl/btl versions to 3.9.0
   * f0a1a674b balst: enable DWARF to cope with gcc version >= 7
   * ed311baef add static_cast to avert -Wconversion warning-as-error build failure
   * 148ea97aa Merge pull request #1757 from hrosen4/bad-conversion_drqs-118092561
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 14 May 2018 12:13:31 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 14 May 2018 14:08:36 -0400
 
 bsl-internal (3.7.0.0) git; urgency=low
 
