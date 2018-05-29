@@ -43,9 +43,9 @@ BSLS_IDENT("$Id$")
 //
 ///Performance
 ///-----------
-// See IMPLEMENTATION NOTES in the '.cpp' to compare performance of the
-// hardware-accelerated and software implementations against various
-// alternative implementations that compute a 32-bit CRC checksum.
+// See the test driver for this component in the '.t.cpp' to compare
+// performance of the hardware-accelerated and software implementations against
+// various alternative implementations that compute a 32-bit CRC checksum.
 //
 ///Usage
 ///-----
@@ -84,6 +84,8 @@ BSLS_IDENT("$Id$")
 #include <bdlscm_version.h>
 #endif
 
+#include <bsl_cstddef.h>
+
 namespace BloombergLP {
 namespace bdlde {
 
@@ -103,7 +105,7 @@ struct Crc32c {
 
     // CLASS METHODS
     static unsigned int calculate(const void   *data,
-                                  unsigned int  length,
+                                  bsl::size_t   length,
                                   unsigned int  crc = k_NULL_CRC32C);
         // Return the CRC32-C value calculated for the specified 'data' over
         // the specified 'length' number of bytes, using the optionally
@@ -123,7 +125,7 @@ struct Crc32c_Impl {
     // CLASS METHODS
     static
     unsigned int calculateSoftware(const void   *data,
-                                   unsigned int  length,
+                                   bsl::size_t   length,
                                    unsigned int  crc = Crc32c::k_NULL_CRC32C);
         // Return the CRC32-C value calculated for the specified 'data' over
         // the specified 'length' number of bytes, using the optionally
@@ -135,7 +137,7 @@ struct Crc32c_Impl {
     static
     unsigned int calculateHardwareSerial(
                                     const void   *data,
-                                    unsigned int  length,
+                                    bsl::size_t   length,
                                     unsigned int  crc = Crc32c::k_NULL_CRC32C);
         // Return the CRC32-C value calculated for the specified 'data' over
         // the specified 'length' number of bytes, using the optionally
