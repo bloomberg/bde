@@ -106,7 +106,7 @@ BSLS_CPP11_CONSTEXPR DayOfWeek::Enum DayOfWeekUtil::add(
     // The '+ 7' prevents a negative result.
 
     return static_cast<DayOfWeek::Enum>(
-            ((static_cast<int>(dayOfWeek) - 1 + numDays % 7) % 7 + 7) % 7 + 1);
+                  (static_cast<int>(dayOfWeek) - 1 + numDays % 7 + 7) % 7 + 1);
 }
 
 }  // close package namespace
