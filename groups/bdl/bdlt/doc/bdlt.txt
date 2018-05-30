@@ -58,6 +58,7 @@
   2. bdlt_datetimeimputil
      bdlt_datetimeinterval
      bdlt_dayofweekset
+     bdlt_dayofweekutil
      bdlt_serialdateimputil
 
   1. bdlt_calendarreverseiteratoradapter
@@ -122,6 +123,9 @@
 :
 : 'bdlt_dayofweekset':
 :      Provide an ordered set of (unique) 'bdlt::DayOfWeek::Enum' values.
+:
+: 'bdlt_dayofweekutil':
+:      Provide common non-primitive operations on 'bdlt::DayOfWeek::Enum'.
 :
 : 'bdlt_defaultcalendarcache':
 :      Provide a process-wide default 'bdlt::CalendarCache' object.
