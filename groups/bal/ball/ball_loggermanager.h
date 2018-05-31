@@ -654,7 +654,7 @@ BSLS_IDENT("$Id: $")
 //      assert(100 == equitiesCategory->passLevel());
 //      assert( 75 == equitiesCategory->triggerLevel());
 //      assert( 50 == equitiesCategory->triggerAllLevel());
-//
+//..
 // Finally, we create a 'ball::StreamObserver' object 'observer' that will
 // publish records to 'stdout' and register it with the logger manager
 // singleton.  Note that observers must be registered by name; this example
