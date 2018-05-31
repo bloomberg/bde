@@ -25,12 +25,13 @@ BSLS_IDENT("$Id: $")
 // single argument.  When compiling with C++03, this type must be either a
 // function pointer or otherwise have a type from which 'bslmf::ResultType' can
 // determine the result type of invoking the functor (see {bslmf_resulttype}).
-// The second parameter, designated 'ITERATOR', is the type of an object that
-// models an iterator from which values may be obtained, i.e., a type such that
-// 'bsl::iterator<ITERATOR>' exists and for which
+// determine the result type of invoking the functor (see
+// {'bslmf_resulttype'}).  The second parameter, designated 'ITERATOR', is the
+// type of an object that models an iterator from which values may be obtained,
+// i.e., a type such that 'bsl::iterator<ITERATOR>' exists and for which
 // 'bsl::iterator<ITERATOR>::iterator_category' derives from
-// 'bsl::input_iterator_tag' (see {bslstl_iterator}).  Note that object pointer
-// types qualify.
+// 'bsl::input_iterator_tag' (see {'bslstl_iterator'}).  Note that object
+// pointer types qualify.
 //
 // Note that 'bdlb::TransformIterator' is more useful in C++11 or later than in
 // C++03, because lambdas can be used as function objects to match a 'FUNCTOR'
