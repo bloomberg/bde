@@ -237,8 +237,8 @@ BSLS_IDENT("$Id: $")
 // example facility.  Note that such callbacks can improve performance for all
 // users of 'bdlt::CurrentTime', not just the 'ball' logger.
 //
-///Log Filename Pattern
-///--------------------
+///Log Filename Patterns
+///---------------------
 // The 'enableFileLogging' method supports the use of '%'-escape sequences to
 // specify log filenames.  The recognized sequences are as follows:
 //..
