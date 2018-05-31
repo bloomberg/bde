@@ -29,7 +29,6 @@ BSLS_IDENT("$Id$")
 //  snan        string    "snan"           none
 //  point       char      '.'              none
 //  exponent    char      'e'              none
-//
 //..
 //: o 'style': control how the decimal number is written.  If 'style' is
 //:   'e_SCIENTIFIC', the number is written as its sign, then a single digit,
@@ -41,7 +40,7 @@ BSLS_IDENT("$Id$")
 //:   'precision' digits and the decimal point are not written.  If 'style' is
 //:   'e_NATURAL', the number is written according to the description of
 //:   'to-scientific-string' found in
-//:   {http://speleotrove.com/decimal/decarith.pdf}.
+//:   http://speleotrove.com/decimal/decarith.pdf.
 //:
 //: o 'precision': control how many digits are written after the decimal point
 //:   if the decimal number is rendered in 'e_FIXED' and 'e_SCIENTIFIC'
