@@ -35,9 +35,8 @@ BSLS_IDENT("$Id: $")
 // the macros *before* the logger manager singleton has been initialized or
 // *after* it has been destroyed; however, control should not pass through any
 // macro use *during* logger manager singleton initialization or destruction.
-// See {Logger Manager Singleton Initialization} in the 'ball_loggermanager'
-// component-level documentation for details on the recommended procedure for
-// initializing the singleton.
+// See {'ball_loggermanager'|Logger Manager Singleton Initialization} for
+// details on the recommended procedure for initializing the singleton.
 //
 ///Thread Safety
 ///-------------
