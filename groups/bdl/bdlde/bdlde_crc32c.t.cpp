@@ -3,7 +3,9 @@
 
 // BDE
 #include <bdlde_crc32.h>
+
 #include <bdlf_bind.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -13,11 +15,15 @@
 #include <bsl_iterator.h>
 #include <bsl_numeric.h>
 #include <bsl_vector.h>
+
 #include <bslmt_barrier.h>
 #include <bslmt_threadgroup.h>
+
+#include <bsls_asserttest.h>
 #include <bsls_alignedbuffer.h>
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
+#include <bsls_log.h>
 #include <bsls_timeutil.h>
 
 #include <bslim_testutil.h>
@@ -35,12 +41,19 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test is an utility for calculating a CRC32-C checksum.
+// The component under test provides an interface for calculating a CRC32-C
+// checksum as an unsigned integer vaalue.  The checksum is calculated on a
+// sequence of data bytes and the data length using a hardware-acceselerated
+// implementation if supported and a software implementation otherwise.  We
+// need to verify that all CRC32-C implementations calculate the checksum
+// correctly.
 //
-// Below are performance comparisons of the hardware-accelerated and software
-// implementations against various alternative implementations that compute a
-// 32-bit CRC checksum.  They were obtained on a Linux machine with the
-// following CPU architecture:
+// Performance
+// -----------
+// Below are performance comparisons of the 64-bit Default (Hardware
+// Accelerated) and software implementations against various alternative
+// implementations that compute a  32-bit CRC checksum.  They were obtained on
+// a Linux machine with the following CPU architecture:
 //..
 //  $ lscpu
 //  Architecture:          x86_64
@@ -67,16 +80,16 @@ using namespace bsl;
 //  NUMA node1 CPU(s):     10-19,30-39
 //..
 //
-///Throughput
-/// - - - - -
+// Throughput
+// ----------
 //..
 //  Default (Hardware Acceleration)| 20.363 GB per second
 //  Software                       |  1.582 GB per second
 //  BDE 'bdlde::crc32'             |  0.374 GB per second
 //..
 //
-///Calculation Time
-/// - - - - - - - -
+// Calculation Time
+// ----------------
 // In the tables below:
 //: o !Time! is an average (in absolute nanoseconds) measured over a tight loop
 //:   of 100,000 iterations.
@@ -84,8 +97,8 @@ using namespace bsl;
 //: o !Size! is the size (in bytes) of a 'char *' of random input. Note that it
 //:   uses IEC base2 notation (e.g. 1Ki = 2^10 = 1024, 1Mi = 2^20 = 1,048,576).
 //
-///64-bit Default (Hardware Acceleration) vs. BDE's 'bdlde::crc32'
-///   -   -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+// 64-bit Default (Hardware Acceleration) vs. BDE's 'bdlde::crc32'
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //..
 //  ===========================================================================
 //  | Size(B) | Def time(ns) | bdlde::crc32 time(ns)| Ratio(bdlde::crc32 / Def)
@@ -116,8 +129,8 @@ using namespace bsl;
 //  |    64 Mi|       9976933|             169051561|                    16.944
 //..
 //
-///64-bit Software (SW) vs. BDE's 'bdlde::crc32'
-///   -   -  -  -  -  -  -  -  -  -  -  -  -  -
+// 64-bit Software (SW) vs. BDE's 'bdlde::crc32'
+// - - - - - - - - - - - - - - - - - - - - - - -
 //..
 //  ==========================================================================
 //  | Size(B) | SW time(ns) | bdlde::crc32 time(ns) | Ratio(bdlde::crc32 / SW)
@@ -148,8 +161,22 @@ using namespace bsl;
 //  |    64 Mi|     40705975|              169682572|                    4.168
 //..
 //
-///64-bit Default vs. the 'serial' CRC32-C implementation
-///   -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+// 64-bit Default vs. the 'serial' CRC32-C implementation
+// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Compare the 64-bit Default to a hardware-based implementation for
+// calculating CRC-32C in 64 bit mode (using SIMD - SSE 4.2) which issues the
+// specialized hardware instruction in 'serial' over a loop (as opposed to
+// 'triplet' -- three at a time).
+//
+// Both implementations ultimately leverage the same specialized hardware
+// instructions for calculating CRC32-C (Intel SSE4.2 'crc32' instruction).
+// However, there are differences in how fast they perform.  For sizes less
+// than 1024B, the 'serial' implementation is faster.  For sizes equal to or
+// larger than 1024B, the 'triplet' implementation is faster due to dividing
+// the buffer into three non-overlapping parts and processing three CRC32
+// calculations in parallel (see 'C(i)' in 'crc32c1024SseInt' in '.cpp' file or
+// refer to the white paper linked in the implementation for
+// 'crc32c1024SseInt').
 //..
 //  ========================================================================
 //  | Size(B) | Default time(ns) | Serial time(ns) | Ratio(Serial / Triplet)
@@ -191,16 +218,16 @@ using namespace bsl;
 //..
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [2] static int Crc32c::calculate(const void *, unsigned int, unsigned int);
-// [2] static int Crc32c_Impl::calculateSoftware(const void *, uint, uint);
-// [2] static int Crc32c_Impl::calculateHardwareSerial(const void *,uint,uint);
-// [3] static int Crc32c::calculate(const void *, unsigned int, unsigned int);
-// [3] static int Crc32c_Impl::calculateSoftware(const void *, uint, uint);
-// [3] static int Crc32c_Impl::calculateHardwareSerial(const void *,uint,uint);
-// [4] static int Crc32c::calculate(const void *, unsigned int, unsigned int);
-// [4] static int Crc32c_Impl::calculateSoftware(const void *, uint, uint);
-// [5] static int Crc32c::calculate(const void *, unsigned int, unsigned int);
-// [6] static int Crc32c_Impl::calculateSoftware(const void *, uint, uint);
+// [2] int Crc32c::calculate(const void *, size_t, unsigned int);
+// [3] int Crc32c::calculate(const void *, size_t, unsigned int);
+// [4] int Crc32c::calculate(const void *, size_t, unsigned int);
+// [5] int Crc32c::calculate(const void *, size_t, unsigned int);
+// [2] int Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
+// [3] int Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
+// [4] int Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
+// [6] int Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
+// [2] int Crc32c_Impl::calculateHardwareSerial(const void *, size_t, uint);
+// [3] int Crc32c_Impl::calculateHardwareSerial(const void *, size_t, uint);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
@@ -251,9 +278,27 @@ static void aSsErT(int c, const char *s, int i)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+static int                test;
+static int             verbose;
+static int         veryVerbose;
+static int     veryVeryVerbose;
+static int veryVeryVeryVerbose;
+static bslma::TestAllocator *pa;
 
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
@@ -423,13 +468,6 @@ void printTable(bsl::ostream&                   out,
 //                                    TESTS
 // ----------------------------------------------------------------------------
 
-static int                test;
-static int             verbose;
-static int         veryVerbose;
-static int     veryVeryVerbose;
-static int veryVeryVeryVerbose;
-static bslma::TestAllocator *pa;
-
 void test1_breathingTest()
     // ------------------------------------------------------------------------
     // BREATHING TEST
@@ -465,8 +503,7 @@ void test1_breathingTest()
         if (veryVerbose) Q(BUFFER);
 
         const char         *BUFFER         = "12345678";
-        const unsigned int  LENGTH         = static_cast<unsigned int>(
-                                                               strlen(BUFFER));
+        const size_t        LENGTH         = strlen(BUFFER);
         const unsigned int  EXPECTED       = 0x6087809A;
         unsigned int        crc32cDefault  = 0;
         unsigned int        crc32cSoftware = 0;
@@ -490,7 +527,7 @@ void test1_breathingTest()
         if (veryVerbose) Q(NULL BUFFER);
 
         // Test edge case of null buffer and length = 0
-        const unsigned int EXPECTED    = 0;
+        const unsigned int EXPECTED       = 0;
         unsigned int       crc32cDef      = 0;
         unsigned int       crc32cSW       = 0;
         unsigned int       crc32cHWSerial = 0;
@@ -512,7 +549,7 @@ void test1_breathingTest()
         if (veryVerbose) Q(LENGTH PARAMETER EQUAL TO 0);
 
         const char   *BUFFER         = "12345678";
-        unsigned int  LENGTH         = 0;
+        size_t        LENGTH         = 0;
         unsigned int  EXPECTED       = 0; // because LENGTH = 0
         unsigned int  crc32cDefault  = 0;
         unsigned int  crc32cSoftware = 0;
@@ -532,7 +569,7 @@ void test1_breathingTest()
         ASSERTV(L_, crc32cHWSerial, EXPECTED, crc32cHWSerial == EXPECTED);
 
         // Compute value for whole BUFFER
-        LENGTH         = static_cast<unsigned int>(strlen(BUFFER));
+        LENGTH         = strlen(BUFFER);
         EXPECTED       = 0x6087809A;
         crc32cDefault  = 0;
         crc32cSoftware = 0;
@@ -598,8 +635,7 @@ void test1_breathingTest()
         crc32cHWSerial = Crc32c_Impl::calculateHardwareSerial(BUFFER,
                                                               PREFIX_LENGTH);
 
-        const unsigned int REST_LENGTH = static_cast<unsigned int>(
-                                               strlen(BUFFER) - PREFIX_LENGTH);
+        const size_t REST_LENGTH = strlen(BUFFER) - PREFIX_LENGTH;
 
         // Default
         crc32cDefault = Crc32c::calculate(BUFFER + PREFIX_LENGTH,
@@ -630,15 +666,36 @@ void test2_calculateOnBuffer()
     //: 1 Verify the correctness of computing CRC32-C on a buffer w/o a
     //:   previous CRC (which would have to be taken into account if it were
     //:   provided) using both the default and software implementations.
+    //:
+    //: 2 Ensure that there are no CRC collisions for possible combination of
+    //:   1, 2 bytes.
+    //:
+    //: 3 QoI: Asserted precondition violations are detected when enabled.
     //
     // Plan:
     //: 1 Calculate CRC32-C for various buffers and compare the results to the
     //:   known correct CRC32-C values for these buffers.
+    //:
+    //: 2 For C-2 create an integer array using 'bsl::vector<int>' and fill it
+    //: as follows:
+    //:   2.1 Loop through all the possible values for an 'unsigned char'
+    //:       (0 .. 255) and add its CRC32-C value to the array.
+    //:   2.2 Then loop through all the possible values for a 16-bit
+    //:       'unsigned short' (0 .. 65535) and add its CRC32-C value to the
+    //:       array.
+    //:   2.3 Again, loop through all the possible values for a 16-bit
+    //:       'unsigned short', but insert a 0-valued byte in between the
+    //:       2 bytes.  Calculate the CRC32-C and add it to the array.
+    //:   2.4 Repeat step (P-2.3), but insert a 1-valued byte instead of a
+    //:       0-valued byte.
+    //:   2.5 Sort the array, then assert that each CRC value in the array
+    //:       (except for the 0th array element) differs from the CRC value
+    //:       immediately preceding it in the array.
     //
     // Testing:
-    //   bdlde::Crc32c::calculate(const void *, unsigned int, unsigned int);
-    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, uint, uint);
-    //   bdlde::Crc32c_Impl::calculateHardwareSerial(const void *, uint, uint);
+    //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
+    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
+    //   bdlde::Crc32c_Impl::calculateHardwareSerial(const void *,size_t,uint);
     // ------------------------------------------------------------------------
 {
     if (verbose) bsl::cout << bsl::endl
@@ -679,8 +736,7 @@ void test2_calculateOnBuffer()
     {
         const int           LINE     = DATA[ti].d_line;
         const char         *BUFFER   = DATA[ti].d_buffer;
-        const unsigned int  LENGTH   = static_cast<unsigned int>(
-                                                               strlen(BUFFER));
+        const size_t        LENGTH   = strlen(BUFFER);
         const unsigned int  EXPECTED = DATA[ti].d_expectedCrc32c;
 
         if (veryVerbose) {
@@ -689,6 +745,7 @@ void test2_calculateOnBuffer()
 
         // Default
         unsigned int crc32cDefault  = Crc32c::calculate(BUFFER, LENGTH);
+
         // Software
         unsigned int crc32cSoftware = Crc32c_Impl::calculateSoftware(BUFFER,
                                                                      LENGTH);
@@ -720,6 +777,83 @@ void test2_calculateOnBuffer()
         LOOP2_ASSERT(LINE, crc32cSoftware, crc32cSoftware == 0u);
         LOOP2_ASSERT(LINE, crc32cHWSerial, crc32cHWSerial == 0u);
     }
+
+    // P-2
+    if (veryVerbose) cout << "\tCollision test." << endl;
+    {
+        bsl::vector<int> a(pa);
+        bsl::vector<int> b(pa);
+        bsl::vector<int> c(pa);
+
+        // one byte
+        for (int i = 0; i < 256; ++i) {
+            unsigned char data = (unsigned char)i;
+            a.push_back(Crc32c::calculate(&data, 1));
+            b.push_back(Crc32c_Impl::calculateSoftware(&data, 1));
+            c.push_back(Crc32c_Impl::calculateHardwareSerial(&data, 1));
+        }
+
+        // two bytes
+        for (int i = 0; i < 65536; ++i) {
+            unsigned char data[2];
+            data[0] = (unsigned char)(i / 256);
+            data[1] = (unsigned char)(i % 256);
+            a.push_back(Crc32c::calculate(&data, 2));
+            b.push_back(Crc32c_Impl::calculateSoftware(&data, 2));
+            c.push_back(Crc32c_Impl::calculateHardwareSerial(&data, 2));
+        }
+
+        // two bytes with a zero separator
+        for (int i = 0; i < 65536; ++i) {
+            unsigned char data[3];
+            data[0] = (unsigned char)(i / 256);
+            data[1] = 0;
+            data[2] = (unsigned char)(i % 256);
+            a.push_back(Crc32c::calculate(&data, 3));
+            b.push_back(Crc32c_Impl::calculateSoftware(&data, 3));
+            c.push_back(Crc32c_Impl::calculateHardwareSerial(&data, 3));
+        }
+
+        // two bytes with a one separator
+        for (int i = 0; i < 65536; ++i) {
+            unsigned char data[3];
+            data[0] = (unsigned char)(i / 256);
+            data[1] = 1;
+            data[2] = (unsigned char)(i % 256);
+            a.push_back(Crc32c::calculate(&data, 3));
+            b.push_back(Crc32c_Impl::calculateSoftware(&data, 3));
+            c.push_back(Crc32c_Impl::calculateHardwareSerial(&data, 3));
+        }
+
+        bsl::sort(a.begin(), a.end());
+        for (unsigned int i = 1; i < a.size(); ++i) {
+            ASSERT(a[i] != a[i - 1]);
+        }
+        bsl::sort(b.begin(), b.end());
+        for (unsigned int i = 1; i < b.size(); ++i) {
+            ASSERT(b[i] != b[i - 1]);
+        }
+        bsl::sort(c.begin(), c.end());
+        for (unsigned int i = 1; i < c.size(); ++i) {
+            ASSERT(c[i] != c[i - 1]);
+        }
+    }
+
+    if (veryVerbose) cout << "\tNegative testing." << endl;
+    {
+        bsls::AssertTestHandlerGuard hG;
+        size_t VALID   = 0;
+        size_t INVALID = 100;
+
+        ASSERT_PASS(0 == Crc32c::calculate(0, VALID));
+        ASSERT_FAIL(0 == Crc32c::calculate(0, INVALID));
+
+        ASSERT_PASS(0 == Crc32c_Impl::calculateSoftware(0, VALID));
+        ASSERT_FAIL(0 == Crc32c_Impl::calculateSoftware(0, INVALID));
+
+        ASSERT_PASS(0 == Crc32c_Impl::calculateHardwareSerial(0, VALID));
+        ASSERT_FAIL(0 == Crc32c_Impl::calculateHardwareSerial(0, INVALID));
+    }
 }
 
 void test3_calculateOnMisalignedBuffer()
@@ -729,6 +863,9 @@ void test3_calculateOnMisalignedBuffer()
     // Concerns:
     //: 1 Ensure that calculating CRC32-C on a buffer that is not at an
     //:   alignment boundary yields the same result as for one that is.
+    //:
+    //: 2 Ensure that CRC32-C is calculated on a buffer of the specified
+    //:   length.
     //
     // Plan:
     //: 1 Generate buffers at an alignment boundary consisting of '1 <= i <= 7'
@@ -737,9 +874,9 @@ void test3_calculateOnMisalignedBuffer()
     //:   the beginning of the aligned buffer.
     //
     // Testing:
-    //   bdlde::Crc32c::calculate(const void *, unsigned int, unsigned int);
-    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, uint, uint);
-    //   bdlde::Crc32c_Impl::calculateHardwareSerial(const void *, uint, uint);
+    //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
+    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
+    //   bdlde::Crc32c_Impl::calculateHardwareSerial(const void *,size_t,uint);
     // ------------------------------------------------------------------------
 {
     if (verbose) bsl::cout
@@ -795,8 +932,7 @@ void test3_calculateOnMisalignedBuffer()
 
         const int           LINE     = DATA[ti].d_line;
         const char         *BUFFER   = DATA[ti].d_buffer;
-        const unsigned int  LENGTH   = static_cast<unsigned int>(
-                                                               strlen(BUFFER));
+        const size_t        LENGTH   = strlen(BUFFER);
         const unsigned int  EXPECTED = DATA[ti].d_expectedCrc32c;
 
         if (veryVerbose) {
@@ -804,8 +940,8 @@ void test3_calculateOnMisalignedBuffer()
         }
         for (unsigned int i = 1; i < k_MY_ALIGNMENT; ++i)
         {
-
-            const unsigned int NEW_LENGTH = LENGTH + i + 1;
+            const size_t TAIL_LENGTH = 10;
+            const size_t NEW_LENGTH = LENGTH + i + TAIL_LENGTH;
 
             // Sanity check: aligned buffer sufficiently large for some prefix
             //               padding plus the test data, and the test data is
@@ -817,11 +953,10 @@ void test3_calculateOnMisalignedBuffer()
                                                                 k_MY_ALIGNMENT)
                             != 0);
 
-            bsl::memset(allocPtr, '\0', NEW_LENGTH);
-
             // Create a C-string with 'i' characters preceding the test buffer:
-            // 'XX...X<test.d_bufer>'
-            bsl::memset(allocPtr, 'X', i);
+            // 'XX...X<test.d_bufer>XX...X'
+            bsl::memset(allocPtr, 'X', NEW_LENGTH);
+            allocPtr[NEW_LENGTH - 1] = '\0';
             bsl::memcpy(allocPtr + i, BUFFER, LENGTH);
 
             if (veryVeryVerbose) {
@@ -870,8 +1005,8 @@ void test4_calculateOnBufferWithPreviousCrc()
     //:   values to the known correct crc32c values for these buffers.
     //
     // Testing:
-    //   bdlde::Crc32c::calculate(const void *, unsigned int, unsigned int);
-    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, uint, uint);
+    //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
+    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
     // ------------------------------------------------------------------------
 {
     if (verbose) bsl::cout
@@ -882,7 +1017,7 @@ void test4_calculateOnBufferWithPreviousCrc()
     struct {
         int          d_line;
         const char  *d_buffer;
-        unsigned int d_prefixLen;
+        size_t       d_prefixLen;
         unsigned int d_expectedCrc32c;
     } DATA[] = {
         // Note that for d_buffer[0:d_prefixLen] (the prefix string ) we
@@ -917,10 +1052,9 @@ void test4_calculateOnBufferWithPreviousCrc()
     {
         const int           LINE       = DATA[ti].d_line;
         const char         *BUFFER     = DATA[ti].d_buffer;
-        const unsigned int  PREFIX_LEN = DATA[ti].d_prefixLen;
-        const unsigned int  SUFFIX_LEN = static_cast<unsigned int>(
-                                                  strlen(BUFFER) - PREFIX_LEN);
-        const unsigned int  EXPECTED = DATA[ti].d_expectedCrc32c;
+        const size_t        PREFIX_LEN = DATA[ti].d_prefixLen;
+        const size_t        SUFFIX_LEN = strlen(BUFFER) - PREFIX_LEN;
+        const unsigned int  EXPECTED   = DATA[ti].d_expectedCrc32c;
 
         if (veryVerbose) {
             T_  P(BUFFER);
@@ -1009,7 +1143,7 @@ void test5_multithreadedCrc32cDefault()
     //:   serial.
     //
     // Testing:
-    //   bdlde::Crc32c::calculate(const void *, unsigned int, unsigned int);
+    //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
     // ------------------------------------------------------------------------
 {
     if (verbose) bsl::cout << bsl::endl
@@ -1017,8 +1151,8 @@ void test5_multithreadedCrc32cDefault()
                            << "===========================" << bsl::endl;
 
     enum {
-        k_NUM_PAYLOADS = 10000
-      , k_NUM_THREADS  = 10
+        k_NUM_PAYLOADS = 10000,
+        k_NUM_THREADS  = 10
     };
 
     // Input buffers
@@ -1072,7 +1206,7 @@ void test5_multithreadedCrc32cDefault()
         for (unsigned int j = 0; j < k_NUM_PAYLOADS; ++j)
         {
             LOOP4_ASSERT(i, j, serialCrc32cData[j],   currThreadCrc32cData[j],
-                              serialCrc32cData[j] == currThreadCrc32cData[j]);
+                               serialCrc32cData[j] == currThreadCrc32cData[j]);
         }
     }
 
@@ -1087,7 +1221,7 @@ void test6_multithreadedCrc32cSoftware()
     // MULTITHREAD SOFTWARE CRC32-C
     //
     // Concerns:
-    //: 1 Test mqbp::Crc32c_Impl::calculateSoftware(const void *, unsigned int)
+    //: 1 Test 'bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t)'
     //:   in a multi-threaded environment, making sure that each CRC32-C is
     //:   computed correctly across all threads when they perform the
     //:   calculation concurrently.
@@ -1103,7 +1237,7 @@ void test6_multithreadedCrc32cSoftware()
     //:   CRC32-C values calculated in serial.
     //
     // Testing:
-    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, uint, uint);
+    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
     // ------------------------------------------------------------------------
 {
     if (verbose) bsl::cout << bsl::endl
@@ -1111,8 +1245,8 @@ void test6_multithreadedCrc32cSoftware()
                            << "============================" << bsl::endl;
 
     enum {
-        k_NUM_PAYLOADS = 10000
-      , k_NUM_THREADS  = 10
+        k_NUM_PAYLOADS = 10000,
+        k_NUM_THREADS  = 10
     };
 
     // Input buffers
@@ -1166,13 +1300,12 @@ void test6_multithreadedCrc32cSoftware()
                                                           threadsCrc32cData[i];
         for (unsigned int j = 0; j < k_NUM_PAYLOADS; ++j) {
             LOOP4_ASSERT(i, j, serialCrc32cData[j],   currThreadCrc32cData[j],
-                              serialCrc32cData[j] == currThreadCrc32cData[j]);
+                               serialCrc32cData[j] == currThreadCrc32cData[j]);
         }
     }
 
     // Delete allocated payloads
-    for (unsigned int i = 0; i < k_NUM_PAYLOADS; ++i)
-    {
+    for (unsigned int i = 0; i < k_NUM_PAYLOADS; ++i) {
         pa->deallocate(payloads[i]);
     }
 }
@@ -1199,7 +1332,7 @@ void testN1_performanceDefault()
     //:   to that of 'bdlde::crc32'.
     //
     // Testing:
-    //   bdlde::Crc32c::calculate(const void *, unsigned int, unsigned int);
+    //   bdlde::Crc32c::calculate(const void *, size_t int, unsigned int);
     // ------------------------------------------------------------------------
 {
     if (verbose) bsl::cout << bsl::endl
@@ -1221,10 +1354,10 @@ void testN1_performanceDefault()
         const int length = bufferLengths[i];
 
         if (veryVerbose) bsl::cout
-                             << "---------------------\n"
-                             << " SIZE = " << length << '\n'
+                             << "---------------------"         << '\n'
+                             << " SIZE = " << length            << '\n'
                              << " ITERATIONS = " << k_NUM_ITERS << '\n'
-                             << "---------------------\n";
+                             << "---------------------"         << bsl::endl;
 
         //===================================================================//
         //                        [1] Crc32c (default)
@@ -1272,13 +1405,12 @@ void testN1_performanceDefault()
             printf("  CRC32 (BDE)      : %02x%02x%02x%02x\n",
                    sum[0], sum[1], sum[2], sum[3]);
 
-            bsl::cout << "Average Time(ns)\n"
-                      << "  Default                       : " << rcd.d_timeOne
-                      << '\n'
-                      << "  bdlde::Crc32                  : " << rcd.d_timeTwo
-                      << '\n'
-                      << "  Ratio (bdlde::Crc32 / Default): " << rcd.d_ratio
-                      << "\n\n";
+            bsl::cout
+               << "Average Time(ns)\n"
+               << "  Default                       : " << rcd.d_timeOne << '\n'
+               << "  bdlde::Crc32                  : " << rcd.d_timeTwo << '\n'
+               << "  Ratio (bdlde::Crc32 / Default): " << rcd.d_ratio   << '\n'
+               << bsl::endl;
         }
     }
 
@@ -1301,10 +1433,9 @@ void testN2_performanceSoftware()
     // PERFORMANCE: CALCULATE CRC32-C ON BUFFER SOFTWARE
     //
     // Concerns:
-    //: 1 Test the performance of bdlde::Crc32c_Impl::calculateSoftware(
-    //:                                                          const void *,
-    //:                                                          unsigned int);
-    //:   in a single thread environment. This will explicitly use the software
+    //: 1 Test the performance of
+    //:   'bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t)' in a
+    //:   single thread environment. This will explicitly use the software
     //:   implementation.
     //
     // Plan:
@@ -1313,7 +1444,7 @@ void testN2_performanceSoftware()
     //:   to that of 'bdlde::crc32'.
     //
     // Testing:
-    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, uint, uint);
+    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
     // ------------------------------------------------------------------------
 {
     if (verbose) bsl::cout << bsl::endl
@@ -1426,8 +1557,8 @@ void testN3_calculateThroughput()
     //:    throughput of each implementation using its average.
     //
     // Testing:
-    //   bdlde::Crc32c::calculate(const void *, unsigned int, unsigned int);
-    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, uint, uint);
+    //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
+    //   bdlde::Crc32c_Impl::calculateSoftware(const void *, size_t, uint);
     // ------------------------------------------------------------------------
 {
     if (verbose) bsl::cout
@@ -1560,18 +1691,17 @@ void testN4_calculateHardwareSerial()
     //
     // Concerns:
     //: 1 Test the performance of
-    //:           bdlde::Crc32c::calculate(const void *, unsigned int  length);
+    //:   'bdlde::Crc32c::calculate(const void *, size_t length)'
     //:   and compare its performance to Facebook folly's implementation
-    //:   bdlde::Crc32c_Impl::calculateHardwareSerial(const void *,
-    //:                                               unsigned int);
+    //:   'bdlde::Crc32c_Impl::calculateHardwareSerial(const void *, size_t)'.
     //
     // Plan:
     //: 1 Time a large number of crc32c calculations for buffers of varying
     //:   sizes, single threaded.
     //
     // Testing:
-    //   bdlde::Crc32c::calculate(const void *, unsigned int, unsigned int);
-    //   bdlde::Crc32c_Impl::calculateHardwareSerial(const void *, uint, uint);
+    //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
+    //   bdlde::Crc32c_Impl::calculateHardwareSerial(const void *,size_t,uint);
     // ------------------------------------------------------------------------
 {
     if (verbose) bsl::cout << bsl::endl
@@ -1592,10 +1722,10 @@ void testN4_calculateHardwareSerial()
     for (unsigned i = 0; i < bufferLengths.size(); ++i) {
         const int length = bufferLengths[i];
 
-        if (verbose) bsl::cout << "---------------------\n"
-                                   << " SIZE = " << length << '\n'
-                                   << " ITERATIONS = " << k_NUM_ITERS << '\n'
-                                   << "---------------------\n";
+        if (verbose) bsl::cout << "---------------------"         << '\n'
+                               << " SIZE = " << length            << '\n'
+                               << " ITERATIONS = " << k_NUM_ITERS << '\n'
+                               << "---------------------"         << bsl::endl;
 
         //===============================================================//
         //                     [1] Crc32c (default)
@@ -1640,13 +1770,12 @@ void testN4_calculateHardwareSerial()
             printf("  CRC32-C (HW Serial): %02x%02x%02x%02x\n",
                    sum[0], sum[1], sum[2], sum[3]);
 
-            bsl::cout << "Average Times(ns)\n"
-                      << "  CRC32-C (Default)          : "
-                      << record.d_timeOne << '\n'
-                      << "  CRC32-C (HW Serial)        : "
-                      << record.d_timeTwo << '\n'
-                      << "  Ratio (HW Serial / Default): "
-                      << record.d_ratio << "\n\n";
+            bsl::cout
+               << "Average Times(ns)\n"
+               << "  CRC32-C (Default)          : " << record.d_timeOne << '\n'
+               << "  CRC32-C (HW Serial)        : " << record.d_timeTwo << '\n'
+               << "  Ratio (HW Serial / Default): " << record.d_ratio   << '\n'
+               << bsl::endl;
         }
         // Print performance comparison table
         bsl::vector<bsl::string> headerCols(pa);
@@ -1665,12 +1794,12 @@ void testN5_performanceDefaultUserInput()
     // PERFORMANCE: CALCULATE CRC32-C DEFAULT ON USER INPUT
     //
     // Concerns:
-    //: 1 Test the performance of bdlde::Crc32c::calculate(const void *,
-    //:                                                    unsigned int);
-    //:   on an user input.
+    //: 1 Test the performance of
+    //:   'bdlde::Crc32c::calculate(const void *, unsigned int)' on an user
+    //:   input.
     //
     // Testing:
-    //   bdlde::Crc32c::calculate(const void *, unsigned int, unsigned int);
+    //   bdlde::Crc32c::calculate(const void *, size_t, unsigned int);
     // ------------------------------------------------------------------------
 {
     if (verbose) bsl::cout << bsl::endl
@@ -1727,6 +1856,8 @@ int main(int argc, char* argv[])
     pa = &ta;
 
     bsls::TimeUtil::initialize();
+
+    bsls::Log::setSeverityThreshold(bsls::LogSeverity::e_INFO);
 
     switch(test) { case 0:
       case 7: {

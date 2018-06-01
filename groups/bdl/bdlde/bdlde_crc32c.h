@@ -78,13 +78,14 @@ BSLS_IDENT("$Id$")
 //                                      newChunk.size(),
 //                                      checksum);
 //..
-//
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
+#endif
 
 namespace BloombergLP {
 namespace bdlde {
@@ -98,7 +99,7 @@ struct Crc32c {
     // checksum.
 
   public:
-    // CONSTANTS
+    // DATA
     static const unsigned int k_NULL_CRC32C = 0U;
         // CRC32-C value for a 0 length input.  Note that a buffer with this
         // CRC32-C value need not be a 0 length input.
