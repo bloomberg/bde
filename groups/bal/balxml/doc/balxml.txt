@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide utility components for using XML and XSD.
 
-@MNEMONIC: Basic Application Environment XML (balxml)
+@MNEMONIC: Basic Application Library XML (balxml)
 
 @AUTHOR: Rohan Bhindwale (rbhindwa)
 
@@ -53,13 +53,13 @@
 :      Provide push parser for Base64 types.
 :
 : 'balxml_configschema':
-:      Provide the 'baexml' schema
+:      Provide the 'baexml' schema.
 :
 : 'balxml_decoder':
 :      Provide a generic translation from XML into C++ objects.
 :
 : 'balxml_decoderoptions':
-:      Provide value-semantic attribute classes
+:      Provide value-semantic attribute classes.
 :
 : 'balxml_elementattribute':
 :      Provide the properties of an attribute in an XML element tag.
@@ -68,10 +68,10 @@
 :      Provide an XML encoder utility.
 :
 : 'balxml_encoderoptions':
-:      Provide value-semantic attribute classes
+:      Provide value-semantic attribute classes.
 :
 : 'balxml_encodingstyle':
-:      Provide value-semantic attribute classes
+:      Provide value-semantic attribute classes.
 :
 : 'balxml_errorinfo':
 :      Provide common error information for XML components.

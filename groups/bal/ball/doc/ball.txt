@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide thread-safe logging toolkit suitable for all platforms.
 
-@MNEMONIC: Basic Application Environment Logging (ball)
+@MNEMONIC: Basic Application Library Logging (ball)
 
 @AUTHOR Tom Marshall (tmarshal)
 

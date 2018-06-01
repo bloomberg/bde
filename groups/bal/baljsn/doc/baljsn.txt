@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide components for encoding/decoding in the JSON format.
 
-@MNEMONIC: Basic Application Environment JSoN (baljsn)
+@MNEMONIC: Basic Application Library JSoN (baljsn)
 
 @AUTHOR: Rohan Bhindwale (rbhindwa)
 
@@ -91,7 +91,7 @@ BDEM_DOUBLE       decimal       double          number/string   <DOUBLE>
 
                   double        double          number/string   <DOUBLE>
 
-BDEM_STRING       string        bsl::string     string          <STRING>  
+BDEM_STRING       string        bsl::string     string          <STRING>
 
 BDEM_DATETIME     dateTime      bdet_Datetime   string          "<DATETIME>"
 
@@ -144,7 +144,7 @@ of EBNF is provided below (refer here for more details):
          or more times
 ( ... ) (parenthesis) are used to group elements
 
-<VOID>            Results in an encoding error 
+<VOID>            Results in an encoding error
 
 <BOOLEAN>         'true' | 'false';
 

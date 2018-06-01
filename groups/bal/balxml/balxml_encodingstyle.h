@@ -14,7 +14,7 @@
 BSLS_IDENT_RCSID(baexml_encodingstyle_h,"$Id$ $CSID$ $CCId$")
 BSLS_IDENT_PRAGMA_ONCE
 
-//@PURPOSE: Provide value-semantic attribute classes
+//@PURPOSE: Provide value-semantic attribute classes.
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwale@bloomberg.net)
 //

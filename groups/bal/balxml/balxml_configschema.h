@@ -14,7 +14,7 @@
 BSLS_IDENT_RCSID(baexml_configschema_h,"$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
-//@PURPOSE: Provide the 'baexml' schema
+//@PURPOSE: Provide the 'baexml' schema.
 //
 //@CLASSES:
 // balxml::ConfigSchema: the  configuration schema
