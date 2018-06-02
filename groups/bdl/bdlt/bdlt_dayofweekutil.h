@@ -59,6 +59,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_dayofweek.h>
 #endif
 
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
+#endif
+
 namespace BloombergLP {
 namespace bdlt {
 

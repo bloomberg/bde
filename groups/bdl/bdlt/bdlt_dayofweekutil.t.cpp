@@ -6,6 +6,7 @@
 #include <bsls_asserttest.h>
 
 #include <bsl_climits.h>       // 'INT_MAX', 'INT_MIN'
+#include <bsl_cstdlib.h>       // 'atoi'
 #include <bsl_iostream.h>      // 'cout'
 
 using namespace BloombergLP;
