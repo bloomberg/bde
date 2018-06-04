@@ -6,6 +6,7 @@
 #include <ball_attributecontainer.h>
 #include <ball_attributecontainerlist.h>
 #include <ball_attributecontext.h>
+#include <ball_scopedattribute.h>
 #include <ball_defaultattributecontainer.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_predicate.h>
@@ -148,6 +149,9 @@ using bsl::flush;
 // [29] CONCERN: 'BALL_LOG_*_BLOCK' MACROS
 // [30] CONCERN: 'BALL_LOGCB_*_BLOCK' MACROS
 // [31] CONCERN: DEGENERATE LOG MACROS USAGE
+// [33] RULE-BASED LOGGING USAGE EXAMPLE
+// [34] CLASS-SCOPE LOGGING USAGE EXAMPLE
+// [35] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -638,20 +642,22 @@ namespace BloombergLP {
   {
       (void)data;  // suppress "unused" warning
 //..
-// We add our attributes to the generic "default" attribute container.  In
-// practice we could create a more efficient attribute container
-// implementation specifically for these three attributes (uuid, luw, and
-// terminalNumber).  See the 'ball::attributeContainer' component documentation
-// for an example.
+// We add our attributes using 'ball::ScopedAttributes' which adds the
+// attributes to a linked list.  This is easy and efficient if the number of
+// attributes is small, but should not be used if there are a large number of
+// attributes.  In practice we could use 'ball::DefaultAttributeContainer'
+// (which uses a hash table), or even create a more efficient attribute
+// container implementation specifically for these three attributes (uuid,
+// luw, and terminalNumber).  See {'ball_attributecontext'} for an example of
+// using a different attribute container, and {'ball_attributecontainer'}
+// for an example of creating a custom attribute container.
 //..
-      ball::DefaultAttributeContainer attributes;
-      attributes.addAttribute(ball::Attribute("uuid", uuid));
-      attributes.addAttribute(ball::Attribute("luw", luw));
-      attributes.addAttribute(ball::Attribute("terminalNumber",
-                                             terminalNumber));
-      ball::AttributeContext *context = ball::AttributeContext::getContext();
-      ball::AttributeContext::iterator it =
-                                         context->addAttributes(&attributes);
+      // Do NOT use 'ScopedAttribute' if there are a large number of
+      // attributes!
+
+      ball::ScopedAttribute uuidAttribute("uuid", uuid);  // do not use
+      ball::ScopedAttribute luwAttribute("luw", luw);
+      ball::ScopedAttribute termNumAttribute("terminalNumber",terminalNumber);
 //..
 // In this simplified example we perform no actual processing, and simply log
 // a message at the 'ball::Severity::DEBUG' level.
@@ -660,10 +666,11 @@ namespace BloombergLP {
 
       BALL_LOG_DEBUG << "An example message";
 //..
-// Because 'attributes' is defined on this thread's stack, it must be removed
-// from this thread's attribute context before exiting the function.
+// Notice that if we were not using a "scoped" attribute container (e.g.,
+// 'ball_defaultattributecontainer'), then the container **must** be
+// removed from the 'ball::AttributeContext' before it is destroyed! (see
+// 'bael_attributecontext' for an example).
 //..
-      context->removeAttributes(it);
   }
 //..
 

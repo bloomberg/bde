@@ -272,6 +272,11 @@
 :
 : o Optional functors and other parameters allow customized logging behavior
 :   (e.g., default threshold levels, category name filtering)
+:
+: o The ability to configure thread-context dependent rules for logging (e.g.,
+:   configuring more verbose logging for threads processing a request for
+:   a particular user id).  See {'Rule-Based Logging'} below.
+
 
  The 'ball' package provides a flexible logging toolkit that supports several
  standard and non-standard features.  Perhaps most notable among the
@@ -683,6 +688,54 @@
  (hypothetical) external category names "EQUITY.MARKET.NYSE" and
  "equity.market.nyse" would be mapped to the same category internally by the
  presumed 'toLower' functor.
+
+/Rule-Based Logging
+/------------------
+The 'ball' logging toolkit provides a set of components that collectively 
+allow clients to define rules to modify logging severity levels depending
+on attributes associated with the current thread.  The canonical example of 
+rule based logging is to enable verbose logging when processing requests
+for a particular user in a service.
+
+A usage example can be found in {'Example 8: Rule-Based Logging'}.
+
+To enable rule-based logging clients must do two things:
+: 1. Configure a set of (process-wide) rules to set logging thresholds based on
+:    'ball::Attribute' values
+:
+: 2. Associate (on a per-thread basis) 'ball::Attribute' values with the
+:    current thread
+
+The configuration of process-wide rules is accomplished by creating rules 
+(see {'ball_rule'}) that set a logging category's logging thresholds if a set
+of predicates are all 'true' (see {'ball_predicate'}).   For example, a 
+'ball::Rule' might express: set the logging threshold for any logging 
+category starting with the prefix "DATABASE" to 'TRACE' if the "userid" is 
+123456 and the "requesttype" is "trade" (where "userid" and "requesttype" are
+names of attributes that will be associated with a processing thread).  
+Clients can then call 'ball::LoggerManager::addRule' to add this rule to the
+logger manager.
+
+To associate an attribute (like "userid" and "requesttype") with a particular
+thread, clients must add a 'ball::AttributeContainer' describing the
+attribute to the 'ball::AttributeContext' (note that an attribute context 
+is a thread local object).  The simplest means for doing this is to create a
+'ball::ScopedAttribute' object as a local variable, which adds an attribute 
+container that exists for the lifetime of the scoped-attribute object.  A 
+'ball::ScopedAttribute' appends an attribute to a linked list, which is easy
+and efficient if there are only a small number of attributes.  Clients
+with a large number of attributes could use a 
+'ball::DefaultAttributeContainer', which maintains a hash-table of attributes,
+however clients *must* take care to remove the container from the 
+'ball::AttributeContext' before the object goes out of scope and is destroyed 
+(see 'ball_attributecontext for an example).  Finally, clients may also provide
+their own implementations of 'ball::AttributeContainer' customized for their
+needs (e.g., creating a simple, efficient 'ball::AttributeContainer' especially
+for the "userid" and "requesttype"), see 'ball_attributecontainer' for an 
+example.
+
+{'Example 8: Rule-Based Logging'} below demonstrates creating a simple logging
+rules, and associating attributes with a processing thread.
 
 /A Note on Multi-Threaded Logging Usage
 /--------------------------------------
@@ -1314,6 +1367,8 @@
   Called again directly from 'main'
 ..
 
+
+
 /Example 5: Logging in Two Threads
 /- - - - - - - - - - - - - - - - -
  This example illustrates how to use logging in a multi-threaded application.
@@ -1909,6 +1964,112 @@
 
   27SEP2007_14:09:31.197 1615 3 WARN logging.m.cpp 29 Function 2 Message 0
 ..
+
+/Example 8: Rule-Based Logging
+/- - - - - - - - - - - - - - -
+ The following example demonstrates the use of attributes and rules to
+ conditionally enable logging.  See the {'Rule-Based Logging'} section 
+ above.
+
+ We start by defining a function, 'processData', that is passed data in a
+ 'vector<char>' and information about the user who sent the data.  This
+ example function performs no actual processing, but does log a single
+ message at the 'ball::Severity::DEBUG' threshold level.  The 'processData'
+ function also adds the user information passed to this function to the
+ thread's attribute context.  We will use these attributes later, to create a
+ logging rule that enables verbose logging only for a particular user.
+..
+  void processData(int                      uuid,
+                   int                      luw,
+                   int                      terminalNumber,
+                   const bsl::vector<char>& data)
+      // Process the specified 'data' associated with the specified Bloomberg
+      // 'uuid', 'luw', and 'terminalNumber'.
+  {
+      (void)data;  // suppress "unused" warning
+..
+ We add our attributes using 'ball::ScopedAttributes' which adds the
+ attributes to a linked list.  This is easy and efficient if the number of
+ attributes is small, but should not be used if there are a large number of
+ attributes.  In practice we could use 'ball::DefaultAttributeContainer'
+ (which uses a hash table), or even create a more efficient attribute
+ container implementation specifically for these three attributes (uuid,
+ luw, and terminalNumber).  See {'ball_attributecontext'} for an example of
+ using a different attribute container, and {'ball_attributecontainer'}
+ for an example of creating a custom attribute container.
+..
+    // Do NOT use 'ScopedAttribute' if there are a large number of
+    // attributes!
+
+    ball::ScopedAttribute uuidAttribute("uuid", uuid);  // do not use
+    ball::ScopedAttribute luwAttribute("luw", luw);
+    ball::ScopedAttribute termNumAttribute("terminalNumber",terminalNumber);
+..
+ In this simplified example we perform no actual processing, and simply log
+ a message at the 'ball::Severity::DEBUG' level.
+..
+    BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
+
+    BALL_LOG_DEBUG << "An example message";
+..
+ Notice that if we were not using a "scoped" attribute container (e.g.,
+ 'ball_defaultattributecontainer'), then the container **must** be
+ removed from the 'ball::AttributeContext' before it is destroyed! (see
+ 'bael_attributecontext' for an example).
+..
+}
+..
+ Next we demonstrate how to create a logging rule that sets the pass-through
+ logging threshold to 'ball::Severity::TRACE' (i.e., enables verbose logging)
+ for a particular user when calling the 'processData' function defined
+ above.
+
+ We start by creating the singleton logger manager that we configure with
+ the stream observer and a default configuration.  We then call the
+ 'processData' function: This first call to 'processData' will not result in
+ any logged messages because 'processData' logs its message at the
+ 'ball::Severity::DEBUG' level, which is below the default configured logging
+ threshold.
+..
+  ball::StreamObserver observer(&bsl::cout);
+  ball::LoggerManagerConfiguration configuration;
+  ball::LoggerManagerScopedGuard lmg(&observer, configuration);
+
+  BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
+
+  bsl::vector<char> message;
+
+  BALL_LOG_ERROR << "Processing the first message.";
+  processData(3938908, 2, 9001, message);
+..
+ Now we add a logging rule, setting the pass-through threshold to be
+ 'ball::Severity::TRACE' (i.e., enabling verbose logging) if the thread's
+ context contains a "uuid" of '3938908'.  Note that we use the wild-card
+ value '*' for the category so that the 'ball::Rule' rule will apply to all
+ categories.
+..
+  ball::Rule rule("*", 0, ball::Severity::TRACE, 0, 0);
+  rule.addPredicate(ball::Predicate("uuid", 3938908));
+  ball::LoggerManager::singleton().addRule(rule);
+
+  BALL_LOG_ERROR << "Processing the second message.";
+  processData(3938908, 2, 9001, message);
+..
+ The final call to the 'processData' function below, passes a "uuid" of
+ '2171395' (not '3938908') so the logging rule we defined will *not* apply
+ and no message will be logged.
+..
+  BALL_LOG_ERROR << "Processing the third message.";
+  processData(2171395, 2, 9001, message);
+..
+ The resulting logged output for this example looks like the following:
+..
+ ERROR example.cpp:105 EXAMPLE.CATEGORY Processing the first message.
+ ERROR example.cpp:117 EXAMPLE.CATEGORY Processing the second message.
+ DEBUG example.cpp:35 EXAMPLE.CATEGORY An example message
+ ERROR example.cpp:129 EXAMPLE.CATEGORY Processing the third message.
+..
+
 
 /Appendix: Macro Reference
 /-------------------------

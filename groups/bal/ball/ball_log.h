@@ -566,35 +566,36 @@ BSLS_IDENT("$Id: $")
 //  {
 //      (void)data;  // suppress "unused" warning
 //..
-// We create a generic "default" attribute container to hold our attributes.
-// Note that, in practice, we might choose to define a more efficient
-// implementation of the 'ball::AttributeContainer' protocol specifically for
-// these three attributes, uuid, luw, and firmNumber.  See the
-// 'ball_attributecontainer' component documentation for an example.
+// We add our attributes using 'ball::ScopedAttributes' which adds the
+// attributes to a linked list.  This is easy and efficient if the number of
+// attributes is small, but should not be used if there are a large number of
+// attributes.  In practice we could use 'ball::DefaultAttributeContainer'
+// (which uses a hash table), or even create a more efficient attribute
+// container implementation specifically for these three attributes (uuid,
+// luw, and terminalNumber).  See {'ball_attributecontext'} for an example of
+// using a different attribute container, and {'ball_attributecontainer'}
+// for an example of creating a custom attribute container.
 //..
-//      ball::DefaultAttributeContainer attributes;
-//      attributes.addAttribute(ball::Attribute("uuid", uuid));
-//      attributes.addAttribute(ball::Attribute("luw", luw));
-//      attributes.addAttribute(ball::Attribute("terminalNumber",
-//                                              terminalNumber);
+//    // Do NOT use 'ScopedAttribute' if there are a large number of
+//    // attributes!
 //
-//      ball::AttributeContext *context = ball::AttributeContext::getContext();
-//      ball::AttributeContext::iterator it =
-//                                         context->addAttributes(&attributes);
+//    ball::ScopedAttribute uuidAttribute("uuid", uuid);  // do not use
+//    ball::ScopedAttribute luwAttribute("luw", luw);
+//    ball::ScopedAttribute termNumAttribute("terminalNumber",terminalNumber);
 //..
 // In this simplified example we perform no actual processing, and simply log
 // a message at the 'ball::Severity::DEBUG' level.
 //..
-//      BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
+//    BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
 //
-//      BALL_LOG_DEBUG << "An example message";
+//    BALL_LOG_DEBUG << "An example message";
 //..
-// Because 'attributes' is defined on this thread's stack, it must be removed
-// from this thread's attribute context before exiting the function (the
-// 'ball_scopedattributes' component provides a proctor for this purpose).
+// Notice that if we were not using a "scoped" attribute container (e.g.,
+// 'ball_defaultattributecontainer'), then the container **must** be
+// removed from the 'ball::AttributeContext' before it is destroyed! (see
+// 'bael_attributecontext' for an example).
 //..
-//      context->removeAttributes(it);
-//  }
+//}
 //..
 // Next we demonstrate how to create a logging rule that sets the pass-through
 // logging threshold to 'ball::Severity::TRACE' (i.e., enables verbose logging)
