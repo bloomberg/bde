@@ -199,11 +199,17 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_ANNOTATION_USED       __attribute__((__used__))
     #define BSLS_ANNOTATION_UNUSED     __attribute__((__unused__))
-    #define BSLS_ANNOTATION_ERROR(x)   __attribute__((__error__(x)))
-    #define BSLS_ANNOTATION_WARNING(x) __attribute__((__warning__(x)))
 #else
     #define BSLS_ANNOTATION_USED
     #define BSLS_ANNOTATION_UNUSED
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_GNU)
+    // '__error__' and '__warning__' attributes are not supported by clang as
+    // of version 7.0.
+    #define BSLS_ANNOTATION_ERROR(x)   __attribute__((__error__(x)))
+    #define BSLS_ANNOTATION_WARNING(x) __attribute__((__warning__(x)))
+#else
     #define BSLS_ANNOTATION_ERROR(x)
     #define BSLS_ANNOTATION_WARNING(x)
 #endif
