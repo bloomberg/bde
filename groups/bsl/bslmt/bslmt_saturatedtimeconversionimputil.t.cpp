@@ -1277,7 +1277,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) Q(Demonstrate saturation on 8 byte unsigned);
 
-                Obj::toTimeSpec(&ts, bsls::TimeInterval(-(1l << 48),
+                Obj::toTimeSpec(&ts, bsls::TimeInterval(-(1LL << 48),
                                                         -987654321));
                 ASSERT(0 == ts.tv_sec);
                 ASSERT(0 == ts.tv_nsec);
