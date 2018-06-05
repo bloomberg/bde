@@ -12,8 +12,8 @@
 #include <stdlib.h>
 #include <string.h>     // strlen
 
-#include <sys/types.h>  // struct stat: required on Sun and Windows only
-#include <sys/stat.h>   // struct stat: required on Sun and Windows only
+#include <sys/types.h>  // struct stat[64]: required on Sun and Windows only
+#include <sys/stat.h>   // struct stat[64]: required on Sun and Windows only
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 # include <windows.h>   // MAX_PATH
@@ -320,6 +320,21 @@ static int verbose, veryVerbose, veryVeryVerbose;
 
 namespace {
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+typedef struct stat StatType;
+#else
+typedef struct stat64 StatType;
+#endif
+
+inline int fstatFunc(int fd, StatType *buf)
+{
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    return fstat(fd, buf);
+#else
+    return fstat64(fd, buf);
+#endif
+}
+
 bool tempFileName(char *result)
     // Create a temporary file and store its name in the user-supplied buffer
     // at the address pointed to by the specified 'result'.  Return 'true' if
@@ -395,7 +410,7 @@ class OutputRedirector {
     long d_outputSize;                        // Size of output loaded into
                                               // 'd_outputBuffer'
 
-    struct stat d_originalStdoutStat;         // Status information for
+    StatType d_originalStdoutStat;            // Status information for
                                               // 'stdout' just before
                                               // redirection.
 
@@ -481,7 +496,7 @@ class OutputRedirector {
         // scratch buffer, and non-zero otherwise.  The behavior is undefined
         // unless 'redirect' has been previously been called successfully.
 
-    const struct stat& originalStdoutStat();
+    const StatType& originalStdoutStat();
         // Return a reference to the status information for 'stdout' collected
         // just before redirection.  This method is used only to test the
         // correctness of 'OutputRedirector'.
@@ -494,7 +509,7 @@ OutputRedirector::OutputRedirector()
 , d_outputSize(0L)
 {
     d_fileName[0] = '\0';
-    memset(&d_originalStdoutStat, 0, sizeof(struct stat));
+    memset(&d_originalStdoutStat, 0, sizeof(d_originalStdoutStat));
 }
 
 OutputRedirector::~OutputRedirector()
@@ -553,7 +568,7 @@ void OutputRedirector::redirect()
 
     int originalStdoutFD = fileno(stdout);
     ASSERT(-1 != originalStdoutFD);
-    ASSERT(0 == fstat(originalStdoutFD, &d_originalStdoutStat));
+    ASSERT(0 == fstatFunc(originalStdoutFD, &d_originalStdoutStat));
 
     if (0 != redirectStream(stderr, stdout)) {
         // Redirect 'stderr' to 'stdout;.
@@ -765,7 +780,7 @@ int OutputRedirector::compare(const char *expected, size_t expectedLength)
            memcmp(d_outputBuffer, expected, expectedLength);
 }
 
-const struct stat& OutputRedirector::originalStdoutStat()
+const StatType& OutputRedirector::originalStdoutStat()
 {
     return d_originalStdoutStat;
 }
@@ -1770,7 +1785,7 @@ int main(int argc, char *argv[])
         //:    '<CRLF>' and confirm that these strings are correctly captured
         //:    and loaded.  (C-10)
         //:
-        //: 11 Use 'fstat' to find out the device and inode of the current
+        //: 11 Use 'fstat[64]' to find out the device and inode of the current
         //:    (post-redirection) 'stderr'.  Compare these values to the device
         //:    and inode of 'stdout' before redirection.  (C-11)
         // --------------------------------------------------------------------
@@ -1972,10 +1987,10 @@ int main(int argc, char *argv[])
             //: 11 stderr points to original target of stdout
             int newStderrFD = fileno(stderr);
             ASSERT(-1 != newStderrFD);
-            struct stat stderrStat;
+            StatType stderrStat;
             stderrStat.st_dev = output.originalStdoutStat().st_dev;
             stderrStat.st_rdev = output.originalStdoutStat().st_rdev;
-            ASSERT(-1 != fstat(newStderrFD, &stderrStat));
+            ASSERT(-1 != fstatFunc(newStderrFD, &stderrStat));
 #if !defined(BSLS_PLATFORM_OS_WINDOWS)
             // st_dev and st_rdev are not stable on Windows
             ASSERT(stderrStat.st_dev == output.originalStdoutStat().st_dev);
