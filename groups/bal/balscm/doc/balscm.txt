@@ -1,8 +1,8 @@
  balscm.txt
 
-@PURPOSE: Provide versioning information for library components in 'bal'
+@PURPOSE: Provide versioning information for library components in 'bal'.
 
-@MNEMONIC: Basic Application Environment Source Control Management (balscm)
+@MNEMONIC: Basic Application Library Source Control Management (balscm)
 
 @AUTHOR Tom Marshall (tmarshal)
 
@@ -36,4 +36,4 @@
 :      Provide source control management (versioning) information.
 :
 : 'balscm_versiontag':
-:      Provide versioning information for the 'bae' package group.
+:      Provide versioning information for the 'bal' package group.

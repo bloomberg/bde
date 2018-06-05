@@ -1,8 +1,8 @@
  balst.txt
 
-@PURPOSE: Provide a portable facility for obtaining & printing a stack trace
+@PURPOSE: Provide a portable facility for obtaining & printing a stack trace.
 
-@MNEMONIC: Basic Application Library STack utilities (balst)
+@MNEMONIC: Basic Application Library Stack Trace utilities (balst)
 
 @AUTHOR: Bill Chapman (bchapman2)
 
