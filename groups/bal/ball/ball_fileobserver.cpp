@@ -41,6 +41,36 @@ static const char *const k_DEFAULT_SHORT_FORMAT_WITHOUT_USERFIELDS =
                           // ------------------
 
 // CREATORS
+FileObserver::FileObserver()
+: d_logFileFormatter(k_DEFAULT_LONG_FORMAT, bdlt::DatetimeInterval(0), 0)
+, d_stdoutFormatter(k_DEFAULT_LONG_FORMAT, bdlt::DatetimeInterval(0), 0)
+, d_stdoutThreshold(Severity::e_WARN)
+, d_useRegularFormatOnStdoutFlag(true)
+, d_publishInLocalTime(false)
+, d_userFieldsLoggingFlag(true)
+, d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT, 0)
+, d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT, 0)
+, d_fileObserver2(0)
+{
+}
+
+FileObserver::FileObserver(bslma::Allocator *basicAllocator)
+: d_logFileFormatter(k_DEFAULT_LONG_FORMAT,
+                     bdlt::DatetimeInterval(0),
+                     basicAllocator)
+, d_stdoutFormatter(k_DEFAULT_LONG_FORMAT,
+                    bdlt::DatetimeInterval(0),
+                    basicAllocator)
+, d_stdoutThreshold(Severity::e_WARN)
+, d_useRegularFormatOnStdoutFlag(true)
+, d_publishInLocalTime(false)
+, d_userFieldsLoggingFlag(true)
+, d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT, basicAllocator)
+, d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT, basicAllocator)
+, d_fileObserver2(basicAllocator)
+{
+}
+
 FileObserver::FileObserver(Severity::Level   stdoutThreshold,
                            bslma::Allocator *basicAllocator)
 : d_logFileFormatter(k_DEFAULT_LONG_FORMAT,
@@ -227,6 +257,11 @@ void FileObserver::setStdoutThreshold(Severity::Level stdoutThreshold)
 }
 
 // ACCESSORS
+bslma::Allocator *FileObserver::allocator() const
+{
+    return d_stdoutLongFormat.allocator().mechanism();
+}
+
 void FileObserver::getLogFormat(const char **logFileFormat,
                                 const char **stdoutFormat) const
 {

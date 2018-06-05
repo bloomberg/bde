@@ -362,7 +362,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_integralconstant.h>
 
 #include <bslmt_mutex.h>
 
@@ -429,14 +429,21 @@ class FileObserver : public Observer {
     // NOT IMPLEMENTED
     FileObserver(const FileObserver&);
     FileObserver& operator=(const FileObserver&);
+    FileObserver(bslma::Allocator *, bslma::Allocator *);
+    FileObserver(Severity::Level, bslma::Allocator *, bslma::Allocator *);
+        // The constructors with double allocators are there to facilitate more
+        // understandable compiler warnings when people pass trailing
+        // allocators to 'make_shared<FileObserver>' and
+        // 'allocate_shared<FileObserver>'.
 
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(FileObserver, bslma::UsesBslmaAllocator);
-
     // CREATORS
-    explicit FileObserver(Severity::Level   stdoutThreshold = Severity::e_WARN,
-                          bslma::Allocator *basicAllocator  = 0);
+    FileObserver();
+    explicit
+    FileObserver(bslma::Allocator *basicAllocator);
+    explicit
+    FileObserver(Severity::Level   stdoutThreshold,
+                 bslma::Allocator *basicAllocator  = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the optionally specified
         // 'stdoutThreshold' level, and has file logging initially disabled.
@@ -665,6 +672,9 @@ class FileObserver : public Observer {
         // logging).
 
     // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the memory allocator used by this object.
+
     void getLogFormat(const char **logFileFormat,
                       const char **stdoutFormat) const;
         // Load the format specification for log records written by this file
@@ -858,6 +868,14 @@ int FileObserver::rotationSize() const
 }
 
 }  // close package namespace
+
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<ball::FileObserver> : bsl::true_type
+{};
+
+}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif
