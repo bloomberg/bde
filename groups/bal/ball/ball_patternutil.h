@@ -24,6 +24,10 @@ BSLS_IDENT("$Id: $")
 // provides utility functions for matching input strings to a given pattern
 // based on wild-card and simple escape sequences.
 //
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
+//
 ///Usage
 ///-----
 // The following code fragments illustrate basic usage of this component's

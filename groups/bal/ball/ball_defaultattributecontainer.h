@@ -29,6 +29,10 @@ BSLS_IDENT("$Id: $")
 // (case-sensitive) name and a value, which may be an 'int', a 64-bit integer,
 // or a 'bsl::string'.
 //
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
+//
 ///Thread Safety
 ///-------------
 // 'ball::DefaultAttributeContainer' is *const* *thread-safe*, meaning that

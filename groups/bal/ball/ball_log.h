@@ -567,15 +567,15 @@ BSLS_IDENT("$Id: $")
 //      (void)data;  // suppress "unused" warning
 //..
 // We add our attributes using 'ball::ScopedAttribute' which adds an attribute
-// container with one attribute to a list of containers.  This is easy and
+// container with a single attribute to a list of containers.  This is easy and
 // efficient if the number of attributes is small, but should not be used if
 // there are a large number of attributes.  If motivated, we could use
 // 'ball::DefaultAttributeContainer', which provides an efficient container for
 // a large number of attributes, or even create a more efficient attribute
 // container implementation specifically for these three attributes (uuid, luw,
-// and terminalNumber).  See {'ball_attributecontext'} for an example of using
-// a different attribute container, and {'ball_attributecontainer'} for an
-// example of creating a custom attribute container.
+// and terminalNumber).  See {'ball_scopedattributes'} (plural) for an example
+// of using a different attribute container, and {'ball_attributecontainer'}
+// for an example of creating a custom attribute container.
 //..
 //      // We use 'ball::ScopedAttribute' here because the number of
 //      // attributes is relatively small.
@@ -596,7 +596,7 @@ BSLS_IDENT("$Id: $")
 // provided automatically by 'ball::ScopedAttribute' (e.g., if we were using a
 // local 'ball::DefaultAttributeContainer' instead), then the container
 // **must** be removed from the 'ball::AttributeContext' before it is
-// destroyed!  See 'bael_attributecontext' for an example.
+// destroyed!  See 'ball_scopedattributes' (plural) for an example.
 //..
 //  }
 //..

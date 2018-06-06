@@ -142,16 +142,13 @@ using bsl::flush;
 // [27] BALL_LOG_IS_ENABLED(SEVERITY)
 // [28] BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)
 // ----------------------------------------------------------------------------
+// [29] CONCERN: 'BALL_LOG_*_BLOCK' MACROS
+// [30] CONCERN: 'BALL_LOGCB_*_BLOCK' MACROS
+// [31] CONCERN: DEGENERATE LOG MACROS USAGE
 // [32] USAGE EXAMPLE
 // [33] RULE-BASED LOGGING USAGE EXAMPLE
 // [34] CLASS-SCOPE LOGGING USAGE EXAMPLE
 // [35] BASIC LOGGING USAGE EXAMPLE
-// [29] CONCERN: 'BALL_LOG_*_BLOCK' MACROS
-// [30] CONCERN: 'BALL_LOGCB_*_BLOCK' MACROS
-// [31] CONCERN: DEGENERATE LOG MACROS USAGE
-// [33] RULE-BASED LOGGING USAGE EXAMPLE
-// [34] CLASS-SCOPE LOGGING USAGE EXAMPLE
-// [35] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -649,9 +646,9 @@ namespace BloombergLP {
 // 'ball::DefaultAttributeContainer', which provides an efficient container for
 // a large number of attributes, or even create a more efficient attribute
 // container implementation specifically for these three attributes (uuid, luw,
-// and terminalNumber).  See {'ball_attributecontext'} for an example of using
-// a different attribute container, and {'ball_attributecontainer'} for an
-// example of creating a custom attribute container.
+// and terminalNumber).  See {'ball_scopedattributes'} (plural) for an example
+// of using a different attribute container, and {'ball_attributecontainer'}
+// for an example of creating a custom attribute container.
 //..
         // We use 'ball::ScopedAttribute' here because the number of
         // attributes is relatively small.
@@ -672,7 +669,7 @@ namespace BloombergLP {
 // provided automatically by 'ball::ScopedAttribute' (e.g., if we were using a
 // local 'ball::DefaultAttributeContainer' instead), then the container
 // **must** be removed from the 'ball::AttributeContext' before it is
-// destroyed!  See 'bael_attributecontext' for an example.
+// destroyed!  See 'ball_scopedattributes' (plural) for an example.
 //..
     }
 //..
@@ -1728,7 +1725,7 @@ int main(int argc, char *argv[])
 
       case 35: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
+        // BASIC LOGGING USAGE EXAMPLE
         //
         // Concerns:
         //: 1 The usage example provided in the component header file must

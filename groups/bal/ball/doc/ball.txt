@@ -723,16 +723,16 @@ is a thread-local object).  The simplest means for doing this is to create a
 'ball::ScopedAttribute' object as a local variable, which adds an attribute
 container (holding a single attribute) that exists for the lifetime of the
 scoped-attribute object.  A 'ball::ScopedAttribute' appends a container having
-a single attribute to a linked list, which is easy and efficient if there are
-only a small number of attributes.  Clients with a large number of attributes
-could use a 'ball::DefaultAttributeContainer', which maintains a hash table of
-attributes, however clients *must* take care to remove the container from the
-'ball::AttributeContext' before the object goes out of scope and is destroyed
-(see 'ball_attributecontext' for an example).  Finally, clients may also
-provide their own implementations of 'ball::AttributeContainer' customized for
-their needs (e.g., by creating a simple, efficient 'ball::AttributeContainer'
-especially for the "userid" and "requesttype"); see 'ball_attributecontainer'
-for an
+a single attribute to a list of containers, which is easy and efficient if
+there are only a small number of attributes.  Clients with a large number of
+attributes could use a 'ball::DefaultAttributeContainer', which provides an
+efficient container for a large nubmber of attributes, however clients *must*
+take care to remove the container from the 'ball::AttributeContext' before the
+object goes out of scope and is destroyed.  See 'ball_scopedattributes'
+(plural), for an example.  Finally, clients may also provide their own
+implementations of 'ball::AttributeContainer' customized for their needs
+(e.g., by creating a simple, efficient 'ball::AttributeContainer' especially
+for the "userid" and "requesttype"); see 'ball_attributecontainer' for an
 example.
 
 {'Example 8: Rule-Based Logging'} below demonstrates creating a simple logging
@@ -1995,9 +1995,9 @@ rule, and associating attributes with a processing thread.
  'ball::DefaultAttributeContainer', which provides an efficient container for
  a large number of attributes, or even create a more efficient attribute
  container implementation specifically for these three attributes (uuid, luw,
- and terminalNumber).  See {'ball_attributecontext'} for an example of using
- a different attribute container, and {'ball_attributecontainer'} for an
- example of creating a custom attribute container.
+ and terminalNumber).  See {'ball_scopedattributes'} (plural) for an example
+ of using a different attribute container, and {'ball_attributecontainer'}
+ for an example of creating a custom attribute container.
 ..
       // We use 'ball::ScopedAttribute' here because the number of
       // attributes is relatively small.
@@ -2018,7 +2018,7 @@ rule, and associating attributes with a processing thread.
  provided automatically by 'ball::ScopedAttribute' (e.g., if we were using a
  local 'ball::DefaultAttributeContainer' instead), then the container
  **must** be removed from the 'ball::AttributeContext' before it is
- destroyed!  See 'bael_attributecontext' for an example.
+ destroyed!  See 'ball_scopedattributes' (plural) for an example.
 ..
   }
 ..

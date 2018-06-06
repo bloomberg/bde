@@ -95,7 +95,8 @@ BSLS_IDENT("$Id: $")
 //      attributes.insert(a2);
 //..
 // Next, we obtain a reference to the current thread's attribute context using
-// the 'getContext' class method:
+// the 'getContext' class method (note that in practice we would use a scoped
+// guard for this purpose, see {'ball_scopedattributes'}):
 //..
 //      ball::AttributeContext *context = ball::AttributeContext::getContext();
 //      assert(context);
