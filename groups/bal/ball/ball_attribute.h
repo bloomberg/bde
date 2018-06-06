@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 //
 // This component participates in the implementation of "Rule-Based Logging".
 // For more information on how to use that feature, please see the package
-// level documentation and usage examples for "Rule-Based logging".
+// level documentation and usage examples for "Rule-Based Logging".
 //
 // IMPORTANT: The attribute name, whose type is 'const char *', must therefore
 // remain valid throughout the life time of the 'ball::Attribute' object and

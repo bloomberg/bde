@@ -25,7 +25,7 @@
 //
 // This component participates in the implementation of "Rule-Based Logging".
 // For more information on how to use that feature, please see the package
-// level documentation and usage examples for "Rule-Based logging".
+// level documentation and usage examples for "Rule-Based Logging".
 //
 ///Usage
 ///-----
