@@ -1,4 +1,4 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 DEBHELPER_PATH=$(DISTRIBUTION_REFROOT)/opt/bb/libexec/bde-internal-tools/share/build
-include $(DEBHELPER_PATH)/bde-debhelper.mk
+include $(DEBHELPER_PATH)/bde-debhelper.cmake2.mk
