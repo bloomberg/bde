@@ -1113,7 +1113,7 @@ int main(int argc, char *argv[])
                   Obj mY(A1, A2, A3, &oa);  const Obj& Y = mY;
             const Obj YY(Y, &scratch);
 
-            if (veryVerbose) { T_ P_(X) P(Y) }
+            if (veryVeryVerbose) { T_ P_(X) P(Y) }
 
             bslma::TestAllocatorMonitor oam(&oa);
 
@@ -1123,7 +1123,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(XX, Y, XX == Y);
             ASSERT(oam.isTotalSame());
 
-            if (veryVerbose) { T_ P_(X) P(Y) }
+            if (veryVeryVerbose) { T_ P_(X) P(Y) }
         }
 
         // Verify no memory is allocated from the default allocator.
@@ -1135,7 +1135,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            if (veryVerbose) cout << "\t'swap' member function" << endl;
+            if (verbose) cout << "\t'swap' member function" << endl;
             {
                 bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
                 bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
@@ -1147,7 +1147,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_FAIL(mA.swap(mZ));
             }
 
-            if (veryVerbose) cout << "\t'swap' free function" << endl;
+            if (verbose) cout << "\t'swap' free function" << endl;
             {
                 bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
                 bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
@@ -2145,7 +2145,7 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nApply primary manipulators and verify expected values." << endl;
 
-        if (veryVerbose) { T_ Q(utcOffsetInSeconds) }
+        if (verbose) { T_ Q(utcOffsetInSeconds) }
         {
             mX.setUtcOffsetInSeconds(A1);
 
@@ -2157,7 +2157,7 @@ int main(int argc, char *argv[])
             ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
 
-        if (veryVerbose) { T_ Q(dstInEffectFlag) }
+        if (verbose) { T_ Q(dstInEffectFlag) }
         {
             mX.setDstInEffectFlag(A2);
 
@@ -2169,7 +2169,7 @@ int main(int argc, char *argv[])
             ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
 
-        if (veryVerbose) { T_ Q(description) }
+        if (verbose) { T_ Q(description) }
         {
             mX.setDescription(A3);
 
@@ -2517,23 +2517,16 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            const int  UTC    = 5 * 60 * 60;
             const bool FLAG   = true;
             const char DESC[] = "EST";
 
-            if (veryVerbose) cout << "\t'utcOffsetInSeconds'" << endl;
+            if (verbose) cout << "\t'utcOffsetInSeconds'" << endl;
             {
                 ASSERT_SAFE_FAIL(Obj(UTC_MIN - 1, FLAG, DESC));
                 ASSERT_SAFE_PASS(Obj(UTC_MIN    , FLAG, DESC));
 
                 ASSERT_SAFE_PASS(Obj(UTC_MAX    , FLAG, DESC));
                 ASSERT_SAFE_FAIL(Obj(UTC_MAX + 1, FLAG, DESC));
-            }
-
-            if (veryVerbose) cout << "\t'description'" << endl;
-            {
-                ASSERT_SAFE_PASS(Obj(UTC, FLAG, ""));
-                ASSERT_SAFE_FAIL(Obj(UTC, FLAG, 0 ));
             }
         }
       } break;
@@ -2890,19 +2883,13 @@ int main(int argc, char *argv[])
 
             Obj obj;
 
-            if (veryVerbose) cout << "\tutcOffsetInSeconds" << endl;
+            if (verbose) cout << "\tutcOffsetInSeconds" << endl;
             {
                 ASSERT_SAFE_FAIL(obj.setUtcOffsetInSeconds(UTC_MIN - 1));
                 ASSERT_SAFE_PASS(obj.setUtcOffsetInSeconds(UTC_MIN    ));
 
                 ASSERT_SAFE_PASS(obj.setUtcOffsetInSeconds(UTC_MAX    ));
                 ASSERT_SAFE_FAIL(obj.setUtcOffsetInSeconds(UTC_MAX + 1));
-            }
-
-            if (veryVerbose) cout << "\tdescription" << endl;
-            {
-                ASSERT_SAFE_PASS(obj.setDescription(""));
-                ASSERT_SAFE_FAIL(obj.setDescription( 0));
             }
         }
       } break;
@@ -2962,14 +2949,14 @@ int main(int argc, char *argv[])
 
         Obj mW;  const Obj& W = mW;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
+        if (verbose) cout << "\ta. Check initial value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.utcOffsetInSeconds());
         ASSERT(D2 == W.dstInEffectFlag());
         ASSERT(D3 == W.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
@@ -2981,14 +2968,14 @@ int main(int argc, char *argv[])
 
         Obj mX(W);  const Obj& X = mX;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
+        if (verbose) cout << "\ta. Check initial value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(D1 == X.utcOffsetInSeconds());
         ASSERT(D2 == X.dstInEffectFlag());
         ASSERT(D3 == X.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
 
         ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
@@ -3003,14 +2990,14 @@ int main(int argc, char *argv[])
         mX.setDstInEffectFlag(A2);
         mX.setDescription(A3);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
+        if (verbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.utcOffsetInSeconds());
         ASSERT(A2 == X.dstInEffectFlag());
         ASSERT(A3 == X.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
@@ -3023,14 +3010,14 @@ int main(int argc, char *argv[])
 
         Obj mY(A1, A2, A3);  const Obj& Y = mY;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
+        if (verbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
         ASSERT(A1 == Y.utcOffsetInSeconds());
         ASSERT(A2 == Y.dstInEffectFlag());
         ASSERT(A3 == Y.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
 
         ASSERT(0 == (Y == W));        ASSERT(1 == (Y != W));
@@ -3044,14 +3031,14 @@ int main(int argc, char *argv[])
 
         Obj mZ(Y);  const Obj& Z = mZ;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
+        if (verbose) cout << "\ta. Check initial value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(A1 == Z.utcOffsetInSeconds());
         ASSERT(A2 == Z.dstInEffectFlag());
         ASSERT(A3 == Z.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
 
         ASSERT(0 == (Z == W));        ASSERT(1 == (Z != W));
@@ -3068,14 +3055,14 @@ int main(int argc, char *argv[])
         mZ.setDstInEffectFlag(D2);
         mZ.setDescription(D3);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
+        if (verbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(D1 == Z.utcOffsetInSeconds());
         ASSERT(D2 == Z.dstInEffectFlag());
         ASSERT(D3 == Z.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
 
         ASSERT(1 == (Z == W));        ASSERT(0 == (Z != W));
@@ -3089,14 +3076,14 @@ int main(int argc, char *argv[])
                              "\t\t\t\t{ w:A x:A y:A z:D }" << endl;
         mW = X;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (verbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(A1 == W.utcOffsetInSeconds());
         ASSERT(A2 == W.dstInEffectFlag());
         ASSERT(A3 == W.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
@@ -3110,14 +3097,14 @@ int main(int argc, char *argv[])
                              "\t\t\t\t{ w:D x:A y:A z:D }" << endl;
         mW = Z;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (verbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.utcOffsetInSeconds());
         ASSERT(D2 == W.dstInEffectFlag());
         ASSERT(D3 == W.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
@@ -3131,14 +3118,14 @@ int main(int argc, char *argv[])
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
         mX = X;
 
-        if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
+        if (verbose) cout << "\ta. Check (same) value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.utcOffsetInSeconds());
         ASSERT(A2 == X.dstInEffectFlag());
         ASSERT(A3 == X.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));

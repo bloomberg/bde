@@ -265,7 +265,7 @@ namespace bslstl {
 
 void debugprint(const StringRef& value)
 {
-    for (int i = 0; i != value.length(); ++i) {
+    for (size_t i = 0; i != value.length(); ++i) {
         putchar(value[i]);
     }
 }
@@ -3610,6 +3610,14 @@ int main(int argc, char *argv[])
           ASSERT(XC2.begin()   == NON_EMPTY_STRING);
           ASSERT(XC2.end()     == NON_EMPTY_STRING
                                 + std::strlen(NON_EMPTY_STRING));
+        }
+
+        if (verbose) std::cout << "\nNegative Testing." << std::endl;
+        {
+            bsls::AssertTestHandlerGuard g;
+
+            ASSERT_SAFE_PASS_RAW(Obj(""));
+            ASSERT_SAFE_FAIL_RAW(Obj( 0));
         }
       } break;
       case 1: {

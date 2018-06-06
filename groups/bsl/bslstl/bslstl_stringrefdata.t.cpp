@@ -7,6 +7,9 @@
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 
+#include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
+
 #include <string>
 
 #include <stdio.h>
@@ -50,6 +53,9 @@ using namespace BloombergLP;
 //:   o copy-assignment
 //:   o swap
 //-----------------------------------------------------------------------------
+// CLASS METHODS
+// [12] size_t cStringLength(const CHAR_TYPE *data);
+//
 // CREATORS
 // [ 2] bslstl::StringRefData();
 // [ 2] bslstl::StringRefData(const char *begin, const char *end);
@@ -68,7 +74,7 @@ using namespace BloombergLP;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [10] Reserved for 'bslx' streaming.
 // [11] TYPE TRAITS
 
@@ -91,49 +97,27 @@ void aSsErT(int c, const char *s, int i) {
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and must not be called during exception testing.
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // 'P(X)' without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) {                    \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) {                  \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\t"); \
-                printf("%s", #M ": "); dbg_print(M); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");      // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n");  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", "); // P(X) without '\n'
-#define L_ __LINE__                         // current Line number
-#define T_ putchar('\t');                   // Print a tab (w/o newline)
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
 
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -294,7 +278,7 @@ int main(int argc, char *argv[])
     // CONCERN: This test driver is reusable w/other, similar components.
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -336,6 +320,93 @@ ASSERT(&*strObj.end()   == strRef.end());
 ASSERT(&*strObj.begin() == strRf2.begin());
 ASSERT(&*strObj.end()   == strRf2.end());
 //..
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'cStringLength'
+        //
+        // Concerns:
+        //: 1 'cStringLength' returns the same value as 'strlen'.
+        //:
+        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Check return value of 'cStringLength' for known strings. (C-1)
+        //:
+        //: 2 Test the asserted preconditions using the 'BSLS_ASSERTTEST_*'
+        //:   macros. (C-2)
+        //
+        // Testing:
+        //   TYPE TRAITS
+        //   size_t cStringLength(const CHAR_TYPE *data);
+        // --------------------------------------------------------------------
+          if (verbose) printf("\n"
+                              "TESTING 'cStringLength'\n"
+                              "=======================\n");
+
+          if (verbose) printf("\nchar\n");
+          {
+              typedef bslstl::StringRefData<char>    RefData;
+
+              const char data[] = "123456789012345678901234567890";
+              native_std::size_t numLetters = (sizeof(data) / sizeof(*data)) - 1;
+              ASSERT(0 != data[numLetters - 1]);
+              ASSERT(0 == data[numLetters    ]);
+
+              native_std::size_t sizes[] = { 0, 1, 2, 7, 30 };
+              enum { NUM_SIZES = sizeof(sizes) / sizeof(*sizes) };
+
+              for (int i = 0; i < NUM_SIZES; ++i) {
+                  if (veryVerbose) { T_ P_(i) P(sizes[i]) }
+
+                  native_std::size_t size = sizes[i];
+                  const char *input = data + numLetters - size;
+                  LOOP3_ASSERT(i, size,
+                               RefData::cStringLength(input),
+                               size == RefData::cStringLength(input));
+              }
+
+
+              if (verbose) printf("\tNegative Testing.\n");
+              {
+                  bsls::AssertTestHandlerGuard g;
+
+                  ASSERT_SAFE_PASS(RefData::cStringLength(""));
+                  ASSERT_SAFE_FAIL(RefData::cStringLength( 0));
+              }
+          }
+
+          if (verbose) printf("\nwchar_t\n");
+          {
+              typedef bslstl::StringRefData<wchar_t> WRefData;
+
+              const wchar_t data[] = L"123456789012345678901234567890";
+              native_std::size_t numLetters = (sizeof(data) / sizeof(*data)) - 1;
+              ASSERT(0 != data[numLetters - 1]);
+              ASSERT(0 == data[numLetters    ]);
+
+              native_std::size_t sizes[] = { 0, 1, 2, 7, 30 };
+              enum { NUM_SIZES = sizeof(sizes) / sizeof(*sizes) };
+
+              for (int i = 0; i < NUM_SIZES; ++i) {
+                  if (veryVerbose) { T_ P_(i) P(sizes[i]) }
+
+                  native_std::size_t size = sizes[i];
+                  const wchar_t *input = data + numLetters - size;
+                  LOOP3_ASSERT(i, size,
+                               WRefData::cStringLength(input),
+                               size == WRefData::cStringLength(input));
+              }
+
+
+              if (verbose) printf("\tNegative Testing.\n");
+              {
+                  bsls::AssertTestHandlerGuard g;
+
+                  ASSERT_SAFE_PASS(WRefData::cStringLength(L""));
+                  ASSERT_SAFE_FAIL(WRefData::cStringLength(  0));
+              }
+          }
       } break;
       case 11: {
         // --------------------------------------------------------------------
