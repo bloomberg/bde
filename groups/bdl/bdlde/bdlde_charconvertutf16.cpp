@@ -301,7 +301,7 @@ wchar_t hostToSwapped<wchar_t, 4>(wchar_t uc)
     // 'uc' is assumed to be in host byte order.  The high-order 16 bits of
     // 'uc' are assumed to be 0.
 {
-    return (uc << 24) | ((uc & 0xff00) << 8);
+    return (static_cast<unsigned int>(uc) << 24) | ((uc & 0xff00) << 8);
 }
 
 struct Capacity {
