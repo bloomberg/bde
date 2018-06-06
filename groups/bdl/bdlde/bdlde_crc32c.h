@@ -99,7 +99,7 @@ struct Crc32c {
     // checksum.
 
   public:
-    // DATA
+    // CLASS DATA
     static const unsigned int k_NULL_CRC32C = 0U;
         // CRC32-C value for a 0 length input.  Note that a buffer with this
         // CRC32-C value need not be a 0 length input.

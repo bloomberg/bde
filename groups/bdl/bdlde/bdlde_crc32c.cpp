@@ -821,15 +821,16 @@ class Crc32cCalculator {
 
     // ACCESSORS
     unsigned int operator()(const unsigned char *data,
-                            size_t               length,
+                            bsl::size_t          length,
                             unsigned int         crc) const;
         // Invoke the global function that calculates CRC3-C passing to this
-        // function the specified 'data', 'length' and 'crc' parameters.
+        // function the specified 'data', 'length' and 'crc' parameters.  Note
+        // that if 'data' is 0, then 'length' must also be 0.
 };
 
 inline
 unsigned int calculateCrc32c(const unsigned char *data,
-                             size_t               length,
+                             bsl::size_t          length,
                              unsigned int         crc)
     // Return the CRC32-C value calculated in software for the specified 'data'
     // over the specified 'length' number of bytes, using the specified 'crc'
@@ -840,25 +841,25 @@ unsigned int calculateCrc32c(const unsigned char *data,
 
     switch (length) {
       case 7: {
-        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0x000000FF] ^ (crc >> 8);
+        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
       }  // NO BREAK
       case 6: {
-        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0x000000FF] ^ (crc >> 8);
+        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
       }  // NO BREAK
       case 5: {
-        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0x000000FF] ^ (crc >> 8);
+        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
       }  // NO BREAK
       case 4: {
-        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0x000000FF] ^ (crc >> 8);
+        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
       }  // NO BREAK
       case 3: {
-        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0x000000FF] ^ (crc >> 8);
+        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
       }  // NO BREAK
       case 2: {
-        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0x000000FF] ^ (crc >> 8);
+        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
       }  // NO BREAK
       case 1: {
-        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0x000000FF] ^ (crc >> 8);
+        crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
       }  // NO BREAK
     }
     return crc;
@@ -866,7 +867,7 @@ unsigned int calculateCrc32c(const unsigned char *data,
 
 #if defined(BSLS_PLATFORM_CPU_SPARC)
 unsigned int sparcHardware(const unsigned char *data,
-                           size_t               length,
+                           bsl::size_t          length,
                            unsigned int         crc)
 {
     const unsigned int result = sparc_crc32c(const_cast<unsigned char*>(data),
@@ -889,7 +890,7 @@ unsigned int crc32cSoftware(const unsigned char *data,
 {
     BSLS_ASSERT(data || 0 == length);
 
-    crc = crc ^ ~0U; // INIT = 0xFFFFFFFF: Initial value of the register
+    crc = ~crc;
 
     // [1] Process bytes one at a time until we reach the alignment boundary
     //     (e.g. 8-byte)
@@ -931,20 +932,20 @@ unsigned int crc32cSoftware(const unsigned char *data,
 
         crc ^= u32a;
 
-        unsigned int term1 =   k_CRC_TABLE_IL8_O88[ crc       & 0x000000FF]
-                             ^ k_CRC_TABLE_IL8_O80[(crc >> 8) & 0x000000FF];
+        unsigned int term1 =   k_CRC_TABLE_IL8_O88[ crc       & 0xFF]
+                             ^ k_CRC_TABLE_IL8_O80[(crc >> 8) & 0xFF];
         unsigned int term2 = crc >> 16;
 
         crc   =   term1
-                ^ k_CRC_TABLE_IL8_O72[ term2       & 0x000000FF]
-                ^ k_CRC_TABLE_IL8_O64[(term2 >> 8) & 0x000000FF];
-        term1 =   k_CRC_TABLE_IL8_O56[ u32b        & 0x000000FF]
-                ^ k_CRC_TABLE_IL8_O48[(u32b >> 8)  & 0x000000FF];
+                ^ k_CRC_TABLE_IL8_O72[ term2       & 0xFF]
+                ^ k_CRC_TABLE_IL8_O64[(term2 >> 8) & 0xFF];
+        term1 =   k_CRC_TABLE_IL8_O56[ u32b        & 0xFF]
+                ^ k_CRC_TABLE_IL8_O48[(u32b >> 8)  & 0xFF];
         term2 = u32b >> 16;
         crc   =   crc
                 ^ term1
-                ^ k_CRC_TABLE_IL8_O40[ term2       & 0x000000FF]
-                ^ k_CRC_TABLE_IL8_O32[(term2 >> 8) & 0x000000FF];
+                ^ k_CRC_TABLE_IL8_O40[ term2       & 0xFF]
+                ^ k_CRC_TABLE_IL8_O32[(term2 >> 8) & 0xFF];
     }
 
     // [3] Process the last 7 (or less) bytes remaining after the last
@@ -952,7 +953,7 @@ unsigned int crc32cSoftware(const unsigned char *data,
     length &= 0x7;
     crc     = calculateCrc32c(data, length, crc);
 
-    return crc ^ ~0U; // XOROUT = true: Do a final XOR on output
+    return ~crc;
 }
 
 #if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
@@ -983,7 +984,7 @@ unsigned int calculateBuiltin32Crc(const unsigned char *data,
 }
 
 unsigned int crc32c8s(const unsigned char *data,
-                      size_t               length,
+                      bsl::size_t          length,
                       unsigned int         crc)
     // Calculate the CRC32-C value (calculated in slices of 8 bytes) using SSE
     // intrinsic for the specified 'data' over the specified 'length' number
@@ -1092,7 +1093,7 @@ unsigned int crc32c1024SseInt(const unsigned char *data,
 
 inline
 unsigned int crc32cSse64bit(const unsigned char *data,
-                            size_t               length,
+                            bsl::size_t          length,
                             unsigned int         crc)
     // Calculate the CRC32-C value (using SSE intrinsics) for the specified
     // 'data' over the specified 'length' number of bytes, using the specified
@@ -1103,7 +1104,7 @@ unsigned int crc32cSse64bit(const unsigned char *data,
 {
     BSLS_ASSERT(data || 0 == length);
 
-    crc = crc ^ ~0U; // INIT = 0xFFFFFFFF: Initial value of the register
+    crc = ~crc;
 
     // Process ('length' mod 1024) bytes
     unsigned int i = length % 1024;
@@ -1119,13 +1120,13 @@ unsigned int crc32cSse64bit(const unsigned char *data,
         crc  = crc32c1024SseInt(&data[i], crc);
     }
 
-    return crc ^ ~0U; // XOROUT = true: Do a final XOR on output
+    return ~crc;
 }
 
 #  endif // BSLS_PLATFORM_CPU_64_BIT
 
 unsigned int crc32cHardwareSerial(const unsigned char *data,
-                                  size_t               length,
+                                  bsl::size_t          length,
                                   unsigned int         crc)
     // Calculate the CRC32-C value (using SSE intrinsic) for the specified
     // 'data' over the specified 'length' number of bytes, using the specified
@@ -1255,6 +1256,7 @@ unsigned int Crc32cCalculator::operator()(const unsigned char *data,
                                           bsl::size_t          length,
                                           unsigned int         crc) const
 {
+    BSLS_ASSERT(data || 0 == length);
     return s_crc32cFn(data, length, crc);
 }
 

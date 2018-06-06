@@ -389,11 +389,11 @@ void printTableHeader(bsl::ostream&                   out,
     //  ===================================================================
     //..
 {
-    const size_t sumSizes = bsl::accumulate(headers.begin(),
-                                            headers.end(),
-                                            bsl::string()).size();
+    const bsl::size_t sumSizes = bsl::accumulate(headers.begin(),
+                                                 headers.end(),
+                                                 bsl::string()).size();
 
-    const size_t headerLineLength = sumSizes + (3 * headers.size() - 1);
+    const bsl::size_t headerLineLength = sumSizes + (3 * headers.size() - 1);
 
     bsl::fill_n(bsl::ostream_iterator<char>(bsl::cout), headerLineLength, '=');
     bsl::cout << '\n';
@@ -503,7 +503,7 @@ void test1_breathingTest()
         if (veryVerbose) Q(BUFFER);
 
         const char         *BUFFER         = "12345678";
-        const size_t        LENGTH         = strlen(BUFFER);
+        const bsl::size_t   LENGTH         = strlen(BUFFER);
         const unsigned int  EXPECTED       = 0x6087809A;
         unsigned int        crc32cDefault  = 0;
         unsigned int        crc32cSoftware = 0;
@@ -549,7 +549,7 @@ void test1_breathingTest()
         if (veryVerbose) Q(LENGTH PARAMETER EQUAL TO 0);
 
         const char   *BUFFER         = "12345678";
-        size_t        LENGTH         = 0;
+        bsl::size_t   LENGTH         = 0;
         unsigned int  EXPECTED       = 0; // because LENGTH = 0
         unsigned int  crc32cDefault  = 0;
         unsigned int  crc32cSoftware = 0;
@@ -635,7 +635,7 @@ void test1_breathingTest()
         crc32cHWSerial = Crc32c_Impl::calculateHardwareSerial(BUFFER,
                                                               PREFIX_LENGTH);
 
-        const size_t REST_LENGTH = strlen(BUFFER) - PREFIX_LENGTH;
+        const bsl::size_t REST_LENGTH = strlen(BUFFER) - PREFIX_LENGTH;
 
         // Default
         crc32cDefault = Crc32c::calculate(BUFFER + PREFIX_LENGTH,
@@ -730,13 +730,13 @@ void test2_calculateOnBuffer()
         { L_,     "2Wm9bbNDehd",    0x54A11873 },
         { L_,     "GamS0NJhAl8y",   0x0044AC66 }
     };
-    const size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+    const bsl::size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
-    for (size_t ti = 0; ti < NUM_DATA; ++ti)
+    for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti)
     {
         const int           LINE     = DATA[ti].d_line;
         const char         *BUFFER   = DATA[ti].d_buffer;
-        const size_t        LENGTH   = strlen(BUFFER);
+        const bsl::size_t   LENGTH   = strlen(BUFFER);
         const unsigned int  EXPECTED = DATA[ti].d_expectedCrc32c;
 
         if (veryVerbose) {
@@ -842,8 +842,8 @@ void test2_calculateOnBuffer()
     if (veryVerbose) cout << "\tNegative testing." << endl;
     {
         bsls::AssertTestHandlerGuard hG;
-        size_t VALID   = 0;
-        size_t INVALID = 100;
+        bsl::size_t VALID   = 0;
+        bsl::size_t INVALID = 100;
 
         ASSERT_PASS(0 == Crc32c::calculate(0, VALID));
         ASSERT_FAIL(0 == Crc32c::calculate(0, INVALID));
@@ -926,13 +926,13 @@ void test3_calculateOnMisalignedBuffer()
         { L_, "GamS0NJhAl8y",   0x0044AC66}
     };
 
-    const size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+    const bsl::size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
-    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+    for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
 
         const int           LINE     = DATA[ti].d_line;
         const char         *BUFFER   = DATA[ti].d_buffer;
-        const size_t        LENGTH   = strlen(BUFFER);
+        const bsl::size_t   LENGTH   = strlen(BUFFER);
         const unsigned int  EXPECTED = DATA[ti].d_expectedCrc32c;
 
         if (veryVerbose) {
@@ -940,8 +940,8 @@ void test3_calculateOnMisalignedBuffer()
         }
         for (unsigned int i = 1; i < k_MY_ALIGNMENT; ++i)
         {
-            const size_t TAIL_LENGTH = 10;
-            const size_t NEW_LENGTH = LENGTH + i + TAIL_LENGTH;
+            const bsl::size_t TAIL_LENGTH = 10;
+            const bsl::size_t NEW_LENGTH = LENGTH + i + TAIL_LENGTH;
 
             // Sanity check: aligned buffer sufficiently large for some prefix
             //               padding plus the test data, and the test data is
@@ -1015,10 +1015,10 @@ void test4_calculateOnBufferWithPreviousCrc()
                << "=============================================" << bsl::endl;
 
     struct {
-        int          d_line;
-        const char  *d_buffer;
-        size_t       d_prefixLen;
-        unsigned int d_expectedCrc32c;
+        int           d_line;
+        const char   *d_buffer;
+        bsl::size_t   d_prefixLen;
+        unsigned int  d_expectedCrc32c;
     } DATA[] = {
         // Note that for d_buffer[0:d_prefixLen] (the prefix string ) we
         // already asserted that we calculated the correct CRC32-C values in
@@ -1046,14 +1046,14 @@ void test4_calculateOnBufferWithPreviousCrc()
         { L_, "GamS0NJhAl8yw3th",   12, 0x6033D909}
     };
 
-    const size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+    const bsl::size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
-    for (size_t ti = 0; ti < NUM_DATA; ++ti)
+    for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti)
     {
         const int           LINE       = DATA[ti].d_line;
         const char         *BUFFER     = DATA[ti].d_buffer;
-        const size_t        PREFIX_LEN = DATA[ti].d_prefixLen;
-        const size_t        SUFFIX_LEN = strlen(BUFFER) - PREFIX_LEN;
+        const bsl::size_t   PREFIX_LEN = DATA[ti].d_prefixLen;
+        const bsl::size_t   SUFFIX_LEN = strlen(BUFFER) - PREFIX_LEN;
         const unsigned int  EXPECTED   = DATA[ti].d_expectedCrc32c;
 
         if (veryVerbose) {
@@ -1582,7 +1582,7 @@ void testN3_calculateThroughput()
 
     // <time>
     bsls::Types::Int64 startDef = bsls::TimeUtil::getTimer();
-    for (size_t i = 0; i < k_NUM_ITERS; ++i) {
+    for (bsl::size_t i = 0; i < k_NUM_ITERS; ++i) {
         resultDef = Crc32c::calculate(buf, bufLen);
     }
     bsls::Types::Int64 diffDef = bsls::TimeUtil::getTimer() - startDef;
@@ -1594,7 +1594,7 @@ void testN3_calculateThroughput()
 
     // <time>
     bsls::Types::Int64 startSW = bsls::TimeUtil::getTimer();
-    for (size_t i = 0; i < k_NUM_ITERS; ++i) {
+    for (bsl::size_t i = 0; i < k_NUM_ITERS; ++i) {
         resultSW = Crc32c_Impl::calculateSoftware(buf, bufLen);
     }
     bsls::Types::Int64 diffSW = bsls::TimeUtil::getTimer() - startSW;
@@ -1607,7 +1607,7 @@ void testN3_calculateThroughput()
 
     // <time>
     bsls::Types::Int64 startBde = bsls::TimeUtil::getTimer();
-    for (size_t i = 0; i < k_NUM_ITERS; ++i) {
+    for (bsl::size_t i = 0; i < k_NUM_ITERS; ++i) {
         crcBde.update(buf, bufLen);
         resultBde = crcBde.checksumAndReset();
     }
@@ -1732,7 +1732,7 @@ void testN4_calculateHardwareSerial()
         unsigned int crc32c;
         // <time>
         bsls::Types::Int64 startDef = bsls::TimeUtil::getTimer();
-        for (size_t k = 0; k < k_NUM_ITERS; ++k) {
+        for (bsl::size_t k = 0; k < k_NUM_ITERS; ++k) {
             crc32c = Crc32c::calculate(buffer, length);
         }
         bsls::Types::Int64 endDef = bsls::TimeUtil::getTimer();
@@ -1742,7 +1742,7 @@ void testN4_calculateHardwareSerial()
         unsigned int crcFolly;
         // <time>
         bsls::Types::Int64 startFolly = bsls::TimeUtil::getTimer();
-        for (size_t k = 0; k < k_NUM_ITERS; ++k) {
+        for (bsl::size_t k = 0; k < k_NUM_ITERS; ++k) {
             crcFolly = Crc32c_Impl::calculateHardwareSerial(buffer, length);
         }
         bsls::Types::Int64 endFolly = bsls::TimeUtil::getTimer();
@@ -1812,10 +1812,10 @@ void testN5_performanceDefaultUserInput()
     bsl::string input(pa);
     bsl::getline(bsl::cin, input);
 
-    const size_t       k_NUM_ITERS = 100000; // 100K
+    const bsl::size_t  k_NUM_ITERS = 100000; // 100K
     unsigned int       crc32c      = 0;
     bsls::Types::Int64 startTime   = bsls::TimeUtil::getTimer();
-    for (size_t i = 0; i < k_NUM_ITERS; ++i)
+    for (bsl::size_t i = 0; i < k_NUM_ITERS; ++i)
     {
         crc32c = Crc32c::calculate(input.c_str(),
                                    static_cast<unsigned int>(input.size()));
