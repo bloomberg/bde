@@ -687,7 +687,7 @@ int main(int argc, char *argv[])
         DWORD dst;
 
         const Int64 maxSec  = uintMax / 1000;
-        const int   maxNSec = (uintMax % 1000) * k_MILLION;
+        const int   maxNSec = static_cast<int>((uintMax % 1000) * k_MILLION);
 
         ASSERT(uintMax == maxSec * 1000 + maxNSec / k_MILLION);
 
@@ -846,14 +846,17 @@ int main(int argc, char *argv[])
             // 'bsls::TimeInterval(SEC_LIMIT, NANO_SEC_LIMIT)' should be the
             // maximum representable Uint64 number of milliseconds.
 
-            const Int64    SEC_LIMIT = MAX_UINT64 / k_MILLISECS_PER_SEC;
-            const int NANO_SEC_LIMIT = (MAX_UINT64 - (SEC_LIMIT * 1000))
-                                                    * k_NANOSECS_PER_MILLISEC;
+            const Int64       SEC_LIMIT = MAX_UINT64 / k_MILLISECS_PER_SEC;
+            const Int64 MILLI_SEC_LIMIT = MAX_UINT64 -
+                                          MAX_UINT64 % k_MILLISECS_PER_SEC;
+            const int    NANO_SEC_LIMIT = static_cast<int>(
+                                          (MAX_UINT64 - MILLI_SEC_LIMIT)
+                                                    * k_NANOSECS_PER_MILLISEC);
 
             struct {
                 int    d_line;
                 Int64  d_seconds;
-                Int64  d_nanoseconds;
+                int    d_nanoseconds;
                 Uint64 d_expectedResult;
             } VALUES[] = {
                 { L_,             0,         0,                 0 },
@@ -871,8 +874,8 @@ int main(int argc, char *argv[])
        { L_,     SEC_LIMIT,           NANO_SEC_LIMIT,     MAX_UINT64 },
        { L_,     SEC_LIMIT,       NANO_SEC_LIMIT + 1,     MAX_UINT64 },
        { L_,     SEC_LIMIT, NANO_SEC_LIMIT + 1000000,     MAX_UINT64 },
-       { L_, SEC_LIMIT + 1,                        0,    MAX_UINT64 },
-       { L_, SEC_LIMIT + 2,                        0,    MAX_UINT64 },
+       { L_, SEC_LIMIT + 1,                        0,     MAX_UINT64 },
+       { L_, SEC_LIMIT + 2,                        0,     MAX_UINT64 },
 
             };
             const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
@@ -903,7 +906,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //   Note that the exact type of 'time_t' is not clearly specified
         //   and may vary with the platform.  We must test for possibilities
-        //   of 'time_t' being signed or unsigned, 4 or 8 bit.
+        //   of 'time_t' being signed or unsigned, 4 or 8 byte.
         //: 1 That 'toTimeT' assigns 'Int64's to 'time_t's properly, exactly
         //:   copying values whenever possible.
         //: 2 That 'toTimeT' correctly saturating when it is not possible to
@@ -1047,8 +1050,10 @@ int main(int argc, char *argv[])
             ct = 0;
             for (Int64 i = uintMax; i < int64Max - i48; i += i48, ++ct) {
                 Obj::toTimeT(&tt, i);
-
-                ASSERT((Uint64) tt == (Uint64) uintMax);
+                const Int64 t(tt);  // suppress warning: 'comparison is always
+                                    // false due to limited range of data type'
+                                    // on 32-bit platform
+                ASSERT(t == uintMax);
             }
             ASSERT(ct > 32000);
 
@@ -1064,7 +1069,10 @@ int main(int argc, char *argv[])
             if (veryVerbose) Q(Try exact max and min inputs);
 
             Obj::toTimeT(&tt, int64Max);
-            ASSERT((Uint64) tt == (Uint64) uintMax);
+            const Int64 t(tt);  // suppress warning: 'comparison is always
+                                // false due to limited range of data type'
+                                // on 32-bit platform
+            ASSERT(t == uintMax);
 
             Obj::toTimeT(&tt, int64Min);
             ASSERT(tt == 0);
@@ -1240,7 +1248,7 @@ int main(int argc, char *argv[])
                 ASSERT(matcher         == (unsigned int) ts.tv_sec);
                 ASSERT(k_MAX_NANOSECONDS == ts.tv_nsec);
 
-                Obj::toTimeSpec(&ts, bsls::TimeInterval((Int64) -1 << 48,
+                Obj::toTimeSpec(&ts, bsls::TimeInterval(-(1LL << 48),
                                                        -987654321));
                 ASSERT(0 == ts.tv_sec);
                 ASSERT(0 == ts.tv_nsec);
@@ -1256,7 +1264,7 @@ int main(int argc, char *argv[])
                 int matcher = bsl::numeric_limits<int>::max();
                 matcher = -matcher - 1;    // numeric_limites::min
 
-                Obj::toTimeSpec(&ts, bsls::TimeInterval((Int64) -1 << 48,
+                Obj::toTimeSpec(&ts, bsls::TimeInterval(-(1LL << 48),
                                                        -987654321));
                 ASSERT(matcher          == (int) ts.tv_sec);
                 ASSERT(-k_MAX_NANOSECONDS == ts.tv_nsec);
@@ -1277,7 +1285,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) Q(Demonstrate saturation on 8 byte unsigned);
 
-                Obj::toTimeSpec(&ts, bsls::TimeInterval((Int64) -1 << 48,
+                Obj::toTimeSpec(&ts, bsls::TimeInterval(-(1LL << 48),
                                                         -987654321));
                 ASSERT(0 == ts.tv_sec);
                 ASSERT(0 == ts.tv_nsec);
