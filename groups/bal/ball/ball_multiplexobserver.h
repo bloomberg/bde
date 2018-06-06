@@ -190,7 +190,7 @@ class MultiplexObserver : public Observer {
         // 'context' by forwarding 'record' and 'context' to each of the
         // observers registered with this multiplexing observer.
         //
-        // DEPRECATED: use the alternative 'publish' overload instead.
+        // !DEPRECATED!: Use the alternative 'publish' overload instead.
 
     virtual void publish(const bsl::shared_ptr<const Record>& record,
                          const Context&                       context);

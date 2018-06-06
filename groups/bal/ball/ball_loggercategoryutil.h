@@ -181,8 +181,6 @@ struct LoggerCategoryUtil {
                                   int            passLevel,
                                   int            triggerLevel,
                                   int            triggerAllLevel);
-        // DEPRECATED:: Use 'setThresholdLevelsHierarchically' instead.
-        //
         // Set the threshold levels of each category currently in the registry
         // of the specified 'loggerManager' whose name matches the specified
         // 'pattern' to the specified 'recordLevel', 'passLevel',
@@ -197,6 +195,8 @@ struct LoggerCategoryUtil {
         // end of 'pattern' is recognized as a special character.  Also note
         // that this function has no effect on the threshold levels of
         // categories added to the registry after it is called.
+        //
+        // !DEPRECATED!: Use 'setThresholdLevelsHierarchically' instead.
 };
 
 }  // close package namespace
