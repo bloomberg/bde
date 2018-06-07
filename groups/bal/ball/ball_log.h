@@ -566,7 +566,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      (void)data;  // suppress "unused" warning
 //..
-// We add our attributes using 'ball::ScopedAttribute' which adds an attribute
+// We add our attributes using 'ball::ScopedAttribute', which adds an attribute
 // container with a single attribute to a list of containers.  This is easy and
 // efficient if the number of attributes is small, but should not be used if
 // there are a large number of attributes.  If motivated, we could use
@@ -580,7 +580,7 @@ BSLS_IDENT("$Id: $")
 //      // We use 'ball::ScopedAttribute' here because the number of
 //      // attributes is relatively small.
 //
-//      ball::ScopedAttribute uuidAttribute("uuid", uuid);  // do not use
+//      ball::ScopedAttribute uuidAttribute("uuid", uuid);
 //      ball::ScopedAttribute luwAttribute("luw", luw);
 //      ball::ScopedAttribute termNumAttribute("terminalNumber",
 //                                             terminalNumber);

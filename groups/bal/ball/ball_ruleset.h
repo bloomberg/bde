@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 // 'ball::RuleSet', for storage and efficient retrieval of 'ball::Rule'
 // objects.
 //
-// This component particpiates in the implementation of "Rule-Based Logging".
+// This component participates in the implementation of "Rule-Based Logging".
 // For more information on how to use that feature, please see the package
 // level documentation and usage examples for "Rule-Based Logging".
 //
