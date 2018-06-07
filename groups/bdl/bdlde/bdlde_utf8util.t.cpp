@@ -2347,7 +2347,7 @@ int decode(const char **pc)
 }
 
 static
-bsls::Types::Int64 randAccum = 0;
+bsls::Types::Uint64 randAccum = 0;
 
 int randNum()
     // MMIX Linear Congruential Generator algorithm by Donald Knuth

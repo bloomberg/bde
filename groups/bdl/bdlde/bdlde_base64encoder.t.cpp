@@ -716,20 +716,24 @@ class u_Base64Decoder_Test {
                                                   // encoding characters to the
                                                   // corresponding 6-bit number
 
-    // INSTANCE DATA
-    const bool *const d_ignorable_p; // Selected table of ignorable characters
-                                     // based on specified error-reporting mode
+    // DATA
+    const bool *const d_ignorable_p;   // Selected table of ignorable
+                                       // characters based on specified
+                                       // error-reporting mode
 
-    signed char d_state;  // -1 = error state
-                          //  0 = general input state
-                          //  1 = need another '='
-                          //  2 = soft done state - allow only ignorable input
-                          //  3 = done state - no more input allowed
+    signed char       d_state;         // -1 = error state
+                                       //  0 = general input state
+                                       //  1 = need another '='
+                                       //  2 = soft done state - allow only
+                                       //      ignorable input
+                                       //  3 = done state - no more input
+                                       //      allowed
 
-    int         d_outputLength;          // total number of output characters
+    int               d_outputLength;  // total number of output characters
 
-    int         d_stack;
-    int         d_bitsInStack;
+    unsigned int      d_stack;         // storage of non-emitted input
+
+    int               d_bitsInStack;   // number of bits in 'd_stack'
 
   public:
     explicit
@@ -859,6 +863,7 @@ u_Base64Decoder_Test::u_Base64Decoder_Test(bool unrecognizedIsErrorFlag)
                                         : s_ignorableRelaxed_p)
 , d_state(e_INPUT_STATE)
 , d_outputLength(0)
+, d_stack(0)
 , d_bitsInStack(0)
 {
 }
