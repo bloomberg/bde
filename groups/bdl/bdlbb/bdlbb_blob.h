@@ -377,6 +377,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bslalg_swaputil.h>
+
 #include <bslma_allocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
@@ -470,6 +472,11 @@ class BlobBuffer {
         // behavior is undefined unless '0 <= size' and the capacity of the
         // buffer returned by the 'buffer' method is at least 'size' bytes.
 
+    void swap(BlobBuffer& other) BSLS_CPP11_NOEXCEPT;
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.
+
     // ACCESSORS
     const bsl::shared_ptr<char>& buffer() const;
         // Return a reference to the non-modifiable shared pointer to the
@@ -520,6 +527,10 @@ bool operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs);
 bsl::ostream& operator<<(bsl::ostream& stream, const BlobBuffer& buffer);
     // Format the specified blob 'buffer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
+
+void swap(BlobBuffer& a, BlobBuffer& b) BSLS_CPP11_NOEXCEPT;
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+    // This method provides the no-throw exception-safety guarantee.
 
                           // =======================
                           // class BlobBufferFactory
@@ -891,6 +902,13 @@ void BlobBuffer::setSize(int size)
     d_size = size;
 }
 
+inline
+void BlobBuffer::swap(BlobBuffer& other) BSLS_CPP11_NOEXCEPT
+{
+    bslalg::SwapUtil::swap(&this->d_buffer, &other.d_buffer);
+    bslalg::SwapUtil::swap(&this->d_size, &other.d_size);
+}
+
 // ACCESSORS
 inline
 const bsl::shared_ptr<char>& BlobBuffer::buffer() const
@@ -924,6 +942,13 @@ bool bdlbb::operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs)
 {
     return lhs.d_buffer.get() != rhs.d_buffer.get() ||
            lhs.d_size != rhs.d_size;
+}
+
+inline
+void
+bdlbb::swap(bdlbb::BlobBuffer& a, bdlbb::BlobBuffer& b) BSLS_CPP11_NOEXCEPT
+{
+    a.swap(b);
 }
 
 namespace bdlbb {

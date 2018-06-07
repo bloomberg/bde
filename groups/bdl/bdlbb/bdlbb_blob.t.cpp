@@ -103,7 +103,8 @@ using bsl::cerr;
 // [12] CONCERN: BUFFER ALIASING
 // [13] IMPLICIT TRIM
 // [14] MOVE OPERATIONS
-// [15] USAGE EXAMPLE
+// [15] SWAP
+// [16] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -672,7 +673,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -820,6 +821,59 @@ int main(int argc, char *argv[])
         ASSERT(5                             == blob.numDataBuffers());
         ASSERT(5                             == blob.numBuffers());
     }
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING SWAP
+        //
+        // Concerns:
+        //: 1 Swap swaps all members.
+        //: 2 'Blob' member swap asserts on differing allocators
+        //: 3 'Blob' non-member swap works with differing allocators
+        //
+        // Plan:
+        //:  1 Create two objects, swap them, verify members.  Do this for both
+        //:    'BlobBuffer' and 'Blob', with member and non-member swap.
+        //:
+        //:  2 Create two 'Blob' objects with differing allocators.
+        //:  3 Verify that member swap asserts.
+        //:  4 Verify that non-member swap swaps.
+        //
+        // Testing:
+        //   SWAP
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING SWAP" << endl
+                          << "============" << endl;
+
+        if (verbose) cout << "Testing 'BlobBuffer' swap\n";
+        {
+            static const int aSize = 256;
+            bsl::shared_ptr<char> aBuffer(new char[aSize]);
+            bdlbb::BlobBuffer aBlobBuffer(aBuffer, aSize);
+
+            static const int bSize = 128;
+            bsl::shared_ptr<char> bBuffer(new char[bSize]);
+            bdlbb::BlobBuffer bBlobBuffer(bBuffer, bSize);
+
+            aBlobBuffer.swap(bBlobBuffer);
+
+            ASSERT(aBlobBuffer.data() == bBuffer.get());
+            ASSERT(aBlobBuffer.size() == bSize);
+
+            ASSERT(bBlobBuffer.data() == aBuffer.get());
+            ASSERT(bBlobBuffer.size() == aSize);
+
+            swap(bBlobBuffer, aBlobBuffer);
+
+            ASSERT(aBlobBuffer.data() == aBuffer.get());
+            ASSERT(aBlobBuffer.size() == aSize);
+
+            ASSERT(bBlobBuffer.data() == bBuffer.get());
+            ASSERT(bBlobBuffer.size() == bSize);
+        }
+
       } break;
       case 14: {
         // --------------------------------------------------------------------
