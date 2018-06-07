@@ -380,6 +380,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
 
@@ -414,6 +415,10 @@ class BlobBuffer {
 
     friend bool operator!=(const BlobBuffer&, const BlobBuffer&);
 
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MoveUtil;
+        // Used in move construction and assignment to make lines shorter.
+
   public:
     // CREATORS
     BlobBuffer();
@@ -429,6 +434,12 @@ class BlobBuffer {
         // Create a blob buffer having the same value as the specified
         // 'original' blob buffer.
 
+    BlobBuffer(bslmf::MovableRef<BlobBuffer> original);
+        // Create a blob buffer object having the same value as the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  'original' is left in a valid but unspecified
+        // state.
+
     ~BlobBuffer();
         // Destroy this blob buffer.
 
@@ -436,6 +447,12 @@ class BlobBuffer {
     BlobBuffer& operator=(const BlobBuffer& rhs);
         // Assign to this blob buffer the value of the specified 'rhs' blob
         // buffer, and return a reference to this modifiable blob buffer.
+
+    BlobBuffer& operator=(bslmf::MovableRef<BlobBuffer> rhs);
+        // Assign to this object the value of the specified 'rhs', and return a
+        // reference providing modifiable access to this object.  The contents
+        // of 'rhs' are move-assigned to this object.  'rhs' is left in a valid
+        // but unspecified state.
 
     void reset();
         // Reset this blob buffer to its default-constructed state.
@@ -819,6 +836,14 @@ BlobBuffer::BlobBuffer(const BlobBuffer& original)
 : d_buffer(original.d_buffer)
 , d_size(original.d_size)
 {
+}
+
+inline
+BlobBuffer::BlobBuffer(bslmf::MovableRef<BlobBuffer> original)
+: d_buffer(MoveUtil::move(MoveUtil::access(original).d_buffer))
+, d_size(MoveUtil::move(MoveUtil::access(original).d_size))
+{
+    original.d_size = 0;
 }
 
 inline

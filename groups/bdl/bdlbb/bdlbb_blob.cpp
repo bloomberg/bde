@@ -115,6 +115,17 @@ BlobBuffer& BlobBuffer::operator=(const BlobBuffer& rhs)
     return *this;
 }
 
+BlobBuffer& BlobBuffer::operator =(bslmf::MovableRef<BlobBuffer> rhs)
+{
+    BlobBuffer& lvalue = rhs;
+    d_buffer = MoveUtil::move(lvalue.d_buffer);
+    d_size   = MoveUtil::move(lvalue.d_size);
+
+    lvalue.d_size = 0;
+
+    return *this;
+}
+
 void BlobBuffer::reset(const bsl::shared_ptr<char>& buffer, int size)
 {
     BSLS_ASSERT(0 <= size);

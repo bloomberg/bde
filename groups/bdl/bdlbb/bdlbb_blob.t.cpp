@@ -100,7 +100,9 @@ using bsl::cerr;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] CONCERN: BUFFER ALIASING
-// [13] USAGE EXAMPLE
+// [13] IMPLICIT TRIM
+// [14] MOVE OPERATIONS
+// [15] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -669,7 +671,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -818,6 +820,80 @@ int main(int argc, char *argv[])
         ASSERT(5                             == blob.numBuffers());
     }
       } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE OPERATIONS
+        //
+        // Concerns:
+        //: 1 The move operations move the data from one object to another.
+        //: 2 The moved-from object is in a usable state.
+        //: 3 Move works if the allocators differ and it copies.
+        //
+        // Plan:
+        //:  1 Verify 'BlobBuffer' move constructor with explicit move.
+        //:  2 If C++11 or later, verify automatic move from temporary.
+        //:  3 Verify 'BlobBuffer' move assignment with explicit move.
+        //:  4 If C++11 or later, verify automatic move from temporary.
+        //:  5 Verify 'Blob' move constructor with explicit move.
+        //:  6 If C++11 or later, verify automatic move from temporary.
+        //:  7 Verify the previous two with differing allocators, too.
+        //:  8 Verify 'Blob' move assignment with explicit move.
+        //:  9 If C++11 or later, verify automatic move from temporary.
+        //: 10 Verify the previous two with differing allocators, too.
+        //
+        // Testing:
+        //   MOVE OPERATIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING MOVE OPERATIONS" << endl
+                          << "=======================" << endl;
+
+        typedef  bslmf::MovableRefUtil MoveUtil;
+
+        if (verbose) cout << "Testing 'BlobBuffer' move construction\n";
+        {
+            static const int size = 256;
+            bsl::shared_ptr<char> aBuffer(new char[size]);
+            bdlbb::BlobBuffer aBlobBuffer(aBuffer, size);
+            bdlbb::BlobBuffer anotherBlobBuffer(MoveUtil::move(aBlobBuffer));
+
+            ASSERT(anotherBlobBuffer.data() == aBuffer.get());
+            ASSERT(anotherBlobBuffer.size() == size);
+
+            ASSERT(0 == aBlobBuffer.data());
+            ASSERT(0 == aBlobBuffer.size());
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+            bdlbb::BlobBuffer autoMoved(bdlbb::BlobBuffer(aBuffer, size));
+            ASSERT(autoMoved.data() == aBuffer.get());
+            ASSERT(autoMoved.size() == size);
+#endif
+        }
+
+        if (verbose) cout << "Testing 'BlobBuffer' move assignment\n";
+        {
+            static const int size = 256;
+            bsl::shared_ptr<char> aBuffer(new char[size]);
+            bdlbb::BlobBuffer aBlobBuffer(aBuffer, size);
+            bdlbb::BlobBuffer anotherBlobBuffer;
+            anotherBlobBuffer = MoveUtil::move(aBlobBuffer);
+
+            ASSERT(anotherBlobBuffer.data() == aBuffer.get());
+            ASSERT(anotherBlobBuffer.size() == size);
+
+            ASSERT(0 == aBlobBuffer.data());
+            ASSERT(0 == aBlobBuffer.size());
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+            bdlbb::BlobBuffer autoMoved;
+            autoMoved = bdlbb::BlobBuffer(aBuffer, size);
+            ASSERT(autoMoved.data() == aBuffer.get());
+            ASSERT(autoMoved.size() == size);
+#endif
+        }
+
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TESTING IMPLICIT TRIM
@@ -832,6 +908,9 @@ int main(int argc, char *argv[])
         //   thorough testing of 'appendDataBuffer'.  Call the method on blobs
         //   in a variety of different states, observing the state of the blob
         //   very closely.
+        //
+        // Testing:
+        //   IMPLICIT TRIM
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING IMPLICIT TRIM\n"
