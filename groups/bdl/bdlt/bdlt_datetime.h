@@ -63,10 +63,8 @@ BSLS_IDENT("$Id: $")
 //  Name  Related Type  Default          Range
 //  ----  ------------  ---------------  ------------------------------------
 //  date  bdlt::Date    0001/01/01       [0001/01/01      .. 9999/12/31]
-//  time  bdlt::Time*   24:00:00.000000  [00:00:00.000000 .. 23:59:59.999999]
+//  time  bdlt::Time    24:00:00.000000  [00:00:00.000000 .. 23:59:59.999999]
 //..
-// (*) Note that 'bdlt::Time' supports only millisecond resolution.
-//
 // A 'bdlt::Datetime' object can be used in terms of its "date" and "time"
 // parts or, if appropriate to an application, the object can be viewed as a
 // single, integrated type having the combined individual attributes of date
@@ -834,8 +832,7 @@ class Datetime {
         // Return the value of the 'second' attribute of this object.
 
     Time time() const;
-        // Return the value of the "time" part of this object, truncated to
-        // millisecond resolution.
+        // Return the value of the "time" part of this object.
 
     int year() const;
         // Return the value of the 'year' attribute of this object.
