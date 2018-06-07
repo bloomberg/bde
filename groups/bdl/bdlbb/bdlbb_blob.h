@@ -734,6 +734,9 @@ class Blob {
         // appending them to the current data buffers of this blob.
 
     // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
+
     const BlobBuffer& buffer(int index) const;
         // Return a reference to the non-modifiable blob buffer at the
         // specified 'index' in this blob.  The behavior is undefined unless
@@ -889,6 +892,12 @@ void Blob::reserveBufferCapacity(int numBuffers)
 }
 
 // ACCESSORS
+inline
+bslma::Allocator *Blob::allocator() const
+{
+    return d_buffers.get_allocator().mechanism();
+}
+
 inline
 const BlobBuffer& Blob::buffer(int index) const
 {
