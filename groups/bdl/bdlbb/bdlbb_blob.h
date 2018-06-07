@@ -584,6 +584,10 @@ class Blob {
     int assertInvariants() const;
         // Assert the invariants of this object and return 0 on success.
 
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MoveUtil;
+        // Used in move construction and assignment to make lines shorter.
+
   public:
     // CREATORS
     explicit Blob(bslma::Allocator *basicAllocator = 0);
@@ -627,6 +631,21 @@ class Blob {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
+    Blob(bslmf::MovableRef<Blob> original);
+        // Create a blob object having the same value as the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Blob(bslmf::MovableRef<Blob>  original,
+         bslma::Allocator        *basicAllocator);
+        // Create a blob object having the same value as the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  If 'basicAllocator' is 0, the default allocator is used.
+        // The contents of 'original' are moved to the newly-created object.
+        // 'original' is left in a valid but unspecified state.
+
     ~Blob();
         // Destroy this blob.
 
@@ -634,6 +653,12 @@ class Blob {
     Blob& operator=(const Blob& rhs);
         // Assign to this blob the value of the specified 'rhs' blob, and
         // return a reference to this modifiable blob.
+
+    Blob& operator=(bslmf::MovableRef<Blob> rhs);
+        // Assign to this object the value of the specified 'rhs', and return a
+        // reference providing modifiable access to this object.  The contents
+        // of 'rhs' are move-assigned to this object.  'rhs' is left in a valid
+        // but unspecified state.
 
     void appendBuffer(const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last buffer of this blob.

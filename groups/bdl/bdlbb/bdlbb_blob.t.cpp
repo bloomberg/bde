@@ -19,6 +19,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_testallocatormonitor.h>
 #include <bslx_byteoutstream.h>
 #include <bslx_marshallingutil.h>
 
@@ -891,6 +892,129 @@ int main(int argc, char *argv[])
             ASSERT(autoMoved.data() == aBuffer.get());
             ASSERT(autoMoved.size() == size);
 #endif
+        }
+
+        if (verbose) cout << "Testing 'Blob' move construction\n";
+        {
+            bslma::TestAllocator ta("object");
+            static const int size = 256;
+            SimpleBlobBufferFactory factory(size, &ta);
+            bdlbb::Blob aBlob(&factory, &ta);
+            aBlob.setLength(324);
+
+            bdlbb::Blob anotherBlob(MoveUtil::move(aBlob));
+
+            ASSERT(anotherBlob.lastDataBufferLength() == 68);
+            ASSERT(anotherBlob.length()               == 324);
+            ASSERT(anotherBlob.numDataBuffers()       == 2);
+            ASSERT(anotherBlob.numBuffers()           == 2);
+            ASSERT(anotherBlob.totalSize()            == 512);
+
+            ASSERT(aBlob.lastDataBufferLength() == 0);
+            ASSERT(aBlob.length()               == 0);
+            ASSERT(aBlob.numDataBuffers()       == 0);
+            ASSERT(aBlob.numBuffers()           == 0);
+            ASSERT(aBlob.totalSize()            == 0);
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+            bsl::shared_ptr<char> buf(new char[size]);
+            bdlbb::BlobBuffer bufs[] = { { buf, size }, { buf, size } };
+            int bufn = sizeof(bufs) / sizeof(*bufs);
+            bslma::TestAllocatorMonitor tam(&ta);
+            bdlbb::Blob autoMoved(bdlbb::Blob(bufs, bufn, &factory, &ta));
+
+            // Was it really a move?  We allocated just once, so yes:
+            ASSERT(tam.numBlocksTotalChange() == 1);
+
+            // Was the data moved?  (No way to add length in the constructor.)
+            ASSERT(autoMoved.lastDataBufferLength() == 0);
+            ASSERT(autoMoved.length()               == 0);
+            ASSERT(autoMoved.numDataBuffers()       == 0);
+            ASSERT(autoMoved.numBuffers()           == 2);
+            ASSERT(autoMoved.totalSize()            == 512);
+#endif
+
+            // Testing differing allocators
+
+            bslma::TestAllocator ta2("object2");
+            bdlbb::Blob aBlob2(MoveUtil::move(anotherBlob), &ta2);
+
+            ASSERT(aBlob2.lastDataBufferLength() == 68);
+            ASSERT(aBlob2.length()               == 324);
+            ASSERT(aBlob2.numDataBuffers()       == 2);
+            ASSERT(aBlob2.numBuffers()           == 2);
+            ASSERT(aBlob2.totalSize()            == 512);
+
+            // This did a copy, since the allocators differ
+
+            ASSERT(anotherBlob.lastDataBufferLength() == 68);
+            ASSERT(anotherBlob.length()               == 324);
+            ASSERT(anotherBlob.numDataBuffers()       == 2);
+            ASSERT(anotherBlob.numBuffers()           == 2);
+            ASSERT(anotherBlob.totalSize()            == 512);
+        }
+
+        if (verbose) cout << "Testing 'Blob' move assignment\n";
+        {
+            bslma::TestAllocator ta("object");
+            static const int size = 256;
+            SimpleBlobBufferFactory factory(size, &ta);
+            bdlbb::Blob aBlob(&factory, &ta);
+            aBlob.setLength(324);
+
+            bdlbb::Blob anotherBlob(&ta);
+            anotherBlob = MoveUtil::move(aBlob);
+
+            ASSERT(anotherBlob.lastDataBufferLength() == 68);
+            ASSERT(anotherBlob.length()               == 324);
+            ASSERT(anotherBlob.numDataBuffers()       == 2);
+            ASSERT(anotherBlob.numBuffers()           == 2);
+            ASSERT(anotherBlob.totalSize()            == 512);
+
+            ASSERT(aBlob.lastDataBufferLength() == 0);
+            ASSERT(aBlob.length()               == 0);
+            ASSERT(aBlob.numDataBuffers()       == 0);
+            ASSERT(aBlob.numBuffers()           == 0);
+            ASSERT(aBlob.totalSize()            == 0);
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+            bsl::shared_ptr<char> buf(new char[size]);
+            bdlbb::BlobBuffer bufs[] = { { buf, size }, { buf, size } };
+            int bufn = sizeof(bufs) / sizeof(*bufs);
+            bdlbb::Blob autoMoved(&ta);
+            bslma::TestAllocatorMonitor tam(&ta);
+            autoMoved = bdlbb::Blob(bufs, bufn, &factory, &ta);
+
+            // Was it really a move?  We allocated just once, so yes:
+            ASSERT(tam.numBlocksTotalChange() == 1);
+
+            // Was the data moved?  (No way to add length in the constructor.)
+            ASSERT(autoMoved.lastDataBufferLength() == 0);
+            ASSERT(autoMoved.length()               == 0);
+            ASSERT(autoMoved.numDataBuffers()       == 0);
+            ASSERT(autoMoved.numBuffers()           == 2);
+            ASSERT(autoMoved.totalSize()            == 512);
+#endif
+
+            // Testing differing allocators
+
+            bslma::TestAllocator ta2("object2");
+            bdlbb::Blob aBlob2(&ta2);
+            aBlob2 = MoveUtil::move(anotherBlob);
+
+            ASSERT(aBlob2.lastDataBufferLength() == 68);
+            ASSERT(aBlob2.length()               == 324);
+            ASSERT(aBlob2.numDataBuffers()       == 2);
+            ASSERT(aBlob2.numBuffers()           == 2);
+            ASSERT(aBlob2.totalSize()            == 512);
+
+            // This did a copy, since the allocators differ
+
+            ASSERT(anotherBlob.lastDataBufferLength() == 68);
+            ASSERT(anotherBlob.length()               == 324);
+            ASSERT(anotherBlob.numDataBuffers()       == 2);
+            ASSERT(anotherBlob.numBuffers()           == 2);
+            ASSERT(anotherBlob.totalSize()            == 512);
         }
 
       } break;

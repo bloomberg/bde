@@ -363,6 +363,39 @@ Blob::Blob(const Blob& original, bslma::Allocator *basicAllocator)
     BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
+Blob::Blob(bslmf::MovableRef<Blob> original)
+: d_buffers(MoveUtil::move(MoveUtil::access(original).d_buffers))
+, d_totalSize(MoveUtil::move(MoveUtil::access(original).d_totalSize))
+, d_dataLength(MoveUtil::move(MoveUtil::access(original).d_dataLength))
+, d_dataIndex(MoveUtil::move(MoveUtil::access(original).d_dataIndex))
+, d_preDataIndexLength(
+            MoveUtil::move(MoveUtil::access(original).d_preDataIndexLength))
+, d_bufferFactory_p(
+            MoveUtil::move(MoveUtil::access(original).d_bufferFactory_p))
+{
+    Blob& lvalue = original;
+    if (lvalue.d_buffers.size() == 0) {
+        lvalue.removeAll();
+    }
+}
+
+Blob::Blob(bslmf::MovableRef<Blob> original, bslma::Allocator *basicAllocator)
+: d_buffers(MoveUtil::move(MoveUtil::access(original).d_buffers),
+            basicAllocator)
+, d_totalSize(MoveUtil::move(MoveUtil::access(original).d_totalSize))
+, d_dataLength(MoveUtil::move(MoveUtil::access(original).d_dataLength))
+, d_dataIndex(MoveUtil::move(MoveUtil::access(original).d_dataIndex))
+, d_preDataIndexLength(
+            MoveUtil::move(MoveUtil::access(original).d_preDataIndexLength))
+, d_bufferFactory_p(
+            MoveUtil::move(MoveUtil::access(original).d_bufferFactory_p))
+{
+    Blob& lvalue = original;
+    if (lvalue.d_buffers.size() == 0) {
+        lvalue.removeAll();
+    }
+}
+
 Blob::~Blob()
 {
     BSLS_ASSERT_SAFE(0 == assertInvariants());
@@ -378,6 +411,23 @@ Blob& Blob::operator=(const Blob& rhs)
     d_dataLength         = rhs.d_dataLength;
     d_dataIndex          = rhs.d_dataIndex;
     d_preDataIndexLength = rhs.d_preDataIndexLength;
+
+    return *this;
+}
+
+Blob& Blob::operator=(bslmf::MovableRef<Blob> rhs)
+{
+    Blob& lvalue = rhs;
+
+    d_buffers            = MoveUtil::move(lvalue.d_buffers);
+    d_totalSize          = MoveUtil::move(lvalue.d_totalSize);
+    d_dataLength         = MoveUtil::move(lvalue.d_dataLength);
+    d_dataIndex          = MoveUtil::move(lvalue.d_dataIndex);
+    d_preDataIndexLength = MoveUtil::move(lvalue.d_preDataIndexLength);
+
+    if (lvalue.d_buffers.size() == 0) {
+        lvalue.removeAll();
+    }
 
     return *this;
 }
