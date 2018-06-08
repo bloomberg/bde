@@ -545,14 +545,14 @@ BSLS_IDENT("$Id: $")
 // most applications.
 //
 ///Example 6: Rule-Based Logging
-///- - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - -
 // The following example demonstrates the use of attributes and rules to
 // conditionally enable logging.
 //
 // We start by defining a function, 'processData', that is passed data in a
 // 'vector<char>' and information about the user who sent the data.  This
 // example function performs no actual processing, but does log a single
-// message at the 'ball::Severity::DEBUG' threshold level.  The 'processData'
+// message at the 'ball::Severity::e_DEBUG' threshold level.  The 'processData'
 // function also adds the user information passed to this function to the
 // thread's attribute context.  We will use these attributes later, to create a
 // logging rule that enables verbose logging only for a particular user.
@@ -567,7 +567,7 @@ BSLS_IDENT("$Id: $")
 //      (void)data;  // suppress "unused" warning
 //..
 // We add our attributes using 'ball::ScopedAttribute', which adds an attribute
-// container with a single attribute to a list of containers.  This is easy and
+// container with one attribute to a list of containers.  This is easy and
 // efficient if the number of attributes is small, but should not be used if
 // there are a large number of attributes.  If motivated, we could use
 // 'ball::DefaultAttributeContainer', which provides an efficient container for
@@ -586,7 +586,7 @@ BSLS_IDENT("$Id: $")
 //                                             terminalNumber);
 //..
 // In this simplified example we perform no actual processing, and simply log
-// a message at the 'ball::Severity::DEBUG' level.
+// a message at the 'ball::Severity::e_DEBUG' level.
 //..
 //      BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
 //
@@ -601,16 +601,16 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Next we demonstrate how to create a logging rule that sets the pass-through
-// logging threshold to 'ball::Severity::TRACE' (i.e., enables verbose logging)
-// for a particular user when calling the 'processData' function defined
-// above.
+// logging threshold to 'ball::Severity::e_TRACE' (i.e., enables verbose
+// logging) for a particular user when calling the 'processData' function
+// defined above.
 //
 // We start by creating the singleton logger manager that we configure with
 // the stream observer and a default configuration.  We then call the
 // 'processData' function: This first call to 'processData' will not result in
 // any logged messages because 'processData' logs its message at the
-// 'ball::Severity::DEBUG' level, which is below the default configured logging
-// threshold.
+// 'ball::Severity::e_DEBUG' level, which is below the default configured
+// logging threshold.
 //..
 //  ball::StreamObserver observer(&bsl::cout);
 //  ball::LoggerManagerConfiguration configuration;
@@ -624,12 +624,12 @@ BSLS_IDENT("$Id: $")
 //  processData(3938908, 2, 9001, message);
 //..
 // Now we add a logging rule, setting the pass-through threshold to be
-// 'ball::Severity::TRACE' (i.e., enabling verbose logging) if the thread's
-// context contains a "uuid" of '3938908'.  Note that we use the wild-card
+// 'ball::Severity::e_TRACE' (i.e., enabling verbose logging) if the thread's
+// context contains a "uuid" of 3938908.  Note that we use the wild-card
 // value '*' for the category so that the 'ball::Rule' rule will apply to all
 // categories.
 //..
-//  ball::Rule rule("*", 0, ball::Severity::TRACE, 0, 0);
+//  ball::Rule rule("*", 0, ball::Severity::e_TRACE, 0, 0);
 //  rule.addPredicate(ball::Predicate("uuid", 3938908));
 //  ball::LoggerManager::singleton().addRule(rule);
 //
