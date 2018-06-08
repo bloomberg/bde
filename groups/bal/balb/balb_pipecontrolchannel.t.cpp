@@ -661,7 +661,11 @@ int main(int argc, char *argv[])
                  << endl;
         }
         cout << "A\n" << flush;
+#ifndef BSLS_PLATFORM_OS_DARWIN
         *(int*)10 = 10;
+#else
+        _exit(1);
+#endif
 
         ASSERT(!"unreachable");
         break;
