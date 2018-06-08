@@ -11,7 +11,7 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
                     // BALL_LOGTHROTTLE_STREAM_CONST_IMP
                     // ---------------------------------
 
-// The stream-style throttled logging macro, all of whose arguments must be
+// The stream-stylelogging macro that throttles, all of whose arguments must be
 // compile-time constants, is reproduced here:
 //..
 //#define BALL_LOGTHROTTLE_STREAM_CONST_IMP(SEVERITY,                        \@
@@ -37,7 +37,7 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 //     ball_logthrottle_cAtEgOrYhOlDeR;                                      \@
 //     ball_logthrottle_cAtEgOrYhOlDeR = 0)
 //..
-// Where this would be used, for example, by 'BALL_LOGTHROTTLE_TRACE':
+// where this would be used, for example, by 'BALL_LOGTHROTTLE_TRACE':
 //..
 //#define BALL_LOGTHROTTLE_TRACE(                                            \@
 //                       MAX_SIMULTANEOUS_MESSAGES, NANOSECONDS_PER_MESSAGE) \@
@@ -52,18 +52,19 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 // 'BALL_LOGTHROTTLE_STREAM_CONST_IMP' creates a static 'bdlt::Throttle' object
 // with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
 // 'NANOSECONDS_PER_MESSAGE', and, if the specified 'SEVERITY' is less than or
-// equal to (lower values are more severe) the category threshold and the "time
-// debt" (see "Throttling Concepts" in the component documentation in the
-// header file) registered in the throttle is not excessive, executes the
+// equal to (lower values are more severe) the category threshold, and the
+// "time debt" (see "Throttling Concepts" in the component documentation in the
+// header file) maintained by the throttle is not excessive, executes the
 // statement or block that follows the macro.  If the severity is greater than
-// (less severe than) the category threshold or the time debt is excessive, the
-// statement or block following the macro is not executed.  Note that all 3
+// (less severe than) the category threshold, or the time debt is excessive,
+// the statement or block following the macro is not executed.  Note that all 3
 // arguments of this macro must be compile-time constants containing no
 // floating-point subexpressions.
 //
 // If you want to access the stream within the controlled block or statement,
 // use 'BALL_LOG_OUTPUT_STREAM' as defined by 'ball_log.h'.  There is no
-// 'BALL_LOGTHROTTLE_OUTPUT_STREAM'.
+// 'BALL_LOGTHROTTLE_OUTPUT_STREAM'.  Note that 'BALL_LOGTHROTTLE_TRACE'
+// provides the 'BALL_LOG_OUTPUT_STREAM' at the end of its expression.
 //
 // The alternative form of this macro, which allows the 'SEVERITY' argument to
 // be a run-time value, rather than compile-time constant, follows:
@@ -99,7 +100,7 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 //     ball_logthrottle_cAtEgOrYhOlDeR;                                      \@
 //     ball_logthrottle_cAtEgOrYhOlDeR = 0)
 //..
-// Where this is only used for 'BALL_LOGTHROTTLE_STREAM':
+// where this is only used for 'BALL_LOGTHROTTLE_STREAM':
 //..
 //#define BALL_LOGTHROTTLE_STREAM(SEVERITY,                                  \@
 //                                MAX_SIMULTANEOUS_MESSAGES,                 \@
@@ -117,7 +118,8 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 //
 // If you want to access the stream within the controlled block or statement,
 // use 'BALL_LOG_OUTPUT_STREAM' as defined by 'ball_log.h'.  There is no
-// 'BALL_LOGTHROTTLE_OUTPUT_STREAM'.
+// 'BALL_LOGTHROTTLE_OUTPUT_STREAM'.  Note that 'BALL_LOGTHROTTLE_STREAM'
+// provides the 'BALL_LOG_OUTPUT_STREAM' at the end of the expression.
 
                         // ----------------------------
                         // BALL_LOGTHROTTLEVA_CONST_IMP
@@ -169,15 +171,16 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 // the 'enum' 'ball::Severity::Level'.  This macro creates a static
 // 'bdlmt::Throttle' object configured with the specified
 // 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSAGE'.  If 'SEVERITY' is
-// less than (lower severity values are more severe) the category threshold and
-// the time debt (see "Throttling Concepts" in the component documentation in
-// the header file) of the throttle is not excessive, log a message with the
-// printf-style format string msg and arguments following it.  Note that this
-// macro requires that the first three arguments to be compile-time constants,
-// none of which may contain any floating-point subexpressions, but there is no
-// such requirement on any of the other arguments.
+// less than (lower severity values are more severe) the category threshold,
+// and the time debt (see "Throttling Concepts" in the component documentation
+// in the header file) of the throttle is not excessive, log a message produced
+// from the 'printf'-style format string 'msg' and 0 or more arguments that
+// follow.  Note that this macro requires that the first three arguments be
+// compile-time constants, none of which may contain any floating-point
+// subexpressions, but there is no such requirement on any of the other
+// arguments.
 //
-// A separate, public macro, 'BALL_LOGTHROTTLEVA', exists in the header file,
+// A separate public macro, 'BALL_LOGTHROTTLEVA', exists in the header file,
 // which is analogous to 'BALL_LOGTHROTTLEVA_CONST_IMP', except that the first
 // 'SEVERITY' argument may be a run-time value.
 

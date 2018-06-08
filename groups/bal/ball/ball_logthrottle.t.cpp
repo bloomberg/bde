@@ -419,7 +419,8 @@ double RadiationMeterReceiver::yield()
     enum {
         k_NUM_INFO  = 20,       // max # of info messages in a very short time
         k_NUM_DEBUG =  5,       // max # of debug messages in a very short time
-        k_NUM_TRACE =  1 };     // max # of trace messages in a very short time
+        k_NUM_TRACE =  1        // max # of trace messages in a very short time
+    };
 //
     const Int64 k_NS_PER_HOUR = bdlt::TimeUnitRatio::k_NANOSECONDS_PER_HOUR;
 //
@@ -446,14 +447,14 @@ double RadiationMeterReceiver::yield()
 // Readings range from 0 to 100.
 //: o Readings above 10 but not greater than 30 are a concern, but are not very
 //:   serious.  We will report those with an 'e_TRACE' severity, and at most
-//:   one per hour (i.e. messages will be throttled).
+//:   one per hour (i.e., messages will be throttled).
 //: o Readings above 30 but not greater than 60 are more of a worry.  We will
 //:   report those with an 'e_DEBUG' severity, and at most five per hour.
 //: o Readings above 60 but not greater than 90 are very serious.  They will be
 //:   reported with an 'e_INFO' severity, and at most twenty per hour.
 //: o Readings above 90 are potentially catastrophic, and will be reported with
 //:   an 'e_WARN' severity, with no limit on the number of readings reported
-//:   (i.e. no throttling).
+//:   (i.e., no throttling).
 //
 // We are to write a daemon process, which will loop gathering readings.  A
 // reading of an impossible value of -1.0 will indicate termination.
@@ -490,7 +491,7 @@ double RadiationMeterReceiver::yield()
                                             "Radiation reading of " << reading;
             }
 //..
-// Finally, we deal with 'e_TRACE' messages less severe than "e_DEBUG'
+// Finally, we deal with 'e_TRACE' messages less severe than 'e_DEBUG'
 // readings:
 //..
             else if (10 < reading) {
@@ -516,8 +517,8 @@ double RadiationMeterReceiver::yield()
 //:   level messages, occurred.
 //: o 5 readings in the range '(60.0 .. 90.0]', which correspond to 'e_INFO'
 //:   level messages, occurred.
-//: o 2 readings in the range '90.0 < reading', which correspond to 'e_WARN'
-//:   level messages, occurred.
+//: o 2 readings greater than 90.0, which correspond to 'e_WARN' level
+//:   messages, occurred.
 //
 // Note that only 1 'e_TRACE' message and 5 'e_DEBUG' messages are permitted by
 // the throttle within the (very long) time period of one hour, so the other
@@ -576,7 +577,7 @@ double RadiationMeterReceiver::yield()
 // macros instead of the stream-style throttling macros:
 //..
     void radiationMonitorBlockDaemon()
-        // Daemon to run the radiation monitor for a finite period of time.
+        // Daemon to run the radiation monitor.
     {
         BALL_LOG_SET_CATEGORY("RADIATION.MONITOR");
 //
@@ -631,13 +632,13 @@ double RadiationMeterReceiver::yield()
 // If the values returned by 'receiver.yield()' match those from Usage Example
 // 1, then the output will be identical to that example.
 //..
-///Example 3: printf-Style Throttling Macro Usage
-/// - - - - - - - - - - - - - - - - - - - - - - -
-// Here, we just repeat exactly the same code, using the printf-style
+///Example 3: 'printf'-Style Throttling Macro Usage
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// Here, we again repeat exactly the same code, using the 'printf'-style
 // throttling macros:
 //..
     void radiationMonitorPrintfDaemon()
-        // Daemon to run the radiation monitor for a finite period of time.
+        // Daemon to run the radiation monitor.
     {
         BALL_LOG_SET_CATEGORY("RADIATION.MONITOR");
 //
@@ -1138,7 +1139,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 That the stream-style macros will produce the correct number of
         //:   traces over a timespan encompassing several
-        //:   'nanosecondsPerMessage' periods.
+        //:   'NANOSECONDS_PER_MESSAGE' periods.
         //
         // Plan:
         //: 1 Do a single-threaded test, where attempts to are made to issue
@@ -1148,7 +1149,7 @@ int main(int argc, char *argv[])
         //:   that the throttle is configured to permit.
         //:
         //: 3 Each attempted burst will be completed in less time than the
-        //:   'nanosecondsPerMessage' period length specified to the throttle.
+        //:   'NANOSECONDS_PER_MESSAGE' period length specified to the throttle.
         //:
         //: 4 Between bursts, sleep barely over half a period.
         //:
@@ -1178,7 +1179,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 That the printf-style macros will produce the correct number of
         //:   traces over a timespan encompassing several
-        //:   'nanosecondsPerMessage' periods.
+        //:   'NANOSECONDS_PER_MESSAGE' periods.
         //
         // Plan:
         //: 1 Do a single-threaded test, where attempts to are made to issue
@@ -1188,7 +1189,8 @@ int main(int argc, char *argv[])
         //:   that the throttle is configured to permit.
         //:
         //: 3 Each attempted burst will be completed in less time than the
-        //:   'nanosecondsPerMessage' period length specified to the throttle.
+        //:   'NANOSECONDS_PER_MESSAGE' period length specified to the
+        //:   throttle.
         //:
         //: 4 Between bursts, sleep barely over half a period.
         //:
@@ -1309,18 +1311,18 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create the function 'oneTest', which will call the block macros a
-        //:   large number of times in less than the 'nanosecondsPerMessage'
+        //:   large number of times in less than the 'NANOSECONDS_PER_MESSAGE'
         //:   arg of time with the category at a specified level and the
         //:   attempted severity at another specified level.
         //:
-        //: 2 Call 'oneTest' with every combination of threshhold vs attempt
+        //: 2 Call 'oneTest' with every combination of threshold vs attempt
         //:   severities, waiting
         //:   '2 * MAX_SIMULTANEOUS_ACTIONS * NANOSECONDS_PER_MESSAGE' between
         //:   calls.
         //:
-        //: 3 Put the macros without '{}'s in the statement constrolled by an
+        //: 3 Put the macros without '{}'s in the statement controlled by an
         //:   'if' with an 'else' to verify that the macros expand to a single
-        //:   C++ statment.
+        //:   C++ statement.
         //
         // Testing:
         //   BALL_LOGTHROTTLE_TRACE_BLOCK
@@ -1457,7 +1459,7 @@ int main(int argc, char *argv[])
         //:   o The 'severity' argument is able to be passed a non-const
         //:     variable.
         //:
-        //:   o If the 'severity' is less severe than the threshhold, no trace
+        //:   o If the 'severity' is less severe than the threshold, no trace
         //:     occurs.
         //:
         //:   o That only the specified # of traces is allowed to occur within
@@ -1465,7 +1467,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 That the severity-hard-coded 'BALL_LOGTHROTTLE_*' macros all work
         //:   as documented.
-        //:   o If the 'severity' is less severe than the threshhold, no trace
+        //:   o If the 'severity' is less severe than the threshold, no trace
         //:     occurs.
         //:
         //:   o That only the specified # of traces is allowed to occur within
@@ -1932,7 +1934,7 @@ int main(int argc, char *argv[])
         //:   o The 'severity' argument is able to be passed a non-const
         //:     variable.
         //:
-        //:   o If the 'severity' is less severe than the threshhold, no trace
+        //:   o If the 'severity' is less severe than the threshold, no trace
         //:     occurs.
         //:
         //:   o That only the specified # of traces is allowed to occur within
@@ -1940,7 +1942,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 That the severity-hard-coded 'BALL_LOGTHROTTLEVA_*' macros all
         //:   work as documented.
-        //:   o If the 'severity' is less severe than the threshhold, no trace
+        //:   o If the 'severity' is less severe than the threshold, no trace
         //:     occurs.
         //:
         //:   o That only the specified # of traces is allowed to occur within
@@ -2088,7 +2090,7 @@ int main(int argc, char *argv[])
                                    BloombergLP::ball::Severity::e_FATAL - 1);
 
         const int    n = 1;                     // numEventsPerPeriod
-        const Int64  p = 1000 * 1000 * 1000;    // nanosecondsPerMessage
+        const Int64  p = 1000 * 1000 * 1000;    // NANOSECONDS_PER_MESSAGE
         ball::Severity::Level sev;
 
         BALL_LOG_SET_CATEGORY("sieve")
