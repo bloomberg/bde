@@ -890,7 +890,7 @@ BlobBuffer::BlobBuffer(bslmf::MovableRef<BlobBuffer> original)
 : d_buffer(MoveUtil::move(MoveUtil::access(original).d_buffer))
 , d_size(MoveUtil::move(MoveUtil::access(original).d_size))
 {
-    original.d_size = 0;
+    MoveUtil::access(original).d_size = 0;
 }
 
 inline
