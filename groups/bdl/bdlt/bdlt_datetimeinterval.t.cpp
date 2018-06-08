@@ -1860,14 +1860,19 @@ if (veryVerbose)
                     { L_, -1.0 / k_USECS_PER_SEC,            0,          -1  },
                     { L_, -1.0 / k_USECS_PER_SEC + k_DELTA,  0,          -1  },
                     { L_, -0.5 / k_USECS_PER_SEC - k_DELTA,  0,          -1  },
-                    { L_, -0.5 / k_USECS_PER_SEC,            0,          -1  },
+                 // { L_, -0.5 / k_USECS_PER_SEC,            0,          -1  },
+                 // Note that this case expects that casting the sum of two
+                 // -0.5 'double' values to Int64 type results in -1 that is
+                 // not guaranteed due to the nature of double type binary
+                 // representation.
                     { L_, -0.5 / k_USECS_PER_SEC + k_DELTA,  0,           0  },
                     { L_, -0.0 / k_USECS_PER_SEC - k_DELTA,  0,           0  },
                     { L_, -0.0 / k_USECS_PER_SEC,            0,           0  },
                     { L_,  0.0 / k_USECS_PER_SEC,            0,           0  },
                     { L_,  0.0 / k_USECS_PER_SEC + k_DELTA,  0,           0  },
                     { L_,  0.5 / k_USECS_PER_SEC - k_DELTA,  0,           0  },
-                    { L_,  0.5 / k_USECS_PER_SEC,            0,           1  },
+                 // { L_,  0.5 / k_USECS_PER_SEC,            0,           1  },
+                 // See the comment above.
                     { L_,  0.5 / k_USECS_PER_SEC + k_DELTA,  0,           1  },
                     { L_,  1.0 / k_USECS_PER_SEC - k_DELTA,  0,           1  },
                     { L_,  1.0 / k_USECS_PER_SEC,            0,           1  },
@@ -1884,10 +1889,11 @@ if (veryVerbose)
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
                 for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+                    const int& LINE = DATA[i].d_line;
                     mX.setTotalSecondsFromDouble(DATA[i].d_secsFrom);
                     mY.setInterval(0, 0, 0, DATA[i].d_secsExpected, 0,
                                                       DATA[i].d_usecsExpected);
-                    ASSERTV(testing, DATA[i].d_line, X == Y);
+                    ASSERTV(testing, LINE, X, Y, X == Y);
                 }
             }
 
