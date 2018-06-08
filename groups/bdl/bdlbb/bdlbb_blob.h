@@ -753,6 +753,12 @@ class Blob {
         // negative value, or if the new length requires growing the blob and
         // this blob has no underlying factory.
 
+    void swap(Blob& other) BSLS_CPP11_NOEXCEPT;
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as 'other'.
+
     void swapBufferRaw(int index, BlobBuffer *srcBuffer);
         // Swap the blob buffer at the specified 'index' with the specified
         // 'srcBuffer'.  The behavior is undefined unless
@@ -843,6 +849,11 @@ bool operator!=(const Blob& lhs, const Blob& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' blobs do not have the
     // same value, and 'false' otherwise.  Two blobs do not have the same value
     // if they do not hold the same buffers, or do not have the same length.
+
+void swap(Blob& a, Blob& b);
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+    // This method provides the no-throw exception-safety guarantee if both
+    // objects were created with the same allocator.
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -966,6 +977,21 @@ void Blob::reserveBufferCapacity(int numBuffers)
     d_buffers.reserve(numBuffers);
 }
 
+// MANIPULATORS
+inline
+void Blob::swap(Blob& other) BSLS_CPP11_NOEXCEPT
+{
+    BSLS_ASSERT(this->allocator() == other.allocator());
+
+    bslalg::SwapUtil::swap(&this->d_buffers, &other.d_buffers);
+    bslalg::SwapUtil::swap(&this->d_totalSize, &other.d_totalSize);
+    bslalg::SwapUtil::swap(&this->d_dataLength, &other.d_dataLength);
+    bslalg::SwapUtil::swap(&this->d_dataIndex, &other.d_dataIndex);
+    bslalg::SwapUtil::swap(&this->d_preDataIndexLength,
+                           &other.d_preDataIndexLength);
+    bslalg::SwapUtil::swap(&this->d_bufferFactory_p, &other.d_bufferFactory_p);
+}
+
 // ACCESSORS
 inline
 bslma::Allocator *Blob::allocator() const
@@ -1013,6 +1039,23 @@ int Blob::totalSize() const
 }
 
 }  // close package namespace
+
+// FREE OPERATORS
+inline
+void
+bdlbb::swap(bdlbb::Blob& a, bdlbb::Blob& b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+    }
+    else {
+        typedef bslmf::MovableRefUtil MoveUtil;
+        bdlbb::Blob x(MoveUtil::move(a), a.allocator());
+        a = b;
+        b = x;
+    }
+}
+
 }  // close enterprise namespace
 
 #endif

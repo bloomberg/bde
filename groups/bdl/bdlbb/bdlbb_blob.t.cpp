@@ -23,6 +23,8 @@
 #include <bslx_byteoutstream.h>
 #include <bslx_marshallingutil.h>
 
+#include <bsls_asserttest.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_exception.h>
 #include <bsl_iostream.h>
@@ -150,6 +152,17 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //                      GLOBAL HELPER CLASSES/FUNCTIONS
@@ -665,9 +678,9 @@ class NullDeleter {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int verbose         = argc > 2;
+    int veryVerbose     = argc > 3;
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
@@ -849,13 +862,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing 'BlobBuffer' swap\n";
         {
-            static const int aSize = 256;
+            static const int      aSize = 256;
             bsl::shared_ptr<char> aBuffer(new char[aSize]);
-            bdlbb::BlobBuffer aBlobBuffer(aBuffer, aSize);
+            bdlbb::BlobBuffer     aBlobBuffer(aBuffer, aSize);
 
-            static const int bSize = 128;
+            static const int      bSize = 128;
             bsl::shared_ptr<char> bBuffer(new char[bSize]);
-            bdlbb::BlobBuffer bBlobBuffer(bBuffer, bSize);
+            bdlbb::BlobBuffer     bBlobBuffer(bBuffer, bSize);
 
             aBlobBuffer.swap(bBlobBuffer);
 
@@ -872,6 +885,113 @@ int main(int argc, char *argv[])
 
             ASSERT(bBlobBuffer.data() == bBuffer.get());
             ASSERT(bBlobBuffer.size() == bSize);
+        }
+
+        if (verbose) cout << "Testing 'Blob' swap\n";
+        {
+            bslma::TestAllocator ta("object", veryVeryVerbose);
+            bslma::TestAllocator ta2("object2", veryVeryVerbose);
+
+            static const int        aSize = 256;
+            SimpleBlobBufferFactory aFactory(aSize, &ta);
+            bdlbb::Blob             aBlob(&aFactory, &ta);
+            static const int        aLength = 324;
+            aBlob.setLength(aLength);
+            static const int aBufNum = aLength / aSize + (aLength % aSize > 0);
+
+            // Sanity check
+            ASSERT(aBlob.lastDataBufferLength() == aLength % aSize);
+            ASSERT(aBlob.length()               == aLength);
+            ASSERT(aBlob.numDataBuffers()       == aBufNum);
+            ASSERT(aBlob.numBuffers()           == aBufNum);
+            ASSERT(aBlob.totalSize()            == aBufNum * aSize);
+
+            static const int        bSize = 128;
+            SimpleBlobBufferFactory bFactory(bSize, &ta);
+            bdlbb::Blob             bBlob(&bFactory, &ta);
+            static const int        bLength = 260;
+            bBlob.setLength(bLength);
+            static const int bBufNum = bLength / bSize + (bLength % bSize > 0);
+
+            // Sanity check
+            ASSERT(bBlob.lastDataBufferLength() == bLength % bSize);
+            ASSERT(bBlob.length()               == bLength);
+            ASSERT(bBlob.numDataBuffers()       == bBufNum);
+            ASSERT(bBlob.numBuffers()           == bBufNum);
+            ASSERT(bBlob.totalSize()            == bBufNum * bSize);
+
+            aBlob.swap(bBlob);  // Verifying member swap
+
+            ASSERT(aBlob.lastDataBufferLength() == bLength % bSize);
+            ASSERT(aBlob.length()               == bLength);
+            ASSERT(aBlob.numDataBuffers()       == bBufNum);
+            ASSERT(aBlob.numBuffers()           == bBufNum);
+            ASSERT(aBlob.totalSize()            == bBufNum * bSize);
+
+            ASSERT(bBlob.lastDataBufferLength() == aLength % aSize);
+            ASSERT(bBlob.length()               == aLength);
+            ASSERT(bBlob.numDataBuffers()       == aBufNum);
+            ASSERT(bBlob.numBuffers()           == aBufNum);
+            ASSERT(bBlob.totalSize()            == aBufNum * aSize);
+
+            swap(bBlob, aBlob);  // Verifying non-member swap
+
+            ASSERT(aBlob.lastDataBufferLength() == aLength % aSize);
+            ASSERT(aBlob.length()               == aLength);
+            ASSERT(aBlob.numDataBuffers()       == aBufNum);
+            ASSERT(aBlob.numBuffers()           == aBufNum);
+            ASSERT(aBlob.totalSize()            == aBufNum * aSize);
+
+            ASSERT(bBlob.lastDataBufferLength() == bLength % bSize);
+            ASSERT(bBlob.length()               == bLength);
+            ASSERT(bBlob.numDataBuffers()       == bBufNum);
+            ASSERT(bBlob.numBuffers()           == bBufNum);
+            ASSERT(bBlob.totalSize()            == bBufNum * bSize);
+
+            static const int        cSize = 32;
+            SimpleBlobBufferFactory cFactory(cSize, &ta2);
+            bdlbb::Blob             cBlob(&cFactory, &ta2);
+            static const int        cLength = 85;
+            cBlob.setLength(cLength);
+            static const int cBufNum = cLength / cSize + (cLength % cSize > 0);
+
+#ifdef BDE_BUILD_TARGET_EXC
+            {
+                using bsls::AssertFailureHandlerGuard;
+                AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+                (void)g;
+
+                ASSERT_FAIL(aBlob.swap(cBlob));
+
+                // No changes as the swap must have failed due to the differing
+                // allocators.
+
+                ASSERT(aBlob.lastDataBufferLength() == aLength % aSize);
+                ASSERT(aBlob.length()               == aLength);
+                ASSERT(aBlob.numDataBuffers()       == aBufNum);
+                ASSERT(aBlob.numBuffers()           == aBufNum);
+                ASSERT(aBlob.totalSize()            == aBufNum * aSize);
+
+                ASSERT(cBlob.lastDataBufferLength() == cLength % cSize);
+                ASSERT(cBlob.length()               == cLength);
+                ASSERT(cBlob.numDataBuffers()       == cBufNum);
+                ASSERT(cBlob.numBuffers()           == cBufNum);
+                ASSERT(cBlob.totalSize()            == cBufNum * cSize);
+            }
+#endif
+            swap(aBlob, cBlob);
+
+            ASSERT(aBlob.lastDataBufferLength() == cLength % cSize);
+            ASSERT(aBlob.length()               == cLength);
+            ASSERT(aBlob.numDataBuffers()       == cBufNum);
+            ASSERT(aBlob.numBuffers()           == cBufNum);
+            ASSERT(aBlob.totalSize()            == cBufNum * cSize);
+
+            ASSERT(cBlob.lastDataBufferLength() == aLength % aSize);
+            ASSERT(cBlob.length()               == aLength);
+            ASSERT(cBlob.numDataBuffers()       == aBufNum);
+            ASSERT(cBlob.numBuffers()           == aBufNum);
+            ASSERT(cBlob.totalSize()            == aBufNum * aSize);
         }
 
       } break;
@@ -904,12 +1024,14 @@ int main(int argc, char *argv[])
                           << "TESTING MOVE OPERATIONS" << endl
                           << "=======================" << endl;
 
-        typedef  bslmf::MovableRefUtil MoveUtil;
+        typedef bslmf::MovableRefUtil MoveUtil;
+
+        typedef bsl::shared_ptr<char> BufT;
 
         if (verbose) cout << "Testing 'BlobBuffer' move construction\n";
         {
-            static const int size = 256;
-            bsl::shared_ptr<char> aBuffer(new char[size]);
+            static const int  size = 256;
+            BufT              aBuffer(new char[size]);
             bdlbb::BlobBuffer aBlobBuffer(aBuffer, size);
             bdlbb::BlobBuffer anotherBlobBuffer(MoveUtil::move(aBlobBuffer));
 
@@ -928,8 +1050,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing 'BlobBuffer' move assignment\n";
         {
-            static const int size = 256;
-            bsl::shared_ptr<char> aBuffer(new char[size]);
+            static const int  size = 256;
+            BufT              aBuffer(new char[size]);
             bdlbb::BlobBuffer aBlobBuffer(aBuffer, size);
             bdlbb::BlobBuffer anotherBlobBuffer;
             anotherBlobBuffer = MoveUtil::move(aBlobBuffer);
@@ -950,7 +1072,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing 'Blob' move construction\n";
         {
-            bslma::TestAllocator ta("object");
+            bslma::TestAllocator ta("object", veryVeryVerbose);
+
             static const int size = 256;
             SimpleBlobBufferFactory factory(size, &ta);
             bdlbb::Blob aBlob(&factory, &ta);
@@ -971,9 +1094,9 @@ int main(int argc, char *argv[])
             ASSERT(aBlob.totalSize()            == 0);
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-            bsl::shared_ptr<char> buf(new char[size]);
+            BufT              buf(new char[size]);
             bdlbb::BlobBuffer bufs[] = { { buf, size }, { buf, size } };
-            int bufn = sizeof(bufs) / sizeof(*bufs);
+            int               bufn = sizeof(bufs) / sizeof(*bufs);
             bslma::TestAllocatorMonitor tam(&ta);
             bdlbb::Blob autoMoved(bdlbb::Blob(bufs, bufn, &factory, &ta));
 
@@ -990,8 +1113,8 @@ int main(int argc, char *argv[])
 
             // Testing differing allocators
 
-            bslma::TestAllocator ta2("object2");
-            bdlbb::Blob aBlob2(MoveUtil::move(anotherBlob), &ta2);
+            bslma::TestAllocator ta2("object2", veryVeryVerbose);
+            bdlbb::Blob          aBlob2(MoveUtil::move(anotherBlob), &ta2);
 
             ASSERT(aBlob2.lastDataBufferLength() == 68);
             ASSERT(aBlob2.length()               == 324);
@@ -1010,10 +1133,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing 'Blob' move assignment\n";
         {
-            bslma::TestAllocator ta("object");
-            static const int size = 256;
+            bslma::TestAllocator    ta("object");
+
+            static const int        size = 256;
             SimpleBlobBufferFactory factory(size, &ta);
-            bdlbb::Blob aBlob(&factory, &ta);
+            bdlbb::Blob             aBlob(&factory, &ta);
             aBlob.setLength(324);
 
             bdlbb::Blob anotherBlob(&ta);
@@ -1032,10 +1156,12 @@ int main(int argc, char *argv[])
             ASSERT(aBlob.totalSize()            == 0);
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-            bsl::shared_ptr<char> buf(new char[size]);
-            bdlbb::BlobBuffer bufs[] = { { buf, size }, { buf, size } };
-            int bufn = sizeof(bufs) / sizeof(*bufs);
-            bdlbb::Blob autoMoved(&ta);
+            BufT                        buf(new char[size]);
+            bdlbb::BlobBuffer           bufs[] = {
+                { buf, size }, { buf, size }
+            };
+            int                         bufn = sizeof(bufs) / sizeof(*bufs);
+            bdlbb::Blob                 autoMoved(&ta);
             bslma::TestAllocatorMonitor tam(&ta);
             autoMoved = bdlbb::Blob(bufs, bufn, &factory, &ta);
 
@@ -1052,8 +1178,8 @@ int main(int argc, char *argv[])
 
             // Testing differing allocators
 
-            bslma::TestAllocator ta2("object2");
-            bdlbb::Blob aBlob2(&ta2);
+            bslma::TestAllocator ta2("object2", veryVeryVerbose);
+            bdlbb::Blob          aBlob2(&ta2);
             aBlob2 = MoveUtil::move(anotherBlob);
 
             ASSERT(aBlob2.lastDataBufferLength() == 68);
