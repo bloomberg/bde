@@ -27,6 +27,8 @@
 #endif
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <sys/resource.h>
+#include <unistd.h>
+#include <signal.h>
 #endif
 
 using namespace BloombergLP;
@@ -77,6 +79,16 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
+//                             SIGNAL HANDLER
+// ----------------------------------------------------------------------------
+
+extern "C"
+void _exiting_handler(int signum)
+{
+    _exit(1);
+}
+
+// ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -96,12 +108,15 @@ int main(int argc, char *argv[])
     }
 #endif
 #ifdef BSLS_PLATFORM_OS_UNIX
-    // disable core dumps
-
     {
-        struct rlimit rl;
-        rl.rlim_cur = rl.rlim_max = 0;
-        setrlimit(RLIMIT_CORE, &rl);
+        // disable core dumps and Mac popup on crash
+
+        struct sigaction sa;
+        sa.sa_handler = _exiting_handler;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = 0;
+        sigaction(SIGSEGV, &sa, NULL);
+        sigaction(SIGBUS, &sa, NULL);
     }
 #endif
 
