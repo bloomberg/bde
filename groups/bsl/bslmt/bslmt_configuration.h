@@ -93,7 +93,7 @@ namespace bslmt {
 
 struct Configuration {
     // This 'struct' provides a namespace for a suite of functions that are
-    // used to manage the configuration of default values used in 'bce'.
+    // used to manage the configuration of default values used in 'bslmt'.
     // Specifically, these functions manage the default value of thread stack
     // size and provide access to the platform's native guard size, but may be
     // extended to govern more traits in the future.
