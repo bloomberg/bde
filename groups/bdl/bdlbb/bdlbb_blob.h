@@ -472,7 +472,7 @@ class BlobBuffer {
         // behavior is undefined unless '0 <= size' and the capacity of the
         // buffer returned by the 'buffer' method is at least 'size' bytes.
 
-    void swap(BlobBuffer& other) BSLS_CPP11_NOEXCEPT;
+    void swap(BlobBuffer& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
         // exception-safety guarantee.
@@ -528,7 +528,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BlobBuffer& buffer);
     // Format the specified blob 'buffer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
-void swap(BlobBuffer& a, BlobBuffer& b) BSLS_CPP11_NOEXCEPT;
+void swap(BlobBuffer& a, BlobBuffer& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This method provides the no-throw exception-safety guarantee.
 
@@ -753,7 +753,7 @@ class Blob {
         // negative value, or if the new length requires growing the blob and
         // this blob has no underlying factory.
 
-    void swap(Blob& other) BSLS_CPP11_NOEXCEPT;
+    void swap(Blob& other);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  This method provides the no-throw
         // exception-safety guarantee.  The behavior is undefined unless this
@@ -914,7 +914,7 @@ void BlobBuffer::setSize(int size)
 }
 
 inline
-void BlobBuffer::swap(BlobBuffer& other) BSLS_CPP11_NOEXCEPT
+void BlobBuffer::swap(BlobBuffer& other)
 {
     bslalg::SwapUtil::swap(&this->d_buffer, &other.d_buffer);
     bslalg::SwapUtil::swap(&this->d_size, &other.d_size);
@@ -957,7 +957,7 @@ bool bdlbb::operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs)
 
 inline
 void
-bdlbb::swap(bdlbb::BlobBuffer& a, bdlbb::BlobBuffer& b) BSLS_CPP11_NOEXCEPT
+bdlbb::swap(bdlbb::BlobBuffer& a, bdlbb::BlobBuffer& b)
 {
     a.swap(b);
 }
@@ -979,7 +979,7 @@ void Blob::reserveBufferCapacity(int numBuffers)
 
 // MANIPULATORS
 inline
-void Blob::swap(Blob& other) BSLS_CPP11_NOEXCEPT
+void Blob::swap(Blob& other)
 {
     BSLS_ASSERT(this->allocator() == other.allocator());
 

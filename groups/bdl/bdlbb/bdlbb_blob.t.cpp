@@ -36,7 +36,6 @@
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>
-#include <bsl_csetjmp.h>     // 'setjmp', 'longjmp', 'jmp_buf
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -169,61 +168,6 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //                      GLOBAL HELPER CLASSES/FUNCTIONS
 // ----------------------------------------------------------------------------
-
-                        // ============================
-                        // struct LongJumpAssertHandler
-                        // ============================
-
-struct LongJumpAssertHandler {
-    static bsl::jmp_buf *getBuffer();
-
-    static void longJump(const char *text, const char *file, int line);
-};
-
-bsl::jmp_buf *LongJumpAssertHandler::getBuffer()
-{
-    static bsl::jmp_buf theBuffer;
-    return &theBuffer;
-}
-
-void LongJumpAssertHandler::longJump(const char *text,
-                                     const char *file,
-                                     int         line)
-{
-    bsl::longjmp(*getBuffer(), line);
-}
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-#   define LONGJMP_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST) \
-       LONGJMP_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
-#else
-#   define LONGJMP_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)
-#endif
-
-#if defined(BSLS_ASSERT_IS_ACTIVE)
-#define LONGJMP_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST) \
-        LONGJMP_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
-#else
-#define LONGJMP_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST)
-#endif
-
-#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
-#define LONGJMP_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST) \
-        LONGJMP_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
-#else
-#define LONGJMP_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST)
-#endif
-
-#define LONGJMP_ASSERTTEST_BRUTE_FORCE_IMP(RESULT, EXPRESSION_UNDER_TEST)     \
-{                                                                             \
-    char assertTestResult = 'P';                                              \
-    if (0 == setjmp(*LongJumpAssertHandler::getBuffer())) {                   \
-        EXPRESSION_UNDER_TEST;                                                \
-    }                                                                         \
-    else {                                                                    \
-        assertTestResult = 'F';                                               \
-    }                                                                         \
-    ASSERT(RESULT == assertTestResult );                                      \
-}
 
                         // =============================
                         // class UnknownFactoryException
@@ -1019,10 +963,10 @@ int main(int argc, char *argv[])
 #ifdef BDE_BUILD_TARGET_EXC
             {
                 using bsls::AssertFailureHandlerGuard;
-                AssertFailureHandlerGuard g(LongJumpAssertHandler::longJump);
+                AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
                 (void)g;
 
-                LONGJMP_ASSERTTEST_ASSERT_FAIL(aBlob.swap(cBlob));
+                ASSERT_FAIL(aBlob.swap(cBlob));
 
                 // No changes as the swap must have failed due to the differing
                 // allocators.

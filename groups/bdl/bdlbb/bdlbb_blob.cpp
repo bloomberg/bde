@@ -115,7 +115,7 @@ BlobBuffer& BlobBuffer::operator=(const BlobBuffer& rhs)
     return *this;
 }
 
-BlobBuffer& BlobBuffer::operator =(bslmf::MovableRef<BlobBuffer> rhs)
+BlobBuffer& BlobBuffer::operator=(bslmf::MovableRef<BlobBuffer> rhs)
 {
     BlobBuffer& lvalue = rhs;
     d_buffer = MoveUtil::move(lvalue.d_buffer);
