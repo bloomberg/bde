@@ -122,10 +122,22 @@ bslstl::StringRef RecordAttributes::messageRef() const
 {
     const bsl::size_t length = d_messageStreamBuf.length();
     const char *str = d_messageStreamBuf.data();
+    if (0 == str) {
+        // There are some places where observers call
+        // 'native_std::fstream::write(sr.data(), sr.length())' where 'sr' is
+        // the value returned from this expression, and at the time of this
+        // writing, Solaris has a bug where the fail bit of the stream will be
+        // set if '0 == sr.data()'.  This is a workaround to prevent that
+        // outcome by substituting a valid non-null pointer for the first
+        // argument.
+
+        BSLS_ASSERT(0 == length);
+        str = "";
+    }
     const bsl::size_t effectiveLength = (!length || '\0' != str[length - 1])
                                         ? length
                                         : length - 1;
-    return bslstl::StringRef(str, static_cast<int>(effectiveLength));
+    return bslstl::StringRef(str, effectiveLength);
 }
 
 bsl::ostream& RecordAttributes::print(bsl::ostream& stream,
