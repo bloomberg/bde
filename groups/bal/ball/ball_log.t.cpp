@@ -618,7 +618,7 @@ class Point {
 namespace BloombergLP {
 
 ///Example 6: Rule-Based Logging
-//- - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - -
 // The following example demonstrates the use of attributes and rules to
 // conditionally enable logging.
 //
@@ -1916,8 +1916,8 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
     processData(3938908, 2, 9001, message);
 //..
 // The final call to the 'processData' function below, passes a "uuid" of
-// '2171395' (not '3938908') so the logging rule we defined will *not* apply
-// and no message will be logged.
+// 2171395 (not 3938908) so the logging rule we defined will *not* apply and
+// no message will be logged.
 //..
     BALL_LOG_ERROR << "Processing the third message.";
     processData(2171395, 2, 9001, message);
