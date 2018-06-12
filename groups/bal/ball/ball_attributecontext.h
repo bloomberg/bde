@@ -29,6 +29,10 @@ BSLS_IDENT("$Id: $")
 // proctor, 'ball::AttributeContextProctor', used for destroying the attribute
 // context of the current thread.
 //
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
+//
 // Clients obtain the attribute context for the current thread by calling the
 // 'getContext' class method.  Attributes are added and removed from an
 // attribute context using the 'addAttributes' and 'removeAttributes' methods,
@@ -91,7 +95,8 @@ BSLS_IDENT("$Id: $")
 //      attributes.insert(a2);
 //..
 // Next, we obtain a reference to the current thread's attribute context using
-// the 'getContext' class method:
+// the 'getContext' class method (note that in practice we would use a scoped
+// guard for this purpose; see {'ball_scopedattributes'}):
 //..
 //      ball::AttributeContext *context = ball::AttributeContext::getContext();
 //      assert(context);

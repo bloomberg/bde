@@ -30,6 +30,10 @@ BSLS_IDENT("$Id: $")
 // remove that 'ball::AttributeContainer' object from the current attribute
 // context upon destruction.
 //
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
+//
 // Note that the 'ball::AttributeContainer' supplied at construction must
 // remain valid and *unmodified* for the lifetime of this object.
 //

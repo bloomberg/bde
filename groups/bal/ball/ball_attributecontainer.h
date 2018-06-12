@@ -28,6 +28,10 @@ BSLS_IDENT("$Id: $")
 // method, allowing clients to determine if a given attribute value is held by
 // the container.
 //
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
+//
 ///Usage
 ///-----
 // In the following examples we examine two derived implementations of the

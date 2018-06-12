@@ -27,6 +27,10 @@ BSLS_IDENT("$Id: $")
 // 'int', a 64-bit integer, or a 'bsl::string'.  Both the name and value are
 // managed by this object.
 //
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
+//
 ///Usage
 ///-----
 // The following code illustrates how to create predicates:

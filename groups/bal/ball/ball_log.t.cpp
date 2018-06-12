@@ -6,6 +6,7 @@
 #include <ball_attributecontainer.h>
 #include <ball_attributecontainerlist.h>
 #include <ball_attributecontext.h>
+#include <ball_scopedattribute.h>
 #include <ball_defaultattributecontainer.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_predicate.h>
@@ -141,13 +142,13 @@ using bsl::flush;
 // [27] BALL_LOG_IS_ENABLED(SEVERITY)
 // [28] BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)
 // ----------------------------------------------------------------------------
+// [29] CONCERN: 'BALL_LOG_*_BLOCK' MACROS
+// [30] CONCERN: 'BALL_LOGCB_*_BLOCK' MACROS
+// [31] CONCERN: DEGENERATE LOG MACROS USAGE
 // [32] USAGE EXAMPLE
 // [33] RULE-BASED LOGGING USAGE EXAMPLE
 // [34] CLASS-SCOPE LOGGING USAGE EXAMPLE
 // [35] BASIC LOGGING USAGE EXAMPLE
-// [29] CONCERN: 'BALL_LOG_*_BLOCK' MACROS
-// [30] CONCERN: 'BALL_LOGCB_*_BLOCK' MACROS
-// [31] CONCERN: DEGENERATE LOG MACROS USAGE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -618,53 +619,59 @@ namespace BloombergLP {
 
 ///Example 6: Rule-Based Logging
 ///- - - - - - - - - - - - - - -
-// The following example demonstrates using rules and attributes to
-// conditionally enable logging particular messages.
+// The following example demonstrates the use of attributes and rules to
+// conditionally enable logging.
 //
 // We start by defining a function, 'processData', that is passed data in a
 // 'vector<char>' and information about the user who sent the data.  This
 // example function performs no actual processing, but does log a single
-// message at the 'ball::Severity::DEBUG' threshold level.  The 'processData'
+// message at the 'ball::Severity::e_DEBUG' threshold level.  The 'processData'
 // function also adds the user information passed to this function to the
 // thread's attribute context.  We will use these attributes later, to create a
 // logging rule that enables verbose logging only for a particular user.
 //..
-  void processData(int                      uuid,
-                   int                      luw,
-                   int                      terminalNumber,
-                   const bsl::vector<char>& data)
-      // Process the specified 'data' associated with the specified Bloomberg
-      // 'uuid', 'luw', and 'terminalNumber'.
-  {
-      (void)data;  // suppress "unused" warning
+void processData(int                      uuid,
+                 int                      luw,
+                 int                      terminalNumber,
+                 const bsl::vector<char>& data)
+    // Process the specified 'data' associated with the specified Bloomberg
+    // 'uuid', 'luw', and 'terminalNumber'.
+{
+    (void)data;  // suppress "unused" warning
 //..
-// We add our attributes to the generic "default" attribute container.  In
-// practice we could create a more efficient attribute container
-// implementation specifically for these three attributes (uuid, luw, and
-// terminalNumber).  See the 'ball::attributeContainer' component documentation
-// for an example.
+// We add our attributes using 'ball::ScopedAttribute', which adds an attribute
+// container with one attribute to a list of containers.  This is easy and
+// efficient if the number of attributes is small, but should not be used if
+// there are a large number of attributes.  If motivated, we could use
+// 'ball::DefaultAttributeContainer', which provides an efficient container for
+// a large number of attributes, or even create a more efficient attribute
+// container implementation specifically for these three attributes (uuid, luw,
+// and terminalNumber).  See {'ball_scopedattributes'} (plural) for an example
+// of using a different attribute container, and {'ball_attributecontainer'}
+// for an example of creating a custom attribute container.
 //..
-      ball::DefaultAttributeContainer attributes;
-      attributes.addAttribute(ball::Attribute("uuid", uuid));
-      attributes.addAttribute(ball::Attribute("luw", luw));
-      attributes.addAttribute(ball::Attribute("terminalNumber",
-                                             terminalNumber));
-      ball::AttributeContext *context = ball::AttributeContext::getContext();
-      ball::AttributeContext::iterator it =
-                                         context->addAttributes(&attributes);
+    // We use 'ball::ScopedAttribute' here because the number of
+    // attributes is relatively small.
+//
+    ball::ScopedAttribute uuidAttribute("uuid", uuid);
+    ball::ScopedAttribute luwAttribute("luw", luw);
+    ball::ScopedAttribute termNumAttribute("terminalNumber",
+                                           terminalNumber);
 //..
 // In this simplified example we perform no actual processing, and simply log
-// a message at the 'ball::Severity::DEBUG' level.
+// a message at the 'ball::Severity::e_DEBUG' level.
 //..
-      BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
-
-      BALL_LOG_DEBUG << "An example message";
+    BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
+//
+    BALL_LOG_DEBUG << "An example message";
 //..
-// Because 'attributes' is defined on this thread's stack, it must be removed
-// from this thread's attribute context before exiting the function.
+// Notice that if we were not using a "scoped" attribute container like that
+// provided automatically by 'ball::ScopedAttribute' (e.g., if we were using a
+// local 'ball::DefaultAttributeContainer' instead), then the container
+// **must** be removed from the 'ball::AttributeContext' before it is
+// destroyed!  See 'ball_scopedattributes' (plural) for an example.
 //..
-      context->removeAttributes(it);
-  }
+}
 //..
 
 }  // close enterprise namespace
@@ -1718,7 +1725,7 @@ int main(int argc, char *argv[])
 
       case 35: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
+        // BASIC LOGGING USAGE EXAMPLE
         //
         // Concerns:
         //: 1 The usage example provided in the component header file must
@@ -1872,50 +1879,49 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 
         using namespace BloombergLP;  // okay here
 
-//..
-// Next we demonstrate how to create a logging rule that sets the passthrough
-// logging threshold to 'ball::Severity::TRACE' (i.e., enables more verbose
+// Next we demonstrate how to create a logging rule that sets the pass-through
+// logging threshold to 'ball::Severity::e_TRACE' (i.e., enables verbose
 // logging) for a particular user when calling the 'processData' function
-// above.
+// defined above.
 //
 // We start by creating the singleton logger manager that we configure with
-// the stream observer and default configuration.  We then call the
-// 'processData' function.  This first call to 'processData' will not result in
-// any logged messages because the 'processData' function logs its message at
-// the 'ball::Severity::DEBUG' level, which is below the default configured
+// the stream observer and a default configuration.  We then call the
+// 'processData' function: This first call to 'processData' will not result in
+// any logged messages because 'processData' logs its message at the
+// 'ball::Severity::e_DEBUG' level, which is below the default configured
 // logging threshold.
 //..
     ball::StreamObserver observer(&bsl::cout);
-    ball::LoggerManagerConfiguration lmc;
-    ball::LoggerManagerScopedGuard lmg(&observer, lmc);
-
+    ball::LoggerManagerConfiguration configuration;
+    ball::LoggerManagerScopedGuard lmg(&observer, configuration);
+//
     BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
-
+//
     bsl::vector<char> message;
-
+//
     BALL_LOG_ERROR << "Processing the first message.";
     processData(3938908, 2, 9001, message);
 //..
-// Now we add a logging rule to set the passthrough threshold to be
-// 'ball::Severity::TRACE' (i.e., enable more verbose logging) if the thread's
-// context contains a "uuid" of '3938908'.  Note that the category for the
-// 'ball::Rule' is the wild-card value '*' so that the rule will apply to all
+// Now we add a logging rule, setting the pass-through threshold to be
+// 'ball::Severity::e_TRACE' (i.e., enabling verbose logging) if the thread's
+// context contains a "uuid" of 3938908.  Note that we use the wild-card
+// value '*' for the category so that the 'ball::Rule' rule will apply to all
 // categories.
 //..
     ball::Rule rule("*", 0, ball::Severity::e_TRACE, 0, 0);
     rule.addPredicate(ball::Predicate("uuid", 3938908));
     ball::LoggerManager::singleton().addRule(rule);
-
+//
     BALL_LOG_ERROR << "Processing the second message.";
     processData(3938908, 2, 9001, message);
-
+//..
+// The final call to the 'processData' function below, passes a "uuid" of
+// 2171395 (not 3938908) so the logging rule we defined will *not* apply and
+// no message will be logged.
+//..
     BALL_LOG_ERROR << "Processing the third message.";
     processData(2171395, 2, 9001, message);
 //..
-// The final call to the 'processData' function above, passes a "uuid" of
-// '2171395' (not '3938908') so the default logging threshold will apply and no
-// message will be logged.
-//
 // The resulting logged output for this example looks like the following:
 //..
 // ERROR example.cpp:105 EXAMPLE.CATEGORY Processing the first message.

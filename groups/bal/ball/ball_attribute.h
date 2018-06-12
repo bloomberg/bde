@@ -28,6 +28,10 @@ BSLS_IDENT("$Id: $")
 // associated value (owned) that can be an 'int', a 64-bit integer, or a
 // 'bsl::string'.
 //
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
+//
 // IMPORTANT: The attribute name, whose type is 'const char *', must therefore
 // remain valid throughout the life time of the 'ball::Attribute' object and
 // that of any other 'ball::Attribute' objects that are copied or assigned from
