@@ -377,8 +377,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bslalg_swaputil.h>
-
 #include <bslma_allocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
@@ -408,6 +406,10 @@ class BlobBuffer {
     // instance, the container is left in a valid state, but its value is
     // undefined.  In no event is memory leaked.
 
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MoveUtil;
+        // Used in move construction and assignment to make lines shorter.
+
     // DATA
     bsl::shared_ptr<char> d_buffer;  // shared buffer
     int                   d_size;    // buffer size (in bytes)
@@ -416,10 +418,6 @@ class BlobBuffer {
     friend bool operator==(const BlobBuffer&, const BlobBuffer&);
 
     friend bool operator!=(const BlobBuffer&, const BlobBuffer&);
-
-    // PRIVATE TYPES
-    typedef bslmf::MovableRefUtil MoveUtil;
-        // Used in move construction and assignment to make lines shorter.
 
   public:
     // CREATORS
@@ -528,6 +526,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BlobBuffer& buffer);
     // Format the specified blob 'buffer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
+// FREE FUNCTIONS
 void swap(BlobBuffer& a, BlobBuffer& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This method provides the no-throw exception-safety guarantee.
@@ -560,6 +559,10 @@ class Blob {
     // thrown during the invocation of a method on a pre-existing instance, the
     // container is left in a valid state, but its value is undefined.  In no
     // event is memory leaked.
+
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MoveUtil;
+        // Used in move construction and assignment to make lines shorter.
 
     // DATA
     bsl::vector<BlobBuffer>  d_buffers;             // buffer sequence
@@ -594,10 +597,6 @@ class Blob {
     // PRIVATE ACCESSORS
     int assertInvariants() const;
         // Assert the invariants of this object and return 0 on success.
-
-    // PRIVATE TYPES
-    typedef bslmf::MovableRefUtil MoveUtil;
-        // Used in move construction and assignment to make lines shorter.
 
   public:
     // CREATORS
@@ -653,9 +652,10 @@ class Blob {
          bslma::Allocator        *basicAllocator);
         // Create a blob object having the same value as the specified
         // 'original' object that uses the specified 'basicAllocator' to supply
-        // memory.  If 'basicAllocator' is 0, the default allocator is used.
-        // The contents of 'original' are moved to the newly-created object.
-        // 'original' is left in a valid but unspecified state.
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  The contents of 'original' are moved to the
+        // newly-created object. 'original' is left in a valid but unspecified
+        // state.
 
     ~Blob();
         // Destroy this blob.
@@ -850,6 +850,7 @@ bool operator!=(const Blob& lhs, const Blob& rhs);
     // same value, and 'false' otherwise.  Two blobs do not have the same value
     // if they do not hold the same buffers, or do not have the same length.
 
+// FREE FUNCTIONS
 void swap(Blob& a, Blob& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This method provides the no-throw exception-safety guarantee if both
@@ -913,13 +914,6 @@ void BlobBuffer::setSize(int size)
     d_size = size;
 }
 
-inline
-void BlobBuffer::swap(BlobBuffer& other)
-{
-    bslalg::SwapUtil::swap(&this->d_buffer, &other.d_buffer);
-    bslalg::SwapUtil::swap(&this->d_size, &other.d_size);
-}
-
 // ACCESSORS
 inline
 const bsl::shared_ptr<char>& BlobBuffer::buffer() const
@@ -955,13 +949,6 @@ bool bdlbb::operator!=(const BlobBuffer& lhs, const BlobBuffer& rhs)
            lhs.d_size != rhs.d_size;
 }
 
-inline
-void
-bdlbb::swap(bdlbb::BlobBuffer& a, bdlbb::BlobBuffer& b)
-{
-    a.swap(b);
-}
-
 namespace bdlbb {
 
                                  // ==========
@@ -975,21 +962,6 @@ void Blob::reserveBufferCapacity(int numBuffers)
     BSLS_ASSERT_SAFE(0 <= numBuffers);
 
     d_buffers.reserve(numBuffers);
-}
-
-// MANIPULATORS
-inline
-void Blob::swap(Blob& other)
-{
-    BSLS_ASSERT(this->allocator() == other.allocator());
-
-    bslalg::SwapUtil::swap(&this->d_buffers, &other.d_buffers);
-    bslalg::SwapUtil::swap(&this->d_totalSize, &other.d_totalSize);
-    bslalg::SwapUtil::swap(&this->d_dataLength, &other.d_dataLength);
-    bslalg::SwapUtil::swap(&this->d_dataIndex, &other.d_dataIndex);
-    bslalg::SwapUtil::swap(&this->d_preDataIndexLength,
-                           &other.d_preDataIndexLength);
-    bslalg::SwapUtil::swap(&this->d_bufferFactory_p, &other.d_bufferFactory_p);
 }
 
 // ACCESSORS
@@ -1039,22 +1011,6 @@ int Blob::totalSize() const
 }
 
 }  // close package namespace
-
-// FREE OPERATORS
-inline
-void
-bdlbb::swap(bdlbb::Blob& a, bdlbb::Blob& b)
-{
-    if (a.allocator() == b.allocator()) {
-        a.swap(b);
-    }
-    else {
-        typedef bslmf::MovableRefUtil MoveUtil;
-        bdlbb::Blob x(MoveUtil::move(a), a.allocator());
-        a = b;
-        b = x;
-    }
-}
 
 }  // close enterprise namespace
 

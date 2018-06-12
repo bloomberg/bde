@@ -960,30 +960,6 @@ int main(int argc, char *argv[])
             cBlob.setLength(cLength);
             static const int cBufNum = cLength / cSize + (cLength % cSize > 0);
 
-#ifdef BDE_BUILD_TARGET_EXC
-            {
-                using bsls::AssertFailureHandlerGuard;
-                AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
-                (void)g;
-
-                ASSERT_FAIL(aBlob.swap(cBlob));
-
-                // No changes as the swap must have failed due to the differing
-                // allocators.
-
-                ASSERT(aBlob.lastDataBufferLength() == aLength % aSize);
-                ASSERT(aBlob.length()               == aLength);
-                ASSERT(aBlob.numDataBuffers()       == aBufNum);
-                ASSERT(aBlob.numBuffers()           == aBufNum);
-                ASSERT(aBlob.totalSize()            == aBufNum * aSize);
-
-                ASSERT(cBlob.lastDataBufferLength() == cLength % cSize);
-                ASSERT(cBlob.length()               == cLength);
-                ASSERT(cBlob.numDataBuffers()       == cBufNum);
-                ASSERT(cBlob.numBuffers()           == cBufNum);
-                ASSERT(cBlob.totalSize()            == cBufNum * cSize);
-            }
-#endif
             swap(aBlob, cBlob);
 
             ASSERT(aBlob.lastDataBufferLength() == cLength % cSize);
@@ -997,6 +973,31 @@ int main(int argc, char *argv[])
             ASSERT(cBlob.numDataBuffers()       == aBufNum);
             ASSERT(cBlob.numBuffers()           == aBufNum);
             ASSERT(cBlob.totalSize()            == aBufNum * aSize);
+
+#ifdef BDE_BUILD_TARGET_EXC
+            {
+                using bsls::AssertFailureHandlerGuard;
+                AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+                (void)g;
+
+                ASSERT_FAIL(aBlob.swap(cBlob));
+
+                // No changes as the swap must have failed due to the differing
+                // allocators.
+
+                ASSERT(aBlob.lastDataBufferLength() == cLength % cSize);
+                ASSERT(aBlob.length()               == cLength);
+                ASSERT(aBlob.numDataBuffers()       == cBufNum);
+                ASSERT(aBlob.numBuffers()           == cBufNum);
+                ASSERT(aBlob.totalSize()            == cBufNum * cSize);
+
+                ASSERT(cBlob.lastDataBufferLength() == aLength % aSize);
+                ASSERT(cBlob.length()               == aLength);
+                ASSERT(cBlob.numDataBuffers()       == aBufNum);
+                ASSERT(cBlob.numBuffers()           == aBufNum);
+                ASSERT(cBlob.totalSize()            == aBufNum * aSize);
+            }
+#endif
         }
 
       } break;
