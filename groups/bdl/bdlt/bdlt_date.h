@@ -22,8 +22,8 @@ BSLS_IDENT("$Id: $")
 // 'bdlt::Date' and its associated free operators.  Calculations involving
 // business days (or holidays), and day-count conventions (e.g., "ISMA30360"),
 // can be found elsewhere.
-//
 #ifndef BDE_OPENSOURCE_PUBLICATION  // internal code management
+//
 // See 'bdlt_calendar' and the 'bbedc' day-count convention package.
 #endif  // BDE_OPENSOURCE_PUBLICATION -- internal code management
 //
@@ -116,12 +116,12 @@ BSLS_IDENT("$Id: $")
 // expressly intended for maintaining some degree of "compatibility" with
 // versions of this date class that are built to use the proleptic Gregorian
 // calendar.
-//
 #ifndef BDE_OPENSOURCE_PUBLICATION  // internal code management
+//
 // !WARNING!: Use of the proleptic Gregorian version of this class is
 // *disallowed* in Bloomberg code.
-//
 #endif  // BDE_OPENSOURCE_PUBLICATION -- internal code management
+//
 // Over the range of dates supported by 'bdlt::Date'
 // ('[0001JAN01 .. 9999DEC31]'), the proleptic Gregorian calendar (used by
 // 'bdlt::Date') has two fewer days than 'cal', and some dates that exist in
