@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component should *not* be used outside of the 'bce'
+//@DESCRIPTION: This component should *not* be used outside of the 'bslmt'
 // package at this time.
 //
 // This component defines a macro for declaring a 'static' thread-local
@@ -224,8 +224,8 @@ BSLS_IDENT("$Id: $")
  || (defined(BSLS_PLATFORM_CMP_CLANG) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
 #define BSLMT_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE) \
 static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
-    // This macro should *not* be used by clients outside of the 'bce'
-    // package-group at this time.
+    // This macro should *not* be used by clients outside of the 'bslmt'
+    // package at this time.
     //
     // On IBM, the introduction of thread-local storage causes static
     // initializers for shared objects to stop running.  This problem is

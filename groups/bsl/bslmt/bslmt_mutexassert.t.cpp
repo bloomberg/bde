@@ -294,10 +294,8 @@ int veryVerbose;
 // 'BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex)' macro issues an error message
 // and aborts:
 //..
-//  Assertion failed: BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex), file /bb/big
-//  storn/dev_framework/bchapman/git/bde-core/groups/bce/bslmt/unix-Linux-x86_6
-//  4-2.6.18-gcc-4.6.1/bslmt_mutexassertislocked.t.cpp, line 137
-//  Aborted (core dumped)
+//  Assertion failed: BSLMT_MUTEXASSERT_IS_LOCKED_SAFE(&d_mutex),
+//  file bslmt_mutexassertislocked.t.cpp, line 137 Aborted (core dumped)
 //..
 // Finally, note that the message printed above and the subsequent aborting of
 // the program were the result of a call to 'bsls::Assert::invokeHandler',
