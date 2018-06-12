@@ -380,6 +380,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
+#include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
 
@@ -405,6 +406,10 @@ class BlobBuffer {
     // instance, the container is left in a valid state, but its value is
     // undefined.  In no event is memory leaked.
 
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MoveUtil;
+        // Used in move construction and assignment to make lines shorter.
+
     // DATA
     bsl::shared_ptr<char> d_buffer;  // shared buffer
     int                   d_size;    // buffer size (in bytes)
@@ -429,6 +434,12 @@ class BlobBuffer {
         // Create a blob buffer having the same value as the specified
         // 'original' blob buffer.
 
+    BlobBuffer(bslmf::MovableRef<BlobBuffer> original);
+        // Create a blob buffer object having the same value as the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  'original' is left in a valid but unspecified
+        // state.
+
     ~BlobBuffer();
         // Destroy this blob buffer.
 
@@ -436,6 +447,12 @@ class BlobBuffer {
     BlobBuffer& operator=(const BlobBuffer& rhs);
         // Assign to this blob buffer the value of the specified 'rhs' blob
         // buffer, and return a reference to this modifiable blob buffer.
+
+    BlobBuffer& operator=(bslmf::MovableRef<BlobBuffer> rhs);
+        // Assign to this object the value of the specified 'rhs', and return a
+        // reference providing modifiable access to this object.  The contents
+        // of 'rhs' are move-assigned to this object.  'rhs' is left in a valid
+        // but unspecified state.
 
     void reset();
         // Reset this blob buffer to its default-constructed state.
@@ -452,6 +469,11 @@ class BlobBuffer {
         // Set the size of this blob buffer to the specified 'size'.  The
         // behavior is undefined unless '0 <= size' and the capacity of the
         // buffer returned by the 'buffer' method is at least 'size' bytes.
+
+    void swap(BlobBuffer& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.
 
     // ACCESSORS
     const bsl::shared_ptr<char>& buffer() const;
@@ -504,6 +526,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BlobBuffer& buffer);
     // Format the specified blob 'buffer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
+// FREE FUNCTIONS
+void swap(BlobBuffer& a, BlobBuffer& b);
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+    // This method provides the no-throw exception-safety guarantee.
+
                           // =======================
                           // class BlobBufferFactory
                           // =======================
@@ -532,6 +559,10 @@ class Blob {
     // thrown during the invocation of a method on a pre-existing instance, the
     // container is left in a valid state, but its value is undefined.  In no
     // event is memory leaked.
+
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MoveUtil;
+        // Used in move construction and assignment to make lines shorter.
 
     // DATA
     bsl::vector<BlobBuffer>  d_buffers;             // buffer sequence
@@ -610,6 +641,22 @@ class Blob {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
+    Blob(bslmf::MovableRef<Blob> original);
+        // Create a blob object having the same value as the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.  The allocator associated with 'original' is
+        // propagated for use in the newly-created object.  'original' is left
+        // in a valid but unspecified state.
+
+    Blob(bslmf::MovableRef<Blob>  original,
+         bslma::Allocator        *basicAllocator);
+        // Create a blob object having the same value as the specified
+        // 'original' object that uses the specified 'basicAllocator' to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  The contents of 'original' are moved to the
+        // newly-created object.  'original' is left in a valid but unspecified
+        // state.
+
     ~Blob();
         // Destroy this blob.
 
@@ -617,6 +664,12 @@ class Blob {
     Blob& operator=(const Blob& rhs);
         // Assign to this blob the value of the specified 'rhs' blob, and
         // return a reference to this modifiable blob.
+
+    Blob& operator=(bslmf::MovableRef<Blob> rhs);
+        // Assign to this object the value of the specified 'rhs', and return a
+        // reference providing modifiable access to this object.  The contents
+        // of 'rhs' are move-assigned to this object.  'rhs' is left in a valid
+        // but unspecified state.
 
     void appendBuffer(const BlobBuffer& buffer);
         // Append the specified 'buffer' after the last buffer of this blob.
@@ -700,6 +753,12 @@ class Blob {
         // negative value, or if the new length requires growing the blob and
         // this blob has no underlying factory.
 
+    void swap(Blob& other);
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as 'other'.
+
     void swapBufferRaw(int index, BlobBuffer *srcBuffer);
         // Swap the blob buffer at the specified 'index' with the specified
         // 'srcBuffer'.  The behavior is undefined unless
@@ -734,6 +793,9 @@ class Blob {
         // appending them to the current data buffers of this blob.
 
     // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
+
     const BlobBuffer& buffer(int index) const;
         // Return a reference to the non-modifiable blob buffer at the
         // specified 'index' in this blob.  The behavior is undefined unless
@@ -788,6 +850,12 @@ bool operator!=(const Blob& lhs, const Blob& rhs);
     // same value, and 'false' otherwise.  Two blobs do not have the same value
     // if they do not hold the same buffers, or do not have the same length.
 
+// FREE FUNCTIONS
+void swap(Blob& a, Blob& b);
+    // Efficiently exchange the values of the specified 'a' and 'b' objects.
+    // This method provides the no-throw exception-safety guarantee if both
+    // objects were created with the same allocator.
+
 // ============================================================================
 //                             INLINE DEFINITIONS
 // ============================================================================
@@ -816,6 +884,14 @@ BlobBuffer::BlobBuffer(const BlobBuffer& original)
 : d_buffer(original.d_buffer)
 , d_size(original.d_size)
 {
+}
+
+inline
+BlobBuffer::BlobBuffer(bslmf::MovableRef<BlobBuffer> original)
+: d_buffer(MoveUtil::move(MoveUtil::access(original).d_buffer))
+, d_size(MoveUtil::move(MoveUtil::access(original).d_size))
+{
+    MoveUtil::access(original).d_size = 0;
 }
 
 inline
@@ -890,6 +966,12 @@ void Blob::reserveBufferCapacity(int numBuffers)
 
 // ACCESSORS
 inline
+bslma::Allocator *Blob::allocator() const
+{
+    return d_buffers.get_allocator().mechanism();
+}
+
+inline
 const BlobBuffer& Blob::buffer(int index) const
 {
     BSLS_ASSERT_SAFE(0 <= index);
@@ -929,6 +1011,7 @@ int Blob::totalSize() const
 }
 
 }  // close package namespace
+
 }  // close enterprise namespace
 
 #endif

@@ -19,8 +19,12 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_testallocatormonitor.h>
+
 #include <bslx_byteoutstream.h>
 #include <bslx_marshallingutil.h>
+
+#include <bsls_asserttest.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_exception.h>
@@ -94,13 +98,17 @@ using bsl::cerr;
 // [ 8] void bdlbb::Blob::prependDataBuffer(buffer);
 // [ 8] void bdlbb::Blob::appendDataBuffer(buffer)
 // [ 9] void bdlbb::Blob::moveBuffers(bdlbb::Blob *srcBlob);
+// [10] void bdlbb::Blob::swapBufferRaw(int index, BlobBuffer *srcBuffer);
 // [11] void bdlbb::Blob::moveDataBuffers(bdlbb::Blob *srcBlob);
 // [11] void bdlbb::Blob::moveAndAppendDataBuffers(bdlbb::Blob *srcBlob);
-// [10] void bdlbb::Blob::swapBufferRaw(int index, BlobBuffer *srcBuffer);
+// [15] bslma::allocator *bdlbb::Blob::allocator() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] CONCERN: BUFFER ALIASING
-// [13] USAGE EXAMPLE
+// [13] IMPLICIT TRIM
+// [14] MOVE OPERATIONS
+// [15] SWAP
+// [16] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -148,8 +156,23 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
+//                     NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+// ============================================================================
 //                      GLOBAL HELPER CLASSES/FUNCTIONS
 // ----------------------------------------------------------------------------
+
+                        // =============================
+                        // class UnknownFactoryException
+                        // =============================
 
 static int numUnknownFactoryHandlerInvocations = 0;
 
@@ -661,15 +684,15 @@ class NullDeleter {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int verbose         = argc > 2;
+    int veryVerbose     = argc > 3;
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -818,6 +841,362 @@ int main(int argc, char *argv[])
         ASSERT(5                             == blob.numBuffers());
     }
       } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING SWAP
+        //
+        // Concerns:
+        //: 1 Swap swaps all members.
+        //: 2 'Blob' member swap asserts on differing allocators
+        //: 3 'Blob' non-member swap works with differing allocators
+        //
+        // Plan:
+        //:  1 Create two objects, swap them, verify members.  Do this for both
+        //:    'BlobBuffer' and 'Blob', with member and non-member swap.
+        //:
+        //:  2 Create two 'Blob' objects with differing allocators.
+        //:  3 Verify that member swap asserts.
+        //:  4 Verify that non-member swap swaps.
+        //
+        // Testing:
+        //   SWAP
+        //   bslma::allocator *bdlbb::Blob::allocator() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING SWAP" << endl
+                          << "============" << endl;
+
+        if (verbose) cout << "Testing 'BlobBuffer' swap\n";
+        {
+            static const int      aSize = 256;
+            bsl::shared_ptr<char> aBuffer(new char[aSize]);
+            bdlbb::BlobBuffer     aBlobBuffer(aBuffer, aSize);
+
+            static const int      bSize = 128;
+            bsl::shared_ptr<char> bBuffer(new char[bSize]);
+            bdlbb::BlobBuffer     bBlobBuffer(bBuffer, bSize);
+
+            aBlobBuffer.swap(bBlobBuffer);
+
+            ASSERT(aBlobBuffer.data() == bBuffer.get());
+            ASSERT(aBlobBuffer.size() == bSize);
+
+            ASSERT(bBlobBuffer.data() == aBuffer.get());
+            ASSERT(bBlobBuffer.size() == aSize);
+
+            swap(bBlobBuffer, aBlobBuffer);
+
+            ASSERT(aBlobBuffer.data() == aBuffer.get());
+            ASSERT(aBlobBuffer.size() == aSize);
+
+            ASSERT(bBlobBuffer.data() == bBuffer.get());
+            ASSERT(bBlobBuffer.size() == bSize);
+        }
+
+        if (verbose) cout << "Testing 'Blob' swap\n";
+        {
+            bslma::TestAllocator ta("object", veryVeryVerbose);
+            bslma::TestAllocator ta2("object2", veryVeryVerbose);
+
+            static const int        aSize = 256;
+            SimpleBlobBufferFactory aFactory(aSize, &ta);
+            bdlbb::Blob             aBlob(&aFactory, &ta);
+            static const int        aLength = 324;
+            aBlob.setLength(aLength);
+            static const int aBufNum = aLength / aSize + (aLength % aSize > 0);
+
+            static const int        bSize = 128;
+            SimpleBlobBufferFactory bFactory(bSize, &ta);
+            bdlbb::Blob             bBlob(&bFactory, &ta);
+            static const int        bLength = 260;
+            bBlob.setLength(bLength);
+            static const int bBufNum = bLength / bSize + (bLength % bSize > 0);
+
+            ASSERT(aBlob.allocator() == &ta);
+            ASSERT(bBlob.allocator() == &ta);
+
+            aBlob.swap(bBlob);  // Verifying member swap
+
+            ASSERT(aBlob.lastDataBufferLength() == bLength % bSize);
+            ASSERT(aBlob.length()               == bLength);
+            ASSERT(aBlob.numDataBuffers()       == bBufNum);
+            ASSERT(aBlob.numBuffers()           == bBufNum);
+            ASSERT(aBlob.totalSize()            == bBufNum * bSize);
+
+            ASSERT(bBlob.lastDataBufferLength() == aLength % aSize);
+            ASSERT(bBlob.length()               == aLength);
+            ASSERT(bBlob.numDataBuffers()       == aBufNum);
+            ASSERT(bBlob.numBuffers()           == aBufNum);
+            ASSERT(bBlob.totalSize()            == aBufNum * aSize);
+
+            swap(bBlob, aBlob);  // Verifying non-member swap
+
+            ASSERT(aBlob.lastDataBufferLength() == aLength % aSize);
+            ASSERT(aBlob.length()               == aLength);
+            ASSERT(aBlob.numDataBuffers()       == aBufNum);
+            ASSERT(aBlob.numBuffers()           == aBufNum);
+            ASSERT(aBlob.totalSize()            == aBufNum * aSize);
+
+            ASSERT(bBlob.lastDataBufferLength() == bLength % bSize);
+            ASSERT(bBlob.length()               == bLength);
+            ASSERT(bBlob.numDataBuffers()       == bBufNum);
+            ASSERT(bBlob.numBuffers()           == bBufNum);
+            ASSERT(bBlob.totalSize()            == bBufNum * bSize);
+
+            static const int        cSize = 32;
+            SimpleBlobBufferFactory cFactory(cSize, &ta2);
+            bdlbb::Blob             cBlob(&cFactory, &ta2);
+            static const int        cLength = 85;
+            cBlob.setLength(cLength);
+            static const int cBufNum = cLength / cSize + (cLength % cSize > 0);
+
+            ASSERT(cBlob.allocator() == &ta2);
+
+            swap(aBlob, cBlob);
+
+            ASSERT(aBlob.lastDataBufferLength() == cLength % cSize);
+            ASSERT(aBlob.length()               == cLength);
+            ASSERT(aBlob.numDataBuffers()       == cBufNum);
+            ASSERT(aBlob.numBuffers()           == cBufNum);
+            ASSERT(aBlob.totalSize()            == cBufNum * cSize);
+
+            ASSERT(cBlob.lastDataBufferLength() == aLength % aSize);
+            ASSERT(cBlob.length()               == aLength);
+            ASSERT(cBlob.numDataBuffers()       == aBufNum);
+            ASSERT(cBlob.numBuffers()           == aBufNum);
+            ASSERT(cBlob.totalSize()            == aBufNum * aSize);
+
+#ifdef BDE_BUILD_TARGET_EXC
+            {
+                using bsls::AssertFailureHandlerGuard;
+                AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+                (void)g;
+
+                ASSERT_FAIL(aBlob.swap(cBlob));
+
+                // No changes as the swap must have failed due to the differing
+                // allocators.
+
+                ASSERT(aBlob.lastDataBufferLength() == cLength % cSize);
+                ASSERT(aBlob.length()               == cLength);
+                ASSERT(aBlob.numDataBuffers()       == cBufNum);
+                ASSERT(aBlob.numBuffers()           == cBufNum);
+                ASSERT(aBlob.totalSize()            == cBufNum * cSize);
+
+                ASSERT(cBlob.lastDataBufferLength() == aLength % aSize);
+                ASSERT(cBlob.length()               == aLength);
+                ASSERT(cBlob.numDataBuffers()       == aBufNum);
+                ASSERT(cBlob.numBuffers()           == aBufNum);
+                ASSERT(cBlob.totalSize()            == aBufNum * aSize);
+            }
+#endif
+        }
+
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE OPERATIONS
+        //
+        // Concerns:
+        //: 1 The move operations move the data from one object to another.
+        //: 2 The moved-from object is in a usable state.
+        //: 3 Move works if the allocators differ and it copies.
+        //
+        // Plan:
+        //:  1 Verify 'BlobBuffer' move constructor with explicit move.
+        //:  2 If C++11 or later, verify automatic move from temporary.
+        //:  3 Verify 'BlobBuffer' move assignment with explicit move.
+        //:  4 If C++11 or later, verify automatic move from temporary.
+        //:  5 Verify 'Blob' move constructor with explicit move.
+        //:  6 If C++11 or later, verify automatic move from temporary.
+        //:  7 Verify the previous two with differing allocators, too.
+        //:  8 Verify 'Blob' move assignment with explicit move.
+        //:  9 If C++11 or later, verify automatic move from temporary.
+        //: 10 Verify the previous two with differing allocators, too.
+        //
+        // Testing:
+        //   MOVE OPERATIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING MOVE OPERATIONS" << endl
+                          << "=======================" << endl;
+
+        typedef bslmf::MovableRefUtil MoveUtil;
+
+        typedef bsl::shared_ptr<char> BufT;
+
+        if (verbose) cout << "Testing 'BlobBuffer' move construction\n";
+        {
+            static const int  size = 256;
+            BufT              aBuffer(new char[size]);
+            bdlbb::BlobBuffer aBlobBuffer(aBuffer, size);
+            bdlbb::BlobBuffer anotherBlobBuffer(MoveUtil::move(aBlobBuffer));
+
+            ASSERT(anotherBlobBuffer.data() == aBuffer.get());
+            ASSERT(anotherBlobBuffer.size() == size);
+
+            ASSERT(0 == aBlobBuffer.data());
+            ASSERT(0 == aBlobBuffer.size());
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+            bdlbb::BlobBuffer autoMoved(bdlbb::BlobBuffer(aBuffer, size));
+            ASSERT(autoMoved.data() == aBuffer.get());
+            ASSERT(autoMoved.size() == size);
+#endif
+        }
+
+        if (verbose) cout << "Testing 'BlobBuffer' move assignment\n";
+        {
+            static const int  size = 256;
+            BufT              aBuffer(new char[size]);
+            bdlbb::BlobBuffer aBlobBuffer(aBuffer, size);
+            bdlbb::BlobBuffer anotherBlobBuffer;
+            anotherBlobBuffer = MoveUtil::move(aBlobBuffer);
+
+            ASSERT(anotherBlobBuffer.data() == aBuffer.get());
+            ASSERT(anotherBlobBuffer.size() == size);
+
+            ASSERT(0 == aBlobBuffer.data());
+            ASSERT(0 == aBlobBuffer.size());
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+            bdlbb::BlobBuffer autoMoved;
+            autoMoved = bdlbb::BlobBuffer(aBuffer, size);
+            ASSERT(autoMoved.data() == aBuffer.get());
+            ASSERT(autoMoved.size() == size);
+#endif
+        }
+
+        if (verbose) cout << "Testing 'Blob' move construction\n";
+        {
+            bslma::TestAllocator ta("object", veryVeryVerbose);
+
+            static const int size = 256;
+            SimpleBlobBufferFactory factory(size, &ta);
+            bdlbb::Blob aBlob(&factory, &ta);
+            aBlob.setLength(324);
+
+            bdlbb::Blob anotherBlob(MoveUtil::move(aBlob));
+
+            ASSERT(anotherBlob.lastDataBufferLength() == 68);
+            ASSERT(anotherBlob.length()               == 324);
+            ASSERT(anotherBlob.numDataBuffers()       == 2);
+            ASSERT(anotherBlob.numBuffers()           == 2);
+            ASSERT(anotherBlob.totalSize()            == 512);
+
+            ASSERT(aBlob.lastDataBufferLength() == 0);
+            ASSERT(aBlob.length()               == 0);
+            ASSERT(aBlob.numDataBuffers()       == 0);
+            ASSERT(aBlob.numBuffers()           == 0);
+            ASSERT(aBlob.totalSize()            == 0);
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+            BufT              buf(new char[size]);
+            bdlbb::BlobBuffer bufs[] = { { buf, size }, { buf, size } };
+            int               bufn = sizeof(bufs) / sizeof(*bufs);
+            bslma::TestAllocatorMonitor tam(&ta);
+            bdlbb::Blob autoMoved(bdlbb::Blob(bufs, bufn, &factory, &ta));
+
+            // Was it really a move?  We allocated just once, so yes:
+            ASSERT(tam.numBlocksTotalChange() == 1);
+
+            // Was the data moved?  (No way to add length in the constructor.)
+            ASSERT(autoMoved.lastDataBufferLength() == 0);
+            ASSERT(autoMoved.length()               == 0);
+            ASSERT(autoMoved.numDataBuffers()       == 0);
+            ASSERT(autoMoved.numBuffers()           == 2);
+            ASSERT(autoMoved.totalSize()            == 512);
+#endif
+
+            // Testing differing allocators
+
+            bslma::TestAllocator ta2("object2", veryVeryVerbose);
+            bdlbb::Blob          aBlob2(MoveUtil::move(anotherBlob), &ta2);
+
+            ASSERT(aBlob2.lastDataBufferLength() == 68);
+            ASSERT(aBlob2.length()               == 324);
+            ASSERT(aBlob2.numDataBuffers()       == 2);
+            ASSERT(aBlob2.numBuffers()           == 2);
+            ASSERT(aBlob2.totalSize()            == 512);
+
+            // This did a copy, since the allocators differ
+
+            ASSERT(anotherBlob.lastDataBufferLength() == 68);
+            ASSERT(anotherBlob.length()               == 324);
+            ASSERT(anotherBlob.numDataBuffers()       == 2);
+            ASSERT(anotherBlob.numBuffers()           == 2);
+            ASSERT(anotherBlob.totalSize()            == 512);
+        }
+
+        if (verbose) cout << "Testing 'Blob' move assignment\n";
+        {
+            bslma::TestAllocator    ta("object");
+
+            static const int        size = 256;
+            SimpleBlobBufferFactory factory(size, &ta);
+            bdlbb::Blob             aBlob(&factory, &ta);
+            aBlob.setLength(324);
+
+            bdlbb::Blob anotherBlob(&ta);
+            anotherBlob = MoveUtil::move(aBlob);
+
+            ASSERT(anotherBlob.lastDataBufferLength() == 68);
+            ASSERT(anotherBlob.length()               == 324);
+            ASSERT(anotherBlob.numDataBuffers()       == 2);
+            ASSERT(anotherBlob.numBuffers()           == 2);
+            ASSERT(anotherBlob.totalSize()            == 512);
+
+            ASSERT(aBlob.lastDataBufferLength() == 0);
+            ASSERT(aBlob.length()               == 0);
+            ASSERT(aBlob.numDataBuffers()       == 0);
+            ASSERT(aBlob.numBuffers()           == 0);
+            ASSERT(aBlob.totalSize()            == 0);
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+            BufT                        buf(new char[size]);
+            bdlbb::BlobBuffer           bufs[] = {
+                { buf, size }, { buf, size }
+            };
+            int                         bufn = sizeof(bufs) / sizeof(*bufs);
+            bdlbb::Blob                 autoMoved(&ta);
+            bslma::TestAllocatorMonitor tam(&ta);
+            autoMoved = bdlbb::Blob(bufs, bufn, &factory, &ta);
+
+            // Was it really a move?  We allocated just once, so yes:
+            ASSERT(tam.numBlocksTotalChange() == 1);
+
+            // Was the data moved?  (No way to add length in the constructor.)
+            ASSERT(autoMoved.lastDataBufferLength() == 0);
+            ASSERT(autoMoved.length()               == 0);
+            ASSERT(autoMoved.numDataBuffers()       == 0);
+            ASSERT(autoMoved.numBuffers()           == 2);
+            ASSERT(autoMoved.totalSize()            == 512);
+#endif
+
+            // Testing differing allocators
+
+            bslma::TestAllocator ta2("object2", veryVeryVerbose);
+            bdlbb::Blob          aBlob2(&ta2);
+            aBlob2 = MoveUtil::move(anotherBlob);
+
+            ASSERT(aBlob2.lastDataBufferLength() == 68);
+            ASSERT(aBlob2.length()               == 324);
+            ASSERT(aBlob2.numDataBuffers()       == 2);
+            ASSERT(aBlob2.numBuffers()           == 2);
+            ASSERT(aBlob2.totalSize()            == 512);
+
+            // This did a copy, since the allocators differ
+
+            ASSERT(anotherBlob.lastDataBufferLength() == 68);
+            ASSERT(anotherBlob.length()               == 324);
+            ASSERT(anotherBlob.numDataBuffers()       == 2);
+            ASSERT(anotherBlob.numBuffers()           == 2);
+            ASSERT(anotherBlob.totalSize()            == 512);
+        }
+
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TESTING IMPLICIT TRIM
@@ -832,6 +1211,9 @@ int main(int argc, char *argv[])
         //   thorough testing of 'appendDataBuffer'.  Call the method on blobs
         //   in a variety of different states, observing the state of the blob
         //   very closely.
+        //
+        // Testing:
+        //   IMPLICIT TRIM
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING IMPLICIT TRIM\n"

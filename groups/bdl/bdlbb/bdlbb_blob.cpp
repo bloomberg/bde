@@ -14,6 +14,8 @@ BSLS_IDENT_RCSID(bdlbb_blob_cpp, "$Id$ $CSID$")
 
 #include <bdlb_print.h>
 
+#include <bslalg_swaputil.h>
+
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 
@@ -115,6 +117,17 @@ BlobBuffer& BlobBuffer::operator=(const BlobBuffer& rhs)
     return *this;
 }
 
+BlobBuffer& BlobBuffer::operator=(bslmf::MovableRef<BlobBuffer> rhs)
+{
+    BlobBuffer& lvalue = rhs;
+    d_buffer = MoveUtil::move(lvalue.d_buffer);
+    d_size   = MoveUtil::move(lvalue.d_size);
+
+    lvalue.d_size = 0;
+
+    return *this;
+}
+
 void BlobBuffer::reset(const bsl::shared_ptr<char>& buffer, int size)
 {
     BSLS_ASSERT(0 <= size);
@@ -127,6 +140,12 @@ void BlobBuffer::reset()
 {
     d_buffer.reset();
     d_size = 0;
+}
+
+void BlobBuffer::swap(BlobBuffer& other)
+{
+    bslalg::SwapUtil::swap(&this->d_buffer, &other.d_buffer);
+    bslalg::SwapUtil::swap(&this->d_size, &other.d_size);
 }
 
 // ACCESSORS
@@ -142,6 +161,14 @@ bsl::ostream& bdlbb::operator<<(bsl::ostream& stream, const BlobBuffer& buffer)
 {
     return buffer.print(stream, 0, -1);
 }
+
+// FREE FUNCTIONS
+void
+bdlbb::swap(BlobBuffer& a, BlobBuffer& b)
+{
+    a.swap(b);
+}
+
 
 namespace bdlbb {
 
@@ -352,6 +379,39 @@ Blob::Blob(const Blob& original, bslma::Allocator *basicAllocator)
     BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
+Blob::Blob(bslmf::MovableRef<Blob> original)
+: d_buffers(MoveUtil::move(MoveUtil::access(original).d_buffers))
+, d_totalSize(MoveUtil::move(MoveUtil::access(original).d_totalSize))
+, d_dataLength(MoveUtil::move(MoveUtil::access(original).d_dataLength))
+, d_dataIndex(MoveUtil::move(MoveUtil::access(original).d_dataIndex))
+, d_preDataIndexLength(
+            MoveUtil::move(MoveUtil::access(original).d_preDataIndexLength))
+, d_bufferFactory_p(
+            MoveUtil::move(MoveUtil::access(original).d_bufferFactory_p))
+{
+    Blob& lvalue = original;
+    if (0 == lvalue.d_buffers.size()) {
+        lvalue.removeAll();
+    }
+}
+
+Blob::Blob(bslmf::MovableRef<Blob> original, bslma::Allocator *basicAllocator)
+: d_buffers(MoveUtil::move(MoveUtil::access(original).d_buffers),
+            basicAllocator)
+, d_totalSize(MoveUtil::move(MoveUtil::access(original).d_totalSize))
+, d_dataLength(MoveUtil::move(MoveUtil::access(original).d_dataLength))
+, d_dataIndex(MoveUtil::move(MoveUtil::access(original).d_dataIndex))
+, d_preDataIndexLength(
+            MoveUtil::move(MoveUtil::access(original).d_preDataIndexLength))
+, d_bufferFactory_p(
+            MoveUtil::move(MoveUtil::access(original).d_bufferFactory_p))
+{
+    Blob& lvalue = original;
+    if (0 == lvalue.d_buffers.size()) {
+        lvalue.removeAll();
+    }
+}
+
 Blob::~Blob()
 {
     BSLS_ASSERT_SAFE(0 == assertInvariants());
@@ -367,6 +427,23 @@ Blob& Blob::operator=(const Blob& rhs)
     d_dataLength         = rhs.d_dataLength;
     d_dataIndex          = rhs.d_dataIndex;
     d_preDataIndexLength = rhs.d_preDataIndexLength;
+
+    return *this;
+}
+
+Blob& Blob::operator=(bslmf::MovableRef<Blob> rhs)
+{
+    Blob& lvalue = rhs;
+
+    d_buffers            = MoveUtil::move(lvalue.d_buffers);
+    d_totalSize          = MoveUtil::move(lvalue.d_totalSize);
+    d_dataLength         = MoveUtil::move(lvalue.d_dataLength);
+    d_dataIndex          = MoveUtil::move(lvalue.d_dataIndex);
+    d_preDataIndexLength = MoveUtil::move(lvalue.d_preDataIndexLength);
+
+    if (0 == lvalue.d_buffers.size()) {
+        lvalue.removeAll();
+    }
 
     return *this;
 }
@@ -577,6 +654,19 @@ void Blob::setLength(int length)
     return slowSetLength(length);
 }
 
+void Blob::swap(Blob& other)
+{
+    BSLS_ASSERT(this->allocator() == other.allocator());
+
+    bslalg::SwapUtil::swap(&this->d_buffers, &other.d_buffers);
+    bslalg::SwapUtil::swap(&this->d_totalSize, &other.d_totalSize);
+    bslalg::SwapUtil::swap(&this->d_dataLength, &other.d_dataLength);
+    bslalg::SwapUtil::swap(&this->d_dataIndex, &other.d_dataIndex);
+    bslalg::SwapUtil::swap(&this->d_preDataIndexLength,
+                           &other.d_preDataIndexLength);
+    bslalg::SwapUtil::swap(&this->d_bufferFactory_p, &other.d_bufferFactory_p);
+}
+
 void Blob::swapBufferRaw(int index, BlobBuffer *srcBuffer)
 {
     BSLS_ASSERT(0 <= index);
@@ -709,6 +799,21 @@ bool bdlbb::operator!=(const Blob& lhs, const Blob& rhs)
            lhs.d_dataLength != rhs.d_dataLength ||
            lhs.d_dataIndex != rhs.d_dataIndex ||
            lhs.d_preDataIndexLength != rhs.d_preDataIndexLength;
+}
+
+// FREE FUNCTIONS
+void
+bdlbb::swap(Blob& a, Blob& b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+    }
+    else {
+        typedef bslmf::MovableRefUtil MoveUtil;
+        Blob x(MoveUtil::move(a), a.allocator());
+        a = b;
+        b = x;
+    }
 }
 
 }  // close enterprise namespace
