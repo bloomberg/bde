@@ -59,8 +59,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'cookie'.  Note that there are no methods taking just a deleter, as the user
 // must always supply a 'cookie' to be passed when the deleter is actually
 // invoked.
-//
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+//
 // Note that this component still supports (deprecated) legacy deleters that
 // expect to be passed pointers to the specific 'cookie' and managed object
 // types in use.  This latter form of deleter was deprecated as it relies on
