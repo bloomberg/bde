@@ -3386,7 +3386,7 @@ int main(int argc, char *argv[])
 
         fs.close();
 
-        ASSERT(6 == numLines);
+        ASSERTV(numLines, 6 == numLines);
 #endif
 
         ASSERT("" == os.str());
