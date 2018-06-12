@@ -654,7 +654,7 @@ class Blob {
         // 'original' object that uses the specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.  The contents of 'original' are moved to the
-        // newly-created object. 'original' is left in a valid but unspecified
+        // newly-created object.  'original' is left in a valid but unspecified
         // state.
 
     ~Blob();

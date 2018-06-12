@@ -164,7 +164,7 @@ bsl::ostream& bdlbb::operator<<(bsl::ostream& stream, const BlobBuffer& buffer)
 
 // FREE FUNCTIONS
 void
-bdlbb::swap(bdlbb::BlobBuffer& a, bdlbb::BlobBuffer& b)
+bdlbb::swap(BlobBuffer& a, BlobBuffer& b)
 {
     a.swap(b);
 }
@@ -803,14 +803,14 @@ bool bdlbb::operator!=(const Blob& lhs, const Blob& rhs)
 
 // FREE FUNCTIONS
 void
-bdlbb::swap(bdlbb::Blob& a, bdlbb::Blob& b)
+bdlbb::swap(Blob& a, Blob& b)
 {
     if (a.allocator() == b.allocator()) {
         a.swap(b);
     }
     else {
         typedef bslmf::MovableRefUtil MoveUtil;
-        bdlbb::Blob x(MoveUtil::move(a), a.allocator());
+        Blob x(MoveUtil::move(a), a.allocator());
         a = b;
         b = x;
     }

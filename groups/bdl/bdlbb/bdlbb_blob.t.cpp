@@ -98,9 +98,10 @@ using bsl::cerr;
 // [ 8] void bdlbb::Blob::prependDataBuffer(buffer);
 // [ 8] void bdlbb::Blob::appendDataBuffer(buffer)
 // [ 9] void bdlbb::Blob::moveBuffers(bdlbb::Blob *srcBlob);
+// [10] void bdlbb::Blob::swapBufferRaw(int index, BlobBuffer *srcBuffer);
 // [11] void bdlbb::Blob::moveDataBuffers(bdlbb::Blob *srcBlob);
 // [11] void bdlbb::Blob::moveAndAppendDataBuffers(bdlbb::Blob *srcBlob);
-// [10] void bdlbb::Blob::swapBufferRaw(int index, BlobBuffer *srcBuffer);
+// [15] bslma::allocator *bdlbb::Blob::allocator() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] CONCERN: BUFFER ALIASING
@@ -859,6 +860,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   SWAP
+        //   bslma::allocator *bdlbb::Blob::allocator() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -904,13 +906,6 @@ int main(int argc, char *argv[])
             aBlob.setLength(aLength);
             static const int aBufNum = aLength / aSize + (aLength % aSize > 0);
 
-            // Sanity check
-            ASSERT(aBlob.lastDataBufferLength() == aLength % aSize);
-            ASSERT(aBlob.length()               == aLength);
-            ASSERT(aBlob.numDataBuffers()       == aBufNum);
-            ASSERT(aBlob.numBuffers()           == aBufNum);
-            ASSERT(aBlob.totalSize()            == aBufNum * aSize);
-
             static const int        bSize = 128;
             SimpleBlobBufferFactory bFactory(bSize, &ta);
             bdlbb::Blob             bBlob(&bFactory, &ta);
@@ -918,12 +913,8 @@ int main(int argc, char *argv[])
             bBlob.setLength(bLength);
             static const int bBufNum = bLength / bSize + (bLength % bSize > 0);
 
-            // Sanity check
-            ASSERT(bBlob.lastDataBufferLength() == bLength % bSize);
-            ASSERT(bBlob.length()               == bLength);
-            ASSERT(bBlob.numDataBuffers()       == bBufNum);
-            ASSERT(bBlob.numBuffers()           == bBufNum);
-            ASSERT(bBlob.totalSize()            == bBufNum * bSize);
+            ASSERT(aBlob.allocator() == &ta);
+            ASSERT(bBlob.allocator() == &ta);
 
             aBlob.swap(bBlob);  // Verifying member swap
 
@@ -959,6 +950,8 @@ int main(int argc, char *argv[])
             static const int        cLength = 85;
             cBlob.setLength(cLength);
             static const int cBufNum = cLength / cSize + (cLength % cSize > 0);
+
+            ASSERT(cBlob.allocator() == &ta2);
 
             swap(aBlob, cBlob);
 
