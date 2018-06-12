@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>     // 'strlen'
 
-#include <sys/types.h>  // for 'struct stat'; required on Sun and Windows only
+#include <sys/types.h>  // for 'struct stat[64]'; req~d on Sun and Windows only
 #include <sys/stat.h>   // (ditto)
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -328,6 +328,25 @@ enum {
 static bool verbose, veryVerbose, veryVeryVerbose;
 
 //=============================================================================
+//                       GLOBAL HELPER TYPES AND FUNCTIONS
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+typedef struct stat StatType;
+#else
+typedef struct stat64 StatType;
+#endif
+
+inline int fstatFunc(int fd, StatType *buf)
+{
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    return fstat(fd, buf);
+#else
+    return fstat64(fd, buf);
+#endif
+}
+
+//=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -363,8 +382,8 @@ bool tempFileName(char *result)
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpPathBuf[MAX_PATH];
-    if (!GetTempPath(MAX_PATH, tmpPathBuf)
-     || !GetTempFileName(tmpPathBuf, "bslim", 0, result)) {
+    if (!GetTempPathA(MAX_PATH, tmpPathBuf)
+     || !GetTempFileNameA(tmpPathBuf, "bslim", 0, result)) {
         return false;                                                 // RETURN
     }
 #elif defined(BSLS_PLATFORM_OS_HPUX)
@@ -424,7 +443,7 @@ class OutputRedirector {
     long d_outputSize;                        // size of output loaded into
                                               // 'd_outputBuffer'
 
-    struct stat d_originalStdoutStat;         // status information for
+    StatType d_originalStdoutStat;            // status information for
                                               // 'stdout' just before
                                               // redirection
 
@@ -507,7 +526,7 @@ class OutputRedirector {
         // Return 'true' if 'stdout' and 'stderr' have been successfully
         // redirected, and 'false' otherwise.
 
-    const struct stat& originalStdoutStat() const;
+    const StatType& originalStdoutStat() const;
         // Return a reference providing non-modifiable access to the status
         // information for 'stdout' collected just before redirection.  Note
         // that this method is used only to test the correctness of
@@ -560,7 +579,7 @@ OutputRedirector::OutputRedirector()
 , d_outputSize(0L)
 {
     d_fileName[0] = '\0';
-    memset(&d_originalStdoutStat, 0, sizeof(struct stat));
+    memset(&d_originalStdoutStat, 0, sizeof(d_originalStdoutStat));
 }
 
 OutputRedirector::~OutputRedirector()
@@ -660,7 +679,7 @@ void OutputRedirector::redirect()
 
     int originalStdoutFD = fileno(stdout);
     ASSERT(-1 != originalStdoutFD);
-    ASSERT(0 == fstat(originalStdoutFD, &d_originalStdoutStat));
+    ASSERT(0 == fstatFunc(originalStdoutFD, &d_originalStdoutStat));
 
     if (0 != redirectStream(stderr, stdout)) {
         // Redirect 'stderr' to 'stdout'.
@@ -798,7 +817,7 @@ bool OutputRedirector::isRedirected() const
     return d_isRedirectedFlag;
 }
 
-const struct stat& OutputRedirector::originalStdoutStat() const
+const StatType& OutputRedirector::originalStdoutStat() const
 {
     return d_originalStdoutStat;
 }
@@ -2207,7 +2226,7 @@ int main(int argc, char *argv[])
         //:   '<CRLF>' and confirm that these strings are correctly captured
         //:   and loaded.  (C-10)
         //:
-        //:11 Use 'fstat' to find out the device and inode of the current
+        //:11 Use 'fstat[64]' to find out the device and inode of the current
         //:   (post-redirection) 'stderr'.  Compare these values to the device
         //:   and inode of 'stdout' before redirection.  (C-11)
         //
@@ -2422,10 +2441,10 @@ int main(int argc, char *argv[])
 
             int newStderrFD = fileno(stderr);
             ASSERT(-1 != newStderrFD);
-            struct stat stderrStat;
+            StatType stderrStat;
             stderrStat.st_dev = output.originalStdoutStat().st_dev;
             stderrStat.st_rdev = output.originalStdoutStat().st_rdev;
-            ASSERT(-1 != fstat(newStderrFD, &stderrStat));
+            ASSERT(-1 != fstatFunc(newStderrFD, &stderrStat));
 #if !defined(BSLS_PLATFORM_OS_WINDOWS)
             // 'st_dev' and 'st_rdev' are not stable on Windows.
             ASSERT(stderrStat.st_dev == output.originalStdoutStat().st_dev);
