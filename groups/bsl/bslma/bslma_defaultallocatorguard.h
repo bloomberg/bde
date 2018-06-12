@@ -26,10 +26,10 @@ BSLS_IDENT("$Id: $")
 // of a class derived from 'bslma::Allocator'.  The default allocator at the
 // time of guard construction is held by the guard, and the
 // constructor-argument allocator is installed as the new process-wide default
-// allocator (via a call to 'bslma::Default::setDefaultAllocator').  Upon
+// allocator (via a call to 'bslma::Default::setDefaultAllocatorRaw').  Upon
 // destruction of the guard object, its held allocator is restored as the
 // process-wide default allocator (via another call to
-// 'bslma::Default::setDefaultAllocator').
+// 'bslma::Default::setDefaultAllocatorRaw').
 //
 ///Usage
 ///-----
