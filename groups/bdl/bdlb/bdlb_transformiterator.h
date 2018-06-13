@@ -24,7 +24,6 @@ BSLS_IDENT("$Id: $")
 // 'FUNCTOR', is the type of a callable object that can be invoked with a
 // single argument.  When compiling with C++03, this type must be either a
 // function pointer or otherwise have a type from which 'bslmf::ResultType' can
-// determine the result type of invoking the functor (see {bslmf_resulttype}).
 // determine the result type of invoking the functor (see
 // {'bslmf_resulttype'}).  The second parameter, designated 'ITERATOR', is the
 // type of an object that models an iterator from which values may be obtained,
