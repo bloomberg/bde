@@ -1087,10 +1087,10 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
         if (veryVerbose) bsl::cout << "\t>>" << line << "<<\n";
     }
     if (loggerManagerExistsFlag) {
-        ASSERT(0 == numLines);
+        ASSERTV(numLines, 0 == numLines);
     }
     else {
-        ASSERT(3 == numLines);
+        ASSERTV(numLines, 3 == numLines);
     }
     fs.close();
 #endif
