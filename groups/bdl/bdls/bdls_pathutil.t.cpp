@@ -20,6 +20,22 @@
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
+//=============================================================================
+//                              TEST PLAN
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// 'bdlt::PathUtil' provides a suite of functions for manipulating strings that
+// represent paths in the filesystem.  This test driver falls short of accepted
+// standards and needs to be rewritten.
+//
+//-----------------------------------------------------------------------------
+// CLASS METHODS
+// [ 5] int appendIfValid(bsl::string *, const bslstl::StringRef& );
+// [ 6] void splitFilename(StringRef*, StringRef*, const StringRef&, int);
+// ----------------------------------------------------------------------------
+// [ 1] USAGE EXAMPLE
+
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -301,6 +317,337 @@ int main(int argc, char *argv[])
     (void)veryVerbose;
 
     switch(test) { case 0:
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING: 'splitFilename'
+        //
+        // Concerns:
+        //: 1 The 'splitFilename' function accepts absolute and relative paths.
+        //:
+        //: 2 The 'splitFilename' function accepts empty paths and returns
+        //:   empty 'head' and 'tail' in such cases.
+        //:
+        //: 3 'head' always contains root of the original path.
+        //:
+        //: 4 Resultant 'head' does not contain trailing seperators.
+        //:
+        //: 5 Resultant 'tail' does not contain seperators.
+        //:
+        //: 6 The 'splitFilename' function properly handles Windows paths
+        //:   containing forward and backward slashes.
+        //
+        // Plan:
+        //: 1 Create a table of test input values and expected results, and
+        //:   iterate over this table verifying that 'splitFilename' produces
+        //:   the expected results.  (C-1..6)
+        //
+        // Testing:
+        //  void splitFilename(StringRef*, StringRef*, const StringRef&, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout << "TESTING: splitFilename" << endl
+                 << "======================" << endl;
+        }
+
+         static const struct {
+                int         d_line;  // line
+                const char *d_path;  // original path to split
+                int         d_root;  // length of root
+                const char *d_head;  // expected head
+                const char *d_tail;  // expected tail
+        } DATA [] = {
+//v--------^
+//L  ORIGINAL PATH                       ROOT  HEAD                     TAIL
+//-  ----------------------------------  ----  -----------------------  -----
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+{L_, "",                                   0,  "",                      ""   },
+{L_, "\\",                                 1,  "\\",                    ""   },
+{L_, "\\\\",                               2,  "\\\\",                  ""   },
+{L_, "\\\\\\\\",                           4,  "\\\\\\\\",              ""   },
+// Relative paths.
+{L_, "one",                                0,  "",                      "one"},
+{L_, "one\\",                              0,  "one",                   ""   },
+{L_, "one\\\\",                            0,  "one",                   ""   },
+{L_, "one\\\\\\",                          0,  "one",                   ""   },
+{L_, "one\\\\\\\\",                        0,  "one",                   ""   },
+{L_, "one\\two",                           0,  "one",                   "two"},
+{L_, "one\\\\two",                         0,  "one",                   "two"},
+{L_, "one\\\\\\two",                       0,  "one",                   "two"},
+{L_, "one\\\\\\\\two",                     0,  "one",                   "two"},
+// LFS.
+{L_, "c:",                                 2,  "c:",                    ""   },
+{L_, "c:\\",                               3,  "c:\\",                  ""   },
+{L_, "c:\\\\",                             4,  "c:\\\\",                ""   },
+{L_, "c:\\\\\\",                           5,  "c:\\\\\\",              ""   },
+{L_, "c:\\\\\\\\",                         6,  "c:\\\\\\\\",            ""   },
+{L_, "c:one",                              2,  "c:",                    "one"},
+{L_, "c:\\one",                            3,  "c:\\",                  "one"},
+{L_, "c:\\\\one",                          4,  "c:\\\\",                "one"},
+{L_, "c:\\\\\\one",                        5,  "c:\\\\\\",              "one"},
+{L_, "c:\\\\\\\\one",                      6,  "c:\\\\\\\\",            "one"},
+{L_, "c:\\one\\",                          3,  "c:\\one",               ""   },
+{L_, "c:\\\\one\\",                        4,  "c:\\\\one",             ""   },
+{L_, "c:\\\\\\one\\",                      5,  "c:\\\\\\one",           ""   },
+{L_, "c:\\\\\\\\one\\",                    6,  "c:\\\\\\\\one",         ""   },
+{L_, "c:\\one\\two",                       3,  "c:\\one",               "two"},
+{L_, "c:\\one\\\\two",                     3,  "c:\\one",               "two"},
+{L_, "c:\\one\\\\\\two",                   3,  "c:\\one",               "two"},
+{L_, "c:\\one\\\\\\\\two",                 3,  "c:\\one",               "two"},
+// UNC.
+{L_, "\\\\serv\\",                         7,  "\\\\serv\\",            ""   },
+{L_, "\\\\serv\\dir",                      10, "\\\\serv\\dir",         ""   },
+{L_, "\\\\serv\\dir\\",                    11, "\\\\serv\\dir\\",       ""   },
+{L_, "\\\\serv\\dir\\one",                 11, "\\\\serv\\dir\\",       "one"},
+{L_, "\\\\serv\\dir\\\\one",               12, "\\\\serv\\dir\\\\",     "one"},
+{L_, "\\\\serv\\dir\\\\\\one",             13, "\\\\serv\\dir\\\\\\",   "one"},
+{L_, "\\\\serv\\dir\\\\\\\\one",           14, "\\\\serv\\dir\\\\\\\\", "one"},
+{L_, "\\\\serv\\dir\\one\\",               11, "\\\\serv\\dir\\one",    ""   },
+{L_, "\\\\serv\\dir\\one\\\\",             11, "\\\\serv\\dir\\one",    ""   },
+{L_, "\\\\serv\\dir\\one\\\\\\",           11, "\\\\serv\\dir\\one",    ""   },
+{L_, "\\\\serv\\dir\\one\\\\\\\\",         11, "\\\\serv\\dir\\one",    ""   },
+{L_, "\\\\.\\",                            4,  "\\\\.\\",               ""   },
+{L_, "\\\\.\\dir",                         7,  "\\\\.\\dir",            ""   },
+{L_, "\\\\.\\dir\\",                       8,  "\\\\.\\dir\\",          ""   },
+{L_, "\\\\.\\dir\\one",                    8,  "\\\\.\\dir\\",          "one"},
+{L_, "\\\\.\\dir\\\\one",                  9,  "\\\\.\\dir\\\\",        "one"},
+{L_, "\\\\.\\dir\\\\\\one",                10, "\\\\.\\dir\\\\\\",      "one"},
+{L_, "\\\\.\\dir\\\\\\\\one",              11, "\\\\.\\dir\\\\\\\\",    "one"},
+{L_, "\\\\.\\dir\\one\\",                  8,  "\\\\.\\dir\\one",       ""   },
+{L_, "\\\\.\\dir\\one\\\\",                8,  "\\\\.\\dir\\one",       ""   },
+{L_, "\\\\.\\dir\\one\\\\\\",              8,  "\\\\.\\dir\\one",       ""   },
+{L_, "\\\\.\\dir\\one\\\\\\\\",            8,  "\\\\.\\dir\\one",       ""   },
+// LUNC.
+{L_, "\\\\?\\c:",                          6,  "\\\\?\\c:",             ""   },
+{L_, "\\\\?\\c:\\",                        7,  "\\\\?\\c:\\",           ""   },
+{L_, "\\\\?\\c:\\\\",                      8,  "\\\\?\\c:\\\\",         ""   },
+{L_, "\\\\?\\c:\\\\\\",                    9,  "\\\\?\\c:\\\\\\",       ""   },
+{L_, "\\\\?\\c:\\\\\\\\",                  10, "\\\\?\\c:\\\\\\\\",     ""   },
+{L_, "\\\\?\\c:one",                       6,  "\\\\?\\c:",             "one"},
+{L_, "\\\\?\\c:\\one",                     7,  "\\\\?\\c:\\",           "one"},
+{L_, "\\\\?\\c:\\\\one",                   8,  "\\\\?\\c:\\\\",         "one"},
+{L_, "\\\\?\\c:\\\\\\one",                 9,  "\\\\?\\c:\\\\\\",       "one"},
+{L_, "\\\\?\\c:\\\\\\\\one",               10, "\\\\?\\c:\\\\\\\\",     "one"},
+{L_, "\\\\?\\c:\\one\\",                   7,  "\\\\?\\c:\\one",        ""   },
+{L_, "\\\\?\\c:\\\\one\\",                 8,  "\\\\?\\c:\\\\one",      ""   },
+{L_, "\\\\?\\c:\\\\\\one\\",               9,  "\\\\?\\c:\\\\\\one",    ""   },
+{L_, "\\\\?\\c:\\\\\\\\one\\",             10, "\\\\?\\c:\\\\\\\\one",  ""   },
+{L_, "\\\\?\\c:\\one\\two",                7,  "\\\\?\\c:\\one",        "two"},
+{L_, "\\\\?\\c:\\one\\\\two",              7,  "\\\\?\\c:\\one",        "two"},
+{L_, "\\\\?\\c:\\one\\\\\\two",            7,  "\\\\?\\c:\\one",        "two"},
+{L_, "\\\\?\\c:\\one\\\\\\\\two",          7,  "\\\\?\\c:\\one",        "two"},
+{L_, "\\\\?\\UNC\\serv\\",                 13, "\\\\?\\UNC\\serv\\",
+                                                                        ""   },
+{L_, "\\\\?\\UNC\\serv\\dir",              16, "\\\\?\\UNC\\serv\\dir",
+                                                                        ""   },
+{L_, "\\\\?\\UNC\\serv\\dir\\",            17, "\\\\?\\UNC\\serv\\dir\\",
+                                                                        ""   },
+{L_, "\\\\?\\UNC\\serv\\dir\\one",         17, "\\\\?\\UNC\\serv\\dir\\",
+                                                                        "one"},
+{L_, "\\\\?\\UNC\\serv\\dir\\\\one",       18, "\\\\?\\UNC\\serv\\dir\\\\",
+                                                                        "one"},
+{L_, "\\\\?\\UNC\\serv\\dir\\\\\\one",     19, "\\\\?\\UNC\\serv\\dir\\\\\\",
+                                                                        "one"},
+{L_, "\\\\?\\UNC\\serv\\dir\\\\\\\\one",   20, "\\\\?\\UNC\\serv\\dir\\\\\\\\",
+                                                                        "one"},
+
+{L_, "\\\\?\\UNC\\serv\\dir\\one\\",       19, "\\\\?\\UNC\\serv\\dir\\one",
+                                                                        ""   },
+{L_, "\\\\?\\UNC\\serv\\dir\\one\\\\",     19, "\\\\?\\UNC\\serv\\dir\\one",
+                                                                        ""   },
+{L_, "\\\\?\\UNC\\serv\\dir\\one\\\\\\",   19, "\\\\?\\UNC\\serv\\dir\\one",
+                                                                        ""   },
+{L_, "\\\\?\\UNC\\serv\\dir\\one\\\\\\\\", 19, "\\\\?\\UNC\\serv\\dir\\one",
+                                                                        ""   },
+//L  ORIGINAL PATH                       ROOT  HEAD                     TAIL
+//-  ----------------------------------  ----  -----------------------  -----
+// Forward slash.
+{L_, "/",                                  1,  "/",                     ""   },
+{L_, "//",                                 2,  "//",                    ""   },
+{L_, "///",                                3,  "///",                   ""   },
+{L_, "////",                               4,  "////",                  ""   },
+// Forward slash relative paths.
+{L_, "one/",                               0,  "one",                   ""   },
+{L_, "one//",                              0,  "one",                   ""   },
+{L_, "one///",                             0,  "one",                   ""   },
+{L_, "one////",                            0,  "one",                   ""   },
+{L_, "one/two",                            0,  "one",                   "two"},
+{L_, "one//two",                           0,  "one",                   "two"},
+{L_, "one///two",                          0,  "one",                   "two"},
+{L_, "one////two",                         0,  "one",                   "two"},
+// Forward slash LFS.
+{L_, "c:/",                                3,  "c:/",                   ""   },
+{L_, "c://",                               4,  "c://",                  ""   },
+{L_, "c:/one",                             3,  "c:/",                   "one"},
+{L_, "c://one",                            4,  "c://",                  "one"},
+{L_, "c:///one",                           5,  "c:///",                 "one"},
+{L_, "c:////one",                          6,  "c:////",                "one"},
+{L_, "c:/one/",                            3,  "c:/one",                ""   },
+{L_, "c:/one//",                           3,  "c:/one",                ""   },
+{L_, "c:/one///",                          3,  "c:/one",                ""   },
+{L_, "c:/one/////",                        3,  "c:/one",                ""   },
+{L_, "c:/one/two",                         3,  "c:/one",                "two"},
+{L_, "c:/one//two",                        3,  "c:/one",                "two"},
+{L_, "c:/one///two",                       3,  "c:/one",                "two"},
+{L_, "c:/one////two",                      3,  "c:/one",                "two"},
+// Forward slash UNC.
+{L_, "\\\\serv/",                          7,  "\\\\serv/",             ""   },
+{L_, "\\\\serv/dir",                       10, "\\\\serv/dir",          ""   },
+{L_, "\\\\serv/dir/",                      11, "\\\\serv/dir/",         ""   },
+{L_, "\\\\serv/dir/one",                   11, "\\\\serv/dir/",         "one"},
+{L_, "\\\\serv/dir//one",                  12, "\\\\serv/dir//",        "one"},
+{L_, "\\\\serv/dir///one",                 13, "\\\\serv/dir///",       "one"},
+{L_, "\\\\serv/dir////one",                14, "\\\\serv/dir////",      "one"},
+{L_, "\\\\serv/dir/one/",                  11, "\\\\serv/dir/one",      ""   },
+{L_, "\\\\serv/dir/one//",                 11, "\\\\serv/dir/one",      ""   },
+{L_, "\\\\serv/dir/one///",                11, "\\\\serv/dir/one",      ""   },
+{L_, "\\\\serv/dir/one////",               11, "\\\\serv/dir/one",      ""   },
+{L_, "\\\\./",                             4,  "\\\\./",                ""   },
+{L_, "\\\\./dir",                          7,  "\\\\./dir",             ""   },
+{L_, "\\\\./dir/",                         8,  "\\\\./dir/",            ""   },
+{L_, "\\\\./dir/one",                      8,  "\\\\./dir/",            "one"},
+{L_, "\\\\./dir//one",                     9,  "\\\\./dir//",           "one"},
+{L_, "\\\\./dir///one",                    10, "\\\\./dir///",          "one"},
+{L_, "\\\\./dir////one",                   11, "\\\\./dir////",         "one"},
+{L_, "\\\\./dir/one/",                     8,  "\\\\./dir/one",         ""   },
+{L_, "\\\\./dir/one//",                    8,  "\\\\./dir/one",         ""   },
+{L_, "\\\\./dir/one///",                   8,  "\\\\./dir/one",         ""   },
+{L_, "\\\\./dir/one////",                  8,  "\\\\./dir/one",         ""   },
+// Forward slash LUNC.
+{L_, "\\\\?\\c:",                          6,  "\\\\?\\c:",             ""   },
+{L_, "\\\\?\\c:/",                         7,  "\\\\?\\c:/",            ""   },
+{L_, "\\\\?\\c://",                        8,  "\\\\?\\c://",           ""   },
+{L_, "\\\\?\\c:///",                       9,  "\\\\?\\c:///",          ""   },
+{L_, "\\\\?\\c:////",                      10, "\\\\?\\c:////",         ""   },
+{L_, "\\\\?\\c:one",                       6,  "\\\\?\\c:",             "one"},
+{L_, "\\\\?\\c:/one",                      7,  "\\\\?\\c:/",            "one"},
+{L_, "\\\\?\\c://one",                     8,  "\\\\?\\c://",           "one"},
+{L_, "\\\\?\\c:///one",                    9,  "\\\\?\\c:///",          "one"},
+{L_, "\\\\?\\c:////one",                   10, "\\\\?\\c:////",         "one"},
+{L_, "\\\\?\\c:/one/",                     7,  "\\\\?\\c:/one",         ""   },
+{L_, "\\\\?\\c://one/",                    8,  "\\\\?\\c://one",        ""   },
+{L_, "\\\\?\\c:///one/",                   9,  "\\\\?\\c:///one",       ""   },
+{L_, "\\\\?\\c:////one/",                  10, "\\\\?\\c:////one",      ""   },
+{L_, "\\\\?\\c:/one/two",                  7,  "\\\\?\\c:/one",         "two"},
+{L_, "\\\\?\\c:/one//two",                 7,  "\\\\?\\c:/one",         "two"},
+{L_, "\\\\?\\c:/one///two",                7,  "\\\\?\\c:/one",         "two"},
+{L_, "\\\\?\\c:/one////two",               7,  "\\\\?\\c:/one",         "two"},
+{L_, "\\\\?\\UNC\\serv/",                  13, "\\\\?\\UNC\\serv/",     ""   },
+{L_, "\\\\?\\UNC\\serv/dir",               16, "\\\\?\\UNC\\serv/dir",  ""   },
+{L_, "\\\\?\\UNC\\serv/dir/",              17, "\\\\?\\UNC\\serv/dir/", ""   },
+{L_, "\\\\?\\UNC\\serv/dir/one",           17, "\\\\?\\UNC\\serv/dir/", "one"},
+{L_, "\\\\?\\UNC\\serv/dir//one",          18, "\\\\?\\UNC\\serv/dir//",
+                                                                        "one"},
+{L_, "\\\\?\\UNC\\serv/dir///one",         19, "\\\\?\\UNC\\serv/dir///",
+                                                                        "one"},
+{L_, "\\\\?\\UNC\\serv/dir////one",        20, "\\\\?\\UNC\\serv/dir////",
+                                                                        "one"},
+
+{L_, "\\\\?\\UNC\\serv/dir/one/",          19, "\\\\?\\UNC\\serv/dir/one",
+                                                                        ""   },
+{L_, "\\\\?\\UNC\\serv/dir/one//",         19, "\\\\?\\UNC\\serv/dir/one",
+                                                                        ""   },
+{L_, "\\\\?\\UNC\\serv/dir/one///",        19, "\\\\?\\UNC\\serv/dir/one",
+                                                                        ""   },
+{L_, "\\\\?\\UNC\\serv/dir/one////",       19, "\\\\?\\UNC\\serv/dir/one",
+                                                                        ""   },
+#else
+//L  ORIGINAL PATH                       ROOT  HEAD                     TAIL
+//-  ----------------------------------  ----  -----------------------  -----
+{L_, "",                                   0,  "",                      ""   },
+{L_, "/",                                  1,  "/",                     ""   },
+{L_, "//",                                 2,  "//",                    ""   },
+{L_, "///",                                3,  "///",                   ""   },
+{L_, "////",                               4,  "////",                  ""   },
+{L_, "one",                                0,  "",                      "one"},
+{L_, "one/",                               0,  "one",                   ""   },
+{L_, "one//",                              0,  "one",                   ""   },
+{L_, "one///",                             0,  "one",                   ""   },
+{L_, "one////",                            0,  "one",                   ""   },
+{L_, "one/two",                            0,  "one",                   "two"},
+{L_, "one//two",                           0,  "one",                   "two"},
+{L_, "one///two",                          0,  "one",                   "two"},
+{L_, "one////two",                         0,  "one",                   "two"},
+{L_, "one/two/",                           0,  "one/two",               ""   },
+{L_, "one//two/",                          0,  "one//two",              ""   },
+{L_, "one///two/",                         0,  "one///two",             ""   },
+{L_, "one////two/",                        0,  "one////two",            ""   },
+{L_, "/one",                               1,  "/",                     "one"},
+{L_, "/one/",                              1,  "/one",                  ""   },
+{L_, "/one//",                             1,  "/one",                  ""   },
+{L_, "/one///",                            1,  "/one",                  ""   },
+{L_, "/one////",                           1,  "/one",                  ""   },
+{L_, "/one/two",                           1,  "/one",                  "two"},
+{L_, "/one//two",                          1,  "/one",                  "two"},
+{L_, "/one///two",                         1,  "/one",                  "two"},
+{L_, "/one////two",                        1,  "/one",                  "two"},
+{L_, "/one/two/",                          1,  "/one/two",              ""   },
+{L_, "/one//two/",                         1,  "/one//two",             ""   },
+{L_, "/one///two/",                        1,  "/one///two",            ""   },
+{L_, "/one////two/",                       1,  "/one////two",           ""   },
+{L_, "//one",                              2,  "//",                    "one"},
+{L_, "//one/",                             2,  "//one",                 ""   },
+{L_, "//one//",                            2,  "//one",                 ""   },
+{L_, "//one///",                           2,  "//one",                 ""   },
+{L_, "//one////",                          2,  "//one",                 ""   },
+{L_, "//one/two",                          2,  "//one",                 "two"},
+{L_, "//one//two",                         2,  "//one",                 "two"},
+{L_, "//one///two",                        2,  "//one",                 "two"},
+{L_, "//one////two",                       2,  "//one",                 "two"},
+{L_, "//one/two/",                         2,  "//one/two",             ""   },
+{L_, "//one//two/",                        2,  "//one//two",            ""   },
+{L_, "//one///two/",                       2,  "//one///two",           ""   },
+{L_, "//one////two/",                      2,  "//one////two",          ""   },
+{L_, "///one",                             3,  "///",                   "one"},
+{L_, "///one/",                            3,  "///one",                ""   },
+{L_, "///one//",                           3,  "///one",                ""   },
+{L_, "///one///",                          3,  "///one",                ""   },
+{L_, "///one////",                         3,  "///one",                ""   },
+{L_, "///one/two",                         3,  "///one",                "two"},
+{L_, "///one//two",                        3,  "///one",                "two"},
+{L_, "///one///two",                       3,  "///one",                "two"},
+{L_, "///one////two",                      3,  "///one",                "two"},
+{L_, "///one/two/",                        3,  "///one/two",            ""   },
+{L_, "///one//two/",                       3,  "///one//two",           ""   },
+{L_, "///one///two/",                      3,  "///one///two",          ""   },
+{L_, "///one////two/",                     3,  "///one////two",         ""   },
+#endif
+//^--------v
+        };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+            const int               LINE     = DATA[ti].d_line;
+            const bslstl::StringRef PATH     = DATA[ti].d_path;
+            const int               ROOT_END = DATA[ti].d_root;
+            const bsl::string       EXP_HEAD = DATA[ti].d_head;
+            const bsl::string       EXP_TAIL = DATA[ti].d_tail;
+
+            if (veryVerbose) { T_; P_(ti); P(PATH); }
+
+            bslstl::StringRef head;
+            bslstl::StringRef tail;
+
+            ASSERTV(LINE, true == head.empty());
+            ASSERTV(LINE, true == tail.empty());
+
+            Obj::splitFilename(&head, &tail, PATH, -1);
+
+            ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
+            ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
+
+            head.reset();
+            tail.reset();
+
+            ASSERTV(LINE, true == head.empty());
+            ASSERTV(LINE, true == tail.empty());
+
+            Obj::splitFilename(&head, &tail, PATH, ROOT_END);
+
+            ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
+            ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
+        }
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING: 'appendIfValid'
@@ -472,10 +819,12 @@ int main(int argc, char *argv[])
             const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                int pathLen = bsl::strlen(VALUES[i]);
+                size_t pathLen = bsl::strlen(VALUES[i]);
 
-                for (int subStrLen = 0; subStrLen < pathLen; ++subStrLen) {
-                    for (int offset=0; offset<pathLen-subStrLen+1; ++offset){
+                for (size_t subStrLen = 0; subStrLen < pathLen; ++subStrLen) {
+                    for (size_t offset = 0;
+                         offset < pathLen-subStrLen + 1;
+                         ++offset) {
 
                         bsl::string path(VALUES[i]);
                         bslstl::StringRef filename(path.c_str() + offset,

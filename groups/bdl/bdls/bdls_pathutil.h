@@ -308,6 +308,21 @@ struct PathUtil {
         // {'Parsing and Performance (rootEnd argument)'}.  See also
         // {'Terminology'} for the definition of root.
 
+    static void splitFilename(bslstl::StringRef        *head,
+                              bslstl::StringRef        *tail,
+                              const bslstl::StringRef&  path,
+                              int                       rootEnd = -1);
+        // Load the last pathname component from the specified 'path' into the
+        // specified 'tail' and everything leading up to that to the specified
+        // 'head'.  If the optionally specified 'rootEnd' offset is
+        // non-negative, it is taken as the position in 'path' of the character
+        // following the root.  The 'tail' part never contains a slash; if
+        // 'path' ends in a slash, 'tail' is empty.  If there is no slash in
+        // 'path', 'head' is empty.  If 'path' is empty, both 'head' and 'tail'
+        // are empty.  Trailing slashes are stripped from 'head' unless it is
+        // the root.  See {'Terminology'} for the definition of root.
+
+
     static bool isAbsolute(const bslstl::StringRef& path, int rootEnd = -1);
         // Return 'true' if the specified 'path' is absolute (has a root), and
         // 'false' otherwise.  If the optionally specified 'rootEnd' offset is
@@ -350,9 +365,9 @@ struct PathUtil {
 
 // CLASS METHODS
 inline
-int PathUtil::getBasename(bsl::string                    *leaf,
-                                const bslstl::StringRef&  path,
-                                int                       rootEnd)
+int PathUtil::getBasename(bsl::string              *leaf,
+                          const bslstl::StringRef&  path,
+                          int                       rootEnd)
 {
     BSLS_ASSERT_SAFE(leaf);
 
