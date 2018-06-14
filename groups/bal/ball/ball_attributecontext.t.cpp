@@ -503,8 +503,8 @@ struct ThreadArgs {
 // guard for this purpose; see {'ball_scopedattributes'}):
 //..
         ball::AttributeContext *context = ball::AttributeContext::getContext();
-        assert(context);
-        assert(context == ball::AttributeContext::lookupContext());
+        ASSERT(context);
+        ASSERT(context == ball::AttributeContext::lookupContext());
 //..
 // We can add our attribute container, 'attributes', to the current context
 // using the 'addAttributes' method.  We store the returned iterator so that
@@ -512,8 +512,8 @@ struct ThreadArgs {
 //..
         ball::AttributeContext::iterator it =
                                            context->addAttributes(&attributes);
-        assert(context->hasAttribute(a1));
-        assert(context->hasAttribute(a2));
+        ASSERT(context->hasAttribute(a1));
+        ASSERT(context->hasAttribute(a2));
 //..
 // We then call the 'removeAttributes' method to remove the attributes from
 // the attribute context:
@@ -521,8 +521,8 @@ struct ThreadArgs {
         barrier.wait();  // *** added to Example 1 from header file
 
         context->removeAttributes(it);
-        assert(false == context->hasAttribute(a1));
-        assert(false == context->hasAttribute(a2));
+        ASSERT(false == context->hasAttribute(a1));
+        ASSERT(false == context->hasAttribute(a2));
 //..
 // This completes the first thread function:
 //..
