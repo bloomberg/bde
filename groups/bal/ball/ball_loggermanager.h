@@ -1321,8 +1321,10 @@ class LoggerManager {
         // method does *not* create the singleton logger manager used by the
         // macros of the BALL logging framework.
         //
-        // !DEPRECATED!: Use the 'createLoggerManager' method that does *not*
-        // take an 'observer' instead.
+        // !DEPRECATED!: Use the 'createLoggerManager' method that does not
+        // take a *raw* pointer to an 'observer', together with the
+        // 'registerObserver' method (which takes a *shared* pointer to an
+        // 'observer'), instead.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     static void createLoggerManager(
@@ -1363,8 +1365,9 @@ class LoggerManager {
         // singleton already exists.  The behavior is undefined if 'observer'
         // is 0, goes out of scope, or is otherwise destroyed.
         //
-        // !DEPRECATED!: Use the 'initSingleton' method that does *not* take an
-        // 'observer' instead.
+        // !DEPRECATED!: Use the 'initSingleton' method that does not take a
+        // *raw* pointer to an 'observer', together with the 'registerObserver'
+        // method (which takes a *shared* pointer to an 'observer'), instead.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     static LoggerManager& initSingleton(bslma::Allocator *globalAllocator = 0);
@@ -1485,8 +1488,9 @@ class LoggerManager {
         // 'observer' is *not* transferred, and hence, will *not* be destroyed
         // (or otherwise affected) after the logger is deallocated.
         //
-        // !DEPRECATED!: Use the 'allocateLogger' method that does *not* take a
-        // raw pointer to an 'observer' instead.
+        // !DEPRECATED!: Use the 'allocateLogger' method that does not take a
+        // *raw* pointer to an 'observer', together with the 'registerObserver'
+        // method (which takes a *shared* pointer to an 'observer'), instead.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     Logger *allocateLogger(RecordBuffer                     *buffer,
@@ -1645,7 +1649,7 @@ class LoggerManager {
         // Return the address of the modifiable legacy observer registered with
         // this logger manager.
         //
-        // !DEPRECATED!: Use the 'findObserver' method instead.
+        // !DEPRECATED!: Use 'findObserver' instead.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     int registerObserver(const bsl::shared_ptr<Observer>& observer,
@@ -1832,7 +1836,7 @@ class LoggerManager {
         // Return the address of the non-modifiable observer registered with
         // this logger manager.
         //
-        // !DEPRECATED!: Use the 'findObserver' method instead.
+        // !DEPRECATED!: Use 'findObserver' instead.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     const RuleSet& ruleSet() const;
@@ -1900,7 +1904,9 @@ class LoggerManagerScopedGuard {
         // the logger manager singleton, if the singleton exists at that time.
         //
         // !DEPRECATED!: Use the 'LoggerManagerScopedGuard' constructor that
-        // does *not* take an 'observer' instead.
+        // does not take a *raw* pointer to an 'observer', together with the
+        // 'registerObserver' method (which takes a *shared* pointer to an
+        // 'observer'), instead.
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     explicit LoggerManagerScopedGuard(

@@ -79,10 +79,11 @@ using namespace bsl;
 // [ 5] AttributeContextProctor();
 // [ 5] ~AttributeContextProctor();
 //-----------------------------------------------------------------------------
-// [ 7] (OLD) USAGE EXAMPLE
-// [ 8] USAGE EXAMPLE
 // [ 1] AttributeSet
 // [ 6] CONCERN: No false positives from 'hasRelevantActiveRules'.
+// [ 7] (OLD) USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE 1
+// [ 9] USAGE EXAMPLE 2
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -309,7 +310,7 @@ bsl::ostream& AttributeSet::print(bsl::ostream& stream,
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE {
+namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE_2 {
 
 struct ThreadArgs {
     CatMngr *d_categoryManager_p;
@@ -464,13 +465,9 @@ extern "C" void *usageExample2(void *args)
     return 0;
 }
 
-}  // close namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE
+}  // close namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE_2
 
-//=============================================================================
-//                         CASE 6 RELATED ENTITIES
-//-----------------------------------------------------------------------------
-
-namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_6 {
+namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE_1 {
 
 bslmt::Barrier barrier(2);  // synchronize threads
 
@@ -478,39 +475,69 @@ struct ThreadArgs {
     CatMngr *d_categoryManager_p;
 };
 
-extern "C" void *workerThread1(void *)
-{
-    ASSERT(0 == ball::AttributeContext::lookupContext());
+///Example 1: Managing Attributes
+///- - - - - - - - - - - - - - -
+// First we will define a thread function that will create and install two
+// attributes.  Note that we will use the 'AttributeSet' implementation of the
+// 'ball::AttributeContainer' protocol defined in the component documentation
+// for 'ball_attributecontainer'; the 'ball' package provides a similar class
+// in the 'ball_defaultattributecontainer' component.
+//..
+    extern "C" void *workerThread1(void *)
+    {
+//..
+// Inside this thread function, we create an attribute set to hold our
+// attribute values, then we create two 'ball::Attribute' objects and add them
+// to that set:
+//..
+        AttributeSet attributes;
+        ball::Attribute a1("uuid", 4044457);
+        ball::Attribute a2("name", "Gang Chen");
+        attributes.insert(a1);
+        attributes.insert(a2);
 
-    ball::AttributeContext *context = ball::AttributeContext::getContext();
-    ASSERT(context);
-    ASSERT(context == ball::AttributeContext::lookupContext());
+        barrier.wait();  // *** added to Example 1 from header file
+//..
+// Next, we obtain a reference to the current thread's attribute context using
+// the 'getContext' class method (note that in practice we would use a scoped
+// guard for this purpose; see {'ball_scopedattributes'}):
+//..
+        ball::AttributeContext *context = ball::AttributeContext::getContext();
+        ASSERT(context);
+        ASSERT(context == ball::AttributeContext::lookupContext());
+//..
+// We can add our attribute container, 'attributes', to the current context
+// using the 'addAttributes' method.  We store the returned iterator so that
+// we can remove 'attributes' before it goes out of scope and is destroyed:
+//..
+        ball::AttributeContext::iterator it =
+                                           context->addAttributes(&attributes);
+        ASSERT(context->hasAttribute(a1));
+        ASSERT(context->hasAttribute(a2));
+//..
+// We then call the 'removeAttributes' method to remove the attributes from
+// the attribute context:
+//..
+        barrier.wait();  // *** added to Example 1 from header file
 
-    ball::Attribute a1("uuid", 4044457);
-    ball::Attribute a2("name", "Gang Chen");
+        context->removeAttributes(it);
+        ASSERT(false == context->hasAttribute(a1));
+        ASSERT(false == context->hasAttribute(a2));
+//..
+// This completes the first thread function:
+//..
+        barrier.wait();  // *** added to Example 1 from header file
 
-    barrier.wait();
+        return 0;
+    }
 
-    AttributeSet attributes;
-    attributes.insert(a1);
-    attributes.insert(a2);
-
-    ball::AttributeContext::iterator it = context->addAttributes(&attributes);
-
-    ASSERT(context->hasAttribute(a1));
-    ASSERT(context->hasAttribute(a2));
-
-    barrier.wait();
-
-    context->removeAttributes(it);
-
-    ASSERT(false == context->hasAttribute(a1));
-    ASSERT(false == context->hasAttribute(a2));
-
-    barrier.wait();
-
-    return 0;
-}
+//..
+// The second thread function will simply verify that there is no currently
+// available attribute context.  Note that attribute contexts are created and
+// managed by individual threads using thread-specific storage, and that
+// attribute contexts created by one thread are not visible in any other
+// threads:
+//..
 
 extern "C" void *workerThread2(void *)
 {
@@ -526,16 +553,29 @@ extern "C" void *workerThread2(void *)
     return 0;
 }
 
-extern "C" void *workerThread3(void *args)
+}  // close namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE_1
+
+namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE_OLD {
+
+struct ThreadArgs {
+    CatMngr *d_categoryManager_p;
+};
+
+extern "C" void *oldUsageExample(void *args)
 {
     CatMngr *manager =
                      reinterpret_cast<ThreadArgs *>(args)->d_categoryManager_p;
 
+    ASSERT(manager);
+    ASSERT(0 == ball::AttributeContext::lookupContext());
+
     const ball::Category *cat1 =
-                            manager->addCategory("weekday", 128,  96, 64, 32);
+                      manager->setThresholdLevels("weekday", 128,  96, 64, 32);
+    ASSERT(cat1);
 
     const ball::Category *cat2 =
-                            manager->addCategory("weekend", 125, 100, 75, 50);
+                      manager->setThresholdLevels("weekend", 125, 100, 75, 50);
+    ASSERT(cat2);
 
     ball::Rule rule("week*", 120, 110, 70, 40);
 
@@ -645,124 +685,7 @@ extern "C" void *workerThread3(void *args)
     return 0;
 }
 
-extern "C" void *oldUsageExample(void *args)
-{
-    CatMngr *manager =
-                     reinterpret_cast<ThreadArgs *>(args)->d_categoryManager_p;
-
-    ASSERT(0 == ball::AttributeContext::lookupContext());
-
-    const ball::Category *cat1 =
-                      manager->setThresholdLevels("weekday", 128,  96, 64, 32);
-
-    const ball::Category *cat2 =
-                      manager->setThresholdLevels("weekend", 125, 100, 75, 50);
-
-    ball::Rule rule("week*", 120, 110, 70, 40);
-    manager->addRule(rule);
-
-    ball::AttributeContext *attrContext = ball::AttributeContext::getContext();
-    ball::Attribute attr("uuid", 1);
-
-    AttributeSet attributes;
-    attributes.insert(attr);
-    attrContext->addAttributes(&attributes);
-
-    ASSERT(attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(attrContext->hasRelevantActiveRules(cat2));
-
-    ball::ThresholdAggregate levels(0, 0, 0, 0);
-
-    attrContext->determineThresholdLevels(&levels, cat1);
-    ASSERT(128 == levels.recordLevel());
-    ASSERT(110 == levels.passLevel());
-    ASSERT( 70 == levels.triggerLevel());
-    ASSERT( 40 == levels.triggerAllLevel());
-
-    attrContext->determineThresholdLevels(&levels, cat2);
-    ASSERT(125 == levels.recordLevel());
-    ASSERT(110 == levels.passLevel());
-    ASSERT( 75 == levels.triggerLevel());
-    ASSERT( 50 == levels.triggerAllLevel());
-
-    manager->removeRule(rule);
-    ASSERT(!attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(!attrContext->hasRelevantActiveRules(cat2));
-
-    attrContext->determineThresholdLevels(&levels, cat1);
-    ASSERT(128 == levels.recordLevel());
-    ASSERT( 96 == levels.passLevel());
-    ASSERT( 64 == levels.triggerLevel());
-    ASSERT( 32 == levels.triggerAllLevel());
-
-    attrContext->determineThresholdLevels(&levels, cat2);
-    ASSERT(125 == levels.recordLevel());
-    ASSERT(100 == levels.passLevel());
-    ASSERT( 75 == levels.triggerLevel());
-    ASSERT( 50 == levels.triggerAllLevel());
-
-    ball::Predicate pred1("uuid", 1);
-    rule.addPredicate(pred1);
-    manager->addRule(rule);
-
-    ASSERT(attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(attrContext->hasRelevantActiveRules(cat2));
-
-    attrContext->determineThresholdLevels(&levels, cat1);
-    ASSERT(128 == levels.recordLevel());
-    ASSERT(110 == levels.passLevel());
-    ASSERT( 70 == levels.triggerLevel());
-    ASSERT( 40 == levels.triggerAllLevel());
-
-    attrContext->determineThresholdLevels(&levels, cat2);
-    ASSERT(125 == levels.recordLevel());
-    ASSERT(110 == levels.passLevel());
-    ASSERT( 75 == levels.triggerLevel());
-    ASSERT( 50 == levels.triggerAllLevel());
-
-    manager->removeRule(rule);
-    rule.setPattern("weekend");
-    manager->addRule(rule);
-    ASSERT(!attrContext->hasRelevantActiveRules(cat1));
-    ASSERT( attrContext->hasRelevantActiveRules(cat2));
-
-    attrContext->determineThresholdLevels(&levels, cat1);
-    ASSERT(128 == levels.recordLevel());
-    ASSERT( 96 == levels.passLevel());
-    ASSERT( 64 == levels.triggerLevel());
-    ASSERT( 32 == levels.triggerAllLevel());
-
-    attrContext->determineThresholdLevels(&levels, cat2);
-    ASSERT(125 == levels.recordLevel());
-    ASSERT(110 == levels.passLevel());
-    ASSERT( 75 == levels.triggerLevel());
-    ASSERT( 50 == levels.triggerAllLevel());
-
-    manager->removeRule(rule);
-    rule.removePredicate(pred1);
-    ball::Predicate pred2("uuid", 2);
-    rule.addPredicate(pred2);
-    manager->addRule(rule);
-
-    ASSERT(!attrContext->hasRelevantActiveRules(cat1));
-    ASSERT(!attrContext->hasRelevantActiveRules(cat2));
-
-    attrContext->determineThresholdLevels(&levels, cat1);
-    ASSERT(128 == levels.recordLevel());
-    ASSERT( 96 == levels.passLevel());
-    ASSERT( 64 == levels.triggerLevel());
-    ASSERT( 32 == levels.triggerAllLevel());
-
-    attrContext->determineThresholdLevels(&levels, cat2);
-    ASSERT(125 == levels.recordLevel());
-    ASSERT(100 == levels.passLevel());
-    ASSERT( 75 == levels.triggerLevel());
-    ASSERT( 50 == levels.triggerAllLevel());
-
-    return 0;
-}
-
-}  // close namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_6
+}  // close namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE_OLD
 
 //=============================================================================
 //                         CASE 4 RELATED ENTITIES
@@ -1393,24 +1316,28 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // TESTING USAGE EXAMPLE 2
+        //   Extracted from component header file.
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The *second* usage example provided in the component header file
+        //:   compiles, links, and runs as shown.
         //
         // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing Usage Example" << endl
-                                  << "=====================" << endl;
+        if (verbose) cout << endl << "TESTING USAGE EXAMPLE 2" << endl
+                                  << "=======================" << endl;
 
-        using namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE;
+        using namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE_2;
 
 ///Example 2: Calling 'hasRelevantActiveRules' and 'determineThresholdLevels'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1440,6 +1367,41 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::join(mainThread);
 
       } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 1
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The *first* usage example provided in the component header file
+        //:   compiles, links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE 1
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "TESTING USAGE EXAMPLE 1" << endl
+                                  << "=======================" << endl;
+
+        using namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE_1;
+
+        ball::CategoryManager manager;
+        ball::AttributeContext::initialize(&manager);
+
+        ThreadArgs args = { &manager };
+
+        bslmt::ThreadUtil::Handle threads[2];
+        bslmt::ThreadUtil::create(&threads[0], workerThread1, (void *)0);
+        bslmt::ThreadUtil::create(&threads[1], workerThread2, (void *)0);
+        bslmt::ThreadUtil::join(threads[0]);
+        bslmt::ThreadUtil::join(threads[1]);
+
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // TESTING ORIGINAL USAGE EXAMPLE
@@ -1457,23 +1419,15 @@ int main(int argc, char *argv[])
         //   (OLD) USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing (Old) Usage Example" << endl
-                                  << "===========================" << endl;
+        if (verbose) cout << endl << "TESTING ORIGINAL USAGE EXAMPLE" << endl
+                                  << "==============================" << endl;
 
-        using namespace BALL_ATTRIBUTECONTEXT_TEST_CASE_6;
+        using namespace BALL_ATTRIBUTECONTEXT_USAGE_EXAMPLE_OLD;
 
         ball::CategoryManager manager;
         ball::AttributeContext::initialize(&manager);
 
         ThreadArgs args = { &manager };
-
-        bslmt::ThreadUtil::Handle threads[3];
-        bslmt::ThreadUtil::create(&threads[0], workerThread1, (void *)0);
-        bslmt::ThreadUtil::create(&threads[1], workerThread2, (void *)0);
-        bslmt::ThreadUtil::create(&threads[2], workerThread3, &args);
-        bslmt::ThreadUtil::join(threads[0]);
-        bslmt::ThreadUtil::join(threads[1]);
-        bslmt::ThreadUtil::join(threads[2]);
 
         bslmt::ThreadUtil::Handle mainThread;
         bslmt::ThreadUtil::create(&mainThread, oldUsageExample, &args);

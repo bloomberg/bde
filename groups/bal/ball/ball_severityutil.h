@@ -122,9 +122,9 @@ struct SeverityUtil {
         // (C-style) string.  Note that this procedure will fail unless
         // 'isValidName(name)' is 'true'.
         //
-        // DEPRECATED: Use 'fromAsciiCaseless'.  Note that this method
-        // provides backwards compatibility for clients of the deprecated
-        // 'baelu_Severity'.
+        // !DEPRECATED!: Use 'fromAsciiCaseless' instead.  Note that this
+        // method provides backward compatibility for clients of the deprecated
+        // 'baelu_severity' component.
 
     static bool isValidName(const char *name);
         // Return 'true' if the specified 'name' corresponds to an enumerator
@@ -133,9 +133,9 @@ struct SeverityUtil {
         // string.  Note that the names corresponding to 'Severity::Level'
         // enumerators are case *insensitive*.
         //
-        // DEPRECATED: Use 'isValidNameCaseless'.  Note that this method
-        // provides backwards compatibility for clients of the deprecated
-        // 'baelu_Severity'.
+        // !DEPRECATED!: Use 'isValidNameCaseless' instead.  Note that this
+        // method provides backward compatibility for clients of the deprecated
+        // 'baelu_severity' component.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 

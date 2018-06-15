@@ -574,18 +574,18 @@ int main(int argc, char *argv[])
             {  L_,    "pALAPA",                1610612741,   1313157479  },
             {  L_,    "pALAPB",                1610612741,   442209794   },
             {  L_,    "pALBPA",                1610612741,   1600866337  },
-            {  L_,    "pALBPB",                1610612741,   1803660486  },
+            {  L_,    "pALBPB",                1610612741,   193047745   },
             {  L_,    "pBLAPA",                1610612741,   168293625   },
-            {  L_,    "pBLAPB",                1610612741,   1981700515  },
+            {  L_,    "pBLAPB",                1610612741,   371087774   },
             {  L_,    "pBLBPA",                1610612741,   456002483   },
             {  L_,    "pBLBPB",                1610612741,   658796632   },
             {  L_,    "pALAPAPC",              1610612741,   1534185609  },
-            {  L_,    "pALAPBPC",              1610612741,   1736979758  },
+            {  L_,    "pALAPBPC",              1610612741,   126367017   },
             {  L_,    "pALBPAPC",              1610612741,   211281726   },
-            {  L_,    "pALBPBPC",              1610612741,   2024688616  },
+            {  L_,    "pALBPBPC",              1610612741,   414075875   },
             {  L_,    "pBLAPAPC",              1610612741,   389321755   },
             {  L_,    "pBLAPBPC",              1610612741,   592115904   },
-            {  L_,    "pBLBPAPC",              1610612741,   1750772447  },
+            {  L_,    "pBLBPAPC",              1610612741,   140159706   },
             {  L_,    "pBLBPBPC",              1610612741,   879824762   },
             {  L_,    "pDLDPAPBPC",            1610612741,   760001713   },
             {  L_,    "pDLDPAPBPCPD",          1610612741,   1205884614  },
@@ -610,7 +610,7 @@ int main(int argc, char *argv[])
                      << " , " << DATA[i].d_size
                      << " ---> " << hash << endl;
             }
-            ASSERTV(i, DATA[i].d_hash == hash);
+            ASSERTV(LINE, DATA[i].d_hash, hash, DATA[i].d_hash == hash);
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
