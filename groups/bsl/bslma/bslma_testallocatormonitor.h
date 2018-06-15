@@ -249,7 +249,7 @@ BSLS_IDENT("$Id: $")
 //      bslma::TestAllocatorMonitor dam(&da);
 //
 //      bslma::Default::setGlobalAllocator(&ga);
-//      bslma::Default::setDefaultAllocatorRaw(&da);
+//      bslma::Default::setDefaultAllocator(&da);
 //..
 // Then, we default construct a test object using the object allocator, and
 // then, immediately destroy it.  The object allocator monitor, 'oam', shows

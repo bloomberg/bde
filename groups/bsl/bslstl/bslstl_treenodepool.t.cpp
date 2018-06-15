@@ -1727,9 +1727,9 @@ int main(int argc, char *argv[])
 
             const int TYPE_ALLOC = bslma::UsesBslmaAllocator<ValueType>::value;
 
-            bslma::TestAllocator da;
-            bslma::Default::setDefaultAllocatorRaw(&da);
-            bslma::TestAllocatorMonitor dam(&da);
+            bslma::TestAllocator         da;
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocatorMonitor  dam(&da);
 
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -1887,7 +1887,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

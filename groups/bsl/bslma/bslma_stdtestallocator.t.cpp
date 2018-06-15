@@ -341,8 +341,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING ACCESSORS"
                             "\n=================\n");
 
-        bslma::TestAllocator da("default");
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default");
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) printf("\tTesting 'mechanism()'.\n");
         {
@@ -470,8 +470,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CONSTRUCTORS"
                             "\n====================\n");
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         bslma::TestAllocator ta("test case 3", veryVeryVeryVerbose);
 
@@ -582,7 +582,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
