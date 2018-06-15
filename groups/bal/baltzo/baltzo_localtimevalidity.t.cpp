@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator defaultAllocator(veryVeryVerbose);
-    bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     bslma::TestAllocator globalAllocator(veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);

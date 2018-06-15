@@ -5,6 +5,7 @@
 #include <bsl_string.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
@@ -739,8 +740,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
             "\nCreate tables of distinct candidate attribute values." << endl;
@@ -1155,8 +1156,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -1389,8 +1390,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -1701,8 +1702,8 @@ int main(int argc, char *argv[])
 
         const int           NLEAPS = 0;
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
             "\nDefine appropriate individual attribute values, 'Ai' and 'Bi'."
@@ -2295,7 +2296,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
 
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
                  "\nCreate an object." << endl;
@@ -2511,7 +2512,7 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
                 bslma::TestAllocator da("default",   veryVeryVeryVerbose);
 
-                bslma::Default::setDefaultAllocatorRaw(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 Obj *objPtr = new (fa) Obj(VER,
                                            NISGMT,
@@ -3017,7 +3018,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
         bslma::TestAllocator da("default",   veryVeryVeryVerbose);
 
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         Obj                   *objPtr = new (fa) Obj();
         Obj&                   mX     = *objPtr;  const Obj& X = mX;
@@ -3740,7 +3741,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
