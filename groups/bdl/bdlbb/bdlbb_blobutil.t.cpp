@@ -14,6 +14,7 @@
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslx_genericoutstream.h>
 #include <bslx_testoutstream.h>
@@ -1698,7 +1699,7 @@ int main(int argc, char *argv[]) {
         };
 
         bslma::TestAllocator allocator;
-        bslma::Default::setDefaultAllocatorRaw(&allocator);
+        bslma::DefaultAllocatorGuard dag(&allocator);
         ASSERT(&allocator == bslma::Default::defaultAllocator());
 
         for (int bufferSize =  k_MIN_BUFFER_SIZE;
