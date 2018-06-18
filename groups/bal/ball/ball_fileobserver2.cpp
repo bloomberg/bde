@@ -232,7 +232,7 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
 
     FileUtil::FileDescriptor fd =  FileUtil::open(filename,
                                                   FileUtil::e_OPEN_OR_CREATE,
-                                                  FileUtil::e_WRITE_ONLY,
+                                                  FileUtil::e_READ_APPEND,
                                                   FileUtil::e_KEEP);
 
     if (fd == FileUtil::k_INVALID_FD) {
