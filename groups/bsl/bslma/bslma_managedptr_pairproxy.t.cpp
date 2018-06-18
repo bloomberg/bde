@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     ASSERT(&globalAllocator == bslma::Default::globalAllocator());
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&da);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&da));
 
     // Confirm no static initialization locked the default allocator
     ASSERT(&da == bslma::Default::defaultAllocator());

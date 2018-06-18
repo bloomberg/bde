@@ -18157,7 +18157,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator defaultAllocator("Default Allocator",
                                           veryVeryVeryVerbose);
     defaultAllocator_p = &defaultAllocator;
-    bslma::Default::setDefaultAllocator(defaultAllocator_p);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(defaultAllocator_p));
 
     // Confirm no static initialization locked the default allocator
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());

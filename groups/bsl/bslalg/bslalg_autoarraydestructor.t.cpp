@@ -609,7 +609,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&da);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&da));
 
     bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
     Z = &testAllocator;

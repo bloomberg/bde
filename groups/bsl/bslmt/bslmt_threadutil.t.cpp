@@ -1459,7 +1459,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ga;
         bslma::TestAllocator ta;
 
-        bslma::Default::setDefaultAllocator(&da);
+        ASSERT(0 == bslma::Default::setDefaultAllocator(&da));
         bslma::Default::setGlobalAllocator(&ga);
 
         // Only Linux and Darwin support thread names.  On Linux, the default
@@ -1687,7 +1687,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ga;
         bslma::TestAllocator ta;
 
-        bslma::Default::setDefaultAllocator(&da);
+        ASSERT(0 == bslma::Default::setDefaultAllocator(&da));
         bslma::Default::setGlobalAllocator(&ga);
 
         bslmt::ThreadAttributes attr;

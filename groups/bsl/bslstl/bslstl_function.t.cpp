@@ -3203,7 +3203,7 @@ int main(int argc, char *argv[])
 
     // Use a test allocator for the default allocator. This allocator is used
     // when no other allocator is supplied.
-    bslma::Default::setDefaultAllocator(&globalTestAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&globalTestAllocator));
 
     // Confirm no static initialization locked the default allocator
     ASSERT(&globalTestAllocator == bslma::Default::defaultAllocator());
