@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 ///Path
 /// - -
 // An optional root, followed by optional directories, followed by an optional
-// leaf.
+// filename.
 //
 ///Root
 /// - -
@@ -106,32 +106,35 @@ BSLS_IDENT("$Id: $")
 //
 ///Leaf (a.k.a. Basename)
 /// - - - - - - - - - - -
-// The leaf is the rightmost filename following the root, in other words: the
-// last element of the path unless the path ends with a separator character, in
-// which case there is no leaf.  Note that several methods in this utility
-// require a leaf to be present to function (such as 'getDirName').  Note that
-// a relative path may contain a leaf only.  Examples:
+// The leaf is the rightmost name following the root, in other words: the last
+// element of the path.  Note that several methods in this utility require a
+// leaf to be present to function (such as 'getDirname').  Note that a relative
+// path may contain a leaf only.  Examples:
 //..
 //  Path                            Leaf
 //  ----                            ----
 //  "/tmp/foo/bar.txt"              "bar.txt"
 //  "c:\tmp\foo\bar.txt"            "bar.txt"
 //  "\\server\share\tmp\foo.txt"    "foo.txt"
-//  "/tmp/foo/"                     not present
+//  "/tmp/foo/"                     "foo"
+//  "/tmp/"                         "tmp"
+//  "/"                             Not Present
 //..
 //
 ///Dirname
 ///- - - -
-// Dirname is the part of the path that contains the root but not the leaf.  In
-// other words, the part until the last separator.  Note that a relative path
-// may contain directories only.  Also not that several methods in this utility
-// will not function if the path does not contain a leaf.  Examples:
+// Dirname is the part of the path that contains the root but not the leaf.
+// Note that the 'getDirname' utility method requires a leaf to be present to
+// function.  Examples:
 //..
 //  Path                            Dirname
 //  ----                            -------
 //  "/tmp/foo/bar.txt"              "/tmp/foo/"
 //  "c:\tmp\foo\bar.txt"            "c:\tmp\foo\"
 //  "\\server\share\tmp\foo.txt"    "\\server\share\tmp\"
+//  "/tmp/foo/"                     "/tmp"
+//  "/tmp/"                         "/"
+//  "/"                             no leaf -> error
 //  "foo.txt"                       empty
 //..
 //
@@ -242,20 +245,20 @@ struct PathUtil {
         // {'Parsing and Performance (rootEnd argument)'}.
 
     static int popLeaf(bsl::string *path, int rootEnd = -1);
-        // Remove from the specified 'path' the rightmost filename following
-        // the root; that is, remove the leaf element.  If the optionally
-        // specified 'rootEnd' offset is non-negative, it is taken as the
-        // position in 'path' of the character following the root.  Return 0 on
-        // success, and a nonzero value otherwise; in particular, return a
-        // nonzero value if 'path' does not have a leaf.  See
+        // Remove from the specified 'path' the rightmost name following the
+        // root; that is, remove the leaf element.  If the optionally specified
+        // 'rootEnd' offset is non-negative, it is taken as the position in
+        // 'path' of the character following the root.  Return 0 on success,
+        // and a nonzero value otherwise; in particular, return a nonzero value
+        // if 'path' does not have a leaf.  See
         // {'Parsing and Performance (rootEnd argument)'}.  See also
         // {'Terminology'} for the definition of leaf and root.
 
     static int getBasename(bsl::string              *leaf,
                            const bslstl::StringRef&  path,
                            int                       rootEnd = -1);
-        // Load into the specified 'leaf' the value of the rightmost filename
-        // in the specified 'path' that follows the root; that is, the leaf
+        // Load into the specified 'leaf' the value of the rightmost name in
+        // the specified 'path' that follows the root; that is, the leaf
         // element.  If the optionally specified 'rootEnd' offset is
         // non-negative, it is taken as the position in 'path' of the character
         // following the root.  Return 0 on success, and a non-zero value
@@ -269,21 +272,21 @@ struct PathUtil {
                           int                       rootEnd = -1);
         // Load into the specified 'dirname' the value of the directory part
         // of the specified 'path', that is, the root if it exists and all the
-        // filenames except the last one (the leaf).  If the optionally
-        // specified 'rootEnd' offset is non-negative, it is taken as the
-        // position in 'path' of the character following the root.  Return 0 on
-        // success, and a non-zero value otherwise; in particular, return a
-        // nonzero value if 'path' does not have a leaf.  Note that in the
-        // case of a relative path with a single filename, the function will
-        // succeed and 'dirname' will be the empty string.  See
+        // names except the last one (the leaf).  If the optionally specified
+        // 'rootEnd' offset is non-negative, it is taken as the position in
+        // 'path' of the character following the root.  Return 0 on success,
+        // and a non-zero value otherwise; in particular, return a nonzero
+        // value if 'path' does not have a leaf.  Note that in the case of a
+        // relative path with a single filename, the function will succeed and
+        // 'dirname' will be the empty string.  See
         // {'Parsing and Performance (rootEnd argument)'}.  See also
         // {'Terminology'} for the definition of directories and root.
 
     static int getLeaf(bsl::string              *leaf,
                        const bslstl::StringRef&  path,
                        int                       rootEnd = -1);
-        // Load into the specified 'leaf' the value of the rightmost filename
-        // in the specified 'path' that follows the root; that is, the leaf
+        // Load into the specified 'leaf' the value of the rightmost name in
+        // the specified 'path' that follows the root; that is, the leaf
         // element.  If the optionally specified 'rootEnd' offset is
         // non-negative, it is taken as the position in 'path' of the character
         // following the root.  Return 0 on success, and a non-zero value
@@ -322,10 +325,10 @@ struct PathUtil {
         // {'Terminology'} for the definition of root.
 
     static bool hasLeaf(const bslstl::StringRef& path, int rootEnd = -1);
-        // Return 'true' if the specified 'path' has a filename following the
-        // root, and 'false' otherwise.  If the optionally specified 'rootEnd'
-        // offset is non-negative, it is taken as the position in 'path' of
-        // the character following the root.  See
+        // Return 'true' if the specified 'path' has a name following the root,
+        // and 'false' otherwise.  If the optionally specified 'rootEnd' offset
+        // is non-negative, it is taken as the position in 'path' of the
+        // character following the root.  See
         // {'Parsing and Performance (rootEnd argument)'}.  See also
         // {'Terminology'} for the definition of leaf.
 

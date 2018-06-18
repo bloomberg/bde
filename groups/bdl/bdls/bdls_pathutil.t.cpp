@@ -271,7 +271,7 @@ struct Parameters {
 };
 
 void convertToWindowsSeparator(bsl::string *path)
-    // Replace each occurance of '/' with '\\' in the specified 'path'.
+    // Replace each occurrence of '/' with '\\' in the specified 'path'.
 {
     bsl::string::size_type position = path->find('/');
     for ( ; position != bsl::string::npos; position = path->find('/')) {
@@ -280,7 +280,7 @@ void convertToWindowsSeparator(bsl::string *path)
 }
 
 void convertToUnixSeparator(bsl::string *path)
-    // Replace each occurance of '\\' with '\' in the specified 'path'.
+    // Replace each occurrence of '\\' with '\' in the specified 'path'.
 {
     bsl::string::size_type position = path->find('\\');
     for ( ;
@@ -308,14 +308,14 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Return an error code is the appended path is an absolute path.
         //:
-        //: 2 If 'path' does not contain trialing seperators, 'filename' is
+        //: 2 If 'path' does not contain trailing separators, 'filename' is
         //:   appended with the appropriate separator.
         //:
-        //: 3 If 'path' does contain trialing seperators, 'filename' is
+        //: 3 If 'path' does contain trailing separators, 'filename' is
         //:   appended with only a single separator.
         //:
-        //: 4 If 'filename' contains trialing separators, they are not in
-        //:   appeneded to 'path'.
+        //: 4 If 'filename' contains trailing separators, they are not in
+        //:   appended to 'path'.
         //:
         //: 5 If 'path' contains only separators it is simplified to a single
         //:   separator.
