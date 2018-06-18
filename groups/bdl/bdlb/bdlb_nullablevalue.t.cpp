@@ -4337,7 +4337,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     // CONCERN: In no case does memory come from the global allocator.
 

@@ -454,7 +454,7 @@ int main(int argc, char* argv[])
     using bsls::AssertFailureHandlerGuard;
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);

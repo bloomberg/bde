@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     bslma::TestAllocator globalAllocator("global", veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
