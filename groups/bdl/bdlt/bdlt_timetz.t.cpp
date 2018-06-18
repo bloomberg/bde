@@ -5,6 +5,7 @@
 
 #include <bslim_testutil.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_asserttest.h>
 
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
       case 19: {
@@ -2344,7 +2345,8 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator
                    alternateDefaultAllocator("alternate", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocator(&alternateDefaultAllocator);
+        bslma::DefaultAllocatorGuard
+                    alternateDefaultAllocatorGuard(&alternateDefaultAllocator);
 
         if (verbose) cout << "\nAssign the addresses of 'print' and "
                              "the output 'operator<<' to variables." << endl;

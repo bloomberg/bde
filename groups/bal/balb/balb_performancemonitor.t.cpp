@@ -1781,7 +1781,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose, allocator);
 
-        bslma::Default::setDefaultAllocator(&ta);
+        ASSERT(0 == bslma::Default::setDefaultAllocator(&ta));
         bslma::Default::setGlobalAllocator(&ta);
 
         {

@@ -21,6 +21,7 @@
 #include <bsls_systemtime.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -1459,7 +1460,8 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ga;
         bslma::TestAllocator ta;
 
-        bslma::Default::setDefaultAllocator(&da);
+        bslma::DefaultAllocatorGuard dag(&da);
+
         bslma::Default::setGlobalAllocator(&ga);
 
         // Only Linux and Darwin support thread names.  On Linux, the default
@@ -1687,7 +1689,8 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ga;
         bslma::TestAllocator ta;
 
-        bslma::Default::setDefaultAllocator(&da);
+        bslma::DefaultAllocatorGuard dag(&da);
+
         bslma::Default::setGlobalAllocator(&ga);
 
         bslmt::ThreadAttributes attr;
