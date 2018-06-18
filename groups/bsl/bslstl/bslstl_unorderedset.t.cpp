@@ -2496,8 +2496,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase32_outOfLine()
 
     const TestValues V;
 
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocatorRaw(&da);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
 
     if (verbose)
         printf("\tTesting constructor with initializer lists\n");
@@ -11650,7 +11650,7 @@ if (verbose) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

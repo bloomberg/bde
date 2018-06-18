@@ -2484,8 +2484,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34_outOfLine()
     if (verbose)
         printf("\tTesting constructor with initializer lists\n");
 
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocatorRaw(&da);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
     {
         const struct {
             int                         d_line;    // source line number
@@ -11451,7 +11451,7 @@ int main(int argc, char *argv[])
 }  // Empty test driver
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

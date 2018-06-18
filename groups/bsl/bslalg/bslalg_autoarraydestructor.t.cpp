@@ -609,7 +609,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocatorRaw(&da);
+    bslma::Default::setDefaultAllocator(&da);
 
     bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
     Z = &testAllocator;
@@ -993,7 +993,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
