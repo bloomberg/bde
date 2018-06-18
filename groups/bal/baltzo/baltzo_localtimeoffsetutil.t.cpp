@@ -1585,8 +1585,8 @@ int main(int argc, char *argv[])
 
             bslma::Default::setGlobalAllocator(&staticGlobalAllocator);
 
-            bslma::TestAllocator da("default", veryVeryVeryVerbose);
-            bslma::Default::setDefaultAllocator(&da);
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
 
             ASSERT(0 == staticGlobalAllocator.numBlocksInUse());
             ASSERT(0 == da.numBlocksInUse());
