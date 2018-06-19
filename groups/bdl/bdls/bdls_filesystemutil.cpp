@@ -297,18 +297,30 @@ bool wideToNarrow(bsl::string *result, const bsl::wstring& path)
 
 static inline
 int makeDirectory(const char *path, bool)
-    // Create a directory.  Return 0 on success and a non-zero value otherwise.
+    // Create a directory.  Return 0 on success, 'k_ERROR_PATH_NOT_FOUND' if a
+    // component used as a directory in 'path' either does not exist or is not
+    // a directory, 'k_ERROR_ALREADY_EXISTS' if the file system entry (not
+    // necessarily a directory) with the name 'path' already exists, and a
+    // negative value for any other kind of error.
 {
     BSLS_ASSERT_SAFE(path);
 
     bsl::wstring wide;
-    BOOL         succeeded = 0;
 
     if (narrowToWide(&wide, path)) {
-        succeeded = CreateDirectoryW(wide.c_str(), 0);
+        if (CreateDirectoryW(wide.c_str(), 0)) {
+            return 0;                                                 // RETURN
+        }
+
+        switch (GetLastError()) {
+        case ERROR_ALREADY_EXISTS:
+            return bdls::FilesystemUtil::k_ERROR_ALREADY_EXISTS;      // RETURN
+        case ERROR_PATH_NOT_FOUND:
+            return bdls::FilesystemUtil::k_ERROR_PATH_NOT_FOUND;      // RETURN
+        }
     }
 
-    return succeeded ? 0 : -1;
+    return -1;
 }
 
 static inline
@@ -452,7 +464,11 @@ bool isDotOrDots(const char *path)
 
 static inline
 int makeDirectory(const char *path, bool isPrivate)
-    // Create a directory
+    // Create a directory.  Return 0 on success, 'k_ERROR_PATH_NOT_FOUND' if a
+    // component used as a directory in 'path' either does not exist or is not
+    // a directory, 'k_ERROR_ALREADY_EXISTS' if the file system entry (not
+    // necessarily a directory) with the name 'path' already exists, and a
+    // negative value for any other kind of error.
 {
     BSLS_ASSERT_SAFE(path);
 
@@ -464,7 +480,20 @@ int makeDirectory(const char *path, bool isPrivate)
 
         (S_IRUSR | S_IWUSR | S_IXUSR)  // only user rwx
     };
-    return mkdir(path, PERMS[isPrivate]);
+    if (mkdir(path, PERMS[isPrivate])) {
+        switch (errno) {
+        case EEXIST:
+            return bdls::FilesystemUtil::k_ERROR_ALREADY_EXISTS;      // RETURN
+        case ENOTDIR:
+        case ENOENT:
+            return bdls::FilesystemUtil::k_ERROR_PATH_NOT_FOUND;      // RETURN
+        default:
+            return -1;
+        }
+    }
+    else {
+        return 0;
+    }
 }
 
 static inline
@@ -2086,11 +2115,17 @@ int FilesystemUtil::createDirectories(const char *path,
     }
 
     while (!directoryStack.empty()) {
-        PathUtil::appendRaw(&workingPath, directoryStack.back().c_str(),
-                             static_cast<int>(directoryStack.back().length()));
-        if (0 != makeDirectory(workingPath.c_str(), false)) {
-            if (!isDirectory(workingPath, true)) {
-                return -1;                                            // RETURN
+        PathUtil::appendRaw(&workingPath,
+                            directoryStack.back().c_str(),
+                            static_cast<int>(directoryStack.back().length()));
+        if (int rc = makeDirectory(workingPath.c_str(), false)) {
+            if (rc == k_ERROR_ALREADY_EXISTS) {
+                if (!isDirectory(workingPath, true)) {
+                    return k_ERROR_PATH_NOT_FOUND;                    // RETURN
+                }
+            }
+            else {
+                return rc;                                            // RETURN
             }
         }
         directoryStack.pop_back();
@@ -2101,11 +2136,7 @@ int FilesystemUtil::createDirectories(const char *path,
 int FilesystemUtil::createPrivateDirectory(const bslstl::StringRef& path)
 {
     bsl::string workingPath = path;  // need NUL termination
-    if (0 != makeDirectory(workingPath.c_str(), true)) {
-        return -1;                                                    // RETURN
-    }
-
-    return 0;
+    return makeDirectory(workingPath.c_str(), true);
 }
 
 int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,

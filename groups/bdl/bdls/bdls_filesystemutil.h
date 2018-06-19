@@ -384,6 +384,16 @@ struct FilesystemUtil {
                                            // obtain a lock on a file due to
                                            // interruption by a signal
 
+        k_ERROR_ALREADY_EXISTS      =  3,  // value representing a failure to
+                                           // create a directory due to a file
+                                           // system entry already existing
+
+        k_ERROR_PATH_NOT_FOUND      =  4,  // value representing a failure to
+                                           // create a directory due to one ore
+                                           // more components of the path
+                                           // either not existing or not being
+                                           // a directory
+
         k_BAD_FILE_DESCRIPTOR       = -1   // value indicating a bad file
                                            // descriptor was supplied
     };
@@ -555,17 +565,20 @@ struct FilesystemUtil {
         // If the optionally specified 'isLeafDirectoryFlag' is 'true', treat
         // the final name component in 'path' as a directory name, and create
         // it.  Otherwise, create only the directories leading up to the final
-        // name component.  Return 0 on success, and a non-zero value if any
-        // needed directories in 'path' could not be created.
+        // name component.  Return 0 on success, 'k_ERROR_PATH_NOT_FOUND' if a
+        // component used as a directory in 'path' exists but is not a
+        // directory, and a negative value for any other kind of error.
 
     static int createPrivateDirectory(const bslstl::StringRef& path);
         // Create a private directory with the specified 'path'.  Return 0 on
-        // success, and a non-zero value if the directory could not be created.
-        // The directory is created with permissions restricting access, as
-        // closely as possible, to the caller's userid only.  If the directory
-        // already exists, the function reports success but the directory's
-        // permissions are not changed.  Note that directories created on
-        // Microsoft Windows may receive default, not restricted permissions.
+        // success, 'k_ERROR_PATH_NOT_FOUND' if a component used as a directory
+        // in 'path' either does not exist or is not a directory,
+        // 'k_ERROR_ALREADY_EXISTS' if the file system entry (not necessarily a
+        // directory) with the name 'path' already exists, and a negative value
+        // for any other kind of error.  The directory is created with
+        // permissions restricting access, as closely as possible, to the
+        // caller's userid only.  Note that directories created on Microsoft
+        // Windows may receive default, not restricted permissions.
 
     static FileDescriptor createTemporaryFile(bsl::string             *outPath,
                                               const bslstl::StringRef& prefix);
@@ -618,7 +631,7 @@ struct FilesystemUtil {
                         const bsl::function<void(const char *path)>&  visitor);
         // Call the specified 'visitor' function object for each path in the
         // filesystem matching the specified 'pattern'.  Return the number of
-        // paths visited on success, , and a negative value otherwise.  Note
+        // paths visited on success, and a negative value otherwise.  Note
         // that if 'visitor' deletes files or directories during the search,
         // 'visitor' may subsequently be called with paths which have already
         // been deleted, so must be prepared for this event.  Also note that
