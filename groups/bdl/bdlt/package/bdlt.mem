@@ -17,6 +17,7 @@ bdlt_dayofweek
 bdlt_dayofweekset
 bdlt_dayofweekutil
 bdlt_defaultcalendarcache
+bdlt_defaulttimetablecache
 bdlt_epochutil
 bdlt_fixutil
 bdlt_fixutilconfiguration

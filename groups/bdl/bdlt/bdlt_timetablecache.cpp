@@ -7,7 +7,7 @@ BSLS_IDENT_RCSID(bdlt_timetablecache_cpp,"$Id$ $CSID$")
 #include <bdlt_timetableloader.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_date.h>            // for testing only
-#include <bdlt_packedtimetable.h>
+#include <bdlt_timetable.h>
 
 #include <bslma_default.h>
 
@@ -140,18 +140,18 @@ TimetableCache::getTimetable(const char *timetableName)
 
     // Load timetable identified by 'timetableName'.
 
-    PackedTimetable packedTimetable;  // temporary, so use default allocator
+    Timetable timetable;  // temporary, so use default allocator
 
     const Datetime timestamp = CurrentTime::utc();
 
-    if (d_loader_p->load(&packedTimetable, timetableName)) {
+    if (d_loader_p->load(&timetable, timetableName)) {
         return bsl::shared_ptr<const Timetable>();                    // RETURN
     }
 
     // Create out-of-place timetable that will be managed by 'bsl::shared_ptr'.
 
-    Timetable *timetablePtr = new (*d_allocator_p) Timetable(packedTimetable,
-                                                          d_allocator_p);
+    Timetable *timetablePtr = new (*d_allocator_p) Timetable(timetable,
+                                                             d_allocator_p);
 
     TimetableCache_Entry entry(timetablePtr, timestamp, d_allocator_p);
 

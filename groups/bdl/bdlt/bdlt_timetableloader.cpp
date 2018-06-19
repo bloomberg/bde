@@ -4,10 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_timetableloader_cpp,"$Id$ $CSID$")
 
-#include <bdlt_date.h>             // for testing only
-#include <bdlt_dayofweek.h>        // for testing only
-#include <bdlt_dayofweekset.h>     // for testing only
-#include <bdlt_packedtimetable.h>   // for testing only
+#include <bdlt_date.h>          // for testing only
+#include <bdlt_dayofweek.h>     // for testing only
+#include <bdlt_dayofweekset.h>  // for testing only
+#include <bdlt_timetable.h>     // for testing only
 
 namespace BloombergLP {
 namespace bdlt {
