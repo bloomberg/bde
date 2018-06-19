@@ -3,7 +3,7 @@
 
 #include <bdlt_timetablecache.h>
 #include <bdlt_timetableloader.h>  // for testing only
-#include <bdlt_date.h>            // for testing only
+#include <bdlt_date.h>             // for testing only
 
 #include <bslim_testutil.h>
 
@@ -124,7 +124,7 @@ typedef bdlt::DefaultTimetableCache            Util;
 typedef bdlt::TimetableCache                   Cache;
 typedef bsl::shared_ptr<const bdlt::Timetable> Entry;
 
-typedef bsls::TimeInterval                    Interval;
+typedef bsls::TimeInterval                     Interval;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 typedef HANDLE    ThreadId;
@@ -181,9 +181,9 @@ void sleepSeconds(int seconds)
 namespace TestCase3 {
 
 struct ThreadInfo {
-    int                   d_numIterations;
+    int                    d_numIterations;
     bdlt::TimetableLoader *d_loader_p;
-    bslma::Allocator     *d_allocator_p;
+    bslma::Allocator      *d_allocator_p;
 };
 
 extern "C" void *threadFunctionA(void *arg)
@@ -247,7 +247,7 @@ class MyTimetableLoader : public bdlt::TimetableLoader {
         // Destroy this object.
 
     // MANIPULATORS
-    int load(bdlt::PackedTimetable *result, const char *timetableName);
+    int load(bdlt::Timetable *result, const char *timetableName);
         // Load, into the specified 'result', the timetable identified by the
         // specified 'timetableName'.  Return 0 on success, and a non-zero
         // value otherwise.
@@ -264,25 +264,26 @@ MyTimetableLoader::~MyTimetableLoader()
 {
 }
 
-int MyTimetableLoader::load(bdlt::PackedTimetable *result,
-                            const char            *timetableName)
+int MyTimetableLoader::load(bdlt::Timetable *result, const char *timetableName)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timetableName);
 
-    result->removeAll();
+    result->reset();
     result->setValidRange(bdlt::Date(2000, 1, 1), bdlt::Date(2020, 12, 31));
 
-    if (     0 == bsl::strcmp("DE", timetableName)) {  // Germany
-        return 0;                                                     // RETURN
-    }
-    else if (0 == bsl::strcmp("FR", timetableName)) {  // France
-        result->addHoliday(bdlt::Date(2011, 7, 14));
+    if (     0 == bsl::strcmp("ZERO", timetableName)) {
+        result->setInitialTransitionCode(0);
 
         return 0;                                                     // RETURN
     }
-    else if (0 == bsl::strcmp("US", timetableName)) {  // USA
-        result->addHoliday(bdlt::Date(2011, 7,  4));
+    else if (0 == bsl::strcmp("ONE", timetableName)) {
+        result->setInitialTransitionCode(1);
+
+        return 0;                                                     // RETURN
+    }
+    else if (0 == bsl::strcmp("TWO", timetableName)) {
+        result->setInitialTransitionCode(2);
 
         return 0;                                                     // RETURN
     }
@@ -348,13 +349,12 @@ int main(int argc, char *argv[])
 // 'bdlt::DefaultTimetableCache' has a particularly simple interface.  This
 // example shows how to use each of its three methods.
 //
-// A hypothetical timetable loader is assumed, 'MyTimetableLoader', the details
-// of which are not important other than that it supports timetables identified
-// by "DE", "FR", and "US", which nominally identify the major holidays in
-// Germany, France, and the United States, respectively.  Furthermore, we cite
-// two specific dates of interest: 2011/07/04, which was a holiday in the US
-// (Independence Day), but not in France, and 2011/07/14, which was a holiday
-// in France (Bastille Day), but not in the US.
+// In this example, we assume a hypothetical timetable loader,
+// 'MyTimetableLoader', the details of which are not important other than that
+// it supports timetables identified by "ZERO", "ONE", and "TWO".  Furthermore,
+// the value of the initial transition code for each of these timetables is
+// given by the timetable's name (e.g., if 'Z' has the value of the timetable
+// identified as "ZERO", then '0 == Z.initialTransitionCode()').
 //
 // First, we create a timetable loader, an instance of 'MyTimetableLoader', and
 // use it, in turn, to initialize the default timetable cache.  A memory
@@ -378,21 +378,17 @@ int main(int argc, char *argv[])
     bdlt::TimetableCache *cachePtr = bdlt::DefaultTimetableCache::instance();
     ASSERT(cachePtr);
 //..
-// Then, we retrieve the timetable identified by "US" from the default cache,
-// and verify that 2011/07/04 is recognized as a holiday in the "US" timetable,
-// whereas 2011/07/14 is not:
+// Then, we retrieve the timetable identified by "TWO" from the default cache
+// and verify that 2 is the value of the initial transition code:
 //..
-    bsl::shared_ptr<const bdlt::Timetable> us = cachePtr->getTimetable("US");
-    ASSERT( us->isHoliday(bdlt::Date(2011, 7,  4)));
-    ASSERT(!us->isHoliday(bdlt::Date(2011, 7, 14)));
+    bsl::shared_ptr<const bdlt::Timetable> two = cachePtr->getTimetable("TWO");
+    ASSERT(2 == two->initialTransitionCode());
 //..
-// Next, we fetch the timetable identified by "FR", this time verifying that
-// 2011/07/14 is recognized as a holiday in the "FR" timetable, but 2011/07/04
-// is not:
+// Next, we fetch the timetable identified by "ONE", this time verifying that 1
+// is the value of the initial transition code for the "ONE" timetable:
 //..
-    bsl::shared_ptr<const bdlt::Timetable> fr = cachePtr->getTimetable("FR");
-    ASSERT(!fr->isHoliday(bdlt::Date(2011, 7,  4)));
-    ASSERT( fr->isHoliday(bdlt::Date(2011, 7, 14)));
+    bsl::shared_ptr<const bdlt::Timetable> one = cachePtr->getTimetable("ONE");
+    ASSERT(1 == one->initialTransitionCode());
 //..
 // Finally, we destroy the default timetable cache:
 //..
@@ -465,11 +461,10 @@ int main(int argc, char *argv[])
                     cout << "Cache  initialized after join." << endl;
                 }
 
-                Entry e = cachePtr->getTimetable("US");
+                Entry e = cachePtr->getTimetable("TWO");
 
-                ASSERT( e.get());
-                ASSERT( e->isHoliday(bdlt::Date(2011, 7,  4)));
-                ASSERT(!e->isHoliday(bdlt::Date(2011, 7, 14)));
+                ASSERT(e.get());
+                ASSERT(2 == e->initialTransitionCode());
 
                 Util::destroy();
             }
@@ -579,19 +574,18 @@ int main(int argc, char *argv[])
                       Cache *cachePtr      = Util::instance();
                 const Cache *constCachePtr = cachePtr;
 
-                Entry e = cachePtr->getTimetable("US");
+                Entry e = cachePtr->getTimetable("TWO");
 
-                ASSERT( e.get());
-                ASSERT( e->isHoliday(bdlt::Date(2011, 7,  4)));
-                ASSERT(!e->isHoliday(bdlt::Date(2011, 7, 14)));
+                ASSERT(e.get());
+                ASSERT(2 == e->initialTransitionCode());
 
                                      ASSERT(0 == da.numBlocksInUse());
                                      ASSERT(0 == ga.numBlocksTotal());
                                      ASSERT(0 != sa.numBlocksInUse());
 
-                e = constCachePtr->lookupTimetable("US");
+                e = constCachePtr->lookupTimetable("TWO");
 
-                ASSERT( e.get());
+                ASSERT(e.get());
             }
                                      ASSERT( Util::instance());
 
@@ -623,17 +617,16 @@ int main(int argc, char *argv[])
                       Cache *cachePtr      = Util::instance();
                 const Cache *constCachePtr = cachePtr;
 
-                Entry e = cachePtr->getTimetable("US");
+                Entry e = cachePtr->getTimetable("TWO");
 
-                ASSERT( e.get());
-                ASSERT( e->isHoliday(bdlt::Date(2011, 7,  4)));
-                ASSERT(!e->isHoliday(bdlt::Date(2011, 7, 14)));
+                ASSERT(e.get());
+                ASSERT(2 == e->initialTransitionCode());
 
                                      ASSERT(0 == da.numBlocksInUse());
                                      ASSERT(0 == ga.numBlocksTotal());
                                      ASSERT(0 != sa.numBlocksInUse());
 
-                e = constCachePtr->lookupTimetable("US");
+                e = constCachePtr->lookupTimetable("TWO");
 
                 ASSERT( e.get());
             }
@@ -664,13 +657,13 @@ int main(int argc, char *argv[])
 
                 Entry e;
 
-                e = cachePtr->getTimetable("US");           ASSERT( e.get());
-                e = constCachePtr->lookupTimetable("US");   ASSERT( e.get());
+                e = cachePtr->getTimetable("TWO");           ASSERT( e.get());
+                e = constCachePtr->lookupTimetable("TWO");   ASSERT( e.get());
 
                 // Verify that a timeout doesn't occur.
 
                 sleepSeconds(2);
-                e = constCachePtr->lookupTimetable("US");   ASSERT( e.get());
+                e = constCachePtr->lookupTimetable("TWO");   ASSERT( e.get());
             }
 
             Util::destroy();
@@ -686,14 +679,14 @@ int main(int argc, char *argv[])
 
                 Entry e;
 
-                e = cachePtr->getTimetable("US");           ASSERT( e.get());
-                e = constCachePtr->lookupTimetable("US");   ASSERT( e.get());
+                e = cachePtr->getTimetable("TWO");           ASSERT( e.get());
+                e = constCachePtr->lookupTimetable("TWO");   ASSERT( e.get());
 
                 // Verify that a timeout occurs after 2 seconds (by sleeping a
                 // sufficiently long time).
 
                 sleepSeconds(3);
-                e = constCachePtr->lookupTimetable("US");   ASSERT(!e.get());
+                e = constCachePtr->lookupTimetable("TWO");   ASSERT(!e.get());
             }
 
             Util::destroy();
@@ -802,11 +795,10 @@ int main(int argc, char *argv[])
         {
             Cache *cachePtr = Util::instance();
 
-            Entry e = cachePtr->getTimetable("US");
+            Entry e = cachePtr->getTimetable("TWO");
 
-            ASSERT( e.get());
-            ASSERT( e->isHoliday(bdlt::Date(2011, 7,  4)));
-            ASSERT(!e->isHoliday(bdlt::Date(2011, 7, 14)));
+            ASSERT(e.get());
+            ASSERT(2 == e->initialTransitionCode());
 
                                           ASSERT(0 != sa.numBlocksInUse());
         }

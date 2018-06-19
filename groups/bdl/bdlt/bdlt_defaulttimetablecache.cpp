@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(bdlt_defaulttimetablecache_cpp,"$Id$ $CSID$")
 
 #include <bdlt_timetablecache.h>
 #include <bdlt_timetableloader.h>  // for testing only
-#include <bdlt_date.h>            // for testing only
+#include <bdlt_date.h>             // for testing only
 
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
@@ -30,7 +30,7 @@ bsls::AtomicOperations::AtomicTypes::Pointer g_cachePtr = { 0 };
     // (i.e., constructed and available for use), and 0 otherwise.
 
 static
-bsls::ObjectBuffer<TimetableCache>            g_buffer;
+bsls::ObjectBuffer<TimetableCache>           g_buffer;
     // 'g_buffer' provides the "footprint" within which the default timetable
     // cache is constructed.
 

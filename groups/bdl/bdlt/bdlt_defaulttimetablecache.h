@@ -60,13 +60,12 @@ BSLS_IDENT("$Id: $")
 // 'bdlt::DefaultTimetableCache' has a particularly simple interface.  This
 // example shows how to use each of its three methods.
 //
-// A hypothetical timetable loader is assumed, 'MyTimetableLoader', the details
-// of which are not important other than that it supports timetables identified
-// by "DE", "FR", and "US", which nominally identify the major holidays in
-// Germany, France, and the United States, respectively.  Furthermore, we cite
-// two specific dates of interest: 2011/07/04, which was a holiday in the US
-// (Independence Day), but not in France, and 2011/07/14, which was a holiday
-// in France (Bastille Day), but not in the US.
+// In this example, we assume a hypothetical timetable loader,
+// 'MyTimetableLoader', the details of which are not important other than that
+// it supports timetables identified by "ZERO", "ONE", and "TWO".  Furthermore,
+// the value of the initial transition code for each of these timetables is
+// given by the timetable's name (e.g., if 'Z' has the value of the timetable
+// identified as "ZERO", then '0 == Z.initialTransitionCode()').
 //
 // First, we create a timetable loader, an instance of 'MyTimetableLoader', and
 // use it, in turn, to initialize the default timetable cache.  A memory
@@ -90,21 +89,17 @@ BSLS_IDENT("$Id: $")
 //  bdlt::TimetableCache *cachePtr = bdlt::DefaultTimetableCache::instance();
 //  assert(cachePtr);
 //..
-// Then, we retrieve the timetable identified by "US" from the default cache,
-// and verify that 2011/07/04 is recognized as a holiday in the "US" timetable,
-// whereas 2011/07/14 is not:
+// Then, we retrieve the timetable identified by "TWO" from the default cache
+// and verify that 2 is the value of the initial transition code:
 //..
-//  bsl::shared_ptr<const bdlt::Timetable> us = cachePtr->getTimetable("US");
-//  assert( us->isHoliday(bdlt::Date(2011, 7,  4)));
-//  assert(!us->isHoliday(bdlt::Date(2011, 7, 14)));
+//  bsl::shared_ptr<const bdlt::Timetable> two = cachePtr->getTimetable("TWO");
+//  assert(2 == two->initialTransitionCode());
 //..
-// Next, we fetch the timetable identified by "FR", this time verifying that
-// 2011/07/14 is recognized as a holiday in the "FR" timetable, but 2011/07/04
-// is not:
+// Next, we fetch the timetable identified by "ONE", this time verifying that 1
+// is the value of the initial transition code for the "ONE" timetable:
 //..
-//  bsl::shared_ptr<const bdlt::Timetable> fr = cachePtr->getTimetable("FR");
-//  assert(!fr->isHoliday(bdlt::Date(2011, 7,  4)));
-//  assert( fr->isHoliday(bdlt::Date(2011, 7, 14)));
+//  bsl::shared_ptr<const bdlt::Timetable> one = cachePtr->getTimetable("ONE");
+//  assert(1 == one->initialTransitionCode());
 //..
 // Finally, we destroy the default timetable cache:
 //..
@@ -150,7 +145,7 @@ struct DefaultTimetableCache {
         // has no effect.  Note that all addresses returned by earlier calls to
         // 'instance' are invalidated by this method.
 
-    static int initialize(TimetableLoader   *loader,
+    static int initialize(TimetableLoader  *loader,
                           bslma::Allocator *allocator);
         // Initialize the default 'TimetableCache' object managed by this class
         // to use the specified 'loader' to obtain timetables, to have no
@@ -160,7 +155,7 @@ struct DefaultTimetableCache {
         // The behavior is undefined unless 'loader' and 'allocator' remain
         // valid until a subsequent call to 'destroy'.
 
-    static int initialize(TimetableLoader            *loader,
+    static int initialize(TimetableLoader           *loader,
                           const bsls::TimeInterval&  timeout,
                           bslma::Allocator          *allocator);
         // Initialize the default 'TimetableCache' object managed by this class

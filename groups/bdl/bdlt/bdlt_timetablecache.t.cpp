@@ -696,17 +696,17 @@ int MyTimetableLoader::load(bdlt::Timetable *result, const char *timetableName)
     result->reset();
     result->setValidRange(bdlt::Date(2000, 1, 1), bdlt::Date(2020, 12, 31));
 
-    if (     0 == bsl::strcmp("ZERO", timetableName)) {  // Germany
+    if (     0 == bsl::strcmp("ZERO", timetableName)) {
         result->setInitialTransitionCode(0);
 
         return 0;                                                     // RETURN
     }
-    else if (0 == bsl::strcmp("ONE", timetableName)) {  // France
+    else if (0 == bsl::strcmp("ONE", timetableName)) {
         result->setInitialTransitionCode(1);
 
         return 0;                                                     // RETURN
     }
-    else if (0 == bsl::strcmp("TWO", timetableName)) {  // USA
+    else if (0 == bsl::strcmp("TWO", timetableName)) {
         result->setInitialTransitionCode(2);
 
         return 0;                                                     // RETURN
