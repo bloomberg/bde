@@ -30,9 +30,9 @@ TimetableCache_Entry::TimetableCache_Entry()
 {
 }
 
-TimetableCache_Entry::TimetableCache_Entry(Timetable         *timetable,
-                                         Datetime          loadTime,
-                                         bslma::Allocator *allocator)
+TimetableCache_Entry::TimetableCache_Entry(Timetable        *timetable,
+                                           Datetime          loadTime,
+                                           bslma::Allocator *allocator)
 : d_ptr(timetable, allocator)
 , d_loadTime(loadTime)
 {
@@ -77,8 +77,8 @@ Datetime TimetableCache_Entry::loadTime() const
                            // --------------------
 
 // CREATORS
-TimetableCache::TimetableCache(TimetableLoader   *loader,
-                             bslma::Allocator *basicAllocator)
+TimetableCache::TimetableCache(TimetableLoader  *loader,
+                               bslma::Allocator *basicAllocator)
 
 // We have to supply 'bsl::less<key>()' because 'bsl::map' does not have a
 // constructor that takes only an allocator.

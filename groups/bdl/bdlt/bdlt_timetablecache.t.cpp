@@ -156,8 +156,8 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlt::TimetableCache                   Obj;
 typedef bsl::shared_ptr<const bdlt::Timetable> Entry;
 
-typedef bsls::TimeInterval                    Interval;
-typedef bdlt::Datetime                        Datetime;
+typedef bsls::TimeInterval                     Interval;
+typedef bdlt::Datetime                         Datetime;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 typedef HANDLE    ThreadId;
@@ -169,7 +169,7 @@ extern "C" {
     typedef void *(*ThreadFunction)(void *arg);
 }
 
-bdlt::DatetimeInterval                        OneSecond(0, 0, 0, 1);
+bdlt::DatetimeInterval                         OneSecond(0, 0, 0, 1);
 
 // ============================================================================
 //                                 TYPE TRAITS
@@ -186,8 +186,6 @@ static const bdlt::Date gFirstDate2(2005, 5, 15);  // "CAL-2"    "
 static const bdlt::Date gFirstDate3(2010, 9, 30);  // "CAL-3"    "
 
 static const bdlt::Date gLastDate(2020, 12, 31);
-
-static const int        gHolidayOffset = 38;
 
 class TestLoader : public bdlt::TimetableLoader {
     // This concrete timetable loader successfully loads timetables named
@@ -253,12 +251,12 @@ int TestLoader::load(bdlt::Timetable *result, const char *timetableName)
           }
         }
 
-        result->removeAll();
+        result->reset();
         result->setValidRange(firstDate, gLastDate);
 
         // The following is required to trigger an allocation in 'result'.
 
-        result->addHoliday(firstDate + gHolidayOffset);
+        result->addTransition(bdlt::Datetime(firstDate), 1);
 
         return 0;                                                     // RETURN
     }
@@ -695,19 +693,21 @@ int MyTimetableLoader::load(bdlt::Timetable *result, const char *timetableName)
     BSLS_ASSERT(result);
     BSLS_ASSERT(timetableName);
 
-    result->removeAll();
+    result->reset();
     result->setValidRange(bdlt::Date(2000, 1, 1), bdlt::Date(2020, 12, 31));
 
-    if (     0 == bsl::strcmp("DE", timetableName)) {  // Germany
-        return 0;                                                     // RETURN
-    }
-    else if (0 == bsl::strcmp("FR", timetableName)) {  // France
-        result->addHoliday(bdlt::Date(2011, 7, 14));
+    if (     0 == bsl::strcmp("ZERO", timetableName)) {  // Germany
+        result->setInitialTransitionCode(0);
 
         return 0;                                                     // RETURN
     }
-    else if (0 == bsl::strcmp("US", timetableName)) {  // USA
-        result->addHoliday(bdlt::Date(2011, 7,  4));
+    else if (0 == bsl::strcmp("ONE", timetableName)) {  // France
+        result->setInitialTransitionCode(1);
+
+        return 0;                                                     // RETURN
+    }
+    else if (0 == bsl::strcmp("TWO", timetableName)) {  // USA
+        result->setInitialTransitionCode(2);
 
         return 0;                                                     // RETURN
     }
@@ -771,12 +771,10 @@ int main(int argc, char *argv[])
 //
 // In this example, we assume a hypothetical timetable loader,
 // 'MyTimetableLoader', the details of which are not important other than that
-// it supports timetables identified by "DE", "FR", and "US", which nominally
-// identify the major holidays in Germany, France, and the United States,
-// respectively.  Furthermore, we cite two specific dates of interest:
-// 2011/07/04, which was a holiday in the US (Independence Day), but not in
-// France, and 2011/07/14, which was a holiday in France (Bastille Day), but
-// not in the US.  Note that neither of these dates were holidays in Germany.
+// it supports timetables identified by "ZERO", "ONE", and "TWO".  Furthermore,
+// the value of the initial transition code for each of these timetables is
+// given by the timetable's name (e.g., if 'Z' has the value of the timetable
+// identified as "ZERO", then '0 == Z.initialTransitionCode()').
 //
 // First, we create a timetable loader, an instance of 'MyTimetableLoader', and
 // use it, in turn, to create a cache.  For the purposes of this example, it is
@@ -785,101 +783,89 @@ int main(int argc, char *argv[])
     MyTimetableLoader    loader;
     bdlt::TimetableCache cache(&loader);
 //..
-// Next, we retrieve the timetable 'usA', identified by "US", verify that the
-// loading of that timetable into the cache was successful ('usA.get()' is
-// non-null), and verify that 2011/07/04 is recognized as a holiday in the "US"
-// timetable, whereas 2011/07/14 is not:
+// Next, we retrieve the timetable 'twoA', identified by "TWO", verify that the
+// loading of that timetable into the cache was successful ('twoA.get()' is
+// non-null), and verify that 2 is the value of the initial transition code for
+// timetable "TWO":
 //..
-    bsl::shared_ptr<const bdlt::Timetable> usA = cache.getTimetable("US");
+    bsl::shared_ptr<const bdlt::Timetable> twoA = cache.getTimetable("TWO");
 
-                              ASSERT( usA.get());
-                              ASSERT( usA->isHoliday(bdlt::Date(2011, 7,  4)));
-                              ASSERT(!usA->isHoliday(bdlt::Date(2011, 7, 14)));
+    ASSERT(twoA.get());
+    ASSERT(2 == twoA->initialTransitionCode());
 //..
-// Then, we fetch the timetable identified by "FR", this time verifying that
-// 2011/07/14 is recognized as a holiday in the "FR" timetable, but 2011/07/04
-// is not:
+// Then, we fetch the timetable identified by "ONE", this time verifying that 1
+// is the value of the initial transition code for the "ONE" timetable:
 //..
-    bsl::shared_ptr<const bdlt::Timetable> frA = cache.getTimetable("FR");
+    bsl::shared_ptr<const bdlt::Timetable> oneA = cache.getTimetable("ONE");
 
-                              ASSERT( frA.get());
-                              ASSERT(!frA->isHoliday(bdlt::Date(2011, 7,  4)));
-                              ASSERT( frA->isHoliday(bdlt::Date(2011, 7, 14)));
+    ASSERT(oneA.get());
+    ASSERT(1 == oneA->initialTransitionCode());
 //..
-// Next, we retrieve the "FR" timetable again, this time via the
+// Next, we retrieve the "ONE" timetable again, this time via the
 // 'lookupTimetable' accessor, and note that the request is satisfied by the
 // timetable that is already in the cache:
 //..
     const bdlt::TimetableCache& readonlyCache = cache;
 
-    bsl::shared_ptr<const bdlt::Timetable> frB =
-                                           readonlyCache.lookupTimetable("FR");
+    bsl::shared_ptr<const bdlt::Timetable> oneB =
+                                          readonlyCache.lookupTimetable("ONE");
 
-                              ASSERT( frA.get() == frB.get());
+    ASSERT(oneA.get() == oneB.get());
 //..
-// Then, we invalidate the "US" timetable in the cache and immediately fetch it
-// again.  The call to 'invalidate' removed the "US" timetable from the cache,
-// so it had to be reloaded into the cache to satisfy the request:
+// Then, we invalidate the "TWO" timetable in the cache and immediately fetch
+// it again.  The call to 'invalidate' removed the "TWO" timetable from the
+// cache, so it had to be reloaded into the cache to satisfy the request:
 //..
-    int numInvalidated = cache.invalidate("US");
-                              ASSERT(1 == numInvalidated);
+    int numInvalidated = cache.invalidate("TWO");
+    ASSERT(1 == numInvalidated);
 
-    bsl::shared_ptr<const bdlt::Timetable> usB = cache.getTimetable("US");
+    bsl::shared_ptr<const bdlt::Timetable> twoB = cache.getTimetable("TWO");
 
-                              ASSERT( usB.get() != usA.get());
-                              ASSERT( usB.get());
-                              ASSERT( usB->isHoliday(bdlt::Date(2011, 7,  4)));
-                              ASSERT(!usB->isHoliday(bdlt::Date(2011, 7, 14)));
+    ASSERT(twoB.get() != twoA.get());
+    ASSERT(twoB.get());
+    ASSERT(2 == twoB->initialTransitionCode());
 //..
 // Next, all timetables in the cache are invalidated, then reloaded:
 //..
     numInvalidated = cache.invalidateAll();
-                              ASSERT(2 == numInvalidated);
+    ASSERT(2 == numInvalidated);
 
-    bsl::shared_ptr<const bdlt::Timetable> usC = cache.getTimetable("US");
+    bsl::shared_ptr<const bdlt::Timetable> twoC = cache.getTimetable("TWO");
 
-                              ASSERT( usC.get() != usA.get());
-                              ASSERT( usC.get() != usB.get());
-                              ASSERT( usC.get());
-                              ASSERT( usC->isHoliday(bdlt::Date(2011, 7,  4)));
-                              ASSERT(!usC->isHoliday(bdlt::Date(2011, 7, 14)));
+    ASSERT(twoC.get() != twoA.get());
+    ASSERT(twoC.get() != twoB.get());
+    ASSERT(twoC.get());
+    ASSERT(2 == twoC->initialTransitionCode());
 
-    bsl::shared_ptr<const bdlt::Timetable> frC = cache.getTimetable("FR");
+    bsl::shared_ptr<const bdlt::Timetable> oneC = cache.getTimetable("ONE");
 
-                              ASSERT( frC.get() != frA.get());
-                              ASSERT( frC.get() != frB.get());
-                              ASSERT( frC.get());
-                              ASSERT(!frC->isHoliday(bdlt::Date(2011, 7,  4)));
-                              ASSERT( frC->isHoliday(bdlt::Date(2011, 7, 14)));
+    ASSERT(oneC.get() != oneA.get());
+    ASSERT(oneC.get() != oneB.get());
+    ASSERT(oneC.get());
+    ASSERT(1 == oneC->initialTransitionCode());
 //..
 // Now, verify that references to timetables that were invalidated in the cache
 // are still valid for clients that obtained references to them before they
 // were made invalid:
 //..
-                              ASSERT( usA->isHoliday(bdlt::Date(2011, 7,  4)));
-                              ASSERT(!usA->isHoliday(bdlt::Date(2011, 7, 14)));
+    ASSERT(1 == oneA->initialTransitionCode());
+    ASSERT(1 == oneB->initialTransitionCode());
 
-                              ASSERT( usB->isHoliday(bdlt::Date(2011, 7,  4)));
-                              ASSERT(!usB->isHoliday(bdlt::Date(2011, 7, 14)));
-
-                              ASSERT(!frA->isHoliday(bdlt::Date(2011, 7,  4)));
-                              ASSERT( frA->isHoliday(bdlt::Date(2011, 7, 14)));
-
-                              ASSERT(!frB->isHoliday(bdlt::Date(2011, 7,  4)));
-                              ASSERT( frB->isHoliday(bdlt::Date(2011, 7, 14)));
+    ASSERT(2 == twoA->initialTransitionCode());
+    ASSERT(2 == twoB->initialTransitionCode());
 //..
-// When 'usA', 'usB', 'frA', and 'frB' go out of scope, the resources used by
-// the timetables to which they refer are automatically reclaimed.
+// When 'twoA', 'twoB', 'oneA', and 'oneB' go out of scope, the resources used
+// by the timetables to which they refer are automatically reclaimed.
 //
 // Finally, using the 'lookupTimetable' accessor, we attempt to retrieve a
 // timetable that has not yet been loaded into the cache, but that we *know* to
 // be supported by the timetable loader.  Since the 'lookupTimetable' accessor
 // does not load timetables into the cache as a side-effect, the request fails:
 //..
-    bsl::shared_ptr<const bdlt::Timetable> de =
-                                           readonlyCache.lookupTimetable("DE");
+    bsl::shared_ptr<const bdlt::Timetable> zero =
+                                         readonlyCache.lookupTimetable("ZERO");
 
-                              ASSERT(!de.get());
+    ASSERT(!zero.get());
 //..
         }
 
@@ -904,49 +890,49 @@ int main(int argc, char *argv[])
     bdlt::TimetableCache        cache(&loader, bsls::TimeInterval(3, 0));
     const bdlt::TimetableCache& readonlyCache = cache;
 //..
-// Next, we retrieve the timetable identified by "DE" from the cache:
+// Next, we retrieve the timetable identified by "ZERO" from the cache:
 //..
-    bsl::shared_ptr<const bdlt::Timetable> deA = cache.getTimetable("DE");
+    bsl::shared_ptr<const bdlt::Timetable> zeroA = cache.getTimetable("ZERO");
 
-                              ASSERT( deA.get());
+    ASSERT(zeroA.get());
 //..
-// Next, we sleep for 2 seconds before retrieving the "FR" timetable:
+// Next, we sleep for 2 seconds before retrieving the "ONE" timetable:
 //..
     sleepSeconds(2);
 
-    bsl::shared_ptr<const bdlt::Timetable> frA = cache.getTimetable("FR");
+    bsl::shared_ptr<const bdlt::Timetable> oneA = cache.getTimetable("ONE");
 
-                              ASSERT( frA.get());
+    ASSERT(oneA.get());
 //..
-// Next, we sleep for 2 more seconds before attempting to retrieve the "DE"
+// Next, we sleep for 2 more seconds before attempting to retrieve the "ZERO"
 // timetable again, this time using the 'lookupTimetable' accessor.  Since the
 // cumulative sleep time exceeds the timeout value established for the cache
-// when it was constructed, the "DE" timetable has expired; hence, it has been
-// removed from the cache:
+// when it was constructed, the "ZERO" timetable has expired; hence, it has
+// been removed from the cache:
 //..
     sleepSeconds(2);
 
-    bsl::shared_ptr<const bdlt::Timetable> deB =
-                                           readonlyCache.lookupTimetable("DE");
+    bsl::shared_ptr<const bdlt::Timetable> zeroB =
+                                         readonlyCache.lookupTimetable("ZERO");
 
-                              ASSERT(!deB.get());
+    ASSERT(!zeroB.get());
 //..
-// Next, we verify that the "FR" timetable is still available in the cache:
+// Next, we verify that the "ONE" timetable is still available in the cache:
 //..
-    bsl::shared_ptr<const bdlt::Timetable> frB =
-                                           readonlyCache.lookupTimetable("FR");
+    bsl::shared_ptr<const bdlt::Timetable> oneB =
+                                          readonlyCache.lookupTimetable("ONE");
 
-                              ASSERT( frA.get() == frB.get());
+    ASSERT(oneA.get() == oneB.get());
 //..
-// Finally, we sleep for an additional 2 seconds and verify that the "FR"
+// Finally, we sleep for an additional 2 seconds and verify that the "ONE"
 // timetable has also expired:
 //..
     sleepSeconds(2);
 
-    bsl::shared_ptr<const bdlt::Timetable> frC =
-                                           readonlyCache.lookupTimetable("FR");
+    bsl::shared_ptr<const bdlt::Timetable> oneC =
+                                          readonlyCache.lookupTimetable("ONE");
 
-                              ASSERT(!frC.get());
+    ASSERT(!oneC.get());
 //..
         }
 
