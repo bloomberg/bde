@@ -1,16 +1,16 @@
 // bdlt_timetableloader.t.cpp                                         -*-C++-*-
 #include <bdlt_timetableloader.h>
 
-#include <bdlt_date.h>             // for testing only
-#include <bdlt_dayofweek.h>        // for testing only
-#include <bdlt_dayofweekset.h>     // for testing only
-#include <bdlt_timetable.h>   // for testing only
+#include <bdlt_date.h>          // for testing only
+#include <bdlt_dayofweek.h>     // for testing only
+#include <bdlt_dayofweekset.h>  // for testing only
+#include <bdlt_timetable.h>     // for testing only
 
 #include <bslim_testutil.h>
 
 #include <bsls_protocoltest.h>
 
-#include <bsl_cstdlib.h>      // 'atoi'
+#include <bsl_cstdlib.h>        // 'atoi'
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
@@ -78,24 +78,30 @@ void aSsErT(bool condition, const char *message, int line)
 // unspecified as to where the JSON strings are obtained (i.e., whether from a
 // file system, a database, a local or remote service, etc.).
 //
-// First, we show the JSON format that our timetable loader accepts.  For
-// simplicity, we omit support for holiday codes and weekend-days transitions:
+// First, we show the JSON format that our timetable loader accepts:
 //..
 //  {
-//      "firstDate":   "YYYY-MM-DD",
-//      "lastDate":    "YYYY-MM-DD",
-//      "weekendDays": [ wd, ... ],
-//      "holidays":    [ "YYYY-MM-DD", ... ]
+//      "firstDate":             "YYYY-MM-DD",
+//      "lastDate":              "YYYY-MM-DD",
+//      "initialTransitionCode": code,
+//      "transitions":
+//        [
+//          {
+//            "datetime": "YYYY-MM-DDThh:mm:ss",
+//            "code":     code
+//          }
+//        ]
 //  }
 //..
 // Note that "YYYY-MM-DD" is an ISO 8601 representation for the value of a
-// 'bdlt::Date' object and 'wd' is an integer in the range '[1 .. 7]'.  The
-// range used for specifying weekend days corresponds directly to the
-// 'bdlt::DayOfWeek::Enum' enumeration, '[e_SUN = 1 .. e_SAT]' (see
-// 'bdlt_dayofweek').  We assume that the four JSON attributes, "firstDate",
-// "lastDate", "weekendDays", and "holidays", must occur in the JSON string in
-// the order in which they appear in the above display, but only "firstDate"
-// and "lastDate" are *required* attributes.
+// 'bdlt::Date' object, "YYYY-MM-DDThh:mm:ss" is an ISO 8601 representation for
+// the value of a 'bdlt::Datetime' object, and 'code' is an integer greater
+// than or equal to -1 (with -1 used to specify
+// 'bdlt::Timetable::k_UNSET_TRANSITION_CODE').  We assume that the four JSON
+// attributes, "firstDate", "lastDate", "initialTransitionCode", and
+// "transitions", must occur in the JSON string in the order in which they
+// appear in the above display, but only "firstDate" and "lastDate" are
+// *required* attributes.
 //
 // Then, we define the interface of our implementation:
 //..
@@ -161,10 +167,20 @@ void aSsErT(bool condition, const char *message, int line)
         // that 'json' is populated with the following specific data:
         //..
         //  {
-        //      "firstDate":   "1990-01-01",
-        //      "lastDate":    "1990-12-31",
-        //      "weekendDays": [ 1, 7 ],
-        //      "holidays":    [ "1990-05-28", "1990-07-04", "1990-09-03" ]
+        //      "firstDate":             "2018-01-01",
+        //      "lastDate":              "2018-12-31",
+        //      "initialTransitionCode": 1,
+        //      "transitions":
+        //        [
+        //          {
+        //            "datetime": "2018-05-28T09:00:00",
+        //            "code":     2
+        //          },
+        //          {
+        //            "datetime": "2018-05-28T18:00:00",
+        //            "code":     3
+        //          }
+        //        ]
         //  }
         //..
         // Similarly, we hard-wire the value of a status flag, 'rc', to
@@ -196,97 +212,99 @@ void aSsErT(bool condition, const char *message, int line)
         // dates that are hypothetically parsed from the 'json' string, and
         // set the 'rc' status flag indicating that parsing succeeded.
 
-        firstDate.setYearMonthDay(1990,  1,  1);
-        lastDate.setYearMonthDay( 1990, 12, 31);
+        firstDate.setYearMonthDay(2018,  1,  1);
+        lastDate.setYearMonthDay( 2018, 12, 31);
         rc = 0;  // success parsing "firstDate" and "lastDate" attributes
 
         if (rc != 0 || firstDate > lastDate) {
             return 2;                                                 // RETURN
         }
 
-        result->removeAll();
+        result->reset();
 
         result->setValidRange(firstDate, lastDate);
 //..
-// Next, we parse the "weekendDays" attribute from 'json' and load the result
-// into a 'bdlt::DayOfWeekSet' object, 'dayOfWeekSet':
+// Next, we parse the "initialTransitionCode" attribute from 'json':
 //..
         // For the purposes of this Usage, we hard-wire a boolean flag
-        // indicating that the "weekendDays" attribute was hypothetically
-        // detected in the 'json' string.
+        // indicating that the "initialTransitionCode" attribute was
+        // hypothetically detected in the 'json' string.
 
-        bool isWeekendDaysAttributePresent = true;
+        bool isInitialTransitionCodePresent = true;
 
-        if (isWeekendDaysAttributePresent) {
+        if (isInitialTransitionCodePresent) {
 
-            // Parse the "weekendDays" JSON attribute and load 'dayOfWeekSet'
-            // with the result.
+            // For the purposes of this Usage, we hard-wire the initial
+            // transition code that is hypothetically parsed from the 'json'
+            // string, and set the 'rc' status flag indicating that parsing
+            // succeeded.
 
-            bdlt::DayOfWeekSet dayOfWeekSet;
+            int code = 1;
 
-            // For the purposes of this Usage, we hard-wire the weekend days
-            // that are hypothetically parsed from the 'json' string, and set
-            // the 'rc' status flag indicating that parsing succeeded.
-
-            dayOfWeekSet.add(bdlt::DayOfWeek::e_SUN);
-            dayOfWeekSet.add(bdlt::DayOfWeek::e_SAT);
-            rc = 0;  // success parsing "weekendDays" attribute
+            rc = 0;  // success parsing "initialTransitionCode" attribute
 
             if (rc != 0) {
                 return 3;                                             // RETURN
             }
 
-            result->addWeekendDays(dayOfWeekSet);
+            result->setInitialTransitionCode(code);
         }
 //..
-// Now, we parse the "holidays" attribute from 'json' and load the result into
-// a 'bsl::vector<bdlt::Date>' object, 'holidays':
+// Now, we parse the "transitions" attribute from 'json' and load the result
+// into a 'bsl::vector<bsl::pair<bdlt::Datetime, int> >' object, 'transitions':
 //..
         // For the purposes of this Usage, we hard-wire a boolean flag
-        // indicating that the "holidays" attribute was hypothetically detected
-        // in the 'json' string.
+        // indicating that the "transitions" attribute was hypothetically
+        // detected in the 'json' string.
 
-        bool isHolidaysAttributePresent = true;
+        bool isTransitionsPresent = true;
 
-        if (isHolidaysAttributePresent) {
+        if (isTransitionsPresent) {
 
-            // Parse the "holidays" JSON attribute and load 'holidays' with the
-            // result.
+            // Parse the "transitions" JSON attribute and load 'transitions'
+            // with the result.
 
-            bsl::vector<bdlt::Date> holidays;
+            bsl::vector<bsl::pair<bdlt::Datetime, int> > transitions;
 
-            // For the purposes of this Usage, we hard-wire the holidays that
-            // are hypothetically parsed from the 'json' string, and set the
-            // 'rc' status flag indicating that parsing succeeded.
+            // For the purposes of this Usage, we hard-wire the transitions
+            // that are hypothetically parsed from the 'json' string, and set
+            // the 'rc' status flag indicating that parsing succeeded.
 
-            holidays.push_back(bdlt::Date(1990,  5, 28));  // Memorial Day
-            holidays.push_back(bdlt::Date(1990,  7,  4));  // Independence Day
-            holidays.push_back(bdlt::Date(1990,  9,  3));  // Labor Day
-            rc = 0;  // success parsing "holidays" attribute
+            transitions.push_back(bsl::pair<bdlt::Datetime, int>(
+                                          bdlt::Datetime(2018, 5, 28,  9), 2));
+            transitions.push_back(bsl::pair<bdlt::Datetime, int>(
+                                          bdlt::Datetime(2018, 5, 28, 18), 3));
+
+            rc = 0;  // success parsing "transitions" attribute
 
             if (rc != 0) {
                 return 4;                                             // RETURN
             }
 
-            bsl::vector<bdlt::Date>::const_iterator it = holidays.begin();
+            bsl::vector<bsl::pair<bdlt::Datetime, int> >::const_iterator it =
+                                                           transitions.begin();
 
-            while (it != holidays.end()) {
-                const bdlt::Date& holiday = *it;
+            while (it != transitions.end()) {
+                const bdlt::Date& date = it->first.date();
 
-                if (holiday < firstDate || holiday > lastDate) {
+                if (date < firstDate || date > lastDate || -1 > it->second) {
                     return 5;                                         // RETURN
                 }
 
-                result->addHoliday(holiday);
+                result->addTransition(
+                               it->first,
+                               it->second >= 0
+                                   ? it->second
+                                   : bdlt::Timetable::k_UNSET_TRANSITION_CODE);
 
                 ++it;
             }
         }
 //..
-// Note that the 'addHoliday' method can extend the range of the timetable.
-// Our timetable loader instead imposes the requirement that the dates
-// specified in the "holidays" JSON attribute must be within the range
-// '[firstDate .. lastDate]'.
+// Our timetable loader imposes the requirement that the dates specified in the
+// "transitions" JSON attribute must be within the range
+// '[firstDate .. lastDate]' and the transition codes are non-negative or
+// unset.
 //
 // Finally, we return 0 indicating success:
 //..
