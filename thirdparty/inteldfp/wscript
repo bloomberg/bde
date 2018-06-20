@@ -328,7 +328,8 @@ def build(bld):
 
     if config['h_install_path']:
         bld.install_files(config['h_install_path'],
-                          bld.path.ant_glob('LIBRARY/src/inteldfp/*.h'))
+                          bld.path.ant_glob('LIBRARY/src/inteldfp/*.h'),
+                          postpone=False)
 
     if is_bde:
         depends_on=['inteldfp_lib', ]
