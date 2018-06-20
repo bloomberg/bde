@@ -273,11 +273,11 @@ class TimetableCache_Entry {
     // explicit allocator is *required* to create a entry object.
 
     // DATA
-    bsl::shared_ptr<const Timetable> d_ptr;      // shared pointer to
-                                                 // out-of-place instance
+    bsl::shared_ptr<const Timetable> d_ptr;       // shared pointer to
+                                                  // out-of-place instance
 
-    Datetime                        d_loadTime;  // time when timetable was
-                                                 // loaded
+    Datetime                         d_loadTime;  // time when timetable was
+                                                  // loaded
 
   public:
     // CREATORS
@@ -342,22 +342,22 @@ class TimetableCache {
 
     // DATA
     mutable bsl::map<bsl::string, TimetableCache_Entry>
-                            d_cache;           // cache of (name, handle) pairs
+                           d_cache;           // cache of (name, handle) pairs
 
-    TimetableLoader         *d_loader_p;       // timetable loader (held, not
-                                               // owned)
+    TimetableLoader       *d_loader_p;        // timetable loader (held, not
+                                              // owned)
 
-    DatetimeInterval        d_timeOut;         // timeout value; ignored unless
-                                               // 'd_hasTimeOutFlag' is 'true'
+    DatetimeInterval       d_timeOut;         // timeout value; ignored unless
+                                              // 'd_hasTimeOutFlag' is 'true'
 
-    bool                    d_hasTimeOutFlag;  // 'true' if this cache has a
-                                               // timeout value and 'false'
-                                               // otherwise
+    bool                   d_hasTimeOutFlag;  // 'true' if this cache has a
+                                              // timeout value and 'false'
+                                              // otherwise
 
-    mutable bsls::BslLock   d_lock;            // guard access to cache
+    mutable bsls::BslLock  d_lock;            // guard access to cache
 
-    bslma::Allocator       *d_allocator_p;     // memory allocator (held, not
-                                               // owned)
+    bslma::Allocator      *d_allocator_p;     // memory allocator (held, not
+                                              // owned)
 
   private:
     // PRIVATE TYPES

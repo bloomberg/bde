@@ -93,9 +93,9 @@ TimetableCache::TimetableCache(TimetableLoader  *loader,
     BSLS_ASSERT(loader);
 }
 
-TimetableCache::TimetableCache(TimetableLoader            *loader,
-                             const bsls::TimeInterval&  timeout,
-                             bslma::Allocator          *basicAllocator)
+TimetableCache::TimetableCache(TimetableLoader           *loader,
+                               const bsls::TimeInterval&  timeout,
+                               bslma::Allocator          *basicAllocator)
 
 // We have to supply 'bsl::less<key>()' because 'bsl::map' does not have a
 // constructor that takes only an allocator.
