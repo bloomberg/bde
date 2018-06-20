@@ -298,10 +298,10 @@ bool wideToNarrow(bsl::string *result, const bsl::wstring& path)
 static inline
 int makeDirectory(const char *path, bool)
     // Create a directory.  Return 0 on success, 'k_ERROR_PATH_NOT_FOUND' if a
-    // component used as a directory in 'path' either does not exist or is not
-    // a directory, 'k_ERROR_ALREADY_EXISTS' if the file system entry (not
-    // necessarily a directory) with the name 'path' already exists, and a
-    // negative value for any other kind of error.
+    // component used as a directory in the specified 'path' either does not
+    // exist or is not a directory, 'k_ERROR_ALREADY_EXISTS' if the file system
+    // entry (not necessarily a directory) with the name 'path' already exists,
+    // and a negative value for any other kind of error.
 {
     BSLS_ASSERT_SAFE(path);
 
@@ -465,10 +465,10 @@ bool isDotOrDots(const char *path)
 static inline
 int makeDirectory(const char *path, bool isPrivate)
     // Create a directory.  Return 0 on success, 'k_ERROR_PATH_NOT_FOUND' if a
-    // component used as a directory in 'path' either does not exist or is not
-    // a directory, 'k_ERROR_ALREADY_EXISTS' if the file system entry (not
-    // necessarily a directory) with the name 'path' already exists, and a
-    // negative value for any other kind of error.
+    // component used as a directory in the specified 'path' either does not
+    // exist or is not a directory, 'k_ERROR_ALREADY_EXISTS' if the file system
+    // entry (not necessarily a directory) with the name 'path' already exists,
+    // and a negative value for any other kind of error.
 {
     BSLS_ASSERT_SAFE(path);
 
@@ -488,11 +488,11 @@ int makeDirectory(const char *path, bool isPrivate)
         case ENOENT:
             return bdls::FilesystemUtil::k_ERROR_PATH_NOT_FOUND;      // RETURN
         default:
-            return -1;
+            return -1;                                                // RETURN
         }
     }
     else {
-        return 0;
+        return 0;                                                     // RETURN
     }
 }
 

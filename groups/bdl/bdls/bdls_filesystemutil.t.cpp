@@ -980,26 +980,26 @@ int main(int argc, char *argv[])
         // 'createPrivateDirectory'
         //
         // Concerns:
-        //   That 'createDirectories' and 'createPrivateDirectory' return
-        //   proper status on failure, depending upon the type of failure (see
-        //   DRQS 123561805).
+        //:  That 'createDirectories' and 'createPrivateDirectory' return
+        //:  proper status on failure, depending upon the type of failure (see
+        //:  DRQS 123561805).
         //
         // Plan:
-        //   1 Verify that 'createDirectories' call with a path indicating an
-        //     existing file fails with 'k_ERROR_PATH_NOT_FOUND'.
-        //   2 Verify that 'createDirectories' call with the path that would
-        //     indicate child directory of an existing file fails with
-        //     'k_ERROR_PATH_NOT_FOUND'.
-        //   3 Verify that 'createPrivateDirectory' call with a path indicating
-        //     an existing file fails with 'k_ERROR_ALREADY_EXISTS'.
-        //   4 Verify that 'createPrivateDirectory' call with a path indicating
-        //      an existing directory fails with 'k_ERROR_ALREADY_EXISTS'.
-        //   5 Verify that 'createPrivateDirectory' call with the path that
-        //     would indicate child directory of an existing file fails with
-        //     'k_ERROR_PATH_NOT_FOUND'.
-        //   6 Verify that 'createPrivateDirectory' call with the path that
-        //     would indicate child directory of an non-existent directory
-        //     fails with 'k_ERROR_PATH_NOT_FOUND'.
+        //:  1 Verify that 'createDirectories' call with a path indicating an
+        //:    existing file fails with 'k_ERROR_PATH_NOT_FOUND'.
+        //:  2 Verify that 'createDirectories' call with the path that would
+        //:    indicate child directory of an existing file fails with
+        //:    'k_ERROR_PATH_NOT_FOUND'.
+        //:  3 Verify that 'createPrivateDirectory' call with a path indicating
+        //:    an existing file fails with 'k_ERROR_ALREADY_EXISTS'.
+        //:  4 Verify that 'createPrivateDirectory' call with a path indicating
+        //:     an existing directory fails with 'k_ERROR_ALREADY_EXISTS'.
+        //:  5 Verify that 'createPrivateDirectory' call with the path that
+        //:    would indicate child directory of an existing file fails with
+        //:    'k_ERROR_PATH_NOT_FOUND'.
+        //:  6 Verify that 'createPrivateDirectory' call with the path that
+        //:    would indicate child directory of an non-existent directory
+        //:    fails with 'k_ERROR_PATH_NOT_FOUND'.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -1065,12 +1065,12 @@ int main(int argc, char *argv[])
             ASSERT(Obj::k_ERROR_PATH_NOT_FOUND ==
                    Obj::createPrivateDirectory(childOfFilePath));
 
-            bsl::string nonexistentDirChildPath = testBaseDir;
-            bdls::PathUtil::appendRaw(&nonexistentDirChildPath, "dir");
-            bdls::PathUtil::appendRaw(&nonexistentDirChildPath, "dir2");
-            if (veryVerbose) { P(nonexistentDirChildPath); }
+            bsl::string clildOfNonexistentDirPath = testBaseDir;
+            bdls::PathUtil::appendRaw(&clildOfNonexistentDirPath, "dir");
+            bdls::PathUtil::appendRaw(&clildOfNonexistentDirPath, "dir2");
+            if (veryVerbose) { P(clildOfNonexistentDirPath); }
             ASSERT(Obj::k_ERROR_PATH_NOT_FOUND ==
-                   Obj::createPrivateDirectory(nonexistentDirChildPath));
+                   Obj::createPrivateDirectory(clildOfNonexistentDirPath));
 
             ASSERT(0 == Obj::remove(testBaseDir, true));
         }
