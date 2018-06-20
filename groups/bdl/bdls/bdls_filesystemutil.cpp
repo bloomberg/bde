@@ -313,9 +313,9 @@ int makeDirectory(const char *path, bool)
         }
 
         switch (GetLastError()) {
-        case ERROR_ALREADY_EXISTS:
+          case ERROR_ALREADY_EXISTS:
             return bdls::FilesystemUtil::k_ERROR_ALREADY_EXISTS;      // RETURN
-        case ERROR_PATH_NOT_FOUND:
+          case ERROR_PATH_NOT_FOUND:
             return bdls::FilesystemUtil::k_ERROR_PATH_NOT_FOUND;      // RETURN
         }
     }
@@ -482,12 +482,12 @@ int makeDirectory(const char *path, bool isPrivate)
     };
     if (mkdir(path, PERMS[isPrivate])) {
         switch (errno) {
-        case EEXIST:
+          case EEXIST:
             return bdls::FilesystemUtil::k_ERROR_ALREADY_EXISTS;      // RETURN
-        case ENOTDIR:
-        case ENOENT:
+          case ENOTDIR:
+          case ENOENT:
             return bdls::FilesystemUtil::k_ERROR_PATH_NOT_FOUND;      // RETURN
-        default:
+          default:
             return -1;                                                // RETURN
         }
     }
