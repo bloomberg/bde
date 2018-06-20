@@ -81,13 +81,15 @@ using namespace bsl;
 // [12] int tryLock(FileDescriptor, bool ) (Windows)
 // [13] int sync(char *, int , bool )
 // [14] int close(FileDescriptor )
+// [18] makeUnsafeTemporaryFilename(string *, const StringRef&)
 // [19] createTemporaryFile(string *, const StringRef&)
 // [20] createTemporaryDirectory(string *, const StringRef&)
-// [18] makeUnsafeTemporaryFilename(string *, const StringRef&)
-// [21] int visitTree(const char *, const string&, const Func&, bool);
-// [21] int visitTree(const string&, const string&, const Func&, bool);
-// [21] int visitPaths(const string&, const Func&);
-// [21] int visitPaths(const char *, const Func&);
+// [21] int createDirectories(const string&, bool);
+// [21] int createPrivateDirectory(const string&);
+// [22] int visitTree(const char *, const string&, const Func&, bool);
+// [22] int visitTree(const string&, const string&, const Func&, bool);
+// [22] int visitPaths(const string&, const Func&);
+// [22] int visitPaths(const char *, const Func&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] CONCERN: findMatchingPaths incorrect on ibm 64-bit
@@ -98,8 +100,10 @@ using namespace bsl;
 // [18] CONCERN: entropy in temp file name generation
 // [19] CONCERN: file permissions
 // [20] CONCERN: directory permissions
-// [22] USAGE EXAMPLE 1
-// [23] USAGE EXAMPLE 2
+// [21] CONCERN: error codes for 'createDirectories'
+// [21] CONCERN: error codes for 'createPrivateDirectory'
+// [23] USAGE EXAMPLE 1
+// [24] USAGE EXAMPLE 2
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -562,7 +566,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
 
     switch(test) { case 0:
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -648,7 +652,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -764,7 +768,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdls::PathUtil::popLeaf(&logPath));
         ASSERT(0 == Obj::remove(logPath.c_str(), true));
       } break;
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING VISITTREE AND VISITPATHS
         //
@@ -969,6 +973,107 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
         ASSERT(!Obj::exists(root));
 #endif
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING: Specific error codes for 'createDirectories' and
+        // 'createPrivateDirectory'
+        //
+        // Concerns:
+        //:  That 'createDirectories' and 'createPrivateDirectory' return
+        //:  proper status on failure, depending upon the type of failure (see
+        //:  DRQS 123561805).
+        //
+        // Plan:
+        //:  1 Verify that 'createDirectories' call with a path indicating an
+        //:    existing file fails with 'k_ERROR_PATH_NOT_FOUND'.
+        //:  2 Verify that 'createDirectories' call with the path that would
+        //:    indicate child directory of an existing file fails with
+        //:    'k_ERROR_PATH_NOT_FOUND'.
+        //:  3 Verify that 'createPrivateDirectory' call with a path indicating
+        //:    an existing file fails with 'k_ERROR_ALREADY_EXISTS'.
+        //:  4 Verify that 'createPrivateDirectory' call with a path indicating
+        //:     an existing directory fails with 'k_ERROR_ALREADY_EXISTS'.
+        //:  5 Verify that 'createPrivateDirectory' call with the path that
+        //:    would indicate child directory of an existing file fails with
+        //:    'k_ERROR_PATH_NOT_FOUND'.
+        //:  6 Verify that 'createPrivateDirectory' call with the path that
+        //:    would indicate child directory of an non-existent directory
+        //:    fails with 'k_ERROR_PATH_NOT_FOUND'.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+            "TESTING: Specific error codes for 'createDirectories' et al\n"
+            "===========================================================\n";
+
+        if (verbose) cout << "Testing 'createDirectories'\n";
+        {
+            const bsl::string& testBaseDir = "tmpDir";
+
+            if (veryVerbose) { P(testBaseDir); }
+            (void)Obj::remove(testBaseDir, true);
+            ASSERT(0 == Obj::createDirectories(testBaseDir, true));
+            ASSERT(Obj::exists(testBaseDir));
+
+            bsl::string existingFilePath = testBaseDir;
+            bdls::PathUtil::appendRaw(&existingFilePath, "file");
+            if (veryVerbose) { P(existingFilePath); }
+            localTouch(existingFilePath.c_str());
+            ASSERT(Obj::exists(existingFilePath));
+
+            bsl::string fullDirPath = existingFilePath;
+            if (veryVerbose) { P(existingFilePath); }
+            ASSERT(Obj::k_ERROR_PATH_NOT_FOUND ==
+                   Obj::createDirectories(existingFilePath, true));
+
+            bsl::string childOfFilePath = existingFilePath;
+            bdls::PathUtil::appendRaw(&childOfFilePath, "dir");
+            if (veryVerbose) { P(childOfFilePath); }
+            ASSERT(Obj::k_ERROR_PATH_NOT_FOUND ==
+                   Obj::createDirectories(childOfFilePath));
+
+            ASSERT(0 == Obj::remove(testBaseDir, true));
+        }
+
+        if (verbose) cout << "Testing 'createPrivateDirectory'\n";
+        {
+            const bsl::string& testBaseDir = "tmpDir";
+
+            if (veryVerbose) { P(testBaseDir); }
+            (void) Obj::remove(testBaseDir, true);
+            ASSERT(0 == Obj::createDirectories(testBaseDir, true));
+            ASSERT(Obj::exists(testBaseDir));
+
+            bsl::string existingFilePath = testBaseDir;
+            bdls::PathUtil::appendRaw(&existingFilePath, "file");
+            if (veryVerbose) { P(existingFilePath); }
+            localTouch(existingFilePath.c_str());
+            ASSERT(Obj::exists(existingFilePath));
+
+            if (veryVerbose) { P(existingFilePath); }
+            ASSERT(Obj::k_ERROR_ALREADY_EXISTS ==
+                   Obj::createPrivateDirectory(existingFilePath));
+
+            bsl::string existingDirPath = testBaseDir;
+            if (veryVerbose) { P(existingDirPath); }
+            ASSERT(Obj::k_ERROR_ALREADY_EXISTS ==
+                Obj::createPrivateDirectory(existingDirPath));
+
+            bsl::string childOfFilePath = existingFilePath;
+            bdls::PathUtil::appendRaw(&childOfFilePath, "dir");
+            if (veryVerbose) { P(childOfFilePath); }
+            ASSERT(Obj::k_ERROR_PATH_NOT_FOUND ==
+                   Obj::createPrivateDirectory(childOfFilePath));
+
+            bsl::string clildOfNonexistentDirPath = testBaseDir;
+            bdls::PathUtil::appendRaw(&clildOfNonexistentDirPath, "dir");
+            bdls::PathUtil::appendRaw(&clildOfNonexistentDirPath, "dir2");
+            if (veryVerbose) { P(clildOfNonexistentDirPath); }
+            ASSERT(Obj::k_ERROR_PATH_NOT_FOUND ==
+                   Obj::createPrivateDirectory(clildOfNonexistentDirPath));
+
+            ASSERT(0 == Obj::remove(testBaseDir, true));
+        }
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -1496,7 +1601,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-            "TESTING: Unix File Permissions for 'createDirectories et al\n"
+            "TESTING: Unix File Permissions for 'createDirectories' et al\n"
             "===========================================================\n";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
