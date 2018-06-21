@@ -401,35 +401,33 @@ struct Encoder_ElementVisitor {
                        // ===========================
 
 class Encoder_ChoiceVisitor {
-    // This functor class affects the encoding of choices whose selection is an
-    // array.  The 'doNotEncode' flag is set to 'true' if the selection is an
-    // empty array and the encoder options supplied at construction indicate
-    // that empty arrays should not be encoded; the flag is set to 'false'
-    // otherwise.  An object of this class should be passed as an argument to
-    // the 'bdlat_ChoiceFunctions::accessSelection' function.  Note that the
+    // This functor class is used to sniff whether a choice's selection is an
+    // empty array.  The 'value' argument to 'operator()' is the selection;
+    // that method sets the 'd_isEmptyArrayFlag' flag to 'true' if 'value' is
+    // an empty array, and sets it to 'false' otherwise.  An object of this
+    // class should be passed as an argument to the
+    // 'bdlat_ChoiceFunctions::accessSelection' function.  Note that the 
     // operators provided in this 'class' match the function signatures
     // required of visitors encoding elements of 'bdlat' choice types.
 
     // DATA
-    const Encoder_EncodeImpl *d_encoder_p;    // encoder (held, not owned)
+    bool d_isEmptyArrayFlag;  // flag indicating whether the selection of a
+                              // visited choice object is an empty array
 
-    bool                      d_doNotEncode;  // flag indicating if 'value'
-                                              // should be encoded
   public:
     // CREATORS
-    explicit Encoder_ChoiceVisitor(const Encoder_EncodeImpl *encoder);
-        // Create an 'Encoder_ChoiceVisitor' object using the specified
-        // 'encoder'.
+    explicit Encoder_ChoiceVisitor();
+        // Create an 'Encoder_ChoiceVisitor' object.
 
     // MANIPULATORS
     template <class TYPE, class INFO>
     int operator()(const TYPE& value, const INFO&);
-        // Determine if the specified 'value' is an empty array that should
-        // not be encoded.  Return 0 on success and a non-zero value otherwise.
+        // Determine if the specified 'value' is an empty array.  Return 0 on
+        // success and a non-zero value otherwise.
 
     // ACCESSORS
-    bool doNotEncode() const;
-        // Return the value of the do-not-encode flag.
+    bool isEmptyArray() const;
+        // Return the value of the is-empty-array flag.
 };
 
                        // =============================
@@ -737,10 +735,21 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&                value,
             d_formatter.openObject();
         }
 
-        Encoder_ChoiceVisitor emptyArraySniffer(this);
-        bdlat_ChoiceFunctions::accessSelection(value, emptyArraySniffer);
+        // Skip encoding of the selection if it is an empty array and the
+        // encoder option 'encodeEmptyArrays()' is 'false'.
 
-        if (!emptyArraySniffer.doNotEncode()) {
+        bool encodeChoiceSelection = true;  // default is to encode selection
+
+        if (!d_encoderOptions_p->encodeEmptyArrays()) {
+            Encoder_ChoiceVisitor emptyArraySniffer;
+
+            bdlat_ChoiceFunctions::accessSelection(value, emptyArraySniffer);
+            if (emptyArraySniffer.isEmptyArray()) {
+                encodeChoiceSelection = false;
+            }
+        }
+
+        if (encodeChoiceSelection) {
             Encoder_ElementVisitor visitor = { this, mode };
 
             const int rc = bdlat_ChoiceFunctions::accessSelection(value,
@@ -865,9 +874,8 @@ const EncoderOptions *Encoder_EncodeImpl::encoderOptions() const
 
 // CREATORS
 inline
-Encoder_ChoiceVisitor::Encoder_ChoiceVisitor(const Encoder_EncodeImpl *encoder)
-: d_encoder_p(encoder)
-, d_doNotEncode(false)
+Encoder_ChoiceVisitor::Encoder_ChoiceVisitor()
+: d_isEmptyArrayFlag(false)
 {
 }
 
@@ -876,22 +884,18 @@ template <class TYPE, class INFO>
 inline
 int Encoder_ChoiceVisitor::operator()(const TYPE& value, const INFO&)
 {
-    // Determine if 'value' is an empty array where we don't want to encode
-    // empty arrays.
+    // Determine if 'value' is an empty array and set flag accordingly.
 
-    if (!d_encoder_p->encoderOptions()->encodeEmptyArrays()
-        && Encoder_EncodeImpl::isEmptyArray(value)) {
-        d_doNotEncode = true;
-    }
+    d_isEmptyArrayFlag = Encoder_EncodeImpl::isEmptyArray(value);
 
     return 0;
 }
 
 // ACCESSORS
 inline
-bool Encoder_ChoiceVisitor::doNotEncode() const
+bool Encoder_ChoiceVisitor::isEmptyArray() const
 {
-    return d_doNotEncode;
+    return d_isEmptyArrayFlag;
 }
 
                        // ------------------------------
