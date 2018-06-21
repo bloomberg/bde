@@ -1,3 +1,10 @@
+bsl-internal (3.10.0.1) unstable; urgency=low
+
+  * 9b453c488 Merge pull request #1967 from hversche/pr/1966-rebased-releases/3.10.x
+  * 0e2066b42 Merge pull request #1965 from hversche/pr/1960-rebased-releases/3.10.x
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Thu, 21 Jun 2018 09:42:10 -0400
+
 bsl-internal (3.10.0.0) unstable; urgency=low
 
   * a8572a2bb Merge pull request #1956 from hversche/pr/1955-rebased-releases/3.10.x
