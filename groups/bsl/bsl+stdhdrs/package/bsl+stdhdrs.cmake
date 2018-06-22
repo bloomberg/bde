@@ -28,10 +28,11 @@ function(stdhdrs_package_setup_interface package listFile)
     # produce the absolute path. This is critical to use Ninja generator
     # with SunOS compilers.
     bde_struct_get_field(packageInterface ${package} INTERFACE_TARGET)
+
     bde_interface_target_include_directories(
         ${packageInterface}
         INTERFACE
-            $<BUILD_INTERFACE:/${rootDir}>
+            $<BUILD_INTERFACE:$<$<CXX_COMPILER_ID:SunPro>:/>${rootDir}>
     )
 endfunction()
 
