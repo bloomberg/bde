@@ -11,8 +11,8 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
                     // BALL_LOGTHROTTLE_STREAM_CONST_IMP
                     // ---------------------------------
 
-// The stream-stylelogging macro that throttles, all of whose arguments must be
-// compile-time constants, is reproduced here:
+// The stream-style logging macro that throttles, all of whose arguments must
+// be compile-time constants, is reproduced here:
 //..
 //#define BALL_LOGTHROTTLE_STREAM_CONST_IMP(SEVERITY,                        \@
 //                                          MAX_SIMULTANEOUS_MESSAGES,       \@
@@ -64,7 +64,7 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 // If you want to access the stream within the controlled block or statement,
 // use 'BALL_LOG_OUTPUT_STREAM' as defined by 'ball_log.h'.  There is no
 // 'BALL_LOGTHROTTLE_OUTPUT_STREAM'.  Note that 'BALL_LOGTHROTTLE_TRACE'
-// provides the 'BALL_LOG_OUTPUT_STREAM' at the end of its expression.
+// provides the 'BALL_LOG_OUTPUT_STREAM' at the end of its expansion.
 //
 // The alternative form of this macro, which allows the 'SEVERITY' argument to
 // be a run-time value, rather than compile-time constant, follows:
@@ -112,14 +112,14 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 //..
 // 'BALL_LOGTHROTTLE_STREAM_IMP' is equivalent to
 // 'BALL_LOGTHROTTLE_STREAM_CONST_IMP' except that the 'SEVERITY' argument does
-// not have to be a compile-time constant and many be a run-time expression.
+// not have to be a compile-time constant and may be a run-time expression.
 // The other two arguments have to be compile-time constants without
 // floating-point subexpressions.
 //
 // If you want to access the stream within the controlled block or statement,
 // use 'BALL_LOG_OUTPUT_STREAM' as defined by 'ball_log.h'.  There is no
 // 'BALL_LOGTHROTTLE_OUTPUT_STREAM'.  Note that 'BALL_LOGTHROTTLE_STREAM'
-// provides the 'BALL_LOG_OUTPUT_STREAM' at the end of the expression.
+// provides the 'BALL_LOG_OUTPUT_STREAM' at the end of the expansion.
 
                         // ----------------------------
                         // BALL_LOGTHROTTLEVA_CONST_IMP
@@ -154,9 +154,6 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 //    }                                                                      \@
 //} while(0)
 //..
-// All three arguments must be compile-time constants with no floating-point
-// subexpressions.
-//
 // This is used, for example, by:
 //..
 //#define BALL_LOGTHROTTLEVA_TRACE(MAX_SIMULTANEOUS_MESSAGES,                \@
@@ -174,11 +171,13 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 // less than (lower severity values are more severe) the category threshold,
 // and the time debt (see "Throttling Concepts" in the component documentation
 // in the header file) of the throttle is not excessive, log a message produced
-// from the 'printf'-style format string 'msg' and 0 or more arguments that
-// follow.  Note that this macro requires that the first three arguments be
-// compile-time constants, none of which may contain any floating-point
-// subexpressions, but there is no such requirement on any of the other
-// arguments.
+// from the 'printf'-style format string, which is the first argument of the
+// '...' arguments passed.  Note that this macro requires that the first three
+// arguments be compile-time constants, none of which may contain any
+// floating-point subexpressions, but there is no such requirement on any of
+// the other arguments.  A 'printf'-style string must be passed as the first of
+// the '...' arguments, followed by arguments compatible with the formatting
+// dictated by that string.
 //
 // A separate public macro, 'BALL_LOGTHROTTLEVA', exists in the header file,
 // which is analogous to 'BALL_LOGTHROTTLEVA_CONST_IMP', except that the first

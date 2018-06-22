@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a throttling equivalent of some of the 'ball_log' macros.
+//@PURPOSE: Provide throttling equivalents of some of the 'ball_log' macros.
 //
 //@MACROS: BALL_LOGTHROTTLE_TRACE,               BALL_LOGTHROTTLE_DEBUG,
 //         BALL_LOGTHROTTLE_INFO,                BALL_LOGTHROTTLE_WARN,
@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 // Each log message has a 'SEVERITY' associated with it (see 'ball_severity'
 // for the definitions of the six standard severities).  Those macros that
 // don't contain a 'SEVERITY' in their name are passed an integral severity
-// value in the range '[1 .. 255]', with suggested values defined in
+// value in the range '[0 .. 255]', with suggested values defined in
 // 'ball::Severity', as their first argument.  The next two arguments,
 // 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSAGE', are described
 // immediately below.
@@ -67,10 +67,6 @@ BSLS_IDENT("$Id: $")
 // approximation for allowing only a certain number of messages over a window
 // of time.
 //
-// For brevity, when documenting the logging macros, we will use 'k_MSM' as
-// shorthand for 'MAX_SIMULTANEOUS_MESSAGES' and 'k_NPM' for
-// 'NANOSECONDS_PER_MESSAGE'.
-//
 ///Leaky Bucket and Time Debt Example
 /// - - - - - - - - - - - - - - - - -
 // In this section we illustrate time debt via a leaky bucket whose
@@ -85,8 +81,8 @@ BSLS_IDENT("$Id: $")
 //      +--------------+----------------+----------------+---------------+
 //      |     Time     |   Time Debt    |     Message    |   Time Debt   |
 //      |  in Seconds  |   in Seconds   |   Permitted?   |   in Seconds  |
-//      | Since First  |   Before Log   |   Threshold:   |   After Log   |
-//      |   Message    |                | (4-1)*10 = 30  |               |
+//      | Since First  | Before Logging |   Threshold:   |  After Log or |
+//      |   Message    |    Attempt     | (4-1)*10 = 30  |    Attempt    |
 //      +--------------+----------------+----------------+---------------+
 //      |       0      |            0   |   0 <= 30 Yes  |   0+10 -> 10  |
 //      |       2      |  10- 2 ->  8   |   8 <= 30 Yes  |   8+10 -> 18  |
@@ -108,7 +104,7 @@ BSLS_IDENT("$Id: $")
 //      bucket capacity of 40.
 //..
 // So observe that at 8 seconds, the time debt to begin with is 26.  4 seconds
-// have elapsed since the previous event at the 4 second mark, so the time debt
+// have elapsed since the previous event at the 4-second mark, so the time debt
 // becomes '26 - 4 == 22'.  This is less than the threshold of 30, so the
 // message is permitted, and we add the time per message, which is 10 billion
 // nanoseconds, or 10 seconds, and the time debt at the end is 32 seconds.
@@ -130,69 +126,83 @@ BSLS_IDENT("$Id: $")
 ///Macro Reference
 ///---------------
 // This section documents the preprocessor macros defined in this component.
-//..
-//  enum { k_MSM = 4 };                 // 'MAX_SIMULTANEOUS_MESSAGES' argument
-//  static const bsls::Types::Int64 k_NPM = 10LL * 1000 * 1000 * 1000;
-//                                      // 'NANOSECONDS_PER_MESSAGE' argument
-//  int severity = ball::Severity::e_ERROR;    // 'severity' argument
-//..
 // Note that the 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSAGE'
 // arguments to all the macros defined in this component must be compile-time
 // constants, and may not contain any floating-point subexpressions.  Also note
 // that 'MAX_SIMULTANEOUS_MESSAGES' is of type 'int',
 // 'NANOSECONDS_PER_MESSAGE' is of type 'bsls::Types::Int64', and any
-// 'severity' argument is of type 'int' and is interpreted as described by the
+// 'SEVERITY' argument is of type 'int' and is interpreted as described by the
 // 'ball_severity' component.
+//
+// The following constraints pertain to all of the macros defined in this
+// component.
+//
+//: o 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSAGE' must be
+//:   compile-time constants, and may not contain any floating-point
+//:   subexpressions.
+//:
+//: o 'MAX_SIMULTANEOUS_MESSAGES', 'NANOSECONDS_PER_MESSAGE', and 'SEVERITY'
+//:    are of types 'int', 'bsls::Types::Int64', and 'int', respectively.
+//:
+//: o The behavior is undefined unless 'SEVERITY' is in the range '[0 .. 255]',
+//:   '0 <= MAX_SIMULTANEOUS_MESSAGES', '0 <= NANOSECONDS_PER_MESSAGE',
+//:   '0 < MAX_SIMULTANEOUS_MESSAGES || 0 < NANOSECONDS_PER_MESSAGE', and
+//:   'MAX_SIMULTANEOUS_MESSAGES * NANOSECONDS_PER_MESSAGE <= LLONG_MAX'.
+//
+///Example Shorthands
+///------------------
+// The following two constants will be used in the examples immediately
+// following the macro documentation:
+//..
+//  static const int msm = 4;           // 'MAX_SIMULTANEOUS_MESSAGES' argument
+//  static const bsls::Types::Int64 npm = 10LL * 1000 * 1000 * 1000;
+//                                      // 'NANOSECONDS_PER_MESSAGE' argument
+//..
 //
 ///Stream-Based Throttling Macros
 /// - - - - - - - - - - - - - - -
 // The 'BALL_LOGTHROTTLE_*' macros are analogous to the 'BALL_LOG_*' macros,
-// except that they take two throttle-related arguments, 'k_MSM' and 'k_NPM',
-// corresponding to 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSSAGE',
-// respectively, describing in {Throttling Concepts} above.
+// except that they take two throttle-related arguments, 'MSM' and 'NPM',
+// described in {Shorthands}.
 //
 // A set of macros based on C++ streams, 'BALL_LOGTHROTTLE_TRACE',
 // 'BALL_LOGTHROTTLE_DEBUG', 'BALL_LOGTHROTTLE_INFO', 'BALL_LOGTHROTTLE_WARN',
 // 'BALL_LOGTHROTTLE_ERROR', and 'BALL_LOGTHROTTLE_FATAL', are the ones most
-// commonly used for logging.  They have the following usage pattern:
+// commonly used for log throttling.  They have the following usage pattern:
 //..
-//  BALL_LOGTHROTTLE_TRACE(k_MSM, k_NPM) << X << Y << ...;
-//  BALL_LOGTHROTTLE_DEBUG(k_MSM, k_NPM) << X << Y << ...;
-//  BALL_LOGTHROTTLE_INFO( k_MSM, k_NPM) << X << Y << ...;
-//  BALL_LOGTHROTTLE_WARN( k_MSM, k_NPM) << X << Y << ...;
-//  BALL_LOGTHROTTLE_ERROR(k_MSM, k_NPM) << X << Y << ...;
-//  BALL_LOGTHROTTLE_FATAL(k_MSM, k_NPM) << X << Y << ...;
-//      where X, Y, ... represents any sequence of values for which
-//      'operator<<' is defined.  The resulting formatted message string is
-//      logged with the severity indicated by the name of the macro (e.g.,
-//      'BALL_LOGTHROTTLE_TRACE' logs with severity 'ball::Severity::e_TRACE').
-//      The messages are throttled according to the specified 'k_MSM' and
-//      'k_NPM' arguments described in the {Throttling Concepts} section above,
-//      and which must be compile-time constants.
+//  BALL_LOGTHROTTLE_<SEVERITY>(MAX_SIMULTANEOUS_MESSAGES,
+//                              NANOSECONDS_PER_MESSAGE) << X << Y ... ;
+//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Concepts}, where
+//      'X, Y, ...' represents any sequence of values for which 'operator<<' is
+//      defined.  If the throttle permits a message to be logged, the resulting
+//      formatted message is logged with the severity indicated by the name of
+//      the macro (e.g., 'BALL_LOGTHROTTLE_ERROR' logs with severity
+//      'ball::Severity::e_ERROR').
 //..
 // For example:
 //..
 //  int cpu = 6502;
-//  BALL_LOGTHROTTLE_ERROR(k_MSM, k_NPM) <<
-//           "Help, I'm being held prisoner in a " << cpu <<" microprocessor!";
+//  BALL_LOGTHROTTLE_ERROR(msm, npm) <<
+//          "Help, I'm being held prisoner in a " << cpu << " microprocessor!";
 //..
 // A closely-related macro also based on C++ streams,
 // 'BALL_LOGTHROTTLE_STREAM', requires that the severity be explicitly supplied
 // as an argument:
 //..
-//  BALL_LOGTHROTTLE_STREAM(severity, k_MSM, k_NPM) << X << Y << ...;
-//      where X, Y, ... represents any sequence of values for which
-//      'operator<<' is defined.  The resulting formatted message string is
-//      logged with the specified 'severity', which may be any integral
-//      run-time expression in the range '[1 .. 255]' (see 'ball_severity').
-//      The messages are throttled according to the specified 'k_MSM' and
-//      'k_NPM' arguments described in the {Throttling Concepts} section above,
-//      and which must be compile-time constants.
+//  BALL_LOGTHROTTLE_STREAM(SEVERITY,
+//                          MAX_SIMULTANEOUS_MESSAGES,
+//                          NANOSECONDS_PER_MESSAGE) << X << Y ... ;
+//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Concepts}, where
+//      'X, Y, ...' represents any sequence of values for which 'operator<<' is
+//      defined.  If the throttle permits a message to be logged, the resulting
+//      formatted message is logged with the specified 'SEVERITY'.
 //..
 // For example:
 //..
 //  int cpu = 6502;
-//  BALL_LOGTHROTTLE_STREAM(ball::Severity::e_ERROR, k_MSM, k_NPM) <<
+//  BALL_LOGTHROTTLE_STREAM(ball::Severity::e_ERROR, msm, npm) <<
 //          "Help, I'm being held prisoner in a " << cpu << " microprocessor!";
 //..
 //
@@ -203,26 +213,20 @@ BSLS_IDENT("$Id: $")
 // arguments, 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSAGE', which
 // are described below.
 //..
-//  BALL_LOGTHROTTLE_TRACE_BLOCK(k_MSM, k_NPM) <block>
-//  BALL_LOGTHROTTLE_DEBUG_BLOCK(k_MSM, k_NPM) <block>
-//  BALL_LOGTHROTTLE_INFO_BLOCK( k_MSM, k_NPM) <block>
-//  BALL_LOGTHROTTLE_WARN_BLOCK( k_MSM, k_NPM) <block>
-//  BALL_LOGTHROTTLE_ERROR_BLOCK(k_MSM, k_NPM) <block>
-//  BALL_LOGTHROTTLE_FATAL_BLOCK(k_MSM, k_NPM) <block>
-//      If the severity indicated by the name of the macro (e.g.,
-//      'BALL_LOGTHROTTLE_TRACE_BLOCK' has severity 'ball::Severity::e_TRACE')
-//      is severe enough to justify an event, execute '<block>', but throttle
-//      execution with the specified 'k_MSM' and 'k_NPM' as described in
-//      {Throttling Concepts} above.  Within the controlled '<block>', the
-//      macro 'BALL_LOG_OUTPUT_STREAM'refers to an output stream with the
-//      specified 'SEVERITY'.  Note that the controlling statement in the macro
-//      is a 'for', not an 'if', so the client cannot provide an 'else' clause
-//      that will be executed when '<block>' is not.  Note that 'k_MSM' and
-//      'k_NPM' must be compile-time constants.
+//  BALL_LOGTHROTTLE_<SEVERITY>_BLOCK(MAX_SIMULTANEOUS_MESSAGES,
+//                                    NANOSECONDS_PER_MESSAGE) <block>
+//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Concepts}, where
+//      any sequence of values for which 'operator<<' is defined may be
+//      streamed to 'BALL_LOG_OUTPUT_STREAM' within the controlled '<block>'.
+//      If the throttle permits a message to be logged, the resulting formatted
+//      message is logged with the severity indicated by the name of the macro
+//      (e.g., 'BALL_LOGTHROTTLE_WARN_BLOCK' logs with severity
+//      'ball::Severity::e_WARN').
 //..
 // For example:
 //..
-//  BALL_LOGTHROTTLE_ERROR_BLOCK(k_MSM, k_NPM) {
+//  BALL_LOGTHROTTLE_ERROR_BLOCK(msm, npm) {
 //      int cpu = 6502;
 //      if (x < y(z) + 7.2) {
 //          BALL_LOG_OUTPUT_STREAM << "Help, I'm being held prisoner in a " <<
@@ -230,25 +234,23 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// A closely-related 'BLOCK'-based macro, 'BALL_LOGTHROTTLE_BLOCK', requires
-// that the severity be explicitly supplied as an argument:
+// A closely-related BLOCK-based macro, 'BALL_LOGTHROTTLE_BLOCK', requires that
+// the severity be explicitly supplied as an argument:
 //..
-//  BALL_LOGTHROTTLE_BLOCK(severity, k_MSM, k_NPM) <block>
-//      If the specified 'severity' (see 'ball_severity') is severe enough to
-//      justify an event, execute '<block>', but throttle execution with the
-//      specified 'k_MSM' and 'k_NPM' as described in {Throttling Concepts}
-//      above.  Within the controlled '<block>', the macro
-//      'BALL_LOG_OUTPUT_STREAM' refers to an output stream with the specified
-//      'SEVERITY'.  Note that the controlling statement in the macro is a
-//      'for', not an 'if', so the client cannot provide an 'else' clause that
-//      will be executed when '<block>' is not.  Note that 'k_MSM' and 'k_NPM'
-//      must be compile-time constants, while 'severity' may be a run-time
-//      expression.
+//  BALL_LOGTHROTTLE_BLOCK(SEVERITY,
+//                         MAX_SIMULTANEOUS_MESSAGES,
+//                         NANOSECONDS_PER_MESSAGE) <block>
+//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Concepts}, where
+//      any sequence of values for which 'operator<<' is defined may be
+//      streamed to 'BALL_LOG_OUTPUT_STREAM' within the controlled '<block>'.
+//      If the throttle permits a message to be logged, the resulting formatted
+//      message is logged with the specified 'SEVERITY'.
 //..
 // The behavior of the following example is exactly identical to that of the
 // example above:
 //..
-//  BALL_LOGTHROTTLE_BLOCK(ball::Severity::e_ERROR, k_MSM, k_NPM) {
+//  BALL_LOGTHROTTLE_BLOCK(ball::Severity::e_ERROR, msm, npm) {
 //      int cpu = 6502;
 //      if (x < y(z) + 7.2) {
 //          BALL_LOG_OUTPUT_STREAM << "Help, I'm being held prisoner in a " <<
@@ -260,57 +262,56 @@ BSLS_IDENT("$Id: $")
 ///'printf'-Style Throttling Macros
 /// - - - - - - - - - - - - - - - -
 // The 'BALL_LOGTHROTTLEVA_*' macros are analogous to the 'BALL_LOGVA_*'
-// macros, except that they take two throttle-related arguments, 'k_MSM' and
-// 'k_NPM', described in {Throttling Concepts} above.
+// macros, except that they take two throttle-related arguments, 'MSM' and
+// 'NPM', described in {Throttling Concepts} above.
 //..
-//  BALL_LOGTHROTTLEVA_TRACE(k_MSM, k_NPM, msg, ...);
-//  BALL_LOGTHROTTLEVA_DEBUG(k_MSM, k_NPM, msg, ...);
-//  BALL_LOGTHROTTLEVA_INFO( k_MSM, k_NPM, msg, ...);
-//  BALL_LOGTHROTTLEVA_WARN( k_MSM, k_NPM, msg, ...);
-//  BALL_LOGTHROTTLEVA_ERROR(k_MSM, k_NPM, msg, ...);
-//  BALL_LOGTHROTTLEVA_FATAL(k_MSM, k_NPM, msg, ...);
-//      where the specified 'msg' is a 'printf'-style control string (assumed
-//      to be of type converitble to 'const char *'), and the '...' is a
-//      variable number of arguments to be formatted by 'msg'.  If the severity
-//      indicated by the name of the macro (e.g.,
-//      'BALL_LOGTHROTTLE_TRACE_BLOCK' has severity 'ball::Severity::e_TRACE')
-//      is severe enough to justify a message being logged and the throttle
-//      configured by the specified 'k_MSM' and 'k_NPM' (described in
-//      {Throttling Concepts} above) permits, the resulting formatted message
-//      string is logged with the severity.  Note that 'k_MSM' and 'k_NPM' must
-//      be compile-time constants, while 'msg' and the following arguments may
-//      vary at run-time.
+//  BALL_LOGTHROTTLEVA_<SEVERITY>(MAX_SIMULTANEOUS_MESSAGE,
+//                                NANOSECONDS_PER_MESSAGE,
+//                                MSG,
+//                                ...);
+//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Concepts}.  If
+//      the throttle permits a message to be logged, format the specified '...'
+//      optional arguments, if any, according to the 'printf'-style format
+//      specification in the specified 'MSG' (assumed to be of type convertible
+//      to 'const char *'), and log the resulting formatted message with the
+//      severity indicated by the name of the macro (e.g.,
+//      'BALL_LOGTHROTTLEVA_INFO' logs with severity 'ball::Severity::e_INFO').
+//      The behavior is undefined unless the number and types of the optional
+//      arguments are compatible with the format specification in 'MSG'.  Note
+//      that each use of these macros must be terminated by a ';'.
 //..
 // For example:
 //..
 //  int cpu = 6502;
-//  BALL_LOGTHROTTLEVA_ERROR(k_MSM, k_NPM, "Help, I'm being held prisoner"
+//  BALL_LOGTHROTTLEVA_ERROR(msm, npm, "Help, I'm being held prisoner"
 //                                            " in a %d microprocessor!", cpu);
 //..
-// A closely related macro is 'BALL_LOGTHROTTLEVA' that takes the 'severity' as
-// a variable, rather than being part of the macro name.
+// A closely related macro is 'BALL_LOGTHROTTLEVA' that takes the 'SEVERITY' as
+// an argument, rather than being part of the macro name.
 //..
-//  BALL_LOGTHROTTLEVA(severity k_MSM, k_NPM, msg, ...);,
-//                     MAX_SIMULTANEOUS_MESSAGE,
+//  BALL_LOGTHROTTLEVA(SEVERITY,
+//                     MAX_SIMULTANEOUS_MESSAGES,
 //                     NANOSECONDS_PER_MESSAGE,
 //                     MSG,
 //                     ...);
-//      where the specified 'msg' is a 'printf'-style control string (assumed
-//      to be of type converitble to 'const char *'), and the '...' is a
-//      variable number of arguments to be formatted by 'msg'.  If the
-//      specified 'severity' (see 'ball_severity') is severe enough to justify
-//      a message being logged and the throttle configured by the specified
-//      'k_MSM' and 'k_NPM' (described in {Throttling Concepts} above) permits,
-//      the resulting formatted message string is logged with the severity.
-//      Note that 'k_MSM' and 'k_NPM' must be compile-time constants, while
-//      'severity', 'msg' and the '...' arguments may vary at run-time.
+//      Throttle logging with the specified 'MAX_SIMULTANEOUS_MESSAGES' and
+//      'NANOSECONDS_PER_MESSAGE' as described in {Throttling Concepts}.  If
+//      the throttle permits a message to be logged, format the specified '...'
+//      optional arguments, if any, according to the 'printf'-style format
+//      specification in the specified 'MSG' (assumed to be of type convertible
+//      to 'const char *'), and log the resulting formatted message with the
+//      specified 'SEVERITY'.  The behavior is undefined unless the number and
+//      types of the optional arguments are compatible with the format
+//      specification in 'MSG'.  Note that each use of this macro must be
+//      terminated by a ';'.
 //..
 // For example:
 //..
 //  int cpu = 6502;
 //  BALL_LOGTHROTTLEVA_ERROR(ball::Severity::e_ERROR,
-//                           k_MSM,
-//                           k_NPM,
+//                           msm,
+//                           npm,
 //                           "Help, I'm being held prisoner"
 //                                                  " in a %d microprocessor!",
 //                           cpu);
@@ -318,9 +319,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates the indended use of this component.
+// This section illustrates the indented use of this component.
 //
-// Code global to all three usage examples.
+// The following constants are used throughout the usage examples:
 //..
 //  enum {
 //      k_NUM_INFO  = 20,       // max # of info messages in a very short time
