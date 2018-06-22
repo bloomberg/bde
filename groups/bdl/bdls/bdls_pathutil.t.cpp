@@ -31,10 +31,10 @@ using namespace bsl;  // automatically added by script
 //
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 5] int appendIfValid(bsl::string *, const bslstl::StringRef& );
-// [ 6] void splitFilename(StringRef*, StringRef*, const StringRef&, int);
+// [ 4] int appendIfValid(bsl::string *, const bslstl::StringRef& );
+// [ 5] void splitFilename(StringRef*, StringRef*, const StringRef&, int);
 // ----------------------------------------------------------------------------
-// [ 1] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -318,6 +318,121 @@ int main(int argc, char *argv[])
 
     switch(test) { case 0:
       case 6: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING USAGE EXAMPLE" << endl
+                          << "=====================" << endl;
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// We start with strings representing an absolute native path and a relative
+// native path, respectively:
+//..
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
+    bsl::string tempPath  = "c:\\windows\\temp";
+    bsl::string otherPath = "22jan08\\log.txt";
+    #else
+    bsl::string tempPath  = "/var/tmp";
+    bsl::string otherPath = "22jan08/log.txt";
+    #endif
+//..
+// 'tempPath' is an absolute path, since it has a root.  It also has a leaf
+// element ("temp"):
+//..
+    ASSERT(false == bdls::PathUtil::isRelative(tempPath));
+    ASSERT(true  == bdls::PathUtil::isAbsolute(tempPath));
+    ASSERT(true  == bdls::PathUtil::hasLeaf(tempPath));
+//..
+// We can add filenames to the path one at a time, or we can add another path
+// if is relative.  We can also remove filenames from the end of the path one
+// at a time:
+//..
+    bdls::PathUtil::appendRaw(&tempPath, "myApp");
+    bdls::PathUtil::appendRaw(&tempPath, "logs");
+
+    ASSERT(true == bdls::PathUtil::isRelative(otherPath));
+    ASSERT(0    == bdls::PathUtil::appendIfValid(&tempPath, otherPath));
+    ASSERT(true == bdls::PathUtil::hasLeaf(tempPath));
+
+    bdls::PathUtil::popLeaf(&tempPath);
+    bdls::PathUtil::appendRaw(&tempPath, "log2.txt");
+
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
+    ASSERT("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" == tempPath);
+    #else
+    ASSERT("/var/tmp/myApp/logs/22jan08/log2.txt"              == tempPath);
+    #endif
+//..
+// A relative path may be appended to any other path, even itself.  An absolute
+// path may not be appended to any path, or undefined behavior will result:
+//..
+    ASSERT(0 == bdls::PathUtil::appendIfValid(&otherPath, otherPath));  // OK
+    /* bdls::PathUtil::append(&otherPath, tempPath); */ // UNDEFINED BEHAVIOR!
+//..
+// Note that there is no attempt to distinguish filenames that are regular
+// files from filenames that are directories, or to verify the existence of
+// paths in the filesystem.  On POSIX:
+//..
+    ASSERT("22jan08/log.txt/22jan08/log.txt" == otherPath);
+//..
+//
+///Example 2: Parsing a path with the 'splitPathname'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we need to obtain all filenames from the path.
+//
+// First, we create a path for splitting and a storage for filenames:
+//..
+    const char        *splitPath = "//one/two//three///four";
+    bslstl::StringRef  filenames[5];
+//..
+// Then, we run a cycle to sever filenames from the end one by one:
+//..
+    bslstl::StringRef head;
+    bslstl::StringRef tail;
+    bslstl::StringRef path(splitPath);
+    size_t            filenamesNum = 0;
+
+    do {
+        bdls::PathUtil::splitFilename(&head, &tail, path);
+        filenames[filenamesNum] = tail;
+        ++filenamesNum;
+        path = head;
+    } while (!tail.empty());
+//..
+// Now, verify the resultant values:
+//..
+    ASSERT("four"  == filenames[0]);
+    ASSERT("three" == filenames[1]);
+    ASSERT("two"   == filenames[2]);
+    ASSERT("one"   == filenames[3]);
+    ASSERT(""      == filenames[4]);
+//..
+// Finally, make sure that only the root remains of the original value:
+//..
+    ASSERT("//"    == head);
+//..
+      } break;
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING: 'splitFilename'
         //
@@ -648,7 +763,7 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
         }
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING: 'appendIfValid'
         //
@@ -869,7 +984,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 4: {
+      case 3: {
         ///////////////////////////////////////////////////////////////////////
         // Special path parsing test
         //
@@ -888,7 +1003,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rootEnd, 14 == rootEnd);
 #endif
       } break;
-      case 3: {
+      case 2: {
         ///////////////////////////////////////////////////////////////////////
         // Leafless append test
         //
@@ -967,7 +1082,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(leafless2, "/var/tmp/hello" == leafless2);
 #endif
       } break;
-      case 2: {
+      case 1: {
         //////////////////////////////////////////////////////////////////////
         // Native Parsing Test
         //
@@ -1059,90 +1174,6 @@ int main(int argc, char *argv[])
                            bdls::PathUtil::isRelative(iTest)==pi.d_isRelative);
             }
         }
-      } break;
-      case 1: {
-        //////////////////////////////////////////////////////////////////////
-        // Usage Example Test
-        //
-        // Concern: The component's Usage Example compiles and runs
-        //////////////////////////////////////////////////////////////////////
-
-        if (verbose) {
-           cout << "Usage Example Test" << endl;
-        }
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        bsl::string tempPath  = "c:\\windows\\temp";
-        bsl::string otherPath = "22jan08\\log.txt";
-#else
-        bsl::string tempPath  = "/var/tmp";
-        bsl::string otherPath = "22jan08/log.txt";
-#endif
-
-        ASSERT(false == bdls::PathUtil::isRelative(tempPath));
-        ASSERT(true  == bdls::PathUtil::isAbsolute(tempPath));
-        ASSERT(true  == bdls::PathUtil::hasLeaf(tempPath));
-
-        bdls::PathUtil::appendRaw(&tempPath, "myApp");
-        bdls::PathUtil::appendRaw(&tempPath, "logs");
-        ASSERT(true == bdls::PathUtil::isRelative(otherPath));
-        ASSERT(0 == bdls::PathUtil::appendIfValid(&tempPath, otherPath));
-        ASSERT(true == bdls::PathUtil::hasLeaf(tempPath));
-        bdls::PathUtil::popLeaf(&tempPath);
-        bdls::PathUtil::appendRaw(&tempPath, "log2.txt");
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        ASSERT("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" ==
-                tempPath);
-#else
-        ASSERT("/var/tmp/myApp/logs/22jan08/log2.txt" ==
-                tempPath);
-#endif
-
-        ASSERT(0 == bdls::PathUtil::appendIfValid(&otherPath, otherPath));
-
-        // OK bdls::PathUtil::append(&otherPath, tempPath); UNDEFINED BEHAVIOR!
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        LOOP_ASSERT(otherPath,
-                     "22jan08\\log.txt\\22jan08\\log.txt" == otherPath);
-#else
-        LOOP_ASSERT(otherPath,
-                     "22jan08/log.txt/22jan08/log.txt" == otherPath);
-#endif
-
-        ASSERT(0 == bdls::PathUtil::appendIfValid(&otherPath,
-                                                   otherPath.c_str()));
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        LOOP_ASSERT(otherPath,
-                   "22jan08\\log.txt\\"
-                   "22jan08\\log.txt\\"
-                   "22jan08\\log.txt\\"
-                   "22jan08\\log.txt" == otherPath);
-#else
-        LOOP_ASSERT(otherPath,
-                   "22jan08/log.txt/"
-                   "22jan08/log.txt/"
-                   "22jan08/log.txt/"
-                   "22jan08/log.txt" == otherPath);
-#endif
-
-        ASSERT(0 == bdls::PathUtil::appendIfValid(&otherPath,
-                                                   otherPath.c_str() + 56));
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-        LOOP_ASSERT(otherPath,
-                    "22jan08\\log.txt\\"
-                    "22jan08\\log.txt\\"
-                    "22jan08\\log.txt\\"
-                    "22jan08\\log.txt\\log.txt" == otherPath);
-#else
-        LOOP_ASSERT(otherPath,
-                    "22jan08/log.txt/"
-                    "22jan08/log.txt/"
-                    "22jan08/log.txt/"
-                    "22jan08/log.txt/log.txt" == otherPath);
-#endif
-
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -151,15 +151,19 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
 // We start with strings representing an absolute native path and a relative
 // native path, respectively:
 //..
 //  #ifdef BSLS_PLATFORM_OS_WINDOWS
-//      bsl::string tempPath  = "c:\\windows\\temp";
-//      bsl::string otherPath = "22jan08\\log.txt";
+//  bsl::string tempPath  = "c:\\windows\\temp";
+//  bsl::string otherPath = "22jan08\\log.txt";
 //  #else
-//      bsl::string tempPath  = "/var/tmp";
-//      bsl::string otherPath = "22jan08/log.txt";
+//  bsl::string tempPath  = "/var/tmp";
+//  bsl::string otherPath = "22jan08/log.txt";
 //  #endif
 //..
 // 'tempPath' is an absolute path, since it has a root.  It also has a leaf
@@ -175,30 +179,67 @@ BSLS_IDENT("$Id: $")
 //..
 //  bdls::PathUtil::appendRaw(&tempPath, "myApp");
 //  bdls::PathUtil::appendRaw(&tempPath, "logs");
+//
 //  assert(true == bdls::PathUtil::isRelative(otherPath));
-//  assert(0 == bdls::PathUtil::appendIfValid(&tempPath, otherPath));
+//  assert(0    == bdls::PathUtil::appendIfValid(&tempPath, otherPath));
 //  assert(true == bdls::PathUtil::hasLeaf(tempPath));
-//  bdls::PathUtil::popLeaf(tempPath);
+//
+//  bdls::PathUtil::popLeaf(&tempPath);
 //  bdls::PathUtil::appendRaw(&tempPath, "log2.txt");
 //
 //  #ifdef BSLS_PLATFORM_OS_WINDOWS
-//      assert("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" ==
-//                                                                   tempPath);
+//  assert("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" == tempPath);
 //  #else
-//      assert("/var/tmp/myApp/logs/22jan08/log2.txt" == tempPath);
+//  assert("/var/tmp/myApp/logs/22jan08/log2.txt"              == tempPath);
 //  #endif
 //..
 // A relative path may be appended to any other path, even itself.  An absolute
 // path may not be appended to any path, or undefined behavior will result:
 //..
-//   assert(0 == bdls::PathUtil::appendIfValid(&otherPath, otherPath));  // OK
-//   /* bdls::PathUtil::append(&otherPath, tempPath); */ // UNDEFINED BEHAVIOR!
+//  assert(0 == bdls::PathUtil::appendIfValid(&otherPath, otherPath));  // OK
+//  /* bdls::PathUtil::append(&otherPath, tempPath); */ // UNDEFINED BEHAVIOR!
 //..
 // Note that there is no attempt to distinguish filenames that are regular
 // files from filenames that are directories, or to verify the existence of
 // paths in the filesystem.  On POSIX:
 //..
-//   assert("22jan08/log.txt/22jan08/log.txt" == otherPath);
+//  assert("22jan08/log.txt/22jan08/log.txt" == otherPath);
+//..
+//
+///Example 2: Parsing a path with the 'splitPathname'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we need to obtain all filenames from the path.
+//
+// First, we create a path for splitting and a storage for filenames:
+//..
+//  const char        *splitPath = "//one/two//three///four";
+//  bslstl::StringRef  filenames[5];
+//..
+// Then, we run a cycle to sever filenames from the end one by one:
+//..
+//  bslstl::StringRef head;
+//  bslstl::StringRef tail;
+//  bslstl::StringRef path(splitPath);
+//  size_t            filenamesNum = 0;
+//
+//  do {
+//      bdls::PathUtil::splitFilename(&head, &tail, path);
+//      filenames[filenamesNum] = tail;
+//      ++filenamesNum;
+//      path = head;
+//  } while (!tail.empty());
+//..
+// Now, verify the resultant values:
+//..
+//  assert("four"  == filenames[0]);
+//  assert("three" == filenames[1]);
+//  assert("two"   == filenames[2]);
+//  assert("one"   == filenames[3]);
+//  assert(""      == filenames[4]);
+//..
+// Finally, make sure that only the root remains of the original value:
+//..
+//  assert("//"    == head);
 //..
 
 #include <bdlscm_version.h>
@@ -320,8 +361,21 @@ struct PathUtil {
         // 'path' ends in a slash, 'tail' is empty.  If there is no slash in
         // 'path', 'head' is empty.  If 'path' is empty, both 'head' and 'tail'
         // are empty.  Trailing slashes are stripped from 'head' unless it is
-        // the root.  See {'Terminology'} for the definition of root.
-
+        // the root.
+        //..
+        //  +------------------+------------+---------+
+        //  |      PATH        |    HEAD    |   TAIL  |
+        //  +==================+============+=========+
+        //  | "one"            | ""         | "one"   |
+        //  +------------------+------------+---------+
+        //  | "/one/two/three" | "/one/two" | "three" |
+        //  +------------------+------------+---------+
+        //  | "//one/two///"   | "/one/two" | ""      |
+        //  +------------------+------------+---------+
+        //  | "c:\\one\\two"   | "c:\\one"  | "two"   |
+        //  +------------------+------------+---------+
+        //..
+        // See {'Terminology'} for the definition of root.
 
     static bool isAbsolute(const bslstl::StringRef& path, int rootEnd = -1);
         // Return 'true' if the specified 'path' is absolute (has a root), and
