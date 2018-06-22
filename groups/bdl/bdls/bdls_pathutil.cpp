@@ -418,38 +418,41 @@ void PathUtil::splitFilename(bslstl::StringRef        *head,
     BSLS_ASSERT(head);
     BSLS_ASSERT(tail);
 
-    head->reset();
-    tail->reset();
 
-    int length = static_cast<int>(path.length());
+    BSLS_ASSERT(INT_MAX >= path.length());
+    int substrLength = static_cast<int>(path.length());
 
-    if (!length) {
+    if (!substrLength) {
+        head->reset();
+        tail->reset();
         return;                                                       // RETURN
     }
 
     if (0 > rootEnd) {
-        findFirstNonSeparatorChar(&rootEnd, path.data(), length);
+        findFirstNonSeparatorChar(&rootEnd, path.data(), substrLength);
     }
 
-    const char *end = path.data() + length;
+    const char *end = path.data() + substrLength;
     const char *lastSeparator = end - 1;
 
     // Tail detection.
 
-    while (length > rootEnd && (!isSeparator(*lastSeparator))) {
-        length--;
-        lastSeparator--;
+    while (substrLength > rootEnd && (!isSeparator(*lastSeparator))) {
+        --substrLength;
+        --lastSeparator;
     }
 
     if (end - 1 != lastSeparator) {
         tail->assign(lastSeparator + 1, end);
+    } else {
+        tail->reset();
     }
 
     // Skip trailing delimiters between head and tail.
 
-    while (length > rootEnd && (isSeparator(*(lastSeparator - 1)))) {
-        length--;
-        lastSeparator--;
+    while (substrLength > rootEnd && (isSeparator(*(lastSeparator - 1)))) {
+        --substrLength;
+        --lastSeparator;
     }
 
     // Head detection.

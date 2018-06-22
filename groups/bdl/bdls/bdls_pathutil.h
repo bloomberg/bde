@@ -206,14 +206,17 @@ BSLS_IDENT("$Id: $")
 //  assert("22jan08/log.txt/22jan08/log.txt" == otherPath);
 //..
 //
-///Example 2: Parsing a path with the 'splitPathname'
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Parsing a path using 'splitFilename'
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to obtain all filenames from the path.
 //
-// First, we create a path for splitting and a storage for filenames:
+// First, we create a path for splitting and a storage for filenames (note that
+// we use naked array instead of container intentionally, so as not to overload
+// the example):
 //..
-//  const char        *splitPath = "//one/two//three///four";
-//  bslstl::StringRef  filenames[5];
+//  const int          storageSize = 5;
+//  const char        *splitPath = "//one/two/three/four";
+//  bslstl::StringRef  filenames[storageSize];
 //..
 // Then, we run a cycle to sever filenames from the end one by one:
 //..
@@ -227,19 +230,21 @@ BSLS_IDENT("$Id: $")
 //      filenames[filenamesNum] = tail;
 //      ++filenamesNum;
 //      path = head;
-//  } while (!tail.empty());
+//  } while (!tail.empty() && filenamesNum < storageSize);
 //..
-// Now, verify the resultant values:
+// Now, verify the resulting values:
 //..
-//  assert("four"  == filenames[0]);
-//  assert("three" == filenames[1]);
-//  assert("two"   == filenames[2]);
-//  assert("one"   == filenames[3]);
-//  assert(""      == filenames[4]);
+//  ASSERT(storageSize == filenamesNum);
+//
+//  ASSERT("four"      == filenames[0]);
+//  ASSERT("three"     == filenames[1]);
+//  ASSERT("two"       == filenames[2]);
+//  ASSERT("one"       == filenames[3]);
+//  ASSERT(""          == filenames[4]);
 //..
 // Finally, make sure that only the root remains of the original value:
 //..
-//  assert("//"    == head);
+//  ASSERT("//"        == head);
 //..
 
 #include <bdlscm_version.h>

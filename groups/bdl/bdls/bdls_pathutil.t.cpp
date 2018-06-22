@@ -396,14 +396,17 @@ int main(int argc, char *argv[])
     ASSERT("22jan08/log.txt/22jan08/log.txt" == otherPath);
 //..
 //
-///Example 2: Parsing a path with the 'splitPathname'
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 2: Parsing a path using 'splitFilename'
+///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to obtain all filenames from the path.
 //
-// First, we create a path for splitting and a storage for filenames:
+// First, we create a path for splitting and a storage for filenames (note that
+// we use naked array instead of container intentionally, so as not to overload
+// the example):
 //..
-    const char        *splitPath = "//one/two//three///four";
-    bslstl::StringRef  filenames[5];
+    const int          storageSize = 5;
+    const char        *splitPath = "//one/two/three/four";
+    bslstl::StringRef  filenames[storageSize];
 //..
 // Then, we run a cycle to sever filenames from the end one by one:
 //..
@@ -417,19 +420,21 @@ int main(int argc, char *argv[])
         filenames[filenamesNum] = tail;
         ++filenamesNum;
         path = head;
-    } while (!tail.empty());
+    } while (!tail.empty() && filenamesNum < storageSize);
 //..
-// Now, verify the resultant values:
+// Now, verify the resulting values:
 //..
-    ASSERT("four"  == filenames[0]);
-    ASSERT("three" == filenames[1]);
-    ASSERT("two"   == filenames[2]);
-    ASSERT("one"   == filenames[3]);
-    ASSERT(""      == filenames[4]);
+    ASSERT(storageSize == filenamesNum);
+
+    ASSERT("four"      == filenames[0]);
+    ASSERT("three"     == filenames[1]);
+    ASSERT("two"       == filenames[2]);
+    ASSERT("one"       == filenames[3]);
+    ASSERT(""          == filenames[4]);
 //..
 // Finally, make sure that only the root remains of the original value:
 //..
-    ASSERT("//"    == head);
+    ASSERT("//"        == head);
 //..
       } break;
       case 5: {
@@ -444,16 +449,46 @@ int main(int argc, char *argv[])
         //:
         //: 3 'head' always contains root of the original path.
         //:
-        //: 4 Resultant 'head' does not contain trailing seperators.
+        //: 4 Resulting 'head' does not contain trailing seperators.
         //:
-        //: 5 Resultant 'tail' does not contain seperators.
+        //: 5 Resulting 'tail' does not contain seperators.
         //:
         //: 6 The 'splitFilename' function properly handles Windows paths
         //:   containing forward and backward slashes.
         //
         // Plan:
-        //: 1 Create a table of test input values and expected results, and
-        //:   iterate over this table verifying that 'splitFilename' produces
+        //: 1 Create a table of test input values and expected results.  Input
+        //:   values are graded in the following way:
+        //:
+        //:     Windows:
+        //:     --------
+        //:     - empty path
+        //:     - slashes only
+        //:     - LFS  root
+        //:     - UNC  root
+        //:     - LUNC root
+        //:
+        //:   As Windows OS supports both backward and forward slashes, we
+        //:   check both variants separately.
+        //:
+        //:     Unix:
+        //:     -----
+        //:     - empty path
+        //:     - one slash root
+        //:     - two slashes root
+        //:     - three slashes root
+        //:
+        //:   Whithin each group input values are graded in the following way:
+        //:
+        //:     - root + delimiter(s)
+        //:     - root + delimiter(s) + file
+        //:     - root + delimiter(s) + folder
+        //:     - root + delimiter    + folder + delimiter(s) + file
+        //:
+        //:   As paths can contain multiple delimiters, we add up to 4 of them
+        //:   to check, that they are handled correctly.
+        //:
+        //: 2 Iterate over this table verifying that 'splitFilename' produces
         //:   the expected results.  (C-1..6)
         //
         // Testing:
@@ -934,11 +969,11 @@ int main(int argc, char *argv[])
             const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                size_t pathLen = bsl::strlen(VALUES[i]);
+                const size_t pathLen = bsl::strlen(VALUES[i]);
 
                 for (size_t subStrLen = 0; subStrLen < pathLen; ++subStrLen) {
                     for (size_t offset = 0;
-                         offset < pathLen-subStrLen + 1;
+                         offset < pathLen - subStrLen + 1;
                          ++offset) {
 
                         bsl::string path(VALUES[i]);
