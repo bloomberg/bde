@@ -16,6 +16,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -400,31 +401,26 @@ int main(int argc, char *argv[])
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to obtain all filenames from the path.
 //
-// First, we create a path for splitting and a storage for filenames (note that
-// we use naked array instead of container intentionally, so as not to overload
-// the example):
+// First, we create a path for splitting and a storage for filenames:
 //..
-    const int          storageSize = 5;
-    const char        *splitPath = "//one/two/three/four";
-    bslstl::StringRef  filenames[storageSize];
+    const char                     *splitPath = "//one/two/three/four";
+    bsl::vector<bslstl::StringRef>  filenames;
 //..
 // Then, we run a cycle to sever filenames from the end one by one:
 //..
     bslstl::StringRef head;
     bslstl::StringRef tail;
     bslstl::StringRef path(splitPath);
-    size_t            filenamesNum = 0;
 
     do {
         bdls::PathUtil::splitFilename(&head, &tail, path);
-        filenames[filenamesNum] = tail;
-        ++filenamesNum;
+        filenames.push_back(tail);
         path = head;
-    } while (!tail.empty() && filenamesNum < storageSize);
+    } while (!tail.empty());
 //..
 // Now, verify the resulting values:
 //..
-    ASSERT(storageSize == filenamesNum);
+    ASSERT(5           == filenames.size());
 
     ASSERT("four"      == filenames[0]);
     ASSERT("three"     == filenames[1]);
@@ -764,7 +760,7 @@ int main(int argc, char *argv[])
 #endif
 //^--------v
         };
-        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int               LINE     = DATA[ti].d_line;
@@ -778,9 +774,6 @@ int main(int argc, char *argv[])
             bslstl::StringRef head;
             bslstl::StringRef tail;
 
-            ASSERTV(LINE, true == head.empty());
-            ASSERTV(LINE, true == tail.empty());
-
             Obj::splitFilename(&head, &tail, PATH, -1);
 
             ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
@@ -788,9 +781,6 @@ int main(int argc, char *argv[])
 
             head.reset();
             tail.reset();
-
-            ASSERTV(LINE, true == head.empty());
-            ASSERTV(LINE, true == tail.empty());
 
             Obj::splitFilename(&head, &tail, PATH, ROOT_END);
 
