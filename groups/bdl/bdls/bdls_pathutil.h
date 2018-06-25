@@ -210,41 +210,36 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to obtain all filenames from the path.
 //
-// First, we create a path for splitting and a storage for filenames (note that
-// we use naked array instead of container intentionally, so as not to overload
-// the example):
+// First, we create a path for splitting and a storage for filenames:
 //..
-//  const int          storageSize = 5;
-//  const char        *splitPath = "//one/two/three/four";
-//  bslstl::StringRef  filenames[storageSize];
+//  const char                     *splitPath = "//one/two/three/four";
+//  bsl::vector<bslstl::StringRef>  filenames;
 //..
 // Then, we run a cycle to sever filenames from the end one by one:
 //..
 //  bslstl::StringRef head;
 //  bslstl::StringRef tail;
 //  bslstl::StringRef path(splitPath);
-//  size_t            filenamesNum = 0;
 //
 //  do {
 //      bdls::PathUtil::splitFilename(&head, &tail, path);
-//      filenames[filenamesNum] = tail;
-//      ++filenamesNum;
+//      filenames.push_back(tail);
 //      path = head;
-//  } while (!tail.empty() && filenamesNum < storageSize);
+//  } while (!tail.empty());
 //..
 // Now, verify the resulting values:
 //..
-//  ASSERT(storageSize == filenamesNum);
+//  assert(5           == filenames.size());
 //
-//  ASSERT("four"      == filenames[0]);
-//  ASSERT("three"     == filenames[1]);
-//  ASSERT("two"       == filenames[2]);
-//  ASSERT("one"       == filenames[3]);
-//  ASSERT(""          == filenames[4]);
+//  assert("four"      == filenames[0]);
+//  assert("three"     == filenames[1]);
+//  assert("two"       == filenames[2]);
+//  assert("one"       == filenames[3]);
+//  assert(""          == filenames[4]);
 //..
 // Finally, make sure that only the root remains of the original value:
 //..
-//  ASSERT("//"        == head);
+//  assert("//"        == head);
 //..
 
 #include <bdlscm_version.h>
