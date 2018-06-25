@@ -412,7 +412,7 @@ double RadiationMeterReceiver::yield()
 //
 ///Usage
 ///-----
-// This section illustrates the indended use of this component.
+// This section illustrates the intended use of this component.
 //
 // Code global to all three usage examples.
 //..
@@ -1149,7 +1149,8 @@ int main(int argc, char *argv[])
         //:   that the throttle is configured to permit.
         //:
         //: 3 Each attempted burst will be completed in less time than the
-        //:   'NANOSECONDS_PER_MESSAGE' period length specified to the throttle.
+        //:   'NANOSECONDS_PER_MESSAGE' period length specified to the
+        //:   throttle.
         //:
         //: 4 Between bursts, sleep barely over half a period.
         //:

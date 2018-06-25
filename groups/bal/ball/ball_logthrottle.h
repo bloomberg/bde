@@ -150,20 +150,21 @@ BSLS_IDENT("$Id: $")
 //:   'MAX_SIMULTANEOUS_MESSAGES * NANOSECONDS_PER_MESSAGE <= LLONG_MAX'.
 //
 ///Example Shorthands
-///------------------
+/// - - - - - - - - -
 // The following two constants will be used in the examples immediately
 // following the macro documentation:
 //..
-//  static const int msm = 4;           // 'MAX_SIMULTANEOUS_MESSAGES' argument
-//  static const bsls::Types::Int64 npm = 10LL * 1000 * 1000 * 1000;
+//  static const int k_MSM = 4;         // 'MAX_SIMULTANEOUS_MESSAGES' argument
+//  static const bsls::Types::Int64 k_NPM = 10LL * 1000 * 1000 * 1000;
 //                                      // 'NANOSECONDS_PER_MESSAGE' argument
 //..
 //
 ///Stream-Based Throttling Macros
 /// - - - - - - - - - - - - - - -
 // The 'BALL_LOGTHROTTLE_*' macros are analogous to the 'BALL_LOG_*' macros,
-// except that they take two throttle-related arguments, 'MSM' and 'NPM',
-// described in {Shorthands}.
+// except that they take two additional throttle-related arguments,
+// 'MAX_SIMULTANEOUS_MESSAGE' and 'NANOSECONDS_PER_MESSAGE', described in
+// {Throttling Concepts} above.
 //
 // A set of macros based on C++ streams, 'BALL_LOGTHROTTLE_TRACE',
 // 'BALL_LOGTHROTTLE_DEBUG', 'BALL_LOGTHROTTLE_INFO', 'BALL_LOGTHROTTLE_WARN',
@@ -183,7 +184,7 @@ BSLS_IDENT("$Id: $")
 // For example:
 //..
 //  int cpu = 6502;
-//  BALL_LOGTHROTTLE_ERROR(msm, npm) <<
+//  BALL_LOGTHROTTLE_ERROR(k_MSM, k_NPM) <<
 //          "Help, I'm being held prisoner in a " << cpu << " microprocessor!";
 //..
 // A closely-related macro also based on C++ streams,
@@ -202,7 +203,7 @@ BSLS_IDENT("$Id: $")
 // For example:
 //..
 //  int cpu = 6502;
-//  BALL_LOGTHROTTLE_STREAM(ball::Severity::e_ERROR, msm, npm) <<
+//  BALL_LOGTHROTTLE_STREAM(ball::Severity::e_ERROR, k_MSM, k_NPM) <<
 //          "Help, I'm being held prisoner in a " << cpu << " microprocessor!";
 //..
 //
@@ -210,8 +211,8 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - -
 // The 'BALL_LOGTHROTTLE_*_BLOCK' macros are analogous to the
 // 'BALL_LOG_*_BLOCK' macros, except that they take two throttle-related
-// arguments, 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSAGE', which
-// are described below.
+// arguments, 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSAGE',
+// described in {Throttling Concepts} above.
 //..
 //  BALL_LOGTHROTTLE_<SEVERITY>_BLOCK(MAX_SIMULTANEOUS_MESSAGES,
 //                                    NANOSECONDS_PER_MESSAGE) <block>
@@ -226,7 +227,7 @@ BSLS_IDENT("$Id: $")
 //..
 // For example:
 //..
-//  BALL_LOGTHROTTLE_ERROR_BLOCK(msm, npm) {
+//  BALL_LOGTHROTTLE_ERROR_BLOCK(k_MSM, k_NPM) {
 //      int cpu = 6502;
 //      if (x < y(z) + 7.2) {
 //          BALL_LOG_OUTPUT_STREAM << "Help, I'm being held prisoner in a " <<
@@ -250,7 +251,7 @@ BSLS_IDENT("$Id: $")
 // The behavior of the following example is exactly identical to that of the
 // example above:
 //..
-//  BALL_LOGTHROTTLE_BLOCK(ball::Severity::e_ERROR, msm, npm) {
+//  BALL_LOGTHROTTLE_BLOCK(ball::Severity::e_ERROR, k_MSM, k_NPM) {
 //      int cpu = 6502;
 //      if (x < y(z) + 7.2) {
 //          BALL_LOG_OUTPUT_STREAM << "Help, I'm being held prisoner in a " <<
@@ -262,8 +263,9 @@ BSLS_IDENT("$Id: $")
 ///'printf'-Style Throttling Macros
 /// - - - - - - - - - - - - - - - -
 // The 'BALL_LOGTHROTTLEVA_*' macros are analogous to the 'BALL_LOGVA_*'
-// macros, except that they take two throttle-related arguments, 'MSM' and
-// 'NPM', described in {Throttling Concepts} above.
+// macros, except that they take two additional throttle-related arguments,
+// 'MAX_SIMULTANEOUS_MESSAGES' and 'NANOSECONDS_PER_MESSAGE', described in
+// {Throttling Concepts} above.
 //..
 //  BALL_LOGTHROTTLEVA_<SEVERITY>(MAX_SIMULTANEOUS_MESSAGE,
 //                                NANOSECONDS_PER_MESSAGE,
@@ -284,7 +286,7 @@ BSLS_IDENT("$Id: $")
 // For example:
 //..
 //  int cpu = 6502;
-//  BALL_LOGTHROTTLEVA_ERROR(msm, npm, "Help, I'm being held prisoner"
+//  BALL_LOGTHROTTLEVA_ERROR(k_MSM, k_NPM, "Help, I'm being held prisoner"
 //                                            " in a %d microprocessor!", cpu);
 //..
 // A closely related macro is 'BALL_LOGTHROTTLEVA' that takes the 'SEVERITY' as
@@ -310,8 +312,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  int cpu = 6502;
 //  BALL_LOGTHROTTLEVA_ERROR(ball::Severity::e_ERROR,
-//                           msm,
-//                           npm,
+//                           k_MSM,
+//                           k_NPM,
 //                           "Help, I'm being held prisoner"
 //                                                  " in a %d microprocessor!",
 //                           cpu);
@@ -319,9 +321,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates the indented use of this component.
+// This section illustrates the intended use of this component.
 //
-// The following constants are used throughout the usage examples:
+// Code global to all three usage examples.
 //..
 //  enum {
 //      k_NUM_INFO  = 20,       // max # of info messages in a very short time

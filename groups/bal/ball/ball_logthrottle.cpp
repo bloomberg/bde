@@ -119,7 +119,7 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 // If you want to access the stream within the controlled block or statement,
 // use 'BALL_LOG_OUTPUT_STREAM' as defined by 'ball_log.h'.  There is no
 // 'BALL_LOGTHROTTLE_OUTPUT_STREAM'.  Note that 'BALL_LOGTHROTTLE_STREAM'
-// provides the 'BALL_LOG_OUTPUT_STREAM' at the end of the expansion.
+// provides the 'BALL_LOG_OUTPUT_STREAM' at the end of its expansion.
 
                         // ----------------------------
                         // BALL_LOGTHROTTLEVA_CONST_IMP
