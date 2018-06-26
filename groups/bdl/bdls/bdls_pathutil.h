@@ -376,7 +376,9 @@ struct PathUtil {
         //  +------------------+------------+---------+
         //..
         // See {'Terminology'} for the definition of root.  The behavior is
-        // undefined unless 'head != tail'.
+        // undefined unless 'head != tail' and 'INT_MAX >= path.length()'.
+        // Note that 'head' or 'tail' may point to the 'path' object when the
+        // method is called.
 
     static bool isAbsolute(const bslstl::StringRef& path, int rootEnd = -1);
         // Return 'true' if the specified 'path' is absolute (has a root), and

@@ -428,8 +428,8 @@ void PathUtil::splitFilename(bslstl::StringRef        *head,
     BSLS_ASSERT(INT_MAX >= path.length());
     int numCharsToHandle = static_cast<int>(path.length());
 
-    const char *pathBegin = path.data();
-    const char *pathEnd = pathBegin + numCharsToHandle;
+    const char *pathBegin     = path.data();
+    const char *pathEnd       = pathBegin + numCharsToHandle;
     const char *lastSeparator = pathEnd - 1;
 
     if (0 > rootEnd) {
