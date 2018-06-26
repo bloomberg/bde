@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  // MANIPULATORS
 //  int MyTimetableLoader::load(bdlt::Timetable *result,
-//                              const char      * /* timetableName */)
+//                              const char      *timetableName)
 //  {
 //..
 // Next, we look up the timetable identified by 'timetableName' and load the
@@ -123,8 +123,8 @@ BSLS_IDENT("$Id: $")
 // obtained):
 //..
 //      // Obtain the information for the timetable identified by
-//      // 'timetableName' from the unspecified data source and load it into
-//      // the 'json' string.
+//      // 'timetableName' from an unspecified data source and load it into the
+//      // 'json' string.
 //
 //      bsl::string json;
 //

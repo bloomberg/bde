@@ -241,7 +241,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_integralconstant.h>
 
-#include <bsls_bsllock.h>
+#include <bslmt_mutex.h>
+
 #include <bsls_timeinterval.h>
 
 #include <bsl_map.h>
@@ -270,7 +271,7 @@ class TimetableCache_Entry {
     // This class defines the type of objects that are inserted into the
     // timetable cache.  Each entry contains a shared pointer to a read-only
     // timetable and the time at which that timetable was loaded.  Note that an
-    // explicit allocator is *required* to create a entry object.
+    // explicit allocator is *required* to create an entry object.
 
     // DATA
     bsl::shared_ptr<const Timetable> d_ptr;       // shared pointer to
@@ -286,7 +287,7 @@ class TimetableCache_Entry {
         // is never actually inserted into the cache.
 
     TimetableCache_Entry(Timetable        *timetable,
-                         Datetime          loadTime,
+                         const Datetime&   loadTime,
                          bslma::Allocator *allocator);
         // Create a cache entry object for managing the specified 'timetable'
         // that was loaded at the specified 'loadTime' using the specified
@@ -301,7 +302,7 @@ class TimetableCache_Entry {
         // Destroy this cache entry object.
 
     // MANIPULATORS
-    TimetableCache_Entry& operator=(const TimetableCache_Entry&);
+    TimetableCache_Entry& operator=(const TimetableCache_Entry& rhs);
         // Assign to this cache entry object the value of the specified 'rhs'
         // object, and return a reference providing modifiable access to this
         // object.
@@ -354,7 +355,7 @@ class TimetableCache {
                                               // timeout value and 'false'
                                               // otherwise
 
-    mutable bsls::BslLock  d_lock;            // guard access to cache
+    mutable bslmt::Mutex   d_lock;            // guard access to cache
 
     bslma::Allocator      *d_allocator_p;     // memory allocator (held, not
                                               // owned)

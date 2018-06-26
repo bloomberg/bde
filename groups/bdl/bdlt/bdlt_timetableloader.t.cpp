@@ -1,10 +1,9 @@
 // bdlt_timetableloader.t.cpp                                         -*-C++-*-
 #include <bdlt_timetableloader.h>
 
-#include <bdlt_date.h>          // for testing only
-#include <bdlt_dayofweek.h>     // for testing only
-#include <bdlt_dayofweekset.h>  // for testing only
-#include <bdlt_timetable.h>     // for testing only
+#include <bdlt_date.h>
+#include <bdlt_datetime.h>
+#include <bdlt_timetable.h>
 
 #include <bslim_testutil.h>
 
@@ -13,6 +12,7 @@
 #include <bsl_cstdlib.h>        // 'atoi'
 #include <bsl_iostream.h>
 #include <bsl_string.h>
+#include <bsl_utility.h>        // 'bsl::pair'
 #include <bsl_vector.h>
 
 using namespace BloombergLP;
@@ -158,8 +158,8 @@ void aSsErT(bool condition, const char *message, int line)
 // obtained):
 //..
         // Obtain the information for the timetable identified by
-        // 'timetableName' from the unspecified data source and load it into
-        // the 'json' string.
+        // 'timetableName' from an unspecified data source and load it into the
+        // 'json' string.
 
         bsl::string json;
 
@@ -384,8 +384,8 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-        bdlt::Timetable timetable;
-        MyTimetableLoader     loader;
+        bdlt::Timetable   timetable;
+        MyTimetableLoader loader;
 
         if (veryVerbose) {
             cout << "BEFORE:" << endl;

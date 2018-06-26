@@ -8,10 +8,12 @@ BSLS_IDENT_RCSID(bdlt_defaulttimetablecache_cpp,"$Id$ $CSID$")
 #include <bdlt_timetableloader.h>  // for testing only
 #include <bdlt_date.h>             // for testing only
 
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_once.h>
+
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
-#include <bsls_bsllock.h>
-#include <bsls_bslonce.h>
 #include <bsls_objectbuffer.h>
 
 #include <bsl_climits.h>  // 'INT_MAX'
@@ -37,17 +39,17 @@ bsls::ObjectBuffer<TimetableCache>           g_buffer;
 // STATIC HELPER FUNCTIONS
 
 static
-bsls::BslLock *getLock()
+bslmt::Mutex *getLock()
     // Return the address of the lock used to initialize and destroy the
     // default timetable cache in a thread-safe manner.
 {
-    static bsls::BslLock *theLockPtr = 0;
+    static bslmt::Mutex *theLockPtr = 0;
 
-    static bsls::BslOnce      once = BSLS_BSLONCE_INITIALIZER;
-           bsls::BslOnceGuard onceGuard;
+    static bslmt::Once      once = BSLS_BSLONCE_INITIALIZER;
+           bslmt::OnceGuard onceGuard;
 
     if (onceGuard.enter(&once)) {
-        static bsls::BslLock theLock;
+        static bslmt::Mutex theLock;
         theLockPtr = &theLock;
     }
 
@@ -69,16 +71,17 @@ int initializePrivate(TimetableLoader           *loader,
     // value otherwise.  The behavior is undefined unless 'loader' and
     // 'allocator' remain valid until a subsequent call to
     // 'bdlt::DefaultTimetableCache::destroy', and
-    // 'bsls::TimeInterval(0) <= timeout <= bsls::TimeInterval(INT_MAX)'.
+    // 'bsls::TimeInterval() <= timeout <= bsls::TimeInterval(INT_MAX, 0)'.
 {
     BSLS_ASSERT(loader);
     BSLS_ASSERT(allocator);
-    BSLS_ASSERT(bsls::TimeInterval(0) <= timeout);
-    BSLS_ASSERT(timeout <= bsls::TimeInterval(INT_MAX));
+    BSLS_ASSERT(bsls::TimeInterval() <= timeout);
+    BSLS_ASSERT(                        timeout <= bsls::TimeInterval(INT_MAX,
+                                                                      0));
 
     int rc = 1;  // FAILURE
 
-    bsls::BslLockGuard lockGuard(getLock());
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(getLock());
 
     if (!bsls::AtomicOperations::getPtrAcquire(&g_cachePtr)) {
 
@@ -106,7 +109,7 @@ int initializePrivate(TimetableLoader           *loader,
 // CLASS METHODS
 void DefaultTimetableCache::destroy()
 {
-    bsls::BslLockGuard lockGuard(getLock());
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(getLock());
 
     if (bsls::AtomicOperations::getPtrAcquire(&g_cachePtr)) {
 
@@ -119,7 +122,7 @@ void DefaultTimetableCache::destroy()
 int DefaultTimetableCache::initialize(TimetableLoader  *loader,
                                       bslma::Allocator *allocator)
 {
-    return initializePrivate(loader, false, bsls::TimeInterval(0), allocator);
+    return initializePrivate(loader, false, bsls::TimeInterval(), allocator);
 }
 
 int DefaultTimetableCache::initialize(TimetableLoader           *loader,

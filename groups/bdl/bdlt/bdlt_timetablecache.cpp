@@ -11,10 +11,11 @@ BSLS_IDENT_RCSID(bdlt_timetablecache_cpp,"$Id$ $CSID$")
 
 #include <bslma_default.h>
 
+#include <bslmt_lockguard.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_climits.h>      // 'INT_MAX'
-#include <bsl_functional.h>
 
 namespace BloombergLP {
 namespace bdlt {
@@ -31,7 +32,7 @@ TimetableCache_Entry::TimetableCache_Entry()
 }
 
 TimetableCache_Entry::TimetableCache_Entry(Timetable        *timetable,
-                                           Datetime          loadTime,
+                                           const Datetime&   loadTime,
                                            bslma::Allocator *allocator)
 : d_ptr(timetable, allocator)
 , d_loadTime(loadTime)
@@ -79,11 +80,7 @@ Datetime TimetableCache_Entry::loadTime() const
 // CREATORS
 TimetableCache::TimetableCache(TimetableLoader  *loader,
                                bslma::Allocator *basicAllocator)
-
-// We have to supply 'bsl::less<key>()' because 'bsl::map' does not have a
-// constructor that takes only an allocator.
-
-: d_cache(bsl::less<bsl::string>(), basicAllocator)
+: d_cache(basicAllocator)
 , d_loader_p(loader)
 , d_timeOut(0)
 , d_hasTimeOutFlag(false)
@@ -96,11 +93,7 @@ TimetableCache::TimetableCache(TimetableLoader  *loader,
 TimetableCache::TimetableCache(TimetableLoader           *loader,
                                const bsls::TimeInterval&  timeout,
                                bslma::Allocator          *basicAllocator)
-
-// We have to supply 'bsl::less<key>()' because 'bsl::map' does not have a
-// constructor that takes only an allocator.
-
-: d_cache(bsl::less<bsl::string>(), basicAllocator)
+: d_cache(basicAllocator)
 , d_loader_p(loader)
 , d_timeOut(0, 0, 0, 0, timeout.totalMilliseconds())
 , d_hasTimeOutFlag(true)
@@ -123,7 +116,7 @@ TimetableCache::getTimetable(const char *timetableName)
     BSLS_ASSERT(timetableName);
 
     {
-        bsls::BslLockGuard lockGuard(&d_lock);
+        bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
         CacheIterator iter = d_cache.find(timetableName);
 
@@ -158,7 +151,7 @@ TimetableCache::getTimetable(const char *timetableName)
     // Insert newly-loaded timetable into cache if another thread hasn't done
     // so already.
 
-    bsls::BslLockGuard lockGuard(&d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
     ConstCacheIterator iter = d_cache.find(timetableName);
 
@@ -180,7 +173,7 @@ int TimetableCache::invalidate(const char *timetableName)
 {
     BSLS_ASSERT(timetableName);
 
-    bsls::BslLockGuard lockGuard(&d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
     CacheIterator iter = d_cache.find(timetableName);
 
@@ -195,7 +188,7 @@ int TimetableCache::invalidate(const char *timetableName)
 
 int TimetableCache::invalidateAll()
 {
-    bsls::BslLockGuard lockGuard(&d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
     const int numInvalidated = static_cast<int>(d_cache.size());
 
@@ -210,7 +203,7 @@ TimetableCache::lookupTimetable(const char *timetableName) const
 {
     BSLS_ASSERT(timetableName);
 
-    bsls::BslLockGuard lockGuard(&d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
     CacheIterator iter = d_cache.find(timetableName);
 
@@ -231,7 +224,7 @@ Datetime TimetableCache::lookupLoadTime(const char *timetableName) const
 {
     BSLS_ASSERT(timetableName);
 
-    bsls::BslLockGuard lockGuard(&d_lock);
+    bsl::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
     CacheIterator iter = d_cache.find(timetableName);
 

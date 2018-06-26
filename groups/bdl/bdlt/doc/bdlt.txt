@@ -20,7 +20,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 37 components having 9 levels of physical
+ The 'bdlt' package currently has 39 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
