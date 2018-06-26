@@ -11,6 +11,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstdlib.h>
@@ -438,19 +440,29 @@ int main(int argc, char *argv[])
         // TESTING: 'splitFilename'
         //
         // Concerns:
-        //: 1 The 'splitFilename' function accepts absolute and relative paths.
+        //: 1 The 'splitFilename' method accepts absolute and relative paths.
         //:
-        //: 2 The 'splitFilename' function accepts empty paths and returns
-        //:   empty 'head' and 'tail' in such cases.
+        //: 2 The 'splitFilename' method accepts empty paths and returns empty
+        //:   'head' and 'tail' in such cases.
         //:
-        //: 3 'head' always contains root of the original path.
+        //: 3 The resulting 'head' always contains the root of the original
+        //:   path.
         //:
-        //: 4 Resulting 'head' does not contain trailing seperators.
+        //: 4 The resulting 'head' does not contain trailing seperators.
         //:
-        //: 5 Resulting 'tail' does not contain seperators.
+        //: 5 The resulting 'tail' does not contain seperators.
         //:
-        //: 6 The 'splitFilename' function properly handles Windows paths
+        //: 6 The 'splitFilename' method properly handles Windows paths
         //:   containing forward and backward slashes.
+        //:
+        //: 7 The 'splitFilename' method correctly identifies the root end of
+        //:   the passed path.
+        //:
+        //: 8 The 'splitFilename' method correctly handles passed 'head' or
+        //:   'tail' in the case when they are aliases of 'path'
+        //:   ('head == &path' or 'tail == &path').
+        //:
+        //: 9 Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Create a table of test input values and expected results.  Input
@@ -482,13 +494,22 @@ int main(int argc, char *argv[])
         //:     - root + delimiter    + folder + delimiter(s) + file
         //:
         //:   As paths can contain multiple delimiters, we add up to 4 of them
-        //:   to check, that they are handled correctly.
+        //:   to check that they are handled correctly.
         //:
         //: 2 Iterate over this table verifying that 'splitFilename' produces
-        //:   the expected results.  (C-1..6)
+        //:   the expected results with
+        //:     - the explicit negative value of the 'rootEnd'
+        //:     - the default value of the 'rootEnd'
+        //:     - the explicit correct value of the 'rootEnd
+        //:     - the 'head' being an address of 'path'
+        //:     - the 'tail' being an address of 'path'  (C-1..8)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones.  (C-9)
         //
         // Testing:
-        //  void splitFilename(StringRef*, StringRef*, const StringRef&, int);
+        //   void splitFilename(StringRef*, StringRef*, const StringRef&, int);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -762,6 +783,8 @@ int main(int argc, char *argv[])
         };
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
+       if (verbose) cout << "\nBehavior Testing." << endl;
+
         for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int               LINE     = DATA[ti].d_line;
             const bslstl::StringRef PATH     = DATA[ti].d_path;
@@ -771,6 +794,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_; P_(ti); P(PATH); }
 
+            // Explicit negative 'rootEnd'.
+
             bslstl::StringRef head;
             bslstl::StringRef tail;
 
@@ -779,6 +804,18 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
             ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
 
+            // Implicit negative 'rootEnd' (default value).
+
+            head.reset();
+            tail.reset();
+
+            Obj::splitFilename(&head, &tail, PATH);
+
+            ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
+            ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
+
+            // Explicit non-negative 'rootEnd'.
+
             head.reset();
             tail.reset();
 
@@ -786,6 +823,45 @@ int main(int argc, char *argv[])
 
             ASSERTV(LINE, EXP_HEAD, head, EXP_HEAD == head);
             ASSERTV(LINE, EXP_TAIL, tail, EXP_TAIL == tail);
+
+            // 'head' is alias of 'path'.
+
+            bslstl::StringRef aliasPath = DATA[ti].d_path;
+            tail.reset();
+
+            Obj::splitFilename(&aliasPath, &tail, aliasPath);
+
+            ASSERTV(LINE, EXP_HEAD, head,      EXP_HEAD == head);
+            ASSERTV(LINE, EXP_HEAD, aliasPath, EXP_HEAD == aliasPath);
+            ASSERTV(LINE, EXP_TAIL, tail,      EXP_TAIL == tail);
+
+            // 'tail' is alias of 'path'.
+
+            aliasPath = DATA[ti].d_path;
+            head.reset();
+
+            Obj::splitFilename(&head, &aliasPath, aliasPath);
+
+            ASSERTV(LINE, EXP_HEAD, head,      EXP_HEAD == head);
+            ASSERTV(LINE, EXP_TAIL, tail,      EXP_TAIL == tail);
+            ASSERTV(LINE, EXP_HEAD, aliasPath, EXP_TAIL == aliasPath);
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            bslstl::StringRef head;
+            bslstl::StringRef tail;
+            bslstl::StringRef path;
+
+            ASSERT_SAFE_FAIL(Obj::splitFilename(0,         0, path));
+            ASSERT_SAFE_FAIL(Obj::splitFilename(0,     &tail, path));
+            ASSERT_SAFE_FAIL(Obj::splitFilename(&head,     0, path));
+            ASSERT_SAFE_FAIL(Obj::splitFilename(&head, &head, path));
+
+            ASSERT_SAFE_PASS(Obj::splitFilename(&head, &tail, path));
         }
       } break;
       case 4: {

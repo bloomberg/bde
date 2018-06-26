@@ -417,50 +417,50 @@ void PathUtil::splitFilename(bslstl::StringRef        *head,
 {
     BSLS_ASSERT(head);
     BSLS_ASSERT(tail);
+    BSLS_ASSERT(head != tail);
 
-
-    BSLS_ASSERT(INT_MAX >= path.length());
-    int substrLength = static_cast<int>(path.length());
-
-    if (!substrLength) {
+    if (path.empty()) {
         head->reset();
         tail->reset();
         return;                                                       // RETURN
     }
 
-    if (0 > rootEnd) {
-        findFirstNonSeparatorChar(&rootEnd, path.data(), substrLength);
-    }
+    BSLS_ASSERT(INT_MAX >= path.length());
+    int numCharsToHandle = static_cast<int>(path.length());
 
-    const char *end = path.data() + substrLength;
-    const char *lastSeparator = end - 1;
+    const char *pathBegin = path.data();
+    const char *pathEnd = pathBegin + numCharsToHandle;
+    const char *lastSeparator = pathEnd - 1;
+
+    if (0 > rootEnd) {
+        findFirstNonSeparatorChar(&rootEnd, pathBegin, numCharsToHandle);
+    }
 
     // Tail detection.
 
-    while (substrLength > rootEnd && (!isSeparator(*lastSeparator))) {
-        --substrLength;
+    while (numCharsToHandle > rootEnd && (!isSeparator(*lastSeparator))) {
+        --numCharsToHandle;
         --lastSeparator;
     }
 
-    if (end - 1 != lastSeparator) {
-        tail->assign(lastSeparator + 1, end);
+    if (pathEnd - 1 != lastSeparator) {
+        tail->assign(lastSeparator + 1, pathEnd);
     } else {
         tail->reset();
     }
 
     // Skip trailing delimiters between head and tail.
 
-    while (substrLength > rootEnd && (isSeparator(*(lastSeparator - 1)))) {
-        --substrLength;
+    while (numCharsToHandle > rootEnd && (isSeparator(*(lastSeparator - 1)))) {
+        --numCharsToHandle;
         --lastSeparator;
     }
 
     // Head detection.
 
-    head->assign(
-                path.data(),
-                lastSeparator > path.data() + rootEnd ? lastSeparator
-                                                      : path.data() + rootEnd);
+    head->assign(pathBegin,
+                 lastSeparator > pathBegin + rootEnd ? lastSeparator
+                                                     : pathBegin + rootEnd);
 }
 
 bool PathUtil::isAbsolute(const bslstl::StringRef& path, int rootEnd)
