@@ -956,7 +956,7 @@ unsigned int crc32cSoftware(const unsigned char *data,
     return ~crc;
 }
 
-#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 
 #  ifdef BSLS_PLATFORM_CPU_64_BIT
 
@@ -1172,8 +1172,7 @@ unsigned int crc32cHardwareSerial(const unsigned char *data,
     return ~sum;
 }
 
-#endif  // BSLS_PLATFORM_CPU_X86 || BSLS_PLATFORM_CPU_X86_64
-
+#endif  // BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG
 
                         //-----------------------
                         // class Crc32cCalculator
@@ -1320,7 +1319,7 @@ unsigned int Crc32c_Impl::calculateHardwareSerial(const void   *data,
     }
 
     const unsigned char *dataUchar = static_cast<const unsigned char *>(data);
-#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     return crc32cHardwareSerial(dataUchar, length, crc);
 #else
     return crc32cSoftware(dataUchar, length, crc);
