@@ -414,7 +414,7 @@ double RadiationMeterReceiver::yield()
 ///-----
 // This section illustrates the intended use of this component.
 //
-// Code global to all three usage examples.
+// The following constants are used throughout the usage examples:
 //..
     enum {
         k_NUM_INFO  = 20,       // max # of info messages in a very short time

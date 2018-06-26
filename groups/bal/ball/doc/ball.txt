@@ -30,6 +30,7 @@
       ball_logfilecleanerutil
 
   14. ball_fileobserver2
+      ball_logthrottle
 
   13. ball_log
 
