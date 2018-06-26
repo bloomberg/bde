@@ -2,8 +2,8 @@
 #include <bdlt_defaulttimetablecache.h>
 
 #include <bdlt_timetablecache.h>
-#include <bdlt_timetableloader.h>  // for testing only
-#include <bdlt_date.h>             // for testing only
+#include <bdlt_timetableloader.h>
+#include <bdlt_date.h>
 
 #include <bslim_testutil.h>
 

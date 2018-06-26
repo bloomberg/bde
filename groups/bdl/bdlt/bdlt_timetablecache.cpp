@@ -131,22 +131,19 @@ TimetableCache::getTimetable(const char *timetableName)
         }
     }
 
-    // Load timetable identified by 'timetableName'.
+    // Create out-of-place timetable that will be managed by 'bsl::shared_ptr'.
 
-    Timetable timetable;  // temporary, so use default allocator
+    Timetable *timetablePtr = new (*d_allocator_p) Timetable(d_allocator_p);
 
     const Datetime timestamp = CurrentTime::utc();
 
-    if (d_loader_p->load(&timetable, timetableName)) {
+    TimetableCache_Entry entry(timetablePtr, timestamp, d_allocator_p);
+
+    // Load timetable identified by 'timetableName'.
+
+    if (d_loader_p->load(timetablePtr, timetableName)) {
         return bsl::shared_ptr<const Timetable>();                    // RETURN
     }
-
-    // Create out-of-place timetable that will be managed by 'bsl::shared_ptr'.
-
-    Timetable *timetablePtr = new (*d_allocator_p) Timetable(timetable,
-                                                             d_allocator_p);
-
-    TimetableCache_Entry entry(timetablePtr, timestamp, d_allocator_p);
 
     // Insert newly-loaded timetable into cache if another thread hasn't done
     // so already.
@@ -224,7 +221,7 @@ Datetime TimetableCache::lookupLoadTime(const char *timetableName) const
 {
     BSLS_ASSERT(timetableName);
 
-    bsl::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
     CacheIterator iter = d_cache.find(timetableName);
 

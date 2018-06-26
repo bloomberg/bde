@@ -45,10 +45,10 @@ bslmt::Mutex *getLock()
 {
     static bslmt::Mutex *theLockPtr = 0;
 
-    static bslmt::Once      once = BSLS_BSLONCE_INITIALIZER;
-           bslmt::OnceGuard onceGuard;
+    static bslmt::Once      once = BSLMT_ONCE_INITIALIZER;
+           bslmt::OnceGuard onceGuard(&once);
 
-    if (onceGuard.enter(&once)) {
+    if (onceGuard.enter()) {
         static bslmt::Mutex theLock;
         theLockPtr = &theLock;
     }

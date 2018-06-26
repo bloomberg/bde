@@ -3,7 +3,7 @@
 
 #include <bdlt_timetableloader.h>
 #include <bdlt_currenttime.h>
-#include <bdlt_date.h>            // for testing only
+#include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeinterval.h>
 #include <bdlt_timetable.h>
@@ -1533,22 +1533,22 @@ int main(int argc, char *argv[])
                 e = mX.getTimetable("ERROR");      ASSERT(!e.get());
 
                 LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-                LOOP_ASSERT(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
+                LOOP_ASSERT(sa.numBlocksTotal(), 0 <  sa.numBlocksTotal());
 
                 e = mX.getTimetable("CAL-Z");      ASSERT(!e.get());
 
                 LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-                LOOP_ASSERT(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
+                LOOP_ASSERT(sa.numBlocksTotal(), 0 <  sa.numBlocksTotal());
 
                 e = X.lookupTimetable("CAL-Z");    ASSERT(!e.get());
 
                 LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-                LOOP_ASSERT(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
+                LOOP_ASSERT(sa.numBlocksTotal(), 0 <  sa.numBlocksTotal());
 
                 d = X.lookupLoadTime("CAL-Z");    ASSERT(d == Datetime());
 
                 LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-                LOOP_ASSERT(sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
+                LOOP_ASSERT(sa.numBlocksTotal(), 0 <  sa.numBlocksTotal());
             }
 
             bsls::Types::Int64 daLastNumBlocksTotal, saLastNumBlocksTotal;
@@ -1613,7 +1613,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(daLastNumBlocksTotal, da.numBlocksTotal(),
                              daLastNumBlocksTotal == da.numBlocksTotal());
                 LOOP2_ASSERT(saLastNumBlocksTotal, sa.numBlocksTotal(),
-                             saLastNumBlocksTotal == sa.numBlocksTotal());
+                             saLastNumBlocksTotal <  sa.numBlocksTotal());
             }
 
             // Cache with two entries.
