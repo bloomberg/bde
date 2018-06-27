@@ -30197,7 +30197,7 @@ void constructFeatureTestMessage(
                       << i << "): "
                       << decoder.loggedMessages() << bsl::endl;
         }
-        if (balb::FeatureTestMessage::e_SELECTION_ID_UNDEFINED ==
+        if (balb::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
                                                         object.selectionId()) {
             bsl::cout << "Decoded unselected choice from initialization data"
                       << " (LINE =" << XML_TEST_MESSAGES[i].d_line << ")"
@@ -31955,7 +31955,7 @@ int main(int argc, char *argv[])
                           << "ENCODING ENUMERATIONS" << endl
                           << "=====================" << endl;
 
-        const int NUM_ENUMERATORS = balb::Enumerated::k_NUM_ENUMERATORS;
+        const int NUM_ENUMERATORS = balb::Enumerated::NUM_ENUMERATORS;
         for (int ti = 0; ti < NUM_ENUMERATORS; ++ti) {
             balb::Enumerated::Value mX = (balb::Enumerated::Value) ti;
             const balb::Enumerated::Value& X = mX;
