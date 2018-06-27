@@ -867,8 +867,6 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            // Testing path aliasing.
-
             bslstl::StringRef head;
             bslstl::StringRef tail;
             bslstl::StringRef path;
@@ -877,30 +875,8 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_FAIL(Obj::splitFilename(0,     &tail, path));
             ASSERT_SAFE_FAIL(Obj::splitFilename(&head,     0, path));
             ASSERT_SAFE_FAIL(Obj::splitFilename(&head, &head, path));
+
             ASSERT_SAFE_PASS(Obj::splitFilename(&head, &tail, path));
-
-            // Testing path length overflow.
-
-            size_t                intMax = INT_MAX;
-            bslma::TestAllocator  ta;
-            void                 *buffer = ta.allocate(intMax + 1);
-            ASSERT(buffer);
-
-            bslma::DeallocatorGuard<bslma::TestAllocator> guard(buffer, &ta);
-
-            bslstl::StringRef longPath     (static_cast<const char *>(buffer),
-                                            intMax + 1);
-            bslstl::StringRef notSoLongPath(static_cast<const char *>(buffer),
-                                            intMax    );
-
-            ASSERT_SAFE_FAIL(Obj::splitFilename(&head,
-                                                &head,
-                                                longPath,
-                                                INT_MAX));
-            ASSERT_SAFE_PASS(Obj::splitFilename(&head,
-                                                &tail,
-                                                notSoLongPath,
-                                                INT_MAX));
         }
       } break;
       case 4: {
