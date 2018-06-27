@@ -257,7 +257,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_integralconstant.h>
 
-#include <bsls_bsllock.h>
+#include <bslmt_mutex.h>
+
 #include <bsls_timeinterval.h>
 
 #include <bsl_map.h>
@@ -291,7 +292,7 @@ class CalendarCache_Entry {
     // This class defines the type of objects that are inserted into the
     // calendar cache.  Each entry contains a shared pointer to a read-only
     // calendar and the time at which that calendar was loaded.  Note that an
-    // explicit allocator is *required* to create a entry object.
+    // explicit allocator is *required* to create an entry object.
 
     // DATA
     bsl::shared_ptr<const Calendar> d_ptr;       // shared pointer to
@@ -307,7 +308,7 @@ class CalendarCache_Entry {
         // is never actually inserted into the cache.
 
     CalendarCache_Entry(Calendar         *calendar,
-                        Datetime          loadTime,
+                        const Datetime&   loadTime,
                         bslma::Allocator *allocator);
         // Create a cache entry object for managing the specified 'calendar'
         // that was loaded at the specified 'loadTime' using the specified
@@ -322,7 +323,7 @@ class CalendarCache_Entry {
         // Destroy this cache entry object.
 
     // MANIPULATORS
-    CalendarCache_Entry& operator=(const CalendarCache_Entry&);
+    CalendarCache_Entry& operator=(const CalendarCache_Entry& rhs);
         // Assign to this cache entry object the value of the specified 'rhs'
         // object, and return a reference providing modifiable access to this
         // object.
@@ -375,7 +376,7 @@ class CalendarCache {
                                                // timeout value and 'false'
                                                // otherwise
 
-    mutable bsls::BslLock   d_lock;            // guard access to cache
+    mutable bslmt::Mutex    d_lock;            // guard access to cache
 
     bslma::Allocator       *d_allocator_p;     // memory allocator (held, not
                                                // owned)
@@ -493,7 +494,7 @@ struct UsesBslmaAllocator<bdlt::CalendarCache> : bsl::true_type {};
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
