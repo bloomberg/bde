@@ -64,7 +64,7 @@ static
 void findFirstNonSeparatorChar(size_t     *resultOffset,
                                const char *path,
                                int         length = -1)
-    // Load into the specified 'result' the offset of the first *non*
+    // Load into the specified 'resultOffset' the offset of the first *non*
     // path-separator character in the specified 'path' (e.g., the first
     // character not equal to '/' on unix platforms).  Optionally specify
     // 'length' indicating the length of 'path'.  If 'length' is not supplied,
@@ -197,7 +197,7 @@ static
 const char *leafDelimiter(const char *path, int rootEnd, int length = -1)
     // Return the position of the beginning of the basename of the specified
     // 'path'.  The basename will not be found within the specified 'rootEnd'
-    // characters from teh beginning of 'path'.  If the optionally specified
+    // characters from the beginning of 'path'.  If the optionally specified
     // 'length' is not given, assume 'path' is null-terminated.  Note that this
     // file may be a directory.  Also note that trailing separators are
     // ignored.
@@ -408,6 +408,59 @@ int PathUtil::getRoot(bsl::string              *root,
     root->clear();
     root->append(path.data(), path.data() + rootEnd);
     return 0;
+}
+
+void PathUtil::splitFilename(bslstl::StringRef        *head,
+                             bslstl::StringRef        *tail,
+                             const bslstl::StringRef&  path,
+                             int                       rootEnd)
+{
+    BSLS_ASSERT(head);
+    BSLS_ASSERT(tail);
+    BSLS_ASSERT(head != tail);
+
+    if (path.empty()) {
+        head->reset();
+        tail->reset();
+        return;                                                       // RETURN
+    }
+
+    BSLS_ASSERT(INT_MAX >= path.length());
+    int numCharsToHandle = static_cast<int>(path.length());
+
+    const char *pathBegin     = path.data();
+    const char *pathEnd       = pathBegin + numCharsToHandle;
+    const char *lastSeparator = pathEnd - 1;
+
+    if (0 > rootEnd) {
+        findFirstNonSeparatorChar(&rootEnd, pathBegin, numCharsToHandle);
+    }
+
+    // Tail detection.
+
+    while (numCharsToHandle > rootEnd && (!isSeparator(*lastSeparator))) {
+        --numCharsToHandle;
+        --lastSeparator;
+    }
+
+    if (pathEnd - 1 != lastSeparator) {
+        tail->assign(lastSeparator + 1, pathEnd);
+    } else {
+        tail->reset();
+    }
+
+    // Skip trailing delimiters between head and tail.
+
+    while (numCharsToHandle > rootEnd && (isSeparator(*(lastSeparator - 1)))) {
+        --numCharsToHandle;
+        --lastSeparator;
+    }
+
+    // Head detection.
+
+    head->assign(pathBegin,
+                 lastSeparator > pathBegin + rootEnd ? lastSeparator
+                                                     : pathBegin + rootEnd);
 }
 
 bool PathUtil::isAbsolute(const bslstl::StringRef& path, int rootEnd)
