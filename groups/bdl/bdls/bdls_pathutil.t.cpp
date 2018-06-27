@@ -397,9 +397,13 @@ int main(int argc, char *argv[])
 //..
 // Note that there is no attempt to distinguish filenames that are regular
 // files from filenames that are directories, or to verify the existence of
-// paths in the filesystem.  On POSIX:
+// paths in the filesystem.
 //..
-    ASSERT("22jan08/log.txt/22jan08/log.txt" == otherPath);
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
+    ASSERT("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" == tempPath);
+    #else
+    ASSERT("/var/tmp/myApp/logs/22jan08/log2.txt"              == tempPath);
+    #endif
 //..
 //
 ///Example 2: Parsing a path using 'splitFilename'
@@ -408,7 +412,11 @@ int main(int argc, char *argv[])
 //
 // First, we create a path for splitting and a storage for filenames:
 //..
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
+    const char                     *splitPath = "c:\\one\\two\\three\\four";
+    #else
     const char                     *splitPath = "//one/two/three/four";
+    #endif
     bsl::vector<bslstl::StringRef>  filenames;
 //..
 // Then, we run a cycle to sever filenames from the end one by one:
@@ -435,7 +443,11 @@ int main(int argc, char *argv[])
 //..
 // Finally, make sure that only the root remains of the original value:
 //..
+    #ifdef BSLS_PLATFORM_OS_WINDOWS
+    ASSERT("c:\\"      == head);
+    #else
     ASSERT("//"        == head);
+    #endif
 //..
       } break;
       case 5: {

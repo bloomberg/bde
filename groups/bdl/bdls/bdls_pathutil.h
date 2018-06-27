@@ -201,9 +201,13 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that there is no attempt to distinguish filenames that are regular
 // files from filenames that are directories, or to verify the existence of
-// paths in the filesystem.  On POSIX:
+// paths in the filesystem.
 //..
-//  assert("22jan08/log.txt/22jan08/log.txt" == otherPath);
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
+//  assert("c:\\windows\\temp\\myApp\\logs\\22jan08\\log2.txt" == tempPath);
+//  #else
+//  assert("/var/tmp/myApp/logs/22jan08/log2.txt"              == tempPath);
+//  #endif
 //..
 //
 ///Example 2: Parsing a path using 'splitFilename'
@@ -212,7 +216,11 @@ BSLS_IDENT("$Id: $")
 //
 // First, we create a path for splitting and a storage for filenames:
 //..
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
+//  const char                     *splitPath = "c:\\one\\two\\three\\four";
+//  #else
 //  const char                     *splitPath = "//one/two/three/four";
+//  #endif
 //  bsl::vector<bslstl::StringRef>  filenames;
 //..
 // Then, we run a cycle to sever filenames from the end one by one:
@@ -239,7 +247,11 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, make sure that only the root remains of the original value:
 //..
+//  #ifdef BSLS_PLATFORM_OS_WINDOWS
+//  assert("c:\\"      == head);
+//  #else
 //  assert("//"        == head);
+//  #endif
 //..
 
 #include <bdlscm_version.h>
