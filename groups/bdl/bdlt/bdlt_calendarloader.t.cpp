@@ -1,10 +1,10 @@
 // bdlt_calendarloader.t.cpp                                          -*-C++-*-
 #include <bdlt_calendarloader.h>
 
-#include <bdlt_date.h>             // for testing only
-#include <bdlt_dayofweek.h>        // for testing only
-#include <bdlt_dayofweekset.h>     // for testing only
-#include <bdlt_packedcalendar.h>   // for testing only
+#include <bdlt_date.h>
+#include <bdlt_dayofweek.h>
+#include <bdlt_dayofweekset.h>
+#include <bdlt_packedcalendar.h>
 
 #include <bslim_testutil.h>
 
@@ -153,7 +153,7 @@ void aSsErT(bool condition, const char *message, int line)
 // obtained):
 //..
         // Obtain the information for the calendar identified by 'calendarName'
-        // from the unspecified data source and load it into the 'json' string.
+        // from an unspecified data source and load it into the 'json' string.
 
         bsl::string json;
 
@@ -461,7 +461,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
