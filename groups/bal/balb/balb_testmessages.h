@@ -2,13 +2,30 @@
 #ifndef INCLUDED_BALB_TESTMESSAGES
 #define INCLUDED_BALB_TESTMESSAGES
 
-#include <bdes_ident.h>
-BDES_IDENT_RCSID(balb_testmessages_h,"$Id$ $CSID$")
-BDES_IDENT_PRAGMA_ONCE
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(balb_testmessages_h,"$Id$ $CSID$")
+BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
 //
-//@AUTHOR: Clay WILSON (cwilson9@bloomberg.net)
+//@AUTHOR: David SCHUMANN (dschumann1@bloomberg.net)
+//
+//@DESCRIPTION: This is a generated file used for testing purposes only and
+// should *not* be used in any production code.
+//
+// The file was generated with the command:
+//..
+//  bas_codegen.pl -mmsg -Ctestmessages --noAggregateConversion <backslash>
+//                 balb_testmessages.xsd
+//..
+// (Sustitute '\' for '<backslash>' -- some compilers won't accept a backslash
+// at the end of a C++ comment line.)
+//
+// After the message component was generated, the following modifications were
+// made:
+//: o This @DESCRIPTION section was added.
+//:
+//: o Use of 'bdes_ident' was replaced with 'bsls_ident'.
 
 #include <bslalg_typetraits.h>
 

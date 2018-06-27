@@ -1,7 +1,7 @@
 // balb_testmessages.cpp           *DO NOT EDIT*           @generated -*-C++-*-
 
-#include <bdes_ident.h>
-BDES_IDENT_RCSID(balb_testmessages_cpp,"$Id$ $CSID$")
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(balb_testmessages_cpp,"$Id$ $CSID$")
 
 #include <balb_testmessages.h>
 
