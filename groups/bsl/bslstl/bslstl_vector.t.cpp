@@ -135,14 +135,22 @@
 // [15] reference back();
 // [15] VALUE_TYPE *data();
 // [27] void emplace_back(Args...);
-// [17] void push_back(const T&);
+// [43] void push_back(const T&);
 // [25] void push_back(T&&);
 // [18] void pop_back();
 // [28] iterator emplace(const_iterator pos, Args...);
-// [17] iterator insert(const_iterator pos, const T& val);
 // [26] iterator insert(const_iterator pos, T&& val);
+// [48] void insert(const_iterator pos, InputIter first, InputIter last);
+// [47] void insert(const_iterator pos, InputIter first, InputIter last);
+// [46] void insert(const_iterator pos, InputIter first, InputIter last);
+// [45] void insert(const_iterator pos, InputIter first, InputIter last);
+// [44] iterator insert(const_iterator pos, const T& val);
+// [41] iterator insert(const_iterator pos, const T& val);
+// [41] iterator insert(const_iterator pos, size_type n, const T& val);
+// [40] iterator insert(const_iterator pos, const T& val);
+// [40] iterator insert(const_iterator pos, size_type n, const T& val);
+// [17] iterator insert(const_iterator pos, const T& val);
 // [17] iterator insert(const_iterator pos, size_type n, const T& val);
-// [17] void insert(const_iterator pos, InputIter first, InputIter last);
 // [29] iterator insert(const_iterator pos, initializer_list<T>);
 // [18] iterator erase(const_iterator pos);
 // [18] iterator erase(const_iterator first, const_iterator last);
@@ -167,6 +175,12 @@
 // FREE OPERATORS:
 // [ 6] bool operator==(const vector<T,A>&, const vector<T,A>&);
 // [ 6] bool operator!=(const vector<T,A>&, const vector<T,A>&);
+// [36] bool operator==(const vector<T,A>&, const vector<T,A>&);
+// [36] bool operator!=(const vector<T,A>&, const vector<T,A>&);
+// [37] bool operator==(const vector<T,A>&, const vector<T,A>&);
+// [37] bool operator!=(const vector<T,A>&, const vector<T,A>&);
+// [38] bool operator==(const vector<T,A>&, const vector<T,A>&);
+// [38] bool operator!=(const vector<T,A>&, const vector<T,A>&);
 // [20] bool operator<(const vector<T,A>&, const vector<T,A>&);
 // [20] bool operator>(const vector<T,A>&, const vector<T,A>&);
 // [20] bool operator<=(const vector<T,A>&, const vector<T,A>&);
@@ -176,7 +190,7 @@
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] ALLOCATOR-RELATED CONCERNS
-// [36] USAGE EXAMPLE
+// [39] USAGE EXAMPLE
 // [21] CONCERN: 'std::length_error' is used properly
 // [30] DRQS 31711031
 // [31] DRQS 34693876
@@ -5227,7 +5241,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 36: {
+      case 39: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5270,6 +5284,70 @@ int main(int argc, char *argv[])
             ASSERT(3 == m1.theValue(1, 0));
             ASSERT(4 == m1.theValue(1, 1));
         }
+      } break;
+      case 38: {
+        // --------------------------------------------------------------------
+        // TESTING EQUALITY COMPARISON OPERATORS: PART 4
+        //
+        // Concerns:
+        //: 1 Test the equality comparison operator when using the standard
+        //:   allocator.
+        //
+        // Plan:
+        //: 1 Use the 'StdBslmaTestDriver' to do the testing.  Note that when
+        //:   we did this in TC 6, the test took prohibitively long.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                           "TESTING EQUALITY COMPARISION OPERATORS: PART 4\n"
+                           "==============================================\n");
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      testCase6,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+      } break;
+      case 37: {
+        // --------------------------------------------------------------------
+        // TESTING EQUALITY COMPARISON OPERATORS: PART 3
+        //
+        // Concerns:
+        //: 1 Test the equality comparison operator when the vector contains
+        //:   some of the user-defined types.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                           "TESTING EQUALITY COMPARISION OPERATORS: PART 3\n"
+                           "==============================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase6,
+                      bsltf::BitwiseMoveableTestType,
+                      bsltf::AllocBitwiseMoveableTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType,
+                      bsltf::NonTypicalOverloadsTestType);
+      } break;
+      case 36: {
+        // --------------------------------------------------------------------
+        // TESTING EQUALITY COMPARISON OPERATORS: PART 2
+        //
+        // Concerns:
+        //: 1 Test the equality comparison operator when the vector contains
+        //:   some of the user-defined types.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                           "TESTING EQUALITY COMPARISION OPERATORS: PART 2\n"
+                           "==============================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase6,
+                      bsltf::EnumeratedTestType::Enum,
+                      bsltf::UnionTestType,
+                      bsltf::SimpleTestType,
+                      bsltf::AllocTestType,
+                      bsltf::BitwiseCopyableTestType);
       } break;
       case 35:
       case 34:
@@ -5398,23 +5476,19 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING EQUALITY COMPARISON OPERATORS
+        // TESTING EQUALITY COMPARISON OPERATORS: Part 1
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING EQUALITY COMPARISION OPERATORS"
-                            "\n======================================\n");
+        if (verbose) printf(
+                           "TESTING EQUALITY COMPARISION OPERATORS: Part 1\n"
+                           "==============================================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase6,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
                       bsltf::MoveOnlyAllocTestType,
                       NotAssignable,
                       BitwiseNotAssignable);
-
-        RUN_EACH_TYPE(StdBslmaTestDriver,
-                      testCase6,
-                      bsltf::StdAllocTestType<bsl::allocator<int> >,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
       } break;
       case 5: {
         // --------------------------------------------------------------------

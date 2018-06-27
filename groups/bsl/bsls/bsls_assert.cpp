@@ -158,9 +158,12 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
                                  "BSLS_ASSERT failure: '%s'",
                                  text);
 
+        // Do not use %p to print pointers.  On some platform it automatically
+        // prefixes with '0x', on AIX it does not.
+
         BSLS_LOG_ERROR("Bad 'bsls_assert' configuration: "
-                       "violation handler at %p must not return.",
-                       failureHandlerPtr);
+                       "violation handler at 0x%llx must not return.",
+                       reinterpret_cast<Types::Uint64>(failureHandlerPtr));
     }
 }
 
