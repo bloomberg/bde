@@ -691,6 +691,9 @@ int main(int argc, char *argv[])
         int depth = TC::recurseDepth;
         TC::recurser(&depth);
         ASSERT(TC::recurseDepth == depth);
+
+        if (verbose) P(BSLS_PLATFORM_CMP_VERSION);      // Used to calculate
+                                                        // 'k_IGNORE_FRAMES'.
       }  break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

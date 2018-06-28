@@ -20,36 +20,47 @@ BSLS_IDENT_RCSID(balst_stacktraceresolver_filehelper_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bsls_assert.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstring.h>
-
-namespace BloombergLP {
 
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
     defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
 
+namespace BloombergLP {
 namespace balst {
-                    // -----------------------------------
-                    // StackTraceResolver_FileHelper
-                    // -----------------------------------
+                        // -----------------------------
+                        // StackTraceResolver_FileHelper
+                        // -----------------------------
 
 // CREATORS
-StackTraceResolver_FileHelper::StackTraceResolver_FileHelper(
-                                                          const char *fileName)
-{
-    BSLS_ASSERT(fileName);
-
-    d_fd = bdls::FilesystemUtil::open(
-                        fileName,
-                        bdls::FilesystemUtil::e_OPEN,        // already exists
-                        bdls::FilesystemUtil::e_READ_ONLY);  // not writable
-    BSLS_ASSERT(FilesystemUtil::k_INVALID_FD != d_fd);
-}
+StackTraceResolver_FileHelper::StackTraceResolver_FileHelper()
+: d_fd(FilesystemUtil::k_INVALID_FD)
+{}
 
 StackTraceResolver_FileHelper::~StackTraceResolver_FileHelper()
 {
-    BSLS_ASSERT(FilesystemUtil::k_INVALID_FD != d_fd);
+    if (FilesystemUtil::k_INVALID_FD != d_fd) {
+        FilesystemUtil::close(d_fd);
+        d_fd = FilesystemUtil::k_INVALID_FD;
+    }
+}
 
-    bdls::FilesystemUtil::close(d_fd);
+// MANIPULATOR
+int StackTraceResolver_FileHelper::initialize(const char *fileName)
+{
+    if (!fileName) {
+        return -1;                                                    // RETURN
+    }
+
+    if (FilesystemUtil::k_INVALID_FD != d_fd) {
+        FilesystemUtil::close(d_fd);
+    }
+
+    d_fd = FilesystemUtil::open(fileName,
+                                FilesystemUtil::e_OPEN,       // already exists
+                                FilesystemUtil::e_READ_ONLY); // not writable
+
+    return FilesystemUtil::k_INVALID_FD == d_fd;    // 0 on success
 }
 
 // ACCESSORS
@@ -123,14 +134,14 @@ bsls::Types::UintPtr StackTraceResolver_FileHelper::readBytes(
     int res = FilesystemUtil::read(d_fd, buf, static_cast<int>(numBytes));
     return (res <= 0 ? 0 : res);
 }
+
 }  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
-}  // close enterprise namespace
-
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
