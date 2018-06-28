@@ -20,6 +20,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolver_filehelper_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bsls_assert.h>
 
+#include <bsl_cstddef.h>
 #include <bsl_cstring.h>
 
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
