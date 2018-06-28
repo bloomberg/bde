@@ -1861,7 +1861,6 @@ if (veryVerbose)
                     { L_, -1.0 / k_USECS_PER_SEC + k_DELTA,  0,          -1  },
                     { L_, -0.5 / k_USECS_PER_SEC - k_DELTA,  0,          -1  },
                     { L_, -0.5 / k_USECS_PER_SEC,            0,          -1  },
-                    { L_, -0.5 / k_USECS_PER_SEC,            0,          -1  },
                     { L_, -0.5 / k_USECS_PER_SEC + k_DELTA,  0,           0  },
                     { L_, -0.0 / k_USECS_PER_SEC - k_DELTA,  0,           0  },
                     { L_, -0.0 / k_USECS_PER_SEC,            0,           0  },
