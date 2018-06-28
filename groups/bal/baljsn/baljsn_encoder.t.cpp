@@ -10,6 +10,7 @@
 #include <bdlat_enumeratorinfo.h>
 #include <bdlat_selectioninfo.h>
 #include <bdlat_sequencefunctions.h>
+#include <bdlat_typetraits.h>
 #include <bdlat_valuetypefunctions.h>
 
 #include <bdlb_printmethods.h>  // for printing vector
@@ -20,16 +21,14 @@
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlsb_memoutstreambuf.h>
 
-// These header are for testing only and the hierarchy level of 'baljsn' was
-// increase because of them.  They should be remove when possible.
+// These headers are for testing only and the hierarchy level of 'baljsn' was
+// increased because of them.  They should be removed when possible.
 #include <balxml_decoder.h>
 #include <balxml_decoderoptions.h>
 #include <balxml_encoder.h>
 #include <balxml_encoderoptions.h>
 #include <balxml_minireader.h>
 #include <balxml_errorinfo.h>
-
-#include <bdlat_typetraits.h>
 
 #include <bdlb_nullablevalue.h>
 #include <bdlb_nullableallocatedvalue.h>
@@ -31147,18 +31146,25 @@ int main(int argc, char *argv[])
         //: 2 Unselected Choice returns an error.
         //:
         //: 3 Error when encoding the selection is propagated.
+        //:
+        //: 4 Array Choice selections are encoded correctly.
         //
         // Plan:
-        //: 1 Use a brute force approach:
+        //: 1 Use a brute force approach:  (C-1..3)
         //:
         //:   1 Encode an unselected Choice object and verify it returns an
-        //:     error.
+        //:     error.  (C-2)
         //:
-        //:   2 Encode a selected Choice an verify it returns a name-value
-        //:     pair.
+        //:   2 Encode a selected Choice and verify it returns a name-value
+        //:     pair.  (C-1)
         //:
         //:   3 Encode a selected Choice, where the selection is an unselected
-        //:     Choice and verify it returns an error.
+        //:     Choice and verify it returns an error.  (C-3)
+        //:
+        //: 2 Use the table-driven approach to verify that array Choice
+        //:   selections encode as expected.  Test empty and non-empty arrays
+        //:   with both settings for the 'encodeEmptyArrays' encoder option.
+        //:   (C-4)
         //
         // Testing:
         //   int encode(bsl::ostream& stream, const TYPE& v, options);
@@ -31225,6 +31231,99 @@ int main(int argc, char *argv[])
                         result == "{\"selection3\":{\"selection1\":42}}");
             }
         }
+
+        if (verbose) cout << "Encode Choice w/Array Selection" << endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_input_p;            // input for array selection
+                bool        d_encodeEmptyArrays;  // encoder option
+                const char *d_result_p;           // expected result
+            } DATA[] = {
+                //LINE  INPUT   "EEA"   RESULT
+                //----  -----   -----   ------
+                { L_,       0,  false,  "{}"                                 },
+                { L_,       0,  true,   "{\"selection1\":[]}"                },
+                { L_,   "XyZ",  false,  "{\"selection1\":[\"XyZ\"]}"         },
+                { L_,   "XyZ",  true,   "{\"selection1\":[\"XyZ\"]}"         },
+            };
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE  = DATA[ti].d_line;
+                const char *INPUT = DATA[ti].d_input_p;
+                const bool  EEA   = DATA[ti].d_encodeEmptyArrays;
+                const char *EXP   = DATA[ti].d_result_p;
+
+                bsl::vector<bsl::string> array;
+                if (INPUT) {  // test with non-empty array selection
+                    array.push_back(INPUT);
+                }
+
+                Options options;
+                options.setEncodeEmptyArrays(EEA);
+
+                balb::Choice4 mX; const balb::Choice4& X = mX;
+                mX.makeSelection1(array);
+
+                if (veryVerbose) { P_(X); P(EXP); }
+
+                Obj encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf(), options);
+                ASSERTV(LINE, 0 == impl.encode(X, 0));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+        }
+        {
+            const struct {
+                int         d_line;
+                const char *d_input_p;            // input for array selection
+                bool        d_encodeEmptyArrays;  // encoder option
+                const char *d_result_p;           // expected result
+            } DATA[] = {
+                //LINE  INPUT   "EEA"   RESULT
+                //----  -----   -----   ------
+                { L_,       0,  false,  "{\"selection1\":{}}"                },
+                { L_,       0,  true, "{\"selection1\":{\"selection1\":[]}}" },
+                { L_,   "XyZ",  false,
+                               "{\"selection1\":{\"selection1\":[\"XyZ\"]}}" },
+                { L_,   "XyZ",  true,
+                               "{\"selection1\":{\"selection1\":[\"XyZ\"]}}" },
+            };
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE  = DATA[ti].d_line;
+                const char *INPUT = DATA[ti].d_input_p;
+                const bool  EEA   = DATA[ti].d_encodeEmptyArrays;
+                const char *EXP   = DATA[ti].d_result_p;
+
+                bsl::vector<bsl::string> array;
+                if (INPUT) {  // test with non-empty array selection
+                    array.push_back(INPUT);
+                }
+
+                Options options;
+                options.setEncodeEmptyArrays(EEA);
+
+                balb::Choice5 mX; const balb::Choice5& X = mX;
+                mX.makeSelection1().makeSelection1(array);
+
+                if (veryVerbose) { P_(X); P(EXP); }
+
+                Obj encoder;
+                bsl::ostringstream oss;
+                Impl impl(&encoder, oss.rdbuf(), options);
+                ASSERTV(LINE, 0 == impl.encode(X, 0));
+
+                bsl::string result = oss.str();
+                ASSERTV(LINE, result, EXP, result == EXP);
+            }
+        }
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
