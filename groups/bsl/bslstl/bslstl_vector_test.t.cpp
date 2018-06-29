@@ -12172,9 +12172,9 @@ int main(int argc, char *argv[])
 
         ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
                                      testCaseInsertRange,
+                                     bsltf::BitwiseCopyableTestType,
                                      bsltf::NonTypicalOverloadsTestType,
                                      bsltf::AllocBitwiseMoveableTestType,
-                                     InsertRangeNoopType,
                                      InsertRangeNoopType);
       } break;
       case 46: {
@@ -12202,10 +12202,10 @@ int main(int argc, char *argv[])
 
         ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
                                      testCaseInsertRange,
-                                     char,
                                      bsltf::AllocTestType,
                                      bsltf::BitwiseMoveableTestType,
-                                     bsltf::BitwiseCopyableTestType);
+                                     char,
+                                     InsertRangeNoopType);
       } break;
       case 44: {
         // --------------------------------------------------------------------

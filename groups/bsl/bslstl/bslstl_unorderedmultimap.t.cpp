@@ -11057,9 +11057,9 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 41: {
+      case 42: {
         // --------------------------------------------------------------------
-        // TESTING MOVE ASSIGNMENT: Part 4 of 4
+        // TESTING MOVE ASSIGNMENT: Part 5 of 5
         //
         // Formerly test case 27, but was timing out so it had to be broken up
         // into multiple test cases.
@@ -11067,11 +11067,31 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCaseMoveAssign,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED);
+                      bsltf::AllocBitwiseMoveableTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType,
+                      bsltf::NonTypicalOverloadsTestType);
+      } break;
+      case 41: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT: Part 4 of 5
+        //
+        // Formerly test case 27, but was timing out so it had to be broken up
+        // into multiple test cases.
+        // --------------------------------------------------------------------
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseMoveAssign,
+                      bsltf::EnumeratedTestType::Enum,
+                      bsltf::UnionTestType,
+                      bsltf::SimpleTestType,
+                      bsltf::AllocTestType,
+                      bsltf::BitwiseCopyableTestType,
+                      bsltf::BitwiseMoveableTestType);
       } break;
       case 40: {
         // --------------------------------------------------------------------
-        // TESTING MOVE ASSIGNMENT: Part 3 of 4
+        // TESTING MOVE ASSIGNMENT: Part 3 of 5
         //
         // Formerly test case 27, but was timing out so it had to be broken up
         // into multiple test cases.
@@ -11084,7 +11104,7 @@ int main(int argc, char *argv[])
       } break;
       case 39: {
         // --------------------------------------------------------------------
-        // TESTING MOVE ASSIGNMENT: Part 2 of 4
+        // TESTING MOVE ASSIGNMENT: Part 2 of 5
         //
         // Formerly test case 27, but was timing out so it had to be broken up
         // into multiple test cases.
@@ -11110,7 +11130,7 @@ int main(int argc, char *argv[])
       } break;
       case 38: {
         // --------------------------------------------------------------------
-        // TESTING MOVE ASSIGNMENT: Part 1 of 4
+        // TESTING MOVE ASSIGNMENT: Part 1 of 5
         //
         // Formerly test case 27, but was timing out so it had to be broken up
         // into multiple test cases.
