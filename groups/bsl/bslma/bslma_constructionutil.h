@@ -4256,7 +4256,7 @@ void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
     }
     else {
-        memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+        memcpy((void*)address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
     }
 }
 
@@ -6587,7 +6587,7 @@ ConstructionUtil_Imp::destructiveMove(TARGET_TYPE *address,
          BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
      }
      else {
-         memcpy(address, original, sizeof *original);
+         memcpy((void*)address, original, sizeof *original);
      }
 }
 
