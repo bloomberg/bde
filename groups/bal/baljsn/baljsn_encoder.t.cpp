@@ -31255,16 +31255,16 @@ int main(int argc, char *argv[])
                 const bool  EEA   = DATA[ti].d_encodeEmptyArrays;
                 const char *EXP   = DATA[ti].d_result_p;
 
-                bsl::vector<bsl::string> array;
+                bsl::vector<bsl::string> ARRAY;
                 if (INPUT) {  // test with non-empty array selection
-                    array.push_back(INPUT);
+                    ARRAY.push_back(INPUT);
                 }
 
                 Options options;
                 options.setEncodeEmptyArrays(EEA);
 
                 balb::Choice4 mX; const balb::Choice4& X = mX;
-                mX.makeSelection1(array);
+                mX.makeSelection1(ARRAY);
 
                 if (veryVerbose) { P_(X); P(EXP); }
 
@@ -31301,16 +31301,16 @@ int main(int argc, char *argv[])
                 const bool  EEA   = DATA[ti].d_encodeEmptyArrays;
                 const char *EXP   = DATA[ti].d_result_p;
 
-                bsl::vector<bsl::string> array;
+                bsl::vector<bsl::string> ARRAY;
                 if (INPUT) {  // test with non-empty array selection
-                    array.push_back(INPUT);
+                    ARRAY.push_back(INPUT);
                 }
 
                 Options options;
                 options.setEncodeEmptyArrays(EEA);
 
                 balb::Choice5 mX; const balb::Choice5& X = mX;
-                mX.makeSelection1().makeSelection1(array);
+                mX.makeSelection1().makeSelection1(ARRAY);
 
                 if (veryVerbose) { P_(X); P(EXP); }
 

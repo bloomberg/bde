@@ -406,7 +406,7 @@ class Encoder_ChoiceVisitor {
     // that method sets the 'd_isEmptyArrayFlag' flag to 'true' if 'value' is
     // an empty array, and sets it to 'false' otherwise.  An object of this
     // class should be passed as an argument to the
-    // 'bdlat_ChoiceFunctions::accessSelection' function.  Note that the 
+    // 'bdlat_ChoiceFunctions::accessSelection' function.  Note that the
     // operators provided in this 'class' match the function signatures
     // required of visitors encoding elements of 'bdlat' choice types.
 
