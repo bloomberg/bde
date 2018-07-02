@@ -11,9 +11,6 @@
 
 #include <bslim_testutil.h>
 
-#include <balxml_decoder.h>
-#include <balxml_minireader.h>
-
 #include <bdlat_attributeinfo.h>
 #include <bdlat_formattingmode.h>
 #include <bdlat_selectioninfo.h>
@@ -424,9 +421,6 @@ void printValue(bsl::ostream& out, const bslstl::StringRef& value)
 typedef balxml::Encoder        Encoder;
 typedef balxml::EncoderOptions EncoderOptions;
 typedef balxml::EncodingStyle  EncodingStyle;
-
-typedef balxml::Decoder           Decoder;
-typedef balxml::DecoderOptions    DecoderOptions;
 
 #define XSI " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
 

@@ -241,7 +241,7 @@ class BerEncoder {
       public:
         // CREATORS
         MemOutStream(bslma::Allocator *basicAllocator = 0);
-            // Create a 'MemOutStream' object Optionally specify a
+            // Create a 'MemOutStream' object.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
 
@@ -391,7 +391,7 @@ class BerEncoder {
     // CREATORS
     BerEncoder(const BerEncoderOptions *options        = 0,
                bslma::Allocator        *basicAllocator = 0);
-        // Construct a encoder object.  Optionally specify decoder 'options'.
+        // Construct an encoder object.  Optionally specify encoder 'options'.
         // If 'options' is 0, 'BerEncoderOptions()' is used.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
