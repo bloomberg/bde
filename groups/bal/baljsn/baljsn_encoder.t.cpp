@@ -32319,7 +32319,7 @@ int main(int argc, char *argv[])
                 Options opt;
                 opt.setDatetimeFractionalSecondPrecision(pi);
                 Impl impl(&encoder, oss.rdbuf(), opt);
-                impl.encode(theDatetime, 0);
+                ASSERTV(0 == impl.encode(theDatetime, 0));
                 bsl::string result = oss.str();
                 ASSERTV(pi, result, EXP, result == EXP);
             }
@@ -32345,7 +32345,7 @@ int main(int argc, char *argv[])
                 Options opt;
                 opt.setDatetimeFractionalSecondPrecision(pi);
                 Impl impl(&encoder, oss.rdbuf(), opt);
-                impl.encode(theDatetimeTz, 0);
+                ASSERTV(0 == impl.encode(theDatetimeTz, 0));
                 bsl::string result = oss.str();
                 ASSERTV(pi, result, EXP, result == EXP);
             }
