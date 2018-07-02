@@ -145,14 +145,6 @@ class LocalTimeDescriptor {
     // @DESCRIPTION in the component-level documentation for information on the
     // class attributes.  Note that the class invariants are identically the
     // constraints on the individual attributes.
-    //
-    // This class:
-    //: o supports a complete set of *value-semantic* operations
-    //:   o except for BDEX serialization
-    //: o is *exception-neutral* (agnostic)
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see 'bsldoc_glossary'.
 
     // DATA
     int         d_utcOffsetInSeconds;  // *signed* offset *from* UTC
