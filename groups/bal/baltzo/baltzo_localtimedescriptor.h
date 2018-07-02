@@ -134,6 +134,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
+
                          // =========================
                          // class LocalTimeDescriptor
                          // =========================
@@ -144,14 +145,6 @@ class LocalTimeDescriptor {
     // @DESCRIPTION in the component-level documentation for information on the
     // class attributes.  Note that the class invariants are identically the
     // constraints on the individual attributes.
-    //
-    // This class:
-    //: o supports a complete set of *value-semantic* operations
-    //:   o except for 'bdex' serialization
-    //: o is *exception-neutral* (agnostic)
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see 'bsldoc_glossary'.
 
     // DATA
     int         d_utcOffsetInSeconds;  // *signed* offset *from* UTC
@@ -161,6 +154,9 @@ class LocalTimeDescriptor {
 
     bsl::string d_description;         // *non-canonical* identifier for this
                                        // descriptor
+
+    // FRIENDS
+    friend void swap(LocalTimeDescriptor&, LocalTimeDescriptor&);
 
   public:
     // TRAITS
@@ -304,10 +300,9 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
 
 // FREE FUNCTIONS
 void swap(LocalTimeDescriptor& a, LocalTimeDescriptor& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 }  // close package namespace
 
@@ -320,7 +315,7 @@ void swap(LocalTimeDescriptor& a, LocalTimeDescriptor& b);
                          // -------------------------
 
 // CLASS METHODS
-    inline
+inline
 bool baltzo::LocalTimeDescriptor::isValidUtcOffsetInSeconds(int value)
 {
     return value >= -86399 && value <= 86399;
@@ -460,7 +455,9 @@ bool baltzo::operator!=(const LocalTimeDescriptor& lhs,
 inline
 void baltzo::swap(LocalTimeDescriptor& a, LocalTimeDescriptor& b)
 {
-    a.swap(b);
+    bslalg::SwapUtil::swap(&a.d_description,        &b.d_description);
+    bslalg::SwapUtil::swap(&a.d_dstInEffectFlag,    &b.d_dstInEffectFlag);
+    bslalg::SwapUtil::swap(&a.d_utcOffsetInSeconds, &b.d_utcOffsetInSeconds);
 }
 
 }  // close enterprise namespace
