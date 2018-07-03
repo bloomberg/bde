@@ -59,8 +59,8 @@ BSLS_IDENT("$Id: $")
 //
 // By default this allocator gets its memory from the C Standard Library
 // functions 'malloc' and 'free', but can be overridden to take memory from any
-// thread-safe allocator (supplied at construction) that implements the
-// 'bslma::Allocator' protocol.  Note that allocation and deallocation using a
+// allocator (supplied at construction) that implements the 'bslma::Allocator'
+// protocol.  Note that allocation and deallocation using a
 // 'bslma::TestAllocator' object is explicitly incompatible with 'malloc' and
 // 'free' (or any other allocation mechanism).  Attempting to use 'free' to
 // deallocate memory allocated from a 'bslma::TestAllocator' -- even when
@@ -145,9 +145,8 @@ BSLS_IDENT("$Id: $")
 ///Thread Safety
 ///-------------
 // The 'bslma::TestAllocator' class is fully thread-safe (see
-// 'bsldoc_glossary') provided that the allocator supplied at construction (if
-// any) is fully thread-safe.  Note that the 'bslma::MallocFreeAllocator'
-// singleton (the allocator used by the test allocator if none is supplied at
+// 'bsldoc_glossary').  Note that the 'bslma::MallocFreeAllocator' singleton
+// (the allocator used by the test allocator if none is supplied at
 // construction) is fully thread-safe.
 //
 ///Usage
@@ -336,8 +335,7 @@ class TestAllocator : public Allocator {
     // instead -- by default -- uses the 'MallocFreeAllocator' singleton, which
     // in turn calls the C Standard Library functions 'malloc' and 'free' as
     // needed.  Clients may, however, override this allocator by supplying (at
-    // construction) any other allocator implementing the 'Allocator' protocol
-    // provided that it is fully thread-safe.
+    // construction) any other allocator implementing the 'Allocator' protocol.
 
     // DATA
 
