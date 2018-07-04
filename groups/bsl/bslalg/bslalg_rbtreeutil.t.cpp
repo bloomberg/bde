@@ -5939,28 +5939,38 @@ int main(int argc, char *argv[])
             gg(&x, &nodes, SPEC, &assignIntNodeValue);
 
             FILE *output = fopen(fileName, "w");
-            BSLS_ASSERT_OPT(output);
 
-            Obj::printTreeStructure(output,
-                                    X.rootNode(),
-                                    printIntNodeValue,
-                                    LEVEL,
-                                    SPACES);
-            fflush(output);
-            fclose(output);
+            // The following assertion has been commented out and
+            // 'if (output) {...} else {...}' construction has been added to
+            // determine the root cause of nightly build failures on Windows
+            // platform (see DRQS 123794169).
 
-            FILE *input  = fopen(fileName, "r");
-            BSLS_ASSERT_OPT(input);
+            // BSLS_ASSERT_OPT(output);
 
-            memset(buffer, 0, BUFFER_SIZE);
-            while (0 != fgets(line, LINE_SIZE, input)) {
-                strncat(buffer, line, BUFFER_SIZE);
-            }
-            fclose(input);
+            if (output) {
+                Obj::printTreeStructure(output,
+                                        X.rootNode(),
+                                        printIntNodeValue,
+                                        LEVEL,
+                                        SPACES);
+                fflush(output);
+                fclose(output);
 
-            ASSERTV(LINE, buffer, EXP, 0 == strcmp(buffer, EXP));
-            if (veryVeryVerbose) {
-                P(buffer); P(EXP);
+                FILE *input  = fopen(fileName, "r");
+                BSLS_ASSERT_OPT(input);
+
+                memset(buffer, 0, BUFFER_SIZE);
+                while (0 != fgets(line, LINE_SIZE, input)) {
+                    strncat(buffer, line, BUFFER_SIZE);
+                }
+                fclose(input);
+
+                ASSERTV(LINE, buffer, EXP, 0 == strcmp(buffer, EXP));
+                if (veryVeryVerbose) {
+                    P(buffer); P(EXP);
+                }
+            } else {
+                ASSERTV(LINE, fileName, errno, false);
             }
         }
 
