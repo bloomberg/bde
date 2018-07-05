@@ -11,6 +11,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
@@ -255,102 +256,6 @@ const char *const LONGEST_STRING = "abc_" SUFFICIENTLY_LONG_STRING;
 // ============================================================================
 //                               TEST APPARATUS
 // ----------------------------------------------------------------------------
-// JSL: REMOVE THIS after it is moved to the test allocator.
-// JSL: change the name to 'TestAllocatorMonitor'.
-
-class TestAllocatorMonitor {
-    // TBD
-
-    // DATA
-    int                               d_lastInUse;
-    int                               d_lastMax;
-    int                               d_lastTotal;
-    const bslma::TestAllocator *const d_allocator_p;
-
-  public:
-    // CREATORS
-    TestAllocatorMonitor(const bslma::TestAllocator& basicAllocator);
-        // TBD
-
-    ~TestAllocatorMonitor();
-        // TBD
-
-    // ACCESSORS
-    bool isInUseSame() const;
-        // TBD
-
-    bool isInUseUp() const;
-        // TBD
-
-    bool isMaxSame() const;
-        // TBD
-
-    bool isMaxUp() const;
-        // TBD
-
-    bool isTotalSame() const;
-        // TBD
-
-    bool isTotalUp() const;
-        // TBD
-};
-
-// CREATORS
-inline
-TestAllocatorMonitor::TestAllocatorMonitor(
-                                    const bslma::TestAllocator& basicAllocator)
-: d_lastInUse(basicAllocator.numBlocksInUse())
-, d_lastMax(basicAllocator.numBlocksMax())
-, d_lastTotal(basicAllocator.numBlocksTotal())
-, d_allocator_p(&basicAllocator)
-{
-}
-
-inline
-TestAllocatorMonitor::~TestAllocatorMonitor()
-{
-}
-
-// ACCESSORS
-inline
-bool TestAllocatorMonitor::isInUseSame() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() == d_lastInUse;
-}
-
-inline
-bool TestAllocatorMonitor::isInUseUp() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() != d_lastInUse;
-}
-
-inline
-bool TestAllocatorMonitor::isMaxSame() const
-{
-    return d_allocator_p->numBlocksMax() == d_lastMax;
-}
-
-inline
-bool TestAllocatorMonitor::isMaxUp() const
-{
-    return d_allocator_p->numBlocksMax() != d_lastMax;
-}
-
-inline
-bool TestAllocatorMonitor::isTotalSame() const
-{
-    return d_allocator_p->numBlocksTotal() == d_lastTotal;
-}
-
-inline
-bool TestAllocatorMonitor::isTotalUp() const
-{
-    return d_allocator_p->numBlocksTotal() != d_lastTotal;
-}
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -728,7 +633,7 @@ int main(int argc, char *argv[])
                     const Obj  Z(VALUES[ui], &oau);
 
                     Out                        out(1);
-                    TestAllocatorMonitor oaum(oau), dam(da);
+                    bslma::TestAllocatorMonitor oaum(&oau), dam(&da);
                     LOOP_ASSERT(ui, &out == &(U.bdexStreamOut(out, version)));
                     LOOP_ASSERT(ui, oaum.isTotalSame());
                     LOOP_ASSERT(ui,  dam.isTotalSame());
@@ -756,7 +661,7 @@ int main(int argc, char *argv[])
                         BSLX_TESTINSTREAM_EXCEPTION_TEST_BEGIN(in) {
 
                             in.reset();
-                            TestAllocatorMonitor dam(da);
+                            bslma::TestAllocatorMonitor dam(&da);
                             LOOP_ASSERT(vi,
                                         &in == &(mV.bdexStreamIn(in,
                                                                  version)));
@@ -805,14 +710,14 @@ int main(int argc, char *argv[])
                       LOOP_ASSERT(i, in);
 
                       // read from empty
-                      TestAllocatorMonitor dam1(da);
+                      bslma::TestAllocatorMonitor dam1(&da);
                       LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, version)));
                       LOOP_ASSERT(i, dam1.isTotalSame());
                       LOOP_ASSERT(i, !in);
                       LOOP_ASSERT(i, X == t1);
 
                       // read from (the now) invalid stream
-                      TestAllocatorMonitor dam2(da);
+                      bslma::TestAllocatorMonitor dam2(&da);
                       LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, version)));
                       LOOP_ASSERT(i, dam2.isTotalSame());
                       LOOP_ASSERT(i, !in);
@@ -844,7 +749,7 @@ int main(int argc, char *argv[])
                     const void  *data  = out.data();
                     bsl::size_t length = out.length();
 
-                    TestAllocatorMonitor oam(oa), dam(da);
+                    bslma::TestAllocatorMonitor oam(&oa), dam(&da);
                     LOOP2_ASSERT(version, i, &out ==
                                              &(U.bdexStreamOut(out, version)));
                     LOOP2_ASSERT(version, i, dam.isTotalSame());
@@ -901,7 +806,7 @@ int main(int argc, char *argv[])
                   Obj t1(W1), t2(W2), t3(W3);
 
                   if (i < LOD1) {
-                      TestAllocatorMonitor dam1(da);
+                      bslma::TestAllocatorMonitor dam1(&da);
                       LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, dam1.isTotalSame());
                       LOOP_ASSERT(i, !in);
@@ -911,25 +816,25 @@ int main(int argc, char *argv[])
                                           t1.datetimeTz().dateTz().localDate(),
                                           t1.datetimeTz().offset()));
 
-                      TestAllocatorMonitor dam2(da);
+                      bslma::TestAllocatorMonitor dam2(&da);
                       LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, dam2.isTotalSame());
                       LOOP_ASSERT(i, !in);
                       LOOP_ASSERT(i, W2 == t2);
 
-                      TestAllocatorMonitor dam3(da);
+                      bslma::TestAllocatorMonitor dam3(&da);
                       LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, dam3.isTotalSame());
                       LOOP_ASSERT(i, !in);    LOOP_ASSERT(i, W3 == t3);
                   }
                   else if (i < LOD2) {
-                      TestAllocatorMonitor dam1(da);
+                      bslma::TestAllocatorMonitor dam1(&da);
                       LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, dam1.isTotalSame());
                       LOOP_ASSERT(i, in);
                       LOOP_ASSERT(i, X1 == t1);
 
-                      TestAllocatorMonitor dam2(da);
+                      bslma::TestAllocatorMonitor dam2(&da);
                       LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, dam2.isTotalSame());
                       LOOP_ASSERT(i, !in);
@@ -939,26 +844,26 @@ int main(int argc, char *argv[])
                                           t2.datetimeTz().dateTz().localDate(),
                                           t2.datetimeTz().offset()));
 
-                      TestAllocatorMonitor dam3(da);
+                      bslma::TestAllocatorMonitor dam3(&da);
                       LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, dam3.isTotalSame());
                       LOOP_ASSERT(i, !in);
                       LOOP_ASSERT(i, W3 == t3);
                   }
                   else {
-                      TestAllocatorMonitor dam1(da);
+                      bslma::TestAllocatorMonitor dam1(&da);
                       LOOP_ASSERT(i, &in == &(t1.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, dam1.isTotalSame());
                       LOOP_ASSERT(i, in);
                       LOOP_ASSERT(i, X1 == t1);
 
-                      TestAllocatorMonitor dam2(da);
+                      bslma::TestAllocatorMonitor dam2(&da);
                       LOOP_ASSERT(i, &in == &(t2.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, dam2.isTotalSame());
                       LOOP_ASSERT(i, in);
                       LOOP_ASSERT(i, X2 == t2);
 
-                      TestAllocatorMonitor dam3(da);
+                      bslma::TestAllocatorMonitor dam3(&da);
                       LOOP_ASSERT(i, &in == &(t3.bdexStreamIn(in, VERSION)));
                       LOOP_ASSERT(i, dam3.isTotalSame());
                       LOOP_ASSERT(i, !in);
@@ -1071,7 +976,7 @@ int main(int argc, char *argv[])
 
                 Obj t(X);  ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
                 In in(OD, LOD);  ASSERT(in);
-                TestAllocatorMonitor dam(da);
+                bslma::TestAllocatorMonitor dam(&da);
                 ASSERT(&in == &(t.bdexStreamIn(in, version)));
                 ASSERT(dam.isTotalSame());
                 ASSERT(in);
@@ -1094,7 +999,7 @@ int main(int argc, char *argv[])
                 Obj t(X);  ASSERT(W != t);  ASSERT(X == t);  ASSERT(Y != t);
                 In in(OD, LOD);  ASSERT(in);
                 in.setQuiet(!veryVerbose);
-                TestAllocatorMonitor dam(da);
+                bslma::TestAllocatorMonitor dam(&da);
                 ASSERT(&in == &(t.bdexStreamIn(in, version)));
                 ASSERT(dam.isTotalSame());
                 ASSERT(!in);
@@ -1117,7 +1022,7 @@ int main(int argc, char *argv[])
 
                 In in(OD, LOD);  ASSERT(in);
                 in.setQuiet(!veryVerbose);
-                TestAllocatorMonitor dam(da);
+                bslma::TestAllocatorMonitor dam(&da);
                 ASSERT(&in == &(t.bdexStreamIn(in, version)));
                 ASSERT(dam.isTotalSame());
                 ASSERT(!in);
@@ -1134,7 +1039,7 @@ int main(int argc, char *argv[])
                 ASSERT(out);
                 ASSERT(0 == out.length());
 
-                TestAllocatorMonitor oam(oa), dam(da);
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
                 ASSERT(&out == &(Y.bdexStreamOut(out, version)));
                 ASSERT(dam.isTotalSame());
                 ASSERT(oam.isTotalSame());
@@ -1150,7 +1055,7 @@ int main(int argc, char *argv[])
                 ASSERT(out);
                 ASSERT(0 == out.length());
 
-                TestAllocatorMonitor oam(oa), dam(da);
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
                 ASSERT(&out == &(Y.bdexStreamOut(out, version)));
                 ASSERT(dam.isTotalSame());
                 ASSERT(oam.isTotalSame());
@@ -1165,7 +1070,7 @@ int main(int argc, char *argv[])
                 ASSERT(out);
                 ASSERT(0 == out.length());
 
-                TestAllocatorMonitor oam(oa), dam(da);
+                bslma::TestAllocatorMonitor oam(&oa), dam(&da);
                 ASSERT(&out == &(Y.bdexStreamOut(out, version)));
                 ASSERT(dam.isTotalSame());
                 ASSERT(oam.isTotalSame());
@@ -1466,7 +1371,7 @@ int main(int argc, char *argv[])
                     LOOP4_ASSERT(LINE1, LINE2, Z, X,
                                  (Z == X) == (LINE1 == LINE2));
 
-                    TestAllocatorMonitor oam(oa), sam(scratch);
+                    bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1519,7 +1424,7 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(LINE1, ZZ, Z, ZZ == Z);
 
-                TestAllocatorMonitor oam(oa), sam(scratch);
+                bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1774,7 +1679,7 @@ int main(int argc, char *argv[])
 
             // member 'swap'
             {
-                TestAllocatorMonitor oam(oa);
+                bslma::TestAllocatorMonitor oam(&oa);
 
                 mW.swap(mW);
 
@@ -1785,7 +1690,7 @@ int main(int argc, char *argv[])
 
             // free function 'swap'
             {
-                TestAllocatorMonitor oam(oa);
+                bslma::TestAllocatorMonitor oam(&oa);
 
                 swap(mW, mW);
 
@@ -1815,7 +1720,7 @@ int main(int argc, char *argv[])
 
                 // member 'swap'
                 {
-                    TestAllocatorMonitor oam(oa);
+                    bslma::TestAllocatorMonitor oam(&oa);
 
                     mX.swap(mY);
 
@@ -1828,7 +1733,7 @@ int main(int argc, char *argv[])
 
                 // free function 'swap'
                 {
-                    TestAllocatorMonitor oam(oa);
+                    bslma::TestAllocatorMonitor oam(&oa);
 
                     swap(mX, mY);
 
@@ -1869,7 +1774,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(X) P(Y) }
 
-            TestAllocatorMonitor oam(oa);
+            bslma::TestAllocatorMonitor oam(&oa);
 
             invokeAdlSwap(mX, mY);
 
@@ -2483,7 +2388,7 @@ int main(int argc, char *argv[])
 
                     // Verify value, commutativity, and no memory allocation.
 
-                    TestAllocatorMonitor oaxm(oax), oaym(oay);
+                    bslma::TestAllocatorMonitor oaxm(&oax), oaym(&oay);
 
                     LOOP5_ASSERT(LINE1, LINE2, CONFIG, X, Y,  EXP == (X == Y));
                     LOOP5_ASSERT(LINE1, LINE2, CONFIG, Y, X,  EXP == (Y == X));
@@ -2920,7 +2825,7 @@ int main(int argc, char *argv[])
         {
             mX.setDatetimeTz(A1);
 
-            TestAllocatorMonitor oam(oa), dam(da);
+            bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             const T1& datetimeTz = X.datetimeTz();
             LOOP2_ASSERT(A1, datetimeTz, A1 == datetimeTz);
@@ -2932,7 +2837,7 @@ int main(int argc, char *argv[])
         {
             mX.setTimeZoneId(A2);
 
-            TestAllocatorMonitor oam(oa), dam(da);
+            bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             const T2& timeZoneId = X.timeZoneId();
             LOOP2_ASSERT(A2, timeZoneId, A2 == timeZoneId);
@@ -3503,7 +3408,7 @@ int main(int argc, char *argv[])
 
             // 'datetimeTz'
             {
-                TestAllocatorMonitor tam(oa);
+                bslma::TestAllocatorMonitor tam(&oa);
 
                 mX.setDatetimeTz(A1);
                 LOOP_ASSERT(CONFIG, A1 == X.datetimeTz());
@@ -3525,14 +3430,14 @@ int main(int argc, char *argv[])
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
-                    TestAllocatorMonitor tam(oa);
+                    bslma::TestAllocatorMonitor tam(&oa);
                     mX.setTimeZoneId(A2);
                     LOOP_ASSERT(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 LOOP_ASSERT(CONFIG, D1 == X.datetimeTz());
                 LOOP_ASSERT(CONFIG, A2 == X.timeZoneId());
 
-                TestAllocatorMonitor tam(oa);
+                bslma::TestAllocatorMonitor tam(&oa);
 
                 mX.setTimeZoneId(B2);
                 LOOP_ASSERT(CONFIG, D1 == X.datetimeTz());

@@ -15,6 +15,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwisemoveable.h>
@@ -71,7 +72,7 @@ using namespace bsl;
 // The usual, quantitative tests on memory allocations are not practical here
 // since, in this implementation, those details are encapsulated in an
 // underlying standard container ('bsl::vector').  Instead, qualitative tests
-// are done (using 'TestAllocatorMonitor' objects).
+// are done (using 'bslma::TestAllocatorMonitor' objects).
 //
 // Primary Manipulators:
 //: o 'append'
@@ -286,103 +287,6 @@ BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
 // ============================================================================
 //                               TEST APPARATUS
 // ----------------------------------------------------------------------------
-// JSL: REMOVE THIS after it is moved to the test allocator.
-// JSL: change the name to 'TestAllocatorMonitor'.
-
-class TestAllocatorMonitor {
-    // TBD
-
-    // DATA
-    Int64                              d_lastInUse;
-    Int64                              d_lastMax;
-    Int64                              d_lastTotal;
-    const bslma::TestAllocator *const d_allocator_p;
-
-  public:
-    // CREATORS
-    explicit
-    TestAllocatorMonitor(const bslma::TestAllocator& basicAllocator);
-        // TBD
-
-    ~TestAllocatorMonitor();
-        // TBD
-
-    // ACCESSORS
-    bool isInUseSame() const;
-        // TBD
-
-    bool isInUseUp() const;
-        // TBD
-
-    bool isMaxSame() const;
-        // TBD
-
-    bool isMaxUp() const;
-        // TBD
-
-    bool isTotalSame() const;
-        // TBD
-
-    bool isTotalUp() const;
-        // TBD
-};
-
-// CREATORS
-inline
-TestAllocatorMonitor::TestAllocatorMonitor(
-                                    const bslma::TestAllocator& basicAllocator)
-: d_lastInUse(basicAllocator.numBlocksInUse())
-, d_lastMax(basicAllocator.numBlocksMax())
-, d_lastTotal(basicAllocator.numBlocksTotal())
-, d_allocator_p(&basicAllocator)
-{
-}
-
-inline
-TestAllocatorMonitor::~TestAllocatorMonitor()
-{
-}
-
-// ACCESSORS
-inline
-bool TestAllocatorMonitor::isInUseSame() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() == d_lastInUse;
-}
-
-inline
-bool TestAllocatorMonitor::isInUseUp() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() != d_lastInUse;
-}
-
-inline
-bool TestAllocatorMonitor::isMaxSame() const
-{
-    return d_allocator_p->numBlocksMax() == d_lastMax;
-}
-
-inline
-bool TestAllocatorMonitor::isMaxUp() const
-{
-    return d_allocator_p->numBlocksMax() != d_lastMax;
-}
-
-inline
-bool TestAllocatorMonitor::isTotalSame() const
-{
-    return d_allocator_p->numBlocksTotal() == d_lastTotal;
-}
-
-inline
-bool TestAllocatorMonitor::isTotalUp() const
-{
-    return d_allocator_p->numBlocksTotal() != d_lastTotal;
-}
 
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -892,7 +796,7 @@ int main(int argc, char *argv[])
 
             // member 'swap'
             {
-                TestAllocatorMonitor oam(oa);
+                bslma::TestAllocatorMonitor oam(&oa);
 
                 mW.swap(mW);
 
@@ -903,7 +807,7 @@ int main(int argc, char *argv[])
 
             // free function 'swap'
             {
-                TestAllocatorMonitor oam(oa);
+                bslma::TestAllocatorMonitor oam(&oa);
 
                 swap(mW, mW);
 
@@ -926,7 +830,7 @@ int main(int argc, char *argv[])
 
                 // member 'swap'
                 {
-                    TestAllocatorMonitor oam(oa);
+                    bslma::TestAllocatorMonitor oam(&oa);
 
                     mX.swap(mY);
 
@@ -939,7 +843,7 @@ int main(int argc, char *argv[])
 
                 // free function 'swap'
                 {
-                    TestAllocatorMonitor oam(oa);
+                    bslma::TestAllocatorMonitor oam(&oa);
 
                     swap(mX, mY);
 
@@ -978,7 +882,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(X) P(Y) }
 
-            TestAllocatorMonitor oam(oa);
+            bslma::TestAllocatorMonitor oam(&oa);
 
             invokeAdlSwap(mX, mY);
 
@@ -2148,7 +2052,7 @@ int main(int argc, char *argv[])
                 const int STRETCH_SIZE = 50;
                 stretchRemoveAll(&x, STRETCH_SIZE);
 
-                TestAllocatorMonitor tam(testAllocator);
+                bslma::TestAllocatorMonitor tam(&testAllocator);
 
                 if (veryVerbose) cout << "\t\tappend(item)" << endl;
                 if ((int)strlen(D_SPEC) == DI && 1 == NE) {
@@ -2533,7 +2437,7 @@ int main(int argc, char *argv[])
                 const int STRETCH_SIZE = 50;
                 stretchRemoveAll(&x, STRETCH_SIZE);
 
-                TestAllocatorMonitor tam(testAllocator);
+                bslma::TestAllocatorMonitor tam(&testAllocator);
 
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -4267,7 +4171,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\tOn an object of initial length 0." << endl;
             Obj mX(&testAllocator);  const Obj& X = mX;
 
-            TestAllocatorMonitor tam(testAllocator);
+            bslma::TestAllocatorMonitor tam(&testAllocator);
 
             if (veryVerbose) { cout << "\t\tBEFORE: "; P(X); }
             mX.append(V0);
@@ -4283,7 +4187,7 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.append(V0);
 
-            TestAllocatorMonitor tam(testAllocator);
+            bslma::TestAllocatorMonitor tam(&testAllocator);
 
             if (veryVerbose) { cout << "\t\tBEFORE: "; P(X); }
             mX.append(V1);
@@ -4299,7 +4203,7 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.append(V0); mX.append(V1);
 
-            TestAllocatorMonitor tam(testAllocator);
+            bslma::TestAllocatorMonitor tam(&testAllocator);
 
             if (veryVerbose) { cout << "\t\tBEFORE: "; P(X); }
             mX.append(V2);
@@ -4316,7 +4220,7 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.append(V0); mX.append(V1); mX.append(V2);
 
-            TestAllocatorMonitor tam(testAllocator);
+            bslma::TestAllocatorMonitor tam(&testAllocator);
 
             if (veryVerbose) { cout << "\t\tBEFORE: "; P(X); }
             mX.append(V3);
@@ -4334,7 +4238,7 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX.append(V0); mX.append(V1); mX.append(V2); mX.append(V3);
 
-            TestAllocatorMonitor tam(testAllocator);
+            bslma::TestAllocatorMonitor tam(&testAllocator);
 
             if (veryVerbose) { cout << "\t\tBEFORE: "; P(X); }
             mX.append(V4);
@@ -4357,7 +4261,7 @@ int main(int argc, char *argv[])
             Obj mX(&testAllocator);  const Obj& X = mX;
             ASSERT(0 == X.length());
 
-            TestAllocatorMonitor tam(testAllocator);
+            bslma::TestAllocatorMonitor tam(&testAllocator);
 
             if (veryVerbose) { cout << "\t\tBEFORE: "; P(X); }
             mX.removeAll();
@@ -4373,7 +4277,7 @@ int main(int argc, char *argv[])
             mX.append(V0);
             ASSERT(1 == X.length());
 
-            TestAllocatorMonitor tam(testAllocator);
+            bslma::TestAllocatorMonitor tam(&testAllocator);
 
             if (veryVerbose) { cout << "\t\tBEFORE: "; P(X); }
             mX.removeAll();
@@ -4389,7 +4293,7 @@ int main(int argc, char *argv[])
             mX.append(V0); mX.append(V1);
             ASSERT(2 == X.length());
 
-            TestAllocatorMonitor tam(testAllocator);
+            bslma::TestAllocatorMonitor tam(&testAllocator);
 
             if (veryVerbose) { cout << "\t\tBEFORE: "; P(X); }
             mX.removeAll();
@@ -4405,7 +4309,7 @@ int main(int argc, char *argv[])
             mX.append(V0); mX.append(V1); mX.append(V2);
             ASSERT(3 == X.length());
 
-            TestAllocatorMonitor tam(testAllocator);
+            bslma::TestAllocatorMonitor tam(&testAllocator);
 
             if (veryVerbose) { cout << "\t\tBEFORE: "; P(X); }
             mX.removeAll();
