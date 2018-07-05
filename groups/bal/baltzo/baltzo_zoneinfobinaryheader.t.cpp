@@ -7,6 +7,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
 
@@ -410,102 +411,6 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 // ============================================================================
 //                               TEST APPARATUS
 // ----------------------------------------------------------------------------
-// JSL: REMOVE THIS after it is moved to the test allocator.
-// JSL: change the name to 'TestAllocatorMonitor'.
-
-class TestAllocatorMonitor {
-    // TBD
-
-    // DATA
-    int                               d_lastInUse;
-    int                               d_lastMax;
-    int                               d_lastTotal;
-    const bslma::TestAllocator *const d_allocator_p;
-
-  public:
-    // CREATORS
-    TestAllocatorMonitor(const bslma::TestAllocator& basicAllocator);
-        // TBD
-
-    ~TestAllocatorMonitor();
-        // TBD
-
-    // ACCESSORS
-    bool isInUseSame() const;
-        // TBD
-
-    bool isInUseUp() const;
-        // TBD
-
-    bool isMaxSame() const;
-        // TBD
-
-    bool isMaxUp() const;
-        // TBD
-
-    bool isTotalSame() const;
-        // TBD
-
-    bool isTotalUp() const;
-        // TBD
-};
-
-// CREATORS
-inline
-TestAllocatorMonitor::TestAllocatorMonitor(
-                                    const bslma::TestAllocator& basicAllocator)
-: d_lastInUse(basicAllocator.numBlocksInUse())
-, d_lastMax(basicAllocator.numBlocksMax())
-, d_lastTotal(basicAllocator.numBlocksTotal())
-, d_allocator_p(&basicAllocator)
-{
-}
-
-inline
-TestAllocatorMonitor::~TestAllocatorMonitor()
-{
-}
-
-// ACCESSORS
-inline
-bool TestAllocatorMonitor::isInUseSame() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() == d_lastInUse;
-}
-
-inline
-bool TestAllocatorMonitor::isInUseUp() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() != d_lastInUse;
-}
-
-inline
-bool TestAllocatorMonitor::isMaxSame() const
-{
-    return d_allocator_p->numBlocksMax() == d_lastMax;
-}
-
-inline
-bool TestAllocatorMonitor::isMaxUp() const
-{
-    return d_allocator_p->numBlocksMax() != d_lastMax;
-}
-
-inline
-bool TestAllocatorMonitor::isTotalSame() const
-{
-    return d_allocator_p->numBlocksTotal() == d_lastTotal;
-}
-
-inline
-bool TestAllocatorMonitor::isTotalUp() const
-{
-    return d_allocator_p->numBlocksTotal() != d_lastTotal;
-}
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -1848,7 +1753,7 @@ int main(int argc, char *argv[])
 
                 // Verify value, commutativity, and no memory allocation.
 
-                TestAllocatorMonitor dam(da);
+                bslma::TestAllocatorMonitor dam(&da);
 
                 LOOP5_ASSERT(LINE1, LINE2, EXP, X, Y,  EXP == (X == Y));
                 LOOP5_ASSERT(LINE1, LINE2, EXP, Y, X,  EXP == (Y == X));
@@ -2338,7 +2243,7 @@ int main(int argc, char *argv[])
         {
             mX.setVersion(A1);
 
-            TestAllocatorMonitor dam(da);
+            bslma::TestAllocatorMonitor dam(&da);
 
             const T1& version = X.version();
             LOOP2_ASSERT(A1, version, A1 == version);
@@ -2350,7 +2255,7 @@ int main(int argc, char *argv[])
         {
             mX.setNumIsGmt(A2);
 
-            TestAllocatorMonitor dam(da);
+            bslma::TestAllocatorMonitor dam(&da);
 
             const T2& numIsGmt = X.numIsGmt();
             LOOP2_ASSERT(A2, numIsGmt, A2 == numIsGmt);
@@ -2362,7 +2267,7 @@ int main(int argc, char *argv[])
         {
             mX.setNumIsStd(A3);
 
-            TestAllocatorMonitor dam(da);
+            bslma::TestAllocatorMonitor dam(&da);
 
             const T3& numIsStd = X.numIsStd();
             LOOP2_ASSERT(A3, numIsStd, A3 == numIsStd);
@@ -2374,7 +2279,7 @@ int main(int argc, char *argv[])
         {
             mX.setNumLeaps(A4);
 
-            TestAllocatorMonitor dam(da);
+            bslma::TestAllocatorMonitor dam(&da);
 
             const T4& numLeaps = X.numLeaps();
             LOOP2_ASSERT(A4, numLeaps, A4 == numLeaps);
@@ -2386,7 +2291,7 @@ int main(int argc, char *argv[])
         {
             mX.setNumTransitions(A5);
 
-            TestAllocatorMonitor dam(da);
+            bslma::TestAllocatorMonitor dam(&da);
 
             const T5& numTransitions = X.numTransitions();
             LOOP2_ASSERT(A5, numTransitions, A5 == numTransitions);
@@ -2398,7 +2303,7 @@ int main(int argc, char *argv[])
         {
             mX.setNumLocalTimeTypes(A6);
 
-            TestAllocatorMonitor dam(da);
+            bslma::TestAllocatorMonitor dam(&da);
 
             const T6& numLocalTimeTypes = X.numLocalTimeTypes();
             LOOP2_ASSERT(A6, numLocalTimeTypes, A6 == numLocalTimeTypes);
@@ -2410,7 +2315,7 @@ int main(int argc, char *argv[])
         {
             mX.setAbbrevDataSize(A7);
 
-            TestAllocatorMonitor dam(da);
+            bslma::TestAllocatorMonitor dam(&da);
 
             const T7& abbrevDataSize = X.abbrevDataSize();
             LOOP2_ASSERT(A7, abbrevDataSize, A7 == abbrevDataSize);
@@ -3046,7 +2951,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ Q(version) }
         {
-            TestAllocatorMonitor tam(da);
+            bslma::TestAllocatorMonitor tam(&da);
 
             mX.setVersion(A1);
             ASSERT(A1 == X.version());           // version
@@ -3080,7 +2985,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ Q(numIsGmt) }
         {
-            TestAllocatorMonitor tam(da);
+            bslma::TestAllocatorMonitor tam(&da);
 
             mX.setNumIsGmt(A2);
             ASSERT(D1 == X.version());
@@ -3114,7 +3019,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ Q(numIsStd) }
         {
-            TestAllocatorMonitor tam(da);
+            bslma::TestAllocatorMonitor tam(&da);
 
             mX.setNumIsStd(A3);
             ASSERT(D1 == X.version());
@@ -3148,7 +3053,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ Q(numLeaps) }
         {
-            TestAllocatorMonitor tam(da);
+            bslma::TestAllocatorMonitor tam(&da);
 
             mX.setNumLeaps(A4);
             ASSERT(D1 == X.version());
@@ -3182,7 +3087,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ Q(numTransitions) }
         {
-            TestAllocatorMonitor tam(da);
+            bslma::TestAllocatorMonitor tam(&da);
 
             mX.setNumTransitions(A5);
             ASSERT(D1 == X.version());
@@ -3216,7 +3121,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ Q(numLocalTimeTypes) }
         {
-            TestAllocatorMonitor tam(da);
+            bslma::TestAllocatorMonitor tam(&da);
 
             mX.setNumLocalTimeTypes(A6);
             ASSERT(D1 == X.version());
@@ -3250,7 +3155,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ Q(abbrevDataSize) }
         {
-            TestAllocatorMonitor tam(da);
+            bslma::TestAllocatorMonitor tam(&da);
 
             mX.setAbbrevDataSize(A7);
             ASSERT(D1 == X.version());
@@ -3284,7 +3189,7 @@ int main(int argc, char *argv[])
 
         // Corroborate attribute independence.
         {
-            TestAllocatorMonitor tam(da);
+            bslma::TestAllocatorMonitor tam(&da);
 
             // Set all attributes to their 'A' values.
 
