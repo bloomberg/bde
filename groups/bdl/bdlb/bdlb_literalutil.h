@@ -1,6 +1,7 @@
 // bdlb_literalutil.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLB_LITERALUTIL
 #define INCLUDED_BDLB_LITERALUTIL
+
 # include <bsls_ident.h>
 BSLS_IDENT("$Id$")
 
@@ -14,10 +15,9 @@ BSLS_IDENT("$Id$")
 //@DESCRIPTION: This component provides a namespace, 'bdlb::LiteralUtil', for a
 // set of utility routines that operate on (programming language) literals.
 
-#ifndef INCLUDED_BSLSCM_VERSION
-# include <bdlscm_version.h>
-#endif
-# include <bsl_string.h>
+#include <bdlscm_version.h>
+
+#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace bdlb {

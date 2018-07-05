@@ -246,9 +246,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 #include <bslma_usesbslmaallocator.h>
 
-#ifndef INCLUDED_BSLMA_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
@@ -263,6 +261,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
+
                           // ========================
                           // class ZoneinfoTransition
                           // ========================
