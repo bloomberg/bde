@@ -184,7 +184,7 @@ int DataFileLoader::loadTimeZone(Zoneinfo *result, const char *timeZoneId)
 
 // ACCESSORS
 int DataFileLoader::loadTimeZoneFilePath(bsl::string *result,
-                                                 const char  *timeZoneId) const
+                                         const char  *timeZoneId) const
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -210,7 +210,7 @@ const bsl::string& DataFileLoader::rootPath() const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
