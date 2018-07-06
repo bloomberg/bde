@@ -122,8 +122,7 @@ void DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
     }
 }
 
-ZoneinfoCache *DefaultZoneinfoCache::setDefaultCache(
-                                                          ZoneinfoCache *cache)
+ZoneinfoCache *DefaultZoneinfoCache::setDefaultCache(ZoneinfoCache *cache)
 {
     ZoneinfoCache *previous = userSingletonCachePtr;
     userSingletonCachePtr = cache;
