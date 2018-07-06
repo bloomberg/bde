@@ -12496,6 +12496,7 @@ BID128_FUNCTION_ARG1 (bid128_tan, x)
 // since no range reduction is needed and the function is well-conditioned
 
   if (e < -35)
+   {
      if (e < -52)
       { BIDECIMAL_CALL3(bid128_fma,res,x,BID128_10PP40,x);
         BID_RETURN(res);
@@ -12506,6 +12507,7 @@ BID128_FUNCTION_ARG1 (bid128_tan, x)
         BIDECIMAL_CALL1(binary128_to_bid128,res,yd);
         BID_RETURN(res);
       }
+   }
 
 // Pick out the appropriate modulus for the exponent and multiply by coeff
 // Since we discard the top word p.w[3], we could specially optimize this.

@@ -275,7 +275,7 @@ UX_LGAMMA(UX_FLOAT * unpacked_argument, int * signgam,
     cnt = G_UX_SIGN(&fraction_part) >> (BITS_PER_UX_SIGN_TYPE - 1);
     sign = G_UX_SIGN(unpacked_argument);
     floor_2x = cnt + (sign ? - I : I);
-//printf("DGAMMA 1\n");
+    //printf("DGAMMA 1\n");
     /*
     ** If input was a negative integer, force "underflow" error.  By convention
     ** signgam = 1 for these cases
@@ -294,7 +294,7 @@ UX_LGAMMA(UX_FLOAT * unpacked_argument, int * signgam,
     *signgam = 1 - ((sign >> (BITS_PER_UX_SIGN_TYPE - 2)) & (floor_2x & 2));
 
     if (exponent < 5)
-	{ /* | x | < 16
+    { /* | x | < 16 */
 
         /* Set initial product to 1 and get  */
 
@@ -336,7 +336,7 @@ UX_LGAMMA(UX_FLOAT * unpacked_argument, int * signgam,
             EVALUATE_RATIONAL(
                 &reduced_argument,
                 LGAMMA_P_COEF_ARRAY,
-	        LGAMMA_P_COEF_ARRAY_DEGREE,
+            LGAMMA_P_COEF_ARRAY_DEGREE,
                 NUMERATOR_FLAGS( STANDARD ) | DENOMINATOR_FLAGS( STANDARD ),
                 &tmp[1]
                 );
@@ -398,7 +398,7 @@ UX_LGAMMA(UX_FLOAT * unpacked_argument, int * signgam,
             );
         // ADDSUB(unpacked_result, unpacked_argument, ADD, unpacked_result);
         ADDSUB(unpacked_result, &tmp[1], ADD, unpacked_result);
-        
+
         if (sign)
             {
             /*
