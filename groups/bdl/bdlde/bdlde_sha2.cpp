@@ -1,5 +1,5 @@
 // bdlde_sha2.cpp                                                     -*-C++-*-
-#include "bdlde_sha2.h"
+#include <bdlde_sha2.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_ostream.h>
@@ -649,8 +649,10 @@ bsl::ostream& Sha512::print(bsl::ostream& stream) const
     return stream;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
-bool operator==(const Sha224& lhs, const Sha224& rhs)
+bool bdlde::operator==(const Sha224& lhs, const Sha224& rhs)
 {
     return lhs.d_totalSize  == rhs.d_totalSize
         && lhs.d_bufferSize == rhs.d_bufferSize
@@ -660,7 +662,7 @@ bool operator==(const Sha224& lhs, const Sha224& rhs)
         && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
 }
 
-bool operator==(const Sha256& lhs, const Sha256& rhs)
+bool bdlde::operator==(const Sha256& lhs, const Sha256& rhs)
 {
     return lhs.d_totalSize  == rhs.d_totalSize
         && lhs.d_bufferSize == rhs.d_bufferSize
@@ -670,7 +672,7 @@ bool operator==(const Sha256& lhs, const Sha256& rhs)
         && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
 }
 
-bool operator==(const Sha384& lhs, const Sha384& rhs)
+bool bdlde::operator==(const Sha384& lhs, const Sha384& rhs)
 {
     return lhs.d_totalSize  == rhs.d_totalSize
         && lhs.d_bufferSize == rhs.d_bufferSize
@@ -680,7 +682,7 @@ bool operator==(const Sha384& lhs, const Sha384& rhs)
         && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
 }
 
-bool operator==(const Sha512& lhs, const Sha512& rhs)
+bool bdlde::operator==(const Sha512& lhs, const Sha512& rhs)
 {
     return lhs.d_totalSize  == rhs.d_totalSize
         && lhs.d_bufferSize == rhs.d_bufferSize
@@ -690,5 +692,20 @@ bool operator==(const Sha512& lhs, const Sha512& rhs)
         && bsl::equal(lhs.d_state, lhs.d_state + 8, rhs.d_state);
 }
 
-} // close package namespace
-} // close enterprise namespace
+}  // close enterprise namespace
+
+// ----------------------------------------------------------------------------
+// Copyright 2018 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -609,8 +609,6 @@ void swap(Zoneinfo& a, Zoneinfo& b);
     // behavior is undefined if the two objects being swapped have non-equal
     // allocators.
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -621,9 +619,8 @@ void swap(Zoneinfo& a, Zoneinfo& b);
 
 // PRIVATE CREATORS
 inline
-baltzo::ZoneinfoTransition::ZoneinfoTransition(
-                                         bdlt::EpochUtil::TimeT64   utcTime,
-                                         const LocalTimeDescriptor *descriptor)
+ZoneinfoTransition::ZoneinfoTransition(bdlt::EpochUtil::TimeT64   utcTime,
+                                       const LocalTimeDescriptor *descriptor)
 : d_utcTime(utcTime)
 , d_descriptor_p(descriptor)
 {
@@ -632,24 +629,25 @@ baltzo::ZoneinfoTransition::ZoneinfoTransition(
 
 // CREATORS
 inline
-baltzo::ZoneinfoTransition::~ZoneinfoTransition()
+ZoneinfoTransition::~ZoneinfoTransition()
 {
     BSLS_ASSERT_SAFE(d_descriptor_p);
 }
 
 // ACCESSORS
 inline
-const baltzo::LocalTimeDescriptor&
-baltzo::ZoneinfoTransition::descriptor() const
+const LocalTimeDescriptor& ZoneinfoTransition::descriptor() const
 {
     return *d_descriptor_p;
 }
 
 inline
-bdlt::EpochUtil::TimeT64 baltzo::ZoneinfoTransition::utcTime() const
+bdlt::EpochUtil::TimeT64 ZoneinfoTransition::utcTime() const
 {
     return d_utcTime;
 }
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline
@@ -674,13 +672,15 @@ bool baltzo::operator<(const ZoneinfoTransition& lhs,
     return lhs.utcTime() < rhs.utcTime();
 }
 
+namespace baltzo {
+
                                // --------------
                                // class Zoneinfo
                                // --------------
 
 // CREATORS
 inline
-baltzo::Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
+Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
 : d_identifier(basicAllocator)
 , d_descriptors(basicAllocator)
 , d_transitions(basicAllocator)
@@ -691,14 +691,14 @@ baltzo::Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
 
 // MANIPULATORS
 inline
-baltzo::Zoneinfo& baltzo::Zoneinfo::operator=(const Zoneinfo& rhs)
+Zoneinfo& Zoneinfo::operator=(const Zoneinfo& rhs)
 {
     Zoneinfo(rhs, d_allocator_p).swap(*this);
     return *this;
 }
 
 inline
-void baltzo::Zoneinfo::setIdentifier(const bslstl::StringRef& value)
+void Zoneinfo::setIdentifier(const bslstl::StringRef& value)
 {
     BSLS_ASSERT_SAFE(0 != value.data());
 
@@ -706,7 +706,7 @@ void baltzo::Zoneinfo::setIdentifier(const bslstl::StringRef& value)
 }
 
 inline
-void baltzo::Zoneinfo::setIdentifier(const char *value)
+void Zoneinfo::setIdentifier(const char *value)
 {
     BSLS_ASSERT_SAFE(value);
 
@@ -714,8 +714,7 @@ void baltzo::Zoneinfo::setIdentifier(const char *value)
 }
 
 inline
-void baltzo::Zoneinfo::setPosixExtendedRangeDescription(
-                                                const bslstl::StringRef& value)
+void Zoneinfo::setPosixExtendedRangeDescription(const bslstl::StringRef& value)
 {
     BSLS_ASSERT_SAFE(0 != value.data());
 
@@ -723,7 +722,7 @@ void baltzo::Zoneinfo::setPosixExtendedRangeDescription(
 }
 
 inline
-void baltzo::Zoneinfo::setPosixExtendedRangeDescription(const char *value)
+void Zoneinfo::setPosixExtendedRangeDescription(const char *value)
 {
     BSLS_ASSERT_SAFE(value);
 
@@ -731,7 +730,7 @@ void baltzo::Zoneinfo::setPosixExtendedRangeDescription(const char *value)
 }
 
 inline
-void baltzo::Zoneinfo::swap(Zoneinfo& other)
+void Zoneinfo::swap(Zoneinfo& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
@@ -744,13 +743,13 @@ void baltzo::Zoneinfo::swap(Zoneinfo& other)
 
 // ACCESSORS
 inline
-bslma::Allocator *baltzo::Zoneinfo::allocator() const
+bslma::Allocator *Zoneinfo::allocator() const
 {
     return d_allocator_p;
 }
 
 inline
-const baltzo::ZoneinfoTransition& baltzo::Zoneinfo::firstTransition() const
+const ZoneinfoTransition& Zoneinfo::firstTransition() const
 {
     BSLS_ASSERT_SAFE(numTransitions() > 0);
 
@@ -758,36 +757,38 @@ const baltzo::ZoneinfoTransition& baltzo::Zoneinfo::firstTransition() const
 }
 
 inline
-const bsl::string& baltzo::Zoneinfo::identifier() const
+const bsl::string& Zoneinfo::identifier() const
 {
     return d_identifier;
 }
 
 inline
-const bsl::string& baltzo::Zoneinfo::posixExtendedRangeDescription() const
+const bsl::string& Zoneinfo::posixExtendedRangeDescription() const
 {
     return d_posixExtendedRangeDescription;
 }
 
 inline
-bsl::size_t baltzo::Zoneinfo::numTransitions() const
+bsl::size_t Zoneinfo::numTransitions() const
 {
     return d_transitions.size();
 }
 
 inline
-baltzo::Zoneinfo::TransitionConstIterator
-baltzo::Zoneinfo::beginTransitions() const
+Zoneinfo::TransitionConstIterator
+Zoneinfo::beginTransitions() const
 {
     return d_transitions.begin();
 }
 
 inline
-baltzo::Zoneinfo::TransitionConstIterator
-baltzo::Zoneinfo::endTransitions() const
+Zoneinfo::TransitionConstIterator
+Zoneinfo::endTransitions() const
 {
     return d_transitions.end();
 }
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline
@@ -817,11 +818,10 @@ void baltzo::swap(Zoneinfo& a, Zoneinfo& b)
 
 }  // close enterprise namespace
 
-
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

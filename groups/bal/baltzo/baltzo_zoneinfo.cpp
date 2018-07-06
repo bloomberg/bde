@@ -37,15 +37,17 @@ bool containsDescriptor(
     return false;
 }
 
+namespace baltzo {
+
                           // ------------------------
                           // class ZoneinfoTransition
                           // ------------------------
 
 // ACCESSORS
 bsl::ostream&
-baltzo::ZoneinfoTransition::print(bsl::ostream& stream,
-                                  int           level,
-                                  int           spacesPerLevel) const
+ZoneinfoTransition::print(bsl::ostream& stream,
+                          int           level,
+                          int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -93,6 +95,8 @@ baltzo::ZoneinfoTransition::print(bsl::ostream& stream,
     return stream;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 bsl::ostream& baltzo::operator<<(bsl::ostream&             stream,
                                  const ZoneinfoTransition& object)
@@ -114,13 +118,14 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&             stream,
     return stream;
 }
 
+namespace baltzo {
+
                        // ------------------------------
                        // class Zoneinfo::DescriptorLess
                        // ------------------------------
 
 // ACCESSORS
-bool baltzo::Zoneinfo::DescriptorLess::operator()(
-                                          const LocalTimeDescriptor& lhs,
+bool Zoneinfo::DescriptorLess::operator()(const LocalTimeDescriptor& lhs,
                                           const LocalTimeDescriptor& rhs) const
 {
     if (lhs.utcOffsetInSeconds() != rhs.utcOffsetInSeconds()) {
@@ -140,22 +145,21 @@ bool baltzo::Zoneinfo::DescriptorLess::operator()(
 
 // CLASS METHODS
 #ifndef BDE_OPENSOURCE_PUBLICATION
-bdlt::EpochUtil::TimeT64 baltzo::Zoneinfo::convertToTimeT64(
+bdlt::EpochUtil::TimeT64 Zoneinfo::convertToTimeT64(
                                                 const bdlt::Datetime& datetime)
 {
     return bdlt::EpochUtil::convertToTimeT64(datetime);
 }
 
-int baltzo::Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,
-                                         bdlt::EpochUtil::TimeT64  time)
+int Zoneinfo::convertFromTimeT64(bdlt::Datetime           *result,
+                                 bdlt::EpochUtil::TimeT64  time)
 {
     return bdlt::EpochUtil::convertFromTimeT64(result, time);
 }
 #endif
 
 // CREATORS
-baltzo::Zoneinfo::Zoneinfo(const Zoneinfo&   original,
-                           bslma::Allocator *basicAllocator)
+Zoneinfo::Zoneinfo(const Zoneinfo& original, bslma::Allocator *basicAllocator)
 : d_identifier(original.d_identifier, basicAllocator)
 , d_descriptors(original.d_descriptors, basicAllocator)
 , d_transitions(basicAllocator)
@@ -171,8 +175,8 @@ baltzo::Zoneinfo::Zoneinfo(const Zoneinfo&   original,
 }
 
 // MANIPULATORS
-void baltzo::Zoneinfo::addTransition(bdlt::EpochUtil::TimeT64   utcTime,
-                                     const LocalTimeDescriptor& descriptor)
+void Zoneinfo::addTransition(bdlt::EpochUtil::TimeT64   utcTime,
+                             const LocalTimeDescriptor& descriptor)
 {
     typedef bsl::vector<ZoneinfoTransition>::iterator
                                                             TransitionIterator;
@@ -218,8 +222,8 @@ void baltzo::Zoneinfo::addTransition(bdlt::EpochUtil::TimeT64   utcTime,
 }
 
 // ACCESSORS
-baltzo::Zoneinfo::TransitionConstIterator
-baltzo::Zoneinfo::findTransitionForUtcTime(const bdlt::Datetime& utcTime) const
+Zoneinfo::TransitionConstIterator
+Zoneinfo::findTransitionForUtcTime(const bdlt::Datetime& utcTime) const
 {
     BSLS_ASSERT_SAFE(numTransitions() > 0);
     BSLS_ASSERT_SAFE(d_transitions.front().utcTime() <=
@@ -243,9 +247,9 @@ baltzo::Zoneinfo::findTransitionForUtcTime(const bdlt::Datetime& utcTime) const
     return it;
 }
 
-bsl::ostream& baltzo::Zoneinfo::print(bsl::ostream& stream,
-                                      int           level,
-                                      int           spacesPerLevel) const
+bsl::ostream& Zoneinfo::print(bsl::ostream& stream,
+                              int           level,
+                              int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -298,9 +302,10 @@ bsl::ostream& baltzo::Zoneinfo::print(bsl::ostream& stream,
     return stream;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
-bsl::ostream& baltzo::operator<<(bsl::ostream&   stream,
-                                 const Zoneinfo& object)
+bsl::ostream& baltzo::operator<<(bsl::ostream& stream, const Zoneinfo& object)
 {
     stream << "[ \"" << object.identifier() << "\" "
            <<   "\"" << object.posixExtendedRangeDescription() << "\" [";
@@ -318,7 +323,7 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&   stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

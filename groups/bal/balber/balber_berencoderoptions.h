@@ -371,7 +371,8 @@ inline
 bsl::ostream& operator<<(bsl::ostream& stream, const BerEncoderOptions& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and return a
     // reference to the modifiable 'stream'.
-}
+
+}  // close package namespace
 
 // TRAITS
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(balber::BerEncoderOptions)
@@ -767,9 +768,7 @@ bool BerEncoderOptions::disableUnselectedChoiceEncoding() const
 
 }  // close package namespace
 
-
 // FREE FUNCTIONS
-
 inline
 bool balber::operator==(const BerEncoderOptions& lhs,
                         const BerEncoderOptions& rhs)
@@ -807,11 +806,12 @@ bsl::ostream& balber::operator<<(bsl::ostream&            stream,
     return rhs.print(stream, 0, -1);
 }
 
-}  // close enterpsie namespace
+}  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

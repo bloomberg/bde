@@ -166,8 +166,8 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
-
 namespace balst {
+
                            // =====================
                            // class StackTraceFrame
                            // =====================
@@ -684,13 +684,6 @@ bslma::Allocator *StackTraceFrame::allocator() const
     return d_symbolName.get_allocator().mechanism();
 }
 
-// FREE FUNCTIONS
-inline
-void swap(StackTraceFrame& a, StackTraceFrame& b)
-{
-    a.swap(b);
-}
-
 }  // close package namespace
 
 // FREE OPERATORS
@@ -718,11 +711,19 @@ bool balst::operator!=(const StackTraceFrame& lhs, const StackTraceFrame& rhs)
         || lhs.symbolName()        != rhs.symbolName();
 }
 
+// FREE FUNCTIONS
+inline
+void balst::swap(StackTraceFrame& a, StackTraceFrame& b)
+{
+    a.swap(b);
+}
+
 }  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

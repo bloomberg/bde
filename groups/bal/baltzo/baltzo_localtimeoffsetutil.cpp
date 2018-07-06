@@ -20,15 +20,16 @@
 #include <bsl_cstring.h>  // memcpy
 
 namespace BloombergLP {
+namespace baltzo {
+
                          // --------------------------
                          // struct LocalTimeOffsetUtil
                          // --------------------------
 
 // PRIVATE CLASS METHODS
 inline
-int baltzo::LocalTimeOffsetUtil::configureImp(
-                                            const char            *timezone,
-                                            const bdlt::Datetime&  utcDatetime)
+int LocalTimeOffsetUtil::configureImp(const char            *timezone,
+                                      const bdlt::Datetime&  utcDatetime)
 {
     BSLS_ASSERT(timezone);
 
@@ -45,27 +46,27 @@ int baltzo::LocalTimeOffsetUtil::configureImp(
 }
 
 inline
-baltzo::LocalTimePeriod *baltzo::LocalTimeOffsetUtil::privateLocalTimePeriod()
+LocalTimePeriod *LocalTimeOffsetUtil::privateLocalTimePeriod()
 {
     static LocalTimePeriod localTimePeriod(bslma::Default::globalAllocator());
     return &localTimePeriod;
 }
 
 inline
-bslmt::RWMutex *baltzo::LocalTimeOffsetUtil::privateLock()
+bslmt::RWMutex *LocalTimeOffsetUtil::privateLock()
 {
     static bslmt::RWMutex lock;
     return &lock;
 }
 
-bsl::string *baltzo::LocalTimeOffsetUtil::privateTimezone()
+bsl::string *LocalTimeOffsetUtil::privateTimezone()
 {
     static bsl::string timezone(bslma::Default::globalAllocator());
     return &timezone;
 }
 
 // CLASS DATA
-bsls::AtomicInt baltzo::LocalTimeOffsetUtil::s_updateCount(0);
+bsls::AtomicInt LocalTimeOffsetUtil::s_updateCount(0);
 
 // CLASS METHODS
 
@@ -73,7 +74,7 @@ bsls::AtomicInt baltzo::LocalTimeOffsetUtil::s_updateCount(0);
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
-void baltzo::LocalTimeOffsetUtil::loadLocalTimeOffset(
+void LocalTimeOffsetUtil::loadLocalTimeOffset(
                                             int                   *result,
                                             const bdlt::Datetime&  utcDatetime)
 {
@@ -82,7 +83,7 @@ void baltzo::LocalTimeOffsetUtil::loadLocalTimeOffset(
 
 #endif
 
-bsls::TimeInterval baltzo::LocalTimeOffsetUtil::localTimeOffset(
+bsls::TimeInterval LocalTimeOffsetUtil::localTimeOffset(
                                              const bdlt::Datetime& utcDatetime)
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> readLockGuard(privateLock());
@@ -119,7 +120,7 @@ bsls::TimeInterval baltzo::LocalTimeOffsetUtil::localTimeOffset(
 
                         // *** configure methods ***
 
-int baltzo::LocalTimeOffsetUtil::configure()
+int LocalTimeOffsetUtil::configure()
 {
     const char *timezone = bsl::getenv("TZ");
     if (!timezone) {
@@ -130,7 +131,7 @@ int baltzo::LocalTimeOffsetUtil::configure()
     return configureImp(timezone, bdlt::CurrentTime::utc());
 }
 
-int baltzo::LocalTimeOffsetUtil::configure(const char *timezone)
+int LocalTimeOffsetUtil::configure(const char *timezone)
 {
     BSLS_ASSERT_SAFE(timezone);
 
@@ -138,8 +139,8 @@ int baltzo::LocalTimeOffsetUtil::configure(const char *timezone)
     return configureImp(timezone, bdlt::CurrentTime::utc());
 }
 
-int baltzo::LocalTimeOffsetUtil::configure(const char            *timezone,
-                                           const bdlt::Datetime&  utcDatetime)
+int LocalTimeOffsetUtil::configure(const char            *timezone,
+                                   const bdlt::Datetime&  utcDatetime)
 {
     BSLS_ASSERT_SAFE(timezone);
 
@@ -149,8 +150,7 @@ int baltzo::LocalTimeOffsetUtil::configure(const char            *timezone,
 
                         // *** accessor methods ***
 
-void baltzo::LocalTimeOffsetUtil::loadLocalTimePeriod(
-                                              LocalTimePeriod *localTimePeriod)
+void LocalTimeOffsetUtil::loadLocalTimePeriod(LocalTimePeriod *localTimePeriod)
 {
     BSLS_ASSERT(localTimePeriod);
 
@@ -158,8 +158,7 @@ void baltzo::LocalTimeOffsetUtil::loadLocalTimePeriod(
     *localTimePeriod = *privateLocalTimePeriod();
 }
 
-
-void baltzo::LocalTimeOffsetUtil::loadTimezone(bsl::string *timezone)
+void LocalTimeOffsetUtil::loadTimezone(bsl::string *timezone)
 {
     BSLS_ASSERT(timezone);
 
@@ -167,10 +166,11 @@ void baltzo::LocalTimeOffsetUtil::loadTimezone(bsl::string *timezone)
     *timezone = *privateTimezone();
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

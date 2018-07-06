@@ -28,8 +28,8 @@ BSLS_IDENT("$Id: $")
 //    ,--------------.
 //   ( baltzo::Loader )
 //    `--------------'
-//                 dtor
-//                 loadTimeZone
+//                   dtor
+//                   loadTimeZone
 //..
 // This test implementation maintains a mapping of time-zone identifiers to
 // 'baltzo::Zoneinfo' objects.  Clients can associate a time-zone object with a
@@ -140,11 +140,12 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
+
                               // ================
                               // class TestLoader
                               // ================
 
-class TestLoader : public Loader {
+class TestLoader: public Loader {
     // This class provides a concrete test implementation of the 'Loader'
     // protocol (an abstract interface) for obtaining a time zone.  This test
     // implementation maintains a mapping of time-zone identifiers to
@@ -242,8 +243,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestLoader& loader);
     //  print(stream, 0, -1);
     //..
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -254,10 +253,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestLoader& loader);
 
 // CREATORS
 inline
-baltzo::TestLoader::TestLoader(bslma::Allocator *basicAllocator)
+TestLoader::TestLoader(bslma::Allocator *basicAllocator)
 : d_timeZones(basicAllocator)
 {
 }
+
+}  // close package namespace
 
 // FREE FUNCTIONS
 inline
@@ -272,7 +273,7 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&     stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

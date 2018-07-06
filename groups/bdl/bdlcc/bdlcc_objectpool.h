@@ -1420,63 +1420,62 @@ ObjectPool_DefaultProxy<TYPE>
 {
     return d_object;
 }
-}  // close package namespace
 
-                     // --------------------------------
-                     // bdlcc::ObjectPoolFunctors::Reset
-                     // --------------------------------
+                     // -------------------------
+                     // ObjectPoolFunctors::Reset
+                     // -------------------------
 
 // ACCESSORS
 template <class TYPE>
 inline
-void bdlcc::ObjectPoolFunctors::Reset<TYPE>::operator()(TYPE *object) const
+void ObjectPoolFunctors::Reset<TYPE>::operator()(TYPE *object) const
 {
    object->reset();
 }
 
-                      // ------------------------------
-                      // bdlcc::ObjectPoolFunctors::Nil
-                      // ------------------------------
+                      // -----------------------
+                      // ObjectPoolFunctors::Nil
+                      // -----------------------
 
 // ACCESSORS
 template <class TYPE>
 inline
-void bdlcc::ObjectPoolFunctors::Nil<TYPE>::operator()(TYPE *) const
+void ObjectPoolFunctors::Nil<TYPE>::operator()(TYPE *) const
 {
 }
 
-                     // --------------------------------
-                     // bdlcc::ObjectPoolFunctors::Clear
-                     // --------------------------------
+                     // -------------------------
+                     // ObjectPoolFunctors::Clear
+                     // -------------------------
 
 // ACCESSORS
 template <class TYPE>
 inline
-void bdlcc::ObjectPoolFunctors::Clear<TYPE>::operator()(TYPE *object) const
+void ObjectPoolFunctors::Clear<TYPE>::operator()(TYPE *object) const
 {
    object->clear();
 }
 
-                   // ------------------------------------
-                   // bdlcc::ObjectPoolFunctors::RemoveAll
-                   // ------------------------------------
+                   // -----------------------------
+                   // ObjectPoolFunctors::RemoveAll
+                   // -----------------------------
 
 // ACCESSORS
 template <class TYPE>
 inline
-void bdlcc::ObjectPoolFunctors::RemoveAll<TYPE>::operator()(TYPE *object) const
+void ObjectPoolFunctors::RemoveAll<TYPE>::operator()(TYPE *object) const
 {
    object->removeAll();
 }
 
-                      // -----------------------------
-                      // bdlcc::ObjectPool_AutoCleanup
-                      // -----------------------------
+                      // ----------------------
+                      // ObjectPool_AutoCleanup
+                      // ----------------------
 
 // CREATORS
 template <class TYPE, class CREATOR, class RESETTER>
 inline
-bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::AutoCleanup(
+ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::AutoCleanup(
                                    BlockNode                        *block,
                                    ObjectNode                       *head,
                                    bdlma::InfrequentDeleteBlockList *allocator,
@@ -1489,11 +1488,11 @@ bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::AutoCleanup(
 }
 
 template <class TYPE, class CREATOR, class RESETTER>
-bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::~AutoCleanup()
+ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::~AutoCleanup()
 {
     enum {
         k_NUM_OBJECTS_PER_FRAME =
-           bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::k_NUM_OBJECTS_PER_FRAME
+           ObjectPool<TYPE, CREATOR, RESETTER>::k_NUM_OBJECTS_PER_FRAME
     };
     if (d_head_p) {
         for (++d_head_p; d_numNodes > 0; --d_numNodes) {
@@ -1507,8 +1506,8 @@ bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::~AutoCleanup()
 // MANIPULATORS
 template <class TYPE, class CREATOR, class RESETTER>
 inline
-typename bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup&
-bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::operator++()
+typename ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup&
+ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::operator++()
 {
     ++d_numNodes;
     return *this;
@@ -1516,18 +1515,19 @@ bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::operator++()
 
 template <class TYPE, class CREATOR, class RESETTER>
 inline
-void bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::release()
+void ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::release()
 {
     d_block_p = 0;
     d_head_p = 0;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

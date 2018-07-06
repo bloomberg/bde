@@ -17,8 +17,8 @@ BSLS_IDENT_RCSID(balst_stacktraceframe_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace balst {
+
                            // ---------------------
                            // class StackTraceFrame
                            // ---------------------
@@ -46,9 +46,11 @@ bsl::ostream& StackTraceFrame::print(bsl::ostream& stream,
     return stream;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream&          stream,
-                         const StackTraceFrame& object)
+bsl::ostream& balst::operator<<(bsl::ostream&          stream,
+                                const StackTraceFrame& object)
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -68,12 +70,10 @@ bsl::ostream& operator<<(bsl::ostream&          stream,
     return stream;
 }
 
-}  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
