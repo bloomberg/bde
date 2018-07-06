@@ -2011,6 +2011,17 @@ int main(int argc, char *argv[])
 
             const int startTestStatus = testStatus;
 
+            if (!frame.isSymbolNameKnown() ||
+                !frame.isMangledSymbolNameKnown())
+            {
+                if (veryVerbose) {
+                    cout << "Symbol is not resolved: \""
+                         << v[ii].d_demangledName << "\"\n";
+                }
+                ++numFailed;
+                continue;                                           // CONTINUE
+            }
+
             if (FORMAT_XCOFF) {
                 bsl::size_t pos = expName.rfind("(");
                 pos = expName.rfind("::", pos);
