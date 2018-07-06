@@ -371,7 +371,8 @@ inline
 bsl::ostream& operator<<(bsl::ostream& stream, const BerEncoderOptions& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and return a
     // reference to the modifiable 'stream'.
-}
+
+}  // close package namespace
 
 // TRAITS
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(balber::BerEncoderOptions)
@@ -767,9 +768,7 @@ bool BerEncoderOptions::disableUnselectedChoiceEncoding() const
 
 }  // close package namespace
 
-
 // FREE FUNCTIONS
-
 inline
 bool balber::operator==(const BerEncoderOptions& lhs,
                         const BerEncoderOptions& rhs)
@@ -808,6 +807,7 @@ bsl::ostream& balber::operator<<(bsl::ostream&            stream,
 }
 
 }  // close enterpsie namespace
+
 #endif
 
 // ----------------------------------------------------------------------------

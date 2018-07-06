@@ -304,8 +304,6 @@ void swap(LocalTimeDescriptor& a, LocalTimeDescriptor& b);
     // provides the no-throw exception-safety guarantee if the two objects were
     // created with the same allocator and the basic guarantee otherwise.
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -316,15 +314,14 @@ void swap(LocalTimeDescriptor& a, LocalTimeDescriptor& b);
 
 // CLASS METHODS
 inline
-bool baltzo::LocalTimeDescriptor::isValidUtcOffsetInSeconds(int value)
+bool LocalTimeDescriptor::isValidUtcOffsetInSeconds(int value)
 {
     return value >= -86399 && value <= 86399;
 }
 
 // CREATORS
 inline
-baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
-                                              bslma::Allocator *basicAllocator)
+LocalTimeDescriptor::LocalTimeDescriptor(bslma::Allocator *basicAllocator)
 : d_utcOffsetInSeconds(0)
 , d_dstInEffectFlag(false)
 , d_description(basicAllocator)
@@ -332,7 +329,7 @@ baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
 }
 
 inline
-baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
+LocalTimeDescriptor::LocalTimeDescriptor(
                                   int                       utcOffsetInSeconds,
                                   bool                      dstInEffectFlag,
                                   const bslstl::StringRef&  description,
@@ -345,7 +342,7 @@ baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
 }
 
 inline
-baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
+LocalTimeDescriptor::LocalTimeDescriptor(
                                     const LocalTimeDescriptor&  original,
                                     bslma::Allocator           *basicAllocator)
 : d_utcOffsetInSeconds(original.d_utcOffsetInSeconds)
@@ -355,14 +352,14 @@ baltzo::LocalTimeDescriptor::LocalTimeDescriptor(
 }
 
 inline
-baltzo::LocalTimeDescriptor::~LocalTimeDescriptor()
+LocalTimeDescriptor::~LocalTimeDescriptor()
 {
     BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(d_utcOffsetInSeconds));
 }
 
 // MANIPULATORS
 inline
-baltzo::LocalTimeDescriptor& baltzo::LocalTimeDescriptor::operator=(
+LocalTimeDescriptor& LocalTimeDescriptor::operator=(
                                                 const LocalTimeDescriptor& rhs)
 {
     d_description        = rhs.d_description;         // first for strong
@@ -373,20 +370,19 @@ baltzo::LocalTimeDescriptor& baltzo::LocalTimeDescriptor::operator=(
 }
 
 inline
-void baltzo::LocalTimeDescriptor::setDescription(
-                                                const bslstl::StringRef& value)
+void LocalTimeDescriptor::setDescription(const bslstl::StringRef& value)
 {
     d_description.assign(value.begin(), value.end());
 }
 
 inline
-void baltzo::LocalTimeDescriptor::setDstInEffectFlag(bool value)
+void LocalTimeDescriptor::setDstInEffectFlag(bool value)
 {
     d_dstInEffectFlag = value;
 }
 
 inline
-void baltzo::LocalTimeDescriptor::setUtcOffsetInSeconds(int value)
+void LocalTimeDescriptor::setUtcOffsetInSeconds(int value)
 {
     BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(value));
 
@@ -396,7 +392,7 @@ void baltzo::LocalTimeDescriptor::setUtcOffsetInSeconds(int value)
                                   // Aspects
 
 inline
-void baltzo::LocalTimeDescriptor::swap(LocalTimeDescriptor& other)
+void LocalTimeDescriptor::swap(LocalTimeDescriptor& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
@@ -407,19 +403,19 @@ void baltzo::LocalTimeDescriptor::swap(LocalTimeDescriptor& other)
 
 // ACCESSORS
 inline
-const bsl::string& baltzo::LocalTimeDescriptor::description() const
+const bsl::string& LocalTimeDescriptor::description() const
 {
     return d_description;
 }
 
 inline
-bool baltzo::LocalTimeDescriptor::dstInEffectFlag() const
+bool LocalTimeDescriptor::dstInEffectFlag() const
 {
     return d_dstInEffectFlag;
 }
 
 inline
-int baltzo::LocalTimeDescriptor::utcOffsetInSeconds() const
+int LocalTimeDescriptor::utcOffsetInSeconds() const
 {
     return d_utcOffsetInSeconds;
 }
@@ -427,10 +423,12 @@ int baltzo::LocalTimeDescriptor::utcOffsetInSeconds() const
                                   // Aspects
 
 inline
-bslma::Allocator *baltzo::LocalTimeDescriptor::allocator() const
+bslma::Allocator *LocalTimeDescriptor::allocator() const
 {
     return d_description.get_allocator().mechanism();
 }
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline

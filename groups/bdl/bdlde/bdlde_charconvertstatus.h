@@ -152,7 +152,6 @@ struct CharConvertStatus {
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&           stream,
                          CharConvertStatus::Enum value);
-}  // close package namespace
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
     // reference to 'stream'.  See 'toAscii' for what constitutes the string
@@ -161,6 +160,8 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
     //..
     //  bdlde::CharConvertStatus::print(stream, value, 0, -1);
     //..
+
+}  // close package namespace
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS

@@ -1,10 +1,8 @@
 // bdlde_sha2.h                                                       -*-C++-*-
-
 #ifndef INCLUDED_BDLDE_SHA2
 #define INCLUDED_BDLDE_SHA2
 
 #include <bsls_ident.h>
-
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a value-semantic type encoding a message in a SHA-2 digest.
@@ -87,6 +85,10 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlde {
 
+                                 // ============
+                                 // class Sha224
+                                 // ============
+
 class Sha224 {
     // This 'class' represents a SHA-224 digest that can be updated as
     // additional data is provided.
@@ -162,6 +164,10 @@ class Sha224 {
         // Format the current value of this SHA-2 digest to the specified
         // output 'stream' and return a reference to the modifiable 'stream'.
 };
+
+                                 // ============
+                                 // class Sha256
+                                 // ============
 
 class Sha256 {
     // This 'class' represents a SHA-256 digest that can be updated as
@@ -239,6 +245,10 @@ class Sha256 {
         // output 'stream' and return a reference to the modifiable 'stream'.
 };
 
+                                 // ============
+                                 // class Sha384
+                                 // ============
+
 class Sha384 {
     // This 'class' represents a SHA-384 digest that can be updated as
     // additional data is provided.
@@ -314,6 +324,10 @@ class Sha384 {
         // Format the current value of this SHA-2 digest to the specified
         // output 'stream' and return a reference to the modifiable 'stream'.
 };
+
+                                 // ============
+                                 // class Sha512
+                                 // ============
 
 class Sha512 {
     // This 'class' represents a SHA-512 digest that can be updated as
@@ -476,19 +490,21 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sha512& digest);
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+}  // close package namespace
+
                                  // ------------
                                  // class Sha224
                                  // ------------
 
 // FREE OPERATORS
 inline
-bool operator!=(const Sha224& lhs, const Sha224& rhs)
+bool bdlde::operator!=(const Sha224& lhs, const Sha224& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Sha224& digest)
+bsl::ostream& bdlde::operator<<(bsl::ostream& stream, const Sha224& digest)
 {
     return digest.print(stream);
 }
@@ -499,13 +515,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sha224& digest)
 
 // FREE OPERATORS
 inline
-bool operator!=(const Sha256& lhs, const Sha256& rhs)
+bool bdlde::operator!=(const Sha256& lhs, const Sha256& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Sha256& digest)
+bsl::ostream& bdlde::operator<<(bsl::ostream& stream, const Sha256& digest)
 {
     return digest.print(stream);
 }
@@ -515,14 +531,14 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Sha256& digest)
                                  // ------------
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Sha384& digest)
+bsl::ostream& bdlde::operator<<(bsl::ostream& stream, const Sha384& digest)
 {
     return digest.print(stream);
 }
 
 // FREE OPERATORS
 inline
-bool operator!=(const Sha384& lhs, const Sha384& rhs)
+bool bdlde::operator!=(const Sha384& lhs, const Sha384& rhs)
 {
     return !(lhs == rhs);
 }
@@ -533,18 +549,33 @@ bool operator!=(const Sha384& lhs, const Sha384& rhs)
 
 // FREE OPERATORS
 inline
-bool operator!=(const Sha512& lhs, const Sha512& rhs)
+bool bdlde::operator!=(const Sha512& lhs, const Sha512& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Sha512& digest)
+bsl::ostream& bdlde::operator<<(bsl::ostream& stream, const Sha512& digest)
 {
     return digest.print(stream);
 }
 
-} // close package namespace
-} // close enterprise namespace
+}  // close enterprise namespace
 
-#endif // INCLUDED_BDLDE_SHA2
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright 2018 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------- END-OF-FILE ----------------------------------

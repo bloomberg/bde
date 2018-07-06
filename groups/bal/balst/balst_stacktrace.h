@@ -156,8 +156,8 @@ BSLS_IDENT("$Id: $")
 #include <bsl_vector.h>
 
 namespace BloombergLP {
-
 namespace balst {
+
                               // ================
                               // class StackTrace
                               // ================
@@ -178,17 +178,16 @@ class StackTrace {
     // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    bdlma::HeapBypassAllocator    d_hbpAlloc;  // Used if no allocator is
+    bdlma::HeapBypassAllocator   d_hbpAlloc;  // Used if no allocator is
                                               // supplied at construction.
                                               // Note this member must be
                                               // declared and constructed prior
                                               // to 'd_frames'.
 
-    bsl::vector<StackTraceFrame>
-                                 d_frames;    // sequence of stack-trace frames
+    bsl::vector<StackTraceFrame> d_frames;    // sequence of stack-trace frames
 
-    friend bool operator==(const StackTrace&,
-                           const StackTrace&);
+    // FRIENDS
+    friend bool operator==(const StackTrace&, const StackTrace&);
 
   public:
     // TRAITS
@@ -320,10 +319,6 @@ void swap(StackTrace& a, StackTrace& b);
                               // class StackTrace
                               // ----------------
 
-                            // -----------------
-                            // Level 0 Functions
-                            // -----------------
-
 // ACCESSORS
 inline
 bslma::Allocator *StackTrace::allocator() const
@@ -412,37 +407,35 @@ int StackTrace::length() const
     return (int) d_frames.size();
 }
 
-// FREE FUNCTIONS
-inline
-void swap(StackTrace& a, StackTrace& b)
-{
-    a.swap(b);
-}
+}  // close package namespace
 
 // FREE OPERATORS
 inline
-bool operator==(const StackTrace& lhs, const StackTrace& rhs)
+bool balst::operator==(const StackTrace& lhs, const StackTrace& rhs)
 {
     return lhs.d_frames == rhs.d_frames;
 }
 
 inline
-bool operator!=(const StackTrace& lhs,
-                const StackTrace& rhs)
+bool balst::operator!=(const StackTrace& lhs, const StackTrace& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& operator<<(bsl::ostream&     stream,
-                         const StackTrace& object)
+bsl::ostream& balst::operator<<(bsl::ostream& stream, const StackTrace& object)
 {
     object.print(stream, 0, -1);
 
     return stream;
 }
 
-}  // close package namespace
+// FREE FUNCTIONS
+inline
+void balst::swap(StackTrace& a, StackTrace& b)
+{
+    a.swap(b);
+}
 
 }  // close enterprise namespace
 

@@ -16,8 +16,6 @@ BSLS_IDENT_RCSID(bdlc_hashtable_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 
-namespace BloombergLP {
-
 // IMPLEMENTATION NOTES:  This table is computed by the following short
 // program.  Actually, only entries up to 9950713 have been computed by this
 // method.  The other ones were present in the original version prior to this
@@ -73,6 +71,8 @@ namespace BloombergLP {
 //      return 0;
 //  }
 //..
+
+namespace BloombergLP {
 
 static
 const unsigned int PRIME_NUMBERS_IMP[] = {
@@ -276,24 +276,26 @@ const unsigned int PRIME_NUMBERS_IMP[] = {
 static const int NUM_PRIME_NUMBERS_IMP =
                           sizeof PRIME_NUMBERS_IMP / sizeof *PRIME_NUMBERS_IMP;
 
+namespace bdlc {
+
                    // -------------------------------------
                    // private struct HashTableDefaultTraits
                    // -------------------------------------
 
 // CLASS DATA
-const char bdlc::HashTableDefaultTraits::REMOVED_KEYWORD[] = "(* REMOVED *)";
+const char HashTableDefaultTraits::REMOVED_KEYWORD[] = "(* REMOVED *)";
 
-                       // ------------------------------
-                       // struct bdlc::HashTable_ImpUtil
-                       // ------------------------------
+                       // ------------------------
+                       // struct HashTable_ImpUtil
+                       // ------------------------
 
 // CLASS DATA
-const unsigned int *bdlc::HashTable_ImpUtil::PRIME_NUMBERS = PRIME_NUMBERS_IMP;
-const int           bdlc::HashTable_ImpUtil::NUM_PRIME_NUMBERS
+const unsigned int *HashTable_ImpUtil::PRIME_NUMBERS = PRIME_NUMBERS_IMP;
+const int           HashTable_ImpUtil::NUM_PRIME_NUMBERS
                                                        = NUM_PRIME_NUMBERS_IMP;
 
 // CLASS METHODS
-unsigned int bdlc::HashTable_ImpUtil::hashSize(bsls::Types::Int64 hint)
+unsigned int HashTable_ImpUtil::hashSize(bsls::Types::Int64 hint)
 {
     BSLS_ASSERT(0 != hint);
 
@@ -322,6 +324,7 @@ unsigned int bdlc::HashTable_ImpUtil::hashSize(bsls::Types::Int64 hint)
     }
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -171,6 +171,7 @@ namespace BloombergLP {
 namespace bslma { class Allocator; }
 
 namespace baltzo {
+
                             // ===================
                             // class ZoneinfoCache
                             // ===================
@@ -258,8 +259,6 @@ class ZoneinfoCache {
         // returned value), and remain valid for the lifetime of this object.
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -270,8 +269,7 @@ class ZoneinfoCache {
 
 // CREATORS
 inline
-baltzo::ZoneinfoCache::ZoneinfoCache(Loader           *loader,
-                                     bslma::Allocator *basicAllocator)
+ZoneinfoCache::ZoneinfoCache(Loader *loader, bslma::Allocator *basicAllocator)
 : d_cache(basicAllocator)
 , d_loader_p(loader)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -281,8 +279,7 @@ baltzo::ZoneinfoCache::ZoneinfoCache(Loader           *loader,
 
 // MANIPULATORS
 inline
-const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
-                                                        const char *timeZoneId)
+const Zoneinfo *ZoneinfoCache::getZoneinfo(const char *timeZoneId)
 {
     BSLS_ASSERT_SAFE(0 != timeZoneId);
 
@@ -290,6 +287,7 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
     return getZoneinfo(&rc, timeZoneId);
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

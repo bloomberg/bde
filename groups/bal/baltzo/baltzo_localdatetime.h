@@ -116,6 +116,7 @@ BSLS_IDENT("$Id: $ $CSID: $")
 
 namespace BloombergLP {
 namespace baltzo {
+
                             // ===================
                             // class LocalDatetime
                             // ===================
@@ -311,8 +312,6 @@ void swap(LocalDatetime& a, LocalDatetime& b);
     // behavior is undefined unless the two objects were created with the same
     // allocator.
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -326,32 +325,32 @@ void swap(LocalDatetime& a, LocalDatetime& b);
                         // Aspects
 
 inline
-int baltzo::LocalDatetime::maxSupportedBdexVersion(int /* versionSelector */)
+int LocalDatetime::maxSupportedBdexVersion(int /* versionSelector */)
 {
     return 1;
 }
 
 // CREATORS
 inline
-baltzo::LocalDatetime::LocalDatetime(bslma::Allocator *basicAllocator)
+LocalDatetime::LocalDatetime(bslma::Allocator *basicAllocator)
 : d_datetimeTz()
 , d_timeZoneId(basicAllocator)
 {
 }
 
 inline
-baltzo::LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
-                                     const bslstl::StringRef&  timeZoneId,
-                                     bslma::Allocator         *basicAllocator)
+LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
+                             const bslstl::StringRef&  timeZoneId,
+                             bslma::Allocator         *basicAllocator)
 : d_datetimeTz(datetimeTz)
 , d_timeZoneId(timeZoneId.begin(), timeZoneId.end(), basicAllocator)
 {
 }
 
 inline
-baltzo::LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
-                                     const char               *timeZoneId,
-                                     bslma::Allocator         *basicAllocator)
+LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
+                             const char               *timeZoneId,
+                             bslma::Allocator         *basicAllocator)
 : d_datetimeTz(datetimeTz)
 , d_timeZoneId(basicAllocator)
 {
@@ -361,8 +360,8 @@ baltzo::LocalDatetime::LocalDatetime(const bdlt::DatetimeTz&   datetimeTz,
 }
 
 inline
-baltzo::LocalDatetime::LocalDatetime(const LocalDatetime&  original,
-                                     bslma::Allocator     *basicAllocator)
+LocalDatetime::LocalDatetime(const LocalDatetime&  original,
+                             bslma::Allocator     *basicAllocator)
 : d_datetimeTz(original.d_datetimeTz)
 , d_timeZoneId(original.d_timeZoneId, basicAllocator)
 {
@@ -370,8 +369,7 @@ baltzo::LocalDatetime::LocalDatetime(const LocalDatetime&  original,
 
 // MANIPULATORS
 inline
-baltzo::LocalDatetime&
-baltzo::LocalDatetime::operator=(const LocalDatetime& rhs)
+LocalDatetime& LocalDatetime::operator=(const LocalDatetime& rhs)
 {
     d_timeZoneId = rhs.d_timeZoneId;  // first to allow strong guarantee
     d_datetimeTz = rhs.d_datetimeTz;
@@ -379,19 +377,19 @@ baltzo::LocalDatetime::operator=(const LocalDatetime& rhs)
 }
 
 inline
-void baltzo::LocalDatetime::setDatetimeTz(const bdlt::DatetimeTz& value)
+void LocalDatetime::setDatetimeTz(const bdlt::DatetimeTz& value)
 {
     d_datetimeTz = value;
 }
 
 inline
-void baltzo::LocalDatetime::setTimeZoneId(const bslstl::StringRef& value)
+void LocalDatetime::setTimeZoneId(const bslstl::StringRef& value)
 {
     d_timeZoneId.assign(value.begin(), value.end());
 }
 
 inline
-void baltzo::LocalDatetime::setTimeZoneId(const char *value)
+void LocalDatetime::setTimeZoneId(const char *value)
 {
     if (value) {
         bsl::string(value, d_timeZoneId.allocator()).swap(d_timeZoneId);
@@ -404,7 +402,7 @@ void baltzo::LocalDatetime::setTimeZoneId(const char *value)
                         // Aspects
 
 template <class STREAM>
-STREAM& baltzo::LocalDatetime::bdexStreamIn(STREAM& stream, int version)
+STREAM& LocalDatetime::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) {
@@ -421,7 +419,7 @@ STREAM& baltzo::LocalDatetime::bdexStreamIn(STREAM& stream, int version)
 }
 
 inline
-void baltzo::LocalDatetime::swap(LocalDatetime& other)
+void LocalDatetime::swap(LocalDatetime& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
@@ -433,13 +431,13 @@ void baltzo::LocalDatetime::swap(LocalDatetime& other)
 
 // ACCESSORS
 inline
-const bdlt::DatetimeTz& baltzo::LocalDatetime::datetimeTz() const
+const bdlt::DatetimeTz& LocalDatetime::datetimeTz() const
 {
     return d_datetimeTz;
 }
 
 inline
-const bsl::string& baltzo::LocalDatetime::timeZoneId() const
+const bsl::string& LocalDatetime::timeZoneId() const
 {
     return d_timeZoneId;
 }
@@ -447,13 +445,13 @@ const bsl::string& baltzo::LocalDatetime::timeZoneId() const
                         // Aspects
 
 inline
-bslma::Allocator *baltzo::LocalDatetime::allocator() const
+bslma::Allocator *LocalDatetime::allocator() const
 {
     return d_timeZoneId.get_allocator().mechanism();
 }
 
 template <class STREAM>
-STREAM& baltzo::LocalDatetime::bdexStreamOut(STREAM& stream, int version) const
+STREAM& LocalDatetime::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) {
@@ -473,12 +471,14 @@ STREAM& baltzo::LocalDatetime::bdexStreamOut(STREAM& stream, int version) const
 
 // DEPRECATED METHODS
 inline
-int baltzo::LocalDatetime::maxSupportedBdexVersion()
+int LocalDatetime::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- pending deprecation
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline

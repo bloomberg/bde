@@ -13,8 +13,14 @@
 BSLS_IDENT_RCSID(balxml_hexparser_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
+namespace balxml {
 
-const char balxml::HexParser_Helper::s_hexValueTable[128] =
+                          // -----------------------
+                          // struct HexParser_Helper
+                          // -----------------------
+
+// CLASS DATA
+const char HexParser_Helper::s_hexValueTable[128] =
 {
     0  , //   0   0
     0  , //   1   1
@@ -146,6 +152,7 @@ const char balxml::HexParser_Helper::s_hexValueTable[128] =
     0    // 127  7f - DEL
 };
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

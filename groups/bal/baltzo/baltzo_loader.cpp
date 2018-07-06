@@ -7,15 +7,18 @@
 BSLS_IDENT_RCSID(baltzo_loader_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
+namespace baltzo {
+
                                 // ------------
                                 // class Loader
                                 // ------------
 
 // CREATORS
-baltzo::Loader::~Loader()
+Loader::~Loader()
 {
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

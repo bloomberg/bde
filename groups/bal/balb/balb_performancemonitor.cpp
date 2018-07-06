@@ -144,11 +144,12 @@ int currentProcessPid()
 
 }  // close unnamed namespace
 
+namespace balb {
+
 // PRIVATE TYPES
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
 
-namespace balb {
 template <>
 class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
     // Provide a specialization of the 'Collector' class template for the Linux
@@ -267,9 +268,8 @@ class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
         // for the pid associated with 'stats'.  Return 0 on success or a
         // non-zero value otherwise.
 };
-}  // close package namespace
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
+int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 ::readProcStat(ProcStatistics *stats, int pid)
 {
     bsl::stringstream filename;
@@ -316,12 +316,12 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
     return 0;
 }
 
-balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
+PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 ::Collector(bslma::Allocator *)
 {
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
+int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 ::initialize(Statistics *stats, int pid, const bsl::string& description)
 {
     int rc;
@@ -382,7 +382,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
     return 0;
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
+int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 ::collect(Statistics *stats)
 {
 
@@ -489,7 +489,6 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 
 #elif defined(BSLS_PLATFORM_OS_FREEBSD)
 
-namespace balb {
 template <>
 class PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd> {
     // Provide a specialization of the 'Collector' class template for the Linux
@@ -572,9 +571,8 @@ class PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd> {
         // for the pid associated with 'stats'.  Return 0 on success or a
         // non-zero value otherwise.
 };
-}  // close package namespace
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
+int PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 ::readProcStat(ProcStatistics *stats, int pid)
 {
     bsl::stringstream filename;
@@ -611,12 +609,12 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
     return 0;
 }
 
-balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
+PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 ::Collector(bslma::Allocator *)
 {
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
+int PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 ::initialize(Statistics *stats, int pid, const bsl::string& description)
 {
     int rc;
@@ -646,7 +644,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
+int PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 ::collect(Statistics *stats)
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
@@ -726,7 +724,6 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 
 #elif defined(BSLS_PLATFORM_OS_DARWIN)
 
-namespace balb {
 template <>
 class PerformanceMonitor::Collector<bsls::Platform::OsDarwin> {
     // Provide a specialization of the 'Collector' class template for the
@@ -750,16 +747,15 @@ class PerformanceMonitor::Collector<bsls::Platform::OsDarwin> {
         // for the pid associated with 'stats'.  Return 0 on success or a
         // non-zero value otherwise.
 };
-}  // close package namespace
 
 // CREATORS
-balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
+PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
 ::Collector(bslma::Allocator *)
 {
 }
 
 // MANIPULATORS
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
+int PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
 ::initialize(Statistics *stats, int pid, const bsl::string &description)
 {
     stats->d_pid         = pid;
@@ -791,7 +787,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
     return 0;
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
+int PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
 ::collect(Statistics *stats)
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
@@ -866,7 +862,6 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
 
 #elif defined(BSLS_PLATFORM_OS_UNIX)
 
-namespace balb {
 template <>
 class PerformanceMonitor::Collector<bsls::Platform::OsUnix> {
     // Provide a specialization of the 'Collector' class template for
@@ -897,14 +892,13 @@ class PerformanceMonitor::Collector<bsls::Platform::OsUnix> {
         // for the pid associated with 'stats'.  Return 0 on success or a
         // non-zero value otherwise.
 };
-}  // close package namespace
 
-balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
+PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 ::Collector(bslma::Allocator *)
 {
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
+int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 ::initialize(Statistics *stats, int pid, const bsl::string &description)
 {
     stats->d_pid         = pid;
@@ -954,7 +948,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
     return 0;
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
+int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 ::collect(Statistics *stats)
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
@@ -1125,7 +1119,6 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
-namespace balb {
 template <>
 struct PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
     // Provide a specialization of the 'Collector' class template for
@@ -1204,9 +1197,8 @@ struct PerformanceMonitor::Collector<bsls::Platform::OsWindows> {
         // for the pid associated with 'stats'.  Return 0 on success or a
         // non-zero value otherwise.
 };
-}  // close package namespace
 
-bsl::string balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+bsl::string PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 ::findModuleName(int pid)
 {
 
@@ -1233,7 +1225,7 @@ bsl::string balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
     return bsl::string((const char*)moduleExeName, extension);
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 ::findInstanceIndexFromPid(unsigned int       *instanceIndex,
                            PDH_HQUERY          query,
                            const bsl::string&  moduleName,
@@ -1300,7 +1292,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
     return -1;
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 ::rebindCounters(bsl::vector<PDH_HCOUNTER> *counters,
                  PDH_HQUERY                 query,
                  const char                *name,
@@ -1353,7 +1345,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
     return 0;
 }
 
-balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 ::Collector(bslma::Allocator *basicAllocator)
 : d_instanceQuery(0)
 , d_measureQuery(0)
@@ -1371,13 +1363,13 @@ balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
     }
 }
 
-balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>::~Collector()
+PerformanceMonitor::Collector<bsls::Platform::OsWindows>::~Collector()
 {
     PdhCloseQuery(d_measureQuery);
     PdhCloseQuery(d_instanceQuery);
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 ::initialize(Statistics *stats, int pid, const bsl::string &description)
 {
     stats->d_pid         = pid;
@@ -1412,7 +1404,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
     return 0;
 }
 
-int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
+int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 ::collect(Statistics *stats)
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
@@ -1529,8 +1521,7 @@ int balb::PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 #endif
 
 // CREATORS
-balb::PerformanceMonitor::Statistics::Statistics(
-                                              bslma::Allocator *basicAllocator)
+PerformanceMonitor::Statistics::Statistics(bslma::Allocator *basicAllocator)
 : d_pid(0)
 , d_description(basicAllocator)
 , d_startTimeUtc()
@@ -1542,9 +1533,8 @@ balb::PerformanceMonitor::Statistics::Statistics(
     reset();
 }
 
-balb::PerformanceMonitor::Statistics::Statistics(
-                                             const Statistics&  original,
-                                             bslma::Allocator  *basicAllocator)
+PerformanceMonitor::Statistics::Statistics(const Statistics&  original,
+                                           bslma::Allocator  *basicAllocator)
 : d_description(original.d_description, basicAllocator)
 , d_guard()
 {
@@ -1565,15 +1555,15 @@ balb::PerformanceMonitor::Statistics::Statistics(
 }
 
 // MANIPULATORS
-void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os) const
+void PerformanceMonitor::Statistics::print(bsl::ostream& os) const
 {
     for (int measure = 0; measure < e_NUM_MEASURES; ++measure) {
         print(os, (Measure)measure);
     }
 }
 
-void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os,
-                                                 Measure       measure) const
+void PerformanceMonitor::Statistics::print(bsl::ostream& os,
+                                           Measure       measure) const
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
 
@@ -1626,7 +1616,7 @@ void balb::PerformanceMonitor::Statistics::print(bsl::ostream& os,
     os << bsl::endl;
 }
 
-void balb::PerformanceMonitor::Statistics::print(
+void PerformanceMonitor::Statistics::print(
                                         bsl::ostream&  os,
                                         const char    *measureIdentifier) const
 {
@@ -1640,7 +1630,7 @@ void balb::PerformanceMonitor::Statistics::print(
     BSLS_LOG_WARN("No measure matches description '%s'", measureIdentifier);
 }
 
-void balb::PerformanceMonitor::Statistics::reset()
+void PerformanceMonitor::Statistics::reset()
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_guard);
 
@@ -1658,7 +1648,6 @@ void balb::PerformanceMonitor::Statistics::reset()
               bsl::numeric_limits<double>::min());
 }
 
-namespace balb {
 PerformanceMonitor::PerformanceMonitor(bslma::Allocator *basicAllocator)
 : d_pidMap(basicAllocator)
 , d_interval(0)
@@ -1792,8 +1781,8 @@ void PerformanceMonitor::resetStatistics()
 
     collect();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

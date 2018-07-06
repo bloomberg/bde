@@ -10,16 +10,17 @@ BSLS_IDENT_RCSID(baltzo_errorcode_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
+namespace baltzo {
 
                               // ----------------
                               // struct ErrorCode
                               // ----------------
 
 // CLASS METHODS
-bsl::ostream& baltzo::ErrorCode::print(bsl::ostream&   stream,
-                                       ErrorCode::Enum value,
-                                       int             level,
-                                       int             spacesPerLevel)
+bsl::ostream& ErrorCode::print(bsl::ostream&   stream,
+                               ErrorCode::Enum value,
+                               int             level,
+                               int             spacesPerLevel)
 {
     bdlb::Print::indent(stream, level, spacesPerLevel);
 
@@ -32,7 +33,7 @@ bsl::ostream& baltzo::ErrorCode::print(bsl::ostream&   stream,
     return stream;
 }
 
-const char *baltzo::ErrorCode::toAscii(ErrorCode::Enum value)
+const char *ErrorCode::toAscii(ErrorCode::Enum value)
 {
 #define CASE(X) case(k_ ## X): return #X;
 
@@ -44,6 +45,7 @@ const char *baltzo::ErrorCode::toAscii(ErrorCode::Enum value)
 #undef CASE
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

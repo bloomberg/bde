@@ -212,6 +212,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
+
                          // ==========================
                          // class DefaultZoneinfoCache
                          // ==========================
@@ -221,7 +222,6 @@ struct DefaultZoneinfoCache {
     // the default time-zone data cache.
 
   private:
-
     // PRIVATE CLASS METHODS
     static ZoneinfoCache *instance();
         // Return the address of the currently configured modifiable default
@@ -306,8 +306,6 @@ class DefaultZoneinfoCacheScopedGuard {
         // scoped guard was created, and destroy this guard.
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -318,8 +316,7 @@ class DefaultZoneinfoCacheScopedGuard {
 
 // CLASS METHODS
 inline
-baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::defaultCache(
-                                                          ZoneinfoCache *cache)
+ZoneinfoCache *baltzo::DefaultZoneinfoCache::defaultCache(ZoneinfoCache *cache)
 {
     return cache ? cache : instance();
 }
@@ -330,18 +327,19 @@ baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::defaultCache(
 
 // CREATORS
 inline
-baltzo::DefaultZoneinfoCacheScopedGuard::DefaultZoneinfoCacheScopedGuard(
+DefaultZoneinfoCacheScopedGuard::DefaultZoneinfoCacheScopedGuard(
                                                           ZoneinfoCache *cache)
 : d_previousCache_p(DefaultZoneinfoCache::setDefaultCache(cache))
 {
 }
 
 inline
-baltzo::DefaultZoneinfoCacheScopedGuard::~DefaultZoneinfoCacheScopedGuard()
+DefaultZoneinfoCacheScopedGuard::~DefaultZoneinfoCacheScopedGuard()
 {
     DefaultZoneinfoCache::setDefaultCache(d_previousCache_p);
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -9,6 +9,7 @@ BSLS_IDENT_RCSID(baltzo_localdatetime_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
+namespace baltzo {
 
                             // -------------------
                             // class LocalDatetime
@@ -17,9 +18,9 @@ namespace BloombergLP {
 // ACCESSORS
                         // Aspects
 
-bsl::ostream& baltzo::LocalDatetime::print(bsl::ostream& stream,
-                                           int           level,
-                                           int           spacesPerLevel) const
+bsl::ostream& LocalDatetime::print(bsl::ostream& stream,
+                                   int           level,
+                                   int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -33,6 +34,8 @@ bsl::ostream& baltzo::LocalDatetime::print(bsl::ostream& stream,
 
     return stream;
 }
+
+}  // close package namespace
 
 // FREE OPERATORS
 bsl::ostream& baltzo::operator<<(bsl::ostream&        stream,

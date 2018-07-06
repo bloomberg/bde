@@ -641,8 +641,10 @@ bsl::ostream& Md5::print(bsl::ostream& stream) const
     return stream;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
-bool operator==(const Md5& lhs, const Md5& rhs)
+bool bdlde::operator==(const Md5& lhs, const Md5& rhs)
 {
     if (lhs.d_length != rhs.d_length
      || 0 != bsl::memcmp(lhs.d_state, rhs.d_state, sizeof lhs.d_state)) {
@@ -657,7 +659,6 @@ bool operator==(const Md5& lhs, const Md5& rhs)
                             (sizeof *lhs.d_buffer) * inUse);
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

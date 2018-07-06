@@ -19,8 +19,14 @@ BSLS_IDENT_RCSID(baltzo_zoneinfoutil_cpp,"$Id$ $CSID$")
 #include <bsls_types.h>
 
 namespace BloombergLP {
+namespace baltzo {
 
-void baltzo::ZoneinfoUtil::convertUtcToLocalTime(
+                             // ------------------
+                             // class ZoneinfoUtil
+                             // ------------------
+
+// CLASS METHODS
+void ZoneinfoUtil::convertUtcToLocalTime(
                            bdlt::DatetimeTz                  *resultTime,
                            Zoneinfo::TransitionConstIterator *resultTransition,
                            const bdlt::Datetime&              utcTime,
@@ -45,7 +51,7 @@ void baltzo::ZoneinfoUtil::convertUtcToLocalTime(
     resultTime->setDatetimeTz(temp, offsetInMinutes);
 }
 
-void baltzo::ZoneinfoUtil::loadRelevantTransitions(
+void ZoneinfoUtil::loadRelevantTransitions(
                      Zoneinfo::TransitionConstIterator *firstResultTransition,
                      Zoneinfo::TransitionConstIterator *secondResultTransition,
                      LocalTimeValidity::Enum           *resultValidity,
@@ -226,7 +232,7 @@ void baltzo::ZoneinfoUtil::loadRelevantTransitions(
     *secondResultTransition = currentTransition;
 }
 
-bool baltzo::ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
+bool ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
 {
     // This method tests the logical inverse of each constraint indicated in
     // the component documentation, and returns 'false' if any constraint is
@@ -311,6 +317,7 @@ bool baltzo::ZoneinfoUtil::isWellFormed(const Zoneinfo& timeZone)
     return true;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

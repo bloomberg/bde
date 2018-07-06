@@ -507,20 +507,21 @@ int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     return 0;
 }
 
+namespace baltzo {
+
                          // --------------------------
                          // class ZoneinfoBinaryReader
                          // --------------------------
 
-int baltzo::ZoneinfoBinaryReader::read(Zoneinfo      *zoneinfoResult,
-                                       bsl::istream&  stream)
+int ZoneinfoBinaryReader::read(Zoneinfo *zoneinfoResult, bsl::istream& stream)
 {
     ZoneinfoBinaryHeader description;
     return read(zoneinfoResult, &description, stream);
 }
 
-int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
-                                       ZoneinfoBinaryHeader *headerResult,
-                                       bsl::istream&         stream)
+int ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
+                               ZoneinfoBinaryHeader *headerResult,
+                               bsl::istream&         stream)
 {
     int rc = readHeader(headerResult, stream);
     if (0 != rc) {
@@ -640,6 +641,7 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
     return 0;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

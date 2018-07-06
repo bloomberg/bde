@@ -355,31 +355,29 @@ STREAM& Md5::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-// FREE OPERATORS
-inline
-bool operator!=(const Md5& lhs, const Md5& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Md5& digest)
-{
-    return digest.print(stream);
-}
-
 #ifndef BDE_OMIT_DEPRECATED
-
-// ACCESSORS
 inline
 int Md5::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
-
 #endif
 
 }  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdlde::operator!=(const Md5& lhs, const Md5& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream& bdlde::operator<<(bsl::ostream& stream, const Md5& digest)
+{
+    return digest.print(stream);
+}
+
 }  // close enterprise namespace
 
 #endif

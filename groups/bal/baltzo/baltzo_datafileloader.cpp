@@ -87,12 +87,14 @@ int validateTimeZoneId(const char *timeZoneId)
     return 0;
 }
 
+namespace baltzo {
+
                             // --------------------
                             // class DataFileLoader
                             // --------------------
 
 // CLASS METHODS
-bool baltzo::DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
+bool DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
 {
     BSLS_ASSERT(path);
 
@@ -110,17 +112,17 @@ bool baltzo::DataFileLoader::isPlausibleZoneinfoRootPath(const char *path)
 }
 
 // CREATORS
-baltzo::DataFileLoader::DataFileLoader(bslma::Allocator *basicAllocator)
+DataFileLoader::DataFileLoader(bslma::Allocator *basicAllocator)
 : d_rootPath(INVALID_PATH, basicAllocator)
 {
 }
 
-baltzo::DataFileLoader::~DataFileLoader()
+DataFileLoader::~DataFileLoader()
 {
 }
 
 // MANIPULATORS
-void baltzo::DataFileLoader::configureRootPath(const char *path)
+void DataFileLoader::configureRootPath(const char *path)
 {
     BSLS_ASSERT(path);
 
@@ -132,7 +134,7 @@ void baltzo::DataFileLoader::configureRootPath(const char *path)
     d_rootPath = path;
 }
 
-int baltzo::DataFileLoader::configureRootPathIfPlausible(const char *path)
+int DataFileLoader::configureRootPathIfPlausible(const char *path)
 {
     BSLS_ASSERT(path);
 
@@ -144,8 +146,7 @@ int baltzo::DataFileLoader::configureRootPathIfPlausible(const char *path)
     return 0;
 }
 
-int baltzo::DataFileLoader::loadTimeZone(Zoneinfo   *result,
-                                         const char *timeZoneId)
+int DataFileLoader::loadTimeZone(Zoneinfo *result, const char *timeZoneId)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -182,7 +183,7 @@ int baltzo::DataFileLoader::loadTimeZone(Zoneinfo   *result,
 }
 
 // ACCESSORS
-int baltzo::DataFileLoader::loadTimeZoneFilePath(bsl::string *result,
+int DataFileLoader::loadTimeZoneFilePath(bsl::string *result,
                                                  const char  *timeZoneId) const
 {
     BSLS_ASSERT(result);
@@ -198,13 +199,14 @@ int baltzo::DataFileLoader::loadTimeZoneFilePath(bsl::string *result,
     return 0;
 }
 
-const bsl::string& baltzo::DataFileLoader::rootPath() const
+const bsl::string& DataFileLoader::rootPath() const
 {
     BSLS_ASSERT(INVALID_PATH != d_rootPath);
 
     return d_rootPath;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

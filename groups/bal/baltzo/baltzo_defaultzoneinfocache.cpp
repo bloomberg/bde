@@ -56,12 +56,14 @@ baltzo::ZoneinfoCache *initSystemDefaultCache()
     return &cache;
 }
 
+namespace baltzo {
+
                          // --------------------------
                          // class DefaultZoneinfoCache
                          // --------------------------
 
 // PRIVATE CLASS METHODS
-baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::instance()
+ZoneinfoCache *DefaultZoneinfoCache::instance()
 {
     if (userSingletonCachePtr) {
         return userSingletonCachePtr;                                 // RETURN
@@ -76,7 +78,7 @@ baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::instance()
 }
 
 // CLASS METHODS
-const char *baltzo::DefaultZoneinfoCache::defaultZoneinfoDataLocation()
+const char *DefaultZoneinfoCache::defaultZoneinfoDataLocation()
 {
     const char *envValue = getenv("BDE_ZONEINFO_ROOT_PATH");
 
@@ -110,7 +112,7 @@ const char *baltzo::DefaultZoneinfoCache::defaultZoneinfoDataLocation()
     return ".";
 }
 
-void baltzo::DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
+void DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
                                           bsl::vector<const char *> *locations)
 {
     BSLS_ASSERT(locations);
@@ -120,7 +122,7 @@ void baltzo::DefaultZoneinfoCache::loadDefaultZoneinfoDataLocations(
     }
 }
 
-baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::setDefaultCache(
+ZoneinfoCache *DefaultZoneinfoCache::setDefaultCache(
                                                           ZoneinfoCache *cache)
 {
     ZoneinfoCache *previous = userSingletonCachePtr;
@@ -128,6 +130,7 @@ baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::setDefaultCache(
     return previous;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

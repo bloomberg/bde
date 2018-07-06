@@ -17,15 +17,16 @@ BSLS_IDENT_RCSID(baltzo_timezoneutil_cpp,"$Id$ $CSID$")
 #include <bdlt_intervalconversionutil.h>
 
 namespace BloombergLP {
+namespace baltzo {
 
                              // ------------------
                              // class TimeZoneUtil
                              // ------------------
 
 // CLASS METHODS
-int baltzo::TimeZoneUtil::addInterval(LocalDatetime             *result,
-                                      const LocalDatetime&       originalTime,
-                                      const bsls::TimeInterval&  interval)
+int TimeZoneUtil::addInterval(LocalDatetime             *result,
+                              const LocalDatetime&       originalTime,
+                              const bsls::TimeInterval&  interval)
 {
     BSLS_ASSERT(result);
 
@@ -41,7 +42,7 @@ int baltzo::TimeZoneUtil::addInterval(LocalDatetime             *result,
                                  utcTime);
 }
 
-int baltzo::TimeZoneUtil::convertUtcToLocalTime(
+int TimeZoneUtil::convertUtcToLocalTime(
                                        LocalDatetime         *result,
                                        const char            *targetTimeZoneId,
                                        const bdlt::Datetime&  utcTime)
@@ -62,7 +63,7 @@ int baltzo::TimeZoneUtil::convertUtcToLocalTime(
     return 0;
 }
 
-int baltzo::TimeZoneUtil::convertLocalToLocalTime(
+int TimeZoneUtil::convertLocalToLocalTime(
                                        LocalDatetime         *result,
                                        const char            *targetTimeZoneId,
                                        const bdlt::Datetime&  srcTime,
@@ -89,7 +90,7 @@ int baltzo::TimeZoneUtil::convertLocalToLocalTime(
     return 0;
 }
 
-int baltzo::TimeZoneUtil::convertLocalToLocalTime(
+int TimeZoneUtil::convertLocalToLocalTime(
                                        bdlt::DatetimeTz      *result,
                                        const char            *targetTimeZoneId,
                                        const bdlt::Datetime&  srcTime,
@@ -113,12 +114,11 @@ int baltzo::TimeZoneUtil::convertLocalToLocalTime(
     return convertLocalToLocalTime(result, targetTimeZoneId, localSrcTime);
 }
 
-int baltzo::TimeZoneUtil::initLocalTime(
-                                      LocalDatetime            *result,
-                                      LocalTimeValidity::Enum  *resultValidity,
-                                      const bdlt::Datetime&     localTime,
-                                      const char               *timeZoneId,
-                                      DstPolicy::Enum           dstPolicy)
+int TimeZoneUtil::initLocalTime(LocalDatetime            *result,
+                                LocalTimeValidity::Enum  *resultValidity,
+                                const bdlt::Datetime&     localTime,
+                                const char               *timeZoneId,
+                                DstPolicy::Enum           dstPolicy)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(resultValidity);
@@ -143,10 +143,10 @@ int baltzo::TimeZoneUtil::initLocalTime(
     return 0;
 }
 
-int baltzo::TimeZoneUtil::initLocalTime(LocalDatetime         *result,
-                                        const bdlt::Datetime&  localTime,
-                                        const char            *timeZoneId,
-                                        DstPolicy::Enum        dstPolicy)
+int TimeZoneUtil::initLocalTime(LocalDatetime         *result,
+                                const bdlt::Datetime&  localTime,
+                                const char            *timeZoneId,
+                                DstPolicy::Enum        dstPolicy)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -167,10 +167,10 @@ int baltzo::TimeZoneUtil::initLocalTime(LocalDatetime         *result,
     return 0;
 }
 
-int baltzo::TimeZoneUtil::convertLocalToUtc(bdlt::Datetime        *result,
-                                            const bdlt::Datetime&  localTime,
-                                            const char            *timeZoneId,
-                                            DstPolicy::Enum        dstPolicy)
+int TimeZoneUtil::convertLocalToUtc(bdlt::Datetime        *result,
+                                    const bdlt::Datetime&  localTime,
+                                    const char            *timeZoneId,
+                                    DstPolicy::Enum        dstPolicy)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -189,10 +189,10 @@ int baltzo::TimeZoneUtil::convertLocalToUtc(bdlt::Datetime        *result,
     return 0;
 }
 
-int baltzo::TimeZoneUtil::convertLocalToUtc(LocalDatetime         *result,
-                                            const bdlt::Datetime&  localTime,
-                                            const char            *timeZoneId,
-                                            DstPolicy::Enum        dstPolicy)
+int TimeZoneUtil::convertLocalToUtc(LocalDatetime         *result,
+                                    const bdlt::Datetime&  localTime,
+                                    const char            *timeZoneId,
+                                    DstPolicy::Enum        dstPolicy)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -212,10 +212,9 @@ int baltzo::TimeZoneUtil::convertLocalToUtc(LocalDatetime         *result,
     return 0;
 }
 
-int baltzo::TimeZoneUtil::loadLocalTimePeriodForUtc(
-                                             LocalTimePeriod       *result,
-                                             const char            *timeZoneId,
-                                             const bdlt::Datetime&  utcTime)
+int TimeZoneUtil::loadLocalTimePeriodForUtc(LocalTimePeriod       *result,
+                                            const char            *timeZoneId,
+                                            const bdlt::Datetime&  utcTime)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -227,10 +226,9 @@ int baltzo::TimeZoneUtil::loadLocalTimePeriodForUtc(
                                   DefaultZoneinfoCache::defaultCache());
 }
 
-int baltzo::TimeZoneUtil::validateLocalTime(
-                                           bool                    *result,
-                                           const bdlt::DatetimeTz&  localTime,
-                                           const char              *timeZoneId)
+int TimeZoneUtil::validateLocalTime(bool                    *result,
+                                    const bdlt::DatetimeTz&  localTime,
+                                    const char              *timeZoneId)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(timeZoneId);
@@ -250,6 +248,7 @@ int baltzo::TimeZoneUtil::validateLocalTime(
     return 0;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

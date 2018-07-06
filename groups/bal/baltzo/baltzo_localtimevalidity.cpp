@@ -9,17 +9,17 @@ BSLS_IDENT_RCSID(baltzo_localtimevalidity_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
+namespace baltzo {
 
                           // ------------------------
                           // struct LocalTimeValidity
                           // ------------------------
 
 // CLASS METHODS
-bsl::ostream& baltzo::LocalTimeValidity::print(
-                                        bsl::ostream&           stream,
-                                        LocalTimeValidity::Enum value,
-                                        int                     level,
-                                        int                     spacesPerLevel)
+bsl::ostream& LocalTimeValidity::print(bsl::ostream&           stream,
+                                       LocalTimeValidity::Enum value,
+                                       int                     level,
+                                       int                     spacesPerLevel)
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
 
@@ -30,7 +30,7 @@ bsl::ostream& baltzo::LocalTimeValidity::print(
     return stream;
 }
 
-const char *baltzo::LocalTimeValidity::toAscii(LocalTimeValidity::Enum value)
+const char *LocalTimeValidity::toAscii(LocalTimeValidity::Enum value)
 {
 #define CASE(X) case(e_ ## X): return #X;
 
@@ -44,6 +44,7 @@ const char *baltzo::LocalTimeValidity::toAscii(LocalTimeValidity::Enum value)
 #undef CASE
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

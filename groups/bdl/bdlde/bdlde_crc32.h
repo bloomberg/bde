@@ -362,26 +362,27 @@ unsigned int Crc32::view() const
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bool operator==(const Crc32& lhs, const Crc32& rhs)
+bool bdlde::operator==(const Crc32& lhs, const Crc32& rhs)
 {
     return lhs.d_crc == rhs.d_crc;
 }
 
 inline
-bool operator!=(const Crc32& lhs, const Crc32& rhs)
+bool bdlde::operator!=(const Crc32& lhs, const Crc32& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Crc32& checksum)
+bsl::ostream& bdlde::operator<<(bsl::ostream& stream, const Crc32& checksum)
 {
     return checksum.print(stream);
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 #endif

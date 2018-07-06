@@ -9,6 +9,7 @@ BSLS_IDENT_RCSID(baltzo_localtimeperiod_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
+namespace baltzo {
 
                            // ---------------------
                            // class LocalTimePeriod
@@ -17,10 +18,9 @@ namespace BloombergLP {
                         // Aspects
 
 // ACCESSORS
-bsl::ostream& baltzo::LocalTimePeriod::print(
-                                            bsl::ostream& stream,
-                                            int           level,
-                                            int           spacesPerLevel) const
+bsl::ostream& LocalTimePeriod::print(bsl::ostream& stream,
+                                     int           level,
+                                     int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -36,6 +36,7 @@ bsl::ostream& baltzo::LocalTimePeriod::print(
     return stream;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -16,11 +16,7 @@ BSLS_IDENT_RCSID(bdlde_base64decoder_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-
-
 namespace BloombergLP {
-
-
 
                 // ======================
                 // FILE-SCOPE STATIC DATA
@@ -96,20 +92,18 @@ static const char decoding[256] = {
        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // F0
 };
 
+namespace bdlde {
 
-                         // --------------------------
-                         // class bdlde::Base64Decoder
-                         // --------------------------
+                         // -------------------
+                         // class Base64Decoder
+                         // -------------------
 
 // CLASS DATA
-
-const bool *const bdlde::Base64Decoder::s_ignorableStrict_p =
+const bool *const Base64Decoder::s_ignorableStrict_p =
                                              charsThatCanBeIgnoredInStrictMode;
-const bool *const bdlde::Base64Decoder::s_ignorableRelaxed_p =
+const bool *const Base64Decoder::s_ignorableRelaxed_p =
                                             charsThatCanBeIgnoredInRelaxedMode;
-const char *const bdlde::Base64Decoder::s_decoding_p = decoding;
-
-namespace bdlde {
+const char *const Base64Decoder::s_decoding_p = decoding;
 
 
 // CREATORS

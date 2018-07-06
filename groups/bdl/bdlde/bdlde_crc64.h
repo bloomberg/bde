@@ -1,5 +1,4 @@
 // bdlde_crc64.h                                                      -*-C++-*-
-
 #ifndef INCLUDED_BDLDE_CRC64
 #define INCLUDED_BDLDE_CRC64
 
@@ -321,26 +320,27 @@ bsls::Types::Uint64 Crc64::checksum() const
     return ~d_crc;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bool operator==(const Crc64& lhs, const Crc64& rhs)
+bool bdlde::operator==(const Crc64& lhs, const Crc64& rhs)
 {
     return lhs.d_crc == rhs.d_crc;
 }
 
 inline
-bool operator!=(const Crc64& lhs, const Crc64& rhs)
+bool bdlde::operator!=(const Crc64& lhs, const Crc64& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Crc64& checksum)
+bsl::ostream& bdlde::operator<<(bsl::ostream& stream, const Crc64& checksum)
 {
     return checksum.print(stream);
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 #endif

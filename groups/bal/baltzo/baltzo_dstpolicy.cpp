@@ -10,16 +10,17 @@ BSLS_IDENT_RCSID(baltzo_dstpolicy_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
+namespace baltzo {
 
                               // ----------------
                               // struct DstPolicy
                               // ----------------
 
 // CLASS METHODS
-bsl::ostream& baltzo::DstPolicy::print(bsl::ostream&   stream,
-                                       DstPolicy::Enum value,
-                                       int             level,
-                                       int             spacesPerLevel)
+bsl::ostream& DstPolicy::print(bsl::ostream&   stream,
+                               DstPolicy::Enum value,
+                               int             level,
+                               int             spacesPerLevel)
 {
     bdlb::Print::indent(stream, level, spacesPerLevel);
 
@@ -32,7 +33,7 @@ bsl::ostream& baltzo::DstPolicy::print(bsl::ostream&   stream,
     return stream;
 }
 
-const char *baltzo::DstPolicy::toAscii(DstPolicy::Enum value)
+const char *DstPolicy::toAscii(DstPolicy::Enum value)
 {
 #define CASE(X) case(e_ ## X): return #X;
 
@@ -46,6 +47,7 @@ const char *baltzo::DstPolicy::toAscii(DstPolicy::Enum value)
 #undef CASE
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

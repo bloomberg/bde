@@ -35,15 +35,15 @@ static const char enc[] = {
     '4', '5', '6', '7', '8', '9', '+', '/',  // 070
 };
 
-                         // --------------------------
-                         // class bdlde::Base64Encoder
-                         // --------------------------
-
-const char *const bdlde::Base64Encoder::s_encodedChars_p = enc;
-
-const int bdlde::Base64Encoder::s_defaultMaxLineLength = 76;
-
 namespace bdlde {
+
+                         // -------------------
+                         // class Base64Encoder
+                         // -------------------
+
+// CLASS DATA
+const char *const Base64Encoder::s_encodedChars_p       = enc;
+const int         Base64Encoder::s_defaultMaxLineLength = 76;
 
 // CREATORS
 Base64Encoder::~Base64Encoder()

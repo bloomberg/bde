@@ -138,6 +138,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace baltzo {
+
                          // ==========================
                          // struct LocalTimeOffsetUtil
                          // ==========================
@@ -256,8 +257,6 @@ struct LocalTimeOffsetUtil {
         // *is* thread-safe.
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -272,7 +271,7 @@ struct LocalTimeOffsetUtil {
 
 inline
 bdlt::LocalTimeOffset::LocalTimeOffsetCallback
-baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
+LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
 {
     return bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
                                         &LocalTimeOffsetUtil::localTimeOffset);
@@ -281,13 +280,13 @@ baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
                         // *** accessor methods ***
 
 inline
-int baltzo::LocalTimeOffsetUtil::updateCount()
+int LocalTimeOffsetUtil::updateCount()
 {
     return s_updateCount;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
-
 
 #endif
 
