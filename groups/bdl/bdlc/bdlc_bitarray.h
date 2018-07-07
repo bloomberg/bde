@@ -445,13 +445,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
-#include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdint.h>
 #include <bsl_climits.h>
 #include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
 #include <bsl_vector.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsl_algorithm.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlc {
@@ -1073,10 +1076,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BitArray& rhs);
 
 // FREE FUNCTIONS
 void swap(BitArray& a, BitArray& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -1917,7 +1919,17 @@ bsl::ostream& bdlc::operator<<(bsl::ostream& stream, const BitArray& rhs)
 inline
 void bdlc::swap(BitArray& a, BitArray& b)
 {
-    a.swap(b);
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    BitArray futureA(b, a.allocator());
+    BitArray futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
 }
 
 namespace bslmf {

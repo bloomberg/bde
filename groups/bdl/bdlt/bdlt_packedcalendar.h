@@ -496,7 +496,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
-#include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
 #include <bsl_iosfwd.h>
 #include <bsl_iterator.h>
@@ -505,6 +504,8 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
+
+#include <bsl_algorithm.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -1354,10 +1355,9 @@ void hashAppend(HASHALG& hashAlg, const PackedCalendar& object);
     // provides a 'bsl::hash' specialization for 'PackedCalendar'.
 
 void swap(PackedCalendar& a, PackedCalendar& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
                        // ==============================
                        // class PackedCalendar_DateProxy
@@ -3215,12 +3215,6 @@ void bdlt::hashAppend(HASHALG& hashAlg, const PackedCalendar& object)
     hashAppend(hashAlg, object.d_holidayCodes);
 }
 
-inline
-void bdlt::swap(PackedCalendar& a, PackedCalendar& b)
-{
-    a.swap(b);
-}
-
 }  // close enterprise namespace
 
 // TRAITS
@@ -3236,7 +3230,7 @@ struct UsesBslmaAllocator<bdlt::PackedCalendar> : bsl::true_type {};
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

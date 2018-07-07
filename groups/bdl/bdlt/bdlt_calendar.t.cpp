@@ -2433,8 +2433,8 @@ int main(int argc, char *argv[])
             Obj mY;  const Obj& Y = gg(&mY, "@2014/1/1 30 14");
 
             Iterator  mB = Y.rbeginBusinessDays();
-            ASSERT_SAFE_FAIL_RAW(mA == mB);
-            ASSERT_SAFE_FAIL_RAW(mA != mB);
+            ASSERT_SAFE_FAIL_RAW((void)(mA == mB));
+            ASSERT_SAFE_FAIL_RAW((void)(mA != mB));
         }
       } break;
       case 23: {
@@ -2722,8 +2722,8 @@ int main(int argc, char *argv[])
             Obj mY;  const Obj& Y = gg(&mY, "@2014/1/1 30 14");
 
             Iterator  mB = Y.beginBusinessDays();
-            ASSERT_SAFE_FAIL(mA == mB);
-            ASSERT_SAFE_FAIL(mA != mB);
+            ASSERT_SAFE_FAIL((void)(mA == mB));
+            ASSERT_SAFE_FAIL((void)(mA != mB));
         }
       } break;
       case 22: {
@@ -6581,21 +6581,8 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mA.swap(mB));
                 ASSERT_SAFE_FAIL(mC.swap(mZ));
             }
-
-            if (veryVerbose) cout << "\t'swap' free function" << endl;
-            {
-                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
-                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
-
-                Obj mA(&oa1);
-                Obj mB(&oa1);
-                Obj mC(&oa1);
-                Obj mZ(&oa2);
-
-                ASSERT_SAFE_PASS(swap(mA, mB));
-                ASSERT_SAFE_FAIL(swap(mC, mZ));
-            }
         }
+
       } break;
       case 7: {
         // -------------------------------------------------------------------

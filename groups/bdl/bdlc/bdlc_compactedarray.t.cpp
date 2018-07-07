@@ -1216,25 +1216,25 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             Obj mY;  const Obj& Y = mY;
 
-            ASSERT_SAFE_PASS(X.begin()  <  X.end());
-            ASSERT_SAFE_PASS(X.begin()  <  X.end());
-            ASSERT_SAFE_PASS(X.begin()  <= X.end());
-            ASSERT_SAFE_PASS(X.begin()  >  X.end());
-            ASSERT_SAFE_PASS(X.begin()  >= X.end());
+            ASSERT_SAFE_PASS((void)(X.begin()  <  X.end()));
+            ASSERT_SAFE_PASS((void)(X.begin()  <  X.end()));
+            ASSERT_SAFE_PASS((void)(X.begin()  <= X.end()));
+            ASSERT_SAFE_PASS((void)(X.begin()  >  X.end()));
+            ASSERT_SAFE_PASS((void)(X.begin()  >= X.end()));
 
-            ASSERT_SAFE_FAIL(X.begin()  <  Y.end());
-            ASSERT_SAFE_FAIL(X.begin()  <= Y.end());
-            ASSERT_SAFE_FAIL(X.begin()  >  Y.end());
-            ASSERT_SAFE_FAIL(X.begin()  >= Y.end());
+            ASSERT_SAFE_FAIL((void)(X.begin()  <  Y.end()));
+            ASSERT_SAFE_FAIL((void)(X.begin()  <= Y.end()));
+            ASSERT_SAFE_FAIL((void)(X.begin()  >  Y.end()));
+            ASSERT_SAFE_FAIL((void)(X.begin()  >= Y.end()));
 
-            ASSERT_SAFE_FAIL(X.begin()  <  Iterator());
-            ASSERT_SAFE_FAIL(Iterator() <  X.begin());
-            ASSERT_SAFE_FAIL(X.begin()  <= Iterator());
-            ASSERT_SAFE_FAIL(Iterator() <= X.begin());
-            ASSERT_SAFE_FAIL(X.begin()  >  Iterator());
-            ASSERT_SAFE_FAIL(Iterator() >  X.begin());
-            ASSERT_SAFE_FAIL(X.begin()  >= Iterator());
-            ASSERT_SAFE_FAIL(Iterator() >= X.begin());
+            ASSERT_SAFE_FAIL((void)(X.begin()  <  Iterator()));
+            ASSERT_SAFE_FAIL((void)(Iterator() <  X.begin()));
+            ASSERT_SAFE_FAIL((void)(X.begin()  <= Iterator()));
+            ASSERT_SAFE_FAIL((void)(Iterator() <= X.begin()));
+            ASSERT_SAFE_FAIL((void)(X.begin()  >  Iterator()));
+            ASSERT_SAFE_FAIL((void)(Iterator() >  X.begin()));
+            ASSERT_SAFE_FAIL((void)(X.begin()  >= Iterator()));
+            ASSERT_SAFE_FAIL((void)(Iterator() >= X.begin()));
 
             (void)X;
             (void)Y;
@@ -3602,21 +3602,8 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(mA.swap(mB));
                 ASSERT_FAIL(mC.swap(mZ));
             }
-
-            if (veryVerbose) cout << "\t'swap' free function" << endl;
-            {
-                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
-                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
-
-                Obj mA(&oa1);
-                Obj mB(&oa1);
-                Obj mC(&oa1);
-                Obj mZ(&oa2);
-
-                ASSERT_SAFE_PASS(swap(mA, mB));
-                ASSERT_SAFE_FAIL(swap(mC, mZ));
-            }
         }
+
       } break;
       case 10: {
         // --------------------------------------------------------------------

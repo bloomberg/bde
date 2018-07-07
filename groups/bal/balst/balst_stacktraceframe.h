@@ -149,6 +149,8 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <bslalg_swaputil.h>
+
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -156,13 +158,14 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
-#include <bsl_algorithm.h>    // bsl::swap
 #include <bsl_cstddef.h>      // bsl::size_t
 #include <bsl_iosfwd.h>
 #include <bsl_string.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
+
+#include <bsl_algorithm.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -180,14 +183,6 @@ class StackTraceFrame {
     // section under @DESCRIPTION in the component-level documentation.  Note
     // that the class invariants are identically the constraints on the
     // individual attributes.
-    //
-    // This class:
-    //: o supports a complete set of *value* *semantic* operations
-    //:   o except for 'bdex' serialization
-    //: o is *exception-neutral*
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see 'bsldoc_glossary'.
 
   private:
     // DATA
@@ -433,10 +428,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const StackTraceFrame& object);
 
 // FREE FUNCTIONS
 void swap(StackTraceFrame& a, StackTraceFrame& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -580,14 +574,13 @@ void StackTraceFrame::swap(StackTraceFrame& other)
 
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    using bsl::swap;
-    swap(d_address,           other.d_address);
-    swap(d_libraryFileName,   other.d_libraryFileName);
-    swap(d_lineNumber,        other.d_lineNumber);
-    swap(d_mangledSymbolName, other.d_mangledSymbolName);
-    swap(d_offsetFromSymbol,  other.d_offsetFromSymbol);
-    swap(d_sourceFileName,    other.d_sourceFileName);
-    swap(d_symbolName,        other.d_symbolName);
+    bslalg::SwapUtil::swap(&d_address,           &other.d_address);
+    bslalg::SwapUtil::swap(&d_libraryFileName,   &other.d_libraryFileName);
+    bslalg::SwapUtil::swap(&d_lineNumber,        &other.d_lineNumber);
+    bslalg::SwapUtil::swap(&d_mangledSymbolName, &other.d_mangledSymbolName);
+    bslalg::SwapUtil::swap(&d_offsetFromSymbol,  &other.d_offsetFromSymbol);
+    bslalg::SwapUtil::swap(&d_sourceFileName,    &other.d_sourceFileName);
+    bslalg::SwapUtil::swap(&d_symbolName,        &other.d_symbolName);
 }
 
 // ACCESSORS
@@ -715,7 +708,17 @@ bool balst::operator!=(const StackTraceFrame& lhs, const StackTraceFrame& rhs)
 inline
 void balst::swap(StackTraceFrame& a, StackTraceFrame& b)
 {
-    a.swap(b);
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    StackTraceFrame futureA(b, a.allocator());
+    StackTraceFrame futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
 }
 
 }  // close enterprise namespace

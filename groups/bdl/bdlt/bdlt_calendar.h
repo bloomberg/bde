@@ -1260,10 +1260,9 @@ void hashAppend(HASHALG& hashAlg, const Calendar& object);
     // provides a 'bsl::hash' specialization for 'Calendar'.
 
 void swap(Calendar& a, Calendar& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
                     // ===================================
                     // class Calendar_BusinessDayConstIter
@@ -2009,7 +2008,17 @@ void bdlt::hashAppend(HASHALG& hashAlg, const Calendar& object)
 inline
 void bdlt::swap(Calendar& a, Calendar& b)
 {
-    a.swap(b);
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    Calendar futureA(b, a.allocator());
+    Calendar futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
 }
 
 namespace bdlt {
@@ -2140,7 +2149,7 @@ struct UsesBslmaAllocator<bdlt::Calendar> : bsl::true_type {};
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
