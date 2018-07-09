@@ -15,11 +15,12 @@
 
 #include <algorithm>
 
+#include <ctype.h>
+#include <errno.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <time.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
