@@ -2011,12 +2011,10 @@ int main(int argc, char *argv[])
 
             const int startTestStatus = testStatus;
 
-            if (!frame.isSymbolNameKnown() ||
-                !frame.isMangledSymbolNameKnown())
-            {
+            if (!frame.isSymbolNameKnown()) {
                 if (veryVerbose) {
-                    cout << "Symbol is not resolved: \""
-                         << v[ii].d_demangledName << "\"\n";
+                    cout << "line = " << v[ii].d_line
+                         << ", Warning: Unresolved symbol\n";
                 }
                 ++numFailed;
                 continue;                                           // CONTINUE
