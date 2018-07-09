@@ -24,7 +24,15 @@ BSLS_IDENT_RCSID(bdlde_crc32c_cpp,"$Id$ $CSID$")
 #include <cpuid.h>
 #endif
 
-#if defined(BSLS_PLATFORM_CPU_SPARC)
+// #define BDLDE_SUPPORT_SPARC_HARDWERE_OPTIMIZATION
+    // The Sparc hardware optimization is implemented in a third-party library
+    // provided by Oracle.  For the time being we remove optimized crc32
+    // implementation and use software version of crc32 computation instead
+    // until we decide whether we are permitted to distribute the library to
+    // other open-source users.
+
+#if defined(BSLS_PLATFORM_CPU_SPARC) && \
+    defined(BDLDE_SUPPORT_SPARC_HARDWERE_OPTIMIZATION)
 #include <sparc_crc32c.h>
 #endif
 
@@ -865,7 +873,8 @@ unsigned int calculateCrc32c(const unsigned char *data,
     return crc;
 }
 
-#if defined(BSLS_PLATFORM_CPU_SPARC)
+#if defined(BSLS_PLATFORM_CPU_SPARC) && \
+    defined(BDLDE_SUPPORT_SPARC_HARDWERE_OPTIMIZATION)
 unsigned int sparcHardware(const unsigned char *data,
                            bsl::size_t          length,
                            unsigned int         crc)
@@ -878,7 +887,7 @@ unsigned int sparcHardware(const unsigned char *data,
     // swap the endianess of the result.
     return bsls::ByteOrderUtil::swapBytes(result);
 }
-#endif  // BSLS_PLATFORM_CPU_SPARC
+#endif  // BSLS_PLATFORM_CPU_SPARC && BDLDE_SUPPORT_SPARC_HARDWERE_OPTIMIZATION
 
 unsigned int crc32cSoftware(const unsigned char *data,
                             bsl::size_t          length,
@@ -1221,7 +1230,8 @@ Crc32cCalculator::Crc32cCalculator()
     s_crc32cFn = crc32cSoftware;
 #endif
 
-#elif defined(BSLS_PLATFORM_CPU_SPARC)
+#elif defined(BSLS_PLATFORM_CPU_SPARC) && \
+      defined(BDLDE_SUPPORT_SPARC_HARDWERE_OPTIMIZATION)
     if (is_sparc_crc32c_avail()) {
         BSLS_LOG_INFO("Using hardware version for CRC32-C computation "
                       "(sparc hardware support available)");
