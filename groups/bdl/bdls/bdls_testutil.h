@@ -12,13 +12,14 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS:
+//  BDLS_TESTUTIL_ASSERT(X): record and print error if '!X'
 //  BDLS_TESTUTIL_LOOP_ASSERT(I, X): print args if '!X'
 //  BDLS_TESTUTIL_LOOP2_ASSERT(I, J, X): print args if '!X'
 //  BDLS_TESTUTIL_LOOP3_ASSERT(I, J, K, X): print args if '!X'
 //  BDLS_TESTUTIL_LOOP4_ASSERT(I, J, K, L, X): print args if '!X'
 //  BDLS_TESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X): print args if '!X'
 //  BDLS_TESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X): print args if '!X'
-//  BDLS_TESTUTIL_ASSERTV(..., x): generic print args if '!X'
+//  BDLS_TESTUTIL_ASSERTV(..., X): generic print args if '!X'
 //  BDLS_TESTUTIL_Q(X): quote identifier literally
 //  BDLS_TESTUTIL_P(X): print identifier and value
 //  BDLS_TESTUTIL_P_(X): print identifier and value without '\n'
@@ -148,225 +149,56 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bsl_iostream.h>
-
-#include <bsltf_templatetestfacility.h>
+#include <bslim_testutil.h>
 
                        // =================
                        // Macro Definitions
                        // =================
 
 #define BDLS_TESTUTIL_ASSERT(X)                                               \
-    aSsErT(!(X), #X, __LINE__);
+    BSLIM_TESTUTIL_ASSERT(X)
 
 #define BDLS_TESTUTIL_LOOP0_ASSERT                                            \
-    BDLS_TESTUTIL_ASSERT
+    BSLIM_TESTUTIL_ASSERT
 
 #define BDLS_TESTUTIL_LOOP_ASSERT(I,X)                                        \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n";                         \
-                aSsErT(1, #X, __LINE__); }
+    BSLIM_TESTUTIL_LOOP_ASSERT(I,X)
 
 #define BDLS_TESTUTIL_LOOP1_ASSERT                                            \
-    BDLS_TESTUTIL_LOOP_ASSERT
+    BSLIM_TESTUTIL_LOOP_ASSERT
 
 #define BDLS_TESTUTIL_LOOP2_ASSERT(I,J,X)                                     \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\n";                         \
-                aSsErT(1, #X, __LINE__); }
+    BSLIM_TESTUTIL_LOOP2_ASSERT(I,J,X)
 
 #define BDLS_TESTUTIL_LOOP3_ASSERT(I,J,K,X)                                   \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\t"                          \
-                          << #K << ": " << K << "\n";                         \
-                aSsErT(1, #X, __LINE__); }
+    BSLIM_TESTUTIL_LOOP3_ASSERT(I,J,K,X)
 
 #define BDLS_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)                                 \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\t"                          \
-                          << #K << ": " << K << "\t"                          \
-                          << #L << ": " << L << "\n";                         \
-                aSsErT(1, #X, __LINE__); }
+    BSLIM_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)
 
 #define BDLS_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)                               \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\t"                          \
-                          << #K << ": " << K << "\t"                          \
-                          << #L << ": " << L << "\t"                          \
-                          << #M << ": " << M << "\n";                         \
-                aSsErT(1, #X, __LINE__); }
+    BSLIM_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)
 
 #define BDLS_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)                             \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\t"                          \
-                          << #K << ": " << K << "\t"                          \
-                          << #L << ": " << L << "\t"                          \
-                          << #M << ": " << M << "\t"                          \
-                          << #N << ": " << N << "\n";                         \
-                aSsErT(1, #X, __LINE__); }
+    BSLIM_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)
 
-// The 'BDLS_TESTUTIL_EXPAND' macro is required to work around a preprocessor
-// issue on Windows that prevents '__VA_ARGS__' from being expanded in the
-// definition of 'BDLS_TESTUTIL_NUM_ARGS'.
-
-#define BDLS_TESTUTIL_EXPAND(X)                                               \
-    X
-
-#define BDLS_TESTUTIL_NUM_ARGS_IMPL(X6, X5, X4, X3, X2, X1, X0, N, ...)       \
-    N
-
-#define BDLS_TESTUTIL_NUM_ARGS(...)                                           \
-    BDLS_TESTUTIL_EXPAND(BDLS_TESTUTIL_NUM_ARGS_IMPL(                         \
-                                         __VA_ARGS__, 6, 5, 4, 3, 2, 1, 0, ""))
-
-#define BDLS_TESTUTIL_LOOPN_ASSERT_IMPL(N, ...)                               \
-    BDLS_TESTUTIL_EXPAND(BDLS_TESTUTIL_LOOP ## N ## _ASSERT(__VA_ARGS__))
-
-#define BDLS_TESTUTIL_LOOPN_ASSERT(N, ...)                                    \
-    BDLS_TESTUTIL_LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
-
-#define BDLS_TESTUTIL_ASSERTV(...)                                            \
-    BDLS_TESTUTIL_LOOPN_ASSERT(                                               \
-                              BDLS_TESTUTIL_NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+#define BDLS_TESTUTIL_ASSERTV                                                 \
+    BSLIM_TESTUTIL_ASSERTV
 
 #define BDLS_TESTUTIL_Q(X)                                                    \
-    bsl::cout << "<| " #X " |>" << bsl::endl;
-    // Quote identifier literally.
+    BSLIM_TESTUTIL_Q(X)
 
 #define BDLS_TESTUTIL_P(X)                                                    \
-    bsl::cout << #X " = " << (X) << bsl::endl;
-    // Print identifier and its value.
+    BSLIM_TESTUTIL_P(X)
 
 #define BDLS_TESTUTIL_P_(X)                                                   \
-    bsl::cout << #X " = " << (X) << ", " << bsl::flush;
-    // 'P(X)' without '\n'
+    BSLIM_TESTUTIL_P_(X)
 
 #define BDLS_TESTUTIL_L_                                                      \
-    __LINE__
-    // current Line number
+    BSLIM_TESTUTIL_L_
 
 #define BDLS_TESTUTIL_T_                                                      \
-    bsl::cout << "\t" << bsl::flush;
-    // Print tab (w/o newline).
-
-namespace BloombergLP {
-namespace bsltf {
-
-// FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const EnumeratedTestType::Enum&        obj);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const UnionTestType&                   obj);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const SimpleTestType&                  obj);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const AllocTestType&                   obj);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const BitwiseMoveableTestType&         obj);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const AllocBitwiseMoveableTestType&    obj);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonTypicalOverloadsTestType&     obj);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonAssignableTestType&           obj);
-#if 0
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonCopyConstructibleTestType&    obj);
-#endif
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonDefaultConstructibleTestType& obj);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonEqualComparableTestType&      obj);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a reference providing
-    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
-    // operation has no effect.
-
-// ============================================================================
-//                          INLINE DEFINITIONS
-// ============================================================================
-
-// FREE OPERATORS
-inline
-bsl::ostream& operator<<(bsl::ostream&                   stream,
-                         const EnumeratedTestType::Enum& obj)
-{
-    return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&        stream,
-                         const UnionTestType& obj)
-{
-    return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&         stream,
-                         const SimpleTestType& obj)
-{
-    return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&        stream,
-                         const AllocTestType& obj)
-{
-    return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                  stream,
-                         const BitwiseMoveableTestType& obj)
-{
-    return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                       stream,
-                         const AllocBitwiseMoveableTestType& obj)
-{
-    return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                      stream,
-                         const NonTypicalOverloadsTestType& obj)
-{
-    return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const NonAssignableTestType& obj)
-{
-    return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
-}
-
-#if 0
-inline
-bsl::ostream& operator<<(bsl::ostream&                       stream,
-                         const NonCopyConstructibleTestType& obj)
-{
-    return stream << obj.data();
-}
-#endif
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonDefaultConstructibleTestType& obj)
-{
-    return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                     stream,
-                         const NonEqualComparableTestType& obj)
-{
-    return stream << bsltf::TemplateTestFacility::getIdentifier(obj);
-}
-
-}  // close namespace bsltf
-}  // close enterprise namespace
+    BSLIM_TESTUTIL_T_
 
 #endif
 
