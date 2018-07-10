@@ -136,11 +136,11 @@ BSLS_IDENT("$Id: $")
 //: o A (scoped) guard is an object that maintains control over an associated
 //:   resource (often acquired on construction) and releases that control when
 //:   the guard is destroyed (typically at scope exit -- either normally or
-//:   because an exception is thrown).  The guard *may* provide an explicit
-//:   release method, but -- unlike a Proctor (see [UC.3]) -- such a release 
+//:   because an exception was thrown).  The guard *may* provide an explicit
+//:   release method, but -- unlike a Proctor (see [UC.3]) -- such a release
 //:   method is not commonly used.
 //:   o A canonical example is a lock guard (e.g., 'std::lock_guard'), which
-//:     acquires a lock (typically on a mutex) at construction, and releases 
+//:     acquires a lock (typically on a mutex) at construction, and releases
 //:     that lock upon the guard's destruction.
 //
 ///In-Core Value-Semantic Type [TC.2]
@@ -193,17 +193,17 @@ BSLS_IDENT("$Id: $")
 ///Proctor [UC.3]
 /// - - - - - - -
 //: o A proctor is a special kind of guard intended to restore a valid state
-//:   under abnormal circumstances (e.g., a thrown exception), until a valid 
-//:   state is restored normally, after which the proctor's responsibly is
-//:   explicitly released by its client. The proctor *must* provide a 
-//:   mechanism to release the resource from management, and -- unlike a 
-//:   standard Guard (see [UC.2]) -- its management responsibility is 
-//:   typically released prior to its destruction.  
+//:   under abnormal circumstances (e.g., a thrown exception), until a valid
+//:   state is restored normally, after which the proctor's responsibility is
+//:   explicitly released by its client.  The proctor *must* provide a
+//:   mechanism to release the resource from management, and -- unlike a
+//:   standard Guard (see [UC.2]) -- its management responsibility is
+//:   typically released prior to its destruction.
 //:   o A canonical example is 'bslalg::AutoArrayDestructor', which is used to
-//:     implement exception safety while moving elements within an array, 
+//:     implement exception safety while moving elements within an array,
 //:     restoring a valid state in case of an exception, or doing nothing once
-//:     its 'release' method is invoked (after a valid state has been 
-//:     re-established). 
+//:     its 'release' method is invoked (after a valid state has been
+//:     reestablished).
 //
 ///Protocol [TC.7]
 ///- - - - - - - -
