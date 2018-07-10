@@ -2013,8 +2013,7 @@ int main(int argc, char *argv[])
 
             if (!frame.isSymbolNameKnown()) {
                 if (veryVerbose) {
-                    cout << "line = " << v[ii].d_line
-                         << ", Warning: Unresolved symbol\n";
+                    cout << "Unresolved symbol: "; P(LINE);
                 }
                 ++numFailed;
                 continue;                                           // CONTINUE
