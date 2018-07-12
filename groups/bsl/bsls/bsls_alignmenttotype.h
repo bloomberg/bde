@@ -290,11 +290,12 @@ struct AlignmentToType {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS) && \
     !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900)
 
-	// Do not use 'alignas' with MSVC 2015 as it creates a "hard" alignment
-	// requirement that may inhibit the resulting type from being used as a
-	// by-value function-parameter.  See compiler error C2719:
-	// https://msdn.microsoft.com/en-us/library/373ak2y1.aspx  The documentation
-	// talks about '__declspec(align(N))' but the same applies to 'alignas'.
+        // Do not use 'alignas' with MSVC 2015 as it creates a "hard" alignment
+        // requirement that may inhibit the resulting type from being used as a
+        // by-value function-parameter.  See compiler error C2719:
+        // https://msdn.microsoft.com/en-us/library/373ak2y1.aspx The
+        // documentation talks about '__declspec(align(N))' but the same
+        // applies to 'alignas'.
 
 #define BSLS_ALIGNMENTTOTYPE_USES_ALIGNAS
 #endif

@@ -158,6 +158,8 @@ using bsls::NameOf;
 //*[ 2] ~unordered_set();
 //*[ 9] unordered_set& operator=(const unordered_set& rhs);
 //*[29] unordered_set& operator=(unordered_set&& rhs);
+//*[34] unordered_set& operator=(unordered_set&& rhs);
+//*[35] unordered_set& operator=(unordered_set&& rhs);
 // [32] unordered_set& operator=(initializer_list<value_type>);
 //
 // iterators:
@@ -231,7 +233,7 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
-// [34] USAGE EXAMPLE
+// [36] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 //*[ 3] int ggg(unordered_set<K,H,E,A> *object, const char *spec, int verbose);
@@ -1602,11 +1604,12 @@ class TestDriver {
 
     template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
               bool OTHER_FLAGS>
-    static void testCase29_propagate_on_container_move_assignment_dispatch();
-    static void testCase29_propagate_on_container_move_assignment();
+    static void
+          testCaseMoveAssign_propagate_on_container_move_assignment_dispatch();
+    static void testCaseMoveAssign_propagate_on_container_move_assignment();
         // Test 'propagate_on_container_move_assignment'.
 
-    static void testCase29();
+    static void testCaseMoveAssign();
         // Test move assignment.
 
     static void testCase27();
@@ -4130,7 +4133,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOC>
 template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
           bool OTHER_FLAGS>
 void TestDriver<KEY, HASH, EQUAL, ALLOC>::
-                   testCase29_propagate_on_container_move_assignment_dispatch()
+           testCaseMoveAssign_propagate_on_container_move_assignment_dispatch()
 {
     // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
     // under test in this test case to 'false'.
@@ -4225,7 +4228,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, HASH, EQUAL, ALLOC>::
-                            testCase29_propagate_on_container_move_assignment()
+                    testCaseMoveAssign_propagate_on_container_move_assignment()
 {
     // ------------------------------------------------------------------------
     // MOVE-ASSIGNMENT OPERATOR: ALLOCATOR PROPAGATION
@@ -4291,18 +4294,26 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::
     if (verbose)
         printf("\n'propagate_on_container_move_assignment::value == false'\n");
 
-    testCase29_propagate_on_container_move_assignment_dispatch<false, false>();
-    testCase29_propagate_on_container_move_assignment_dispatch<false, true>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                      false,
+                                                                      false>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                      false,
+                                                                      true>();
 
     if (verbose)
         printf("\n'propagate_on_container_move_assignment::value == true'\n");
 
-    testCase29_propagate_on_container_move_assignment_dispatch<true, false>();
-    testCase29_propagate_on_container_move_assignment_dispatch<true, true>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                      true,
+                                                                      false>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                      true,
+                                                                      true>();
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase29()
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCaseMoveAssign()
 {
     // ------------------------------------------------------------------------
     // TESTING MOVE-ASSIGNMENT OPERATOR:
@@ -10741,7 +10752,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&testAlloc));
 
     switch (test) { case 0:
-      case 34: {
+      case 36: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -10896,6 +10907,33 @@ if (verbose) {
 // See the material in {'bslstl_unorderedmap'|Example 2}.
 
       } break;
+      case 35: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT - Part 3
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING MOVE ASSIGNMENT - Part 3"
+                            "\n================================\n");
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      testCaseMoveAssign,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+      } break;
+      case 34: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT - Part 2
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING MOVE ASSIGNMENT - Part 2"
+                            "\n================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseMoveAssign,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED);
+
+        // TBD test 'bsltf::MoveOnlyAllocTestType' here
+      } break;
       case 33: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION
@@ -10973,29 +11011,23 @@ if (verbose) {
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // TESTING MOVE ASSIGNMENT
+        // TESTING MOVE ASSIGNMENT - Part 1
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING MOVE ASSIGNMENT"
-                            "\n=======================\n");
+        if (verbose) printf("\nTESTING MOVE ASSIGNMENT - Part 1"
+                            "\n================================\n");
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase29,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      testCaseMoveAssign,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
                       bsltf::MoveOnlyAllocTestType);
 
         // 'propagate_on_container_move_assignment' testing
 
-        RUN_EACH_TYPE(TestDriver,
-                      testCase29_propagate_on_container_move_assignment,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        // TBD test 'bsltf::MoveOnlyAllocTestType' here
-
-        RUN_EACH_TYPE(StdBslmaTestDriver,
-                      testCase29,
-                      bsltf::StdAllocTestType<bsl::allocator<int> >,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+        RUN_EACH_TYPE(
+                     TestDriver,
+                     testCaseMoveAssign_propagate_on_container_move_assignment,
+                     BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 28: {
         // --------------------------------------------------------------------

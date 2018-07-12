@@ -418,6 +418,8 @@ enum {
 #endif
 };
 
+typedef double InsertRangeNoopType;
+
 // CONSTANTS
 static const size_t DEFAULT_MAX_LENGTH = 17;
 
@@ -1848,24 +1850,27 @@ struct TestDriver {
     static void testCase18Negative();
         // Negative testing for 'erase' and 'pop_back'.
 
-    static void testCase17();
+    // 'testCase17*' (insert) had to be broken up into pieces to avoid
+    // timeouts.
+
+    static void testCaseInsertPartA();
         // Test 'insert' members, and move 'push_back' and 'insert' members.
 
-    static void testCase17a();
+    static void testCaseInsertPartB();
         // New test for 'push_back' method taking a reference to non-modifiable
         // 'value_type' that is consistent with other containers and can be
         // easily duplicated for version taking an rvalue reference.
 
-    static void testCase17b();
+    static void testCaseInsertPartC();
         // New test for 'insert' method taking a reference to non-modifiable
         // 'value_type' that is consistent with other containers and can be
         // easily duplicated for version taking an rvalue reference.
 
     template <class CONTAINER>
-    static void testCase17Range(const CONTAINER&);
+    static void testCaseInsertRange(const CONTAINER&);
         // Test 'insert' member template.
 
-    static void testCase17Negative();
+    static void testCaseInsertNegative();
         // Negative testing for 'insert'.
 
     static void testCase16();
@@ -7374,7 +7379,7 @@ void TestDriver<TYPE, ALLOC>::testCase18Negative()
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE, ALLOC>::testCase17()
+void TestDriver<TYPE, ALLOC>::testCaseInsertPartA()
 {
     // ------------------------------------------------------------------------
     // TESTING INSERTION
@@ -7828,7 +7833,7 @@ void TestDriver<TYPE, ALLOC>::testCase17()
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE, ALLOC>::testCase17a()
+void TestDriver<TYPE, ALLOC>::testCaseInsertPartB()
 {
     // ------------------------------------------------------------------------
     // TESTING 'push_back(const T&)'
@@ -8118,7 +8123,7 @@ void TestDriver<TYPE, ALLOC>::testCase17a()
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE, ALLOC>::testCase17b()
+void TestDriver<TYPE, ALLOC>::testCaseInsertPartC()
 {
     // ------------------------------------------------------------------------
     // TESTING 'insert(const_iterator position, const T&)'
@@ -8336,7 +8341,7 @@ void TestDriver<TYPE, ALLOC>::testCase17b()
 
 #if 0
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE, ALLOC>::testCase17Variadic(int numOfArgs)
+void TestDriver<TYPE, ALLOC>::testCaseInsertVariadic(int numOfArgs)
 {
     // ------------------------------------------------------------------------
     // TESTING INSERTION
@@ -8750,7 +8755,7 @@ void TestDriver<TYPE, ALLOC>::testCase17Variadic(int numOfArgs)
 
 template <class TYPE, class ALLOC>
 template <class CONTAINER>
-void TestDriver<TYPE, ALLOC>::testCase17Range(const CONTAINER&)
+void TestDriver<TYPE, ALLOC>::testCaseInsertRange(const CONTAINER&)
 {
     // ------------------------------------------------------------------------
     // TESTING INSERTION
@@ -8793,6 +8798,10 @@ void TestDriver<TYPE, ALLOC>::testCase17Range(const CONTAINER&)
     //   template <class InputIter>
     //    void insert(const_iterator pos, InputIter first, InputIter last);
     // ------------------------------------------------------------------------
+
+    if (bsl::is_same<InsertRangeNoopType, TYPE>::value) {
+        return;
+    }
 
     if (verbose) printf("\nTesting '%s'.\n", NameOf<TYPE>().name());
 
@@ -9081,7 +9090,7 @@ void TestDriver<TYPE, ALLOC>::testCase17Range(const CONTAINER&)
 
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE, ALLOC>::testCase17Negative()
+void TestDriver<TYPE, ALLOC>::testCaseInsertNegative()
 {
     // ------------------------------------------------------------------------
     // NEGATIVE TESTING INSERTION
@@ -12138,6 +12147,160 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 48: {
+        // --------------------------------------------------------------------
+        // TESTING INSERTION: RANGE PART 4
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Range Insertion Part 4"
+                            "\n=============================\n");
+
+        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
+                                     testCaseInsertRange,
+                                     bsltf::MovableTestType,
+                                     bsltf::MovableAllocTestType,
+                                     InsertRangeNoopType,
+                                     InsertRangeNoopType);
+      } break;
+      case 47: {
+        // --------------------------------------------------------------------
+        // TESTING INSERTION: RANGE PART 3
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Range Insertion Part 3"
+                            "\n=============================\n");
+
+        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
+                                     testCaseInsertRange,
+                                     bsltf::BitwiseCopyableTestType,
+                                     bsltf::NonTypicalOverloadsTestType,
+                                     bsltf::AllocBitwiseMoveableTestType,
+                                     InsertRangeNoopType);
+      } break;
+      case 46: {
+        // --------------------------------------------------------------------
+        // TESTING INSERTION: RANGE PART 2
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Range Insertion Part 2"
+                            "\n==============================\n");
+
+        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
+                                     testCaseInsertRange,
+                                     const char *,
+                                     bsltf::TemplateTestFacility::ObjectPtr,
+                                     bsltf::TemplateTestFacility::FunctionPtr,
+                                     bsltf::TemplateTestFacility::MethodPtr);
+      } break;
+      case 45: {
+        // --------------------------------------------------------------------
+        // TESTING INSERTION: RANGE PART 1
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Range Insertion Part 1"
+                            "\n==============================\n");
+
+        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
+                                     testCaseInsertRange,
+                                     bsltf::AllocTestType,
+                                     bsltf::BitwiseMoveableTestType,
+                                     char,
+                                     InsertRangeNoopType);
+      } break;
+      case 44: {
+        // --------------------------------------------------------------------
+        // TESTING INSERTION: Part C
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING INSERTION: PART C\n"
+                            "=========================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseInsertPartC,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      testCaseInsertPartC,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+      } break;
+      case 43: {
+        // --------------------------------------------------------------------
+        // TESTING INSERTION: Part B
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING INSERTION: PART B\n"
+                            "=========================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseInsertPartB,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      testCaseInsertPartB,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+      } break;
+      case 42: {
+        // --------------------------------------------------------------------
+        // TESTING INSERTION: Residual
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING INSERTION: Residual\n"
+                            "================================\n");
+
+        if (verbose) printf("\nNegative Testing Insertions"
+                            "\n===========================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseInsertNegative,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+        if (verbose) printf("\nTesting iterator vs. value type deduction"
+                            "\n=========================================\n");
+
+        {
+            vector<size_t> vna;
+            vna.insert(vna.end(), 13, 42);
+
+            ASSERT(13 == vna.size());
+            ASSERT(42 == vna.front());
+        }
+      } break;
+      case 41: {
+        // --------------------------------------------------------------------
+        // TESTING INSERTION: Part A Part 3
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING INSERTION: PART A Part 3\n"
+                            "================================\n");
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      testCaseInsertPartA,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+      } break;
+      case 40: {
+        // --------------------------------------------------------------------
+        // TESTING INSERTION: Part A Part 2
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING INSERTION: PART A Part 2\n"
+                            "================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseInsertPartA,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED);
+      } break;
+      case 39:
+      case 38:
+      case 37:
+      case 36: {
+        if (verbose)
+            printf("\nTEST CASE %d IS HANDLED BY PRIMARY TEST DRIVER"
+                   "\n==============================================\n",
+                   test);
+      } break;
       case 35: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION
@@ -12455,79 +12618,14 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING INSERTION
+        // TESTING INSERTION: Part A Part 1
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING INSERTION"
-                            "\n=================\n");
+        if (verbose) printf("TESTING INSERTION: PART A Part 1\n"
+                            "================================\n");
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase17,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase17a,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase17b,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        if (verbose) printf("\nTesting Range Insertion"
-                            "\n=======================\n");
-
-        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
-                                     testCase17Range,
-                                     char,
-                                     bsltf::AllocTestType,
-                                     bsltf::BitwiseMoveableTestType,
-                                     bsltf::BitwiseCopyableTestType);
-
-        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
-                                     testCase17Range,
-                                     const char *,
-                                     bsltf::TemplateTestFacility::ObjectPtr,
-                                     bsltf::TemplateTestFacility::FunctionPtr,
-                                     bsltf::TemplateTestFacility::MethodPtr);
-
-        ITER_CONTAINER_RUN_EACH_TYPE(TestDriver,
-                                     testCase17Range,
-                                     bsltf::NonTypicalOverloadsTestType,
-                                     bsltf::AllocBitwiseMoveableTestType,
-                                     bsltf::MovableTestType,
-                                     bsltf::MovableAllocTestType);
-
-        if (verbose) printf("\nNegative Testing Insertions"
-                            "\n===========================\n");
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase17Negative,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        if (verbose) printf("\nTesting iterator vs. value type deduction"
-                            "\n=========================================\n");
-
-        {
-            vector<size_t> vna;
-            vna.insert(vna.end(), 13, 42);
-
-            ASSERT(13 == vna.size());
-            ASSERT(42 == vna.front());
-        }
-
-        RUN_EACH_TYPE(StdBslmaTestDriver,
-                      testCase17,
-                      bsltf::StdAllocTestType<bsl::allocator<int> >,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
-
-        RUN_EACH_TYPE(StdBslmaTestDriver,
-                      testCase17a,
-                      bsltf::StdAllocTestType<bsl::allocator<int> >,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
-
-        RUN_EACH_TYPE(StdBslmaTestDriver,
-                      testCase17b,
-                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      testCaseInsertPartA,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
       } break;
       case 16: {

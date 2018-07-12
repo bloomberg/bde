@@ -2281,7 +2281,7 @@ struct TestDriver {
         // Test 'erase', 'pop_back', and 'pop_front'.
 
     template <class CONTAINER>
-    static void testCase19(const CONTAINER&);
+    static void testCaseRangeInsertion(const CONTAINER&);
         // Test range 'insert' member.
 
     static void testCase18();
@@ -9106,7 +9106,7 @@ void TestDriver<TYPE,ALLOC>::testCase20()
 
 template <class TYPE, class ALLOC>
 template <class CONTAINER>
-void TestDriver<TYPE,ALLOC>::testCase19(const CONTAINER&)
+void TestDriver<TYPE,ALLOC>::testCaseRangeInsertion(const CONTAINER&)
 {
     // ------------------------------------------------------------------------
     // TESTING INPUT-RANGE INSERTION
@@ -13082,7 +13082,20 @@ void TestDriver<TYPE,ALLOC>::testCase6()
     };
     enum { NUM_ALLOCATOR = sizeof ALLOCATOR / sizeof *ALLOCATOR };
 
-    static const char *SPECS[] = {
+    static const char *QUICK_SPECS[] = {
+        "",
+        "A",      "B",
+        "AA",     "AB",     "BB",     "BA",
+        "AAA",    "BAA",    "ABA",    "AAB",
+        "AAAA",   "BAAA",
+        "AAAAA",  "BAAAA",
+        "AAAAAA", "BAAAAA",
+        "AAAAAAA",
+        "AAAAAAAA",
+        0  // null string required as last element
+    };
+
+    static const char *EXHAUSTIVE_SPECS[] = {
         "",
         "A",      "B",
         "AA",     "AB",     "BB",     "BA",
@@ -13102,9 +13115,14 @@ void TestDriver<TYPE,ALLOC>::testCase6()
         0  // null string required as last element
     };
 
-    if (verbose) printf("\nCompare each pair of similar and different"
+    static const char **SPECS = bsl::is_same<TYPE, TTA>::value
+                              ? EXHAUSTIVE_SPECS
+                              : QUICK_SPECS;
+
+    if (verbose) printf("\n%s compare each pair of similar and different"
                         " values (u, ua, v, va) in S X A X S X A"
-                        " without perturbation.\n");
+                        " without perturbation.\n",
+                        SPECS == QUICK_SPECS ? "Quickly" : "Exhaustively");
     {
 
         int oldLen = -1;
@@ -15443,6 +15461,68 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 36: {
+        // --------------------------------------------------------------------
+        // TESTING INPUT-RANGE INSERTION PART B
+        //
+        // It was necessary to break this up into two parts to avoid timeouts.
+        //
+        // Testing:
+        //   iterator insert(const_iterator pos, ITER first, ITER last);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING INPUT-RANGE INSERTION PART B\n"
+                            "====================================\n");
+
+        if (verbose) printf("\n... with 'BitwiseMoveableTestTypeAlloc' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<BMTTA>::testCaseRangeInsertion(CharArray<BMTTA>());
+
+        if (verbose) printf("\n... with 'BitwiseCopyableTestTypeNoAlloc' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<BCTT>::testCaseRangeInsertion(CharList<BCTT>());
+
+        if (verbose) printf("\n... with 'BitwiseCopyableTestTypeNoAlloc' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<BCTT>::testCaseRangeInsertion(CharArray<BCTT>());
+
+        typedef bsltf::StdAllocTestType<bsl::allocator<int> > AllocInt;
+        StdBslmaTestDriver<AllocInt>::testCaseRangeInsertion(
+                                                        CharArray<AllocInt>());
+      } break;
+      case 35: {
+        // --------------------------------------------------------------------
+        // TESTING INPUT-RANGE INSERTION PART A
+        //
+        // It was necessary to break this up into two parts to avoid timeouts.
+        //
+        // Testing:
+        //   iterator insert(const_iterator pos, ITER first, ITER last);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING INPUT-RANGE INSERTION PART A\n"
+                            "====================================\n");
+
+        if (verbose) printf("\n... with 'TestTypeAlloc' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<TTA>::testCaseRangeInsertion(CharList<TTA>());
+
+        if (verbose) printf("\n... with 'TestTypeAlloc' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<TTA>::testCaseRangeInsertion(CharArray<TTA>());
+
+        if (verbose) printf("\n... with 'MediumTestTypeNoAlloc' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<MedTT>::testCaseRangeInsertion(CharList<MedTT>());
+
+        if (verbose) printf("\n... with 'MediumTestTypeNoAlloc' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<MedTT>::testCaseRangeInsertion(CharArray<MedTT>());
+
+        if (verbose) printf("\n... with 'BitwiseMoveableTestTypeAlloc' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<BMTTA>::testCaseRangeInsertion(CharList<BMTTA>());
+      } break;
       case 34: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION
@@ -16031,54 +16111,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 19: {
-        // --------------------------------------------------------------------
-        // TESTING INPUT-RANGE INSERTION
-        //
-        // Testing:
-        //   iterator insert(const_iterator pos, ITER first, ITER last);
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("TESTING INPUT-RANGE INSERTION\n"
-                            "=============================\n");
-
-        if (verbose) printf("\n... with 'TestTypeAlloc' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<TTA>::testCase19(CharList<TTA>());
-
-        if (verbose) printf("\n... with 'TestTypeAlloc' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<TTA>::testCase19(CharArray<TTA>());
-
-
-        if (verbose) printf("\n... with 'MediumTestTypeNoAlloc' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<MedTT>::testCase19(CharList<MedTT>());
-
-        if (verbose) printf("\n... with 'MediumTestTypeNoAlloc' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<MedTT>::testCase19(CharArray<MedTT>());
-
-
-        if (verbose) printf("\n... with 'BitwiseMoveableTestTypeAlloc' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<BMTTA>::testCase19(CharList<BMTTA>());
-
-        if (verbose) printf("\n... with 'BitwiseMoveableTestTypeAlloc' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<BMTTA>::testCase19(CharArray<BMTTA>());
-
-
-        if (verbose) printf("\n... with 'BitwiseCopyableTestTypeNoAlloc' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<BCTT>::testCase19(CharList<BCTT>());
-
-        if (verbose) printf("\n... with 'BitwiseCopyableTestTypeNoAlloc' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<BCTT>::testCase19(CharArray<BCTT>());
-
-        typedef bsltf::StdAllocTestType<bsl::allocator<int> > AllocInt;
-        StdBslmaTestDriver<AllocInt>::testCase19(CharArray<AllocInt>());
-
+        // This test case is a place-holder
       } break;
       case 18: {
         // --------------------------------------------------------------------
