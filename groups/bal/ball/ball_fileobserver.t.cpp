@@ -670,6 +670,226 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
+      case 6: {
+        // --------------------------------------------------------------------
+        // CONSTRUCTOR, MAKE_SHARED, AND ALLOCATE_SHARED TEST
+        //
+        // Concerns:
+        //: 1 That all the declared constructors funciton correctly.
+        //:
+        //: 2 That the declaration of the type traits correctly interacts with
+        //:   'bsl::make_shared' and especially 'allocate_shared' to guide the
+        //:   proper allocators to the appropriate c'tor arguments.
+        //
+        // Plan:
+        //: 1 Got in a loop, and switch for construction:
+        //:   o The first 6 iterations of the loop switch to call all 4 c'tors,
+        //:     passing all possible values of 'publishInLocalTime' and
+        //:     initializing the pointer 'mX_p' with the result.  After the
+        //:     switch, use 'mX_p' to initailize the shared ptr 'mX'.
+        //:
+        //:   o The next 4 iterations, call the 3 c'tors that take an allocator
+        //:     as the last arg using 'make_shared', which will detect the
+        //:     bslma trait and pass the default allocator to the last arg.
+        //:     Assign from 'make_shared' directly into shared ptr 'mX'.
+        //:
+        //:   o The next 4 iterations, call the 3 c'tors that take an allocator
+        //:     as the last arg using 'allocate_shared', which will detect the
+        //:     bslma trait and pass an allocator other than the default
+        //:     allocator to the last arg.  Assign from 'allocate_shared'
+        //:     directly into shared ptr 'mX'.
+        //:
+        //: 2 After the 'switch' examine the created object with accessors to
+        //:   make sure that it was correctly constructed.
+        // --------------------------------------------------------------------
+
+        cout << "CONSTRUCTOR, MAKE_SHARED, AND ALLOCATE_SHARED TEST\n"
+                "==================================================\n";
+
+        ball::LoggerManagerConfiguration configuration;
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_TRACE,
+                                                       ball::Severity::e_OFF,
+                                                       ball::Severity::e_OFF));
+
+        ball::LoggerManagerScopedGuard guard(configuration);
+
+        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator ua(veryVeryVeryVerbose);
+        bslma::TestAllocator oa(veryVeryVeryVerbose);
+
+#if defined(BSLS_PLATFORM_OS_UNIX) && \
+   (!defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR >= 10)
+        // For the localtime to be picked to avoid the all.pl environment to
+        // pollute us.
+        unsetenv("TZ");
+#endif
+
+        bool go = true;
+        for (int ti = 0; go; ++ti) {
+            Obj *mX_p = 0;
+            bsl::shared_ptr<Obj> mX(static_cast<Obj *>(0), &ta);
+
+            if (veryVerbose) PE(ti);
+
+            bslma::Allocator *passedAllocator = &ta;
+            ball::Severity::Level passedLevel = ball::Severity::e_WARN;
+            bool localTime = false;
+
+            bslma::DefaultAllocatorGuard guardTa(&ta);
+
+            switch (ti) {
+              // Case 0-7 -- call all 6 possible c'tors with placement new,
+              // with all possible values of 'publishInLocalTime' when it is
+              // passed, feeding the result directly into a 'shared_ptr'.
+
+              case 0: {
+                mX_p = new (ta) Obj();
+              } break;
+              case 1: {
+                mX_p = new (ta) Obj(&oa);
+                passedAllocator = &oa;
+              } break;
+              case 2: {
+                mX_p = new (ta) Obj(ball::Severity::e_ERROR);
+                passedLevel = ball::Severity::e_ERROR;
+              } break;
+              case 3: {
+                mX_p = new (ta) Obj(ball::Severity::e_ERROR, &oa);
+                passedLevel = ball::Severity::e_ERROR;
+                passedAllocator = &oa;
+              } break;
+              case 4: {
+                mX_p = new (ta) Obj(ball::Severity::e_ERROR, true);
+                passedLevel = ball::Severity::e_ERROR;
+                localTime = true;
+              } break;
+              case 5: {
+                mX_p = new (ta) Obj(ball::Severity::e_ERROR, false);
+                passedLevel = ball::Severity::e_ERROR;
+              } break;
+              case 6: {
+                mX_p = new (ta) Obj(ball::Severity::e_ERROR, true, &oa);
+                passedLevel = ball::Severity::e_ERROR;
+                passedAllocator = &oa;
+                localTime = true;
+              } break;
+              case 7: {
+                mX_p = new (ta) Obj(ball::Severity::e_ERROR, false, &oa);
+                passedLevel = ball::Severity::e_ERROR;
+                passedAllocator = &oa;
+              } break;
+
+              // Case 8-11 -- call all 3 possible c'tors that don't have
+              // explicit allocators passed, with both possible values of
+              // 'publishInLocalTime' when passed, via 'make_shared', which
+              // will detect the allocator trait and pass the default allocator
+              // as an arg.  Passing an allocator explicitly to the c'tor arg
+              // list would confuse 'make_shared' and result in 2 allocators
+              // being passed to the c'tor.
+
+              case 8: {
+                // 'make_shared' will detect that 'Obj' uses bslma allocators,
+                // and pass the default allocator as an extra arg.
+
+                mX = bsl::make_shared<Obj>();
+              } break;
+              case 9: {
+                // 'make_shared' will detect that 'Obj' uses bslma allocators,
+                // and pass the default allocator as an extra arg.
+
+                mX = bsl::make_shared<Obj>(ball::Severity::e_ERROR);
+                passedLevel = ball::Severity::e_ERROR;
+              } break;
+              case 10: {
+                // 'make_shared' will detect that 'Obj' uses bslma allocators,
+                // and pass the default allocator as an extra arg.
+
+                mX = bsl::make_shared<Obj>(ball::Severity::e_ERROR, true);
+                passedLevel = ball::Severity::e_ERROR;
+                localTime = true;
+              } break;
+              case 11: {
+                // 'make_shared' will detect that 'Obj' uses bslma allocators,
+                // and pass the default allocator as an extra arg.
+
+                mX = bsl::make_shared<Obj>(ball::Severity::e_ERROR, false);
+                passedLevel = ball::Severity::e_ERROR;
+              } break;
+
+              // Case 12-15 -- call all 3 possible c'tors that don't have
+              // explicit allocators passed, with both possible values of
+              // 'publishInLocalTime' when passed, via 'allocate_shared', which
+              // will detect the allocator trait and pass the allocator '&oa'
+              // as an arg.  Passing an allocator explicitly to the c'tor arg
+              // list would confuse 'make_shared' and result in 2 allocators
+              // being passed to the c'tor.
+
+              case 12: {
+                // 'allocate_shared' will detect that 'Obj' uses bslma
+                // allocators, and pass '&oa' as an extra arg.
+
+                mX = bsl::allocate_shared<Obj>(&oa);
+                passedAllocator = &oa;
+              } break;
+              case 13: {
+                // 'allocate_shared' will detect that 'Obj' uses bslma
+                // allocators, and pass '&oa' as an extra arg.
+
+                mX = bsl::allocate_shared<Obj>(&oa, ball::Severity::e_ERROR);
+                passedLevel = ball::Severity::e_ERROR;
+                passedAllocator = &oa;
+              } break;
+              case 14: {
+                // 'allocate_shared' will detect that 'Obj' uses bslma
+                // allocators, and pass '&oa' as an extra arg.
+
+                mX = bsl::allocate_shared<Obj>(&oa,
+                                               ball::Severity::e_ERROR,
+                                               true);
+                passedLevel = ball::Severity::e_ERROR;
+                passedAllocator = &oa;
+                localTime = true;
+              } break;
+              case 15: {
+                // 'allocate_shared' will detect that 'Obj' uses bslma
+                // allocators, and pass '&oa' as an extra arg.
+
+                mX = bsl::allocate_shared<Obj>(&oa,
+                                               ball::Severity::e_ERROR,
+                                               false);
+                passedLevel = ball::Severity::e_ERROR;
+                passedAllocator = &oa;
+              } break;
+              case 16: {
+                go = false;
+                continue;
+              } break;
+              default: {
+                ASSERT(0 && "invalid case");
+                BSLS_ASSERT(0 && "invalid case");
+              } break;
+            }
+
+            if (mX_p) {
+                bsl::shared_ptr<Obj> mY(mX_p, &ta);
+                mX = mY;
+            }
+            bsl::shared_ptr<const Obj> X = mX;
+
+            ASSERTV(ti, passedLevel     == X->stdoutThreshold());
+            ASSERTV(ti, passedAllocator == X->allocator());
+            ASSERTV(ti, localTime       == X->isPublishInLocalTimeEnabled());
+
+            // Make sure new observer can register properly.
+
+            ASSERT(0 == manager.registerObserver(mX, "testObserver"));
+            ASSERT(0 == manager.deregisterObserver(  "testObserver"));
+        }
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING CURRENT LOCAL-TIME OFFSET IN TIMESTAMP
@@ -1892,154 +2112,17 @@ int main(int argc, char *argv[])
 #endif
 
         if (verbose) cerr << "Testing threshold and output format." << endl;
-        bool go = true;
-        for (int ti = 0; go; ++ti) {
-            bsl::shared_ptr<Obj> mX(static_cast<Obj *>(0), &ta);
+        {
+            Obj *mX_p = new (ta) Obj(ball::Severity::e_ERROR, true, &oa);
+            bsl::shared_ptr<Obj>       mX(mX_p, &ta);
+            bsl::shared_ptr<const Obj>  X = mX;
 
-            if (veryVerbose) PE(ti);
+            ASSERT(ball::Severity::e_ERROR == X->stdoutThreshold());
+            ASSERTV(&oa == X->allocator());
+            ASSERTV(X->isPublishInLocalTimeEnabled());
 
-            bslma::Allocator *passedAllocator = &ta;
-            ball::Severity::Level passedLevel = ball::Severity::e_WARN;
-            bool localTime = false;
-
-            switch (ti) {
-              case 0: {
-                bslma::DefaultAllocatorGuard guardTa(&ta);
-                bsl::shared_ptr<Obj> mOrig(new (ta) Obj(), &ta);
-                mX = mOrig;
-              } break;
-              case 1: {
-                bsl::shared_ptr<Obj> mOrig(new (ta) Obj(&oa), &ta);
-                passedAllocator = &oa;
-                mX = mOrig;
-              } break;
-              case 2: {
-                bslma::DefaultAllocatorGuard guardTa(&ta);
-                bsl::shared_ptr<Obj> mOrig(new (ta) Obj(
-                                                      ball::Severity::e_ERROR),
-                                           &ta);
-                passedLevel = ball::Severity::e_ERROR;
-                mX = mOrig;
-              } break;
-              case 3: {
-                bsl::shared_ptr<Obj> mOrig(new (ta) Obj(
-                                                       ball::Severity::e_ERROR,
-                                                       &oa),
-                                           &ta);
-                passedLevel = ball::Severity::e_ERROR;
-                passedAllocator = &oa;
-                mX = mOrig;
-              } break;
-              case 4: {
-                bsl::shared_ptr<Obj> mOrig(new (ta) Obj(
-                                                       ball::Severity::e_ERROR,
-                                                       true,
-                                                       &oa),
-                                           &ta);
-                passedLevel = ball::Severity::e_ERROR;
-                passedAllocator = &oa;
-                localTime = true;
-                mX = mOrig;
-              } break;
-              case 5: {
-                bsl::shared_ptr<Obj> mOrig(new (ta) Obj(
-                                                       ball::Severity::e_ERROR,
-                                                       false,
-                                                       &oa),
-                                           &ta);
-                passedLevel = ball::Severity::e_ERROR;
-                passedAllocator = &oa;
-                mX = mOrig;
-              } break;
-              case 6: {
-                // 'make_shared' will detect that 'Obj' uses bslma allocators,
-                // and pass the default allocator as an extra arg.
-
-                bslma::DefaultAllocatorGuard guardTa(&ta);
-                mX = bsl::make_shared<Obj>();
-              } break;
-              case 7: {
-                // 'make_shared' will detect that 'Obj' uses bslma allocators,
-                // and pass the default allocator as an extra arg.
-
-                bslma::DefaultAllocatorGuard guardTa(&ta);
-                mX = bsl::make_shared<Obj>(ball::Severity::e_ERROR);
-                passedLevel = ball::Severity::e_ERROR;
-              } break;
-              case 8: {
-                // 'make_shared' will detect that 'Obj' uses bslma allocators,
-                // and pass the default allocator as an extra arg.
-
-                bslma::DefaultAllocatorGuard guardTa(&ta);
-                mX = bsl::make_shared<Obj>(ball::Severity::e_ERROR, true);
-                passedLevel = ball::Severity::e_ERROR;
-                localTime = true;
-              } break;
-              case 9: {
-                // 'make_shared' will detect that 'Obj' uses bslma allocators,
-                // and pass the default allocator as an extra arg.
-
-                bslma::DefaultAllocatorGuard guardTa(&ta);
-                mX = bsl::make_shared<Obj>(ball::Severity::e_ERROR, false);
-                passedLevel = ball::Severity::e_ERROR;
-              } break;
-              case 10: {
-                // 'allocate_shared' will detect that 'Obj' uses bslma
-                // allocators, and pass '&oa' as an extra arg.
-
-                mX = bsl::allocate_shared<Obj>(&oa);
-                passedAllocator = &oa;
-              } break;
-              case 11: {
-                // 'allocate_shared' will detect that 'Obj' uses bslma
-                // allocators, and pass '&oa' as an extra arg.
-
-                mX = bsl::allocate_shared<Obj>(&oa, ball::Severity::e_ERROR);
-                passedLevel = ball::Severity::e_ERROR;
-                passedAllocator = &oa;
-              } break;
-              case 12: {
-                // 'allocate_shared' will detect that 'Obj' uses bslma
-                // allocators, and pass '&oa' as an extra arg.
-
-                mX = bsl::allocate_shared<Obj>(&oa,
-                                               ball::Severity::e_ERROR,
-                                               true);
-                passedLevel = ball::Severity::e_ERROR;
-                passedAllocator = &oa;
-                localTime = true;
-              } break;
-              case 13: {
-                // 'allocate_shared' will detect that 'Obj' uses bslma
-                // allocators, and pass '&oa' as an extra arg.
-
-                mX = bsl::allocate_shared<Obj>(&oa,
-                                               ball::Severity::e_ERROR,
-                                               false);
-                passedLevel = ball::Severity::e_ERROR;
-                passedAllocator = &oa;
-              } break;
-              case 14: {
-                go = false;
-                continue;
-              } break;
-              default: {
-                ASSERT(0 && "invalid case");
-                BSLS_ASSERT(0 && "invalid case");
-              } break;
-            }
-
-            bsl::shared_ptr<const Obj> X = mX;
-
-            ASSERTV(ti, passedLevel     == X->stdoutThreshold());
-            ASSERTV(ti, passedAllocator == X->allocator());
-            ASSERTV(ti, localTime       == X->isPublishInLocalTimeEnabled());
-            if (localTime) {
-                // Tests later are based upon the assumption of UTC time.
-
-                mX->disablePublishInLocalTime();
-                ASSERTV(ti, !X->isPublishInLocalTimeEnabled());
-            }
+            mX->disablePublishInLocalTime();
+            ASSERTV(!X->isPublishInLocalTimeEnabled());
 
             bsl::ostringstream os, dos;
 
@@ -2075,38 +2158,12 @@ int main(int argc, char *argv[])
             ASSERT(FsUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
-            if (ball::Severity::e_ERROR == passedLevel) {
-                BALL_LOG_WARN << "not logged";
-                ASSERT(FsUtil::getFileSize(fileName) == fileOffset);
-                dos.str("");
-            }
-            else {
-                BALL_LOG_WARN << "log WARN";
-                // Replace the spaces after pid, __FILE__ to make dos match the
-                // file.
-                {
-                    bsl::string temp = dos.str();
-                    temp[temp.find(__FILE__) + sizeof(__FILE__) - 1] = ':';
-                    replaceSecondSpace(&temp, ':');
-                    dos.str(temp);
-                }
-                if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
-                {
-                    bsl::string coutS = readPartialFile(fileName, fileOffset);
-                    ASSERTV(dos.str(), coutS, dos.str() == coutS);
-                }
-                fileOffset = FsUtil::getFileSize(fileName);
-                dos.str("");
-            }
-
-            mX->setStdoutThreshold(ball::Severity::e_ERROR);
-
-            ASSERT(ball::Severity::e_ERROR == X->stdoutThreshold());
+            BALL_LOG_WARN << "not logged";
+            ASSERT(FsUtil::getFileSize(fileName) == fileOffset);
+            dos.str("");
 
             BALL_LOG_WARN << "not logged";
-
             ASSERT("" == readPartialFile(fileName, fileOffset));
-
             dos.str("");
 
             BALL_LOG_ERROR << "log ERROR";
