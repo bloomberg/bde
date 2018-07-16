@@ -460,23 +460,6 @@ std::ostream& baltzo::operator<<(bsl::ostream&          stream,
     return localTimePeriod.print(stream, 0, -1);
 }
 
-// FREE FUNCTIONS
-inline
-void baltzo::swap(LocalTimePeriod& a, LocalTimePeriod& b)
-{
-    if (a.allocator() == b.allocator()) {
-        a.swap(b);
-
-        return;                                                       // RETURN
-    }
-
-    LocalTimePeriod futureA(b, a.allocator());
-    LocalTimePeriod futureB(a, b.allocator());
-
-    futureA.swap(a);
-    futureB.swap(b);
-}
-
 }  // close enterprise namespace
 
 #endif

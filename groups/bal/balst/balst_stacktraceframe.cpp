@@ -46,6 +46,22 @@ bsl::ostream& StackTraceFrame::print(bsl::ostream& stream,
     return stream;
 }
 
+// MANIPULATORS
+void StackTraceFrame::swap(StackTraceFrame& other)
+{
+    // 'swap' is undefined for objects with non-equal allocators.
+
+    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+
+    bslalg::SwapUtil::swap(&d_address,           &other.d_address);
+    bslalg::SwapUtil::swap(&d_libraryFileName,   &other.d_libraryFileName);
+    bslalg::SwapUtil::swap(&d_lineNumber,        &other.d_lineNumber);
+    bslalg::SwapUtil::swap(&d_mangledSymbolName, &other.d_mangledSymbolName);
+    bslalg::SwapUtil::swap(&d_offsetFromSymbol,  &other.d_offsetFromSymbol);
+    bslalg::SwapUtil::swap(&d_sourceFileName,    &other.d_sourceFileName);
+    bslalg::SwapUtil::swap(&d_symbolName,        &other.d_symbolName);
+}
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -68,6 +84,22 @@ bsl::ostream& balst::operator<<(bsl::ostream&          stream,
     printer.end();
 
     return stream;
+}
+
+// FREE FUNCTIONS
+void balst::swap(StackTraceFrame& a, StackTraceFrame& b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    StackTraceFrame futureA(b, a.allocator());
+    StackTraceFrame futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
 }
 
 }  // close enterprise namespace

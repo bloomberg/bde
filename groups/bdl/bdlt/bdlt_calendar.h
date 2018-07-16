@@ -2005,22 +2005,6 @@ void bdlt::hashAppend(HASHALG& hashAlg, const Calendar& object)
     hashAppend(hashAlg, object.d_packedCalendar);
 }
 
-inline
-void bdlt::swap(Calendar& a, Calendar& b)
-{
-    if (a.allocator() == b.allocator()) {
-        a.swap(b);
-
-        return;                                                       // RETURN
-    }
-
-    Calendar futureA(b, a.allocator());
-    Calendar futureB(a, b.allocator());
-
-    futureA.swap(a);
-    futureB.swap(b);
-}
-
 namespace bdlt {
 
                    // -----------------------------------

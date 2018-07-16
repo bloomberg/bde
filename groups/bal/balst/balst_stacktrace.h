@@ -422,23 +422,6 @@ bsl::ostream& balst::operator<<(bsl::ostream& stream, const StackTrace& object)
     return stream;
 }
 
-// FREE FUNCTIONS
-inline
-void balst::swap(StackTrace& a, StackTrace& b)
-{
-    if (a.allocator() == b.allocator()) {
-        a.swap(b);
-
-        return;                                                       // RETURN
-    }
-
-    StackTrace futureA(b, a.allocator());
-    StackTrace futureB(a, b.allocator());
-
-    futureA.swap(a);
-    futureB.swap(b);
-}
-
 }  // close enterprise namespace
 
 #endif

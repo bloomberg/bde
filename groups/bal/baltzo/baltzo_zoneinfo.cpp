@@ -320,6 +320,22 @@ bsl::ostream& baltzo::operator<<(bsl::ostream& stream, const Zoneinfo& object)
     return stream;
 }
 
+// FREE FUNCTIONS
+void baltzo::swap(Zoneinfo& a, Zoneinfo& b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    Zoneinfo futureA(b, a.allocator());
+    Zoneinfo futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
+}
+
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

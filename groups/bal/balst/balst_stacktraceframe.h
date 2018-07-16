@@ -567,22 +567,6 @@ void StackTraceFrame::setSymbolName(const bslstl::StringRef& value)
     d_symbolName.assign(value.begin(), value.end());
 }
 
-inline
-void StackTraceFrame::swap(StackTraceFrame& other)
-{
-    // 'swap' is undefined for objects with non-equal allocators.
-
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
-
-    bslalg::SwapUtil::swap(&d_address,           &other.d_address);
-    bslalg::SwapUtil::swap(&d_libraryFileName,   &other.d_libraryFileName);
-    bslalg::SwapUtil::swap(&d_lineNumber,        &other.d_lineNumber);
-    bslalg::SwapUtil::swap(&d_mangledSymbolName, &other.d_mangledSymbolName);
-    bslalg::SwapUtil::swap(&d_offsetFromSymbol,  &other.d_offsetFromSymbol);
-    bslalg::SwapUtil::swap(&d_sourceFileName,    &other.d_sourceFileName);
-    bslalg::SwapUtil::swap(&d_symbolName,        &other.d_symbolName);
-}
-
 // ACCESSORS
 inline
 const void *StackTraceFrame::address() const
@@ -702,23 +686,6 @@ bool balst::operator!=(const StackTraceFrame& lhs, const StackTraceFrame& rhs)
         || lhs.offsetFromSymbol()  != rhs.offsetFromSymbol()
         || lhs.sourceFileName()    != rhs.sourceFileName()
         || lhs.symbolName()        != rhs.symbolName();
-}
-
-// FREE FUNCTIONS
-inline
-void balst::swap(StackTraceFrame& a, StackTraceFrame& b)
-{
-    if (a.allocator() == b.allocator()) {
-        a.swap(b);
-
-        return;                                                       // RETURN
-    }
-
-    StackTraceFrame futureA(b, a.allocator());
-    StackTraceFrame futureB(a, b.allocator());
-
-    futureA.swap(a);
-    futureB.swap(b);
 }
 
 }  // close enterprise namespace

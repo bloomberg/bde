@@ -2542,7 +2542,6 @@ bool bdlc::operator!=(const PackedIntArray<TYPE>& lhs,
 
 // FREE FUNCTIONS
 template <class TYPE>
-inline
 void bdlc::swap(PackedIntArray<TYPE>& a, PackedIntArray<TYPE>& b)
 {
     if (a.allocator() == b.allocator()) {

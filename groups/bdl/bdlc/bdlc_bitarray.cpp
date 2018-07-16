@@ -240,6 +240,23 @@ bsl::ostream& BitArray::print(bsl::ostream& stream,
 }
 
 }  // close package namespace
+
+// FREE FUNCTIONS
+void bdlc::swap(BitArray& a, BitArray& b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    BitArray futureA(b, a.allocator());
+    BitArray futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
+}
+
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

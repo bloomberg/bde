@@ -795,23 +795,6 @@ bool baltzo::operator!=(const Zoneinfo& lhs, const Zoneinfo& rhs)
     return !(lhs == rhs);
 }
 
-// FREE FUNCTIONS
-inline
-void baltzo::swap(Zoneinfo& a, Zoneinfo& b)
-{
-    if (a.allocator() == b.allocator()) {
-        a.swap(b);
-
-        return;                                                       // RETURN
-    }
-
-    Zoneinfo futureA(b, a.allocator());
-    Zoneinfo futureB(a, b.allocator());
-
-    futureA.swap(a);
-    futureB.swap(b);
-}
-
 }  // close enterprise namespace
 
 #endif

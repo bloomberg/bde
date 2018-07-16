@@ -2002,7 +2002,6 @@ bool bdlc::operator!=(const CompactedArray<TYPE>& lhs,
 
 // FREE FUNCTIONS
 template <class TYPE>
-inline
 void bdlc::swap(CompactedArray<TYPE>& a, CompactedArray<TYPE>& b)
 {
     if (a.allocator() == b.allocator()) {

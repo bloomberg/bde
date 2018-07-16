@@ -542,6 +542,23 @@ Calendar_BusinessDayConstIter::Calendar_BusinessDayConstIter(
 }
 
 }  // close package namespace
+
+// FREE FUNCTIONS
+void bdlt::swap(Calendar& a, Calendar& b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    Calendar futureA(b, a.allocator());
+    Calendar futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
+}
+
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

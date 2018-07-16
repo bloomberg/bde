@@ -1915,23 +1915,6 @@ bsl::ostream& bdlc::operator<<(bsl::ostream& stream, const BitArray& rhs)
     return rhs.print(stream, 0, -1);
 }
 
-// FREE FUNCTIONS
-inline
-void bdlc::swap(BitArray& a, BitArray& b)
-{
-    if (a.allocator() == b.allocator()) {
-        a.swap(b);
-
-        return;                                                       // RETURN
-    }
-
-    BitArray futureA(b, a.allocator());
-    BitArray futureB(a, b.allocator());
-
-    futureA.swap(a);
-    futureB.swap(b);
-}
-
 namespace bslmf {
 
 template <>
