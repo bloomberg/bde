@@ -3602,7 +3602,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'allocator()'." << endl;
         {
-            if (veryVerbose) cout << "\tSpecifeid no allocator." << endl;
+            if (veryVerbose) cout << "\tSpecified no allocator." << endl;
             Obj t0;
             ASSERT(0 != dynamic_cast<bdlma::HeapBypassAllocator *>(
                                                               t0.allocator()));

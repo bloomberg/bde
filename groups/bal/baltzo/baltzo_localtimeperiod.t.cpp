@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
     ASSERT(true  == edt2010.descriptor().dstInEffectFlag());
     ASSERT(NEW_YORK_DST_OFFSET == edt2010.descriptor().utcOffsetInSeconds());
 //..
-// Next, we create a 'bdlt::Datetime', 'utcDateTime', representing the (UTC)
+// Next, we create a 'bdlt::Datetime', 'utcDatetime', representing the (UTC)
 // time "Jul 20, 2010 11:00":
 //..
     bdlt::Datetime utcDatetime(2010, 7, 20, 11, 0, 0);

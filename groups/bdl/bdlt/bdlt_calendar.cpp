@@ -12,7 +12,7 @@ BSLS_IDENT_RCSID(bdlt_calendar_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlt {
 
-// The implementation requires that return value for an unseccessful
+// The implementation requires that the return value for an unsuccessful
 // 'bdlc::BitArray::find*', when cast to an 'int', is -1.
 BSLMF_ASSERT(-1 == static_cast<int>(bdlc::BitArray::k_INVALID_INDEX));
 

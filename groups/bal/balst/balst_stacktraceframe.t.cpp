@@ -765,7 +765,7 @@ int main(int argc, char *argv[])
         //: 1 For each attribute, use the address of the its
         //:   'is<Attribute>Known' method to initialize a member-function
         //:   pointer having the appropriate signature and return type for the
-        //:   these asscessor methods.  (C-1)
+        //:   these accessor methods.  (C-1)
         //:
         //: 2 Create two 'bslma::TestAllocator' objects. Install one as the
         //:   default allocator (note that a ubiquitous test allocator is
@@ -790,8 +790,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "OTHER ACCCESSORS" << endl
-                          << "================" << endl;
+                          << "OTHER ACCESSORS" << endl
+                          << "===============" << endl;
 
         if (verbose) cout <<
                  "\nAssign the address of each method to a variable." << endl;

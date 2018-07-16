@@ -216,7 +216,7 @@ bool operator>=(const PackedIntArrayConstIterator<TYPE>&,
 struct PackedIntArrayImp_Signed {
     // This 'struct' provides a namespace for types and methods used to
     // implement a space-efficient value-semantic array class representing a
-    // sequence of 'TYPE' elements; 'TYPE' must be convertable to either a
+    // sequence of 'TYPE' elements; 'TYPE' must be convertible to either a
     // 'bsl::int64_t'.  Specifically, it defines the types used to store the
     // array's data, methods needed to externalize and unexternalize the array,
     // and a method to determine the storage size to use for a given value.
@@ -279,7 +279,7 @@ struct PackedIntArrayImp_Signed {
 struct PackedIntArrayImp_Unsigned {
     // This 'struct' provides a namespace for types and methods used to
     // implement a space-efficient value-semantic array class representing a
-    // sequence of 'TYPE' elements; 'TYPE' must be convertable to either a
+    // sequence of 'TYPE' elements; 'TYPE' must be convertible to either a
     // 'bsl::uint64_t'.  Specifically, it defines the types used to store the
     // array's data, methods needed to externalize and unexternalize the array,
     // and a method to determine the storage size to use for a given value.
@@ -343,7 +343,7 @@ template <class STORAGE>
 class PackedIntArrayImp {
     // This space-efficient value-semantic array class represents a sequence of
     // 'STORAGE::EightByteStorageType' elements;
-    // 'STORAGE::EightByteStorageType' must be convertable to either a signed
+    // 'STORAGE::EightByteStorageType' must be convertible to either a signed
     // or unsigned 64-bit integer using 'static_cast'.  The interface provides
     // functionality similar to a 'vector<int>' however references to
     // individual elements are not provided.
@@ -968,7 +968,7 @@ bool operator>=(const PackedIntArrayConstIterator<TYPE>& lhs,
 template <class TYPE>
 class PackedIntArray {
     // This space-efficient value-semantic array class represents a sequence of
-    // 'TYPE' elements; 'TYPE' must be convertable to either a signed or
+    // 'TYPE' elements; 'TYPE' must be convertible to either a signed or
     // unsigned 64-bit integer using 'static_cast'.  The interface provides
     // functionality similar to a 'vector<int>' however references to
     // individual elements are not provided.  This class provides accessors

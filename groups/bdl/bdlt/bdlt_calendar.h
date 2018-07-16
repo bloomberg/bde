@@ -1030,7 +1030,7 @@ class Calendar {
     int numHolidayCodes(const Date& date) const;
         // Return the number of (unique) holiday codes associated with the
         // specified 'date' in this calendar if 'date' is a holiday in this
-        // calender, and 0 otherwise.  The behavior is undefined unless 'date'
+        // calendar, and 0 otherwise.  The behavior is undefined unless 'date'
         // is within the valid range of this calendar.
 
     int numHolidayCodesTotal() const;

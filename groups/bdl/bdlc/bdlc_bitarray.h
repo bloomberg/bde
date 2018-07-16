@@ -1938,8 +1938,8 @@ template <>
 struct IsBitwiseMoveable<bdlc::BitArray> :
                         public IsBitwiseMoveable<bsl::vector<bsl::uint64_t> > {
     // This template specialization for 'IsBitwiseMoveable' indicates that
-    // 'BitArray' is a bitwise moveable type if 'vector<uint64_t>' is a bitwise
-    // moveable type.
+    // 'BitArray' is a bitwise movable type if 'vector<uint64_t>' is a bitwise
+    // movable type.
 };
 
 }  // close namespace bslmf

@@ -3720,7 +3720,7 @@ int main(int argc, char *argv[])
         //:       const pointer to const character for one object and const
         //:       reference to StringRef for another.  Verify that the
         //:       'setPosixExtendedRangeDescription' manipulator is exception
-        //:       eutral.  Use the (as yet unproven) basic accessor to verify
+        //:       neutral.  Use the (as yet unproven) basic accessor to verify
         //:       that only the intended attribute value changed.  (C-10..12)
         //:
         //:     4 Verify that no temporary memory is allocated from the default
