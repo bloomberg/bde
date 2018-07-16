@@ -362,7 +362,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_integralconstant.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_mutex.h>
 
@@ -425,25 +425,20 @@ class FileObserver : public Observer {
     FileObserver2         d_fileObserver2;      // forward most operations to
                                                 // this object
 
+  public:
+    BSLMF_NESTED_TRAIT_DECLARATION(FileObserver, bslma::UsesBslmaAllocator);
+
   private:
     // NOT IMPLEMENTED
     FileObserver(const FileObserver&);
     FileObserver& operator=(const FileObserver&);
-    FileObserver(bslma::Allocator *, bslma::Allocator *);
-    FileObserver(Severity::Level, bslma::Allocator *, bslma::Allocator *);
-        // The constructors with double allocators are there to facilitate more
-        // understandable compiler warnings when people pass trailing
-        // allocators to 'make_shared<FileObserver>' and
-        // 'allocate_shared<FileObserver>'.
 
   public:
     // CREATORS
     FileObserver();
-    explicit
-    FileObserver(bslma::Allocator *basicAllocator);
-    explicit
-    FileObserver(Severity::Level   stdoutThreshold,
-                 bslma::Allocator *basicAllocator  = 0);
+    explicit FileObserver(bslma::Allocator *basicAllocator);
+    explicit FileObserver(Severity::Level   stdoutThreshold,
+                          bslma::Allocator *basicAllocator  = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the optionally specified
         // 'stdoutThreshold' level, and has file logging initially disabled.
@@ -868,14 +863,6 @@ int FileObserver::rotationSize() const
 }
 
 }  // close package namespace
-
-namespace bslma {
-
-template <>
-struct UsesBslmaAllocator<ball::FileObserver> : bsl::true_type
-{};
-
-}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif
