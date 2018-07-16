@@ -704,56 +704,27 @@ int main(int argc, char *argv[])
         //:   'bsl::make_shared' and 'bsl::allocate_shared'.
         //
         // Plan:
-        //: 1 Create two allocators, 'da' default allocator, and 'oa' other
-        //:   allocator.  Use an allocator guard to set 'da' as the default
-        //:   allocator.  When possible, 'oa' will be passed to c'tors.
+        //: 1 Iterate through 2 nested loops through a variety of values to be
+        //:   passed to the 'severity' and 'publishInLocalTime' args of the
+        //:   c'tors.
         //:
-        //: 2 Iterate through a table of 'ball' severity values to be passed
-        //:   to c'tors.
+        //: 2 Within those loops, iterate through another loop to drive a
+        //:   switch statement, calling all of the c'tors and setting up
+        //:   variables to have the expected values for the accessors of the
+        //:   'class' under test.
+        //:   o The first few cases call placement 'new'.
         //:
-        //: 3 Within the P-2 loop, iterate through 'bool' values to be passed
-        //:   to the 'publishInLocalTime' arg of c'tors.
+        //:   o The next few cases call different c'tors through
+        //:     'bsl::make_shared'.
         //:
-        //: 4 Iterate the variable 'ci', which will drive a switch to select
-        //:   the c'tor to be called and how it is to be called.
+        //:   o The next few cases call different c'tors through
+        //:     'bsl::allocate_shared'.
         //:
-        //: 5 Assign to 3 non-const variables, 'level', 'pilt' (short for
-        //:   Publish In Local Time), and 'passedAlloc' the 3 values to be
-        //:   potentially passed to a c'tor.
+        //: 3 After finishing the 'switch', examine the created object through
+        //:   it's accessors and verify the expected values.
         //:
-        //: 6 Define a smart ptr 'mX' set to null and based on the default
-        //:   allocator.
-        //:
-        //: 7 switch on 'ci':
-        //:
-        //: 8 The first 6 cases of the 'switch' cover the 6 possible ways to
-        //:   call the c'tors.  Call through placement 'new', assigning the
-        //:   result to dumb ptr 'mX_p'.  After the 'switch', if 'mX_p' has
-        //:   been set, assign its result to 'mX'.  For those c'tors that take
-        //:   less than 3 args, assign 'level', 'pilt', and/or 'passedAlloc'
-        //:   to their expected default values if they are not passed.
-        //:
-        //: 8 The next 3 cases of the 'switch' assign directly to 'mX' with
-        //:   'bsl::make_shared', calling the 3 c'tors that take allocators.
-        //:   'make_shared' will detect the allocator trait and pass the
-        //:   default allocator to the c'tors.  For those c'tors that take less
-        //:   than 3 args, assign 'level' and/or 'pilt' to their expected
-        //:   default values if they are not passed, and always assign the
-        //:   default allocator to 'passedAlloc'.
-        //:
-        //: 9 The next 3 cases of the 'switch' assign directly to 'mX' with
-        //:   'bsl::allocate_shared', calling the 3 c'tors that take
-        //:   allocators.  'make_shared' will detect the allocator trait and
-        //:   pass the default allocator to the c'tors.  For those c'tors that
-        //:   take less than 3 args, assign 'level' and/or 'pilt' to their
-        //:   expected default values if they are not passed.
-        //:
-        //: 10 After the switch use the accessors to compare 'level', 'pilt',
-        //:    and 'passedAlloc' to the values displayed by the newly created
-        //:    object.
-        //:
-        //: 11 After exiting all loops, verify by compile-time assert that
-        //:    'FileObserver' has the 'bslma::UsesBslmaAllocator' trait.
+        //: 4 After exiting all loops, verify by compile-time assert that
+        //:   'FileObserver' has the 'bslma::UsesBslmaAllocator' trait.
         //
         // Testing:
         //   FileObserver();
