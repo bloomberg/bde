@@ -4,8 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslscm_patchversion.h> // BSLSCM_PATCHVERSION_PATCH
-
 namespace BloombergLP {
 
 #define BSL_VERSION_PATCH 0
