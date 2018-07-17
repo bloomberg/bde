@@ -942,7 +942,7 @@ int main(int argc, char *argv[])
         //:     use the copy constructor and a "scratch" allocator to create a
         //:     'const' 'Obj' 'YY' from 'mY'.
         //:
-        //:   5 Use the 'bslalg_SwapUtil' helper function template to swap the
+        //:   5 Use the 'bslalg::SwapUtil' helper function template to swap the
         //:     values of 'mX' and 'mY', using the free 'swap' function defined
         //:     in this component, then verify that:  (C-7)
         //:

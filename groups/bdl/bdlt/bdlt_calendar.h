@@ -807,7 +807,7 @@ class Calendar {
         // operation has no effect.  If 'stream' becomes invalid during this
         // operation or if 'version' is not supported, this object is
         // unaltered.  Note that no version is read from 'stream'.  See the
-        // 'bdex' package-level documentation for more information on 'bdex'
+        // 'bslx' package-level documentation for more information on BDEX
         // streaming of value-semantic types and containers.
 
     void swap(Calendar& other);
@@ -1180,8 +1180,8 @@ class Calendar {
         // Write this value to the specified output 'stream' using the
         // specified 'version' format and return a reference to the modifiable
         // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.  See the 'bdex'
-        // package-level documentation for more information on 'bdex' streaming
+        // Note that 'version' is not written to 'stream'.  See the 'bslx'
+        // package-level documentation for more information on BDEX streaming
         // of value-semantic types and containers.
 
     bsl::ostream& print(bsl::ostream& stream,

@@ -8,6 +8,8 @@
 #include <bslx_testinstreamexception.h>  // for testing only
 #include <bslx_testoutstream.h>          // for testing only
 
+#include <bslalg_swaputil.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -24,26 +26,6 @@
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-
-// ============================================================================
-//                           ADL SWAP TEST HELPER
-// ----------------------------------------------------------------------------
-
-// TBD move this into its own component?
-template <class TYPE>
-void invokeAdlSwap(TYPE& a, TYPE& b)
-    // Exchange the values of the specified 'a' and 'b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
-    // is undefined unless 'a' and 'b' were created with the same allocator.
-{
-    BSLS_ASSERT_OPT(a.allocator() == b.allocator());
-
-    using namespace bsl;
-    swap(a, b);
-}
-
-// The following 'using' directives must come *after* the definition of
-// 'invokeAdlSwap' (above).
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -513,7 +495,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         if (verbose) cout <<
-                   "\nAssign the addresses of the 'bdex' methods to variables."
+                   "\nAssign the addresses of the BDEX methods to variables."
                                                                        << endl;
         {
             // Verify that the signatures and return types are standard.
@@ -1466,23 +1448,28 @@ int main(int argc, char *argv[])
         //: 2 The common object allocator address held by both objects is
         //:   unchanged.
         //:
-        //: 3 Neither function allocates memory from any allocator.
+        //: 3 The member function does not allocate memory from any allocator;
+        //:   nor does the free function when the two objects being swapped use
+        //:   the same allocator.
         //:
-        //: 4 Both functions have standard signatures and return types.
+        //: 4 The free function can be called with two objects that use
+        //:   different allocators.
         //:
-        //: 5 Using either function to swap an object with itself does not
+        //: 5 Both functions have standard signatures and return types.
+        //:
+        //: 6 Using either function to swap an object with itself does not
         //:   affect the value of the object (alias-safety).
         //:
-        //: 6 The free 'swap' function is discoverable through ADL (Argument
+        //: 7 The free 'swap' function is discoverable through ADL (Argument
         //:   Dependent Lookup).
         //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //: 8 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the addresses of the 'swap' member and free functions defined
         //:   in this component to initialize, respectively, member-function
         //:   and free-function pointers having the appropriate signatures and
-        //:   return types.  (C-4)
+        //:   return types.  (C-5)
         //:
         //: 2 Create a 'bslma::TestAllocator' object, and install it as the
         //:   default allocator (note that a ubiquitous test allocator is
@@ -1502,7 +1489,7 @@ int main(int argc, char *argv[])
         //:     implementations of individual attribute types: ('Y') "Yes",
         //:     ('N') "No", or ('?') "implementation-dependent".
         //:
-        //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 5)
+        //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 6)
         //:
         //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
@@ -1512,9 +1499,9 @@ int main(int argc, char *argv[])
         //:     'Obj' 'XX' from 'mW'.
         //:
         //:   3 Use the member and free 'swap' functions to swap the value of
-        //:     'mW' with itself; verify, after each swap, that:  (C-5)
+        //:     'mW' with itself; verify, after each swap, that:  (C-6)
         //:
-        //:     1 The value is unchanged.  (C-5)
+        //:     1 The value is unchanged.  (C-6)
         //:
         //:     2 The allocator address held by the object is unchanged.
         //:
@@ -1542,7 +1529,7 @@ int main(int argc, char *argv[])
         //:       3 There was no additional object memory allocation.
         //:
         //: 5 Verify that the free 'swap' function is discoverable through ADL:
-        //:   (C-6)
+        //:   (C-7)
         //:
         //:   1 Create a set of attribute values, 'A', distinct from the values
         //:     corresponding to the default-constructed object, choosing
@@ -1560,21 +1547,25 @@ int main(int argc, char *argv[])
         //:     use the copy constructor and a "scratch" allocator to create a
         //:     'const' 'Obj' 'YY' from 'mY'.
         //:
-        //:   5 Use the 'invokeAdlSwap' helper function template to swap the
+        //:   5 Use the 'bslalg::SwapUtil' helper function template to swap the
         //:     values of 'mX' and 'mY', using the free 'swap' function defined
-        //:     in this component, then verify that:  (C-6)
+        //:     in this component, then verify that:  (C-7)
         //:
         //:     1 The values have been exchanged.
         //:
-        //:     2 There was no additional object memory allocation.  (C-6)
+        //:     2 There was no additional object memory allocation.  (C-7)
         //:
-        //: 6 Use the test allocator from P-2 to verify that no memory is ever
+        //: 6 Use the test allocator from P-2 to verify that no memory was
         //:   allocated from the default allocator.  (C-3)
         //:
-        //: 7 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to swap objects that do not
-        //:   refer to the same allocator, but not when the allocators are the
-        //:   same (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
+        //: 7 Verify that free 'swap' exchanges the values of any two objects
+        //:   that use different allocators.  (C-4)
+        //:
+        //: 8 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered when, using the member 'swap' function, an attempt is
+        //:   made to swap objects that do not refer to the same allocator, but
+        //:   not when the allocators are the same (using the
+        //:   'BSLS_ASSERTTEST_*' macros).  (C-8)
         //
         // Testing:
         //   void swap(baltzo::LocalTimeDescriptor& other);
@@ -1731,7 +1722,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
                 }
 
-                // free function 'swap'
+                // free function 'swap', same allocator
                 {
                     bslma::TestAllocatorMonitor oam(&oa);
 
@@ -1776,7 +1767,7 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocatorMonitor oam(&oa);
 
-            invokeAdlSwap(mX, mY);
+            bslalg::SwapUtil::swap(&mX, &mY);
 
             LOOP2_ASSERT(YY, X, YY == X);
             LOOP2_ASSERT(XX, Y, XX == Y);
@@ -1788,6 +1779,45 @@ int main(int argc, char *argv[])
         // Verify no memory is allocated from the default allocator.
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
+        if (verbose) cout <<
+                   "\nFree 'swap' function with different allocators." << endl;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int               LINE1 =  DATA[ti].d_line;
+            const bdlt::DatetimeTz& DTTZ1 = *DATA[ti].d_datetimeTz;
+            const char *const       TZID1 =  DATA[ti].d_timeZoneId;
+
+            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator     oa2("object2", veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            const Obj XX(DTTZ1, TZID1, &scratch);
+
+            if (veryVerbose) { T_ P_(LINE1) P(XX) }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int               LINE2 =  DATA[tj].d_line;
+                const bdlt::DatetimeTz& DTTZ2 = *DATA[tj].d_datetimeTz;
+                const char *const       TZID2 =  DATA[tj].d_timeZoneId;
+
+                Obj mX(XX, &oa);             const Obj& X = mX;
+                Obj mY(DTTZ2, TZID2, &oa2);  const Obj& Y = mY;
+
+                const Obj YY(Y, &scratch);
+
+                if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
+
+                // free function 'swap', different allocators
+                {
+                    swap(mX, mY);
+
+                    LOOP4_ASSERT(LINE1, LINE2, YY, X, YY == X);
+                    LOOP4_ASSERT(LINE1, LINE2, XX, Y, XX == Y);
+                    LOOP2_ASSERT(LINE1, LINE2, &oa  == X.allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, &oa2 == Y.allocator());
+                }
+            }
+        }
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
