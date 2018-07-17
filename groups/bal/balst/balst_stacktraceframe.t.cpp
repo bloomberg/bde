@@ -222,6 +222,8 @@ static void aSsErT(int c, const char *s, int i)
 
 #define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
 #define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 
 // ============================================================================
 //                        GLOBAL TYPEDEFS FOR TESTING
@@ -1648,8 +1650,8 @@ int main(int argc, char *argv[])
                 Obj mA(&oa1);  Obj mB(&oa1);
                 Obj mZ(&oa2);
 
-                ASSERT_SAFE_PASS(mA.swap(mB));
-                ASSERT_SAFE_FAIL(mA.swap(mZ));
+                ASSERT_PASS(mA.swap(mB));
+                ASSERT_FAIL(mA.swap(mZ));
             }
         }
 

@@ -51,7 +51,7 @@ void StackTraceFrame::swap(StackTraceFrame& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
 
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_ASSERT(allocator() == other.allocator());
 
     bslalg::SwapUtil::swap(&d_address,           &other.d_address);
     bslalg::SwapUtil::swap(&d_libraryFileName,   &other.d_libraryFileName);

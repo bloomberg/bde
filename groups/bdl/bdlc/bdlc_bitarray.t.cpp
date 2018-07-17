@@ -8272,8 +8272,8 @@ int main(int argc, char *argv[])
                 Obj mC(&oa1);
                 Obj mZ(&oa2);
 
-                ASSERT_PASS(mA.swap(mB));
-                ASSERT_FAIL(mC.swap(mZ));
+                ASSERT_SAFE_PASS(mA.swap(mB));
+                ASSERT_SAFE_FAIL(mC.swap(mZ));
             }
         }
 
