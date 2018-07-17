@@ -90,13 +90,13 @@ using bsl::flush;
 // writes log records to a file and stdout.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] FileObserver(Severity::Level, bslma::Allocator *);
-// [ 1] FileObserver(Severity::Level, bool, bslma::Allocator *);
+// [ 1] FileObserver(Severity::Level, bslma::Allocator * = 0);
+// [ 1] FileObserver(Severity::Level, bool, bslma::Allocator * = 0);
 // [ 1] ~FileObserver();
 // [ 6] FileObserver();
 // [ 6] FileObserver(Allocator *);
-// [ 6] FileObserver(Severity::Level, Allocator *);
-// [ 6] FileObserver(Severity::Level, bool, Allocator *);
+// [ 6] FileObserver(Severity::Level, Allocator * = 0);
+// [ 6] FileObserver(Severity::Level, bool, Allocator * = 0);
 //
 // MANIPULATORS
 // [ 1] void disableFileLogging();
@@ -729,8 +729,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   FileObserver();
         //   FileObserver(Allocator *);
-        //   FileObserver(Severity::Level, Allocator *);
-        //   FileObserver(Severity::Level, bool, Allocator *);
+        //   FileObserver(Severity::Level, Allocator * = 0);
+        //   FileObserver(Severity::Level, bool, Allocator * = 0);
         //   CONCERN: CREATE WITH 'make_shared'
         //   CONCERN: CREATE WITH 'allocate_shared'
         // --------------------------------------------------------------------
@@ -2071,8 +2071,8 @@ int main(int argc, char *argv[])
         //:    format and verify that it has changed where expected.
         //
         // Testing:
-        //   FileObserver(Severity::Level, bslma::Allocator *);
-        //   FileObserver(Severity::Level, bool, bslma::Allocator *);
+        //   FileObserver(Severity::Level, bslma::Allocator * = 0);
+        //   FileObserver(Severity::Level, bool, bslma::Allocator * = 0);
         //   ~FileObserver();
         //   void disableFileLogging();
         //   void disableStdoutLoggingPrefix();
