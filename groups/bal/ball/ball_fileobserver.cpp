@@ -11,7 +11,6 @@ BSLS_IDENT_RCSID(ball_fileobserver_cpp,"$Id$ $CSID$")
 #include <ball_record.h>
 #include <ball_streamobserver.h>              // for testing only
 
-#include <bslma_default.h>
 #include <bslmt_lockguard.h>
 
 #include <bsl_cstdio.h>
@@ -43,39 +42,32 @@ static const char *const k_DEFAULT_SHORT_FORMAT_WITHOUT_USERFIELDS =
 
 // CREATORS
 FileObserver::FileObserver()
-: d_logFileFormatter(k_DEFAULT_LONG_FORMAT,
-                     bdlt::DatetimeInterval(0),
-                     bslma::Default::defaultAllocator())
-, d_stdoutFormatter(k_DEFAULT_LONG_FORMAT,
-                    bdlt::DatetimeInterval(0),
-                    bslma::Default::defaultAllocator())
+: d_logFileFormatter(k_DEFAULT_LONG_FORMAT, bdlt::DatetimeInterval(0))
+, d_stdoutFormatter(k_DEFAULT_LONG_FORMAT, bdlt::DatetimeInterval(0))
 , d_stdoutThreshold(Severity::e_WARN)
 , d_useRegularFormatOnStdoutFlag(true)
 , d_publishInLocalTime(false)
 , d_userFieldsLoggingFlag(true)
-, d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT, bslma::Default::defaultAllocator())
-, d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT,
-                      bslma::Default::defaultAllocator())
-, d_fileObserver2(bslma::Default::defaultAllocator())
+, d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT)
+, d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT)
+, d_fileObserver2()
 {
 }
 
 FileObserver::FileObserver(bslma::Allocator *basicAllocator)
 : d_logFileFormatter(k_DEFAULT_LONG_FORMAT,
                      bdlt::DatetimeInterval(0),
-                     bslma::Default::allocator(basicAllocator))
+                     basicAllocator)
 , d_stdoutFormatter(k_DEFAULT_LONG_FORMAT,
                     bdlt::DatetimeInterval(0),
-                    bslma::Default::allocator(basicAllocator))
+                    basicAllocator)
 , d_stdoutThreshold(Severity::e_WARN)
 , d_useRegularFormatOnStdoutFlag(true)
 , d_publishInLocalTime(false)
 , d_userFieldsLoggingFlag(true)
-, d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT,
-                     bslma::Default::allocator(basicAllocator))
-, d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT,
-                      bslma::Default::allocator(basicAllocator))
-, d_fileObserver2(bslma::Default::allocator(basicAllocator))
+, d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT, basicAllocator)
+, d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT, basicAllocator)
+, d_fileObserver2(basicAllocator)
 {
 }
 
@@ -83,40 +75,32 @@ FileObserver::FileObserver(Severity::Level   stdoutThreshold,
                            bslma::Allocator *basicAllocator)
 : d_logFileFormatter(k_DEFAULT_LONG_FORMAT,
                      bdlt::DatetimeInterval(0),
-                     bslma::Default::allocator(basicAllocator))
+                     basicAllocator)
 , d_stdoutFormatter(k_DEFAULT_LONG_FORMAT,
                     bdlt::DatetimeInterval(0),
-                    bslma::Default::allocator(basicAllocator))
+                    basicAllocator)
 , d_stdoutThreshold(stdoutThreshold)
 , d_useRegularFormatOnStdoutFlag(true)
 , d_publishInLocalTime(false)
 , d_userFieldsLoggingFlag(true)
-, d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT,
-                     bslma::Default::allocator(basicAllocator))
-, d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT,
-                      bslma::Default::allocator(basicAllocator))
-, d_fileObserver2(bslma::Default::allocator(basicAllocator))
+, d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT, basicAllocator)
+, d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT, basicAllocator)
+, d_fileObserver2(basicAllocator)
 {
 }
 
 FileObserver::FileObserver(Severity::Level   stdoutThreshold,
                            bool              publishInLocalTime,
                            bslma::Allocator *basicAllocator)
-: d_logFileFormatter(k_DEFAULT_LONG_FORMAT,
-                     publishInLocalTime,
-                     bslma::Default::allocator(basicAllocator))
-, d_stdoutFormatter(k_DEFAULT_LONG_FORMAT,
-                    publishInLocalTime,
-                    bslma::Default::allocator(basicAllocator))
+: d_logFileFormatter(k_DEFAULT_LONG_FORMAT, publishInLocalTime, basicAllocator)
+, d_stdoutFormatter(k_DEFAULT_LONG_FORMAT, publishInLocalTime, basicAllocator)
 , d_stdoutThreshold(stdoutThreshold)
 , d_useRegularFormatOnStdoutFlag(true)
 , d_publishInLocalTime(publishInLocalTime)
 , d_userFieldsLoggingFlag(true)
-, d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT,
-                     bslma::Default::allocator(basicAllocator))
-, d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT,
-                      bslma::Default::allocator(basicAllocator))
-, d_fileObserver2(bslma::Default::allocator(basicAllocator))
+, d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT, basicAllocator)
+, d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT, basicAllocator)
+, d_fileObserver2(basicAllocator)
 {
     if (d_publishInLocalTime) {
         d_fileObserver2.enablePublishInLocalTime();
