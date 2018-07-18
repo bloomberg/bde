@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide test utilities for components above 'bsl'.
+//@PURPOSE: Provide thread-safe test utilities for components above 'bsl'.
 //
 //@CLASSES:
 //
@@ -23,16 +23,11 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslim_testutil, bsls_bsltestutil
 //
-//@DESCRIPTION: This component provides the mutexed-controlled version of the
+//@DESCRIPTION: This component provides the mutexed-controlled versions of the
 // standard print macros used in BDE-style test drivers ('ASSERT', 'ASSERTV',
 // 'P', 'Q', 'L', and 'T') for multithreaded components at or above the 'bslmt'
 // package.  A new macro is introduced, 'BSLMT_TESTUTIL_OUTPUT_GUARD', which
 // creates a guard object that locks the mutex.
-//
-// This component also defines a set of overloads for the insertion operator
-// ('<<') to support the streaming of test types defined in the 'bsltf'
-// package.  These overloads are required for test drivers above the 'bsl'
-// package group in order to print objects of the 'bsltf' types to 'bsl::cout'.
 //
 // This component also defines a pair of methods, 'setFunc' and 'callFunc',
 // that allow a test driver to set and call a function by going through another
@@ -97,8 +92,8 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// Next, we define the standard print and 'ASSERT*' macros, as aliases to
-// the macros defined by this component:
+// Next, we define the standard print and 'ASSERT*' macros, as aliases to the
+// macros defined by this component:
 //..
 //  //=========================================================================
 //  //                       STANDARD BDE TEST DRIVER MACROS
@@ -122,10 +117,10 @@ BSLS_IDENT("$Id: $")
 //  //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //  //-------------------------------------------------------------------------
 //
-//  bool         verbose;
-//  bool         veryVerbose;
-//  bool         veryVeryVerbose;
-//  bool         veryVeryVeryVerbose;
+//  bool  verbose;
+//  bool  veryVerbose;
+//  bool  veryVeryVerbose;
+//  bool  veryVeryVeryVerbose;
 //..
 // Next we define some global typedefs, variables, and constants used by this
 // test case:
@@ -145,8 +140,8 @@ BSLS_IDENT("$Id: $")
 //
 //  double *randNumbers;
 //..
-// Then, using out test macros, we wwrite five test functors that can be run
-// concurrently that will test the five static functions.
+// Then, using out test macros, we write five test functors that can be run
+// concurrently to test the five static functions.
 //..
 //  struct TestSums {
 //      void operator()()
@@ -191,10 +186,10 @@ BSLS_IDENT("$Id: $")
 //                  lastRand = true;
 //
 //                  if (veryVerbose) {
-//                      // This output calling 'cout' could turn into a mess if
+//                      // This output calling 'cout' could become illegible if
 //                      // 'BSLMT_TESTUTIL_*' macros in the other threads
-//                      // decided to output at the same time.  We are safe
-//                      // here because we are within scope of an output guard.
+//                      // output at the same time.  We are safe here because
+//                      // we are within scope of an output guard.
 //
 //                      bsl::cout << "Thread number " << idx <<
 //                           " reached the end of the random number buffer." <<
@@ -248,13 +243,13 @@ BSLS_IDENT("$Id: $")
 //                                                                 bsl::rand();
 //  }
 //..
-// Then, we spawn our threads and let them run.
+// Then, we spawn our threads and let them run:
 //..
 //  bslmt::ThreadGroup tg;
 //  tg.addThreads(TestSums(), k_NUM_THREADS);
 //..
 // Now, we join the threads, clean up, and at the end of 'main' examine
-// 'testStatus' if it's greater than 0, report that the test failed.
+// 'testStatus'.  If it's greater than 0, report that the test failed.H:
 //..
 //  tg.joinAll();
 //
@@ -264,7 +259,7 @@ BSLS_IDENT("$Id: $")
 //      // Note that since there is a bug in 'SU::sumOfSquares' with 4 args, we
 //      // expect the last assert in 'TestSums::operator()' to fail 5
 //      // iterations times 10 threads == 50 times, so the following message
-//      // will report 'test status = 50.'.
+//      // will report 'test status = 50'.
 //
 //      bsl::cerr << "Error, non-zero test status = " << testStatus << "."
 //                << bsl::endl;
@@ -273,8 +268,9 @@ BSLS_IDENT("$Id: $")
 //  return testStatus;
 //..
 // Finally, after the program has run, we see 50 assertion failures in the
-// output with differring values of the 'x[*]' variables, but all the asserts
-// will be intact in the output stream rather than interrupting each other.
+// output with differring values of the 'x[*]' variables, but each assert's
+// output is intact (rather than being interleaved with output from asserts in
+// other threads).
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -334,47 +330,47 @@ extern char bloomberglp_bslmt_testutil_guard_object;
 
 #define BSLMT_TESTUTIL_LOOP1_ASSERT(I,X)                                      \
     if (X) ; else do { BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD;                    \
-                       bsl::cout << #I << ": " << I << "\n";                  \
+                       bsl::cout << #I << ": " << (I) << "\n";                \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 #define BSLMT_TESTUTIL_LOOP2_ASSERT(I,J,X)                                    \
     if (X) ; else do { BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD;                    \
-                       bsl::cout << #I << ": " << I << "\t"                   \
-                                 << #J << ": " << J << "\n";                  \
+                       bsl::cout << #I << ": " << (I) << "\t"                 \
+                                 << #J << ": " << (J) << "\n";                \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 #define BSLMT_TESTUTIL_LOOP3_ASSERT(I,J,K,X)                                  \
     if (X) ; else do { BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD;                    \
-                       bsl::cout << #I << ": " << I << "\t"                   \
-                                 << #J << ": " << J << "\t"                   \
-                                 << #K << ": " << K << "\n";                  \
+                       bsl::cout << #I << ": " << (I) << "\t"                 \
+                                 << #J << ": " << (J) << "\t"                 \
+                                 << #K << ": " << (K) << "\n";                \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 #define BSLMT_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)                                \
     if (X) ; else do { BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD;                    \
-                       bsl::cout << #I << ": " << I << "\t"                   \
-                                 << #J << ": " << J << "\t"                   \
-                                 << #K << ": " << K << "\t"                   \
-                                 << #L << ": " << L << "\n";                  \
+                       bsl::cout << #I << ": " << (I) << "\t"                 \
+                                 << #J << ": " << (J) << "\t"                 \
+                                 << #K << ": " << (K) << "\t"                 \
+                                 << #L << ": " << (L) << "\n";                \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 #define BSLMT_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)                              \
     if (X) ; else do { BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD;                    \
-                       bsl::cout << #I << ": " << I << "\t"                   \
-                                 << #J << ": " << J << "\t"                   \
-                                 << #K << ": " << K << "\t"                   \
-                                 << #L << ": " << L << "\t"                   \
-                                 << #M << ": " << M << "\n";                  \
+                       bsl::cout << #I << ": " << (I) << "\t"                 \
+                                 << #J << ": " << (J) << "\t"                 \
+                                 << #K << ": " << (K) << "\t"                 \
+                                 << #L << ": " << (L) << "\t"                 \
+                                 << #M << ": " << (M) << "\n";                \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 #define BSLMT_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)                            \
     if (X) ; else do { BSLMT_TESTUTIL_NESTED_OUTPUT_GUARD;                    \
-                       bsl::cout << #I << ": " << I << "\t"                   \
-                                 << #J << ": " << J << "\t"                   \
-                                 << #K << ": " << K << "\t"                   \
-                                 << #L << ": " << L << "\t"                   \
-                                 << #M << ": " << M << "\t"                   \
-                                 << #N << ": " << N << "\n";                  \
+                       bsl::cout << #I << ": " << (I) << "\t"                 \
+                                 << #J << ": " << (J) << "\t"                 \
+                                 << #K << ": " << (K) << "\t"                 \
+                                 << #L << ": " << (L) << "\t"                 \
+                                 << #M << ": " << (M) << "\t"                 \
+                                 << #N << ": " << (N) << "\n";                \
                        aSsErT(1, #X, __LINE__); } while (false)
 
 // The 'BSLMT_TESTUTIL_EXPAND' macro is required to work around a preprocessor
@@ -487,7 +483,7 @@ class TestUtil::GuardObject {
     // CREATORS
     GuardObject();
         // Acquire and lock the output mutex that is delivered by
-        // 'MultiThreadedTestUtil::outputMutexSingleton()'.
+        // 'TestUtil::outputMutexSingleton_impl()'.
 
     ~GuardObject();
         // Release the mutex acquired at construction.
@@ -511,11 +507,11 @@ class TestUtil::NestedGuard {
     explicit
     NestedGuard(char *);
         // Acquire and lock the output mutex that is delivered by
-        // 'MultiThreadedTestUtil::outputMutexSingleton()'.
+        // 'TestUtil::outputMutexSingleton_impl()'.
 
     explicit
     NestedGuard(GuardObject *);
-        // Initialize 'd_mutex' to 0.
+        // Initialize 'd_mutex_p' to 0.
 
     ~NestedGuard();
         // If the constructor locked a mutex, unlock that mutex, otherwise do

@@ -106,6 +106,7 @@ using namespace BloombergLP;
 // [ 2] TEST APPARATUS
 // [ 8] MULTITHREADED TEST
 // [ 9] USAGE EXAMPLE
+//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                VARIATIONS ON STANDARD BDE ASSERT TEST MACROS
@@ -142,35 +143,35 @@ static void realaSsErT(bool b, const char *s, int i)
     if (X) ; else do { realaSsErT(1, #X, __LINE__); } while (false)
 
 #define REALLOOP1_ASSERT(I,X)                                                 \
-    if (X) ; else do { bsl::cerr << #I << ": " << I << "\n";                  \
+    if (X) ; else do { bsl::cerr << #I << ": " << (I) << "\n";                \
                        realaSsErT(1, #X, __LINE__); } while (false)
 
 #define REALLOOP2_ASSERT(I,J,X)                                               \
-    if (X) ; else do { bsl::cerr << #I << ": " << I << "\t"                   \
-                                 << #J << ": " << J << "\n";                  \
+    if (X) ; else do { bsl::cerr << #I << ": " << (I) << "\t"                 \
+                                 << #J << ": " << (J) << "\n";                \
                        realaSsErT(1, #X, __LINE__); } while (false)
 
 #define REALLOOP3_ASSERT(I,J,K,X)                                             \
-    if (X) ; else do { bsl::cerr << #I << ": " << I << "\t"                   \
-                                 << #J << ": " << J << "\t"                   \
-                                 << #K << ": " << K << "\n";                  \
+    if (X) ; else do { bsl::cerr << #I << ": " << (I) << "\t"                 \
+                                 << #J << ": " << (J) << "\t"                 \
+                                 << #K << ": " << (K) << "\n";                \
                        realaSsErT(1, #X, __LINE__); } while (false)
 
 #define REALLOOP4_ASSERT(I,J,K,L,X)                                           \
-    if (X) ; else do { bsl::cerr << #I << ": " << I << "\t"                   \
-                                 << #J << ": " << J << "\t"                   \
-                                 << #K << ": " << K << "\t"                   \
-                                 << #L << ": " << L << "\n";                  \
+    if (X) ; else do { bsl::cerr << #I << ": " << (I) << "\t"                 \
+                                 << #J << ": " << (J) << "\t"                 \
+                                 << #K << ": " << (K) << "\t"                 \
+                                 << #L << ": " << (L) << "\n";                \
                        realaSsErT(1, #X, __LINE__); } while (false)
 
 #define REALP(X)                                                              \
-    bsl::cerr << #X " = " << (X) << bsl::endl;
+    (bsl::cerr << #X " = " << (X) << bsl::endl)
 
 #define REALP_(X)                                                             \
-    bsl::cerr << #X " = " << (X) << ", " << bsl::flush;
+    (bsl::cerr << #X " = " << (X) << ", " << bsl::flush)
 
 #define REALT_                                                                \
-    bsl::cerr << "\t" << bsl::flush;
+    (bsl::cerr << "\t" << bsl::flush)
 
 #define REALL_                                                                \
     __LINE__
@@ -236,8 +237,8 @@ namespace Usage {
         }
     }
 //..
-// Next, we define the standard print and 'ASSERT*' macros, as aliases to
-// the macros defined by this component:
+// Next, we define the standard print and 'ASSERT*' macros, as aliases to the
+// macros defined by this component:
 //..
     //=========================================================================
     //                       STANDARD BDE TEST DRIVER MACROS
@@ -261,10 +262,10 @@ namespace Usage {
     //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
     //-------------------------------------------------------------------------
 //
-    bool         verbose;
-    bool         veryVerbose;
-    bool         veryVeryVerbose;
-    bool         veryVeryVeryVerbose;
+    bool  verbose;
+    bool  veryVerbose;
+    bool  veryVeryVerbose;
+    bool  veryVeryVeryVerbose;
 //..
 // Next we define some global typedefs, variables, and constants used by this
 // test case:
@@ -284,8 +285,8 @@ namespace Usage {
 //
     double *randNumbers;
 //..
-// Then, using out test macros, we wwrite five test functors that can be run
-// concurrently that will test the five static functions.
+// Then, using out test macros, we write five test functors that can be run
+// concurrently to test the five static functions.
 //..
     struct TestSums {
         void operator()()
@@ -330,10 +331,10 @@ namespace Usage {
                     lastRand = true;
 //
                     if (veryVerbose) {
-                        // This output calling 'cout' could turn into a mess if
+                        // This output calling 'cout' could become illegible if
                         // 'BSLMT_TESTUTIL_*' macros in the other threads
-                        // decided to output at the same time.  We are safe
-                        // here because we are within scope of an output guard.
+                        // output at the same time.  We are safe here because
+                        // we are within scope of an output guard.
 //
                         bsl::cout << "Thread number " << idx <<
                              " reached the end of the random number buffer." <<
@@ -391,13 +392,13 @@ int testMain()    // do not copy to .h file
                                                                    bsl::rand();
     }
 //..
-// Then, we spawn our threads and let them run.
+// Then, we spawn our threads and let them run:
 //..
     bslmt::ThreadGroup tg;
     tg.addThreads(TestSums(), k_NUM_THREADS);
 //..
 // Now, we join the threads, clean up, and at the end of 'main' examine
-// 'testStatus' if it's greater than 0, report that the test failed.
+// 'testStatus'.  If it's greater than 0, report that the test failed.H:
 //..
     tg.joinAll();
 //
@@ -407,7 +408,7 @@ int testMain()    // do not copy to .h file
         // Note that since there is a bug in 'SU::sumOfSquares' with 4 args, we
         // expect the last assert in 'TestSums::operator()' to fail 5
         // iterations times 10 threads == 50 times, so the following message
-        // will report 'test status = 50.'.
+        // will report 'test status = 50'.
 
         bsl::cerr << "Error, non-zero test status = " << testStatus << "."
                   << bsl::endl;
@@ -416,8 +417,9 @@ int testMain()    // do not copy to .h file
     return testStatus;
 //..
 // Finally, after the program has run, we see 50 assertion failures in the
-// output with differring values of the 'x[*]' variables, but all the asserts
-// will be intact in the output stream rather than interrupting each other.
+// output with differring values of the 'x[*]' variables, but each assert's
+// output is intact (rather than being interleaved with output from asserts in
+// other threads).
 }
 
 }  // close namespace Usage
