@@ -2011,6 +2011,14 @@ int main(int argc, char *argv[])
 
             const int startTestStatus = testStatus;
 
+            if (!frame.isSymbolNameKnown()) {
+                if (veryVerbose) {
+                    cout << "Unresolved symbol: "; P(LINE);
+                }
+                ++numFailed;
+                continue;                                           // CONTINUE
+            }
+
             if (FORMAT_XCOFF) {
                 bsl::size_t pos = expName.rfind("(");
                 pos = expName.rfind("::", pos);
