@@ -4,17 +4,9 @@
 
 #include <bdlb_bitstringutil.h>
 
-#include <bslim_testutil.h>
-
-#include <bslx_byteinstream.h>
-#include <bslx_byteoutstream.h>
-#include <bslx_instreamfunctions.h>
-#include <bslx_outstreamfunctions.h>
-#include <bslx_testinstream.h>
-#include <bslx_testinstreamexception.h>
-#include <bslx_testoutstream.h>
-
 #include <bslalg_swaputil.h>
+
+#include <bslim_testutil.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_istriviallycopyable.h>
@@ -25,9 +17,18 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
+
+#include <bslx_byteinstream.h>
+#include <bslx_byteoutstream.h>
+#include <bslx_instreamfunctions.h>
+#include <bslx_outstreamfunctions.h>
+#include <bslx_testinstream.h>
+#include <bslx_testinstreamexception.h>
+#include <bslx_testoutstream.h>
 
 #include <bsl_iostream.h>
 #include <bsl_string.h>
@@ -888,7 +889,7 @@ void testUsage()
 // purpose only) that allows users to either append a (non-null) 'TYPE' value
 // or a null value.  A real 'NullableVector' class would support a complete set
 // of *value* *semantic* operations, including copy construction, assignment,
-// equality comparison, 'ostream' printing, and 'bdex' serialization.
+// equality comparison, 'ostream' printing, and BDEX serialization.
 //
 // First, we define the interface of 'NullableVector':
 //..
@@ -7921,76 +7922,361 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING SWAP MEMBER & FREE FUNCTIONS
-        //   Ensure the methods have the desired effect.
+        // SWAP MEMBER AND FREE FUNCTION
+        //   Ensure that, when member and free 'swap' are implemented, we can
+        //   exchange the values of any two objects that use the same
+        //   allocator.
         //
         // Concerns:
-        //: 1 Swapping objects with different content should work: empty with
-        //:   empty, empty with non-empty and non-empty with non-empty.
+        //: 1 Both functions exchange the values of the (two) supplied objects.
         //:
-        //: 2 Swapping two objects should not involve memory allocation
-        //:   (because it's no-throw).
+        //: 2 The common object allocator address held by both objects is
+        //:   unchanged.
         //:
-        //: 3 Free function 'swap' and member function 'swap' must do the same
-        //:   thing.
+        //: 3 The member function does not allocate memory from any allocator;
+        //:   nor does the free function when the two objects being swapped use
+        //:   the same allocator.
+        //:
+        //: 4 The free function can be called with two objects that use
+        //:   different allocators.
+        //:
+        //: 5 Both functions have standard signatures and return types.
+        //:
+        //: 6 Using either function to swap an object with itself does not
+        //:   affect the value of the object (alias-safety).
+        //:
+        //: 7 The free 'swap' function is discoverable through ADL (Argument
+        //:   Dependent Lookup).
+        //:
+        //: 8 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 Define a set of specs that include specs for empty and non-empty
-        //:   objects.  (C-1)
+        //: 1 Use the addresses of the 'swap' member and free functions defined
+        //:   in this component to initialize, respectively, member-function
+        //:   and free-function pointers having the appropriate signatures and
+        //:   return types.  (C-5)
         //:
-        //: 2 Iterate two nested loops through the set of specs, and create
-        //:   create two objects, one from each of the specs selected.
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
+        //:   default allocator (note that a ubiquitous test allocator is
+        //:   already installed as the global allocator).
         //:
-        //: 3 Do a member swap and observe the results are as expected.  (C-1)
+        //: 3 Using the table-driven technique:
         //:
-        //: 4 Do a free swap and observe the results are as expected.  (C-1)
-        //:   (C-3)
+        //:   1 Specify a set of (unique) valid object values (one per row) in
+        //:     terms of their individual attributes, including (a) first, the
+        //:     default value, (b) boundary values corresponding to every range
+        //:     of values that each individual attribute can independently
+        //:     attain, and (c) values that should require allocation from each
+        //:     individual attribute that can independently allocate memory.
         //:
-        //: 5 Observe that no memory was allocated in either of the swaps in
-        //:   steps 3 or 4.  (C-2)
+        //:   2 Additionally, provide a (tri-valued) column, 'MEM', indicating
+        //:     the expectation of memory allocation for all typical
+        //:     implementations of individual attribute types: ('Y') "Yes",
+        //:     ('N') "No", or ('?') "implementation-dependent".
+        //:
+        //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 6)
+        //:
+        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
+        //:
+        //:   2 Use the value constructor and 'oa' to create a modifiable
+        //:     'Obj', 'mW', having the value described by 'R1'; also use the
+        //:     copy constructor and a "scratch" allocator to create a 'const'
+        //:     'Obj' 'XX' from 'mW'.
+        //:
+        //:   3 Use the member and free 'swap' functions to swap the value of
+        //:     'mW' with itself; verify, after each swap, that:  (C-6)
+        //:
+        //:     1 The value is unchanged.  (C-6)
+        //:
+        //:     2 The allocator address held by the object is unchanged.
+        //:
+        //:     3 There was no additional object memory allocation.
+        //:
+        //:   4 For each row 'R2' in the table of P-3:  (C-1..2)
+        //:
+        //:     1 Use the copy constructor and 'oa' to create a modifiable
+        //:       'Obj', 'mX', from 'XX' (P-4.2).
+        //:
+        //:     2 Use the value constructor and 'oa' to create a modifiable
+        //:       'Obj', 'mY', and having the value described by 'R2'; also use
+        //:       the copy constructor to create, using a "scratch" allocator,
+        //:       a 'const' 'Obj', 'YY', from 'Y'.
+        //:
+        //:     3 Use, in turn, the member and free 'swap' functions to swap
+        //:       the values of 'mX' and 'mY'; verify, after each swap, that:
+        //:       (C-1..2)
+        //:
+        //:       1 The values have been exchanged.  (C-1)
+        //:
+        //:       2 The common object allocator address held by 'mX' and 'mY'
+        //:         is unchanged in both objects.  (C-2)
+        //:
+        //:       3 There was no additional object memory allocation.
+        //:
+        //: 5 Verify that the free 'swap' function is discoverable through ADL:
+        //:   (C-7)
+        //:
+        //:   1 Create a set of attribute values, 'A', distinct from the values
+        //:     corresponding to the default-constructed object, choosing
+        //:     values that allocate memory if possible.
+        //:
+        //:   2 Create a 'bslma::TestAllocator' object, 'oa'.
+        //:
+        //:   3 Use the default constructor and 'oa' to create a modifiable
+        //:     'Obj' 'mX' (having default attribute values); also use the copy
+        //:     constructor and a "scratch" allocator to create a 'const' 'Obj'
+        //:     'XX' from 'mX'.
+        //:
+        //:   4 Use the value constructor and 'oa' to create a modifiable 'Obj'
+        //:     'mY' having the value described by the 'Ai' attributes; also
+        //:     use the copy constructor and a "scratch" allocator to create a
+        //:     'const' 'Obj' 'YY' from 'mY'.
+        //:
+        //:   5 Use the 'bslalg::SwapUtil' helper function template to swap the
+        //:     values of 'mX' and 'mY', using the free 'swap' function defined
+        //:     in this component, then verify that:  (C-7)
+        //:
+        //:     1 The values have been exchanged.
+        //:
+        //:     2 There was no additional object memory allocation.  (C-7)
+        //:
+        //: 6 Use the test allocator from P-2 to verify that no memory was
+        //:   allocated from the default allocator.  (C-3)
+        //:
+        //: 7 Verify that free 'swap' exchanges the values of any two objects
+        //:   that use different allocators.  (C-4)
+        //:
+        //: 8 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered when, using the member 'swap' function, an attempt is
+        //:   made to swap objects that do not refer to the same allocator, but
+        //:   not when the allocators are the same (using the
+        //:   'BSLS_ASSERTTEST_*' macros).  (C-8)
         //
         // Testing:
-        //   void swap(BitArray& lhs, BitArray& rhs);
         //   void swap(BitArray& other);
+        //   void swap(BitArray& a, BitArray& b);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING SWAP MEMBER & FREE FUNCTIONS\n"
-                               "====================================\n";
+        if (verbose) cout << endl
+                          << "SWAP MEMBER AND FREE FUNCTION" << endl
+                          << "=============================" << endl;
 
-        if (verbose) {
-            cout << "Testing 'swap' methods\n"
-                 << "=====================\n";
+        if (verbose) cout <<
+                "\nAssign the address of each function to a variable." << endl;
+        {
+            using namespace bdlc;
+
+            typedef void (Obj::*funcPtr)(Obj&);
+
+            typedef void (*freeFuncPtr)(Obj&, Obj&);
+
+            // Verify that the signatures and return types are standard.
+
+            funcPtr     memberSwap = &Obj::swap;
+            freeFuncPtr freeSwap   = swap;
+
+            // Quash unused variable warnings.
+
+            Obj a;
+            Obj b;
+            (a.*memberSwap)(b);
+            freeSwap(a, b);
         }
 
-        if (verbose) cout << "Testing C-1, C-2, C-3\n";
-        {
-            const char *specs[] = { "", "1001", "xwwwwaw3", "xw4wwbwwc" };
+        if (verbose) cout <<
+            "\nCreate a test allocator and install it as the default." << endl;
 
-            enum { specSize = sizeof(specs) / sizeof(*specs) };
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
-            for (int i = 0; i < specSize; ++i) {
-                for (int j = 0; j < specSize; ++j) {
-                    for (int tf = 0; tf < 2; ++tf) {
-                        Obj X1(gDispatch(specs[i])), X2(X1);
-                        Obj Y1(gDispatch(specs[j])), Y2(Y1);
+        if (verbose) cout << "\nCreate a table of distinct object values."
+                                                                       << endl;
 
-                        CInt64 totalBefore = testAllocator.numBlocksTotal();
+        static const struct {
+            int         d_line;    // source line number
+            const char *d_spec_p;
+        } DATA[] = {
+            //line  spec
+            //----  -------------------
+            { L_,   ""                },
+            { L_,   "1001"            },
+            { L_,   "xwwwwaw3"        },
+            { L_,   "xw4wwbwwc"       }
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-                        if (tf) {
-                            X1.swap(Y1);
-                        }
-                        else {
-                            swap(X1, Y1);
-                        }
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE1 = DATA[ti].d_line;
+            const char *const SPEC1 = DATA[ti].d_spec_p;
 
-                        ASSERT(testAllocator.numBlocksTotal() == totalBefore);
+            bslma::TestAllocator oa("object",       veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-                        LOOP3_ASSERT(specs[i], i, j, X1 == Y2);
-                        LOOP3_ASSERT(specs[j], i, j, X2 == Y1);
-                    }
+            Obj        mW(&oa);
+            const Obj& W = ggDispatch(&mW, SPEC1);
+            const Obj  XX(W, &scratch);
+
+            if (veryVerbose) { T_ P_(LINE1) P_(W) P_(XX) }
+
+            // Ensure the first row of the table contains the
+            // default-constructed value.
+
+            static bool firstFlag = true;
+            if (firstFlag) {
+                LOOP3_ASSERT(LINE1, W, Obj(&scratch), W == Obj(&scratch));
+                firstFlag = false;
+            }
+
+            // member 'swap'
+            {
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                mW.swap(mW);
+
+                LOOP3_ASSERT(LINE1, W, XX, W == XX);
+                LOOP_ASSERT(LINE1, &oa == W.allocator());
+                LOOP_ASSERT(LINE1, oam.isTotalSame());
+            }
+
+            // free function 'swap'
+            {
+                bslma::TestAllocatorMonitor oam(&oa);
+
+                swap(mW, mW);
+
+                LOOP3_ASSERT(LINE1, W, XX, W == XX);
+                LOOP_ASSERT(LINE1, &oa == W.allocator());
+                LOOP_ASSERT(LINE1, oam.isTotalSame());
+            }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int         LINE2 = DATA[tj].d_line;
+                const char *const SPEC2 = DATA[tj].d_spec_p;
+
+                Obj        mX(XX, &oa);
+                const Obj& X = mX;
+
+                Obj        mY(&oa);
+                const Obj& Y = ggDispatch(&mY, SPEC2);
+                const Obj  YY(Y, &scratch);
+
+                if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P_(YY) }
+
+                // member 'swap'
+                {
+                    bslma::TestAllocatorMonitor oam(&oa);
+
+                    mX.swap(mY);
+
+                    LOOP4_ASSERT(LINE1, LINE2, X, YY, X == YY);
+                    LOOP4_ASSERT(LINE1, LINE2, Y, XX, Y == XX);
+                    LOOP2_ASSERT(LINE1, LINE2, &oa == X.allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, &oa == Y.allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
+                }
+
+                // free function 'swap', same allocator
+                {
+                    bslma::TestAllocatorMonitor oam(&oa);
+
+                    swap(mX, mY);
+
+                    LOOP4_ASSERT(LINE1, LINE2, X, XX, X == XX);
+                    LOOP4_ASSERT(LINE1, LINE2, Y, YY, Y == YY);
+                    LOOP2_ASSERT(LINE1, LINE2, &oa == X.allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, &oa == Y.allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
                 }
             }
         }
+
+        if (verbose) cout <<
+                "\nInvoke free 'swap' function in a context where ADL is used."
+                                                                       << endl;
+        {
+            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                  Obj mX(&oa);  const Obj& X = mX;
+            const Obj XX(X, &scratch);
+
+                  Obj mY(&oa);  const Obj& Y = ggDispatch(&mY, "1001");
+            const Obj YY(Y, &scratch);
+
+            if (veryVeryVerbose) { T_ P_(X) P(Y) }
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            bslalg::SwapUtil::swap(&mX, &mY);
+
+            LOOP2_ASSERT(YY, X, YY == X);
+            LOOP2_ASSERT(XX, Y, XX == Y);
+            ASSERT(oam.isTotalSame());
+
+            if (veryVeryVerbose) { T_ P_(X) P(Y) }
+        }
+
+        // Verify no memory is allocated from the default allocator.
+
+        LOOP_ASSERT(da.numBlocksTotal(), !da.numBlocksTotal());
+
+        if (verbose) cout <<
+                   "\nFree 'swap' function with different allocators." << endl;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE1 = DATA[ti].d_line;
+            const char *const SPEC1 = DATA[ti].d_spec_p;
+
+            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator     oa2("object2", veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            Obj mXX(&scratch);  const Obj& XX = ggDispatch(&mXX, SPEC1);
+
+            if (veryVerbose) { T_ P_(LINE1) P(XX) }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int         LINE2 = DATA[tj].d_line;
+                const char *const SPEC2 = DATA[tj].d_spec_p;
+
+                Obj mX(XX, &oa);  const Obj& X = mX;
+                Obj mY(&oa2);     const Obj& Y = ggDispatch(&mY, SPEC2);
+
+                const Obj YY(Y, &scratch);
+
+                if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
+
+                // free function 'swap', different allocators
+                {
+                    swap(mX, mY);
+
+                    ASSERTV(LINE1, LINE2, YY, X, YY == X);
+                    ASSERTV(LINE1, LINE2, XX, Y, XX == Y);
+                    ASSERTV(LINE1, LINE2, &oa  == X.allocator());
+                    ASSERTV(LINE1, LINE2, &oa2 == Y.allocator());
+                }
+            }
+        }
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            if (veryVerbose) cout << "\t'swap' member function" << endl;
+            {
+                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
+                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
+
+                Obj mA(&oa1);
+                Obj mB(&oa1);
+                Obj mC(&oa1);
+                Obj mZ(&oa2);
+
+                ASSERT_SAFE_PASS(mA.swap(mB));
+                ASSERT_SAFE_FAIL(mC.swap(mZ));
+            }
+        }
+
       } break;
       case 7: {
         // --------------------------------------------------------------------

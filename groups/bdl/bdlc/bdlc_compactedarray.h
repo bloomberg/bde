@@ -620,6 +620,7 @@ class CompactedArray {
 
     PackedIntArray<bsl::size_t> d_index;  // array of indices into 'd_data'
 
+  private:
     // PRIVATE MANIPULATORS
     void erase(bsl::size_t index);
         // Remove the element in 'd_data' at the specified 'index'.  Update the
@@ -916,10 +917,9 @@ bool operator!=(const CompactedArray<TYPE>& lhs,
 // FREE FUNCTIONS
 template <class TYPE>
 void swap(CompactedArray<TYPE>& a, CompactedArray<TYPE>& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' arrays.
-    // This method provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless both arrays were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // HASH SPECIALIZATIONS
 template <class HASHALG, class TYPE>
@@ -2002,12 +2002,19 @@ bool bdlc::operator!=(const CompactedArray<TYPE>& lhs,
 
 // FREE FUNCTIONS
 template <class TYPE>
-inline
 void bdlc::swap(CompactedArray<TYPE>& a, CompactedArray<TYPE>& b)
 {
-    BSLS_ASSERT_SAFE(a.allocator() == b.allocator());
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
 
-    a.swap(b);
+        return;                                                       // RETURN
+    }
+
+    CompactedArray<TYPE> futureA(b, a.allocator());
+    CompactedArray<TYPE> futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
 }
 
 // HASH SPECIALIZATIONS

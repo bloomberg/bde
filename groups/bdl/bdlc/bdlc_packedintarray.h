@@ -216,7 +216,7 @@ bool operator>=(const PackedIntArrayConstIterator<TYPE>&,
 struct PackedIntArrayImp_Signed {
     // This 'struct' provides a namespace for types and methods used to
     // implement a space-efficient value-semantic array class representing a
-    // sequence of 'TYPE' elements; 'TYPE' must be convertable to either a
+    // sequence of 'TYPE' elements; 'TYPE' must be convertible to either a
     // 'bsl::int64_t'.  Specifically, it defines the types used to store the
     // array's data, methods needed to externalize and unexternalize the array,
     // and a method to determine the storage size to use for a given value.
@@ -279,7 +279,7 @@ struct PackedIntArrayImp_Signed {
 struct PackedIntArrayImp_Unsigned {
     // This 'struct' provides a namespace for types and methods used to
     // implement a space-efficient value-semantic array class representing a
-    // sequence of 'TYPE' elements; 'TYPE' must be convertable to either a
+    // sequence of 'TYPE' elements; 'TYPE' must be convertible to either a
     // 'bsl::uint64_t'.  Specifically, it defines the types used to store the
     // array's data, methods needed to externalize and unexternalize the array,
     // and a method to determine the storage size to use for a given value.
@@ -343,7 +343,7 @@ template <class STORAGE>
 class PackedIntArrayImp {
     // This space-efficient value-semantic array class represents a sequence of
     // 'STORAGE::EightByteStorageType' elements;
-    // 'STORAGE::EightByteStorageType' must be convertable to either a signed
+    // 'STORAGE::EightByteStorageType' must be convertible to either a signed
     // or unsigned 64-bit integer using 'static_cast'.  The interface provides
     // functionality similar to a 'vector<int>' however references to
     // individual elements are not provided.
@@ -369,6 +369,7 @@ class PackedIntArrayImp {
 
     bslma::Allocator *d_allocator_p;      // allocator used for all memory
 
+  private:
     // PRIVATE CLASS METHODS
     static bsl::size_t nextCapacityGE(bsl::size_t minValue, bsl::size_t value);
         // Return the next valid number of bytes of capacity that is at least
@@ -661,7 +662,6 @@ class PackedIntArrayImp {
         // operation has no effect.  Note that the format is not fully
         // specified, and can change without notice.
 };
-
 
                         // ============================
                         // struct PackedIntArrayImpType
@@ -968,7 +968,7 @@ bool operator>=(const PackedIntArrayConstIterator<TYPE>& lhs,
 template <class TYPE>
 class PackedIntArray {
     // This space-efficient value-semantic array class represents a sequence of
-    // 'TYPE' elements; 'TYPE' must be convertable to either a signed or
+    // 'TYPE' elements; 'TYPE' must be convertible to either a signed or
     // unsigned 64-bit integer using 'static_cast'.  The interface provides
     // functionality similar to a 'vector<int>' however references to
     // individual elements are not provided.  This class provides accessors
@@ -1293,11 +1293,9 @@ bool operator!=(const PackedIntArray<TYPE>& lhs,
 // FREE FUNCTIONS
 template <class TYPE>
 void swap(PackedIntArray<TYPE>& a, PackedIntArray<TYPE>& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' arrays.
-    // This method provides the no-throw exception-safety guarantee.  This
-    // method invalidates previously-obtained iterators and references.  The
-    // behavior is undefined unless both arrays were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // HASH SPECIALIZATIONS
 template <class HASHALG, class TYPE>
@@ -1862,7 +1860,8 @@ bool PackedIntArrayImp<STORAGE>::isEqual(
 
 template <class STORAGE>
 inline
-bsl::size_t PackedIntArrayImp<STORAGE>::length() const {
+bsl::size_t PackedIntArrayImp<STORAGE>::length() const
+{
     return d_length;
 }
 
@@ -2543,12 +2542,19 @@ bool bdlc::operator!=(const PackedIntArray<TYPE>& lhs,
 
 // FREE FUNCTIONS
 template <class TYPE>
-inline
 void bdlc::swap(PackedIntArray<TYPE>& a, PackedIntArray<TYPE>& b)
 {
-    BSLS_ASSERT_SAFE(a.allocator() == b.allocator());
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
 
-    a.swap(b);
+        return;                                                       // RETURN
+    }
+
+    PackedIntArray<TYPE> futureA(b, a.allocator());
+    PackedIntArray<TYPE> futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
 }
 
 // HASH SPECIALIZATIONS
@@ -2582,7 +2588,7 @@ struct UsesBslmaAllocator<bdlc::PackedIntArray<TYPE> > : bsl::true_type {};
 
 #endif
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -4,17 +4,15 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_calendar_cpp,"$Id$ $CSID$")
 
-#include <bslalg_swaputil.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
 
-#include <bsl_algorithm.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
 namespace bdlt {
 
-// The implementation requires that return value for an unseccessful
+// The implementation requires that the return value for an unsuccessful
 // 'bdlc::BitArray::find*', when cast to an 'int', is -1.
 BSLMF_ASSERT(-1 == static_cast<int>(bdlc::BitArray::k_INVALID_INDEX));
 
@@ -544,10 +542,27 @@ Calendar_BusinessDayConstIter::Calendar_BusinessDayConstIter(
 }
 
 }  // close package namespace
+
+// FREE FUNCTIONS
+void bdlt::swap(Calendar& a, Calendar& b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    Calendar futureA(b, a.allocator());
+    Calendar futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
+}
+
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

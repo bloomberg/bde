@@ -242,6 +242,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetime.h>
 #include <bdlt_epochutil.h>
 
+#include <bslalg_swaputil.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_usesbslmaallocator.h>
@@ -252,12 +254,15 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
-#include <bsl_algorithm.h>
 #include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
 #include <bsl_set.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsl_algorithm.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace baltzo {
@@ -272,14 +277,6 @@ class ZoneinfoTransition {
     // changes.  The salient attributes of this type are the 'utcTime'
     // (representing seconds from UTC), and 'descriptor' representing the local
     // time value after the transition.
-    //
-    // This class:
-    //: o supports a complete set of *value* *semantic* operations
-    //:   o except for 'bdex' serialization
-    //: o is *exception-neutral*
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology: see 'bsldoc_glossary'.
 
     // DATA
     bdlt::EpochUtil::TimeT64   d_utcTime;       // UTC time (representing in
@@ -374,14 +371,6 @@ class Zoneinfo {
     // database for a *single* locale (e.g., "America/New_York").  The salient
     // attributes of this type are the string identifier and the ordered
     // sequence of 'ZoneinfoTransition' objects.
-    //
-    // This class:
-    //: o supports a complete set of *value* *semantic* operations
-    //:   o except for 'bdex' serialization
-    //: o is *exception-neutral*
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology: 'see bsldoc_glossary'.
 
     // PRIVATE TYPES
     class DescriptorLess {
@@ -604,10 +593,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Zoneinfo& object);
 
 // FREE FUNCTIONS
 void swap(Zoneinfo& a, Zoneinfo& b);
-    // Swap the value of the specified 'a' object with the value of the
-    // specified 'b' object.  This method provides the no-throw guarantee.  The
-    // behavior is undefined if the two objects being swapped have non-equal
-    // allocators.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                            INLINE DEFINITIONS
@@ -734,11 +722,11 @@ void Zoneinfo::swap(Zoneinfo& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    bsl::swap(d_identifier,  other.d_identifier);
-    bsl::swap(d_descriptors, other.d_descriptors);
-    bsl::swap(d_transitions, other.d_transitions);
-    bsl::swap(d_posixExtendedRangeDescription,
-              other.d_posixExtendedRangeDescription);
+    bslalg::SwapUtil::swap(&d_identifier,  &other.d_identifier);
+    bslalg::SwapUtil::swap(&d_descriptors, &other.d_descriptors);
+    bslalg::SwapUtil::swap(&d_transitions, &other.d_transitions);
+    bslalg::SwapUtil::swap(&d_posixExtendedRangeDescription,
+                           &other.d_posixExtendedRangeDescription);
 }
 
 // ACCESSORS
@@ -775,15 +763,13 @@ bsl::size_t Zoneinfo::numTransitions() const
 }
 
 inline
-Zoneinfo::TransitionConstIterator
-Zoneinfo::beginTransitions() const
+Zoneinfo::TransitionConstIterator Zoneinfo::beginTransitions() const
 {
     return d_transitions.begin();
 }
 
 inline
-Zoneinfo::TransitionConstIterator
-Zoneinfo::endTransitions() const
+Zoneinfo::TransitionConstIterator Zoneinfo::endTransitions() const
 {
     return d_transitions.end();
 }
@@ -807,13 +793,6 @@ inline
 bool baltzo::operator!=(const Zoneinfo& lhs, const Zoneinfo& rhs)
 {
     return !(lhs == rhs);
-}
-
-// FREE FUNCTIONS
-inline
-void baltzo::swap(Zoneinfo& a, Zoneinfo& b)
-{
-    a.swap(b);
 }
 
 }  // close enterprise namespace

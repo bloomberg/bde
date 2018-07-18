@@ -95,8 +95,7 @@ BSLS_IDENT("$Id: $ $CSID: $")
 
 #include <bdlt_datetimetz.h>
 
-#include <bslx_instreamfunctions.h>
-#include <bslx_outstreamfunctions.h>
+#include <bslalg_swaputil.h>
 
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
@@ -106,12 +105,16 @@ BSLS_IDENT("$Id: $ $CSID: $")
 
 #include <bsls_assert.h>
 
-#include <bsl_algorithm.h>
+#include <bslx_instreamfunctions.h>
+#include <bslx_outstreamfunctions.h>
+
 #include <bsl_iosfwd.h>
 #include <bsl_string.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
+
+#include <bsl_algorithm.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -126,17 +129,13 @@ class LocalDatetime {
     // time, offset from UTC, and a time zone identifier represented by a
     // string.  See the Attributes section under @DESCRIPTION in the
     // component-level documentation.
-    //
-    // This class:
-    //: o supports a complete set of *value* *semantic* operations
-    //: o is *exception-neutral*
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see 'bsldoc_glossary'.
 
     // DATA
     bdlt::DatetimeTz d_datetimeTz;  // local date-time and offset from UTC
     bsl::string      d_timeZoneId;  // local time-zone identifier
+
+    // FRIENDS
+    friend void swap(LocalDatetime&, LocalDatetime&);
 
   public:
     // TRAITS
@@ -307,10 +306,9 @@ bsl::ostream& operator<<(bsl::ostream&        stream,
 
 // FREE FUNCTIONS
 void swap(LocalDatetime& a, LocalDatetime& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                            INLINE DEFINITIONS
@@ -423,10 +421,8 @@ void LocalDatetime::swap(LocalDatetime& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    using bsl::swap;
-
-    swap(d_datetimeTz, other.d_datetimeTz);
-    swap(d_timeZoneId, other.d_timeZoneId);
+    bslalg::SwapUtil::swap(&d_datetimeTz, &other.d_datetimeTz);
+    bslalg::SwapUtil::swap(&d_timeZoneId, &other.d_timeZoneId);
 }
 
 // ACCESSORS
@@ -499,7 +495,8 @@ bool baltzo::operator!=(const LocalDatetime& lhs, const LocalDatetime& rhs)
 inline
 void baltzo::swap(LocalDatetime& a, LocalDatetime& b)
 {
-    a.swap(b);
+    bslalg::SwapUtil::swap(&a.d_datetimeTz, &b.d_datetimeTz);
+    bslalg::SwapUtil::swap(&a.d_timeZoneId, &b.d_timeZoneId);
 }
 
 }  // close enterprise namespace
