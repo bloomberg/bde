@@ -95,8 +95,6 @@ using bsl::flush;
 // [ 1] ~FileObserver();
 // [ 6] FileObserver();
 // [ 6] FileObserver(Allocator *);
-// [ 6] FileObserver(Severity::Level, Allocator * = 0);
-// [ 6] FileObserver(Severity::Level, bool, Allocator * = 0);
 //
 // MANIPULATORS
 // [ 1] void disableFileLogging();
@@ -134,8 +132,8 @@ using bsl::flush;
 // [ 2] int rotationSize() const;
 // [ 1] ball::Severity::Level stdoutThreshold() const;
 // ----------------------------------------------------------------------------
-// [ 6] CONCERN: CREATE WITH 'make_shared'
-// [ 6] CONCERN: CREATE WITH 'allocate_shared'
+// [ 6] CONCERN: 'FileObserver' can be created using 'make_shared'
+// [ 6] CONCERN: 'FileObserver' can be created using 'allocate_shared'
 // [ 5] CONCERN: CURRENT LOCAL-TIME OFFSET IN TIMESTAMP
 // [ 4] CONCERN: ROTATION CALLBACK INVOCATION
 
@@ -204,8 +202,6 @@ void aSsErT2(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
-
-#define PE(x)    (bsl::cerr << #x << ": " << (x) << bsl::endl)
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -729,10 +725,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   FileObserver();
         //   FileObserver(Allocator *);
-        //   FileObserver(Severity::Level, Allocator * = 0);
-        //   FileObserver(Severity::Level, bool, Allocator * = 0);
-        //   CONCERN: CREATE WITH 'make_shared'
-        //   CONCERN: CREATE WITH 'allocate_shared'
+        //   CONCERN: 'FileObserver' can be created using 'make_shared'
+        //   CONCERN: 'FileObserver' can be created using 'allocate_shared'
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -741,13 +735,6 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator& da = defaultAllocator;
         bslma::TestAllocator  oa(veryVeryVeryVerbose);
-
-#if defined(BSLS_PLATFORM_OS_UNIX) && \
-   (!defined(BSLS_PLATFORM_OS_SOLARIS) || BSLS_PLATFORM_OS_VER_MAJOR >= 10)
-        // For the localtime to be picked to avoid the all.pl environment to
-        // pollute us.
-        unsetenv("TZ");
-#endif
 
         ball::Severity::Level levels[] = { ball::Severity::e_FATAL,
                                            ball::Severity::e_ERROR,
@@ -764,7 +751,7 @@ int main(int argc, char *argv[])
                     Obj *mX_p = 0;
                     bsl::shared_ptr<Obj> mX(static_cast<Obj *>(0), &da);
 
-                    if (veryVerbose) PE(ci);
+                    if (veryVerbose) P(ci);
 
                     ball::Severity::Level level = levels[li];
                     bool pilt = pi;                  // publishInLocalTime arg

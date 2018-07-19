@@ -425,13 +425,14 @@ class FileObserver : public Observer {
     FileObserver2         d_fileObserver2;      // forward most operations to
                                                 // this object
 
-  public:
-    BSLMF_NESTED_TRAIT_DECLARATION(FileObserver, bslma::UsesBslmaAllocator);
-
   private:
     // NOT IMPLEMENTED
     FileObserver(const FileObserver&);
     FileObserver& operator=(const FileObserver&);
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(FileObserver, bslma::UsesBslmaAllocator);
 
   public:
     // CREATORS
