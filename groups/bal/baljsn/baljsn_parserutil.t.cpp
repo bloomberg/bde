@@ -2114,6 +2114,8 @@ int main(int argc, char *argv[])
                 { L_,      "\"\\ud83d\\u",       ERROR_VALUE,         false  },
                 { L_,      "\"\\ud83d\\\"",      ERROR_VALUE,         false  },
                 { L_,      "\"\\ud83d\\",        ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude4`\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude4g\"", ERROR_VALUE,         false  },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
