@@ -19,8 +19,6 @@
 # include <unistd.h>
 #endif
 
-using namespace BloombergLP;
-
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
@@ -1884,7 +1882,7 @@ void TestDriver::testCase3(OutputRedirector                   *output,
         }
 
         output->reset();
-        bsls::debugprint(INPUT);
+        BloombergLP::bsls::debugprint(INPUT);
 
         ANNOTATED2_ASSERT(LINE, "%d", INPUT, formatString, output->load());
         ANNOTATED4_ASSERT(LINE, "%d",
@@ -2619,7 +2617,7 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                bsls::BslTestUtil::printStringNoFlush(INPUT);
+                BloombergLP::bsls::BslTestUtil::printStringNoFlush(INPUT);
                 ANNOTATED2_ASSERT(LINE, "%d", INPUT, "%s", output.load());
                 ANNOTATED4_ASSERT(LINE, "%d",
                                   INPUT, "%s",
@@ -2629,8 +2627,8 @@ int main(int argc, char *argv[])
             }
 
             output.reset();
-            bsls::BslTestUtil::printStringNoFlush("abc");
-            bsls::BslTestUtil::printStringNoFlush("def");
+            BloombergLP::bsls::BslTestUtil::printStringNoFlush("abc");
+            BloombergLP::bsls::BslTestUtil::printStringNoFlush("def");
             ASSERT(output.load());
             ASSERT(0 == output.compare("abcdef"));
         }
@@ -2644,7 +2642,7 @@ int main(int argc, char *argv[])
             }
 
             output.reset();
-            bsls::BslTestUtil::printTab();
+            BloombergLP::bsls::BslTestUtil::printTab();
             ASSERT(output.load());
             ASSERT(0 == output.compare("\t"));
         }
