@@ -270,10 +270,17 @@ class Encoder_EncodeImpl {
     // should not be used outside of this component.
 
     // DATA
-    Encoder              *d_encoder_p;         // encoder (held, not owned)
-    bsl::ostream          d_outputStream;      // stream for output
-    Formatter             d_formatter;         // formatter
-    const EncoderOptions *d_encoderOptions_p;  // encoder options
+    Encoder              *d_encoder_p;                // encoder (held, !owned)
+    bsl::ostream          d_outputStream;             // stream for output
+    Formatter             d_formatter;                // formatter
+    const EncoderOptions *d_encoderOptions_p;         // encoder options
+    bool                  d_forceEmptyArrayEncoding;  // set to 'true' to force
+                                                      // encoding of Choice
+                                                      // selections that are
+                                                      // empty arrays even if
+                                                      // 'encodeEmptyArrays'
+                                                      // encoder option is
+                                                      // 'false'
 
     // FRIENDS
     friend struct Encoder_DynamicTypeDispatcher;
@@ -735,28 +742,44 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&                value,
             d_formatter.openObject();
         }
 
-        // Skip encoding of the selection if it is an empty array and the
-        // encoder option 'encodeEmptyArrays()' is 'false'.
-
-        bool encodeChoiceSelection = true;  // default is to encode selection
+        // Conditionally set the 'd_forceEmptyArrayEncoding' flag to 'true' if
+        // (1) we are about to access a Choice selection that is an empty
+        // array, and (2) the 'encodeEmptyArrays' encoder option is 'false'.
+        // Otherwise, such a Choice will encode as, e.g.:
+        //..
+        //  {"selection-name":}
+        //..
+        // which is invalid JSON.  If 'encodeEmptyArrays' were 'true', it would
+        // encode as:
+        //..
+        //  {"selection-name":[]}
+        //..
+        // The only other option is to encode as:
+        //..
+        //  {}
+        //..
+        // but that would lose the type of the selection altogether.
 
         if (!d_encoderOptions_p->encodeEmptyArrays()) {
             Encoder_ChoiceVisitor emptyArraySniffer;
 
             bdlat_ChoiceFunctions::accessSelection(value, emptyArraySniffer);
             if (emptyArraySniffer.isEmptyArray()) {
-                encodeChoiceSelection = false;
+                d_forceEmptyArrayEncoding = true;
             }
         }
 
-        if (encodeChoiceSelection) {
-            Encoder_ElementVisitor visitor = { this, mode };
+        Encoder_ElementVisitor visitor = { this, mode };
 
-            const int rc = bdlat_ChoiceFunctions::accessSelection(value,
-                                                                  visitor);
-            if (rc) {
-                return rc;                                            // RETURN
-            }
+        const int rc = bdlat_ChoiceFunctions::accessSelection(value, visitor);
+
+        // Regardless of the flag's current value, it should be 'false' after
+        // visiting the selection.
+
+        d_forceEmptyArrayEncoding = false;
+
+        if (rc) {
+            return rc;                                                // RETURN
         }
 
         if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
@@ -796,7 +819,8 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&               value,
 
         d_formatter.closeArray();
     }
-    else if (d_encoderOptions_p->encodeEmptyArrays()) {
+    else if (d_encoderOptions_p->encodeEmptyArrays()
+             || d_forceEmptyArrayEncoding) {
         d_formatter.openArray(true);
         d_formatter.closeArray(true);
     }
@@ -838,6 +862,7 @@ Encoder_EncodeImpl::Encoder_EncodeImpl(Encoder               *encoder,
               options.initialIndentLevel(),
               options.spacesPerLevel())
 , d_encoderOptions_p(&options)
+, d_forceEmptyArrayEncoding(false)
 {
 }
 

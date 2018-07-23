@@ -31242,7 +31242,7 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //LINE  INPUT   "EEA"   RESULT
                 //----  -----   -----   ------
-                { L_,       0,  false,  "{}"                                 },
+                { L_,       0,  false,  "{\"selection1\":[]}"                },
                 { L_,       0,  true,   "{\"selection1\":[]}"                },
                 { L_,   "XyZ",  false,  "{\"selection1\":[\"XyZ\"]}"         },
                 { L_,   "XyZ",  true,   "{\"selection1\":[\"XyZ\"]}"         },
@@ -31286,7 +31286,7 @@ int main(int argc, char *argv[])
             } DATA[] = {
                 //LINE  INPUT   "EEA"   RESULT
                 //----  -----   -----   ------
-                { L_,       0,  false,  "{\"selection1\":{}}"                },
+                { L_,       0, false, "{\"selection1\":{\"selection1\":[]}}" },
                 { L_,       0,  true, "{\"selection1\":{\"selection1\":[]}}" },
                 { L_,   "XyZ",  false,
                                "{\"selection1\":{\"selection1\":[\"XyZ\"]}}" },
