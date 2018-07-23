@@ -86,7 +86,7 @@
 ** 		sin(x) ~ x*S(x^2)
 ** 		cos(x) ~ C(x^2)
 ** 		tan(x) ~ x*P(x^2)/Q(x^2)
-** 		cot(x) ~ Q(x^2)/*[x*P(x^2)]
+** 		cot(x) ~ Q(x^2)/[x*P(x^2)]
 ** 
 ** Now, for any argument, x, given its reduced argument, z, and its quadrant
 ** bits, I, we can evaluate sin, cos, tan and cot of x according to Table 1.
