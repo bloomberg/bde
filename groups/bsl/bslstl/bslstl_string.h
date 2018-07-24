@@ -657,22 +657,16 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 #include <istream>  // for 'std::basic_istream', 'sentry'
-
 #include <limits>   // for 'std::numeric_limits'
-
 #include <locale>   // for 'std::ctype', 'locale'
-
 #include <ostream>  // for 'std::basic_ostream', 'sentry'
-
-#include <string>  // for 'native_std::char_traits'
+#include <string>   // for 'native_std::char_traits'
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #include <algorithm>
-
 #include <exception>
-
 #include <stdexcept>
 
 #if defined(BDE_BUILD_TARGET_STLPORT)

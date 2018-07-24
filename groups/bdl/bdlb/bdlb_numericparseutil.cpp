@@ -203,7 +203,7 @@ int NumericParseUtil::parseDouble(double                   *result,
 {
     BSLS_ASSERT(remainder);
     BSLS_ASSERT(result);
-    BSLS_ASSERT(setlocale(0, 0) == bslstl::StringRef("C"));
+    BSLS_ASSERT(bsl::setlocale(0, 0) == bslstl::StringRef("C"));
 
     // An empty string cannot be a number.
 
@@ -240,7 +240,7 @@ int NumericParseUtil::parseDouble(double                   *result,
     buffer[inputString.length()] = 0;
 
     char         *endPtr;
-    const double  rv = strtod(buffer, &endPtr);
+    const double  rv = bsl::strtod(buffer, &endPtr);
     size_type endPos = (endPtr - buffer);
     remainder->assign(&inputString[0] + endPos, inputString.length() - endPos);
 

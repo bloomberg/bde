@@ -21,70 +21,71 @@ BSLS_IDENT("$Id: $")
 // 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
 // places them in the 'std' namespace.
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 #ifndef BSL_OVERRIDES_STD
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
+# ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# endif
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <string>
-#   else
-#     include BSL_NATIVE_CPP_LIB_HEADER(string)
-#   endif
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <string>
+# else
+#   include BSL_NATIVE_CPP_LIB_HEADER(string)
+# endif
 
 #else // defined(BSL_OVERRIDES_STD)
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
 #   define BSL_STDHDRS_RUN_EPILOGUE
 #   define BSL_STDHDRS_EPILOGUE_RUN_BY_string
-#   endif
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <string>
-#   else
-#     include BSL_NATIVE_CPP_LIB_HEADER(string)
-#   endif
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <string>
+# else
+#   include BSL_NATIVE_CPP_LIB_HEADER(string)
+# endif
 
-#   ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#   ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+# ifndef BDE_OMIT_INTERNAL_DEPRECATED
+# ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
         // Permit reliance on transitive includes within robo.
 
-    // This include causes cycles in C++11 mode with gcc.
-#   if !defined(BDE_BUILD_TARGET_CPP11) && (__cplusplus < 201103L)
-#   include <cctype>
-#   endif
-
+#   include <exception>
 #   include <limits>
 
-    // This include causes cycles in C++11 mode with gcc.
+    // These includes causes cycles in C++11 mode with gcc.
 #   if !defined(BDE_BUILD_TARGET_CPP11) && (__cplusplus < 201103L)
-#   include <functional>
+#     include <algorithm>
+#     include <cctype>
 #   endif
 
+    // Code in Robo depends on these headers included transitively with
+    // <string> and it fails to build otherwise in the stlport4 mode on Sun.
+#   if defined(BDE_BUILD_TARGET_STLPORT)
+#     include <stdio.h>
+#     include <stdlib.h>
+#     include <string.h>
 #   endif
-#   endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-#   ifndef BSL_INCLUDE_BSL_STRING
+# endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+# endif // BDE_OMIT_INTERNAL_DEPRECATED
+
+# ifndef BSL_INCLUDE_BSL_STRING
 #   define BSL_INCLUDE_BSL_STRING
-#   endif
+# endif
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_string
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_string
 #   undef BSL_STDHDRS_EPILOGUE_RUN_BY_string
 #   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# endif
 
 #endif  // BSL_OVERRIDES_STD
 
