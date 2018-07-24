@@ -131,27 +131,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  value = 42
 //..
-//
-///Example 2: Print the Value of a Test Type
-///- - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to print the value of an object of a test type defined in
-// the 'bsltf' package using 'bsl::cout'.  This component supplies the
-// necessary overloads of the insertion operator for this to be done directly.
-//
-// First, include the header of this component:
-//..
-//  #include <bslim_testutil.h>
-//..
-// Now, we construct a 'bsltf::SimpleTestType' object and stream its value to
-// 'bsl::cout' using the '<<' operator:
-//..
-//  bsltf::SimpleTestType a(10);
-//  bsl::cout << a;
-//..
-// Finally, we observe the following console output:
-//..
-//  10
-//..
 
 #include <bslscm_version.h>
 
@@ -159,7 +138,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_iostream.h>
 #include <bsl_string.h>
-
 
                        // =================
                        // Macro Definitions
@@ -300,160 +278,6 @@ struct TestUtil {
 };
 
 }  // close package namespace
-
-// NOTICE: The following output operators are provided here (rather than in
-// 'bsltf') because 'bsltf' is levelized below the standard library streams
-// used by these functions.
-
-namespace bsltf {
-
-// FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const AllocBitwiseMoveableTestType&    object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const AllocTestType&                   object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const BitwiseCopyableTestType&         object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const BitwiseMoveableTestType&         object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const EnumeratedTestType::Enum&        object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const MovableAllocTestType&            object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const MovableTestType&                 object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const MoveOnlyAllocTestType&           object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonAssignableTestType&           object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonCopyConstructibleTestType&    object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonDefaultConstructibleTestType& object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonEqualComparableTestType&      object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonTypicalOverloadsTestType&     object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const SimpleTestType&                  object);
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const UnionTestType&                   object);
-    // Write the value of the specified 'object' to the specified output
-    // 'stream' in a single-line format, and return a reference providing
-    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
-    // operation has no effect.
-
-// ============================================================================
-//                              INLINE DEFINITIONS
-// ============================================================================
-
-// FREE OPERATORS
-inline
-bsl::ostream& operator<<(bsl::ostream&                       stream,
-                         const AllocBitwiseMoveableTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&        stream,
-                         const AllocTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                  stream,
-                         const BitwiseCopyableTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                  stream,
-                         const BitwiseMoveableTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                   stream,
-                         const EnumeratedTestType::Enum& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&               stream,
-                         const MovableAllocTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&          stream,
-                         const MovableTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const MoveOnlyAllocTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                stream,
-                         const NonAssignableTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                       stream,
-                         const NonCopyConstructibleTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                          stream,
-                         const NonDefaultConstructibleTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                     stream,
-                         const NonEqualComparableTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&                      stream,
-                         const NonTypicalOverloadsTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&         stream,
-                         const SimpleTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream&        stream,
-                         const UnionTestType& object)
-{
-    return stream << TemplateTestFacility::getIdentifier(object);
-}
-
-}  // close namespace bsltf
 }  // close enterprise namespace
 
 #endif
