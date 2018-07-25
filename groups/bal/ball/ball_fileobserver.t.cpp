@@ -24,6 +24,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
@@ -700,27 +701,22 @@ int main(int argc, char *argv[])
         //:   'bsl::make_shared' and 'bsl::allocate_shared'.
         //
         // Plan:
-        //: 1 Iterate through 2 nested loops through a variety of values to be
+        //: 1 Iterate through a table providing a variety of values to be
         //:   passed to the 'severity' and 'publishInLocalTime' args of the
         //:   c'tors.
         //:
-        //: 2 Within those loops, iterate through another loop to drive a
-        //:   switch statement, calling all of the c'tors and setting up
-        //:   variables to have the expected values for the accessors of the
-        //:   'class' under test.
-        //:   o The first few cases call placement 'new'.
+        //: 2 With a switch in a 'for' loop, iterate through creating an 'Obj'
+        //:   with all six possible c'tors, then verify through accessors that
+        //:   the properties are as expected.
         //:
-        //:   o The next few cases call different c'tors through
-        //:     'bsl::make_shared'.
+        //: 3 Call 'make_shared' using 3 different c'tors and verify the
+        //:   properties of the created objects.
         //:
-        //:   o The next few cases call different c'tors through
-        //:     'bsl::allocate_shared'.
+        //: 4 Call 'allocate_shared' using 3 different c'tors and verify the
+        //:   properties of the created objects.
         //:
-        //: 3 After finishing the 'switch', examine the created object through
-        //:   it's accessors and verify the expected values.
-        //:
-        //: 4 After exiting all loops, verify by compile-time assert that
-        //:   'FileObserver' has the 'bslma::UsesBslmaAllocator' trait.
+        //: 5 Verify by compile-time assert that 'FileObserver' has the
+        //:   'bslma::UsesBslmaAllocator' trait.
         //
         // Testing:
         //   FileObserver();
@@ -733,149 +729,84 @@ int main(int argc, char *argv[])
                         "CONSTRUCTOR, MAKE_SHARED, AND ALLOCATE_SHARED TEST\n"
                         "==================================================\n";
 
+        typedef ball::Severity Sev;
+        typedef Sev::Level     Level;
+
+        const Sev::Level defaultLevel = Sev::e_WARN;
+        const bool       defaultPilt  = false;    // 'PILT' ==
+                                                  // Publish In Local Time
+
         bslma::TestAllocator& da = defaultAllocator;
         bslma::TestAllocator  oa(veryVeryVeryVerbose);
 
-        ball::Severity::Level levels[] = { ball::Severity::e_FATAL,
-                                           ball::Severity::e_ERROR,
-                                           ball::Severity::e_WARN,
-                                           ball::Severity::e_INFO,
-                                           ball::Severity::e_DEBUG,
-                                           ball::Severity::e_TRACE };
-        enum { k_NUM_LEVELS = sizeof levels / sizeof *levels };
+        if (verbose) cout << "Table-driven test of c'tors\n";
+        {
+            static const struct Data {
+                int      d_line;
+                Level    d_level;
+                bool     d_publishInLocalTime;
+            } DATA[] = {
+              { L_, Sev::e_ERROR,  false },
+              { L_, Sev::e_ERROR,  true },
+              { L_, Sev::e_WARN,   false },
+              { L_, Sev::e_WARN,   true },
+              { L_, Sev::e_DEBUG,  false },
+              { L_, Sev::e_DEBUG,  true } };
+            enum { k_NUM_DEBUG = sizeof DATA / sizeof *DATA };
 
-        for (int li = 0; li < k_NUM_LEVELS; ++li) {
-            for (int pi = 0; pi < 2; ++pi) {
+            for (int ti = 0; ti < k_NUM_DEBUG; ++ti) {
+                const Data data = DATA[ti];
+                const int  LINE = data.d_line;
+
                 bool go = true;
                 for (int ci = 0; go; ++ci) {
+                    Level level = data.d_level;
+                    bool  pilt  = data.d_publishInLocalTime;
+
+                    bslma::Allocator *passedAllocator = &oa;
+
                     Obj *mX_p = 0;
-                    bsl::shared_ptr<Obj> mX(static_cast<Obj *>(0), &da);
-
-                    if (veryVerbose) P(ci);
-
-                    ball::Severity::Level level = levels[li];
-                    bool pilt = pi;                  // publishInLocalTime arg
-                    bslma::Allocator *passedAlloc = &oa;
 
                     // In all of these case, try to call the c'tor with
-                    // '(level, pilt, passedAlloc)', but in the case of those
-                    // c'tors that don't take all 3 args, assign 'level',
-                    // 'pilt', and/or 'passedAlloc' to their default values
+                    // '(level, pilt, passedAllocator)', but in the case of
+                    // those c'tors that don't take all 3 args, assign 'level',
+                    // 'pilt', and/or 'passedAllocator' to their default values
                     // if they weren't passed.
 
                     switch (ci) {
-                      // Case 0-5 -- call all 6 possible c'tors with placement
-                      // new, assigning to dumb ptr 'mX_p' which, after the
-                      // switch, will be assign to shared ptr 'mX'.
-
                       case 0: {
                         mX_p = new (da) Obj();
 
-                        level = ball::Severity::e_WARN;
-                        pilt = false;
-                        passedAlloc = &da;
+                        level           = defaultLevel;
+                        pilt            = defaultPilt;
+                        passedAllocator = &defaultAllocator;
                       } break;
                       case 1: {
-                        mX_p = new (da) Obj(passedAlloc);
+                        mX_p = new (da) Obj(passedAllocator);
 
-                        level = ball::Severity::e_WARN;
-                        pilt = false;
+                        level = defaultLevel;
+                        pilt  = defaultPilt;
                       } break;
                       case 2: {
                         mX_p = new (da) Obj(level);
 
-                        pilt = false;
-                        passedAlloc = &da;
+                        pilt            = defaultPilt;
+                        passedAllocator = &defaultAllocator;
                       } break;
                       case 3: {
-                        mX_p = new (da) Obj(level, passedAlloc);
+                        mX_p = new (da) Obj(level, passedAllocator);
 
-                        pilt = false;
+                        pilt = defaultPilt;
                       } break;
                       case 4: {
                         mX_p = new (da) Obj(level, pilt);
 
-                        passedAlloc = &da;
+                        passedAllocator = &defaultAllocator;
                       } break;
                       case 5: {
-                        mX_p = new (da) Obj(level, pilt, passedAlloc);
+                        mX_p = new (da) Obj(level, pilt, passedAllocator);
                       } break;
-
-                      // Case 6-8 -- call all 3 possible c'tors that don't have
-                      // explicit allocators passed, via 'make_shared', which
-                      // will detect the allocator trait and pass the default
-                      // allocator as an arg.  Passing an allocator explicitly
-                      // to the c'tor arg list would confuse 'make_shared' and
-                      // result in 2 allocators being passed to the c'tor.
-
                       case 6: {
-                        // 'make_shared' will detect that 'Obj' uses bslma
-                        // allocators, and pass the default allocator as an
-                        // extra arg.
-
-                        mX = bsl::make_shared<Obj>();
-
-                        level = ball::Severity::e_WARN;
-                        pilt = false;
-                        passedAlloc = &da;
-                      } break;
-                      case 7: {
-                        // 'make_shared' will detect that 'Obj' uses bslma
-                        // allocators, and pass the default allocator as an
-                        // extra arg.
-
-                        mX = bsl::make_shared<Obj>(level);
-
-                        pilt = false;
-                        passedAlloc = &da;
-                      } break;
-                      case 8: {
-                        // 'make_shared' will detect that 'Obj' uses bslma
-                        // allocators, and pass the default allocator as an
-                        // extra arg.
-
-                        mX = bsl::make_shared<Obj>(level, pilt);
-
-                        passedAlloc = &da;
-                      } break;
-
-                      // Case 9-11 -- call all 3 possible c'tors that don't
-                      // have explicit allocators passed, via
-                      // 'allocate_shared', which will detect the allocator
-                      // trait and pass the allocator '&oa' as an arg.  Passing
-                      // an allocator explicitly to the c'tor arg list would
-                      // confuse 'make_shared' and result in 2 allocators being
-                      // passed to the c'tor.
-
-                      case 9: {
-                        // 'allocate_shared' will detect that 'Obj' uses bslma
-                        // allocators, and pass '&oa' as an extra arg.
-
-                        mX = bsl::allocate_shared<Obj>(passedAlloc);
-
-                        level = ball::Severity::e_WARN;
-                        pilt = false;
-                      } break;
-                      case 10: {
-                        // 'allocate_shared' will detect that 'Obj' uses bslma
-                        // allocators, and pass '&oa' as an extra arg.
-
-                        mX = bsl::allocate_shared<Obj>(passedAlloc, level);
-
-                        pilt = false;
-                      } break;
-                      case 11: {
-                        // 'allocate_shared' will detect that 'Obj' uses bslma
-                        // allocators, and pass '&oa' as an extra arg.
-
-                        mX = bsl::allocate_shared<Obj>(passedAlloc,
-                                                       level,
-                                                       pilt);
-                      } break;
-
-                      // Case 12: we're done.
-
-                      case 12: {
                         go = false;
                         continue;
                       } break;
@@ -885,20 +816,107 @@ int main(int argc, char *argv[])
                       } break;
                     }
 
-                    if (mX_p) {
-                        bsl::shared_ptr<Obj> mY(mX_p, &da);
-                        mX = mY;
-                    }
-                    bsl::shared_ptr<const Obj> X = mX;
+                    const Obj& X = *mX_p;
 
-                    ASSERTV(ci, level       == X->stdoutThreshold());
-                    ASSERTV(ci, passedAlloc == X->allocator());
-                    ASSERTV(ci, pilt        ==
-                                             X->isPublishInLocalTimeEnabled());
+                    ASSERTV(ci, LINE, level == X.stdoutThreshold());
+                    ASSERTV(ci, LINE, pilt == X.isPublishInLocalTimeEnabled());
+                    ASSERTV(ci, LINE, passedAllocator == X.allocator());
+
+                    da.deleteObject(mX_p);
                 }
             }
         }
 
+        // Set non-default values to pass to c'tors to test them.
+
+        const Sev::Level otherLevel = Sev::e_FATAL;
+        const bool       otherPilt  = true;
+
+        ASSERT(defaultLevel != otherLevel);
+        ASSERT(defaultPilt  != otherPilt);
+        ASSERT(&da          == &defaultAllocator);
+        ASSERT(&da          == bslma::Default::allocator());
+        ASSERT(&oa          != &da);
+
+
+        if (verbose) cout << "Test 'make_shared' with various c'tors.\n";
+        {
+            {
+                bsl::shared_ptr<Obj> mX = bsl::make_shared<Obj>();
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel == X.stdoutThreshold());
+                ASSERT(defaultPilt  == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          == X.allocator());
+            }
+
+            {
+                bsl::shared_ptr<Obj> mX = bsl::make_shared<Obj>(otherLevel);
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel != X.stdoutThreshold());
+                ASSERT(otherLevel   == X.stdoutThreshold());
+                ASSERT(defaultPilt  == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          == X.allocator());
+            }
+
+            {
+                bsl::shared_ptr<Obj> mX = bsl::make_shared<Obj>(otherLevel,
+                                                                otherPilt);
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel != X.stdoutThreshold());
+                ASSERT(otherLevel   == X.stdoutThreshold());
+                ASSERT(defaultPilt  != X.isPublishInLocalTimeEnabled());
+                ASSERT(otherPilt    == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          == X.allocator());
+            }
+        }
+
+        if (verbose) cout << "Test 'allocate_shared' with various c'tors.\n";
+        {
+            {
+                bsl::shared_ptr<Obj> mX = bsl::allocate_shared<Obj>(&oa);
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel == X.stdoutThreshold());
+                ASSERT(defaultPilt  == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          != X.allocator());
+                ASSERT(&oa          == X.allocator());
+                ASSERT(0            == da.numBlocksInUse());
+            }
+
+            {
+                bsl::shared_ptr<Obj> mX = bsl::allocate_shared<Obj>(
+                                                                   &oa,
+                                                                   otherLevel);
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel != X.stdoutThreshold());
+                ASSERT(otherLevel   == X.stdoutThreshold());
+                ASSERT(defaultPilt  == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          != X.allocator());
+                ASSERT(&oa          == X.allocator());
+                ASSERT(0            == da.numBlocksInUse());
+            }
+
+            {
+                bsl::shared_ptr<Obj> mX = bsl::allocate_shared<Obj>(&oa,
+                                                                    otherLevel,
+                                                                    otherPilt);
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel != X.stdoutThreshold());
+                ASSERT(otherLevel   == X.stdoutThreshold());
+                ASSERT(defaultPilt  != X.isPublishInLocalTimeEnabled());
+                ASSERT(otherPilt    == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          != X.allocator());
+                ASSERT(&oa          == X.allocator());
+                ASSERT(0            == da.numBlocksInUse());
+            }
+        }
+
+        if (verbose) cout << "Directly test memory allocation attribute.\n";
         BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
       } break;
       case 5: {
