@@ -41,21 +41,21 @@ using namespace BloombergLP;
 // usage example.  Therefore, this test driver avoids the standard test macros
 // (and support functions), and uses the following instead:
 //
-// STANDARD              BSLS_BSLTESTUTIL.T.CPP
-// --------              ----------------------
-// 'LOOP_ASSERT'         'ANNOTATED_ASSERT'
-// 'LOOP2_ASSERT'        'ANNOTATED2_ASSERT'
-// 'LOOP3_ASSERT'        'ANNOTATED3_ASSERT'
-// 'LOOP4_ASSERT'        'ANNOTATED4_ASSERT'
-// 'LOOP5_ASSERT'        not used
-// 'LOOP6_ASSERT'        not used
-// 'Q'                   not used
-// 'P'                   'PRINT'
-// 'P_'                  'PRINT_'
-// 'T_'                  'TAB_'
-// 'L_'                  not used
-// 'void aSsErT()'       'void realaSsErT()'
-// 'int testStatus'      'int realTestStatus'
+//  STANDARD              BSLS_BSLTESTUTIL.T.CPP
+//  --------              ----------------------
+//  'LOOP_ASSERT'         'ANNOTATED_ASSERT'
+//  'LOOP2_ASSERT'        'ANNOTATED2_ASSERT'
+//  'LOOP3_ASSERT'        'ANNOTATED3_ASSERT'
+//  'LOOP4_ASSERT'        'ANNOTATED4_ASSERT'
+//  'LOOP5_ASSERT'        not used
+//  'LOOP6_ASSERT'        not used
+//  'Q'                   not used
+//  'P'                   'PRINT'
+//  'P_'                  'PRINT_'
+//  'T_'                  'TAB_'
+//  'L_'                  not used
+//  'void aSsErT()'       'void realaSsErT()'
+//  'int testStatus'      'int realTestStatus'
 //
 // Note that the 'ANNOTATED*_ASSERT' macros are only rough equivalents of the
 // standard 'LOOP*_ASSERT' macros.  Because 'std::cout' is not available in
@@ -102,6 +102,7 @@ using namespace BloombergLP;
 // [ 9] BSLS_BSLTESTUTIL_FORMAT_TD
 // [ 9] BSLS_BSLTESTUTIL_FORMAT_I64
 // [ 9] BSLS_BSLTESTUTIL_FORMAT_U64
+// [ 9] BSLS_BSLTESTUTIL_FORMAT_PTR
 //
 // UNDERLYING IMPLEMENTATION AND EXTENSIBILITY INTERFACE
 // [ 3] void debugprint(bool v)
@@ -216,6 +217,7 @@ static void realaSsErT(bool b, const char *s, int i)
 #define TTD  BSLS_BSLTESTUTIL_FORMAT_TD
 #define TI64 BSLS_BSLTESTUTIL_FORMAT_I64
 #define TU64 BSLS_BSLTESTUTIL_FORMAT_U64
+#define TPTR BSLS_BSLTESTUTIL_FORMAT_PTR
 
 // ============================================================================
 //                             USAGE EXAMPLE CODE
@@ -478,7 +480,7 @@ static void realaSsErT(bool b, const char *s, int i)
         while (blockPtr != list.end()) {
 //..
 // Here, we use 'ZU' as the format specifier for the 'size_t' in the 'printf'
-// invocation. 'ZU' is the appropriate format specifier for 'size_t' on each
+// invocation.  'ZU' is the appropriate format specifier for 'size_t' on each
 // supported platform.
 //..
             printf("\t{ address: %p,\tsize: " ZU " }",
@@ -898,8 +900,8 @@ class OutputRedirector {
   public:
     // CREATORS
     explicit OutputRedirector();
-        // Create an 'OutputRedirector' in an un-redirected state, and
-        // an empty scratch buffer.
+        // Create an 'OutputRedirector' in an un-redirected state, and an empty
+        // scratch buffer.
 
     ~OutputRedirector();
         // Destroy this 'OutputRedirector' object.  If the object is in a
@@ -952,8 +954,8 @@ class OutputRedirector {
         // specified 'expectedLength'.  Return 0 if the 'expected' buffer has
         // the same length and contents as the scratch buffer, and non-zero
         // otherwise.  Note that the 'expected' buffer is allowed to contain
-        // embedded nulls.  The behavior is undefined unless
-        // 'redirect' has been previously been called successfully.
+        // embedded nulls.  The behavior is undefined unless 'redirect' has
+        // been previously been called successfully.
 
     int compare(const char *expected);
         // Compare the character buffer pointed to by the specified pointer
@@ -991,8 +993,8 @@ int OutputRedirector::redirectStream(FILE *from, FILE *to)
     ASSERT(to);
 
     // The canonical way to redirect 'stderr' to 'stdout' is
-    // 'ASSERT(freopen("/dev/stdout", "w", stderr));', but we use dup2
-    // instead of 'freopen', because 'freopen' fails on AIX with errno
+    // 'ASSERT(freopen("/dev/stdout", "w", stderr));', but we use dup2 instead
+    // of 'freopen', because 'freopen' fails on AIX with errno
     // 13 'Permission denied' when redirecting stderr.
 
 #if defined(BSLS_PLATFORM_OS_AIX)
@@ -1039,7 +1041,7 @@ void OutputRedirector::redirect()
     ASSERT(0 == fstatFunc(originalStdoutFD, &d_originalStdoutStat));
 
     if (0 != redirectStream(stderr, stdout)) {
-        // Redirect 'stderr' to 'stdout;.
+        // Redirect 'stderr' to 'stdout'.
 
         // We want 'stderr' to point to 'stdout', so we have to redirect it
         // before we change the meaning of 'stdout'.
@@ -1388,15 +1390,15 @@ struct TestDriver {
         // Test 'debugprint'.
 };
 
-                               // --------------
-                               // TEST APPARATUS
-                               // --------------
+                             // --------------
+                             // TEST APPARATUS
+                             // --------------
 
 char TestDriver::s_expectedOutput[TestDriver::BUFFER_SIZE];
 
-                                 // ----------
-                                 // TEST CASES
-                                 // ----------
+                               // ----------
+                               // TEST CASES
+                               // ----------
 
 void TestDriver::testCase8(OutputRedirector *output)
 {
@@ -1429,7 +1431,7 @@ void TestDriver::testCase8(OutputRedirector *output)
     //:   loop assert macro's arguments.  Also note that we test the loop
     //:   assert macro with only one set of variable types, since we test
     //:   separately in test case 3 the ability of the underlying apparatus to
-    //:   identify and correctly format each primitive type. (C-2,3)
+    //:   identify and correctly format each primitive type.  (C-2,3)
     //
     // Testing:
     //   BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X)
@@ -1821,7 +1823,7 @@ void TestDriver::testCase3(OutputRedirector                   *output,
     //:
     //
     // Plan:
-    //: 1 Using the table-driven technique:  (C-1, 2)
+    //: 1 Using the table-driven technique: (C-1, 2)
     //:
     //:   For each data row in the supplied DATA table, reset the output
     //:   redirector, invoke the method under test with the second parameter
@@ -1897,7 +1899,7 @@ void TestDriver::testCase3(OutputRedirector                   *output,
 // corruption by intentionally providing incorrect format strings to 'printf'.
 // This generates warnings that must be suppressed with a GCC pragma.  Some
 // versions of the gcc compiler do not allow pragmas inside function bodies
-// (i.e. inside 'main'), so the test has been factored out into a separate
+// (i.e., inside 'main'), so the test has been factored out into a separate
 // function.
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
@@ -1926,15 +1928,13 @@ void checkStackCorruptionTest()
     ASSERT(data.target   == TARGET_ONES);
     ASSERT(data.sentinel == SENTINEL_ONES);
 
-    // The format specifier mismatches the actual variable type.
-    // The warning of '-Wformat' type is caused by such attempt.
-    // Suppressing the warning as the format mismatch is a part of the
-    // test logic.
+    // The format specifier mismatches the actual variable type.  The warning
+    // of '-Wformat' type is caused by such attempt.  Suppressing the warning
+    // as the format mismatch is a part of the test logic.
 
     sscanf(INPUT, "%c", &data.target);
 
-    // Test case 9 asserts 'data.target == 0', so here we assert the
-    // opposite.
+    // Test case 9 asserts 'data.target == 0', so here we assert the opposite.
 
     ASSERT(data.target   != 0);
     ASSERT(data.sentinel == SENTINEL_ONES);
@@ -1947,15 +1947,14 @@ void checkStackCorruptionTest()
     ASSERT(data.target   == TARGET_ONES);
     ASSERT(data.sentinel == SENTINEL_ONES);
 
-    // The format specifier mismatches the actual variable type.
-    // The warning of '-Wformat' type is caused by such attempt.
-    // Suppressing the warning as the format mismatch is a part of the
-    // test logic.
+    // The format specifier mismatches the actual variable type.  The warning
+    // of '-Wformat' type is caused by such attempt.  Suppressing the warning
+    // as the format mismatch is a part of the test logic.
 
     sscanf(INPUT, "%lld", &data.target);
 
-    // Test case 9 asserts 'data.sentinel == SENTINEL_ONES', so here we
-    // assert the opposite.
+    // Test case 9 asserts 'data.sentinel == SENTINEL_ONES', so here we assert
+    // the opposite.
 
     ASSERT(data.target   == 0);
     ASSERT(data.sentinel != SENTINEL_ONES);
@@ -2003,17 +2002,14 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            printf("\nTESTING USAGE EXAMPLE"
-                    "\n--------------------\n");
-        }
+        if (verbose) printf("\nTESTING USAGE EXAMPLE"
+                            "\n--------------------\n");
 
         // The actual usage example code is encapsulated in three free
         // functions, 'testFortyTwo', 'testMyType', and
         // 'testBlockListConstruction' so that it can be relocated to the
         // section of the source file where the standard test macros have been
-        // defined in terms of the macros supplied by the component under
-        // test.
+        // defined in terms of the macros supplied by the component under test.
 
         testFortyTwo(verbose);
         testMyTypeSetValue(verbose);
@@ -2092,7 +2088,7 @@ int main(int argc, char *argv[])
         //: 1 'printf' format strings constructed with the formatting macros
         //:   produce output with the approriate sign.
         //:
-        //: 2 'printf' statements using the formatting macros consume the
+        //: 2 'scanf' statements using the formatting macros consume the
         //:   correct number of bytes when reading each optional argument.
         //
         // Plan:
@@ -2110,6 +2106,7 @@ int main(int argc, char *argv[])
         //   BSLS_BSLTESTUTIL_FORMAT_TD
         //   BSLS_BSLTESTUTIL_FORMAT_I64
         //   BSLS_BSLTESTUTIL_FORMAT_U64
+        //   BSLS_BSLTESTUTIL_FORMAT_PTR
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -2130,6 +2127,7 @@ int main(int argc, char *argv[])
         const char *SIGNED_64_EXPECTED   =
                                          "<-1> <0> <1> <-9223372036854775808>";
         const char *UNSIGNED_64_EXPECTED = "<0> <1> <9223372036854775808>";
+        const char *PTR_EXPECTED = "<0> <64>";
 
         if (verbose) fprintf(stderr, "\tTesting 'size_t'\n");
         {
@@ -2193,6 +2191,22 @@ int main(int argc, char *argv[])
             ANNOTATED2_ASSERT(UNSIGNED_64_EXPECTED, "%s",
                               output.getOutput(), "%s",
                               0 == output.compare(UNSIGNED_64_EXPECTED));
+        }
+
+        if (verbose) fprintf(stderr, "\tTesting 'uintptr_t'\n");
+        {
+            void *nptr = NULL;
+            uintptr_t nvalue = reinterpret_cast<uintptr_t>(nptr);
+
+            uintptr_t testvalue = 100;
+
+            output.reset();
+            printf("<" TPTR "> <" TPTR ">", nvalue, testvalue);
+
+            ASSERT(output.load());
+            ANNOTATED2_ASSERT(PTR_EXPECTED, "%s",
+                              output.getOutput(), "%s",
+                              0 == output.compare(PTR_EXPECTED));
         }
 
         if (verbose) fprintf(stderr, "\nTesting for Stack Corruption\n");
@@ -2297,6 +2311,31 @@ int main(int argc, char *argv[])
             ASSERT(data.sentinel == SENTINEL_ONES);
         }
 
+        if (verbose) fprintf(stderr, "\tTesting 'uintptr_t'\n");
+        {
+            uintptr_t                TARGET_ONES   = ~((uintptr_t)0);
+            const unsigned char      SENTINEL_ONES = ~((unsigned char) 0);
+
+            struct {
+                uintptr_t     target;
+                unsigned char sentinel;
+                long long     prophylactic;
+            } data;
+            data.target       = TARGET_ONES;
+            data.sentinel     = SENTINEL_ONES;
+            data.prophylactic = 0;
+
+            const char *INPUT = "0";
+
+            ASSERT(data.target   == TARGET_ONES);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+
+            sscanf(INPUT, TPTR, &data.target);
+
+            ASSERT(data.target   ==  0);
+            ASSERT(data.sentinel == SENTINEL_ONES);
+        }
+
       } break;
       case 8: {
         // ------------------------------------------------------------------
@@ -2327,14 +2366,14 @@ int main(int argc, char *argv[])
         //: 1 Identifier output macro emits output.
         //:
         //: 2 Output emitted is in correct format for the standard Q() macro,
-        //:   i.e. '<| [macroargument] |>', where '[macroargument]' is the
+        //:   i.e., '<| [macroargument] |>', where '[macroargument]' is the
         //:   tokenization of the text supplied as argument to the macro.
         //
         // Plan:
         //: 1 Call 'BSLS_BSLTESTUTIL_Q' with a series of arbitrary identifiers
         //:   containing single, and multiple tokens, with an without initial,
         //:   final, and repeated whitespace and compare the captured output to
-        //:   a model string. (C-1,2)
+        //:   a model string.  (C-1,2)
 
         //
         // Testing:
@@ -2386,7 +2425,7 @@ int main(int argc, char *argv[])
         //: 1 Value output macros emit output.
         //:
         //: 2 Output emitted is in correct format for the standard 'P' and 'P_'
-        //:   macros, i.e. 'identifier = value' (with following newline in the
+        //:   macros, i.e., 'identifier = value' (with following newline in the
         //:   case of 'BSLS_BSLTESTUTIL_P') where 'identifier' is the name of
         //:   the argument supplied to the macro, and 'value' is the value of
         //:   that argument.  Note that we are not concerned here with the
@@ -2398,7 +2437,7 @@ int main(int argc, char *argv[])
         //:   confirm that the captured output is in the correct format.  Note
         //:   that it is only necessary to conduct this test once with a single
         //:   variable type, because the underlying type-differentiation and
-        //:   formatting mechanisms are tested in test case 3. (C-1,2)
+        //:   formatting mechanisms are tested in test case 3.  (C-1,2)
         //
         // Testing:
         //   BSLS_BSLTESTUTIL_P(X)
@@ -2455,11 +2494,11 @@ int main(int argc, char *argv[])
         //:
         //: 2 Tab output macro emits output.
         //:
-        //: 3 Tab output macro output emitted is in correct format, i.e. is a
+        //: 3 Tab output macro output emitted is in correct format, i.e., is a
         //:   single tab character.
         //
         // Plan:
-        //: 1 Compare the value of the line number macro to '__LINE__'. (C-1)
+        //: 1 Compare the value of the line number macro to '__LINE__'.  (C-1)
         //: 2 Call the tab output macro, and confirm that the captured output
         //:   is in the correct format.  (C-2,3)
         //
@@ -2628,7 +2667,7 @@ int main(int argc, char *argv[])
         //:   const/volatile qualified arguments.
         //
         // Plan:
-        //: 1 Using the table-driven technique:  (C-1, 2)
+        //: 1 Using the table-driven technique: (C-1, 2)
         //:
         //:   For each overload of debugprint, choose a number of significant
         //:   values for the second parameter, and check that each is written
@@ -2644,13 +2683,13 @@ int main(int argc, char *argv[])
         //:   devolves for fundamental types into testing the compiler.
         //:   Continuing the same methodology as plan 1, there are a few corner
         //:   cases that can additionally be checked: (C-3)
-        //:   o That decayed arrays devolve to pointers handled by the 'const
-        //:     void *' overload.
-        //:   o That pointers to arbitrary types are handled by the 'const void
-        //:     *' overload.
+        //:   o That decayed arrays devolve to pointers handled by the
+        //:     'const void *' overload.
+        //:   o That pointers to arbitrary types are handled by the
+        //:     'const void *' overload.
         //:
         //: 3 All of the tests from plan 1 are repeated with 'const',
-        //:   'volatile', and 'const volatile' input data. (C-4)
+        //:   'volatile', and 'const volatile' input data.  (C-4)
         //
         // Testing:
         //   void debugprint(bool v)
@@ -3503,7 +3542,7 @@ int main(int argc, char *argv[])
 
             int a[3] = { 1, 2, 3 };
 
-            // N.B. empty non-dynamic arrays are not allowed in conforming
+            // N.B.  empty non-dynamic arrays are not allowed in conforming
             // compilers, and empty dynamic arrays are just pointers from the
             // outset.  So we only test non-empty arrays for array decay.
             static const DataRow<int *> DATA[] =
@@ -3526,7 +3565,7 @@ int main(int argc, char *argv[])
 
             char a[4] = { 'a', 'b', 'c', '\0' };
 
-            // N.B. empty non-dynamic arrays are not allowed in conforming
+            // N.B.  empty non-dynamic arrays are not allowed in conforming
             // compilers, and empty dynamic arrays are just pointers from the
             // outset.  So we only test non-empty arrays for array decay.
             static const DataRow<char *> DATA[] =
@@ -3708,8 +3747,8 @@ int main(int argc, char *argv[])
                                                                    "%p");
         }
 
-        // Function pointers
-        // void debugprint<RESULT>(RESULT (*v)());
+        //  Function pointers
+        //  void debugprint<RESULT>(RESULT (*v)());
         {
             if (verbose) {
                 fprintf(stderr,
@@ -4415,7 +4454,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //   That the data corruption strategy used in test case 9 would detect
         //   corruption if the format specifier string under test were
-        //   incorrect, i.e. that the 'data.target' and 'data.sentinel' values
+        //   incorrect, i.e., that the 'data.target' and 'data.sentinel' values
         //   tested in test case 9 would actually trigger asserts.
         //
         // Plan:
@@ -4445,7 +4484,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

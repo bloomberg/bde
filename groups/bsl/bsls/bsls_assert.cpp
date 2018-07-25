@@ -4,36 +4,17 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_assertimputil.h>
 #include <bsls_asserttestexception.h>
-#include <bsls_pointercastutil.h>
-#include <bsls_types.h>
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
+#include <bsls_pointercastutil.h>
 
 #include <exception>
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
-#ifdef BSLS_PLATFORM_OS_AIX
-#include <signal.h>
-#endif
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-#include <unistd.h>    // 'sleep'
-#endif
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h>   // IsDebbugerPresent
-#include <crtdbg.h>    // '_CrtSetReportMode', to suppress pop-ups
-
-typedef unsigned long DWORD;
-
-extern "C" {
-    __declspec(dllimport) void __stdcall Sleep(DWORD dwMilliseconds);
-};
-#endif
 
 #ifdef BSLS_ASSERT_NORETURN
 #error BSLS_ASSERT_NORETURN must be a macro scoped locally to this file
@@ -47,10 +28,16 @@ extern "C" {
 #   define BSLS_ASSERT_NORETURN
 #endif
 
+#ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
+#define BSLS_ASSERT_NORETURN_INVOKE_HANDLER  BSLS_ASSERT_NORETURN
+#else
+#define BSLS_ASSERT_NORETURN_INVOKE_HANDLER
+#endif
+
 namespace BloombergLP {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// We want to print the error message to 'stderr', not 'stdout'.   The old
+// We want to print the error message to 'stderr', not 'stdout'.  The old
 // documentation for 'printError' is:
 //..
 //  Print a formatted error message to standard output.  (Most Bloomberg
@@ -62,9 +49,9 @@ namespace BloombergLP {
 static
 void printError(const char *text, const char *file, int line)
     // Print a formatted error message to 'stderr' using the specified
-    // expression 'text', 'file' name, and 'line' number.  If either
-    // 'text' or 'file' is empty ("") or null (0), replace it with some
-    // informative, "human-readable" text, before formatting.
+    // expression 'text', 'file' name, and 'line' number.  If either 'text' or
+    // 'file' is empty ("") or null (0), replace it with some informative,
+    // "human-readable" text, before formatting.
 {
     if (!text) {
         text = "(* Unspecified Expression Text *)";
@@ -86,14 +73,20 @@ void printError(const char *text, const char *file, int line)
 
 namespace bsls {
 
-                                // ------------
-                                // class Assert
-                                // ------------
+                              // ------------
+                              // class Assert
+                              // ------------
 
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Pointer
     Assert::s_handler = {(void *) &Assert::failAbort};
 bsls::AtomicOperations::AtomicTypes::Int Assert::s_lockedFlag = {0};
+
+// PUBLIC CONSTANTS
+const char Assert::k_LEVEL_SAFE[]   = "SAF";
+const char Assert::k_LEVEL_OPT[]    = "OPT";
+const char Assert::k_LEVEL_ASSERT[] = "DBG";
+const char Assert::k_LEVEL_INVOKE[] = "INV";
 
 // CLASS METHODS
 void Assert::setFailureHandlerRaw(Assert::Handler function)
@@ -116,7 +109,10 @@ void Assert::lockAssertAdministration()
 
 Assert::Handler Assert::failureHandler()
 {
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -CC01 // AIX only allows this cast as a C-Style cast
     return (Handler) bsls::AtomicOperations::getPtrAcquire(&s_handler);
+    // BDE_VERIFY pragma: pop
 }
 
                        // Macro Dispatcher Method
@@ -172,38 +168,7 @@ void Assert::failAbort(const char *text, const char *file, int line)
 {
     printError(text, file, line);
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    // See DRQS 8923441: The following is a work-around for a Fortran compiler bug.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
-#ifdef BSLS_PLATFORM_OS_AIX
-    sigset_t newset;
-    sigemptyset(&newset);
-    sigaddset(&newset, SIGABRT);
-#if defined(BDE_BUILD_TARGET_MT)
-    pthread_sigmask(SIG_UNBLOCK, &newset, 0);
-#else
-    sigprocmask(SIG_UNBLOCK, &newset, 0);
-#endif
-#endif
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    // See DRQS 13882128: Note that (according to Oleg) the first line alone may be
-    // sufficient.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    // The following configures the runtime library on how to report asserts,
-    // errors, and warnings in order to avoid pop-up windows when 'abort' is
-    // called.
-    if (!IsDebuggerPresent()) {
-        _CrtSetReportMode(_CRT_ASSERT, 0);
-        _CrtSetReportMode(_CRT_ERROR, 0);
-        _CrtSetReportMode(_CRT_WARN, 0);
-    }
-#endif
-
-    std::abort();
+    AssertImpUtil::failAbort();
 }
 
 BSLS_ASSERT_NORETURN
@@ -211,24 +176,7 @@ void Assert::failSleep(const char *text, const char *file, int line)
 {
     printError(text, file, line);
 
-    volatile int sleepDuration = 1;
-
-    while (1 == sleepDuration) {
-
-#if defined(BSLS_PLATFORM_OS_UNIX)
-        sleep(sleepDuration);
-#elif defined(BSLS_PLATFORM_OS_WINDOWS)
-        Sleep(sleepDuration * 1000);  // milliseconds
-#else
-        #error "Do not know how to sleep on this platform."
-#endif
-
-    }
-
-    // We will never reach this line, but it is needed to let the compiler know
-    // that this function does not return.
-
-    std::abort();
+    AssertImpUtil::failSleep();
 }
 
 BSLS_ASSERT_NORETURN
@@ -241,8 +189,8 @@ void Assert::failThrow(const char *text, const char *file, int line)
     }
     else {
         bsls::Log::logMessage(bsls::LogSeverity::e_ERROR, file, line,
-                "BSLS_ASSERT: An uncaught exception is pending;"
-                " cannot throw 'AssertTestException'.");
+                              "BSLS_ASSERT: An uncaught exception is pending;"
+                              " cannot throw 'AssertTestException'.");
     }
 #endif
 
@@ -255,9 +203,9 @@ void Assert::failThrow(const char *text, const char *file, int line)
 
 namespace bsls {
 
-                    // -------------------------------
-                    // class AssertFailureHandlerGuard
-                    // -------------------------------
+                     // -------------------------------
+                     // class AssertFailureHandlerGuard
+                     // -------------------------------
 
 AssertFailureHandlerGuard::AssertFailureHandlerGuard(Assert::Handler temporary)
 : d_original(Assert::failureHandler())
@@ -275,7 +223,7 @@ AssertFailureHandlerGuard::~AssertFailureHandlerGuard()
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

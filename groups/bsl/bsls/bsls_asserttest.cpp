@@ -20,11 +20,9 @@ BSLS_IDENT("$Id$ $CSID$")
 #error BSLS_ASSERTTEST_NORETURN must be a macro scoped locally to this file
 #endif
 
-// Note that a portable syntax for 'noreturn' will be available once we have
-// access to conforming C++0x compilers.
-//# define BSLS_ASSERTTEST_NORETURN [[noreturn]]
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
+#   define BSLS_ASSERTTEST_NORETURN [[noreturn]]
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLS_ASSERTTEST_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERTTEST_NORETURN
@@ -94,9 +92,8 @@ bool extractComponentName(const char **componentName,
     // sub-string will *not* be null-terminated.
 {
     // A component filename is a filename ending in one of the following set of
-    // file extensions: '.h', '.cpp', '.t.cpp'.
-    // The component name is the component filename minus the extension and any
-    // leading pathname.
+    // file extensions: '.h', '.cpp', '.t.cpp'.  The component name is the
+    // component filename minus the extension and any leading pathname.
 
     // The basic algorithm searches for the end of the 'filename' and then
     // iterates backwards.  First we verify that the filename has a valid
@@ -320,12 +317,19 @@ void AssertTest::failTestDriver(const char *text,
 #endif
 }
 
+void AssertTest::failTestDriverByReview(const ReviewViolation &violation)
+{
+    failTestDriver(violation.comment(),
+                   violation.fileName(),
+                   violation.lineNumber());
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

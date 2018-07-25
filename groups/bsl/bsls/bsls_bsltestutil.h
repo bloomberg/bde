@@ -31,9 +31,10 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BSLTESTUTIL_FORMAT_TD : 'printf' format for 'ptrdiff_t'
 //  BSLS_BSLTESTUTIL_FORMAT_I64: 'printf' format for unsigned 64-bit integers
 //  BSLS_BSLTESTUTIL_FORMAT_U64: 'printf' format for signed 64-bit integers
+//  BSLS_BSLTESTUTIL_FORMAT_PTR: 'printf' format for 'uintptr_t'
 //
-//@DESCRIPTION: This component provides standard facilities for for components
-// in the 'bsl' package group to produce test driver output, including the
+//@DESCRIPTION: This component provides standard facilities for components in
+// the 'bsl' package group to produce test driver output, including the
 // standard printing macros used in BDE-style test drivers ('ASSERT',
 // 'LOOP_ASSERT', 'ASSERTV', 'P', 'Q', 'L', and 'T'), and a suite of
 // cross-platform format strings for printing C++ or BDE-specific types with
@@ -68,7 +69,7 @@ BSLS_IDENT("$Id: $")
 // trailing string, to the console.  The value of the object of the
 // parameterized type will be printed using a free function named 'debugprint'.
 //
-// The macros defined in this component natively support built-in type through
+// The macros defined in this component natively support built-in types through
 // the 'debugprint' function overloads for these types defined in this
 // component.  The macros can be extended support additional user-defined types
 // by defining function overloads for 'debugprint' that takes a single
@@ -327,7 +328,7 @@ BSLS_IDENT("$Id: $")
 //      while (blockPtr != list.end()) {
 //..
 // Here, we use 'ZU' as the format specifier for the 'size_t' in the 'printf'
-// invocation. 'ZU' is the appropriate format specifier for 'size_t' on each
+// invocation.  'ZU' is the appropriate format specifier for 'size_t' on each
 // supported platform.
 //..
 //          printf("\t{ address: %p,\tsize: " ZU " }",
@@ -414,9 +415,9 @@ BSLS_IDENT("$Id: $")
 #   endif
 #endif
 
-                       // =================
-                       // Macro Definitions
-                       // =================
+                            // =================
+                            // Macro Definitions
+                            // =================
 
 #define BSLS_BSLTESTUTIL_ASSERT(X)                                            \
     do { aSsErT(!(X), #X, __LINE__); } while (false)
@@ -503,7 +504,7 @@ BSLS_IDENT("$Id: $")
     // P(X) without '\n'.
 
 #define BSLS_BSLTESTUTIL_L_ __LINE__
-    // current Line number
+    // Current line number.
 
 #define BSLS_BSLTESTUTIL_T_ bsls::BslTestUtil::printTab();
     // Print a tab (w/o newline).
@@ -515,7 +516,7 @@ BSLS_IDENT("$Id: $")
 #  define BSLS_BSLTESTUTIL_FORMAT_ZU "%zu"
 #endif
     // Provide a platform-independent way to specify a 'size_t' format for
-    // printf
+    // 'printf'.
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #  define BSLS_BSLTESTUTIL_FORMAT_TD "%Id"
@@ -523,7 +524,7 @@ BSLS_IDENT("$Id: $")
 #  define BSLS_BSLTESTUTIL_FORMAT_TD "%td"
 #endif
     // Provide a platform-independent way to specify a 'ptrdiff_t' format for
-    // printf
+    // 'printf'.
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #  define BSLS_BSLTESTUTIL_FORMAT_I64 "%I64d"
@@ -531,7 +532,7 @@ BSLS_IDENT("$Id: $")
 #  define BSLS_BSLTESTUTIL_FORMAT_I64 "%lld"
 #endif
     // Provide a platform-independent way to specify a signed 64-bit integer
-    // format for printf
+    // format for 'printf'.
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #  define BSLS_BSLTESTUTIL_FORMAT_U64 "%I64u"
@@ -539,16 +540,27 @@ BSLS_IDENT("$Id: $")
 #  define BSLS_BSLTESTUTIL_FORMAT_U64 "%llu"
 #endif
     // Provide a platform-independent way to specify an unsigned 64-bit integer
-    // format for printf
+    // format for 'printf'.
+
+#if defined(BSLS_PLATFORM_CPU_64_BIT)
+#   if defined(BSLS_PLATFORM_CMP_MSVC)
+#       define BSLS_BSLTESTUTIL_FORMAT_PTR "%llX"
+#   else
+#       define BSLS_BSLTESTUTIL_FORMAT_PTR "%lX"
+#   endif
+#else
+#  define BSLS_BSLTESTUTIL_FORMAT_PTR "%X"
+#endif
+    // Provide a platform-independent way to specify a 'uintptr_t' integer
+    // format for 'printf'.
 
 namespace BloombergLP {
 
 namespace bsls {
 
-                   // ==================
-                   // struct BslTestUtil
-                   // ==================
-
+                           // ==================
+                           // struct BslTestUtil
+                           // ==================
 
 struct BslTestUtil {
     // This class provides a namespace for utilities that are useful when
@@ -582,8 +594,8 @@ struct BslTestUtil {
 
 // FREE FUNCTIONS
 void debugprint(bool v);
-    // Print to the console the string "true" if the specified 'v' is true,
-    // and the string "false" otherwise.
+    // Print to the console the string "true" if the specified 'v' is true, and
+    // the string "false" otherwise.
 
 void debugprint(char v);
     // Print to the console the specified character, 'v', enclosed by
@@ -599,8 +611,8 @@ void debugprint(long v);
 void debugprint(unsigned long v);
 void debugprint(long long v);
 void debugprint(unsigned long long v);
-    // Print to the console the specified integer value, 'v', formatted as
-    // a string.
+    // Print to the console the specified integer value, 'v', formatted as a
+    // string.
 
 void debugprint(float v);
 void debugprint(double v);
@@ -620,28 +632,28 @@ void debugprint(void *v);
 void debugprint(volatile void *v);
 void debugprint(const void *v);
 void debugprint(const volatile void *v);
-    // Print to the console the specified memory address, 'v', formatted as
-    // a hexadecimal integer.
+    // Print to the console the specified memory address, 'v', formatted as a
+    // hexadecimal integer.
 
 template <class RESULT>
 void debugprint(RESULT (*v)());
     // Print to the console the specified function pointer, 'v', formatted as a
-    // hexadecimal integer. On some platforms (notably Windows), a function
+    // hexadecimal integer.  On some platforms (notably Windows), a function
     // pointer is treated differently from an object pointer, and the compiler
     // will not be able to determine which 'void *' overload of 'debugprint'
-    // should be used for a function pointer. Therefore an overload of
-    // 'debugprint' is provided specifically for function pointers. Because the
-    // type signature of a function pointer varies with its return type as well
-    // as with its argument list, a template function is used, to provide
+    // should be used for a function pointer.  Therefore an overload of
+    // 'debugprint' is provided specifically for function pointers.  Because
+    // the type signature of a function pointer varies with its return type as
+    // well as with its argument list, a template function is used, to provide
     // matches for all return types.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                   // ------------------
-                   // struct BslTestUtil
-                   // ------------------
+                           // ------------------
+                           // struct BslTestUtil
+                           // ------------------
 
 // CLASS METHODS
 template <class TYPE>
@@ -677,7 +689,7 @@ void bsls::debugprint(RESULT (*v)())
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

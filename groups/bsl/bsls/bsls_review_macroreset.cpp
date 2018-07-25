@@ -1,36 +1,10 @@
-// bsls_alignment.cpp                                                 -*-C++-*-
-
-#include <bsls_alignment.h>
-
-#include <bsls_bsltestutil.h>      // for testing only
+// bsls_review_macroreset.cpp                                         -*-C++-*-
+#include <bsls_review_macroreset.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
-
-namespace bsls {
-
-                            // ----------------
-                            // struct Alignment
-                            // ----------------
-
-// CLASS METHODS
-const char *Alignment::toAscii(Alignment::Strategy value)
-{
-#define CASE(X) case(BSLS_ ## X): return #X;
-
-    switch (value) {
-      CASE(MAXIMUM)
-      CASE(NATURAL)
-      CASE(BYTEALIGNED)
-      default: return "(* UNKNOWN *)";
-    }
-
-#undef CASE
-}
-
-}  // close package namespace
 
 }  // close enterprise namespace
 

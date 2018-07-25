@@ -64,8 +64,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Installing the Assert-Failure Handler
 ///- - - - - - - - - - - - - - - - - - -
-// The function 'bsls::AssertTest::failTestDriver' is provided as the basis for
-// a negative testing facility.  It can act as an assertion-failure handler
+// The function 'bsls::AssertTest::failTestDriver' (and the parallel function
+// 'bsls::AssertTest::failTestDriverByReview') is provided as the basis for a
+// negative testing facility.  It can act as an assertion-failure handler
 // function that throws an exception, of type 'bsls::AssertTestException',
 // containing the text of the failed assertion, the name of the file where it
 // triggered, and the relevant line number within that file.  The filename can
@@ -479,6 +480,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_asserttestexception.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_REVIEW
+#include <bsls_review.h>
+#endif
+
 #ifdef BSLS_ASSERTTEST_NORETURN
 #error BSLS_ASSERTTEST_NORETURN must be a macro scoped locally to this file
 #endif
@@ -507,34 +516,34 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG false
 #endif
 
-#define BSLS_ASSERTTEST_IS_ACTIVE(TYPE) (                                \
-    (   '\0' == TYPE[1]                                                  \
-     || BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG                                \
-    )                                                                    \
-    &&                                                                   \
-    (   ('S' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)      \
-     || ('A' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG)           \
-     || ('O' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)       \
-    )                                                                    \
+#define BSLS_ASSERTTEST_IS_ACTIVE(TYPE) (                                    \
+    (   '\0' == TYPE[1]                                                      \
+     || BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG                                    \
+    )                                                                        \
+    &&                                                                       \
+    (   ('S' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG)          \
+     || ('A' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG)               \
+     || ('O' == TYPE[0] && BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG)           \
+    )                                                                        \
 )
 
-#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP(RESULT, EXPRESSION_UNDER_TEST) {  \
-    try {                                                                 \
-        EXPRESSION_UNDER_TEST;                                            \
-                                                                          \
-        ASSERT(bsls::AssertTest::tryProbe(RESULT));                       \
-    }                                                                     \
-    catch (const bsls::AssertTestException& e) {                          \
-        if (!bsls::AssertTest::catchProbe(RESULT, e, __FILE__)) {         \
-            if ('P' == RESULT) {                                          \
-               ASSERT(false && "Unexpected assertion");                   \
-            }                                                             \
-            else {                                                        \
-               ASSERT(false &&                                            \
-               "(Expected) assertion raised by a lower level component"); \
-            }                                                             \
-        }                                                                 \
-    }                                                                     \
+#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP(RESULT, EXPRESSION_UNDER_TEST) {     \
+    try {                                                                    \
+        EXPRESSION_UNDER_TEST;                                               \
+                                                                             \
+        ASSERT(bsls::AssertTest::tryProbe(RESULT));                          \
+    }                                                                        \
+    catch (const bsls::AssertTestException& e) {                             \
+        if (!bsls::AssertTest::catchProbe(RESULT, e, __FILE__)) {            \
+            if ('P' == RESULT) {                                             \
+               ASSERT(false && "Unexpected assertion");                      \
+            }                                                                \
+            else {                                                           \
+               ASSERT(false &&                                               \
+               "(Expected) assertion raised by a lower level component");    \
+            }                                                                \
+        }                                                                    \
+    }                                                                        \
 }
 
 #if !defined(BDE_BUILD_TARGET_EXC)
@@ -635,8 +644,8 @@ BSLS_IDENT("$Id: $")
 }
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
-// The following MSVC specific work-around avoids compilation issues with
-// MSVC optimized builds.
+// The following MSVC-specific work-around avoids compilation issues with MSVC
+// optimized builds.
 
 # define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
          { EXPRESSION_UNDER_TEST; }
@@ -680,11 +689,14 @@ BSLS_IDENT("$Id: $")
 
 #endif  // BDE_BUILD_TARGET_EXC
 
-// Note that a portable syntax for 'noreturn' will be available once we have
-// access to conforming C++0x compilers.
-//# define BSLS_ASSERTTEST_NORETURN [[noreturn]]
+#ifdef BSLS_ASSERTTEST_NORETURN
+#error BSLS_ASSERTTEST_NORETURN \
+                             must be a macro scoped locally to this header file
+#endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
+#   define BSLS_ASSERTTEST_NORETURN [[noreturn]]
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLS_ASSERTTEST_NORETURN __declspec(noreturn)
 #else
 #   define BSLS_ASSERTTEST_NORETURN
@@ -697,16 +709,16 @@ BSLS_IDENT("$Id: $")
 // which will deliberately '#undef' the main include-guard to achieve this
 // effect.  The deeper include-guard protects the non-macro parts of this
 // header that cannot be defined more than once.
-#ifndef RECURSIVELY_INCLUDED_BSLS_ASSERTTEST_TEST_GUARD
-#define RECURSIVELY_INCLUDED_BSLS_ASSERTTEST_TEST_GUARD
+#ifndef BSLS_ASSERTTEST_RECURSIVELY_INCLUDED_TEST_GUARD
+#define BSLS_ASSERTTEST_RECURSIVELY_INCLUDED_TEST_GUARD
 
 namespace BloombergLP {
 
 namespace bsls {
 
-                    // ================
-                    // class AssertTest
-                    // ================
+                            // ================
+                            // class AssertTest
+                            // ================
 
 struct AssertTest {
     // This utility 'struct' provides a suite of methods designed for use in
@@ -781,8 +793,17 @@ struct AssertTest {
 
     BSLS_ASSERTTEST_NORETURN
     static void failTestDriver(const char *text, const char *file, int line);
-        // Throw a 'AssertTestException' having the specified pointer values
+        // Throw an 'AssertTestException' having the specified pointer values
         // 'text' and 'file' and the specified integer 'line' as its salient
+        // attributes, provided that 'BDE_BUILD_TARGET_EXC' is defined;
+        // otherwise, log an appropriate message and abort the program (similar
+        // to 'Assert::failAbort').  Note that this function is intended to
+        // have a signature compatible with a registered assertion-failure
+        // handler function in 'bsls_assert'.
+
+    static void failTestDriverByReview(const ReviewViolation &violation);
+        // Throw an 'AssertTestException' having the 'comment', 'fileName', and
+        // 'lineNumber' taken from the specified 'violation' as its salient
         // attributes, provided that 'BDE_BUILD_TARGET_EXC' is defined;
         // otherwise, log an appropriate message and abort the program (similar
         // to 'Assert::failAbort').  Note that this function is intended to
@@ -790,17 +811,19 @@ struct AssertTest {
         // handler function in 'bsls_assert'.
 };
 
-                   // ===============================
-                   // class AssertFailureHandlerGuard
-                   // ===============================
+                     // ===============================
+                     // class AssertFailureHandlerGuard
+                     // ===============================
 
 class AssertTestHandlerGuard {
     // This class provides a guard that will install and uninstall the negative
     // testing assertion handler, 'AssertTest::failTestDriver', within the
-    // protected scope.
+    // protected scope, as well as a corresponding review handler,
+    // 'AssertTest::failTestDriverByReview'.
 
     // DATA
-    AssertFailureHandlerGuard d_guard;
+    AssertFailureHandlerGuard d_assertGuard;
+    ReviewFailureHandlerGuard d_reviewGuard;
 
   public:
     // CREATORS
@@ -819,7 +842,8 @@ class AssertTestHandlerGuard {
 
 inline
 AssertTestHandlerGuard::AssertTestHandlerGuard()
-: d_guard(&AssertTest::failTestDriver)
+: d_assertGuard(&AssertTest::failTestDriver)
+, d_reviewGuard(&AssertTest::failTestDriverByReview)
 {
 }
 
@@ -846,7 +870,7 @@ typedef bsls::AssertTest bsls_AssertTest;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

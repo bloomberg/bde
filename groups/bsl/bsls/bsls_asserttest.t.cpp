@@ -45,6 +45,7 @@ using namespace BloombergLP;
 // [ 7] bsls::AssertTest::catchProbe
 // [ 7] bsls::AssertTest::catchProbeRaw
 // [ 5] bsls::AssertTest::failTestDriver
+// [ 5] bsls::AssertTest::failTestDriverByReview
 // [10] bsls::AssertTestHandlerGuard::bsls::AssertTestHandlerGuard()
 // [10] ~bsls::AssertTestHandlerGuard::bsls::AssertTestHandlerGuard()
 // ----------------------------------------------------------------------------
@@ -138,9 +139,9 @@ bool globalVeryVeryVerbose = false;
 
         // MANIPULATORS
         void push_back(const T& value);
-            // Append the specified 'value' to the back of this object.
-            // The behavior is undefined unless this method has been called
-            // fewer than 10 times on this object.
+            // Append the specified 'value' to the back of this object.  The
+            // behavior is undefined unless this method has been called fewer
+            // than 10 times on this object.
 
         // ACCESSORS
         const T& operator[](int index) const;
@@ -256,8 +257,8 @@ bool globalVeryVeryVerbose = false;
     };
 //..
 // To illustrate the test facilities, we will validate the function arguments
-// 'a', 'b', 'c', and 'd' with some additional assumptions.  We assume the
-// cost of testing 'a' is significant compared to the unspecified body of 'f'.
+// 'a', 'b', 'c', and 'd' with some additional assumptions.  We assume the cost
+// of testing 'a' is significant compared to the unspecified body of 'f'.
 // Likewise, we assume that testing the validity of 'b' is relatively
 // efficient, while not only can 'c' be tested efficiently, but the unspecified
 // behavior of 'f' will have potentially catastrophic consequences if 'c' is
@@ -269,9 +270,9 @@ bool globalVeryVeryVerbose = false;
 // maintain a list of known valid pointers that work with this facility.
 // Pointers will be registered and de-registered through calls to other methods
 // in the 'MyUtil' class, and a valid pointer can be detected by searching for
-// its value in this array.  Note that this artificial example is modeled
-// after the behavior of some libraries that provide a "safe" STL mode that
-// looks for invalid iterators in a similar way.
+// its value in this array.  Note that this artificial example is modeled after
+// the behavior of some libraries that provide a "safe" STL mode that looks for
+// invalid iterators in a similar way.
 //..
     #ifdef BDE_BUILD_TARGET_SAFE_2
     void *MyUtil::s_trustedPointers[10] = {};
@@ -310,12 +311,12 @@ bool globalVeryVeryVerbose = false;
     }
 //..
 // Now that we have defined the contract for 'f' and the range of undefined
-// behavior we hope to catch with assertions, we are ready to write the
-// test case for this function.  In addition to verifying the (unspecified)
-// behavior of 'f' when called with valid function arguments, we also want
-// to verify that calling with invalid arguments triggers an assertion in the
-// appropriate build modes.  As this will involve many tests, a table-
-// driven approach is preferred.
+// behavior we hope to catch with assertions, we are ready to write the test
+// case for this function.  In addition to verifying the (unspecified) behavior
+// of 'f' when called with valid function arguments, we also want to verify
+// that calling with invalid arguments triggers an assertion in the appropriate
+// build modes.  As this will involve many tests, a table- driven approach is
+// preferred.
 //..
     void testMyUtilF()
     {
@@ -544,6 +545,8 @@ int main(int argc, char *argv[])
 
             ASSERT(&bsls::AssertTest::failTestDriver ==
                                                bsls::Assert::failureHandler());
+            ASSERT(&bsls::AssertTest::failTestDriverByReview ==
+                                               bsls::Review::failureHandler());
         }
         ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
       } break;
@@ -704,17 +707,17 @@ int main(int argc, char *argv[])
 
         // Ideally we would confirm the two sets of compatible names have the
         // same size using a static_assert, such as 'BSLMF_ASSERT'.
-        // Unfortunately there is no portable tool available without creating
-        // a dependency on a higher level component, so a run-time 'ASSERT'
-        // must suffice.
+        // Unfortunately there is no portable tool available without creating a
+        // dependency on a higher level component, so a run-time 'ASSERT' must
+        // suffice.
         ASSERT(NUM_COMPATIBLE_NAMES_A == NUM_COMPATIBLE_NAMES_ZZ);
 
         // Note that any invalid component names in this list will produce
         // unwanted diagnostics on the terminal when running a passing test
-        // driver.  We will test the invalid names in test case -2.
-        // Note also that the invalid names should go into a second array,
-        // as there are a couple of test results that would be different
-        // when the incompatible name is tested against itself.
+        // driver.  We will test the invalid names in test case -2.  Note also
+        // that the invalid names should go into a second array, as there are a
+        // couple of test results that would be different when the incompatible
+        // name is tested against itself.
         static const char * INCOMPATIBLE_NAMES[] = {
             "aa.h",
             "t.cpp",
@@ -994,6 +997,9 @@ int main(int argc, char *argv[])
         //: 2 The function throws an exception of type
         //:   'bsls::AssertTestException' whose attributes exactly match the
         //:   arguments to the function call.
+        //: 3 'failTestDriverByReview' should always call into 'failTestDriver'
+        //:   and behave in the same way, and can be installed as a
+        //:   review-failure-handler with 'bsls::Review'.
         //
         // Plan:
         //   First, we will install 'bsls::AssertTest::failTestDriver' as the
@@ -1003,7 +1009,8 @@ int main(int argc, char *argv[])
         //   having the expected attributes.
         //
         // Testing:
-        //   failTestDriver
+        //   bsls::AssertTest::failTestDriver
+        //   bsls::AssertTest::failTestDriverByReview
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING bsls::AssertTest::failTestDriver"
@@ -1058,7 +1065,22 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, TESTLINE, ex.lineNumber(),
                              TESTLINE == ex.lineNumber());
             }
-        }
+
+            // Validate test description.
+            try {
+                bsls::ReviewViolation violation(EXPRESSION,FILENAME,TESTLINE,
+                                                "TEST",1);
+                bsls::AssertTest::failTestDriverByReview(violation);
+            }
+            catch(const bsls::AssertTestException& ex) {
+                LOOP3_ASSERT(LINE, EXPRESSION, ex.expression(),
+                             0 == strcmp(EXPRESSION, ex.expression()));
+                LOOP3_ASSERT(LINE, FILENAME, ex.filename(),
+                             0 == strcmp(FILENAME, ex.filename()));
+                LOOP3_ASSERT(LINE, TESTLINE, ex.lineNumber(),
+                             TESTLINE == ex.lineNumber());
+            }
+}
 #endif
       } break;
       case 4: {
@@ -1289,7 +1311,7 @@ int main(int argc, char *argv[])
                 ASSERT(false == bsls::AssertTest::tryProbe(c));
             }
             else {
-                printf("-- invalid argumemt '%c' should print a diagnostic\n",
+                printf("-- invalid argument '%c' should print a diagnostic\n",
                        c);
                 ASSERT(false == bsls::AssertTest::tryProbe(c));
             }
@@ -1308,7 +1330,7 @@ int main(int argc, char *argv[])
                 ASSERT(false == bsls::AssertTest::tryProbeRaw(c));
             }
             else {
-                printf("-- invalid argumemt '%c' should print a diagnostic\n",
+                printf("-- invalid argument '%c' should print a diagnostic\n",
                        c);
                 ASSERT(false == bsls::AssertTest::tryProbeRaw(c));
             }
@@ -1376,17 +1398,17 @@ int main(int argc, char *argv[])
 
         // Ideally we would confirm the two sets of compatible names have the
         // same size using a static_assert, such as 'BSLMF_ASSERT'.
-        // Unfortunately there is no portable tool available without creating
-        // a dependency on a higher level component, so a run-time 'ASSERT'
-        // must suffice.
+        // Unfortunately there is no portable tool available without creating a
+        // dependency on a higher level component, so a run-time 'ASSERT' must
+        // suffice.
         ASSERT(NUM_COMPATIBLE_NAMES_A == NUM_COMPATIBLE_NAMES_ZZ);
 
         // Note that any invalid component names in this list will produce
         // unwanted diagnostics on the terminal when running a passing test
-        // driver.  We will test the invalid names in test case -2.
-        // Note also that the invalid names should go into a second array,
-        // as there are a couple of test results that would be different
-        // when the incompatible name is tested against itself.
+        // driver.  We will test the invalid names in test case -2.  Note also
+        // that the invalid names should go into a second array, as there are a
+        // couple of test results that would be different when the incompatible
+        // name is tested against itself.
         static const char *const INCOMPATIBLE_NAMES[] = {
             "aa.h",
             "t.cpp",
@@ -1820,7 +1842,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //  _DEBUG           X    X          X X
 //  _SAFE            X    X    X     X X X
 
-//===================== SAFE_2 LEVEL_NONE ===============================//
+//============================ SAFE_2 LEVEL_NONE ============================//
 
     // Reset all configuration macros
 
@@ -1930,7 +1952,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         }  // table-driven 'for' loop
     }
 
-//===================== SAFE_2 LEVEL_ASSERT_OPT =============================//
+//========================= SAFE_2 LEVEL_ASSERT_OPT =========================//
 
     // Reset all configuration macros
 
@@ -2040,7 +2062,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         }  // table-driven 'for' loop
     }
 
-//===================== SAFE_2 LEVEL_ASSERT ===============================//
+//=========================== SAFE_2 LEVEL_ASSERT ===========================//
 
     // Reset all configuration macros
 
@@ -2150,7 +2172,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         }  // table-driven 'for' loop
     }
 
-//===================== SAFE_2 LEVEL_ASSERT_SAFE ============================//
+//======================== SAFE_2 LEVEL_ASSERT_SAFE =========================//
 
     // Reset all configuration macros
 
@@ -2260,7 +2282,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         }  // table-driven 'for' loop
     }
 
-//===================== LEVEL_NONE ===============================//
+//=============================== LEVEL_NONE ================================//
 
     // Reset all configuration macros
 
@@ -2370,7 +2392,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         }  // table-driven 'for' loop
     }
 
-//===================== LEVEL_ASSERT_OPT ===============================//
+//============================ LEVEL_ASSERT_OPT =============================//
 
     // Reset all configuration macros
 
@@ -2479,7 +2501,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         }  // table-driven 'for' loop
     }
 
-//===================== LEVEL_ASSERT ===============================//
+//============================== LEVEL_ASSERT ===============================//
 
     // Reset all configuration macros
 
@@ -2588,7 +2610,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
         }  // table-driven 'for' loop
     }
 
-//===================== LEVEL_ASSERT_SAFE ===============================//
+//============================ LEVEL_ASSERT_SAFE ============================//
 
     // Reset all configuration macros
 
@@ -2741,7 +2763,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
     bsls::Assert::setFailureHandler(&bsls::AssertTest::failTestDriver);
 
-//===================== SAFE_2 LEVEL_NONE ===============================//
+//============================ SAFE_2 LEVEL_NONE ============================//
 
 // Install the local ASSERT macro, that allows us to detect assert-fail test
 // cases.
@@ -2755,7 +2777,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
 // Note that we must leave each test block with EXPECTED = true
 //
-//===================== TEST TABLE : EXPECTED RESULTS =======================//
+//====================== TEST TABLE : EXPECTED RESULTS ======================//
 
     //  Config macros    Configuration  Expected results
 //  OVERRIDE SAFE2  OPT  DBG  SAFE   O A S O2 A2 S2
@@ -2769,7 +2791,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 //  _DEBUG           X    X          X X
 //  _SAFE            X    X    X     X X X
 
-//===================== SAFE_2 LEVEL_NONE ===============================//
+//============================ SAFE_2 LEVEL_NONE ============================//
 
     // Reset all configuration macros
 
@@ -2867,7 +2889,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== SAFE_2 LEVEL_ASSERT_OPT =============================//
+//========================= SAFE_2 LEVEL_ASSERT_OPT =========================//
 
     // Reset all configuration macros
 
@@ -3169,7 +3191,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== SAFE_2 LEVEL_ASSERT ===============================//
+//=========================== SAFE_2 LEVEL_ASSERT ===========================//
 
     // Reset all configuration macros
 
@@ -3554,7 +3576,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== SAFE_2 LEVEL_ASSERT_SAFE ============================//
+//======================== SAFE_2 LEVEL_ASSERT_SAFE =========================//
 
     // Reset all configuration macros
 
@@ -3990,7 +4012,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== LEVEL_NONE ===============================//
+//=============================== LEVEL_NONE ================================//
 
     // Reset all configuration macros
 
@@ -4085,7 +4107,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== LEVEL_ASSERT_OPT ===============================//
+//============================ LEVEL_ASSERT_OPT =============================//
 
     // Reset all configuration macros
 
@@ -4418,7 +4440,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== LEVEL_ASSERT ===============================//
+//============================== LEVEL_ASSERT ===============================//
 
     // Reset all configuration macros
 
@@ -4802,7 +4824,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== LEVEL_ASSERT_SAFE ===============================//
+//============================ LEVEL_ASSERT_SAFE ============================//
 
     // Reset all configuration macros
 
@@ -5262,7 +5284,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
     bsls::Assert::setFailureHandler(&bsls::AssertTest::failTestDriver);
 
-//===================== SAFE_2 LEVEL_NONE ===============================//
+//============================ SAFE_2 LEVEL_NONE ============================//
 
 // Install the local ASSERT macro, that allows us to detect assert-fail test
 // cases.
@@ -5276,7 +5298,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
 // Note that we must leave each test block with EXPECTED = true
 //
-//===================== TEST TABLE : EXPECTED RESULTS =======================//
+//====================== TEST TABLE : EXPECTED RESULTS ======================//
 
     //  Config macros    Configuration  Expected results
 //  OVERRIDE SAFE2  OPT  DBG  SAFE   O A S O2 A2 S2
@@ -5290,7 +5312,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 //  _DEBUG           X    X          X X
 //  _SAFE            X    X    X     X X X
 
-//===================== SAFE_2 LEVEL_NONE ===============================//
+//============================ SAFE_2 LEVEL_NONE ============================//
 
     // Reset all configuration macros
 
@@ -5386,7 +5408,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== SAFE_2 LEVEL_ASSERT_OPT =============================//
+//========================= SAFE_2 LEVEL_ASSERT_OPT =========================//
 
     // Reset all configuration macros
 
@@ -5717,7 +5739,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== SAFE_2 LEVEL_ASSERT ===============================//
+//=========================== SAFE_2 LEVEL_ASSERT ===========================//
 
     // Reset all configuration macros
 
@@ -6098,7 +6120,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== SAFE_2 LEVEL_ASSERT_SAFE ============================//
+//======================== SAFE_2 LEVEL_ASSERT_SAFE =========================//
 
     // Reset all configuration macros
 
@@ -6533,7 +6555,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== LEVEL_NONE ===============================//
+//=============================== LEVEL_NONE ================================//
 
     // Reset all configuration macros
 
@@ -6628,7 +6650,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== LEVEL_ASSERT_OPT ===============================//
+//============================ LEVEL_ASSERT_OPT =============================//
 
     // Reset all configuration macros
 
@@ -6958,7 +6980,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== LEVEL_ASSERT ===============================//
+//============================== LEVEL_ASSERT ===============================//
 
     // Reset all configuration macros
 
@@ -7338,7 +7360,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     // Restore status-quo before starting the next test
     EXPECTED = true;
 
-//===================== LEVEL_ASSERT_SAFE ===============================//
+//============================ LEVEL_ASSERT_SAFE ============================//
 
     // Reset all configuration macros
 
@@ -7780,7 +7802,7 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

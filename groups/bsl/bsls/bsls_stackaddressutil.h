@@ -20,15 +20,21 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsls::StackAddressUtil: utilities for obtaining addresses from the stack
 //
-//@SEE_ALSO: bsls_stacktrace, bsls_stacktraceframe, bsls_stacktraceutil
+//@SEE_ALSO: balst_stacktraceutil
 //
 //@AUTHOR: Oleg Semenov, Bill Chapman
 //
-//@DESCRIPTION: This component provides namespace containing a function that
+//@DESCRIPTION: This component defines a 'struct', 'bsls::StackAddressUtil',
+// that provides a namespace for a function, 'getStackAddresses', that
 // populates an array with an ordered sequence of return addresses from the
 // current thread's function call stack.  Each return address points to the
 // (text) memory location of the first instruction to be executed upon
 // returning from a called routine.
+//
+// This component also provides a function, 'formatCheapStack', that builds a
+// current stack trace and formats it with instructions on how to use
+// 'showfunc.tsk' to print out a stack trace matching where this function was
+// called.  This is a Bloomberg standard "cheapstack" output.
 //
 ///Usage
 ///-----
@@ -214,7 +220,7 @@ BSLS_IDENT("$Id: $")
 // Finally, we go through several of the first addresses returned in 'buffer'
 // and verify that each address corresponds to the routine we expect it to.
 //
-// Note that on some, but not all, platforms there is an extra 'narcissic'
+// Note that on some, but not all, platforms there is an extra "narcissistic"
 // frame describing 'getStackAddresses' itself at the beginning of 'buffer'.
 // By starting our iteration through 'buffer' at 'k_IGNORE_FRAMES', we
 // guarantee that the first address we examine will be in 'func1' on all
@@ -243,14 +249,73 @@ BSLS_IDENT("$Id: $")
 //      return volatileGlobal;
 //  }
 //..
+//
+///Example 2: Obtaining a "Cheapstack"
+///- - - - - - - - - - - - - - - - - -
+// In this example we demonstrate how to use 'formatCheapStack' to generate a
+// string containing the current stack trace and instructions on how to print
+// it out from 'showfunc.tsk'.  Note that 'showfunc.tsk' is a Bloomberg tool
+// that, when given an executable along with a series of function addresses
+// from a process that was running that executable, will print out a
+// human-readable stack trace with the names of the functions being called in
+// that stack trace.
+//
+// First, we define our function where we want to format the stack:
+//..
+//  struct MyTest {
+//      static void printCheapStack()
+//      {
+//          char str[128];
+//          bsls::StackAddressUtil::formatCheapStack(str, 128);
+//          printf("%s", str);
+//      }
+//  };
+//..
+// Calling this function will then result in something like this being printed
+// to standard output:
+//..
+//  Please run "/bb/bin/showfunc.tsk <binary_name_here> 403308 402641 ...
+//                               ... 3710C1ED1D 400F49" to see the stack trace.
+//..
+// Then, if you had encountered this output running the binary "mybinary.tsk",
+// you could see your stack trace by running this command:
+//..
+//  /bb/bin/showfunc.tsk mybinary.tsk 403308 402641 3710C1ED1D 400F49
+//..
+// This will produce output like this:
+//..
+//  0x403308 _ZN6MyTest15printCheapStackEv + 30
+//  0x402641 main + 265
+//  0x3710c1ed1d ???
+//  0x400f49 ???
+//..
+// telling you that 'MyTest::printCheapStack' was called directly from 'main'.
+// Note that if you had access to the binary name that was invoked, then that
+// could be provided as the optional last argument to 'printCheapStack' to get
+// a 'showfunc.tsk' command that can be more easily invoked, like this:
+//..
+//  struct MyTest2 {
+//      static void printCheapStack()
+//      {
+//          char str[128];
+//          bsls::StackAddressUtil::formatCheapStack(str, 128, "mybinary.tsk");
+//          printf("%s", str);
+//      }
+//  };
+//..
+// resulting in output that looks like this:
+//..
+//  Please run "/bb/bin/showfunc.tsk mybinary.tsk 403308 402641 3710C1ED1D ...
+//                                          ... 400F49" to see the stack trace.
+//..
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
-                       // =============================
-                       // class bsls::StackAddressUtil
-                       // =============================
+                      // ============================
+                      // class bsls::StackAddressUtil
+                      // ============================
 
 namespace BloombergLP {
 namespace bsls {
@@ -267,7 +332,7 @@ struct StackAddressUtil {
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
     enum { k_IGNORE_FRAMES = 1 };
 #else
-    // Note that on Windows, the optimal value for 'k_IGNORE_FRAMES seems to
+    // Note that on Windows, the optimal value for 'k_IGNORE_FRAMES' seems to
     // vary between subreleases, so to play it safe, we always leave this value
     // as 0 on Windows.
 
@@ -288,12 +353,26 @@ struct StackAddressUtil {
         // the 'maxFrames' most recent routine calls are stored.  When this
         // routine completes, 'buffer' will contain an ordered sequence of
         // return addresses, sorted such that recent calls occur in the array
-        // before calls which took place before them.  Return the number of
+        // before calls that took place before them.  Return the number of
         // stack frames stored into 'buffer' on success, and a negative value
         // otherwise.  The behavior is undefined unless 'maxFrames >= 0' and
         // 'buffer' has room for at least 'maxFrames' addresses.  Note that
         // this routine may fill 'buffer' with garbage if the stack is corrupt,
         // or on Windows if some stack frames represent optimized routines.
+
+    static
+    void formatCheapStack(char *output, int length, const char *taskname = 0);
+        // Load the specified 'output' buffer having the specified 'length'
+        // with the Bloomberg standard "cheapstack" contents as a
+        // null-terminated string.  On successfully obtaining the current call
+        // stack, this will be instructions on how to run the Bloomberg tool
+        // 'showfunc.tsk' (with the optionally specified 'taskname', otherwise
+        // with a readable placeholder) to get details of the current call
+        // stack where 'formatCheapStack' was called.  On failure, text
+        // indicating that the call stack was not obtainable will be written to
+        // 'output'.  If 'length' is not long enough for the entire output it
+        // will be truncated.  The behavior is undefined unless '0 <= length'
+        // and 'output' has the capacity for at least 'length' bytes.
 };
 
 }  // close package namespace
@@ -302,7 +381,7 @@ struct StackAddressUtil {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

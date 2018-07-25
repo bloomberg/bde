@@ -9,8 +9,14 @@
 
 #include <bsls_stackaddressutil.h>
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
+
+#include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 #include <assert.h>
+#include <stdio.h>
+#include <stdint.h>
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
@@ -51,35 +57,11 @@
 
 #endif
 
-// ============================================================================
-//                   Debugging trace macro: 'TRACE_PRINTF'
-// ============================================================================
-
-#undef  DEVELOPMENT_TRACE_FLAG
-#define DEVELOPMENT_TRACE_FLAG 0
-
-#if DEVELOPMENT_TRACE_FLAG == 1
-// debugging trace ON
-
-# include <stdio.h>
-
-# define TRACE_PRINTF printf
-
-#else
-
-static inline
-void TRACE_PRINTF(const char *, ...)
-    // do nothing
-{
-}
-
-#endif
-
 namespace BloombergLP {
 
-                              // ------------------
-                              // bsls::StackAddress
-                              // ------------------
+                            // ----------------
+                            // StackAddressUtil
+                            // ----------------
 
 
 // CLASS METHODS
@@ -112,7 +94,6 @@ int StackAddressUtil::getStackAddresses(void **buffer,
     }
     frame = frame->d_nextFrame;
     while (frame && frameIndex < maxFrames) {
-        TRACE_PRINTF("Frame: %p\n", frame);
         buffer[frameIndex++] = frame->d_returnAddress;
         const AixFrame *nextFrame = frame->d_nextFrame;
         if (nextFrame <= frame) {
@@ -139,13 +120,13 @@ int StackAddressUtil::getStackAddresses(void **buffer,
     assert(0 <= maxFrames);
 
     if (0 >= maxFrames) {
-        // Call 'backtrace' to make sure that it has been dynamically loaded
-        // if it wasn't already.  Note that on Linux, the first time
+        // Call 'backtrace' to make sure that it has been dynamically loaded if
+        // it wasn't already.  Note that on Linux, the first time
         //  'backtrace' is called, it calls 'dlopen', which calls 'malloc'.
         // It may be the same on Darwin.  Also note that handling the
-        // 'maxFrames == 0' case allows the caller to call this function
-        // with arguments '(0, 0)' on any platform to ensure that any dynamic
-        // loading has occured, which is useful for debugging.
+        // 'maxFrames == 0' case allows the caller to call this function with
+        // arguments '(0, 0)' on any platform to ensure that any dynamic
+        // loading has occurred, which is useful for debugging.
 
         void *p;
         backtrace(&p, 1);
@@ -213,8 +194,8 @@ int StackAddressUtil::getStackAddresses(void **buffer,
 {
     assert(0 <= maxFrames);
 
-    // 'STACK_BIAS' is a constant defined in '/usr/include/sys/stack.h'.
-    // The type 'frame' is a struct declared in '<sys/frame.h>'.
+    // 'STACK_BIAS' is a constant defined in '/usr/include/sys/stack.h'.  The
+    // type 'frame' is a struct declared in '<sys/frame.h>'.
 
     int frameIndex = 0;
 
@@ -224,10 +205,11 @@ int StackAddressUtil::getStackAddresses(void **buffer,
 
     // Calculate the base of the stack.  It is preferable to call
     // 'thr_stksegment', but it and 'thr_probe_getfunc_addr' may not be loaded.
-    // Since 'thr_probe_getfunc_addr' is declard with '#pragma weak', a pointer
-    // to it will be null if those routines arent't loaded.  Take the pointer,
-    // and if it isn't null, call 'thr_stksegment'.  If it null, use the less
-    // optimal approach of using '_environ' to find the base of the stack.
+    // Since 'thr_probe_getfunc_addr' is declared with '#pragma weak', a
+    // pointer to it will be null if those routines aren't loaded.  Take the
+    // pointer, and if it isn't null, call 'thr_stksegment'.  If it null, use
+    // the less optimal approach of using '_environ' to find the base of the
+    // stack.
 
     void *baseOfStack;
     void *probeAddr = &thr_probe_getfunc_addr;
@@ -251,7 +233,6 @@ int StackAddressUtil::getStackAddresses(void **buffer,
     void* baseOfStack = _environ;
 
 #endif
-    TRACE_PRINTF("framePtr=%p, bos=%p\n", framePtr, baseOfStack);
 
     if (!framePtr) {
         return frameIndex;                                            // RETURN
@@ -266,7 +247,6 @@ int StackAddressUtil::getStackAddresses(void **buffer,
         buffer[frameIndex++] = (void *) pc;
         struct frame *nextFP = (struct frame *) (void *)
                                     ((char *) framePtr->fr_savfp + STACK_BIAS);
-        TRACE_PRINTF("saved %p nextfp %p\n", pc, nextFP);
         if (nextFP <= framePtr) {
             break;
         }
@@ -321,8 +301,8 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
 
     RtlCaptureContext(&winContext);
 
-#elif defined(BSLS_PLATFORM_OS_WIN2K) || \
-      defined(BSLS_PLATFORM_OS_WINNT) || \
+#elif defined(BSLS_PLATFORM_OS_WIN2K) ||                                     \
+      defined(BSLS_PLATFORM_OS_WINNT) ||                                     \
       defined(BSLS_PLATFORM_OS_WIN9X)
 
     winContext.ContextFlags = CONTEXT_CONTROL;
@@ -388,10 +368,104 @@ int StackAddressUtil::getStackAddresses(void    **buffer,
 // WINDOWS
 #endif
 
+
+namespace bsls {
+
+                            // ----------------
+                            // StackAddressUtil
+                            // ----------------
+
+// CLASS METHODS
+void StackAddressUtil::formatCheapStack(char       *output,
+                                        int         length,
+                                        const char *taskname)
+{
+    assert(0 <= length);
+
+    if (0 == length) {
+        return;                                                       // RETURN
+    }
+
+    enum { k_BUFFER_LENGTH = 100 };
+    void *buffer[k_BUFFER_LENGTH];
+
+    int numAddresses = getStackAddresses(buffer, k_BUFFER_LENGTH);
+
+    char *out     = output;
+    int   rem     = length;
+    int   printed = 0;
+    *out = '\0';
+
+    if (1 == rem) {
+        return;                                                       // RETURN
+    }
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && \
+    !defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
+
+    // We want to use '_snprintf' and make sure if we use all the space we
+    // still leave a null terminator at the end of the last buffer.
+#   define snprintf _snprintf
+    *(out + rem - 1) = '\0';
+    rem--;
+
+#endif
+
+    if (numAddresses < 0) {
+        // 'getStackAddresses' has failed, just output diagnostics.
+        snprintf(out, rem, "Unable to obtain call stack.");
+        return;                                                       // RETURN
+    }
+
+
+    printed = snprintf(out, rem, "Please run \"/bb/bin/showfunc.tsk ");
+    rem -= printed;
+    out += printed;
+
+    if (printed < 0 || rem <= 0) {
+        return;                                                       // RETURN
+    }
+
+    if (0 == taskname) {
+        taskname = "<binary_name_here>";
+    }
+
+    printed = snprintf(out, rem, "%s", taskname);
+    rem -= printed;
+    out += printed;
+
+    if (printed < 0 || rem <= 0) {
+        return;                                                       // RETURN
+    }
+
+    for (int i = 1 + k_IGNORE_FRAMES;
+         i < numAddresses && rem > 0;
+         ++i) {
+        uintptr_t stackValue = reinterpret_cast<uintptr_t>(buffer[i]);
+
+        printed = snprintf(out,
+                           rem,
+                           " " BSLS_BSLTESTUTIL_FORMAT_PTR,
+                           stackValue);
+
+        rem -= printed;
+        out += printed;
+
+        if (printed < 0 || rem <= 0) {
+            return;                                                   // RETURN
+        }
+
+    }
+
+    snprintf(out, rem, "\" to see the stack trace.\n");
+}
+
+}  // close package namespace
+
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

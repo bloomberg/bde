@@ -57,9 +57,9 @@ namespace BloombergLP {
 
 namespace bsls {
 
-                       // =========================
-                       // class AssertTestException
-                       // =========================
+                        // =========================
+                        // class AssertTestException
+                        // =========================
 
 class AssertTestException {
     // This class is an implementation detail of the 'bsls' testing framework
@@ -115,9 +115,9 @@ class AssertTestException {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                          // =========================
-                          // class AssertTestException
-                          // =========================
+                        // =========================
+                        // class AssertTestException
+                        // =========================
 
 // CREATORS
 inline
@@ -165,7 +165,7 @@ typedef bsls::AssertTestException bsls_AssertTestException;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

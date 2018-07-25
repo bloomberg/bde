@@ -2,9 +2,11 @@
 #include <bsls_assert.h>
 
 #include <bsls_asserttestexception.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 // Include 'cassert' to make sure no macros conflict between 'bsls_assert.h'
@@ -15,15 +17,14 @@
 #include <cstdlib>   // 'atoi'
 #include <cstring>   // 'strcmp'
 #include <exception> // 'exception'
-#include <iostream>  // 'cout'
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <signal.h>
 #endif
 
-// Note that a portable syntax for 'noreturn' will be available once we have
-// access to conforming C++0x compilers.
-//# define BSLS_ASSERT_NORETURN [[noreturn]]
+#ifdef BSLS_ASSERT_NORETURN
+#error BSLS_ASSERT_NORETURN must be a macro scoped locally to this file
+#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
 #   define BSLS_ASSERT_NORETURN [[noreturn]]
@@ -50,11 +51,6 @@ using namespace std;
 // that certain combinations of build options cause a compile-time error will
 // also have to be done by hand (see negative case numbers).
 //
-// Global Concerns:
-//: o TBD
-//
-// Global Assumptions:
-//: o TBD
 // ----------------------------------------------------------------------------
 // [ 6] BSLS_ASSERT_SAFE_IS_ACTIVE
 // [ 6] BSLS_ASSERT_IS_ACTIVE
@@ -62,15 +58,20 @@ using namespace std;
 // [ 2] BSLS_ASSERT_SAFE(X)
 // [ 2] BSLS_ASSERT(X)
 // [ 2] BSLS_ASSERT_OPT(X)
+// [ 2] BSLS_ASSERT_INVOKE(X)
 // [ 4] typedef void (*Handler)(const char *, const char *, int);
 // [ 1] static void setFailureHandler(bsls::Assert::Handler function);
 // [ 1] static void lockAssertAdministration();
 // [ 1] static bsls::Assert::Handler failureHandler();
 // [ 1] static void invokeHandler(const char *t, const char *f, int);
 // [ 4] static void failAbort(const char *t, const char *f, int line);
+// [-2] static void failAbort(const char *t, const char *f, int line);
+// [ 4] static void failSleep(const char *t, const char *f, int line);
 // [-3] static void failSleep(const char *t, const char *f, int line);
 // [ 4] static void failThrow(const char *t, const char *f, int line);
 // [ 5] class bsls::AssertFailureHandlerGuard
+// [ 5] AssertFailureHandlerGuard::AssertFailureHandlerGuard(Handler)
+// [ 5] AssertFailureHandlerGuard::~AssertFailureHandlerGuard()
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] CONCERN: Returning handler log: content
@@ -85,7 +86,7 @@ using namespace std;
 // [13] USAGE EXAMPLE: Using Scoped Guard
 // [14] USAGE EXAMPLE: Using "ASSERT" with 'BDE_BUILD_TARGET_SAFE_2'
 //
-// [ 1] CONCERN: By default, the 'bsls_assert::failAbort' is used
+// [ 1] CONCERN: By default, the 'bsls::Assert::failAbort' is used.
 // [ 2] CONCERN: ASSERT macros are instantiated properly for build targets
 // [ 2] CONCERN: all combinations of BDE_BUILD_TARGETs are allowed
 // [ 2] CONCERN: any one assert mode overrides all BDE_BUILD_TARGETs
@@ -97,60 +98,49 @@ using namespace std;
 // [-2] CONCERN: 'bsls::Assert::failThrow' prints to 'stderr' for NON-EXC
 // [-3] CONCERN: 'bsls::Assert::failSleep' sleeps forever
 // [-3] CONCERN: 'bsls::Assert::failSleep' prints to 'stderr' not 'stdout'
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-#define L_ __LINE__                           // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                    GLOBAL CONSTANTS FOR TESTING
@@ -160,10 +150,14 @@ bool globalVerbose         = false;
 bool globalVeryVerbose     = false;
 bool globalVeryVeryVerbose = false;
 
-static bool globalAssertFiredFlag = false;
+static bool        globalAssertFiredFlag = false;
 static const char *globalText = "";
 static const char *globalFile = "";
-static int globalLine = -1;
+static int         globalLine = -1;
+static const char *globalLevel = "";
+
+// BDE_VERIFY pragma: -FE01 // at this level in the package hierarchy in a test
+                            // driver we want to avoid std::exception
 
 #ifndef BDE_BUILD_TARGET_EXC
 static bool globalReturnOnTestAssert = false;
@@ -182,9 +176,9 @@ static bool globalReturnOnTestAssert = false;
 //                  GLOBAL HELPER MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#if (defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) ||                  \
-     defined(BSLS_ASSERT_LEVEL_ASSERT)      ||                  \
-     defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)  ||                  \
+#if (defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) ||                               \
+     defined(BSLS_ASSERT_LEVEL_ASSERT)      ||                               \
+     defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)  ||                               \
      defined(BSLS_ASSERT_LEVEL_NONE) )
     #define IS_BSLS_ASSERT_MODE_FLAG_DEFINED 1
 #else
@@ -195,9 +189,9 @@ static bool globalReturnOnTestAssert = false;
 #define ASSERTION_TEST_BEGIN                                    \
         try {
 
-#define ASSERTION_TEST_END                                      \
-        } catch (std::exception& ) {                            \
-            if (verbose) cout << "\nException caught." << endl; \
+#define ASSERTION_TEST_END                                                   \
+        } catch (const std::exception& ) {                                   \
+            if (verbose) printf( "\nException caught." );                    \
         }
 #else
 #define ASSERTION_TEST_BEGIN
@@ -234,21 +228,22 @@ struct HandlerReturnTest {
 
     static void emptyViolationHandler(const char *text,
                                       const char *file,
-                                      int line);
-        // Do nothing.
+                                      int         line);
+        // Do nothing with the specified 'text', 'file', and 'line'.
 
     static void countingViolationHandler(const char *text,
                                          const char *file,
-                                         int line);
-        // Increment the 's_handlerInvocationCount' counter.
+                                         int         line);
+        // Increment the 's_handlerInvocationCount' counter, do nothing with
+        // the specified 'text', 'file', and 'line'.
 
     static void recordingLogMessageHandler(bsls::LogSeverity::Enum  severity,
                                            const char              *file,
                                            int                      line,
                                            const char              *message);
-        // Register a test failure if the 'specfied' specified 'severity' is
-        // not fatal, and store the specified 'file', 'line' and 'message' into
-        // the corresponding fields of either 's_firstProfile' (on the first
+        // Register a test failure if the specified 'severity' is not fatal,
+        // and store the specified 'file', 'line', and 'message' into the
+        // corresponding fields of either 's_firstProfile' (on the first
         // invocation of this function) or 's_secondProfile' (on the second
         // invocation of this function).  Additionally, register a test failure
         // if this function is called more than twice without an intervening
@@ -359,16 +354,18 @@ void HandlerReturnTest::countingLogMessageHandler(
 static void globalReset()
 {
     if (globalVeryVeryVerbose)
-        cout << "*** globalReset()" << endl;
+        printf( "*** globalReset()\n" );
 
     globalAssertFiredFlag = false;
     globalText = "";
     globalFile = "";
     globalLine = -1;
+    globalLevel = "";
 
     ASSERT( 0 == std::strcmp("", globalText));
     ASSERT( 0 == std::strcmp("", globalFile));
     ASSERT(-1 == globalLine);
+    ASSERT( 0 == std::strcmp("", globalLevel));
 }
 
 //-----------------------------------------------------------------------------
@@ -382,7 +379,7 @@ static void testDriverHandler(const char *text, const char *file, int line)
     // defined; otherwise, abort the program.
 {
     if (globalVeryVeryVerbose) {
-        cout << "*** testDriverHandler: "; P_(text) P_(file) P(line)
+        printf( "*** testDriverHandler: "); P_(text) P_(file) P(line)
     }
 
     globalAssertFiredFlag = true;
@@ -412,7 +409,7 @@ static void testDriverPrint(const char *text, const char *file, int line)
 
 {
     if (globalVeryVeryVerbose) {
-        cout << "*** testDriverPrint: "; P_(text) P_(file) P(line)
+        printf( "*** testDriverPrint: "); P_(text) P_(file) P(line)
     }
 
     if (globalVeryVerbose) {
@@ -439,15 +436,15 @@ static void testDriverPrint(const char *text, const char *file, int line)
 
 struct BadBoy {
     // Bogus 'struct' used for testing: calls 'bsls::Assert::failThrow' on
-    // destruction to ensure that it does not rethrow with an exception
+    // destruction to ensure that it does not re-throw with an exception
     // pending (see case -2).
 
     BadBoy() {
-        if (globalVeryVerbose) cout << "BadBoy Created!" << endl;
+        if (globalVeryVerbose) printf( "BadBoy Created!\n" );
     }
 
     ~BadBoy() {
-        if (globalVeryVerbose) cout << "BadBoy Destroyed!" << endl;
+        if (globalVeryVerbose) printf( "BadBoy Destroyed!\n" );
         bsls::Assert::failThrow("'failThrow' handler called from ~BadBoy",
                                 "f.c",
                                 9);
@@ -462,6 +459,15 @@ void TestConfigurationMacros();
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
+
+// Usage examples don't follow all bde coding standards for clarity.
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FD01
+// BDE_VERIFY pragma: -FD02
+// BDE_VERIFY pragma: -FD03
+// BDE_VERIFY pragma: -FD06
+// BDE_VERIFY pragma: -IND01
+
 ///Usage Examples
 ///--------------
 // The following examples illustrate (1) when to use each of the three kinds of
@@ -477,16 +483,16 @@ void TestConfigurationMacros();
 ///1. Using 'BSLS_ASSERT', 'BSLS_ASSERT_SAFE', and 'BSLS_ASSERT_OPT'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This component provides three different variants of (BSLS) "ASSERT" macros.
-// This first usage example attempts to illustrate how one might select each
-// of the particular variants, based on the runtime cost of the defensive check
+// This first usage example attempts to illustrate how one might select each of
+// the particular variants, based on the runtime cost of the defensive check
 // relative to that of the useful work being done.
 //
 // Use of the 'BSLS_ASSERT_SAFE' macro is often appropriate when the defensive
 // check occurs within the body of an inline function.  The 'BSLS_ASSERT_SAFE'
 // macro minimizes the impact on runtime performance as it is instantiated only
-// when requested (i.e., by building in "safe mode").  For example, consider
-// a light-weight point class 'Kpoint' that maintains 'x' and 'y' coordinates
-// in the range '[ -1000 .. 1000 ]':
+// when requested (i.e., by building in "safe mode").  For example, consider a
+// light-weight point class 'Kpoint' that maintains 'x' and 'y' coordinates in
+// the range '[ -1000 ..  1000 ]':
 //..
     // my_kpoint.h
     // ...
@@ -496,9 +502,9 @@ void TestConfigurationMacros();
         short int d_y;
       public:
         Kpoint(short int x, short int y);
-            // ...
-            // The behavior is undefined unless '-1000 <= x <= 1000'
-            // and '-1000 <= y <= 1000'.
+        // ...
+            // The behavior is undefined unless '-1000 <= x <= 1000' and
+            // '-1000 <= y <= 1000'.
         // ...
     };
 
@@ -533,10 +539,10 @@ void TestConfigurationMacros();
         // ...
 
         void resize(double loadFactor);
-            // Adjust the size of the underlying hash table to be
-            // approximately the current number of elements divided
-            // by the specified 'loadFactor'.  The behavior is undefined
-            // unless '0 < loadFactor'.
+            // Adjust the size of the underlying hash table to be approximately
+            // the current number of elements divided by the specified
+            // 'loadFactor'.  The behavior is undefined unless
+            // '0 < loadFactor'.
     };
 //..
 // Since the relative runtime cost of validating the input argument is quite
@@ -572,22 +578,22 @@ void TestConfigurationMacros();
         // ...
 //..
 // Let's further suppose that there is a particular method 'executeTrade' that
-// takes, as a scaling factor, an integer that must be a multiple of 100 or
-// the behavior is undefined (and might actually execute a trade):
+// takes, as a scaling factor, an integer that must be a multiple of 100 or the
+// behavior is undefined (and might actually execute a trade):
 //..
 
         void executeTrade(int scalingFactor);
             // Execute the current trade using the specified 'scalingFactor'.
-            // The behavior is undefined unless '0 <= scalingFactor' and
-            // '100' evenly divides 'scalingFactor'.
+            // The behavior is undefined unless '0 <= scalingFactor' and '100'
+            // evenly divides 'scalingFactor'.
         // ...
      };
 //..
-// Because the cost of the two checks is likely not even measurable compared
-// to the overhead of accessing databases and executing the trade, and because
-// the consequences of specifying a bad scaling factor are virtually
-// unbounded, we might choose to implement these defensive checks using
-// 'BSLS_ASSERT_OPT' as follow:
+// Because the cost of the two checks is likely not even measurable compared to
+// the overhead of accessing databases and executing the trade, and because the
+// consequences of specifying a bad scaling factor are virtually unbounded, we
+// might choose to implement these defensive checks using 'BSLS_ASSERT_OPT' as
+// follow:
 //..
     // my_tradingsystem.cpp
     // ...
@@ -632,7 +638,7 @@ void TestConfigurationMacros();
 //..
 //
 ///3. Runtime Configuration of the 'bsls::Assert' Facility
-///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // By default, any assertion failure will result in the invocation of the
 // 'bsls::Assert::failAbort' handler function.  We can replace this behavior
 // with that of one of the other static failure handler methods supplied in
@@ -813,10 +819,10 @@ void TestConfigurationMacros();
         catch (const bsls::AssertTestException& e) {
             result = BAD;
             if (verboseFlag) {
-                std::cout << "Internal Error: "
-                          << e.expression() << ", "
-                          << e.filename()   << ", "
-                          << e.lineNumber() << std::endl;
+                std::printf( "Internal Error: %s, %s, %d\n",
+                             e.expression(),
+                             e.filename(),
+                             e.lineNumber() );
             }
         }
     #endif
@@ -833,8 +839,8 @@ void TestConfigurationMacros();
 // caller.  Note that if exceptions are not enabled, 'bsls::Assert::failThrow'
 // will behave as 'bsls::Assert::failAbort', and dump core immediately:
 //..
-// Assertion failed: 0 <= n, file bsls_assert.t.cpp, line 500
-// Abort (core dumped)
+// Assertion failed: 0 <= n, file bsls_assert.t.cpp, line 500 Abort (core
+// dumped)
 //..
 // Finally note that the 'bsls::AssertFailureHandlerGuard' is not thread-aware.
 // In particular, a guard that is created in one thread will also affect the
@@ -843,19 +849,19 @@ void TestConfigurationMacros();
 //
 /// 6. Using (BSLS) "ASSERT" Macros in Conjunction w/ 'BDE_BUILD_TARGET_SAFE_2'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Recall that assertions do not affect binary compatibility; however,
-// software built with 'BDE_BUILD_TARGET_SAFE_2' defined need not be binary
-// compatible with software built otherwise.  In this final example, we look
-// at how we might use the (BSLS) "ASSERT" family of macro's in conjunction
-// with code that is incorporated (at compile time) only when the
+// Recall that assertions do not affect binary compatibility; however, software
+// built with 'BDE_BUILD_TARGET_SAFE_2' defined need not be binary compatible
+// with software built otherwise.  In this final example, we look at how we
+// might use the (BSLS) "ASSERT" family of macro's in conjunction with code
+// that is incorporated (at compile time) only when the
 // 'BDE_BUILD_TARGET_SAFE_2' is defined.
 //
 // As a simple example, let's consider an elided implementation of a
 // singly-linked integer list and its iterator.  Whenever
 // 'BDE_BUILD_TARGET_SAFE_2' is defined, we want to defend against the
 // possibility that a client mistakenly passes a 'ListIter' object into a
-// 'List' object method (e.g., 'List::insert') where that 'ListIter' object
-// did not originate from the same 'List' object.
+// 'List' object method (e.g., 'List::insert') where that 'ListIter' object did
+// not originate from the same 'List' object.
 //
 // We'll start by defining a local helper 'List_Link' 'struct' as follows:
 //..
@@ -866,8 +872,8 @@ void TestConfigurationMacros();
     };
 //..
 // Next, we'll define 'ListIter', which always identifies the current position
-// in a sequence of links, but whenever 'BDE_BUILD_TARGET_SAFE_2' is
-// defined, also maintains a pointer to its parent 'List' object:
+// in a sequence of links, but whenever 'BDE_BUILD_TARGET_SAFE_2' is defined,
+// also maintains a pointer to its parent 'List' object:
 //..
     class List;                         // Forward declaration.
 
@@ -937,41 +943,42 @@ void TestConfigurationMacros();
         //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
         // ACCESSORS
-        void print(std::ostream& stream)
+        void print()
+            // output the contents of this list to stdout.
         {
-            stream << '[';
+            printf( "[" );
             for (List_Link *p = d_head_p; p; p = p->d_next_p) {
-                stream << ' ' << p->d_data;
+                printf( " %d", p->d_data );
             }
-            stream << " ]" << std::endl;
+            printf(" ]\n");
         }
     };
 //..
-// Outside of "safe 2 mode", it is possible to pass an iterator object
-// obtained from the 'begin' method of one 'List' object into the 'insert'
-// method of another, having, perhaps, unexpected results:
+// Outside of "safe 2 mode", it is possible to pass an iterator object obtained
+// from the 'begin' method of one 'List' object into the 'insert' method of
+// another, having, perhaps, unexpected results:
 //..
     void sillyFunc(bool printFlag)
     {
-        List a;
+        List     a;
         ListIter aIt = a.begin();
         a.insert(aIt, 1);
         a.insert(aIt, 2);
         a.insert(aIt, 3);
 
         if (printFlag) {
-            std::cout << "a = "; a.print(cout);
+            std::printf( "a = "); a.print();
         }
 
-        List b;
+        List     b;
         ListIter bIt = b.begin();
         a.insert(bIt, 4);       // Oops! Should have been: 'b.insert(bIt, 4);'
         a.insert(bIt, 5);       // Oops!   "     "     "   '    "     "   5  '
         a.insert(bIt, 6);       // Oops!   "     "     "   '    "     "   6  '
 
         if (printFlag) {
-            std::cout << "a = "; a.print(cout);
-            std::cout << "b = "; b.print(cout);
+            std::printf( "a = "); a.print();
+            std::printf( "b = "); b.print();
         }
     }
 //..
@@ -985,14 +992,17 @@ void TestConfigurationMacros();
 //  b = [ 6 5 4 ]
 //..
 // If the same 'sillyFunc' were compiled in "safe 2 mode" (i.e., with
-// 'BDE_BUILD_TARGET_SAFE_2' defined) the undefined behavior would be
-// detected and the output would, by default look more like the following:
+// 'BDE_BUILD_TARGET_SAFE_2' defined) the undefined behavior would be detected
+// and the output would, by default look more like the following:
 //..
 //  a = [ 3 2 1 ]
 //  Assertion failed: this == position.d_parent_p, file my_list.cpp, line 56
 //  Abort (core dumped)
 //..
 // Thereby quickly exposing the misuse by the client.
+
+// End of usage examples
+// BDE_VERIFY pragma: pop
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -1009,38 +1019,38 @@ int main(int argc, char *argv[])
         globalVeryVerbose =     veryVerbose;
     globalVeryVeryVerbose = veryVeryVerbose;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    printf( "TEST %s CASE %d\n", __FILE__, test);
+
     switch (test) { case 0:  // zero is always the leading case
       case 14: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE #6:
+        // USAGE EXAMPLE #6
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into driver, remove leading
+        //:   comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
         //   USAGE EXAMPLE: Using "ASSERT" with 'BDE_BUILD_TARGET_SAFE_2'
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE #6" << endl
-                          << "================" << endl;
+        if (verbose) printf( "\nUSAGE EXAMPLE #6"
+                             "\n================\n" );
 
-        if (verbose) cout << "\n6. Using (BSLS) \"ASSERT\" Macros in "
-                            "Conjunction with BDE_BUILD_TARGET_SAFE_2" << endl;
+        if (verbose) printf( "\n6. Using (BSLS) \"ASSERT\" Macros in "
+                            "Conjunction with BDE_BUILD_TARGET_SAFE_2\n" );
 
         // See usage examples section at top of this file.
 
 #ifndef BDE_BUILD_TARGET_SAFE_2
-        if (veryVerbose) cout << "\tsafe mode 2 is *not* defined" << endl;
+        if (veryVerbose) printf( "\tsafe mode 2 is *not* defined\n" );
         sillyFunc(veryVerbose);
 #else
-        if (veryVerbose) cout << "\tSAFE MODE 2 *is* defined." << endl;
+        if (veryVerbose) printf( "\tSAFE MODE 2 *is* defined.\n" );
 
         // bsls::Assert::setFailureHandler(::testDriverPrint);
                                                           // for usage example
@@ -1065,26 +1075,25 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE #5:
+        // USAGE EXAMPLE #5
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into driver, remove leading
+        //:   comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
         //   USAGE EXAMPLE: Using Scoped Guard
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE #5" << endl
-                          << "================" << endl;
+        if (verbose) printf( "\nUSAGE EXAMPLE #5"
+                             "\n================\n" );
 
-        if (verbose) cout <<
-                      "\n5. Using the bsls::AssertFailureHandlerGuard" << endl;
+        if (verbose) printf(
+                      "\n5. Using the bsls::AssertFailureHandlerGuard\n" );
 
         // See usage examples section at top of this file.
 
@@ -1094,9 +1103,9 @@ int main(int argc, char *argv[])
     #if defined(BDE_BUILD_TARGET_EXC) ||                                      \
         defined(BSLS_ASSERT_ENABLE_TEST_CASE_10)
 
-        if (verbose) cout <<
+        if (verbose) printf(
                 "\n*** Note that the following 'Internal Error: ... 0 <= n' "
-                "message is expected:\n" << endl;
+                "message is expected:\n\n" );
 
         ASSERT(0 != wrapperFunc(verbose));
 
@@ -1107,34 +1116,33 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE #4:
+        // USAGE EXAMPLE #4
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into driver, remove leading
+        //:   comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
         //   USAGE EXAMPLE: Creating Your Own Assert-Handler
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE #4" << endl
-                          << "================" << endl;
+        if (verbose) printf( "\nUSAGE EXAMPLE #4"
+                             "\n================\n" );
 
 #ifndef BDE_BUILD_TARGET_EXC
         if (verbose) {
-            cout <<
+            printf(
                "\tTest disabled as exceptions are NOT enabled.\n"
-              "\tCalling the test funciton would abort." << endl;
+              "\tCalling the test function would abort.\n" );
         }
 
 #else
-        if (verbose) cout <<
-                            "\n4. Creating a Custom Assertion Handler" << endl;
+        if (verbose) printf(
+                            "\n4. Creating a Custom Assertion Handler\n" );
 
         // See usage examples section at top of this file.
 
@@ -1147,27 +1155,26 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE #3:
+        // USAGE EXAMPLE #3
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into driver, remove leading
+        //:   comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
         //   USAGE EXAMPLE: Using Administration Functions
         //   USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE #3" << endl
-                          << "================" << endl;
+        if (verbose) printf( "\nUSAGE EXAMPLE #3"
+                             "\n================\n" );
 
-        if (verbose) cout <<
-              "\n3. Runtime Configuration of the bsls::Assert Facility"<< endl;
+        if (verbose) printf(
+                "\n3. Runtime Configuration of the bsls::Assert Facility\n" );
 
         // See usage examples section at top of this file.
 
@@ -1176,26 +1183,25 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE #2:
+        // USAGE EXAMPLE #2
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into driver, remove leading
+        //:   comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
         //   USAGE EXAMPLE: Invoking an assert handler directly
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE #2" << endl
-                          << "================" << endl;
+        if (verbose) printf( "\nUSAGE EXAMPLE #2"
+                             "\n================\n" );
 
-        if (verbose) cout <<
-         "\n2. When and How to Call the Invoke-Handler Method Directly"<< endl;
+        if (verbose) printf(
+            "\n2. When and How to Call the Invoke-Handler Method Directly\n" );
 
         // See usage examples section at top of this file.
 
@@ -1216,26 +1222,25 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE #1:
+        // USAGE EXAMPLE #1
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into driver, remove leading
+        //:   comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
         //   USAGE EXAMPLE: Using Assert Macros
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE #1" << endl
-                          << "================" << endl;
+        if (verbose) printf( "\nUSAGE EXAMPLE #1"
+                             "\n================\n" );
 
-        if (verbose) cout << "\n1. Using BSLS_ASSERT, BSLS_ASSERT_SAFE, and "
-                             "BSLS_ASSERT_OPT" << endl;
+        if (verbose) printf( "\n1. Using BSLS_ASSERT, BSLS_ASSERT_SAFE, and "
+                             "BSLS_ASSERT_OPT\n" );
 
         // See usage examples section at top of this file.
 
@@ -1245,23 +1250,22 @@ int main(int argc, char *argv[])
         // RETURNING HANDLER LOG: BACKOFF
         //
         // Concerns:
-        //:  1 Log messages should back off exponentially.
+        //: 1 Log messages should back off exponentially.
         //
         // Plan:
-        //:  1 In build configurations that allow handlers to return, install a
-        //:    violation handler that increments a counter and returns, and an
-        //:    instrumented log callback that increments a counter.
+        //: 1 In build configurations that allow handlers to return, install a
+        //:   violation handler that increments a counter and returns, and an
+        //:   instrumented log callback that increments a counter.
         //:
-        //:  2 Call 'invokeHandler' repeatedly, and confirm that messages are
-        //:    emitted at the appropriate rate.  (C-1)
+        //: 2 Call 'invokeHandler' repeatedly, and confirm that messages are
+        //:   emitted at the appropriate rate.  (C-1)
         //
         // Testing:
         //   CONCERN: Returning handler log: backoff
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "RETURNING HANDLER LOG: BACKOFF" << endl
-                          << "==============================" << endl;
+        if (verbose) printf( "\nRETURNING HANDLER LOG: BACKOFF"
+                             "\n==============================\n" );
 
 #if        !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)           \
         || !defined(BSLS_PLATFORM_CMP_MSVC)
@@ -1302,30 +1306,29 @@ int main(int argc, char *argv[])
         // RETURNING HANDLER LOG: CONTENT
         //
         // Concerns:
-        //:  1 'invokeHandler' should log a message via 'bsls_log' if the
-        //:    currently-installed handler returns.
+        //: 1 'invokeHandler' should log a message via 'bsls_log' if the
+        //:   currently-installed handler returns.
         //:
-        //:  2 The log message should identify the file and line where the
-        //:    failed assertion occured.
+        //: 2 The log message should identify the file and line where the
+        //:   failed assertion occurred.
         //:
-        //:  3 The log message should be severity 'fatal'.
+        //: 3 The log message should be severity 'fatal'.
         //
         // Plan:
-        //:  1 In build configurations that allow handlers to return, install a
-        //:    violation handler that does nothing but return, and an
-        //:    instrumented log callback that captures log messages instead of
-        //:    printing them.
+        //: 1 In build configurations that allow handlers to return, install a
+        //:   violation handler that does nothing but return, and an
+        //:   instrumented log callback that captures log messages instead of
+        //:   printing them.
         //:
-        //:  2 Call 'invokeHandler' twice, and confirm that messages are
-        //:    emitted with the appropriate (distinct) content.  (C-1..3)
+        //: 2 Call 'invokeHandler' twice, and confirm that messages are emitted
+        //:   with the appropriate (distinct) content.  (C-1..3)
         //
         // Testing:
         //   CONCERN: Returning handler log: content
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "RETURNING HANDLER LOG: CONTENT" << endl
-                          << "==============================" << endl;
+        if (verbose) printf( "\nRETURNING HANDLER LOG: CONTENT"
+                             "\n==============================\n" );
 
 #if        !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)           \
         || !defined(BSLS_PLATFORM_CMP_MSVC)
@@ -1401,21 +1404,26 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // CONFIGURATION MACROS:
+        // CONFIGURATION MACROS
         //
         // Concerns:
-        //   The configuration macros that report on which assert facilities
-        //   are available in the current build mode might not report correctly
-        //   in all build modes.
+        //: 1 The configuration macros that report on which assert facilities
+        //:   are available in the current build mode might not report
+        //:   correctly in all build modes.
         //
         // Plan:
-        //   Subvert the regular .
+        //: 1 Subvert the regular include guards to verify that inclusion of
+        //:   'bsls_assert.h' defines the proper macros when included with
+        //:   varying build modes.
         //
         // Testing:
         //   BSLS_ASSERT_SAFE_IS_ACTIVE
         //   BSLS_ASSERT_IS_ACTIVE
         //   BSLS_ASSERT_OPT_IS_ACTIVE
         // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nCONFIGURATION MACROS"
+                             "\n====================\n" );
 
         TestConfigurationMacros();
       } break;
@@ -1424,71 +1432,77 @@ int main(int argc, char *argv[])
         // FAILURE HANDLER GUARD
         //
         // Concerns:
-        //   1. That the guard swaps new for current handler at construction.
-        //   2. Restores the original one at destruction.
-        //   3. That guards can nest.
-        //   4. That 'lockAssertAdministration' has no effect on guard.
+        //: 1 That the guard swaps new for current handler at construction.
+        //:
+        //: 2 Restores the original one at destruction.
+        //:
+        //: 3 That guards can nest.
+        //:
+        //: 4 That 'lockAssertAdministration' has no effect on guard.
         //
         // Plan:
-        // Create a guard, passing it the 'testDriverHandler' handler, and
-        // verify, using 'failureHandler', that this new handler was installed.
-        // Then lock the administration, and repeat in nested fashion with the
-        // 'failSleep' handler.  Verify restoration on the way out.
+        //: 1 Create a guard, passing it the 'testDriverHandler' handler, and
+        //:   verify, using 'failureHandler', that this new handler was
+        //:   installed.  Then lock the administration, and repeat in nested
+        //:   fashion with the 'failSleep' handler.  Verify restoration on the
+        //:   way out.
         //
         // Testing:
         //   class bsls::AssertFailureHandlerGuard
+        //   AssertFailureHandlerGuard::AssertFailureHandlerGuard(Handler)
+        //   AssertFailureHandlerGuard::~AssertFailureHandlerGuard()
         //   CONCERN: that locking does not stop the handlerGuard from working
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "FAILURE HANDLER GUARD" << endl
-                          << "=====================" << endl;
+        if (verbose) printf( "\nFAILURE HANDLER GUARD"
+                             "\n=====================\n" );
 
-        if (verbose) cout << "\nVerify initial assert handler." << endl;
+        if (verbose) printf( "\nVerify initial assert handler.\n" );
 
         ASSERT(bsls::Assert::failAbort == bsls::Assert::failureHandler());
 
-        if (verbose) cout << "\nCreate guard with 'testDriverHandler' handler."
-                                                                       << endl;
+        if (verbose) printf( "\nCreate guard with 'testDriverHandler' "
+                             "handler.\n" );
+
         {
             bsls::AssertFailureHandlerGuard guard(::testDriverHandler);
 
-            if (verbose) cout << "\nVerify new assert handler." << endl;
+            if (verbose) printf( "\nVerify new assert handler.\n" );
 
             ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
 
-            if (verbose) cout << "\nLock administration." << endl;
+            if (verbose) printf( "\nLock administration.\n" );
 
             bsls::Assert::lockAssertAdministration();
 
-            if (verbose) cout << "\nRe-verify new assert handler." << endl;
+            if (verbose) printf( "\nRe-verify new assert handler.\n" );
 
             ASSERT(testDriverHandler == bsls::Assert::failureHandler());
 
-            if (verbose) cout <<
-                     "\nCreate second guard with 'failSleep' handler." << endl;
+            if (verbose) printf(
+                     "\nCreate second guard with 'failSleep' handler.\n" );
             {
                 bsls::AssertFailureHandlerGuard guard(bsls::Assert::failSleep);
 
-                if (verbose) cout << "\nVerify newer assert handler." << endl;
+                if (verbose) printf( "\nVerify newer assert handler.\n" );
 
                 ASSERT(bsls::Assert::failSleep ==
                                                bsls::Assert::failureHandler());
 
-                if (verbose) cout <<
-                 "\nDestroy guard created with '::failSleep' handler." << endl;
+                if (verbose) printf(
+                     "\nDestroy guard created with '::failSleep' handler.\n" );
             }
 
-            if (verbose) cout << "\nVerify new assert handler." << endl;
+            if (verbose) printf( "\nVerify new assert handler.\n" );
 
             ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
 
-            if (verbose) cout <<
-                  "\nDestroy guard created with '::testDriverHandler' handler."
-                                                                       << endl;
+            if (verbose) printf(
+                    "\nDestroy guard created with '::testDriverHandler' "
+                    "handler.\n" );
         }
 
-        if (verbose) cout << "\nVerify initial assert handler." << endl;
+        if (verbose) printf( "\nVerify initial assert handler.\n" );
 
         ASSERT(bsls::Assert::failAbort == bsls::Assert::failureHandler());
 
@@ -1498,40 +1512,39 @@ int main(int argc, char *argv[])
         // ASSERTION FAILURE HANDLERS
         //
         // Concerns:
-        //   1. That each of the assertion failure handlers provided herein
-        //      behaves as advertized and (at least) matches the signature
-        //      of the 'bsls::Assert::Handler' 'typedef'
+        //: 1 That each of the assertion failure handlers provided herein
+        //:   behaves as advertised and (at least) matches the signature of the
+        //:   'bsls::Assert::Handler' 'typedef'
         //
         // Plan:
-        //   1. Verify each handler's behavior.  Unfortunately, we cannot
-        //      test functions that abort except by hand (see negative test
-        //      cases).
-        //   2. Assign each handler function to a pointer of type 'Handler'.
+        //: 1 Verify each handler's behavior.  Unfortunately, we cannot test
+        //:   functions that abort except by hand (see negative test cases).
+        //:
+        //: 2 Assign each handler function to a pointer of type 'Handler'.
         //
         // Testing:
         //   typedef void (*Handler)(const char *, const char *, int);
         //   static void failAbort(const char *t, const char *f, int line);
         //   static void failThrow(const char *t, const char *f, int line);
+        //   static void failSleep(const char *t, const char *f, int line);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ASSERTION FAILURE HANDLERS" << endl
-                          << "==========================" << endl;
+        if (verbose) printf( "\nASSERTION FAILURE HANDLERS"
+                             "\n==========================\n" );
 
-        if (verbose) cout << "\nTesting 'void failAbort(const char *t, "
-                             "const char *f, int line);'" << endl;
+        if (verbose) printf( "\nTesting 'void failAbort(const char *t, "
+                             "const char *f, int line);'\n" );
         {
             bsls::Assert::Handler f = bsls::Assert::failAbort;
             (void) f;
 
             if (veryVerbose) {
-                cout << "\t(Aborting behavior must be tested by hand.)" <<
-                                                                          endl;
+                printf( "\t(Aborting behavior must be tested by hand.)\n" );
             }
         }
 
-        if (verbose) cout << "\nTesting 'void failThrow(const char *t, "
-                             "const char *f, int line);'" << endl;
+        if (verbose) printf( "\nTesting 'void failThrow(const char *t, "
+                             "const char *f, int line);'\n" );
         {
 
             bsls::Assert::Handler f = bsls::Assert::failThrow;
@@ -1539,26 +1552,37 @@ int main(int argc, char *argv[])
 #ifdef BDE_BUILD_TARGET_EXC
             const char *text = "Test text";
             const char *file = "bsls_assert.t.cpp";
-            int   line = 101;
+            int         line = 101;
 
             if (veryVerbose) {
-                cout << "\tExceptions ARE enabled." << endl;
+                printf( "\tExceptions ARE enabled.\n" );
             }
 
             try {
                 f(text, file, line);
             }
             catch (bsls::AssertTestException) {
-                if (veryVerbose) cout << "\tException Text Succeeded!" << endl;
+                if (veryVerbose) printf( "\tException Text Succeeded!\n" );
             }
             catch (...) {
                 ASSERT("Through wrong exception!" && 0);
             }
 #else
             if (veryVerbose) {
-                cout << "\tExceptions are NOT enabled." << endl;
+                printf( "\tExceptions are NOT enabled.\n" );
             }
 #endif
+        }
+
+        if (verbose) printf( "\nTesting 'void failSleep(const char *t, "
+                             "const char *f, int line);'\n" );
+        {
+            bsls::Assert::Handler f = bsls::Assert::failSleep;
+            (void) f;
+
+            if (veryVerbose) {
+                printf( "\t(Sleeping behavior must be tested by hand.)\n" );
+            }
         }
 
       } break;
@@ -1567,24 +1591,24 @@ int main(int argc, char *argv[])
         // INCOMPATIBLE BUILD TARGETS
         //
         // Concerns:
-        //   1. Any component including 'bsls_assert.h' that has multiple
-        //        assertion-mode flags defined should fail to compile
-        //        and provide a useful diagnostic.
+        //: 1 Any component including 'bsls_assert.h' that has multiple
+        //:   assertion-mode flags defined should fail to compile and provide a
+        //:   useful diagnostic.
         //
         // Plan:
-        //   1. Repeat the assertions at runtime, and fail if any two macros
-        //        incompatible macros are present.
-        //   2. (Manually) observe that the test is in the bsls_assert.h file.
+        //: 1 Repeat the assertions at runtime, and fail if any two macros
+        //:   incompatible macros are present.
+        //:
+        //: 2 (Manually) observe that the test is in the bsls_assert.h file.
         //
         // Testing:
         //   CONCERN: ubiquitously detect multiply-defined assertion-mode flags
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "INCOMPATIBLE BUILD TARGETS" << endl
-                          << "==========================" << endl;
+        if (verbose) printf( "\nINCOMPATIBLE BUILD TARGETS"
+                             "\n==========================\n" );
 
-        if (verbose) cout << "\nExtract defined-ness of each target." << endl;
+        if (verbose) printf( "\nExtract defined-ness of each target.\n" );
 
 #ifdef BSLS_ASSERT_LEVEL_ASSERT_SAFE
         bool a = 1;
@@ -1610,8 +1634,7 @@ int main(int argc, char *argv[])
         bool d = 0;
 #endif
 
-        if (veryVerbose) cout << "\tVerify all combinations redundantly."
-                              << endl;
+        if (veryVerbose) printf( "\tVerify all combinations redundantly.\n" );
 
         LOOP2_ASSERT(a, b, !(a&b));
         LOOP2_ASSERT(a, c, !(a&c));
@@ -1635,49 +1658,55 @@ int main(int argc, char *argv[])
         // (BSLS) "ASSERT"-MACRO TEST
         //
         // Concerns:
-        //   1. Each assert macro instantiates only when the appropriate build
-        //        mode is set.
-        //   2. When instantiated, each macro fires only on "0" valued
-        //        expressions
-        //   3. When a macro fires, the correct text, line, and file are
-        //        transmitted to the current assertion-failure handler.
-        //   4. That the expression text that is printed is exactly what is in
-        //        the parentheses of the macro.
+        //: 1 Each assert macro instantiates only when the appropriate build
+        //:   mode is set.
+        //:
+        //: 2 When instantiated, each macro fires only on "0" valued
+        //:   expressions
+        //:
+        //: 3 When a macro fires, the correct text, line, and file are
+        //:   transmitted to the current assertion-failure handler.
+        //:
+        //: 4 That the expression text that is printed is exactly what is in
+        //:   the parentheses of the macro.
         //
         // Plan:
-        //   1. We must not try to change build targets (or assert modes),
-        //        but just observe them two see which assert macros should
-        //        be instantiated.
-        //   2. When enabled, we need to try each of the macros on each of the
-        //      (four) kinds of expression text arguments to make sure that it
-        //      fires only on 'false' and '(void *)(0)' and not 'true' or
-        //      (void *)(1).
-        //   3. In each case for 2. (above) that fires, we will observe that
-        //        the expression text, file name, and line number are correct.
-        //   4. Make sure that we vary the text in the expression (and include
-        //        embedded whitespace (we don't care about leading or trailing
-        //        whitespace).
+        //: 1 We must not try to change build targets (or assert modes), but
+        //:   just observe them to see which assert macros should be
+        //:   instantiated.
+        //:
+        //: 2 When enabled, we need to try each of the macros on each of the
+        //:   (four) kinds of expression text arguments to make sure that it
+        //:   fires only on 'false' and '(void*)(0)' and not 'true' or
+        //:   '(void*)(1)'.
+        //:
+        //: 3 In each case for 2.  (above) that fires, we will observe that the
+        //:   expression text, file name, and line number are correct.
+        //:
+        //: 4 Make sure that we vary the text in the expression (and include
+        //:   embedded whitespace (we don't care about leading or trailing
+        //:   whitespace).
         //
         // Testing:
         //   BSLS_ASSERT_SAFE(X)
         //   BSLS_ASSERT(X)
         //   BSLS_ASSERT_OPT(X)
+        //   BSLS_ASSERT_INVOKE(X)
         //   CONCERN: ASSERT macros are instantiated properly for build targets
         //   CONCERN: all combinations of BDE_BUILD_TARGETs are allowed
         //   CONCERN: any one assert mode overrides all BDE_BUILD_TARGETs
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "ASSERT-MACRO TEST" << endl
-                          << "=================" << endl;
+        if (verbose) printf( "\n(BSLS) \"ASSERT\"-MACRO TEST"
+                             "\n==========================\n" );
 
-        if (verbose) cout << "\nInstall 'testDriverHandler' assertion-handler."
-                                                                       << endl;
+        if (verbose) printf( "\nInstall 'testDriverHandler' "
+                             "assertion-handler.\n" );
 
         bsls::Assert::setFailureHandler(&testDriverHandler);
         ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
 
-        if (veryVerbose) cout << "\tSet up all but line numbers now. " << endl;
+        if (veryVerbose) printf( "\tSet up all but line numbers now. \n" );
 
         const void *p    = 0;
         const char *text = "p";
@@ -1691,60 +1720,60 @@ int main(int argc, char *argv[])
 #endif
 
         if (verbose) {
-            cout << "\nCurrent build-mode settings:" << endl;
+            printf( "\nCurrent build-mode settings:\n" );
 
 #ifdef BDE_BUILD_TARGET_SAFE_2
-            cout << "\t1 == BDE_BUILD_TARGET_SAFE_2" << endl;
+            printf( "\t1 == BDE_BUILD_TARGET_SAFE_2\n" );
 #else
-            cout << "\t0 == BDE_BUILD_TARGET_SAFE_2" << endl;
+            printf( "\t0 == BDE_BUILD_TARGET_SAFE_2\n" );
 #endif
 
 #ifdef BDE_BUILD_TARGET_SAFE
-            cout << '\t' << "\t1 == BDE_BUILD_TARGET_SAFE" << endl;
+            printf( "\t1 == BDE_BUILD_TARGET_SAFE\n" );
 #else
-            cout << '\t' << "\t0 == BDE_BUILD_TARGET_SAFE" << endl;
+            printf( "\t0 == BDE_BUILD_TARGET_SAFE\n" );
 #endif
 
 #ifdef BDE_BUILD_TARGET_DBG
-            cout << "\t1 == BDE_BUILD_TARGET_DBG" << endl;
+            printf( "\t1 == BDE_BUILD_TARGET_DBG\n" );
 #else
-            cout << "\t0 == BDE_BUILD_TARGET_DBG" << endl;
+            printf( "\t0 == BDE_BUILD_TARGET_DBG\n" );
 #endif
 
 #ifdef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-            cout << "\t1 == BSLS_ASSERT_LEVEL_ASSERT_SAFE" << endl;
+            printf( "\t1 == BSLS_ASSERT_LEVEL_ASSERT_SAFE\n" );
 #else
-            cout << "\t0 == BSLS_ASSERT_LEVEL_ASSERT_SAFE" << endl;
+            printf( "\t0 == BSLS_ASSERT_LEVEL_ASSERT_SAFE\n" );
 #endif
 
 #ifdef BSLS_ASSERT_LEVEL_ASSERT
-            cout << "\t1 == BSLS_ASSERT_LEVEL_ASSERT" << endl;
+            printf( "\t1 == BSLS_ASSERT_LEVEL_ASSERT\n" );
 #else
-            cout << "\t0 == BSLS_ASSERT_LEVEL_ASSERT" << endl;
+            printf( "\t0 == BSLS_ASSERT_LEVEL_ASSERT\n" );
 #endif
 
 #ifdef BSLS_ASSERT_LEVEL_ASSERT_OPT
-            cout << "\t1 == BSLS_ASSERT_LEVEL_ASSERT_OPT" << endl;
+            printf( "\t1 == BSLS_ASSERT_LEVEL_ASSERT_OPT\n" );
 #else
-            cout << "\t0 == BSLS_ASSERT_LEVEL_ASSERT_OPT" << endl;
+            printf( "\t0 == BSLS_ASSERT_LEVEL_ASSERT_OPT\n" );
 #endif
 
 #ifdef BSLS_ASSERT_LEVEL_NONE
-            cout << "\t1 == BSLS_ASSERT_LEVEL_NONE" << endl;
+            printf( "\t1 == BSLS_ASSERT_LEVEL_NONE\n" );
 #else
-            cout << "\t0 == BSLS_ASSERT_LEVEL_NONE" << endl;
+            printf( "\t0 == BSLS_ASSERT_LEVEL_NONE\n" );
 #endif
 
 #if IS_BSLS_ASSERT_MODE_FLAG_DEFINED
-            cout << "\t1 == IS_BSLS_ASSERT_MODE_FLAG_DEFINED" << endl;
+            printf( "\t1 == IS_BSLS_ASSERT_MODE_FLAG_DEFINED\n" );
 #else
-            cout << "\t0 == IS_BSLS_ASSERT_MODE_FLAG_DEFINED" << endl;
+            printf( "\t0 == IS_BSLS_ASSERT_MODE_FLAG_DEFINED\n" );
 #endif
 
 #if BSLS_NO_ASSERTION_MACROS_DEFINED
-            cout << "\t1 == BSLS_NO_ASSERTION_MACROS_DEFINED" << endl;
+            printf( "\t1 == BSLS_NO_ASSERTION_MACROS_DEFINED\n" );
 #else
-            cout << "\t0 == BSLS_NO_ASSERTION_MACROS_DEFINED" << endl;
+            printf( "\t0 == BSLS_NO_ASSERTION_MACROS_DEFINED\n" );
 #endif
         }
 
@@ -1752,15 +1781,15 @@ int main(int argc, char *argv[])
         //            BSLS_ASSERT_SAFE, BSLS_ASSERT, BSLS_ASSERT_OPT
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE)                              \
- || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED && (                              \
-        defined(BDE_BUILD_TARGET_SAFE_2) ||                             \
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE)                                   \
+ || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED && (                                   \
+        defined(BDE_BUILD_TARGET_SAFE_2) ||                                  \
         defined(BDE_BUILD_TARGET_SAFE)   )
 
-        if (verbose) cout <<
-                          "\nEnabled: ASSERT_SAFE, ASSERT, ASSERT_OPT" << endl;
+        if (verbose) printf(
+                          "\nEnabled: ASSERT_SAFE, ASSERT, ASSERT_OPT\n" );
 
-        if (veryVerbose) cout << "\tCheck for integer expression." << endl;
+        if (veryVerbose) printf( "\tCheck for integer expression.\n" );
 
         globalReset();
         ASSERTION_TEST_BEGIN
@@ -1780,7 +1809,7 @@ int main(int argc, char *argv[])
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
 
-        if (veryVerbose) cout << "\tCheck for pointer expression." << endl;
+        if (veryVerbose) printf( "\tCheck for pointer expression.\n" );
 
         globalReset();
         line = L_ + 2;
@@ -1812,7 +1841,7 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
-        if (veryVerbose) cout << "\tCheck for expression with spaces." << endl;
+        if (veryVerbose) printf( "\tCheck for expression with spaces.\n" );
 
         globalReset();
         line = L_ + 2;
@@ -1849,15 +1878,15 @@ int main(int argc, char *argv[])
         //                    BSLS_ASSERT, BSLS_ASSERT_OPT
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#if defined(BSLS_ASSERT_LEVEL_ASSERT)                                   \
- || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED &&                                \
-        !defined(BDE_BUILD_TARGET_OPT) &&                               \
-        !defined(BDE_BUILD_TARGET_SAFE) &&                              \
+#if defined(BSLS_ASSERT_LEVEL_ASSERT)                                        \
+ || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED &&                                     \
+        !defined(BDE_BUILD_TARGET_OPT) &&                                    \
+        !defined(BDE_BUILD_TARGET_SAFE) &&                                   \
         !defined(BDE_BUILD_TARGET_SAFE_2)
 
-        if (verbose) cout << "\nEnabled: ASSERT, ASSERT_OPT" << endl;
+        if (verbose) printf( "\nEnabled: ASSERT, ASSERT_OPT\n" );
 
-        if (veryVerbose) cout << "\tCheck for integer expression." << endl;
+        if (veryVerbose) printf( "\tCheck for integer expression.\n" );
 
         globalReset(); BSLS_ASSERT_SAFE(0); ASSERT(0 == globalAssertFiredFlag);
 
@@ -1873,7 +1902,7 @@ int main(int argc, char *argv[])
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
 
-        if (veryVerbose) cout << "\tCheck for pointer expression." << endl;
+        if (veryVerbose) printf( "\tCheck for pointer expression.\n" );
 
         globalReset(); BSLS_ASSERT_SAFE(p); ASSERT(0 == globalAssertFiredFlag);
 
@@ -1897,7 +1926,7 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
-        if (veryVerbose) cout << "\tCheck for expression with spaces." << endl;
+        if (veryVerbose) printf( "\tCheck for expression with spaces.\n" );
 
         globalReset(); BSLS_ASSERT_SAFE(false == true);
         ASSERT(0 == globalAssertFiredFlag);
@@ -1927,15 +1956,15 @@ int main(int argc, char *argv[])
         //                         BSLS_ASSERT_OPT
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#if defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)                               \
- || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED &&                                \
-        defined(BDE_BUILD_TARGET_OPT) &&                                \
-        !defined(BDE_BUILD_TARGET_SAFE) &&                              \
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)                                    \
+ || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED &&                                     \
+        defined(BDE_BUILD_TARGET_OPT) &&                                     \
+        !defined(BDE_BUILD_TARGET_SAFE) &&                                   \
         !defined(BDE_BUILD_TARGET_SAFE_2)
 
-        if (verbose) cout << "\nEnabled: ASSERT_OPT" << endl;
+        if (verbose) printf( "\nEnabled: ASSERT_OPT\n" );
 
-        if (veryVerbose) cout << "\tCheck for integer expression." << endl;
+        if (veryVerbose) printf( "\tCheck for integer expression.\n" );
 
         globalReset(); BSLS_ASSERT_SAFE(0); ASSERT(0 == globalAssertFiredFlag);
         globalReset(); BSLS_ASSERT     (0); ASSERT(0 == globalAssertFiredFlag);
@@ -1946,7 +1975,7 @@ int main(int argc, char *argv[])
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
 
-        if (veryVerbose) cout << "\tCheck for pointer expression." << endl;
+        if (veryVerbose) printf( "\tCheck for pointer expression.\n" );
 
         globalReset(); BSLS_ASSERT_SAFE(p); ASSERT(0 == globalAssertFiredFlag);
         globalReset(); BSLS_ASSERT     (p); ASSERT(0 == globalAssertFiredFlag);
@@ -1961,7 +1990,7 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
-        if (veryVerbose) cout << "\tCheck for expression with spaces." << endl;
+        if (veryVerbose) printf( "\tCheck for expression with spaces.\n" );
 
         globalReset(); BSLS_ASSERT_SAFE(false == true);
         ASSERT(0 == globalAssertFiredFlag);
@@ -1986,15 +2015,15 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_ASSERT_LEVEL_NONE)                             \
 
-        if (verbose) cout << "\nEnabled: (* Nothing *)" << endl;
+        if (verbose) printf( "\nEnabled: (* Nothing *)\n" );
 
-        if (veryVerbose) cout << "\tCheck for integer expression." << endl;
+        if (veryVerbose) printf( "\tCheck for integer expression.\n" );
 
         globalReset(); BSLS_ASSERT_SAFE(0); ASSERT(0 == globalAssertFiredFlag);
         globalReset(); BSLS_ASSERT     (0); ASSERT(0 == globalAssertFiredFlag);
         globalReset(); BSLS_ASSERT_OPT (0); ASSERT(0 == globalAssertFiredFlag);
 
-        if (veryVerbose) cout << "\tCheck for integer expression." << endl;
+        if (veryVerbose) printf( "\tCheck for integer expression.\n" );
 
         globalReset(); BSLS_ASSERT_SAFE(p); ASSERT(0 == globalAssertFiredFlag);
 
@@ -2002,7 +2031,7 @@ int main(int argc, char *argv[])
 
         globalReset(); BSLS_ASSERT_OPT (p); ASSERT(0 == globalAssertFiredFlag);
 
-        if (veryVerbose) cout << "\tCheck for expression with spaces." << endl;
+        if (veryVerbose) printf( "\tCheck for expression with spaces.\n" );
 
         globalReset(); BSLS_ASSERT_SAFE(false == true);
         ASSERT(0 == globalAssertFiredFlag);
@@ -2014,49 +2043,64 @@ int main(int argc, char *argv[])
         ASSERT(0 == globalAssertFiredFlag);
 #endif
 
+        //_____________________________________________________________________
+        //                  *** BSLS_ASSERT_INVOKE (always instantiate) ***
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if (verbose) printf( "\nChecking BSLS_INVOKE\n" );
+
+        globalReset();
+        line = L_ + 2;
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT_INVOKE(text);
+        ASSERTION_TEST_END
+        ASSERT(1 == globalAssertFiredFlag);
+        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(line, globalLine, line == globalLine);
+
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concerns:
-        //   Want to observe the basic operation of this component in "default
-        //   mode" (i.e., with no build flags specified).
+        //: 1 Want to observe the basic operation of this component in "default
+        //:   mode" (i.e., with no build flags specified).
         //
         // Plan:
-        //   Call 'setAssertHandler' to install the 'testDriverHandler'
-        //   "assert" function in order to observe that the installed function
-        //   was called using the 'invokeHandler' method -- and, contingently,
-        //   the 'BSLS_ASSERT_OPT(X)' macro -- with various arguments.
+        //: 1 Call 'setAssertHandler' to install the 'testDriverHandler'
+        //:   "assert" function in order to observe that the installed function
+        //:   was called using the 'invokeHandler' method -- and, contingently,
+        //:   the 'BSLS_ASSERT_OPT(X)' macro -- with various arguments.
         //
         // Testing:
         //   BREATHING TEST
-        //   CONCERN: By default, the 'bde_assert::failAbort' is used.
+        //   CONCERN: By default, the 'bsls::Assert::failAbort' is used.
         //   static void setFailureHandler(bsls::Assert::Handler function);
         //   static bsls::Assert::Handler failureHandler();
         //   static void invokeHandler(const char *t, const char *f, int);
         //   static void lockAssertAdministration();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BREATHING TEST" << endl
-                          << "==============" << endl;
+        if (verbose) printf( "\nBREATHING TEST"
+                             "\n==============\n" );
 
-        if (verbose) cout <<
-           "\nVerify that the correct assert callback is installed by default."
-                                                                       << endl;
+        if (verbose) printf(
+                "\nVerify that the correct assert callback is installed "
+                "by default.\n" );
 
         ASSERT(bsls::Assert::failAbort == bsls::Assert::failureHandler());
 
-        if (verbose) cout <<
-           "\nVerify that we can install a new assert callback." << endl;
+        if (verbose) printf(
+                     "\nVerify that we can install a new assert callback.\n" );
 
         bsls::Assert::setFailureHandler(&testDriverHandler);
         ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
 
-        if (verbose) cout <<
-           "\nVerify that 'invokeHandler' properly transmits its arguments."
-                                                                       << endl;
+        if (verbose) printf(
+                "\nVerify that 'invokeHandler' properly transmits "
+                "its arguments.\n" );
 
         globalReset();
         ASSERT(false        == globalAssertFiredFlag);
@@ -2078,9 +2122,9 @@ int main(int argc, char *argv[])
         globalReturnOnTestAssert = false;
 #endif
 
-        if (verbose) cout <<
-           "\nVerify that 'lockAssertAdminisration' blocks callback changes."
-                                                                       << endl;
+        if (verbose) printf(
+                "\nVerify that 'lockAssertAdministration' blocks callback "
+                "changes.\n" );
 
         bsls::Assert::lockAssertAdministration();
 
@@ -2088,16 +2132,15 @@ int main(int argc, char *argv[])
         ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
 
 #ifdef BSLS_ASSERT_LEVEL_NONE
-        if (verbose) cout <<
-          "\n'BSLS_ASSERT_LEVEL_NONE' is defined; exit breathing test."
-                                                                       << endl;
+        if (verbose) printf(
+            "\n'BSLS_ASSERT_LEVEL_NONE' is defined; exit breathing test.\n" );
         break;
 #endif
-        if (verbose) cout <<
-          "\nVerify that 'BSLS_ASSERT_OPT' doesn't fire for '!0' expressions."
-                                                                       << endl;
+        if (verbose) printf(
+                "\nVerify that 'BSLS_ASSERT_OPT' doesn't fire for '!0' "
+                "expressions.\n" );
 
-        if (veryVerbose) cout << "\tInteger-valued expression" << endl;
+        if (veryVerbose) printf( "\tInteger-valued expression\n" );
         {
             globalReset();
             ASSERT(false == globalAssertFiredFlag);
@@ -2106,7 +2149,7 @@ int main(int argc, char *argv[])
             ASSERT(false == globalAssertFiredFlag);
         }
 
-        if (veryVerbose) cout << "\tPointer-valued expression" << endl;
+        if (veryVerbose) printf( "\tPointer-valued expression\n" );
         {
             globalReset();
 
@@ -2116,22 +2159,22 @@ int main(int argc, char *argv[])
             ASSERT(false == globalAssertFiredFlag);
         }
 
-        if (verbose) cout <<
-           "\nVerify that 'BSLS_ASSERT_OPT' does fire for '0' expressions."
-                                                                       << endl;
+        if (verbose) printf(
+                "\nVerify that 'BSLS_ASSERT_OPT' does fire for '0' "
+                "expressions.\n" );
 
 #ifndef BDE_BUILD_TARGET_EXC
             globalReturnOnTestAssert = true;
 #endif
 
-        if (veryVerbose) cout << "\tInteger-valued expression" << endl;
+        if (veryVerbose) printf( "\tInteger-valued expression\n" );
         {
             globalReset();
             ASSERT(false == globalAssertFiredFlag);
 
             const char *const text = "true == false";
             const char *const file = __FILE__;
-                  int         line = -1;
+            int               line = -1;
 
             line = L_ + 2;
             ASSERTION_TEST_BEGIN
@@ -2144,14 +2187,14 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(line, globalLine, line == globalLine);
         }
 
-        if (veryVerbose) cout << "\tPointer-valued expression" << endl;
+        if (veryVerbose) printf( "\tPointer-valued expression\n" );
         {
             globalReset();
             ASSERT(false == globalAssertFiredFlag);
 
             const char *const text = "(void *)(0)";
             const char *const file = __FILE__;
-                  int         line = -1;
+            int               line = -1;
 
             line = L_ + 2;
             ASSERTION_TEST_BEGIN
@@ -2174,19 +2217,20 @@ int main(int argc, char *argv[])
         // CALL FAIL ABORT HANDLER
         //
         // Concerns:
-        //   1. That it does abort the program.
-        //   2. That it prints a message to 'stderr'.
+        //: 1 That it does abort the program.
+        //:
+        //: 2 That it prints a message to 'stderr'.
         //
         // Plan:
-        //   Call 'bsls::Assert::failAbort' after blocking the signal.
+        //: 1 Call 'bsls::Assert::failAbort' after blocking the signal.
         //
         // Testing:
         //   CONCERN: 'bsls::Assert::failAbort' aborts
-        //   CONCERN: 'bsls::Assert::failAbort' prints to 'cerr' not 'cout'
+        //   CONCERN: 'bsls::Assert::failAbort' prints to 'stderr' not 'stdout'
         // --------------------------------------------------------------------
 
-        cout << endl << "Manual Testing 'bsls::Assert::failAbort'" << endl
-                     << "========================================" << endl;
+        if (verbose) printf( "\nCALL FAIL ABORT HANDLER"
+                             "\n=======================\n" );
 
 #ifdef BSLS_PLATFORM_OS_UNIX
         sigset_t newset;
@@ -2199,8 +2243,8 @@ int main(int argc, char *argv[])
     #endif
 
 #endif
-        cerr << "THE FOLLOWING SHOULD PRINT ON STDERR:\n"
-                "Assertion failed: 0 != 0, file myfile.cpp, line 123" << endl;
+        fprintf( stderr, "THE FOLLOWING SHOULD PRINT ON STDERR:\n"
+                "Assertion failed: 0 != 0, file myfile.cpp, line 123\n" );
 
         bsls::Assert::failAbort("0 != 0", "myfile.cpp", 123);
 
@@ -2211,40 +2255,41 @@ int main(int argc, char *argv[])
         // CALL FAIL THROW HANDLER
         //
         // Concerns:
-        //   1a) That it does *not* throw for an exception build when there
-        //        is an exception pending.
-        //
-        //   1b) That it behaves as failAbort for non-exception builds.
+        //: 1 That it does *not* throw for an exception build when there is an
+        //:   exception pending.
+        //:
+        //: 1 That it behaves as failAbort for non-exception builds.
         //
         // Plan:
-        //   1a) Call bsls::Assert::failThrow from within the dtor of a
-        //       test object on the stack after a throw.
-        //
-        //   1b) Call 'bsls::Assert::failAbort' after blocking the signal.
+        //: 1 Call bsls::Assert::failThrow from within the destructor of a test
+        //:   object on the stack after a throw.
+        //:
+        //: 2 Call 'bsls::Assert::failAbort' after blocking the signal.
         //
         // Testing:
-        //   CONCERN: 'bsls::Assert::failAbort' aborts
-        //   CONCERN: 'bsls::Assert::failAbort' prints to 'cerr' not 'cout'
+        //   static void failAbort(const char *t, const char *f, int line);
+        //   CONCERN: 'bsls::Assert::failThrow' aborts in non-exception build
+        //   CONCERN: 'bsls::Assert::failThrow' prints to 'stderr' for NON-EXC
         // --------------------------------------------------------------------
 
-        cout << endl << "Manual Testing 'bsls::Assert::failThrow'" << endl
-                     << "========================================" << endl;
+        if (verbose) printf( "\nCALL FAIL THROW HANDLER"
+                             "\n=======================\n" );
 
 #if BDE_BUILD_TARGET_EXC
 
-        cout << "\nEXCEPTION BUILD" << endl;
+        printf( "\nEXCEPTION BUILD\n" );
 
-        cerr << "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
+        fprintf(stderr, "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
                 "BSLS_ASSERT: An uncaught exception is pending;"
-                " cannot throw 'bsls_asserttestexception'." << endl;
-        cerr <<
-  "assertion failed: 'failThrow' handler called from ~BadBoy, file f.c, line 9"
-             << endl;
+                " cannot throw 'bsls_asserttestexception'.\n" );
+        fprintf(stderr, "assertion failed: 'failThrow' handler called from "
+                "~BadBoy, file f.c, line 9" );
+
 
         try {
             BadBoy bad;       // calls 'bsls::Assert::failThrow' on destruction
 
-            if (veryVerbose) cout << "About to throw \"stuff\"" << endl;
+            if (veryVerbose) printf( "About to throw \"stuff\"\n" );
 
             throw "stuff";
         }
@@ -2254,7 +2299,7 @@ int main(int argc, char *argv[])
 
         ASSERT("We should not have made it to here either." && 0);
 #else
-        cout << "\nNON-EXCEPTION BUILD" << endl;
+        printf( "\nNON-EXCEPTION BUILD\n" );
 
   #ifdef BSLS_PLATFORM_OS_UNIX
         sigset_t newset;
@@ -2267,8 +2312,8 @@ int main(int argc, char *argv[])
     #endif
 
   #endif
-        cerr << "THE FOLLOWING SHOULD PRINT ON STDERR:\n"
-                "Assertion failed: 0 != 0, file myfile.cpp, line 123" << endl;
+        fprintf( stderr,  "THE FOLLOWING SHOULD PRINT ON STDERR:\n"
+                "Assertion failed: 0 != 0, file myfile.cpp, line 123\n" );
 
         bsls::Assert::failAbort("0 != 0", "myfile.cpp", 123);
 
@@ -2280,23 +2325,26 @@ int main(int argc, char *argv[])
         // CALL FAIL SLEEP HANDLER
         //
         // Concerns:
-        //   1. That it does sleep forever.
-        //   2. That it prints a message to 'stderr'.
+        //: 1 That it does sleep forever.
+        //:
+        //: 2 That it prints a message to 'stderr'.
         //
         // Plan:
-        //   Call 'bsls::Assert::failSleep'.  Then observe that a diagnostic is
-        //   printed to 'stderr' and the program hangs.
+        //: 1 Call 'bsls::Assert::failSleep'.  Then observe that a diagnostic
+        //:   is printed to 'stderr' and the program hangs.
         //
         // Testing:
+        //   static void failSleep(const char *t, const char *f, int line);
         //   CONCERN: 'bsls::Assert::failSleep' sleeps forever
-        //   CONCERN: 'bsls::Assert::failSleep' prints to 'cerr' not 'cout'
+        //   CONCERN: 'bsls::Assert::failSleep' prints to 'stderr' not 'stdout'
         // --------------------------------------------------------------------
 
-        cout << endl << "Manual Testing 'bsls::Assert::failSleep'" << endl
-                     << "========================================" << endl;
+        if (verbose) printf( "\nCALL FAIL SLEEP HANDLER"
+                             "\n=======================\n" );
 
-        cerr << "THE FOLLOWING SHOULD PRINT ON STDERR (BEFORE HANGING):\n"
-                "Assertion failed: 0 != 0, file myfile.cpp, line 123" << endl;
+        fprintf( stderr, "THE FOLLOWING SHOULD PRINT ON STDERR"
+                 "(BEFORE HANGING):\n"
+                 "Assertion failed: 0 != 0, file myfile.cpp, line 123\n" );
 
         bsls::Assert::failSleep("0 != 0", "myfile.cpp", 123);
 
@@ -2307,24 +2355,23 @@ int main(int argc, char *argv[])
         // RETURNING HANDLER LOG: LIMITS
         //
         // Concerns:
-        //:  1 Log messages should stabilize at a period of 2^29.
+        //: 1 Log messages should stabilize at a period of 2^29.
         //
         // Plan:
-        //:  1 In build configurations that allow handlers to return, install a
-        //:    violation handler that increments a counter and returns, and an
-        //:    instrumented log callback that captures log messages instead of
-        //:    printing them.
+        //: 1 In build configurations that allow handlers to return, install a
+        //:   violation handler that increments a counter and returns, and an
+        //:   instrumented log callback that captures log messages instead of
+        //:   printing them.
         //:
-        //:  2 Call 'invokeHandler' 2^29 times.  Observe that the logger is
-        //called once every 2^29 times after that.  (C-1)
+        //: 2 Call 'invokeHandler' 2^29 times.  Observe that the logger is
+        //:   called once every 2^29 times after that.  (C-1)
         //
         // Testing:
         //   CONCERN: Returning handler log: limits
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "RETURNING HANDLER LOG: LIMITS" << endl
-                          << "=============================" << endl;
+        if (verbose) printf( "\nRETURNING HANDLER LOG: LIMITS"
+                             "\n=============================\n" );
 
 #if        !defined(BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER)           \
         || !defined(BSLS_PLATFORM_CMP_MSVC)
@@ -2385,13 +2432,13 @@ int main(int argc, char *argv[])
 #endif
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        testStatus = -1;
+          fprintf( stderr, "WARNING: CASE `%d` NOT FOUND.\n" , test);
+          testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
+        fprintf( stderr, "Error, non-zero test status = %d.\n", testStatus );
     }
 
     return testStatus;
@@ -2426,29 +2473,43 @@ int main(int argc, char *argv[])
 //
 // Our testing strategy is to undefine all these macros, and any implementation
 // detail macros in the 'bsls_assert.h' header file, and re-include that
-// header.  This means that, most unusually, we will '#undef' the header-guard
-// in order to support repeated inclusion.  Note that '#include'ing a header
-// inside a function definition, as we do below, will flag an error for any
-// construct that is not supported inside a function definition, such as
-// declaring a template or defining a "local" function.  consequently, we must
-// provide a deeper "include-guard" inside the component header itself to
-// protect the non-macro parts of this component against the repeated
-// inclusion.
+// header.  The supporting component 'bsls_assert_macrotest' provides a header
+// that will undefine all of the public macros from both 'bsls_assert.h' and
+// 'bsls_review.h', then prepare us to re-include it after changing the above
+// build and assert level macros.  Note that '#include'ing a header inside a
+// function definition, as we do below, will flag an error for any construct
+// that is not supported inside a function definition, such as declaring a
+// template or defining a "local" function.  consequently, we must provide a
+// deeper "include-guard" inside the component header itself to protect the
+// non-macro parts of this component against the repeated inclusion.
+//
+// Because 'bsls_assert.h' includes 'bsls_review.h' and the configuration of
+// 'BSLS_REVIEW' impacts how asserts will behave, we also force 'bsls_review.h'
+// to get re-included (and undefine its macros just as the 'bsls_review' test
+// driver does) so that we confirm both components work properly in tandem.
 //
 // For each test iteration that '#include <bsls_assert.h>', each of the macros
 // listed above should be undefined, along with each of the following that are
-// also defined within this header:
+// also defined within this header and the review header:
 //   BSLS_ASSERT_SAFE
 //   BSLS_ASSERT
 //   BSLS_ASSERT_OPT
 //   BSLS_ASSERT_ASSERT
+//   BSLS_ASSERT_DISABLED_IMP
+//   BSLS_ASSERT_INVOKE
+//   BSLS_REVIEW_SAFE
+//   BSLS_REVIEW
+//   BSLS_REVIEW_OPT
+//   BSLS_REVIEW_REVIEW_IMP
+//   BSLS_REVIEW_DISABLED_IMP
+//   BSLS_REVIEW_INVOKE
 //
 // Note that each test contains a certain amount of "boilerplate" code that
 // looks like it might be refactored into a common function or two.  This would
 // be a mistake, as the "bodies" that looks similar will actually have quite
-// meanings as the macros expand in different ways according to the
-// configuration under test.  For example, extracting some of this code into
-// a common function passed the expected test result would see that function
+// different meanings as the macros expand in different ways according to the
+// configuration under test.  For example, extracting some of this code into a
+// common function passed the expected test result would see that function
 // compiled with the default configuration of the test driver, rather than each
 // of the 80 configurations under test.
 //
@@ -2542,27 +2603,66 @@ int main(int argc, char *argv[])
 //    X    X        X    LEVEL_ASSERT_SAFE      X   X   X
 //    X    X   X         LEVEL_ASSERT_SAFE      X   X   X
 //    X    X   X    X    LEVEL_ASSERT_SAFE      X   X   X
+//
+// Finally we will test the (hopefully orthogonal) effects of setting the
+// review level and the assert level explicitly.  This should turn any asserts
+// that are above the assert level into reviews, according to the following
+// table:
+//
+//  assertion         assertion          ASSERT macros
+//    level             level           OPT     SAFE
+//  ----------------- ----------------- --- --- ----
+//  LEVEL_NONE        LEVEL_NONE
+//  LEVEL_ASSERT_OPT  LEVEL_NONE
+//  LEVEL_ASSERT      LEVEL_NONE
+//  LEVEL_ASSERT_SAFE LEVEL_NONE
+//  LEVEL_NONE        LEVEL_REVIEW_OPT   R
+//  LEVEL_ASSERT_OPT  LEVEL_REVIEW_OPT   X
+//  LEVEL_ASSERT      LEVEL_REVIEW_OPT   X   X
+//  LEVEL_ASSERT_SAFE LEVEL_REVIEW_OPT   X   X   X
+//  LEVEL_NONE        LEVEL_REVIEW       R   R
+//  LEVEL_ASSERT_OPT  LEVEL_REVIEW       X   R
+//  LEVEL_ASSERT      LEVEL_REVIEW       X   X
+//  LEVEL_ASSERT_SAFE LEVEL_REVIEW       X   X   X
+//  LEVEL_NONE        LEVEL_REVIEW_SAFE  R   R   R
+//  LEVEL_ASSERT_OPT  LEVEL_REVIEW_SAFE  X   R   R
+//  LEVEL_ASSERT      LEVEL_REVIEW_SAFE  X   X   R
+//  LEVEL_ASSERT_SAFE LEVEL_REVIEW_SAFE  X   X   X
 
 namespace
 {
 
 #if defined(BDE_BUILD_TARGET_EXC)
 struct AssertFailed {
-    // This struct contains a static function suitable for registration as an
+    // This struct contains static functions suitable for registration as an
     // assert handler, and provides a distinct "empty" type that may be thrown
     // from the handler and caught within the test cases below, in order to
-    // confirm if the appropriate 'BSLS_ASSERT_*' macros are enabled or not.
+    // confirm if the appropriate 'BSLS_ASSERT_*' macros are enabled properly
+    // or not.
     BSLS_ASSERT_NORETURN
     static void failMacroTest(const char *, const char *, int) {
         throw AssertFailed();
     }
 };
+struct ReviewFailed {
+    // This struct contains static functions suitable for registration as a
+    // review handler, and provides a distinct "empty" type that may be thrown
+    // from the handler and caught within the test cases below, in order to
+    // confirm if the appropriate 'BSLS_ASSERT_*' macros are enabled properly
+    // or not.
+    //
+    // Note that, without an explicit review level set an ASSERT macro should
+    // never trigger a review failure, so the tests for cases not involving
+    // review levels let this exception fall out and lead to a test failure.
+    static void failReviewMacroTest(const bsls::ReviewViolation &) {
+        throw ReviewFailed();
+    }
+};
 #else
-    // Without exception support, we cannot fail an assert-test by throwing
-    // an exception.  The most practical solution is to simply not compile
-    // those tests, so we do not supply an 'AssertFailed' alternative, to be
-    // sure to catch any compile-time use of this structure in exception-free
-    // builds.
+    // Without exception support, we cannot fail an assert-test by throwing an
+    // exception.  The most practical solution is to simply not compile those
+    // tests, so we do not supply an 'AssertFailed' alternative, to be sure to
+    // catch any compile-time use of this structure in exception-free builds.
 #endif
 }  // close unnamed namespace
 
@@ -2571,41 +2671,25 @@ struct AssertFailed {
 void TestConfigurationMacros()
 {
 
-    if (globalVerbose) cout << endl
-                            << "CONFIGURATION MACROS" << endl
-                            << "====================" << endl;
+    if (globalVerbose) printf( "\nCONFIGURATION MACROS"
+                               "\n====================\n" );
 
 #if !defined(BDE_BUILD_TARGET_EXC)
     if (globalVerbose)
-        cout << "\nThis case is not run as it relies on exception support."
-             << endl;
+        printf( "\nThis case is not run as it relies "
+                "on exception support.\n" );
 #else
-    if (globalVerbose) cout << "\nWe need to write a running commentary"
-                            << endl;
+    if (globalVerbose) printf( "\nWe need to write a running commentary\n" );
 
     bsls::Assert::setFailureHandler(&AssertFailed::failMacroTest);
+    bsls::Review::setFailureHandler(&ReviewFailed::failReviewMacroTest);
 
-//===================== (NO BUILD FLAGS SET) ===============================//
+//========================== (NO BUILD FLAGS SET) ===========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -2613,7 +2697,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -2641,28 +2724,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== OPT ================================//
+
+//=================================== OPT ===================================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -2670,7 +2741,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -2698,28 +2768,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== DBG ================================//
+
+//=================================== DBG ===================================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -2727,7 +2785,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -2755,28 +2812,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== DBG OPT ================================//
+
+//================================= DBG OPT =================================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -2785,7 +2830,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -2813,28 +2857,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//========================== SAFE ==========================//
+
+//================================== SAFE ===================================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -2842,7 +2874,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -2870,28 +2901,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE OPT ================================//
+
+//================================ SAFE OPT =================================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -2900,7 +2919,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -2928,28 +2946,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE DBG ================================//
+
+//================================ SAFE DBG =================================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -2958,7 +2964,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -2986,28 +2991,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE DBG OPT ================================//
+
+//============================== SAFE DBG OPT ===============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3017,7 +3010,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3045,28 +3037,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//========================== SAFE_2 ==========================//
+
+//================================= SAFE_2 ==================================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3074,7 +3054,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3102,28 +3081,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 OPT ================================//
+
+//=============================== SAFE_2 OPT ================================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3132,7 +3099,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3160,28 +3126,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 DBG ================================//
+
+//=============================== SAFE_2 DBG ================================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3190,7 +3144,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3218,28 +3171,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 DBG OPT ================================//
+
+//============================= SAFE_2 DBG OPT ==============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3249,7 +3190,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3277,29 +3217,17 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//========================== SAFE_2 SAFE ==========================//
+
+//=============================== SAFE_2 SAFE ===============================//
 
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3308,7 +3236,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3336,28 +3263,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 SAFE OPT ================================//
+
+//============================= SAFE_2 SAFE OPT =============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3367,7 +3282,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3395,28 +3309,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 SAFE DBG ================================//
+
+//============================= SAFE_2 SAFE DBG =============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3426,7 +3328,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3454,28 +3355,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 SAFE DBG OPT ================================//
+
+//=========================== SAFE_2 SAFE DBG OPT ===========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3486,7 +3375,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3514,30 +3402,18 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//- - - - - - - - - - - LEVEL_NONE - - - - - - - - - - - - - - - - - - - - -//
 
-//===================== LEVEL_NONE ================================//
+//- - - - - - - - - - - - - - - - LEVEL_NONE - - - - - - - - - - - - - - - - //
+
+//=============================== LEVEL_NONE ================================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3545,7 +3421,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3574,27 +3449,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//===================== OPT LEVEL_NONE ================================//
+//============================= OPT LEVEL_NONE ==============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3603,7 +3463,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3632,27 +3491,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//===================== DBG LEVEL_NONE ================================//
+//============================= DBG LEVEL_NONE ==============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3661,7 +3505,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3690,27 +3533,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//===================== DBG OPT LEVEL_NONE ================================//
+//=========================== DBG OPT LEVEL_NONE ============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3720,7 +3548,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3749,27 +3576,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//===================== SAFE LEVEL_NONE ================================//
+//============================= SAFE LEVEL_NONE =============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3778,7 +3590,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3807,27 +3618,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//===================== SAFE OPT LEVEL_NONE ================================//
+//=========================== SAFE OPT LEVEL_NONE ===========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3837,7 +3633,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3866,27 +3661,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//===================== SAFE DBG LEVEL_NONE ================================//
+//=========================== SAFE DBG LEVEL_NONE ===========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3896,7 +3676,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3925,27 +3704,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//===================== SAFE DBG OPT LEVEL_NONE ============================//
+//========================= SAFE DBG OPT LEVEL_NONE =========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -3956,7 +3720,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -3985,27 +3748,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//===================== SAFE_2 LEVEL_NONE ================================//
+//============================ SAFE_2 LEVEL_NONE ============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4014,7 +3762,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4043,27 +3790,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//===================== SAFE_2 OPT LEVEL_NONE ==============================//
+//========================== SAFE_2 OPT LEVEL_NONE ==========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4073,7 +3805,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4102,27 +3833,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//===================== SAFE_2 DBG LEVEL_NONE ==============================//
+//========================== SAFE_2 DBG LEVEL_NONE ==========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4132,7 +3848,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4161,27 +3876,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//===================== SAFE_2 DBG OPT LEVEL_NONE ==========================//
+//======================== SAFE_2 DBG OPT LEVEL_NONE ========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4193,7 +3893,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4222,27 +3921,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//======================= SAFE_2 SAFE LEVEL_NONE ===========================//
+//========================= SAFE_2 SAFE LEVEL_NONE ==========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4252,7 +3936,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4281,27 +3964,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//=================== SAFE_2 SAFE OPT LEVEL_NONE ===========================//
+//======================= SAFE_2 SAFE OPT LEVEL_NONE ========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4312,7 +3980,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4341,27 +4008,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//==================== SAFE_2 SAFE DBG LEVEL_NONE ==========================//
+//======================= SAFE_2 SAFE DBG LEVEL_NONE ========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4372,7 +4024,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4401,27 +4052,12 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//=================== SAFE_2 SAFE DBG OPT LEVEL_NONE =======================//
+//===================== SAFE_2 SAFE DBG OPT LEVEL_NONE ======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4433,7 +4069,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4462,29 +4097,14 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(false); }
 
 
-//- - - - - - - - - - - LEVEL_ASSERT_OPT - - - - - - - - - - - - - - - -//
+//- - - - - - - - - - - - - -  LEVEL_ASSERT_OPT - - - - - - - - - - - - - - -//
 
-//===================== LEVEL_ASSERT_OPT ===============================//
+//============================ LEVEL_ASSERT_OPT =============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4492,7 +4112,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4520,28 +4139,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== OPT LEVEL_ASSERT_OPT ================================//
+
+//========================== OPT LEVEL_ASSERT_OPT ===========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4550,7 +4157,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4578,28 +4184,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== DBG LEVEL_ASSERT_OPT ================================//
+
+//========================== DBG LEVEL_ASSERT_OPT ===========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4608,7 +4202,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4636,28 +4229,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== DBG OPT LEVEL_ASSERT_OPT ============================//
+
+//======================== DBG OPT LEVEL_ASSERT_OPT =========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4667,7 +4248,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4695,28 +4275,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE LEVEL_ASSERT_OPT ===============================//
+
+//========================== SAFE LEVEL_ASSERT_OPT ==========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4725,7 +4293,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4753,28 +4320,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE OPT LEVEL_ASSERT_OPT ===========================//
+
+//======================== SAFE OPT LEVEL_ASSERT_OPT ========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4784,7 +4339,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4812,28 +4366,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE DBG LEVEL_ASSERT_OPT ===========================//
+
+//======================== SAFE DBG LEVEL_ASSERT_OPT ========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4843,7 +4385,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4871,28 +4412,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE DBG OPT LEVEL_ASSERT_OPT =======================//
+
+//====================== SAFE DBG OPT LEVEL_ASSERT_OPT ======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4903,7 +4432,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4931,28 +4459,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 LEVEL_ASSERT_OPT =============================//
+
+//========================= SAFE_2 LEVEL_ASSERT_OPT =========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -4961,7 +4477,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -4989,28 +4504,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 OPT LEVEL_ASSERT_OPT =========================//
+
+//======================= SAFE_2 OPT LEVEL_ASSERT_OPT =======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5020,7 +4523,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5048,28 +4550,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 DBG LEVEL_ASSERT_OPT =========================//
+
+//======================= SAFE_2 DBG LEVEL_ASSERT_OPT =======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5079,7 +4569,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5106,29 +4595,17 @@ void TestConfigurationMacros()
 
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
 
 //===================== SAFE_2 DBG OPT LEVEL_ASSERT_OPT =====================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5139,7 +4616,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5167,28 +4643,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 SAFE LEVEL_ASSERT_OPT ========================//
+
+//====================== SAFE_2 SAFE LEVEL_ASSERT_OPT =======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5198,7 +4662,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5226,28 +4689,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 SAFE OPT LEVEL_ASSERT_OPT ====================//
+
+//==================== SAFE_2 SAFE OPT LEVEL_ASSERT_OPT =====================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5258,7 +4709,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5286,28 +4736,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 SAFE DBG LEVEL_ASSERT_OPT ====================//
+
+//==================== SAFE_2 SAFE DBG LEVEL_ASSERT_OPT =====================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5318,7 +4756,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5346,28 +4783,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//==================== SAFE_2 SAFE DBG OPT LEVEL_ASSERT_OPT =================//
+
+//================== SAFE_2 SAFE DBG OPT LEVEL_ASSERT_OPT ===================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5379,7 +4804,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5407,30 +4831,18 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//- - - - - - - - - - - LEVEL_ASSERT - - - - - - - - - - - - - - - -//
 
-//===================== LEVEL_ASSERT ===============================//
+//- - - - - - - - - - - - - - -  LEVEL_ASSERT - - - - - - - - - - - - - - - -//
+
+//============================== LEVEL_ASSERT ===============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5438,7 +4850,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5466,28 +4877,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== OPT LEVEL_ASSERT ================================//
+
+//============================ OPT LEVEL_ASSERT =============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5496,7 +4895,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5524,28 +4922,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== DBG LEVEL_ASSERT ================================//
+
+//============================ DBG LEVEL_ASSERT =============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5554,7 +4940,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5582,28 +4967,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== DBG OPT LEVEL_ASSERT ================================//
+
+//========================== DBG OPT LEVEL_ASSERT ===========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5613,7 +4986,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5641,28 +5013,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE LEVEL_ASSERT ================================//
+
+//============================ SAFE LEVEL_ASSERT ============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5671,7 +5031,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5699,28 +5058,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE OPT LEVEL_ASSERT ===============================//
+
+//========================== SAFE OPT LEVEL_ASSERT ==========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5730,7 +5077,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5758,28 +5104,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE DBG LEVEL_ASSERT ===============================//
+
+//========================== SAFE DBG LEVEL_ASSERT ==========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5789,7 +5123,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5817,28 +5150,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE DBG OPT LEVEL_ASSERT ===========================//
+
+//======================== SAFE DBG OPT LEVEL_ASSERT ========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5849,7 +5170,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5877,28 +5197,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 LEVEL_ASSERT ================================//
+
+//=========================== SAFE_2 LEVEL_ASSERT ===========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5907,7 +5215,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5935,28 +5242,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 OPT LEVEL_ASSERT =============================//
+
+//========================= SAFE_2 OPT LEVEL_ASSERT =========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -5966,7 +5261,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -5994,28 +5288,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 DBG LEVEL_ASSERT =============================//
+
+//========================= SAFE_2 DBG LEVEL_ASSERT =========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6025,7 +5307,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6053,28 +5334,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 DBG OPT LEVEL_ASSERT =========================//
+
+//======================= SAFE_2 DBG OPT LEVEL_ASSERT =======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6085,7 +5354,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6113,28 +5381,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 SAFE LEVEL_ASSERT ============================//
+
+//======================== SAFE_2 SAFE LEVEL_ASSERT =========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6144,7 +5400,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6172,28 +5427,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 SAFE OPT LEVEL_ASSERT ========================//
+
+//====================== SAFE_2 SAFE OPT LEVEL_ASSERT =======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6204,7 +5447,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6232,28 +5474,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 SAFE DBG LEVEL_ASSERT ========================//
+
+//====================== SAFE_2 SAFE DBG LEVEL_ASSERT =======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6264,7 +5494,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6291,29 +5520,17 @@ void TestConfigurationMacros()
 
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
 
 //==================== SAFE_2 SAFE DBG OPT LEVEL_ASSERT =====================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6325,7 +5542,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6353,30 +5569,18 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//- - - - - - - - - - - LEVEL_ASSERT_SAFE - - - - - - - - - - - - - - - -//
 
-//===================== LEVEL_ASSERT_SAFE ===============================//
+//- - - - - - - - - - - - - -  LEVEL_ASSERT_SAFE - - - - - - - - - - - - - - //
+
+//============================ LEVEL_ASSERT_SAFE ============================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6384,7 +5588,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6412,28 +5615,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== OPT LEVEL_ASSERT_SAFE ===============================//
+
+//========================== OPT LEVEL_ASSERT_SAFE ==========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6442,7 +5633,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6470,28 +5660,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== DBG LEVEL_ASSERT_SAFE ===============================//
+
+//========================== DBG LEVEL_ASSERT_SAFE ==========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6500,7 +5678,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6528,28 +5705,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== DBG OPT LEVEL_ASSERT_SAFE ===========================//
+
+//======================== DBG OPT LEVEL_ASSERT_SAFE ========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6559,7 +5724,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6587,28 +5751,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE LEVEL_ASSERT_SAFE ==============================//
+
+//========================= SAFE LEVEL_ASSERT_SAFE ==========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6617,7 +5769,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6645,28 +5796,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE OPT LEVEL_ASSERT_SAFE ==========================//
+
+//======================= SAFE OPT LEVEL_ASSERT_SAFE ========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6676,7 +5815,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6704,28 +5842,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE DBG LEVEL_ASSERT_SAFE ==========================//
+
+//======================= SAFE DBG LEVEL_ASSERT_SAFE ========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6735,7 +5861,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6762,29 +5887,17 @@ void TestConfigurationMacros()
 
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
 
 //===================== SAFE DBG OPT LEVEL_ASSERT_SAFE ======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6795,7 +5908,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6823,28 +5935,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 LEVEL_ASSERT_SAFE ============================//
+
+//======================== SAFE_2 LEVEL_ASSERT_SAFE =========================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6853,7 +5953,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6881,28 +5980,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 OPT LEVEL_ASSERT_SAFE ========================//
+
+//====================== SAFE_2 OPT LEVEL_ASSERT_SAFE =======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6912,7 +5999,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6940,28 +6026,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 DBG LEVEL_ASSERT_SAFE ========================//
+
+//====================== SAFE_2 DBG LEVEL_ASSERT_SAFE =======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -6971,7 +6045,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -6999,28 +6072,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 DBG OPT LEVEL_ASSERT_SAFE ====================//
+
+//==================== SAFE_2 DBG OPT LEVEL_ASSERT_SAFE =====================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -7031,7 +6092,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -7059,28 +6119,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 SAFE LEVEL_ASSERT_SAFE =======================//
+
+//====================== SAFE_2 SAFE LEVEL_ASSERT_SAFE ======================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -7090,7 +6138,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -7117,29 +6164,17 @@ void TestConfigurationMacros()
 
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
 
 //==================== SAFE_2 SAFE OPT LEVEL_ASSERT_SAFE ====================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -7150,7 +6185,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -7178,28 +6212,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//===================== SAFE_2 SAFE DBG LEVEL_ASSERT_SAFE ===================//
+
+//==================== SAFE_2 SAFE DBG LEVEL_ASSERT_SAFE ====================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -7210,7 +6232,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -7238,28 +6259,16 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//==================== SAFE_2 SAFE DBG OPT LEVEL_ASSERT_SAFE ================//
+
+//================== SAFE_2 SAFE DBG OPT LEVEL_ASSERT_SAFE ==================//
 
 // [1] Reset all configuration macros
 
-#undef BDE_BUILD_TARGET_DBG
-#undef BDE_BUILD_TARGET_OPT
-#undef BDE_BUILD_TARGET_SAFE
-#undef BDE_BUILD_TARGET_SAFE_2
-
-#undef BSLS_ASSERT_LEVEL_ASSERT
-#undef BSLS_ASSERT_LEVEL_ASSERT_OPT
-#undef BSLS_ASSERT_LEVEL_ASSERT_SAFE
-#undef BSLS_ASSERT_LEVEL_NONE
-
-#undef BSLS_ASSERT
-#undef BSLS_ASSERT_ASSERT
-#undef BSLS_ASSERT_IS_ACTIVE
-#undef BSLS_ASSERT_OPT
-#undef BSLS_ASSERT_OPT_IS_ACTIVE
-#undef BSLS_ASSERT_SAFE
-#undef BSLS_ASSERT_SAFE_IS_ACTIVE
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
 
 // [2] Define the macros for this test case.
 
@@ -7271,7 +6280,6 @@ void TestConfigurationMacros()
 
 // [3] Re-include the bsls_assert header.
 
-#undef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 
 // [4] Test the values of the 3 'IS_ACTIVE' macros.
@@ -7299,12 +6307,1239 @@ void TestConfigurationMacros()
     try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
     catch(AssertFailed)          { ASSERT(true);  }
 
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -//
+
+//- - - - - - - - - - ASSERT_LEVEL and REVIEW_LEVEL_NONE - - - - - - - - - - //
+
+//=================== ASSERT_LEVEL_NONE REVIEW_LEVEL_NONE ===================//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_NONE
+#define BSLS_REVIEW_LEVEL_NONE
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should not be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//================ ASSERT_LEVEL_ASSERT_OPT REVIEW_LEVEL_NONE ================//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT_OPT
+#define BSLS_REVIEW_LEVEL_NONE
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should not be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//================== ASSERT_LEVEL_ASSERT REVIEW_LEVEL_NONE ==================//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT
+#define BSLS_REVIEW_LEVEL_NONE
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should not be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//=============== ASSERT_LEVEL_ASSERT_SAFE REVIEW_LEVEL_NONE ================//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT_SAFE
+#define BSLS_REVIEW_LEVEL_NONE
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should not be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(true); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//- - - - - - - -  ASSERT_LEVEL and REVIEW_LEVEL_REVIEW_OPT - - - - - - - - -//
+
+//================ ASSERT_LEVEL_NONE REVIEW_LEVEL_REVIEW_OPT ================//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_NONE
+#define BSLS_REVIEW_LEVEL_REVIEW_OPT
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//============= ASSERT_LEVEL_ASSERT_OPT REVIEW_LEVEL_REVIEW_OPT =============//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT_OPT
+#define BSLS_REVIEW_LEVEL_REVIEW_OPT
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//=============== ASSERT_LEVEL_ASSERT REVIEW_LEVEL_REVIEW_OPT ===============//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT
+#define BSLS_REVIEW_LEVEL_REVIEW_OPT
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//============ ASSERT_LEVEL_ASSERT_SAFE REVIEW_LEVEL_REVIEW_OPT =============//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT_SAFE
+#define BSLS_REVIEW_LEVEL_REVIEW_OPT
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(true); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(true); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//- - - - - - - - -  ASSERT_LEVEL and REVIEW_LEVEL_REVIEW - - - - - - - - - -//
+
+//================== ASSERT_LEVEL_NONE REVIEW_LEVEL_REVIEW ==================//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_NONE
+#define BSLS_REVIEW_LEVEL_REVIEW
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//=============== ASSERT_LEVEL_ASSERT_OPT REVIEW_LEVEL_REVIEW ===============//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT_OPT
+#define BSLS_REVIEW_LEVEL_REVIEW
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//================= ASSERT_LEVEL_ASSERT REVIEW_LEVEL_REVIEW =================//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT
+#define BSLS_REVIEW_LEVEL_REVIEW
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//============== ASSERT_LEVEL_ASSERT_SAFE REVIEW_LEVEL_REVIEW ===============//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT_SAFE
+#define BSLS_REVIEW_LEVEL_REVIEW
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(true); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(true);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_REVIEW(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//- - - - - - - -  ASSERT_LEVEL and REVIEW_LEVEL_REVIEW_SAFE - - - - - - - - //
+
+//=============== ASSERT_LEVEL_NONE REVIEW_LEVEL_REVIEW_SAFE ================//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_NONE
+#define BSLS_REVIEW_LEVEL_REVIEW_SAFE
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(true); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(true); }
+
+    try { BSLS_REVIEW(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//============ ASSERT_LEVEL_ASSERT_OPT REVIEW_LEVEL_REVIEW_SAFE =============//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT_OPT
+#define BSLS_REVIEW_LEVEL_REVIEW_SAFE
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(true); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(true); }
+
+    try { BSLS_REVIEW(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//============== ASSERT_LEVEL_ASSERT REVIEW_LEVEL_REVIEW_SAFE ===============//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT
+#define BSLS_REVIEW_LEVEL_REVIEW_SAFE
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should not be defined
+#endif
+
+#if !defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(true); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(true); }
+
+    try { BSLS_REVIEW(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//============ ASSERT_LEVEL_ASSERT_SAFE REVIEW_LEVEL_REVIEW_SAFE ============//
+
+// [1] Reset all configuration macros
+
+#undef INCLUDED_BSLS_ASSERT_MACRORESET
+#include <bsls_assert_macroreset.h>
+
+// [2] Define the macros for this test case.
+
+#define BSLS_ASSERT_LEVEL_ASSERT_SAFE
+#define BSLS_REVIEW_LEVEL_REVIEW_SAFE
+
+// [3] Re-include the bsls_assert header.
+
+#include <bsls_assert.h>
+
+// [4] Test the values of the 6 'IS_ACTIVE' macros.
+
+#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+#error BSLS_ASSERT_SAFE_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_IS_ACTIVE)
+#error BSLS_ASSERT_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+#error BSLS_ASSERT_OPT_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+#error BSLS_REVIEW_SAFE_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_IS_ACTIVE)
+#error BSLS_REVIEW_IS_ACTIVE should be defined
+#endif
+
+#if !defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+#error BSLS_REVIEW_OPT_IS_ACTIVE should be defined
+#endif
+
+// [5] Test that the public assert and review macros have the expected effect.
+
+    try { BSLS_ASSERT_SAFE(false); ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(true); }
+    catch(ReviewFailed)          { ASSERT(false); }
+
+    try { BSLS_ASSERT(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(true);  }
+    catch(ReviewFailed)          { ASSERT(false);  }
+
+    try { BSLS_ASSERT_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false);  }
+
+    try { BSLS_REVIEW_SAFE(false); ASSERT(false);  }
+    catch(AssertFailed)          { ASSERT(false); }
+    catch(ReviewFailed)          { ASSERT(true); }
+
+    try { BSLS_REVIEW(false);      ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_OPT(false);  ASSERT(false); }
+    catch(AssertFailed)          { ASSERT(false);  }
+    catch(ReviewFailed)          { ASSERT(true);  }
+
+    try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false);  }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -//
 #endif  // defined BDE_BUILD_TARGET_EXC
 }
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
