@@ -831,7 +831,9 @@ int main(int argc, char *argv[])
         int rc = FU::close(fd);
         ASSERT(0 == rc);
 
-        FH helper(fn);
+        FH helper;
+        rc = helper.initialize(fn);
+        ASSERT(0 == rc);
 
         Obj mX;    const Obj& X = mX;
         char buffer[Obj::k_SCRATCH_BUF_LEN];
@@ -1119,13 +1121,15 @@ int main(int argc, char *argv[])
 
         u::writeUnsigned(fd, static_cast<unsigned>(initialLength));
 
-        FH helper(fn);
+        FH helper;
+        int rc = helper.initialize(fn);
+        ASSERT(0 == rc);
 
         Obj mX;    const Obj& X = mX;
         char buffer[Obj::k_SCRATCH_BUF_LEN];
         Section sec;
         sec.reset(k_GARBAGE_LENGTH, endPos - k_GARBAGE_LENGTH);
-        int rc = mX.init(&helper, buffer, sec, endPos);
+        rc = mX.init(&helper, buffer, sec, endPos);
         ASSERT(0 == rc);
 
         if (verbose) cout << "Testing 'readOffset'\n";
@@ -1741,7 +1745,10 @@ int main(int argc, char *argv[])
         int rc = FU::close(fd);
         ASSERT(0 == rc);
 
-        FH helper(fn);
+        FH helper;
+        rc = helper.initialize(fn);
+        ASSERT(0 == rc);
+
         Section sec;
         sec.reset(0, offset);
         char buffer[Obj::k_SCRATCH_BUF_LEN];
@@ -1885,7 +1892,10 @@ int main(int argc, char *argv[])
         int rc = FU::close(fd);
         ASSERT(0 == rc);
 
-        FH helper(fn);
+        FH helper;
+        rc = helper.initialize(fn);
+        ASSERT(0 == rc);
+
         Section sec;
         sec.reset(0, offset);
         char buffer[Obj::k_SCRATCH_BUF_LEN];
@@ -2062,11 +2072,13 @@ int main(int argc, char *argv[])
         strSec. reset(0, endStrSec);
         infoSec.reset(   endStrSec, endFile - endStrSec);
 
-        FH helper(fn);
+        FH helper;
+        int rc = helper.initialize(fn);
+        ASSERT(0 == rc);
 
         Obj strReader;
         char strBuffer[Obj::k_SCRATCH_BUF_LEN];
-        int rc = strReader.init(&helper, strBuffer, strSec, endFile);
+        rc = strReader.init(&helper, strBuffer, strSec, endFile);
         ASSERT(0 == rc);
 
         Obj infoReader;
@@ -2258,13 +2270,15 @@ int main(int argc, char *argv[])
 
         u::writeUnsigned(fd, static_cast<unsigned>(length));
 
-        FH helper(fn);
+        FH helper;
+        int rc = helper.initialize(fn);
+        ASSERT(0 == rc);
 
         Obj mX;    const Obj& X = mX;
         char buffer[Obj::k_SCRATCH_BUF_LEN];
         Section sec;
         sec.reset(0x111, INT_MAX - 0x111);
-        int rc = mX.init(&helper, buffer, sec, INT_MAX);
+        rc = mX.init(&helper, buffer, sec, INT_MAX);
         ASSERT(0 == rc);
 
         Offset iLen, x;
@@ -2412,13 +2426,15 @@ int main(int argc, char *argv[])
 
         u::writeGarbage(fd, k_GARBAGE_LENGTH);
 
-        FH helper(fn);
+        FH helper;
+        int rc = helper.initialize(fn);
+        ASSERT(0 == rc);
 
         Obj mX;    const Obj& X = mX;
         char buffer[Obj::k_SCRATCH_BUF_LEN];
         Section sec;
         sec.reset(k_GARBAGE_LENGTH, endPos - k_GARBAGE_LENGTH);
-        int rc = mX.init(&helper, buffer, sec, endPos + k_GARBAGE_LENGTH);
+        rc = mX.init(&helper, buffer, sec, endPos + k_GARBAGE_LENGTH);
         ASSERT(0 == rc);
 
         UintPtr x;
@@ -2622,7 +2638,9 @@ int main(int argc, char *argv[])
         int rc = FU::close(fd);
         ASSERT(0 == rc);
 
-        FH helper(fn);
+        FH helper;
+        rc = helper.initialize(fn);
+        ASSERT(0 == rc);
 
         Obj mX;    const Obj& X = mX;
         char buffer[Obj::k_SCRATCH_BUF_LEN];
@@ -2777,7 +2795,9 @@ int main(int argc, char *argv[])
         int rc = FU::close(fd);
         ASSERT(0 == rc);
 
-        FH helper(fn);
+        FH helper;
+        rc = helper.initialize(fn);
+        ASSERT(0 == rc);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int    LINE     = DATA[ti].d_line;

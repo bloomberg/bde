@@ -1383,8 +1383,8 @@ int main(int argc, char *argv[])
 
             // At this point, the average CPU utilizations should be zero
 
-            // Sleep for 1 second (without consuming too much CPU)
-            bslmt::ThreadUtil::microSleep(0, 1);
+            // Sleep for 4 seconds (without consuming too much CPU)
+            bslmt::ThreadUtil::microSleep(0, 4);
             perfmon.collect();
 
             // We called collect almost a second after restting statistics, so
@@ -1401,9 +1401,9 @@ int main(int argc, char *argv[])
                      << endl;
             }
 
-            ASSERT(userCpu < 10);
-            ASSERT(systemCpu < 10);
-            ASSERT(totalCpu < 10);
+            ASSERTV(userCpu,   userCpu   < 10);
+            ASSERTV(systemCpu, systemCpu < 10);
+            ASSERTV(totalCpu,  totalCpu  < 10);
         }
       } break;
       case 4: {
@@ -1781,7 +1781,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta(veryVeryVeryVerbose, allocator);
 
-        bslma::Default::setDefaultAllocator(&ta);
+        ASSERT(0 == bslma::Default::setDefaultAllocator(&ta));
         bslma::Default::setGlobalAllocator(&ta);
 
         {

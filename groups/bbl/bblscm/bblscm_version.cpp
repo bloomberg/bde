@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(bblscm_version_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-// For the 3.7.x release series, 'bbl' is versioned independently of 'bsl'.
+// For the 3.11.x release series, 'bbl' is versioned independently of 'bsl'.
 
 #define BBL_VERSION_PATCH 0
 

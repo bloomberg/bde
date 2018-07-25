@@ -1884,10 +1884,11 @@ if (veryVerbose)
                 bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
                 for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+                    const int LINE = DATA[i].d_line;
                     mX.setTotalSecondsFromDouble(DATA[i].d_secsFrom);
                     mY.setInterval(0, 0, 0, DATA[i].d_secsExpected, 0,
                                                       DATA[i].d_usecsExpected);
-                    ASSERTV(testing, DATA[i].d_line, X == Y);
+                    ASSERTV(testing, LINE, X, Y, X == Y);
                 }
             }
 

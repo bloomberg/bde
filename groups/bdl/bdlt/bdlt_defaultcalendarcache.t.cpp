@@ -2,8 +2,8 @@
 #include <bdlt_defaultcalendarcache.h>
 
 #include <bdlt_calendarcache.h>
-#include <bdlt_calendarloader.h>  // for testing only
-#include <bdlt_date.h>            // for testing only
+#include <bdlt_calendarloader.h>
+#include <bdlt_date.h>
 
 #include <bslim_testutil.h>
 
@@ -831,7 +831,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

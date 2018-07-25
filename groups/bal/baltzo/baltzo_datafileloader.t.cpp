@@ -1177,7 +1177,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator da("default",   veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bslma::Default::setDefaultAllocatorRaw(&da);
+            bslma::DefaultAllocatorGuard dag(&da);
 
             Obj                  *objPtr;
             bslma::TestAllocator *objAllocatorPtr;
@@ -1351,7 +1351,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

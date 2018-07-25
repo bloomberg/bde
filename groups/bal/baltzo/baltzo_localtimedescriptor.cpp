@@ -10,6 +10,8 @@ BSLS_IDENT_RCSID(baltzo_localtimedescriptor_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
+namespace baltzo {
+
                          // -------------------------
                          // class LocalTimeDescriptor
                          // -------------------------
@@ -18,10 +20,9 @@ namespace BloombergLP {
 
                                   // Aspects
 
-bsl::ostream& baltzo::LocalTimeDescriptor::print(
-                                            bsl::ostream& stream,
-                                            int           level,
-                                            int           spacesPerLevel) const
+bsl::ostream& LocalTimeDescriptor::print(bsl::ostream& stream,
+                                         int           level,
+                                         int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -32,6 +33,8 @@ bsl::ostream& baltzo::LocalTimeDescriptor::print(
 
     return stream;
 }
+
+}  // close package namespace
 
 // FREE OPERATORS
 bsl::ostream& baltzo::operator<<(bsl::ostream&              stream,
@@ -50,7 +53,7 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&              stream,
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

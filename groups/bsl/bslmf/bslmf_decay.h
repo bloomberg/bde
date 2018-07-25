@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 namespace bsl {
 
 // Forward declaration
-template <class TYPE, bool ISARRAY, bool ISFUNC> struct decay_imp;
+template <class TYPE, bool IS_ARRAY, bool IS_FUNC> struct decay_imp;
 
                         // ====================
                         // class template decay

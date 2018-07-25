@@ -17,8 +17,12 @@ BSLS_IDENT_RCSID(balst_stacktrace_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace balst {
+
+                              // ----------------
+                              // class StackTrace
+                              // ----------------
+
 // ACCESSORS
 bsl::ostream& StackTrace::print(bsl::ostream& stream,
                                 int           level,
@@ -33,7 +37,24 @@ bsl::ostream& StackTrace::print(bsl::ostream& stream,
 
     return stream;
 }
+
 }  // close package namespace
+
+// FREE FUNCTIONS
+void balst::swap(StackTrace& a, StackTrace& b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    StackTrace futureA(b, a.allocator());
+    StackTrace futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
+}
 
 }  // close enterprise namespace
 

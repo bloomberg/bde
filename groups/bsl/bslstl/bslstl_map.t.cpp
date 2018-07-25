@@ -5896,7 +5896,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase27()
                 bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
                 bslma::TestAllocator za("different", veryVeryVeryVerbose);
 
-                bslma::Default::setDefaultAllocatorRaw(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 // Create source object 'Z'.
                 Obj *srcPtr = new (fa) Obj(&sa);
@@ -12396,7 +12396,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

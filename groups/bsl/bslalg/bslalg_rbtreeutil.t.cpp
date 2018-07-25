@@ -15,11 +15,12 @@
 
 #include <algorithm>
 
+#include <ctype.h>
+#include <errno.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include <time.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -5939,7 +5940,7 @@ int main(int argc, char *argv[])
             gg(&x, &nodes, SPEC, &assignIntNodeValue);
 
             FILE *output = fopen(fileName, "w");
-            BSLS_ASSERT_OPT(output);
+            ASSERTV(LINE, fileName, errno, output);
 
             Obj::printTreeStructure(output,
                                     X.rootNode(),
@@ -5950,7 +5951,7 @@ int main(int argc, char *argv[])
             fclose(output);
 
             FILE *input  = fopen(fileName, "r");
-            BSLS_ASSERT_OPT(input);
+            ASSERTV(LINE, fileName, errno, input);
 
             memset(buffer, 0, BUFFER_SIZE);
             while (0 != fgets(line, LINE_SIZE, input)) {

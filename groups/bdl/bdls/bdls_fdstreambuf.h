@@ -365,20 +365,17 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstring.h>    // 'size_t'
 #include <bsl_ios.h>
 #include <bsl_iosfwd.h>
 #include <bsl_locale.h>
-
-#ifndef INCLUDED_BSL_STREAMBUF
-#include <bsl_streambuf.h>  // char_type, int_type, pos_type, off_type,
-                            // traits_type are within the 'bsl::streambuf'
+#include <bsl_streambuf.h>  // 'char_type', 'int_type', 'pos_type', 'off_type',
+                            // 'traits_type' are within the 'bsl::streambuf'
                             // class
-#endif
-#include <bsl_cstring.h>          // size_t
 
 namespace BloombergLP {
-
 namespace bdls {
+
                     // ====================================
                     // helper class FdStreamBuf_FileHandler
                     // ====================================
@@ -1166,8 +1163,8 @@ bool FdStreamBuf::willCloseOnReset() const
 {
     return d_fileHandler.willCloseOnReset();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

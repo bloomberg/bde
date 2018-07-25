@@ -7977,7 +7977,7 @@ int main(int argc, char* argv[])
     veryVeryVeryVerbose = argc > 5;  // always the last
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);

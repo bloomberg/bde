@@ -213,7 +213,7 @@ class Observer {
         // Process the specified log 'record' having the specified publishing
         // 'context'.
         //
-        // DEPRECATED: use the alternative 'publish' overload instead.
+        // !DEPRECATED!: Use the alternative 'publish' overload instead.
 
     virtual void publish(const bsl::shared_ptr<const Record>& record,
                          const Context&                       context);

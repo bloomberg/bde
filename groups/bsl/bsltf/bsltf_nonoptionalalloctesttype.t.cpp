@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the default allocator.
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     // Confirm no static initialization locked the global allocator.
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());

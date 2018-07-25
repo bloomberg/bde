@@ -2076,8 +2076,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase32()
     if (verbose)
         printf("\tTesting constructor with initializer lists\n");
 
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocatorRaw(&da);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
     {
         const struct {
             int                         d_line;    // source line number
@@ -10366,7 +10366,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
       case 34: {
@@ -10977,7 +10977,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

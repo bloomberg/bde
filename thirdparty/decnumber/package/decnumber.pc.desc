@@ -1,0 +1,3 @@
+set(uor_description "DecNumber library.")
+
+set(uor_version "3.6.8")

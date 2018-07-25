@@ -197,12 +197,14 @@ void selectUtcOffset(
     *utcOffsetSec = iter2->descriptor().utcOffsetInSeconds();
 }
 
+namespace baltzo {
+
                            // ---------------------
                            // class TimeZoneUtilImp
                            // ---------------------
 
 // CLASS METHODS
-int baltzo::TimeZoneUtilImp::convertUtcToLocalTime(
+int TimeZoneUtilImp::convertUtcToLocalTime(
                                        bdlt::DatetimeTz      *result,
                                        const char            *resultTimeZoneId,
                                        const bdlt::Datetime&  utcTime,
@@ -226,13 +228,12 @@ int baltzo::TimeZoneUtilImp::convertUtcToLocalTime(
     return 0;
 }
 
-int baltzo::TimeZoneUtilImp::initLocalTime(
-                                       bdlt::DatetimeTz        *result,
-                                       LocalTimeValidity::Enum *resultValidity,
-                                       const bdlt::Datetime&    localTime,
-                                       const char              *timeZoneId,
-                                       DstPolicy::Enum          dstPolicy,
-                                       ZoneinfoCache           *cache)
+int TimeZoneUtilImp::initLocalTime(bdlt::DatetimeTz        *result,
+                                   LocalTimeValidity::Enum *resultValidity,
+                                   const bdlt::Datetime&    localTime,
+                                   const char              *timeZoneId,
+                                   DstPolicy::Enum          dstPolicy,
+                                   ZoneinfoCache           *cache)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(resultValidity);
@@ -255,7 +256,7 @@ int baltzo::TimeZoneUtilImp::initLocalTime(
     return 0;
 }
 
-int baltzo::TimeZoneUtilImp::loadLocalTimePeriodForUtc(
+int TimeZoneUtilImp::loadLocalTimePeriodForUtc(
                                              LocalTimePeriod       *result,
                                              const char            *timeZoneId,
                                              const bdlt::Datetime&  utcTime,
@@ -280,7 +281,7 @@ int baltzo::TimeZoneUtilImp::loadLocalTimePeriodForUtc(
     return 0;
 }
 
-void baltzo::TimeZoneUtilImp::resolveLocalTime(
+void TimeZoneUtilImp::resolveLocalTime(
                              bdlt::DatetimeTz                  *result,
                              LocalTimeValidity::Enum           *resultValidity,
                              Zoneinfo::TransitionConstIterator *transitionIter,
@@ -363,7 +364,7 @@ void baltzo::TimeZoneUtilImp::resolveLocalTime(
     result->setDatetimeTz(resultTime, resultOffsetInMinutes);
 }
 
-void baltzo::TimeZoneUtilImp::createLocalTimePeriod(
+void TimeZoneUtilImp::createLocalTimePeriod(
                           LocalTimePeriod                          *result,
                           const Zoneinfo::TransitionConstIterator&  transition,
                           const Zoneinfo&                           timeZone)
@@ -393,10 +394,11 @@ void baltzo::TimeZoneUtilImp::createLocalTimePeriod(
     result->setUtcStartAndEndTime(utcStartTime, utcEndTime);
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

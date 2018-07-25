@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  baltzo::DataFileLoader: concrete 'baltzo::Loader' for Zoneinfo binary data
 //
-//@SEE_ALSO: 'baltzo_zoneinfobinaryreader', 'baltzo_zoneinfoutil'
+//@SEE_ALSO: baltzo_zoneinfobinaryreader, baltzo_zoneinfoutil
 //
 //@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hvershell)
 //
@@ -33,8 +33,8 @@ BSLS_IDENT("$Id: $")
 //       ,--------------.
 //      ( baltzo::Loader )
 //       `--------------'
-//                 dtor
-//                 loadTimeZone
+//                     dtor
+//                     loadTimeZone
 //..
 // A 'baltzo::DataFileLoader' is supplied a file-system location using the
 // 'configureRootPath' method.  This location should correspond to the root
@@ -302,25 +302,28 @@ class DataFileLoader : public Loader {
         // value returned by the 'rootPath' method.
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+                            // --------------------
+                            // class DataFileLoader
+                            // --------------------
+
 // ACCESSORS
 inline
-bool baltzo::DataFileLoader::isRootPathPlausible() const
+bool DataFileLoader::isRootPathPlausible() const
 {
     return isPlausibleZoneinfoRootPath(rootPath().c_str());
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

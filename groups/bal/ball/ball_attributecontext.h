@@ -81,7 +81,7 @@ BSLS_IDENT("$Id: $")
 // for 'ball_attributecontainer'; the 'ball' package provides a similar class
 // in the 'ball_defaultattributecontainer' component.
 //..
-//  extern "C" void *thread1(void *)
+//  extern "C" void *workerThread1(void *)
 //  {
 //..
 // Inside this thread function, we create an attribute set to hold our
@@ -129,7 +129,7 @@ BSLS_IDENT("$Id: $")
 // attribute contexts created by one thread are not visible in any other
 // threads:
 //..
-//  extern "C" void *thread2(void *)
+//  extern "C" void *workerThread2(void *)
 //  {
 //      assert(0 == ball::AttributeContext::lookupContext());
 //      return 0;

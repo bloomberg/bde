@@ -1539,7 +1539,12 @@ int u::StackTraceResolver::resolveSegment(void       *segmentPtr,
         d_segFramePtrs_p[i]->setLibraryFileName(displayFileName);
     }
 
-    balst::StackTraceResolver_FileHelper helper(libraryFileName);
+    balst::StackTraceResolver_FileHelper helper;
+    rc = helper.initialize(libraryFileName);
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
+
     d_helper = &helper;
 
     if (archiveMemberName && archiveMemberName[0]) {

@@ -267,6 +267,10 @@ struct StackAddressUtil {
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
     enum { k_IGNORE_FRAMES = 1 };
 #else
+    // Note that on Windows, the optimal value for 'k_IGNORE_FRAMES seems to
+    // vary between subreleases, so to play it safe, we always leave this value
+    // as 0 on Windows.
+
     enum { k_IGNORE_FRAMES = 0 };
 #endif
 

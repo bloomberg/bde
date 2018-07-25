@@ -14,16 +14,15 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'balxml' package currently has 20 components having 7 levels of physical
+ The 'balxml' package currently has 20 components having 6 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  7. balxml_encoder
-
   6. balxml_decoder
 
-  5. balxml_minireader
+  5. balxml_encoder
+     balxml_minireader
      balxml_validatingreader
 
   4. balxml_formatter

@@ -23,13 +23,14 @@ BSLS_IDENT_RCSID(baltzo_zoneinfocache_cpp,"$Id$ $CSID$")
 #include <bsl_string.h>
 
 namespace BloombergLP {
+namespace baltzo {
 
                             // -------------------
                             // class ZoneinfoCache
                             // -------------------
 
 // CREATORS
-baltzo::ZoneinfoCache::~ZoneinfoCache()
+ZoneinfoCache::~ZoneinfoCache()
 {
     for (ZoneinfoMap::iterator it  = d_cache.begin();
                                it != d_cache.end();
@@ -40,9 +41,7 @@ baltzo::ZoneinfoCache::~ZoneinfoCache()
 }
 
 // MANIPULATORS
-const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
-                                                        int        *rc,
-                                                        const char *timeZoneId)
+const Zoneinfo *ZoneinfoCache::getZoneinfo(int *rc, const char *timeZoneId)
 {
     BSLS_ASSERT(0 != rc);
     BSLS_ASSERT(0 != timeZoneId);
@@ -126,8 +125,7 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
 }
 
 // ACCESSORS
-const baltzo::Zoneinfo *baltzo::ZoneinfoCache::lookupZoneinfo(
-                                                  const char *timeZoneId) const
+const Zoneinfo *ZoneinfoCache::lookupZoneinfo(const char *timeZoneId) const
 {
     BSLS_ASSERT(0 != timeZoneId);
 
@@ -140,10 +138,11 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::lookupZoneinfo(
     return 0;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

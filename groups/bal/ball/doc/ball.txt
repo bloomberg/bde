@@ -19,7 +19,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'ball' package currently has 43 components having 16 levels of physical
+ The 'ball' package currently has 47 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -30,6 +30,7 @@
       ball_logfilecleanerutil
 
   14. ball_fileobserver2
+      ball_logthrottle
 
   13. ball_log
 
@@ -157,6 +158,9 @@
 :
 : 'ball_loggermanagerdefaults':
 :      Provide constrained default attributes for the logger manager.
+:
+: 'ball_logthrottle':
+:      Provide throttling equivalents of some of the 'ball_log' macros.
 :
 : 'ball_multiplexobserver':                             !DEPRECATED!
 :      Provide a multiplexing observer that forwards to other observers.

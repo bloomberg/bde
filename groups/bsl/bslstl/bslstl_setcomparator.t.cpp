@@ -889,7 +889,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&ga);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&da);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&da));
 
     bslma::TestAllocatorMonitor gam(&ga), dam(&da);
 

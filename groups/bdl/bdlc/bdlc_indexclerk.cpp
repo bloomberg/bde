@@ -23,14 +23,16 @@ BSLS_IDENT_RCSID(bdlc_indexclerk_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 namespace BloombergLP {
+namespace bdlc {
+
                               // ----------------
                               // class IndexClerk
                               // ----------------
 
 // PRIVATE ACCESSORS
 bool
-bdlc::IndexClerk::areInvariantsPreserved(const bsl::vector<int>& unusedStack,
-                                         int                     nextNewIndex)
+IndexClerk::areInvariantsPreserved(const bsl::vector<int>& unusedStack,
+                                   int                     nextNewIndex)
 {
     int         indicesInvalid   = 0;
     int         indicesNotUnique = 0;
@@ -57,7 +59,7 @@ bdlc::IndexClerk::areInvariantsPreserved(const bsl::vector<int>& unusedStack,
 }
 
 // ACCESSORS
-bool bdlc::IndexClerk::isInUse(int index) const
+bool IndexClerk::isInUse(int index) const
 {
     BSLS_ASSERT((unsigned int) index < (unsigned int)d_nextNewIndex);
 
@@ -69,9 +71,9 @@ bool bdlc::IndexClerk::isInUse(int index) const
     return true;
 }
 
-bsl::ostream& bdlc::IndexClerk::print(bsl::ostream& stream,
-                                      int           level,
-                                      int           spacesPerLevel) const
+bsl::ostream& IndexClerk::print(bsl::ostream& stream,
+                                int           level,
+                                int           spacesPerLevel) const
 {
     int nestedLevel, nestedSpacesPerLevel;
 
@@ -115,10 +117,11 @@ bsl::ostream& bdlc::IndexClerk::print(bsl::ostream& stream,
     return stream << bsl::flush;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

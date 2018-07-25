@@ -10,6 +10,7 @@ BSLS_IDENT_RCSID(bdlt_packedcalendar_cpp,"$Id$ $CSID$")
 
 #include <bsls_performancehint.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
@@ -1368,6 +1369,22 @@ bsl::ostream& bdlt::operator<<(bsl::ostream&         stream,
     return stream;
 }
 
+// FREE FUNCTIONS
+void bdlt::swap(PackedCalendar& a, PackedCalendar& b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    PackedCalendar futureA(b, a.allocator());
+    PackedCalendar futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
+}
+
 namespace bdlt {
 
                   // ---------------------------------------------
@@ -1517,7 +1534,7 @@ PackedCalendar_BusinessDayConstIterator::operator=(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

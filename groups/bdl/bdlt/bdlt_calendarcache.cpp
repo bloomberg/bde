@@ -11,10 +11,11 @@ BSLS_IDENT_RCSID(bdlt_calendarcache_cpp,"$Id$ $CSID$")
 
 #include <bslma_default.h>
 
+#include <bslmt_lockguard.h>
+
 #include <bsls_assert.h>
 
 #include <bsl_climits.h>      // 'INT_MAX'
-#include <bsl_functional.h>
 
 namespace BloombergLP {
 namespace bdlt {
@@ -31,7 +32,7 @@ CalendarCache_Entry::CalendarCache_Entry()
 }
 
 CalendarCache_Entry::CalendarCache_Entry(Calendar         *calendar,
-                                         Datetime          loadTime,
+                                         const Datetime&   loadTime,
                                          bslma::Allocator *allocator)
 : d_ptr(calendar, allocator)
 , d_loadTime(loadTime)
@@ -78,11 +79,7 @@ Datetime CalendarCache_Entry::loadTime() const
 // CREATORS
 CalendarCache::CalendarCache(CalendarLoader   *loader,
                              bslma::Allocator *basicAllocator)
-
-// We have to supply 'bsl::less<key>()' because 'bsl::map' does not have a
-// constructor that takes only an allocator.
-
-: d_cache(bsl::less<bsl::string>(), basicAllocator)
+: d_cache(basicAllocator)
 , d_loader_p(loader)
 , d_timeOut(0)
 , d_hasTimeOutFlag(false)
@@ -95,11 +92,7 @@ CalendarCache::CalendarCache(CalendarLoader   *loader,
 CalendarCache::CalendarCache(CalendarLoader            *loader,
                              const bsls::TimeInterval&  timeout,
                              bslma::Allocator          *basicAllocator)
-
-// We have to supply 'bsl::less<key>()' because 'bsl::map' does not have a
-// constructor that takes only an allocator.
-
-: d_cache(bsl::less<bsl::string>(), basicAllocator)
+: d_cache(basicAllocator)
 , d_loader_p(loader)
 , d_timeOut(0, 0, 0, 0, timeout.totalMilliseconds())
 , d_hasTimeOutFlag(true)
@@ -122,7 +115,7 @@ CalendarCache::getCalendar(const char *calendarName)
     BSLS_ASSERT(calendarName);
 
     {
-        bsls::BslLockGuard lockGuard(&d_lock);
+        bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
         CacheIterator iter = d_cache.find(calendarName);
 
@@ -157,7 +150,7 @@ CalendarCache::getCalendar(const char *calendarName)
     // Insert newly-loaded calendar into cache if another thread hasn't done so
     // already.
 
-    bsls::BslLockGuard lockGuard(&d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
     ConstCacheIterator iter = d_cache.find(calendarName);
 
@@ -179,7 +172,7 @@ int CalendarCache::invalidate(const char *calendarName)
 {
     BSLS_ASSERT(calendarName);
 
-    bsls::BslLockGuard lockGuard(&d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
     CacheIterator iter = d_cache.find(calendarName);
 
@@ -194,7 +187,7 @@ int CalendarCache::invalidate(const char *calendarName)
 
 int CalendarCache::invalidateAll()
 {
-    bsls::BslLockGuard lockGuard(&d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
     const int numInvalidated = static_cast<int>(d_cache.size());
 
@@ -209,7 +202,7 @@ CalendarCache::lookupCalendar(const char *calendarName) const
 {
     BSLS_ASSERT(calendarName);
 
-    bsls::BslLockGuard lockGuard(&d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
     CacheIterator iter = d_cache.find(calendarName);
 
@@ -230,7 +223,7 @@ Datetime CalendarCache::lookupLoadTime(const char *calendarName) const
 {
     BSLS_ASSERT(calendarName);
 
-    bsls::BslLockGuard lockGuard(&d_lock);
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_lock);
 
     CacheIterator iter = d_cache.find(calendarName);
 
@@ -251,7 +244,7 @@ Datetime CalendarCache::lookupLoadTime(const char *calendarName) const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

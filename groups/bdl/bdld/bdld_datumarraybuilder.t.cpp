@@ -273,7 +273,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator ta(veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocatorRaw(&ta);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&ta));
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
@@ -875,7 +875,7 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2014 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

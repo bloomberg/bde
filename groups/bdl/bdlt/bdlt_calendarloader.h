@@ -120,7 +120,7 @@ BSLS_IDENT("$Id: $")
 // obtained):
 //..
 //      // Obtain the information for the calendar identified by 'calendarName'
-//      // from the unspecified data source and load it into the 'json' string.
+//      // from an unspecified data source and load it into the 'json' string.
 //
 //      bsl::string json;
 //
@@ -298,7 +298,7 @@ class CalendarLoader {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

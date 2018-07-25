@@ -39,8 +39,9 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
 #include <bsl_iomanip.h>
-#include <bsl_iostream.h>
+#include <bsl_ios.h>
 #include <bsl_memory.h>
+#include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
 #include <bsl_c_errno.h>
@@ -231,7 +232,7 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
 
     FileUtil::FileDescriptor fd =  FileUtil::open(filename,
                                                   FileUtil::e_OPEN_OR_CREATE,
-                                                  FileUtil::e_WRITE_ONLY,
+                                                  FileUtil::e_READ_APPEND,
                                                   FileUtil::e_KEEP);
 
     if (fd == FileUtil::k_INVALID_FD) {

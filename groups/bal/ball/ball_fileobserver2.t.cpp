@@ -214,6 +214,7 @@ class TempDirectoryGuard {
     bsl::string       d_dirName;      // path to the created directory
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     TempDirectoryGuard(const TempDirectoryGuard&);
     TempDirectoryGuard& operator=(const TempDirectoryGuard&);
@@ -708,10 +709,10 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -792,6 +793,63 @@ int main(int argc, char *argv[])
     ASSERT(0 == rc);
 //..
 
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // REPRODUCE BUG FROM DRQS 123123158
+        //
+        // Concerns:
+        //: 1 On Solaris, logging "" wound up calling 'fstream::write(0, 0)'
+        //:   which Solaris did not deal with properly, and resulted in the
+        //:   fail bit of the stream being set and a (confusing) error message
+        //:   being written to the console by the file observer.
+        //
+        // Plan:
+        //: 1 Log "" and assert that the file logging is still enabled
+        //:   afterward.  If the bug manifests itself, and error will be
+        //:   written to the console and the assert will fail.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "REPRODUCE BUG FROM DRQS 123123158\n"
+                             "=================================\n";
+
+        int rot_size = 1024 * 1024;
+
+        TempDirectoryGuard tempDirGuard;
+
+        bsl::string baseName(tempDirGuard.getTempDirName());
+        bdls::PathUtil::appendRaw(&baseName, "testLog");
+
+        if (veryVeryVerbose) { T_; T_; P(baseName); }
+
+        ball::FileObserver2 observer;
+        observer.enableFileLogging(baseName.c_str(), false);
+        observer.rotateOnSize(rot_size);
+
+        ball::LoggerManagerConfiguration configuration;
+
+        configuration.setDefaultThresholdLevelsIfValid(
+                                                      ball::Severity::e_TRACE,
+                                                      ball::Severity::e_TRACE,
+                                                      ball::Severity::e_WARN,
+                                                      ball::Severity::e_FATAL);
+
+        ball::LoggerManagerScopedGuard scopedGuard(&observer,
+                                                   configuration);
+            // Instantiate the logger manager singleton.
+
+        BALL_LOG_SET_CATEGORY("main category");
+            // Set a category -- an arbitrary name.
+
+        BALL_LOG_INFO << "LOG";
+        BALL_LOG_TRACE << "";
+        ASSERT(observer.isFileLoggingEnabled());
+
+        if (verbose) {
+            bsl::string out;
+            (void) readFileIntoString(__LINE__, baseName, out);
+            bsl::cout << out;
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------

@@ -5,9 +5,12 @@
 
 #include <bdlt_datetime.h>
 
+#include <bslalg_swaputil.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
@@ -19,28 +22,8 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
-// ============================================================================
-//                           ADL SWAP TEST HELPER
-// ----------------------------------------------------------------------------
-
-// TBD move this into its own component?
-template <class TYPE>
-void invokeAdlSwap(TYPE& a, TYPE& b)
-    // Exchange the values of the specified 'a' and 'b' objects using the
-    // 'swap' method found by ADL (Argument Dependent Lookup).  The behavior
-    // is undefined unless 'a' and 'b' were created with the same allocator.
-{
-    BSLS_ASSERT_OPT(a.allocator() == b.allocator());
-
-    using namespace bsl;
-    swap(a, b);
-}
-
-// The following 'using' directives must come *after* the definition of
-// 'invokeAdlSwap' (above).
-
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 // ============================================================================
 //                             TEST PLAN
@@ -244,102 +227,6 @@ const int UTC_MAX =  24 * 60 * 60 - 1;
 // ============================================================================
 //                               TEST APPARATUS
 // ----------------------------------------------------------------------------
-// JSL: REMOVE THIS after it is moved to the test allocator.
-// JSL: change the name to 'TestAllocatorMonitor'.
-
-class TestAllocatorMonitor {
-    // TBD
-
-    // DATA
-    int                               d_lastInUse;
-    int                               d_lastMax;
-    int                               d_lastTotal;
-    const bslma::TestAllocator *const d_allocator_p;
-
-  public:
-    // CREATORS
-    TestAllocatorMonitor(const bslma::TestAllocator& basicAllocator);
-        // TBD
-
-    ~TestAllocatorMonitor();
-        // TBD
-
-    // ACCESSORS
-    bool isInUseSame() const;
-        // TBD
-
-    bool isInUseUp() const;
-        // TBD
-
-    bool isMaxSame() const;
-        // TBD
-
-    bool isMaxUp() const;
-        // TBD
-
-    bool isTotalSame() const;
-        // TBD
-
-    bool isTotalUp() const;
-        // TBD
-};
-
-// CREATORS
-inline
-TestAllocatorMonitor::TestAllocatorMonitor(
-                                    const bslma::TestAllocator& basicAllocator)
-: d_lastInUse(basicAllocator.numBlocksInUse())
-, d_lastMax(basicAllocator.numBlocksMax())
-, d_lastTotal(basicAllocator.numBlocksTotal())
-, d_allocator_p(&basicAllocator)
-{
-}
-
-inline
-TestAllocatorMonitor::~TestAllocatorMonitor()
-{
-}
-
-// ACCESSORS
-inline
-bool TestAllocatorMonitor::isInUseSame() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() == d_lastInUse;
-}
-
-inline
-bool TestAllocatorMonitor::isInUseUp() const
-{
-    BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
-
-    return d_allocator_p->numBlocksInUse() != d_lastInUse;
-}
-
-inline
-bool TestAllocatorMonitor::isMaxSame() const
-{
-    return d_allocator_p->numBlocksMax() == d_lastMax;
-}
-
-inline
-bool TestAllocatorMonitor::isMaxUp() const
-{
-    return d_allocator_p->numBlocksMax() != d_lastMax;
-}
-
-inline
-bool TestAllocatorMonitor::isTotalSame() const
-{
-    return d_allocator_p->numBlocksTotal() == d_lastTotal;
-}
-
-inline
-bool TestAllocatorMonitor::isTotalUp() const
-{
-    return d_allocator_p->numBlocksTotal() != d_lastTotal;
-}
 
 // ============================================================================
 //                               USAGE EXAMPLE
@@ -442,7 +329,7 @@ int main(int argc, char *argv[])
     ASSERT(true  == edt2010.descriptor().dstInEffectFlag());
     ASSERT(NEW_YORK_DST_OFFSET == edt2010.descriptor().utcOffsetInSeconds());
 //..
-// Next, we create a 'bdlt::Datetime', 'utcDateTime', representing the (UTC)
+// Next, we create a 'bdlt::Datetime', 'utcDatetime', representing the (UTC)
 // time "Jul 20, 2010 11:00":
 //..
     bdlt::Datetime utcDatetime(2010, 7, 20, 11, 0, 0);
@@ -549,8 +436,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
             "\nCreate a table of distinct candidate attribute values." << endl;
@@ -839,8 +726,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
            "\nUse a table of distinct object values and expected memory usage."
@@ -937,7 +824,7 @@ int main(int argc, char *argv[])
                     LOOP4_ASSERT(LINE1, LINE2, Z, X,
                                  (Z == X) == (LINE1 == LINE2));
 
-                    TestAllocatorMonitor oam(oa), sam(scratch);
+                    bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -990,7 +877,7 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(LINE1, ZZ, Z, ZZ == Z);
 
-                TestAllocatorMonitor oam(oa), sam(scratch);
+                bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1032,23 +919,28 @@ int main(int argc, char *argv[])
         //: 2 The common object allocator address held by both objects is
         //:   unchanged.
         //:
-        //: 3 Neither function allocates memory from any allocator.
+        //: 3 The member function does not allocate memory from any allocator;
+        //:   nor does the free function when the two objects being swapped use
+        //:   the same allocator.
         //:
-        //: 4 Both functions have standard signatures and return types.
+        //: 4 The free function can be called with two objects that use
+        //:   different allocators.
         //:
-        //: 5 Using either function to swap an object with itself does not
+        //: 5 Both functions have standard signatures and return types.
+        //:
+        //: 6 Using either function to swap an object with itself does not
         //:   affect the value of the object (alias-safety).
         //:
-        //: 6 The free 'swap' function is discoverable through ADL (Argument
+        //: 7 The free 'swap' function is discoverable through ADL (Argument
         //:   Dependent Lookup).
         //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //: 8 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the addresses of the 'swap' member and free functions defined
         //:   in this component to initialize, respectively, member-function
         //:   and free-function pointers having the appropriate signatures and
-        //:   return types.  (C-4)
+        //:   return types.  (C-5)
         //:
         //: 2 Create a 'bslma::TestAllocator' object, and install it as the
         //:   default allocator (note that a ubiquitous test allocator is
@@ -1068,7 +960,7 @@ int main(int argc, char *argv[])
         //:     implementations of individual attribute types: ('Y') "Yes",
         //:     ('N') "No", or ('?') "implementation-dependent".
         //:
-        //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 5)
+        //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 6)
         //:
         //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
@@ -1078,9 +970,9 @@ int main(int argc, char *argv[])
         //:     'Obj' 'XX' from 'mW'.
         //:
         //:   3 Use the member and free 'swap' functions to swap the value of
-        //:     'mW' with itself; verify, after each swap, that:  (C-5)
+        //:     'mW' with itself; verify, after each swap, that:  (C-6)
         //:
-        //:     1 The value is unchanged.  (C-5)
+        //:     1 The value is unchanged.  (C-6)
         //:
         //:     2 The allocator address held by the object is unchanged.
         //:
@@ -1108,7 +1000,7 @@ int main(int argc, char *argv[])
         //:       3 There was no additional object memory allocation.
         //:
         //: 5 Verify that the free 'swap' function is discoverable through ADL:
-        //:   (C-6)
+        //:   (C-7)
         //:
         //:   1 Create a set of attribute values, 'A', distinct from the values
         //:     corresponding to the default-constructed object, choosing
@@ -1126,21 +1018,25 @@ int main(int argc, char *argv[])
         //:     use the copy constructor and a "scratch" allocator to create a
         //:     'const' 'Obj' 'YY' from 'mY'.
         //:
-        //:   5 Use the 'invokeAdlSwap' helper function template to swap the
+        //:   5 Use the 'bslalg::SwapUtil' helper function template to swap the
         //:     values of 'mX' and 'mY', using the free 'swap' function defined
-        //:     in this component, then verify that:  (C-6)
+        //:     in this component, then verify that:  (C-7)
         //:
         //:     1 The values have been exchanged.
         //:
-        //:     2 There was no additional object memory allocation.  (C-6)
+        //:     2 There was no additional object memory allocation.  (C-7)
         //:
-        //: 6 Use the test allocator from P-2 to verify that no memory is ever
+        //: 6 Use the test allocator from P-2 to verify that no memory was
         //:   allocated from the default allocator.  (C-3)
         //:
-        //: 7 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to swap objects that do not
-        //:   refer to the same allocator, but not when the allocators are the
-        //:   same (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
+        //: 7 Verify that free 'swap' exchanges the values of any two objects
+        //:   that use different allocators.  (C-4)
+        //:
+        //: 8 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered when, using the member 'swap' function, an attempt is
+        //:   made to swap objects that do not refer to the same allocator, but
+        //:   not when the allocators are the same (using the
+        //:   'BSLS_ASSERTTEST_*' macros).  (C-8)
         //
         // Testing:
         //   void swap(baltzo::LocalTimePeriod& other);
@@ -1169,8 +1065,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -1253,7 +1149,7 @@ int main(int argc, char *argv[])
 
             // member 'swap'
             {
-                TestAllocatorMonitor oam(oa);
+                bslma::TestAllocatorMonitor oam(&oa);
 
                 mW.swap(mW);
 
@@ -1264,7 +1160,7 @@ int main(int argc, char *argv[])
 
             // free function 'swap'
             {
-                TestAllocatorMonitor oam(oa);
+                bslma::TestAllocatorMonitor oam(&oa);
 
                 swap(mW, mW);
 
@@ -1295,7 +1191,7 @@ int main(int argc, char *argv[])
 
                 // member 'swap'
                 {
-                    TestAllocatorMonitor oam(oa);
+                    bslma::TestAllocatorMonitor oam(&oa);
 
                     mX.swap(mY);
 
@@ -1306,9 +1202,9 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
                 }
 
-                // free function 'swap'
+                // free function 'swap', same allocator
                 {
-                    TestAllocatorMonitor oam(oa);
+                    bslma::TestAllocatorMonitor oam(&oa);
 
                     swap(mX, mY);
 
@@ -1350,9 +1246,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(X) P(Y) }
 
-            TestAllocatorMonitor oam(oa);
+            bslma::TestAllocatorMonitor oam(&oa);
 
-            invokeAdlSwap(mX, mY);
+            bslalg::SwapUtil::swap(&mX, &mY);
 
             LOOP2_ASSERT(YY, X, YY == X);
             LOOP2_ASSERT(XX, Y, XX == Y);
@@ -1364,6 +1260,47 @@ int main(int argc, char *argv[])
         // Verify no memory is allocated from the default allocator.
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+
+        if (verbose) cout <<
+                   "\nFree 'swap' function with different allocators." << endl;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int LINE1  =  DATA[ti].d_line;
+            const T1& DESCR1 = *DATA[ti].d_descriptor;
+            const T2& START1 = *DATA[ti].d_utcStartTime;
+            const T3& END1   = *DATA[ti].d_utcEndTime;
+
+            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator     oa2("object2", veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            const Obj XX(DESCR1, START1, END1, &scratch);
+
+            if (veryVerbose) { T_ P_(LINE1) P(XX) }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int LINE2  =  DATA[tj].d_line;
+                const T1& DESCR2 = *DATA[tj].d_descriptor;
+                const T2& START2 = *DATA[tj].d_utcStartTime;
+                const T3& END2   = *DATA[tj].d_utcEndTime;
+
+                Obj mX(XX, &oa);                     const Obj& X = mX;
+                Obj mY(DESCR2, START2, END2, &oa2);  const Obj& Y = mY;
+
+                const Obj YY(Y, &scratch);
+
+                if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
+
+                // free function 'swap', different allocators
+                {
+                    swap(mX, mY);
+
+                    LOOP4_ASSERT(LINE1, LINE2, YY, X, YY == X);
+                    LOOP4_ASSERT(LINE1, LINE2, XX, Y, XX == Y);
+                    LOOP2_ASSERT(LINE1, LINE2, &oa  == X.allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, &oa2 == Y.allocator());
+                }
+            }
+        }
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
@@ -1380,18 +1317,6 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(mA.swap(mB));
                 ASSERT_SAFE_FAIL(mA.swap(mZ));
-            }
-
-            if (veryVerbose) cout << "\t'swap' free function" << endl;
-            {
-                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
-                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
-
-                Obj mA(&oa1);  Obj mB(&oa1);
-                Obj mZ(&oa2);
-
-                ASSERT_SAFE_PASS(swap(mA, mB));
-                ASSERT_SAFE_FAIL(swap(mA, mZ));
             }
         }
 
@@ -1608,7 +1533,7 @@ int main(int argc, char *argv[])
                     bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
                     bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma::Default::setDefaultAllocatorRaw(&da);
+                    bslma::DefaultAllocatorGuard dag(&da);
 
                     Obj                  *objPtr;
                     bslma::TestAllocator *objAllocatorPtr;
@@ -1739,7 +1664,7 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator da("default",  veryVeryVeryVerbose);
                 bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma::Default::setDefaultAllocatorRaw(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1871,8 +1796,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        bslma::TestAllocator da("default", veryVeryVeryVerbose);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
@@ -1978,7 +1903,7 @@ int main(int argc, char *argv[])
 
                     // Verify value, commutativity, and no memory allocation.
 
-                    TestAllocatorMonitor oaxm(oax), oaym(oay);
+                    bslma::TestAllocatorMonitor oaxm(&oax), oaym(&oay);
 
                     LOOP5_ASSERT(LINE1, LINE2, CONFIG, X, Y,  EXP == (X == Y));
                     LOOP5_ASSERT(LINE1, LINE2, CONFIG, Y, X,  EXP == (Y == X));
@@ -2410,7 +2335,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator da("default", veryVeryVeryVerbose);
         bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
 
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) cout <<
                  "\nCreate an object, passing in the other allocator." << endl;
@@ -2439,7 +2364,7 @@ int main(int argc, char *argv[])
         {
             mX.setDescriptor(A1);
 
-            TestAllocatorMonitor oam(oa), dam(da);
+            bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             const T1& descriptor = X.descriptor();
             LOOP2_ASSERT(A1, descriptor, A1 == descriptor);
@@ -2452,7 +2377,7 @@ int main(int argc, char *argv[])
             ASSERT(A2 != A3);
             mX.setUtcStartAndEndTime(A2, A3);
 
-            TestAllocatorMonitor oam(oa), dam(da);
+            bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             const T2& utcStartTime = X.utcStartTime();
             LOOP2_ASSERT(A2, utcStartTime, A2 == utcStartTime);
@@ -2698,7 +2623,7 @@ int main(int argc, char *argv[])
                     bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
                     bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-                    bslma::Default::setDefaultAllocatorRaw(&da);
+                    bslma::DefaultAllocatorGuard dag(&da);
 
                     Obj                  *objPtr;
                     bslma::TestAllocator *objAllocatorPtr;
@@ -2834,7 +2759,7 @@ int main(int argc, char *argv[])
                 bslma::TestAllocator da("default",  veryVeryVeryVerbose);
                 bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-                bslma::Default::setDefaultAllocatorRaw(&da);
+                bslma::DefaultAllocatorGuard dag(&da);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -3040,7 +2965,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
 
-            bslma::Default::setDefaultAllocatorRaw(&da);
+            bslma::DefaultAllocatorGuard dag(&da);
 
             Obj                  *objPtr;
             bslma::TestAllocator *objAllocatorPtr;
@@ -3104,12 +3029,12 @@ int main(int argc, char *argv[])
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
-                    TestAllocatorMonitor tam(oa);
+                    bslma::TestAllocatorMonitor tam(&oa);
                     mX.setDescriptor(A1);
                     LOOP_ASSERT(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                TestAllocatorMonitor tam(oa);
+                bslma::TestAllocatorMonitor tam(&oa);
 
                 LOOP_ASSERT(CONFIG, A1 == X.descriptor());
                 LOOP_ASSERT(CONFIG, D2 == X.utcStartTime());
@@ -3130,7 +3055,7 @@ int main(int argc, char *argv[])
 
             // 'utcStartTime' and 'utcEndTime'
             {
-                TestAllocatorMonitor tam(oa);
+                bslma::TestAllocatorMonitor tam(&oa);
 
                 ASSERT(A2 != A3);
                 mX.setUtcStartAndEndTime(A2, A3);
@@ -3149,7 +3074,7 @@ int main(int argc, char *argv[])
 
             // Corroborate attribute independence.
             {
-                TestAllocatorMonitor tam(oa);
+                bslma::TestAllocatorMonitor tam(&oa);
 
                 // Set all attributes to their 'A' values.
 
@@ -3475,7 +3400,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

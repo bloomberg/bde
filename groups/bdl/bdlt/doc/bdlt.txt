@@ -20,14 +20,16 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 34 components having 9 levels of physical
+ The 'bdlt' package currently has 39 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   9. bdlt_defaultcalendarcache
+     bdlt_defaulttimetablecache
 
   8. bdlt_calendarcache
+     bdlt_timetablecache
 
   7. bdlt_currenttime
      bdlt_fixutil
@@ -43,6 +45,7 @@
      bdlt_datetz
      bdlt_epochutil
      bdlt_timetable
+     bdlt_timetableloader
 
   4. bdlt_datetime
      bdlt_dateutil
@@ -130,6 +133,9 @@
 : 'bdlt_defaultcalendarcache':
 :      Provide a process-wide default 'bdlt::CalendarCache' object.
 :
+: 'bdlt_defaulttimetablecache':
+:      Provide a process-wide default 'bdlt::TimetableCache' object.
+:
 : 'bdlt_epochutil':
 :      Conversion between absolute/relative time with respect to epoch.
 :
@@ -171,6 +177,12 @@
 :
 : 'bdlt_timetable':
 :      Provide a repository for accessing timetable information.
+:
+: 'bdlt_timetablecache':
+:      Provide an efficient cache for read-only 'bdlt::Timetable' objects.
+:
+: 'bdlt_timetableloader':
+:      Provide a protocol (or pure interface) for loading timetables.
 :
 : 'bdlt_timetz':
 :      Provide a representation of a time with time zone offset.

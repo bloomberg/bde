@@ -12,15 +12,13 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_reader_cpp,"$Id$ $CSID$")
 
-#ifndef INCLUDED_BALXML_ELEMENTATTRIBUTE
 #include <balxml_elementattribute.h>
-#endif
 
 #include <bsl_string.h>
 
 namespace BloombergLP {
-
 namespace balxml {
+
                                 // ------------
                                 // class Reader
                                 // ------------
@@ -72,6 +70,7 @@ Reader::nodeTypeAsString(NodeType nodeType)
     }
     return "(* UNKNOWN NODE TYPE *)";
 }
+
 }  // close package namespace
 
 // NON-VIRTUAL ACCESSORS (implemented in this base class)

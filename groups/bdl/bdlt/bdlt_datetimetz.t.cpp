@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
     // CONCERN: In case 5 only does memory come from the default allocator.
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
       case 16: {

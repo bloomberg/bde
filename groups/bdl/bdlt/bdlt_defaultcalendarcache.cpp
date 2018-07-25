@@ -8,10 +8,12 @@ BSLS_IDENT_RCSID(bdlt_defaultcalendarcache_cpp,"$Id$ $CSID$")
 #include <bdlt_calendarloader.h>  // for testing only
 #include <bdlt_date.h>            // for testing only
 
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_once.h>
+
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
-#include <bsls_bsllock.h>
-#include <bsls_bslonce.h>
 #include <bsls_objectbuffer.h>
 
 #include <bsl_climits.h>  // 'INT_MAX'
@@ -38,17 +40,17 @@ bsls::ObjectBuffer<CalendarCache>            g_buffer;
 // STATIC HELPER FUNCTIONS
 
 static
-bsls::BslLock *getLock()
+bslmt::Mutex *getLock()
     // Return the address of the lock used to initialize and destroy the
     // default calendar cache in a thread-safe manner.
 {
-    static bsls::BslLock *theLockPtr = 0;
+    static bslmt::Mutex *theLockPtr = 0;
 
-    static bsls::BslOnce      once = BSLS_BSLONCE_INITIALIZER;
-           bsls::BslOnceGuard onceGuard;
+    static bslmt::Once      once = BSLMT_ONCE_INITIALIZER;
+           bslmt::OnceGuard onceGuard(&once);
 
-    if (onceGuard.enter(&once)) {
-        static bsls::BslLock theLock;
+    if (onceGuard.enter()) {
+        static bslmt::Mutex theLock;
         theLockPtr = &theLock;
     }
 
@@ -70,16 +72,17 @@ int initializePrivate(CalendarLoader            *loader,
     // value otherwise.  The behavior is undefined unless 'loader' and
     // 'allocator' remain valid until a subsequent call to
     // 'bdlt::DefaultCalendarCache::destroy', and
-    // 'bsls::TimeInterval(0) <= timeout <= bsls::TimeInterval(INT_MAX)'.
+    // 'bsls::TimeInterval() <= timeout <= bsls::TimeInterval(INT_MAX, 0)'.
 {
     BSLS_ASSERT(loader);
     BSLS_ASSERT(allocator);
-    BSLS_ASSERT(bsls::TimeInterval(0) <= timeout);
-    BSLS_ASSERT(timeout <= bsls::TimeInterval(INT_MAX));
+    BSLS_ASSERT(bsls::TimeInterval() <= timeout);
+    BSLS_ASSERT(                        timeout <= bsls::TimeInterval(INT_MAX,
+                                                                      0));
 
     int rc = 1;  // FAILURE
 
-    bsls::BslLockGuard lockGuard(getLock());
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(getLock());
 
     if (!bsls::AtomicOperations::getPtrAcquire(&g_cachePtr)) {
 
@@ -107,7 +110,7 @@ int initializePrivate(CalendarLoader            *loader,
 // CLASS METHODS
 void DefaultCalendarCache::destroy()
 {
-    bsls::BslLockGuard lockGuard(getLock());
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(getLock());
 
     if (bsls::AtomicOperations::getPtrAcquire(&g_cachePtr)) {
 
@@ -120,7 +123,7 @@ void DefaultCalendarCache::destroy()
 int DefaultCalendarCache::initialize(CalendarLoader   *loader,
                                      bslma::Allocator *allocator)
 {
-    return initializePrivate(loader, false, bsls::TimeInterval(0), allocator);
+    return initializePrivate(loader, false, bsls::TimeInterval(), allocator);
 }
 
 int DefaultCalendarCache::initialize(CalendarLoader            *loader,
@@ -140,7 +143,7 @@ CalendarCache *DefaultCalendarCache::instance()
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

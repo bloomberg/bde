@@ -160,6 +160,9 @@ using bsl::pair;
 // modifiers:
 // [ 9] Obj& operator=(const Obj&);
 // [28] Obj& operator=(Obj&&);
+// [39] Obj& operator=(Obj&&);
+// [40] Obj& operator=(Obj&&);
+// [41] Obj& operator=(Obj&&);
 // [33] Obj& operator=(initializer_list<Pair>);
 // [ 2] pair<Iter, bool> primaryManipulator(Obj *, int);
 // [ 2] void clear();
@@ -236,7 +239,7 @@ using bsl::pair;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [37] USAGE EXAMPLE
+// [42] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int  ggg(Obj *, const char *, bool verbose = true);
@@ -6545,11 +6548,12 @@ class TestDriver {
 
     template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
               bool OTHER_FLAGS>
-    static void testCase28_propagate_on_container_move_assignment_dispatch();
-    static void testCase28_propagate_on_container_move_assignment();
+    static void
+          testCaseMoveAssign_propagate_on_container_move_assignment_dispatch();
+    static void testCaseMoveAssign_propagate_on_container_move_assignment();
         // Test 'propagate_on_container_move_assignment'.
 
-    static void testCase28();
+    static void testCaseMoveAssign();
         // Test move-assignment operator.
 
     static void testCase27();
@@ -9990,7 +9994,7 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
           bool OTHER_FLAGS>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
-                   testCase28_propagate_on_container_move_assignment_dispatch()
+           testCaseMoveAssign_propagate_on_container_move_assignment_dispatch()
 {
     // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
     // under test in this test case to 'false'.
@@ -10085,7 +10089,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
-                            testCase28_propagate_on_container_move_assignment()
+                    testCaseMoveAssign_propagate_on_container_move_assignment()
 {
     // ------------------------------------------------------------------------
     // MOVE-ASSIGNMENT OPERATOR: ALLOCATOR PROPAGATION
@@ -10151,18 +10155,26 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
     if (verbose)
         printf("\n'propagate_on_container_move_assignment::value == false'\n");
 
-    testCase28_propagate_on_container_move_assignment_dispatch<false, false>();
-    testCase28_propagate_on_container_move_assignment_dispatch<false, true>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                      false,
+                                                                      false>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                      false,
+                                                                      true>();
 
     if (verbose)
         printf("\n'propagate_on_container_move_assignment::value == true'\n");
 
-    testCase28_propagate_on_container_move_assignment_dispatch<true, false>();
-    testCase28_propagate_on_container_move_assignment_dispatch<true, true>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                      true,
+                                                                      false>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                      true,
+                                                                      true>();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCaseMoveAssign()
 {
     // ------------------------------------------------------------------------
     // TESTING MOVE-ASSIGNMENT OPERATOR
@@ -16816,21 +16828,10 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     bslma::TestAllocator testAlloc("A");
-    bslma::Default::setDefaultAllocator(&testAlloc);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&testAlloc));
 
     switch (test) { case 0:
-      case 38: {
-        // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
-                                 "========================" "\n");
-
-        TestDriver<int>::testCase38();
-
-      } break;
-      case 37: {
+      case 42: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -16850,22 +16851,100 @@ int main(int argc, char *argv[])
                             "\n=============\n");
         usage();
       } break;
-      case 36: {
+      case 41: {
         // --------------------------------------------------------------------
-        // TESTING SUPPORT FOR INCOMPLETE TYPES
-        //
-        // Concerns:
-        //: 1 The type can be declared with incomplete types.
-        //
-        // Plan:
-        //: 1 Instantiate a test object that uses incomplete types in the class
-        //:   declaration.  (C-1)
-        //
-        // Testing:
-        //   CONCERN: 'unordered_map' supports incomplete types.
+        // TESTING MOVE-ASSIGNMENT OPERATOR - Part 4
         // --------------------------------------------------------------------
-        TestIncompleteType x;
-        (void) x;
+
+        if (verbose) printf("Testing Move-Assign - Part 4\n"
+                            "============================\n");
+
+        // 'propagate_on_container_move_assignment' testing
+
+        RUN_EACH_TYPE(
+                     TestDriver,
+                     testCaseMoveAssign_propagate_on_container_move_assignment,
+                     BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                     bsltf::NonOptionalAllocTestType);
+
+        RUN_EACH_TYPE(
+                     TestDriver,
+                     testCaseMoveAssign_propagate_on_container_move_assignment,
+                     BAD_MOVE_GUARD(bsltf::MovableTestType),
+                     BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+
+// TBD get this working?
+#if 0
+        TestDriver<signed char, BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
+                   testCaseMoveAssign_propagate_on_container_move_assignment();
+
+        TestDriver<BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
+                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
+                   testCaseMoveAssign_propagate_on_container_move_assignment();
+#endif
+
+        TestDriver<TestKeyType, TestValueType>::
+                   testCaseMoveAssign_propagate_on_container_move_assignment();
+      } break;
+      case 40: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE-ASSIGNMENT OPERATOR - Part 3
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing Move-Assign - Part 3\n"
+                            "============================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseMoveAssign,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType,
+                      bsltf::NonTypicalOverloadsTestType);
+
+        // Since 'KEY' is 'const', copy c'tor of 'KEY' must be used to insert
+        // elements, so cannot have move-only 'KEY'.
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        TestDriver<signed char,
+                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
+                                                          testCaseMoveAssign();
+        TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
+                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
+                                                          testCaseMoveAssign();
+
+        TestDriver<TestKeyType, TestValueType>::testCaseMoveAssign();
+#endif
+      } break;
+      case 39: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE-ASSIGNMENT OPERATOR - Part 2
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("Testing Move-Assign - Part 2\n"
+                            "============================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseMoveAssign,
+                      bsltf::EnumeratedTestType::Enum,
+                      bsltf::UnionTestType,
+                      bsltf::SimpleTestType,
+                      bsltf::AllocTestType,
+                      bsltf::BitwiseCopyableTestType,
+                      bsltf::BitwiseMoveableTestType,
+                      bsltf::AllocBitwiseMoveableTestType);
+      } break;
+      case 38: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase38();
+
+      } break;
+      case 37: {
+        if (verbose) printf("Place holder\n");
       } break;
       case 35: {
         // --------------------------------------------------------------------
@@ -17021,49 +17100,20 @@ int main(int argc, char *argv[])
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // TESTING MOVE-ASSIGNMENT OPERATOR
+        // TESTING MOVE-ASSIGNMENT OPERATOR - Part 1
         // --------------------------------------------------------------------
 
+        if (verbose) printf("Testing Move-Assign - Part 1\n"
+                            "============================\n");
         RUN_EACH_TYPE(TestDriver,
-                      testCase28,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      testCaseMoveAssign,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE)
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseMoveAssign,
                       bsltf::NonOptionalAllocTestType,
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
-
-        // Since 'KEY' is 'const', copy c'tor of 'KEY' must be used to insert
-        // elements, so cannot have move-only 'KEY'.
-
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        TestDriver<signed char,
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase28();
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase28();
-
-        TestDriver<TestKeyType, TestValueType>::testCase28();
-#endif
-
-        // 'propagate_on_container_move_assignment' testing
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase28_propagate_on_container_move_assignment,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      BAD_MOVE_GUARD(bsltf::MovableTestType),
-                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
-
-// TBD get this working?
-#if 0
-        TestDriver<signed char, BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
-                           testCase28_propagate_on_container_move_assignment();
-
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
-                           testCase28_propagate_on_container_move_assignment();
-#endif
-
-        TestDriver<TestKeyType, TestValueType>::
-                           testCase28_propagate_on_container_move_assignment();
       } break;
       case 27: {
         // --------------------------------------------------------------------

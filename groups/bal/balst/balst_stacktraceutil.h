@@ -222,18 +222,30 @@ BSLS_IDENT("$Id: $")
 //
 //  void traceExample3()
 //  {
-//..
-// Now, within 'traceExample3', we output the stack addresses in hex by
-// streaming the function pointer 'hexStackTrace' to 'cout':
-//..
+//      // Now, within 'traceExample3', we output the stack addresses in hex by
+//      // streaming the function pointer 'hexStackTrace' to the ostream:
+//
 //      bsl::cout << balst::StackTraceUtil::hexStackTrace << endl;
 //  }
 //..
 // Finally, the output appears as a collection of hex values streamed out
-// separated by spaces, which can be translated to symbol names using tools
-// outside of 'balst':
+// separated by spaces.
 //..
-// 0x804f806 0x804f7dc 0x804f7d5 0x804f7d5 0x804f7d5 0x804fbea 0x341e9c
+//  0x10001e438 0x10001e3b8 0x10001e3b0 0x10001e3b0 0x10001e3b0 0x10001e3b0 ...
+//..
+// The hex stack traces can be translated to a human-readable stack trace
+// using tools outside of BDE, such as Bloomberg's '/bb/bin/showfunc.tsk':
+//..
+//  $ /bb/bin/showfunc.tsk <path to executable> 0x10001e438 0x10001e3b8 ...
+//  0x10001e438 .traceExample3__Fv + 64
+//  0x10001e3b8 .recurseExample3__FPi + 72
+//  0x10001e3b0 .recurseExample3__FPi + 64
+//  0x10001e3b0 .recurseExample3__FPi + 64
+//  0x10001e3b0 .recurseExample3__FPi + 64
+//  0x10001e3b0 .recurseExample3__FPi + 64
+//  0x100000ba0 .main + 648
+//  0x1000002fc .__start + 116
+//  $
 //..
 
 #include <balscm_version.h>

@@ -1,10 +1,146 @@
-bsl-internal (3.7.0.0) unstable; urgency=low
+bsl-internal (3.11.0.0) unstable; urgency=low
 
+  * ea3b05c81 Merge pull request #1998 from mgiroux/review/bump-version-to-3.11.0
+  * efc6d2b7a Remove patchversion dependency
+  * 85e97040a Bump version to 3.11.0
+  * 7eed25496 Merge pull request #1997 from osubbotin/review/cmake-dpkg-build
+  * 5a0bf5d0a Merge pull request #1974 from bchapman/bde-repo-clean-up-test-failures-drqs-123131192
+  * 224aeec38 Merge pull request #1993 from cwilson/bslim_testutil-and-bdls_testutil-clash-drqs-125007894
+  * 057d79716 Merge pull request #1829 from bchapman/ball_logthrottle-off-master-drqs-19890470
+  * db9a90631 Merge pull request #1992 from hversche/add-glossary-defintion-guard-proctor-drqs-124804874
+  * 532abadd4 Merge pull request #1985 from dsokolov7/review/bde-rbtreeutil-drqs-123794169
+  * db5761d62 Merge pull request #1991 from cwilson/replace-archaic-Copyright-notices-drqs-124814678
+  * a5dacdcc3 Merge pull request #1989 from cwilson/define-member-functions-inside-package-namespace-drqs-124793414
+  * c5875e436 Merge pull request #1987 from cwilson/remove-locally-defined-TestAllocatorMonitor-from-test-drivers
+  * f9e5c2edc Merge pull request #1986 from cwilson/delete-vestigial-redundant-include-guards-drqs-124731403
+  * e8586e035 Merge pull request #1981 from afeher/drqs-124621890-testallocator-thread-safety-cleanup
+  * 667d5f8f8 Merge pull request #1979 from jmendelsohn4/drqs-124619874/nb-bbldc_daycountconvention
+  * 8c56f435b Merge pull request #1978 from cwilson/bal-codec-doc-and-dependency-glitches-drqs-124576967
+  * dfb6889ed Merge pull request #1975 from cwilson/widen-baltzo-LocalTimeDescriptor-non-member-swap-drqs-117424224
+  * b7cc77b45 Merge pull request #1976 from cwilson/remove-BDLB_NULLABLEVALUE_SUPPORTS_LESS_THAN-macro-drqs-116554354
+  * eaf9f7f86 Merge pull request #1854 from bchapman/balst-FileHelper-eliminate-creator-asserts-drqs-115904961
+  * 2e28314ed Merge pull request #1972 from jmendelsohn4/drqs-124165593/sync-calendar-cache-loader
+  * 5cc77fe25 Merge pull request #1959 from dsokolov7/review/bde-split-drqs-121456578
+  * 6e5655004 Merge pull request #1964 from jmendelsohn4/drqs-120170640/timetable-cache-and-loader
+  * f3201d294 Merge pull request #1924 from osubbotin/review/cmake-dpkg-build
+  * 3ec3085d7 Merge pull request #1966 from hversche/fix-3rd-party-install
+  * abf48d10c Merge pull request #1960 from rkhlebnikov/bdls-filesystemutil-return-codes-for-createPrivate-directories-DRQS-123561805
+  * 9d24dea33 Revertable debian rules.
+  * cd06f3bad Merge pull request #1955 from cwilson/open-log-files-in-append-mode-drqs-123775581
+  * c9e065aef Merge pull request #1953 from jmendelsohn4/drqs-123760107/check-return-value-of-setDefaultAllocator
+  * 10f9a06e0 Merge pull request #1954 from bde/review/bump-version-to-3.10.0
+  * 6f2bb2bce Revert bsl version change - no rssuite for 3.10.0
+  * 565bb7fcc Bump versions to 3.10.0
+  * 93136fff3 Merge pull request #1949 from jmendelsohn4/drqs-118434919/remove-setDefaultAllocatorRaw
+  * a19bfe22b Merge pull request #1951 from afeher/drqs-121456578-fix-terminology-of-leaf-bdls_pathutil
+  * f10748938 Merge pull request #1948 from cwilson/ball-LoggerManager-ctor-DEPRECATED-notices-drqs-123055495
+  * ebe2b7202 Merge pull request #1936 from afeher/drqs-123425786-fix-fstat-round2
+  * 8c6907a9d Merge pull request #1943 from cwilson/bslmf_decay-macro-clash-with-ISFUNC-drqs-123483201
+  * 37f2eda5a Merge pull request #1940 from bchapman/ball_recordattributes-avoid-null-stringref.data-drqs-123123158
+  * 30433310b Merge pull request #1935 from osubbotin/review/ball_error_buffer
+  * 3885dfae9 Merge pull request #1928 from afeher/drqs-123047215-blob-move-and-swap
+  * 99746b6b0 Merge pull request #1918 from hversche/rule-based-logging-doc-drqs-122796660
+  * 887d5b23a Merge pull request #1930 from afeher/drqs-123333827-bce-to-bslmt-in-docu
+  * 3d15a147a Merge pull request #1934 from mhanna21/patch-1
+  * 02dfe5cb5 Merge pull request #1929 from afeher/drqs-123203916-stop-crash-report-mac
+  * 0e3174ee0 Merge pull request #1920 from afeher/drqs-122213275-stat-fails-with-too-large-value
+  * 12087e455 Merge pull request #1926 from afeher/drqs-123193362-stop-mac-crashreport
+  * f664d43f0 Merge pull request #1923 from dsokolov7/review/bde-sanitizer-error-base64decoder-drqs-121525880
+  * d3db2db3f Merge pull request #1925 from cwilson/fix-doc-for-time-method-of-Datetime-drqs-123117992
+  * ea3a07be2 Merge pull request #1872 from abeels/feature/bslstl_stringref-cstring-ctor-take-2
+  * b42dea9c3 Merge pull request #1922 from glaptev1/glaptev1/bsls_platform_has_illegal_int_literal-drqs-122963296
+  * dcc487625 Merge pull request #1919 from glaptev1/glaptev1/bslmt_saturatedtimeconversionimputil_test_driver-drqs-122963806
+  * 04b3c5da6 Merge pull request #1912 from afeher/drqs-122797908-bal-descr-fix
+  * cd9e7db5c Fix clang warning in bslmt_saturatedtimeconversionimputil.t.cpp case1.
+  * 9daf5406c Merge pull request #1915 from afeher/drqs-122903735-bsla_annotation-clang-fix
+  * 61f712888 Merge pull request #1914 from hversche/fix_cmake_configure
+  * 076b7f9a2 Merge pull request #1913 from cwilson/add-missing-inclusion-drqs-117839646
+  * 529ce96d1 Merge pull request #1876 from dsokolov7/review/bde-dayofweek-operators-drqs-117839646
+  * 042add848 Merge pull request #1906 from mgiroux/review/remove-btl
+  * 01272b5ee Merge pull request #1899 from afeher/drqs-122349536-ref-to-temp
+  * a983444c8 Merge pull request #1898 from gjenkins/unselected_choice_balber_options_test2
+  * 521d0e6b4 Merge pull request #1903 from osubbotin/review/balber-encoder-fix
+  * ddeec5464 Merge pull request #1894 from gjenkins/unselected_choice_balber_options_test
+  * 02ff4e582 Merge pull request #1868 from bchapman/kill-guards-bde-repo-no-bsl-no-btl-drqs-121473090
+  * ae4b29aec Merge pull request #1818 from gjenkins/unselected_choice_balber
+  * 62646a7b1 Merge pull request #1858 from bchapman/bsls_outputredirector-use-mkstemp-drqs-121119794
+  * 55b711f5b Merge pull request #1892 from lfan77/decimalconvertutil-allocator_drqs-122198293
+  * cb17fc508 Merge pull request #1861 from hrosen4/ub-float128_drqs-121331073
+  * 2e3464f9f Printing decimals causes allocation, so don't assume no allocation.
+  * 8e47b559a Merge pull request #1890 from afeher/drqs-122139413
+  * 8b4379810 Merge pull request #1870 from cwilson/ball_administration-doc-drqs-121811266
+  * 5a3682c87 Merge pull request #1877 from apaprock/bsls-deprecate-c++98
+  * fbc43e38e Merge pull request #1866 from bchapman/bdlmt_throttle-ball_log-init-atomics-right-drqs-121757805
+  * 4a9749b80 Merge pull request #1867 from cwilson/doxygen-issues-with-ball_category-drqs-121845529
+  * 4cdd855cf Merge pull request #1837 from bchapman/bde-linux-gcc-7.3.0-clear-warnings-drqs-120675632
+  * 2bd36c9cc Bump bal/bbl/bdl/btl versions to 3.9.0
+  * 527dfecc6 Merge pull request #1863 from afeher/drqs-121110116-pathutil-clarifications
+  * 10e68782c Merge pull request #1862 from mgiroux/review/fix-waf-build-doc-links-drqs121402294
+  * aeaf1773c Merge pull request #1860 from bchapman/ball_log-redo-BALL_LOGVA-drqs-120123976
+  * 0671e3d86 Merge pull request #1853 from cpoersch/patch-2
+  * c39bad75a Merge pull request #1857 from afeher/drqs-119852768-solaris-glob-fix
+  * a4420eef4 Merge pull request #1740 from rbhindwa/move-btlb-to-bdlblob
+  * bfe614f57 Merge pull request #1851 from cpoersch/patch-1
+  * da26b3f3a Merge pull request #1850 from afeher/drqs-120969100-fix-type-traits
+  * e8b98874a Merge pull request #1836 from jmendelsohn4/nb/bdl_test_driver_warnings_20180427
+  * 9bc6f1722 Merge pull request #1841 from bde/revert-1694-lwg-defect-2268-default-npos-arg-for-string-methods-RDSIBDE-1792
+  * 01b3bc756 Merge pull request #1817 from bchapman/balst-dwarf-parse-more-drqs-112669470
+  * 2f49bc22a Merge pull request #1833 from afeher/drqs-116453157-bdlb-scopeexit
+  * 9c02cdc55 Merge pull request #1835 from afeher/drqs-120546262-fix-threadpool-test
+  * c1fb478db Merge pull request #1783 from hrosen4/transform-iterator
+  * 02659747d Merge pull request #1830 from jmendelsohn4/nb/bsls_atomicoperations_20180425
+  * dc27b767f Merge pull request #1811 from bchapman/bdlde-enforce-nonuse-of-default-allocator-drqs-118082353
+  * ee7a7b91a Merge pull request #1828 from osubbotin/review/cmake-dpkg-build
+  * e6566b518 Merge pull request #1822 from jmendelsohn4/nb/bdlt_timetable_20180424
+  * f0a1a674b balst: enable DWARF to cope with gcc version >= 7
+  * 58eddf9d0 Merge pull request #1728 from jmendelsohn4/drqs-92957022/bdlt_timetable_2
+  * 4e451150b Merge pull request #1812 from osubbotin/review/cmake-dpkg-build
+  * 072103a12 bdlde_charconvert{ucs2,utf16}: enhance test drivers to check for default allocation
+  * 8121f25c3 Merge pull request #1806 from bchapman/bdls_processutil-sun-bug-drqs-116026768
+  * d83527d61 Merge pull request #1797 from rkhlebnikov/master
+  * ed2e6ff14 Merge pull request #1798 from cwilson/ball-bde_verify-and-compiler-diagnostic-clean-up
+  * 31d637a70 Merge pull request #1796 from cwilson/fix-ic-build-of-bdls_processutil-drqs-119362596
+  * ed311baef add static_cast to avert -Wconversion warning-as-error build failure
+  * 26dd3015a Merge pull request #1792 from rkhlebnikov/master
+  * 4251a3a95 Merge pull request #1787 from hrosen4/byteorder-ntohl_drqs-118956214
+  * 400c177fd Merge pull request #1795 from cwilson/remove-workarounds-for-drqs-117439200-from-userfieldvalue-test-driver
+  * cef160b28 Merge pull request #1793 from cwilson/post-bde-3.5-ball-enhancements-baseline-v3.0
+  * 0923ab50d Merge pull request #1791 from ameredit/drqs119246745_fix_gcc_warning_in_forwardutil
+  * ae21bb96a Merge pull request #1694 from cwilson/lwg-defect-2268-default-npos-arg-for-string-methods-RDSIBDE-1792
+  * 17a4ee62c Merge pull request #1786 from afeher/drqs-118964602-advancetoendnoderaw-fails-on-attributes
+  * 69d19eedb Merge pull request #1780 from mthorpe7/patch-4
+  * def7bc87c Merge pull request #1782 from oimanuel/fix_balber_decodeoptions_doc-drqs-118820203
+  * 7ef0b4a23 Merge remote-tracking branch 'upstream/master' into drqs-92957022/bdlt_timetable_2
+  * 2bde20b7d Merge pull request #1726 from dstone50/visual-studio-warning-drqs-106678386
+  * ce33bc56a Merge pull request #1777 from jmendelsohn4/drqs-118269630/master/bdlmt_multiqueuethreadpool-drain-enqueJob-race
+  * 89359d920 Merge pull request #1755 from bchapman/bdls_processutil-linux-process-name-drqs-116026768
+  * ef14401bb Merge pull request #1750 from mthorpe7/patch-3
+  * 61c616acd Merge pull request #1776 from fbirbacher/drqs-117090632/datummaker-add-ref-function
+  * dc5d6e09d Merge pull request #1773 from tdouglas/drqs-117424200/schedulers-now-accessor
+  * 27b399ffb Merge pull request #1760 from hrosen4/broken-scaleb_drqs-118150695
+  * 7a0b3fccf Merge pull request #1766 from mmaennich/patch-1
+  * 145da99d9 Merge pull request #1739 from fbirbacher/drqs-117090632/datummaker-no-perfect-forwarding
+  * 7bfd9d805 Merge pull request #1770 from hrosen4/ub-left-shift_drqs-114474016
+  * 5cbb7bc15 Merge pull request #1719 from dstone50/bdet_TimeInterval-ISO-8601-drqs-61756773
+  * 148ea97aa Merge pull request #1757 from hrosen4/bad-conversion_drqs-118092561
+  * df0483028 Merge pull request #1695 from rbhindwa/baljsn_formatter-create-component-drqs-40644741
+  * b507b6fb0 Merge pull request #1753 from hrosen4/foolish-test_drqs-105506799
+  * 91d7f6167 Merge pull request #1703 from hrosen4/alignment_drqs-116589700
+  * 50d9c828d Merge pull request #1737 from rbhindwa/btlmt_readdatapolicy-make-bdlat-enum-drqs-117422334
+  * 182d44842 Merge pull request #1736 from dsokolov7/review/bde-is-base-of-drqs-117293769
+  * d55f8b532 Merge pull request #1749 from mgiroux/pr/1746-rebased-master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 16 Jul 2018 13:54:30 -0400
+
+bsl-internal (3.7.0.0) git; urgency=low
+
+  * 5f9677a2f Changelog for version 3.7.0.0
   * bd4b836d2 Merge pull request #1744 from bde/review/bump-version-to-3.7.0
   * c2de96678 Bump version to 3.7.0
   * 4a8253143 Merge pull request #1725 from afeher/drqs-116775083-stringref-traits
   * 83d5cc722 Merge pull request #1738 from cwilson/do-not-allocate-in-bdlt-print-methods-drqs-117439200
   * 1fb0b734c Merge pull request #1741 from afeher/drqs-114423409-is_convertible
+  * 2cdb5ab3d Remove unreleased packages after matrix_build
   * b7f996d14 Merge pull request #1700 from glaptev1/glaptev1/add_comparator_typedef_to_priority_queue-RDSIBDE-1798
   * f0141cb43 Merge pull request #1734 from mgiroux/review/add-bsl_c_signal.h-include-to-bdl
   * e2d1ce9aa Merge pull request #1731 from ameredit/SIZE_MAX_missing_on_Linux_03
@@ -167,7 +303,7 @@ bsl-internal (3.7.0.0) unstable; urgency=low
   * 74e4e45bb Merge pull request #1654 from ameredit/remove_old_workaround_in_baljsn_printutil.t.cpp
   * 72ae590e9 Merge pull request #1655 from ameredit/remove_old_workaround_in_balxml_tests
 
- -- mgiroux <mgiroux@bloomberg.net>  Wed, 7 Mar 2018 09:38:33 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 7 Mar 2018 09:41:10 -0500
 
 bsl-internal (3.5.0.0) git; urgency=low
 

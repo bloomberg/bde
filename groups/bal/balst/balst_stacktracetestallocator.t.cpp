@@ -10,6 +10,7 @@
 #include <balst_stacktracetestallocator.h>
 
 #include <balst_stacktrace.h>
+#include <balst_stacktraceutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslmt_barrier.h>
@@ -282,10 +283,16 @@ namespace {
 
 typedef bsls::Types::UintPtr UintPtr;
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS) || defined(BDE_BUILD_TARGET_DBG)
-enum { CAN_FIND_SYMBOLS = 1 };
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+enum { e_WINDOWS = 1 };
 #else
-enum { CAN_FIND_SYMBOLS = 0 };
+enum { e_WINDOWS = 0 };
+#endif
+
+#if !defined(BDE_BUILD_TARGET_DBG)
+enum { e_CAN_FIND_SYMBOLS = !e_WINDOWS };
+#else
+enum { e_CAN_FIND_SYMBOLS = 1 };
 #endif
 
 }  // close unnamed namespace
@@ -302,6 +309,9 @@ static int veryVerbose;
 static int veryVeryVerbose;
 
 static const bsl::size_t npos = bsl::string::npos;
+static bool narcissicStack = false;         // On Windows, the stack trace
+                                            // intermittently captures its own
+                                            // image.
 
 // ============================================================================
 //                    GLOBAL HELPER #DEFINES FOR TESTING
@@ -1084,6 +1094,20 @@ int main(int argc, char *argv[])
 
     ASSERT(voidFuncsSize <= sizeof voidFuncs / sizeof *voidFuncs);
 
+    if (e_WINDOWS) {
+        // Windows intermittently has a narcissic stack, that is,
+        // 'k_IGNORE_FRAMES' should be 1 higher than it is.
+
+        balst::StackTrace st;
+        int rc = balst::StackTraceUtil::loadStackTraceFromStack(&st, 1, false);
+        ASSERT(0 == rc);
+
+        narcissicStack = bsl::string::npos != st[0].mangledSymbolName().find(
+                                                    "loadStackTraceFromStack");
+
+        if (veryVerbose) P(narcissicStack);
+    }
+
     switch (test) { case 0:
       case 22: {
         // --------------------------------------------------------------------
@@ -1387,9 +1411,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "CONFIGURED STACK DEPTH TEST\n"
                              "===========================\n";
 
-        expectedDefaultAllocations = -1;    // turn off default alloc checking
+        P(BSLS_PLATFORM_CMP_VERSION);
 
-        if (!CAN_FIND_SYMBOLS) break;    // This test won't work unless we can
+        expectedDefaultAllocations = -1; // turn off default alloc checking
+
+        if (!e_CAN_FIND_SYMBOLS) break;  // This test won't work unless we can
                                          // access routine names in the stack
                                          // trace.
 
@@ -1424,7 +1450,9 @@ int main(int argc, char *argv[])
                 ++pos;
             }
 
-            ASSERT(numRecurserInTrace + 1 == RECORDED_FRAMES);
+            LOOP4_ASSERT(report, numRecurserInTrace, RECORDED_FRAMES,
+                                                                narcissicStack,
+                   numRecurserInTrace + 1 + narcissicStack == RECORDED_FRAMES);
             ss.str("");
         }
       }  break;
@@ -1685,8 +1713,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Demangling Test\n"
                              "===============\n";
 
-        if (!CAN_FIND_SYMBOLS) {
-            break;          // We can't do this test unless we can find symbols
+        if (e_WINDOWS) {
+            // Demangling intermittendly fails on Windows.
+
+            break;
         }
 
         expectedDefaultAllocations = -1;    // turn off default alloc checking
@@ -1694,12 +1724,6 @@ int main(int argc, char *argv[])
         for (int d = 0; d < 2; ++d) {
             const bool DEMANGLE_CONFIG = d;
             bool demangleExpected = DEMANGLE_CONFIG;
-
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-            // always on Windows
-
-            demangleExpected = true;
-#endif
 
             bsl::stringstream ss;
 
@@ -2469,7 +2493,7 @@ int main(int argc, char *argv[])
 
                 if (0 != numAllocs) {
                     ASSERT(!ss.str().empty());
-                    if (CAN_FIND_SYMBOLS) {
+                    if (e_CAN_FIND_SYMBOLS) {
                         ASSERT(npos != ss.str().find("main"));
                     }
                 }
@@ -2514,7 +2538,7 @@ int main(int argc, char *argv[])
                     // Make sure a report was written.
 
                     ASSERT(!ss.str().empty());
-                    if (CAN_FIND_SYMBOLS) {
+                    if (e_CAN_FIND_SYMBOLS) {
                         ASSERT(npos != ss.str().find("main"));
                     }
 
@@ -2627,34 +2651,48 @@ int main(int argc, char *argv[])
 
         const char *expectedStrings[] = {
                                     " block(s) in allocator 'ta' in use",
+                                    "\n",
                                     " trace(s)",
+                                    "\n",
                                     "StackTraceTestAllocator",
                                     "allocate",
+                                    "\n",
                                     "MultiThreadedTest",
                                     "Functor",
                                     "allocOne",
+                                    "\n",
                                     "MultiThreadedTest",
                                     "Functor",
                                     "nest4",
+                                    "\n",
                                     "MultiThreadedTest",
                                     "Functor",
                                     "nest3",
+                                    "\n",
                                     "MultiThreadedTest",
                                     "Functor",
                                     "nest2",
+                                    "\n",
                                     "MultiThreadedTest",
                                     "Functor",
                                     "nest1",
+                                    "\n",
                                     "MultiThreadedTest",
                                     "Functor" };
 
-        enum { NUM_EXPECTED_STRINGS = sizeof expectedStrings /
+        enum { k_NUM_EXPECTED_STRINGS = sizeof expectedStrings /
                                                      sizeof *expectedStrings };
         bsl::size_t pos = 0;
-        int expectedToFind = CAN_FIND_SYMBOLS ? NUM_EXPECTED_STRINGS : 2;
-        for (int i = 0; i < expectedToFind; ++i) {
+        for (int i = 0; i < k_NUM_EXPECTED_STRINGS; ++i) {
             bsl::size_t nextPos = otherStr.find(expectedStrings[i], pos);
             LOOP3_ASSERT(otherStr, i, expectedStrings[i], npos != nextPos);
+            if (e_WINDOWS && '\n' != *expectedStrings[i]) {
+                // On Windows, the demangler intermittently fails and the
+                // mangled symbols have all the sections delimited by "::"
+                // backwards.
+
+                nextPos = otherStr.rfind("\n", nextPos);
+            }
             pos = npos != nextPos ? nextPos : pos;
         }
         if (veryVerbose) {
@@ -2939,7 +2977,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(report,
                 npos != report.find("3 block(s) in allocator 'my_allocator'"
                                     " in use"));
-            ASSERT(!CAN_FIND_SYMBOLS || npos != report.find("main"));
+            ASSERT(!e_CAN_FIND_SYMBOLS || npos != report.find("main"));
 
             ASSERT(taOss.str().empty());
             ta.reportBlocksInUse();
@@ -3199,7 +3237,7 @@ int main(int argc, char *argv[])
                     ASSERT(npos != report.find("1 block(s) in use"));
                     ASSERT(npos != report.find("Error: memory leaked"));
                     ASSERT(npos != report.find("my_allocator"));
-                    if (CAN_FIND_SYMBOLS) {
+                    if (e_CAN_FIND_SYMBOLS) {
                         ASSERT(npos != report.find("main"));
                         ASSERT(npos != report.find("allocate"));
                     }
@@ -3251,7 +3289,7 @@ int main(int argc, char *argv[])
                 ASSERT(npos != report.find("Error: memory leaked"));
                 ASSERT(npos != report.find("1 block(s) in use"));
                 ASSERT((npos != report.find("woof")) == isWoof);
-                if (CAN_FIND_SYMBOLS) {
+                if (e_CAN_FIND_SYMBOLS) {
                     ASSERT(npos != report.find("BloombergLP"));
                     ASSERT(npos != report.find("balst"));
                     ASSERT(npos != report.find("StackTraceTestAllocator"));
@@ -3336,10 +3374,14 @@ int main(int argc, char *argv[])
 
             bsl::size_t pos = 0;
             ASSERT(npos != (pos = outStr.find("TestAlloc1", pos)));
-            if (CAN_FIND_SYMBOLS) {
+            if (e_CAN_FIND_SYMBOLS) {
+                // Windows sometimes mangles symbols backwards.
+
                 ASSERT(npos != (pos = outStr.find("BloombergLP",pos)));
+                if (e_WINDOWS) pos = 0;
                 ASSERT(npos != (pos = outStr.find("StackTraceTestAllocator",
                                                                 pos)));
+                if (e_WINDOWS) pos = 0;
                 ASSERT(npos != (pos = outStr.find("allocate",   pos)));
                 ASSERT(npos != (pos = outStr.find("leakTwiceC", pos)));
                 ASSERT(npos != (pos = outStr.find("leakTwiceB", pos)));

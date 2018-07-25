@@ -9,6 +9,7 @@ BSLS_IDENT_RCSID(baltzo_zoneinfobinaryheader_cpp,"$Id$ $CSID$")
 #include <bslim_printer.h>
 
 namespace BloombergLP {
+namespace baltzo {
 
                          // --------------------------
                          // class ZoneinfoBinaryHeader
@@ -18,10 +19,9 @@ namespace BloombergLP {
 
                         // Aspects
 
-bsl::ostream& baltzo::ZoneinfoBinaryHeader::print(
-                                            bsl::ostream& stream,
-                                            int           level,
-                                            int           spacesPerLevel) const
+bsl::ostream& ZoneinfoBinaryHeader::print(bsl::ostream& stream,
+                                          int           level,
+                                          int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -41,10 +41,11 @@ bsl::ostream& baltzo::ZoneinfoBinaryHeader::print(
     return stream;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

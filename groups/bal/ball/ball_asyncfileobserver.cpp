@@ -21,8 +21,8 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 
 #include <bsl_functional.h>
-#include <bsl_iostream.h>
 #include <bsl_memory.h>
+#include <bsl_ostream.h>
 
 ///IMPLEMENTATION NOTES
 ///--------------------

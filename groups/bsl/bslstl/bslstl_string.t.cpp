@@ -13,9 +13,11 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_issame.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -197,6 +199,18 @@ using bsls::nameOfType;
 // [20] basic_string& replace(const_iterator p, q, const C *s);
 // [20] basic_string& replace(const_iterator p, q, size_type n2, C c);
 // [20] template <It> basic_string& replace(const_iterator p, q, It f, l);
+// [38] basic_string& replace(pos1, n1, const string& str);
+// [38] basic_string& replace(pos1, n1, const string& str, pos2, n2);
+// [38] basic_string& replace(pos1, n1, const C *s, n2);
+// [38] basic_string& replace(pos1, n1, const C *s);
+// [38] basic_string& replace(pos1, n1, size_type n2, C c);
+// [38] basic_string& replace(const_iterator p, q, const string& str);
+// [38] basic_string& replace(const_iterator p, q, const C *s, n2);
+// [38] basic_string& replace(const_iterator p, q, const C *s);
+// [38] basic_string& replace(const_iterator p, q, size_type n2, C c);
+// [38] template <It> basic_string& replace(const_iterator p, q, It f, l);
+// [37] template <It> basic_string& replace(const_iterator p, q, It f, l);
+// [36] template <It> basic_string& replace(const_iterator p, q, It f, l);
 // [21] void swap(basic_string& other);
 //
 // ACCESSORS:
@@ -314,7 +328,7 @@ using bsls::nameOfType;
 // [29] hashAppend(HASHALG& hashAlg, const native_std::basic_string& str);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [34] USAGE EXAMPLE
+// [39] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] 'npos' VALUE
 // [25] CONCERN: 'std::length_error' is used properly
@@ -1182,17 +1196,17 @@ struct TestDriver {
     static void testCase21();
         // Test 'swap' member.
 
-    static void testCase20();
+    static void testCaseReplace();
         // Test 'replace'.
 
-    static void testCase20MatchTypes();
+    static void testCaseReplaceMatchTypes();
         // Test 'replace' where the types of 'NUM_ELEMENTS' and 'VALUE' match.
 
     template <class CONTAINER>
-    static void testCase20Range(const CONTAINER&);
+    static void testCaseReplaceRange(const CONTAINER&);
         // Test 'replace' member template.
 
-    static void testCase20Negative();
+    static void testCaseReplaceNegative();
         // Negative test for 'replace'.
 
     static void testCase19();
@@ -5602,7 +5616,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase21()
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
-void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
+void TestDriver<TYPE,TRAITS,ALLOC>::testCaseReplace()
 {
     // --------------------------------------------------------------------
     // TESTING REPLACE:
@@ -5890,7 +5904,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
-void TestDriver<TYPE,TRAITS,ALLOC>::testCase20MatchTypes()
+void TestDriver<TYPE,TRAITS,ALLOC>::testCaseReplaceMatchTypes()
 {
     // --------------------------------------------------------------------
     // TESTING REPLACE:
@@ -6185,7 +6199,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20MatchTypes()
 
 template <class TYPE, class TRAITS, class ALLOC>
 template <class CONTAINER>
-void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
+void TestDriver<TYPE,TRAITS,ALLOC>::testCaseReplaceRange(const CONTAINER&)
 {
     // --------------------------------------------------------------------
     // TESTING REPLACE:
@@ -6201,7 +6215,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
     //      allocator whenever one is specified.
     //
     // Plan:
-    //   See 'testCase20'.
+    //   See 'testCaseReplace'.
     //
     // Testing:
     //   string& replace(pos1, n1, const string& str);
@@ -6911,7 +6925,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
-void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
+void TestDriver<TYPE,TRAITS,ALLOC>::testCaseReplaceNegative()
 {
     // --------------------------------------------------------------------
     // NEGATIVE TESTING REPLACE:
@@ -18157,7 +18171,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator defaultAllocator("Default Allocator",
                                           veryVeryVeryVerbose);
     defaultAllocator_p = &defaultAllocator;
-    bslma::Default::setDefaultAllocator(defaultAllocator_p);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(defaultAllocator_p));
 
     // Confirm no static initialization locked the default allocator
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
@@ -18172,22 +18186,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 35: {
-        // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
-                                 "========================" "\n");
-
-        if (verbose) printf("\n... with 'char'.\n");
-        TestDriver<char>::testCase35();
-
-        if (verbose) printf("\n... with 'wchar_t'.\n");
-        TestDriver<wchar_t>::testCase35();
-
-      } break;
-      case 34: {
+      case 39: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -18398,6 +18397,105 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, EXP == os.str());
             }
         }
+      } break;
+      case 38: {
+        // --------------------------------------------------------------------
+        // TESTING 'replace' -- Part 4 of 4
+        //
+        // Plan:
+        //: See 'TestDriver<CHAR_TYPE>::testCaseReplaceNegative' for details.
+        //
+        // Testing:
+        //   basic_string& replace(pos1, n1, const string& str);
+        //   basic_string& replace(pos1, n1, const string& str, pos2, n2);
+        //   basic_string& replace(pos1, n1, const C *s, n2);
+        //   basic_string& replace(pos1, n1, const C *s);
+        //   basic_string& replace(pos1, n1, size_type n2, C c);
+        //   basic_string& replace(const_iterator p, q, const string& str);
+        //   basic_string& replace(const_iterator p, q, const C *s, n2);
+        //   basic_string& replace(const_iterator p, q, const C *s);
+        //   basic_string& replace(const_iterator p, q, size_type n2, C c);
+        //   template <It> basic_string& replace(const_iterator p, q, It f, l);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'replace' - Part 4 of 4"
+                            "\n===============================\n");
+
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) printf("\nNegative Testing 'replace'"
+                            "\n==========================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCaseReplaceNegative();
+
+        if (verbose) printf("\n... with 'wchar_t'.\n");
+        TestDriver<wchar_t>::testCaseReplaceNegative();
+#endif
+      } break;
+      case 37: {
+        // --------------------------------------------------------------------
+        // TESTING 'replace' -- Part 3 of 4
+        //
+        // Plan:
+        //: See 'TestDriver<CHAR_TYPE>::testCaseReplaceRange' for details.
+        //
+        // Testing:
+        //   template <It> basic_string& replace(const_iterator p, q, It f, l);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'replace' - Part 3 of 4"
+                            "\n===============================\n");
+
+        if (verbose) printf("\n... with 'wchar_t' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<wchar_t>::testCaseReplaceRange(CharList<wchar_t>());
+
+        if (verbose) printf("\n... with 'wchar_t' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<wchar_t>::testCaseReplaceRange(CharArray<wchar_t>());
+      } break;
+      case 36: {
+        // --------------------------------------------------------------------
+        // TESTING 'replace' -- Part 2 of 4
+        //
+        // Plan:
+        //: See 'TestDriver<CHAR_TYPE>::testCaseReplaceRange' for details.
+        //
+        // Testing:
+        //   template <It> basic_string& replace(const_iterator p, q, It f, l);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'replace' - Part 2 of 4"
+                            "\n===============================\n");
+
+        if (verbose) printf("\nTesting 'replace' with range"
+                            "\n============================\n");
+
+        if (verbose) printf("\n... with 'char' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<char>::testCaseReplaceRange(CharList<char>());
+
+        if (verbose) printf("\n... with 'char' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<char>::testCaseReplaceRange(CharArray<char>());
+      } break;
+      case 35: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase35();
+
+        if (verbose) printf("\n... with 'wchar_t'.\n");
+        TestDriver<wchar_t>::testCase35();
+
+      } break;
+      case 34: {
+        if (verbose) printf("Empty place holder\n");
       } break;
       case 33: {
         // --------------------------------------------------------------------
@@ -20511,10 +20609,11 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING 'replace'
+        // TESTING 'replace' -- Part 1 of 4
         //
         // Plan:
-        //: See 'TestDriver<CHAR_TYPE>::testCase20' for details.
+        //: 1 See 'TestDriver<CHAR_TYPE>::testCaseReplace' and
+        //:   'TestDriver<CHAR_TYPE>::testCaseReplaceMatchTypes' for details.
         //
         // Testing:
         //   basic_string& replace(pos1, n1, const string& str);
@@ -20526,57 +20625,25 @@ int main(int argc, char *argv[])
         //   basic_string& replace(const_iterator p, q, const C *s, n2);
         //   basic_string& replace(const_iterator p, q, const C *s);
         //   basic_string& replace(const_iterator p, q, size_type n2, C c);
-        //   template <It> basic_string& replace(const_iterator p, q, It f, l);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'replace'"
-                            "\n=================\n");
+        if (verbose) printf("\nTESTING 'replace' - Part 1 of 4"
+                            "\n===============================\n");
 
         if (verbose) printf("\nTesting 'replace' with value"
                             "\n============================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
-        TestDriver<char>::testCase20();
+        TestDriver<char>::testCaseReplace();
 
         if (verbose) printf("\n... with 'wchar_t'.\n");
-        TestDriver<wchar_t>::testCase20();
+        TestDriver<wchar_t>::testCaseReplace();
 
         if (verbose) printf("\n... with 'char' & matching integral types.\n");
-        TestDriver<char>::testCase20MatchTypes();
+        TestDriver<char>::testCaseReplaceMatchTypes();
 
         if (verbose) printf("\n... with 'wchar_t' & matching integ types.\n");
-        TestDriver<wchar_t>::testCase20MatchTypes();
-
-        if (verbose) printf("\nTesting 'replace' with range"
-                            "\n============================\n");
-
-        if (verbose) printf("\n... with 'char' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<char>::testCase20Range(CharList<char>());
-
-        if (verbose) printf("\n... with 'char' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<char>::testCase20Range(CharArray<char>());
-
-        if (verbose) printf("\n... with 'wchar_t' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<wchar_t>::testCase20Range(CharList<wchar_t>());
-
-        if (verbose) printf("\n... with 'wchar_t' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<wchar_t>::testCase20Range(CharArray<wchar_t>());
-
-#ifdef BDE_BUILD_TARGET_EXC
-        if (verbose) printf("\nNegative Testing 'replace'"
-                            "\n==========================\n");
-
-        if (verbose) printf("\n... with 'char'.\n");
-        TestDriver<char>::testCase20Negative();
-
-        if (verbose) printf("\n... with 'wchar_t'.\n");
-        TestDriver<wchar_t>::testCase20Negative();
-#endif
-
+        TestDriver<wchar_t>::testCaseReplaceMatchTypes();
       } break;
       case 19: {
         // --------------------------------------------------------------------

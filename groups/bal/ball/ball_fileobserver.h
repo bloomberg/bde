@@ -410,7 +410,7 @@ class FileObserver : public Observer {
     bool                  d_userFieldsLoggingFlag;
                                                 // 'true' if user-defined
                                                 // fields published
-                                                // (DEPRECATED)
+                                                // (!DEPRECATED!)
 
     bsl::string           d_stdoutLongFormat;   // initially set to default
                                                 // long format for records
@@ -572,7 +572,7 @@ class FileObserver : public Observer {
         // already enabled, or if a format string other than the default one is
         // in effect.
         //
-        // DEPRECATED: Use 'setLogFormat' instead.
+        // !DEPRECATED!: Use 'setLogFormat' instead.
 
     void enablePublishInLocalTime();
         // Enable publishing of the timestamp attribute of records in local

@@ -21,6 +21,7 @@ ball_loggerfunctorpayloads
 ball_loggermanager
 ball_loggermanagerconfiguration
 ball_loggermanagerdefaults
+ball_logthrottle
 ball_multiplexobserver
 ball_observer
 ball_observeradapter

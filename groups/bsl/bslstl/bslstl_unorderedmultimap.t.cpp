@@ -1313,11 +1313,12 @@ class TestDriver {
 
     template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
               bool OTHER_FLAGS>
-    static void testCase27_propagate_on_container_move_assignment_dispatch();
-    static void testCase27_propagate_on_container_move_assignment();
+    static void
+          testCaseMoveAssign_propagate_on_container_move_assignment_dispatch();
+    static void testCaseMoveAssign_propagate_on_container_move_assignment();
         // Test 'propagate_on_container_move_assignment'.
 
-    static void testCase27();
+    static void testCaseMoveAssign();
         // Test move assignment.
 
     static void testCase26();
@@ -2449,8 +2450,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase32_outOfLine()
 
     typedef std::initializer_list<ValueType> InitList;
 
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocatorRaw(&da);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
 
     if (verbose)
         printf("\nTesting constructor with initializer lists.\n");
@@ -4328,7 +4329,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase28()
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG, bool OTHER_FLAGS>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
-                   testCase27_propagate_on_container_move_assignment_dispatch()
+           testCaseMoveAssign_propagate_on_container_move_assignment_dispatch()
 {
     // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
     // under test in this test case to 'false'.
@@ -4423,7 +4424,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
-                            testCase27_propagate_on_container_move_assignment()
+                    testCaseMoveAssign_propagate_on_container_move_assignment()
 {
     // ------------------------------------------------------------------------
     // MOVE-ASSIGNMENT OPERATOR: ALLOCATOR PROPAGATION
@@ -4489,18 +4490,22 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
     if (verbose)
         printf("\n'propagate_on_container_move_assignment::value == false'\n");
 
-    testCase27_propagate_on_container_move_assignment_dispatch<false, false>();
-    testCase27_propagate_on_container_move_assignment_dispatch<false, true>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                               false, false>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                false, true>();
 
     if (verbose)
         printf("\n'propagate_on_container_move_assignment::value == true'\n");
 
-    testCase27_propagate_on_container_move_assignment_dispatch<true, false>();
-    testCase27_propagate_on_container_move_assignment_dispatch<true, true>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                true, false>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                 true, true>();
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase27()
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCaseMoveAssign()
 {
     // ------------------------------------------------------------------------
     // TESTING MOVE-ASSIGNMENT OPERATOR
@@ -11052,6 +11057,109 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
+      case 42: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT: Part 5 of 5
+        //
+        // Formerly test case 27, but was timing out so it had to be broken up
+        // into multiple test cases.
+        // --------------------------------------------------------------------
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseMoveAssign,
+                      bsltf::AllocBitwiseMoveableTestType,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType,
+                      bsltf::NonTypicalOverloadsTestType);
+      } break;
+      case 41: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT: Part 4 of 5
+        //
+        // Formerly test case 27, but was timing out so it had to be broken up
+        // into multiple test cases.
+        // --------------------------------------------------------------------
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseMoveAssign,
+                      bsltf::EnumeratedTestType::Enum,
+                      bsltf::UnionTestType,
+                      bsltf::SimpleTestType,
+                      bsltf::AllocTestType,
+                      bsltf::BitwiseCopyableTestType,
+                      bsltf::BitwiseMoveableTestType);
+      } break;
+      case 40: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT: Part 3 of 5
+        //
+        // Formerly test case 27, but was timing out so it had to be broken up
+        // into multiple test cases.
+        // --------------------------------------------------------------------
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseMoveAssign,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+
+      } break;
+      case 39: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT: Part 2 of 5
+        //
+        // Formerly test case 27, but was timing out so it had to be broken up
+        // into multiple test cases.
+        // --------------------------------------------------------------------
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseMoveAssign,
+                      bsltf::NonOptionalAllocTestType,
+                      BAD_MOVE_GUARD(bsltf::MovableTestType),
+                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+
+        TestDriver<int,
+                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
+                                                          testCaseMoveAssign();
+        TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
+                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
+                                                          testCaseMoveAssign();
+
+        //RUN_EACH_TYPE(StdBslmaTestDriver,
+        //              testCaseMoveAssign,
+        //              bsltf::StdAllocTestType<bsl::allocator<int> >);
+
+      } break;
+      case 38: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT: Part 1 of 5
+        //
+        // Formerly test case 27, but was timing out so it had to be broken up
+        // into multiple test cases.
+        // --------------------------------------------------------------------
+
+        // 'propagate_on_container_move_assignment' testing
+
+        RUN_EACH_TYPE(
+                     TestDriver,
+                     testCaseMoveAssign_propagate_on_container_move_assignment,
+                     BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                     bsltf::NonOptionalAllocTestType,
+                     BAD_MOVE_GUARD(bsltf::MovableTestType),
+                     BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
+
+// TBD get this working?
+#if 0
+        TestDriver<
+              int,
+              BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
+                   testCaseMoveAssign_propagate_on_container_move_assignment();
+
+        TestDriver<
+               BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
+               BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
+                   testCaseMoveAssign_propagate_on_container_move_assignment();
+#endif
+
+      } break;
       case 37: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION
@@ -11227,45 +11335,12 @@ int main(int argc, char *argv[])
         //              bsltf::StdAllocTestType<bsl::allocator<int> >);
       } break;
       case 27: {
-        // --------------------------------------------------------------------
-        // TESTING MOVE ASSIGNMENT
-        // --------------------------------------------------------------------
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase27,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      BAD_MOVE_GUARD(bsltf::MovableTestType),
-                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
-
-        TestDriver<int,
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase27();
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableTestType),
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::testCase27();
-
-        //RUN_EACH_TYPE(StdBslmaTestDriver,
-        //              testCase27,
-        //              bsltf::StdAllocTestType<bsl::allocator<int> >);
-
-        // 'propagate_on_container_move_assignment' testing
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase27_propagate_on_container_move_assignment,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
-                      bsltf::NonOptionalAllocTestType,
-                      BAD_MOVE_GUARD(bsltf::MovableTestType),
-                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
-
-// TBD get this working?
-#if 0
-        TestDriver<int, BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
-                           testCase27_propagate_on_container_move_assignment();
-
-        TestDriver<BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
-                   BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)>::
-                           testCase27_propagate_on_container_move_assignment();
-#endif
-
+        // Test case 27 took too long and was timing out and had to be broken
+        // up into multiple test cases.  Since most of the 'testCase*'
+        // functions in this test driver are number after the value of 'test',
+        // we didn't want to have to re-number all the higher test cases, so we
+        // did 's/testCase27/testCaseMoveAssign/' and moved everything to
+        // multiple cases at a much higher value of 'test'.
       } break;
       case 26: {
         // --------------------------------------------------------------------
@@ -11928,7 +12003,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

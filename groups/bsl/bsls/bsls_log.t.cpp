@@ -9,8 +9,8 @@
 #include <stdio.h>     // 'snprintf', '_snprintf'
 #include <stdlib.h>    // abort
 #include <string.h>    // strlen, strncpy
-#include <sys/types.h> // struct stat: required on Sun and Windows only
-#include <sys/stat.h>  // struct stat: required on Sun and Windows only
+#include <sys/types.h> // struct stat[64]: required on Sun and Windows only
+#include <sys/stat.h>  // struct stat[64]: required on Sun and Windows only
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 # include <windows.h>
@@ -301,6 +301,7 @@ const size_t NUM_WINDOWS_LARGE_DATA_LENGTHS =
 // ============================================================================
 //                       GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
+
 static void fillBuffer(char * const buffer, const size_t size)
     // Fill the specified 'size' - 1 number of characters in the specified
     // 'buffer' with a repeated sequence of ['A' - 'Z'], except for the last
@@ -443,9 +444,25 @@ const char *LargeTestData::expectedOutput() const
 //                       GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+typedef struct stat StatType;
+#else
+typedef struct stat64 StatType;
+#endif
+
+inline int fstatFunc(int fd, StatType *buf)
+{
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    return fstat(fd, buf);
+#else
+    return fstat64(fd, buf);
+#endif
+}
+
                          // =============================
                          // class WindowsDebugMessageSink
                          // =============================
+
 class WindowsDebugMessageSink {
     // This class provides a mechanism to allow the current process to act as a
     // Windows debugger, capturing all logs written to the 'OutputDebugString'
@@ -951,7 +968,7 @@ class OutputRedirector {
     size_t           d_outputSize;            // size of output loaded into
                                               // 'd_outputBuffer'
 
-    struct stat      d_originalStat;          // status information for
+    StatType         d_originalStat;          // status information for
                                               // 'stdout' or 'stderr' just
                                               // before redirection
 
@@ -1069,7 +1086,7 @@ class OutputRedirector {
         // Return the value of the global 'stdout' or 'stderr' corresponding to
         // the stream that is not intended to be redirected by this object.
 
-    const struct stat& originalStat() const;
+    const StatType& originalStat() const;
         // Return a reference to the status information for 'stdout' collected
         // just before redirection.  This method is used only to test the
         // correctness of 'OutputRedirector'.
@@ -1151,7 +1168,7 @@ OutputRedirector::OutputRedirector(Stream which)
 {
     ASSERT(which == STDOUT_STREAM || which == STDERR_STREAM);
     d_fileName[0] = '\0';
-    memset(&d_originalStat, 0, sizeof(struct stat));
+    memset(&d_originalStat, 0, sizeof(d_originalStat));
 }
 
 OutputRedirector::~OutputRedirector()
@@ -1208,7 +1225,7 @@ void OutputRedirector::enable()
     const int originalFD = fileno(redirectedStream());
 
     ASSERT(-1 != originalFD);
-    ASSERT(0 == fstat(originalFD, &d_originalStat));
+    ASSERT(0 == fstatFunc(originalFD, &d_originalStat));
 
     if(d_duplicatedOriginalFd == -1) {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -1454,7 +1471,7 @@ FILE *OutputRedirector::nonRedirectedStream() const
     }
 }
 
-const struct stat& OutputRedirector::originalStat() const
+const StatType& OutputRedirector::originalStat() const
 {
     return d_originalStat;
 }
@@ -2605,7 +2622,7 @@ int main(int argc, char *argv[]) {
             if(verbose) printf("\nStarting process using command: %s\n",
                                                             commandLineBuffer);
 
-            STARTUPINFO startupInfo;
+            STARTUPINFOA startupInfo;
             // MSDN docs say to use 'ZeroMemory'
             ZeroMemory(&startupInfo, sizeof(startupInfo));
             startupInfo.cb = sizeof(startupInfo);
