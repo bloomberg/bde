@@ -434,7 +434,6 @@ class FileObserver : public Observer {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(FileObserver, bslma::UsesBslmaAllocator);
 
-  public:
     // CREATORS
     FileObserver();
     explicit FileObserver(bslma::Allocator *basicAllocator);

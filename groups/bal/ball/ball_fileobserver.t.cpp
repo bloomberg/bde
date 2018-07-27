@@ -133,8 +133,8 @@ using bsl::flush;
 // [ 2] int rotationSize() const;
 // [ 1] ball::Severity::Level stdoutThreshold() const;
 // ----------------------------------------------------------------------------
-// [ 6] CONCERN: 'FileObserver' can be created using 'make_shared'
-// [ 6] CONCERN: 'FileObserver' can be created using 'allocate_shared'
+// [ 6] CONCERN: 'FileObserver' can be created using 'make_shared'.
+// [ 6] CONCERN: 'FileObserver' can be created using 'allocate_shared'.
 // [ 5] CONCERN: CURRENT LOCAL-TIME OFFSET IN TIMESTAMP
 // [ 4] CONCERN: ROTATION CALLBACK INVOCATION
 
@@ -226,6 +226,12 @@ static bool veryVeryVeryVerbose;
 typedef ball::FileObserver   Obj;
 typedef bdls::FilesystemUtil FsUtil;
 typedef bsls::Types::Int64   Int64;
+
+// ============================================================================
+//                                TYPE TRAITS
+// ----------------------------------------------------------------------------
+
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
 
 // ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -702,8 +708,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Iterate through a table providing a variety of values to be
-        //:   passed to the 'severity' and 'publishInLocalTime' args of the
-        //:   c'tors.
+        //:   passed to the 'severity' and 'publishInLocalTime' arguments of
+        //:   the c'tors.
         //:
         //: 2 With a switch in a 'for' loop, iterate through creating an 'Obj'
         //:   with all six possible c'tors, then verify through accessors that
@@ -714,15 +720,12 @@ int main(int argc, char *argv[])
         //:
         //: 4 Call 'allocate_shared' using 3 different c'tors and verify the
         //:   properties of the created objects.
-        //:
-        //: 5 Verify by compile-time assert that 'FileObserver' has the
-        //:   'bslma::UsesBslmaAllocator' trait.
         //
         // Testing:
         //   FileObserver();
         //   FileObserver(Allocator *);
-        //   CONCERN: 'FileObserver' can be created using 'make_shared'
-        //   CONCERN: 'FileObserver' can be created using 'allocate_shared'
+        //   CONCERN: 'FileObserver' can be created using 'make_shared'.
+        //   CONCERN: 'FileObserver' can be created using 'allocate_shared'.
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -747,21 +750,22 @@ int main(int argc, char *argv[])
                 bool     d_publishInLocalTime;
             } DATA[] = {
               { L_, Sev::e_ERROR,  false },
-              { L_, Sev::e_ERROR,  true },
+              { L_, Sev::e_ERROR,  true  },
               { L_, Sev::e_WARN,   false },
-              { L_, Sev::e_WARN,   true },
+              { L_, Sev::e_WARN,   true  },
               { L_, Sev::e_DEBUG,  false },
-              { L_, Sev::e_DEBUG,  true } };
+              { L_, Sev::e_DEBUG,  true  }
+             };
             enum { k_NUM_DEBUG = sizeof DATA / sizeof *DATA };
 
             for (int ti = 0; ti < k_NUM_DEBUG; ++ti) {
-                const Data data = DATA[ti];
-                const int  LINE = data.d_line;
+                const Data& ARGS = DATA[ti];
+                const int   LINE = ARGS.d_line;
 
                 bool go = true;
                 for (int ci = 0; go; ++ci) {
-                    Level level = data.d_level;
-                    bool  pilt  = data.d_publishInLocalTime;
+                    Level level = ARGS.d_level;
+                    bool  pilt  = ARGS.d_publishInLocalTime;
 
                     bslma::Allocator *passedAllocator = &oa;
 
@@ -811,8 +815,7 @@ int main(int argc, char *argv[])
                         continue;
                       } break;
                       default: {
-                        ASSERT(0 && "invalid case");
-                        BSLS_ASSERT(0 && "invalid case");
+                        ASSERTV(ci, 0 && "invalid case");
                       } break;
                     }
 
@@ -837,7 +840,6 @@ int main(int argc, char *argv[])
         ASSERT(&da          == &defaultAllocator);
         ASSERT(&da          == bslma::Default::allocator());
         ASSERT(&oa          != &da);
-
 
         if (verbose) cout << "Test 'make_shared' with various c'tors.\n";
         {
@@ -915,9 +917,6 @@ int main(int argc, char *argv[])
                 ASSERT(0            == da.numBlocksInUse());
             }
         }
-
-        if (verbose) cout << "Directly test memory allocation attribute.\n";
-        BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
       } break;
       case 5: {
         // --------------------------------------------------------------------
