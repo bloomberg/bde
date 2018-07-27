@@ -1,6 +1,8 @@
 // baljsn_printutil.t.cpp                                             -*-C++-*-
 #include <baljsn_printutil.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
@@ -689,10 +691,10 @@ int main(int argc, char *argv[])
                 //LINE  VALUE  RESULT
                 //----  -----  ------
 
-                { L_,   BDLDFP_DECIMAL_DD(0.0),  "0.0" },
-                { L_,   BDLDFP_DECIMAL_DD(1.13), "1.13" },
+                { L_,   BDLDFP_DECIMAL_DD(0.0),  "\"0.0\"" },
+                { L_,   BDLDFP_DECIMAL_DD(1.13), "\"1.13\"" },
                 { L_,   BDLDFP_DECIMAL_DD(-9.876543210987654e307),
-                  "-9.876543210987654e+307" },
+                  "\"-9.876543210987654e+307\"" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -964,36 +966,50 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Encode Decimal64" << endl;
         {
+#define DEC(X) BDLDFP_DECIMAL_DD(X)
+            using namespace bdldfp::DecimalLiterals;
             const struct {
                 int                d_line;
                 bdldfp::Decimal64  d_value;
+                bool               d_quoted;
                 const char        *d_result;
             } DATA[] = {
-                //LINE  VALUE  RESULT
-                //----  -----  ------
-
-                { L_,   BDLDFP_DECIMAL_DD(0.0),  "0.0" },
-                { L_,   BDLDFP_DECIMAL_DD(-0.0), "-0.0" },
-                { L_,   BDLDFP_DECIMAL_DD(1.13), "1.13" },
-                { L_,   BDLDFP_DECIMAL_DD(-9.8765432109876548e307),
-                  "-9.876543210987655e+307" },
-                { L_,   BDLDFP_DECIMAL_DD(-9.87654321098765482e307),
-                  "-9.876543210987655e+307" },
+  //---------------------------------------------------------------------------
+  // LINE |            VALUE          | QUOTED |         RESULT
+  //---------------------------------------------------------------------------
+   { L_, DEC( 0.0),                     false,    "0.0"                      },
+   { L_, DEC(-0.0),                     false,   "-0.0"                      },
+   { L_, DEC( 1.13),                    false,   "1.13"                      },
+   { L_, DEC(-9.8765432109876548e307),  false,   "-9.876543210987655e+307"   },
+   { L_, DEC(-9.87654321098765482e307), false,   "-9.876543210987655e+307"   },
+   { L_, DEC( 0.0),                     true,   "\"0.0\""                    },
+   { L_, DEC(-0.0),                     true,  "\"-0.0\""                    },
+   { L_, DEC( 1.13),                    true,  "\"1.13\""                    },
+   { L_, DEC(-9.8765432109876548e307),  true,  "\"-9.876543210987655e+307\"" },
+   { L_, DEC(-9.87654321098765482e307), true,  "\"-9.876543210987655e+307\"" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int               LINE  = DATA[ti].d_line;
-                const bdldfp::Decimal64 VALUE = DATA[ti].d_value;
-                const char *const       EXP   = DATA[ti].d_result;
+                const int               LINE   = DATA[ti].d_line;
+                const bdldfp::Decimal64 VALUE  = DATA[ti].d_value;
+                const bool              QUOTED = DATA[ti].d_quoted;
+                const char *const       EXP    = DATA[ti].d_result;
 
+                baljsn::EncoderOptions opt;
+                opt.setEncodeQuotedDecimal64(QUOTED);
                 bsl::ostringstream oss;
-                ASSERTV(LINE, 0 == Obj::printValue(oss, VALUE));
+                ASSERTV(LINE, 0 == Obj::printValue(oss, VALUE, &opt));
+                if (QUOTED) {
+                    bsl::ostringstream oss;
+                    ASSERTV(LINE, 0 == Obj::printValue(oss, VALUE));
+                }
 
                 bsl::string result = oss.str();
-                ASSERTV(LINE, result, EXP, result == EXP);
+                ASSERTV(LINE, QUOTED, result, EXP, result == EXP);
             }
         }
+#undef DEC
 
         if (verbose) cout << "Encode int" << endl;
         {

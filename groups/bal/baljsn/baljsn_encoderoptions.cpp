@@ -53,6 +53,8 @@ const int EncoderOptions::DEFAULT_INITIALIZER_MAX_FLOAT_PRECISION = bsl::numeric
 
 const int EncoderOptions::DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION = bsl::numeric_limits<double>::digits10;
 
+const bool EncoderOptions::DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64 = true;
+
 const bdlat_AttributeInfo EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_INITIAL_INDENT_LEVEL,
@@ -116,6 +118,13 @@ const bdlat_AttributeInfo EncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         sizeof("MaxDoublePrecision") - 1,
         "",
         bdlat_FormattingMode::e_DEC
+    },
+    {
+        ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64,
+        "EncodeQuotedDecimal64",
+        sizeof("EncodeQuotedDecimal64") - 1,
+        "",
+        bdlat_FormattingMode::e_TEXT
     }
 };
 
@@ -160,6 +169,8 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(int id)
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_FLOAT_PRECISION];
       case ATTRIBUTE_ID_MAX_DOUBLE_PRECISION:
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DOUBLE_PRECISION];
+      case ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_QUOTED_DECIMAL64];
       default:
         return 0;
     }
@@ -177,6 +188,7 @@ EncoderOptions::EncoderOptions()
 , d_encodeEmptyArrays(DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS)
 , d_encodeNullElements(DEFAULT_INITIALIZER_ENCODE_NULL_ELEMENTS)
 , d_encodeInfAndNaNAsStrings(DEFAULT_INITIALIZER_ENCODE_INF_AND_NA_N_AS_STRINGS)
+, d_encodeQuotedDecimal64(DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64)
 {
 }
 
@@ -190,6 +202,7 @@ EncoderOptions::EncoderOptions(const EncoderOptions& original)
 , d_encodeEmptyArrays(original.d_encodeEmptyArrays)
 , d_encodeNullElements(original.d_encodeNullElements)
 , d_encodeInfAndNaNAsStrings(original.d_encodeInfAndNaNAsStrings)
+, d_encodeQuotedDecimal64(original.d_encodeQuotedDecimal64)
 {
 }
 
@@ -214,6 +227,7 @@ EncoderOptions::operator=(const EncoderOptions& rhs)
         d_datetimeFractionalSecondPrecision = rhs.d_datetimeFractionalSecondPrecision;
         d_maxFloatPrecision = rhs.d_maxFloatPrecision;
         d_maxDoublePrecision = rhs.d_maxDoublePrecision;
+        d_encodeQuotedDecimal64 = rhs.d_encodeQuotedDecimal64;
     }
 
     return *this;
@@ -230,6 +244,7 @@ void EncoderOptions::reset()
     d_datetimeFractionalSecondPrecision = DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION;
     d_maxFloatPrecision = DEFAULT_INITIALIZER_MAX_FLOAT_PRECISION;
     d_maxDoublePrecision = DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION;
+    d_encodeQuotedDecimal64 = DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64;
 }
 
 // ACCESSORS
@@ -250,6 +265,7 @@ bsl::ostream& EncoderOptions::print(
     printer.printAttribute("datetimeFractionalSecondPrecision", d_datetimeFractionalSecondPrecision);
     printer.printAttribute("maxFloatPrecision", d_maxFloatPrecision);
     printer.printAttribute("maxDoublePrecision", d_maxDoublePrecision);
+    printer.printAttribute("encodeQuotedDecimal64", d_encodeQuotedDecimal64);
     printer.end();
     return stream;
 }

@@ -30,6 +30,8 @@ BSLS_IDENT("$Id: $")
 //  encodeNullElements  bool           false           none
 //  encodeInfAndNaNAsStrings
 //                      bool           false           none
+//  encodeQuotedDecimal64
+//                      bool           true            none
 //  datetimeFractionalSecondPrecision
 //                      int            3               >= 0 and <= 6
 //  maxFloatPrecision   int            bsl::numeric_limits<float>::digits10
@@ -97,6 +99,7 @@ BSLS_IDENT("$Id: $")
 //  const int  DATETIME_PRECISION        = 6;
 //  const int  FLOAT_PRECISION           = 3;
 //  const int  DOUBLE_PRECISION          = 9;
+//  const bool ENCODE_QUOTED_DECIMAL64   = false;
 //
 //  baljsn::EncoderOptions options;
 //  assert(0     == options.initialIndentLevel());
@@ -111,6 +114,7 @@ BSLS_IDENT("$Id: $")
 //  assert(bsl::numeric_limits<double>::digits10
 //                                            ==
 //                                            options.maxDoublePrecision());
+//  assert(false == options.encodeQuotedDecimal64());
 //..
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
@@ -141,6 +145,9 @@ BSLS_IDENT("$Id: $")
 //
 //  options.setMaxDoublePrecision(DOUBLE_PRECISION);
 //  assert(DOUBLE_PRECISION == options.maxDoublePrecision());
+//
+//  options.setEncodeQuotedDecimal64(ENCODE_QUOTED_DECIMAL64);
+//  ASSERT(ENCODE_QUOTED_DECIMAL64 == options.encodeQuotedDecimal64());
 //..
 
 #include <balscm_version.h>
@@ -185,28 +192,28 @@ class EncoderOptions {
     // milliseconds printed with date time values.  By default a precision of
     // '3' decimal places is used.  The 'MaxFloatPrecision' and
     // 'MaxDoublePrecision' attributes allow specifying the maximum precision
-    // for 'float' and 'double' values. 
+    // for 'float' and 'double' values.
 
     // INSTANCE DATA
     int                   d_initialIndentLevel;
-        // initial indentation level for the topmost element 
+        // initial indentation level for the topmost element
     int                   d_spacesPerLevel;
-        // spaces per additional level of indentation 
+        // spaces per additional level of indentation
     int                   d_datetimeFractionalSecondPrecision;
         // option specifying the number of decimal places used for milliseconds
-        // when encoding 'Datetime' and 'DatetimeTz' values 
+        // when encoding 'Datetime' and 'DatetimeTz' values
     int                   d_maxFloatPrecision;
         // option specifying the maximum number of decimal places used to
-        // encode each 'float' value 
+        // encode each 'float' value
     int                   d_maxDoublePrecision;
         // option specifying the maximum number of decimal places used to
-        // encode each 'double' value 
+        // encode each 'double' value
     baljsn::EncodingStyle::Value  d_encodingStyle;
-        // encoding style used to encode values 
+        // encoding style used to encode values
     bool                  d_encodeEmptyArrays;
-        // option specifying if empty arrays should be encoded 
+        // option specifying if empty arrays should be encoded
     bool                  d_encodeNullElements;
-        // option specifying if null elements should be encoded 
+        // option specifying if null elements should be encoded
     bool                  d_encodeInfAndNaNAsStrings;
         // option specifying a way to encode 'Infinity' and 'NaN' floating
         // point values.  JSON does not provide a way to encode these values as
@@ -215,8 +222,11 @@ class EncoderOptions {
         // only as numbers will fail to decode.  Users of this option must
         // therefore exercise caution and ensure that if this option is used
         // then the parser decoding the generated JSON can handle doubles as
-        // strings. 
-
+        // strings.
+    bool                   d_encodeQuotedDecimal64;
+        // option specifying a way to encode 'Decimal64' values.  If the option
+        // value is 'true' then the 'Decimal64' value is encoded quoted
+        // { "dec": "1.2e-5" }, and unquoted { "dec": 1.2e-5 } otherwise.
   public:
     // TYPES
     enum EncodingStyle {
@@ -243,6 +253,7 @@ class EncoderOptions {
       , ATTRIBUTE_ID_DATETIME_FRACTIONAL_SECOND_PRECISION = 6
       , ATTRIBUTE_ID_MAX_FLOAT_PRECISION                  = 7
       , ATTRIBUTE_ID_MAX_DOUBLE_PRECISION                 = 8
+      , ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64              = 9
     };
 
     enum {
@@ -259,6 +270,7 @@ class EncoderOptions {
       , ATTRIBUTE_INDEX_DATETIME_FRACTIONAL_SECOND_PRECISION = 6
       , ATTRIBUTE_INDEX_MAX_FLOAT_PRECISION                  = 7
       , ATTRIBUTE_INDEX_MAX_DOUBLE_PRECISION                 = 8
+      , ATTRIBUTE_INDEX_ENCODE_QUOTED_DECIMAL64              = 9
     };
 
     // CONSTANTS
@@ -283,6 +295,8 @@ class EncoderOptions {
     static const int DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION;
 
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+    static const bool DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64;
 
   public:
     // CLASS METHODS
@@ -382,6 +396,10 @@ class EncoderOptions {
         // Set the "MaxDoublePrecision" attribute of this object to the
         // specified 'value'.
 
+    void setEncodeQuotedDecimal64(bool value);
+        // Set the "EncodeQuotedDecimal64" attribute of this object to the
+        // specified 'value'.
+
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -460,6 +478,10 @@ class EncoderOptions {
 
     int maxDoublePrecision() const;
         // Return a reference to the non-modifiable "MaxDoublePrecision"
+        // attribute of this object.
+
+    bool encodeQuotedDecimal64() const;
+        // Return a reference to the non-modifiable "EncodeQuotedDecimal64"
         // attribute of this object.
 };
 
@@ -550,6 +572,11 @@ int EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
+    ret = manipulator(&d_encodeQuotedDecimal64, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_QUOTED_DECIMAL64]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -585,6 +612,9 @@ int EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
       } break;
       case ATTRIBUTE_ID_MAX_DOUBLE_PRECISION: {
         return manipulator(&d_maxDoublePrecision, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DOUBLE_PRECISION]);
+      } break;
+      case ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64: {
+        return manipulator(&d_encodeQuotedDecimal64, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_QUOTED_DECIMAL64]);
       } break;
       default:
         return NOT_FOUND;
@@ -682,6 +712,12 @@ void EncoderOptions::setMaxDoublePrecision(int value)
     d_maxDoublePrecision = value;
 }
 
+inline
+void EncoderOptions::setEncodeQuotedDecimal64(bool value)
+{
+    d_encodeQuotedDecimal64 = value;
+}
+
 // ACCESSORS
 template <class ACCESSOR>
 int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
@@ -733,6 +769,11 @@ int EncoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
+    ret = accessor(d_encodeQuotedDecimal64, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_QUOTED_DECIMAL64]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -768,6 +809,9 @@ int EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
       } break;
       case ATTRIBUTE_ID_MAX_DOUBLE_PRECISION: {
         return accessor(d_maxDoublePrecision, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_MAX_DOUBLE_PRECISION]);
+      } break;
+      case ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64: {
+        return accessor(d_encodeQuotedDecimal64, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_QUOTED_DECIMAL64]);
       } break;
       default:
         return NOT_FOUND;
@@ -845,6 +889,12 @@ int EncoderOptions::maxDoublePrecision() const
     return d_maxDoublePrecision;
 }
 
+inline
+bool EncoderOptions::encodeQuotedDecimal64() const
+{
+    return d_encodeQuotedDecimal64;
+}
+
 }  // close package namespace
 
 // FREE FUNCTIONS
@@ -862,7 +912,8 @@ bool baljsn::operator==(
          && lhs.encodeInfAndNaNAsStrings() == rhs.encodeInfAndNaNAsStrings()
          && lhs.datetimeFractionalSecondPrecision() == rhs.datetimeFractionalSecondPrecision()
          && lhs.maxFloatPrecision() == rhs.maxFloatPrecision()
-         && lhs.maxDoublePrecision() == rhs.maxDoublePrecision();
+         && lhs.maxDoublePrecision() == rhs.maxDoublePrecision()
+         && lhs.encodeQuotedDecimal64() == rhs.encodeQuotedDecimal64();
 }
 
 inline
@@ -878,7 +929,8 @@ bool baljsn::operator!=(
          || lhs.encodeInfAndNaNAsStrings() != rhs.encodeInfAndNaNAsStrings()
          || lhs.datetimeFractionalSecondPrecision() != rhs.datetimeFractionalSecondPrecision()
          || lhs.maxFloatPrecision() != rhs.maxFloatPrecision()
-         || lhs.maxDoublePrecision() != rhs.maxDoublePrecision();
+         || lhs.maxDoublePrecision() != rhs.maxDoublePrecision()
+         || lhs.encodeQuotedDecimal64() != rhs.encodeQuotedDecimal64();
 }
 
 inline
