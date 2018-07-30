@@ -45,7 +45,8 @@ BSLS_IDENT("$Id: $")
 //:
 //: o 'spacesPerLevel': spaces per additional indent level.
 //:
-//: o 'encodeEmptyArrays': option specifying if empty arrays should be encoded.
+//: o 'encodeEmptyArrays': option specifying if empty arrays should be encoded
+//:   (empty arrays occurring as selections of choices are always encoded).
 //:
 //: o 'encodeNullElements': option specifying if null elements should be
 //:                         encoded.
@@ -217,7 +218,8 @@ class EncoderOptions {
     baljsn::EncodingStyle::Value  d_encodingStyle;
         // encoding style used to encode values
     bool                  d_encodeEmptyArrays;
-        // option specifying if empty arrays should be encoded
+        // option specifying if empty arrays should be encoded (empty arrays
+        // occurring as selections of choices are always encoded)
     bool                  d_encodeNullElements;
         // option specifying if null elements should be encoded
     bool                  d_encodeInfAndNaNAsStrings;
@@ -464,7 +466,9 @@ class EncoderOptions {
 
     bool encodeEmptyArrays() const;
         // Return a reference to the non-modifiable "EncodeEmptyArrays"
-        // attribute of this object.
+        // attribute of this object.  Note that empty arrays occurring as
+        // selections of choices are always encoded regardless of the setting
+        // of this option.
 
     bool encodeNullElements() const;
         // Return a reference to the non-modifiable "EncodeNullElements"
