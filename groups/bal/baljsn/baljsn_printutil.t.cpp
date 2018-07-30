@@ -967,7 +967,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Encode Decimal64" << endl;
         {
 #define DEC(X) BDLDFP_DECIMAL_DD(X)
-            using namespace bdldfp::DecimalLiterals;
             const struct {
                 int                d_line;
                 bdldfp::Decimal64  d_value;
@@ -1000,13 +999,16 @@ int main(int argc, char *argv[])
                 opt.setEncodeQuotedDecimal64(QUOTED);
                 bsl::ostringstream oss;
                 ASSERTV(LINE, 0 == Obj::printValue(oss, VALUE, &opt));
+                bsl::string result = oss.str();
+                ASSERTV(LINE, QUOTED, result, EXP, result == EXP);
+
                 if (QUOTED) {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 == Obj::printValue(oss, VALUE));
-                }
 
-                bsl::string result = oss.str();
-                ASSERTV(LINE, QUOTED, result, EXP, result == EXP);
+                    bsl::string result = oss.str();
+                    ASSERTV(LINE, QUOTED, result, EXP, result == EXP);
+                }
             }
         }
 #undef DEC
