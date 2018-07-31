@@ -1824,8 +1824,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
 
-        bsl::shared_ptr<Obj>       mX(new (ta) Obj(&ta), &ta);
-        bsl::shared_ptr<const Obj> X = mX;
+        bsl::shared_ptr<Obj> mX(new (ta) Obj(&ta), &ta);
 
         ASSERT(0 == manager.registerObserver(mX, "testObserver"));
 
@@ -1874,6 +1873,8 @@ int main(int argc, char *argv[])
                 ASSERT(1 == cb.numInvocations());
                 ASSERT(1 == FsUtil::exists(cb.rotatedFileName().c_str()));
             }
+
+            mX->disableFileLogging();
         }
         // Deregister here as we used local allocator for the observer.
         ASSERT(0 == manager.deregisterObserver("testObserver"));
@@ -1931,7 +1932,6 @@ int main(int argc, char *argv[])
             bsl::string        fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName, "testLog");
 
-
             enableFileLogging(mX, fileName);
 
             char buffer[1024];
@@ -1957,6 +1957,8 @@ int main(int argc, char *argv[])
             ASSERTV(cb.status(),         0 == cb.status());
 
             ASSERT(1 == FsUtil::exists(cb.rotatedFileName()));
+
+            mX->disableFileLogging();
         }
 
         // Deregister here as we used local allocator for the observer.
@@ -2088,7 +2090,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose)
-            cout << "\tTest a rotation that succeed with a callback." << endl;
+            cout << "\tTest a rotation that succeeds with a callback." << endl;
         {
             bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
@@ -2358,7 +2360,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, startDatetime.minute() == endDatetime.minute());
                 ASSERTV(LINE, startDatetime.second() == endDatetime.second());
 
-                BALL_LOG_INFO<< "log";
+                BALL_LOG_INFO << "log";
 
                 // now construct the name of the log file from startDatetime
 
