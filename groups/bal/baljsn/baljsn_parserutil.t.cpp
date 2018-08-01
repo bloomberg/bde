@@ -2092,6 +2092,30 @@ int main(int argc, char *argv[])
                 {  L_,     "\"\\UDea7\"",    ERROR_VALUE,             false  },
                 {  L_,     "\"\\UDF03\"",    ERROR_VALUE,             false  },
                 {  L_,     "\"\\UDFFF\"",    ERROR_VALUE,             false  },
+
+                // Supplementary plane characters.
+
+                { L_,      "\"\\ud800\\udbff\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\udbad\\udbff\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\udbff\\udbff\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\ud800\\udc00\"", "\xF0\x90\x80\x80",  true   },
+                { L_,      "\"\\ud83d\\ude42\"", "\xF0\x9F\x99\x82",  true   },
+                { L_,      "\"\\udbff\\udfff\"", "\xF4\x8F\xBF\xBF",  true   },
+                { L_,      "\"\\ud800\\ue000\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\udbad\\ue000\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\udbff\\ue000\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude4\"",  ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude4",    ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude\"",   ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude",     ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ud\"",    ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ud",      ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\u\"",     ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\u",       ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\\"",      ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\",        ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude4`\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude4g\"", ERROR_VALUE,         false  },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 

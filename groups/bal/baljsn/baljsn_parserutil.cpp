@@ -210,20 +210,67 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
                 bsl::strncpy(tmp, iter, k_NUM_UNICODE_DIGITS);
                 tmp[k_NUM_UNICODE_DIGITS] = '\0';
 
-                char         *end = 0;
+                char         *last = 0;
                 unsigned int  utf32input[2] = { 0 };
 
                 utf32input[0] = static_cast<unsigned int>(
-                                                   bsl::strtol(tmp, &end, 16));
+                                                  bsl::strtol(tmp, &last, 16));
 
-                if (end == tmp || *end != '\0') {
+                if (last == tmp || *last != '\0') {
                     return -1;                                        // RETURN
                 }
 
+                unsigned int first = utf32input[0];
+
                 // Confirm that only the lower two bytes are set.
 
-                BSLS_ASSERT(0 == (utf32input[0] & 0xFF000000)
-                         && 0 == (utf32input[0] & 0x00FF0000));
+                BSLS_ASSERT(0 == (first & 0xFF000000)
+                         && 0 == (first & 0x00FF0000));
+
+                // Value by which to increment 'iter'.  (3 instead of 4 because
+                // 'iter' is incremented at the end of the function.)
+                int increment = 3;
+
+                // Check for supplementary plane encodings.  These consist of a
+                // pair of unicode 16-bit values, the first in 'D800..DBFF' and
+                // the second in 'DC00..DFFF'.
+                if (0xD800 <= first && first <= 0xDBFF) {
+                    // Check that another unicode escape sequence follows.
+                    if (iter + 2 * k_NUM_UNICODE_DIGITS + 2 >= end) {
+                        return -1;                                    // RETURN
+                    }
+                    if ('\\' != iter[k_NUM_UNICODE_DIGITS]) {
+                        return -1;                                    // RETURN
+                    }
+                    if ('u' != iter[k_NUM_UNICODE_DIGITS + 1] &&
+                        'U' != iter[k_NUM_UNICODE_DIGITS + 1]) {
+                        return -1;                                    // RETURN
+                    }
+                    for (int i = 0; i < k_NUM_UNICODE_DIGITS; ++i) {
+                        if (0 == iter[k_NUM_UNICODE_DIGITS + 2 + i]) {
+                            return -1;                                // RETURN
+                        }
+                    }
+                    bsl::strncpy(tmp,
+                                 iter + k_NUM_UNICODE_DIGITS + 2,
+                                 k_NUM_UNICODE_DIGITS);
+                    tmp[k_NUM_UNICODE_DIGITS] = '\0';
+                    unsigned int second = static_cast<unsigned int>(
+                                                  bsl::strtol(tmp, &last, 16));
+                    if (last == tmp || *last != '\0') {
+                        return -1;                                    // RETURN
+                    }
+                    if (second < 0xDC00 || second > 0xDFFF) {
+                        return -1;                                    // RETURN
+                    }
+                    // Combine the two 16-bit halves into one 21-bit whole.
+                    utf32input[0] = 0x010000 +
+                                    ((first - 0xD800) << 10) +
+                                    (second - 0xDC00);
+
+                    // Increment 'increment' to skip past second character.
+                    increment += 6;
+                }
 
                 // Due to the short string optimization there won't be a memory
                 // allocation here.
@@ -239,10 +286,7 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
 
                 value->append(utf8String);
 
-                // 'iter' is not increased by 4 because 'iter' is incremented
-                // at the end of the function.
-
-                iter += 3;
+                iter += increment;
               } break;
               default: {
                 return -1;                                            // RETURN
