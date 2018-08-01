@@ -10,7 +10,7 @@ function(bdlde_process_package retPackage)
         ${interfaceTarget}
         PRIVATE
             $<$<PLATFORM_ID:Linux>:-msse4.2>
+            $<$<PLATFORM_ID:SunOs>:-xarch=sparc4>
     )
-
     bde_return(${package})
 endfunction()
