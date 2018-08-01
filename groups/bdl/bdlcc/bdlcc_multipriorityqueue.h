@@ -516,33 +516,33 @@ class MultipriorityQueue {
 
     // DATA
     mutable bslmt::Mutex d_mutex;          // used to synchronize access
-                                          // (including 'const' access)
+                                           // (including 'const' access)
 
     bslmt::Condition     d_notEmptyCondition;
-                                          // signaled on each push
+                                           // signaled on each push
 
-    NodePtrVector       d_heads;          // pointers to heads of linked lists
-                                          // -- one for each priority
+    NodePtrVector        d_heads;          // pointers to heads of linked lists
+                                           // -- one for each priority
 
-    NodePtrVector       d_tails;          // pointers to tails of linked lists
-                                          // -- one for each priority
+    NodePtrVector        d_tails;          // pointers to tails of linked lists
+                                           // -- one for each priority
 
-    volatile int        d_notEmptyFlags;  // bit mask indicating priorities for
-                                          // which there is data, where bit 0
-                                          // is the lowest order bit,
-                                          // representing most urgent priority
+    volatile int         d_notEmptyFlags;  // bit mask indicating priorities
+                                           // for which there is data, where
+                                           // bit 0 is the lowest order bit,
+                                           // representing most urgent priority
 
-    bdlma::ConcurrentPool          d_pool;           // memory pool used for
-                                                     // node storage
+    bdlma::ConcurrentPool   
+                         d_pool;           // memory pool used for node storage
 
-    volatile int        d_length;         // total number of items in this
-                                          // multipriority queue
+    volatile int         d_length;         // total number of items in this
+                                           // multipriority queue
 
-    bool                d_enabledFlag;    // enabled/disabled state of pushes
-                                          // to the multipriority queue (does
-                                          // not affect pops)
+    bool                 d_enabledFlag;    // enabled/disabled state of pushes
+                                           // to the multipriority queue (does
+                                           // not affect pops)
 
-    bslma::Allocator   *d_allocator_p;    // memory allocator (held)
+    bslma::Allocator    *d_allocator_p;    // memory allocator (held)
 
   private:
     // NOT IMPLEMENTED
@@ -909,7 +909,7 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(const TYPE& item,
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-        for (int i = 0; i < numItems; ++i) {
+        for (int ii = 0; ii < numItems; ++ii) {
             Node *newNode = (Node *)d_pool.allocate();
             bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
                                                              newNode, &d_pool);
@@ -930,10 +930,12 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(const TYPE& item,
             head = newNode;
 
             ++d_length;
-
-            d_notEmptyCondition.signal();
         } // for numItems i
     }  // release mutex
+
+    for (int ii = 0; ii < numItems; ++ii) {
+        d_notEmptyCondition.signal();
+    }
 }
 
 template <class TYPE>
@@ -948,7 +950,7 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(const TYPE& item,
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-        for (int i = 0; i < numItems; ++i) {
+        for (int ii = 0; ii < numItems; ++ii) {
             Node *newNode = (Node *)d_pool.allocate();
             bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
                                                              newNode, &d_pool);
@@ -970,10 +972,12 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(const TYPE& item,
             d_tails[itemPriority] = newNode;
 
             ++d_length;
-
-            d_notEmptyCondition.signal();
         } // for numItems i
     }  // release mutex
+
+    for (int ii = 0; ii < numItems; ++ii) {
+        d_notEmptyCondition.signal();
+    }
 }
 
 template <class TYPE>
