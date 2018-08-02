@@ -322,14 +322,10 @@ int ParserUtil::getValue(bdldfp::Decimal64 *value,
     bsl::string dataString(&allocator);
 
     if ('"' == data[0]) {
-        if (3 > data.length()) {
+        if (3 > data.length() || '"' != data[data.length() - 1]) {
             return -1;                                                // RETURN
         }
-        if ('"' == data[data.length() - 1]) {
-            dataString.append(data.data() + 1, data.length() - 2);
-        } else {
-            return -1;                                                // RETURN
-        }
+        dataString.append(data.data() + 1, data.length() - 2);
     } else {
         dataString.append(data.data(), data.length());
     }
@@ -339,18 +335,25 @@ int ParserUtil::getValue(bdldfp::Decimal64 *value,
         // Note that 'bdldfp::DecimalUtil::parseDecimal" does not parse signed
         // 'nan' values.
 
-    if (rc != 0) {
-        if ('"' == data[0]) {
-            // Parse "+nan" and "-nan" values as floating point values.
+    if (0 != rc) {
 
-            rc = loadInfOrNan(&d, data);
-            if (rc != 0) {
-                return -1;                                            // RETURN
-            }
-        } else {
-            return -1;                                                // RETURN
+        // For the sake of efficiency, we rely on the trick that any alphabetic
+        // character [a-zA-Z] in ASCII encoding can be bit-wise 'or'ed with '_'
+        // (0x20) to get the corresponding lower case character.
+        if ( data.length()  == 6    &&
+             data[0]        == '\"' &&
+             data[1]        == '-'  &&
+            (data[2] | ' ') == 'n'  &&
+            (data[3] | ' ') == 'a'  &&
+            (data[4] | ' ') == 'n'  &&
+             data[5]        == '\"')
+        {
+            *value = bsl::numeric_limits<bdldfp::Decimal64>::quiet_NaN();
+            return 0;                                                 // RETURN
         }
+        return -1;                                                    // RETURN
     }
+
     *value = d;
     return 0;
 }

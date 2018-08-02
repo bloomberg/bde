@@ -62,6 +62,11 @@ BSLS_IDENT("$Id: $")
 //:                               decoding the generated JSON can handle
 //:                               doubles as strings.
 //:
+//: o 'encodeQuotedDecimal64': option specifying a way to encode 'Decimal64'
+//:                            values.  If the option value is 'true' then the
+//:                            'Decimal64' value is encoded enclosed in quotes,
+//:                            ans as 'double' otherwise.
+//:
 //: o 'datetimeFractionalSecondPrecision': option specifying the number of
 //:                                        decimal places used for seconds when
 //:                                        encoding 'Datetime' and
@@ -257,7 +262,7 @@ class EncoderOptions {
     };
 
     enum {
-        NUM_ATTRIBUTES = 9
+        NUM_ATTRIBUTES = 10
     };
 
     enum {

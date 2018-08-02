@@ -964,9 +964,10 @@ int main(int argc, char *argv[])
                                -bsl::numeric_limits<double>::signaling_NaN()));
         }
 
+#define DEC(X) BDLDFP_DECIMAL_DD(X)
+
         if (verbose) cout << "Encode Decimal64" << endl;
         {
-#define DEC(X) BDLDFP_DECIMAL_DD(X)
             const struct {
                 int                d_line;
                 bdldfp::Decimal64  d_value;
@@ -1008,6 +1009,55 @@ int main(int argc, char *argv[])
 
                     bsl::string result = oss.str();
                     ASSERTV(LINE, QUOTED, result, EXP, result == EXP);
+                }
+            }
+        }
+
+        if (verbose) cout << "Encode Decimal64 Inf and NaN" << endl;
+        {
+            typedef bdldfp::Decimal64 Type;
+
+            const Type NAN_P = bsl::numeric_limits<Type>::quiet_NaN();
+            const Type NAN_N = -NAN_P;
+            const Type INF_P = bsl::numeric_limits<Type>::infinity();
+            const Type INF_N = -INF_P;
+
+            const struct {
+                int         d_line;
+                Type        d_value;
+                bool        d_encodeAsString;
+                const char *d_expected;
+                int         d_result;
+            } DATA[] = {
+               //-----------------------------------------------
+               // LINE | VALUE | AS_STRING | EXPECTED  | RESULT
+               //-----------------------------------------------
+                { L_,    NAN_P,    true,     "\"nan\"",     0  },
+                { L_,    NAN_N,    true,     "\"-nan\"",    0  },
+                { L_,    INF_P,    true,     "\"+inf\"",    0  },
+                { L_,    INF_N,    true,     "\"-inf\"",    0  },
+                { L_,    NAN_P,    false,    "",           -1  },
+                { L_,    NAN_N,    false,    "",           -1  },
+                { L_,    INF_P,    false,    "",           -1  },
+                { L_,    INF_N,    false,    "",           -1  },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int          LINE   = DATA[ti].d_line;
+                const Type         VALUE  = DATA[ti].d_value;
+                const bool         AS_STR = DATA[ti].d_encodeAsString;
+                const char *const  EXP    = DATA[ti].d_expected;
+                const int          RESULT = DATA[ti].d_result;
+
+                baljsn::EncoderOptions opt;
+                opt.setEncodeInfAndNaNAsStrings(AS_STR);
+                bsl::ostringstream oss;
+                int result = Obj::printValue(oss, VALUE, &opt);
+                ASSERTV(LINE, RESULT, result, RESULT == result);
+                if (0 == result) {
+                    bsl::string output = oss.str();
+                    ASSERTV(LINE, AS_STR, EXP, output, EXP == output);
                 }
             }
         }

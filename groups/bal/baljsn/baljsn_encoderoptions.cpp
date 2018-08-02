@@ -134,7 +134,7 @@ const bdlat_AttributeInfo *EncoderOptions::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
-    for (int i = 0; i < 9; ++i) {
+    for (int i = 0; i < 10; ++i) {
         const bdlat_AttributeInfo& attributeInfo =
                     EncoderOptions::ATTRIBUTE_INFO_ARRAY[i];
 
