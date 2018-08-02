@@ -111,7 +111,7 @@ using namespace bsl;
 // [ 5] operator<<(ostream& s, const baljsn::EncoderOptions& d);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
