@@ -521,7 +521,7 @@ class Queue {
         // 'highWaterMark != 0'.
 
     Queue(const bdlc::Queue<TYPE>&  srcQueue,
-          bslma::Allocator         *basicAllocator = 0);        // IMPLICIT
+          bslma::Allocator         *basicAllocator = 0);            // IMPLICIT
         // Create a queue of objects of parameterized 'TYPE' containing the
         // sequence of 'TYPE' values from the specified 'srcQueue'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If

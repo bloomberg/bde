@@ -249,9 +249,6 @@ static const bsl::size_t      maxSizeT = ~static_cast<bsl::size_t>(0);
 static const double DECI_SEC      = 0.1;
                                     // 1 deci second (i.e., 1/10th of a second)
 
-static const int MICRO_SEC_IN_SEC = 100000;
-                                         // number of micro seconds in a second
-
 static const int MICRO_100TH_SEC =    10000;
                                        // number of micro seconds in .1 seconds
 
@@ -1069,7 +1066,6 @@ typedef bdlcc::Deque<unsigned> Container;
 
 bslmt::Barrier barrier(5);
 
-const unsigned idMask       = 3 << 30;
 const unsigned startEndMask = 1 << 29;
 const unsigned sequenceMask = 0xffff;
 
