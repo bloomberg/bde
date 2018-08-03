@@ -2796,11 +2796,20 @@ int main(int argc, char *argv[])
 
         int ii = 0, jj = 0;
         ASSERT(ii++ == Obj::ConstProctor(&mX)->front());
-        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
-        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
-        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
-        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
+        ASSERT(ii++ == Obj::ConstProctor(&mX)[++jj]);
+        ASSERT(ii++ == Obj::ConstProctor(&mX)[++jj]);
+        ASSERT(ii++ == Obj::ConstProctor(&mX)[++jj]);
+        ASSERT(ii++ == Obj::ConstProctor(&mX)[++jj]);
         ASSERT(ii++ == Obj::ConstProctor(&mX)->back());
+
+        ASSERT(--ii == Obj::Proctor(&mX)->back());
+        ASSERT(--ii == Obj::Proctor(&mX)[jj--]);
+        ASSERT(--ii == Obj::Proctor(&mX)[jj--]);
+        ASSERT(--ii == Obj::Proctor(&mX)[jj--]);
+        ASSERT(--ii == Obj::Proctor(&mX)[jj--]);
+        ASSERT(--ii == Obj::Proctor(&mX)->front());
+        ASSERTV(ii, 0 == ii);
+        ASSERTV(jj, 0 == jj);
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -6187,6 +6196,9 @@ int main(int argc, char *argv[])
                 ASSERT(VA == (*cpr)[0]);
                 ASSERT(VB == (*cpr)[1]);
                 ASSERT(VC == (*cpr)[2]);
+                ASSERT(VA == cpr[0]);
+                ASSERT(VB == cpr[1]);
+                ASSERT(VC == cpr[2]);
                 ASSERT(VA == cpr->front());
                 ASSERT(VC == cpr->back());
                 ASSERT(VA == *cpr->begin());
@@ -6202,6 +6214,9 @@ int main(int argc, char *argv[])
                 ASSERT(VA == (*pr)[0]);
                 ASSERT(VB == (*pr)[1]);
                 ASSERT(VC == (*pr)[2]);
+                ASSERT(VA == pr[0]);
+                ASSERT(VB == pr[1]);
+                ASSERT(VC == pr[2]);
                 ASSERT(VA == pr->front());
                 ASSERT(VC == pr->back());
                 ASSERT(VA == *pr->begin());
@@ -6215,7 +6230,7 @@ int main(int argc, char *argv[])
                 ASSERT(VB == (*pr)[1]);
                 ASSERT(VA == pr->back());
 
-                (*pr)[1] = VA;
+                pr[1] = VA;
                 ASSERT(VA == (*pr)[1]);
 
                 pr->front() = VB;

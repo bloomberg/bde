@@ -879,13 +879,13 @@ class Deque<TYPE>::Proctor {
     // object locks the mutex of the 'Deque', and destruction unlocks it.
 
     // PRIVATE TYPES
-    typedef bsl::deque<TYPE>       MonoDeque;
+    typedef bsl::deque<TYPE>              MonoDeque;
+    typedef typename MonoDeque::size_type size_type;
 
     // DATA
-    Deque<TYPE>                   *d_container_p;
-    typename MonoDeque::size_type  d_startLength;  // If '!d_container_p', this
-                                                   // field may be left
-                                                   // uninitialized.
+    Deque<TYPE>    *d_container_p;
+    size_type       d_startLength;      // If '!d_container_p', this field may
+                                        // be left uninitialized.
 
   private:
     // NOT IMPLEMENTED
@@ -931,6 +931,10 @@ class Deque<TYPE>::Proctor {
         // object.  The behavior is undefined if this 'Proctor' has been
         // released.
 
+    TYPE& operator[](typename MonoDeque::size_type index) const;
+        // Return a reference to the element of the element of the 'bsl::deque'
+        // at the specified 'index'.
+
     bool isNull() const;
         // Return 'true' if this object is not associated with a 'Deque'
         // object.
@@ -946,13 +950,13 @@ class Deque<TYPE>::ConstProctor {
     // the underlying 'bsl::deque' contained in a 'Deque'.
 
     // PRIVATE TYPES
-    typedef bsl::deque<TYPE>       MonoDeque;
+    typedef bsl::deque<TYPE>              MonoDeque;
+    typedef typename MonoDeque::size_type size_type;
 
     // DATA
-    const Deque<TYPE>             *d_container_p;
-    typename MonoDeque::size_type  d_startLength;  // If '!d_container_p', this
-                                                   // field may be left
-                                                   // uninitialized.
+    const Deque<TYPE>  *d_container_p;
+    size_type           d_startLength;  // If '!d_container_p', this field may
+                                        // be left uninitialized.
 
   private:
     // NOT IMPLEMENTED
@@ -996,6 +1000,10 @@ class Deque<TYPE>::ConstProctor {
         // Return a reference to the 'bsl::deque' managed by this 'Proctor'
         // object.  The behavior is undefined if this 'ConstProctor' has been
         // released.
+
+    const TYPE& operator[](size_type index) const;
+        // Return a reference to the element of the element of the 'bsl::deque'
+        // at the specified 'index'.
 
     bool isNull() const;
         // Return 'true' if this object is not associated with a 'Deque'
@@ -1095,6 +1103,13 @@ bsl::deque<TYPE>& Deque<TYPE>::Proctor::operator*() const
 
 template <class TYPE>
 inline
+TYPE& Deque<TYPE>::Proctor::operator[](size_type index) const
+{
+    return d_container_p->d_monoDeque[index];
+}
+
+template <class TYPE>
+inline
 bool Deque<TYPE>::Proctor::isNull() const
 {
     return 0 == d_container_p;
@@ -1178,6 +1193,13 @@ const bsl::deque<TYPE>& Deque<TYPE>::ConstProctor::operator*() const
     BSLS_ASSERT_SAFE(d_container_p);
 
     return d_container_p->d_monoDeque;
+}
+
+template <class TYPE>
+inline
+const TYPE& Deque<TYPE>::ConstProctor::operator[](size_type index) const
+{
+    return d_container_p->d_monoDeque[index];
 }
 
 template <class TYPE>
