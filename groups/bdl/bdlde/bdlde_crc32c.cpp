@@ -19,12 +19,18 @@ BSLS_IDENT_RCSID(bdlde_crc32c_cpp,"$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-// Compiler-specific
+// Compiler-specific and platform-specific
+#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#define LIKE_X86_GCC
+#endif
+#endif
+
+#if defined(LIKE_X86_GCC)
 #include <cpuid.h>
 #endif
 
-// #define BDLDE_SUPPORT_SPARC_HARDWERE_OPTIMIZATION
+// #define BDLDE_SUPPORT_SPARC_HARDWARE_OPTIMIZATION
     // The Sparc hardware optimization is implemented in a third-party library
     // provided by Oracle.  For the time being we remove optimized crc32
     // implementation and use software version of crc32 computation instead
@@ -32,7 +38,7 @@ BSLS_IDENT_RCSID(bdlde_crc32c_cpp,"$Id$ $CSID$")
     // other open-source users.
 
 #if defined(BSLS_PLATFORM_CPU_SPARC) && \
-    defined(BDLDE_SUPPORT_SPARC_HARDWERE_OPTIMIZATION)
+    defined(BDLDE_SUPPORT_SPARC_HARDWARE_OPTIMIZATION)
 #include <sparc_crc32c.h>
 #endif
 
@@ -874,7 +880,7 @@ unsigned int calculateCrc32c(const unsigned char *data,
 }
 
 #if defined(BSLS_PLATFORM_CPU_SPARC) && \
-    defined(BDLDE_SUPPORT_SPARC_HARDWERE_OPTIMIZATION)
+    defined(BDLDE_SUPPORT_SPARC_HARDWARE_OPTIMIZATION)
 unsigned int sparcHardware(const unsigned char *data,
                            bsl::size_t          length,
                            unsigned int         crc)
@@ -887,7 +893,7 @@ unsigned int sparcHardware(const unsigned char *data,
     // swap the endianess of the result.
     return bsls::ByteOrderUtil::swapBytes(result);
 }
-#endif  // BSLS_PLATFORM_CPU_SPARC && BDLDE_SUPPORT_SPARC_HARDWERE_OPTIMIZATION
+#endif  // BSLS_PLATFORM_CPU_SPARC && BDLDE_SUPPORT_SPARC_HARDWARE_OPTIMIZATION
 
 unsigned int crc32cSoftware(const unsigned char *data,
                             bsl::size_t          length,
@@ -965,7 +971,7 @@ unsigned int crc32cSoftware(const unsigned char *data,
     return ~crc;
 }
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(LIKE_X86_GCC)
 
 #  ifdef BSLS_PLATFORM_CPU_64_BIT
 
@@ -1181,7 +1187,7 @@ unsigned int crc32cHardwareSerial(const unsigned char *data,
     return ~sum;
 }
 
-#endif  // BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG
+#endif  // LIKE_X86_GCC
 
                         //-----------------------
                         // class Crc32cCalculator
@@ -1231,7 +1237,7 @@ Crc32cCalculator::Crc32cCalculator()
 #endif
 
 #elif defined(BSLS_PLATFORM_CPU_SPARC) && \
-      defined(BDLDE_SUPPORT_SPARC_HARDWERE_OPTIMIZATION)
+      defined(BDLDE_SUPPORT_SPARC_HARDWARE_OPTIMIZATION)
     if (is_sparc_crc32c_avail()) {
         BSLS_LOG_INFO("Using hardware version for CRC32-C computation "
                       "(sparc hardware support available)");
@@ -1329,7 +1335,7 @@ unsigned int Crc32c_Impl::calculateHardwareSerial(const void   *data,
     }
 
     const unsigned char *dataUchar = static_cast<const unsigned char *>(data);
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(LIKE_X86_GCC)
     return crc32cHardwareSerial(dataUchar, length, crc);
 #else
     return crc32cSoftware(dataUchar, length, crc);
