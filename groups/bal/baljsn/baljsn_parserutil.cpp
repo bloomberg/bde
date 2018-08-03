@@ -336,17 +336,13 @@ int ParserUtil::getValue(bdldfp::Decimal64 *value,
         // 'nan' values.
 
     if (0 != rc) {
-
-        // For the sake of efficiency, we rely on the trick that any alphabetic
-        // character [a-zA-Z] in ASCII encoding can be bit-wise 'or'ed with '_'
-        // (0x20) to get the corresponding lower case character.
-        if ( data.length()  == 6    &&
-             data[0]        == '\"' &&
-             data[1]        == '-'  &&
-            (data[2] | ' ') == 'n'  &&
-            (data[3] | ' ') == 'a'  &&
-            (data[4] | ' ') == 'n'  &&
-             data[5]        == '\"')
+        if (data.length()                    == 6    &&
+            data[0]                          == '\"' &&
+            data[1]                          == '-'  &&
+            bdlb::CharType::toLower(data[2]) == 'n'  &&
+            bdlb::CharType::toLower(data[3]) == 'a'  &&
+            bdlb::CharType::toLower(data[4]) == 'n'  &&
+            data[5]                          == '\"')
         {
             *value = bsl::numeric_limits<bdldfp::Decimal64>::quiet_NaN();
             return 0;                                                 // RETURN

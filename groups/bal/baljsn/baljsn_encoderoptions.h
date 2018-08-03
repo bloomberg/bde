@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //: o 'encodeQuotedDecimal64': option specifying a way to encode 'Decimal64'
 //:                            values.  If the option value is 'true' then the
 //:                            'Decimal64' value is encoded enclosed in quotes,
-//:                            ans as 'double' otherwise.
+//:                            and as JSON number otherwise.
 //:
 //: o 'datetimeFractionalSecondPrecision': option specifying the number of
 //:                                        decimal places used for seconds when
