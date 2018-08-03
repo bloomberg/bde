@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslim_testutil, bsls_bsltestutil
 //
-//@DESCRIPTION: This component provides the mutexed-controlled versions of the
+//@DESCRIPTION: This component provides the mutex-controlled versions of the
 // standard print macros used in BDE-style test drivers ('ASSERT', 'ASSERTV',
 // 'P', 'Q', 'L', and 'T') for multithreaded components at or above the 'bslmt'
 // package.  A new macro is introduced, 'BSLMT_TESTUTIL_OUTPUT_GUARD', which
@@ -249,7 +249,7 @@ BSLS_IDENT("$Id: $")
 //  tg.addThreads(TestSums(), k_NUM_THREADS);
 //..
 // Now, we join the threads, clean up, and at the end of 'main' examine
-// 'testStatus'.  If it's greater than 0, report that the test failed.H:
+// 'testStatus'.  If it's greater than 0, report that the test failed:
 //..
 //  tg.joinAll();
 //

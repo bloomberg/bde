@@ -398,7 +398,7 @@ int testMain()    // do not copy to .h file
     tg.addThreads(TestSums(), k_NUM_THREADS);
 //..
 // Now, we join the threads, clean up, and at the end of 'main' examine
-// 'testStatus'.  If it's greater than 0, report that the test failed.H:
+// 'testStatus'.  If it's greater than 0, report that the test failed:
 //..
     tg.joinAll();
 
