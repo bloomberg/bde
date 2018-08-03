@@ -445,7 +445,7 @@ class Queue {
     bdlc::Queue<TYPE> d_queue;             // the queue, with allocator as last
                                            // data member
 
-    int              d_highWaterMark;      // positive maximum number of items
+    const int         d_highWaterMark;     // positive maximum number of items
                                            // that can be queued before
                                            // insertions will be blocked, or
                                            // -1 if unlimited

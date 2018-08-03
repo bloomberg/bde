@@ -515,34 +515,33 @@ class MultipriorityQueue {
         // The type of the vectors of list head and tail pointers.
 
     // DATA
-    mutable bslmt::Mutex d_mutex;          // used to synchronize access
+    mutable bslmt::Mutex  d_mutex;         // used to synchronize access
                                            // (including 'const' access)
 
-    bslmt::Condition     d_notEmptyCondition;
+    bslmt::Condition      d_notEmptyCondition;
                                            // signaled on each push
 
-    NodePtrVector        d_heads;          // pointers to heads of linked lists
+    NodePtrVector         d_heads;         // pointers to heads of linked lists
                                            // -- one for each priority
 
-    NodePtrVector        d_tails;          // pointers to tails of linked lists
+    NodePtrVector         d_tails;         // pointers to tails of linked lists
                                            // -- one for each priority
 
-    volatile int         d_notEmptyFlags;  // bit mask indicating priorities
+    volatile int          d_notEmptyFlags; // bit mask indicating priorities
                                            // for which there is data, where
                                            // bit 0 is the lowest order bit,
                                            // representing most urgent priority
 
-    bdlma::ConcurrentPool   
-                         d_pool;           // memory pool used for node storage
+    bdlma::ConcurrentPool d_pool;          // memory pool used for node storage
 
-    volatile int         d_length;         // total number of items in this
+    volatile int          d_length;        // total number of items in this
                                            // multipriority queue
 
-    bool                 d_enabledFlag;    // enabled/disabled state of pushes
+    bool                  d_enabledFlag;   // enabled/disabled state of pushes
                                            // to the multipriority queue (does
                                            // not affect pops)
 
-    bslma::Allocator    *d_allocator_p;    // memory allocator (held)
+    bslma::Allocator     *d_allocator_p;   // memory allocator (held)
 
   private:
     // NOT IMPLEMENTED
@@ -783,7 +782,7 @@ int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
         }
 
         --d_length;
-    }  // release mutex
+    }
 
     if (itemPriority) {
         *itemPriority = priority;
@@ -890,7 +889,7 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item, int itemPriority)
         d_tails[itemPriority] = newNode;
 
         ++d_length;
-    }  // release mutex
+    }
 
     d_notEmptyCondition.signal();
 
@@ -930,8 +929,8 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(const TYPE& item,
             head = newNode;
 
             ++d_length;
-        } // for numItems i
-    }  // release mutex
+        }
+    }
 
     for (int ii = 0; ii < numItems; ++ii) {
         d_notEmptyCondition.signal();
@@ -972,8 +971,8 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(const TYPE& item,
             d_tails[itemPriority] = newNode;
 
             ++d_length;
-        } // for numItems i
-    }  // release mutex
+        }
+    }
 
     for (int ii = 0; ii < numItems; ++ii) {
         d_notEmptyCondition.signal();
@@ -1020,7 +1019,7 @@ void MultipriorityQueue<TYPE>::removeAll()
         BSLS_ASSERT(0 == d_notEmptyFlags);
 
         d_length = 0;
-    }  // release mutex
+    }
 
     Node *node = condemnedList;
     while (node) {
