@@ -187,7 +187,7 @@ namespace Usage {
 // First, we write an elided component to test, which provides a utility class:
 //..
     namespace bslabc {
-//
+
     struct SumUtil {
         // This utility class provides sample functionality to demonstrate how
         // a multi threaded test driver might be written.
@@ -200,7 +200,7 @@ namespace Usage {
             // Return the sum of the squares of one to 4 arguments, the
             // specified 'a' and the optionally specified 'b', 'c', and 'd'.
     };
-//
+
     // CLASS METHODS
     inline
     double SumUtil::sumOfSquares(double a,
@@ -210,14 +210,14 @@ namespace Usage {
     {
         // Note that there is a bug here in that we have added the cube, rather
         // than the square, of 'd'.
-//
+
         double ret = a*a;
         ret += b*b;
         ret += c*c;
         ret += d*d*d;
         return ret;
     }
-//
+
     }  // close namespace bslabc
 //..
 // Then, we can write an elided test driver for this component.  We start by
@@ -227,7 +227,7 @@ namespace Usage {
     //                       STANDARD BDE ASSERT TEST MACRO
     //-------------------------------------------------------------------------
     int testStatus = 0;
-//
+
     void aSsErT(int c, const char *s, int i)
     {
         if (c) {
@@ -245,7 +245,7 @@ namespace Usage {
     //-------------------------------------------------------------------------
     #define ASSERT   BSLMT_TESTUTIL_ASSERT
     #define ASSERTV  BSLMT_TESTUTIL_ASSERTV
-//
+
     #define Q        BSLMT_TESTUTIL_Q   // Quote identifier literally.
     #define P        BSLMT_TESTUTIL_P   // Print identifier and value.
     #define P_       BSLMT_TESTUTIL_P_  // P(X) without '\n'.
@@ -261,7 +261,7 @@ namespace Usage {
     //=========================================================================
     //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
     //-------------------------------------------------------------------------
-//
+
     bool  verbose;
     bool  veryVerbose;
     bool  veryVeryVerbose;
@@ -273,16 +273,16 @@ namespace Usage {
                                 // ---------------
                                 // Usage Test Case
                                 // ---------------
-//
+
     typedef  bslabc::SumUtil SU;
-//
+
     bsls::AtomicInt threadIdx(0);
     bsls::AtomicInt lastRand(0);
-//
+
     enum { k_NUM_ITERATIONS     = 5,
            k_NUM_THREADS        = 10,
            k_NUM_RAND_VARIABLES = k_NUM_ITERATIONS * k_NUM_THREADS * 4 };
-//
+
     double *randNumbers;
 //..
 // Then, using out test macros, we write five test functors that can be run
@@ -295,10 +295,10 @@ namespace Usage {
         {
             const int idx     = threadIdx++;
             int       randIdx = idx * k_NUM_ITERATIONS * 4;
-//
+
             if (veryVerbose) {
                 BSLMT_TESTUTIL_OUTPUT_GUARD;
-//
+
                 // Instantiating the output guard above locks the output
                 // mutex.  The following two macros would lock that mutex
                 // themselves, except that they detect the output guard and
@@ -306,10 +306,10 @@ namespace Usage {
                 // ensures that the output from both will appear on the same
                 // line, uninterrupted by output from the 'BSLMT_TESTUTIL_*'
                 // macros being called from any other thread.
-//
+
                 P_(idx);    P(randIdx);
             }
-//
+
             for (int ii = 0; ii < k_NUM_ITERATIONS; ++ii) {
                 double x[4];
                 for (int jj = 0; jj < 4; ++jj, ++randIdx) {
@@ -317,56 +317,56 @@ namespace Usage {
                 }
                 if (randIdx >= k_NUM_RAND_VARIABLES) {
                     BSLMT_TESTUTIL_OUTPUT_GUARD;
-//
+
                     // We expect with the following two asserts, if either one
                     // fails, both will fail.  We create the output guard above
                     // to ensure that if they both output, their output will
                     // appear adjacent to each other, uninterrupted by any
                     // output from 'bslmt_TESTUTIL_*' macros being called by
                     // any other thread.
-//
+
                     ASSERTV(randIdx, k_NUM_RAND_VARIABLES, !lastRand);
                     ASSERTV(randIdx, k_NUM_RAND_VARIABLES,
                                               randIdx == k_NUM_RAND_VARIABLES);
                     lastRand = true;
-//
+
                     if (veryVerbose) {
                         // This output calling 'cout' could become illegible if
                         // 'BSLMT_TESTUTIL_*' macros in the other threads
                         // output at the same time.  We are safe here because
                         // we are within scope of an output guard.
-//
+
                         bsl::cout << "Thread number " << idx <<
                              " reached the end of the random number buffer." <<
                                                                      bsl::endl;
                     }
                 }
-//
+
                 // If any of the 'ASSERTV's following here fail, they will
                 // detect that no output guard object is in scope and lock the
                 // output mutex before doing any output, so the entire trace
                 // from any one failing 'ASSERTV' will be in one contiguous
                 // block.
-//
+
                 double exp = x[0] * x[0];
                 ASSERTV(x[0], exp, SU::sumOfSquares(x[0]),
                                                 exp == SU::sumOfSquares(x[0]));
-//
+
                 exp += x[1] * x[1];
                 ASSERTV(x[0], x[1], exp, SU::sumOfSquares(x[0], x[1]),
                                           exp == SU::sumOfSquares(x[0], x[1]));
-//
+
                 exp += x[2] * x[2];
                 ASSERTV(x[0], x[1], x[2], exp,
                                             SU::sumOfSquares(x[0], x[1], x[2]),
                                     exp == SU::sumOfSquares(x[0], x[1], x[2]));
-//
+
                 exp += x[3] * x[3];
                 ASSERTV(x[0], x[1], x[2], x[3], exp,
                                       SU::sumOfSquares(x[0], x[1], x[2], x[3]),
                               exp == SU::sumOfSquares(x[0], x[1], x[2], x[3]));
             }
-//
+
             if (veryVerbose) {
                 BSLMT_TESTUTIL_OUTPUT_GUARD;
 
@@ -386,7 +386,7 @@ int testMain()    // do not copy to .h file
     bslma::TestAllocator testAllocator("usage");
     randNumbers = static_cast<double *>(testAllocator.allocate(
                                        sizeof(double) * k_NUM_RAND_VARIABLES));
-//
+
     for (int ii = 0; ii < k_NUM_RAND_VARIABLES; ++ii) {
         randNumbers[ii] = static_cast<double>(bsl::rand()) / RAND_MAX *
                                                                    bsl::rand();
@@ -401,9 +401,9 @@ int testMain()    // do not copy to .h file
 // 'testStatus'.  If it's greater than 0, report that the test failed.H:
 //..
     tg.joinAll();
-//
+
     testAllocator.deallocate(randNumbers);
-//
+
     if (testStatus > 0) {
         // Note that since there is a bug in 'SU::sumOfSquares' with 4 args, we
         // expect the last assert in 'TestSums::operator()' to fail 5
@@ -413,7 +413,7 @@ int testMain()    // do not copy to .h file
         bsl::cerr << "Error, non-zero test status = " << testStatus << "."
                   << bsl::endl;
     }
-//
+
     return testStatus;
 //..
 // Finally, after the program has run, we see 50 assertion failures in the

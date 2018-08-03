@@ -29,8 +29,8 @@ BSLS_IDENT("$Id: $")
 // package.  A new macro is introduced, 'BSLMT_TESTUTIL_OUTPUT_GUARD', which
 // creates a guard object that locks the mutex.
 //
-// This component also defines a pair of methods, 'setFunc' and 'callFunc',
-// that allow a test driver to set and call a function by going through another
+// This component defines a pair of methods, 'setFunc' and 'callFunc', that
+// allow a test driver to set and call a function by going through another
 // compilation unit to preclude the optimizer from inlining the function call.
 //
 ///Usage
