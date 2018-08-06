@@ -314,7 +314,7 @@ int ParserUtil::getValue(bdldfp::Decimal64 *value,
 
     const int k_MAX_STRING_LENGTH = 32;
         // The size of the string sufficient to store 'bdldfp::Decimal64'
-        // value.
+        // values.
 
     char                               buffer[k_MAX_STRING_LENGTH + 1];
     bdlma::BufferedSequentialAllocator allocator(buffer,
@@ -332,20 +332,25 @@ int ParserUtil::getValue(bdldfp::Decimal64 *value,
 
     bdldfp::Decimal64 d;
     int rc = bdldfp::DecimalUtil::parseDecimal64(&d, dataString);
-        // Note that 'bdldfp::DecimalUtil::parseDecimal" does not parse signed
+        // Note that 'bdldfp::DecimalUtil::parseDecimal' does not parse signed
         // 'nan' values.
 
     if (0 != rc) {
-        if (data.length()                    == 6    &&
-            data[0]                          == '\"' &&
-            data[1]                          == '-'  &&
-            bdlb::CharType::toLower(data[2]) == 'n'  &&
-            bdlb::CharType::toLower(data[3]) == 'a'  &&
-            bdlb::CharType::toLower(data[4]) == 'n'  &&
-            data[5]                          == '\"')
-        {
-            *value = bsl::numeric_limits<bdldfp::Decimal64>::quiet_NaN();
-            return 0;                                                 // RETURN
+        if (6    == data.length()                    &&
+            '\"' == data[0]                          &&
+            'n'  == bdlb::CharType::toLower(data[2]) &&
+            'a'  == bdlb::CharType::toLower(data[3]) &&
+            'n'  == bdlb::CharType::toLower(data[4]) &&
+            '\"' == data[5]) {
+
+            if ('-'  == data[1]) {
+                *value = -bsl::numeric_limits<bdldfp::Decimal64>::quiet_NaN();
+                return 0;                                             // RETURN
+            }
+            else if ('+'  == data[1]) {
+                *value = bsl::numeric_limits<bdldfp::Decimal64>::quiet_NaN();
+                return 0;                                             // RETURN
+            }
         }
         return -1;                                                    // RETURN
     }

@@ -435,7 +435,7 @@ int PrintUtil::printValue(bsl::ostream&         stream,
         }
       } break;
       default: {
-        if (0 == options || options && options->encodeQuotedDecimal64()) {
+        if (options && options->encodeQuotedDecimal64()) {
             stream.put('"');
             stream << value;
             stream.put('"');

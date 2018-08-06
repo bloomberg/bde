@@ -691,10 +691,10 @@ int main(int argc, char *argv[])
                 //LINE  VALUE  RESULT
                 //----  -----  ------
 
-                { L_,   BDLDFP_DECIMAL_DD(0.0),  "\"0.0\"" },
-                { L_,   BDLDFP_DECIMAL_DD(1.13), "\"1.13\"" },
+                { L_,   BDLDFP_DECIMAL_DD(0.0),  "0.0"  },
+                { L_,   BDLDFP_DECIMAL_DD(1.13), "1.13" },
                 { L_,   BDLDFP_DECIMAL_DD(-9.876543210987654e307),
-                  "\"-9.876543210987654e+307\"" },
+                  "-9.876543210987654e+307" },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -1003,7 +1003,7 @@ int main(int argc, char *argv[])
                 bsl::string result = oss.str();
                 ASSERTV(LINE, QUOTED, result, EXP, result == EXP);
 
-                if (QUOTED) {
+                if (!QUOTED) {
                     bsl::ostringstream oss;
                     ASSERTV(LINE, 0 == Obj::printValue(oss, VALUE));
 

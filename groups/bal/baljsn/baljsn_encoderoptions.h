@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 //  encodeInfAndNaNAsStrings
 //                      bool           false           none
 //  encodeQuotedDecimal64
-//                      bool           true            none
+//                      bool           false           none
 //  datetimeFractionalSecondPrecision
 //                      int            3               >= 0 and <= 6
 //  maxFloatPrecision   int            bsl::numeric_limits<float>::digits10
@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //: o 'encodeQuotedDecimal64': option specifying a way to encode 'Decimal64'
 //:                            values.  If the option value is 'true' then the
 //:                            'Decimal64' value is encoded enclosed in quotes,
-//:                            and as JSON number otherwise.
+//:                            and as a JSON number otherwise.
 //:
 //: o 'datetimeFractionalSecondPrecision': option specifying the number of
 //:                                        decimal places used for seconds when
@@ -299,9 +299,9 @@ class EncoderOptions {
 
     static const int DEFAULT_INITIALIZER_MAX_DOUBLE_PRECISION;
 
-    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
-
     static const bool DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64;
+
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
   public:
     // CLASS METHODS
@@ -486,8 +486,8 @@ class EncoderOptions {
         // attribute of this object.
 
     bool encodeQuotedDecimal64() const;
-        // Return a reference to the non-modifiable "EncodeQuotedDecimal64"
-        // attribute of this object.
+        // Return the value of the "EncodeQuotedDecimal64" attribute of this
+        // object.
 };
 
 // FREE OPERATORS
