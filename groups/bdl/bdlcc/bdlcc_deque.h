@@ -1004,7 +1004,7 @@ class Deque<TYPE>::ConstProctor {
         // object.  The behavior is undefined if this 'ConstProctor' has been
         // released.
 
-    const TYPE& operator[](size_type index) const;
+    const TYPE& operator[](size_type position) const;
         // Return a reference providing non-modifiable access to the element at
         // the specified 'position' in the 'bsl::deque' held by this proctor.
         // The behavior is undefined unless 'position < size' where 'size' is
@@ -1108,9 +1108,11 @@ bsl::deque<TYPE>& Deque<TYPE>::Proctor::operator*() const
 
 template <class TYPE>
 inline
-TYPE& Deque<TYPE>::Proctor::operator[](size_type index) const
+TYPE& Deque<TYPE>::Proctor::operator[](size_type position) const
 {
-    return d_container_p->d_monoDeque[index];
+    BSLS_ASSERT_SAFE(position < d_container_p->d_monoDeque.size());
+
+    return d_container_p->d_monoDeque[position];
 }
 
 template <class TYPE>
@@ -1202,9 +1204,11 @@ const bsl::deque<TYPE>& Deque<TYPE>::ConstProctor::operator*() const
 
 template <class TYPE>
 inline
-const TYPE& Deque<TYPE>::ConstProctor::operator[](size_type index) const
+const TYPE& Deque<TYPE>::ConstProctor::operator[](size_type position) const
 {
-    return d_container_p->d_monoDeque[index];
+    BSLS_ASSERT_SAFE(position < d_container_p->d_monoDeque.size());
+
+    return d_container_p->d_monoDeque[position];
 }
 
 template <class TYPE>

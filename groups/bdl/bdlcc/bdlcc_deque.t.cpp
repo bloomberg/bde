@@ -24,6 +24,7 @@
 #include <bslmf_assert.h>
 #include <bslmf_isbitwisemoveable.h>
 
+#include <bsls_asserttest.h>
 #include <bsls_atomic.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -217,6 +218,17 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define PP(X) (cout << #X " = " << (X) << endl, false) // Print identifier and
                                          // value, return false, as expression.
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
 //                                    GLOBALS
@@ -4615,6 +4627,16 @@ int main(int argc, char *argv[])
                 ASSERT(3 == PRB->end()  - PRB->begin());
                 ASSERT(3 == PRB->rend() - PRB->rbegin());
 
+                // Negative testing
+
+                bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+                ASSERT_SAFE_PASS(prB[2]);
+                ASSERT_SAFE_FAIL(prB[3]);
+                ASSERT_SAFE_FAIL(prB[1000 * 1000]);
+                ASSERT_SAFE_FAIL(prB[-1]);
+
                 const Obj::ConstProctor PRC(&Y);
 
                 pdy = &*PRC;
@@ -4631,6 +4653,13 @@ int main(int argc, char *argv[])
 
                 ASSERT(3 == PRC->end()  - PRC->begin());
                 ASSERT(3 == PRC->rend() - PRC->rbegin());
+
+                // Negative testing
+
+                ASSERT_SAFE_PASS(PRC[2]);
+                ASSERT_SAFE_FAIL(PRC[3]);
+                ASSERT_SAFE_FAIL(PRC[1000 * 1000]);
+                ASSERT_SAFE_FAIL(PRC[-1]);
             }
 
             if (verbose) cout << "Single-Threaded Proctor Testing\n";
@@ -4735,6 +4764,21 @@ int main(int argc, char *argv[])
 
                 ASSERT(3 == PR->end()  - PR->begin());
                 ASSERT(3 == PR->rend() - PR->rbegin());
+
+                // Negative testing
+
+                bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+                ASSERT_SAFE_PASS(pr[2]);
+                ASSERT_SAFE_FAIL(pr[3]);
+                ASSERT_SAFE_FAIL(pr[1000 * 1000]);
+                ASSERT_SAFE_FAIL(pr[-1]);
+
+                ASSERT_SAFE_PASS(PR[2]);
+                ASSERT_SAFE_FAIL(PR[3]);
+                ASSERT_SAFE_FAIL(PR[1000 * 1000]);
+                ASSERT_SAFE_FAIL(PR[-1]);
 
                 Proctor prB;
                 prB.load(&mX);
