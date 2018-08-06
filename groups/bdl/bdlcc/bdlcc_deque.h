@@ -110,7 +110,8 @@ BSLS_IDENT("$Id: $")
 // the underlying 'bsl::deque' contained in the 'bdlcc::Deque'.  When a proctor
 // object is created, it acquires the container's mutex, and allows the client
 // to use the overloaded '->' and '*' operators on the proctor object to access
-// the underlying 'bsl::deque'.  Because the mutex is locked, manipulators of
+// the underlying 'bsl::deque'.  'operator[]' is also provided for direct
+// random access to that deque.  Because the mutex is locked, manipulators of
 // 'bdlcc::Deque' called by other threads will block, thus allowing safe access
 // to the underlying thread-unsafe container.  When the proctor is destroyed
 // (or released via the 'release' method), the proctor signals the thread-aware
@@ -931,9 +932,11 @@ class Deque<TYPE>::Proctor {
         // object.  The behavior is undefined if this 'Proctor' has been
         // released.
 
-    TYPE& operator[](typename MonoDeque::size_type index) const;
-        // Return a reference to the element of the element of the 'bsl::deque'
-        // at the specified 'index'.
+    TYPE& operator[](typename MonoDeque::size_type position) const;
+        // Return a reference providing modifiable access to the element at the
+        // specified 'position' in the 'bsl::deque' held by this proctor.  The
+        // behavior is undefined unless 'position < size' where 'size' is the
+        // the number of elements in that deque.
 
     bool isNull() const;
         // Return 'true' if this object is not associated with a 'Deque'
@@ -1002,8 +1005,10 @@ class Deque<TYPE>::ConstProctor {
         // released.
 
     const TYPE& operator[](size_type index) const;
-        // Return a reference to the element of the element of the 'bsl::deque'
-        // at the specified 'index'.
+        // Return a reference providing non-modifiable access to the element at
+        // the specified 'position' in the 'bsl::deque' held by this proctor.
+        // The behavior is undefined unless 'position < size' where 'size' is
+        // the the number of elements in that deque.
 
     bool isNull() const;
         // Return 'true' if this object is not associated with a 'Deque'
