@@ -29,6 +29,7 @@ bslmt_semaphoreimpl_darwin
 bslmt_semaphoreimpl_pthread
 bslmt_semaphoreimpl_win32
 bslmt_sluice
+bslmt_testutil
 bslmt_threadattributes
 bslmt_threadgroup
 bslmt_threadlocalvariable
