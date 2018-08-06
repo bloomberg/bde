@@ -110,7 +110,8 @@ BSLS_IDENT("$Id: $")
 // the underlying 'bsl::deque' contained in the 'bdlcc::Deque'.  When a proctor
 // object is created, it acquires the container's mutex, and allows the client
 // to use the overloaded '->' and '*' operators on the proctor object to access
-// the underlying 'bsl::deque'.  Because the mutex is locked, manipulators of
+// the underlying 'bsl::deque'.  'operator[]' is also provided for direct
+// random access to that deque.  Because the mutex is locked, manipulators of
 // 'bdlcc::Deque' called by other threads will block, thus allowing safe access
 // to the underlying thread-unsafe container.  When the proctor is destroyed
 // (or released via the 'release' method), the proctor signals the thread-aware
@@ -879,13 +880,13 @@ class Deque<TYPE>::Proctor {
     // object locks the mutex of the 'Deque', and destruction unlocks it.
 
     // PRIVATE TYPES
-    typedef bsl::deque<TYPE>       MonoDeque;
+    typedef bsl::deque<TYPE>              MonoDeque;
+    typedef typename MonoDeque::size_type size_type;
 
     // DATA
-    Deque<TYPE>                   *d_container_p;
-    typename MonoDeque::size_type  d_startLength;  // If '!d_container_p', this
-                                                   // field may be left
-                                                   // uninitialized.
+    Deque<TYPE>    *d_container_p;
+    size_type       d_startLength;      // If '!d_container_p', this field may
+                                        // be left uninitialized.
 
   private:
     // NOT IMPLEMENTED
@@ -931,6 +932,12 @@ class Deque<TYPE>::Proctor {
         // object.  The behavior is undefined if this 'Proctor' has been
         // released.
 
+    TYPE& operator[](typename MonoDeque::size_type position) const;
+        // Return a reference providing modifiable access to the element at the
+        // specified 'position' in the 'bsl::deque' held by this proctor.  The
+        // behavior is undefined unless 'position < size' where 'size' is the
+        // the number of elements in that deque.
+
     bool isNull() const;
         // Return 'true' if this object is not associated with a 'Deque'
         // object.
@@ -946,13 +953,13 @@ class Deque<TYPE>::ConstProctor {
     // the underlying 'bsl::deque' contained in a 'Deque'.
 
     // PRIVATE TYPES
-    typedef bsl::deque<TYPE>       MonoDeque;
+    typedef bsl::deque<TYPE>              MonoDeque;
+    typedef typename MonoDeque::size_type size_type;
 
     // DATA
-    const Deque<TYPE>             *d_container_p;
-    typename MonoDeque::size_type  d_startLength;  // If '!d_container_p', this
-                                                   // field may be left
-                                                   // uninitialized.
+    const Deque<TYPE>  *d_container_p;
+    size_type           d_startLength;  // If '!d_container_p', this field may
+                                        // be left uninitialized.
 
   private:
     // NOT IMPLEMENTED
@@ -996,6 +1003,12 @@ class Deque<TYPE>::ConstProctor {
         // Return a reference to the 'bsl::deque' managed by this 'Proctor'
         // object.  The behavior is undefined if this 'ConstProctor' has been
         // released.
+
+    const TYPE& operator[](size_type position) const;
+        // Return a reference providing non-modifiable access to the element at
+        // the specified 'position' in the 'bsl::deque' held by this proctor.
+        // The behavior is undefined unless 'position < size' where 'size' is
+        // the the number of elements in that deque.
 
     bool isNull() const;
         // Return 'true' if this object is not associated with a 'Deque'
@@ -1096,6 +1109,15 @@ bsl::deque<TYPE>& Deque<TYPE>::Proctor::operator*() const
 
 template <class TYPE>
 inline
+TYPE& Deque<TYPE>::Proctor::operator[](size_type position) const
+{
+    BSLS_ASSERT_SAFE(position < d_container_p->d_monoDeque.size());
+
+    return d_container_p->d_monoDeque[position];
+}
+
+template <class TYPE>
+inline
 bool Deque<TYPE>::Proctor::isNull() const
 {
     return 0 == d_container_p;
@@ -1179,6 +1201,15 @@ const bsl::deque<TYPE>& Deque<TYPE>::ConstProctor::operator*() const
     BSLS_ASSERT_SAFE(d_container_p);
 
     return d_container_p->d_monoDeque;
+}
+
+template <class TYPE>
+inline
+const TYPE& Deque<TYPE>::ConstProctor::operator[](size_type position) const
+{
+    BSLS_ASSERT_SAFE(position < d_container_p->d_monoDeque.size());
+
+    return d_container_p->d_monoDeque[position];
 }
 
 template <class TYPE>
