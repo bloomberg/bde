@@ -1,6 +1,6 @@
 set(uor_description "Basic System Library \(bsl\) package.")
 
-set(uor_extra_defines "-I\$\{includedir\}/stlport -D_POSIX_PTHREAD_SEMANTICS -DBSL_OVERRIDES_STD")
+set(uor_extra_defines "-I\$\{includedir\}/stlport -D_POSIX_PTHREAD_SEMANTICS -D_REENTRANT -DBSL_OVERRIDES_STD")
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "AIX")
   string(APPEND uor_extra_defines " -D__NOLOCK_ON_INPUT -D__NOLOCK_ON_OUTPUT")
