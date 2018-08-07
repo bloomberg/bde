@@ -1,10 +1,17 @@
-bsl-internal (3.11.0.1) unstable; urgency=low
+bsl-internal (3.11.0.2) unstable; urgency=low
 
+  * ecffe7ae3 Merge pull request #2035 from osubbotin/pr/2034-rebased-releases/3.11.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 7 Aug 2018 11:41:29 -0400
+
+bsl-internal (3.11.0.1) git; urgency=low
+
+  * a6698b5eb Changelog for version 3.11.0.1
   * c20547bfe Merge pull request #2030 from sbreitst/bdedox-3.11.x-drqs-124673692
   * 1f8261097 drqs-124673692: master: Format fixes for 'bdedox' conversion.
   * e4908f583 Merge pull request #2023 from hversche/pr/2000-rebased-releases/3.11.x
 
- -- Steven Breitstein <sbreitstein@bloomberg.net>  Fri, 3 Aug 2018 20:24:37 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 6 Aug 2018 12:20:17 -0400
 
 bsl-internal (3.11.0.0) git; urgency=low
 
