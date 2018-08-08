@@ -147,6 +147,18 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name='EncodeQuotedDecimal64' type='xs:boolean'
+            minOccurs='0' maxOccurs='1'
+            default='false'
+            bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            option specifying a way to encode 'Decimal64' values.  If the option
+            value is 'true' then the 'Decimal64' value is encoded quoted
+            { "dec": "1.2e-5" }, and unquoted { "dec": 1.2e-5 } otherwise.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 

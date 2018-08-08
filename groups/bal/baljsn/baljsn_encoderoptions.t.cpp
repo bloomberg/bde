@@ -2,6 +2,8 @@
 
 #include <baljsn_encoderoptions.h>
 
+#include <bdlat_formattingmode.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -37,6 +39,7 @@ using namespace bsl;
 //: o 'setEncodeEmptyArrays'
 //: o 'setEncodeNullElements'
 //: o 'setEncodeInfAndNaNAsStrings'
+//: o 'setEncodeQuotedDecimal64'
 //: o 'setDatetimeFractionalSecondPrecision'
 //: o 'setMaxFloatPrecision'
 //: o 'setMaxDoublePrecision'
@@ -48,6 +51,7 @@ using namespace bsl;
 //: o 'encodeEmptyArrays'
 //: o 'encodeNullElements'
 //: o 'encodeInfAndNaNAsStrings'
+//: o 'encodeQuotedDecimal64'
 //: o 'datetimeFractionalSecondPrecision'
 //: o 'maxFloatPrecision'
 //: o 'maxDoublePrecision'
@@ -81,6 +85,7 @@ using namespace bsl;
 // [ 3] setEncodeEmptyArrays(bool value);
 // [ 3] setEncodeNullElements(bool value);
 // [ 3] setEncodeInfAndNaNAsStrings(bool value);
+// [ 3] setEncodeQuotedDecimal64(bool value);
 // [ 3] setDatetimeFractionalSecondPrecision(int value);
 // [ 3] setMaxFloatPrecision(int value);
 // [ 3] setMaxDoublePrecision(int value);
@@ -93,6 +98,7 @@ using namespace bsl;
 // [ 4] bool encodeEmptyArrays() const;
 // [ 4] bool encodeNullElements() const;
 // [ 4] bool encodeInfAndNaNAsStrings() const;
+// [ 4] bool encodeQuotedDecimal64() const;
 // [ 4] int datetimeFractionalSecondPrecision() const;
 // [ 4] maxFloatPrecision() const;
 // [ 4] maxDoublePrecision() const;
@@ -105,7 +111,7 @@ using namespace bsl;
 // [ 5] operator<<(ostream& s, const baljsn::EncoderOptions& d);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -181,6 +187,97 @@ typedef baljsn::EncoderOptions::EncodingStyle Style;
 // ----------------------------------------------------------------------------
 
 // ============================================================================
+//                             GLOBAL HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
+
+                     //====================================
+                     // class EncodeQuotedDecimal64Accessor
+                     //====================================
+
+class EncodeQuotedDecimal64Accessor
+    // This class implements accessor interface that attains the
+    // 'd_encodeQoutedDecimal64' data member of the 'baljsn::EncoderOptions'
+    // class.
+{
+    // DATA
+    bool d_value;  // copy of 'd_encodeQoutedDecimal64' value
+
+  public:
+    // CREATORS
+    EncodeQuotedDecimal64Accessor()
+        : d_value(false)
+    {
+    }
+
+    // MANIPULATORS
+    template <class T>
+    int operator()(T, const bdlat_AttributeInfo&)
+        // Always return 0.  Dummy implementation of the access operator.
+    {
+        return 0;
+    }
+
+    int operator()(bool value, const bdlat_AttributeInfo& info)
+        // Return the attribute's id and store the specified 'value' if the
+        // specified 'info' indicates 'd_encodeQoutedDecimal64' data member.
+        // Return 0 otherwise.
+    {
+        if (Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64 == info.id()) {
+            d_value = value;
+            return Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64;
+        }
+        return 0;
+    }
+
+    // ACCESSORS
+    bool value() const
+    {
+        return d_value;
+    }
+};
+
+                   //=======================================
+                   // class EncodeQuotedDecimal64Manipulator
+                   //=======================================
+
+class EncodeQuotedDecimal64Manipulator
+    // This class implements manipulator interface that updates the
+    // 'd_encodeQoutedDecimal64' data member of the 'baljsn::EncoderOptions'
+    // class.
+{
+    // DATA
+    bool d_value;
+
+  public:
+    // CREATORS
+    explicit EncodeQuotedDecimal64Manipulator(bool value)
+        : d_value(value)
+    {
+    }
+
+    // ACCESSORS
+    template <class T>
+    int operator()(T *, const bdlat_AttributeInfo&) const
+        // Always return 0.  Dummy implementation of the manipulator operator.
+    {
+        return 0;
+    }
+
+    int operator()(bool *value, const bdlat_AttributeInfo& info) const
+        // Return the attribute id and update the specified 'value' with the
+        // attribute's value initialized in this class constructor if the
+        // specified 'info' indicates 'd_encodeQoutedDecimal64' data member.
+        // Return 0 otherwise.
+    {
+        if (Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64 == info.id()) {
+            *value = d_value;
+            return Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64;
+        }
+        return 0;
+    }
+};
+
+// ============================================================================
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
 
@@ -197,56 +294,66 @@ struct DefaultDataRow {
     int          d_datetimePrecision;
     int          d_maxFloatPrecision;
     int          d_maxDoublePrecision;
+    bool         d_encodeQuotedDecimal64;
 };
+
+#define COMPACT Obj::e_COMPACT
+#define PRETTY  Obj::e_PRETTY
 
 static
 const DefaultDataRow DEFAULT_DATA[] =
 {
 
-//LINE  INDENT   SPL       STYLE            EEA    ENE    EINAS DTP FP DP
-//----  ------   ---       -----            ---    ---    ----- --- -- --
+//LINE  INDENT     SPL     STYLE     EEA    ENE    EINAS DTP FP DP  EQD
+//----  ------     ---     -----     ---    ---    ----- --- -- --  ---
 
 // default (must be first)
-{ L_,       0,       0,    Obj::e_COMPACT,  false, false, false, 3, 6, 15  },
+{ L_,       0,       0,    COMPACT,  false, false, false, 3, 6, 15, false },
 
 // 'initialIndentLevel'
-{ L_,       1,       0,    Obj::e_PRETTY,   false, false, false, 3, 9, 17  },
-{ L_, INT_MAX,       0,    Obj::e_COMPACT,  false, false, false, 3, 9, 17  },
+{ L_,       1,       0,    PRETTY,   false, false, false, 3, 9, 17, false },
+{ L_, INT_MAX,       0,    COMPACT,  false, false, false, 3, 9, 17, false },
 
 // 'spacesPerLevel'
-{ L_,       0,       1,    Obj::e_PRETTY,   false, false, false, 3, 9, 17  },
-{ L_,       0, INT_MAX,    Obj::e_COMPACT,  false, false, false, 3, 9, 17  },
+{ L_,       0,       1,    PRETTY,   false, false, false, 3, 9, 17, false },
+{ L_,       0, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, false },
 
 // 'encodingStyle'
-{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, false, false, 3, 9, 17  },
-{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, false, false, 3, 9, 17  },
+{ L_, INT_MAX,       1,    PRETTY,   false, false, false, 3, 9, 17, false },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, false },
 
 // 'encodeEmptyArrays'
-{ L_, INT_MAX,       1,    Obj::e_PRETTY,   true,  false, false, 3, 9, 17  },
-{ L_,       1, INT_MAX,    Obj::e_COMPACT,  true,  false, false, 3, 9, 17  },
+{ L_, INT_MAX,       1,    PRETTY,   true,  false, false, 3, 9, 17, false },
+{ L_,       1, INT_MAX,    COMPACT,  true,  false, false, 3, 9, 17, false },
 
 // 'encodeNullElements'
-{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, true,  false, 3, 9, 17  },
-{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, true,  false, 3, 9, 17  },
+{ L_, INT_MAX,       1,    PRETTY,   false, true,  false, 3, 9, 17, false },
+{ L_,       1, INT_MAX,    COMPACT,  false, true,  false, 3, 9, 17, false },
 
 // 'encodeInfAndNaNAsStrings'
-{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, false, true, 3, 9, 17   },
-{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, false, true, 3, 9, 17   },
+{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 9, 17, false },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 9, 17, false },
 
 // 'datetimeFractionalSecondPrecision'
-{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, false, true, 4, 9, 17   },
-{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, false, true, 6, 9, 17   },
+{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  4, 9, 17, false },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  6, 9, 17, false },
 
 // 'maxFloatPrecision'
-{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, false, true, 3, 3, 17   },
-{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, false, true, 3, 6, 17   },
+{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 3, 17, false },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 6, 17, false },
 
 // 'maxDoublePrecision'
-{ L_, INT_MAX,       1,    Obj::e_PRETTY,   false, false, true, 3, 9,  9   },
-{ L_,       1, INT_MAX,    Obj::e_COMPACT,  false, false, true, 3, 9, 15   },
+{ L_, INT_MAX,       1,    PRETTY,   false, false, true,  3, 9,  9, false },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, true,  3, 9, 15, false },
 
+// 'encodeQuotedDecimal64'
+{ L_, INT_MAX,       1,    PRETTY,   false, false, false, 3, 9, 17, true   },
+{ L_,       1, INT_MAX,    COMPACT,  false, false, false, 3, 9, 17, true   },
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
+
+#undef COMPACT
+#undef PRETTY
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -269,7 +376,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 11: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -311,6 +418,7 @@ int main(int argc, char *argv[])
     const int  DATETIME_PRECISION        = 6;
     const int  FLOAT_PRECISION           = 3;
     const int  DOUBLE_PRECISION          = 9;
+    const bool ENCODE_QUOTED_DECIMAL64   = false;
 
     baljsn::EncoderOptions options;
     ASSERT(0 == options.initialIndentLevel());
@@ -324,6 +432,7 @@ int main(int argc, char *argv[])
                                                == options.maxFloatPrecision());
     ASSERT(bsl::numeric_limits<double>::digits10
                                               == options.maxDoublePrecision());
+    ASSERT(false == options.encodeQuotedDecimal64());
 //..
 // Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
@@ -354,7 +463,269 @@ int main(int argc, char *argv[])
 
     options.setMaxDoublePrecision(DOUBLE_PRECISION);
     ASSERT(DOUBLE_PRECISION == options.maxDoublePrecision());
+
+    options.setEncodeQuotedDecimal64(ENCODE_QUOTED_DECIMAL64);
+    ASSERT(ENCODE_QUOTED_DECIMAL64 == options.encodeQuotedDecimal64());
 //..
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING ENCODE QUOTED DECIMAL64
+        //   The 'd_encodeQuotedDecimal64' attribute was added to the
+        //  'baljsn::EncoderOptions' class by hand unlike the other attributes
+        //  generated by 'bas_codegen.pl' tool.  Therefore we need to ensure
+        //  that the  'd_encodeQuotedDecimal64' attribute can be attained and
+        //  updated using the class' accessors and manipulators.
+        //
+        // Concerns:
+        //: 1 That the 'd_encodeQuotedDecimal64' attribute information is
+        //:   provided by the class' lookup attribute methods.
+        //:
+        //: 2 That the 'd_encodeQuotedDecimal64' attribute is attended by the
+        //:   class' access attribute methods;
+        //:
+        //: 3 That the 'd_encodeQuotedDecimal64' attribute is manipulated by
+        //:   the class' manipulate attribute methods.
+        //:
+        //: 4 That the 'd_encodeQuotedDecimal64' attribute is reset by
+        //:   'reset()' methods.
+        //
+        // Plan:
+        //: 1 Ensure that 'lookupAttributeInfo()' method returns
+        //:   'bdlat_AttributeInfo' describing the 'd_encodeQuotedDecimal64'
+        //:   attribute. (C-1)
+        //:
+        //: 2 Create a default 'baljsn::EncoderOptions' object and using the
+        //:   'accessAttribute()' method ensure that 'd_encodeQuotedDecimal64'
+        //:   has default-constructed value.  Using the 'manipulateAttribute()'
+        //:   method set a new value that differs from the default-constructed.
+        //:   Using 'accessAttribute()' method verify that the
+        //:   'd_encodeQuotedDecimal64' member has expected value.  Invoke
+        //:   'reset()' and verify that 'd_encodeQuotedDecimal64' is reset to
+        //:   default. (C-2..4)
+        //
+        // Testing:
+        //   const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        //   const bdlat_AttributeInfo *lookupAttributeInfo(const char *, int);
+        //   int manipulateAttributes(MANIPULATOR&);
+        //   int manipulateAttribute(MANIPULATOR&, int);
+        //   int manipulateAttribute(MANIPULATOR&, const char *, int);
+        //   void reset();
+        //   int accessAttributes(ACCESSOR&);
+        //   int accessAttributes(ACCESSOR&, int);
+        //   int accessAttributes(ACCESSOR&, const char *, int);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING ENCODE QUOTED DECIMAL64" << endl
+                          << "===============================" << endl;
+        // TESTING lookupAttributeInfo (P-1);
+        {
+            const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64;
+            const bdlat_AttributeInfo EXPECTED =
+                {
+                    ATTRIBUTE_ID,
+                    "EncodeQuotedDecimal64",
+                    sizeof("EncodeQuotedDecimal64") - 1,
+                    "",
+                    bdlat_FormattingMode::e_TEXT
+                };
+
+            const bdlat_AttributeInfo *RESULT = Obj::lookupAttributeInfo(
+                                                                 ATTRIBUTE_ID);
+            ASSERTV(L_, RESULT && (EXPECTED == *RESULT));
+        }
+        {
+            const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64;
+            const bdlat_AttributeInfo EXPECTED =
+                {
+                    ATTRIBUTE_ID,
+                    "EncodeQuotedDecimal64",
+                    sizeof("EncodeQuotedDecimal64") - 1,
+                    "",
+                    bdlat_FormattingMode::e_TEXT
+                };
+
+            const bdlat_AttributeInfo *RESULT = Obj::lookupAttributeInfo(
+                                          "EncodeQuotedDecimal64",
+                                          sizeof("EncodeQuotedDecimal64") - 1);
+            ASSERTV(L_, RESULT && (EXPECTED == *RESULT));
+        }
+        // TESTING accessors and manipulators (P-2)
+        {
+            const bool DEFAULT =
+                              Obj::DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64;
+            const bool VALUE = !DEFAULT;
+            const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64;
+
+            Obj                           mX;
+            EncodeQuotedDecimal64Accessor a;
+
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttributes(a));
+            ASSERTV(L_, DEFAULT == a.value());
+
+            EncodeQuotedDecimal64Manipulator m(VALUE);
+            ASSERTV(L_, ATTRIBUTE_ID == mX.manipulateAttributes(m));
+
+            EncodeQuotedDecimal64Accessor a1;
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttributes(a1));
+            ASSERTV(L_, VALUE == a1.value());
+
+            mX.reset();
+            EncodeQuotedDecimal64Accessor a2;
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttributes(a2));
+            ASSERTV(L_, DEFAULT == a2.value());
+        }
+        {
+            const bool DEFAULT =
+                              Obj::DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64;
+            const bool VALUE = !DEFAULT;
+            const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64;
+
+            Obj                           mX;
+            EncodeQuotedDecimal64Accessor a;
+
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a, ATTRIBUTE_ID));
+            ASSERTV(L_, DEFAULT == a.value());
+
+            EncodeQuotedDecimal64Manipulator m(VALUE);
+            ASSERTV(L_, ATTRIBUTE_ID == mX.manipulateAttribute(m,
+                                                               ATTRIBUTE_ID));
+
+            EncodeQuotedDecimal64Accessor a1;
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a1, ATTRIBUTE_ID));
+            ASSERTV(L_, VALUE == a1.value());
+
+            mX.reset();
+            EncodeQuotedDecimal64Accessor a2;
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a2, ATTRIBUTE_ID));
+            ASSERTV(L_, DEFAULT == a2.value());
+        }
+        {
+            const bool  DEFAULT =
+                              Obj::DEFAULT_INITIALIZER_ENCODE_QUOTED_DECIMAL64;
+            const bool  VALUE = !DEFAULT;
+            const char *NAME = "EncodeQuotedDecimal64";
+            const int   LENGTH = sizeof("EncodeQuotedDecimal64") - 1;
+            const int   ATTRIBUTE_ID =
+                                     Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64;
+
+            Obj                           mX;
+            EncodeQuotedDecimal64Accessor a;
+
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a, NAME, LENGTH));
+            ASSERTV(L_, DEFAULT == a.value());
+
+            EncodeQuotedDecimal64Manipulator m(VALUE);
+            ASSERTV(L_, ATTRIBUTE_ID == mX.manipulateAttribute(m,
+                                                               NAME,
+                                                               LENGTH));
+
+            EncodeQuotedDecimal64Accessor a1;
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a1, NAME, LENGTH));
+            ASSERTV(L_, VALUE == a1.value());
+
+            mX.reset();
+            EncodeQuotedDecimal64Accessor a2;
+            ASSERTV(L_, ATTRIBUTE_ID == mX.accessAttribute(a2, NAME, LENGTH));
+            ASSERTV(L_, DEFAULT == a2.value());
+        }
+
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING THE TEST MACHINERY
+        //   This test will test attribute accessor and manipulator supplied by
+        //   the test driver prior of its use to prove the
+        //   'd_encodeQuotedDecimal64' attribute works as required.
+        //
+        // Concerns:
+        //: 1 That the accessor attains only an attribute of the 'bool' type
+        //:   having the specific attribute id.
+        //:
+        //: 1 That the manipulator modifies only an attribute of the 'bool'
+        //:   type having the specific attribute id.
+        //
+        // Plan:
+        //: 1 Using a loop-based technique create an accessor and ensure that
+        //:   it attains only boolean attribute having the specific attribute
+        //:   id. (C-1)
+        //:
+        //: 2 Using a loop-based technique create a manipulator and ensure that
+        //:   it modifies only boolean attribute having the specific attribute
+        //:   id. (C-2)
+        //
+        // Testing:
+        //   EncodeQuotedDecimal64Accessor
+        //   EncodeQuotedDecimal64Manipulator
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING THE TEST MACHINERY" << endl
+                          << "==========================" << endl;
+
+
+        const int ATTRIBUTE_ID = Obj::ATTRIBUTE_ID_ENCODE_QUOTED_DECIMAL64;
+
+        { // Testing 'EncodeQuotedDecimal64Accessor'
+            for (int id = 0; id < Obj::NUM_ATTRIBUTES; ++id) {
+                EncodeQuotedDecimal64Accessor A;
+                const bdlat_AttributeInfo INFO = { id, "", 0, 0 };
+                bool VALUE;
+
+                if (ATTRIBUTE_ID != id) {
+                    VALUE = false;
+                    ASSERTV(L_, id, 0 == A(VALUE, INFO));
+                    ASSERTV(L_, VALUE, VALUE == A.value());
+                    VALUE = true;
+                    ASSERTV(L_, id, 0 == A(VALUE, INFO));
+                    ASSERTV(L_, VALUE, VALUE != A.value());
+                } else {
+                    VALUE = false;
+                    ASSERTV(L_, id, ATTRIBUTE_ID == A(VALUE, INFO));
+                    ASSERTV(L_, VALUE, VALUE == A.value());
+                    VALUE = true;
+                    ASSERTV(L_, id, ATTRIBUTE_ID == A(VALUE, INFO));
+                    ASSERTV(L_, VALUE, VALUE == A.value());
+                }
+            }
+            {
+                EncodeQuotedDecimal64Accessor A;
+                const bdlat_AttributeInfo INFO = { ATTRIBUTE_ID, "", 0, 0 };
+                ASSERTV(L_, 0 == A(int(), INFO));
+                ASSERTV(L_, false == A.value());
+                ASSERTV(L_, 0 == A(baljsn::EncodingStyle(), INFO));
+                ASSERTV(L_, false == A.value());
+                ASSERTV(L_, 0 == A(double(), INFO));
+                ASSERTV(L_, false == A.value());
+            }
+        }
+        { // Testing 'EncodeQuotedDecimal64Manipulator'
+            for (int id = 0; id < Obj::NUM_ATTRIBUTES; ++id) {
+                EncodeQuotedDecimal64Manipulator M(true);
+                const bdlat_AttributeInfo INFO = { id, "", 0, 0 };
+
+                if (ATTRIBUTE_ID != id) {
+                    bool VALUE = false;
+                    ASSERTV(L_, id, 0 == M(&VALUE, INFO));
+                    ASSERTV(L_, VALUE, false == VALUE);
+                } else {
+                    bool VALUE = false;
+                    ASSERTV(L_, id, ATTRIBUTE_ID == M(&VALUE, INFO));
+                    ASSERTV(L_, VALUE, true == VALUE);
+                }
+            }
+            {
+                EncodeQuotedDecimal64Manipulator M(true);
+                const bdlat_AttributeInfo INFO = { ATTRIBUTE_ID, "", 0, 0 };
+                int                   V0;
+                baljsn::EncodingStyle V1;
+                double                V2;
+                ASSERTV(L_, 0 == M(&V0, INFO));
+                ASSERTV(L_, 0 == M(&V1, INFO));
+                ASSERTV(L_, 0 == M(&V2, INFO));
+            }
+        }
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -490,6 +861,7 @@ int main(int argc, char *argv[])
             const int   DTP1     = DATA[ti].d_datetimePrecision;
             const int   MFP1     = DATA[ti].d_maxFloatPrecision;
             const int   MDP1     = DATA[ti].d_maxDoublePrecision;
+            const bool  EQD1     = DATA[ti].d_encodeQuotedDecimal64;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setInitialIndentLevel(INDENT1);
@@ -501,6 +873,7 @@ int main(int argc, char *argv[])
             mZ.setDatetimeFractionalSecondPrecision(DTP1);
             mZ.setMaxFloatPrecision(MFP1);
             mZ.setMaxDoublePrecision(MDP1);
+            mZ.setEncodeQuotedDecimal64(EQD1);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setInitialIndentLevel(INDENT1);
@@ -512,6 +885,7 @@ int main(int argc, char *argv[])
             mZZ.setDatetimeFractionalSecondPrecision(DTP1);
             mZZ.setMaxFloatPrecision(MFP1);
             mZZ.setMaxDoublePrecision(MDP1);
+            mZZ.setEncodeQuotedDecimal64(EQD1);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
 
@@ -535,6 +909,7 @@ int main(int argc, char *argv[])
                 const int   DTP2     = DATA[tj].d_datetimePrecision;
                 const int   MFP2     = DATA[tj].d_maxFloatPrecision;
                 const int   MDP2     = DATA[tj].d_maxDoublePrecision;
+                const bool  EQD2     = DATA[tj].d_encodeQuotedDecimal64;
 
                 Obj mX;  const Obj& X = mX;
                 mX.setInitialIndentLevel(INDENT2);
@@ -546,6 +921,7 @@ int main(int argc, char *argv[])
                 mX.setDatetimeFractionalSecondPrecision(DTP2);
                 mX.setMaxFloatPrecision(MFP2);
                 mX.setMaxDoublePrecision(MDP2);
+                mX.setEncodeQuotedDecimal64(EQD2);
 
                 if (veryVerbose) { T_ P_(LINE2) P(X) }
 
@@ -571,6 +947,7 @@ int main(int argc, char *argv[])
                 mX.setDatetimeFractionalSecondPrecision(DTP1);
                 mX.setMaxFloatPrecision(MFP1);
                 mX.setMaxDoublePrecision(MDP1);
+                mX.setEncodeQuotedDecimal64(EQD1);
 
                 Obj mZZ;  const Obj& ZZ = mZZ;
                 mZZ.setInitialIndentLevel(INDENT1);
@@ -582,6 +959,7 @@ int main(int argc, char *argv[])
                 mZZ.setDatetimeFractionalSecondPrecision(DTP1);
                 mZZ.setMaxFloatPrecision(MFP1);
                 mZZ.setMaxDoublePrecision(MDP1);
+                mZZ.setEncodeQuotedDecimal64(EQD1);
 
                 const Obj& Z = mX;
 
@@ -677,6 +1055,7 @@ int main(int argc, char *argv[])
             const int   DTP     = DATA[ti].d_datetimePrecision;
             const int   MFP     = DATA[ti].d_maxFloatPrecision;
             const int   MDP     = DATA[ti].d_maxDoublePrecision;
+            const bool  EQD     = DATA[ti].d_encodeQuotedDecimal64;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setInitialIndentLevel(INDENT);
@@ -688,6 +1067,7 @@ int main(int argc, char *argv[])
             mZ.setDatetimeFractionalSecondPrecision(DTP);
             mZ.setMaxFloatPrecision(MFP);
             mZ.setMaxDoublePrecision(MDP);
+            mZ.setEncodeQuotedDecimal64(EQD);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setInitialIndentLevel(INDENT);
@@ -699,6 +1079,7 @@ int main(int argc, char *argv[])
             mZZ.setDatetimeFractionalSecondPrecision(DTP);
             mZZ.setMaxFloatPrecision(MFP);
             mZZ.setMaxDoublePrecision(MDP);
+            mZZ.setEncodeQuotedDecimal64(EQD);
 
             if (veryVerbose) { T_ P_(Z) P(ZZ) }
 
@@ -831,6 +1212,7 @@ int main(int argc, char *argv[])
         typedef int   T7;        // 'datetimeFractionalSecondPrecision'
         typedef int   T8;        // 'maxFloatPrecision'
         typedef int   T9;        // 'maxDoublePrecision'
+        typedef int   T10;       // 'encodeQuotedDecimal64'
 
                  // ----------------------------------------
                  // Attribute 1 Values: 'initialIndentLevel'
@@ -895,6 +1277,13 @@ int main(int argc, char *argv[])
         const T9 A9 = 15;           // baseline
         const T9 B9 = 9;
 
+        // -------------------------------------------
+        // Attribute 9 Values: 'encodeQuotedDecimal64'
+        // -------------------------------------------
+
+        const T10 A10 = true;          // baseline
+        const T10 B10 = false;
+
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
 
@@ -909,6 +1298,7 @@ int main(int argc, char *argv[])
             int   d_datetimePrecision;
             int   d_maxFloatPrecision;
             int   d_maxDoublePrecision;
+            bool  d_encodeQuotedDecimal64;
         } DATA[] = {
 
         // The first row of the table below represents an object value
@@ -916,20 +1306,21 @@ int main(int argc, char *argv[])
         // row differs (slightly) from the first in exactly one attribute value
         // (Bi).
 
-       //LINE INDENT  SPL  STYLE   EEA  ENE  EINAS  DTP MFP  MDP
-       //---- ------  ---  -----   ---  ---  -----  --- ---  ---
+       //LINE INDENT  SPL  STYLE   EEA  ENE  EINAS  DTP MFP  MDP EQD
+       //---- ------  ---  -----   ---  ---  -----  --- ---  --- ---
 
-        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  A7, A8,  A9 },  // baseline
-
-        { L_,    B1,   A2,   A3,  A4,   A5,    A6,  A7, A8,  A9 },
-        { L_,    A1,   B2,   A3,  A4,   A5,    A6,  A7, A8,  A9 },
-        { L_,    A1,   A2,   B3,  A4,   A5,    A6,  A7, A8,  A9 },
-        { L_,    A1,   A2,   A3,  B4,   A5,    A6,  A7, A8,  A9 },
-        { L_,    A1,   A2,   A3,  A4,   B5,    A6,  A7, A8,  A9 },
-        { L_,    A1,   A2,   A3,  A4,   A5,    B6,  A7, A8,  A9 },
-        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  B7, A8,  A9 },
-        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  A7, B8,  A9 },
-        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  A7, A8,  B9 },
+        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  A7, A8,  A9, A10 }, // base
+                                                                        // line
+        { L_,    B1,   A2,   A3,  A4,   A5,    A6,  A7, A8,  A9, A10 },
+        { L_,    A1,   B2,   A3,  A4,   A5,    A6,  A7, A8,  A9, A10 },
+        { L_,    A1,   A2,   B3,  A4,   A5,    A6,  A7, A8,  A9, A10 },
+        { L_,    A1,   A2,   A3,  B4,   A5,    A6,  A7, A8,  A9, A10 },
+        { L_,    A1,   A2,   A3,  A4,   B5,    A6,  A7, A8,  A9, A10 },
+        { L_,    A1,   A2,   A3,  A4,   A5,    B6,  A7, A8,  A9, A10 },
+        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  B7, A8,  A9, A10 },
+        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  A7, B8,  A9, A10 },
+        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  A7, A8,  B9, A10 },
+        { L_,    A1,   A2,   A3,  A4,   A5,    A6,  A7, A8,  A9, B10 },
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -947,9 +1338,10 @@ int main(int argc, char *argv[])
             const int   DTP1     = DATA[ti].d_datetimePrecision;
             const int   MFP1     = DATA[ti].d_maxFloatPrecision;
             const int   MDP1     = DATA[ti].d_maxDoublePrecision;
+            const bool  EQD1     = DATA[ti].d_encodeQuotedDecimal64;
 
             if (veryVerbose) { T_ P_(LINE1) P_(INDENT1)
-                                  P_(SPL1)  P_(STYLE1) P_(EEA1) P_(ENE1) }
+                              P_(SPL1)  P_(STYLE1) P_(EEA1) P_(ENE1) P_(EQD1) }
 
             // Ensure an object compares correctly with itself (alias test).
             {
@@ -964,6 +1356,7 @@ int main(int argc, char *argv[])
                 mX.setDatetimeFractionalSecondPrecision(DTP1);
                 mX.setMaxFloatPrecision(MFP1);
                 mX.setMaxDoublePrecision(MDP1);
+                mX.setEncodeQuotedDecimal64(EQD1);
 
                 LOOP2_ASSERT(LINE1, X,   X == X);
                 LOOP2_ASSERT(LINE1, X, !(X != X));
@@ -980,9 +1373,10 @@ int main(int argc, char *argv[])
                 const int   DTP2     = DATA[tj].d_datetimePrecision;
                 const int   MFP2     = DATA[tj].d_maxFloatPrecision;
                 const int   MDP2     = DATA[tj].d_maxDoublePrecision;
+                const bool  EQD2     = DATA[tj].d_encodeQuotedDecimal64;
 
                 if (veryVerbose) { T_ P_(LINE1) P_(INDENT2)
-                                      P_(SPL2) P_(STYLE2) P_(EEA2) P_(ENE2) }
+                               P_(SPL2) P_(STYLE2) P_(EEA2) P_(ENE2) P_(EQD2) }
 
                 const bool EXP = ti == tj;  // expected for equality comparison
 
@@ -998,6 +1392,7 @@ int main(int argc, char *argv[])
                 mX.setDatetimeFractionalSecondPrecision(DTP1);
                 mX.setMaxFloatPrecision(MFP1);
                 mX.setMaxDoublePrecision(MDP1);
+                mX.setEncodeQuotedDecimal64(EQD1);
 
                 mY.setInitialIndentLevel(INDENT2);
                 mY.setSpacesPerLevel(SPL2);
@@ -1008,6 +1403,7 @@ int main(int argc, char *argv[])
                 mY.setDatetimeFractionalSecondPrecision(DTP2);
                 mY.setMaxFloatPrecision(MFP2);
                 mY.setMaxDoublePrecision(MDP2);
+                mY.setEncodeQuotedDecimal64(EQD2);
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
@@ -1123,6 +1519,7 @@ int main(int argc, char *argv[])
             bool        d_encodeEmptyArrays;
             bool        d_encodeNullElements;
             bool        d_encodeInfAndNaNAsStrings;
+            bool        d_encodeQuotedDecimal64;
 
             const char *d_expected_p;
         } DATA[] = {
@@ -1134,10 +1531,10 @@ int main(int argc, char *argv[])
    // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
    // ------------------------------------------------------------------
 
-//LINE  L  SPL  IND  SPL S EEA ENE EINAS EXP
-//----  -  ---  ---  --- - --- --- ----- ---
+//LINE  L  SPL  IND  SPL S EEA ENE EINAS EQD EXP
+//----  -  ---  ---  --- - --- --- ----- --- ---
 
- { L_,  0,  0,  89,  10, C, T,  T,  T, "["                                   NL
+{ L_,  0,  0,  89,  10, C, T,  T,  T, T, "["                                 NL
 
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
@@ -1148,10 +1545,11 @@ int main(int argc, char *argv[])
                                  "datetimeFractionalSecondPrecision = 3"     NL
                                  "maxFloatPrecision = 6"                     NL
                                  "maxDoublePrecision = 15"                   NL
+                                 "encodeQuotedDecimal64 = true"              NL
                                         "]"                                  NL
                                                                              },
 
- { L_,  0,  1,  89,  10, P, T,  T,  T, "["                                   NL
+{ L_,  0,  1,  89,  10, P, T,  T,  T,  T, "["                                NL
 
                                  " initialIndentLevel = 89"                  NL
                                  " spacesPerLevel = 10"                      NL
@@ -1162,10 +1560,11 @@ int main(int argc, char *argv[])
                                  " datetimeFractionalSecondPrecision = 3"    NL
                                  " maxFloatPrecision = 6"                    NL
                                  " maxDoublePrecision = 15"                  NL
+                                 " encodeQuotedDecimal64 = true"             NL
                                        "]"                                   NL
                                                                              },
 
- { L_,  0, -1,  89,  10, C, T,  F,  T, "["                                   SP
+{ L_,  0, -1,  89,  10, C, T,  F,  T, T, "["                                 SP
 
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
@@ -1176,6 +1575,7 @@ int main(int argc, char *argv[])
                                  "datetimeFractionalSecondPrecision = 3"     SP
                                  "maxFloatPrecision = 6"                     SP
                                  "maxDoublePrecision = 15"                   SP
+                                 "encodeQuotedDecimal64 = true"              SP
                                        "]"
                                                                              },
 
@@ -1183,10 +1583,10 @@ int main(int argc, char *argv[])
    // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
    // ------------------------------------------------------------------
 
-//LINE  L  SPL  IND  SPL STYLE EEA ENE EINAS EXP
-//----  -  ---  ---  --- ----- --- --- ----- ---
+//LINE  L  SPL  IND  SPL STYLE EEA ENE EINAS EQD EXP
+//----  -  ---  ---  --- ----- --- --- ----- --- ---
 
- { L_,  3,  0,  89,  10, C, T,  T,  T, "["                                   NL
+{ L_,  3,  0,  89,  10, C, T,  T,  T,  T, "["                                 NL
 
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
@@ -1197,10 +1597,11 @@ int main(int argc, char *argv[])
                                  "datetimeFractionalSecondPrecision = 3"     NL
                                  "maxFloatPrecision = 6"                     NL
                                  "maxDoublePrecision = 15"                   NL
+                                 "encodeQuotedDecimal64 = true"              NL
                                        "]"                                   NL
                                                                              },
 
- { L_,  3,  2,  89,  10, P, F,  F,  T,
+{ L_,  3,  2,  89,  10, P, F,  F,  T,  T,
                                "      ["                                     NL
                          "        initialIndentLevel = 89"                   NL
                          "        spacesPerLevel = 10"                       NL
@@ -1211,10 +1612,11 @@ int main(int argc, char *argv[])
                          "        datetimeFractionalSecondPrecision = 3"     NL
                          "        maxFloatPrecision = 6"                     NL
                          "        maxDoublePrecision = 15"                   NL
+                         "        encodeQuotedDecimal64 = true"              NL
                                "      ]"                                     NL
                                                                              },
 
- { L_,  3, -2,  89,  10, C, T,  F,  T, "      ["                             SP
+{ L_,  3, -2,  89,  10, C, T,  F,  T,  T,  "      ["                         SP
 
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
@@ -1225,10 +1627,11 @@ int main(int argc, char *argv[])
                                  "datetimeFractionalSecondPrecision = 3"     SP
                                  "maxFloatPrecision = 6"                     SP
                                  "maxDoublePrecision = 15"                   SP
+                                 "encodeQuotedDecimal64 = true"              SP
                                        "]"
                                                                              },
 
- { L_, -3,  0,  89,  10, P, F,  T,  T, "["                                   NL
+{ L_, -3,  0,  89,  10, P, F,  T,  T,  T,  "["                               NL
 
                                  "initialIndentLevel = 89"                   NL
                                  "spacesPerLevel = 10"                       NL
@@ -1239,10 +1642,11 @@ int main(int argc, char *argv[])
                                  "datetimeFractionalSecondPrecision = 3"     NL
                                  "maxFloatPrecision = 6"                     NL
                                  "maxDoublePrecision = 15"                   NL
+                                 "encodeQuotedDecimal64 = true"              NL
                                        "]"                                   NL
                                                                              },
 
- { L_, -3,  2,  89,  10, P, T,  F,  T, "["                                   NL
+{ L_, -3,  2,  89,  10, P, T,  F,  T,  T,  "["                               NL
 
                          "        initialIndentLevel = 89"                   NL
                          "        spacesPerLevel = 10"                       NL
@@ -1253,10 +1657,11 @@ int main(int argc, char *argv[])
                          "        datetimeFractionalSecondPrecision = 3"     NL
                          "        maxFloatPrecision = 6"                     NL
                          "        maxDoublePrecision = 15"                   NL
+                         "        encodeQuotedDecimal64 = true"              NL
                                "      ]"                                     NL
                                                                              },
 
- { L_, -3, -2,  89,  10, C, T,  T,  T, "["                                   SP
+{ L_, -3, -2,  89,  10, C, T,  T,  T,  F,  "["                               SP
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
                                  "encodingStyle = e_COMPACT"                 SP
@@ -1266,6 +1671,7 @@ int main(int argc, char *argv[])
                                  "datetimeFractionalSecondPrecision = 3"     SP
                                  "maxFloatPrecision = 6"                     SP
                                  "maxDoublePrecision = 15"                   SP
+                                 "encodeQuotedDecimal64 = false"             SP
                                        "]"
                                                                              },
 
@@ -1273,10 +1679,10 @@ int main(int argc, char *argv[])
    // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
    // -----------------------------------------------------------------
 
-//LINE  L  SPL  IND  SPL STYLE EEA ENE EINAS EXP
-//----  -  ---  ---  --- ----- --- --- ----- ---
+//LINE  L  SPL  IND  SPL STYLE EEA ENE EINAS EQD EXP
+//----  -  ---  ---  --- ----- --- --- ----- --- ---
 
- { L_,  2,  3,  89,  10, P, T,  T,  T,
+{ L_,  2,  3,  89,  10, P, T,  T,  T,  T,
                          "      ["                                           NL
                          "         initialIndentLevel = 89"                  NL
                          "         spacesPerLevel = 10"                      NL
@@ -1287,6 +1693,7 @@ int main(int argc, char *argv[])
                          "         datetimeFractionalSecondPrecision = 3"    NL
                          "         maxFloatPrecision = 6"                    NL
                          "         maxDoublePrecision = 15"                  NL
+                         "         encodeQuotedDecimal64 = true"             NL
                                "      ]"                                     NL
                                                                              },
 
@@ -1294,10 +1701,10 @@ int main(int argc, char *argv[])
         // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
         // -----------------------------------------------------------------
 
-//LINE  L  SPL  IND  SPL STYLE EEA  ENE EINAS EXP
-//----  -  ---  ---  --- ----- ---  --- ----- ---
+//LINE  L  SPL  IND  SPL STYLE EEA  ENE EINAS EQD EXP
+//----  -  ---  ---  --- ----- ---  --- ----- --- ---
 
- { L_, -9, -9,  89,  10,    C,  F,   T,  T,
+{ L_, -9, -9,  89,  10,    C,  F,   T,  T,  T,
                                  "["                                         SP
                                  "initialIndentLevel = 89"                   SP
                                  "spacesPerLevel = 10"                       SP
@@ -1308,9 +1715,10 @@ int main(int argc, char *argv[])
                                  "datetimeFractionalSecondPrecision = 3"     SP
                                  "maxFloatPrecision = 6"                     SP
                                  "maxDoublePrecision = 15"                   SP
+                                 "encodeQuotedDecimal64 = true"              SP
                                  "]" },
 
- { L_, -9, -9,   7,   5,    P,  F,   F,  T,
+{ L_, -9, -9,   7,   5,    P,  F,   F,  T,  T,
                                  "["                                         SP
                                  "initialIndentLevel = 7"                    SP
                                  "spacesPerLevel = 5"                        SP
@@ -1321,6 +1729,7 @@ int main(int argc, char *argv[])
                                  "datetimeFractionalSecondPrecision = 3"     SP
                                  "maxFloatPrecision = 6"                     SP
                                  "maxDoublePrecision = 15"                   SP
+                                 "encodeQuotedDecimal64 = true"              SP
                                  "]" },
 
 #undef NL
@@ -1343,11 +1752,12 @@ int main(int argc, char *argv[])
                 const bool        EEA    = DATA[ti].d_encodeEmptyArrays;
                 const bool        ENE    = DATA[ti].d_encodeNullElements;
                 const bool        EINAS  = DATA[ti].d_encodeInfAndNaNAsStrings;
+                const bool        EQD    = DATA[ti].d_encodeQuotedDecimal64;
 
                 const char *const EXP    = DATA[ti].d_expected_p;
 
                 if (veryVerbose) { T_ P_(L) P_(INDENT) P_(SPL)
-                                      P_(STYLE) P_(EEA) P_(ENE) }
+                        P_(STYLE) P_(EEA) P_(ENE) P_(EINAS) P_(EQD) }
 
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
 
@@ -1358,6 +1768,7 @@ int main(int argc, char *argv[])
                 mX.setEncodeEmptyArrays(EEA);
                 mX.setEncodeNullElements(ENE);
                 mX.setEncodeInfAndNaNAsStrings(EINAS);
+                mX.setEncodeQuotedDecimal64(EQD);
 
                 ostringstream os;
 
@@ -1442,6 +1853,7 @@ int main(int argc, char *argv[])
         typedef int   T7;        // 'datetimeFractionalSecondPrecision'
         typedef int   T8;        // 'maxFloatPrecision'
         typedef int   T9;        // 'maxDoublePrecision'
+        typedef int   T10;       // 'encodeQuotedDecimal64'
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1458,6 +1870,7 @@ int main(int argc, char *argv[])
         const int   D7   = 3;                    // 'datetimePrecision'
         const int   D8   = 6;                    // 'maxFloatPrecision'
         const int   D9   = 15;                   // 'maxDoublePrecision'
+        const bool  D10  = false;                // 'encodeQuotedDecimal64'
 
                        // ----------------------------
                        // 'A' values: Boundary values.
@@ -1472,6 +1885,7 @@ int main(int argc, char *argv[])
         const int   A7   = 6;                    // 'datetimePrecision'
         const int   A8   = 6;                    // 'maxFloatPrecision'
         const int   A9   = 15;                   // 'maxDoublePrecision'
+        const bool  A10  = true;                 // 'encodeQuotedDecimal64'
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1507,6 +1921,10 @@ int main(int argc, char *argv[])
 
             const T9& maxDoublePrecision = X.maxDoublePrecision();
             LOOP2_ASSERT(D9, maxDoublePrecision, D9 == maxDoublePrecision);
+
+            const T10& encodeQuotedDecimal64 = X.encodeQuotedDecimal64();
+            LOOP2_ASSERT(D10, encodeQuotedDecimal64,
+                         D10 == encodeQuotedDecimal64);
         }
 
         if (verbose) cout <<
@@ -1584,6 +2002,15 @@ int main(int argc, char *argv[])
             const T9& maxDoublePrecision = X.maxDoublePrecision();
             LOOP2_ASSERT(A9, maxDoublePrecision, A9 == maxDoublePrecision);
         }
+
+        if (veryVerbose) { T_ Q(encodeQuotedDecimal64) }
+        {
+            mX.setEncodeQuotedDecimal64(A10);
+
+            const T10& encodeQuotedDecimal64 = X.encodeQuotedDecimal64();
+            LOOP2_ASSERT(A10, encodeQuotedDecimal64,
+                         A10 == encodeQuotedDecimal64);
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1655,6 +2082,7 @@ int main(int argc, char *argv[])
         const int   D7   = 3;            // 'datetimeFractionalSecondPrecision'
         const int   D8   = 6;                    // 'maxFloatPrecision'
         const int   D9   = 15;                   // 'maxDoublePrecision'
+        const bool  D10  = false;                // 'encodeQuotedDecimal64'
         // 'A' values.
 
         const int   A1   = 1;                    // 'initialIndentLevel'
@@ -1666,6 +2094,7 @@ int main(int argc, char *argv[])
         const int   A7   = 0;            // 'datetimeFractionalSecondPrecision'
         const int   A8   = 6;                    // 'maxFloatPrecision'
         const int   A9   = 15;                   // 'maxDoublePrecision'
+        const bool  A10  = true;                 // 'encodeQuotedDecimal64'
 
         // 'B' values.
 
@@ -1678,6 +2107,7 @@ int main(int argc, char *argv[])
         const int   B7   = 6;            // 'datetimeFractionalSecondPrecision'
         const int   B8   = 3;                    // 'maxFloatPrecision'
         const int   B9   = 9;                    // 'maxDoublePrecision'
+        const bool  B10  = true;                 // 'encodeQuotedDecimal64'
 
         Obj mX;  const Obj& X = mX;
 
@@ -1689,37 +2119,40 @@ int main(int argc, char *argv[])
         // --------------------
         {
             mX.setInitialIndentLevel(A1);
-            ASSERT(A1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(A1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setInitialIndentLevel(B1);
-            ASSERT(B1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setInitialIndentLevel(D1);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
         }
 
         // ----------------
@@ -1727,37 +2160,40 @@ int main(int argc, char *argv[])
         // ----------------
         {
             mX.setSpacesPerLevel(A2);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(A2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(A2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setSpacesPerLevel(B2);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(B2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(B2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setSpacesPerLevel(D2);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
         }
 
         // ---------------
@@ -1765,37 +2201,40 @@ int main(int argc, char *argv[])
         // ---------------
         {
             mX.setEncodingStyle(A3);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(A3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(A3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setEncodingStyle(B3);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(B3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(B3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setEncodingStyle(D3);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
         }
 
         // -------------------
@@ -1803,37 +2242,40 @@ int main(int argc, char *argv[])
         // -------------------
         {
             mX.setEncodeEmptyArrays(A4);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(A4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(A4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setEncodeEmptyArrays(B4);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(B4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(B4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setEncodeEmptyArrays(D4);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
         }
 
         // --------------------
@@ -1841,37 +2283,40 @@ int main(int argc, char *argv[])
         // --------------------
         {
             mX.setEncodeNullElements(A5);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(A5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(A5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setEncodeNullElements(B5);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(B5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(B5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setEncodeNullElements(D5);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
         }
 
         // --------------------------
@@ -1879,37 +2324,40 @@ int main(int argc, char *argv[])
         // --------------------------
         {
             mX.setEncodeInfAndNaNAsStrings(A6);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(A6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(A6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setEncodeInfAndNaNAsStrings(B6);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(B6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(B6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setEncodeInfAndNaNAsStrings(D6);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
         }
 
         // -----------------------------------
@@ -1917,37 +2365,40 @@ int main(int argc, char *argv[])
         // -----------------------------------
         {
             mX.setDatetimeFractionalSecondPrecision(A7);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(A7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(A7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setDatetimeFractionalSecondPrecision(B7);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(B7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(B7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setDatetimeFractionalSecondPrecision(D7);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
         }
 
         // -------------------
@@ -1955,37 +2406,40 @@ int main(int argc, char *argv[])
         // -------------------
         {
             mX.setMaxFloatPrecision(A8);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(A8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(A8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setMaxFloatPrecision(B8);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(B8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(B8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setMaxFloatPrecision(D8);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
         }
 
         // -------------------
@@ -1993,37 +2447,81 @@ int main(int argc, char *argv[])
         // -------------------
         {
             mX.setMaxDoublePrecision(A9);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(A9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(A9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setMaxDoublePrecision(B9);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(B9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(B9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
 
             mX.setMaxDoublePrecision(D9);
-            ASSERT(D1 == X.initialIndentLevel());
-            ASSERT(D2 == X.spacesPerLevel());
-            ASSERT(D3 == X.encodingStyle());
-            ASSERT(D4 == X.encodeEmptyArrays());
-            ASSERT(D5 == X.encodeNullElements());
-            ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(D8 == X.maxFloatPrecision());
-            ASSERT(D9 == X.maxDoublePrecision());
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
+        }
+
+        // --------------------
+        // 'maxDoublePrecision'
+        // --------------------
+        {
+            mX.setEncodeQuotedDecimal64(A10);
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(A10 == X.encodeQuotedDecimal64());
+
+            mX.setEncodeQuotedDecimal64(B10);
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(B10 == X.encodeQuotedDecimal64());
+
+            mX.setEncodeQuotedDecimal64(D10);
+            ASSERT(D1  == X.initialIndentLevel());
+            ASSERT(D2  == X.spacesPerLevel());
+            ASSERT(D3  == X.encodingStyle());
+            ASSERT(D4  == X.encodeEmptyArrays());
+            ASSERT(D5  == X.encodeNullElements());
+            ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(D8  == X.maxFloatPrecision());
+            ASSERT(D9  == X.maxDoublePrecision());
+            ASSERT(D10 == X.encodeQuotedDecimal64());
         }
 
         if (verbose) cout << "Corroborate attribute independence." << endl;
@@ -2041,16 +2539,18 @@ int main(int argc, char *argv[])
             mX.setDatetimeFractionalSecondPrecision(A7);
             mX.setMaxFloatPrecision(A8);
             mX.setMaxDoublePrecision(A9);
+            mX.setEncodeQuotedDecimal64(A10);
 
-            ASSERT(A1 == X.initialIndentLevel());
-            ASSERT(A2 == X.spacesPerLevel());
-            ASSERT(A3 == X.encodingStyle());
-            ASSERT(A4 == X.encodeEmptyArrays());
-            ASSERT(A5 == X.encodeNullElements());
-            ASSERT(A6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(A7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(A8 == X.maxFloatPrecision());
-            ASSERT(A9 == X.maxDoublePrecision());
+            ASSERT(A1  == X.initialIndentLevel());
+            ASSERT(A2  == X.spacesPerLevel());
+            ASSERT(A3  == X.encodingStyle());
+            ASSERT(A4  == X.encodeEmptyArrays());
+            ASSERT(A5  == X.encodeNullElements());
+            ASSERT(A6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(A7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(A8  == X.maxFloatPrecision());
+            ASSERT(A9  == X.maxDoublePrecision());
+            ASSERT(A10 == X.encodeQuotedDecimal64());
 
                  // ---------------------------------------
                  // Set all attributes to their 'B' values.
@@ -2058,107 +2558,128 @@ int main(int argc, char *argv[])
 
             mX.setInitialIndentLevel(B1);
 
-            ASSERT(B1 == X.initialIndentLevel());
-            ASSERT(A2 == X.spacesPerLevel());
-            ASSERT(A3 == X.encodingStyle());
-            ASSERT(A4 == X.encodeEmptyArrays());
-            ASSERT(A5 == X.encodeNullElements());
-            ASSERT(A6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(A7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(A8 == X.maxFloatPrecision());
-            ASSERT(A9 == X.maxDoublePrecision());
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(A2  == X.spacesPerLevel());
+            ASSERT(A3  == X.encodingStyle());
+            ASSERT(A4  == X.encodeEmptyArrays());
+            ASSERT(A5  == X.encodeNullElements());
+            ASSERT(A6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(A7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(A8  == X.maxFloatPrecision());
+            ASSERT(A9  == X.maxDoublePrecision());
+            ASSERT(A10 == X.encodeQuotedDecimal64());
 
             mX.setSpacesPerLevel(B2);
 
-            ASSERT(B1 == X.initialIndentLevel());
-            ASSERT(B2 == X.spacesPerLevel());
-            ASSERT(A3 == X.encodingStyle());
-            ASSERT(A4 == X.encodeEmptyArrays());
-            ASSERT(A5 == X.encodeNullElements());
-            ASSERT(A6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(A7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(A8 == X.maxFloatPrecision());
-            ASSERT(A9 == X.maxDoublePrecision());
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(B2  == X.spacesPerLevel());
+            ASSERT(A3  == X.encodingStyle());
+            ASSERT(A4  == X.encodeEmptyArrays());
+            ASSERT(A5  == X.encodeNullElements());
+            ASSERT(A6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(A7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(A8  == X.maxFloatPrecision());
+            ASSERT(A9  == X.maxDoublePrecision());
+            ASSERT(A10 == X.encodeQuotedDecimal64());
 
             mX.setEncodingStyle(B3);
 
-            ASSERT(B1 == X.initialIndentLevel());
-            ASSERT(B2 == X.spacesPerLevel());
-            ASSERT(B3 == X.encodingStyle());
-            ASSERT(A4 == X.encodeEmptyArrays());
-            ASSERT(A5 == X.encodeNullElements());
-            ASSERT(A6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(A7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(A8 == X.maxFloatPrecision());
-            ASSERT(A9 == X.maxDoublePrecision());
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(B2  == X.spacesPerLevel());
+            ASSERT(B3  == X.encodingStyle());
+            ASSERT(A4  == X.encodeEmptyArrays());
+            ASSERT(A5  == X.encodeNullElements());
+            ASSERT(A6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(A7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(A8  == X.maxFloatPrecision());
+            ASSERT(A9  == X.maxDoublePrecision());
+            ASSERT(A10 == X.encodeQuotedDecimal64());
 
             mX.setEncodeEmptyArrays(B4);
 
-            ASSERT(B1 == X.initialIndentLevel());
-            ASSERT(B2 == X.spacesPerLevel());
-            ASSERT(B3 == X.encodingStyle());
-            ASSERT(B4 == X.encodeEmptyArrays());
-            ASSERT(A5 == X.encodeNullElements());
-            ASSERT(A6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(A7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(A8 == X.maxFloatPrecision());
-            ASSERT(A9 == X.maxDoublePrecision());
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(B2  == X.spacesPerLevel());
+            ASSERT(B3  == X.encodingStyle());
+            ASSERT(B4  == X.encodeEmptyArrays());
+            ASSERT(A5  == X.encodeNullElements());
+            ASSERT(A6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(A7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(A8  == X.maxFloatPrecision());
+            ASSERT(A9  == X.maxDoublePrecision());
+            ASSERT(A10 == X.encodeQuotedDecimal64());
 
             mX.setEncodeNullElements(B5);
 
-            ASSERT(B1 == X.initialIndentLevel());
-            ASSERT(B2 == X.spacesPerLevel());
-            ASSERT(B3 == X.encodingStyle());
-            ASSERT(B4 == X.encodeEmptyArrays());
-            ASSERT(B5 == X.encodeNullElements());
-            ASSERT(A6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(A7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(A8 == X.maxFloatPrecision());
-            ASSERT(A9 == X.maxDoublePrecision());
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(B2  == X.spacesPerLevel());
+            ASSERT(B3  == X.encodingStyle());
+            ASSERT(B4  == X.encodeEmptyArrays());
+            ASSERT(B5  == X.encodeNullElements());
+            ASSERT(A6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(A7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(A8  == X.maxFloatPrecision());
+            ASSERT(A9  == X.maxDoublePrecision());
+            ASSERT(A10 == X.encodeQuotedDecimal64());
 
             mX.setEncodeInfAndNaNAsStrings(B6);
-            ASSERT(B1 == X.initialIndentLevel());
-            ASSERT(B2 == X.spacesPerLevel());
-            ASSERT(B3 == X.encodingStyle());
-            ASSERT(B4 == X.encodeEmptyArrays());
-            ASSERT(B5 == X.encodeNullElements());
-            ASSERT(B6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(A7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(A8 == X.maxFloatPrecision());
-            ASSERT(A9 == X.maxDoublePrecision());
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(B2  == X.spacesPerLevel());
+            ASSERT(B3  == X.encodingStyle());
+            ASSERT(B4  == X.encodeEmptyArrays());
+            ASSERT(B5  == X.encodeNullElements());
+            ASSERT(B6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(A7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(A8  == X.maxFloatPrecision());
+            ASSERT(A9  == X.maxDoublePrecision());
+            ASSERT(A10 == X.encodeQuotedDecimal64());
 
             mX.setDatetimeFractionalSecondPrecision(B7);
-            ASSERT(B1 == X.initialIndentLevel());
-            ASSERT(B2 == X.spacesPerLevel());
-            ASSERT(B3 == X.encodingStyle());
-            ASSERT(B4 == X.encodeEmptyArrays());
-            ASSERT(B5 == X.encodeNullElements());
-            ASSERT(B6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(B7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(A8 == X.maxFloatPrecision());
-            ASSERT(A9 == X.maxDoublePrecision());
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(B2  == X.spacesPerLevel());
+            ASSERT(B3  == X.encodingStyle());
+            ASSERT(B4  == X.encodeEmptyArrays());
+            ASSERT(B5  == X.encodeNullElements());
+            ASSERT(B6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(B7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(A8  == X.maxFloatPrecision());
+            ASSERT(A9  == X.maxDoublePrecision());
+            ASSERT(A10 == X.encodeQuotedDecimal64());
 
             mX.setMaxFloatPrecision(B8);
-            ASSERT(B1 == X.initialIndentLevel());
-            ASSERT(B2 == X.spacesPerLevel());
-            ASSERT(B3 == X.encodingStyle());
-            ASSERT(B4 == X.encodeEmptyArrays());
-            ASSERT(B5 == X.encodeNullElements());
-            ASSERT(B6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(B7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(B8 == X.maxFloatPrecision());
-            ASSERT(A9 == X.maxDoublePrecision());
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(B2  == X.spacesPerLevel());
+            ASSERT(B3  == X.encodingStyle());
+            ASSERT(B4  == X.encodeEmptyArrays());
+            ASSERT(B5  == X.encodeNullElements());
+            ASSERT(B6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(B7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(B8  == X.maxFloatPrecision());
+            ASSERT(A9  == X.maxDoublePrecision());
+            ASSERT(A10 == X.encodeQuotedDecimal64());
 
             mX.setMaxDoublePrecision(B9);
-            ASSERT(B1 == X.initialIndentLevel());
-            ASSERT(B2 == X.spacesPerLevel());
-            ASSERT(B3 == X.encodingStyle());
-            ASSERT(B4 == X.encodeEmptyArrays());
-            ASSERT(B5 == X.encodeNullElements());
-            ASSERT(B6 == X.encodeInfAndNaNAsStrings());
-            ASSERT(B7 == X.datetimeFractionalSecondPrecision());
-            ASSERT(B8 == X.maxFloatPrecision());
-            ASSERT(B9 == X.maxDoublePrecision());
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(B2  == X.spacesPerLevel());
+            ASSERT(B3  == X.encodingStyle());
+            ASSERT(B4  == X.encodeEmptyArrays());
+            ASSERT(B5  == X.encodeNullElements());
+            ASSERT(B6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(B7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(B8  == X.maxFloatPrecision());
+            ASSERT(B9  == X.maxDoublePrecision());
+            ASSERT(A10 == X.encodeQuotedDecimal64());
+
+            mX.setEncodeQuotedDecimal64(B10);
+            ASSERT(B1  == X.initialIndentLevel());
+            ASSERT(B2  == X.spacesPerLevel());
+            ASSERT(B3  == X.encodingStyle());
+            ASSERT(B4  == X.encodeEmptyArrays());
+            ASSERT(B5  == X.encodeNullElements());
+            ASSERT(B6  == X.encodeInfAndNaNAsStrings());
+            ASSERT(B7  == X.datetimeFractionalSecondPrecision());
+            ASSERT(B8  == X.maxFloatPrecision());
+            ASSERT(B9  == X.maxDoublePrecision());
+            ASSERT(B10 == X.encodeQuotedDecimal64());
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -2233,6 +2754,7 @@ int main(int argc, char *argv[])
         const int   D7   = 3;            // 'datetimeFractionalSecondPrecision'
         const int   D8   = 6;                    // 'maxFloatPrecision'
         const int   D9   = 15;                   // 'maxDoublePrecision'
+        const bool  D10  = false;                // 'encodeQuotedDecimal64'
 
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
@@ -2256,6 +2778,8 @@ int main(int argc, char *argv[])
                      D7 == X.datetimeFractionalSecondPrecision());
         LOOP2_ASSERT(D8, X.maxFloatPrecision(), D8 == X.maxFloatPrecision());
         LOOP2_ASSERT(D9, X.maxDoublePrecision(), D9 == X.maxDoublePrecision());
+        LOOP2_ASSERT(D10, X.maxDoublePrecision(),
+                          D10 == X.encodeQuotedDecimal64());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -2296,6 +2820,7 @@ int main(int argc, char *argv[])
         typedef int   T7;        // 'datetimeFractionalSecondPrecision'
         typedef int   T8;        // 'maxFloatPrecision'
         typedef int   T9;        // 'maxDoublePrecision'
+        typedef bool  T10;       // 'encodeQuotedDecimal64'
 
         // Attribute 1 Values: 'initialIndentLevel'
 
@@ -2342,6 +2867,10 @@ int main(int argc, char *argv[])
         const T9 D9 = 15;          // default value
         const T9 A9 = 9;
 
+        // Attribute 10 Values: 'encodeQuotedDecimal64'
+
+        const T10 D10 = false;     // default value
+        const T10 A10 = true;
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\n 1. Create an object 'w' (default ctor)."
@@ -2352,15 +2881,16 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
-        ASSERT(D1 == W.initialIndentLevel());
-        ASSERT(D2 == W.spacesPerLevel());
-        ASSERT(D3 == W.encodingStyle());
-        ASSERT(D4 == W.encodeEmptyArrays());
-        ASSERT(D5 == W.encodeNullElements());
-        ASSERT(D6 == W.encodeInfAndNaNAsStrings());
-        ASSERT(D7 == W.datetimeFractionalSecondPrecision());
-        ASSERT(D8 == W.maxFloatPrecision());
-        ASSERT(D9 == W.maxDoublePrecision());
+        ASSERT(D1  == W.initialIndentLevel());
+        ASSERT(D2  == W.spacesPerLevel());
+        ASSERT(D3  == W.encodingStyle());
+        ASSERT(D4  == W.encodeEmptyArrays());
+        ASSERT(D5  == W.encodeNullElements());
+        ASSERT(D6  == W.encodeInfAndNaNAsStrings());
+        ASSERT(D7  == W.datetimeFractionalSecondPrecision());
+        ASSERT(D8  == W.maxFloatPrecision());
+        ASSERT(D9  == W.maxDoublePrecision());
+        ASSERT(D10 == W.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
@@ -2377,15 +2907,16 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
-        ASSERT(D1 == X.initialIndentLevel());
-        ASSERT(D2 == X.spacesPerLevel());
-        ASSERT(D3 == X.encodingStyle());
-        ASSERT(D4 == X.encodeEmptyArrays());
-        ASSERT(D5 == X.encodeNullElements());
-        ASSERT(D6 == X.encodeInfAndNaNAsStrings());
-        ASSERT(D7 == X.datetimeFractionalSecondPrecision());
-        ASSERT(D8 == X.maxFloatPrecision());
-        ASSERT(D9 == X.maxDoublePrecision());
+        ASSERT(D1  == X.initialIndentLevel());
+        ASSERT(D2  == X.spacesPerLevel());
+        ASSERT(D3  == X.encodingStyle());
+        ASSERT(D4  == X.encodeEmptyArrays());
+        ASSERT(D5  == X.encodeNullElements());
+        ASSERT(D6  == X.encodeInfAndNaNAsStrings());
+        ASSERT(D7  == X.datetimeFractionalSecondPrecision());
+        ASSERT(D8  == X.maxFloatPrecision());
+        ASSERT(D9  == X.maxDoublePrecision());
+        ASSERT(D10 == X.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
@@ -2407,20 +2938,21 @@ int main(int argc, char *argv[])
         mX.setDatetimeFractionalSecondPrecision(A7);
         mX.setMaxFloatPrecision(A8);
         mX.setMaxDoublePrecision(A9);
+        mX.setEncodeQuotedDecimal64(A10);
 
         if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
-        ASSERT(A1 == X.initialIndentLevel());
-        ASSERT(A2 == X.spacesPerLevel());
-        ASSERT(A3 == X.encodingStyle());
-        ASSERT(A4 == X.encodeEmptyArrays());
-        ASSERT(A5 == X.encodeNullElements());
-        ASSERT(A6 == X.encodeInfAndNaNAsStrings());
-        ASSERT(A7 == X.datetimeFractionalSecondPrecision());
-        ASSERT(A8 == X.maxFloatPrecision());
-        ASSERT(A9 == X.maxDoublePrecision());
-
+        ASSERT(A1  == X.initialIndentLevel());
+        ASSERT(A2  == X.spacesPerLevel());
+        ASSERT(A3  == X.encodingStyle());
+        ASSERT(A4  == X.encodeEmptyArrays());
+        ASSERT(A5  == X.encodeNullElements());
+        ASSERT(A6  == X.encodeInfAndNaNAsStrings());
+        ASSERT(A7  == X.datetimeFractionalSecondPrecision());
+        ASSERT(A8  == X.maxFloatPrecision());
+        ASSERT(A9  == X.maxDoublePrecision());
+        ASSERT(A10 == X.encodeQuotedDecimal64());
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
 
@@ -2442,19 +2974,21 @@ int main(int argc, char *argv[])
         mY.setDatetimeFractionalSecondPrecision(A7);
         mY.setMaxFloatPrecision(A8);
         mY.setMaxDoublePrecision(A9);
+        mY.setEncodeQuotedDecimal64(A10);
 
         if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
-        ASSERT(A1 == Y.initialIndentLevel());
-        ASSERT(A2 == Y.spacesPerLevel());
-        ASSERT(A3 == Y.encodingStyle());
-        ASSERT(A4 == Y.encodeEmptyArrays());
-        ASSERT(A5 == Y.encodeNullElements());
-        ASSERT(A6 == X.encodeInfAndNaNAsStrings());
-        ASSERT(A7 == Y.datetimeFractionalSecondPrecision());
-        ASSERT(A8 == Y.maxFloatPrecision());
-        ASSERT(A9 == Y.maxDoublePrecision());
+        ASSERT(A1  == Y.initialIndentLevel());
+        ASSERT(A2  == Y.spacesPerLevel());
+        ASSERT(A3  == Y.encodingStyle());
+        ASSERT(A4  == Y.encodeEmptyArrays());
+        ASSERT(A5  == Y.encodeNullElements());
+        ASSERT(A6  == X.encodeInfAndNaNAsStrings());
+        ASSERT(A7  == Y.datetimeFractionalSecondPrecision());
+        ASSERT(A8  == Y.maxFloatPrecision());
+        ASSERT(A9  == Y.maxDoublePrecision());
+        ASSERT(A10 == Y.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
@@ -2473,15 +3007,16 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
-        ASSERT(A1 == Z.initialIndentLevel());
-        ASSERT(A2 == Z.spacesPerLevel());
-        ASSERT(A3 == Z.encodingStyle());
-        ASSERT(A4 == Z.encodeEmptyArrays());
-        ASSERT(A5 == Z.encodeNullElements());
-        ASSERT(A6 == Z.encodeInfAndNaNAsStrings());
-        ASSERT(A7 == Z.datetimeFractionalSecondPrecision());
-        ASSERT(A8 == Z.maxFloatPrecision());
-        ASSERT(A9 == Z.maxDoublePrecision());
+        ASSERT(A1  == Z.initialIndentLevel());
+        ASSERT(A2  == Z.spacesPerLevel());
+        ASSERT(A3  == Z.encodingStyle());
+        ASSERT(A4  == Z.encodeEmptyArrays());
+        ASSERT(A5  == Z.encodeNullElements());
+        ASSERT(A6  == Z.encodeInfAndNaNAsStrings());
+        ASSERT(A7  == Z.datetimeFractionalSecondPrecision());
+        ASSERT(A8  == Z.maxFloatPrecision());
+        ASSERT(A9  == Z.maxDoublePrecision());
+        ASSERT(A10 == Z.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -2505,19 +3040,21 @@ int main(int argc, char *argv[])
         mZ.setDatetimeFractionalSecondPrecision(D7);
         mZ.setMaxFloatPrecision(D8);
         mZ.setMaxDoublePrecision(D9);
+        mZ.setEncodeQuotedDecimal64(D10);
 
         if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
-        ASSERT(D1 == Z.initialIndentLevel());
-        ASSERT(D2 == Z.spacesPerLevel());
-        ASSERT(D3 == Z.encodingStyle());
-        ASSERT(D4 == Z.encodeEmptyArrays());
-        ASSERT(D5 == Z.encodeNullElements());
-        ASSERT(D6 == Z.encodeInfAndNaNAsStrings());
-        ASSERT(D7 == Z.datetimeFractionalSecondPrecision());
-        ASSERT(D8 == Z.maxFloatPrecision());
-        ASSERT(D9 == Z.maxDoublePrecision());
+        ASSERT(D1  == Z.initialIndentLevel());
+        ASSERT(D2  == Z.spacesPerLevel());
+        ASSERT(D3  == Z.encodingStyle());
+        ASSERT(D4  == Z.encodeEmptyArrays());
+        ASSERT(D5  == Z.encodeNullElements());
+        ASSERT(D6  == Z.encodeInfAndNaNAsStrings());
+        ASSERT(D7  == Z.datetimeFractionalSecondPrecision());
+        ASSERT(D8  == Z.maxFloatPrecision());
+        ASSERT(D9  == Z.maxDoublePrecision());
+        ASSERT(D10 == Z.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -2536,15 +3073,16 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
-        ASSERT(A1 == W.initialIndentLevel());
-        ASSERT(A2 == W.spacesPerLevel());
-        ASSERT(A3 == W.encodingStyle());
-        ASSERT(A4 == W.encodeEmptyArrays());
-        ASSERT(A5 == W.encodeNullElements());
-        ASSERT(A6 == W.encodeInfAndNaNAsStrings());
-        ASSERT(A7 == W.datetimeFractionalSecondPrecision());
-        ASSERT(A8 == W.maxFloatPrecision());
-        ASSERT(A9 == W.maxDoublePrecision());
+        ASSERT(A1  == W.initialIndentLevel());
+        ASSERT(A2  == W.spacesPerLevel());
+        ASSERT(A3  == W.encodingStyle());
+        ASSERT(A4  == W.encodeEmptyArrays());
+        ASSERT(A5  == W.encodeNullElements());
+        ASSERT(A6  == W.encodeInfAndNaNAsStrings());
+        ASSERT(A7  == W.datetimeFractionalSecondPrecision());
+        ASSERT(A8  == W.maxFloatPrecision());
+        ASSERT(A9  == W.maxDoublePrecision());
+        ASSERT(A10 == W.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -2563,15 +3101,16 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
-        ASSERT(D1 == W.initialIndentLevel());
-        ASSERT(D2 == W.spacesPerLevel());
-        ASSERT(D3 == W.encodingStyle());
-        ASSERT(D4 == W.encodeEmptyArrays());
-        ASSERT(D5 == W.encodeNullElements());
-        ASSERT(D6 == W.encodeInfAndNaNAsStrings());
-        ASSERT(D7 == W.datetimeFractionalSecondPrecision());
-        ASSERT(D8 == W.maxFloatPrecision());
-        ASSERT(D9 == W.maxDoublePrecision());
+        ASSERT(D1  == W.initialIndentLevel());
+        ASSERT(D2  == W.spacesPerLevel());
+        ASSERT(D3  == W.encodingStyle());
+        ASSERT(D4  == W.encodeEmptyArrays());
+        ASSERT(D5  == W.encodeNullElements());
+        ASSERT(D6  == W.encodeInfAndNaNAsStrings());
+        ASSERT(D7  == W.datetimeFractionalSecondPrecision());
+        ASSERT(D8  == W.maxFloatPrecision());
+        ASSERT(D9  == W.maxDoublePrecision());
+        ASSERT(D10 == W.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
@@ -2590,15 +3129,16 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
-        ASSERT(A1 == X.initialIndentLevel());
-        ASSERT(A2 == X.spacesPerLevel());
-        ASSERT(A3 == X.encodingStyle());
-        ASSERT(A4 == X.encodeEmptyArrays());
-        ASSERT(A5 == X.encodeNullElements());
-        ASSERT(A6 == X.encodeInfAndNaNAsStrings());
-        ASSERT(A7 == X.datetimeFractionalSecondPrecision());
-        ASSERT(A8 == X.maxFloatPrecision());
-        ASSERT(A9 == X.maxDoublePrecision());
+        ASSERT(A1  == X.initialIndentLevel());
+        ASSERT(A2  == X.spacesPerLevel());
+        ASSERT(A3  == X.encodingStyle());
+        ASSERT(A4  == X.encodeEmptyArrays());
+        ASSERT(A5  == X.encodeNullElements());
+        ASSERT(A6  == X.encodeInfAndNaNAsStrings());
+        ASSERT(A7  == X.datetimeFractionalSecondPrecision());
+        ASSERT(A8  == X.maxFloatPrecision());
+        ASSERT(A9  == X.maxDoublePrecision());
+        ASSERT(A10 == X.encodeQuotedDecimal64());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;

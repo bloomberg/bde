@@ -306,35 +306,55 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
 }
 
 int ParserUtil::getValue(bdldfp::Decimal64 *value,
-                                bslstl::StringRef data)
+                         bslstl::StringRef data)
 {
-    if (0 == data.length())
-    {
-        return -1;
+    if (0 == data.length()) {
+        return -1;                                                    // RETURN
     }
+
+    const int k_MAX_STRING_LENGTH = 32;
+        // The size of the string sufficient to store 'bdldfp::Decimal64'
+        // values.
+
+    char                               buffer[k_MAX_STRING_LENGTH + 1];
+    bdlma::BufferedSequentialAllocator allocator(buffer,
+                                                 k_MAX_STRING_LENGTH + 1);
+    bsl::string dataString(&allocator);
 
     if ('"' == data[0]) {
-       // Parse "NaN", "+INF" and "-INF" as floating point values.  Note that
-       // these values are encoded as strings in a JSON standard unconformant
-       // way.
-
-        return loadInfOrNan(value, data);                             // RETURN
+        if (3 > data.length() || '"' != data[data.length() - 1]) {
+            return -1;                                                // RETURN
+        }
+        dataString.append(data.data() + 1, data.length() - 2);
+    } else {
+        dataString.append(data.data(), data.length());
     }
-
-    const int MAX_STRING_LENGTH = 32; // 32 > 16 + 3 + 2 + 1
-    char      buffer[MAX_STRING_LENGTH + 1];
-
-    bdlma::BufferedSequentialAllocator allocator(buffer,
-                                                 MAX_STRING_LENGTH + 1);
-    bsl::string                        dataString(data.data(),
-                                                  data.length(),
-                                                  &allocator);
 
     bdldfp::Decimal64 d;
     int rc = bdldfp::DecimalUtil::parseDecimal64(&d, dataString);
-    if (rc != 0) {
-        return -1;
+        // Note that 'bdldfp::DecimalUtil::parseDecimal' does not parse signed
+        // 'nan' values.
+
+    if (0 != rc) {
+        if (6    == data.length()                    &&
+            '\"' == data[0]                          &&
+            'n'  == bdlb::CharType::toLower(data[2]) &&
+            'a'  == bdlb::CharType::toLower(data[3]) &&
+            'n'  == bdlb::CharType::toLower(data[4]) &&
+            '\"' == data[5]) {
+
+            if ('-'  == data[1]) {
+                *value = -bsl::numeric_limits<bdldfp::Decimal64>::quiet_NaN();
+                return 0;                                             // RETURN
+            }
+            else if ('+'  == data[1]) {
+                *value = bsl::numeric_limits<bdldfp::Decimal64>::quiet_NaN();
+                return 0;                                             // RETURN
+            }
+        }
+        return -1;                                                    // RETURN
     }
+
     *value = d;
     return 0;
 }
