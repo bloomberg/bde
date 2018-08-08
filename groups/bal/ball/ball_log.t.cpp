@@ -423,21 +423,27 @@ class CerrBufferGuard {
     // restore that to be the 'cerr' stream buffer on this object's
     // destruction.
 
-    bsl::streambuf *d_cerrBuf;
+    // DATA
+    bsl::stringstream  d_stream;
+    bsl::streambuf    *d_cerrBuf;
 
   public:
-    explicit
-    CerrBufferGuard(const bsl::stringstream& sstream)
-        : d_cerrBuf(bsl::cerr.rdbuf(sstream.rdbuf())) {}
-        // Set a stream buffer associated with the specified 'sstream' to be
-        // the associated stream buffer used by 'cerr'.  Capture the current
-        // stream buffer being used by 'cerr' and upon this object's
-        // destruction, set it to be the associated stream buffer used by
-        // 'cerr'.
+    CerrBufferGuard()
+        : d_cerrBuf(bsl::cerr.rdbuf(d_stream.rdbuf())) {}
+        // Set a stream buffer associated with the 'd_stream' data member to be
+        // the associated stream buffer used by 'bsl::cerr'.  Capture the
+        // current stream buffer being used by 'bsl::cerr' and upon this
+        // object's destruction, set it to be the associated stream buffer used
+        // by 'bsl::cerr'.
 
     ~CerrBufferGuard() { bsl::cerr.rdbuf(d_cerrBuf); }
-        // Restore the stream buffer being used by 'cerr' to that which was
-        // being used on this object's construction.
+        // Restore the stream buffer being used by 'bsl::cerr' to that which
+        // was being used on this object's construction.
+
+    // ACCESSORS
+    bsl::string str() const { return d_stream.str(); }
+        // Return a copy of the 'd_stream' buffer's string.
+
 };
 
 }  // close unnamed namespace
@@ -1041,8 +1047,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
         bsl::cout << "STDERR redirected to " << filename << bsl::endl;
 #endif
 
-    bsl::stringstream os;
-    CerrBufferGuard   cerrBufferGuard(os);
+    CerrBufferGuard cerrBufferGuard;
 
     bsl::function<void(BloombergLP::ball::UserFields *)> callback =
                                                                   &incCallback;
@@ -1095,7 +1100,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
     }
     fs.close();
 #endif
-    ASSERT("" == os.str());
+    ASSERT("" == cerrBufferGuard.str());
 }
 
 }  // close namespace BALL_LOG_TEST_CASE_17
@@ -1602,8 +1607,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
         bsl::cout << "STDERR redirected to " << filename << bsl::endl;
 #endif
 
-    bsl::stringstream os;
-    CerrBufferGuard   cerrBufferGuard(os);
+    CerrBufferGuard  cerrBufferGuard;
 
     BALL_LOG_SET_CATEGORY("Logger Manager Comes and Goes");
 
@@ -1672,7 +1676,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
     }
     fs.close();
 #endif
-    ASSERT("" == os.str());
+    ASSERT("" == cerrBufferGuard.str());
 }
 
 }  // close namespace BALL_LOG_TEST_CASE_5
@@ -4280,8 +4284,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro safety without a logger manager."
                       << bsl::endl;
         {
-            bsl::stringstream os;
-            CerrBufferGuard   cerrBufferGuard(os);
+            CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "NoLoggerManager";
             msg           = "There is currently no logger manager";
@@ -4313,8 +4316,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "has been destroyed."
                       << bsl::endl;
         {
-            bsl::stringstream os;
-            CerrBufferGuard   cerrBufferGuard(os);
+            CerrBufferGuard   cerrBufferGuard;
 
             categoryName  = "AfterLoggerManager";
             msg           = "There is no logger manager again";
@@ -4349,8 +4351,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro safety without a logger manager."
                       << bsl::endl;
         {
-            bsl::stringstream os;
-            CerrBufferGuard   cerrBufferGuard(os);
+            CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "NoLoggerManager";
             msg           = "There is currently no logger manager";
@@ -4382,8 +4383,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "has been destroyed."
                       << bsl::endl;
         {
-            bsl::stringstream os;
-            CerrBufferGuard   cerrBufferGuard(os);
+            CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "AfterLoggerManager";
             msg           = "There is no logger manager again";
@@ -4416,8 +4416,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro safety without a logger manager."
                       << bsl::endl;
         {
-            bsl::stringstream os;
-            CerrBufferGuard   cerrBufferGuard(os);
+            CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "NoLoggerManager";
             msg           = "There is currently no logger manager";
@@ -4449,8 +4448,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "has been destroyed."
                       << bsl::endl;
         {
-            bsl::stringstream os;
-            CerrBufferGuard   cerrBufferGuard(os);
+            CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "AfterLoggerManager";
             msg           = "There is no logger manager again";
@@ -4482,8 +4480,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro safety without a logger manager."
                       << bsl::endl;
         {
-            bsl::stringstream os;
-            CerrBufferGuard   cerrBufferGuard(os);
+            CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "NoLoggerManager";
             msg           = "There is currently no logger manager";
@@ -4515,8 +4512,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "has been destroyed."
                       << bsl::endl;
         {
-            bsl::stringstream os;
-            CerrBufferGuard   cerrBufferGuard(os);
+            CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "AfterLoggerManager";
             msg           = "There is no logger manager again";
@@ -4809,8 +4805,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 bsl::cout << "STDERR redirected to " << filename << bsl::endl;
 #endif
 
-            bsl::stringstream os;
-            CerrBufferGuard   cerrBufferGuard(os);
+            CerrBufferGuard cerrBufferGuard;
 
             BALL_LOG_SET_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");
 
@@ -4921,8 +4916,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 bsl::cout << "STDERR redirected to " << filename << bsl::endl;
 #endif
 
-            bsl::stringstream os;
-            CerrBufferGuard   cerrBufferGuard(os);
+            CerrBufferGuard cerrBufferGuard;
 
             BALL_LOG_SET_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");
 
