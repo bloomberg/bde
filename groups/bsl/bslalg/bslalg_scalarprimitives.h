@@ -139,10 +139,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_USESALLOCATORARGT
 #include <bslmf_usesallocatorargt.h>
 #endif
@@ -180,8 +176,8 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecvq.h>
 #endif
 
 #endif

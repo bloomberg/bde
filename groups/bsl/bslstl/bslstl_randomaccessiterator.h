@@ -75,10 +75,12 @@ BSLS_IDENT("$Id: $")
 //          // array.
 //
 //      void operator+=(std::ptrdiff_t n);
-//          // Move this object forward by the specified 'n' elements in the array.
+//          // Move this object forward by the specified 'n' elements in the
+//          // array.
 //
 //      void operator-=(std::ptrdiff_t n);
-//          // Move this object backward by the specified 'n' elements in the array.
+//          // Move this object backward by the specified 'n' elements in the
+//          // array.
 //
 //      // ACCESSORS
 //      VALUE& operator*() const;
@@ -214,8 +216,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_iterator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
 #endif
 
 #ifndef INCLUDED_ITERATOR

@@ -19,6 +19,18 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
+#endif
+
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
@@ -31,6 +43,11 @@ BSLS_IDENT("$Id: $")
     && (defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_IBM))
 #   error This file requires compiler and library support for \
           the ISO C++ 2011 standard.
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef>       // for 'std::size_t'
+#define INCLUDED_CSTDDEF
 #endif
 
 #include <type_traits>
@@ -189,18 +206,241 @@ namespace bsl {
     using native_std::result_of;
 #endif
 
-#if __cplusplus >= 201402L
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+template <std::size_t LEN, std::size_t ALIGN> using aligned_storage_t =
+                        typename native_std::aligned_storage<LEN, ALIGN>::type;
+    // 'aligned_storage_t' is an alias to the return type of the
+    // 'native_std::aligned_storage' meta-function.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+template <std::size_t LEN, class... TYPES> using aligned_union_t =
+                       typename native_std::aligned_union<LEN, TYPES...>::type;
+    // 'aligned_union_t' is an alias to the return type of the
+    // 'native_std::aligned_union' meta-function.
+#endif
+
+template <class TYPE> using common_type_t =
+                                  typename native_std::common_type<TYPE>::type;
+    // 'common_type_t' is an alias to the return type of the
+    // 'native_std::common_type' meta-function.
+
+template <class TYPE> using make_signed_t =
+                                  typename native_std::make_signed<TYPE>::type;
+    // 'make_signed_t' is an alias to the return type of the
+    // 'native_std::make_signed' meta-function.
+
+template <class TYPE> using make_unsigned_t =
+                                typename native_std::make_unsigned<TYPE>::type;
+    // 'make_unsigned_t' is an alias to the return type of the
+    // 'native_std::make_unsigned' meta-function.
+
+template <class TYPE> using remove_all_extents_t =
+                           typename native_std::remove_all_extents<TYPE>::type;
+    // 'remove_all_extents_t' is an alias to the return type of the
+    // 'native_std::remove_all_extents' meta-function.
+
+template <class TYPE> using result_of_t =
+                                    typename native_std::result_of<TYPE>::type;
+    // ' result_of_t' is an alias to the return type of the
+    // 'native_std::result_of' meta-function.
+
+template <class TYPE> using underlying_type_t =
+                              typename native_std::underlying_type<TYPE>::type;
+    // 'underlying_type_t' is an alias to the return type of the
+    // 'native_std::underlying_type' meta-function.
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     using native_std::is_null_pointer;
     using native_std::is_final;
 #endif
 
-#if __cplusplus >= 201712L
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     // 20.10.8, logical operator traits:
     using native_std::conjunction;
     using native_std::disjunction;
     using native_std::negation;
 #endif
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool has_virtual_destructor_v =
+                               native_std::has_virtual_destructor<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_null_pointer_v = native_std::is_null_pointer<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_union_v = native_std::is_union<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_scalar_v = native_std::is_scalar<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_object_v = native_std::is_object<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_compound_v = native_std::is_compound<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_trivial_v = native_std::is_trivial<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_standard_layout_v =
+                                   native_std::is_standard_layout<TYPE>::value;
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_pod_v = native_std::is_pod<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_literal_type_v = native_std::is_literal_type<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_abstract_v = native_std::is_abstract<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_final_v = native_std::is_final<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_signed_v = native_std::is_signed<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_unsigned_v = native_std::is_unsigned<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_constructible_v = native_std::is_constructible<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_default_constructible_v =
+                             native_std::is_default_constructible<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_move_constructible_v =
+                                native_std::is_move_constructible<TYPE>::value;
+
+template <class TYPE1, class TYPE2>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_assignable_v =
+                                native_std::is_assignable<TYPE1, TYPE2>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_copy_assignable_v =
+                                   native_std::is_copy_assignable<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_move_assignable_v =
+                                   native_std::is_move_assignable<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_destructible_v = native_std::is_destructible<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_trivially_constructible_v =
+                           native_std::is_trivially_constructible<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_trivially_copy_constructible_v =
+
+                      native_std::is_trivially_copy_constructible<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_trivially_move_constructible_v =
+                      native_std::is_trivially_move_constructible<TYPE>::value;
+
+template <class TYPE1, class TYPE2>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_trivially_assignable_v =
+                      native_std::is_trivially_assignable<TYPE1, TYPE2>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_trivially_copy_assignable_v =
+                         native_std::is_trivially_copy_assignable<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_trivially_move_assignable_v =
+                         native_std::is_trivially_move_assignable<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_trivially_destructible_v =
+                            native_std::is_trivially_destructible<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_nothrow_constructible_v =
+                             native_std::is_nothrow_constructible<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_nothrow_default_constructible_v =
+                     native_std::is_nothrow_default_constructible<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_nothrow_copy_constructible_v =
+                        native_std::is_nothrow_copy_constructible<TYPE>::value;
+
+template <class TYPE1, class TYPE2>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_nothrow_assignable_v =
+                        native_std::is_nothrow_assignable<TYPE1, TYPE2>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_nothrow_copy_assignable_v =
+                           native_std::is_nothrow_copy_assignable<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_nothrow_move_assignable_v =
+                           native_std::is_nothrow_move_assignable<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_nothrow_destructible_v =
+                              native_std::is_nothrow_destructible<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool alignment_of_v = native_std::alignment_of<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool rank_v = native_std::rank<TYPE>::value;
+
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool extent_v = native_std::extent<TYPE>::value;
+
+template <class TYPE1, class TYPE2>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_base_of_v = native_std::is_base_of<TYPE1, TYPE2>::value;
+#endif
 
 #if 0
     // These traits are provided by BDE, and have additional members for
@@ -215,36 +455,42 @@ namespace bsl {
     using native_std::conditional;
     using native_std::decay;
     using native_std::enable_if;
-    using native_std::is_void;
-    using native_std::is_integral;
-    using native_std::is_floating_point;
-    using native_std::is_array;
-    using native_std::is_pointer;
-    using native_std::is_lvalue_reference;
-    using native_std::is_rvalue_reference;
-    using native_std::is_member_object_pointer;
-    using native_std::is_member_function_pointer;
-    using native_std::is_enum;
-    using native_std::is_class;
-    using native_std::is_function;
-    using native_std::is_reference;
-    using native_std::is_fundamental;
+    using native_std::false_type;
+    using native_std::integral_constant;
+    using native_std::invoke_result;
     using native_std::is_arithmetic;
-    using native_std::is_member_pointer;
+    using native_std::is_array;
+    using native_std::is_class;
     using native_std::is_const;
-    using native_std::is_volatile;
-    using native_std::is_trivially_copyable;
-    using native_std::is_empty;
-    using native_std::is_polymorphic;
-    using native_std::is_trivially_default_constructible;
-    using native_std::is_same;
     using native_std::is_convertible;
+    using native_std::is_copy_constructible;
+    using native_std::is_empty;
+    using native_std::is_enum;
+    using native_std::is_floating_point;
+    using native_std::is_function;
+    using native_std::is_fundamental;
+    using native_std::is_integral;
+    using native_std::is_lvalue_reference;
+    using native_std::is_member_function_pointer;
+    using native_std::is_member_object_pointer;
+    using native_std::is_member_pointer;
+    using native_std::is_nothrow_move_constructible;
+    using native_std::is_pointer;
+    using native_std::is_polymorphic;
+    using native_std::is_reference;
+    using native_std::is_rvalue_reference;
+    using native_std::is_same;
+    using native_std::is_trivially_copyable;
+    using native_std::is_trivially_default_constructible;
+    using native_std::is_void;
+    using native_std::is_volatile;
     using native_std::remove_const;
-    using native_std::remove_extent;
-    using native_std::remove_volatile;
     using native_std::remove_cv;
-    using native_std::remove_reference;
+    using native_std::remove_extent;
     using native_std::remove_pointer;
+    using native_std::remove_reference;
+    using native_std::remove_volatile;
+    using native_std::true_type;
 #endif
 }  // close package namespace
 
@@ -267,6 +513,7 @@ namespace bsl {
 #include <bslmf_decay.h>
 #include <bslmf_enableif.h>
 #include <bslmf_integralconstant.h>
+#include <bslmf_invokeresult.h>
 #include <bslmf_isarithmetic.h>
 #include <bslmf_isarray.h>
 #include <bslmf_isclass.h>

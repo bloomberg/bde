@@ -11,18 +11,31 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_lvalue_reference: standard meta-function for lvalue reference types
+//  bsl::is_lvalue_reference_v: the result value of the meta-function
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_lvalue_reference', that may be used to query whether a type is an
-// lvalue reference type.
+// 'bsl::is_lvalue_reference' and a template variable
+// 'bsl::is_lvalue_reference_v', that represents the result value of the
+// 'bsl::is_lvalue_reference' meta-function, that may be used to query whether
+// a type is an lvalue reference type.
 //
 // 'bsl::is_lvalue_reference' meets the requirements of the
 // 'is_lvalue_reference' template defined in the C++11 standard
 // [meta.unary.cat].
+//
+// Note that the template variable 'is_lvalue_reference_v' is defined in the
+// C++17 standard as an inline variable.  If the current compiler supports the
+// inline variable C++17 compiler feature, 'bsl::is_lvalue_reference_v' is
+// defined as an 'inline constexpr bool' variable.  Otherwise, if the compiler
+// supports the variable templates C++14 compiler feature,
+// 'bsl::is_lvalue_reference_v' is defined as a non-inline 'constexpr bool'
+// variable.  See 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
+// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -40,6 +53,15 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_lvalue_reference<int>::value);
 //  assert(true  == bsl::is_lvalue_reference<int&>::value);
 //..
+// Note that if the current compiler supports the variable templates C++14
+// feature then we can re-write the snippet of code above using the
+// 'bsl::is_lvalue_reference_v' variable as follows:
+//..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//  assert(false == bsl::is_lvalue_reference_v<int>);
+//  assert(true  == bsl::is_lvalue_reference_v<int&>);
+//#endif
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -47,6 +69,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
 namespace bsl {
@@ -70,6 +100,14 @@ struct is_lvalue_reference<TYPE&> : true_type {
     // 'bsl::true_type' for when the (template parameter) 'TYPE' is an lvalue
     // reference type.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_lvalue_reference_v = is_lvalue_reference<TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bsl::is_lvalue_reference' meta-function.
+#endif
 
 }  // close namespace bsl
 

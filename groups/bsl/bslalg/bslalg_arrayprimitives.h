@@ -392,8 +392,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_removeconst.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVEPOINTER
@@ -1610,6 +1610,18 @@ struct ArrayPrimitives {
 // }}} END GENERATED CODE
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+    template <class CLASS_TYPE, class MEMBER_TYPE, class... ARGS>
+    static void emplace(MEMBER_TYPE CLASS_TYPE::* *toBegin,
+                        MEMBER_TYPE CLASS_TYPE::* *toEnd,
+                        bslma::Allocator          *allocator)
+        // Old Microsoft compilers need help value-initializing elements that
+        // are pointer-to-member types.
+    {
+        emplace(toBegin, toEnd, allocator, nullptr);
+    }
+#endif
+
     template <class ALLOCATOR>
     static void
     erase(typename bsl::allocator_traits<ALLOCATOR>::pointer first,
@@ -2073,6 +2085,18 @@ struct ArrayPrimitives_Imp {
                      size_type                                     numElements,
                      void                                         * = 0,
                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  * = 0);
+    static void uninitializedFillN(
+                     volatile void                               **begin,
+                     volatile void                                *value,
+                     size_type                                     numElements,
+                     void                                         * = 0,
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  * = 0);
+    static void uninitializedFillN(
+                     const volatile void                         **begin,
+                     const volatile void                          *value,
+                     size_type                                     numElements,
+                     void                                         * = 0,
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  * = 0);
     template <class TARGET_TYPE>
     static void uninitializedFillN(
                      TARGET_TYPE                                 **begin,
@@ -2084,6 +2108,20 @@ struct ArrayPrimitives_Imp {
     static void uninitializedFillN(
                      const TARGET_TYPE                           **begin,
                      const TARGET_TYPE                            *value,
+                     size_type                                     numElements,
+                     void                                         * = 0,
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  * = 0);
+    template <class TARGET_TYPE>
+    static void uninitializedFillN(
+                     volatile  TARGET_TYPE                       **begin,
+                     volatile TARGET_TYPE                         *value,
+                     size_type                                     numElements,
+                     void                                         * = 0,
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  * = 0);
+    template <class TARGET_TYPE>
+    static void uninitializedFillN(
+                     const volatile TARGET_TYPE                  **begin,
+                     const volatile TARGET_TYPE                   *value,
                      size_type                                     numElements,
                      void                                         * = 0,
                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  * = 0);
@@ -6077,6 +6115,50 @@ void ArrayPrimitives_Imp::uninitializedFillN(
                        (bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)0);
 }
 
+template <class TARGET_TYPE>
+inline
+void ArrayPrimitives_Imp::uninitializedFillN(
+                     volatile TARGET_TYPE                        **begin,
+                     volatile TARGET_TYPE                         *value,
+                     size_type                                     numElements,
+                     void                                         *,
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
+{
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
+
+    // While it seems that this overload is subsumed by the previous template,
+    // SunPro does not detect it.
+
+    uninitializedFillN(reinterpret_cast<volatile void **>(begin),
+                       static_cast<volatile void *>(value),
+                       numElements,
+                       (void *)0,
+                       (bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)0);
+}
+
+template <class TARGET_TYPE>
+inline
+void ArrayPrimitives_Imp::uninitializedFillN(
+                     const volatile TARGET_TYPE                  **begin,
+                     const volatile TARGET_TYPE                   *value,
+                     size_type                                     numElements,
+                     void                                         *,
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
+{
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+    BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
+
+    // While it seems that this overload is subsumed by the previous template,
+    // SunPro does not detect it.
+
+    uninitializedFillN(reinterpret_cast<const volatile void **>(begin),
+                       static_cast<const volatile void *>(value),
+                       numElements,
+                       (void *)0,
+                       (bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)0);
+}
+
 template <class TARGET_TYPE, class ALLOCATOR>
 void ArrayPrimitives_Imp::uninitializedFillN(
                         TARGET_TYPE                               *begin,
@@ -6163,10 +6245,10 @@ void ArrayPrimitives_Imp::copyConstruct(
 
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
 
-    typedef typename bsl::remove_const<
+    typedef typename bsl::remove_cv<
             typename bsl::remove_pointer<TARGET_TYPE>::type>::type NcPtrType;
 
-    typedef typename bsl::remove_const<
+    typedef typename bsl::remove_cv<
             typename bsl::remove_pointer<
             typename bsl::remove_pointer<FWD_ITER>::type>::type>::type NcIter;
 
@@ -9049,6 +9131,21 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
+    // Aliasing: Make a temp copy of 'value' (always).  The reason is that
+    // 'value' could be a reference inside the input range, or even outside
+    // but with lifetime controlled by one of these values, and so the next
+    // transformation could invalidate 'value'.  Note: One cannot rely on
+    // 'TARGET_TYPE' to have a single-argument copy constructor (i.e.,
+    // default allocator argument to 0) if it takes an allocator; hence the
+    // constructor proxy.
+
+    bsls::ObjectBuffer<TARGET_TYPE> space;
+    bslma::ConstructionUtil::construct(BSLS_UTIL_ADDRESSOF(space.object()),
+                                       bslma::Default::allocator(),
+                                       value);
+    bslma::DestructorProctor<TARGET_TYPE> temp(
+                                          BSLS_UTIL_ADDRESSOF(space.object()));
+
     // Key to the transformation diagrams:
     //..
     //  A...G   original contents of '[toBegin, toEnd)'  ("tail")
@@ -9074,21 +9171,6 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
         AutoArrayDestructor<TARGET_TYPE, ALLOCATOR> guard(toEnd,
                                                           toEnd + numElements,
                                                           allocator);
-
-        // Aliasing: Make a temp copy of 'value' (always).  The reason is that
-        // 'value' could be a reference inside the input range, or even outside
-        // but with lifetime controlled by one of these values, and so the next
-        // transformation could invalidate 'value'.  Note: One cannot rely on
-        // 'TARGET_TYPE' to have a single-argument copy constructor (i.e.,
-        // default allocator argument to 0) if it takes an allocator; hence the
-        // constructor proxy.
-
-        bsls::ObjectBuffer<TARGET_TYPE> space;
-        bslma::ConstructionUtil::construct(BSLS_UTIL_ADDRESSOF(space.object()),
-                                           bslma::Default::allocator(),
-                                           value);
-        bslma::DestructorProctor<TARGET_TYPE> temp(
-                                          BSLS_UTIL_ADDRESSOF(space.object()));
 
         // TBD: this does the same thing as the old code - don't like that we
         // circumvent the whole allocator thing, but for now, let's keep it
@@ -9120,6 +9202,12 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
         // Tail is shorter than input.  We can avoid the temp copy of value
         // since there will be space to make a first copy after the tail, and
         // use that to make the subsequent copies.
+        //
+        // TBD: Update comment now that the assumption is no longer true, and
+        // we make a copy at the top of the call, regardless.  We could
+        // restore this optimization if we use metaprogramming to check if
+        // 'moveIfNoexcept' will move or copy, but not convinced it is worth
+        // the complexity.
 
         difference_type remElements = numElements - tailLen;
 
@@ -9142,7 +9230,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
         //..
 
         uninitializedFillN(toEnd,
-                           value,
+                           space.object(),
                            remElements,
                            &allocator,
                            (bslmf::MetaInt<e_NIL_TRAITS>*)0);
@@ -9153,7 +9241,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
         //..
 
         for ( ; toBegin != toEnd; ++toBegin) {
-            *toBegin = *toEnd;
+            *toBegin = space.object();
         }
 
         guard.release();
@@ -9189,10 +9277,10 @@ void ArrayPrimitives_Imp::insert(
            allocator,
            (bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *) 0);
 #else
-    typedef typename bsl::remove_const<
+    typedef typename bsl::remove_cv<
             typename bsl::remove_pointer<TARGET_TYPE>::type>::type NcPtrType;
 
-    typedef typename bsl::remove_const<
+    typedef typename bsl::remove_cv<
             typename bsl::remove_pointer<
             typename bsl::remove_pointer<FWD_ITER>::type>::type>::type NcIter;
 

@@ -180,7 +180,7 @@ enum {
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [33] USAGE EXAMPLE
+// [35] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(multiset *object, const char *spec, int verbose = 1);
@@ -189,7 +189,12 @@ enum {
 // [22] CONCERN: The object is compatible with STL allocators.
 // [23] CONCERN: The object has the necessary type traits
 // [25] CONCERN: The type provides the full interface defined by the standard.
-// [34] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [33] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [34] CONCERN: 'find'        properly handles transparent comparators.
+// [34] CONCERN: 'count'       properly handles transparent comparators.
+// [34] CONCERN: 'lower_bound' properly handles transparent comparators.
+// [34] CONCERN: 'upper_bound' properly handles transparent comparators.
+// [34] CONCERN: 'equal_range' properly handles transparent comparators.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -780,6 +785,189 @@ class TestComparatorNonConst {
     }
 };
 
+                    // ============================
+                    // struct TransparentComparator
+                    // ============================
+
+struct TransparentComparator
+    // This class can be used as a comparator for containers.  It has a nested
+    // type 'is_transparent', so it is classified as transparent by the
+    // 'bslmf::IsTransparentPredicate' metafunction and can be used for
+    // heterogeneous comparison.
+ {
+    typedef void is_transparent;
+
+    template <class LHS, class RHS>
+    bool operator()(const LHS& lhs, const RHS& rhs) const
+        // Return 'true' if the specified 'lhs' is less than the specified
+        // 'rhs' and 'false' otherwise.
+    {
+        return lhs < rhs;
+    }
+};
+
+                    // =============================
+                    // class TransparentlyComparable
+                    // =============================
+
+class TransparentlyComparable {
+    // DATA
+    int d_conversionCount;  // number of times 'operator int' has been called
+    int d_value;            // the value
+
+    // NOT IMPLEMENTED
+    TransparentlyComparable(const TransparentlyComparable&);  // = delete
+
+  public:
+    // CREATORS
+    explicit TransparentlyComparable(int value)
+        // Create an object having the specified 'value'.
+
+    : d_conversionCount(0)
+    , d_value(value)
+    {
+    }
+
+    // MANIPULATORS
+    operator int()
+        // Return the current value of this object.
+    {
+        ++d_conversionCount;
+        return d_value;
+    }
+
+    // ACCESSORS
+    int conversionCount() const
+        // Return the number of times 'operator int' has been called.
+    {
+        return d_conversionCount;
+    }
+
+    int value() const
+        // Return the current value of this object.
+    {
+        return d_value;
+    }
+
+    friend bool operator<(const TransparentlyComparable& lhs, int rhs)
+        // Return 'true' if the value of the specified 'lhs' is less than the
+        // specified 'rhs', and 'false' otherwise.
+    {
+        return lhs.d_value < rhs;
+    }
+
+    friend bool operator<(int lhs, const TransparentlyComparable& rhs)
+        // Return 'true' if the specified 'lhs' is less than the value of the
+        // specified 'rhs', and 'false' otherwise.
+    {
+        return lhs < rhs.d_value;
+    }
+};
+
+template <class Container>
+void testTransparentComparator(Container& container,
+                               bool       isTransparent,
+                               int        initKeyValue)
+    // Search for a value equal to the specified 'initKeyValue' in the
+    // specified 'container', and count the number of conversions expected
+    // based on the specified 'isTransparent'.  Note that 'Container' may
+    // resolve to a 'const'-qualified type, we are using the "reference" here
+    // as a sort of universal reference.  Conceptually, the object remains
+    // constant, but we want to test 'const'-qualified and
+    // non-'const'-qualified overloads.
+{
+    typedef typename Container::const_iterator Iterator;
+    typedef typename Container::size_type      Count;
+
+    int expectedConversionCount = 0;
+
+    TransparentlyComparable existingKey(initKeyValue);
+    TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
+                                                        : -100);
+
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    // Testing 'find'.
+
+    const Iterator EXISTING_F = container.find(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(container.end()               != EXISTING_F);
+    ASSERT(existingKey.value()           == *EXISTING_F);
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    const Iterator NON_EXISTING_F = container.find(nonExistingKey);
+    ASSERT(container.end()                  == NON_EXISTING_F);
+    ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+
+    // Testing 'count'.
+
+    const Count EXPECTED_C = initKeyValue ? initKeyValue : 1;
+    const Count EXISTING_C = container.count(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(EXPECTED_C              == EXISTING_C);
+    ASSERT(expectedConversionCount == existingKey.conversionCount());
+
+    const Count NON_EXISTING_C = container.count(nonExistingKey);
+    ASSERT(0                       == NON_EXISTING_C);
+    ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+
+    // Testing 'lower_bound'.
+
+    const Iterator EXISTING_LB = container.lower_bound(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(EXISTING_F              == EXISTING_LB);
+    ASSERT(expectedConversionCount == existingKey.conversionCount());
+
+    const Iterator NON_EXISTING_LB = container.lower_bound(nonExistingKey);
+
+    ASSERT(container.begin()       == NON_EXISTING_LB);
+    ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+
+    // Testing 'upper_bound'.
+
+    TransparentlyComparable upperBoundValue(initKeyValue + 1);
+    const Iterator          EXPECTED_UB = container.find(upperBoundValue);
+    const Iterator          EXISTING_UB = container.upper_bound(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(EXPECTED_UB             == EXISTING_UB);
+    ASSERT(expectedConversionCount == existingKey.conversionCount());
+
+    const Iterator NON_EXISTING_UB = container.upper_bound(nonExistingKey);
+
+    ASSERT(container.begin()       == NON_EXISTING_UB);
+    ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+
+    // Testing 'equal_range'.
+
+    const bsl::pair<Iterator, Iterator> EXISTING_ER =
+                                            container.equal_range(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(EXISTING_LB             == EXISTING_ER.first);
+    ASSERT(EXPECTED_UB             == EXISTING_ER.second);
+    ASSERT(expectedConversionCount == existingKey.conversionCount());
+
+    const bsl::pair<Iterator, Iterator> NON_EXISTING_ER =
+                                         container.equal_range(nonExistingKey);
+
+    ASSERT(NON_EXISTING_LB         == NON_EXISTING_ER.first);
+    ASSERT(NON_EXISTING_UB         == NON_EXISTING_ER.second);
+    ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+}
 
                        // =====================
                        // class TemplateWrapper
@@ -1192,7 +1380,7 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase34();
+    static void testCase33();
         // Test 'noexcept' specifications
 
     static void testCase32();
@@ -1839,7 +2027,7 @@ TestDriver<KEY, COMP, ALLOC>::testCase31a_RunTest(Obj *target,
 }
 
 template <class KEY, class COMP, class ALLOC>
-void TestDriver<KEY, COMP, ALLOC>::testCase34()
+void TestDriver<KEY, COMP, ALLOC>::testCase33()
 {
     // ------------------------------------------------------------------------
     // 'noexcept' SPECIFICATION
@@ -1882,12 +2070,12 @@ void TestDriver<KEY, COMP, ALLOC>::testCase34()
     {
         Obj mX, mY;    const Obj& X = mX;    (void) X;    (void) mY;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX =
                                              bslmf::MovableRefUtil::move(mY)));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get_allocator()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.get_allocator()));
     }
 
     // page 877
@@ -1910,35 +2098,35 @@ void TestDriver<KEY, COMP, ALLOC>::testCase34()
     {
         Obj mX; const Obj& X = mX;    (void) X;
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.begin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.begin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.begin()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.end()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.end()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.end()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.end()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.rbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.rbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.rbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.rbegin()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.rend()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.rend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.rend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.rend()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.cbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.cend()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.crbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.crend()));
     }
 
     // page 877
@@ -1952,12 +2140,12 @@ void TestDriver<KEY, COMP, ALLOC>::testCase34()
     {
         Obj mX; const Obj& X = mX;    (void) X;
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.size()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_size()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.empty()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.size()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.max_size()));
     }
 
     // page 877
@@ -1973,11 +2161,11 @@ void TestDriver<KEY, COMP, ALLOC>::testCase34()
         Obj x;    (void) x;
         Obj y;    (void) y;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y)));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.clear()));
     }
 
     // page 878
@@ -1993,11 +2181,11 @@ void TestDriver<KEY, COMP, ALLOC>::testCase34()
         Obj x;    (void) x;
         Obj y;    (void) y;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y)));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.clear()));
     }
 }
 
@@ -10095,18 +10283,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 34: {
-        // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
-                                 "========================" "\n");
-
-        TestDriver<int>::testCase34();
-
-      } break;
-      case 33: {
+      case 35: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -10151,6 +10328,99 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 < objectAllocator.numBytesInUse());
         }
+      } break;
+      case 34: {
+        // --------------------------------------------------------------------
+        // TESTING TRANSPARENT COMPARATOR
+        //
+        // Concerns:
+        //: 1 'multiset' has does not have a transparent set of lookup
+        //:   functions if the comparator is not transparent.
+        //:
+        //: 2 'multiset' has a transparent set of lookup functions if the
+        //:   comparator is transparent.
+        //
+        // Plan:
+        //: 1 Construct a non-transparent multiset and call the lookup
+        //:   functions with a type that is convertible to the 'value_type'.
+        //:   There should be exactly one conversion per call to a lookup
+        //:   function.  (C-1)
+        //:
+        //: 2 Construct a transparent multiset and call the lookup functions
+        //:   with a type that is convertible to the 'value_type'.  There
+        //:   should be no conversions.  (C-2)
+        //
+        // Testing:
+        //   CONCERN: 'find'        properly handles transparent comparators.
+        //   CONCERN: 'count'       properly handles transparent comparators.
+        //   CONCERN: 'lower_bound' properly handles transparent comparators.
+        //   CONCERN: 'upper_bound' properly handles transparent comparators.
+        //   CONCERN: 'equal_range' properly handles transparent comparators.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"
+                                 "==============================" "\n");
+
+        typedef bsl::multiset<int>                      NonTransparentMultiset;
+        typedef bsl::multiset<int, TransparentComparator>
+                                                        TransparentMultiset;
+
+        const int DATA[] = { 0, 1, 2, 3, 4 };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        NonTransparentMultiset        mXNT;
+        const NonTransparentMultiset& XNT = mXNT;
+
+        mXNT.insert(0);
+        for (int i = 0; i < NUM_DATA; ++i) {
+            for (int j = 0; j < i; ++j) {
+                if (veryVeryVeryVerbose) {
+                    printf("Constructing test data.\n");
+                }
+                mXNT.insert(i);
+            }
+        }
+
+        TransparentMultiset        mXT(mXNT.begin(), mXNT.end());
+        const TransparentMultiset& XT = mXT;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int VALUE = DATA[i];
+            if (veryVerbose) {
+                printf("Testing transparent comparators with a value of %d\n",
+                       VALUE);
+            }
+
+            if (veryVerbose) {
+                printf("\tTesting const non-transparent multiset.\n");
+            }
+            testTransparentComparator( XNT, false, VALUE);
+
+            if (veryVerbose) {
+                printf("\tTesting mutable non-transparent multiset.\n");
+            }
+            testTransparentComparator(mXNT, false, VALUE);
+
+            if (veryVerbose) {
+                printf("\tTesting const transparent multiset.\n");
+            }
+            testTransparentComparator( XT,  true,  VALUE);
+
+            if (veryVerbose) {
+                printf("\tTesting mutable transparent multiset.\n");
+            }
+            testTransparentComparator(mXT,  true,  VALUE);
+        }
+      } break;
+      case 33: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        TestDriver<int>::testCase33();
 
       } break;
       case 32: {

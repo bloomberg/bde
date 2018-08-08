@@ -22,17 +22,18 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines two meta-functions, 'bsl::is_fundamental'
-// and 'bslmf::IsFundamental', that determine whether a template parameter type
-// is a fundamental type.  Thus, we need to ensure that the values returned by
-// these meta-functions are correct for each possible category of types.  Since
-// the two meta-functions are almost functionally equivalent except on
-// reference to fundamental types, we will use the same set of types for both.
+// and 'bslmf::IsFundamental' and a template variable 'bsl::is_fundamental_v',
+// that determine whether a template parameter type is a fundamental type.
+// Thus, we need to ensure that the values returned by these meta-functions are
+// correct for each possible category of types.  Since the two meta-functions
+// are almost functionally equivalent except on reference to fundamental types,
+// we will use the same set of types for both.
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 2] BloombergLP::bslmf::IsFundamental::VALUE
 // [ 1] bsl::is_fundamental::value
-//
+// [ 1] bsl::is_fundamental_v
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
@@ -138,12 +139,24 @@ void aSsErT(bool condition, const char *message, int line)
     // type are never fundamental.
 
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+#define ASSERT_V_SAME(TYPE)                                                   \
+    ASSERT(bsl::is_fundamental<TYPE>::value == bsl::is_fundamental_v<TYPE>)
+    // Test whether 'bsl::is_fundamental_v<TYPE>' has the same value as
+    // 'bsl::is_fundamental<TYPE>::value'.
+#else
+#define ASSERT_V_SAME(TYPE)
+#endif
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER) &&                   \
     defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 # define TYPE_ASSERT_REF(META_FUNC, TYPE, result)                             \
     ASSERT(result == META_FUNC<                         TYPE       >::value); \
     ASSERT(false == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value); \
-    ASSERT(false == META_FUNC<bsl::add_rvalue_reference<TYPE>::type>::value);
+    ASSERT(false == META_FUNC<bsl::add_rvalue_reference<TYPE>::type>::value); \
+    ASSERT_V_SAME(                                      TYPE               ); \
+    ASSERT_V_SAME(            bsl::add_lvalue_reference<TYPE>::type        ); \
+    ASSERT_V_SAME(            bsl::add_rvalue_reference<TYPE>::type        );
 #else
 # define TYPE_ASSERT_REF(META_FUNC, TYPE, result)                             \
     ASSERT(result == META_FUNC<                         TYPE       >::value); \
@@ -170,7 +183,11 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT(result == META_FUNC<                  TYPE       >::value);     \
     ASSERT(result == META_FUNC<bsl::add_const<   TYPE>::type>::value);     \
     ASSERT(result == META_FUNC<bsl::add_volatile<TYPE>::type>::value);     \
-    ASSERT(result == META_FUNC<bsl::add_cv<      TYPE>::type>::value);
+    ASSERT(result == META_FUNC<bsl::add_cv<      TYPE>::type>::value);     \
+    ASSERT_V_SAME(                               TYPE               );     \
+    ASSERT_V_SAME(             bsl::add_const<   TYPE>::type        );     \
+    ASSERT_V_SAME(             bsl::add_volatile<TYPE>::type        );     \
+    ASSERT_V_SAME(             bsl::add_cv<      TYPE>::type        );
     // Test all cv-qualified combinations on a type, but not references to that
     // type.
 
@@ -312,6 +329,17 @@ int main(int argc, char *argv[])
     ASSERT(true  == bsl::is_fundamental<long long  >::value);
     ASSERT(false == bsl::is_fundamental<long long *>::value);
 //..
+// Note that if the current compiler supports the variable templates C++14
+// feature then we can re-write the snippet of code above using the
+// 'bsl::is_function_v' variable as follows:
+//..
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+    ASSERT(true  == bsl::is_fundamental_v<int>);
+    ASSERT(false == bsl::is_fundamental_v<int&>);
+    ASSERT(true  == bsl::is_fundamental_v<long long  >);
+    ASSERT(false == bsl::is_fundamental_v<long long *>);
+#endif
+//..
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -425,6 +453,9 @@ int main(int argc, char *argv[])
         //: 5 'is_fundamental::value' is 'true' when 'TYPE' is a (possibly
         //:   cv-qualified) 'bsl::nullptr_t' type if the 'nullptr' keyword is
         //:   is supported, and 'false' otherwise.
+        //:
+        //: 6  That 'is_fundamental<T>::value' has the same value as
+        //:    'is_fudamental_v<T>' for a variety of template parameter types.
         //
         // Plan:
         //   Verify that 'bsl::is_fundamental::value' has the correct value for
@@ -432,6 +463,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_fundamental::value
+        //   bsl::is_fundamental_v
         // --------------------------------------------------------------------
 
         if (verbose) printf("'bsl::is_fundamental::value'\n"

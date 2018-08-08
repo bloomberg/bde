@@ -479,6 +479,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_asserttestexception.h>
 #endif
 
+#ifndef INCLUDED_BSLS_BUILDTARGET
+#include <bsls_buildtarget.h>
+#endif
+
 #ifdef BSLS_ASSERTTEST_NORETURN
 #error BSLS_ASSERTTEST_NORETURN must be a macro scoped locally to this file
 #endif

@@ -219,6 +219,7 @@ enum { PLAT_EXC = 0 };
 // [32] iterator emplace_hint(const_iterator position, Args&&... args);
 //
 // [18] iterator erase(const_iterator position);
+// [18] iterator erase(iterator position);
 // [18] size_type erase(const key_type& key);
 // [18] iterator erase(const_iterator first, const_iterator last);
 // [ 8] void swap(map& other);
@@ -252,7 +253,7 @@ enum { PLAT_EXC = 0 };
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [38] USAGE EXAMPLE
+// [40] USAGE EXAMPLE
 //
 // TEST APPARATUS
 // [ 3] int ggg(map *object, const char *spec, bool verbose = true);
@@ -263,9 +264,15 @@ enum { PLAT_EXC = 0 };
 // [23] CONCERN: 'map' has the necessary type traits.
 // [26] CONCERN: The type provides the full interface defined by the standard.
 // [35] CONCERN: 'map' supports incomplete types.
-// [TBD] CONCERN: 'map' object size is commensurate with that of 'C' and 'A'.
+// [  ] CONCERN: 'map' object size is commensurate with that of 'C' and 'A'.
 // [36] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
 // [37] CONCERN: 'bslmf::MovableRef<T>' does not escape (in C++03 mode).
+// [38] CONCERN: 'erase' overload is deduced correctly.
+// [39] CONCERN: 'find'        properly handles transparent comparators.
+// [39] CONCERN: 'count'       properly handles transparent comparators.
+// [39] CONCERN: 'lower_bound' properly handles transparent comparators.
+// [39] CONCERN: 'upper_bound' properly handles transparent comparators.
+// [39] CONCERN: 'equal_range' properly handles transparent comparators.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -882,6 +889,189 @@ class TestComparatorNonConst {
     }
 };
 
+                    // ============================
+                    // struct TransparentComparator
+                    // ============================
+
+struct TransparentComparator
+    // This class can be used as a comparator for containers.  It has a nested
+    // type 'is_transparent', so it is classified as transparent by the
+    // 'bslmf::IsTransparentPredicate' metafunction and can be used for
+    // heterogeneous comparison.
+ {
+    typedef void is_transparent;
+
+    template <class LHS, class RHS>
+    bool operator()(const LHS& lhs, const RHS& rhs) const
+        // Return 'true' if the specified 'lhs' is less than the specified
+        // 'rhs' and 'false' otherwise.
+    {
+        return lhs < rhs;
+    }
+};
+
+                    // =============================
+                    // class TransparentlyComparable
+                    // =============================
+
+class TransparentlyComparable {
+    // DATA
+    int d_conversionCount;  // number of times 'operator int' has been called
+    int d_value;            // the value
+
+    // NOT IMPLEMENTED
+    TransparentlyComparable(const TransparentlyComparable&);  // = delete
+
+  public:
+    // CREATORS
+    explicit TransparentlyComparable(int value)
+        // Create an object having the specified 'value'.
+
+    : d_conversionCount(0)
+    , d_value(value)
+    {
+    }
+
+    // MANIPULATORS
+    operator int()
+        // Return the current value of this object.
+    {
+        ++d_conversionCount;
+        return d_value;
+    }
+
+    // ACCESSORS
+    int conversionCount() const
+        // Return the number of times 'operator int' has been called.
+    {
+        return d_conversionCount;
+    }
+
+    int value() const
+        // Return the current value of this object.
+    {
+        return d_value;
+    }
+
+    friend bool operator<(const TransparentlyComparable& lhs, int rhs)
+        // Return 'true' if the value of the specified 'lhs' is less than the
+        // specified 'rhs', and 'false' otherwise.
+    {
+        return lhs.d_value < rhs;
+    }
+
+    friend bool operator<(int lhs, const TransparentlyComparable& rhs)
+        // Return 'true' if the specified 'lhs' is less than the value of the
+        // specified 'rhs', and 'false' otherwise.
+    {
+        return lhs < rhs.d_value;
+    }
+};
+
+template <class Container>
+void testTransparentComparator(Container& container,
+                               bool       isTransparent,
+                               int        initKeyValue)
+    // Search for a value equal to the specified 'initKeyValue' in the
+    // specified 'container', and count the number of conversions expected
+    // based on the specified 'isTransparent'.  Note that 'Container' may
+    // resolve to a 'const'-qualified type, we are using the "reference" here
+    // as a sort of universal reference.  Conceptually, the object remains
+    // constant, but we want to test 'const'-qualified and
+    // non-'const'-qualified overloads.
+{
+    typedef typename Container::const_iterator Iterator;
+    typedef typename Container::size_type      Count;
+
+    int expectedConversionCount = 0;
+
+    TransparentlyComparable existingKey(initKeyValue);
+    TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
+                                                        : -100);
+
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    // Testing 'find'.
+
+    const Iterator EXISTING_F = container.find(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(container.end()               != EXISTING_F);
+    ASSERT(existingKey.value()           == EXISTING_F->first);
+    ASSERT(existingKey.conversionCount() == expectedConversionCount);
+
+    const Iterator NON_EXISTING_F = container.find(nonExistingKey);
+    ASSERT(container.end()                  == NON_EXISTING_F);
+    ASSERT(nonExistingKey.conversionCount() == expectedConversionCount);
+
+    // Testing 'count'.
+
+    const Count EXISTING_C = container.count(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(1                       == EXISTING_C);
+    ASSERT(expectedConversionCount == existingKey.conversionCount());
+
+    const Count NON_EXISTING_C = container.count(nonExistingKey);
+    ASSERT(0                       == NON_EXISTING_C);
+    ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+
+    // Testing 'lower_bound'.
+
+    const Iterator EXISTING_LB = container.lower_bound(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(EXISTING_F              == EXISTING_LB);
+    ASSERT(expectedConversionCount == existingKey.conversionCount());
+
+    const Iterator NON_EXISTING_LB = container.lower_bound(nonExistingKey);
+
+    ASSERT(container.begin()       == NON_EXISTING_LB);
+    ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+
+    // Testing 'upper_bound'.
+
+    TransparentlyComparable upperBoundValue(initKeyValue + 1);
+    const Iterator          EXPECTED_UB = container.find(upperBoundValue);
+    const Iterator          EXISTING_UB = container.upper_bound(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(EXPECTED_UB             == EXISTING_UB);
+    ASSERT(expectedConversionCount == existingKey.conversionCount());
+
+    const Iterator NON_EXISTING_UB = container.upper_bound(nonExistingKey);
+
+    ASSERT(container.begin()       == NON_EXISTING_UB);
+    ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+
+    // Testing 'equal_range'.
+
+    const bsl::pair<Iterator, Iterator> EXISTING_ER =
+                                            container.equal_range(existingKey);
+    if (!isTransparent) {
+        ++expectedConversionCount;
+    }
+
+    ASSERT(EXISTING_LB             == EXISTING_ER.first);
+    ASSERT(EXPECTED_UB             == EXISTING_ER.second);
+    ASSERT(expectedConversionCount == existingKey.conversionCount());
+
+    const bsl::pair<Iterator, Iterator> NON_EXISTING_ER =
+                                         container.equal_range(nonExistingKey);
+
+    ASSERT(NON_EXISTING_LB         == NON_EXISTING_ER.first);
+    ASSERT(NON_EXISTING_UB         == NON_EXISTING_ER.second);
+    ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
+}
+
                        // =====================
                        // class TemplateWrapper
                        // =====================
@@ -1345,6 +1535,41 @@ struct IncompleteType {
     int d_data;
 };
 
+                       // =============================
+                       // struct EraseAmbiguityTestType
+                       // =============================
+
+struct EraseAmbiguityTestType
+    // This test type has a template constructor that can accept iterator.
+{
+    // CREATORS
+    template <class T>
+    EraseAmbiguityTestType(T&)
+        // Construct an object.
+    {}
+};
+
+bool operator<(const EraseAmbiguityTestType&,
+               const EraseAmbiguityTestType&)
+    // This operator is no-op and written only to satisfy requirements for
+    // 'key_type' class.
+{
+    return false;
+}
+
+void runErasure(bsl::map<EraseAmbiguityTestType, int>& container,
+                EraseAmbiguityTestType                 element)
+    // Look for the specified 'element' in the specified 'container' and delete
+    // it if found.  Code is written in such a way as to reveal the ambiguity
+    // of the 'erase' method call.
+{
+    bsl::map<EraseAmbiguityTestType, int>::iterator it =
+                                                       container.find(element);
+    if (it != container.end()) {
+        container.erase(it);
+    }
+}
+
 }  // close unnamed namespace
 
 // ============================================================================
@@ -1596,6 +1821,8 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase38();
+        // Test absence of 'erase' method ambiguity.
 
     static void testCase37();
         // Test 'bslmf::MovableRef<T>' does not escape (in C++03 mode).
@@ -2404,6 +2631,45 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
 #endif
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
+void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase38()
+{
+    // ------------------------------------------------------------------------
+    // TESTING ABSENCE OF ERASE AMBIGUITY
+    //  'std::map::erase' takes an iterator in C++03, but a const_iterator in
+    //  C++0x.  This breaks code where the map's 'key_type' has a constructor
+    //  which accepts an iterator (for example a template constructor), as the
+    //  compiler cannot choose between 'erase(const key_type&)' and
+    //  'erase(const_iterator)'. As BDE library duplicates 'std' interfaces, it
+    //  has the same problem. The solution is to restore the iterator overload
+    //  in addition to the const_iterator overload.
+    //  See https://cplusplus.github.io/LWG/lwg-defects.html#2059
+    //
+    // Concerns:
+    //: 1 Adding the iterator overload takes away the ambiguity of 'erase'
+    //:   method.
+    //
+    // Plan:
+    //: 1 Using brute force and a specially tailored test type,
+    //:   'EraseAmbiguityTestType', we verify that appropriate overload is
+    //:   deduced successfully.  Note that this is a compile-only test; runtime
+    //:   values are not checked.  (C-1)
+    //
+    // Testing:
+    //   CONCERN: 'erase' overload is deduced correctly.
+    // ------------------------------------------------------------------------
+
+    VALUE                       value(5);
+    KEY                         key(value);
+    bsl::map<KEY, VALUE>        mX;
+    const bsl::map<KEY, VALUE>& X = mX;
+
+    mX.insert(bsl::pair<KEY, VALUE>(key, value));
+    ASSERTV(X.size(), 1 == X.size());
+    runErasure(mX, key);
+    ASSERTV(X.size(), 0 == X.size());
+}
+
+template <class KEY, class VALUE, class COMP, class ALLOC>
 void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase37()
 {
     // ------------------------------------------------------------------------
@@ -2489,12 +2755,12 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
 
         (void) X;    (void) mY;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX =
                                              bslmf::MovableRefUtil::move(mY)));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get_allocator()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.get_allocator()));
     }
 
     // page 864-865
@@ -2517,35 +2783,35 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
     {
         Obj mX;    const Obj& X = mX;    (void) X;
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.begin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.begin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.begin()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.end()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.end()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.end()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.end()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.rbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.rbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.rbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.rbegin()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.rend()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.rend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.rend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.rend()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.cbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.cend()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.crbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.crend()));
     }
 
     // page 865
@@ -2559,12 +2825,12 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
     {
         Obj mX;    const Obj& X = mX;    (void) X;
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.size()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_size()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.empty()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.size()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.max_size()));
     }
 
     // page 866
@@ -2580,11 +2846,11 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
         Obj x;    (void) x;
         Obj y;    (void) y;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y)));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.clear()));
     }
 
     // page 866
@@ -2600,11 +2866,11 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase36()
         Obj x;    (void) x;
         Obj y;    (void) y;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y)));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.clear()));
     }
 }
 
@@ -6631,7 +6897,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
     const KEY   ZK = TestValues("y")[0].first;   // A value not in any spec.
     const VALUE ZV = TestValues("z")[0].second;  // A value not in any spec.
 
-    if (verbose) printf("Testing elemental access.");
+    if (verbose) printf("Testing elemental access for '%s'.\n",
+                        NameOf<VALUE>().name());
     {
         for (size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
@@ -6681,7 +6948,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
             ASSERTV(LINE, 0 == da.numBlocksTotal());
 
 #if defined(BDE_BUILD_TARGET_EXC)
-            if (veryVeryVerbose) printf("Test correct exception is thrown.\n");
+            if (veryVeryVerbose)
+                printf("\tTest correct exception is thrown.\n");
             {
                 bool exceptionCaught = false;
                 try {
@@ -6716,7 +6984,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
             const VALUE& D = d.object();
 
             if (veryVeryVerbose)
-                printf("Test 'operator[]' on out-of-range key.\n");
+                printf("\tTest 'operator[]' on out-of-range key.\n");
             {
                 const size_t SIZE = X.size();
 
@@ -6730,8 +6998,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase24()
                     proctor.release();
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                ASSERTV(LINE, D == X.find(ZK)->second);
-                ASSERTV(LINE, SIZE, SIZE + 1 == X.size());
+                ASSERTV(LINE, D, X.find(ZK)->second, D == X.find(ZK)->second);
+                ASSERTV(LINE, SIZE, X.size(), SIZE + 1 == X.size());
             }
 #endif
 
@@ -7404,17 +7672,20 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase18()
     //:
     //:     4 Verify no memory is allocated.  (C-5)
     //:
-    //: 2 Repeat P-1 with 'erase(const key_type& key)' (C-2).
+    //: 2 Repeat P-1 with 'erase(iterator position)'.
     //:
-    //: 3 For range erase, call erase on all possible range of for each length,
+    //: 3 Repeat P-1 with 'erase(const key_type& key)' (C-2).
+    //:
+    //: 4 For range erase, call erase on all possible range of for each length,
     //:   'l' and verify result is as expected.
     //:
-    //: 4 Verify that, in appropriate build modes, defensive checks are
+    //: 5 Verify that, in appropriate build modes, defensive checks are
     //:   triggered for invalid values, but not triggered for adjacent valid
     //:   ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
     //
     // Testing:
     //   iterator erase(const_iterator position);
+    //   iterator erase(iterator position);
     //   size_type erase(const key_type& key);
     //   iterator erase(const_iterator first, const_iterator last);
     // -----------------------------------------------------------------------
@@ -7438,39 +7709,61 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase18()
             for (size_t tj = 0; tj < LENGTH; ++tj) {
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-                Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
+                Obj        mXC(&oa);              // const_iterator interface
+                const Obj&  XC = gg(&mXC, SPEC);
+                Obj        mX(&oa);               // iterator interface
+                const Obj&  X  = gg(&mX,  SPEC);
 
-                CIter POS = X.find(VALUES[tj].first);
-                CIter AFTER  = LENGTH - 1 == tj
-                               ? X.end()
-                               : X.find(VALUES[tj + 1].first);
-                CIter BEFORE = 0 == tj
-                               ? X.end()
-                               : X.find(VALUES[tj - 1].first);
+                CIter POSC    = XC.find(VALUES[tj].first);
+                Iter  POS     = mX.find(VALUES[tj].first);
 
-                ASSERTV(LINE, tj, POS != X.end());
-                ASSERTV(LINE, tj, AFTER  != POS);
-                ASSERTV(LINE, tj, BEFORE != POS);
+                CIter AFTERC  = LENGTH - 1 == tj
+                                ? XC.end()
+                                : XC.find(VALUES[tj + 1].first);
+                CIter BEFOREC = 0 == tj
+                                ? XC.end()
+                                : XC.find(VALUES[tj - 1].first);
+                CIter AFTER   = LENGTH - 1 == tj
+                                ? X.end()
+                                : X.find(VALUES[tj + 1].first);
+                CIter BEFORE  = 0 == tj
+                                ? X.end()
+                                : X.find(VALUES[tj - 1].first);
+
+                ASSERTV(LINE, tj, POSC    != XC.end());
+                ASSERTV(LINE, tj, POS     != X.end());
+                ASSERTV(LINE, tj, AFTERC  != POSC);
+                ASSERTV(LINE, tj, BEFOREC != POSC);
+                ASSERTV(LINE, tj, AFTER   != POS);
+                ASSERTV(LINE, tj, BEFORE  != POS);
 
                 if (veryVerbose) { P(*POS); }
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
-                const Iter R = mX.erase(POS);
+                const Iter RC = mXC.erase(POSC);
+                const Iter R  = mX.erase(POS);
 
-                if (veryVeryVerbose) { T_ T_ P(X); }
+                if (veryVeryVerbose) { T_ T_ P_(XC) P(X); }
 
-                ASSERTV(LINE, tj, AFTER == R); // Check return value
+                // Check return value
+
+                ASSERTV(LINE, tj, AFTERC == RC);
+                ASSERTV(LINE, tj, AFTER  == R );
 
                 // Check the element does not exist
 
-                ASSERTV(LINE, tj, X.end() == X.find(VALUES[tj].first));
+                ASSERTV(LINE, tj, XC.end() == XC.find(VALUES[tj].first));
+                ASSERTV(LINE, tj, X.end()  == X.find(VALUES[tj].first));
                 if (0 == tj) {
-                    ASSERTV(LINE, tj, X.begin() == AFTER);
+                    ASSERTV(LINE, tj, XC.begin() == AFTERC);
+                    ASSERTV(LINE, tj, X.begin()  == AFTER);
                 }
                 else {
+                    ++BEFOREC;
                     ++BEFORE;
-                    ASSERTV(LINE, tj, BEFORE == AFTER);
+                    ASSERTV(LINE, tj, BEFOREC == AFTERC);
+                    ASSERTV(LINE, tj, BEFORE  == AFTER);
                 }
 
                 ASSERTV(LINE, tj, oam.isTotalSame());
@@ -7480,7 +7773,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase18()
                 else {
                     ASSERTV(LINE, tj, oam.isInUseSame());
                 }
-                ASSERTV(LINE, tj, X.size(), LENGTH - 1 == X.size());
+                ASSERTV(LINE, tj, XC.size(), LENGTH - 1 == XC.size());
+                ASSERTV(LINE, tj, X.size(),  LENGTH - 1 == X.size());
             }
         }
     }
@@ -7624,14 +7918,22 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase18()
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            Obj mX;  const Obj& X = mX;
+            Obj mXC;
+            Obj mX;
 
-            pair<Iter, bool> RESULT = primaryManipulator(&mX, 'A', &scratch);
+            pair<CIter, bool> RESULTC = primaryManipulator(&mXC,
+                                                           'A',
+                                                           &scratch);
+            pair<Iter, bool>  RESULT  = primaryManipulator(&mX, 'B', &scratch);
+            ASSERTV(RESULTC.second);
             ASSERTV(RESULT.second);
 
-            (void)X;  // 'X' is not used in some build modes
+            CIter iterC = mXC.end();
+            Iter  iter  = mX.end();
 
-            ASSERT_SAFE_FAIL(mX.erase(X.end()));
+            ASSERT_SAFE_FAIL(mXC.erase(iterC));
+            ASSERT_SAFE_FAIL(mX.erase(iter));
+            ASSERT_SAFE_PASS(mXC.erase(RESULTC.first));
             ASSERT_SAFE_PASS(mX.erase(RESULT.first));
         }
     }
@@ -11687,6 +11989,7 @@ TradeMatcher::BuyOrdersConstIterator TradeMatcher::endBuyOrders() const
 
 }  // close namespace UsageExample
 
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -11711,7 +12014,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 38: {
+      case 40: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -11756,6 +12059,100 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 <  objectAllocator.numBytesInUse());
         }
+      } break;
+      case 39: {
+        // --------------------------------------------------------------------
+        // TESTING TRANSPARENT COMPARATOR
+        //
+        // Concerns:
+        //: 1 'map' has does not have a transparent set of lookup functions if
+        //:   the comparator is not transparent.
+        //:
+        //: 2 'map' has a transparent set of lookup functions if the comparator
+        //:   is transparent.
+        //
+        // Plan:
+        //: 1 Construct a non-transparent map and call the lookup functions
+        //:   with a type that is convertible to the 'value_type'.  There
+        //:   should be exactly one conversion per call to a lookup function.
+        //:   (C-1)
+        //:
+        //: 2 Construct a transparent map and call the lookup functions with a
+        //:   type that is convertible to the 'value_type'.  There should be no
+        //:   conversions.  (C-2)
+        //
+        // Testing:
+        //   CONCERN: 'find'        properly handles transparent comparators.
+        //   CONCERN: 'count'       properly handles transparent comparators.
+        //   CONCERN: 'lower_bound' properly handles transparent comparators.
+        //   CONCERN: 'upper_bound' properly handles transparent comparators.
+        //   CONCERN: 'equal_range' properly handles transparent comparators.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"
+                                 "==============================" "\n");
+
+        typedef bsl::map<int, int>                        NonTransparentMap;
+        typedef NonTransparentMap::value_type             Value;
+        typedef bsl::map<int, int, TransparentComparator> TransparentMap;
+
+        const int DATA[] = { 0, 1, 2, 3, 4 };
+        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        NonTransparentMap        mXNT;
+        const NonTransparentMap& XNT = mXNT;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            if (veryVeryVeryVerbose) {
+                printf("Constructing test data\n");
+            }
+            const Value VALUE(DATA[i], DATA[i]);
+            mXNT.insert(VALUE);
+        }
+
+        TransparentMap        mXT(mXNT.begin(), mXNT.end());
+        const TransparentMap& XT = mXT;
+
+        ASSERT(NUM_DATA == XNT.size());
+        ASSERT(NUM_DATA == XT.size() );
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int VALUE = DATA[i];
+            if (veryVerbose) {
+                printf("Testing transparent comparators with a value of %d\n",
+                       VALUE);
+            }
+
+            if (veryVerbose) {
+                printf("\tTesting const non-transparent map.\n");
+            }
+            testTransparentComparator( XNT, false, VALUE);
+
+            if (veryVerbose) {
+                printf("\tTesting mutable non-transparent map.\n");
+            }
+            testTransparentComparator(mXNT, false, VALUE);
+
+            if (veryVerbose) {
+                printf("\tTesting const transparent map.\n");
+            }
+            testTransparentComparator( XT,  true,  VALUE);
+
+            if (veryVerbose) {
+                printf("\tTesting mutable transparent map.\n");
+            }
+            testTransparentComparator(mXT,  true,  VALUE);
+        }
+      } break;
+      case 38: {
+        // --------------------------------------------------------------------
+        // 'erase' overload is deduced correctly
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING ABSENCE OF ERASE AMBIGUITY\n"
+                            "==================================\n");
+
+        TestDriver<EraseAmbiguityTestType, int>::testCase38();
       } break;
       case 37: {
         // --------------------------------------------------------------------

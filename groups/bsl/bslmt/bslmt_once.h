@@ -359,6 +359,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_BUILDTARGET
+#include <bsls_buildtarget.h>
+#endif
+
 namespace BloombergLP {
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)

@@ -114,6 +114,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_ispointer.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISRVALUEREFERENCE
 #include <bslmf_isrvaluereference.h>
 #endif
@@ -154,12 +158,20 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_BUILDTARGET
+#include <bsls_buildtarget.h>
+#endif
+
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
 #endif
 
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
+#endif
+
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NULLPTR
@@ -183,14 +195,9 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_CSTDLIB
 #endif
 
-#ifndef INCLUDED_TYPEINFO
-#include <typeinfo>
-#define INCLUDED_TYPEINFO
-#endif
-
-#ifndef INCLUDED_UTILITY
-#include <utility>
-#define INCLUDED_UTILITY
+#ifndef INCLUDED_NEW
+#include <new>
+#define INCLUDED_NEW
 #endif
 
 #ifndef INCLUDED_STDDEF_H
@@ -201,6 +208,16 @@ BSL_OVERRIDES_STD mode"
 #ifndef INCLUDED_STDLIB_H
 #include <stdlib.h>
 #define INCLUDED_STDLIB_H
+#endif
+
+#ifndef INCLUDED_TYPEINFO
+#include <typeinfo>
+#define INCLUDED_TYPEINFO
+#endif
+
+#ifndef INCLUDED_UTILITY
+#include <utility>
+#define INCLUDED_UTILITY
 #endif
 
                         // ---------------------
@@ -217,6 +234,8 @@ BSL_OVERRIDES_STD mode"
     // function pointers through 'bdlf::MemFn' objects instead - see
     // 'bdlf::MemFnUtil' for more details.
 #endif
+
+
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 namespace BloombergLP {
@@ -251,59 +270,144 @@ struct Function_ArgTypes;
 template <class FUNC>
 struct Function_NothrowWrapperUtil;
 
-                // ===============================================
-                // class template Function_DisableIfLosslessCnvrsn
-                // ===============================================
+                // =============================================
+                // class template Function_IsReferenceCompatible
+                // =============================================
 
-template <class FROM_TYPE, class TO_TYPE, class RESULT_TYPE>
-struct Function_DisableIfLosslessCnvrsn
-    : enable_if<! is_same<FROM_TYPE, TO_TYPE>::value, RESULT_TYPE>
+template <class FROM_TYPE, class TO_TYPE>
+struct Function_IsReferenceCompatible : is_same<FROM_TYPE, TO_TYPE>
 {
-    // This metafunction defines a 'type' aliased to the specified
-    // 'RESULT_TYPE' parameter if the specified 'FROM_TYPE' parameter type is
-    // *not* convertible to the specified 'TO_TYPE' parameter type with no loss
-    // of information; otherwise, no 'type' member is defined.  By default,
-    // this metafunction always yields a 'type' member if, after stripping off
-    // any reference and/or 'const' qualifier from 'FROM_TYPE', it is different
-    // from 'TO_TYPE'.  However, this template can be specialized to suppress
-    // 'type' for other parameters that supply lossless conversions.  This
-    // metafunction is used to prevent types that provide lossless conversions
-    // to 'bsl::function' from matching template parameters in 'function'
-    // constructors and assignment operators, prefering, instead, the
-    // non-template overloads.
+    // This metafunction is derived from 'true_type' if a reference to the
+    // specified 'FROM_TYPE' parameter type can be substituted for a reference
+    // to the specified 'TO_TYPE' parameter type with no loss of information;
+    // otherwise, it is derived from 'false_type'.  By default, this
+    // metafunction yields 'true_type' if, after stripping off any reference
+    // and/or 'const' qualifier from 'FROM_TYPE', it is the same as 'TO_TYPE';
+    // else it yields 'false_type'.  However, this template can be specialized
+    // to yield 'true_type for other parameters that have compatible
+    // references.  This metafunction is used within an 'enable_if' to prevent
+    // types that are reference compatible with 'bsl::function' from matching
+    // template parameters in 'function' constructors and assignment
+    // operators, preferring, instead, the non-template overloads for copy and
+    // move construction and assignment.  In practice, this metafunction is
+    // used to detect types supplied to generic functions that are identical
+    // to 'bsl::function' or a type wrapping 'bsl::function' with no
+    // additional data members (i.e., interface wrappers around
+    // 'bsl::function' would specialize this trait to derive from
+    // 'true_type'). Note that reference qualifiers on 'TO_TYPE' will cause
+    // instantiation to fail.
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    // Note: 'bdef_Function' should specialize this template to suppress
-    // 'type' when 'FROM_TYPE' is an instantiation of 'bdef_Function' and
-    // 'TO_TYPE' is the corresponding instantiation of 'bsl::function'.
+    // 'bdef_Function' should specialize this template to yield 'true_type'
+    // when 'FROM_TYPE' is an instantiation of 'bdef_Function' and 'TO_TYPE'
+    // is the corresponding instantiation of 'bsl::function' with the same
+    // function prototype.
 #endif
+
+    // Force compilation failure if 'TO_TYPE' is a reference type.
+    BSLMF_ASSERT(! bsl::is_reference<TO_TYPE>::value);
 };
 
-template <class FROM_TYPE, class TO_TYPE, class RESULT_TYPE>
-struct Function_DisableIfLosslessCnvrsn<const FROM_TYPE, TO_TYPE, RESULT_TYPE>
-    : Function_DisableIfLosslessCnvrsn<FROM_TYPE, TO_TYPE, RESULT_TYPE>
+template <class FROM_TYPE, class TO_TYPE>
+struct Function_IsReferenceCompatible<FROM_TYPE, const TO_TYPE>
+    : Function_IsReferenceCompatible<
+          typename bsl::remove_const<FROM_TYPE>::type,
+          typename bsl::remove_const<TO_TYPE>::type
+    >
 {
-    // Specialization of 'Function_DisableIfLosslessCnvrsn' for 'FROM_TYPE'
-    // being const.
+    // Partial specialization of 'Function_IsReferenceCompatible' for
+    // 'TO_TYPE' being const. The evaluation is forwarded to other
+    // specializations after stripping the const qualifiers.  Note that if
+    // 'FROM_TYPE' is const and 'TO_TYPE' is mutable, this partial
+    // specialization will not be selected and the resulting evaluation will
+    // yield 'false_type', reflecting the fact that a reference to const type
+    // cannot be bound to reference to mutable type.
 };
 
-template <class FROM_TYPE, class TO_TYPE, class RESULT_TYPE>
-struct Function_DisableIfLosslessCnvrsn<FROM_TYPE&, TO_TYPE, RESULT_TYPE>
-    : Function_DisableIfLosslessCnvrsn<FROM_TYPE, TO_TYPE, RESULT_TYPE>
+template <class FROM_TYPE, class TO_TYPE>
+struct Function_IsReferenceCompatible<FROM_TYPE&, TO_TYPE>
+    : Function_IsReferenceCompatible<FROM_TYPE, TO_TYPE>
 {
-    // Specialization of 'Function_DisableIfLosslessCnvrsn' for 'FROM_TYPE'
-    // being an lvalue reference.
+    // Partial specialization of 'Function_IsReferenceCompatible' for
+    // 'FROM_TYPE' being an lvalue reference. The evaluation is forwarded to
+    // other specializations after stripping the reference from 'FROM_TYPE'.
+};
+
+template <class FROM_TYPE, class TO_TYPE>
+struct Function_IsReferenceCompatible<FROM_TYPE&, const TO_TYPE>
+    : Function_IsReferenceCompatible<
+          typename bsl::remove_const<FROM_TYPE>::type,
+          typename bsl::remove_const<TO_TYPE>::type
+    >
+{
+    // Partial specialization of 'Function_IsReferenceCompatible' for
+    // 'FROM_TYPE' being an lvalue reference and 'TO_TYPE' being const. The
+    // evaluation is forwarded to other specializations after stripping the
+    // reference and const qualifiers.  Note that if 'FROM_TYPE' is const and
+    // 'TO_TYPE' is mutable, this partial specialization will not be selected
+    // and the resulting evaluation will yield 'false_type', reflecting the
+    // fact that a reference to const type cannot be bound to reference to
+    // mutable type.
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-template <class FROM_TYPE, class TO_TYPE, class RESULT_TYPE>
-struct Function_DisableIfLosslessCnvrsn<FROM_TYPE&&, TO_TYPE, RESULT_TYPE>
-    : Function_DisableIfLosslessCnvrsn<FROM_TYPE, TO_TYPE, RESULT_TYPE>
+template <class FROM_TYPE, class TO_TYPE>
+struct Function_IsReferenceCompatible<FROM_TYPE&&, TO_TYPE>
+    : Function_IsReferenceCompatible<FROM_TYPE, TO_TYPE>
 {
-    // Specialization of 'Function_DisableIfLosslessCnvrsn' for 'FROM_TYPE'
-    // being an rvalue reference.
+    // Partial specialization of 'Function_IsReferenceCompatible' for
+    // 'FROM_TYPE' being an rvalue reference. The evaluation is forwarded to
+    // other specializations after stripping the reference from 'FROM_TYPE'.
 };
-#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
+template <class FROM_TYPE, class TO_TYPE>
+struct Function_IsReferenceCompatible<FROM_TYPE&&, const TO_TYPE>
+    : Function_IsReferenceCompatible<
+          typename bsl::remove_const<FROM_TYPE>::type,
+          typename bsl::remove_const<TO_TYPE>::type
+    >
+{
+    // Partial specialization of 'Function_IsReferenceCompatible' for
+    // 'FROM_TYPE' being an rvalue reference and 'TO_TYPE' being const. The
+    // evaluation is forwarded to other specializations after stripping the
+    // reference and const qualifiers.  Note that if 'FROM_TYPE' is const and
+    // 'TO_TYPE' is mutable, this partial specialization will not be selected
+    // and the resulting evaluation will yield 'false_type', reflecting the
+    // fact that a reference to const type cannot be bound to reference to
+    // mutable type.
+};
+
+#else  // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template <class FROM_TYPE, class TO_TYPE>
+struct Function_IsReferenceCompatible<BloombergLP::bslmf::MovableRef<FROM_TYPE>
+                                      , TO_TYPE>
+    : Function_IsReferenceCompatible<FROM_TYPE, TO_TYPE>
+{
+    // Partial specialization of 'Function_IsReferenceCompatible' for
+    // 'FROM_TYPE' being an instantiation of 'bslmf::MovableRef'. The
+    // evaluation is forwarded to other specializations after stripping the
+    // 'bslmf::MovableRef from 'FROM_TYPE'.
+};
+
+template <class FROM_TYPE, class TO_TYPE>
+struct Function_IsReferenceCompatible<BloombergLP::bslmf::MovableRef<FROM_TYPE>
+                                      , const TO_TYPE>
+    : Function_IsReferenceCompatible<
+          typename bsl::remove_const<FROM_TYPE>::type,
+          typename bsl::remove_const<TO_TYPE>::type
+    >
+{
+    // Partial specialization of 'Function_IsReferenceCompatible' for
+    // 'FROM_TYPE' being an instantiation of 'bslmf::MovableRef' and 'TO_TYPE'
+    // being const. The evaluation is forwarded to other specializations after
+    // stripping the 'bslmf::MovableRef' and const qualifiers.  Note that if
+    // 'FROM_TYPE' is const and 'TO_TYPE' is mutable, this partial
+    // specialization will not be selected and the resulting evaluation will
+    // yield 'false_type', reflecting the fact that a reference to const type
+    // cannot be bound to reference to mutable type.
+};
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 #ifdef BDE_BUILD_TARGET_EXC
 
@@ -319,7 +423,7 @@ class bad_function_call : public native_std::exception {
     bad_function_call() BSLS_NOTHROW_SPEC;
         // Constructs this exception object.
 
-    const char* what() const BSLS_NOTHROW_SPEC;
+    const char* what() const BSLS_EXCEPTION_WHAT_NOTHROW BSLS_KEYWORD_OVERRIDE;
         // Returns "bad_function_call".
 };
 
@@ -346,27 +450,60 @@ class Function_NothrowWrapper
     // that, in the unlikely event that moving the wrapped object *does* throw
     // at runtime, the result will likely be a call to 'terminate()'.
 
-    FUNC d_func;
+    // This primary template is instatiated for 'FUNC' types that do not take
+    // an allocator.
+
+    // DATA
+    BloombergLP::bsls::ObjectBuffer<FUNC> d_func;
+
+    // NOT IMPLEMENTED
+    Function_NothrowWrapper&
+    operator=(const Function_NothrowWrapper&) /* = delete */;
+        // Not assignable.
+
+    // PRIVATE TYPES
+    typedef BloombergLP::bslma::ConstructionUtil  ConstructionUtil;
+    typedef BloombergLP::bslmf::MovableRefUtil    MovableRefUtil;
 
   public:
+    BSLMF_NESTED_TRAIT_DECLARATION(Function_NothrowWrapper,
+                                   BloombergLP::bslma::UsesBslmaAllocator);
+
+    // PUBLIC TYPES
     typedef FUNC UnwrappedType;
 
-    Function_NothrowWrapper(const FUNC& other) : d_func(other) { }  // IMPLICIT
+    // CREATORS
+    Function_NothrowWrapper(const FUNC&                    func,
+                            BloombergLP::bslma::Allocator* a = 0); // IMPLICIT
+        // Wrap the specified 'func', using 'FUNC's [extended] copy
+        // constructor.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    Function_NothrowWrapper(FUNC&& other)
-      : d_func(BloombergLP::bslmf::MovableRefUtil::move(other))
-    {
-    }
-#endif
+    Function_NothrowWrapper(BloombergLP::bslmf::MovableRef<FUNC> func);
+        // Wrap the specified 'func', using 'FUNC's move constructor.
 
-    //! Function_NothrowWrapper(const Function_NothrowWrapper&) = default;
-    //! Function_NothrowWrapper& operator=(const Function_NothrowWrapper&)
-    //!    = default;
-    //! ~Function_NothrowWrapper() = default;
+    Function_NothrowWrapper(BloombergLP::bslmf::MovableRef<FUNC>  func,
+                            BloombergLP::bslma::Allocator        *a);
+        // Wrap the specified 'func', using 'FUNC's extended move constructor.
 
-    FUNC&       unwrap()       { return d_func; }
-    FUNC const& unwrap() const { return d_func; }
+    Function_NothrowWrapper(const Function_NothrowWrapper& other);
+        // Copy construct from the specified 'other' wrapper using 'FUNC's
+        // copy constructor.
+
+    Function_NothrowWrapper(
+        BloombergLP::bslmf::MovableRef<Function_NothrowWrapper> other);
+        // Move construct from the specified 'other' wrapper using 'FUNC's
+        // move constructor.
+
+    ~Function_NothrowWrapper();
+        // Destroy this object
+
+    // MANIPULATORS
+    FUNC&       unwrap();
+        // Return a modifiable reference the wrapped object.
+
+    // ACCESSORS
+    FUNC const& unwrap() const;
+        // Return a const reference the wrapped object.
 };
 
                         // ======================================
@@ -377,12 +514,14 @@ class Function_SmallObjectOptimization {
     // Namespace for several definitions related to use of the small object
     // optimization.
 
+    // PRIVATE TYPES
     class Dummy;  // Declared but not defined
 
     // Short aliases for type with maximum platform alignment
     typedef BloombergLP::bsls::AlignmentUtil::MaxAlignedType MaxAlignedType;
 
   public:
+    // PUBLIC TYPES
     union InplaceBuffer {
         // This 'union' defines the storage area for a functor representation.
         // The design uses the "small-object optimization" in an attempt to
@@ -949,7 +1088,7 @@ class Function_Imp<RET(ARGS...)> :
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -1012,7 +1151,7 @@ class Function_Imp<RET(ARGS...)> :
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=13 bslstl_function.h
+// Generator command line: sim_cpp11_features.pl bslstl_function.h
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
 #define BSLSTL_FUNCTION_VARIADIC_LIMIT 13
 #endif
@@ -1121,7 +1260,7 @@ class Function_Imp<RET()> :
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -1265,7 +1404,7 @@ class Function_Imp<RET(ARGS_01)> :
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -1417,7 +1556,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -1580,7 +1719,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -1754,7 +1893,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -1939,7 +2078,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -2135,7 +2274,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -2342,7 +2481,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -2560,7 +2699,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -2789,7 +2928,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -3029,7 +3168,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -3280,7 +3419,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -3542,7 +3681,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -3815,7 +3954,7 @@ class Function_Imp<RET(ARGS_01,
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -3999,7 +4138,7 @@ class Function_Imp<RET(ARGS...)> :
     template<class ALLOC>
     Function_Imp(const ALLOC& alloc, const Function_Imp& other);
     template<class FUNC, class ALLOC>
-    Function_Imp(const ALLOC& alloc, FUNC func);
+    Function_Imp(const ALLOC& alloc, FUNC *func);
 
     Function_Imp(BloombergLP::bslmf::MovableRef<Function_Imp> other);
     template<class ALLOC>
@@ -4011,7 +4150,7 @@ class Function_Imp<RET(ARGS...)> :
     Function_Imp& operator=(const Function_Imp&);
     Function_Imp& operator=(BloombergLP::bslmf::MovableRef<Function_Imp>);
     template<class FUNC>
-    Function_Imp& operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func);
+    Function_Imp& operator=(FUNC&& func);
     Function_Imp& operator=(nullptr_t);
 
 
@@ -4088,11 +4227,11 @@ class function : public Function_Imp<PROTOTYPE> {
     template <class FUNC>
     function(
         FUNC func,
-        typename Function_DisableIfLosslessCnvrsn<FUNC, function, int>::type =
-            0)                                                      // IMPLICIT
-        : Base(BloombergLP::bslma::Default::defaultAllocator(), func)
+        typename enable_if<! Function_IsReferenceCompatible<FUNC,
+                             function>::value, int>::type = 0) // IMPLICIT
+        : Base(BloombergLP::bslma::Default::defaultAllocator(), &func)
     {
-        // Must be in-place inline because the use of 'DisableIf' will
+        // Must be in-place inline because the use of 'enable_if' will
         // otherwise break the MSVC 2010 compiler.
 
 #if defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
@@ -4113,9 +4252,10 @@ class function : public Function_Imp<PROTOTYPE> {
     function(allocator_arg_t,
              const ALLOC& alloc,
              FUNC         func,
-        typename Function_DisableIfLosslessCnvrsn<FUNC,function,int>::type = 0)
-        : Base(alloc, func) {
-        // Must be in-place inline because the use of 'DisableIf' will
+             typename enable_if<! Function_IsReferenceCompatible<FUNC,
+                                  function>::value, int>::type = 0)
+        : Base(alloc, &func) {
+        // Must be in-place inline because the use of 'enable_if' will
         // otherwise break the MSVC 2010 compiler.
 
 #if defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
@@ -4134,10 +4274,11 @@ class function : public Function_Imp<PROTOTYPE> {
     function& operator=(BloombergLP::bslmf::MovableRef<function> rhs);
 
     template <class FUNC>
-    typename Function_DisableIfLosslessCnvrsn<FUNC, function, function&>::type
+    typename enable_if<! Function_IsReferenceCompatible<FUNC, function>::value,
+                       function&>::type
     operator=(BSLS_COMPILERFEATURES_FORWARD_REF(FUNC) func)
     {
-        // Must be in-place inline because the use of 'DisableIf' will
+        // Must be in-place inline because the use of 'enable_if' will
         // otherwise break the MSVC 2010 compiler.
 
 #if defined(BSLSTL_FUNCTION_HAS_POINTER_TO_MEMBER_ISSUES)
@@ -4176,7 +4317,7 @@ void swap(function<PROTOTYPE>& a, function<PROTOTYPE>& b) BSLS_NOTHROW_SPEC;
 
 
 // ============================================================================
-//                              INLINE DEFINITIONS
+//                     INLINE AND TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
                         // ---------------------------------
@@ -4213,6 +4354,79 @@ struct Function_ArgTypes<R(ARG1, ARG2)> {
     typedef ARG1 first_argument_type;
     typedef ARG2 second_argument_type;
 };
+
+                        // --------------------------------------
+                        // class template Function_NothrowWrapper
+                        // --------------------------------------
+
+
+// CREATORS
+template <class FUNC>
+inline
+Function_NothrowWrapper<FUNC>::
+Function_NothrowWrapper(const FUNC&                    func,
+                        BloombergLP::bslma::Allocator* a) {
+    ConstructionUtil::construct(d_func.address(), a, func);
+}
+
+template <class FUNC>
+inline
+Function_NothrowWrapper<FUNC>::
+Function_NothrowWrapper(BloombergLP::bslmf::MovableRef<FUNC> func) {
+    // We don't need (and can't use) 'ConstructionUtil' when not passing
+    // allocator as a separate object.
+    ::new(static_cast<void*>(d_func.address()))
+          FUNC(MovableRefUtil::move(func));
+}
+
+template <class FUNC>
+inline
+Function_NothrowWrapper<FUNC>::
+Function_NothrowWrapper(BloombergLP::bslmf::MovableRef<FUNC>  func,
+                        BloombergLP::bslma::Allocator        *a) {
+    ConstructionUtil::construct(d_func.address(), a,
+                                MovableRefUtil::move(func));
+}
+
+template <class FUNC>
+inline
+Function_NothrowWrapper<FUNC>::
+Function_NothrowWrapper(const Function_NothrowWrapper& other) {
+    // We don't need (and can't use) 'ConstructionUtil' when not passing
+    // allocator as a separate object.
+    ::new(static_cast<void*>(d_func.address())) FUNC(other.unwrap());
+}
+
+template <class FUNC>
+inline
+Function_NothrowWrapper<FUNC>::
+Function_NothrowWrapper(
+    BloombergLP::bslmf::MovableRef<Function_NothrowWrapper> other) {
+    // We don't need (and can't use) 'ConstructionUtil' when not passing
+    // allocator as a separate object.
+    ::new(static_cast<void*>(d_func.address()))
+          FUNC(MovableRefUtil::move(other.unwrap()));
+}
+
+template <class FUNC>
+inline
+Function_NothrowWrapper<FUNC>::~Function_NothrowWrapper() {
+    d_func.object().~FUNC();
+}
+
+// MANIPULATORS
+template <class FUNC>
+inline
+FUNC& Function_NothrowWrapper<FUNC>::unwrap() {
+    return d_func.object();
+}
+
+// ACCESSORS
+template <class FUNC>
+inline
+FUNC const& Function_NothrowWrapper<FUNC>::unwrap() const {
+    return d_func.object();
+}
 
                         // -------------------------------------------
                         // struct template Function_NothrowWrapperUtil
@@ -4348,7 +4562,7 @@ struct Function_MemFuncInvoke<RET (OBJ_TYPE::*)(ARGS...) const volatile,
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=13 bslstl_function.h
+// Generator command line: sim_cpp11_features.pl bslstl_function.h
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
 #define BSLSTL_FUNCTION_VARIADIC_LIMIT 13
 #endif
@@ -8217,9 +8431,9 @@ bsl::Function_Imp<RET(ARGS...)>::Function_Imp(const ALLOC&    alloc,
 template <class RET, class... ARGS>
 template<class FUNC, class ALLOC>
 inline
-bsl::Function_Imp<RET(ARGS...)>::Function_Imp(const ALLOC& alloc, FUNC func)
+bsl::Function_Imp<RET(ARGS...)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 
 template <class RET, class... ARGS>
@@ -8444,7 +8658,7 @@ bsl::Function_Imp<RET(ARGS...)>::
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line: sim_cpp11_features.pl --var-args=13 bslstl_function.h
+// Generator command line: sim_cpp11_features.pl bslstl_function.h
 #ifndef BSLSTL_FUNCTION_VARIADIC_LIMIT
 #define BSLSTL_FUNCTION_VARIADIC_LIMIT 13
 #endif
@@ -12573,9 +12787,9 @@ bsl::Function_Imp<RET(ARGS_01,
 template <class RET>
 template<class FUNC, class ALLOC>
 inline
-bsl::Function_Imp<RET()>::Function_Imp(const ALLOC& alloc, FUNC func)
+bsl::Function_Imp<RET()>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 0
 
@@ -12583,9 +12797,9 @@ bsl::Function_Imp<RET()>::Function_Imp(const ALLOC& alloc, FUNC func)
 template <class RET, class ARGS_01>
 template<class FUNC, class ALLOC>
 inline
-bsl::Function_Imp<RET(ARGS_01)>::Function_Imp(const ALLOC& alloc, FUNC func)
+bsl::Function_Imp<RET(ARGS_01)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 1
 
@@ -12595,9 +12809,9 @@ template <class RET, class ARGS_01,
 template<class FUNC, class ALLOC>
 inline
 bsl::Function_Imp<RET(ARGS_01,
-                      ARGS_02)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_02)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 2
 
@@ -12609,9 +12823,9 @@ template<class FUNC, class ALLOC>
 inline
 bsl::Function_Imp<RET(ARGS_01,
                       ARGS_02,
-                      ARGS_03)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_03)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 3
 
@@ -12625,9 +12839,9 @@ inline
 bsl::Function_Imp<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
-                      ARGS_04)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_04)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 4
 
@@ -12643,9 +12857,9 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_02,
                       ARGS_03,
                       ARGS_04,
-                      ARGS_05)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_05)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 5
 
@@ -12663,9 +12877,9 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_03,
                       ARGS_04,
                       ARGS_05,
-                      ARGS_06)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_06)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 6
 
@@ -12685,9 +12899,9 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_04,
                       ARGS_05,
                       ARGS_06,
-                      ARGS_07)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_07)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 7
 
@@ -12709,9 +12923,9 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_05,
                       ARGS_06,
                       ARGS_07,
-                      ARGS_08)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_08)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 8
 
@@ -12735,9 +12949,9 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_06,
                       ARGS_07,
                       ARGS_08,
-                      ARGS_09)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_09)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 9
 
@@ -12763,9 +12977,9 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_07,
                       ARGS_08,
                       ARGS_09,
-                      ARGS_10)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_10)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 10
 
@@ -12793,9 +13007,9 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_08,
                       ARGS_09,
                       ARGS_10,
-                      ARGS_11)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_11)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 11
 
@@ -12825,9 +13039,9 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_09,
                       ARGS_10,
                       ARGS_11,
-                      ARGS_12)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_12)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 12
 
@@ -12859,9 +13073,9 @@ bsl::Function_Imp<RET(ARGS_01,
                       ARGS_10,
                       ARGS_11,
                       ARGS_12,
-                      ARGS_13)>::Function_Imp(const ALLOC& alloc, FUNC func)
+                      ARGS_13)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 #endif  // BSLSTL_FUNCTION_VARIADIC_LIMIT_C >= 13
 
@@ -18908,9 +19122,9 @@ bsl::Function_Imp<RET(ARGS...)>::Function_Imp(const ALLOC&    alloc,
 template <class RET, class... ARGS>
 template<class FUNC, class ALLOC>
 inline
-bsl::Function_Imp<RET(ARGS...)>::Function_Imp(const ALLOC& alloc, FUNC func)
+bsl::Function_Imp<RET(ARGS...)>::Function_Imp(const ALLOC& alloc, FUNC *func)
 {
-    initFromTarget(&func, alloc);
+    initFromTarget(func, alloc);
 }
 
 template <class RET, class... ARGS>
@@ -19128,7 +19342,7 @@ bsl::function<PROTOTYPE>::upcast(const function& f) {
     return static_cast<const Base&>(f);
 }
 
-    // CREATORS
+// CREATORS
 template <class PROTOTYPE>
 inline bsl::function<PROTOTYPE>::function() BSLS_NOTHROW_SPEC
     : Base(BloombergLP::bslma::Default::defaultAllocator()) {}

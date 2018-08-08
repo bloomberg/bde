@@ -110,7 +110,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("Breathing Test"
                             "--------------\n");
         ASSERT(!(bsl::uses_allocator<Obj, Alloc>::value));
-        ASSERT((bsl::uses_allocator<AllocObj<Alloc>, Alloc>::value));
+        ASSERT((bsl::uses_allocator  <AllocObj<Alloc>, Alloc>::value));
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+        ASSERT((bsl::uses_allocator  <AllocObj<Alloc>, Alloc>::value ==
+                bsl::uses_allocator_v<AllocObj<Alloc>, Alloc>));
+#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

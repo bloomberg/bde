@@ -16,18 +16,20 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines two meta-functions, 'bsl::is_convertible'
-// and 'bslmf::IsConvertible', that determine whether a conversion exists from
-// one template parameter type to the other template parameter type.  Thus, we
-// need to ensure that the values returned by these meta-functions are correct
-// for each possible pair of categorized types.  The two meta-functions are
-// functionally equivalent except 'bsl::is_convertible' only allows complete
-// template parameter types.  We will use the same set of complete types for
-// 'bslmf::IsConvertible' as that for 'bsl::is_convertible', and an additional
-// set of incomplete types for testing 'bslmf::IsConvertible' alone.
+// and 'bslmf::IsConvertible' and a template variable 'bsl::is_convertible_v',
+// that determine whether a conversion exists from one template parameter type
+// to the other template parameter type.  Thus, we need to ensure that the
+// values returned by these meta-functions are correct for each possible pair
+// of categorized types.  The two meta-functions are functionally equivalent
+// except 'bsl::is_convertible' only allows complete template parameter types.
+// We will use the same set of complete types for 'bslmf::IsConvertible' as
+// that for 'bsl::is_convertible', and an additional set of incomplete types
+// for testing 'bslmf::IsConvertible' alone.
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_convertible::value
+// [ 1] bsl::is_convertible_v
 // [ 2] bslmf::IsConvertible::VALUE
 //-----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
@@ -512,9 +514,8 @@ int main(int argc, char *argv[])
                 "TESTING CONCERN: WARNING-FREE ON USER-DEFINED CONVERSIONS\n"
                 "=========================================================\n");
 
-#define ASSERT_IS_CONVERTIBLE(RESULT, FROM_TYPE, TO_TYPE) \
-        ASSERT(RESULT == (bsl::is_convertible<FROM_TYPE, TO_TYPE>()))
-
+#define ASSERT_IS_CONVERTIBLE(RESULT, FROM_TYPE, TO_TYPE)                     \
+        ASSERT(RESULT == (bsl::is_convertible  <FROM_TYPE, TO_TYPE>::value))
 
         // Providing conversions from 'T' to 'T':
 
@@ -1669,6 +1670,10 @@ int main(int argc, char *argv[])
         //: 12 'is_convertible::value' returns the correct value when
         //:    conversion happens between arrays of unknown bound, and other
         //:    types.
+        //:
+        //: 13 That 'is_convertible_v<T>' has the same value as
+        //:    'is_convertible<T>::value' for a variety of template parameter
+        //:    types.
         //
         // Plan:
         //: 1 Instantiate 'bsl::is_convertible' with various type combinations
@@ -1677,6 +1682,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_convertible::value
+        //   bsl::is_convertible_v
         // --------------------------------------------------------------------
 
         if (verbose) printf("'bsl::is_convertible::value'\n"
@@ -1687,8 +1693,17 @@ int main(int argc, char *argv[])
         ASSERT(1 == sizeof(C02));
         ASSERT(1 == sizeof(C03));
 
-#define ASSERT_IS_CONVERTIBLE(RESULT, FROM_TYPE, TO_TYPE) \
-        ASSERT( RESULT == (bsl::is_convertible<FROM_TYPE, TO_TYPE>()) )
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+        // C-13
+#define ASSERT_IS_CONVERTIBLE(RESULT, FROM_TYPE, TO_TYPE)                     \
+        ASSERT(RESULT == (bsl::is_convertible  <FROM_TYPE, TO_TYPE>::value)); \
+                                                                              \
+        ASSERT(          (bsl::is_convertible  <FROM_TYPE, TO_TYPE>::value)   \
+                      == (bsl::is_convertible_v<FROM_TYPE, TO_TYPE>))
+#else
+#define ASSERT_IS_CONVERTIBLE(RESULT, FROM_TYPE, TO_TYPE)                     \
+        ASSERT(RESULT == (bsl::is_convertible  <FROM_TYPE, TO_TYPE>::value))
+#endif
 
         // C-1: Test conversion of basic types.
 

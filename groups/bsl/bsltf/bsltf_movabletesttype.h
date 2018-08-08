@@ -87,8 +87,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 #endif
 
-#ifndef INCLUDED_BSLS_CPP11
-#include <bsls_cpp11.h>
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
 namespace BloombergLP {
@@ -143,7 +143,7 @@ class MovableTestType {
         // installed default allocator is used.
 
     MovableTestType(bslmf::MovableRef<MovableTestType>
-                                                 original) BSLS_CPP11_NOEXCEPT;
+                                               original) BSLS_KEYWORD_NOEXCEPT;
         // TBD: comment this
 
     ~MovableTestType();

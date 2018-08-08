@@ -16,7 +16,9 @@ bslmf_forwardingtype
 bslmf_functionpointertraits
 bslmf_haspointersemantics
 bslmf_if
+bslmf_integersequence
 bslmf_integralconstant
+bslmf_invokeresult
 bslmf_isarithmetic
 bslmf_isarray
 bslmf_isbitwiseequalitycomparable
@@ -44,6 +46,7 @@ bslmf_ispolymorphic
 bslmf_isreference
 bslmf_isrvaluereference
 bslmf_issame
+bslmf_istransparentpredicate
 bslmf_istriviallycopyable
 bslmf_istriviallydefaultconstructible
 bslmf_isvoid

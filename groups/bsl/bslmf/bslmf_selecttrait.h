@@ -94,7 +94,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // Next, we implement three overloads of 'Imp::copyConstruct', each taking a
-// different trait specialization. A fourth overload takes 'false_type'
+// different trait specialization.  A fourth overload takes 'false_type'
 // instead of a trait specialization, for those types that don't match any
 // traits.  For testing purposes, in addition to copying the data member, each
 // overload also increments a separate counter.  These implementations are

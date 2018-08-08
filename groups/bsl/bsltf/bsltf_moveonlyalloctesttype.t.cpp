@@ -14,7 +14,9 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <algorithm>  // 'swap' in C++03 and earlier
 #include <new>
+#include <utility>    // 'swap' in C++11 and later
 
 #include <limits.h>
 #include <stdio.h>
@@ -56,21 +58,23 @@ using namespace BloombergLP::bsltf;
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] MoveOnlyAllocTestType(bslma::Allocator *bA = 0);
-// [ 3] MoveOnlyAllocTestType(int data);
+// [ 3] MoveOnlyAllocTestType(int data, bslma::Allocator *bA = 0);
 // [ 7] MoveOnlyAllocTestType(bslmf::MovableRef<MoveOnlyAllocTestType> o);
+// [ 7] MoveOnlyAllocTestType(bslmf::MovableRef<...>, bslma::Allocator *);
 // [ 2] ~MoveOnlyAllocTestType();
-//
-// MANIPULATORS
 // [ 9] MoveOnlyAllocTestType& operator=(MoveOnlyAllocTestType&&);
 // [ 2] void setData(int value);
-//
-// ACCESSORS
+// [  ] void setMovedInto(MoveState::Enum value);
 // [ 4] int data() const;
 // [ 4] bslma::Allocator *allocator() const;
-//
-// FREE OPERATORS
+// [  ] MoveState::Enum movedInto() const;
+// [  ] MoveState::Enum movedFrom() const;
 // [ 6] bool operator==(lhs, rhs);
 // [ 6] bool operator!=(lhs, rhs);
+// [  ] MoveState::Enum getMovedFrom(const MoveOnlyAllocTestType& object);
+// [  ] MoveState::Enum getMovedInto(const MoveOnlyAllocTestType& object);
+// [  ] void setMovedInto(MoveOnlyAllocTestType *obj, MoveState::Enum v);
+// [ 8] void swap(MoveOnlyAllocTestType& lhs, MoveOnlyAllocTestType& rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
@@ -384,13 +388,19 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // BSLX STREAMING
+        // TESTING BSLX STREAMING
         //   N/A
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING BSLX STREAMING"
+                            "\n======================\n");
+
+        if (verbose) printf("\nOperations not supported for this type.\n");
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // MOVE-ASSIGNMENT OPERATOR
+        // TESTING MOVE-ASSIGNMENT OPERATOR
+        //   TBD Update concerns from copy-assignment to move-assignment.
         //   Ensure that we can assign the value of any object of the class to
         //   any object of the class, such that the two objects subsequently
         //   have the same value.
@@ -532,8 +542,8 @@ int main(int argc, char *argv[])
         //   MoveOnlyAllocTestType& operator=(MoveOnlyAllocTestType&&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMOVE-ASSIGNMENT OPERATOR"
-                            "\n========================\n");
+        if (verbose) printf("\nTESTING MOVE-ASSIGNMENT OPERATOR"
+                            "\n================================\n");
 
         if (verbose)
             printf("\nAssign the address of the operator to a variable.\n");
@@ -551,6 +561,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard dag(&da);
 
         const int NUM_VALUES                        = DEFAULT_NUM_VALUES;
+
         const DefaultValueRow (&VALUES)[NUM_VALUES] = DEFAULT_VALUES;
 
         for (int ti = 0; ti < NUM_VALUES; ++ti) {
@@ -592,12 +603,25 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE1, LINE2, Z.data(), X.data(), ZZ == X);
                         ASSERTV(LINE1, LINE2, X.data(), 0 == Z.data());
                         ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+
+                        // Verify the move-flags correctly observed the move.
+
+                        ASSERTV(LINE1, LINE2,             X.movedFrom(),
+                                MoveState::e_NOT_MOVED == X.movedFrom());
+                        ASSERTV(LINE1, LINE2,         X.movedInto(),
+                                MoveState::e_MOVED == X.movedInto());
+
+                        ASSERTV(LINE1, LINE2,         Z.movedFrom(),
+                                MoveState::e_MOVED == Z.movedFrom());
+                        ASSERTV(LINE1, LINE2,             Z.movedInto(),
+                                MoveState::e_NOT_MOVED == Z.movedInto());
+
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
                     ASSERTV(LINE1, LINE2, ZZ.data(), X.data(), ZZ == X);
 
-                    ASSERTV(LINE1, LINE2, &oa, X.allocator(),
-                                 &oa == X.allocator());
+                    ASSERTV(LINE1, LINE2, &oa,   X.allocator(),
+                                          &oa == X.allocator());
 
                     ASSERTV(LINE1, LINE2, oam.isInUseSame());
 
@@ -607,7 +631,7 @@ int main(int argc, char *argv[])
                 // Verify all memory is released on object destruction.
 
                 ASSERTV(LINE1, LINE2, oa.numBlocksInUse(),
-                             0 == oa.numBlocksInUse());
+                                 0 == oa.numBlocksInUse());
             }
 
             // self-assignment
@@ -632,6 +656,11 @@ int main(int argc, char *argv[])
                     Obj *mR = &(mX = bslmf::MovableRefUtil::move(mZ));
                     LOOP3_ASSERT(LINE1, ZZ.data(), Z.data(), ZZ == Z);
                     ASSERTV(LINE1, mR, &mX, mR == &mX);
+
+                    ASSERTV(LINE1,                    Z.movedFrom(),
+                            MoveState::e_NOT_MOVED == Z.movedFrom());
+                    ASSERTV(LINE1,                    Z.movedInto(),
+                            MoveState::e_NOT_MOVED == Z.movedInto());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 ASSERTV(LINE1, &oa, Z.allocator(), &oa == Z.allocator());
@@ -650,13 +679,165 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // SWAP MEMBER AND FREE FUNCTIONS
-        //   N/A
+        // TESTING SWAP FREE FUNCTION
+        //   There is no member 'swap' function, but the free function in the
+        //   'bsltf' namespace needs testing.
+        //
+        // Concerns:
+        //: 1 'swap' exchanges the state of two distinct objects, and leaves
+        //:   both in a state that is both 'movedFrom' and 'movedInto'.
+        //:
+        //: 2 'swap'ping an object with itself retains state, and leaves that
+        //:   object in a state that is both 'movedFrom' and 'movedInto'.
+        //:
+        //: 3 'swap' does not propagate allocators when two objects have
+        //:   different allocators.
+        //:
+        //: 4 'swap' might throw when allocators are different, but in no event
+        //:   does it leak memory, or mis-report an object being moved-into if
+        //:   no change of state occurs.
+        //
+        // Plan:
+        //: 1 ...
+        //
+        // Testing:
+        //   void swap(MoveOnlyAllocTestType& lhs, MoveOnlyAllocTestType& rhs);
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING SWAP FREE FUNCTION"
+                            "\n==========================\n");
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        const int NUM_VALUES                        = DEFAULT_NUM_VALUES;
+
+        const DefaultValueRow (&VALUES)[NUM_VALUES] = DEFAULT_VALUES;
+
+        for (int ti = 0; ti < NUM_VALUES; ++ti) {
+            const int LINE1 = VALUES[ti].d_line;
+            const int DATA1 = VALUES[ti].d_data;
+
+            if (veryVerbose) { T_ P_(LINE1) P(DATA1) }
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            const Obj Z1(DATA1, &scratch);
+
+            for (int tj = 0; tj < NUM_VALUES; ++tj) {
+                const int LINE2 = VALUES[tj].d_line;
+                const int DATA2 = VALUES[tj].d_data;
+
+                if (veryVerbose) { T_ T_ P_(LINE2) P(DATA2) }
+
+                const Obj Z2(DATA2, &scratch);
+
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                if (veryVeryVerbose) printf("\twith the same allocator\n");
+                {
+                    Obj mX(DATA1, &oa);     const Obj& X = mX;
+                    Obj mY(DATA2, &oa);     const Obj& Y = mY;
+
+                    ASSERTV(LINE1, LINE2, Z1.data(), X.data(), Z1 == X);
+                    ASSERTV(LINE1, LINE2, Z2.data(), Y.data(), Z2 == Y);
+
+                    ASSERTV(LINE1, LINE2, &oa,   X.allocator(),
+                                          &oa == X.allocator());
+
+                    ASSERTV(LINE1, LINE2, &oa,   Y.allocator(),
+                                          &oa == Y.allocator());
+
+                    oa.setAllocationLimit(0);
+
+                    using std::swap;
+                    swap(mX, mY);
+
+                    oa.setAllocationLimit(-1);
+
+                    ASSERTV(LINE1, LINE2, Z2.data(), X.data(), Z2 == X);
+                    ASSERTV(LINE1, LINE2, Z1.data(), Y.data(), Z1 == Y);
+
+                    ASSERTV(LINE1, LINE2, &oa,   X.allocator(),
+                                          &oa == X.allocator());
+
+                    ASSERTV(LINE1, LINE2, &oa,   Y.allocator(),
+                                          &oa == Y.allocator());
+
+                    ASSERTV(LINE1, LINE2,             X.movedFrom(),
+                            MoveState::e_NOT_MOVED == X.movedFrom());
+
+                    ASSERTV(LINE1, LINE2,         X.movedInto(),
+                            MoveState::e_MOVED == X.movedInto());
+
+                    ASSERTV(LINE1, LINE2,             Y.movedFrom(),
+                            MoveState::e_NOT_MOVED == Y.movedFrom());
+
+                    ASSERTV(LINE1, LINE2,         Y.movedInto(),
+                            MoveState::e_MOVED == Y.movedInto());
+                }
+
+                if (veryVeryVerbose) printf("\twith different allocators\n");
+                {
+                    bslma::TestAllocatorMonitor oam(&oa);
+
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                        Obj mX(DATA1, &oa);         const Obj& X = mX;
+                        Obj mY(DATA2, &scratch);    const Obj& Y = mY;
+
+                        ASSERTV(LINE1, LINE2, Z1.data(), X.data(), Z1 == X);
+                        ASSERTV(LINE1, LINE2, Z2.data(), Y.data(), Z2 == Y);
+
+                        ASSERTV(LINE1, LINE2, &oa,   X.allocator(),
+                                              &oa == X.allocator());
+
+                        ASSERTV(LINE1, LINE2, &scratch,  Y.allocator(),
+                                              &scratch == Y.allocator());
+
+                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                        using std::swap;
+                        swap(mX, mY);
+
+                        ASSERTV(LINE1, LINE2, Z2.data(), X.data(), Z2 == X);
+                        ASSERTV(LINE1, LINE2, Z1.data(), Y.data(), Z1 == Y);
+
+                        ASSERTV(LINE1, LINE2, &oa,   X.allocator(),
+                                              &oa == X.allocator());
+
+                        ASSERTV(LINE1, LINE2, &scratch,  Y.allocator(),
+                                              &scratch == Y.allocator());
+
+                        ASSERTV(LINE1, LINE2,             X.movedFrom(),
+                                MoveState::e_NOT_MOVED == X.movedFrom());
+
+                        ASSERTV(LINE1, LINE2,         X.movedInto(),
+                                MoveState::e_MOVED == X.movedInto());
+
+                        ASSERTV(LINE1, LINE2,             Y.movedFrom(),
+                                MoveState::e_NOT_MOVED == Y.movedFrom());
+
+                        ASSERTV(LINE1, LINE2,         Y.movedInto(),
+                                MoveState::e_MOVED == Y.movedInto());
+
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+                    ASSERTV(LINE1, LINE2, oam.isInUseSame());
+
+                    ASSERTV(LINE1, LINE2, da.numBlocksTotal(),
+                                     0 == da.numBlocksTotal());
+
+                    // Verify all memory is released on object destruction.
+
+                    ASSERTV(LINE1, LINE2, oa.numBlocksInUse(),
+                                     0 == oa.numBlocksInUse());
+                }
+            }
+        }
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // MOVE CONSTRUCTORS
+        // TESTING MOVE CONSTRUCTOR
+        //   TBD Update concerns from copy constructor to a move constructor.
         //   Ensure that we can create a distinct object of the class from any
         //   other one, such that the two objects have the same value.
         //
@@ -752,13 +933,15 @@ int main(int argc, char *argv[])
         //:         (C-8)
         //
         // Testing:
-        //   MoveOnlyAllocTestType(const MoveOnlyAllocTestType& original);
+        //   MoveOnlyAllocTestType(bslmf::MovableRef<MoveOnlyAllocTestType> o);
+        //   MoveOnlyAllocTestType(bslmf::MovableRef<...>, bslma::Allocator *);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMOVE CONSTRUCTORS"
-                            "\n=================\n");
+        if (verbose) printf("\nTESTING MOVE CONSTRUCTOR"
+                            "\n========================\n");
 
         const int NUM_VALUES                        = DEFAULT_NUM_VALUES;
+
         const DefaultValueRow (&VALUES)[NUM_VALUES] = DEFAULT_VALUES;
 
         for (int ti = 0; ti < NUM_VALUES; ++ti) {
@@ -769,7 +952,7 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            const Obj ZZ(DATA, &scratch);
+            const Obj ZZ(DATA, &scratch); // reference value
 
             for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
@@ -781,10 +964,10 @@ int main(int argc, char *argv[])
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                Obj *srcPtr = new (fa) Obj(DATA, &sa);
+                Obj *srcPtr = new (fa) Obj(DATA, &sa);   // object to move from
                 Obj& mZ = *srcPtr;      const Obj& Z = mZ;
 
-                Obj                  *objPtr = 0;
+                Obj                  *objPtr = 0;   // test object to construct
                 bslma::TestAllocator *objAllocatorPtr = 0;
 
                 switch (CONFIG) {
@@ -857,6 +1040,18 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, CONFIG, &sa, Z.allocator(),
                              &sa == Z.allocator());
 
+                // Verify the move-flags have correctly observed the move.
+
+                ASSERTV(CONFIG, X.movedFrom(),
+                                X.movedFrom() == MoveState::e_NOT_MOVED);
+                ASSERTV(CONFIG, X.movedInto(),
+                                X.movedInto() == MoveState::e_MOVED);
+
+                ASSERTV(CONFIG, Z.movedFrom(),
+                                Z.movedFrom() == MoveState::e_MOVED);
+                ASSERTV(CONFIG, Z.movedInto(),
+                                Z.movedInto() == MoveState::e_NOT_MOVED);
+
                 // Verify no allocation from the non-object allocator.
 
                 if (&oa == &sa) {
@@ -890,18 +1085,18 @@ int main(int argc, char *argv[])
                 // Verify all memory is released on object destruction.
 
                 ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
-                             0 == da.numBlocksInUse());
+                                 0 == da.numBlocksInUse());
                 ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
-                             0 == fa.numBlocksInUse());
+                                 0 == fa.numBlocksInUse());
                 ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
-                             0 == sa.numBlocksInUse());
+                                 0 == sa.numBlocksInUse());
             }
         }
 
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // EQUALITY-COMPARISON OPERATORS
+        // TESTING EQUALITY-COMPARISON OPERATORS
         //   Ensure that '==' and '!=' are the operational definition of value.
         //
         // Concerns:
@@ -974,8 +1169,8 @@ int main(int argc, char *argv[])
         //   bool operator!=(lhs, rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nEQUALITY-COMPARISON OPERATORS"
-                            "\n=============================\n");
+        if (verbose) printf("\nTESTING EQUALITY-COMPARISON OPERATORS"
+                            "\n=====================================\n");
 
         if (verbose)
             printf("\nAssign the address of each operator to a variable.\n");
@@ -998,6 +1193,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard dag(&da);
 
         const int NUM_VALUES                        = DEFAULT_NUM_VALUES;
+
         const DefaultValueRow (&VALUES)[NUM_VALUES] = DEFAULT_VALUES;
 
         for (int ti = 0; ti < NUM_VALUES; ++ti) {
@@ -1042,13 +1238,18 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // PRINT AND OUTPUT OPERATOR
+        // TESTING PRINT AND OUTPUT OPERATOR
         //   N/A
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING PRINT AND OUTPUT OPERATOR"
+                            "\n=================================\n");
+
+        if (verbose) printf("\nOperations not supported for this type.\n");
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // BASIC ACCESSORS
+        // TESTING BASIC ACCESSORS
         //   Ensure each basic accessor properly interprets object state.
         //
         // Concerns:
@@ -1078,9 +1279,8 @@ int main(int argc, char *argv[])
         //   bslma::Allocator *allocator() const;
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nBASIC ACCESSORS"
-                   "\n===============\n");
+        if (verbose) printf("\nTESTING BASIC ACCESSORS"
+                            "\n=======================\n");
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -1097,7 +1297,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // VALUE CTOR
+        // TESTING VALUE CONSTRUCTOR
         //   Ensure that we can put an object into any initial state relevant
         //   for thorough testing.
         //
@@ -1175,13 +1375,14 @@ int main(int argc, char *argv[])
         //:         (C-8)
         //
         // Testing:
-        //   MoveOnlyAllocTestType(int data);
+        //   MoveOnlyAllocTestType(int data, bslma::Allocator *bA = 0);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nVALUE CTOR"
-                            "\n==========\n");
+        if (verbose) printf("\nTESTING VALUE CONSTRUCTOR"
+                            "\n=========================\n");
 
         const int NUM_VALUES                        = DEFAULT_NUM_VALUES;
+
         const DefaultValueRow (&VALUES)[NUM_VALUES] = DEFAULT_VALUES;
 
         for (int ti = 0; ti < NUM_VALUES; ++ti) {
@@ -1250,6 +1451,11 @@ int main(int argc, char *argv[])
                 // Verify the object's attribute values.
 
                 ASSERTV(CONFIG, DATA, X.data(), DATA == X.data());
+                ASSERTV(CONFIG, X.movedFrom(),
+                                X.movedFrom() == MoveState::e_NOT_MOVED);
+                ASSERTV(CONFIG, X.movedInto(),
+                                X.movedInto() == MoveState::e_NOT_MOVED);
+
 
                 // Verify any attribute allocators are installed properly.
 
@@ -1283,7 +1489,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DEFAULT CTOR & PRIMARY MANIPULATORS
+        // TESTING DEFAULT CTOR & PRIMARY MANIPULATORS
         //   Ensure that we can use the default constructor to create an object
         //   (having the default constructed value).  Also ensure that we can
         //   use the primary manipulators to put that object into any state
@@ -1369,8 +1575,8 @@ int main(int argc, char *argv[])
         //   void setData(int value);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nDEFAULT CTOR & PRIMARY MANIPULATORS"
-                            "\n===================================\n");
+        if (verbose) printf("\nTESTING DEFAULT CTOR & PRIMARY MANIPULATORS"
+                            "\n===========================================\n");
 
         const int D = 0;
         const int A = INT_MIN;
@@ -1442,11 +1648,15 @@ int main(int argc, char *argv[])
             // Verify no allocation from the non-object allocators.
 
             ASSERTV(CONFIG, noa.numBlocksTotal(),
-                         0 == noa.numBlocksTotal());
+                       0 == noa.numBlocksTotal());
 
             // Verify the object's attribute values.
 
             ASSERTV(CONFIG, D, X.data(), D == X.data());
+            ASSERTV(CONFIG, X.movedFrom(),
+                            X.movedFrom() == MoveState::e_NOT_MOVED);
+            ASSERTV(CONFIG, X.movedInto(),
+                            X.movedInto() == MoveState::e_NOT_MOVED);
 
 
             // 'data'

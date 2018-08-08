@@ -11,16 +11,19 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::remove_const: meta-function for removing top-level 'const'-qualifier
+//  bsl::remove_const_t: alias to the return type of the 'bsl::remove_const'
 //
 //@SEE_ALSO: bslmf_addconst
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::remove_const',
-// that may be used to remove any top-level 'const'-qualifier from a type.
+//@DESCRIPTION: This component defines a meta-function, 'bsl::remove_const' and
+// declares an 'bsl::remove_const_t' alias to the return type of the
+// 'bsl::remove_const', that may be used to remove any top-level
+// 'const'-qualifier from a type.
 //
-// 'bsl::remove_const' meets the requirements of the 'remove_const' template
-// defined in the C++11 standard [meta.trans.cv].
+// 'bsl::remove_const' and 'bsl::remove_const_t' meet the requirements of the
+// 'remove_const' template defined in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -44,9 +47,25 @@ BSLS_IDENT("$Id: $")
 //  assert(true ==
 //        (bsl::is_same<bsl::remove_const<MyConstType>::type, MyType>::value));
 //..
+// Finally, if the current compiler supports alias templates C++11 feature, we
+// remove a 'const'-qualifier from 'MyConstType' using 'bsl::remove_const_t'
+// and verify that the resulting type is the same as 'MyType':
+//..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//  assert(true ==
+//            (bsl::is_same<bsl::remove_const_t<MyConstType>, MyType>::value));
+//#endif
+//..
+// Note, that the 'bsl::remove_const_t' avoids the '::type' suffix and
+// 'typename' prefix when we want to use the result of the 'bsl::remove_const'
+// meta-function in templates.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -209,6 +228,18 @@ struct remove_const<TYPE[LENGTH]> {
         // parameter) 'TYPE[N]' except with the 'const'-qualifier removed.
 };
 #endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+// ALIASES
+template <class TYPE>
+using remove_const_t = typename remove_const<TYPE>::type;
+    // 'remove_const_t' is an alias to the return type of the
+    // 'bsl::remove_const' meta-function.  Note, that the 'remove_const_t'
+    // avoids the '::type' suffix and 'typename' prefix when we want to use the
+    // result of the meta-function in templates.
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
 
 }  // close namespace bsl
 

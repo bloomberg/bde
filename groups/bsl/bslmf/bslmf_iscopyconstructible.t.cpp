@@ -22,7 +22,8 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bsl::is_copy_constructible', that determines whether a template parameter
+// 'bsl::is_copy_constructible' and a template variable
+// 'bsl::is_copy_constructible_v', that determine whether a template parameter
 // type is copy constructible.  By default on C++03 platforms, the
 // meta-function must be extended to support user-defined non-copyable types
 // through either template specialization or use of the
@@ -39,7 +40,7 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_copy_constructible::value
-//
+// [ 1] bsl::is_copy_constructible_v
 // ----------------------------------------------------------------------------
 // [ 2] EXTENDING 'bsl::is_copy_constructible'
 // [  ] USAGE EXAMPLE
@@ -101,10 +102,39 @@ void aSsErT(bool condition, const char *message, int line)
 // not type-dependent contexts, so there is no need to use 'typename' when
 // fetching the result from any of the queried traits.
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 #define ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(TYPE, RESULT)                       \
     ASSERT( bsl::is_copy_constructible<TYPE>::value == RESULT);               \
     ASSERT( bsl::is_copy_constructible<                                       \
-                               bsl::add_lvalue_reference<TYPE>::type>::value);
+                              bsl::add_lvalue_reference<TYPE>::type>::value); \
+    ASSERT( bsl::is_copy_constructible  <TYPE>::value ==                      \
+            bsl::is_copy_constructible_v<TYPE>)
+    // Test that the result value of the 'bsl::is_copy_constructible' on the
+    // specified 'TYPE' and a reference to that type has the same value as the
+    // expected 'RESULT'.  Also test that the result value of the
+    // 'bsl::is_copy_constructible' and the value of the
+    // 'bsl::is_copy_constructible_v' variable are the same.
+#define ASSERT_IS_COPY_CONSTRUCTIBLE(TYPE, RESULT)                            \
+    ASSERT( bsl::is_copy_constructible<  TYPE>::value == RESULT);             \
+    ASSERT( bsl::is_copy_constructible  <TYPE>::value ==                      \
+            bsl::is_copy_constructible_v<TYPE>)
+    // Test that the result value of the 'bsl::is_copy_constructible' on the
+    // specified 'TYPE' has the same value as the expected 'RESULT'.  Also test
+    // that the result value of the 'bsl::is_copy_constructible' and the value
+    // of the 'bsl::is_copy_constructible_v' variable are the same.
+#else
+#define ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(TYPE, RESULT)                       \
+    ASSERT( bsl::is_copy_constructible<TYPE>::value == RESULT);               \
+    ASSERT( bsl::is_copy_constructible<                                       \
+                               bsl::add_lvalue_reference<TYPE>::type>::value)
+    // Test that the result value of the 'bsl::is_copy_constructible' on the
+    // specified 'TYPE' and a reverence to that type has the same value as the
+    // expected 'RESULT'.
+#define ASSERT_IS_COPY_CONSTRUCTIBLE(TYPE, RESULT)                            \
+    ASSERT( bsl::is_copy_constructible<TYPE>::value == RESULT)
+    // Test that the result value of the 'bsl::is_copy_constructible' on the
+    // specified 'TYPE' has the same value as the expected 'RESULT'.
+#endif
 
 #define ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                    \
 {   const bool IS_PRIMITIVE = bsl::is_fundamental<TYPE>::value                \
@@ -118,20 +148,6 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(bsl::add_cv<TYPE>::type, IS_PRIMITIVE); \
 }
 
-// Two additional macros will allow testing on old MSVC compilers when 'TYPE'
-// is an array of unknown bound.
-
-#define ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(TYPE, RESULT)                \
-    ASSERT( bsl::is_copy_constructible<TYPE>::value == RESULT);
-
-#define ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE, RESULT)             \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(TYPE, RESULT);                   \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(                                 \
-                                         bsl::add_const<TYPE>::type, RESULT); \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(                                 \
-                                      bsl::add_volatile<TYPE>::type, false);  \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(bsl::add_cv<TYPE>::type, false);
-
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 // Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
@@ -141,19 +157,6 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(bsl::add_pointer<TYPE>::type, true)  \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[128], false)                    \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], false)
-
-#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
-// Old microsoft compilers compilers do not support references to arrays of
-// unknown bound.
-
-# define ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)               \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                        \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(bsl::add_pointer<TYPE>::type, true)  \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[128], false)                    \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], false)                  \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE[], false)                \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE[][8], false)
-
 #else
 # define ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)               \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                        \
@@ -205,7 +208,9 @@ class UserDefinedNcTestType2 {
 
 struct UserDefinedCopyableTestType {
     // This user-defined type, which is not marked to be 'nothrow' move
-    // constructible, is used for testing.
+    // constructible, is used for testing.  Note that this object must now be
+    // larger than a pointer, to avoid being accidentally assumed to be
+    // trivially copyable.
 
     UserDefinedCopyableTestType() {}
     UserDefinedCopyableTestType(const UserDefinedCopyableTestType& original)
@@ -302,6 +307,8 @@ int main(int argc, char *argv[])
                    "\n======================================\n");
 
         // C-1
+        ASSERTV(bsl::is_trivially_copyable<UserDefinedCopyableTestType>::value,
+               !bsl::is_trivially_copyable<UserDefinedCopyableTestType>::value);
         ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(UserDefinedCopyableTestType,
                                                  true);
 
@@ -339,6 +346,10 @@ int main(int argc, char *argv[])
         //:  9 The meta-function returns the same result for cv-qualified
         //:    types that it would return 'true' for the corresponding
         //:    cv-unqualified type.
+        //:
+        //: 10 That 'is_copy_constructible<T>::value' has the same value as
+        //:    'is_is_copy_constructible_v<T>' for a variety of template
+        //:    parameter types.
         //
         // Plan:
         //:  1 Create a set of macros that will generate an 'ASSERT' test for
@@ -353,6 +364,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_copy_constructible::value
+        //   bsl::is_copy_constructible_v
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -374,14 +386,14 @@ int main(int argc, char *argv[])
         ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(MethodPtrTestType, true);
 
         // C-4 : 'void' is not an object type, but can be cv-qualified.
-        ASSERT(!bsl::is_copy_constructible<               void  >::value);
-        ASSERT( bsl::is_copy_constructible<               void *>::value);
-        ASSERT(!bsl::is_copy_constructible<const          void  >::value);
-        ASSERT( bsl::is_copy_constructible<const          void *>::value);
-        ASSERT(!bsl::is_copy_constructible<      volatile void  >::value);
-        ASSERT( bsl::is_copy_constructible<      volatile void *>::value);
-        ASSERT(!bsl::is_copy_constructible<const volatile void  >::value);
-        ASSERT( bsl::is_copy_constructible<const volatile void *>::value);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(               void  , false);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(               void *, true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(const          void  , false);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(const          void *, true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(      volatile void  , false);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(      volatile void *, true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(const volatile void  , false);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(const volatile void *, true);
 
         // C-5 : Function types are not object types, nor cv-qualifiable.
         // Note that this particular test stresses compilers handling of
@@ -390,14 +402,14 @@ int main(int argc, char *argv[])
         // bugs parsing function type parameters that we cannot easily work
         // around.  Failing to test such cases is not a concern, as users
         // cannot make such a request either.
-        ASSERT( bsl::is_copy_constructible<void(*)()>::value);
-        ASSERT( bsl::is_copy_constructible<int(*)(float, double...)>::value);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(void(*)(), true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(int(*)(float, double...), true);
 #if !defined(BSLS_PLATFORM_CMP_SUN) // last tested for v12.3
-        ASSERT(!bsl::is_copy_constructible<void()>::value);
-        ASSERT(!bsl::is_copy_constructible<int(float, double...)>::value);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(void(), false);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(int(float, double...), false);
 #if !defined(BSLS_PLATFORM_CMP_IBM) // last tested for v12.1
-        ASSERT(bsl::is_copy_constructible<void(&)()>::value);
-        ASSERT(bsl::is_copy_constructible<int(&)(float, double...)>::value);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(void(&)(), true);
+        ASSERT_IS_COPY_CONSTRUCTIBLE(int(&)(float, double...), true);
 #endif
 #endif
       } break;

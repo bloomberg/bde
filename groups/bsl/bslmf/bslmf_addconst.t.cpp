@@ -16,14 +16,15 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-functions, 'bsl::add_const', that
-// adds a top-level 'const'-qualifier to a template parameter type.  Thus, we
-// need to ensure that the values returned by the meta-function are correct for
-// each possible category of types.
+// The component under test defines meta-functions 'bsl::add_const' and
+// 'bsl::add_const_t', that add a top-level 'const'-qualifier to a template
+// parameter type.  Thus, we need to ensure that the values returned by the
+// meta-function are correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC TYPES
 // [ 1] bsl::add_const::type
+// [ 1] bsl::add_const_t
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -81,6 +82,16 @@ struct TestType {
    // This user-defined type is intended to be used during testing as an
    // argument for the template parameter 'TYPE' of 'bsl::add_const'.
 };
+
+typedef void (TestType::*MethodPtrTestType) ();
+    // This non-static function member type is intended to be used during
+    // testing as an argument for the template parameter 'TYPE' of
+    // 'bsl::add_const'.
+
+typedef int TestType::* PMD;
+    // This class public data member pointer type is intended to be used during
+    // testing as an argument as an argument for the template parameter 'TYPE'
+    // of 'bsl::add_const'.
 
 }  // close unnamed namespace
 
@@ -145,6 +156,15 @@ int main(int argc, char *argv[])
         ASSERT(true == (bsl::is_same<bsl::add_const<MyType>::type,
                                                          MyConstType>::value));
 //..
+// Finally, if the current compiler supports alias templates C++11 feature, we
+// add a 'const'-qualifier to 'MyType' using 'bsl::add_const_t' and verify that
+// the resulting type is the same as 'MyConstType':
+//..
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+        ASSERT(true ==
+                 (bsl::is_same<bsl::add_const_t<MyType>, MyConstType>::value));
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//..
 
       } break;
       case 1: {
@@ -153,6 +173,9 @@ int main(int argc, char *argv[])
         //   Ensure that the 'typedef' 'type' of 'bsl::add_const' has the
         //   correct type for a variety of template parameter types.
         //
+        //   Ensure that the 'bsl::add_const_t' represents the return type of
+        //   'bsl::add_const' meta-function.
+        //
         // Concerns:
         //: 1 'bsl::add_const' adds a top-level 'const'-qualifier only to
         //:   primitive types, pointer types, and user-defined types.
@@ -160,13 +183,21 @@ int main(int argc, char *argv[])
         //: 2 'bsl::add_const' does not add a 'const'-qualifier to reference
         //:   types, function types, or types that are already
         //:   'const'-qualified.
+        //:
+        //: 3 'bsl::add_const_t' represents the return type of 'bsl::add_const'
+        //:   meta-function for a variety of template parameter types.
         //
         // Plan:
-        //   Verify that 'bsl::add_const::type' has the correct type for each
-        //   concern.
+        //  1 Verify that 'bsl::add_const::type' has the correct type for each
+        //    concern. (C1-2)
+        //
+        //  2 Verify that 'bsl::add_cons_t' has the same type as the return
+        //    type of 'bsl::add_const' for a variety of template parameter
+        //    types. (C-3)
         //
         // Testing:
         //   bsl::add_const::type
+        //   bsl::add_const_t
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n'bsl::add_const::type'\n"
@@ -191,6 +222,46 @@ int main(int argc, char *argv[])
         ASSERT((is_same<add_const<TestType &>::type, TestType &>::value));
         ASSERT((is_same<add_const<int (int)>::type, int (int)>::value));
         ASSERT((is_same<add_const<int const>::type, int const>::value));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+        if (verbose) printf("\n'bsl::add_const_t'\n"
+                            "\n==================\n");
+
+        // C-3
+        ASSERT((is_same<add_const  <int        >::type,
+                        add_const_t<int        >>::value));
+        ASSERT((is_same<add_const  <int *      >::type,
+                        add_const_t<int *      >>::value));
+        ASSERT((is_same<add_const  <int const *>::type,
+                        add_const_t<int const *>>::value));
+        ASSERT((is_same<add_const  <TestType   >::type,
+                        add_const_t<TestType   >>::value));
+
+        ASSERT((is_same<add_const  <int &     >::type,
+                        add_const_t<int &     >>::value));
+        ASSERT((is_same<add_const  <TestType &>::type,
+                        add_const_t<TestType &>>::value));
+        ASSERT((is_same<add_const  <int (int) >::type,
+                        add_const_t<int (int) >>::value));
+        ASSERT((is_same<add_const  <int const >::type,
+                        add_const_t<int const >>::value));
+
+        ASSERT((is_same<add_const  <MethodPtrTestType   >::type,
+                        add_const_t<MethodPtrTestType   >>::value));
+        ASSERT((is_same<add_const  <MethodPtrTestType & >::type,
+                        add_const_t<MethodPtrTestType & >>::value));
+        ASSERT((is_same<add_const  <MethodPtrTestType * >::type,
+                        add_const_t<MethodPtrTestType * >>::value));
+        ASSERT((is_same<add_const  <MethodPtrTestType *&>::type,
+                        add_const_t<MethodPtrTestType *&>>::value));
+
+        ASSERT((is_same<add_const<PMD   >::type, add_const_t<PMD   >>::value));
+        ASSERT((is_same<add_const<PMD & >::type, add_const_t<PMD & >>::value));
+        ASSERT((is_same<add_const<PMD * >::type, add_const_t<PMD * >>::value));
+        ASSERT((is_same<add_const<PMD *&>::type, add_const_t<PMD *&>>::value));
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

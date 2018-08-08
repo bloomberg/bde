@@ -554,6 +554,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isconvertible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISTRANSPARENTPREDICATE
+#include <bslmf_istransparentpredicate.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
 #endif
@@ -566,8 +570,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_CPP11
-#include <bsls_cpp11.h>
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -986,7 +990,7 @@ class map {
         // 'VALUE'}).
 
     map& operator=(BloombergLP::bslmf::MovableRef<map> rhs)
-             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
+                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
         // Assign to this object the value and comparator of the specified
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
         // 'ALLOCATOR' type has trait 'propagate_on_container_move_assignment',
@@ -1043,22 +1047,22 @@ class map {
         // method may also throw a different kind of exception if the
         // (user-supplied) comparator throws.
 
-    iterator begin() BSLS_CPP11_NOEXCEPT;
+    iterator begin() BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing modifiable access to the first
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this map, or the 'end' iterator if this map is empty.
 
-    iterator end() BSLS_CPP11_NOEXCEPT;
+    iterator end() BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing modifiable access to the past-the-end
         // element in the ordered sequence of 'value_type' objects maintained
         // by this map.
 
-    reverse_iterator rbegin() BSLS_CPP11_NOEXCEPT;
+    reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
         // Return a reverse iterator providing modifiable access to the last
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this map, or 'rend' if this map is empty.
 
-    reverse_iterator rend() BSLS_CPP11_NOEXCEPT;
+    reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
         // Return a reverse iterator providing modifiable access to the
         // prior-to-the-beginning element in the ordered sequence of
         // 'value_type' objects maintained by this map.
@@ -1558,6 +1562,7 @@ class map {
 #endif
 
     iterator erase(const_iterator position);
+    iterator erase(iterator position);
         // Remove from this map the 'value_type' object at the specified
         // 'position', and return an iterator referring to the element
         // immediately following the removed element, or to the past-the-end
@@ -1585,8 +1590,7 @@ class map {
         // 'end' iterator, and the 'first' position is at or before the 'last'
         // position in the ordered sequence provided by this container.
 
-    void swap(map& other)
-             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
+    void swap(map& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
         // Exchange the value and comparator of this object with the value and
         // comparator of the specified 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -1598,17 +1602,44 @@ class map {
         // either this object was created with the same allocator as 'other' or
         // 'propagate_on_container_swap' is 'true'.
 
-    void clear() BSLS_CPP11_NOEXCEPT;
+    void clear() BSLS_KEYWORD_NOEXCEPT;
         // Remove all entries from this map.  Note that the map is empty after
         // this call, but allocated memory may be retained for future use.
 
-    iterator find(const key_type& key);
+    // Turn off complaints about necessarily class-defined methods.
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -CD01
+
+    iterator find(const key_type& key)
         // Return an iterator providing modifiable access to the 'value_type'
         // object in this map whose key is equivalent to the specified 'key',
         // if such an entry exists, and the past-the-end ('end') iterator
         // otherwise.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return iterator(BloombergLP::bslalg::RbTreeUtil::find(
+                                             d_tree, this->comparator(), key));
+    }
 
-    iterator lower_bound(const key_type& key);
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    find(const LOOKUP_KEY& key)
+        // Return an iterator providing modifiable access to the 'value_type'
+        // object in this map whose key is equivalent to the specified 'key',
+        // if such an entry exists, and the past-the-end ('end') iterator
+        // otherwise.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return iterator(BloombergLP::bslalg::RbTreeUtil::find(
+            d_tree, this->comparator(), key));
+    }
+
+    iterator lower_bound(const key_type& key)
         // Return an iterator providing modifiable access to the first (i.e.,
         // ordered least) 'value_type' object in this map whose key is
         // greater-than or equal-to the specified 'key', and the past-the-end
@@ -1617,8 +1648,35 @@ class map {
         // returns the *first* position before which a 'value_type' object
         // having an equivalent key could be inserted into the ordered sequence
         // maintained by this map, while preserving its ordering.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
+            d_tree, this->comparator(), key));
+    }
 
-    iterator upper_bound(const key_type& key);
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    lower_bound(const LOOKUP_KEY& key)
+        // Return an iterator providing modifiable access to the first (i.e.,
+        // ordered least) 'value_type' object in this map whose key is
+        // greater-than or equal-to the specified 'key', and the past-the-end
+        // iterator if this map does not contain a 'value_type' object whose
+        // key is greater-than or equal-to 'key'.  Note that this function
+        // returns the *first* position before which a 'value_type' object
+        // having an equivalent key could be inserted into the ordered sequence
+        // maintained by this map, while preserving its ordering.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
+            d_tree, this->comparator(), key));
+    }
+
+    iterator upper_bound(const key_type& key)
         // Return an iterator providing modifiable access to the first (i.e.,
         // ordered least) 'value_type' object in this map whose key is greater
         // than the specified 'key', and the past-the-end iterator if this map
@@ -1627,8 +1685,35 @@ class map {
         // which a 'value_type' object having an equivalent key could be
         // inserted into the ordered sequence maintained by this map, while
         // preserving its ordering.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
+            d_tree, this->comparator(), key));
+    }
 
-    pair<iterator, iterator> equal_range(const key_type& key);
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        iterator>::type
+    upper_bound(const LOOKUP_KEY& key)
+        // Return an iterator providing modifiable access to the first (i.e.,
+        // ordered least) 'value_type' object in this map whose key is greater
+        // than the specified 'key', and the past-the-end iterator if this map
+        // does not contain a 'value_type' object whose key is greater-than
+        // 'key'.  Note that this function returns the *last* position before
+        // which a 'value_type' object having an equivalent key could be
+        // inserted into the ordered sequence maintained by this map, while
+        // preserving its ordering.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
+            d_tree, this->comparator(), key));
+    }
+
+    pair<iterator, iterator> equal_range(const key_type& key)
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this map whose keys are
         // equivalent to the specified 'key', where the first iterator is
@@ -1639,60 +1724,99 @@ class map {
         // objects with an equivalent key, then the two returned iterators will
         // have the same value.  Note that since a map maintains unique keys,
         // the range will contain at most one element.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        iterator startIt = lower_bound(key);
+        iterator endIt   = startIt;
+        if (endIt != end() && !comparator()(key, *endIt.node())) {
+            ++endIt;
+        }
+        return pair<iterator, iterator>(startIt, endIt);
+    }
+
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        pair<iterator, iterator> >::type
+    equal_range(const LOOKUP_KEY& key)
+        // Return a pair of iterators providing modifiable access to the
+        // sequence of 'value_type' objects in this map whose keys are
+        // equivalent to the specified 'key', where the first iterator is
+        // positioned at the start of the sequence and the second is positioned
+        // one past the end of the sequence.  The first returned iterator will
+        // be 'lower_bound(key)', the second returned iterator will be
+        // 'upper_bound(key)', and, if this map contains no 'value_type'
+        // objects with an equivalent key, then the two returned iterators will
+        // have the same value.  Note that since a map maintains unique keys,
+        // the range will contain at most one element.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        iterator startIt = lower_bound(key);
+        iterator endIt   = startIt;
+        if (endIt != end() && !comparator()(key, *endIt.node())) {
+            ++endIt;
+        }
+        return pair<iterator, iterator>(startIt, endIt);
+    }
+
+    // BDE_VERIFY pragma: pop
 
     // ACCESSORS
-    allocator_type get_allocator() const BSLS_CPP11_NOEXCEPT;
+    allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
         // Return (a copy of) the allocator used for memory allocation by this
         // map.
 
-    const_iterator begin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this map, or the 'end' iterator if this map is empty.
 
-    const_iterator end() const BSLS_CPP11_NOEXCEPT;
+    const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the ordered sequence of 'value_type'
         // objects maintained by this map.
 
-    const_reverse_iterator rbegin() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last 'value_type' object in the ordered sequence of 'value_type'
         // objects maintained by this map, or 'rend' if this map is empty.
 
-    const_reverse_iterator rend() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // prior-to-the-beginning element in the ordered sequence of
         // 'value_type' objects maintained by this map.
 
-    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this map, or the 'cend' iterator if this map is empty.
 
-    const_iterator cend() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the ordered sequence of 'value_type' objects
         // maintained by this map.
 
-    const_reverse_iterator crbegin() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last 'value_type' object in the ordered sequence of 'value_type'
         // objects maintained by this map, or 'crend' if this map is empty.
 
-    const_reverse_iterator crend() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // prior-to-the-beginning element in the ordered sequence of
         // 'value_type' objects maintained by this map.
 
-    bool empty() const BSLS_CPP11_NOEXCEPT;
+    bool empty() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if this map contains no elements, and 'false'
         // otherwise.
 
-    size_type size() const BSLS_CPP11_NOEXCEPT;
+    size_type size() const BSLS_KEYWORD_NOEXCEPT;
         // Return the number of elements in this map.
 
-    size_type max_size() const BSLS_CPP11_NOEXCEPT;
+    size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
         // Return a theoretical upper bound on the largest number of elements
         // that this map could possibly hold.  Note that there is no guarantee
         // that the map can successfully grow to the returned size, or even
@@ -1719,18 +1843,65 @@ class map {
         // comparator compares objects of type 'value_type' (i.e.,
         // 'bsl::pair<const KEY, VALUE>').
 
-    const_iterator find(const key_type& key) const;
+    // Turn off complaints about necessarily class-defined methods.
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -CD01
+
+    const_iterator find(const key_type& key) const
         // Return an iterator providing non-modifiable access to the
         // 'value_type' object in this map whose key is equivalent to the
         // specified 'key', if such an entry exists, and the past-the-end
         // ('end') iterator otherwise.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return const_iterator(BloombergLP::bslalg::RbTreeUtil::find(
+                                             d_tree, this->comparator(), key));
+    }
 
-    size_type count(const key_type& key) const;
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        const_iterator>::type
+    find(const LOOKUP_KEY& key) const
+        // Return an iterator providing non-modifiable access to the
+        // 'value_type' object in this map whose key is equivalent to the
+        // specified 'key', if such an entry exists, and the past-the-end
+        // ('end') iterator otherwise.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return const_iterator(BloombergLP::bslalg::RbTreeUtil::find(
+            d_tree, this->comparator(), key));
+    }
+
+    size_type count(const key_type& key) const
         // Return the number of 'value_type' objects within this map whose keys
         // are equivalent to the specified 'key'.  Note that since a map
         // maintains unique keys, the returned value will be either 0 or 1.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return (find(key) != end()) ? 1 : 0;
+    }
 
-    const_iterator lower_bound(const key_type& key) const;
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        size_type>::type
+    count(const LOOKUP_KEY& key) const
+        // Return the number of 'value_type' objects within this map whose keys
+        // are equivalent to the specified 'key'.  Note that since a map
+        // maintains unique keys, the returned value will be either 0 or 1.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return (find(key) != end()) ? 1 : 0;
+    }
+
+    const_iterator lower_bound(const key_type& key) const
         // Return an iterator providing non-modifiable access to the first
         // (i.e., ordered least) 'value_type' object in this map whose key is
         // greater-than or equal-to the specified 'key', and the past-the-end
@@ -1739,8 +1910,35 @@ class map {
         // returns the *first* position before which a 'value_type' object
         // having an equivalent key could be inserted into the ordered sequence
         // maintained by this map, while preserving its ordering.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
+            d_tree, this->comparator(), key));
+    }
 
-    const_iterator upper_bound(const key_type& key) const;
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        const_iterator>::type
+    lower_bound(const LOOKUP_KEY& key) const
+        // Return an iterator providing non-modifiable access to the first
+        // (i.e., ordered least) 'value_type' object in this map whose key is
+        // greater-than or equal-to the specified 'key', and the past-the-end
+        // iterator if this map does not contain a 'value_type' object whose
+        // key is greater-than or equal-to 'key'.  Note that this function
+        // returns the *first* position before which a 'value_type' object
+        // having an equivalent key could be inserted into the ordered sequence
+        // maintained by this map, while preserving its ordering.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return const_iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
+            d_tree, this->comparator(), key));
+    }
+
+    const_iterator upper_bound(const key_type& key) const
         // Return an iterator providing non-modifiable access to the first
         // (i.e., ordered least) 'value_type' object in this map whose key is
         // greater than the specified 'key', and the past-the-end iterator if
@@ -1749,9 +1947,35 @@ class map {
         // position before which a 'value_type' object having an equivalent key
         // could be inserted into the ordered sequence maintained by this map,
         // while preserving its ordering.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
+            d_tree, this->comparator(), key));
+    }
 
-    pair<const_iterator, const_iterator> equal_range(
-                                                    const key_type& key) const;
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        const_iterator>::type
+    upper_bound(const LOOKUP_KEY& key) const
+        // Return an iterator providing non-modifiable access to the first
+        // (i.e., ordered least) 'value_type' object in this map whose key is
+        // greater than the specified 'key', and the past-the-end iterator if
+        // this map does not contain a 'value_type' object whose key is
+        // greater-than 'key'.  Note that this function returns the *last*
+        // position before which a 'value_type' object having an equivalent key
+        // could be inserted into the ordered sequence maintained by this map,
+        // while preserving its ordering.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
+            d_tree, this->comparator(), key));
+    }
+
+    pair<const_iterator, const_iterator> equal_range(const key_type& key) const
         // Return a pair of iterators providing non-modifiable access to the
         // sequence of 'value_type' objects in this map whose keys are
         // equivalent to the specified 'key', where the first iterator is
@@ -1762,6 +1986,45 @@ class map {
         // 'value_type' objects having keys equivalent to 'key', then the two
         // returned iterators will have the same value.  Note that since a map
         // maintains unique keys, the range will contain at most one element.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        const_iterator startIt = lower_bound(key);
+        const_iterator endIt   = startIt;
+        if (endIt != end() && !comparator()(key, *endIt.node())) {
+            ++endIt;
+        }
+        return pair<const_iterator, const_iterator>(startIt, endIt);
+    }
+
+    template <class LOOKUP_KEY>
+    typename bsl::enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   LOOKUP_KEY>::value,
+        pair<const_iterator, const_iterator> >::type
+    equal_range(const LOOKUP_KEY& key) const
+        // Return a pair of iterators providing non-modifiable access to the
+        // sequence of 'value_type' objects in this map whose keys are
+        // equivalent to the specified 'key', where the first iterator is
+        // positioned at the start of the sequence and the second iterator is
+        // positioned one past the end of the sequence.  The first returned
+        // iterator will be 'lower_bound(key)', the second returned iterator
+        // will be 'upper_bound(key)', and, if this map contains no
+        // 'value_type' objects having keys equivalent to 'key', then the two
+        // returned iterators will have the same value.  Note that since a map
+        // maintains unique keys, the range will contain at most one element.
+        //
+        // Note: implemented inline due to Sun CC compilation error.
+    {
+        const_iterator startIt = lower_bound(key);
+        const_iterator endIt   = startIt;
+        if (endIt != end() && !comparator()(key, *endIt.node())) {
+            ++endIt;
+        }
+        return pair<const_iterator, const_iterator>(startIt, endIt);
+    }
+
+    // BDE_VERIFY pragma: pop
 };
 
 // FREE OPERATORS
@@ -1841,7 +2104,7 @@ bool operator>=(const map<KEY, VALUE, COMPARATOR, ALLOCATOR>& lhs,
 template <class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR>
 void swap(map<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
           map<KEY, VALUE, COMPARATOR, ALLOCATOR>& b)
-             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
+             BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
     // Exchange the value and comparator of the specified 'a' object with the
     // value and comparator of the specified 'b' object.  Additionally, if
     // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -2214,7 +2477,7 @@ inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>&
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::operator=(
                                        BloombergLP::bslmf::MovableRef<map> rhs)
-              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
 {
     map& lvalue = rhs;
 
@@ -2331,7 +2594,7 @@ VALUE& map<KEY, VALUE, COMPARATOR, ALLOCATOR>::at(const key_type& key)
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::begin() BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::begin() BSLS_KEYWORD_NOEXCEPT
 {
     return iterator(d_tree.firstNode());
 }
@@ -2339,7 +2602,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::begin() BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::end() BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::end() BSLS_KEYWORD_NOEXCEPT
 {
     return iterator(d_tree.sentinel());
 }
@@ -2347,7 +2610,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::end() BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::reverse_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::rbegin() BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::rbegin() BSLS_KEYWORD_NOEXCEPT
 {
     return reverse_iterator(end());
 }
@@ -2355,7 +2618,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::rbegin() BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::reverse_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::rend() BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::rend() BSLS_KEYWORD_NOEXCEPT
 {
     return reverse_iterator(begin());
 }
@@ -3576,6 +3839,14 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::erase(const_iterator position)
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
+typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::erase(iterator position)
+{
+    return erase(const_iterator(position));
+}
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::size_type
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::erase(const key_type& key)
 {
@@ -3602,7 +3873,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::erase(const_iterator first,
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(map& other)
-              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         quickSwapExchangeAllocators(other);
@@ -3634,7 +3905,7 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::swap(map& other)
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
-void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
+void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(d_tree.firstNode());
 
@@ -3652,58 +3923,12 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 #endif
 }
 
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::find(const key_type& key)
-{
-    return iterator(BloombergLP::bslalg::RbTreeUtil::find(d_tree,
-                                                          this->comparator(),
-                                                          key));
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::lower_bound(const key_type& key)
-{
-    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
-                                                            d_tree,
-                                                            this->comparator(),
-                                                            key));
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::upper_bound(const key_type& key)
-{
-    return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
-                                                            d_tree,
-                                                            this->comparator(),
-                                                            key));
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator,
-          typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::iterator>
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::equal_range(const key_type& key)
-{
-    iterator startIt = lower_bound(key);
-    iterator endIt   = startIt;
-    if (endIt != end() && !comparator()(key, *endIt.node())) {
-        ++endIt;
-    }
-    return pair<iterator, iterator>(startIt, endIt);
-}
-
 // ACCESSORS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::allocator_type
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::get_allocator() const
-                                                            BSLS_CPP11_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return nodeFactory().allocator();
 }
@@ -3711,7 +3936,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::get_allocator() const
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::begin() const BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::begin() const BSLS_KEYWORD_NOEXCEPT
 {
     return cbegin();
 }
@@ -3719,7 +3944,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::begin() const BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::end() const BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::end() const BSLS_KEYWORD_NOEXCEPT
 {
     return cend();
 }
@@ -3727,7 +3952,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::end() const BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::rbegin() const BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::rbegin() const BSLS_KEYWORD_NOEXCEPT
 {
     return crbegin();
 }
@@ -3735,7 +3960,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::rbegin() const BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::rend() const BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::rend() const BSLS_KEYWORD_NOEXCEPT
 {
     return crend();
 }
@@ -3743,7 +3968,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::rend() const BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::cbegin() const BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::cbegin() const BSLS_KEYWORD_NOEXCEPT
 {
     return const_iterator(d_tree.firstNode());
 }
@@ -3751,7 +3976,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::cbegin() const BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::cend() const BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::cend() const BSLS_KEYWORD_NOEXCEPT
 {
     return const_iterator(d_tree.sentinel());
 }
@@ -3759,7 +3984,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::cend() const BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::crbegin() const BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::crbegin() const BSLS_KEYWORD_NOEXCEPT
 {
     return const_reverse_iterator(end());
 }
@@ -3767,7 +3992,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::crbegin() const BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::crend() const BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::crend() const BSLS_KEYWORD_NOEXCEPT
 {
     return const_reverse_iterator(begin());
 }
@@ -3775,7 +4000,8 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::crend() const BSLS_CPP11_NOEXCEPT
 // capacity:
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
-bool map<KEY, VALUE, COMPARATOR, ALLOCATOR>::empty() const BSLS_CPP11_NOEXCEPT
+bool map<KEY, VALUE, COMPARATOR, ALLOCATOR>::empty() const
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return 0 == d_tree.numNodes();
 }
@@ -3783,7 +4009,7 @@ bool map<KEY, VALUE, COMPARATOR, ALLOCATOR>::empty() const BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::size_type
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::size() const BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::size() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_tree.numNodes();
 }
@@ -3791,7 +4017,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::size() const BSLS_CPP11_NOEXCEPT
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::size_type
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::max_size() const BSLS_CPP11_NOEXCEPT
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
 {
     return AllocatorTraits::max_size(get_allocator());
 }
@@ -3825,59 +4051,6 @@ typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::value_compare
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::value_comp() const
 {
     return value_compare(key_comp());
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::find(const key_type& key) const
-{
-    return const_iterator(
-       BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), key));
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::size_type
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::count(const key_type& key) const
-{
-    return (find(key) != end()) ? 1 : 0;
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::lower_bound(const key_type& key) const
-{
-    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
-                                                            d_tree,
-                                                            this->comparator(),
-                                                            key));
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_iterator
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::upper_bound(const key_type& key) const
-{
-    return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
-                                                            d_tree,
-                                                            this->comparator(),
-                                                            key));
-}
-
-template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
-inline
-pair<typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_iterator,
-          typename map<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_iterator>
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::equal_range(const key_type& key) const
-{
-    const_iterator startIt = lower_bound(key);
-    const_iterator endIt   = startIt;
-    if (endIt != end() && !comparator()(key, *endIt.node())) {
-        ++endIt;
-    }
-    return pair<const_iterator, const_iterator>(startIt, endIt);
 }
 
 }  // close namespace bsl
@@ -3946,7 +4119,7 @@ template <class KEY,  class VALUE,  class COMPARATOR,  class ALLOCATOR>
 inline
 void bsl::swap(bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
                bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR>& b)
-              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
 {
     a.swap(b);
 }

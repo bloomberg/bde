@@ -6,6 +6,20 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_bsltestutil.h>   // for testing only
 
+#if defined(BSLS_COMPILERFEATURES_INTIIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
+
+    #ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+    #error "'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS' \
+             requires 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'"
+    #endif
+
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED) &&               \
+    !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+#error Relaxed 'constexpr' support should imply 'constexpr' support!
+#endif
+
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

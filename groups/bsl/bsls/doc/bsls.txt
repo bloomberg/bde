@@ -20,7 +20,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 70 components having 13 levels of physical
+ The 'bsls' package currently has 72 components having 13 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -76,6 +76,7 @@
       bsls_atomicoperations_x86_all_gcc                               !PRIVATE!
       bsls_atomicoperations_x86_win_msvc                              !PRIVATE!
       bsls_cpp11
+      bsls_keyword
       bsls_nullptr
       bsls_util
 

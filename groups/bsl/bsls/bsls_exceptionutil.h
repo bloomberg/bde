@@ -18,6 +18,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_RETHROW: re-'throw' the current exception
 //  BSLS_EXCEPTION_SPEC(SPEC): add 'SPEC' to function exception specification
 //  BSLS_NOTHROW_SPEC: declare that a function throws no exceptions
+//  BSLS_EXCEPTION_WHAT_NOTHROW_SPEC: 'exception::what()' except. spec.
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
@@ -36,21 +37,21 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Using 'bsls_exceptionutil' to Implement 'vector'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we wanted to define an implementation of a standard-defined
-// 'vector' template.  Unfortunately, the C++ standard requires that 'vector'
-// provide an 'at' method that throws an 'out_of_range' exception
-// if the supplied index is not in the valid range of elements in the vector.
-// In this example we show using 'BSLS_THROW' so that such an implementation
-// will compile in both exception enabled and non-exception enabled builds.
-// Note that apart from memory allocation, and where required by the C++
-// standard, types defined in the BDE libraries do not throw exceptions, and
-// are typically "exception-neutral" (see {'bsldoc_glossary'}), meaning they
-// behave reasonably in the presence of injected exceptions, but do not
-// themselves throw any exceptions.
+// Suppose we wanted to define an implementation of a standard-defined 'vector'
+// template.  Unfortunately, the C++ standard requires that 'vector' provide an
+// 'at' method that throws an 'out_of_range' exception if the supplied index is
+// not in the valid range of elements in the vector.  In this example we show
+// using 'BSLS_THROW' so that such an implementation will compile in both
+// exception enabled and non-exception enabled builds.  Note that apart from
+// memory allocation, and where required by the C++ standard, types defined in
+// the BDE libraries do not throw exceptions, and are typically
+// "exception-neutral" (see {'bsldoc_glossary'}), meaning they behave
+// reasonably in the presence of injected exceptions, but do not themselves
+// throw any exceptions.
 //
 // First we open a namespace 'myStd' and define an 'out_of_range' exception
-// that the 'at' method will throw (note that in practice, 'out_of_range'
-// would inherit from 'logic_error')':
+// that the 'at' method will throw (note that in practice, 'out_of_range' would
+// inherit from 'logic_error')':
 //..
 //  namespace myStd {
 //
@@ -96,6 +97,10 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  }  // close namespace myStd
+//
+//  struct DummyAllocator {
+//      typedef int size_type;
+//  };
 //..
 //
 ///Example 2: Using 'bsls_exceptionutil' to Throw and Catch Exceptions
@@ -127,11 +132,17 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Next, we define a function that might throw 'my_ExClass1' or 'my_ExClass2',
-// and we use the 'BSLS_EXCEPTION_SPEC' to ensure the exception specification
-// will be present in exception enabled builds, and elided in non-exception
-// builds:
+// and docuemnt which exception types might be thrown.  Note that dynamic
+// exception specifications are deprecated in C++11 and removed from the
+// language in C++17, so should not be used as a substitute for documentation
+// in earlier language dialects:
 //..
-//  int mightThrowFunc(int i) BSLS_EXCEPTION_SPEC((my_ExClass1, my_ExClass2))
+//  int mightThrowFunc(int i)
+//      // Return the specified integer 'i', unless '1 == 1' or '2 == i'.  If
+//      // '1 == i' throw an exception of type 'my_ExcClass1'.  If '2 == i'
+//      // throw an exception of type 'my_ExcClass2'.  Note that if exceptions
+//      // are not enabled in the current build mode, then the program will
+//      // 'abort' rather than throw.
 //  {
 //      switch (i) {
 //        case 0: break;
@@ -176,9 +187,9 @@ BSLS_IDENT("$Id: $")
 // Notice that this example is careful to call 'mightThrowFunc' in such a way
 // that it will not throw in non-exception builds.  Although the use of
 // 'BSLS_TRY', 'BSLS_THROW', and 'BSLS_CATCH' ensures the code *compiles* in
-// both exception, and non-exception enabled builds, attempting to
-// 'BSLS_THROW' an exception in a non-exception enabled build will invoke the
-// assert handler and will typically abort the task.
+// both exception, and non-exception enabled builds, attempting to 'BSLS_THROW'
+// an exception in a non-exception enabled build will invoke the assert handler
+// and will typically abort the task.
 //..
 //                  caught = 0; // Got here if no throw
 //              }
@@ -224,8 +235,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_BUILDTARGET
+#include <bsls_buildtarget.h>
+#endif
+
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
 #endif
 
                         // ======
@@ -259,7 +278,12 @@ BSLS_IDENT("$Id: $")
         // Exceptions disabled: abort with a message
 
 #   define BSLS_EXCEPTION_SPEC(SPEC) throw SPEC
-        // Declare the exception specification for a function.
+        // DEPRECATED: This macro is deprecated, as the language feature itself
+        // is deprecated in C++11, and is entirely removed in C++17.  It is
+        // recommended to simply document the potential set of exceptions that
+        // may be thrown by a function instead.
+        //
+        // Declare a dynamic exception specification for a function.
         // Usage:
         //..
         //  void f() BSLS_EXCEPTION_SPEC((std::logic_error));
@@ -272,9 +296,9 @@ BSLS_IDENT("$Id: $")
         // Exceptions disabled: empty
 
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-#   define BSLS_NOTHROW_SPEC noexcept
+#       define BSLS_NOTHROW_SPEC noexcept
 #   else
-#   define BSLS_NOTHROW_SPEC throw ()
+#       define BSLS_NOTHROW_SPEC throw ()
 #   endif
         // Declare that a function does not throw any exceptions:
         // Usage:
@@ -283,6 +307,13 @@ BSLS_IDENT("$Id: $")
         //..
         // Exceptions enabled: 'throw ()' or 'noexcept'
         // Exceptions disabled: empty
+
+#   define BSLS_EXCEPTION_WHAT_NOTHROW BSLS_NOTHROW_SPEC
+        // The exception specification that overrides of the
+        // 'exception::what()' virtual method should use.  It is a separate
+        // macro from 'BSLS_NOTHROW_SPEC' because the GNU library
+        // unconditionally declares the function 'throw()', regardless if
+        // exceptions are enabled or not - and overrides must do the same.
 
 #else // If exceptions are disabled
 
@@ -308,10 +339,26 @@ BSLS_IDENT("$Id: $")
 
 #   define BSLS_NOTHROW_SPEC
 
+#   ifdef BSLS_LIBRARYFEATURES_STDCPP_GNU
+#       if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+#           define BSLS_EXCEPTION_WHAT_NOTHROW noexcept
+#       else
+#           define BSLS_EXCEPTION_WHAT_NOTHROW throw ()
+#       endif
+#   else
+#       define BSLS_EXCEPTION_WHAT_NOTHROW
+#   endif
+        // The exception specification that overrides of the
+        // 'exception::what()' virtual method should use.  It is a separate
+        // macro from 'BSLS_NOTHROW_SPEC' because the GNU library
+        // unconditionally declares the function 'throw()', regardless if
+        // exceptions are enabled or not - and overrides must do the same.
+
+
 #endif // BDE_BUILD_TARGET_EXC
 
 namespace BloombergLP {
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BSLS_EXCEPTIONUTIL)
 

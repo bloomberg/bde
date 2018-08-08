@@ -291,32 +291,6 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
-// TBD
-// For specific test cases, remove 'bsltf::TemplateTestFacility::FunctionPtr'
-// from the list of types to test on Linux to avoid:
-//   collect2: error: /opt/swt/bin/gnm returned 1 exit status
-// which occurs when 'gnm' is run on 'bslstl_deque.t.cpp.1.o'.  Also see
-// 'bsltf_stdstatefulallocator.t.cpp'.
-
-#if defined(BSLS_PLATFORM_OS_LINUX)
-#define REDUCED_TEST_TYPES_REGULAR                                            \
-    signed char,                                                              \
-    size_t,                                                                   \
-    bsltf::TemplateTestFacility::ObjectPtr,                                   \
-    bsltf::TemplateTestFacility::MethodPtr,                                   \
-    bsltf::EnumeratedTestType::Enum,                                          \
-    bsltf::UnionTestType,                                                     \
-    bsltf::SimpleTestType,                                                    \
-    bsltf::AllocTestType,                                                     \
-    bsltf::BitwiseCopyableTestType,                                           \
-    bsltf::BitwiseMoveableTestType,                                           \
-    bsltf::AllocBitwiseMoveableTestType,                                      \
-    bsltf::NonTypicalOverloadsTestType
-#else
-#define REDUCED_TEST_TYPES_REGULAR                                            \
-    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
-#endif
-
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
@@ -410,8 +384,7 @@ void invokePatternSwap(TYPE *a, TYPE *b)
 using namespace BloombergLP;
 using bsl::deque;
 using bsl::Deque_BlockLengthCalcUtil;
-using bsl::vector;
-using bsl::Vector_Imp;
+//using bsl::vector;
 using bsls::NameOf;
 
 // ============================================================================
@@ -1520,7 +1493,7 @@ class CharList {
     // parameter) 'TYPE'.
 
     // DATA
-    Vector_Imp<TYPE> d_value;
+    bsl::vector<TYPE> d_value;
 
   public:
     // TYPES
@@ -1529,7 +1502,7 @@ class CharList {
 
     // CREATORS
     CharList() {}
-    explicit CharList(const Vector_Imp<TYPE>& value);
+    explicit CharList(const bsl::vector<TYPE>& value);
 
     // ACCESSORS
     const TYPE& operator[](size_t index) const;
@@ -1539,7 +1512,7 @@ class CharList {
 
 // CREATORS
 template <class TYPE>
-CharList<TYPE>::CharList(const Vector_Imp<TYPE>& value)
+CharList<TYPE>::CharList(const bsl::vector<TYPE>& value)
 : d_value(value)
 {
 }
@@ -1578,7 +1551,7 @@ class CharArray {
     // (template parameter) 'TYPE'.
 
     // DATA
-    Vector_Imp<TYPE>  d_value;
+    bsl::vector<TYPE>  d_value;
 
   public:
     // TYPES
@@ -1587,7 +1560,7 @@ class CharArray {
 
     // CREATORS
     CharArray() {}
-    explicit CharArray(const Vector_Imp<TYPE>& value);
+    explicit CharArray(const bsl::vector<TYPE>& value);
 
     // ACCESSORS
     const TYPE& operator[](size_t index) const;
@@ -1597,7 +1570,7 @@ class CharArray {
 
 // CREATORS
 template <class TYPE>
-CharArray<TYPE>::CharArray(const Vector_Imp<TYPE>& value)
+CharArray<TYPE>::CharArray(const bsl::vector<TYPE>& value)
 : d_value(value)
 {
 }
@@ -2079,7 +2052,7 @@ struct TestDriver {
         // Return, by reference, the specified 'object' with its value adjusted
         // according to the specified 'spec'.
 
-    static Vector_Imp<TYPE> gV(const char *spec);
+    static bsl::vector<TYPE> gV(const char *spec);
         // Return, by value, a new vector corresponding to the specified
         // 'spec'.
 
@@ -2281,7 +2254,7 @@ struct TestDriver {
         // Test 'erase', 'pop_back', and 'pop_front'.
 
     template <class CONTAINER>
-    static void testCaseRangeInsertion(const CONTAINER&);
+    static void testCase19(const CONTAINER&);
         // Test range 'insert' member.
 
     static void testCase18();
@@ -2664,11 +2637,11 @@ bsl::deque<TYPE,ALLOC>& TestDriver<TYPE,ALLOC>::gg(Obj        *object,
 }
 
 template <class TYPE, class ALLOC>
-Vector_Imp<TYPE> TestDriver<TYPE,ALLOC>::gV(const char *spec)
+bsl::vector<TYPE> TestDriver<TYPE,ALLOC>::gV(const char *spec)
 {
     const TYPE *VALUES;
     getValues(&VALUES);
-    Vector_Imp<TYPE> result;
+    bsl::vector<TYPE> result;
     for (int i = 0; spec[i]; ++i) {
         if ('A' <= spec[i] && spec[i] <= 'E') {
             result.push_back(VALUES[spec[i] - 'A']);
@@ -3505,11 +3478,11 @@ void TestDriver<TYPE,ALLOC>::testCase34()
         Obj d;    (void) d;
         Obj x;    (void) x;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d = MoveUtil::move(x)));
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(d = MoveUtil::move(x)));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.get_allocator()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(d.get_allocator()));
     }
 
     // page 836
@@ -3532,32 +3505,32 @@ void TestDriver<TYPE,ALLOC>::testCase34()
     {
         Obj d; const Obj& D = d;    (void) D;
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.begin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.begin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.end()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.end()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.begin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.rbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.rbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.rend()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.rend()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.cbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.cend()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.crbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(D.crend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(d.begin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(D.begin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(d.end()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(D.end()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(D.begin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(d.rbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(D.rbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(d.rend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(D.rend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(D.cbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(D.cend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(D.crbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(D.crend()));
     }
 
     // page 836
@@ -3571,12 +3544,12 @@ void TestDriver<TYPE,ALLOC>::testCase34()
     {
         Obj d;
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.empty()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.size()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.max_size()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(d.empty()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(d.size()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(d.max_size()));
     }
 
     // page 836
@@ -3591,11 +3564,11 @@ void TestDriver<TYPE,ALLOC>::testCase34()
         Obj d;
         Obj x;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.swap(x)));
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(d.swap(x)));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(d.clear()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(d.clear()));
     }
 
     // page 837
@@ -3610,8 +3583,8 @@ void TestDriver<TYPE,ALLOC>::testCase34()
         Obj x;
         Obj y;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(x, y)));
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(swap(x, y)));
     }
 }
 
@@ -9106,7 +9079,7 @@ void TestDriver<TYPE,ALLOC>::testCase20()
 
 template <class TYPE, class ALLOC>
 template <class CONTAINER>
-void TestDriver<TYPE,ALLOC>::testCaseRangeInsertion(const CONTAINER&)
+void TestDriver<TYPE,ALLOC>::testCase19(const CONTAINER&)
 {
     // ------------------------------------------------------------------------
     // TESTING INPUT-RANGE INSERTION
@@ -13082,20 +13055,7 @@ void TestDriver<TYPE,ALLOC>::testCase6()
     };
     enum { NUM_ALLOCATOR = sizeof ALLOCATOR / sizeof *ALLOCATOR };
 
-    static const char *QUICK_SPECS[] = {
-        "",
-        "A",      "B",
-        "AA",     "AB",     "BB",     "BA",
-        "AAA",    "BAA",    "ABA",    "AAB",
-        "AAAA",   "BAAA",
-        "AAAAA",  "BAAAA",
-        "AAAAAA", "BAAAAA",
-        "AAAAAAA",
-        "AAAAAAAA",
-        0  // null string required as last element
-    };
-
-    static const char *EXHAUSTIVE_SPECS[] = {
+    static const char *SPECS[] = {
         "",
         "A",      "B",
         "AA",     "AB",     "BB",     "BA",
@@ -13115,14 +13075,9 @@ void TestDriver<TYPE,ALLOC>::testCase6()
         0  // null string required as last element
     };
 
-    static const char **SPECS = bsl::is_same<TYPE, TTA>::value
-                              ? EXHAUSTIVE_SPECS
-                              : QUICK_SPECS;
-
-    if (verbose) printf("\n%s compare each pair of similar and different"
+    if (verbose) printf("\nCompare each pair of similar and different"
                         " values (u, ua, v, va) in S X A X S X A"
-                        " without perturbation.\n",
-                        SPECS == QUICK_SPECS ? "Quickly" : "Exhaustively");
+                        " without perturbation.\n");
     {
 
         int oldLen = -1;
@@ -15461,68 +15416,6 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 36: {
-        // --------------------------------------------------------------------
-        // TESTING INPUT-RANGE INSERTION PART B
-        //
-        // It was necessary to break this up into two parts to avoid timeouts.
-        //
-        // Testing:
-        //   iterator insert(const_iterator pos, ITER first, ITER last);
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("TESTING INPUT-RANGE INSERTION PART B\n"
-                            "====================================\n");
-
-        if (verbose) printf("\n... with 'BitwiseMoveableTestTypeAlloc' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<BMTTA>::testCaseRangeInsertion(CharArray<BMTTA>());
-
-        if (verbose) printf("\n... with 'BitwiseCopyableTestTypeNoAlloc' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<BCTT>::testCaseRangeInsertion(CharList<BCTT>());
-
-        if (verbose) printf("\n... with 'BitwiseCopyableTestTypeNoAlloc' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<BCTT>::testCaseRangeInsertion(CharArray<BCTT>());
-
-        typedef bsltf::StdAllocTestType<bsl::allocator<int> > AllocInt;
-        StdBslmaTestDriver<AllocInt>::testCaseRangeInsertion(
-                                                        CharArray<AllocInt>());
-      } break;
-      case 35: {
-        // --------------------------------------------------------------------
-        // TESTING INPUT-RANGE INSERTION PART A
-        //
-        // It was necessary to break this up into two parts to avoid timeouts.
-        //
-        // Testing:
-        //   iterator insert(const_iterator pos, ITER first, ITER last);
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("TESTING INPUT-RANGE INSERTION PART A\n"
-                            "====================================\n");
-
-        if (verbose) printf("\n... with 'TestTypeAlloc' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<TTA>::testCaseRangeInsertion(CharList<TTA>());
-
-        if (verbose) printf("\n... with 'TestTypeAlloc' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<TTA>::testCaseRangeInsertion(CharArray<TTA>());
-
-        if (verbose) printf("\n... with 'MediumTestTypeNoAlloc' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<MedTT>::testCaseRangeInsertion(CharList<MedTT>());
-
-        if (verbose) printf("\n... with 'MediumTestTypeNoAlloc' "
-                            "and arbitrary random-access iterator.\n");
-        TestDriver<MedTT>::testCaseRangeInsertion(CharArray<MedTT>());
-
-        if (verbose) printf("\n... with 'BitwiseMoveableTestTypeAlloc' "
-                            "and arbitrary input iterator.\n");
-        TestDriver<BMTTA>::testCaseRangeInsertion(CharList<BMTTA>());
-      } break;
       case 34: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION
@@ -16063,7 +15956,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase21,
-                      REDUCED_TEST_TYPES_REGULAR,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType,
                       bsltf::MoveOnlyAllocTestType);
@@ -16111,7 +16004,54 @@ int main(int argc, char *argv[])
 
       } break;
       case 19: {
-        // This test case is a place-holder
+        // --------------------------------------------------------------------
+        // TESTING INPUT-RANGE INSERTION
+        //
+        // Testing:
+        //   iterator insert(const_iterator pos, ITER first, ITER last);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING INPUT-RANGE INSERTION\n"
+                            "=============================\n");
+
+        if (verbose) printf("\n... with 'TestTypeAlloc' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<TTA>::testCase19(CharList<TTA>());
+
+        if (verbose) printf("\n... with 'TestTypeAlloc' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<TTA>::testCase19(CharArray<TTA>());
+
+
+        if (verbose) printf("\n... with 'MediumTestTypeNoAlloc' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<MedTT>::testCase19(CharList<MedTT>());
+
+        if (verbose) printf("\n... with 'MediumTestTypeNoAlloc' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<MedTT>::testCase19(CharArray<MedTT>());
+
+
+        if (verbose) printf("\n... with 'BitwiseMoveableTestTypeAlloc' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<BMTTA>::testCase19(CharList<BMTTA>());
+
+        if (verbose) printf("\n... with 'BitwiseMoveableTestTypeAlloc' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<BMTTA>::testCase19(CharArray<BMTTA>());
+
+
+        if (verbose) printf("\n... with 'BitwiseCopyableTestTypeNoAlloc' "
+                            "and arbitrary input iterator.\n");
+        TestDriver<BCTT>::testCase19(CharList<BCTT>());
+
+        if (verbose) printf("\n... with 'BitwiseCopyableTestTypeNoAlloc' "
+                            "and arbitrary random-access iterator.\n");
+        TestDriver<BCTT>::testCase19(CharArray<BCTT>());
+
+        typedef bsltf::StdAllocTestType<bsl::allocator<int> > AllocInt;
+        StdBslmaTestDriver<AllocInt>::testCase19(CharArray<AllocInt>());
+
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -16426,7 +16366,7 @@ int main(int argc, char *argv[])
 
         RUN_EACH_TYPE(TestDriver,
                       testCase9_propagate_on_container_copy_assignment,
-                      REDUCED_TEST_TYPES_REGULAR,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
 

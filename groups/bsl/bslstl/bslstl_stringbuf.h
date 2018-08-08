@@ -169,6 +169,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_ALGORITHM
 #include <algorithm>
 #define INCLUDED_ALGORITHM
@@ -197,6 +201,13 @@ BSL_OVERRIDES_STD mode"
 #ifndef INCLUDED_STREAMBUF
 #include <streambuf>
 #define INCLUDED_STREAMBUF
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+#ifndef INCLUDED_UTILITY
+#include <utility>
+#define INCLUDED_UTILITY
+#endif
 #endif
 
 #ifndef INCLUDED_LIMITS_H
@@ -261,7 +272,7 @@ class basic_stringbuf
                                 // characters without 'overflow'.  However,
                                 // care must be taken to refresh the cached
                                 // 'd_endHint' value as the parent stream will
-                                // update the current output postion 'pptr',
+                                // update the current output position 'pptr',
                                 // without calling a method on this type.)
 
     ios_base::openmode d_mode;  // 'stringbuf' open mode ('in', 'out', or both)
@@ -474,10 +485,26 @@ class basic_stringbuf
         // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    basic_stringbuf(basic_stringbuf&& original);
+        // Create a 'basic_stringbuf' object having the same value as the
+        // specified 'original' object by moving the contents of 'original' to
+        // the newly-created object.  'original' is left in a valid but
+        // unspecified state.
+#endif
+
     ~basic_stringbuf();
         // Destroy this object.
 
     // MANIPULATORS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    basic_stringbuf& operator=(basic_stringbuf&& rhs);
+        // Assign to this object the value of the specified 'rhs', and return a
+        // reference providing modifiable access to this object.  The contents
+        // of 'rhs' are move-assigned to this object.  'rhs' is left in a valid
+        // but unspecified state.
+#endif
+
     void str(const StringType& value);
         // Reset the internally buffered sequence of characters to the
         // specified 'value'.  Update the beginning and end of both the input
@@ -558,7 +585,32 @@ class StringBufContainer {
     {
     }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    StringBufContainer(StringBufContainer&& original)
+        // Create a 'StringBufContainer' object having the same value as the
+        // specified 'original' object by moving the contents of 'original' to
+        // the newly-created object.  'original' is left in a valid but
+        // unspecified state.
+    : d_bufObj(std::move(original.d_bufObj))
+    {
+    }
+#endif
+
     //! ~StringBufContainer() = default;
+
+    // MANIPULATORS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    StringBufContainer& operator=(StringBufContainer&& rhs)
+        // Assign to this object the value of the specified 'rhs', and return a
+        // reference providing modifiable access to this object.  The contents
+        // of 'rhs' are move-assigned to this object.  'rhs' is left in a valid
+        // but unspecified state.
+    {
+        d_bufObj = std::move(rhs.d_bufObj);
+
+        return *this;
+    }
+#endif
 
     // ACCESSORS
     StreamBufType *rdbuf() const
@@ -1061,6 +1113,35 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     updateStreamPositions(0, d_mode & ios_base::ate ? d_endHint : 0);
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+    basic_stringbuf(basic_stringbuf&& original)
+: BaseType()
+, d_str(std::move(original.d_str))
+, d_endHint(std::move(original.d_endHint))
+, d_mode(std::move(original.d_mode))
+{
+    // Capture the positions for later restoration
+
+    const off_type  inputOffset = original.gptr() - original.eback();
+    const off_type outputOffset = original.pptr() - original.pbase();
+    updateStreamPositions(inputOffset, outputOffset);
+
+    this->pubimbue(original.getloc());
+
+    if (original.d_endHint > 0 &&
+        static_cast<size_t>(original.d_endHint) > original.d_str.size()) {
+
+        // The move has moved away the string
+
+        original.d_endHint = 0;
+        original.updateStreamPositions();
+    }
+}
+#endif
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     ~basic_stringbuf()
@@ -1079,6 +1160,43 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 }
 
 // MANIPULATORS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
+basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+    operator=(basic_stringbuf&& rhs)
+{
+    // Capture the positions for later restoration
+
+    const off_type  inputOffset = rhs.gptr() - rhs.eback();
+    const off_type outputOffset = rhs.pptr() - rhs.pbase();
+
+    this->pubimbue(rhs.getloc());
+
+    d_str     = std::move(rhs.d_str);
+    d_endHint = std::move(rhs.d_endHint);
+    d_mode    = std::move(rhs.d_mode);
+
+    // Fix the stream-position pointers
+
+    updateStreamPositions(inputOffset, outputOffset);
+
+    // Reset positions/pointers in the moved-from object
+
+    if (rhs.d_endHint > 0 &&
+        static_cast<size_t>(rhs.d_endHint) > rhs.d_str.size()) {
+
+        // The move has moved away the string
+
+        rhs.d_endHint = 0;
+        rhs.updateStreamPositions();
+    }
+
+    return *this;
+}
+#endif
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(
                                                        const StringType& value)
