@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
-#undef DEC(X) BDLDFP_DECIMAL_DD(X)
+#undef DEC
         }
       } break;
       case 20: {
