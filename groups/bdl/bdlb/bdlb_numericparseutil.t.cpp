@@ -151,9 +151,9 @@ int doubleSign(double number)
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int test            = argc > 1 ? atoi(argv[1]) : 0;
+    int verbose         = argc > 2;
+    int veryVerbose     = argc > 3;
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
@@ -1720,7 +1720,8 @@ int main(int argc, char *argv[])
                     P(SPEC);
                 }
 
-                double VALUE;
+                double VALUE = 42;
+
 #ifdef BSLS_PLATFORM_OS_AIX
 
                 // [s]scanf is broken in the AIX standard C library.  It fails
@@ -1870,7 +1871,7 @@ int main(int argc, char *argv[])
                 // is failing for Visual C++ 2015 (and later) due to a changed
                 // parsing of the following strings: "0e", "0E", "0ee", "0eE",
                 // "0Ee", and "0EE".
-                // 
+                //
                 // This seems to be a change of behavior in the MS 'sscanf'
                 // function, which now treats these strings as an invalid
                 // partial floating point number instead of a (0) integer
