@@ -1,3 +1,9 @@
+bsl-internal (3.11.0.3) unstable; urgency=low
+
+  * 9213c5ea3 Merge pull request #2040 from mgiroux/pr/2039-rebased-releases/3.11.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 9 Aug 2018 13:30:18 -0400
+
 bsl-internal (3.11.0.2) unstable; urgency=low
 
   * ecffe7ae3 Merge pull request #2035 from osubbotin/pr/2034-rebased-releases/3.11.x
