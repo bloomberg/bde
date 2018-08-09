@@ -35,7 +35,8 @@
             {
                 "ufids": [ "opt_dbg_exc_mt", "opt_dbg_exc_mt_64",
                            "opt_exc_mt_pic",
-                           "dbg_exc_mt", "dbg_exc_mt_64" ],
+                           "dbg_exc_mt", "dbg_exc_mt_64",
+                           "dbg_exc_mt_safe", "dbg_exc_mt_64_safe"],
                 "targets": [ "all" ],
                 "install": {
                     "libbal-dev": [ "bal", "bal-symlinks" ],
@@ -89,7 +90,8 @@
             {
                 "ufids": [ "opt_dbg_exc_mt", "opt_dbg_exc_mt_64",
                            "opt_exc_mt_pic",
-                           "dbg_exc_mt", "dbg_exc_mt_64" ],
+                           "dbg_exc_mt", "dbg_exc_mt_64",
+                           "dbg_exc_mt_safe", "dbg_exc_mt_64_safe"],
                 "targets": [ "all" ],
                 "install": {
                     "libbal-dev": [ "bal", "bal-symlinks" ],
@@ -143,7 +145,8 @@
             {
                 "ufids": [ "opt_dbg_exc_mt", "opt_dbg_exc_mt_64",
                            "opt_exc_mt_pic",
-                           "dbg_exc_mt", "dbg_exc_mt_64" ],
+                           "dbg_exc_mt", "dbg_exc_mt_64",
+                           "dbg_exc_mt_safe", "dbg_exc_mt_64_safe"],
                 "targets": [ "all" ],
                 "install": {
                     "libbal-dev": [ "bal", "bal-symlinks" ],
