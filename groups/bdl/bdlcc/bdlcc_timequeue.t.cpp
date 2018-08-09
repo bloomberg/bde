@@ -10,19 +10,19 @@
 
 #include <bdlcc_timequeue.h>
 
-#include <bslim_testutil.h>
-
 #include <bslma_testallocator.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_barrier.h>
 #include <bslmt_condition.h>
 #include <bslmt_mutex.h>
+#include <bslmt_testutil.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
 
 #include <bdlf_bind.h>
 
+#include <bdlb_random.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
 
@@ -86,7 +86,8 @@ using namespace bsl;  // automatically added by script
 // [11] CONCURRENCY TEST
 // [12] CONCERN: The queue can be used after a call to 'drain'.
 // [13] CONCERN: Memory Pooling
-// [14] Usage example
+// [14] CONCERN: Order Preservation
+// [15] USAGE EXAMPLE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -111,24 +112,16 @@ void aSsErT(int c, const char *s, int i)
 //                      STANDARD BDE TEST DRIVER MACROS
 // ----------------------------------------------------------------------------
 
-#define ASSERT       BSLIM_TESTUTIL_ASSERT
-#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
+#define ASSERT       BSLMT_TESTUTIL_ASSERT
+#define ASSERTV      BSLMT_TESTUTIL_ASSERTV
 
-#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
-#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
-#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLIM_TESTUTIL_L_  // current Line number
+#define Q   BSLMT_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLMT_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLMT_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLMT_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLMT_TESTUTIL_L_  // current Line number
 
-bslmt::Mutex coutMutex;
+#define OUTPUT_GUARD BSLMT_TESTUTIL_OUTPUT_GUARD
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -136,9 +129,12 @@ bslmt::Mutex coutMutex;
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
+static int veryVeryVeryVerbose;
 
-typedef bdlcc::TimeQueue<const char*> Obj;
+typedef bdlcc::TimeQueue<const char*>     Obj;
 typedef bdlcc::TimeQueueItem<const char*> Item;
+typedef bsls::Types::IntPtr               IntPtr;
+typedef bsls::Types::UintPtr              UintPtr;
 
                               // ================
                               // class TestString
@@ -153,7 +149,7 @@ class TestString {
     bsl::string      *d_string_p;     // owned
 
   private:
-    // Not implemented:
+    // NOT IMPLEMENTED
     TestString(const TestString&);
 
   public:
@@ -287,6 +283,51 @@ bsl::ostream& operator<<(bsl::ostream& out, const TestAllocator& ta)
 }  // close enterprise namespace
 
 // ============================================================================
+//                         CASE ORDER PRESERVATION ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace TIMEQUEUE_TEST_CASE_ORDER_PRESERVATION {
+
+typedef bdlcc::TimeQueue<int>           Container;
+typedef bdlcc::TimeQueueItem<int>       Item;
+typedef bsl::vector<bsls::TimeInterval> TimeIntervalList;
+
+void populate(Container               *container_p,
+              const TimeIntervalList&  timeValues,
+              int                      numItems,
+              int                     *randSeed_p)
+    // Populate the specified '*container_p' with the specified 'numItems'
+    // items whose 'data' field is increasing, with time values randomly chosen
+    // from the 'vector' 'timeValues'.  Use the specified '*randSeed_p' as the
+    // random number seed.
+{
+    const UintPtr tvSize = timeValues.size();
+
+    ASSERT(0 < tvSize);
+
+    // Verify that time values are unique & sorted.
+
+    for (unsigned ii = 1; ii < tvSize; ++ii) {
+        ASSERT(timeValues[ii - 1] < timeValues[ii]);
+    }
+
+    container_p->removeAll();
+
+    for (int ii = 0; ii < numItems; ++ii) {
+        unsigned rand = bdlb::Random::generate15(randSeed_p);
+
+        // Note that there are 3 'add' methods, but the other two just call
+        // this one.
+
+        container_p->add(timeValues[rand % tvSize], ii, Container::Key(ii));
+    }
+
+    ASSERT(container_p->length() == numItems);
+}
+
+}  // close namespace TIMEQUEUE_TEST_CASE_ORDER_PRESERVATION
+
+// ============================================================================
 //                         CASE 11 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
@@ -329,20 +370,19 @@ void *testAddUpdatePopRemoveAll(void *arg)
     oss << THREAD_ID;
     DATA V(oss.str());
     if (verbose) {
-        coutMutex.lock();
+        OUTPUT_GUARD;
         T_; P_(THREAD_ID); Q(CREATION); P(V);
-        coutMutex.unlock(); }
+    }
 
     barrier.wait();
 
     int newLen;
-   bsls::TimeInterval newMinTime;
+    bsls::TimeInterval newMinTime;
     TimeQueueItem item;
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         if (veryVerbose) {
-            coutMutex.lock();
+            OUTPUT_GUARD;
             T_; P_(THREAD_ID); Q(ITERATION); P(i);
-            coutMutex.unlock();
         }
         const bsls::TimeInterval TIME((i * (i + 3)) % k_NUM_ITERATIONS);
         int h = timequeue.add(TIME, V);
@@ -358,9 +398,8 @@ void *testAddUpdatePopRemoveAll(void *arg)
         if (i % k_NUM_REMOVE_ALL == STEP_REMOVE_ALL) {
             timequeue.removeAll(vPtr);
             if (veryVerbose) {
-                coutMutex.lock();
+                OUTPUT_GUARD;
                 T_; P_(THREAD_ID); Q(REMOVE_ALL); P(i);
-                coutMutex.unlock();
             }
         }
     }
@@ -373,8 +412,8 @@ void *testLength(void *)
     barrier.wait();
     for (int i = 0; i < k_NUM_ITERATIONS; ++i) {
         int len = timequeue.length();
-        LOOP2_ASSERT(i, len, len >= 0);
-        LOOP2_ASSERT(i, len, len <= k_NUM_THREADS);
+        ASSERTV(i, len, len >= 0);
+        ASSERTV(i, len, len <= k_NUM_THREADS);
     }
     return NULL;
 }
@@ -697,11 +736,12 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
             // Monitor all timers in the current 'my_Server', and handle each
             // timer as it expires.
 
-        friend void *my_connectionMonitorThreadEntry(void *server);
-        friend void *my_timerMonitorThreadEntry(void *server);
+        // FRIENDS
+        friend void *my_connectionMonitorThreadEntry(void *);
+        friend void *my_timerMonitorThreadEntry(void *);
 
       private:
-        // Not implemented:
+        // NOT IMPLEMENTED
         my_Server(const my_Server&);
 
       public:
@@ -972,7 +1012,7 @@ namespace TIMEQUEUE_USAGE_EXAMPLE {
             // connection for processing.
 
       private:
-        // Not implemented:
+        // NOT IMPLEMENTED
         my_TestServer(const my_TestServer&);
 
       public:
@@ -1084,6 +1124,7 @@ int main(int argc, char *argv[])
     verbose = argc > 2;
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
@@ -1092,7 +1133,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocGuard(&defaultAlloc);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TEST USAGE EXAMPLE
         //   The usage example from the header has been incorporated into this
@@ -1110,7 +1151,7 @@ int main(int argc, char *argv[])
         //   that events happen as expected.
         //
         // Testing:
-        //   USAGE example
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1122,6 +1163,224 @@ int main(int argc, char *argv[])
             usageExample(verbose);
         }
 
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // CONCERN: Order Preservation
+        //
+        // Concerns:
+        //: 1 That items added that have the same time value will, when popped,
+        //:   appear in the same order in which they were added to the time
+        //:   queue.
+        //
+        // Plan:
+        //: 1 Use the method 'populate' defined in the namespace of this test
+        //:   case to populate a time queue with a given number of items, with
+        //:   a given number of different time values.  The data type will be
+        //:   'int', the items added will start at 0 and increment each time
+        //:   one is added.
+        //:
+        //: 2 Pop the elements from the queue in a variety of ways, and observe
+        //:   that, for a given time value, the 'int' values are increasing.
+        //
+        // Testing:
+        //   CONCERN: Order Preservation
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "CONCERN: Order Preservation\n"
+                             "===========================\n";
+
+        namespace TC = TIMEQUEUE_TEST_CASE_ORDER_PRESERVATION;
+
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        TC::TimeIntervalList til(&ta);
+
+        {
+            enum { k_NUM_ITEMS = 8000 };
+
+            if (verbose) P(k_NUM_ITEMS);
+
+            for (int ii = 0; ii < 16; ++ii) {
+                til.push_back(bsls::TimeInterval(ii, 0));
+            }
+
+            TC::Container mX(&ta);    const TC::Container& X = mX;
+
+            if (verbose) Q(Via popFront);
+
+            int randSeed = -987654321;
+            TC::populate(&mX, til, k_NUM_ITEMS, &randSeed);
+            ASSERT(k_NUM_ITEMS == X.length());
+
+            TC::Item item(&ta);
+            bsls::TimeInterval prevTime(-1, 0);
+            int prevData = -1;
+            int ii;
+            for (ii = 0; 0 == mX.popFront(&item); ++ii) {
+                const TC::Container::Key expKey(item.data());
+                ASSERT(expKey == item.key());
+
+                if (prevTime == item.time()) {
+                    ASSERTV(prevData, item.data(), prevData < item.data());
+                }
+                else {
+                    if (veryVerbose) { P_(item.time());    P(ii); }
+
+                    ASSERTV(prevTime, item.time(), prevTime < item.time());
+                }
+
+                prevTime = item.time();
+                prevData = item.data();
+            }
+            ASSERT(k_NUM_ITEMS == ii);
+            ASSERT(0 == X.length());
+
+            if (verbose) Q(Via Single popLE);
+
+            TC::populate(&mX, til, k_NUM_ITEMS, &randSeed);
+            bsl::vector<TC::Item> outVec(&ta);
+
+            mX.popLE(til[til.size() - 1], &outVec);
+            IntPtr outLen = outVec.size();
+            ASSERT(k_NUM_ITEMS == outLen);
+            ASSERT(0 == X.length());
+
+            prevTime = bsls::TimeInterval(-1, 0);
+            prevData = -1;
+            for (ii = 0; ii < k_NUM_ITEMS; ++ii) {
+                const TC::Item& item = outVec[ii];
+                const bsls::TimeInterval nti = item.time();
+
+                const TC::Container::Key expKey(item.data());
+                ASSERT(expKey == item.key());
+
+                if (prevTime == nti) {
+                    ASSERTV(prevData, item.data(), prevData < item.data());
+                }
+                else {
+                    if (veryVerbose) { P_(nti);    P_(item.data());    P(ii); }
+
+                    ASSERTV(prevTime, nti, prevTime < nti);
+                }
+
+                prevTime = nti;
+                prevData = item.data();
+            }
+            ASSERT(k_NUM_ITEMS == ii);
+
+            if (verbose) Q(Via removeAll);
+
+            TC::populate(&mX, til, k_NUM_ITEMS, &randSeed);
+            outVec.clear();
+
+            mX.removeAll(&outVec);
+            outLen = outVec.size();
+            ASSERT(k_NUM_ITEMS == outLen);
+            ASSERT(0 == X.length());
+
+            prevTime = bsls::TimeInterval(-1, 0);
+            prevData = -1;
+            for (ii = 0; ii < k_NUM_ITEMS; ++ii) {
+                const TC::Item& item = outVec[ii];
+                const bsls::TimeInterval nti = item.time();
+
+                const TC::Container::Key expKey(item.data());
+                ASSERT(expKey == item.key());
+
+                if (prevTime == nti) {
+                    ASSERTV(prevData, item.data(), prevData < item.data());
+                }
+                else {
+                    if (veryVerbose) { P_(nti);    P_(item.data());    P(ii); }
+
+                    ASSERTV(prevTime, nti, prevTime < nti);
+                }
+
+                prevTime = nti;
+                prevData = item.data();
+            }
+            ASSERT(k_NUM_ITEMS == ii);
+
+            if (verbose) Q(Via Multi popLE);
+
+            TC::populate(&mX, til, k_NUM_ITEMS, &randSeed);
+
+            ii = 0;
+            for (unsigned jj = 0; jj < til.size(); ++jj) {
+                bsls::TimeInterval time = til[jj];
+
+                outVec.clear();
+                mX.popLE(time, &outVec);
+                outLen = outVec.size();
+
+                if (veryVerbose) { P_(time);    P(outLen); }
+
+                prevData = -1;
+                for (int kk = 0; kk < outLen; ++kk, ++ii) {
+                    const TC::Item& item = outVec[kk];
+
+                    const TC::Container::Key expKey(item.data());
+                    ASSERT(expKey == item.key());
+
+                    ASSERT(time == item.time());
+                    ASSERT(prevData < item.data());
+
+                    prevData = item.data();
+                }
+            }
+            ASSERT(k_NUM_ITEMS == ii);
+            ASSERT(0 == X.length());
+
+            enum { k_MAX_TIMERS = 256 };
+            if (verbose) cout << "<| Via Multi popLE with maxTimers: " <<
+                                                       k_MAX_TIMERS << " |>\n";
+
+            TC::populate(&mX, til, k_NUM_ITEMS, &randSeed);
+            bsls::TimeInterval maxTime = til[til.size() - 1];
+
+            prevTime = bsls::TimeInterval(-1, 0);
+            prevData = -1;
+            ii = 0;
+            for (unsigned jj = 0; 0 < X.length(); ++jj) {
+                outVec.clear();
+                int newLength;
+                bsls::TimeInterval newMinTime;
+                mX.popLE(maxTime,
+                         k_MAX_TIMERS,
+                         &outVec,
+                         &newLength,
+                         &newMinTime);
+                outLen = outVec.size();
+
+                if (veryVerbose) {
+                     P_(jj);    P_(newMinTime);    P_(newLength);    P(outLen);
+                }
+
+                for (ii = 0; ii < outLen; ++ii) {
+                    const TC::Item& item = outVec[ii];
+                    const bsls::TimeInterval nti = item.time();
+
+                    const TC::Container::Key expKey(item.data());
+                    ASSERT(expKey == item.key());
+
+                    if (prevTime == nti) {
+                        ASSERTV(prevData, item.data(), prevData < item.data());
+                    }
+                    else {
+                        if (veryVerbose) {
+                            const int nodeIdx = k_MAX_TIMERS * jj + ii;
+                            P_(nti);    P_(item.data());    P(nodeIdx);
+                        }
+
+                        ASSERTV(prevTime, nti, prevTime < nti);
+                    }
+
+                    prevTime = nti;
+                    prevData = item.data();
+                }
+            }
+            ASSERT(0 == X.length());
+        }
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -1367,8 +1626,8 @@ int main(int argc, char *argv[])
         }
         bslmt::ThreadUtil::join(threads[k_NUM_THREADS]);
 
-        LOOP_ASSERT(timequeue.length(), 0 == timequeue.length());
-        LOOP_ASSERT(size, k_NUM_ITERATIONS * k_NUM_THREADS * 2 == size);
+        ASSERTV(timequeue.length(), 0 == timequeue.length());
+        ASSERTV(size, k_NUM_ITERATIONS * k_NUM_THREADS * 2 == size);
 
       } break;
       case 10: {
@@ -1556,8 +1815,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_; P_(LINE); P_(VAL); P_(TIME); P(X.length());
                 }
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, (i+1) == X.length());
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             int cumulNumItems = 0;
@@ -1582,8 +1841,8 @@ int main(int argc, char *argv[])
                     T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
                 }
 
-                LOOP_ASSERT(LINE, EXPNUMITEMS == (int)buffer.size());
-                LOOP_ASSERT(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
+                ASSERTV(LINE, EXPNUMITEMS == (int)buffer.size());
+                ASSERTV(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
 
                 if (0 < newLength) {
                     cumulNumItems += EXPNUMITEMS;
@@ -1591,13 +1850,13 @@ int main(int argc, char *argv[])
                     const int NEWSECS    = VALUES[SORTED_IDX].d_secs;
                     const int NEWNSECS   = VALUES[SORTED_IDX].d_nsecs;
                     const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
-                    LOOP_ASSERT(LINE, EXPNEWMINTIME == newMinTime);
+                    ASSERTV(LINE, EXPNEWMINTIME == newMinTime);
                     if (veryVerbose) {
                         T_; P_(EXPNEWMINTIME); P(newMinTime);
                     }
                 }
                 else {
-                    LOOP_ASSERT(LINE, bsls::TimeInterval() == newMinTime);
+                    ASSERTV(LINE, bsls::TimeInterval() == newMinTime);
                 }
 
                 if (buffer.size() && EXPNUMITEMS == (int)buffer.size()) {
@@ -1613,9 +1872,9 @@ int main(int argc, char *argv[])
                             P(buffer[j].data());
                         }
 
-                        LOOP_ASSERT(j, EXPTIME == buffer[j].time());
-                        LOOP_ASSERT(j, EXPVAL  == buffer[j].data());
-                        LOOP_ASSERT(j,
+                        ASSERTV(j, EXPTIME == buffer[j].time());
+                        ASSERTV(j, EXPVAL  == buffer[j].data());
+                        ASSERTV(j,
                                     true != X.isRegisteredHandle(handles[I]));
                     }
                 }
@@ -1673,8 +1932,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, (i+1) == X.length());
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             int cumulNumItems = 0;
@@ -1700,8 +1959,8 @@ int main(int argc, char *argv[])
                     T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
                 }
 
-                LOOP_ASSERT(LINE, OLDSIZE + EXPNUMITEMS == (int)buffer.size());
-                LOOP_ASSERT(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
+                ASSERTV(LINE, OLDSIZE + EXPNUMITEMS == (int)buffer.size());
+                ASSERTV(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
 
                 if (0 < newLength) {
                     cumulNumItems += EXPNUMITEMS;
@@ -1709,13 +1968,13 @@ int main(int argc, char *argv[])
                     const int NEWSECS    = VALUES[SORTED_IDX].d_secs;
                     const int NEWNSECS   = VALUES[SORTED_IDX].d_nsecs;
                     const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
-                    LOOP_ASSERT(LINE, EXPNEWMINTIME == newMinTime);
+                    ASSERTV(LINE, EXPNEWMINTIME == newMinTime);
                     if (veryVerbose) {
                        T_; P_(EXPNEWMINTIME); P(newMinTime);
                     }
                 }
                 else {
-                    LOOP_ASSERT(LINE, bsls::TimeInterval() == newMinTime);
+                    ASSERTV(LINE, bsls::TimeInterval() == newMinTime);
                 }
 
                 if (OLDSIZE + EXPNUMITEMS == (int)buffer.size()) {
@@ -1731,9 +1990,9 @@ int main(int argc, char *argv[])
                             P(buffer[j].data());
                         }
 
-                        LOOP_ASSERT(j, EXPTIME == buffer[OLDSIZE + j].time());
-                        LOOP_ASSERT(j, EXPVAL  == buffer[OLDSIZE + j].data());
-                        LOOP_ASSERT(j,
+                        ASSERTV(j, EXPTIME == buffer[OLDSIZE + j].time());
+                        ASSERTV(j, EXPVAL  == buffer[OLDSIZE + j].data());
+                        ASSERTV(j,
                                     true != X.isRegisteredHandle(handles[I]));
                     }
                 }
@@ -1810,8 +2069,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, (i+1) == X.length());
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1824,11 +2083,11 @@ int main(int argc, char *argv[])
                 int isNewTop;
 
                 Item item(&ta);
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
-                LOOP_ASSERT(LINE, 0 == mX.update(handles[i], UPDTIME,
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, 0 == mX.update(handles[i], UPDTIME,
                                                 &isNewTop));
-                LOOP_ASSERT(LINE, EXPNEWTOP == isNewTop);
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, EXPNEWTOP == isNewTop);
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -1840,11 +2099,11 @@ int main(int argc, char *argv[])
                 const bsls::TimeInterval EXPTIME(EXPSECS,EXPNSECS);
 
                 Item item(&ta);
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[I]));
-                LOOP_ASSERT(LINE, 0 == mX.popFront(&item));
-                LOOP_ASSERT(LINE, EXPTIME == item.time());
-                LOOP_ASSERT(LINE, EXPVAL == item.data());
-                LOOP_ASSERT(LINE, true != X.isRegisteredHandle(handles[I]));
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[I]));
+                ASSERTV(LINE, 0 == mX.popFront(&item));
+                ASSERTV(LINE, EXPTIME == item.time());
+                ASSERTV(LINE, EXPVAL == item.data());
+                ASSERTV(LINE, true != X.isRegisteredHandle(handles[I]));
             }
         }
         ASSERT(0 == defaultAlloc.numAllocations());
@@ -1941,8 +2200,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_; P_(LINE); P_(VAL); P_(TIME); P(X.length());
                 }
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, (i+1) == X.length());
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             int cumulNumItems = 0;
@@ -1967,8 +2226,8 @@ int main(int argc, char *argv[])
                     T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
                 }
 
-                LOOP_ASSERT(LINE, EXPNUMITEMS == (int)buffer.size());
-                LOOP_ASSERT(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
+                ASSERTV(LINE, EXPNUMITEMS == (int)buffer.size());
+                ASSERTV(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
 
                 if (0 < newLength) {
                     cumulNumItems += EXPNUMITEMS;
@@ -1976,13 +2235,13 @@ int main(int argc, char *argv[])
                     const int NEWSECS    = VALUES[SORTED_IDX].d_secs;
                     const int NEWNSECS   = VALUES[SORTED_IDX].d_nsecs;
                     const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
-                    LOOP_ASSERT(LINE, EXPNEWMINTIME == newMinTime);
+                    ASSERTV(LINE, EXPNEWMINTIME == newMinTime);
                     if (veryVerbose) {
                         T_; P_(EXPNEWMINTIME); P(newMinTime);
                     }
                 }
                 else {
-                    LOOP_ASSERT(LINE, bsls::TimeInterval() == newMinTime);
+                    ASSERTV(LINE, bsls::TimeInterval() == newMinTime);
                 }
 
                 if (buffer.size() && EXPNUMITEMS == (int)buffer.size()) {
@@ -1998,9 +2257,9 @@ int main(int argc, char *argv[])
                             P(buffer[j].data());
                         }
 
-                        LOOP_ASSERT(j, EXPTIME == buffer[j].time());
-                        LOOP_ASSERT(j, EXPVAL  == buffer[j].data());
-                        LOOP_ASSERT(j,
+                        ASSERTV(j, EXPTIME == buffer[j].time());
+                        ASSERTV(j, EXPVAL  == buffer[j].data());
+                        ASSERTV(j,
                                     true != X.isRegisteredHandle(handles[I]));
                     }
                 }
@@ -2057,8 +2316,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, (i+1) == X.length());
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             int cumulNumItems = 0;
@@ -2084,8 +2343,8 @@ int main(int argc, char *argv[])
                     T_; P_(OLDLENGTH); P_(X.length()); P(buffer.size());
                 }
 
-                LOOP_ASSERT(LINE, OLDSIZE + EXPNUMITEMS == (int)buffer.size());
-                LOOP_ASSERT(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
+                ASSERTV(LINE, OLDSIZE + EXPNUMITEMS == (int)buffer.size());
+                ASSERTV(LINE, OLDLENGTH - EXPNUMITEMS == newLength);
 
                 if (0 < newLength) {
                     cumulNumItems += EXPNUMITEMS;
@@ -2093,13 +2352,13 @@ int main(int argc, char *argv[])
                     const int NEWSECS    = VALUES[SORTED_IDX].d_secs;
                     const int NEWNSECS   = VALUES[SORTED_IDX].d_nsecs;
                     const bsls::TimeInterval EXPNEWMINTIME(NEWSECS,NEWNSECS);
-                    LOOP_ASSERT(LINE, EXPNEWMINTIME == newMinTime);
+                    ASSERTV(LINE, EXPNEWMINTIME == newMinTime);
                     if (veryVerbose) {
                        T_; P_(EXPNEWMINTIME); P(newMinTime);
                     }
                 }
                 else {
-                    LOOP_ASSERT(LINE, bsls::TimeInterval() == newMinTime);
+                    ASSERTV(LINE, bsls::TimeInterval() == newMinTime);
                 }
 
                 if (OLDSIZE + EXPNUMITEMS == (int)buffer.size()) {
@@ -2115,9 +2374,9 @@ int main(int argc, char *argv[])
                             P(buffer[j].data());
                         }
 
-                        LOOP_ASSERT(j, EXPTIME == buffer[OLDSIZE + j].time());
-                        LOOP_ASSERT(j, EXPVAL  == buffer[OLDSIZE + j].data());
-                        LOOP_ASSERT(j,
+                        ASSERTV(j, EXPTIME == buffer[OLDSIZE + j].time());
+                        ASSERTV(j, EXPVAL  == buffer[OLDSIZE + j].data());
+                        ASSERTV(j,
                                     true != X.isRegisteredHandle(handles[I]));
                     }
                 }
@@ -2191,8 +2450,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, (i+1) == X.length());
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -2203,13 +2462,13 @@ int main(int argc, char *argv[])
                 const bsls::TimeInterval EXPTIME(EXPSECS,EXPNSECS);
 
                 Item item(&ta);
-                LOOP_ASSERT(i, true == X.isRegisteredHandle(handles[I]));
-                LOOP_ASSERT(i, 0 == mX.popFront(&item));
-                LOOP_ASSERT(i, EXPTIME == item.time());
-                LOOP_ASSERT(i, EXPVAL == item.data());
-                LOOP_ASSERT(i, handles[I] == item.handle());
-                LOOP_ASSERT(i, (NUM_VALUES - 1 - i) == X.length());
-                LOOP_ASSERT(i, true != X.isRegisteredHandle(handles[I]));
+                ASSERTV(i, true == X.isRegisteredHandle(handles[I]));
+                ASSERTV(i, 0 == mX.popFront(&item));
+                ASSERTV(i, EXPTIME == item.time());
+                ASSERTV(i, EXPVAL == item.data());
+                ASSERTV(i, handles[I] == item.handle());
+                ASSERTV(i, (NUM_VALUES - 1 - i) == X.length());
+                ASSERTV(i, true != X.isRegisteredHandle(handles[I]));
             }
 
             {
@@ -2286,8 +2545,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, (i+1) == X.length());
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -2305,16 +2564,16 @@ int main(int argc, char *argv[])
                 bsls::TimeInterval newMinTime;
 
                 Item item(&ta);
-                LOOP_ASSERT(i, true == X.isRegisteredHandle(handles[I]));
-                LOOP_ASSERT(i, 0 == mX.popFront(&item, &newLength,
+                ASSERTV(i, true == X.isRegisteredHandle(handles[I]));
+                ASSERTV(i, 0 == mX.popFront(&item, &newLength,
                                                &newMinTime));
-                LOOP_ASSERT(i, EXPTIME == item.time());
-                LOOP_ASSERT(i, EXPVAL == item.data());
-                LOOP_ASSERT(i, handles[I] == item.handle());
-                LOOP_ASSERT(i, (NUM_VALUES - 1 - i) == X.length());
-                LOOP_ASSERT(i, (NUM_VALUES - 1 - i) == newLength);
-                LOOP_ASSERT(i, EXPMINTIME == newMinTime);
-                LOOP_ASSERT(i, true != X.isRegisteredHandle(handles[I]));
+                ASSERTV(i, EXPTIME == item.time());
+                ASSERTV(i, EXPVAL == item.data());
+                ASSERTV(i, handles[I] == item.handle());
+                ASSERTV(i, (NUM_VALUES - 1 - i) == X.length());
+                ASSERTV(i, (NUM_VALUES - 1 - i) == newLength);
+                ASSERTV(i, EXPMINTIME == newMinTime);
+                ASSERTV(i, true != X.isRegisteredHandle(handles[I]));
             }
 
             {
@@ -2390,8 +2649,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, (i+1) == X.length());
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             ASSERT(NUM_VALUES == X.length());
@@ -2400,7 +2659,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int LINE = VALUES[i].d_lineNum;
-                LOOP_ASSERT(LINE, false == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, false == X.isRegisteredHandle(handles[i]));
             }
         }
 
@@ -2444,8 +2703,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, (i+1) == X.length());
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             bsl::vector<bdlcc::TimeQueueItem<const char*> > buffer(&ta);
@@ -2462,10 +2721,10 @@ int main(int argc, char *argv[])
                 const int   NSECS  = VALUES[i].d_nsecs;
                 const bsls::TimeInterval TIME(SECS,NSECS);
 
-                LOOP_ASSERT(LINE, TIME == buffer[i].time());
-                LOOP_ASSERT(LINE, VAL == buffer[i].data());
-                LOOP_ASSERT(LINE, handles[i] == buffer[i].handle());
-                LOOP_ASSERT(LINE, true != X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, TIME == buffer[i].time());
+                ASSERTV(LINE, VAL == buffer[i].data());
+                ASSERTV(LINE, handles[i] == buffer[i].handle());
+                ASSERTV(LINE, true != X.isRegisteredHandle(handles[i]));
             }
         }
         ASSERT(0 == defaultAlloc.numAllocations());
@@ -2528,15 +2787,15 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, (i+1) == X.length());
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
                 const int   LINE        = VALUES[i].d_lineNum;
-                LOOP_ASSERT(LINE, 0 == mX.remove(handles[i]));
-                LOOP_ASSERT(LINE, NUM_VALUES-i-1 == X.length());
-                LOOP_ASSERT(LINE, false == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, 0 == mX.remove(handles[i]));
+                ASSERTV(LINE, NUM_VALUES-i-1 == X.length());
+                ASSERTV(LINE, false == X.isRegisteredHandle(handles[i]));
             }
         }
         ASSERT(0 == defaultAlloc.numAllocations());
@@ -2584,8 +2843,8 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     T_; P_(LINE); P_(VAL);P_(TIME); P(X.length());
                 }
-                LOOP_ASSERT(LINE, (i+1) == X.length());
-                LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, (i+1) == X.length());
+                ASSERTV(LINE, true == X.isRegisteredHandle(handles[i]));
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
@@ -2599,18 +2858,18 @@ int main(int argc, char *argv[])
                 bdlcc::TimeQueueItem<const char*> buffer(&ta);
                 bsls::TimeInterval newMinTime;
 
-                LOOP_ASSERT(LINE, 0 == mX.remove(handles[i], &newLength,
+                ASSERTV(LINE, 0 == mX.remove(handles[i], &newLength,
                                                 &newMinTime, &buffer));
-                LOOP_ASSERT(LINE, NUM_VALUES-i-1 == newLength);
-                LOOP_ASSERT(LINE, NUM_VALUES-i-1 == X.length());
-                LOOP_ASSERT(LINE, TIME == buffer.time());
-                LOOP_ASSERT(LINE, VAL == buffer.data());
-                LOOP_ASSERT(LINE, handles[i] == buffer.handle());
-                LOOP_ASSERT(LINE, true != X.isRegisteredHandle(handles[i]));
+                ASSERTV(LINE, NUM_VALUES-i-1 == newLength);
+                ASSERTV(LINE, NUM_VALUES-i-1 == X.length());
+                ASSERTV(LINE, TIME == buffer.time());
+                ASSERTV(LINE, VAL == buffer.data());
+                ASSERTV(LINE, handles[i] == buffer.handle());
+                ASSERTV(LINE, true != X.isRegisteredHandle(handles[i]));
                 if (i < NUM_VALUES-1) {
                     const bsls::TimeInterval NEWMINTIME(VALUES[i+1].d_secs,
                                                        VALUES[i+1].d_nsecs);
-                    LOOP_ASSERT(LINE, NEWMINTIME == newMinTime);
+                    ASSERTV(LINE, NEWMINTIME == newMinTime);
                 }
 
             }
@@ -2713,10 +2972,10 @@ int main(int argc, char *argv[])
                         T_;  P_(isNewTop); P(newMinTime); P_(newLength);
                         P(X.length());
                     }
-                    LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
-                    LOOP_ASSERT(LINE, (i+1) == newLength);
-                    LOOP_ASSERT(LINE, (i+1) == X.length());
-                    LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
+                    ASSERTV(LINE, ISNEWTOP == isNewTop);
+                    ASSERTV(LINE, (i+1) == newLength);
+                    ASSERTV(LINE, (i+1) == X.length());
+                    ASSERTV(LINE, true == X.isRegisteredHandle(handle));
                 }
             }
         }
@@ -2791,10 +3050,10 @@ int main(int argc, char *argv[])
                         T_; P_(LINE); P_(VAL);P_(TIME); P(ISNEWTOP);
                         T_; P_(isNewTop); P_(newLength); P(X.length());
                     }
-                    LOOP_ASSERT(LINE, ISNEWTOP == isNewTop);
-                    LOOP_ASSERT(LINE, (i+1) == newLength);
-                    LOOP_ASSERT(LINE, (i+1) == X.length());
-                    LOOP_ASSERT(LINE, true == X.isRegisteredHandle(handle));
+                    ASSERTV(LINE, ISNEWTOP == isNewTop);
+                    ASSERTV(LINE, (i+1) == newLength);
+                    ASSERTV(LINE, (i+1) == X.length());
+                    ASSERTV(LINE, true == X.isRegisteredHandle(handle));
                 }
             }
         }
@@ -3274,7 +3533,7 @@ int main(int argc, char *argv[])
         s.stop();
 
         if (veryVerbose) {
-            P(s.elapsedTime())
+            P(s.elapsedTime());
         }
 
         s.reset();
@@ -3294,7 +3553,7 @@ int main(int argc, char *argv[])
         s.stop();
 
         if (veryVerbose) {
-            P(s.elapsedTime())
+            P(s.elapsedTime());
         }
 
         if (veryVerbose) {
