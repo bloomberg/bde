@@ -88,9 +88,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Ordering
 /// - - - -
-// If two items are 'add'ed with identical 'time' values, the one whose 'add'
-// call acquired the mutex first will be the first removed, whether removed via
-// 'popFront', 'popLE', or 'removeAll'.
+// For a given 'bsls::TimeInterval' value, the order of item removal (via
+// 'popFront', 'popLE', 'removeAll', etc.) is guaranteed to match the order of
+// item insertion (via 'add') for a particular insertion thread or group of
+// externally synchronized insertion threads.
 //
 ///Usage
 ///-----
@@ -718,6 +719,7 @@ class TimeQueue {
         // having the same time value.  This struct provides the node in the
         // list.
 
+        // PUBLIC DATA MEMBERS
         int                       d_index;
         bsls::TimeInterval        d_time;
         Key                       d_key;

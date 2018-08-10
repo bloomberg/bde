@@ -86,7 +86,7 @@ using namespace bsl;  // automatically added by script
 // [11] CONCURRENCY TEST
 // [12] CONCERN: The queue can be used after a call to 'drain'.
 // [13] CONCERN: Memory Pooling
-// [14] CONCERN: Order Preservation
+// [14] CONCERN: ORDER PRESERVATION
 // [15] USAGE EXAMPLE
 
 // ============================================================================
@@ -298,11 +298,12 @@ void populate(Container               *container_p,
               int                     *randSeed_p)
     // Populate the specified '*container_p' with the specified 'numItems'
     // items whose 'data' field is increasing, with time values randomly chosen
-    // from the 'vector' 'timeValues'.  Use the specified '*randSeed_p' as the
-    // random number seed.
+    // from the specified collection of 'timeValues'.  Use the specified
+    // '*randSeed_p' as the random number seed.  The behavior is undefined
+    // unless 'timeValues' contains at least one value, and unless the values
+    // in 'timeValues' are sorted and unique.
 {
     const UintPtr tvSize = timeValues.size();
-
     ASSERT(0 < tvSize);
 
     // Verify that time values are unique & sorted.
@@ -1166,7 +1167,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // CONCERN: Order Preservation
+        // CONCERN: ORDER PRESERVATION
         //
         // Concerns:
         //: 1 That items added that have the same time value will, when popped,
@@ -1184,10 +1185,10 @@ int main(int argc, char *argv[])
         //:   that, for a given time value, the 'int' values are increasing.
         //
         // Testing:
-        //   CONCERN: Order Preservation
+        //   CONCERN: ORDER PRESERVATION
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "CONCERN: Order Preservation\n"
+        if (verbose) cout << "CONCERN: ORDER PRESERVATION\n"
                              "===========================\n";
 
         namespace TC = TIMEQUEUE_TEST_CASE_ORDER_PRESERVATION;
