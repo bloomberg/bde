@@ -1,4 +1,4 @@
-// bslstl_array.t.cpp                                          -*-C++-*-
+// bslstl_array.t.cpp                                                 -*-C++-*-
 #include <bslstl_array.h>
 
 #include <bsls_assert.h>
@@ -8,7 +8,6 @@
 #include <bsls_outputredirector.h>
 
 #include <bsltf_movabletesttype.h>
-//#include <bsltf_movestate.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
@@ -25,6 +24,10 @@
 using namespace BloombergLP;
 using namespace bslstl;
 
+// BDE_VERIFY pragma: -FD01
+// BDE_VERIFY pragma: -AT02
+// BDE_VERIFY pragma: -AC02
+
 //TODO add negative testing on front back and []
 //=============================================================================
 //                              TEST PLAN
@@ -40,11 +43,11 @@ using namespace bslstl;
 //: o 'size()'
 //
 // We will follow our standard 10-case approach to testing value-semantic
-// types, with the default constructor and primary
-// manipulators tested fully in case 2 and additional operators, accessors,
-// and manipulators tested above case 10. Aggregate initialization is also
-// tested in test case 15 by initializing with a variety of sizes and
-// verifying all values are as expected.
+// types, with the default constructor and primary manipulators tested fully
+// in case 2 and additional operators, accessors, and manipulators tested above
+// case 10. Aggregate initialization is also tested in test case 15 by
+// initializing with a variety of sizes and verifying all values are as
+// expected.
 //
 // Global Concerns:
 //: o ACCESSOR methods are declared 'const'.
@@ -55,11 +58,12 @@ using namespace bslstl;
 // Global Assumptions:
 //: o ACCESSOR methods are 'const' thread-safe.
 // TODO add special case for non assignable types and non comparable types
-//: o The 'VALUE_TYPE' of the array is assignable and supports operator==.
+//: o The 'VALUE_TYPE' of the array is assignable, default constructable, and
+//:   supports operator==.
 // ----------------------------------------------------------------------------
 //
 // CREATORS
-// [ 2] array<T, S>(); 
+// [ 2] array<T, S>();
 // [ 7] array<T,S>(const array<T,S>& original);
 // [ 2] ~array();
 // [15] array<T, S>{{v1, v2, v3}};
@@ -73,7 +77,10 @@ using namespace bslstl;
 // [ 9] array<T,S>& operator=(const array<T,S>& rhs);
 // [ 8] void swap(array&);
 // [ 2] reference operator[](size_type position);
-// [18] reference at(size_type position); 
+// [18] reference at(size_type position);
+// [19] reference back();
+// [19] reference front();
+// [20] const_pointer data() const;
 //
 // ACCESSORS
 // [14] const_iterator begin() const;
@@ -89,6 +96,9 @@ using namespace bslstl;
 // [18] reference at(size_type position) const;
 // [17] size_type max_size() const;
 // [17] bool empty() const;
+// [19] const_reference back() const;
+// [19] const_reference front() const;
+// [20] const_pointer data() const;
 //
 // FREE OPERATORS
 // [ 6] bool operator==(const array<T,S>&, const array<T,S>&);
@@ -108,26 +118,35 @@ using namespace bslstl;
 // [ 3] array<T,S>& gg(array<T,S> *object, const char *spec);
 
 
-//TODO copy this from a newer version
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
+{
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -136,13 +155,12 @@ static void aSsErT(bool b, const char *s, int i) {
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -154,7 +172,6 @@ static void aSsErT(bool b, const char *s, int i) {
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
-
 
 //=============================================================================
 //                       GLOBAL OBJECTS SHARED BY TEST CASES
@@ -178,39 +195,38 @@ static bool s_operators = false;
 template<class TYPE>
 class wrapper {
   public:
-    TYPE d_val;
-
     wrapper();
     ~wrapper();
 
   private:
+    TYPE d_val;
     wrapper(const wrapper& other); // = delete;
 };
 
 template<class TYPE>
 wrapper<TYPE>::wrapper()
 {
-   s_numConstructed += 1;
+    s_numConstructed += 1;
 }
-template<class TYPE>
+template <class TYPE>
 wrapper<TYPE>::~wrapper()
 {
-   s_numConstructed -= 1;
+    s_numConstructed -= 1;
 }
 
 //class that only supports operator<.
 class lessthan {
-    public:
-      int d_val;
+  public:
 
-      bool operator<(const lessthan& other) const;
-      bool operator>(const lessthan& other) const;
-      bool operator<=(const lessthan& other) const;
-      bool operator>=(const lessthan& other) const;
-      lessthan();
-      lessthan(int v);
-    private:
+    bool operator<(const lessthan& other) const;
+    bool operator>(const lessthan& other) const;
+    bool operator<=(const lessthan& other) const;
+    bool operator>=(const lessthan& other) const;
+    lessthan();
+    explicit lessthan(int v);
 
+  private:
+    int d_val;
 };
 
 lessthan::lessthan(): d_val(0){}
@@ -260,7 +276,7 @@ void debugprint(const array<TYPE, SIZE>& v)
 
 
 
-} // close namespace bsl
+}  // close namespace bsl
 
 
 //=============================================================================
@@ -270,7 +286,7 @@ void debugprint(const array<TYPE, SIZE>& v)
 // The generating functions interpret the given 'spec' in order from left to
 // right to configure the object according to a custom language.  Uppercase
 // letters [A .. E] correspond to arbitrary (but unique) char values to be
-// created in the 'bsl::array<T, S>' object. 
+// created in the 'bsl::array<T, S>' object.
 //..
 // LANGUAGE SPECIFICATION:
 // -----------------------
@@ -313,9 +329,9 @@ int ggg(bsl::array<TYPE, SIZE> *object,
     // specify 'false' for 'verboseFlag' to suppress 'spec' syntax error
     // messages.  Return the index of the first invalid character, and a
     // negative value otherwise.  Note that this function is used to implement
-    // 'gg' as well as allow for verification of syntax error detection.
-    // Any elements in the array beyond the 'spec' string length will be
-    // assigned the value generated by 'TestFacility::create<TYPE>(0)'.
+    // 'gg' as well as allow for verification of syntax error detection.  Any
+    // elements in the array beyond the 'spec' string length will be assigned
+    // the value generated by 'TestFacility::create<TYPE>(0)'.
 {
     enum { SUCCESS = -1 };
     typedef bsltf::TemplateTestFacility TestFacility;
@@ -329,7 +345,7 @@ int ggg(bsl::array<TYPE, SIZE> *object,
         else {
             if (verboseFlag) {
                 printf("Error, bad character (%c) "
-                       "in spec (%s) at position %d.\n", spec[i], spec, i);
+                       "in spec (%s) at position %zd.\n", spec[i], spec, i);
             }
             return i;  // Discontinue processing this spec.           // RETURN
         }
@@ -363,16 +379,17 @@ namespace UsageExample {
 //
 ///Example 1: Returning an array from a function
 ///- - - - - - - - - - - - - - - - -
-// Suppose we want to define a function which will return an array of floats.
+// Suppose we want to define a function that will return an array of floats.
 // If a raw array was used, the size would need to be tracked seperately
-// because raw arrays decay to pointers. With bsl::array the result can be
+// because raw arrays decay to pointers.  With bsl::array the result can be
 // returned by value.
 //..
-    typedef bsl::array<float, 3> Point;
+typedef bsl::array<float, 3> Point;
 
-    Point createPoint(float f1, float f2, float f3){
-        bsl::array<float, 3> ret = {f1, f2, f3};
-        return ret;
+Point createPoint(float f1, float f2, float f3)
+{
+    bsl::array<float, 3> ret = {f1, f2, f3};
+    return ret;
     }
     // Create a bsl::array object containing three values set to the specified
     // 'f1', 'f2', 'f3'.
@@ -390,10 +407,11 @@ namespace UsageExample {
             }
         }
     }
-    // Use the createPoint function to generate 3 arrays of floats. The arrays
-    // are returned by copy and the 'size()' member function is used to
-    // access the size of the arrays which could not be done with a raw array.
-}
+    // Use the createPoint function to generate 3 arrays of floats.  The arrays
+    // are returned by copy and the 'size()' member function is used to access
+    // the size of the arrays that could not be done with a raw array.
+
+}  // close namespace UsageExample
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -404,7 +422,7 @@ template<class TYPE>
 struct AggregateTest {
     typedef bsltf::TemplateTestFacility TestFacility;
 
-    static bsl::array<TYPE, 0> getAggregate(const char* spec, 
+    static bsl::array<TYPE, 0> getAggregate(const char* spec,
             bsl::integral_constant<size_t, 0>);
     static bsl::array<TYPE, 1> getAggregate(const char* spec,
             bsl::integral_constant<size_t, 1>);
@@ -430,12 +448,11 @@ struct TestDriver {
     typedef bsltf::TestValuesArray<TYPE>         TestValues;
     typedef bsltf::TemplateTestFacility          TestFacility;
 
-    static const TestValues VALUES;
-    static const int        NUM_VALUES = SIZE;
-
+    static void testCase20();
+        // Test 'data' member.
 
     static void testCase19();
-        // Test 'front' and 'back'  members.
+        // Test 'front' and 'back' members.
 
     static void testCase18();
         // Test 'at' member.
@@ -496,6 +513,9 @@ struct TestDriver {
 
 template<class TYPE>
 struct TestDriverWrapper{
+
+    static void testCase20();
+        // Test 'data' member.
 
     static void testCase19();
         // Test 'front' and 'back'  members.
@@ -560,6 +580,52 @@ struct TestDriverWrapper{
                                 // Test Cases
                                 // ----------
 
+
+template<class TYPE>
+void TestDriverWrapper<TYPE>::testCase20(){
+    TestDriver<TYPE, 0>::testCase20();
+    TestDriver<TYPE, 1>::testCase20();
+    TestDriver<TYPE, 2>::testCase20();
+    TestDriver<TYPE, 3>::testCase20();
+    TestDriver<TYPE, 4>::testCase20();
+}
+
+template <class TYPE, size_t SIZE>
+void TestDriver<TYPE, SIZE>::testCase20()
+{
+    // ------------------------------------------------------------------------
+    // TESTING DATA MEMBER FUNCTION
+    //
+    // Concerns:
+    //: 1 'data' member returns a pointer to the raw array in the object.
+    //:
+    //: 2 'data' has the correct signature when used on a const object.
+    //:
+    // Plan:
+    //: 1 Default construct array
+    //:
+    //: 2 Test 'data' member returns a pointer to the array member variable
+    //:
+    //: 3 Test 'data' member has the correct signature
+    //:
+    // Testing:
+    //  pointer data();
+    //  const_pointer data() const;
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf("\nTESTING DATA MEMBER FUNCTION.\n");
+
+    Obj mW;
+    const Obj& W = mW;
+
+    ASSERTV(mW.data() == mW.d_data);
+    ASSERTV(W.data() == W.d_data);
+    ASSERT((bsl::is_same<typename Obj::const_pointer, const TYPE*>::value));
+}
+
+
+
+
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase19(){
     TestDriver<TYPE, 1>::testCase19();
@@ -584,7 +650,12 @@ void TestDriver<TYPE, SIZE>::testCase19()
     //: 4 'back' member accesses last elememt of object correctly
     //:
     // Plan:
-    //
+    //: 1 Generate an array from a spec string
+    //:
+    //: 2 Test 'front' and 'back' access correctly
+    //:
+    //: 3 Test 'front' and 'back' modify correctly
+    //:
     // Testing:
     //  reference front();
     //  const_reference front() const;
@@ -594,10 +665,10 @@ void TestDriver<TYPE, SIZE>::testCase19()
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
+        const char *d_spec_p;     // specification string
     } DATA[] = {
     //------^
-    //line spec                               
+    //line spec
     //---- --------------------------------------------------------------------
     { L_,  "",                                                               },
     { L_,  "A",                                                              },
@@ -609,14 +680,14 @@ void TestDriver<TYPE, SIZE>::testCase19()
     };
 
     if (verbose) printf("\nTESTING FRONT AND BACK MEMBERS.\n");
-    const char* const   SPEC   = DATA[SIZE].d_spec;
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
 
     const char V = 'V';
 
-    
+
     if (verbose) printf("\nGenerating array from spec string %s.\n", SPEC);
 
-    Obj mW;
+    Obj        mW;
     const Obj& W = gg(&mW, SPEC);
 
     if (verbose) printf("\nTest 'front' and 'back' access correctly.\n");
@@ -662,7 +733,7 @@ void TestDriver<TYPE, SIZE>::testCase18()
     //: 1 Construct an array from the spec string and verify all values are
     //:   accessed as expected.
     //:
-    //: 2 Modify each element one at a time and verify the rest of the array 
+    //: 2 Modify each element one at a time and verify the rest of the array
     //:   was not changed and that the element was modified as expected.
     //:
     //: 3 Verify that 'out_of_range' exception thrown when 'pos >= size()'
@@ -675,10 +746,10 @@ void TestDriver<TYPE, SIZE>::testCase18()
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
+        const char *d_spec_p;     // specification string
     } DATA[] = {
     //------^
-    //line spec                               
+    //line spec
     //---- --------------------------------------------------------------------
     { L_,  "",                                                               },
     { L_,  "A",                                                              },
@@ -692,21 +763,21 @@ void TestDriver<TYPE, SIZE>::testCase18()
     if (verbose) printf("\nTESTING AT MEMBER.\n");
 
     const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec;
-    const size_t        LENGTH = strlen(DATA[SIZE].d_spec);
-    const TestValues    EXP(DATA[SIZE].d_spec);
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
+    const size_t        LENGTH = strlen(DATA[SIZE].d_spec_p);
+    const TestValues    EXP(DATA[SIZE].d_spec_p);
 
     const char V = 'V';
 
     if (verbose) printf("\nTesting 'at' accesses state of object correctly\n");
     {
-        Obj mW;
+        Obj        mW;
         const Obj& W = gg(&mW, SPEC);
 
         if (veryVerbose) printf("\t\tTesting on container values %s.\n", SPEC);
 
         for (size_t i = 0; i < LENGTH; ++i) {
-            TYPE& xi = mW.at(i);
+            TYPE&       xi = mW.at(i);
             const TYPE& Xi = W.at(i);
             ASSERTV(LINE, i, xi, EXP[i] == mW.at(i));
             ASSERTV(LINE, i, Xi, EXP[i] == W.at(i));
@@ -715,10 +786,10 @@ void TestDriver<TYPE, SIZE>::testCase18()
 
     if (verbose) printf("\nTesting modifying container values.\n");
     {
-        Obj mW;
-        const Obj& W = gg(&mW, SPEC);
-        Obj mX = W;
-        const Obj& X = mX;
+        Obj        mW;
+        const Obj& W  = gg(&mW, SPEC);
+        Obj        mX = W;
+        const Obj& X  = mX;
 
         for (size_t i = 0; i < LENGTH; ++i) {
             mW.at(i) = TestFacility::create<TYPE>(V);
@@ -736,12 +807,12 @@ void TestDriver<TYPE, SIZE>::testCase18()
     if (verbose) printf("\nTesting for out_of_range exceptions thrown\n"
                         "\nby at() when pos >= size().\n");
     {
-        Obj mW;
+        Obj        mW;
         const Obj& W = gg(&mW, SPEC);
 
         const int NUM_TRIALS = 2;
-        // Check exception behavior for non-const version of 'at()'.
-        // Checking the behavior for 'pos == size()' and 'pos > size()'.
+        // Check exception behavior for non-const version of 'at()'.  Checking
+        // the behavior for 'pos == size()' and 'pos > size()'.
 
         int exceptions = 0;
         int trials;
@@ -818,7 +889,7 @@ void TestDriver<TYPE, SIZE>::testCase17()
 
     if (verbose) printf("\nTESTING 'empty' AND 'max_size' MEMBERS\n");
 
-    Obj mW;
+    Obj        mW;
     const Obj& W = mW;
 
     ASSERT(W.empty() == (0 == SIZE));
@@ -842,7 +913,7 @@ void TestDriver<TYPE, SIZE>::testCase16()
     // TESTING COMPARISON OPERATORS
     //
     // Concerns:
-    //: 1 <, >, <=, >= operators lexicographically compare arrays of types 
+    //: 1 <, >, <=, >= operators lexicographically compare arrays of types
     //:   supporting the < operator.
     //:
     //: 2 Comparison operators work on 0 length arrays.
@@ -865,10 +936,10 @@ void TestDriver<TYPE, SIZE>::testCase16()
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;  // specification string
+        const char *d_spec_p;  // specification string
     } DATA[] = {
     //------^
-    //line spec1             
+    //line spec1
     //---- --------------------------------------------------------------------
     { L_,  "",                                                               },
     { L_,  "A",                                                              },
@@ -889,63 +960,63 @@ void TestDriver<TYPE, SIZE>::testCase16()
 
     {
         for(size_t i = 0; i < NUM_DATA; ++i){
-            if(strlen(DATA[i].d_spec) > SIZE){
+            if(strlen(DATA[i].d_spec_p) > SIZE){
                 continue;
             }
 
-            Obj mW;
-            const Obj& W = gg(&mW, DATA[i].d_spec);
+            Obj        mW;
+            const Obj& W = gg(&mW, DATA[i].d_spec_p);
 
             ASSERTV(W <= W);
             ASSERTV(W >= W);
 
             for(size_t j = 0; j < i; ++j){
-                if(strlen(DATA[j].d_spec) > SIZE){
+                if(strlen(DATA[j].d_spec_p) > SIZE){
                     continue;
                 }
 
-                if (veryVerbose) printf("\tComparing %s and %s.\n", 
-                        DATA[j].d_spec, DATA[i].d_spec);
+                if (veryVerbose) printf("\tComparing %s and %s.\n",
+                        DATA[j].d_spec_p, DATA[i].d_spec_p);
 
-                Obj mX;
-                const Obj& X = gg(&mX, DATA[j].d_spec);
-                
-                ASSERTV(DATA[j].d_spec, DATA[i].d_spec, X, W, X < W);
-                ASSERTV(DATA[j].d_spec, DATA[i].d_spec, X, W, X <= W);
-                ASSERTV(DATA[i].d_spec, DATA[j].d_spec, W, X, W > X);
-                ASSERTV(DATA[i].d_spec, DATA[j].d_spec, W, X, W >= X);
+                Obj        mX;
+                const Obj& X = gg(&mX, DATA[j].d_spec_p);
+
+                ASSERTV(DATA[j].d_spec_p, DATA[i].d_spec_p, X, W, X < W);
+                ASSERTV(DATA[j].d_spec_p, DATA[i].d_spec_p, X, W, X <= W);
+                ASSERTV(DATA[i].d_spec_p, DATA[j].d_spec_p, W, X, W > X);
+                ASSERTV(DATA[i].d_spec_p, DATA[j].d_spec_p, W, X, W >= X);
             }
 
             for(size_t j = i+1; j < NUM_DATA; ++j){
-                if(strlen(DATA[j].d_spec) > SIZE){
+                if(strlen(DATA[j].d_spec_p) > SIZE){
                     continue;
                 }
 
-                if (veryVerbose) printf("\tComparing %s and %s.\n", 
-                        DATA[j].d_spec, DATA[i].d_spec);
+                if (veryVerbose) printf("\tComparing %s and %s.\n",
+                        DATA[j].d_spec_p, DATA[i].d_spec_p);
 
-                Obj mX;
-                const Obj& X = gg(&mX, DATA[j].d_spec);
+                Obj        mX;
+                const Obj& X = gg(&mX, DATA[j].d_spec_p);
 
-                ASSERTV(DATA[i].d_spec, DATA[j].d_spec, W, X, W < X);
-                ASSERTV(DATA[i].d_spec, DATA[j].d_spec, W, X, W <= X);
-                ASSERTV(DATA[j].d_spec, DATA[i].d_spec, X, W, X > W);
-                ASSERTV(DATA[j].d_spec, DATA[i].d_spec, X, W, X >= W);
+                ASSERTV(DATA[i].d_spec_p, DATA[j].d_spec_p, W, X, W < X);
+                ASSERTV(DATA[i].d_spec_p, DATA[j].d_spec_p, W, X, W <= X);
+                ASSERTV(DATA[j].d_spec_p, DATA[i].d_spec_p, X, W, X > W);
+                ASSERTV(DATA[j].d_spec_p, DATA[i].d_spec_p, X, W, X >= W);
             }
         }
     }
     if (verbose) printf("\nTesting comparisons only use < operator.\n");
-    
+
     {
         bsl::array<lessthan, 3> mX;
         bsl::array<lessthan, 3>& X = mX;
         mX[0] = lessthan(1);
         mX[1] = lessthan(2);
         mX[2] = lessthan(3);
-        X < X;
-        X <= X;
-        X > X;
-        X >= X;
+        (void) (X < X);
+        (void) (X <= X);
+        (void) (X > X);
+        (void) (X >= X);
         ASSERTV(s_operators == false);
     }
 }
@@ -1043,8 +1114,8 @@ void TestDriver<TYPE, SIZE>::testCase15()
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
-        const char *d_results;  // expected element values
+        const char *d_spec_p;     // specification string
+        const char *d_results_p;  // expected element values
     } DATA[] = {
     //------^
     //line spec                                result
@@ -1059,18 +1130,18 @@ void TestDriver<TYPE, SIZE>::testCase15()
 
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    const char* const   SPEC   = DATA[SIZE].d_spec;
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
 
     if (verbose) printf("\nTESTING AGGREGATE INITIALIZATION.\n");
 
     {
-        Obj mW;
+        Obj        mW;
         const Obj& W = mW;
 
-        Obj mX;
+        Obj        mX;
         const Obj& X = mX;
 
-        mW = AggregateTest<TYPE>::getAggregate(SPEC, 
+        mW = AggregateTest<TYPE>::getAggregate(SPEC,
                 bsl::integral_constant<size_t, SIZE>());
         mX = gg(&mX, SPEC);
 
@@ -1117,14 +1188,14 @@ void TestDriver<TYPE, SIZE>::testCase14()
     //:   reference to a modifiable array, and non-mutable iterators
     //:   otherwise.
     //:
-    //: 4 The range '[begin(), end())' traverses the elements of the array in 
+    //: 4 The range '[begin(), end())' traverses the elements of the array in
     //:   index order.
     //:
     //: 5 'reverse_iterator' and 'const_reverse_iterator' are
     //:   implemented by the (fully-tested) 'bslstl::ReverseIterator' over a
     //:   pointer to 'TYPE' or 'const TYPE'.
     //:
-    //: 6 The range '[rbegin(), rend())' traverses the elements of the array in 
+    //: 6 The range '[rbegin(), rend())' traverses the elements of the array in
     //:   reverse index order.
     //
     // Plan:
@@ -1135,7 +1206,7 @@ void TestDriver<TYPE, SIZE>::testCase14()
     //:
     //: 3 Repeat step 2 with reverse iterators.
     //:
-    //: 4 Access each element of a const array using const iterators and const 
+    //: 4 Access each element of a const array using const iterators and const
     //:   reverse iterators to ensure the values are as expected.
     //:
     //: 5 Use 'bsl::is_same' to check that the iterators are correct types.
@@ -1171,8 +1242,8 @@ void TestDriver<TYPE, SIZE>::testCase14()
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
-        const char *d_results;  // expected element values
+        const char *d_spec_p;     // specification string
+        const char *d_results_p;  // expected element values
     } DATA[] = {
     //------^
     //line spec                                result
@@ -1189,13 +1260,13 @@ void TestDriver<TYPE, SIZE>::testCase14()
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec;
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
 
     if (verbose) printf("\nTesting iterator functions.\n");
 
     const char V = 'V';
 
-    Obj mW;
+    Obj        mW;
     const Obj& W = mW;
 
     mW = gg(&mW, SPEC);
@@ -1315,8 +1386,8 @@ void TestDriver<TYPE, SIZE>::testCase13()
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
-        const char *d_results;  // expected element values
+        const char *d_spec_p;     // specification string
+        const char *d_results_p;  // expected element values
     } DATA[] = {
     //------^
     //line spec                                result
@@ -1334,17 +1405,17 @@ void TestDriver<TYPE, SIZE>::testCase13()
 
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    const char* const   SPEC   = DATA[SIZE].d_spec;
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
 
     if (verbose) printf("\nTesting fill member function\n");
 
     for(size_t i = 0; i < strlen(TEST_VALS); ++i){
 
         //Array default constructed to test fill on.
-        Obj mW;
+        Obj        mW;
         const Obj& W = mW;
         //Array generated from a spec to test fill on.
-        Obj mX;
+        Obj        mX;
         const Obj& X = gg(&mX, SPEC);
 
         //Values to fill arrays with
@@ -1365,7 +1436,8 @@ void TestDriver<TYPE, SIZE>::testCase13()
         const char N = 'W';
 
         for (size_t i = 0; i < SIZE; i++) {
-            if (verbose) printf("\tTesting changes to W have no side effects\n");
+            if (verbose)
+                printf("\tTesting changes to W have no side effects\n");
             mW[i] = TestFacility::create<TYPE>(N);
             for (size_t j = 0; j < SIZE; j++) {
                 if(j != i) ASSERT(TestFacility::getIdentifier(W[j]) == V);
@@ -1397,7 +1469,7 @@ void TestDriver<TYPE, SIZE>::testCase12()
     // TESTING MOVE ASSIGNMENT OPERATOR
     //
     // Concerns:
-    //: 1 A class with a compiler generated move assignment operator will be 
+    //: 1 A class with a compiler generated move assignment operator will be
     //:   copied.
     //:
     //: 2 A class with an explicit move assignment operator will have the move
@@ -1409,19 +1481,19 @@ void TestDriver<TYPE, SIZE>::testCase12()
     //:   constructor. Ensure the new array has the expected values.
     //:
     //: 2 Move construct an array of a type with an explicit move assignment
-    //:   operator. Ensure the new array has the expected values and that the 
+    //:   operator. Ensure the new array has the expected values and that the
     //:   move assignment operator was called.
     //:
     // Testing:
-    //  
+    //
     // ------------------------------------------------------------------------
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
+        const char *d_spec_p;     // specification string
     } DATA[] = {
     //------^
-    //line spec                 
+    //line spec
     //---- --------------------------------------------------------------------
     { L_,  ""                                                                },
     { L_,  "A"                                                               },
@@ -1434,12 +1506,12 @@ void TestDriver<TYPE, SIZE>::testCase12()
 
     if(verbose) printf("\nTESTING MOVE ASSIGNMENT OPERATOR.\n");
 
-    const char* const SPEC = DATA[SIZE].d_spec;
+    const char* const SPEC = DATA[SIZE].d_spec_p;
 
     Obj mW = gg(&mW, SPEC);
 
-    Obj mX;
-    const Obj& X = mX; 
+    Obj        mX;
+    const Obj& X = mX;
 
     if(verbose) printf("\nTesting that lhs is properly set.\n");
 
@@ -1502,15 +1574,15 @@ void TestDriver<TYPE, SIZE>::testCase11()
     //:
     //
     // Testing:
-    //   
+    //
     // ------------------------------------------------------------------------
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
+        const char *d_spec_p;     // specification string
     } DATA[] = {
     //------^
-    //line spec                 
+    //line spec
     //---- --------------------------------------------------------------------
     { L_,  ""                                                                },
     { L_,  "A"                                                               },
@@ -1523,12 +1595,12 @@ void TestDriver<TYPE, SIZE>::testCase11()
 
     if(verbose) printf("\nTESTING MOVE ASSIGNMENT OPERATOR.\n");
 
-    const char* const   SPEC   = DATA[SIZE].d_spec;
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
 
     Obj mW = gg(&mW, SPEC);
 
-    Obj mX = std::move(mW);
-    const Obj& X = mX; 
+    Obj        mX = std::move(mW);
+    const Obj& X  = mX;
 
     if(verbose) printf("\nTesting that lhs is properly set.\n");
 
@@ -1601,8 +1673,8 @@ void TestDriver<TYPE, SIZE>::testCase9()
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
-        const char *d_results;  // expected element values
+        const char *d_spec_p;     // specification string
+        const char *d_results_p;  // expected element values
     } DATA[] = {
     //------^
     //line spec                                result
@@ -1622,21 +1694,21 @@ void TestDriver<TYPE, SIZE>::testCase9()
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec;
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
     const char* const   SPEC2  = DATA2[SIZE];
 
     if (verbose) printf("\nConstructing arrays from different specs\n");
 
-    Obj mW;
+    Obj        mW;
     const Obj& W = mW;
-    Obj mZ;
+    Obj        mZ;
     const Obj& Z = mZ;
     {
-        Obj mY;
+        Obj        mY;
         const Obj& Y = mY;
-        mW = gg(&mW, SPEC);
-        mY = gg(&mY, SPEC2);
-        mZ = gg(&mZ, SPEC2);
+        mW           = gg(&mW, SPEC);
+        mY           = gg(&mY, SPEC2);
+        mZ           = gg(&mZ, SPEC2);
 
         if (verbose) printf("\tTesting operator= does not modify 'rhs'\n");
         mW = mY;
@@ -1688,10 +1760,10 @@ void TestDriver<TYPE, SIZE>::testCase8()
     //: 2 Construct arrays 'y' and 'z' constructed from the same spec
     //:   string which is different from 'w' and 'x' above.
     //:
-    //: 3 Use the free 'swap' function to swap w and y, then confirm that 
+    //: 3 Use the free 'swap' function to swap w and y, then confirm that
     //:   'w == z' and 'y == x' respectively.
     //:
-    //: 4 Use the member 'swap' function to swap w and y, then confirm that 
+    //: 4 Use the member 'swap' function to swap w and y, then confirm that
     //:   'w == x' and 'y == z' respectively.
     //
     // Testing:
@@ -1701,8 +1773,8 @@ void TestDriver<TYPE, SIZE>::testCase8()
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
-        const char *d_results;  // expected element values
+        const char *d_spec_p;     // specification string
+        const char *d_results_p;  // expected element values
     } DATA[] = {
     //------^
     //line spec                                result
@@ -1722,16 +1794,16 @@ void TestDriver<TYPE, SIZE>::testCase8()
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec;
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
     const char* const   SPEC2  = DATA2[SIZE];
 
-    Obj mW;
+    Obj        mW;
     const Obj& W = mW;
-    Obj mX;
+    Obj        mX;
     const Obj& X = mX;
-    Obj mY;
+    Obj        mY;
     const Obj& Y = mY;
-    Obj mZ;
+    Obj        mZ;
     const Obj& Z = mZ;
 
     if (verbose) printf("\nConstructing arrays from the different specs");
@@ -1773,7 +1845,7 @@ void TestDriver<TYPE, SIZE>::testCase7()
 {
     // ------------------------------------------------------------------------
     // COPY CONSTRUCTOR
-    //  
+    //
     // Concerns:
     //: 1 The new object's value is the same as that of the original object
     //:   (relying on the equality operator).
@@ -1794,7 +1866,7 @@ void TestDriver<TYPE, SIZE>::testCase7()
     //:
     //: 2 Copy-construct an array y from the array w constructed in step 1.
     //:
-    //: 3 Check the arrays w, x, and y are all equal. 
+    //: 3 Check the arrays w, x, and y are all equal.
     //:
     //: 4 Modify the copy-constructed array y and check that w and x are
     //:   still equal. Also check that y and w are no longer equal.
@@ -1809,8 +1881,8 @@ void TestDriver<TYPE, SIZE>::testCase7()
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
-        const char *d_results;  // expected element values
+        const char *d_spec_p;     // specification string
+        const char *d_results_p;  // expected element values
     } DATA[] = {
     //------^
     //line spec                                result
@@ -1826,22 +1898,22 @@ void TestDriver<TYPE, SIZE>::testCase7()
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec;
-    const size_t        LENGTH = strlen(DATA[SIZE].d_results);
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
+    const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
 
-    Obj mW;
+    Obj        mW;
     const Obj& W = mW;
-    mW = gg(&mW, SPEC);
+    mW           = gg(&mW, SPEC);
 
-    Obj mX;
+    Obj        mX;
     const Obj& X = mX;
-    mX = gg(&mX, SPEC);
+    mX           = gg(&mX, SPEC);
 
     if (verbose) printf("\nTesting copy-constructor.\n");
 
     {
-        Obj mY = Obj(W);
-        const Obj& Y = mY;
+        Obj        mY = Obj(W);
+        const Obj& Y  = mY;
 
         if (verbose) printf("\tTesting copy compares as equal to original.\n");
 
@@ -1862,8 +1934,8 @@ void TestDriver<TYPE, SIZE>::testCase7()
             ASSERTV(LINE, !(mY == mX));
             ASSERTV(LINE, !(mY == mW));
         }
-        Obj mZ = Obj(X);
-        const Obj& Z = mZ;
+        Obj        mZ = Obj(X);
+        const Obj& Z  = mZ;
 
         if (verbose) printf("\tTesting modifications to original do not\n"
                             "\taffect copy\n");
@@ -1922,8 +1994,8 @@ void TestDriver<TYPE, SIZE>::testCase6()
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
-        const char *d_results;  // expected element values
+        const char *d_spec_p;     // specification string
+        const char *d_results_p;  // expected element values
     } DATA[] = {
     //------^
     //line spec                                result
@@ -1939,17 +2011,17 @@ void TestDriver<TYPE, SIZE>::testCase6()
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec;
-    const size_t        LENGTH = strlen(DATA[SIZE].d_results);
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
+    const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
 
     if (verbose) printf("\nTesting arrays with the same values compare as"
                         "\nequal.\n");
     {
-        Obj mY;
+        Obj        mY;
         const Obj& Y = mY;
-        Obj mZ;
+        Obj        mZ;
         const Obj& Z = mZ;
-        
+
         if (veryVerbose) printf("\tVerify default constructed array equals\n"
                                 "\titself.\n");
         ASSERTV(LINE, mY == mY);
@@ -1959,11 +2031,11 @@ void TestDriver<TYPE, SIZE>::testCase6()
 
         if (veryVerbose) printf("\tVerify arrays generated with the same\n"
                                 "\t'SPEC' are equal.\n");
-        Obj mW;
+        Obj        mW;
         const Obj& W = gg(&mW, SPEC);
-        Obj mX;
+        Obj        mX;
         const Obj& X = gg(&mX, SPEC);
-        
+
         ASSERTV(LINE, mW == mW);
         ASSERTV(LINE, W == mW);
         ASSERTV(LINE, W == X);
@@ -1975,15 +2047,15 @@ void TestDriver<TYPE, SIZE>::testCase6()
     {
         typedef bsltf::TemplateTestFacility TestFacility;
 
-        Obj mW;
+        Obj        mW;
         const Obj& W = gg(&mW, SPEC);
 
-        for (size_t i = 0; i < LENGTH; ++i){
-            Obj mX;
+        for (size_t i = 0; i < LENGTH; ++i) {
+            Obj        mX;
             const Obj& X = gg(&mX, SPEC);
 
             const char s = SPEC[i];
-            mW[i] = TestFacility::create<TYPE>(s+1);
+            mW[i]        = TestFacility::create<TYPE>(s + 1);
 
             ASSERTV(W, X, LINE, !(W == X));
             ASSERTV(X, W, LINE, !(X == W));
@@ -2043,7 +2115,7 @@ void TestDriver<TYPE, SIZE>::testCase5()
 
     const char   *SPEC = specBuffer;
     Obj           mW;
-    const Obj     VALUES = gg(&mW, SPEC);
+    const Obj     VALUES     = gg(&mW, SPEC);
     const size_t  NUM_VALUES = VALUES.size();
 
     bsls::OutputRedirector redirector(bsls::OutputRedirector::e_STDOUT_STREAM,
@@ -2118,8 +2190,8 @@ void TestDriver<TYPE, SIZE>::testCase5()
                 // decimal string representation of the corresponding ID.
 
                 const int radix = bsl::is_pointer<TYPE>::value &&
-                                 !bsl::is_same<const char *, TYPE>::value
-                                ? 16  : 0;
+                                  !bsl::is_same<const char *, TYPE>::value
+                                  ? 16  : 0;
                 const long parsedValue = strtol(printedText, &result, radix);
                 if (result == printedText) {
                     if (bsl::is_pointer<TYPE>::value) {
@@ -2197,9 +2269,9 @@ void TestDriver<TYPE, SIZE>::testCase4()
     // ------------------------------------------------------------------------
 
     static const struct {
-        int         d_line;     // source line number
-        const char *d_spec;     // specification string
-        const char *d_results;  // expected element values
+        int         d_line;       // source line number
+        const char *d_spec_p;     // specification string
+        const char *d_results_p;  // expected element values
     } DATA[] = {
     //------^
     //line spec                                result
@@ -2215,14 +2287,14 @@ void TestDriver<TYPE, SIZE>::testCase4()
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
     const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec;
-    const size_t        LENGTH = strlen(DATA[SIZE].d_results);
-    const TestValues    EXP(DATA[SIZE].d_results);
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
+    const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
+    const TestValues    EXP(DATA[SIZE].d_results_p);
 
     if (verbose) printf("\nTesting operator[] and function at() access state"
                         "of object correctly\n");
     {
-        Obj mW;
+        Obj        mW;
         const Obj& W = gg(&mW, SPEC);
 
         if (veryVerbose) printf("\t\tTesting on container values %s.\n", SPEC);
@@ -2232,7 +2304,7 @@ void TestDriver<TYPE, SIZE>::testCase4()
             ASSERTV(LINE, i, EXP[i] == W[i]);
         }
         if (verbose) printf ("Testing size() returns correct object length\n");
-        
+
         ASSERT(mW.size() == SIZE);
         ASSERT(W.size() == SIZE);
     }
@@ -2264,7 +2336,7 @@ void TestDriver<TYPE, SIZE>::testCase3()
     //: 1 For the sequence of 'spec' values with length equal to the length of
     //:   the array type to be tested, create an array using the gg function
     //:   and the 'spec' string.
-    //: 
+    //:
     //: 2 For each index in the array:
     //:
     //:     1: Check that the element at that index is equal to the element at
@@ -2280,8 +2352,8 @@ void TestDriver<TYPE, SIZE>::testCase3()
     {
         static const struct {
             int         d_line;     // source line number
-            const char *d_spec;     // specification string
-            const char *d_results;  // expected element values
+            const char *d_spec_p;     // specification string
+            const char *d_results_p;  // expected element values
         } DATA[] = {
         //------^
         //line spec                                result
@@ -2297,11 +2369,11 @@ void TestDriver<TYPE, SIZE>::testCase3()
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         const int           LINE   = DATA[SIZE].d_line;
-        const char* const   SPEC   = DATA[SIZE].d_spec;
-        const size_t        LENGTH = strlen(DATA[SIZE].d_results);
-        const TestValues    EXP(DATA[SIZE].d_results);
+        const char* const   SPEC   = DATA[SIZE].d_spec_p;
+        const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
+        const TestValues    EXP(DATA[SIZE].d_results_p);
 
-        Obj mW;
+        Obj        mW;
         const Obj& W = gg(&mW, SPEC);
 
         for (size_t i = 0; i < LENGTH; ++i) {
@@ -2313,7 +2385,7 @@ void TestDriver<TYPE, SIZE>::testCase3()
     {
         static const struct {
             int         d_lineNum;  // source line number
-            const char *d_spec_p;   // specification string
+            const char *d_spec_p_p;   // specification string
             int         d_index;    // offending character index
         } DATA[] = {
             //line  spec      index
@@ -2349,7 +2421,7 @@ void TestDriver<TYPE, SIZE>::testCase3()
 
         for (int ti = 0; ti < NUM_DATA ; ++ti) {
             const int          LINE  = DATA[ti].d_lineNum;
-            const char *const SPEC   = DATA[ti].d_spec_p;
+            const char *const SPEC   = DATA[ti].d_spec_p_p;
             const int         INDEX  = DATA[ti].d_index;
             const int         LENGTH = static_cast<int>(strlen(SPEC));
 
@@ -2388,7 +2460,7 @@ void TestDriver<TYPE, SIZE>::testCase2()
         // Concerns:
         //: 1 An object created with the default constructor defalt constructs
         //:   a number of elements equal to the size of the array with the
-        //:   exception of 0 length arrays which will construct 1 element.
+        //:   exception of 0 length arrays that will construct 1 element.
         //:
         //: 2 Destructor calls the destructor of every element.
         //:
@@ -2418,9 +2490,9 @@ void TestDriver<TYPE, SIZE>::testCase2()
 
     static const struct {
         int         d_line;     // source line number
-        const char *d_spec;     // specification string
-        const char *d_spec2;    // second specification string
-        const char *d_results;  // expected element values
+        const char *d_spec_p;     // specification string
+        const char *d_spec2_p;    // second specification string
+        const char *d_results_p;  // expected element values
     } DATA[] = {
     //------^
     //line spec            spec2               result
@@ -2461,16 +2533,16 @@ void TestDriver<TYPE, SIZE>::testCase2()
     if (verbose) printf("\tTesting operator[] (Primary manipulator).\n");
     {
         const int           LINE   = DATA[SIZE].d_line;
-        const char* const   SPEC   = DATA[SIZE].d_spec;
-        const char* const   SPEC2   = DATA[SIZE].d_spec2;
-        const size_t        LENGTH = strlen(DATA[SIZE].d_results);
-        const TestValues    EXP(DATA[SIZE].d_spec);
-        const TestValues    EXP2(DATA[SIZE].d_results);
+        const char* const   SPEC   = DATA[SIZE].d_spec_p;
+        const char* const   SPEC2   = DATA[SIZE].d_spec2_p;
+        const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
+        const TestValues    EXP(DATA[SIZE].d_spec_p);
+        const TestValues    EXP2(DATA[SIZE].d_results_p);
 
-        Obj mW;
+        Obj        mW;
         const Obj& W = mW;
 
-        Obj mX;
+        Obj        mX;
         const Obj& X = mX;
 
         if (veryVerbose) printf("\t\tTesting on container values %s.\n", SPEC);
@@ -2531,7 +2603,7 @@ void TestDriver<TYPE, SIZE>::testCase1()
     if (verbose) printf("\n 1. Create an object 'w' (default ctor)."
                         "\t\t{ w:D           }\n");
 
-    Obj mW;
+    Obj        mW;
     const Obj& W = mW;
 
     ASSERT(SIZE == mW.size());
@@ -2539,11 +2611,12 @@ void TestDriver<TYPE, SIZE>::testCase1()
     ASSERT(SIZE == W.size());
     ASSERT(SIZE == W.max_size());
 
-    if (0 == SIZE) return;
+    if (0 == SIZE)
+        return;                                                       // RETURN
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (verbose) printf("\n 2. Test mutation methods on 'w' " 
+    if (verbose) printf("\n 2. Test mutation methods on 'w' "
                         "\t\t{ w:D x:V        }\n");
 
     for (size_t i = 0; i < SIZE; ++i){
@@ -2554,10 +2627,10 @@ void TestDriver<TYPE, SIZE>::testCase1()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (verbose) printf("\n 3. Create an object 'x' (copy from 'w') " 
+    if (verbose) printf("\n 3. Create an object 'x' (copy from 'w') "
                         "\t\t{ w:D x:V        }\n");
 
-    Obj mX(mW);
+    Obj        mX(mW);
     const Obj& X = mX;
 
     for (size_t i = 0; i < SIZE; ++i){
@@ -2566,7 +2639,7 @@ void TestDriver<TYPE, SIZE>::testCase1()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (verbose) printf("\n 4. Test comparison methods on 'w' and 'x'" 
+    if (verbose) printf("\n 4. Test comparison methods on 'w' and 'x'"
                         "\t\t{ w:D x:V        }\n");
 
     ASSERT(X == W);
@@ -2592,7 +2665,19 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -TP05
+// BDE_VERIFY pragma: -TP17
+// BDE_VERIFY pragma: -TP30
     switch (test){ case 0:
+      case 20: {
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
+                      testCase20,
+                      signed char,
+                      const char *,
+                      bsltf::TemplateTestFacility::ObjectPtr,
+                      bsltf::TemplateTestFacility::FunctionPtr);
+      } break;
       case 19: {
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase19,
@@ -2669,9 +2754,12 @@ int main(int argc, char *argv[])
                       bsltf::TemplateTestFacility::FunctionPtr);
 #endif
       } break;
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -*
       case 10: {
                    //NONE
       } break;
+// BDE_VERIFY pragma: pop
       case 9: {
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase9,
@@ -2740,6 +2828,8 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
+
+// BDE_VERIFY pragma: pop
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
