@@ -799,7 +799,18 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    if (1 != length) {
+    switch (length) {
+      case 1:
+        break;
+      case 2:
+        if (0 != streamBuf->sbumpc()) {
+            // see 'getIntegerValue', if this 'char' had been encoded as
+            // 'unsigned' there might be a leading 0 which is acceptable,
+            // but any other value for the first byte is invalid
+            return k_FAILURE;                                         // RETURN
+        }
+        break;
+      default:
         return k_FAILURE;                                             // RETURN
     }
 
