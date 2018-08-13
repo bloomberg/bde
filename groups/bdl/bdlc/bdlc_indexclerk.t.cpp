@@ -726,14 +726,15 @@ int main(int argc, char *argv[])
         // 'isInUse' TEST:
         //
         // Concerns:
-        //   That 'isInUse' properly return 'false' for indices not in use and
-        //   'true' for indices in use.
+        //: 1 That 'isInUse' properly return 'false' for indices not in use and
+        //:   'true' for indices in use.
         //
         // Plan:
-        //   First create a 'bdlc::IndexClerk' using the generator function
-        //   'g'.  Then using the loop-based technique, invoke 'putIndex' to
-        //   return indices to the index clerk, and verify that 'isInUse'
-        //   return 'false' for the indices returned and 'true' otherwise.
+        //: 1 First create a 'bdlc::IndexClerk' and initialize it using the
+        //:   generator function 'gg'.  Then using the loop-based technique,
+        //:   invoke 'putIndex' to return indices to the index clerk, and
+        //:   verify that 'isInUse' return 'false' for the indices returned and
+        //:   'true' otherwise.
         //
         // Testing:
         //   bool isInUse(int index) const;
@@ -745,15 +746,14 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting the 'isInUse' method." << endl;
         {
-
             const int TESTSIZE = 9;
             char buf[12];  // 1 for ',', 1 for '\0', 10 for digits.
-            sprintf(&buf[1], "%d", TESTSIZE);
-            buf[0] = ',';
+            sprintf(buf, ",%d", TESTSIZE);
 
             if (veryVerbose) { T_ P(buf) }
 
-            Obj mX(g(buf), &objectAllocator);   const Obj& X = mX;
+            Obj mX(&objectAllocator);   const Obj& X = mX;
+            gg(&mX, ",9");
 
             for (int i = 0; i < TESTSIZE; ++i) {
                 if (veryVerbose) { T_ P(i) }
@@ -768,19 +768,17 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(i, j, true  == X.isInUse(j));
                 }
             }
-        }
-        ASSERT(0 == objectAllocator.numBlocksInUse());
-        ASSERT(0 == defaultAllocator.numBlocksInUse());
-#if defined(BSLS_PLATFORM_CMP_IBM)
-        // For some odd reason IBM is the only compiler that uses the default
-        // allocator with the generator function here.  Other compilers seem to
-        // have elided this.
-        ASSERT(0 != defaultAllocator.numBlocksTotal());
-#else
-        ASSERT(safe || 0 == defaultAllocator.numBlocksTotal());
-#endif
-        ASSERT(0 == globalAllocator.numBlocksTotal());
 
+            ASSERT(0 == defaultAllocator.numBlocksTotal());
+        }
+
+        ASSERT(0 == objectAllocator.numBlocksInUse());
+
+        // The check of the invariants in ~Obj in safe builds uses the default
+        // allocator.
+
+        ASSERT(safe || 0 == defaultAllocator.numBlocksTotal());
+        ASSERT(0 == globalAllocator.numBlocksTotal());
       } break;
       case 12: {
         // --------------------------------------------------------------------
