@@ -3,7 +3,7 @@
 #include <bslim_gtestutil.h>
 
 namespace BloombergLP {
-namespace balb {
+namespace bslim {
 
 }  // close package namespace
 }  // close enterprise namespace
