@@ -1,6 +1,6 @@
-// balb_gtestutil.h                                                   -*-C++-*-
-#ifndef INCLUDED_BALB_GTESTUTIL
-#define INCLUDED_BALB_GTESTUTIL
+// bslim_gtestutil.h                                                  -*-C++-*-
+#ifndef INCLUDED_BSLIM_GTESTUTIL
+#define INCLUDED_BSLIM_GTESTUTIL
 
 #include <bsls_ident.h>
 
@@ -27,7 +27,7 @@
 //  "No matter where you go, There you are! -- Buckaroo Banzai"
 //..
 
-#include <balscm_version.h>
+#include <bslscm_version.h>
 
 #include <bsl_ostream.h>
 #include <bsl_string.h>

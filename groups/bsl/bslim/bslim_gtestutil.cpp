@@ -1,6 +1,6 @@
-// balb_gtestutil.cpp                                                 -*-C++-*-
+// bslim_gtestutil.cpp                                                -*-C++-*-
 
-#include <balb_gtestutil.h>
+#include <bslim_gtestutil.h>
 
 namespace BloombergLP {
 namespace balb {

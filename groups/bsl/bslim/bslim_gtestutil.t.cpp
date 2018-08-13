@@ -1,5 +1,5 @@
-// balb_gtestutil.t.cpp                                               -*-C++-*-
-#include <balb_gtestutil.h>
+// bslim_gtestutil.t.cpp                                              -*-C++-*-
+#include <bslim_gtestutil.h>
 
 #include <bslim_testutil.h>
 

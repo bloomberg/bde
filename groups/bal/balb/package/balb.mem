@@ -3,7 +3,6 @@ balb_assertiontrackersingleton
 balb_controlmanager
 balb_filecleanerconfiguration
 balb_filecleanerutil
-balb_gtestutil
 balb_performancemonitor
 balb_pipecontrolchannel
 balb_testmessages
