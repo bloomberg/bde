@@ -435,7 +435,9 @@ class FileObserver : public Observer {
     BSLMF_NESTED_TRAIT_DECLARATION(FileObserver, bslma::UsesBslmaAllocator);
 
     // CREATORS
-    explicit FileObserver(Severity::Level   stdoutThreshold = Severity::e_WARN,
+    FileObserver();
+    explicit FileObserver(bslma::Allocator *basicAllocator);
+    explicit FileObserver(Severity::Level   stdoutThreshold,
                           bslma::Allocator *basicAllocator  = 0);
         // Create a file observer that publishes log records to 'stdout' if
         // their severity is at least as severe as the optionally specified
@@ -665,6 +667,9 @@ class FileObserver : public Observer {
         // logging).
 
     // ACCESSORS
+    bslma::Allocator *allocator() const;
+        // Return the memory allocator used by this object.
+
     void getLogFormat(const char **logFileFormat,
                       const char **stdoutFormat) const;
         // Load the format specification for log records written by this file

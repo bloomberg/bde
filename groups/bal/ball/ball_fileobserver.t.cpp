@@ -24,14 +24,17 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_threadutil.h>
 
+#include <bslstl_sharedptr.h>
 #include <bslstl_stringref.h>
 
 #include <bsls_assert.h>
@@ -88,9 +91,11 @@ using bsl::flush;
 // writes log records to a file and stdout.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] FileObserver(Severity::Level, bslma::Allocator *);
-// [ 1] FileObserver(Severity::Level, bool, bslma::Allocator *);
+// [ 1] FileObserver(Severity::Level, bslma::Allocator * = 0);
+// [ 1] FileObserver(Severity::Level, bool, bslma::Allocator * = 0);
 // [ 1] ~FileObserver();
+// [ 6] FileObserver();
+// [ 6] FileObserver(Allocator *);
 //
 // MANIPULATORS
 // [ 1] void disableFileLogging();
@@ -128,6 +133,8 @@ using bsl::flush;
 // [ 2] int rotationSize() const;
 // [ 1] ball::Severity::Level stdoutThreshold() const;
 // ----------------------------------------------------------------------------
+// [ 6] CONCERN: 'FileObserver' can be created using 'make_shared'.
+// [ 6] CONCERN: 'FileObserver' can be created using 'allocate_shared'.
 // [ 5] CONCERN: CURRENT LOCAL-TIME OFFSET IN TIMESTAMP
 // [ 4] CONCERN: ROTATION CALLBACK INVOCATION
 
@@ -221,6 +228,12 @@ typedef bdls::FilesystemUtil FsUtil;
 typedef bsls::Types::Int64   Int64;
 
 // ============================================================================
+//                                TYPE TRAITS
+// ----------------------------------------------------------------------------
+
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+
+// ============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -235,6 +248,7 @@ class TempDirectoryGuard {
     bsl::string       d_dirName;      // path to the created directory
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     TempDirectoryGuard(const TempDirectoryGuard&);
     TempDirectoryGuard& operator=(const TempDirectoryGuard&);
@@ -666,6 +680,244 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
+      case 6: {
+        // --------------------------------------------------------------------
+        // CONSTRUCTOR, MAKE_SHARED, AND ALLOCATE_SHARED TEST
+        //
+        // Concerns:
+        //: 1 That the severity level, if supplied, determines the severity
+        //:   level of the created 'FileObserver'.
+        //:
+        //: 2 That the boolean 'publishInLocalTime' argument, if passed,
+        //:   determines that of the created 'FileObserver'.
+        //:
+        //: 3 That the allocator passed, if passed, determines that used by the
+        //:   non-temporary memory of the created 'FileObserver'.
+        //:
+        //: 4 That the severity level, if not passed, defaults to
+        //:   'ball::Severity::e_WARN'.
+        //:
+        //: 5 That the 'publishInLocalTime', if not passed, defaults to
+        //:   'false'.
+        //:
+        //: 6 That if the allocator is not passed, allocation is done by the
+        //:   the default allocator.
+        //:
+        //: 7 That the type traits are correct to facilitate creation by
+        //:   'bsl::make_shared' and 'bsl::allocate_shared'.
+        //
+        // Plan:
+        //: 1 Iterate through a table providing a variety of values to be
+        //:   passed to the 'severity' and 'publishInLocalTime' arguments of
+        //:   the c'tors.
+        //:
+        //: 2 With a switch in a 'for' loop, iterate through creating an 'Obj'
+        //:   with all six possible c'tors, then verify through accessors that
+        //:   the properties are as expected.
+        //:
+        //: 3 Call 'make_shared' using 3 different c'tors and verify the
+        //:   properties of the created objects.
+        //:
+        //: 4 Call 'allocate_shared' using 3 different c'tors and verify the
+        //:   properties of the created objects.
+        //
+        // Testing:
+        //   FileObserver();
+        //   FileObserver(Allocator *);
+        //   CONCERN: 'FileObserver' can be created using 'make_shared'.
+        //   CONCERN: 'FileObserver' can be created using 'allocate_shared'.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                        "CONSTRUCTOR, MAKE_SHARED, AND ALLOCATE_SHARED TEST\n"
+                        "==================================================\n";
+
+        typedef ball::Severity Sev;
+        typedef Sev::Level     Level;
+
+        const Sev::Level defaultLevel = Sev::e_WARN;
+        const bool       defaultPilt  = false;    // 'PILT' ==
+                                                  // Publish In Local Time
+
+        bslma::TestAllocator& da = defaultAllocator;
+        bslma::TestAllocator  oa(veryVeryVeryVerbose);
+
+        if (verbose) cout << "Table-driven test of c'tors\n";
+        {
+            static const struct Data {
+                int      d_line;
+                Level    d_level;
+                bool     d_publishInLocalTime;
+            } DATA[] = {
+              { L_, Sev::e_ERROR,  false },
+              { L_, Sev::e_ERROR,  true  },
+              { L_, Sev::e_WARN,   false },
+              { L_, Sev::e_WARN,   true  },
+              { L_, Sev::e_DEBUG,  false },
+              { L_, Sev::e_DEBUG,  true  }
+             };
+            enum { k_NUM_DEBUG = sizeof DATA / sizeof *DATA };
+
+            for (int ti = 0; ti < k_NUM_DEBUG; ++ti) {
+                const Data& ARGS = DATA[ti];
+                const int   LINE = ARGS.d_line;
+
+                bool go = true;
+                for (int ci = 0; go; ++ci) {
+                    Level level = ARGS.d_level;
+                    bool  pilt  = ARGS.d_publishInLocalTime;
+
+                    bslma::Allocator *passedAllocator = &oa;
+
+                    Obj *mX_p = 0;
+
+                    // In all of these case, try to call the c'tor with
+                    // '(level, pilt, passedAllocator)', but in the case of
+                    // those c'tors that don't take all 3 args, assign 'level',
+                    // 'pilt', and/or 'passedAllocator' to their default values
+                    // if they weren't passed.
+
+                    switch (ci) {
+                      case 0: {
+                        mX_p = new (da) Obj();
+
+                        level           = defaultLevel;
+                        pilt            = defaultPilt;
+                        passedAllocator = &defaultAllocator;
+                      } break;
+                      case 1: {
+                        mX_p = new (da) Obj(passedAllocator);
+
+                        level = defaultLevel;
+                        pilt  = defaultPilt;
+                      } break;
+                      case 2: {
+                        mX_p = new (da) Obj(level);
+
+                        pilt            = defaultPilt;
+                        passedAllocator = &defaultAllocator;
+                      } break;
+                      case 3: {
+                        mX_p = new (da) Obj(level, passedAllocator);
+
+                        pilt = defaultPilt;
+                      } break;
+                      case 4: {
+                        mX_p = new (da) Obj(level, pilt);
+
+                        passedAllocator = &defaultAllocator;
+                      } break;
+                      case 5: {
+                        mX_p = new (da) Obj(level, pilt, passedAllocator);
+                      } break;
+                      case 6: {
+                        go = false;
+                        continue;
+                      } break;
+                      default: {
+                        ASSERTV(ci, 0 && "invalid case");
+                      } break;
+                    }
+
+                    const Obj& X = *mX_p;
+
+                    ASSERTV(ci, LINE, level == X.stdoutThreshold());
+                    ASSERTV(ci, LINE, pilt == X.isPublishInLocalTimeEnabled());
+                    ASSERTV(ci, LINE, passedAllocator == X.allocator());
+
+                    da.deleteObject(mX_p);
+                }
+            }
+        }
+
+        // Set non-default values to pass to c'tors to test them.
+
+        const Sev::Level otherLevel = Sev::e_FATAL;
+        const bool       otherPilt  = true;
+
+        ASSERT(defaultLevel != otherLevel);
+        ASSERT(defaultPilt  != otherPilt);
+        ASSERT(&da          == &defaultAllocator);
+        ASSERT(&da          == bslma::Default::allocator());
+        ASSERT(&oa          != &da);
+
+        if (verbose) cout << "Test 'make_shared' with various c'tors.\n";
+        {
+            {
+                bsl::shared_ptr<Obj> mX = bsl::make_shared<Obj>();
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel == X.stdoutThreshold());
+                ASSERT(defaultPilt  == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          == X.allocator());
+            }
+
+            {
+                bsl::shared_ptr<Obj> mX = bsl::make_shared<Obj>(otherLevel);
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel != X.stdoutThreshold());
+                ASSERT(otherLevel   == X.stdoutThreshold());
+                ASSERT(defaultPilt  == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          == X.allocator());
+            }
+
+            {
+                bsl::shared_ptr<Obj> mX = bsl::make_shared<Obj>(otherLevel,
+                                                                otherPilt);
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel != X.stdoutThreshold());
+                ASSERT(otherLevel   == X.stdoutThreshold());
+                ASSERT(defaultPilt  != X.isPublishInLocalTimeEnabled());
+                ASSERT(otherPilt    == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          == X.allocator());
+            }
+        }
+
+        if (verbose) cout << "Test 'allocate_shared' with various c'tors.\n";
+        {
+            {
+                bsl::shared_ptr<Obj> mX = bsl::allocate_shared<Obj>(&oa);
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel == X.stdoutThreshold());
+                ASSERT(defaultPilt  == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          != X.allocator());
+                ASSERT(&oa          == X.allocator());
+                ASSERT(0            == da.numBlocksInUse());
+            }
+
+            {
+                bsl::shared_ptr<Obj> mX = bsl::allocate_shared<Obj>(
+                                                                   &oa,
+                                                                   otherLevel);
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel != X.stdoutThreshold());
+                ASSERT(otherLevel   == X.stdoutThreshold());
+                ASSERT(defaultPilt  == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          != X.allocator());
+                ASSERT(&oa          == X.allocator());
+                ASSERT(0            == da.numBlocksInUse());
+            }
+
+            {
+                bsl::shared_ptr<Obj> mX = bsl::allocate_shared<Obj>(&oa,
+                                                                    otherLevel,
+                                                                    otherPilt);
+                const Obj& X = *mX;
+
+                ASSERT(defaultLevel != X.stdoutThreshold());
+                ASSERT(otherLevel   == X.stdoutThreshold());
+                ASSERT(defaultPilt  != X.isPublishInLocalTimeEnabled());
+                ASSERT(otherPilt    == X.isPublishInLocalTimeEnabled());
+                ASSERT(&da          != X.allocator());
+                ASSERT(&oa          == X.allocator());
+                ASSERT(0            == da.numBlocksInUse());
+            }
+        }
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING CURRENT LOCAL-TIME OFFSET IN TIMESTAMP
@@ -1823,8 +2075,8 @@ int main(int argc, char *argv[])
         //:    format and verify that it has changed where expected.
         //
         // Testing:
-        //   FileObserver(Severity::Level, bslma::Allocator *);
-        //   FileObserver(Severity::Level, bool, bslma::Allocator *);
+        //   FileObserver(Severity::Level, bslma::Allocator * = 0);
+        //   FileObserver(Severity::Level, bool, bslma::Allocator * = 0);
         //   ~FileObserver();
         //   void disableFileLogging();
         //   void disableStdoutLoggingPrefix();
@@ -1864,6 +2116,7 @@ int main(int argc, char *argv[])
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
+        bslma::TestAllocator oa(veryVeryVeryVerbose);
 
         // Temporary directory for test files.
         TempDirectoryGuard tempDirGuard;
@@ -1888,12 +2141,16 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing threshold and output format." << endl;
         {
-            bsl::shared_ptr<Obj>       mX(new (ta) Obj(ball::Severity::e_WARN,
-                                                       &ta),
-                                          &ta);
-            bsl::shared_ptr<const Obj> X = mX;
+            Obj *mX_p = new (ta) Obj(ball::Severity::e_ERROR, true, &oa);
+            bsl::shared_ptr<Obj>       mX(mX_p, &ta);
+            bsl::shared_ptr<const Obj>  X = mX;
 
-            ASSERT(ball::Severity::e_WARN == X->stdoutThreshold());
+            ASSERT(ball::Severity::e_ERROR == X->stdoutThreshold());
+            ASSERTV(&oa == X->allocator());
+            ASSERTV(X->isPublishInLocalTimeEnabled());
+
+            mX->disablePublishInLocalTime();
+            ASSERTV(!X->isPublishInLocalTimeEnabled());
 
             bsl::ostringstream os, dos;
 
@@ -1929,31 +2186,12 @@ int main(int argc, char *argv[])
             ASSERT(FsUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
-            BALL_LOG_WARN << "log WARN";
-            // Replace the spaces after pid, __FILE__ to make dos match the
-            // file.
-            {
-                bsl::string temp = dos.str();
-                temp[temp.find(__FILE__) + sizeof(__FILE__) - 1] = ':';
-                replaceSecondSpace(&temp, ':');
-                dos.str(temp);
-            }
-            if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
-            {
-                bsl::string coutS = readPartialFile(fileName, fileOffset);
-                ASSERTV(dos.str(), coutS, dos.str() == coutS);
-            }
-            fileOffset = FsUtil::getFileSize(fileName);
+            BALL_LOG_WARN << "not logged";
+            ASSERT(FsUtil::getFileSize(fileName) == fileOffset);
             dos.str("");
 
-            mX->setStdoutThreshold(ball::Severity::e_ERROR);
-
-            ASSERT(ball::Severity::e_ERROR == X->stdoutThreshold());
-
             BALL_LOG_WARN << "not logged";
-
             ASSERT("" == readPartialFile(fileName, fileOffset));
-
             dos.str("");
 
             BALL_LOG_ERROR << "log ERROR";
@@ -2274,14 +2512,14 @@ int main(int argc, char *argv[])
                             bsl::string::npos != coutS.find(testOs.str()));
 
                 // Now let's verify the actual difference.
-                int defaultObsHour;
+                int defaultObsHour = 0;
                 if (dos.str().length() >= 11) {
                     bsl::istringstream is(dos.str().substr(11, 2));
                     ASSERT(is >> defaultObsHour);
                 } else {
                     ASSERT(0 && "can't substr(11,2), string too short");
                 }
-                int fileObsHour;
+                int fileObsHour = 0;
                 if (coutS.length() >= 11) {
                     bsl::istringstream is(coutS.substr(11, 2));
                     ASSERT(is >> fileObsHour);
