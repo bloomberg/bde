@@ -76,7 +76,10 @@ BSLS_IDENT("$Id: $")
 //..
 //      balst::StackTrace stackTrace;
 //      int rc = balst::StackTraceUtil::loadStackTraceFromStack(&stackTrace);
-//      assert(0 == rc);
+//
+//      if (rc) {  // Error handling is omitted.
+//          return;                                                   // RETURN
+//      }
 //..
 // Finally, we use 'printFormatted' to stream out the stack-trace, one frame
 // per line, in a concise, human-readable format.
@@ -159,7 +162,10 @@ BSLS_IDENT("$Id: $")
 //                                                               &stackTrace,
 //                                                               addresses,
 //                                                               numAddresses);
-//      assert(0 == rc);
+//
+//      if (rc) {  // Error handling is omitted.
+//          return;                                                   // RETURN
+//      }
 //..
 // Finally, we can print out the stack-trace object using 'printFormatted', or
 // iterate through the stack-trace frames, printing them out one by one.  In

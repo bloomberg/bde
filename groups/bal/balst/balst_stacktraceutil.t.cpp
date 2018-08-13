@@ -1678,7 +1678,7 @@ void bottom(bslma::Allocator *alloc)
                                                                  &stackTrace,
                                                                  addresses,
                                                                  numAddresses);
-        ASSERT(0 == rc);
+        ASSERT(0 == rc);  // Error handling is omitted.
 //..
 // Finally, we can print out the stack-trace object using 'printFormatted', or
 // iterate through the stack-trace frames, printing them out one by one.  In
@@ -1756,7 +1756,7 @@ void bottom(bslma::Allocator *alloc)
 //..
         balst::StackTrace stackTrace;
         int rc = balst::StackTraceUtil::loadStackTraceFromStack(&stackTrace);
-        ASSERT(0 == rc);
+        ASSERT(0 == rc);  // Error handling is omitted.
 //..
 // Finally, we use 'printFormatted' to stream out the stack-trace, one frame
 // per line, in a concise, human-readable format.
