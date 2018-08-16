@@ -87,38 +87,22 @@ struct IntervalConversionUtil {
 
   private:
     // PRIVATE TYPES
-    typedef TimeUnitRatio Ratio;
-
-    // PRIVATE CLASS DATA
+    typedef TimeUnitRatio      Ratio;
+    typedef bsls::Types::Int64 Int64;
 
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-                          // DatetimeInterval Limits
-
-    static const bsls::Types::Int64 k_DATETIME_INTERVAL_MILLISECONDS_MAX =
-                  INT_MAX
-                      * Ratio::k_MILLISECONDS_PER_DAY
-                      + Ratio::k_MILLISECONDS_PER_DAY
-                      - 1;
-
-    static const bsls::Types::Int64 k_DATETIME_INTERVAL_MILLISECONDS_MIN =
-                                    -1 * k_DATETIME_INTERVAL_MILLISECONDS_MAX
-                                       - Ratio::k_MILLISECONDS_PER_DAY;
-
-    static const bsls::Types::Int64 k_DATETIME_INTERVAL_SECONDS_MAX      =
-                                    k_DATETIME_INTERVAL_MILLISECONDS_MAX
-                                        / Ratio::k_MILLISECONDS_PER_SECOND;
-
-    static const bsls::Types::Int64 k_DATETIME_INTERVAL_SECONDS_MIN      =
-                                    k_DATETIME_INTERVAL_MILLISECONDS_MIN
-                                        / Ratio::k_MILLISECONDS_PER_SECOND;
-
-    static const bsls::Types::Int64 k_DATETIME_INTERVAL_NSEC_REMAINDER_MAX =
-                                    (Ratio::k_MILLISECONDS_PER_SECOND - 1)
-                                        * Ratio::k_NANOSECONDS_PER_MILLISECOND;
-
-    static const bsls::Types::Int64 k_DATETIME_INTERVAL_NSEC_REMAINDER_MIN =
-                                    (1 - Ratio::k_MILLISECONDS_PER_SECOND)
-                                        * Ratio::k_NANOSECONDS_PER_MILLISECOND;
+    // PRIVATE CLASS DATA
+    static const Int64 k_INT_MAX = INT_MAX;
+    static const Int64 k_INT_MIN = INT_MIN;
+    static const Int64 k_DATETIME_INTERVAL_SECONDS_MAX =
+                                (k_INT_MAX + 1) * Ratio::k_SECONDS_PER_DAY - 1;
+    static const Int64 k_DATETIME_INTERVAL_SECONDS_MIN =
+                                (k_INT_MIN - 1) * Ratio::k_SECONDS_PER_DAY + 1;
+    static const Int64 k_DATETIME_INTERVAL_NSEC_REMAINDER_MAX =
+                                (Ratio::k_MICROSECONDS_PER_SECOND - 1)
+                                        * Ratio::k_NANOSECONDS_PER_MICROSECOND;
+    static const Int64 k_DATETIME_INTERVAL_NSEC_REMAINDER_MIN =
+                                       -k_DATETIME_INTERVAL_NSEC_REMAINDER_MAX;
 #endif
 
   public:
@@ -126,7 +110,7 @@ struct IntervalConversionUtil {
     static DatetimeInterval convertToDatetimeInterval(
                                           const bsls::TimeInterval&  interval);
         // Return as a 'bdlt::DatetimeInterval' the (approximate) value of the
-        // specified 'interval' truncated toward zero, to millisecond
+        // specified 'interval' truncated toward zero, to microsecond
         // resolution.  The behavior is undefined unless the value of
         // 'interval', expressed with nanosecond precision, is within the range
         // of time intervals supported by a 'DatetimeInterval' -- i.e.,
@@ -134,7 +118,9 @@ struct IntervalConversionUtil {
         // the total number of nanoseconds in 'interval', 'DT_MIN' is the
         // lowest (negative) value expressible by 'DatetimeInterval', and
         // 'DT_MAX' is the highest (positive) value expressible by
-        // 'DatetimeInterval'.
+        // 'DatetimeInterval'.  Note that, while 'bsls::TimeInterval' has
+        // nanosecond resolution, 'bdlt::DatetimeInterval' has only microsecond
+        // resolution.
 
     static bsls::TimeInterval convertToTimeInterval(
                                             const DatetimeInterval&  interval);
@@ -156,27 +142,30 @@ DatetimeInterval IntervalConversionUtil::convertToDatetimeInterval(
                                             const bsls::TimeInterval& interval)
 {
     // Check that the value of 'interval' is within the valid range supported
-    // by 'Dateinterval'.  Note that if the value of 'interval' is within the
-    // valid range, we can call 'bsls::TimeInterval::totalMilliseconds' without
-    // invoking undefined behavior.
+    // by 'Dateinterval'.
 
-    BSLS_ASSERT_SAFE(k_DATETIME_INTERVAL_SECONDS_MIN < interval.seconds()
-                     || (   k_DATETIME_INTERVAL_SECONDS_MIN ==
-                                interval.seconds()
-                         && k_DATETIME_INTERVAL_NSEC_REMAINDER_MIN <=
-                                interval.nanoseconds()));
+    BSLS_ASSERT_SAFE(   k_DATETIME_INTERVAL_SECONDS_MIN  < interval.seconds()
+                    || (k_DATETIME_INTERVAL_SECONDS_MIN == interval.seconds()
+                       && k_DATETIME_INTERVAL_NSEC_REMAINDER_MIN <=
+                                                      interval.nanoseconds()));
 
-    BSLS_ASSERT_SAFE(interval.seconds() < k_DATETIME_INTERVAL_SECONDS_MAX
-                     || (   k_DATETIME_INTERVAL_SECONDS_MAX ==
-                                interval.seconds()
-                         && interval.nanoseconds() <=
-                                k_DATETIME_INTERVAL_NSEC_REMAINDER_MAX));
+    BSLS_ASSERT_SAFE(   interval.seconds() <  k_DATETIME_INTERVAL_SECONDS_MAX
+                    || (interval.seconds() == k_DATETIME_INTERVAL_SECONDS_MAX
+                       && interval.nanoseconds() <=
+                                      k_DATETIME_INTERVAL_NSEC_REMAINDER_MAX));
+
+    // Note that we need to access the time via a comination of the
+    // 'totalSeconds' and 'nanoseconds' accessors, because the time range
+    // expressable in a 'DatetimeInterval' is greater than can be expressed in
+    // an 'Int64' by 'totalMicroseconds'.
 
     return DatetimeInterval(0,  // days
                             0,  // hours
                             0,  // minutes
-                            0,  // seconds
-                            interval.totalMilliseconds());
+                            interval.totalSeconds(),
+                            0,  // milliseconds
+                            interval.nanoseconds() /
+                                      Ratio::k_NANOSECONDS_PER_MICROSECOND_32);
 }
 
 inline
@@ -184,8 +173,10 @@ bsls::TimeInterval IntervalConversionUtil::convertToTimeInterval(
                                               const DatetimeInterval& interval)
 {
     return bsls::TimeInterval(interval.totalSeconds(),
-                              interval.milliseconds() *
-                                  Ratio::k_NANOSECONDS_PER_MILLISECOND_32);
+                              Ratio::k_NANOSECONDS_PER_MILLISECOND_32 *
+                                                      interval.milliseconds() +
+                              Ratio::k_NANOSECONDS_PER_MICROSECOND_32 *
+                                                      interval.microseconds());
 }
 
 }  // close package namespace
