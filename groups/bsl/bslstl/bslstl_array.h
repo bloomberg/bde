@@ -24,14 +24,14 @@ BSLS_IDENT("$Id: $")
 // instantiated with a value type that is not value-semantic, then the array
 // will not retain all of its value-semantic qualities.  In particular, if a
 // value type cannot be tested for equality, then an 'array' containing objects
-// of that type cannot be tested for equality.  Similarly, if an 'array' is
-// instantiated with a type that does not have a copy-constructor, then the
-// 'array' will not be copyable.
+// of that type will fail to compile the equality comparison operator.
+// Similarly, if an 'array' is instantiated with a type that does not have a
+// copy-constructor, then the 'array' will not be copyable.
 //
-// An array meets the requirements of a container with random access iterators
-// in the C++ standard [array].  The 'array' implemented here follows the C++11
-// standard when compiled with a C++11 compiler and follows the C++03 standard
-// otherwise.
+// An array meets most the requirements of a container with random access
+// iterators in the C++ standard [array].  The 'array' implemented here follows
+// the C++11 standard when compiled with a C++11 compiler and follows the C++03
+// standard otherwise.
 
 // An array lacks certain requirements of a sequential container.  Array lacks
 // insert, erase, emplace, and clear, as these functions would require
@@ -98,12 +98,60 @@ BSLS_IDENT("$Id: $")
 //  |-----------------------------------------+-------------------------------|
 //..
 //
-
-#include <stddef.h>
-#include <bsls_assert.h>
-#include <bslscm_version.h>
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Returning an array from a function
+///- - - - - - - - - - - - - - - - -
+// Suppose we want to define a function that will return an array of floats.
+// If a raw array was used, the size would need to be tracked seperately
+// because raw arrays decay to pointers.  With bsl::array the result can be
+// returned by value.
+//..
+//typedef bsl::array<float, 3> Point;
+//
+//Point createPoint(float f1, float f2, float f3)
+//{
+//    bsl::array<float, 3> ret = {f1, f2, f3};
+//    return ret;
+//    }
+//    //Create a bsl::array object containing three values set to the specified
+//    //'f1', 'f2', 'f3'.
+//
+//    void usageExample(){
+//        Point p1 = createPoint(1.0, 1.0, 1.0);
+//        Point p2 = createPoint(2.0, 2.0, 2.0);
+//        Point p3 = createPoint(3.0, 3.0, 3.0);
+//
+//        bsl::array<Point, 3> points = {p1, p2, p3};
+//
+//        for(size_t i = 0; i < points.size(); ++i){
+//            for(size_t j = 0; j < points[i].size(); ++j){
+//                points[i][j] *= 2.0f;
+//            }
+//        }
+//    }
+//    //Use the createPoint function to generate 3 float arrays.  The arrays
+//    //are returned by copy and the 'size()' member function is used to access
+//    //the size of the arrays that could not be done with a raw array.
+//
 #include <bslstl_iterator.h>
 #include <bslstl_stdexceptutil.h>
+#include <bslmf_assert.h>
+#include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
+#include <bsls_keyword.h>
+#include <bsls_nativestd.h>
+#include <bslscm_version.h>
+#include <stddef.h>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#  include <tuple>  // 'std::tuple'
+#endif
+
+#include <utility>
 
 namespace bsl {
 
@@ -113,10 +161,10 @@ namespace bsl {
 
 template <class VALUE_TYPE, size_t SIZE>
 class array {
-    // This class template provides an STL-compliant 'array'.  Consult the
-    // C++11 standard for the requirements of an array class.  This class is an
-    // aggregate that allows for aggregate initialization.  This class provides
-    // a standard container interface wrapped around a raw array.
+    // Consult the C++11 standard for the requirements of an array class.  This
+    // class is an aggregate that allows for aggregate initialization.  This
+    // class provides a standard container interface wrapped around a raw
+    // array.
   public:
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -MN01
@@ -139,14 +187,19 @@ class array {
 
     // CREATORS
     //! array() = default;
-    // Create an 'array' object.  Every element is default constructed if
-    // 'VALUE_TYPE' is default constructable; otherwise, array is not default
-    // constructable.
+        // Create an 'array' object.  Every element is default constructed if
+        // 'VALUE_TYPE' is default constructable; otherwise, 'array' is not
+        // default constructable.
     //! array(const array& other) = default;
         // Create an 'array' object.  Every element is copy constructed from
         // the corrosponding element in the specified 'other' if 'VALUE_TYPE'
         // is copy constructable; otherwise, array is not copy constructable.
-        //! ~array() = default;
+        // Only in C++11 and later.
+    //! array(array&& other) = default;
+        // Create an 'array' object.  Every element is move constructed from
+        // the corrosponding element in the specified 'other' if 'VALUE_TYPE'
+        // is move constructable; otherwise, array is not move constructable.
+    //! ~array() = default;
         // Destroy this object.  Evert element is destroyed if 'VALUE_TYPE' is
         // destructible; otherwise, array is not destructible.
 
@@ -156,7 +209,7 @@ class array {
         // 'operator=' of 'value_type'.
 
     void swap(array& rhs);
-        // Exchange each corrosponding element between this array and the
+        // Exchange each corresponding element between this array and the
         // specified 'rhs' array by calling 'swap(a,b)' where 'swap' is found
         // by overload resolution including at least the namespaces 'std' and
         // the associated namespaces of 'VALUE_TYPE'.
@@ -176,9 +229,8 @@ class array {
         // has size 0.
 
     reverse_iterator rend();
-        // Return a reverse iterator providing modifiable access to the first
-        // element in this array; return a past-the-end iterator if this array
-        // has size 0.
+        // Return the past-the-end reverse iterator providing modifiable access
+        // to this array.
 
     reference operator[](size_type position);
         // Return a reference providing modifiable access to the element at the
@@ -195,17 +247,21 @@ class array {
         // is undefined unless 'SIZE > 0'.
 
     reference back();
-        // Return a reference to the last element in this array.  The Behavior
+        // Return a reference to the last element in this array.  The behavior
         // is undefined unless 'SIZE > 0'.
 
     pointer data();
         // Return the address of the first element of the underlying raw array.
+        // Return the address of a raw array of size 1 if the 'SIZE' is 0.
 
     //! array& operator=(const array& other);
-    // Sets every element in this array to the corrosponding element in the
-    // specified 'other' if 'VALUE_TYPE' is copy assignable; otherwise, array
-    // is not copy assignable.
-
+        // Sets every element in this array to the corrosponding element in the
+        // specified 'other' if 'VALUE_TYPE' is copy assignable; otherwise,
+        // array is not copy assignable.
+    //! array& operator=(array&& other);
+        // Moves every element in the specified 'other' into the correspinding
+        // element in this array in the if 'VALUE_TYPE' is moves assignable;
+        // otherwise, array is not move assignable.
 
     // BDE_VERIFY pragma: -FABC01
     // ACCESSORS
@@ -222,9 +278,8 @@ class array {
 
     const_reverse_iterator rbegin() const;
     const_reverse_iterator crbegin() const;
-        // Return a reverse iterator providing non-modifiable access to the
-        // last element in this array; return a past-the-end iterator if this
-        // array has size 0.
+        // Return the past-the-end reverse iterator providing non-modifiable
+        // access to this array.
 
     const_reverse_iterator rend() const;
     const_reverse_iterator crend() const;
@@ -259,6 +314,7 @@ class array {
 
     const_pointer data() const;
         // Return the address of the first element of the underlying raw array.
+        // Return the address of a raw array of size 1 if the 'SIZE' is 0.
 };
 
 // FREE OPERATORS
@@ -266,9 +322,9 @@ template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
 bool operator==(const array<VALUE_TYPE, SIZE1>& lhs,
                 const array<VALUE_TYPE, SIZE2>& rhs);
     // Return 'true' if the specified 'lhs' has the same value as the specified
-    // 'rhs'; return false otherwise.  Two arrays have the same value if they
-    // have the same 'size' and each element has the same value as the
-    // corrosponding element in the other array.
+    // 'rhs'; return false otherwise.  Two arrays have the same value if each
+    // element has the same value as the corrosponding element in the other
+    // array.
 
 template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
 bool operator!=(const array<VALUE_TYPE, SIZE1>& lhs,
@@ -306,11 +362,85 @@ bool operator>=(const array<VALUE_TYPE, SIZE1>& lhs,
     // the specified 'rhs' by using the comparison operators of 'VALUE_TYPE' on
     // each element or if 'lhs' and 'rhs' are equal; return 'false' otherwise.
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-void swap(array<VALUE_TYPE, SIZE1>& lhs, array<VALUE_TYPE, SIZE2>& rhs);
+template <class VALUE_TYPE, size_t SIZE>
+void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs);
     // Set every value in the specified 'lhs' to the value at that index in the
     // specified 'rhs' and vice versa.  'rhs' must have the exact same type as
     // 'lhs'
+
+template<size_t I, class T, size_t N>
+T& get(bsl::array<T, N>& p);
+    // Return a reference providing modifiable access to the element of the
+    // specified 'p', having the ordinal number specified by the (template
+    // parameter) 'I'.  This function will not compile unless 'I < N'
+
+template<size_t I, class T, size_t N>
+const T& get(const bsl::array<T, N>& p);
+    // Return a reference providing non-modifiable access to the element of the
+    // specified 'p', having the ordinal number specified by the (template
+    // parameter) 'I'.  This function will not compile unless 'I < N'
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template<size_t I, class T, size_t N>
+const T&& get(const bsl::array<T, N>& p);
+    // Return a reference providing non-modifiable access to the element of the
+    // specified 'p', having the ordinal number specified by the (template
+    // parameter) 'I'.  This function will not compile unless 'I < N'
+
+template<size_t I, class T, size_t N>
+T&& get(bsl::array<T, N>&& p);
+    // Return a rvalue reference providing modifiable access to the element of
+    // the specified 'p', having the ordinal number specified by the (template
+    // parameter) 'I'.  This function will not compile unless 'I < N'
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+
+#if defined(BSL_OVERRIDES_STD) && defined(std)
+#   undef std
+#   define BSLSTL_PAIR_RESTORE_STD
+#endif
+
+}  // close namespace bsl
+
+namespace std {
+
+
+                             // ====================
+                             // struct tuple_element
+                             // ====================
+
+template<size_t I, class T, size_t N>
+struct tuple_element<I, bsl::array<T, N>>
+    // This partial specialization of 'tuple_element' provides compile-time
+    // access to the type of the array's elements.
+{
+    BSLMF_ASSERT(I < N);
+    // TYPES
+    typedef T type;
+};
+
+                              // =================
+                              // struct tuple_size
+                              // =================
+
+template<class T, size_t N>
+struct tuple_size<bsl::array<T, N> > : integral_constant<size_t, N>
+    // This meta-function provides a compile-time way to obtain the number of
+    // elements in an array.
+{};
+
+}  // close namespace std
+
+namespace bsl {
+
+#if defined(BSLSTL_PAIR_RESTORE_STD)
+#   define std bsl
+#   undef BSLSTL_PAIR_RESTORE_STD
+#endif
+
+#endif
+
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -324,7 +454,7 @@ void swap(array<VALUE_TYPE, SIZE1>& lhs, array<VALUE_TYPE, SIZE2>& rhs);
 template <class VALUE_TYPE, size_t SIZE>
 void array<VALUE_TYPE, SIZE>::fill(const VALUE_TYPE& value)
 {
-    for (size_t i = 0; i < SIZE; ++i) {
+    for (size_t i = 0; i != SIZE; ++i) {
         d_data[i] = value;
     }
 }
@@ -333,7 +463,7 @@ template <class VALUE_TYPE, size_t SIZE>
 void array<VALUE_TYPE, SIZE>::swap(array<VALUE_TYPE, SIZE>& rhs)
 {
     using std::swap;
-    for (size_t i = 0; i < SIZE; ++i) {
+    for (size_t i = 0; i != SIZE; ++i) {
         swap(d_data[i], rhs[i]);
     }
 }
@@ -443,7 +573,7 @@ template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::reference
 array<VALUE_TYPE, SIZE>::operator[](size_type position)
 {
-    BSLS_ASSERT(position >= 0 && position < SIZE);
+    BSLS_ASSERT(position < SIZE);
     return d_data[position];
 }
 
@@ -451,7 +581,7 @@ template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::const_reference
 array<VALUE_TYPE, SIZE>::operator[](size_type position) const
 {
-    BSLS_ASSERT(position >= 0 && position < SIZE);
+    BSLS_ASSERT(position < SIZE);
     return d_data[position];
 }
 
@@ -525,9 +655,10 @@ template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
 bool operator==(const array<VALUE_TYPE, SIZE1>& lhs,
                 const array<VALUE_TYPE, SIZE2>& rhs)
 {
-    if (SIZE1 != SIZE2)
+    if (SIZE1 != SIZE2){
         return false;                                                 // RETURN
-    for (size_t i = 0; i < SIZE1; i++) {
+    }
+    for (size_t i = 0; i != SIZE1; ++i) {
         if (lhs[i] != rhs[i])
             return false;                                             // RETURN
     }
@@ -538,8 +669,9 @@ template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
 bool operator!=(const array<VALUE_TYPE, SIZE1>& lhs,
                 const array<VALUE_TYPE, SIZE2>& rhs)
 {
-    if (SIZE1 != SIZE2)
+    if (SIZE1 != SIZE2){
         return true;                                                  // RETURN
+    }
     return !(lhs == rhs);
 }
 
@@ -552,16 +684,16 @@ bool operator<(const array<VALUE_TYPE, SIZE1>& lhs,
     typename array<VALUE_TYPE, SIZE1>::const_iterator first2 = rhs.begin();
     typename array<VALUE_TYPE, SIZE1>::const_iterator last2  = rhs.end();
     while (first1 != last1) {
-        if (first1 == last1 || *first2 < *first1)
+        if (first1 == last1 || *first2 < *first1){
             return false;                                             // RETURN
-        if (*first1 < *first2)
+        }
+        if (*first1 < *first2){
             return true;                                              // RETURN
+        }
         ++first1;
         ++first2;
     }
-    if (first2 == last2)
-        return false;                                                 // RETURN
-    return true;                                                      // RETURN
+    return first2 != last2;                                           // RETURN
 }
 
 template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
@@ -585,18 +717,44 @@ bool operator>=(const array<VALUE_TYPE, SIZE1>& lhs,
     return !(lhs < rhs);
 }
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-void swap(array<VALUE_TYPE, SIZE1>& lhs, array<VALUE_TYPE, SIZE2>& rhs)
+template <class VALUE_TYPE, size_t SIZE>
+void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs)
 {
     lhs.swap(rhs);
 }
+
+template<size_t I, class T, size_t N>
+T& get(bsl::array<T, N>& p)
+{
+    return p[I];
+}
+
+template<size_t I, class T, size_t N>
+const T& get(const bsl::array<T, N>& p)
+{
+    return p[I];
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template<size_t I, class T, size_t N>
+const T&& get(const bsl::array<T, N>&& p)
+{
+    return p[I];
+}
+
+template<size_t I, class T, size_t N>
+T&& get(bsl::array<T, N>&& p)
+{
+    return p[I];
+}
+#endif
 
 }  // close namespace bsl
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

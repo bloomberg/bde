@@ -109,7 +109,8 @@ class AllocTestType {
 
   public:
     // CREATORS
-    explicit AllocTestType(bslma::Allocator *basicAllocator = 0);
+    AllocTestType();
+    explicit AllocTestType(bslma::Allocator *basicAllocator);
         // Create a 'AllocTestType' object having the (default) attribute
         // values:
         //..

@@ -1,6 +1,10 @@
 // bslstl_array.t.cpp                                                 -*-C++-*-
 #include <bslstl_array.h>
 
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
@@ -117,8 +121,6 @@ using namespace bslstl;
 // [ 3] int ggg(array<T,S> *object, const char *spec, int vF = 1);
 // [ 3] array<T,S>& gg(array<T,S> *object, const char *spec);
 
-
-
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -191,58 +193,66 @@ static bool s_operators = false;
 //                  HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-//wrapper class to track number of times constructor and destructor called.
+                            // ====================
+                            // class CountedDefault
+                            // ====================
+
 template<class TYPE>
-class wrapper {
+class CountedDefault {
+    //Wrapper class to track number of times constructor and destructor called.
   public:
-    wrapper();
-    ~wrapper();
+    CountedDefault();
+    ~CountedDefault();
 
   private:
     TYPE d_val;
-    wrapper(const wrapper& other); // = delete;
+    CountedDefault(const CountedDefault& other); // = delete;
 };
 
 template<class TYPE>
-wrapper<TYPE>::wrapper()
+CountedDefault<TYPE>::CountedDefault()
 {
     s_numConstructed += 1;
 }
 template <class TYPE>
-wrapper<TYPE>::~wrapper()
+CountedDefault<TYPE>::~CountedDefault()
 {
     s_numConstructed -= 1;
 }
 
-//class that only supports operator<.
-class lessthan {
+                            // ==============
+                            // class LessThan
+                            // ==============
+
+class LessThan {
+    //class that only supports operator<.
   public:
 
-    bool operator<(const lessthan& other) const;
-    bool operator>(const lessthan& other) const;
-    bool operator<=(const lessthan& other) const;
-    bool operator>=(const lessthan& other) const;
-    lessthan();
-    explicit lessthan(int v);
+    bool operator<(const LessThan& other) const;
+    bool operator>(const LessThan& other) const;
+    bool operator<=(const LessThan& other) const;
+    bool operator>=(const LessThan& other) const;
+    LessThan();
+    explicit LessThan(int v);
 
   private:
     int d_val;
 };
 
-lessthan::lessthan(): d_val(0){}
-lessthan::lessthan(int v): d_val(v){}
-bool lessthan::operator<(const lessthan& other) const{
+LessThan::LessThan(): d_val(0){}
+LessThan::LessThan(int v): d_val(v){}
+bool LessThan::operator<(const LessThan& other) const{
     return d_val < other.d_val;
 }
-bool lessthan::operator>(const lessthan& other) const{
+bool LessThan::operator>(const LessThan& other) const{
     s_operators = true;
     return d_val > other.d_val;
 }
-bool lessthan::operator<=(const lessthan& other) const{
+bool LessThan::operator<=(const LessThan& other) const{
     s_operators = true;
     return d_val <= other.d_val;
 }
-bool lessthan::operator>=(const lessthan& other) const{
+bool LessThan::operator>=(const LessThan& other) const{
     s_operators = true;
     return d_val >= other.d_val;
 }
@@ -274,10 +284,7 @@ void debugprint(const array<TYPE, SIZE>& v)
     fflush(stdout);
 }
 
-
-
 }  // close namespace bsl
-
 
 //=============================================================================
 //                      TEST APPARATUS: GENERATOR FUNCTIONS
@@ -295,7 +302,7 @@ void debugprint(const array<TYPE, SIZE>& v)
 //
 // <EMPTY>      ::=
 //
-// <LIST>       ::= <ELEMENT>    | <ITEM><LIST>
+// <LIST>       ::= <ELEMENT>    | <ELEMENT><LIST>
 //
 // <ELEMENT>    ::= 'A' | 'B' | 'C' | 'D' | 'E' | ... | 'Y'
 //                                      // unique but otherwise arbitrary
@@ -1008,11 +1015,11 @@ void TestDriver<TYPE, SIZE>::testCase16()
     if (verbose) printf("\nTesting comparisons only use < operator.\n");
 
     {
-        bsl::array<lessthan, 3> mX;
-        bsl::array<lessthan, 3>& X = mX;
-        mX[0] = lessthan(1);
-        mX[1] = lessthan(2);
-        mX[2] = lessthan(3);
+        bsl::array<LessThan, 3> mX;
+        bsl::array<LessThan, 3>& X = mX;
+        mX[0] = LessThan(1);
+        mX[1] = LessThan(2);
+        mX[2] = LessThan(3);
         (void) (X < X);
         (void) (X <= X);
         (void) (X > X);
@@ -1504,11 +1511,13 @@ void TestDriver<TYPE, SIZE>::testCase12()
     //------v
     };
 
-    if(verbose) printf("\nTESTING MOVE ASSIGNMENT OPERATOR.\n");
+    if (verbose) printf("\nTESTING MOVE ASSIGNMENT OPERATOR.\n");
+    if (verbose) printf("\nTYPE: %s\n", bsls::NameOf<TYPE>().name());
 
     const char* const SPEC = DATA[SIZE].d_spec_p;
 
-    Obj mW = gg(&mW, SPEC);
+    Obj mW;
+    gg(&mW, SPEC);
 
     Obj        mX;
     const Obj& X = mX;
@@ -1593,11 +1602,13 @@ void TestDriver<TYPE, SIZE>::testCase11()
     //------v
     };
 
-    if(verbose) printf("\nTESTING MOVE ASSIGNMENT OPERATOR.\n");
+    if (verbose) printf("\nTESTING MOVE ASSIGNMENT OPERATOR.\n");
+    if (verbose) printf("\nTYPE: %s\n", bsls::NameOf<TYPE>().name());
 
     const char* const   SPEC   = DATA[SIZE].d_spec_p;
 
-    Obj mW = gg(&mW, SPEC);
+    Obj mW;
+    gg(&mW, SPEC);
 
     Obj        mX = std::move(mW);
     const Obj& X  = mX;
@@ -1605,7 +1616,7 @@ void TestDriver<TYPE, SIZE>::testCase11()
     if(verbose) printf("\nTesting that lhs is properly set.\n");
 
     for(size_t i = 0; i < SIZE; ++i){
-        ASSERTV(X[i] == TestFacility::create<TYPE>(SPEC[i]));
+        ASSERTV(X[i], X[i] == TestFacility::create<TYPE>(SPEC[i]));
     }
 
     if(verbose) printf("\nTesting that elements are in proper move states.\n");
@@ -2450,43 +2461,43 @@ void TestDriverWrapper<TYPE>::testCase2(){
 template<class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase2()
 {
-        // --------------------------------------------------------------------
-        // DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR
-        //   Ensure that we can use the default constructor to create an
-        //   object (having the default-constructed value), use the primary
-        //   manipulators to put that object into any state relevant for
-        //   thorough testing, and use the destructor to destroy it safely.
-        //
-        // Concerns:
-        //: 1 An object created with the default constructor defalt constructs
-        //:   a number of elements equal to the size of the array with the
-        //:   exception of 0 length arrays that will construct 1 element.
-        //:
-        //: 2 Destructor calls the destructor of every element.
-        //:
-        //: 3 Elements can be set using 'operator[]' for any type that supports
-        //:   the assignment operator.
-        //:
-        // Plan:
-        //: 1 For each array of different length:
-        //:
-        //:   1 Construct an array of that length.
-        //:
-        //:   2 Verify that the correct number of elements was constructed.
-        //:
-        //:   3 Verify all elements are deleted when the array is destroyed.
-        //:
-        //:   4 Construct an array based on the 'SPEC' configuration for the
-        //:     current length.
-        //:
-        //:   5 Verify that the value of each element is correct by inspecting
-        //:     d_data.
-        //
-        // Testing:
-        //   array();
-        //   ~array();
-        //   reference operator[](size_type position);
-        // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+    // DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR
+    //   Ensure that we can use the default constructor to create an
+    //   object (having the default-constructed value), use the primary
+    //   manipulators to put that object into any state relevant for
+    //   thorough testing, and use the destructor to destroy it safely.
+    //
+    // Concerns:
+    //: 1 An object created with the default constructor defalt constructs
+    //:   a number of elements equal to the size of the array with the
+    //:   exception of 0 length arrays that will construct 1 element.
+    //:
+    //: 2 Destructor calls the destructor of every element.
+    //:
+    //: 3 Elements can be set using 'operator[]' for any type that supports
+    //:   the assignment operator.
+    //:
+    // Plan:
+    //: 1 For each array of different length:
+    //:
+    //:   1 Construct an array of that length.
+    //:
+    //:   2 Verify that the correct number of elements was constructed.
+    //:
+    //:   3 Verify all elements are deleted when the array is destroyed.
+    //:
+    //:   4 Construct an array based on the 'SPEC' configuration for the
+    //:     current length.
+    //:
+    //:   5 Verify that the value of each element is correct by inspecting
+    //:     d_data.
+    //
+    // Testing:
+    //   array();
+    //   ~array();
+    //   reference operator[](size_type position);
+    // --------------------------------------------------------------------
 
     static const struct {
         int         d_line;     // source line number
@@ -2512,11 +2523,11 @@ void TestDriver<TYPE, SIZE>::testCase2()
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (verbose) printf("\tCreate an object 'c' using wrapper to count how \n"
+    if (verbose) printf("\tCreate an object 'c' using CountedDefault to count how \n"
                         "\tmany elements are constructed (default ctor).\n");
     {
     ASSERT(s_numConstructed == 0);
-    bsl::array<wrapper<TYPE>, SIZE> c;
+    bsl::array<CountedDefault<TYPE>, SIZE> c;
 
     ASSERT(SIZE == c.size());
     ASSERTV(s_numConstructed, SIZE == s_numConstructed || SIZE == 0);
@@ -2574,6 +2585,16 @@ void TestDriver<TYPE, SIZE>::testCase2()
     }
 
 }
+
+template<class TYPE>
+void TestDriverWrapper<TYPE>::testCase1(){
+    TestDriver<TYPE, 0>::testCase1();
+    TestDriver<TYPE, 1>::testCase1();
+    TestDriver<TYPE, 2>::testCase1();
+    TestDriver<TYPE, 3>::testCase1();
+    TestDriver<TYPE, 4>::testCase1();
+}
+
 template<class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase1()
 {
@@ -2647,12 +2668,6 @@ void TestDriver<TYPE, SIZE>::testCase1()
     ASSERT(X >= W);
     ASSERT(!(X < W));
     ASSERT(!(X > W));
-
-    mX[0]++;
-    ASSERT(X > W);
-
-    mX[0]-=2;
-    ASSERT(X < W);
 }
 
 int main(int argc, char *argv[])
@@ -2662,6 +2677,12 @@ int main(int argc, char *argv[])
     veryVerbose         = argc > 3;
     veryVeryVerbose     = argc > 4;
     veryVeryVeryVerbose = argc > 5;
+    
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&defaultAllocator);
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -2671,38 +2692,31 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP30
     switch (test){ case 0:
       case 20: {
+        // Test 'data' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase20,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 19: {
+        // Test 'front' and 'back' members.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase19,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 18: {
+        // Test 'at' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase18,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 17: {
+        // Test 'empty' and 'max_size' members.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase17,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 16: {
+        // Test comparison operators.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase16,
                       signed char,
@@ -2711,111 +2725,104 @@ int main(int argc, char *argv[])
                       bsltf::TemplateTestFacility::FunctionPtr);
       } break;
       case 15: {
+        // Test aggregate initialization.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase15,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 14: {
+        // Test iterators.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase14,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 13: {
+        // Test 'fill' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase13,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 12: {
+        // Test move assignment operator.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase12,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 #endif
       } break;
       case 11: {
+        // Test move constructor.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase11,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 #endif
       } break;
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -*
       case 10: {
-                   //NONE
+        // --------------------------------------------------------------------
+        // TESTING STREAMING FUNCTIONALITY
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING STREAMING FUNCTIONALITY"
+                            "\n===============================\n");
+
+        if (verbose)
+            printf("There is no streaming for this component.\n");
+
       } break;
-// BDE_VERIFY pragma: pop
       case 9: {
+        // Test assignment operator ('operator=').
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase9,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 8: {
+        // Test 'swap' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase8,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 7: {
+        // Test copy constructor.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase7,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 6: {
+        // Test equality operator ('operator==').
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase6,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 5: {
+        // Test debug print.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase5,
-                      signed char,
-                      const char *,
-                      bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 4: {
+        // Test basic accessors ('size' and 'operator[]').
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase4,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 3: {
+        // Test generator functions 'ggg' and 'gg'.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 2: {
+        // Test primary manipulators, ctor, dtor.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 1: {
+        // Breathing Test. Exercises basic functionality.
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
+                      testCase1,
+                      unsigned int);
       } break;
       default: {
         printf("WARNING: CASE %d NOT FOUND.\n", test);
@@ -2832,7 +2839,7 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: pop
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
