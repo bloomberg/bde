@@ -234,6 +234,19 @@ void ConfigParser<INTEGER_TYPE>::parse(vector<INTEGER_TYPE> *result,
     }
 }
 
+int expNanoseconds(int nanoseconds)
+{
+    bool sign = false;
+
+    if ((sign = nanoseconds < 0)) {
+        nanoseconds = -nanoseconds;
+    }
+
+    nanoseconds -= nanoseconds % 1000;
+
+    return (sign ? -1 : +1) * nanoseconds;
+}
+
 }  // close unnamed namespace
 
 // ============================================================================
@@ -248,8 +261,6 @@ int main(int argc, char *argv[])
     const bool         veryVerbose = argc > 3;  (void)         veryVerbose;
     const bool     veryVeryVerbose = argc > 4;  (void)     veryVeryVerbose;
     const bool veryVeryVeryVerbose = argc > 5;  (void) veryVeryVeryVerbose;
-
-    (void) veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -419,37 +430,48 @@ int main(int argc, char *argv[])
                 bsls::Types::Int64 d_expMcSecs; // expected microseconds value
             } DATA[] = {
     //|<--------^
-      //   INPUT               INPUT     EXP  EXP  EXP  EXP  EXC  EXP
-      //LN SECONDS             NSECS    DAYS  HRS  MIN  SEC MLSEC MCSEC
-      //-- -------------  ----------  ------  ---  ---  --- ----- -----
-      {L_,           0LL,          0,      0,   0,   0,   0,    0,    0},
+      //   INPUT               INPUT     EXP  EXP  EXP  EXP EXC    EXP
+      //LN SECONDS             NSECS    DAYS  HRS  MIN  SEC MLSEC  MCSEC
+      //-- -------------  ----------  ------  ---  ---  --- -----  -----
+      {L_,           0LL,          0,      0,   0,   0,   0,    0,     0},
 
                  // Millisecond/microsecond boundary
-      {L_,           0LL,     999999,      0,   0,   0,   0,    0,  999},
-      {L_,           0LL,    1000000,      0,   0,   0,   0,    1,    0},
-      {L_,           0LL,    1000001,      0,   0,   0,   0,    1,    0},
-      {L_,           0LL,    -999999,      0,   0,   0,   0,    0, -999},
-      {L_,           0LL,   -1000000,      0,   0,   0,   0,   -1,    0},
-      {L_,           0LL,   -1000001,      0,   0,   0,   0,   -1,    0},
+      {L_,           0LL,     999999,      0,   0,   0,   0,    0,   999},
+      {L_,           0LL,    1000999,      0,   0,   0,   0,    0,  1000},
+      {L_,           0LL,    1001999,      0,   0,   0,   0,    0,  1001},
+      {L_,           0LL,    1000000,      0,   0,   0,   0,    1,     0},
+      {L_,           0LL,    1000001,      0,   0,   0,   0,    1,     0},
+      {L_,           0LL,    -999999,      0,   0,   0,   0,    0,  -999},
+      {L_,           0LL,   -1000999,      0,   0,   0,   0,    0, -1000},
+      {L_,           0LL,   -1001999,      0,   0,   0,   0,    0, -1001},
+      {L_,           0LL,   -1000000,      0,   0,   0,   0,   -1,     0},
+      {L_,           0LL,   -1000001,      0,   0,   0,   0,   -1,     0},
 
                      // Second/fraction boundary
-      {L_,           0LL,  999999999,      0,   0,   0,   0,  999,  999},
-      {L_,           1LL,          0,      0,   0,   0,   1,    0,    0},
-      {L_,           1LL,          1,      0,   0,   0,   1,    0,    0},
-      {L_,           0LL, -999999999,      0,   0,   0,   0, -999, -999},
-      {L_,          -1LL,          0,      0,   0,   0,  -1,    0,    0},
-      {L_,          -1LL,         -1,      0,   0,   0,  -1,    0,    0},
+      {L_,           0LL,  999999999,      0,   0,   0,   0,  999,   999},
+      {L_,           1LL,          0,      0,   0,   0,   0,  999,  1000},
+      {L_,           1LL,       1999,      0,   0,   0,   0,  999,  1001},
+      {L_,           1LL,          0,      0,   0,   0,   1,    0,     0},
+      {L_,           1LL,          1,      0,   0,   0,   1,    0,     0},
+      {L_,           0LL, -999999999,      0,   0,   0,   0, -999,  -999},
+      {L_,          -1LL,       -999,      0,   0,   0,   0, -999, -1000},
+      {L_,          -1LL,      -1999,      0,   0,   0,   0, -999, -1001},
+      {L_,          -1LL,          0,      0,   0,   0,  -1,    0,     0},
+      {L_,          -1LL,         -1,      0,   0,   0,  -1,    0,     0},
 
            // Arbitrary values that express all DatetimeInterval fields
-      {L_,  3000000011LL,    9999998,  34722,   5,  20,  11,    9,  999},
-      {L_,  3000000011LL,    9999999,  34722,   5,  20,  11,    9,  999},
-      {L_,  3000000011LL,   10000000,  34722,   5,  20,  11,   10,    0},
-      {L_,  3000000011LL,   10000001,  34722,   5,  20,  11,   10,    0},
-      {L_, -3000000011LL,   -9999999, -34722,  -5, -20, -11,   -9, -999},
-      {L_, -3000000011LL,   -9999998, -34722,  -5, -20, -11,   -9, -999},
-      {L_, -3000000011LL,   -9999999, -34722,  -5, -20, -11,   -9, -999},
-      {L_, -3000000011LL,  -10000000, -34722,  -5, -20, -11,  -10,    0},
-      {L_, -3000000011LL,  -10000001, -34722,  -5, -20, -11,  -10,    0},
+      {L_,  3000000011LL,    9999998,  34722,   5,  20,  11,    9,   999},
+      {L_,  3000000011LL,    9999999,  34722,   5,  20,  11,    9,   999},
+      {L_,  3000000011LL,   10000999,  34722,   5,  20,  11,    9,  1000},
+      {L_,  3000000011LL,   10001500,  34722,   5,  20,  11,    9,  1001},
+      {L_,  3000000011LL,   10000000,  34722,   5,  20,  11,   10,     0},
+      {L_,  3000000011LL,   10000001,  34722,   5,  20,  11,   10,     0},
+      {L_, -3000000011LL,   -9999999, -34722,  -5, -20, -11,   -9,  -999},
+      {L_, -3000000011LL,  -10000999, -34722,  -5, -20, -11,   -9, -1000},
+      {L_, -3000000011LL,  -10001999, -34722,  -5, -20, -11,   -9, -1001},
+      {L_, -3000000011LL,   -9999998, -34722,  -5, -20, -11,   -9,  -999},
+      {L_, -3000000011LL,  -10000000, -34722,  -5, -20, -11,  -10,     0},
+      {L_, -3000000011LL,  -10000001, -34722,  -5, -20, -11,  -10,     0},
 
                                    // Limits
 
@@ -500,6 +522,15 @@ int main(int argc, char *argv[])
                                            Util::convertToDatetimeInterval(ti);
 
                 ASSERTV(LINE, expected, dti, expected == dti);
+
+                int expNs = expNanoseconds(NSECS);
+
+                bsls::TimeInterval expTi(SECS, expNs);
+
+                bsls::TimeInterval convertedTi =
+                                         Util::convertToTimeInterval(expected);
+
+                ASSERTV(LINE, expTi, convertedTi, expTi == convertedTi);
             }
         }
 
