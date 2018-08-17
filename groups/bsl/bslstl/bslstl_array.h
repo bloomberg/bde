@@ -104,10 +104,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Returning an array from a function
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to define a function that will return an array of floats.
-// If a raw array was used, the size would need to be tracked seperately
-// because raw arrays decay to pointers.  With bsl::array the result can be
-// returned by value.
+// Suppose we want to define a function that will return an array of 'float's.
+// If a raw array were used, the size would need to be tracked seperately
+// because raw arrays decay to pointers when passed as function arguments, or
+// returned by-value.  'bsl::array' does not decay, and so provides a simple
+// solution to this problem.
 //..
 //  typedef bsl::array<float, 3> Point;
 //
@@ -116,9 +117,10 @@ BSLS_IDENT("$Id: $")
 //      bsl::array<float, 3> ret = {f1, f2, f3};
 //      return ret;
 //  }
-//  //Create a bsl::array object containing three values set to the specified
-//  //'f1', 'f2', 'f3'.
-//
+//..
+// Create a bsl::array object containing three values set to the specified
+// 'f1', 'f2', 'f3'.
+//..
 //  void usageExample(){
 //      Point p1 = createPoint(1.0, 1.0, 1.0);
 //      Point p2 = createPoint(2.0, 2.0, 2.0);
@@ -132,23 +134,35 @@ BSLS_IDENT("$Id: $")
 //          }
 //      }
 //  }
-//  //Use the createPoint function to generate 3 float arrays.  The arrays
-//  //are returned by copy and the 'size()' member function is used to access
-//  //the size of the arrays that could not be done with a raw array.
-//
+//..
+// Use the 'createPoint' function to generate three 'float' arrays.  The arrays
+// are returned by copy and the 'size()' member function is used to access the
+// size of the arrays that could not be done with a raw array.
+//..
+
+// Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
+// mode.  Doing so is unsupported, and is likely to cause compilation errors.
+#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#error "include <bsl_array.h> instead of <bslstl_array.h> in BSL_OVERRIDES_STD\
+ mode"
+#endif
+
+#include <bslscm_version.h>
+
 #include <bslstl_iterator.h>
 #include <bslstl_stdexceptutil.h>
+
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_libraryfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
-#include <bslscm_version.h>
+
 #include <stddef.h>
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-#  include <tuple>  // 'std::tuple'
+# include <tuple>  // 'std::tuple_size' etc.
 #endif
 
 #include <utility>
@@ -160,12 +174,12 @@ namespace bsl {
                                 // ===========
 
 template <class VALUE_TYPE, size_t SIZE>
-class array {
+struct array {
     // This class template provides a standard conforming implementation of
-    // 'std::array'. 'array' is an aggregate wrapper around a raw array,
+    // 'std::array'.  'array' is an aggregate wrapper around a raw array,
     // supporting aggregate initialization and an iterator interface as
     // required for a standard container.
-  public:
+
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -MN01
     // DATA
@@ -255,7 +269,7 @@ class array {
 
     pointer data();
         // Return the address of the first element of the underlying raw array.
-        // Return a valid T* which cannot be dereferenced if the 'SIZE' is 0.
+        // Return a valid 'T*' which cannot be dereferenced if the 'SIZE' is 0.
 
     //! array& operator=(const array& other);
         // Sets every element in this array to the corresponding element in the
@@ -317,7 +331,7 @@ class array {
 
     const_pointer data() const;
         // Return the address of the first element of the underlying raw array.
-        // Return a valid T* which cannot be dereferenced if the 'SIZE' is 0.
+        // Return a valid 'T*' which cannot be dereferenced if the 'SIZE' is 0.
 };
 
 // FREE OPERATORS
@@ -371,27 +385,27 @@ void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs);
     // corresponding element in the specified 'rhs'.
 
 template<size_t I, class T, size_t N>
-T& get(bsl::array<T, N>& p);
+T& get(array<T, N>& p);
     // Return a reference providing modifiable access to the element of the
     // specified 'p', having the ordinal number specified by the (template
     // parameter) 'I'.  This function will not compile unless 'I < N'.
 
 template<size_t I, class T, size_t N>
-const T& get(const bsl::array<T, N>& p);
+const T& get(const array<T, N>& p);
     // Return a reference providing non-modifiable access to the element of the
     // specified 'p', having the ordinal number specified by the (template
     // parameter) 'I'.  This function will not compile unless 'I < N'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template<size_t I, class T, size_t N>
-const T&& get(const bsl::array<T, N>&& p);
+const T&& get(const array<T, N>&& p);
     // Return an rvalue reference providing non-modifiable access to the
     // element of the specified 'p', having the ordinal number specified by the
-    // (template parameter) 'I'.  This function will not compile unless 'I <
-    // N'.
+    // (template parameter) 'I'.  This function will not compile unless 
+    // 'I < N'.
 
 template<size_t I, class T, size_t N>
-T&& get(bsl::array<T, N>&& p);
+T&& get(array<T, N>&& p);
     // Return an rvalue reference providing modifiable access to the element of
     // the specified 'p', having the ordinal number specified by the (template
     // parameter) 'I'.  This function will not compile unless 'I < N'.
@@ -399,10 +413,10 @@ T&& get(bsl::array<T, N>&& p);
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
 
-#if defined(BSL_OVERRIDES_STD) && defined(std)
+# if defined(BSL_OVERRIDES_STD) && defined(std)
 #   undef std
 #   define BSLSTL_PAIR_RESTORE_STD
-#endif
+# endif
 
 }  // close namespace bsl
 
@@ -438,13 +452,12 @@ struct tuple_size<bsl::array<T, N> > : integral_constant<size_t, N>
 
 namespace bsl {
 
-#if defined(BSLSTL_PAIR_RESTORE_STD)
+# if defined(BSLSTL_PAIR_RESTORE_STD)
 #   define std bsl
 #   undef BSLSTL_PAIR_RESTORE_STD
-#endif
+# endif
 
-#endif
-
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -730,26 +743,26 @@ void bsl::swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs)
 }
 
 template<size_t I, class T, size_t N>
-T& bsl::get(bsl::array<T, N>& p)
+T& bsl::get(array<T, N>& p)
 {
     return p[I];
 }
 
 template<size_t I, class T, size_t N>
-const T& bsl::get(const bsl::array<T, N>& p)
+const T& bsl::get(const array<T, N>& p)
 {
     return p[I];
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template<size_t I, class T, size_t N>
-const T&& bsl::get(const bsl::array<T, N>&& p)
+const T&& bsl::get(const array<T, N>&& p)
 {
     return std::move(p[I]);
 }
 
 template<size_t I, class T, size_t N>
-T&& bsl::get(bsl::array<T, N>&& p)
+T&& bsl::get(array<T, N>&& p)
 {
     return std::move(p[I]);
 }

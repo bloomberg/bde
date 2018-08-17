@@ -1,4 +1,4 @@
-// bslstl_array.cpp                                            -*-C++-*-
+// bslstl_array.cpp                                                   -*-C++-*-
 #include <bslstl_array.h>
 
 #include <bsls_ident.h>
