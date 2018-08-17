@@ -133,7 +133,7 @@ class SimpleTestType {
 bool operator==(const SimpleTestType& lhs, const SimpleTestType& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'SimpleTestType' objects
-    // have the same if their 'data' attributes are the same.
+    // have the same value if their 'data' attributes are the same.
 
 bool operator!=(const SimpleTestType& lhs, const SimpleTestType& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the

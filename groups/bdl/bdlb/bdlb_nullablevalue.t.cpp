@@ -130,12 +130,16 @@ using namespace bsl;
 // [17] bool operator==(const TYPE&, const NullableValue<TYPE>&);
 // [17] bool operator!=(const NullableValue<TYPE>&, const TYPE&);
 // [17] bool operator!=(const TYPE&, const NullableValue<TYPE>&);
+// [27] bool operator==(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+// [27] bool operator==(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [27] bool operator!=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+// [27] bool operator!=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
 // [ 4] ostream& operator<<(ostream&, const NullableValue<TYPE>&);
 // [20] void hashAppend(HASHALG& hashAlg, NullableValue<TYPE>& input);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [27] USAGE EXAMPLE
+// [28] USAGE EXAMPLE
 // [25] Concern: Types that are not copy-assignable can be used.
 // ----------------------------------------------------------------------------
 
@@ -1504,8 +1508,254 @@ template <>
 struct UsesBslmaAllocator<ConvertibleFromAllocatorTestType> : bsl::true_type {
 
 };
+
 }  // close namespace bslma
 }  // close enterprise namespace
+
+namespace {
+
+class FirstMethodComparableType;
+class SecondMethodComparableType;
+class FirstFunctionComparableType;
+class SecondFunctionComparableType;
+
+                   // ===============================
+                   // class FirstMethodComparableType
+                   // ===============================
+
+class FirstMethodComparableType {
+  private:
+    // DATA
+    int d_data;  // object value
+
+  public:
+     // CREATORS
+     FirstMethodComparableType(int data);
+         // Create a 'FirstMethodComparableType' object having the specified
+         // 'data' attribute value.
+
+     // ACCESSORS
+     int data() const;
+         // Return the value of the 'data' attribute of this object.
+
+     bool operator==(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' has the same value as "this"
+         // object, and 'false' otherwise.
+
+     bool operator!=(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' does not have the same value
+         // as "this" object, and 'false' otherwise.
+ };
+
+                   // ================================
+                   // class SecondMethodComparableType
+                   // ================================
+
+class SecondMethodComparableType {
+  private:
+    // DATA
+    int d_data;  // object value
+
+  public:
+     // CREATORS
+     SecondMethodComparableType(int data);
+         // Create a 'SecondMethodComparableType' object having the specified
+         // 'data' attribute value.
+
+     // ACCESSORS
+     int data() const;
+         // Return the value of the 'data' attribute of this object.
+
+     bool operator==(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' has the same value as "this"
+         // object, and 'false' otherwise.
+
+     bool operator!=(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' does not have the same value
+         // as "this" object, and 'false' otherwise.
+ };
+
+                   // -------------------------------
+                   // class FirstMethodComparableType
+                   // -------------------------------
+// CREATORS
+FirstMethodComparableType::FirstMethodComparableType(int data)
+: d_data(data)
+{}
+
+// ACCESSORS
+int FirstMethodComparableType::data() const
+{
+    return d_data;
+}
+
+bool FirstMethodComparableType::operator==(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data == rhs.data();
+}
+
+bool FirstMethodComparableType::operator!=(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data != rhs.data();
+}
+
+                   // --------------------------------
+                   // class SecondMethodComparableType
+                   // --------------------------------
+// CREATORS
+SecondMethodComparableType::SecondMethodComparableType(int data)
+: d_data(data)
+{}
+
+// ACCESSORS
+int SecondMethodComparableType::data() const
+{
+    return d_data;
+}
+
+bool SecondMethodComparableType::operator==(
+                                   const FirstMethodComparableType& rhs) const
+{
+    return d_data == rhs.data();
+}
+
+bool SecondMethodComparableType::operator!=(
+                                   const FirstMethodComparableType& rhs) const
+{
+    return d_data != rhs.data();
+}
+
+                   // =================================
+                   // class FirstFunctionComparableType
+                   // =================================
+
+class FirstFunctionComparableType {
+  private:
+    // DATA
+    int d_data;  // object value
+
+  public:
+     // CREATORS
+     FirstFunctionComparableType(int data);
+         // Create a 'FirstFunctionComparableType' object having the specified
+         // 'data' attribute value.
+
+     // ACCESSORS
+     int data() const;
+         // Return the value of the 'data' attribute of this object.
+ };
+
+// FREE OPERATORS
+bool operator==(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two objects of
+    // 'FirstFunctionComparableType' and 'SecondFunctionComparableType' have
+    // the same value if their 'data' attributes are the same.
+
+bool operator!=(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two objects of
+    // 'FirstFunctionComparableType' and 'SecondFunctionComparableType' do not
+    // have the same value if their 'data' attributes are not the same.
+
+                   // ==================================
+                   // class SecondFunctionComparableType
+                   // ==================================
+
+class SecondFunctionComparableType {
+  private:
+    // DATA
+    int d_data;  // object value
+
+  public:
+     // CREATORS
+     SecondFunctionComparableType(int data);
+         // Create a 'SecondFunctionComparableType' object having the specified
+         // 'data' attribute value.
+
+     // ACCESSORS
+     int data() const;
+         // Return the value of the 'data' attribute of this object.
+ };
+
+// FREE OPERATORS
+bool operator==(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType&  rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two objects of
+    // 'SecondFunctionComparableType' and 'FirstFunctionComparableType' have
+    // the same value if their 'data' attributes are the same.
+
+bool operator!=(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType&  rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two objects of
+    // 'SecondFunctionComparableType' and 'FirstFunctionComparableType' do not
+    // have the same value if their 'data' attributes are not the same.
+
+                   // ---------------------------------
+                   // class FirstFunctionComparableType
+                   // ---------------------------------
+// CREATORS
+FirstFunctionComparableType::FirstFunctionComparableType(int data)
+: d_data(data)
+{}
+
+// ACCESSORS
+int FirstFunctionComparableType::data() const
+{
+    return d_data;
+}
+
+// FREE OPERATORS
+inline
+bool operator==(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool operator!=(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+                   // ----------------------------------
+                   // class SecondFunctionComparableType
+                   // ----------------------------------
+// CREATORS
+SecondFunctionComparableType::SecondFunctionComparableType(int data)
+: d_data(data)
+{}
+
+// ACCESSORS
+int SecondFunctionComparableType::data() const
+{
+    return d_data;
+}
+
+// FREE OPERATORS
+inline
+bool operator==(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType&  rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool operator!=(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType&  rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+}  // close unnamed namespace
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -4345,7 +4595,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -4388,6 +4638,283 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING COMPARISON WITH COMPARABLE TYPE
+        //
+        // Concerns:
+        //: 1 Two objects of types 'NullableValue<X>' and 'Y', compare equal if
+        //:   and only if underlying value of nullable object and the value of
+        //:   another object compare equal.
+        //:
+        //: 2 Null nullable object is not compare equal to any other
+        //:   non-nullable object.
+        //:
+        //: 3 Either member comparison function or free comparison function
+        //:   make it possible to compare nullable object and another object.
+        //
+        // Plan:
+        //: 1 Using special types 'FirstMethodComparableType' and
+        //:   'SecondMethodComparableType' whose objects can be compared using
+        //:   member functions verify return values for both '==' and '!='.
+        //:
+        //: 2 Using special types 'FirstFunctionComparableType' and
+        //:   'SecondFunctionComparableType' whose objects can be compared
+        //:   using free functions verify return values for both '==' and '!='.
+        //:   (C-3)
+        //:
+        //: 3 Using comparable c-string, 'bsl::string' and 'bslstl::StringRef'
+        //:   types verify return values for both '==' and '!=' (for null and
+        //:   non-null nullable objects).  (C-1..2)
+        //
+        // Testing:
+        //   bool operator==(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator==(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator!=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator!=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING COMPARISON WITH COMPARABLE TYPE"
+                             "\n=======================================\n";
+
+        typedef bdlb::NullableValue<FirstMethodComparableType>
+                                                             FirstMethodObj;
+        typedef bdlb::NullableValue<SecondMethodComparableType>
+                                                             SecondMethodObj;
+        typedef bdlb::NullableValue<FirstFunctionComparableType>
+                                                             FirstFunctionObj;
+        typedef bdlb::NullableValue<SecondFunctionComparableType>
+                                                             SecondFunctionObj;
+
+        if (verbose) cout << "\tTesting member function comparison" << endl;
+        {
+             FirstMethodComparableType valueFMCT1(1);
+             FirstMethodComparableType valueFMCT2(2);
+            SecondMethodComparableType valueSMCT1(1);
+            SecondMethodComparableType valueSMCT2(2);
+
+            // Ascertain that types are comparable themselves.
+
+            ASSERT(  valueFMCT1 == valueSMCT1 );
+            ASSERT(!(valueFMCT1 == valueSMCT2));
+            ASSERT(!(valueFMCT2 == valueSMCT1));
+            ASSERT(  valueFMCT2 == valueSMCT2 );
+
+            ASSERT(!(valueFMCT1 != valueSMCT1));
+            ASSERT(  valueFMCT1 != valueSMCT2 );
+            ASSERT(  valueFMCT2 != valueSMCT1 );
+            ASSERT(!(valueFMCT2 != valueSMCT2));
+
+            // NullableValue<TYPE1> and TYPE2 comparison.
+
+             FirstMethodObj objFM1(valueFMCT1);
+             FirstMethodObj objFM2(valueFMCT2);
+            SecondMethodObj objSM1(valueSMCT1);
+            SecondMethodObj objSM2(valueSMCT2);
+
+            ASSERT(  objFM1 == valueSMCT1 );
+            ASSERT(!(objFM1 == valueSMCT2));
+            ASSERT(!(objFM2 == valueSMCT1));
+            ASSERT(  objFM2 == valueSMCT2 );
+
+            ASSERT(!(objFM1 != valueSMCT1));
+            ASSERT(  objFM1 != valueSMCT2 );
+            ASSERT(  objFM2 != valueSMCT1 );
+            ASSERT(!(objFM2 != valueSMCT2));
+
+            // TYPE1 and NullableValue<TYPE2> comparison.
+
+            ASSERT(  valueFMCT1 == objSM1 );
+            ASSERT(!(valueFMCT1 == objSM2));
+            ASSERT(!(valueFMCT2 == objSM1));
+            ASSERT(  valueFMCT2 == objSM2 );
+
+            ASSERT(!(valueFMCT1 != objSM1));
+            ASSERT(  valueFMCT1 != objSM2 );
+            ASSERT(  valueFMCT2 != objSM1 );
+            ASSERT(!(valueFMCT2 != objSM2));
+        }
+
+        if (verbose) cout << "\tTesting free   function comparison" << endl;
+        {
+             FirstFunctionComparableType valueFFCT1(1);
+             FirstFunctionComparableType valueFFCT2(2);
+            SecondFunctionComparableType valueSFCT1(1);
+            SecondFunctionComparableType valueSFCT2(2);
+
+            // Ascertain that types are comparable themselves.
+
+            ASSERT(  valueFFCT1 == valueSFCT1 );
+            ASSERT(!(valueFFCT1 == valueSFCT2));
+            ASSERT(!(valueFFCT2 == valueSFCT1));
+            ASSERT(  valueFFCT2 == valueSFCT2 );
+
+            ASSERT(!(valueFFCT1 != valueSFCT1));
+            ASSERT(  valueFFCT1 != valueSFCT2 );
+            ASSERT(  valueFFCT2 != valueSFCT1 );
+            ASSERT(!(valueFFCT2 != valueSFCT2));
+
+            // NullableValue<TYPE1> and TYPE2 comparison.
+
+             FirstFunctionObj objFF1(valueFFCT1);
+             FirstFunctionObj objFF2(valueFFCT2);
+            SecondFunctionObj objSF1(valueSFCT1);
+            SecondFunctionObj objSF2(valueSFCT2);
+
+            ASSERT(  objFF1 == valueSFCT1 );
+            ASSERT(!(objFF1 == valueSFCT2));
+            ASSERT(!(objFF2 == valueSFCT1));
+            ASSERT(  objFF2 == valueSFCT2 );
+
+            ASSERT(!(objFF1 != valueSFCT1));
+            ASSERT(  objFF1 != valueSFCT2 );
+            ASSERT(  objFF2 != valueSFCT1 );
+            ASSERT(!(objFF2 != valueSFCT2));
+
+            // TYPE1 and NullableValue<TYPE2> comparison.
+
+            ASSERT(  valueFFCT1 == objSF1 );
+            ASSERT(!(valueFFCT1 == objSF2));
+            ASSERT(!(valueFFCT2 == objSF1));
+            ASSERT(  valueFFCT2 == objSF2 );
+
+            ASSERT(!(valueFFCT1 != objSF1));
+            ASSERT(  valueFFCT1 != objSF2 );
+            ASSERT(  valueFFCT2 != objSF1 );
+            ASSERT(!(valueFFCT2 != objSF2));
+        }
+
+        if (verbose) cout << "\tTesting real world examples" << endl;
+        {
+            const char        *cStr1("");
+            const char        *cStr2("2");
+            bsl::string        str1("");
+            bsl::string        str2("2");
+            bslstl::StringRef  strRef1("");
+            bslstl::StringRef  strRef2("2");
+
+            bdlb::NullableValue<bsl::string>       strObj(str1);
+            bdlb::NullableValue<bsl::string>       nullStrObj;
+            bdlb::NullableValue<bslstl::StringRef> strRefObj(strRef1);
+            bdlb::NullableValue<bslstl::StringRef> nullStrRefObj;
+
+            // Testing null object comparison.
+
+            ASSERT(!(nullStrObj     == cStr1        ));
+            ASSERT(!(nullStrObj     == cStr2        ));
+            ASSERT(!(nullStrObj     == str1         ));
+            ASSERT(!(nullStrObj     == str2         ));
+            ASSERT(!(nullStrObj     == strRef1      ));
+            ASSERT(!(nullStrObj     == strRef2      ));
+
+            ASSERT(!(cStr1          ==  nullStrObj  ));
+            ASSERT(!(cStr2          ==  nullStrObj  ));
+            ASSERT(!(str1           ==  nullStrObj  ));
+            ASSERT(!(str2           ==  nullStrObj  ));
+            ASSERT(!(strRef1        ==  nullStrObj  ));
+            ASSERT(!(strRef2        ==  nullStrObj  ));
+
+            ASSERT(!(nullStrRefObj  == cStr1        ));
+            ASSERT(!(nullStrRefObj  == cStr2        ));
+            ASSERT(!(nullStrRefObj  == str1         ));
+            ASSERT(!(nullStrRefObj  == str2         ));
+            ASSERT(!(nullStrRefObj  == strRef1      ));
+            ASSERT(!(nullStrRefObj  == strRef2      ));
+
+            ASSERT(!(cStr1          == nullStrRefObj));
+            ASSERT(!(cStr2          == nullStrRefObj));
+            ASSERT(!(str1           == nullStrRefObj));
+            ASSERT(!(str2           == nullStrRefObj));
+            ASSERT(!(strRef1        == nullStrRefObj));
+            ASSERT(!(strRef2        == nullStrRefObj));
+
+            ASSERT(  nullStrObj     != cStr1         );
+            ASSERT(  nullStrObj     != cStr2         );
+            ASSERT(  nullStrObj     != str1          );
+            ASSERT(  nullStrObj     != str2          );
+            ASSERT(  nullStrObj     != strRef1       );
+            ASSERT(  nullStrObj     != strRef2       );
+
+            ASSERT(  cStr1          != nullStrObj    );
+            ASSERT(  cStr2          != nullStrObj    );
+            ASSERT(  str1           != nullStrObj    );
+            ASSERT(  str2           != nullStrObj    );
+            ASSERT(  strRef1        != nullStrObj    );
+            ASSERT(  strRef2        != nullStrObj    );
+
+            ASSERT(  nullStrRefObj  != cStr1         );
+            ASSERT(  nullStrRefObj  != cStr2         );
+            ASSERT(  nullStrRefObj  != str1          );
+            ASSERT(  nullStrRefObj  != str2          );
+            ASSERT(  nullStrRefObj  != strRef1       );
+            ASSERT(  nullStrRefObj  != strRef2       );
+
+            ASSERT(  cStr1          != nullStrRefObj );
+            ASSERT(  cStr2          != nullStrRefObj );
+            ASSERT(  str1           != nullStrRefObj );
+            ASSERT(  str2           != nullStrRefObj );
+            ASSERT(  strRef1        != nullStrRefObj );
+            ASSERT(  strRef2        != nullStrRefObj );
+
+            // Testing non-null object comparison.
+
+            ASSERT( (strObj         == cStr1        ));
+            ASSERT(!(strObj         == cStr2        ));
+            ASSERT( (strObj         == str1         ));
+            ASSERT(!(strObj         == str2         ));
+            ASSERT( (strObj         == strRef1      ));
+            ASSERT(!(strObj         == strRef2      ));
+
+            ASSERT( (cStr1          == strObj       ));
+            ASSERT(!(cStr2          == strObj       ));
+            ASSERT( (str1           == strObj       ));
+            ASSERT(!(str2           == strObj       ));
+            ASSERT( (strRef1        == strObj       ));
+            ASSERT(!(strRef2        == strObj       ));
+
+            ASSERT( (strRefObj      == cStr1        ));
+            ASSERT(!(strRefObj      == cStr2        ));
+            ASSERT( (strRefObj      == str1         ));
+            ASSERT(!(strRefObj      == str2         ));
+            ASSERT( (strRefObj      == strRef1      ));
+            ASSERT(!(strRefObj      == strRef2      ));
+
+            ASSERT( (cStr1          == strRefObj    ));
+            ASSERT(!(cStr2          == strRefObj    ));
+            ASSERT( (str1           == strRefObj    ));
+            ASSERT(!(str2           == strRefObj    ));
+            ASSERT( (strRef1        == strRefObj    ));
+            ASSERT(!(strRef2        == strRefObj    ));
+
+            ASSERT(!(strObj         != cStr1        ));
+            ASSERT(  strObj         != cStr2         );
+            ASSERT(!(strObj         != str1         ));
+            ASSERT(  strObj         != str2          );
+            ASSERT(!(strObj         != strRef1      ));
+            ASSERT(  strObj         != strRef2       );
+
+            ASSERT(!(cStr1          != strObj       ));
+            ASSERT(  cStr2          != strObj        );
+            ASSERT(!(str1           != strObj       ));
+            ASSERT(  str2           != strObj        );
+            ASSERT(!(strRef1        != strObj       ));
+            ASSERT(  strRef2        != strObj        );
+
+            ASSERT(!(strRefObj      != cStr1        ));
+            ASSERT(  strRefObj      != cStr2         );
+            ASSERT(!(strRefObj      != str1         ));
+            ASSERT(  strRefObj      != str2          );
+            ASSERT(!(strRefObj      != strRef1      ));
+            ASSERT(  strRefObj      != strRef2       );
+
+            ASSERT(!(cStr1          != strRefObj    ));
+            ASSERT(  cStr2          != strRefObj     );
+            ASSERT(!(str1           != strRefObj    ));
+            ASSERT(  str2           != strRefObj     );
+            ASSERT(!(strRef1        != strRefObj    ));
+            ASSERT(  strRef2        != strRefObj     );
+        }
       } break;
       case 26: {
         // --------------------------------------------------------------------
