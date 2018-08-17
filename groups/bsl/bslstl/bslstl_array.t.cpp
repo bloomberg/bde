@@ -227,7 +227,7 @@ CountedDefault<TYPE>::~CountedDefault()
                             // ==============
 
 class LessThan {
-    //class that supports only operator<.
+    //class that supports only 'operator<'.
   public:
 
     bool operator<(const LessThan& other) const;
@@ -612,11 +612,23 @@ void TestDriver<TYPE, SIZE>::testCase21()
     // TESTING TUPLE INTERFACE
     //
     // Concerns:
-    //: 1 'data' member returns a pointer to the raw array in the object.
+    //: 1 'get' free functions return correct value.
+    //:
+    //: 2 'get' free functions return correct types.
     //:
     // Plan:
+    //: 1 Create an array from spec string.
+    //:
+    //: 2 Test that 'get' free function returns correct value on all overloads.
+    //:
+    //: 3 Test that 'get' free function returns correct type for rvalue
+    //:   references.
     //:
     // Testing:
+    // T& get(array<T, N>& p)
+    // const T& get(const array<T, N>& p)
+    // const T&& get(const array<T, N>&& p)
+    // T&& get(array<T, N>&& p)
     // ------------------------------------------------------------------------
 
     static const struct {
@@ -645,12 +657,11 @@ void TestDriver<TYPE, SIZE>::testCase21()
     const Obj& W = gg(&mW, SPEC);
 
     if (SIZE != 0) {
-        ASSERTV(bsl::get<SIZE-1>(mW) == 
-                TestFacility::create<TYPE>(SPEC[SIZE-1]));
-        ASSERTV(bsl::get<SIZE-1>(W) == 
-                TestFacility::create<TYPE>(SPEC[SIZE-1]));
+        ASSERTV(&bsl::get<SIZE-1>(mW) == &mW[SIZE-1]);
+        ASSERTV(&bsl::get<SIZE-1>(W) == &W[SIZE-1]);
     }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    if (verbose) printf("\nTesting 'get' free function with rvalues.\n");
     if (SIZE != 0) {
         TYPE&& mX       = bsl::get<SIZE-1>(std::move(mW));
         const TYPE&& X  = bsl::get<SIZE-1>(std::move(W));

@@ -162,7 +162,7 @@ namespace bsl {
 template <class VALUE_TYPE, size_t SIZE>
 class array {
     // This class template provides a standard conforming implementation of
-    // 'std::array', 'array' is an aggregate wrapper around a raw array,
+    // 'std::array'. 'array' is an aggregate wrapper around a raw array,
     // supporting aggregate initialization and an iterator interface as
     // required for a standard container.
   public:
@@ -189,19 +189,19 @@ class array {
     //! array() = default;
         // Create an 'array' object.  Every element is default constructed if
         // 'VALUE_TYPE' is default constructible; otherwise, 'array' is not
-        // default constructable.
+        // default constructible.
     //! array(const array& original) = default;
         // Create an 'array' object having the same value as the specified
         // 'original' object.  Every element is copy constructed from the
         // corresponding element in the specified 'original' if 'VALUE_TYPE' is
-        // copy constructable; otherwise, array is not copy constructable.
+        // copy constructible; otherwise, 'array' is not copy constructible.
         // Only in C++11 and later.
     //! array(array&& original) = default;
         // Create an 'array' object having the same value as the specified
         // 'original' object.  Every element is move constructed from
         // the corresponding element in the specified 'original' if
-        // 'VALUE_TYPE' is move constructable; otherwise, array is not move
-        // constructable.
+        // 'VALUE_TYPE' is move constructible; otherwise, 'array' is not move
+        // constructible.
     //! ~array() = default;
         // Destroy this object.  Evert element is destroyed if 'VALUE_TYPE' is
         // destructible; otherwise, array is not destructible.
@@ -255,16 +255,16 @@ class array {
 
     pointer data();
         // Return the address of the first element of the underlying raw array.
-        // Return a valid T* if the 'SIZE' is 0.
+        // Return a valid T* which cannot be dereferenced if the 'SIZE' is 0.
 
     //! array& operator=(const array& other);
         // Sets every element in this array to the corresponding element in the
         // specified 'other' if 'VALUE_TYPE' is copy assignable; otherwise,
-        // array is not copy assignable.
+        // 'array' is not copy assignable.
     //! array& operator=(array&& other);
         // Moves every element in the specified 'other' into the corresponding
         // element in this array in the if 'VALUE_TYPE' is moves assignable;
-        // otherwise, array is not move assignable.
+        // otherwise, 'array' is not move assignable.
 
     // BDE_VERIFY pragma: -FABC01
     // ACCESSORS
@@ -288,7 +288,7 @@ class array {
     const_reverse_iterator rend() const;
     const_reverse_iterator crend() const;
         // Return the past-the-end reverse iterator providing non-modifiable
-        // access to this array.
+        // access to this 'array'.
 
     bool empty() const;
         // Return 'true' if the array has size 0, and 'false' otherwise.
@@ -317,7 +317,7 @@ class array {
 
     const_pointer data() const;
         // Return the address of the first element of the underlying raw array.
-        // Return a valid T* if the 'SIZE' is 0.
+        // Return a valid T* which cannot be dereferenced if the 'SIZE' is 0.
 };
 
 // FREE OPERATORS
@@ -367,34 +367,34 @@ bool operator>=(const array<VALUE_TYPE, SIZE1>& lhs,
 
 template <class VALUE_TYPE, size_t SIZE>
 void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs);
-    // Call swap on each element of the specified 'lhs' with the corresponding
-    // element in the specified 'rhs'.  'rhs' must have the exact same type as
-    // 'lhs'
+    // Call 'swap' using ADL on each element of the specified 'lhs' with the
+    // corresponding element in the specified 'rhs'.
 
 template<size_t I, class T, size_t N>
 T& get(bsl::array<T, N>& p);
     // Return a reference providing modifiable access to the element of the
     // specified 'p', having the ordinal number specified by the (template
-    // parameter) 'I'.  This function will not compile unless 'I < N'
+    // parameter) 'I'.  This function will not compile unless 'I < N'.
 
 template<size_t I, class T, size_t N>
 const T& get(const bsl::array<T, N>& p);
     // Return a reference providing non-modifiable access to the element of the
     // specified 'p', having the ordinal number specified by the (template
-    // parameter) 'I'.  This function will not compile unless 'I < N'
+    // parameter) 'I'.  This function will not compile unless 'I < N'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template<size_t I, class T, size_t N>
 const T&& get(const bsl::array<T, N>&& p);
     // Return an rvalue reference providing non-modifiable access to the
     // element of the specified 'p', having the ordinal number specified by the
-    // (template parameter) 'I'.  This function will not compile unless 'I < N'
+    // (template parameter) 'I'.  This function will not compile unless 'I <
+    // N'.
 
 template<size_t I, class T, size_t N>
 T&& get(bsl::array<T, N>&& p);
     // Return an rvalue reference providing modifiable access to the element of
     // the specified 'p', having the ordinal number specified by the (template
-    // parameter) 'I'.  This function will not compile unless 'I < N'
+    // parameter) 'I'.  This function will not compile unless 'I < N'.
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
@@ -659,7 +659,7 @@ array<VALUE_TYPE, SIZE>::data() const
 // FREE OPERATORS
 template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
 bool bsl::operator==(const array<VALUE_TYPE, SIZE1>& lhs,
-                const array<VALUE_TYPE, SIZE2>& rhs)
+                     const array<VALUE_TYPE, SIZE2>& rhs)
 {
     if (SIZE1 != SIZE2){
         return false;                                                 // RETURN
@@ -673,7 +673,7 @@ bool bsl::operator==(const array<VALUE_TYPE, SIZE1>& lhs,
 
 template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
 bool bsl::operator!=(const array<VALUE_TYPE, SIZE1>& lhs,
-                const array<VALUE_TYPE, SIZE2>& rhs)
+                     const array<VALUE_TYPE, SIZE2>& rhs)
 {
     if (SIZE1 != SIZE2){
         return true;                                                  // RETURN
@@ -683,7 +683,7 @@ bool bsl::operator!=(const array<VALUE_TYPE, SIZE1>& lhs,
 
 template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
 bool bsl::operator<(const array<VALUE_TYPE, SIZE1>& lhs,
-               const array<VALUE_TYPE, SIZE2>& rhs)
+                    const array<VALUE_TYPE, SIZE2>& rhs)
 {
     typename array<VALUE_TYPE, SIZE1>::const_iterator first1 = lhs.begin();
     typename array<VALUE_TYPE, SIZE1>::const_iterator last1  = lhs.end();
@@ -704,21 +704,21 @@ bool bsl::operator<(const array<VALUE_TYPE, SIZE1>& lhs,
 
 template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
 bool bsl::operator>(const array<VALUE_TYPE, SIZE1>& lhs,
-               const array<VALUE_TYPE, SIZE2>& rhs)
+                    const array<VALUE_TYPE, SIZE2>& rhs)
 {
     return rhs < lhs;
 }
 
 template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
 bool bsl::operator<=(const array<VALUE_TYPE, SIZE1>& lhs,
-                const array<VALUE_TYPE, SIZE2>& rhs)
+                     const array<VALUE_TYPE, SIZE2>& rhs)
 {
     return !(rhs < lhs);
 }
 
 template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
 bool bsl::operator>=(const array<VALUE_TYPE, SIZE1>& lhs,
-                const array<VALUE_TYPE, SIZE2>& rhs)
+                     const array<VALUE_TYPE, SIZE2>& rhs)
 {
     return !(lhs < rhs);
 }
