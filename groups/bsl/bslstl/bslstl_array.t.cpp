@@ -32,7 +32,6 @@ using namespace bslstl;
 // BDE_VERIFY pragma: -AT02
 // BDE_VERIFY pragma: -AC02
 
-//TODO add negative testing on front back and []
 //=============================================================================
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
@@ -61,7 +60,6 @@ using namespace bslstl;
 //
 // Global Assumptions:
 //: o ACCESSOR methods are 'const' thread-safe.
-// TODO add special case for non assignable types and non comparable types
 //: o The 'VALUE_TYPE' of the array is assignable, default constructable, and
 //:   supports operator==.
 // ----------------------------------------------------------------------------
@@ -112,10 +110,14 @@ using namespace bslstl;
 // [16] bool operator<=(const array<T,S>&, const array<T,S>&);
 // [16] bool operator>=(const array<T,S>&, const array<T,S>&);
 // [ 8] void swap(array<T,S>&, array<T,S>&);
+// [21] T& get(array<T, N>& p)
+// [21] const T& get(const array<T, N>& p)
+// [21] const T&& get(const array<T, N>&& p)
+// [21] T&& get(array<T, N>&& p)
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [1x] USAGE EXAMPLE
+// [22] USAGE EXAMPLE
 
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(array<T,S> *object, const char *spec, int vF = 1);
@@ -225,7 +227,7 @@ CountedDefault<TYPE>::~CountedDefault()
                             // ==============
 
 class LessThan {
-    //class that only supports operator<.
+    //class that supports only operator<.
   public:
 
     bool operator<(const LessThan& other) const;
@@ -397,26 +399,26 @@ Point createPoint(float f1, float f2, float f3)
 {
     bsl::array<float, 3> ret = {f1, f2, f3};
     return ret;
-    }
-    // Create a bsl::array object containing three values set to the specified
-    // 'f1', 'f2', 'f3'.
+}
+// Create a bsl::array object containing three values set to the specified
+// 'f1', 'f2', 'f3'.
 
-    void usageExample(){
-        Point p1 = createPoint(1.0, 1.0, 1.0);
-        Point p2 = createPoint(2.0, 2.0, 2.0);
-        Point p3 = createPoint(3.0, 3.0, 3.0);
+void usageExample(){
+    Point p1 = createPoint(1.0, 1.0, 1.0);
+    Point p2 = createPoint(2.0, 2.0, 2.0);
+    Point p3 = createPoint(3.0, 3.0, 3.0);
 
-        bsl::array<Point, 3> points = {p1, p2, p3};
+    bsl::array<Point, 3> points = {p1, p2, p3};
 
-        for(size_t i = 0; i < points.size(); ++i){
-            for(size_t j = 0; j < points[i].size(); ++j){
-                points[i][j] *= 2.0f;
-            }
+    for(size_t i = 0; i < points.size(); ++i){
+        for(size_t j = 0; j < points[i].size(); ++j){
+            points[i][j] *= 2.0f;
         }
     }
-    // Use the createPoint function to generate 3 arrays of floats.  The arrays
-    // are returned by copy and the 'size()' member function is used to access
-    // the size of the arrays that could not be done with a raw array.
+}
+// Use the createPoint function to generate 3 arrays of floats.  The arrays
+// are returned by copy and the 'size()' member function is used to access
+// the size of the arrays that could not be done with a raw array.
 
 }  // close namespace UsageExample
 
@@ -454,6 +456,9 @@ struct TestDriver {
 
     typedef bsltf::TestValuesArray<TYPE>         TestValues;
     typedef bsltf::TemplateTestFacility          TestFacility;
+
+    static void testCase21();
+        // Test tuple interface
 
     static void testCase20();
         // Test 'data' member.
@@ -520,6 +525,9 @@ struct TestDriver {
 
 template<class TYPE>
 struct TestDriverWrapper{
+
+    static void testCase21();
+        // Test tuple interface
 
     static void testCase20();
         // Test 'data' member.
@@ -589,6 +597,71 @@ struct TestDriverWrapper{
 
 
 template<class TYPE>
+void TestDriverWrapper<TYPE>::testCase21(){
+    TestDriver<TYPE, 0>::testCase21();
+    TestDriver<TYPE, 1>::testCase21();
+    TestDriver<TYPE, 2>::testCase21();
+    TestDriver<TYPE, 3>::testCase21();
+    TestDriver<TYPE, 4>::testCase21();
+}
+
+template <class TYPE, size_t SIZE>
+void TestDriver<TYPE, SIZE>::testCase21()
+{
+    // ------------------------------------------------------------------------
+    // TESTING TUPLE INTERFACE
+    //
+    // Concerns:
+    //: 1 'data' member returns a pointer to the raw array in the object.
+    //:
+    // Plan:
+    //:
+    // Testing:
+    // ------------------------------------------------------------------------
+
+    static const struct {
+        int         d_line;     // source line number
+        const char *d_spec_p;     // specification string
+    } DATA[] = {
+    //------^
+    //line spec
+    //---- --------------------------------------------------------------------
+    { L_,  "",                                                               },
+    { L_,  "A",                                                              },
+    { L_,  "BC",                                                             },
+    { L_,  "CAB",                                                            },
+    { L_,  "DABC",                                                           },
+    { L_,  "EDCBA",                                                          }
+    //------v
+    };
+
+    const char* const   SPEC   = DATA[SIZE].d_spec_p;
+
+    if (verbose) printf("\nTESTING TUPLE INTERFACE.\n");
+
+    if (verbose) printf("\nTesting 'get' free function.\n");
+
+    Obj mW;
+    const Obj& W = gg(&mW, SPEC);
+
+    if (SIZE != 0) {
+        ASSERTV(bsl::get<SIZE-1>(mW) == 
+                TestFacility::create<TYPE>(SPEC[SIZE-1]));
+        ASSERTV(bsl::get<SIZE-1>(W) == 
+                TestFacility::create<TYPE>(SPEC[SIZE-1]));
+    }
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    if (SIZE != 0) {
+        TYPE&& mX       = bsl::get<SIZE-1>(std::move(mW));
+        const TYPE&& X  = bsl::get<SIZE-1>(std::move(W));
+        ASSERTV(mX == TestFacility::create<TYPE>(SPEC[SIZE-1]));
+        ASSERTV(X  == TestFacility::create<TYPE>(SPEC[SIZE-1]));
+    }
+
+#endif
+}
+
+template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase20(){
     TestDriver<TYPE, 0>::testCase20();
     TestDriver<TYPE, 1>::testCase20();
@@ -629,9 +702,6 @@ void TestDriver<TYPE, SIZE>::testCase20()
     ASSERTV(W.data() == W.d_data);
     ASSERT((bsl::is_same<typename Obj::const_pointer, const TYPE*>::value));
 }
-
-
-
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase19(){
@@ -686,8 +756,9 @@ void TestDriver<TYPE, SIZE>::testCase19()
     //------v
     };
 
-    if (verbose) printf("\nTESTING FRONT AND BACK MEMBERS.\n");
     const char* const   SPEC   = DATA[SIZE].d_spec_p;
+
+    if (verbose) printf("\nTESTING FRONT AND BACK MEMBERS.\n");
 
     const char V = 'V';
 
@@ -2677,7 +2748,7 @@ int main(int argc, char *argv[])
     veryVerbose         = argc > 3;
     veryVeryVerbose     = argc > 4;
     veryVeryVeryVerbose = argc > 5;
-    
+
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&defaultAllocator);
 
@@ -2691,6 +2762,12 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP17
 // BDE_VERIFY pragma: -TP30
     switch (test){ case 0:
+      case 21: {
+        // Test tuple interface.
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
+                      testCase21,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
       case 20: {
         // Test 'data' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
