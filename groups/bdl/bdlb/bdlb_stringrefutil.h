@@ -156,7 +156,7 @@ struct StringRefUtil {
 
     // PUBLIC TYPES
     typedef bslstl::StringRef::size_type size_type;
-        // Size type of strings.
+        // Size type of string references.
 
     // PUBLIC CLASS DATA
     static const size_type k_NPOS = ~size_type(0);
@@ -188,21 +188,31 @@ struct StringRefUtil {
 
                         // Trim
 
-    static bslstl::StringRef ltrim(const bslstl::StringRef& stringRef);
+    static bslstl::StringRef ltrim(const bslstl::StringRef& string);
         // Return a 'bslstl::StringRef' object referring to the substring of
-        // (the referent data of) the specified 'stringRef' that excludes all
+        // (the referent data of) the specified 'string' that excludes all
         // leading whitespace.  See {Whitespace Character Specification}.  If
-        // 'stringRef' consists entirely of whitespace, return a zero-length
-        // reference to the end of 'stringRef' (i.e.,
-        // 'bslstl::StringRef(stringRef.end(), 0)').
+        // 'string' consists entirely of whitespace, return a zero-length
+        // reference to the end of 'string' (i.e.,
+        // 'bslstl::StringRef(string.end(), 0)').
 
-    static bslstl::StringRef rtrim(const bslstl::StringRef& stringRef);
+    static bslstl::StringRef rtrim(const bslstl::StringRef& string);
         // Return a 'bslstl::StringRef' object referring to the substring of
-        // (the referent data of) the specified 'stringRef' that excludes all
+        // (the referent data of) the specified 'string' that excludes all
         // trailing whitespace.  See {Whitespace Character Specification}.  If
-        // 'stringRef' consists entirely of whitespace, return a zero-length
-        // reference to the beginning of (the referent data of) 'stringRef'
-        // (i.e., 'bslstl::StringRef(stringRef.data(), 0)').
+        // 'string' consists entirely of whitespace, return a zero-length
+        // reference to the beginning of (the referent data of) 'string'
+        // (i.e., 'bslstl::StringRef(string.data(), 0)').
+
+    static bslstl::StringRef trim(const bslstl::StringRef& string);
+        // Return a 'bslstl::StringRef' object referring to the substring of
+        // (the referent data of) the specified 'string' that excludes all
+        // leading and trailing whitespace.  See {Whitespace Character
+        // Specification}.  If 'string' consists entirely of whitespace, return
+        // a zero-length reference to the beginning of (the referent data of)
+        // 'string' (i.e., 'bslstl::StringRef(string.data(), 0)').
+
+                        // Create 'subString'
 
     static bslstl::StringRef substr(
                                   const bslstl::StringRef& string,
@@ -218,60 +228,91 @@ struct StringRefUtil {
         // behavior is undefined unless 'position' is within the string
         // boundaries ('0 <= position <= string.length()').
 
-    static bslstl::StringRef trim(const bslstl::StringRef& stringRef);
-        // Return a 'bslstl::StringRef' object referring to the substring of
-        // (the referent data of) the specified 'stringRef' that excludes all
-        // leading and trailing whitespace.  See {Whitespace Character
-        // Specification}.  If 'stringRef' consists entirely of whitespace,
-        // return a zero-length reference to the beginning of (the referent
-        // data of) 'stringRef' (i.e.,
-        // 'bslstl::StringRef(stringRef.data(), 0)').
-
                         // Find 'subString'
 
-    static bslstl::StringRef strstr(const bslstl::StringRef&    stringRef,
-                                    const bslstl::StringRef& subStringRef);
+    static bslstl::StringRef strstr(const bslstl::StringRef& string,
+                                    const bslstl::StringRef& subString);
         // Return a 'bslstl::StringRef' object referring to the first
-        // occurrence in (the referent data of) the specified 'stringRef' at
-        // which (the referent data of) the specified 'subStringRef' is found,
-        // or 'bslstl::StringRef()' if there is no such occurrence.  If
-        // 'subStringRef' has zero length then a zero-length reference to the
-        // beginning of 'stringRef' is returned (i.e.,
-        // 'bslstl::StringRef(stringRef.data(), 0)');
+        // occurrence in (the referent data of) the specified 'string' at which
+        // (the referent data of) the specified 'subString' is found, or
+        // 'bslstl::StringRef()' if there is no such occurrence.  If
+        // 'subString' has zero length then a zero-length reference to the
+        // beginning of 'string' is returned (i.e.,
+        // 'bslstl::StringRef(string.data(), 0)');
 
     static bslstl::StringRef strstrCaseless(
-                                        const bslstl::StringRef&    stringRef,
-                                        const bslstl::StringRef& subStringRef);
+                                           const bslstl::StringRef& string,
+                                           const bslstl::StringRef& subString);
         // Return a 'bslstl::StringRef' object referring to the first
-        // occurrence in (the referent data of) the specified 'stringRef' at
-        // which (the referent data of) the specified 'subStringRef' is found
-        // using case-insensitive comparisons, or 'bslstl::StringRef()' if
-        // there is no such occurrence.  See {Caseless Comparisons}.  If
-        // 'subStringRef' has zero length then a zero-length reference to the
-        // beginning of 'stringRef' is returned (i.e.,
-        // 'bslstl::StringRef(stringRef.data(), 0)');
+        // occurrence in (the referent data of) the specified 'string' at which
+        // (the referent data of) the specified 'subString' is found using
+        // case-insensitive comparisons, or 'bslstl::StringRef()' if there is
+        // no such occurrence.  See {Caseless Comparisons}.  If 'subString' has
+        // zero length then a zero-length reference to the beginning of
+        // 'string' is returned (i.e., 'bslstl::StringRef(string.data(), 0)');
 
-    static bslstl::StringRef strrstr(const bslstl::StringRef&    stringRef,
-                                     const bslstl::StringRef& subStringRef);
+    static bslstl::StringRef strrstr(const bslstl::StringRef& string,
+                                     const bslstl::StringRef& subString);
         // Return a 'bslstl::StringRef' object referring to the last occurrence
-        // in (the referent data of) the specified 'stringRef' at which (the
-        // referent data of) the specified 'subStringRef' is found, or
+        // in (the referent data of) the specified 'string' at which (the
+        // referent data of) the specified 'subString' is found, or
         // 'bslstl::StringRef()' if there is no such occurrence.  If
-        // 'subStringRef' has zero length then a zero-length reference to the
-        // end of 'stringRef' is returned (i.e.,
-        // 'bslstl::StringRef(stringRef.end(), 0)');
+        // 'subString' has zero length then a zero-length reference to the end
+        // of 'string' is returned (i.e.,
+        // 'bslstl::StringRef(string.end(), 0)');
 
     static bslstl::StringRef strrstrCaseless(
-                                        const bslstl::StringRef&    stringRef,
-                                        const bslstl::StringRef& subStringRef);
+                                           const bslstl::StringRef& string,
+                                           const bslstl::StringRef& subString);
         // Return a 'bslstl::StringRef' object referring to the last occurrence
-        // in (the referent data of) the specified 'stringRef' at which (the
-        // referent data of) the specified 'subStringRef' is found using
+        // in (the referent data of) the specified 'string' at which (the
+        // referent data of) the specified 'subString' is found using
         // case-insensitive comparisons, or 'bslstl::StringRef()' if there is
-        // no such occurrence.  See {Caseless Comparisons}.  If 'subStringRef'
-        // has zero length then a zero-length reference to the end of
-        // 'stringRef' is returned (i.e.,
-        // 'bslstl::StringRef(stringRef.end(), 0)');
+        // no such occurrence.  See {Caseless Comparisons}.  If 'subString' has
+        // zero length then a zero-length reference to the end of 'string' is
+        // returned (i.e., 'bslstl::StringRef(string.end(), 0)');
+
+                        // Find first/last of/not of
+
+    static
+    size_type findFirstOf(const bslstl::StringRef& string,
+                          const bslstl::StringRef& characters,
+                          size_type                position = 0u);
+        // Return the position of the *first* occurrence of a character
+        // belonging to the specified 'characters', if such an occurrence can
+        // can be found in the specified 'string' (on or *after* the
+        // optionally specified 'position' if such a 'position' is specified),
+        // and return 'k_NPOS' otherwise.
+
+    static
+    size_type findLastOf(const bslstl::StringRef& string,
+                         const bslstl::StringRef& characters,
+                         size_type                position = k_NPOS);
+        // Return the position of the *last* occurrence of a character
+        // belonging to the specified 'characters', if such an occurrence can
+        // can be found in the specified 'string' (on or *before* the
+        // optionally specified 'position' if such a 'position' is specified),
+        // and return 'k_NPOS' otherwise.
+
+    static
+    size_type findFirstNotOf(const bslstl::StringRef& string,
+                             const bslstl::StringRef& characters,
+                             size_type                position = 0u);
+        // Return the position of the *first* occurrence of a character *not*
+        // belonging to the specified 'characters', if such an occurrence can
+        // be found in the specified 'string' (on or *after* the optionally
+        // specified 'position' if such a 'position' is specified), and return
+        // 'k_NPOS' otherwise.
+
+    static
+    size_type findLastNotOf(const bslstl::StringRef& string,
+                            const bslstl::StringRef& characters,
+                            size_type                position = k_NPOS);
+        // Return the position of the *last* occurrence of a character *not*
+        // belonging to the specified 'characters', if such an occurrence can
+        // be found in the specified 'string' (on or *before* the optionally
+        // specified 'position' if such a 'position' is specified), and return
+        // 'k_NPOS' otherwise.
 };
 
 // ============================================================================
@@ -312,9 +353,9 @@ bslstl::StringRef StringRefUtil::substr(const bslstl::StringRef& string,
                         // Trim
 
 inline
-bslstl::StringRef StringRefUtil::trim(const bslstl::StringRef& stringRef)
+bslstl::StringRef StringRefUtil::trim(const bslstl::StringRef& string)
 {
-    return ltrim(rtrim(stringRef));
+    return ltrim(rtrim(string));
 }
 
 }  // close package namespace

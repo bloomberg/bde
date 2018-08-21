@@ -3,6 +3,7 @@
 
 #include <bsls_ident.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cstring.h>  // 'bsl::memcmp'
 
 namespace BloombergLP {
@@ -104,10 +105,10 @@ int StringRefUtil::upperCaseCmp(const bslstl::StringRef& lhs,
 
                         // Trim
 
-bslstl::StringRef StringRefUtil::ltrim(const bslstl::StringRef& stringRef)
+bslstl::StringRef StringRefUtil::ltrim(const bslstl::StringRef& string)
 {
-    bslstl::StringRef::const_iterator       itr = stringRef.begin();
-    bslstl::StringRef::const_iterator const end = stringRef.end();
+    bslstl::StringRef::const_iterator       itr = string.begin();
+    bslstl::StringRef::const_iterator const end = string.end();
 
     while (end != itr && u_isWhitespace(static_cast<unsigned char>(*itr))) {
         ++itr;
@@ -116,17 +117,17 @@ bslstl::StringRef StringRefUtil::ltrim(const bslstl::StringRef& stringRef)
     return bslstl::StringRef(itr, end);
 }
 
-bslstl::StringRef StringRefUtil::rtrim(const bslstl::StringRef& stringRef)
+bslstl::StringRef StringRefUtil::rtrim(const bslstl::StringRef& string)
 {
 
-    int index = static_cast<int>(stringRef.length()) - 1;
+    int index = static_cast<int>(string.length()) - 1;
     while(   0 <= index
-          && u_isWhitespace(static_cast<unsigned char>(stringRef[index])))
+          && u_isWhitespace(static_cast<unsigned char>(string[index])))
     {
         --index;
     }
 
-    return bslstl::StringRef(stringRef.data(), index + 1);
+    return bslstl::StringRef(string.data(), index + 1);
 }
 
                         // Find 'subString'
@@ -233,6 +234,100 @@ bslstl::StringRef StringRefUtil::strrstrCaseless(
     }
 
     return u_NOT_FOUND;
+}
+
+StringRefUtil::size_type
+StringRefUtil::findFirstOf(const bslstl::StringRef& string,
+                           const bslstl::StringRef& characters,
+                           size_type                position)
+{
+    // This algorithm intentionally mimics the corresponding algorithm in
+    // 'bsl::basic_string'.
+
+    if (!characters.isEmpty() && position < string.length()) {
+        for (const char *current = string.data() + position;
+                         current != string.data() + string.length();
+                       ++current)
+        {
+            if (bsl::find(characters.begin(), characters.end(), *current)
+                                                         != characters.end()) {
+                return current - string.data();                       // RETURN
+            }
+        }
+    }
+    return k_NPOS;
+}
+
+StringRefUtil::size_type
+StringRefUtil::findLastOf(const bslstl::StringRef& string,
+                          const bslstl::StringRef& characters,
+                          size_type                position)
+{
+    // This algorithm intentionally mimics the corresponding algorithm in
+    // 'bsl::basic_string'.
+
+    if (!characters.isEmpty() && !string.isEmpty()) {
+        const size_type remChars = position < string.length() ?
+                                                        position :
+                                                        string.length() - 1;
+        for (const char *current = string.data() + remChars;; --current) {
+            if (bsl::find(characters.begin(), characters.end(), *current)
+                                                         != characters.end()) {
+                return current - string.data();                       // RETURN
+            }
+            if (current == string.data()) {
+                break;
+            }
+        }
+    }
+    return k_NPOS;
+}
+
+StringRefUtil::size_type
+StringRefUtil::findFirstNotOf(const bslstl::StringRef& string,
+                              const bslstl::StringRef& characters,
+                              size_type                position)
+{
+    // This algorithm intentionally mimics the corresponding algorithm in
+    // 'bsl::basic_string'.
+
+    if (!characters.isEmpty() && position < string.length()) {
+        for (const char *current = string.data() + position;
+                         current != string.data() + string.length();
+                       ++current)
+        {
+            if (bsl::find(characters.begin(), characters.end(), *current)
+                                                         == characters.end()) {
+                return current - string.data();                       // RETURN
+            }
+        }
+    }
+    return k_NPOS;
+}
+
+StringRefUtil::size_type
+StringRefUtil::findLastNotOf(const bslstl::StringRef& string,
+                             const bslstl::StringRef& characters,
+                             size_type                position)
+{
+    // This algorithm intentionally mimics the corresponding algorithm in
+    // 'bsl::basic_string'.5
+
+    if (!characters.isEmpty() && !string.isEmpty()) {
+        const size_type remChars = position < string.length() ?
+                                                           position :
+                                                           string.length() - 1;
+        for (const char *current = string.data() + remChars;;--current) {
+            if (bsl::find(characters.begin(), characters.end(), *current)
+                                                         == characters.end()) {
+                return current - string.data();                       // RETURN
+            }
+            if (current == string.data()) {
+                break;
+            }
+        }
+    }
+    return k_NPOS;
 }
 
 }  // close package namespace
