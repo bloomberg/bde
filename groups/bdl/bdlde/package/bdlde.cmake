@@ -9,6 +9,7 @@ function(bdlde_process_package retPackage)
     bde_interface_target_compile_options(
         ${interfaceTarget}
         PRIVATE
+            $<$<PLATFORM_ID:Darwin>:-msse4.2>
             $<$<PLATFORM_ID:Linux>:-msse4.2>
             $<$<PLATFORM_ID:SunOs>:-xarch=sparc4>
     )
