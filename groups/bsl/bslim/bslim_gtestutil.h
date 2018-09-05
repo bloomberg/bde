@@ -39,11 +39,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void PrintTo(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  str,
              basic_ostream<CHAR_TYPE, CHAR_TRAITS>                *os_p);
     // Write the specified 'str' to the specified '*os_p', surrounded by double
-    // quotes.  All 7-bit character values that can be represented in a C
-    // string literal constant with backslash sequences other than '\?' and
-    // '\'' are represented by their backslash sequence.  Character values over
-    // 0x7f and non-escaped values below 0x20 (space) are represented by hex
-    // backslash sequences.
+    // quotes.
 
 }  // close namespace bsl
 

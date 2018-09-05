@@ -135,12 +135,18 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class can be invoked with the assertion failure triple, and
-        //:   it can iterate over the accumulated assertions.
+        //: 1 That the function can stream a string.
+        //:
+        //: 2 If the stream is invalid, the function will not modify the
+        //:   stream.
         //
         // Plan:
-        //: 1 Create an assertion tracker object and invoke a few of its
-        //:   methods.
+        //: 1 Stream a couple of strings to an 'ostingtream' and observe the
+        //:   result.
+        //:
+        //: 2 Set the state of the 'ostringstream' to invalid, call the
+        //:   function again, and observe that the stream has not been
+        //:   modified.
         //
         // Testing:
         //   BREATHING TEST
