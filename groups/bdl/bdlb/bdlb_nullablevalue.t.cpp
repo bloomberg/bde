@@ -265,250 +265,276 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-template <class LHS_TYPE, class RHS_TYPE>
-void testRelationalOperations(const LHS_TYPE& lhs1,
-                              const LHS_TYPE& lhs2,
-                              const RHS_TYPE& rhs1,
-                              const RHS_TYPE& rhs2)
-    // Test all the relational operations for the specified 'lhs1', 'lhs2',
-    // 'rhs1' and 'rhs2'. It is expected that 'lhs1' has the same value as
-    // 'rhs1', 'lhs2' has the same value as 'rhs2', but is strictly greater
-    // than 'lhs1' and 'rhs2' respectively.
-    // ..
-    //   lhs1 == lhs1
-    //   lhs1 <  lhs2
-    //   lhs1 == rhs1
-    //   lhs1 <  rhs2
-    //   lhs2 >  lhs1
-    //   lhs2 == lhs2
-    //   lhs2 >  rhs1
-    //   lhs2 == rhs2
-    // ..
+template <class FIRST_TYPE, class SECOND_TYPE, class INIT_TYPE>
+void testRelationalOperationsNonNull(const INIT_TYPE& lesserVal,
+                                     const INIT_TYPE& greaterVal)
+    // Test all the relational operations for two types, which objects can be
+    // initialized with the specified 'lesserVal' and 'greaterVal' values and
+    // compared each other.
 {
+
     if (veryVerbose) {
-        bsl::cout << "\t\t(VALUE) LHS_TYPE:  "
+        bsl::cout << "\t\t       FIRST_TYPE:  "
                   << bsl::setw(50)
                   << bsl::left
-                  << NameOf<LHS_TYPE>().name()
-                  << " RHS_TYPE:  "
+                  << NameOf<FIRST_TYPE>().name()
+                  << "       SECOND_TYPE:  "
                   << bsl::setw(50)
                   << bsl::left
-                  << NameOf<RHS_TYPE>().name()
+                  << NameOf< SECOND_TYPE>().name()
                   << bsl::endl;
     }
 
-    ASSERTV( (lhs1 == rhs1));
-    ASSERTV(!(lhs1 != rhs1));
-    ASSERTV(!(lhs1 <  rhs1));
-    ASSERTV( (lhs1 <= rhs1));
-    ASSERTV(!(lhs1 >  rhs1));
-    ASSERTV( (lhs1 >= rhs1));
+    FIRST_TYPE  firstLesser(lesserVal);
+    FIRST_TYPE  firstGreater(greaterVal);
+    SECOND_TYPE secondLesser(lesserVal);
+    SECOND_TYPE secondGreater(greaterVal);
 
-    ASSERTV(!(lhs1 == rhs2));
-    ASSERTV( (lhs1 != rhs2));
-    ASSERTV( (lhs1 <  rhs2));
-    ASSERTV( (lhs1 <= rhs2));
-    ASSERTV(!(lhs1 >  rhs2));
-    ASSERTV(!(lhs1 >= rhs2));
+    ASSERTV( (firstLesser   == firstLesser  ));
+    ASSERTV(!(firstLesser   == firstGreater ));
+    ASSERTV( (firstLesser   == secondLesser ));
+    ASSERTV(!(firstLesser   == secondGreater));
 
-    ASSERTV(!(lhs2 == rhs1));
-    ASSERTV( (lhs2 != rhs1));
-    ASSERTV(!(lhs2 <  rhs1));
-    ASSERTV(!(lhs2 <= rhs1));
-    ASSERTV( (lhs2 >  rhs1));
-    ASSERTV( (lhs2 >= rhs1));
+    ASSERTV(!(firstLesser   != firstLesser  ));
+    ASSERTV( (firstLesser   != firstGreater ));
+    ASSERTV(!(firstLesser   != secondLesser ));
+    ASSERTV( (firstLesser   != secondGreater));
 
-    ASSERTV( (lhs2 == rhs2));
-    ASSERTV(!(lhs2 != rhs2));
-    ASSERTV(!(lhs2 <  rhs2));
-    ASSERTV( (lhs2 <= rhs2));
-    ASSERTV(!(lhs2 >  rhs2));
-    ASSERTV( (lhs2 >= rhs2));
+    ASSERTV(!(firstLesser   <  firstLesser  ));
+    ASSERTV( (firstLesser   <  firstGreater ));
+    ASSERTV(!(firstLesser   <  secondLesser ));
+    ASSERTV( (firstLesser   <  secondGreater));
 
-    ASSERTV( (rhs1 == lhs1));
-    ASSERTV(!(rhs1 != lhs1));
-    ASSERTV(!(rhs1 <  lhs1));
-    ASSERTV( (rhs1 <= lhs1));
-    ASSERTV(!(rhs1 >  lhs1));
-    ASSERTV( (rhs1 >= lhs1));
+    ASSERTV( (firstLesser   <= firstLesser  ));
+    ASSERTV( (firstLesser   <= firstGreater ));
+    ASSERTV( (firstLesser   <= secondLesser ));
+    ASSERTV( (firstLesser   <= secondGreater));
 
-    ASSERTV(!(rhs1 == lhs2));
-    ASSERTV( (rhs1 != lhs2));
-    ASSERTV( (rhs1 <  lhs2));
-    ASSERTV( (rhs1 <= lhs2));
-    ASSERTV(!(rhs1 >  lhs2));
-    ASSERTV(!(rhs1 >= lhs2));
+    ASSERTV(!(firstLesser   >  firstLesser  ));
+    ASSERTV(!(firstLesser   >  firstGreater ));
+    ASSERTV(!(firstLesser   >  secondLesser ));
+    ASSERTV(!(firstLesser   >  secondGreater));
 
-    ASSERTV(!(rhs2 == lhs1));
-    ASSERTV( (rhs2 != lhs1));
-    ASSERTV(!(rhs2 <  lhs1));
-    ASSERTV(!(rhs2 <= lhs1));
-    ASSERTV( (rhs2 >  lhs1));
-    ASSERTV( (rhs2 >= lhs1));
+    ASSERTV( (firstLesser   >= firstLesser  ));
+    ASSERTV(!(firstLesser   >= firstGreater ));
+    ASSERTV( (firstLesser   >= secondLesser ));
+    ASSERTV(!(firstLesser   >= secondGreater));
 
-    ASSERTV( (rhs2 == lhs2));
-    ASSERTV(!(rhs2 != lhs2));
-    ASSERTV(!(rhs2 <  lhs2));
-    ASSERTV( (rhs2 <= lhs2));
-    ASSERTV(!(rhs2 >  lhs2));
-    ASSERTV( (rhs2 >= lhs2));
+    ASSERTV(!(firstGreater  == firstLesser  ));
+    ASSERTV( (firstGreater  == firstGreater ));
+    ASSERTV(!(firstGreater  == secondLesser ));
+    ASSERTV( (firstGreater  == secondGreater));
+
+    ASSERTV( (firstGreater  != firstLesser  ));
+    ASSERTV(!(firstGreater  != firstGreater ));
+    ASSERTV( (firstGreater  != secondLesser ));
+    ASSERTV(!(firstGreater  != secondGreater));
+
+    ASSERTV(!(firstGreater  <  firstLesser  ));
+    ASSERTV(!(firstGreater  <  firstGreater ));
+    ASSERTV(!(firstGreater  <  secondLesser ));
+    ASSERTV(!(firstGreater  <  secondGreater));
+
+    ASSERTV(!(firstGreater  <= firstLesser  ));
+    ASSERTV( (firstGreater  <= firstGreater ));
+    ASSERTV(!(firstGreater  <= secondLesser ));
+    ASSERTV( (firstGreater  <= secondGreater));
+
+    ASSERTV( (firstGreater  >  firstLesser  ));
+    ASSERTV(!(firstGreater  >  firstGreater ));
+    ASSERTV( (firstGreater  >  secondLesser ));
+    ASSERTV(!(firstGreater  >  secondGreater));
+
+    ASSERTV( (firstGreater  >= firstLesser  ));
+    ASSERTV( (firstGreater  >= firstGreater ));
+    ASSERTV( (firstGreater  >= secondLesser ));
+    ASSERTV( (firstGreater  >= secondGreater));
+
+    ASSERTV( (secondLesser  == firstLesser  ));
+    ASSERTV(!(secondLesser  == firstGreater ));
+    ASSERTV( (secondLesser  == secondLesser ));
+    ASSERTV(!(secondLesser  == secondGreater));
+
+    ASSERTV(!(secondLesser  != firstLesser  ));
+    ASSERTV( (secondLesser  != firstGreater ));
+    ASSERTV(!(secondLesser  != secondLesser ));
+    ASSERTV( (secondLesser  != secondGreater));
+
+    ASSERTV(!(secondLesser  <  firstLesser  ));
+    ASSERTV( (secondLesser  <  firstGreater ));
+    ASSERTV(!(secondLesser  <  secondLesser ));
+    ASSERTV( (secondLesser  <  secondGreater));
+
+    ASSERTV( (secondLesser  <= firstLesser  ));
+    ASSERTV( (secondLesser  <= firstGreater ));
+    ASSERTV( (secondLesser  <= secondLesser ));
+    ASSERTV( (secondLesser  <= secondGreater));
+
+    ASSERTV(!(secondLesser  >  firstLesser  ));
+    ASSERTV(!(secondLesser  >  firstGreater ));
+    ASSERTV(!(secondLesser  >  secondLesser ));
+    ASSERTV(!(secondLesser  >  secondGreater));
+
+    ASSERTV( (secondLesser  >= firstLesser  ));
+    ASSERTV(!(secondLesser  >= firstGreater ));
+    ASSERTV( (secondLesser  >= secondLesser ));
+    ASSERTV(!(secondLesser  >= secondGreater));
+
+    ASSERTV(!(secondGreater == firstLesser  ));
+    ASSERTV( (secondGreater == firstGreater ));
+    ASSERTV(!(secondGreater == secondLesser ));
+    ASSERTV( (secondGreater == secondGreater));
+
+    ASSERTV( (secondGreater != firstLesser  ));
+    ASSERTV(!(secondGreater != firstGreater ));
+    ASSERTV( (secondGreater != secondLesser ));
+    ASSERTV(!(secondGreater != secondGreater));
+
+    ASSERTV(!(secondGreater <  firstLesser  ));
+    ASSERTV(!(secondGreater <  firstGreater ));
+    ASSERTV(!(secondGreater <  secondLesser ));
+    ASSERTV(!(secondGreater <  secondGreater));
+
+    ASSERTV(!(secondGreater <= firstLesser  ));
+    ASSERTV( (secondGreater <= firstGreater ));
+    ASSERTV(!(secondGreater <= secondLesser ));
+    ASSERTV( (secondGreater <= secondGreater));
+
+    ASSERTV( (secondGreater >  firstLesser  ));
+    ASSERTV(!(secondGreater >  firstGreater ));
+    ASSERTV( (secondGreater >  secondLesser ));
+    ASSERTV(!(secondGreater >  secondGreater));
+
+    ASSERTV( (secondGreater >= firstLesser  ));
+    ASSERTV( (secondGreater >= firstGreater ));
+    ASSERTV( (secondGreater >= secondLesser ));
+    ASSERTV( (secondGreater >= secondGreater));
 }
 
-template <class LHS_TYPE, class RHS_TYPE>
-void testRelationalOperationsNull(const LHS_TYPE& lhs,
-                                  const RHS_TYPE& rhs)
-    // Test all the relational operations for the specified 'lhs' and 'rhs'. It
-    // is expected that 'lhs' has 'bdlb::NullableValue' type and null value.
+
+template <class FIRST_NV_TYPE, class SECOND_TYPE, class INIT_TYPE>
+void testRelationalOperationsOneNull(const INIT_TYPE& initValue)
+    // Test all the relational operations for the null
+    // 'bdlb::NullableValue<FIRST_NV_TYPE>' object and an object of the
+    // 'SECOND_TYPE' that is initiated by the specified 'initValue'.
 {
     if (veryVerbose) {
-        bsl::cout << "\t\t(NULL ) LHS_TYPE:  "
+        bsl::string firstTypeName = "bdlb::NullableValue<";
+        firstTypeName.append(NameOf<FIRST_NV_TYPE>().name());
+        firstTypeName.append(">");
+
+        bsl::cout << "\t\t(NULL) FIRST_TYPE:  "
                   << bsl::setw(50)
                   << bsl::left
-                  << NameOf<LHS_TYPE>().name()
-                  << " RHS_TYPE:  "
+                  << firstTypeName
+                  << "       SECOND_TYPE:  "
                   << bsl::setw(50)
                   << bsl::left
-                  << NameOf<RHS_TYPE>().name()
+                  << NameOf<SECOND_TYPE>().name()
                   << bsl::endl;
     }
 
-    ASSERTV(!(lhs == rhs));
-    ASSERTV( (lhs != rhs));
-    ASSERTV( (lhs <  rhs));
-    ASSERTV( (lhs <= rhs));
-    ASSERTV(!(lhs >  rhs));
-    ASSERTV(!(lhs >= rhs));
+    const bdlb::NullableValue<FIRST_NV_TYPE> firstNullNV;
 
-    ASSERTV(!(rhs == lhs));
-    ASSERTV( (rhs != lhs));
-    ASSERTV(!(rhs <  lhs));
-    ASSERTV(!(rhs <= lhs));
-    ASSERTV( (rhs >  lhs));
-    ASSERTV( (rhs >= lhs));
+    const SECOND_TYPE                        secondValue(initValue);
+    const bdlb::NullableValue<SECOND_TYPE>   secondNV(secondValue);
+
+    ASSERTV(!(firstNullNV == secondValue));
+    ASSERTV( (firstNullNV != secondValue));
+    ASSERTV( (firstNullNV <  secondValue));
+    ASSERTV( (firstNullNV <= secondValue));
+    ASSERTV(!(firstNullNV >  secondValue));
+    ASSERTV(!(firstNullNV >= secondValue));
+
+    ASSERTV(!(firstNullNV == secondNV   ));
+    ASSERTV( (firstNullNV != secondNV   ));
+    ASSERTV( (firstNullNV <  secondNV   ));
+    ASSERTV( (firstNullNV <= secondNV   ));
+    ASSERTV(!(firstNullNV >  secondNV   ));
+    ASSERTV(!(firstNullNV >= secondNV   ));
+
+    ASSERTV(!(secondValue == firstNullNV));
+    ASSERTV( (secondValue != firstNullNV));
+    ASSERTV(!(secondValue <  firstNullNV));
+    ASSERTV(!(secondValue <= firstNullNV));
+    ASSERTV( (secondValue >  firstNullNV));
+    ASSERTV( (secondValue >= firstNullNV));
+
+    ASSERTV(!(secondNV    == firstNullNV));
+    ASSERTV( (secondNV    != firstNullNV));
+    ASSERTV(!(secondNV    <  firstNullNV));
+    ASSERTV(!(secondNV    <= firstNullNV));
+    ASSERTV( (secondNV    >  firstNullNV));
+    ASSERTV( (secondNV    >= firstNullNV));
 }
 
-template <class LHS_TYPE, class RHS_TYPE>
-void testRelationalOperationsNull(const bdlb::NullableValue<LHS_TYPE>& lhs,
-                                  const bdlb::NullableValue<RHS_TYPE>& rhs)
-    // Test all the relational operations for the specified 'lhs' and 'rhs'. It
-    // is expected that both 'lhs' and 'rhs' has 'bdlb::NullableValue' type
-    // and 'lhs' has null value.
+template <class FIRST_TYPE, class SECOND_TYPE>
+void testRelationalOperationsBothNull()
+    // Test all the relational operations for two null 'bdlb::NullableValue'
+    // objects.
 {
     if (veryVerbose) {
-        bsl::string leftTypeName = "bdlb::NullableValue<";
-        leftTypeName.append(NameOf<LHS_TYPE>().name());
-        leftTypeName.append(">");
-        bsl::string rightTypeName = "bdlb::NullableValue<";
-        rightTypeName.append(NameOf<LHS_TYPE>().name());
-        rightTypeName.append(">");
+        bsl::string firstTypeName = "bdlb::NullableValue<";
+        firstTypeName.append(NameOf<FIRST_TYPE>().name());
+        firstTypeName.append(">");
+        bsl::string secondTypeName = "bdlb::NullableValue<";
+        secondTypeName.append(NameOf<SECOND_TYPE>().name());
+        secondTypeName.append(">");
 
-        bsl::cout << "\t\t(NULL ) LHS_TYPE:  "
+        bsl::cout << "\t\t(NULL) FIRST_TYPE:  "
                   << bsl::setw(50)
                   << bsl::left
-                  << leftTypeName
-                  << " RHS_TYPE:  "
+                  << firstTypeName
+                  << "(NULL) SECOND_TYPE:  "
                   << bsl::setw(50)
                   << bsl::left
-                  << rightTypeName
+                  << secondTypeName
                   << bsl::endl;
     }
 
-    bool isRightNull = rhs.isNull();
+    const bdlb::NullableValue< FIRST_TYPE>  firstNull;
+    const bdlb::NullableValue<SECOND_TYPE> secondNull;
 
-    //                      rhs.isNull()      !rhs.isNull()
-    //                      -------------     -------------
-    ASSERTV(isRightNull  ?   (lhs == rhs)  :  !(lhs == rhs));
-    ASSERTV(isRightNull  ?  !(lhs != rhs)  :   (lhs != rhs));
-    ASSERTV(isRightNull  ?  !(lhs <  rhs)  :   (lhs <  rhs));
-    ASSERTV(isRightNull  ?   (lhs <= rhs)  :   (lhs <= rhs));
-    ASSERTV(isRightNull  ?  !(lhs >  rhs)  :  !(lhs >  rhs));
-    ASSERTV(isRightNull  ?   (lhs >= rhs)  :  !(lhs >= rhs));
 
-    ASSERTV(isRightNull  ?   (rhs == lhs)  :  !(rhs == lhs));
-    ASSERTV(isRightNull  ?  !(rhs != lhs)  :   (rhs != lhs));
-    ASSERTV(isRightNull  ?  !(rhs <  lhs)  :  !(rhs <  lhs));
-    ASSERTV(isRightNull  ?   (rhs <= lhs)  :  !(rhs <= lhs));
-    ASSERTV(isRightNull  ?  !(rhs >  lhs)  :   (rhs >  lhs));
-    ASSERTV(isRightNull  ?   (rhs >= lhs)  :   (rhs >= lhs));
+    ASSERTV( (firstNull == secondNull));
+    ASSERTV(!(firstNull != secondNull));
+    ASSERTV(!(firstNull <  secondNull));
+    ASSERTV( (firstNull <= secondNull));
+    ASSERTV(!(firstNull >  secondNull));
+    ASSERTV( (firstNull >= secondNull));
+
+    ASSERTV( (secondNull == firstNull));
+    ASSERTV(!(secondNull != firstNull));
+    ASSERTV(!(secondNull <  firstNull));
+    ASSERTV( (secondNull <= firstNull));
+    ASSERTV(!(secondNull >  firstNull));
+    ASSERTV( (secondNull >= firstNull));
 }
 
-template <class LHS_TYPE, class RHS_TYPE>
-void testRelationalOperationsInt()
-    // Test relational operations with non-null 'NullableValue' objects for
-    // types that can be constructed using integer value.
+template <class FIRST_TYPE, class SECOND_TYPE, class INIT_TYPE>
+void testRelationalOperations(const INIT_TYPE& lesserVal,
+                              const INIT_TYPE& greaterVal)
 {
-    const LHS_TYPE lhs1(1);
-    const LHS_TYPE lhs2(2);
-    const RHS_TYPE rhs1(1);
-    const RHS_TYPE rhs2(2);
+    typedef bdlb::NullableValue< FIRST_TYPE>  FIRST_NV_TYPE;
+    typedef bdlb::NullableValue<SECOND_TYPE> SECOND_NV_TYPE;
 
-    testRelationalOperations(lhs1, lhs2, rhs1, rhs2);
-}
+    testRelationalOperationsNonNull<FIRST_TYPE,    SECOND_NV_TYPE>(lesserVal,
+                                                                   greaterVal);
+    testRelationalOperationsNonNull<FIRST_NV_TYPE, SECOND_TYPE   >(lesserVal,
+                                                                   greaterVal);
+    testRelationalOperationsNonNull<FIRST_NV_TYPE, SECOND_NV_TYPE>(lesserVal,
+                                                                   greaterVal);
 
-template <class LHS_TYPE, class RHS_TYPE>
-void testRelationalOperationsStr()
-    // Test relational operations with non-null 'NullableValue' objects for
-    // types that can be constructed using c-string.
-{
-    const LHS_TYPE lhs1("");
-    const LHS_TYPE lhs2("2");
-    const RHS_TYPE rhs1("");
-    const RHS_TYPE rhs2("2");
+    testRelationalOperationsOneNull<FIRST_TYPE,  SECOND_TYPE,    INIT_TYPE>(
+                                                                    lesserVal);
+    testRelationalOperationsOneNull<FIRST_TYPE,  SECOND_NV_TYPE, INIT_TYPE>(
+                                                                    lesserVal);
+    testRelationalOperationsOneNull<SECOND_TYPE, FIRST_TYPE,     INIT_TYPE>(
+                                                                    lesserVal);
+    testRelationalOperationsOneNull<SECOND_TYPE, FIRST_NV_TYPE,  INIT_TYPE>(
+                                                                    lesserVal);
 
-    testRelationalOperations(lhs1, lhs2, rhs1, rhs2);
-}
-
-template <class LHS_TYPE, class RHS_TYPE>
-void testRelationalOperationsIntNull()
-    // Test relational operations with null 'NullableValue' objects for types
-    // that can be constructed using integer value.
-{
-    const LHS_TYPE                      lhs(1);
-    const RHS_TYPE                      rhs(1);
-    const bdlb::NullableValue<LHS_TYPE> lhsNV(lhs);
-    const bdlb::NullableValue<RHS_TYPE> rhsNV(rhs);
-    const bdlb::NullableValue<LHS_TYPE> lhsNull;
-    const bdlb::NullableValue<RHS_TYPE> rhsNull;
-
-    testRelationalOperationsNull(lhsNull, lhsNull);
-    testRelationalOperationsNull(lhsNull, rhsNull);
-    testRelationalOperationsNull(lhsNull, lhs);
-    testRelationalOperationsNull(lhsNull, rhs);
-    testRelationalOperationsNull(lhsNull, lhsNV);
-    testRelationalOperationsNull(lhsNull, rhsNV);
-
-    testRelationalOperationsNull(rhsNull, rhsNull);
-    testRelationalOperationsNull(rhsNull, lhs);
-    testRelationalOperationsNull(rhsNull, rhs);
-    testRelationalOperationsNull(rhsNull, lhsNV);
-    testRelationalOperationsNull(rhsNull, rhsNV);
-}
-
-template <class LHS_TYPE, class RHS_TYPE>
-void testRelationalOperationsStrNull()
-    // Test relational operations with null 'NullableValue' objects for types
-    // that can be constructed using c-string.
-{
-    const LHS_TYPE                      lhs("");
-    const RHS_TYPE                      rhs("");
-    const bdlb::NullableValue<LHS_TYPE> lhsNV(lhs);
-    const bdlb::NullableValue<RHS_TYPE> rhsNV(rhs);
-    const bdlb::NullableValue<LHS_TYPE> lhsNull;
-    const bdlb::NullableValue<RHS_TYPE> rhsNull;
-
-    testRelationalOperationsNull(lhsNull, lhsNull);
-    testRelationalOperationsNull(lhsNull, rhsNull);
-
-    testRelationalOperationsNull(lhsNull, lhs);
-    testRelationalOperationsNull(lhsNull, rhs);
-    testRelationalOperationsNull(lhsNull, lhsNV);
-    testRelationalOperationsNull(lhsNull, rhsNV);
-
-    testRelationalOperationsNull(rhsNull, rhsNull);
-    testRelationalOperationsNull(rhsNull, lhs);
-    testRelationalOperationsNull(rhsNull, rhs);
-    testRelationalOperationsNull(rhsNull, lhsNV);
-    testRelationalOperationsNull(rhsNull, rhsNV);
+    testRelationalOperationsBothNull<FIRST_TYPE, SECOND_TYPE>();
 }
 
 // ============================================================================
@@ -5162,7 +5188,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 26: {
+/*      case 26: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -7756,7 +7782,7 @@ int main(int argc, char *argv[])
             ASSERT(S == V.value());
         }
 
-      } break;
+      } break; */
       case 5: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY AND RELATIONAL OPERATORS
@@ -7826,12 +7852,12 @@ int main(int argc, char *argv[])
         //:   data.  For each couple, check the correctness of the return value
         //:   of all relational operators (==, !=, <, >, <=, >=).
         //:
-        //: 4 Create several objects of comparable c-string, 'bsl::string' and
-        //:   'bslstl::StringRef'.  Then create several 'bdlb::NullableValue'
-        //:   objects having the same values or null value. Loop through the
-        //:   cross product of the test data.  For each couple, check the
-        //:   correctness of the return value of all relational operators (==,
-        //:   !=, <, >, <=, >=).
+        //: 4 Create several objects of comparable 'bsl::string' and
+        //:   'bslstl::StringRef' types.  Then create several
+        //:   'bdlb::NullableValue' objects having the same values or null
+        //:   value. Loop through the cross product of the test data.  For each
+        //:   couple, check the correctness of the return value of all
+        //:   relational operators (==, !=, <, >, <=, >=).  (C-1..18)
         //
         // Testing:
         //   bool operator==(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
@@ -7860,40 +7886,28 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTesting member function comparison" << endl;
         {
-            typedef FirstMethodComparableType        M_TYPE_1;
-            typedef SecondMethodComparableType       M_TYPE_2;
-            typedef bdlb::NullableValue<M_TYPE_1> NV_M_TYPE_1;
-            typedef bdlb::NullableValue<M_TYPE_2> NV_M_TYPE_2;
+            typedef FirstMethodComparableType  M_TYPE_1;
+            typedef SecondMethodComparableType M_TYPE_2;
 
-            testRelationalOperationsIntNull<    M_TYPE_1,    M_TYPE_1 >();
-            testRelationalOperationsIntNull<    M_TYPE_1,    M_TYPE_2 >();
+            // Note that we do not test '<M_TYPE_2, M_TYPE_2, int> 'scenario
+            // because 'FirstMethodComparableType' and
+            // 'SecondMethodComparableType' are totally identical.
 
-            testRelationalOperationsInt    <    M_TYPE_1,    M_TYPE_1 >();
-            testRelationalOperationsInt    <    M_TYPE_1,    M_TYPE_2 >();
-
-            testRelationalOperationsInt    < NV_M_TYPE_1,    M_TYPE_1 >();
-            testRelationalOperationsInt    < NV_M_TYPE_1,    M_TYPE_2 >();
-            testRelationalOperationsInt    < NV_M_TYPE_1, NV_M_TYPE_1 >();
-            testRelationalOperationsInt    < NV_M_TYPE_1, NV_M_TYPE_2 >();
+            testRelationalOperations<M_TYPE_1, M_TYPE_1, int>(0, 1);
+            testRelationalOperations<M_TYPE_1, M_TYPE_2, int>(0, 1);
         }
 
         if (verbose) cout << "\tTesting free   function comparison" << endl;
         {
             typedef FirstFunctionComparableType      F_TYPE_1;
             typedef SecondFunctionComparableType     F_TYPE_2;
-            typedef bdlb::NullableValue<F_TYPE_1> NV_F_TYPE_1;
-            typedef bdlb::NullableValue<F_TYPE_2> NV_F_TYPE_2;
 
-            testRelationalOperationsIntNull<    F_TYPE_1,    F_TYPE_1 >();
-            testRelationalOperationsIntNull<    F_TYPE_1,    F_TYPE_2 >();
+            // Note that we do not test '<F_TYPE_2, F_TYPE_2, int> ' scenario
+            // because 'FirstFunctionComparableType' and
+            // 'SecondFunctionComparableType' are totally identical.
 
-            testRelationalOperationsInt    <    F_TYPE_1,    F_TYPE_1 >();
-            testRelationalOperationsInt    <    F_TYPE_1,    F_TYPE_2 >();
-
-            testRelationalOperationsInt    < NV_F_TYPE_1,    F_TYPE_1 >();
-            testRelationalOperationsInt    < NV_F_TYPE_1,    F_TYPE_2 >();
-            testRelationalOperationsInt    < NV_F_TYPE_1, NV_F_TYPE_1 >();
-            testRelationalOperationsInt    < NV_F_TYPE_1, NV_F_TYPE_2 >();
+            testRelationalOperations<F_TYPE_1, F_TYPE_1, int>(0, 1);
+            testRelationalOperations<F_TYPE_1, F_TYPE_2, int>(0, 1);
         }
 
         if (verbose) cout << "\tTesting real world examples" << endl;
@@ -7903,26 +7917,9 @@ int main(int argc, char *argv[])
             typedef int                              I_TYPE_1;
             typedef long int                         I_TYPE_2;
 
-            typedef bdlb::NullableValue<I_TYPE_1> NV_I_TYPE_1;
-            typedef bdlb::NullableValue<I_TYPE_2> NV_I_TYPE_2;
-
-            testRelationalOperationsIntNull<    I_TYPE_1,    I_TYPE_1 >();
-            testRelationalOperationsIntNull<    I_TYPE_1,    I_TYPE_2 >();
-            testRelationalOperationsIntNull<    I_TYPE_2,    I_TYPE_1 >();
-
-            testRelationalOperationsInt    <    I_TYPE_1,    I_TYPE_1 >();
-            testRelationalOperationsInt    <    I_TYPE_1,    I_TYPE_2 >();
-            testRelationalOperationsInt    <    I_TYPE_2,    I_TYPE_2 >();
-
-            testRelationalOperationsInt    < NV_I_TYPE_1,    I_TYPE_1 >();
-            testRelationalOperationsInt    < NV_I_TYPE_1,    I_TYPE_2 >();
-
-            testRelationalOperationsInt    < NV_I_TYPE_2,    I_TYPE_1 >();
-            testRelationalOperationsInt    < NV_I_TYPE_2,    I_TYPE_2 >();
-
-            testRelationalOperationsInt    < NV_I_TYPE_1, NV_I_TYPE_1 >();
-            testRelationalOperationsInt    < NV_I_TYPE_1, NV_I_TYPE_2 >();
-            testRelationalOperationsInt    < NV_I_TYPE_2, NV_I_TYPE_2 >();
+            testRelationalOperations<I_TYPE_1, I_TYPE_1 , int>(0, 1);
+            testRelationalOperations<I_TYPE_1, I_TYPE_2 , int>(0, 1);
+            testRelationalOperations<I_TYPE_2, I_TYPE_2 , int>(0, 1);
 
             // String types.
 
@@ -7930,31 +7927,45 @@ int main(int argc, char *argv[])
             typedef bslstl::StringRef                S_TYPE_2;
             typedef const char *                     S_TYPE_3;
 
-            typedef bdlb::NullableValue<S_TYPE_1> NV_S_TYPE_1;
-            typedef bdlb::NullableValue<S_TYPE_2> NV_S_TYPE_2;
+            testRelationalOperations<S_TYPE_1, S_TYPE_1, const char *>("",
+                                                                       "0");
+            testRelationalOperations<S_TYPE_1, S_TYPE_2, const char *>("",
+                                                                       "0");
+            testRelationalOperations<S_TYPE_2, S_TYPE_2, const char *>("",
+                                                                       "0");
 
-            testRelationalOperationsStrNull<    S_TYPE_1, S_TYPE_1    >();
-            testRelationalOperationsStrNull<    S_TYPE_1, S_TYPE_2    >();
-            testRelationalOperationsStrNull<    S_TYPE_2, S_TYPE_1    >();
+            // Special case.
+            //
+            // Comparison of two
+            // 'bdlb::NullableValue<const char *>' objects gives confusing
+            // results because pointers are compared instead of c-string
+            // values. So we can't use 'testRelationalOperationsNonNull'
+            // function for  the 'const char *' type (and accordingly
+            // 'testRelationalOperations' function).
+            //
+            // Some incomplete tests are added for the 'const char *' type,
+            // just to be sure, that it is possible to compare
+            // 'bdlb::NullableValue' objects of different string
+            // representations.
 
-            testRelationalOperationsStr    <    S_TYPE_1,    S_TYPE_1 >();
-            testRelationalOperationsStr    <    S_TYPE_1,    S_TYPE_2 >();
-            testRelationalOperationsStr    <    S_TYPE_1,    S_TYPE_3 >();
+            S_TYPE_1 str  = "1";
+            S_TYPE_3 cStr = "2";
 
-            testRelationalOperationsStr    <    S_TYPE_2,    S_TYPE_2 >();
-            testRelationalOperationsStr    <    S_TYPE_2,    S_TYPE_3 >();
+            bdlb::NullableValue<S_TYPE_1> strNV(str);
+            bdlb::NullableValue<S_TYPE_3> cStrNV(cStr);
 
-            testRelationalOperationsStr    < NV_S_TYPE_1,    S_TYPE_1 >();
-            testRelationalOperationsStr    < NV_S_TYPE_1,    S_TYPE_2 >();
-            testRelationalOperationsStr    < NV_S_TYPE_1,    S_TYPE_3 >();
-
-            testRelationalOperationsStr    < NV_S_TYPE_2,    S_TYPE_1 >();
-            testRelationalOperationsStr    < NV_S_TYPE_2,    S_TYPE_2 >();
-            testRelationalOperationsStr    < NV_S_TYPE_2,    S_TYPE_3 >();
-
-            testRelationalOperationsStr    < NV_S_TYPE_1, NV_S_TYPE_1 >();
-            testRelationalOperationsStr    < NV_S_TYPE_1, NV_S_TYPE_2 >();
-            testRelationalOperationsStr    < NV_S_TYPE_2, NV_S_TYPE_2 >();
+            ASSERT( ( cStr   == cStrNV ));
+            ASSERT(!( str    == cStrNV ));
+            ASSERT( ( cStrNV !=  str   ));
+            ASSERT( ( cStrNV !=  strNV ));
+            ASSERT(!( cStr   <  cStrNV ));
+            ASSERT( ( str    <  cStrNV ));
+            ASSERT(!( cStrNV <=  str   ));
+            ASSERT(!( cStrNV <=  strNV ));
+            ASSERT(!( cStr   >  cStrNV ));
+            ASSERT(!( str    >  cStrNV ));
+            ASSERT( ( cStrNV >=  str   ));
+            ASSERT( ( cStrNV >=  strNV ));
         }
       } break;
       case 4: {
