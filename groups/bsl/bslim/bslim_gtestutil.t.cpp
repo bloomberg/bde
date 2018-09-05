@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
         //:   stream.
         //
         // Plan:
-        //: 1 Stream a couple of strings to an 'ostingtream' and observe the
+        //: 1 Stream a couple of strings to an 'ostringtream' and observe the
         //:   result.
         //:
         //: 2 Set the state of the 'ostringstream' to invalid, call the
